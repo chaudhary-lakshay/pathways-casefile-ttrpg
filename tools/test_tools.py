@@ -69,39 +69,43 @@ def test_coverage_reports_every_chapter():
     assert "0.0%" in report
 
 def test_coverage_intersects_claims_with_mechanical_lines():
-    """Verify that claiming prose-only spans doesn't hide unclaimed mechanical lines elsewhere."""
+    """Verify set arithmetic detects unclaimed lines when count-based arithmetic would fail.
+
+    This is a regression test for Finding 1: the old formula
+    unclaimed = max(0, mechanical - claimed_lines) would report 0 (fully covered) when
+    claimed_lines >= mechanical, regardless of WHICH lines were claimed. We test the
+    pathological case: claim 627 lines from a different chapter under chapter 3's id.
+    Old formula would give 0 (false negative). New formula should detect all 459
+    mechanical lines are still unclaimed.
+    """
     import re as regex
     subprocess.run([sys.executable, str(ROOT / "tools" / "extract_pdf.py")], check=True)
     subprocess.run([sys.executable, str(ROOT / "tools" / "coverage.py")], capture_output=True, text=True)
 
-    # Read the global line numbering to find prose-only lines in a chapter with mechanical lines
     lines_data = json.loads((OUT / "lines.json").read_text(encoding="utf-8"))
     chapters = json.loads((OUT / "chapters.json").read_text(encoding="utf-8"))
 
-    # Find chapter 3 (Character Creation) which has mechanical lines
+    # Get chapter 3 and chapter 5 line ranges
     ch3 = next(c for c in chapters if c["id"] == "3")
-    ch3_lines = [
-        line for line in lines_data
-        if ch3["startPage"] <= line["page"] <= ch3["endPage"]
-    ]
+    ch5 = next(c for c in chapters if c["id"] == "5")
 
-    # Find first few prose-only lines (no dice, no modifiers, no costs, no attributes)
-    mechanical_pattern = regex.compile(r"\d+d[-+]?\d*|[+-]\d+\b|\d+\s*pts?\b|\bAttr[+-]\d+")
-    prose_lines = [line for line in ch3_lines if not mechanical_pattern.search(line["text"])]
+    ch5_lines = [line for line in lines_data if ch5["startPage"] <= line["page"] <= ch5["endPage"]]
 
-    assert len(prose_lines) > 0, "Chapter 3 should have prose-only lines"
+    # Pathological claim: all 627 lines from chapter 5, filed under chapter 3's id
+    # This exceeds chapter 3's mechanical count (459), triggering the count-based bug
+    claim_start = ch5_lines[0]["n"]
+    claim_end = ch5_lines[-1]["n"]
 
-    # Claim the first 5 prose lines
-    claimed_line_numbers = [prose_lines[i]["n"] for i in range(min(5, len(prose_lines)))]
-
-    # Create temporary content directory and file
+    # Track whether content_dir existed before the test
     content_dir = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
+    content_dir_existed = content_dir.exists()
+
     content_dir.mkdir(parents=True, exist_ok=True)
     temp_file = content_dir / "test_temp.json"
     temp_file.write_text(
         json.dumps({
             "sourceLines": {
-                "3": [[min(claimed_line_numbers), max(claimed_line_numbers)]]
+                "3": [[claim_start, claim_end]]
             },
             "entries": []
         }),
@@ -109,7 +113,7 @@ def test_coverage_intersects_claims_with_mechanical_lines():
     )
 
     try:
-        # Run coverage again with the test content file
+        # Run coverage with the pathological claim
         subprocess.run(
             [sys.executable, str(ROOT / "tools" / "coverage.py")],
             capture_output=True,
@@ -117,15 +121,22 @@ def test_coverage_intersects_claims_with_mechanical_lines():
         )
         report = (OUT / "coverage.md").read_text(encoding="utf-8")
 
-        # Extract the unclaimed mechanical lines count for chapter 3
-        # Format: "| 3 | Character Creation | 10-32 | X.X% | N |"
+        # Extract unclaimed count for chapter 3
         match = regex.search(r"\| 3 \| Character Creation \|.*\| (\d+) \|$", report, regex.MULTILINE)
         assert match, "Chapter 3 should be in coverage report"
         unclaimed = int(match.group(1))
 
-        # Should still have unclaimed mechanical lines since we only claimed prose
-        assert unclaimed > 0, "Claiming only prose lines should not hide unclaimed mechanical lines"
+        # With new formula: all 459 mechanical lines are unclaimed (claimed span is outside ch3)
+        # With old formula: would give max(0, 459-627) = 0 (false negative)
+        assert unclaimed > 0, (
+            f"Expected unclaimed > 0 for pathological claim, got {unclaimed}. "
+            f"Old formula would give 0. Set-based formula should detect unclaimed lines."
+        )
     finally:
         # Clean up temporary content file
         if temp_file.exists():
             temp_file.unlink()
+
+        # Remove content directory only if the test created it
+        if not content_dir_existed and content_dir.exists() and not list(content_dir.iterdir()):
+            content_dir.rmdir()
