@@ -1,0 +1,153 @@
+{
+ "name": "Hunter-Tracker",
+ "attributes": {
+  "ST": 10,
+  "DX": 9,
+  "IQ": 9,
+  "HT": 9
+ },
+ "published": {
+  "hp": 10,
+  "fp": 9,
+  "will": 9,
+  "per": 9,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 100,
+  "totalSpent": 74,
+  "unspent": 26
+ },
+ "advantages": [
+  {
+   "name": "Acute Vision",
+   "cost": 2
+  },
+  {
+   "name": "Acute Hearing",
+   "cost": 2
+  },
+  {
+   "name": "Outdoorsman 1",
+   "cost": 10
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Loner",
+   "cost": 5
+  },
+  {
+   "name": "Phobia (Cities)",
+   "cost": 10
+  },
+  {
+   "name": "Poverty: Struggling",
+   "cost": 10
+  },
+  {
+   "name": "No Sense of Humour",
+   "cost": 5
+  }
+ ],
+ "skills": [
+  {
+   "name": "Guns",
+   "specialization": "Rifle",
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Knife",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 1,
+   "publishedLevel": 9
+  },
+  {
+   "name": "Tracking",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Survival",
+   "specialization": "Woodlands",
+   "attr": "Per",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Camouflage",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Stealth",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Naturalist",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Navigation",
+   "specialization": "Land",
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 9
+  },
+  {
+   "name": "Hiking",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Animal Handling",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 9
+  },
+  {
+   "name": "Traps",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 9
+  },
+  {
+   "name": "Fishing",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 1,
+   "publishedLevel": 9
+  }
+ ]
+}

@@ -1,0 +1,129 @@
+{
+ "name": "Antiquarian Dealer",
+ "attributes": {
+  "ST": 9,
+  "DX": 9,
+  "IQ": 10,
+  "HT": 9
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 10,
+  "per": 10,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 100,
+  "totalSpent": 87,
+  "unspent": 13
+ },
+ "advantages": [
+  {
+   "name": "Versatile",
+   "cost": 5
+  },
+  {
+   "name": "Intuition",
+   "cost": 5
+  },
+  {
+   "name": "Alertness 1",
+   "cost": 5
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Greed",
+   "cost": 15
+  },
+  {
+   "name": "Curious",
+   "cost": 5
+  },
+  {
+   "name": "Stubborn",
+   "cost": 5
+  },
+  {
+   "name": "Overconfidence",
+   "cost": 5
+  }
+ ],
+ "skills": [
+  {
+   "name": "Connoisseur",
+   "specialization": "Antiques",
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Merchant",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "History",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Appraisal",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 16,
+   "publishedLevel": 13
+  },
+  {
+   "name": "Diplomacy",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": "Antique Trade",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Fast-Talk",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Smuggling",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Forgery",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 2,
+   "publishedLevel": 9
+  }
+ ]
+}

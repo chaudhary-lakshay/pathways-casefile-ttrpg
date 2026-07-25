@@ -1,0 +1,129 @@
+{
+ "name": "Underground Courier",
+ "attributes": {
+  "ST": 9,
+  "DX": 10,
+  "IQ": 9,
+  "HT": 9
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 9,
+  "per": 9,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 105,
+  "totalSpent": 97,
+  "unspent": 8
+ },
+ "advantages": [
+  {
+   "name": "Absolute Direction",
+   "cost": 5
+  },
+  {
+   "name": "Alertness 1",
+   "cost": 5
+  },
+  {
+   "name": "Fit",
+   "cost": 5
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Secret (Courier network)",
+   "cost": 10
+  },
+  {
+   "name": "Poverty: Struggling",
+   "cost": 10
+  },
+  {
+   "name": "Overconfidence",
+   "cost": 5
+  },
+  {
+   "name": "Impulsive",
+   "cost": 10
+  }
+ ],
+ "skills": [
+  {
+   "name": "Acrobatics",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "H",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Stealth",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": "Sewers",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 16,
+   "publishedLevel": 13
+  },
+  {
+   "name": "Running",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Climbing",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Fast-Talk",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Streetwise",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Urban Survival",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Gesture",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  }
+ ]
+}

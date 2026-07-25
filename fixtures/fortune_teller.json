@@ -1,0 +1,137 @@
+{
+ "name": "Fortune Teller",
+ "attributes": {
+  "ST": 9,
+  "DX": 9,
+  "IQ": 10,
+  "HT": 9
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 10,
+  "per": 10,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 90,
+  "totalSpent": 90,
+  "unspent": 0
+ },
+ "advantages": [
+  {
+   "name": "Charisma 2",
+   "cost": 1
+  },
+  {
+   "name": "Wealth: Comfortable",
+   "cost": 10
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Secret (Racist Sympathizer)",
+   "cost": 10
+  },
+  {
+   "name": "Overconfidence",
+   "cost": 5
+  },
+  {
+   "name": "Curious",
+   "cost": 5
+  }
+ ],
+ "skills": [
+  {
+   "name": "Occultism",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Savoir-Faire",
+   "specialization": "High Society",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 4,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Acting",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Fast-Talk",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Diplomacy",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Merchant",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Psychology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": "High Society",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Gambling",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Public Speaking",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Hidden Lore",
+   "specialization": "Spirits",
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  }
+ ]
+}

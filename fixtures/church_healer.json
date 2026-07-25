@@ -1,0 +1,125 @@
+{
+ "name": "Church Healer",
+ "attributes": {
+  "ST": 9,
+  "DX": 9,
+  "IQ": 11,
+  "HT": 9
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 11,
+  "per": 11,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 105,
+  "totalSpent": 102,
+  "unspent": 3
+ },
+ "advantages": [
+  {
+   "name": "Healer - +2 to all rolls to diagnose, treat, and heal; +3 to First Aid specifically; HT rolls\nto avoid or recover from disease at +2.",
+   "cost": 10
+  },
+  {
+   "name": "Resistant (Disease +3)",
+   "cost": 3
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Charity - Cannot ignore genuine need. Must roll vs. Will to avoid helping anyone\nwho asks for assistance you can reasonably provide. May be exploited.",
+   "cost": 10
+  },
+  {
+   "name": "Vow (Poverty)",
+   "cost": 10
+  },
+  {
+   "name": "Sense of Duty (Flock) - Must help/protect certain groups even at personal risk",
+   "cost": 5
+  },
+  {
+   "name": "Clueless −3 to all social skill rolls; generally miss social cues and subtlety. You do\nnot understand subtext, sarcasm, or implication",
+   "cost": 10
+  }
+ ],
+ "skills": [
+  {
+   "name": "Physician",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Diagnosis",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Surgery",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "VH",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Theology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "First Aid",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Pharmacy",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Teaching",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 1,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Meditation",
+   "specialization": null,
+   "attr": "Will",
+   "difficulty": "H",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Herbal Medicine",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "VH",
+   "points": 2,
+   "publishedLevel": 9
+  }
+ ]
+}

@@ -1,0 +1,141 @@
+{
+ "name": "University Librarian",
+ "attributes": {
+  "ST": 9,
+  "DX": 9,
+  "IQ": 10,
+  "HT": 9
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 10,
+  "per": 10,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 100,
+  "totalSpent": 91,
+  "unspent": 9
+ },
+ "advantages": [
+  {
+   "name": "Eidetic Memory",
+   "cost": 5
+  },
+  {
+   "name": "Lightning Calculator",
+   "cost": 5
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Blacklisted: Specific Industry org or church",
+   "cost": 10
+  },
+  {
+   "name": "Absent-Minded",
+   "cost": 5
+  },
+  {
+   "name": "Poverty: Struggling",
+   "cost": 5
+  },
+  {
+   "name": "No Sense of Humour",
+   "cost": 5
+  }
+ ],
+ "skills": [
+  {
+   "name": "Research",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 16,
+   "publishedLevel": 13
+  },
+  {
+   "name": "Speed-Reading",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Writing",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Literature",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Administration",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": "Academia",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Teaching",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Savoir-Faire",
+   "specialization": "Academic",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Accounting",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Hidden Lore",
+   "specialization": "Demons",
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 1,
+   "publishedLevel": 9
+  },
+  {
+   "name": "History",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 4,
+   "publishedLevel": 10
+  }
+ ]
+}

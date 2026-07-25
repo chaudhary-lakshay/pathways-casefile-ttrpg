@@ -1,0 +1,169 @@
+{
+ "name": "Nighthawk Recruit",
+ "attributes": {
+  "ST": 9,
+  "DX": 10,
+  "IQ": 10,
+  "HT": 9
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 10,
+  "per": 10,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 90,
+  "totalSpent": 76,
+  "unspent": 14
+ },
+ "advantages": [
+  {
+   "name": "Legal Enforcement Powers",
+   "cost": 5
+  },
+  {
+   "name": "Alertness 1",
+   "cost": 5
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Duty (Nighthawks)",
+   "cost": 10
+  },
+  {
+   "name": "Curious",
+   "cost": 5
+  },
+  {
+   "name": "Overconfidence",
+   "cost": 5
+  }
+ ],
+ "skills": [
+  {
+   "name": "Guns",
+   "specialization": "Pistol",
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 1,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Brawling",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 1,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Knife",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 1,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": "Backlund",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 1,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Streetwise",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Criminology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Interrogation",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Observation",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "First Aid",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 1,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Intimidation",
+   "specialization": null,
+   "attr": "Will",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Writing",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 1,
+   "publishedLevel": 9
+  },
+  {
+   "name": "Stealth",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Law",
+   "specialization": "Police",
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 1,
+   "publishedLevel": 9
+  },
+  {
+   "name": "Search",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Urban Survival",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "points": 1,
+   "publishedLevel": 9
+  }
+ ]
+}

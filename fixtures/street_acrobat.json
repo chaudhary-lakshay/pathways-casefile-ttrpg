@@ -1,0 +1,137 @@
+{
+ "name": "Street Acrobat",
+ "attributes": {
+  "ST": 9,
+  "DX": 10,
+  "IQ": 9,
+  "HT": 10
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 9,
+  "per": 9,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 5,
+  "basicMove": 5,
+  "dodge": 8,
+  "bpTotal": 100,
+  "totalSpent": 91,
+  "unspent": 9
+ },
+ "advantages": [
+  {
+   "name": "Flexibility",
+   "cost": 5
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Impulsive",
+   "cost": 10
+  },
+  {
+   "name": "Poverty: Struggling",
+   "cost": 5
+  },
+  {
+   "name": "Overconfidence",
+   "cost": 10
+  },
+  {
+   "name": "Paranoia: Bodies of water",
+   "cost": 10
+  }
+ ],
+ "skills": [
+  {
+   "name": "Acrobatics",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "H",
+   "points": 16,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Climbing",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Stealth",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Sleight of Hand",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "H",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Escape",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Streetwise",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Performance",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Fast-Talk",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Juggling",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 1,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Running",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "A",
+   "points": 1,
+   "publishedLevel": 9
+  },
+  {
+   "name": "Urban Survival",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 9
+  }
+ ]
+}

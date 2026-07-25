@@ -1,0 +1,129 @@
+{
+ "name": "Docks Bouncer",
+ "attributes": {
+  "ST": 11,
+  "DX": 9,
+  "IQ": 9,
+  "HT": 10
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 9,
+  "per": 9,
+  "spi": 9,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 100,
+  "totalSpent": 90,
+  "unspent": 10
+ },
+ "advantages": [
+  {
+   "name": "Hard to Kill 1",
+   "cost": 2
+  },
+  {
+   "name": "Fit",
+   "cost": 5
+  },
+  {
+   "name": "Alertness 1",
+   "cost": 5
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Overconfidence",
+   "cost": 5
+  },
+  {
+   "name": "Callous",
+   "cost": 5
+  },
+  {
+   "name": "Poverty: Struggling",
+   "cost": 10
+  },
+  {
+   "name": "Bully",
+   "cost": 10
+  }
+ ],
+ "skills": [
+  {
+   "name": "Brawling",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Wrestling",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Knife",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Intimidation",
+   "specialization": null,
+   "attr": "Will",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Streetwise",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Carousing",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "E",
+   "points": 4,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": "Docks",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Forced Entry",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Lifting",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  }
+ ]
+}

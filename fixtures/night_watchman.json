@@ -1,0 +1,125 @@
+{
+ "name": "Night Watchman",
+ "attributes": {
+  "ST": 10,
+  "DX": 9,
+  "IQ": 9,
+  "HT": 10
+ },
+ "published": {
+  "hp": 10,
+  "fp": 10,
+  "will": 9,
+  "per": 9,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 95,
+  "totalSpent": 95,
+  "unspent": 0
+ },
+ "advantages": [
+  {
+   "name": "Night Eyes",
+   "cost": 5
+  },
+  {
+   "name": "Alertness 1",
+   "cost": 5
+  },
+  {
+   "name": "Fit",
+   "cost": 5
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Laziness",
+   "cost": 10
+  },
+  {
+   "name": "Poverty: Struggling",
+   "cost": 10
+  },
+  {
+   "name": "Stubborn",
+   "cost": 5
+  }
+ ],
+ "skills": [
+  {
+   "name": "Brawling",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Guns",
+   "specialization": "Pistol",
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Observation",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "points": 16,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Running",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": "Neighbourhood",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Stealth",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Hiking",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "First Aid",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Intimidation",
+   "specialization": null,
+   "attr": "Will",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  }
+ ]
+}

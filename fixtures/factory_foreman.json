@@ -1,0 +1,141 @@
+{
+ "name": "Factory Foreman",
+ "attributes": {
+  "ST": 10,
+  "DX": 9,
+  "IQ": 9,
+  "HT": 11
+ },
+ "published": {
+  "hp": 10,
+  "fp": 10,
+  "will": 9,
+  "per": 9,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 5,
+  "basicMove": 5,
+  "dodge": 8,
+  "bpTotal": 100,
+  "totalSpent": 99,
+  "unspent": 1
+ },
+ "advantages": [
+  {
+   "name": "Fit",
+   "cost": 5
+  },
+  {
+   "name": "Hard to Kill 1",
+   "cost": 2
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Bad Temper",
+   "cost": 10
+  },
+  {
+   "name": "Sense of Duty (Workers)",
+   "cost": 10
+  },
+  {
+   "name": "Stubborn",
+   "cost": 5
+  },
+  {
+   "name": "Workaholic",
+   "cost": 5
+  }
+ ],
+ "skills": [
+  {
+   "name": "Brawling",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Leadership",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Mechanic",
+   "specialization": "Steam",
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Intimidation",
+   "specialization": null,
+   "attr": "Will",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": "Factory",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Accounting",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Carousing",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 12
+  },
+  {
+   "name": "First Aid",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Savoir-Faire",
+   "specialization": "Worker",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Engineer",
+   "specialization": "Steam",
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 4,
+   "publishedLevel": 9
+  },
+  {
+   "name": "Smuggling",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 9
+  }
+ ]
+}

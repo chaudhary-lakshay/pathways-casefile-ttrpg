@@ -1,0 +1,153 @@
+{
+ "name": "Private Investigator",
+ "attributes": {
+  "ST": 9,
+  "DX": 9,
+  "IQ": 10,
+  "HT": 9
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 10,
+  "per": 10,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 95,
+  "totalSpent": 87,
+  "unspent": 8
+ },
+ "advantages": [
+  {
+   "name": "Single-Minded",
+   "cost": 5
+  },
+  {
+   "name": "Versatile",
+   "cost": 5
+  },
+  {
+   "name": "Alertness 1",
+   "cost": 5
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Curious",
+   "cost": 5
+  },
+  {
+   "name": "Workaholic",
+   "cost": 5
+  },
+  {
+   "name": "Poverty: Struggling",
+   "cost": 10
+  },
+  {
+   "name": "Stubborn",
+   "cost": 5
+  }
+ ],
+ "skills": [
+  {
+   "name": "Guns",
+   "specialization": "Pistol",
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Observation",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "points": 16,
+   "publishedLevel": 13
+  },
+  {
+   "name": "Streetwise",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Detect Lies",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Research",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Criminology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Fast-Talk",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": "City",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Disguise",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Writing",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Shadowing",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Lockpicking",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 9
+  }
+ ]
+}

@@ -1,0 +1,129 @@
+{
+ "name": "Apothecary",
+ "attributes": {
+  "ST": 9,
+  "DX": 9,
+  "IQ": 10,
+  "HT": 9
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 10,
+  "per": 10,
+  "spi": 9,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 105,
+  "totalSpent": 105,
+  "unspent": 0
+ },
+ "advantages": [
+  {
+   "name": "Healer",
+   "cost": 10
+  },
+  {
+   "name": "Empathy",
+   "cost": 15
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Sense of Duty (Patients)",
+   "cost": 10
+  },
+  {
+   "name": "Pacifism (Cannot Harm Innocents)",
+   "cost": 10
+  },
+  {
+   "name": "Pacifism (Cannot Kill)",
+   "cost": 15
+  }
+ ],
+ "skills": [
+  {
+   "name": "Pharmacy",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Physician",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 16,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Diagnosis",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Herbal Medicine",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "VH",
+   "points": 8,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Chemistry",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "First Aid",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 4,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Research",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Surgery",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "VH",
+   "points": 8,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Cooking",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 1,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Teaching",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 1,
+   "publishedLevel": 9
+  }
+ ]
+}

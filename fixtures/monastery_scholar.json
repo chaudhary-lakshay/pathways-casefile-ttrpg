@@ -1,0 +1,121 @@
+{
+ "name": "Monastery Scholar",
+ "attributes": {
+  "ST": 9,
+  "DX": 9,
+  "IQ": 10,
+  "HT": 9
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 10,
+  "per": 10,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 100,
+  "totalSpent": 99,
+  "unspent": 1
+ },
+ "advantages": [
+  {
+   "name": "Sanctity - Your connection to the divine is unusually clear. +2 to Theology and\nReligious Ritual; once per session, the GM must answer one factual\nquestion about Church doctrine or history honestly.",
+   "cost": 5
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Vow (Partial Silence)",
+   "cost": 5
+  },
+  {
+   "name": "Clueless −3 to all social skill rolls; generally miss social cues and subtlety. You do\nnot understand subtext, sarcasm, or implication.",
+   "cost": 10
+  },
+  {
+   "name": "Poverty: Struggling",
+   "cost": 10
+  },
+  {
+   "name": "Vow (Vegetarian)",
+   "cost": 5
+  }
+ ],
+ "skills": [
+  {
+   "name": "Theology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 16,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Research",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Writing",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "History",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Meditation",
+   "specialization": null,
+   "attr": "Will",
+   "difficulty": "H",
+   "points": 16,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Philosophy",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 2,
+   "publishedLevel": 9
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": "Monastery",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Hidden Lore",
+   "specialization": "Demons",
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Teaching",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  }
+ ]
+}

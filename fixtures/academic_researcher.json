@@ -1,0 +1,137 @@
+{
+ "name": "Academic Researcher",
+ "attributes": {
+  "ST": 9,
+  "DX": 9,
+  "IQ": 10,
+  "HT": 9
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 10,
+  "per": 10,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 100,
+  "totalSpent": 91,
+  "unspent": 9
+ },
+ "advantages": [
+  {
+   "name": "Single-Minded",
+   "cost": 5
+  },
+  {
+   "name": "Eidetic Memory",
+   "cost": 5
+  },
+  {
+   "name": "Lightning Calculator",
+   "cost": 5
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Skinny",
+   "cost": 5
+  },
+  {
+   "name": "Shyness (Mild)",
+   "cost": 5
+  },
+  {
+   "name": "Wealth: Poor",
+   "cost": 15
+  },
+  {
+   "name": "Absent-Minded",
+   "cost": 5
+  }
+ ],
+ "skills": [
+  {
+   "name": "Research",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 16,
+   "publishedLevel": 13
+  },
+  {
+   "name": "Writing",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "History",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Occultism",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Hidden Lore",
+   "specialization": "Fae",
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Literature",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": "Library",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Public Speaking",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Mathematics",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 2,
+   "publishedLevel": 9
+  },
+  {
+   "name": "Cryptography",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 2,
+   "publishedLevel": 9
+  }
+ ]
+}

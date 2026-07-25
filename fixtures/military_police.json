@@ -1,0 +1,133 @@
+{
+ "name": "Military Police",
+ "attributes": {
+  "ST": 10,
+  "DX": 10,
+  "IQ": 9,
+  "HT": 10
+ },
+ "published": {
+  "hp": 10,
+  "fp": 10,
+  "will": 9,
+  "per": 9,
+  "spi": 9,
+  "cor": 0,
+  "basicSpeed": 5,
+  "basicMove": 5,
+  "dodge": 8,
+  "bpTotal": 95,
+  "totalSpent": 94,
+  "unspent": 1
+ },
+ "advantages": [
+  {
+   "name": "Combat Reflexes",
+   "cost": 15
+  },
+  {
+   "name": "Legal Enforcement Powers",
+   "cost": 5
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Duty (Regiment)",
+   "cost": 10
+  },
+  {
+   "name": "Stubborn",
+   "cost": 5
+  },
+  {
+   "name": "Code of Honor",
+   "cost": 5
+  },
+  {
+   "name": "Overconfidence",
+   "cost": 5
+  }
+ ],
+ "skills": [
+  {
+   "name": "Guns",
+   "specialization": "Rifle",
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 4,
+   "publishedLevel": 12
+  },
+  {
+   "name": "Shortsword",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Brawling",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Intimidation",
+   "specialization": null,
+   "attr": "Will",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Law",
+   "specialization": "Military",
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Observation",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "First Aid",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Criminology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 9
+  },
+  {
+   "name": "Interrogation",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 9
+  },
+  {
+   "name": "Hiking",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  }
+ ]
+}

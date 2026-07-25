@@ -1,0 +1,26 @@
+{
+ "name": "LOTM Blank Character Sheet",
+ "attributes": {
+  "ST": 9,
+  "DX": 9,
+  "IQ": 9,
+  "HT": 9
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 9,
+  "per": 9,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 0,
+  "totalSpent": 0,
+  "unspent": null
+ },
+ "advantages": [],
+ "disadvantages": [],
+ "skills": []
+}

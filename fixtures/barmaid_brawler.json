@@ -1,0 +1,129 @@
+{
+ "name": "Barmaid Brawler",
+ "attributes": {
+  "ST": 10,
+  "DX": 9,
+  "IQ": 9,
+  "HT": 10
+ },
+ "published": {
+  "hp": 10,
+  "fp": 10,
+  "will": 9,
+  "per": 9,
+  "spi": 9,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 95,
+  "totalSpent": 82,
+  "unspent": 13
+ },
+ "advantages": [
+  {
+   "name": "High Pain Threshold",
+   "cost": 10
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Overconfidence",
+   "cost": 5
+  },
+  {
+   "name": "Sense of Duty (Friends)",
+   "cost": 5
+  },
+  {
+   "name": "Poverty: Struggling",
+   "cost": 10
+  },
+  {
+   "name": "Callous",
+   "cost": 5
+  }
+ ],
+ "skills": [
+  {
+   "name": "Brawling",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 16,
+   "publishedLevel": 13
+  },
+  {
+   "name": "Knife",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Wrestling",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Carousing",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "E",
+   "points": 8,
+   "publishedLevel": 13
+  },
+  {
+   "name": "Savoir-Faire",
+   "specialization": "Servant",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Intimidation",
+   "specialization": null,
+   "attr": "Will",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Streetwise",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": "Neighbourhood",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Forced Entry",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Gesture",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 2,
+   "publishedLevel": 10
+  }
+ ]
+}

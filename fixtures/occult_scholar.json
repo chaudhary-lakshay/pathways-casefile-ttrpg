@@ -1,0 +1,141 @@
+{
+ "name": "Occult Scholar",
+ "attributes": {
+  "ST": 9,
+  "DX": 9,
+  "IQ": 10,
+  "HT": 9
+ },
+ "published": {
+  "hp": 9,
+  "fp": 9,
+  "will": 10,
+  "per": 10,
+  "spi": 0,
+  "cor": 0,
+  "basicSpeed": 4,
+  "basicMove": 4,
+  "dodge": 7,
+  "bpTotal": 100,
+  "totalSpent": 91,
+  "unspent": 9
+ },
+ "advantages": [
+  {
+   "name": "Eidetic Memory",
+   "cost": 5
+  },
+  {
+   "name": "Language Talent",
+   "cost": 10
+  }
+ ],
+ "disadvantages": [
+  {
+   "name": "Curious",
+   "cost": 5
+  },
+  {
+   "name": "Unfit",
+   "cost": 5
+  },
+  {
+   "name": "Wealth: Poor",
+   "cost": 15
+  },
+  {
+   "name": "Absent-Minded",
+   "cost": 5
+  }
+ ],
+ "skills": [
+  {
+   "name": "Occultism",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 16,
+   "publishedLevel": 13
+  },
+  {
+   "name": "Research",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 8,
+   "publishedLevel": 12
+  },
+  {
+   "name": "History",
+   "specialization": "Occult",
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 8,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Hidden Lore",
+   "specialization": "Spirits",
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Writing",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "First Aid",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 1,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Diagnosis",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "points": 4,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": "Academia",
+   "attr": "IQ",
+   "difficulty": "E",
+   "points": 1,
+   "publishedLevel": 10
+  },
+  {
+   "name": "Literature",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 4,
+   "publishedLevel": 11
+  },
+  {
+   "name": "Alchemy",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "VH",
+   "points": 4,
+   "publishedLevel": 9
+  },
+  {
+   "name": "Public Speaking",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "points": 2,
+   "publishedLevel": 10
+  }
+ ]
+}
