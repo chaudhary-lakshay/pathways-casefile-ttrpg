@@ -15,3 +15,9 @@ dependencies {
 }
 
 tasks.test { useJUnitPlatform() }
+
+sourceSets {
+    named("test") {
+        resources.srcDir(rootProject.layout.projectDirectory.dir("fixtures"))
+    }
+}
