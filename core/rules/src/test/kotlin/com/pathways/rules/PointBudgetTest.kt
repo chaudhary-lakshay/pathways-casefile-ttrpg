@@ -1,0 +1,80 @@
+package com.pathways.rules
+
+import com.pathways.model.*
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import org.junit.jupiter.api.Test
+
+class PointBudgetTest {
+
+    private fun adv(n: String, c: Int) = Trait(n, c, TraitKind.ADVANTAGE)
+    private fun dis(n: String, c: Int) = Trait(n, c, TraitKind.DISADVANTAGE)
+    private fun quirk(n: String) = Trait(n, 1, TraitKind.QUIRK)
+
+    @Test
+    fun `Occult Scholar balances exactly as published`() {
+        val r = PointBudget.report(
+            attributes = Attributes(st = 9, dx = 9, iq = 10, ht = 9),
+            secondaryDelta = SecondaryDelta(),
+            traits = listOf(
+                adv("Eidetic Memory", 5), adv("Language Talent", 10),
+                dis("Curious", 5), dis("Unfit", 5),
+                dis("Wealth: Poor", 15), dis("Absent-Minded", 5),
+            ),
+            skills = listOf(
+                PurchasedSkill(SkillKey("Occultism", null, Attr.IQ, Difficulty.AVERAGE), 16),
+                PurchasedSkill(SkillKey("Research", null, Attr.IQ, Difficulty.AVERAGE), 8),
+                PurchasedSkill(SkillKey("History", "Occult", Attr.IQ, Difficulty.HARD), 8),
+                PurchasedSkill(SkillKey("Hidden Lore", "Spirits", Attr.IQ, Difficulty.AVERAGE), 4),
+                PurchasedSkill(SkillKey("Writing", null, Attr.IQ, Difficulty.AVERAGE), 4),
+                PurchasedSkill(SkillKey("First Aid", null, Attr.IQ, Difficulty.EASY), 1),
+                PurchasedSkill(SkillKey("Diagnosis", null, Attr.IQ, Difficulty.HARD), 4),
+                PurchasedSkill(SkillKey("Area Knowledge", "Academia", Attr.IQ, Difficulty.EASY), 1),
+                PurchasedSkill(SkillKey("Literature", null, Attr.IQ, Difficulty.AVERAGE), 4),
+                PurchasedSkill(SkillKey("Alchemy", null, Attr.IQ, Difficulty.VERY_HARD), 4),
+                PurchasedSkill(SkillKey("Public Speaking", null, Attr.IQ, Difficulty.AVERAGE), 2),
+            ),
+        )
+        assertEquals(100, r.budget)     // 70 + 30 disadvantages
+        assertEquals(91, r.spent)       // 20 attributes + 15 advantages + 56 skills
+        assertEquals(9, r.surplus)
+        assertTrue(r.violations.isEmpty())
+    }
+
+    @Test
+    fun `disadvantages are capped at forty points`() {
+        val r = PointBudget.report(
+            Attributes(), SecondaryDelta(), listOf(dis("A", 30), dis("B", 30)), emptyList(),
+        )
+        assertEquals(110, r.budget)     // 70 + min(60, 40)
+        assertTrue(r.violations.any { it.contains("Disadvantages") })
+    }
+
+    @Test
+    fun `quirks have their own separate five point cap`() {
+        val r = PointBudget.report(
+            Attributes(), SecondaryDelta(), List(7) { quirk("quirk $it") }, emptyList(),
+        )
+        assertEquals(75, r.budget)      // 70 + min(7, 5)
+        assertTrue(r.violations.any { it.contains("Quirks") })
+    }
+
+    @Test
+    fun `surplus is legal - a character need not spend everything`() {
+        val r = PointBudget.report(Attributes(), SecondaryDelta(), emptyList(), emptyList())
+        assertEquals(70, r.budget)
+        assertEquals(0, r.spent)
+        assertEquals(70, r.surplus)
+        assertTrue(r.violations.isEmpty())
+    }
+
+    @Test
+    fun `overspending is a violation`() {
+        val r = PointBudget.report(
+            Attributes(iq = 12), SecondaryDelta(), emptyList(), emptyList(),
+        )
+        assertEquals(140, r.spent)      // 20 + 40 + 80
+        assertEquals(-70, r.surplus)
+        assertTrue(r.violations.any { it.contains("Overspent") })
+    }
+}
