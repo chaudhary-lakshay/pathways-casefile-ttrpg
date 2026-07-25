@@ -81,7 +81,7 @@ class SecondaryCharacteristicsTest {
         // The two differ, so this test catches a regression from floorDiv to /.
         val s = SecondaryCharacteristics.of(baseline, SecondaryDelta(basicSpeedQuarters = -25))
         assertEquals(-7, s.basicSpeedQuarters)
-        assertEquals(-2, s.basicMove)   // floor(4.75) = -2, plus no delta
+        assertEquals(-2, s.basicMove)   // floor(-1.75) = -2, plus no delta
         assertEquals(1, s.dodge)         // -2 + 3 = 1
     }
 }

@@ -77,4 +77,18 @@ class PointBudgetTest {
         assertEquals(-70, r.surplus)
         assertTrue(r.violations.any { it.contains("Overspent") })
     }
+
+    @Test
+    fun `secondary characteristic purchases are billed against the budget`() {
+        // SecondaryCharacteristics.costOf(SecondaryDelta(hp = 2)) = 2 * COST_HP = 2 * 2 = 4.
+        // Attributes() is all-9 baseline, so AttributeCosts.totalCost = 0.
+        // No traits or skills, so budget = 70 and the only spend is the secondary delta.
+        val r = PointBudget.report(
+            Attributes(), SecondaryDelta(hp = 2), emptyList(), emptyList(),
+        )
+        assertEquals(70, r.budget)
+        assertEquals(4, r.spent)        // 0 attributes + 4 secondary (hp+2) + 0 advantages + 0 skills
+        assertEquals(66, r.surplus)
+        assertTrue(r.violations.isEmpty())
+    }
 }

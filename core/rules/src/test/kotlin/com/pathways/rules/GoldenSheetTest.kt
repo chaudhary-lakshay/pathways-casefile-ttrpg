@@ -19,6 +19,16 @@ class GoldenSheetTest {
         assertEquals(23, Fixtures.all().size)
     }
 
+    @Test
+    fun `the oracle covers every published skill and playable sheet`() {
+        // Pins the oracle's stated size (spec: "232/232 skill target numbers"
+        // across 22 playable sheets) so a future extractor change that
+        // silently emits skills: [] for a sheet cannot shrink playable()
+        // and still leave every @TestFactory suite above green.
+        assertEquals(22, playable().size, "expected 22 playable sheets")
+        assertEquals(232, playable().sumOf { it.skills.size }, "expected 232 skills across all playable sheets")
+    }
+
     @TestFactory
     fun `every published skill level is reproduced`(): List<DynamicTest> =
         playable().map { f ->

@@ -2,6 +2,7 @@ package com.pathways.rules
 
 import com.pathways.model.Attributes
 import com.pathways.model.SecondaryDelta
+import java.util.Locale
 
 /** Computed secondary characteristics. Never persisted — spec 3.2. */
 data class Secondaries(
@@ -14,7 +15,7 @@ data class Secondaries(
     val dodge: Int,
 ) {
     /** For display only. The engine never computes on this. */
-    val basicSpeed: String get() = "%.2f".format(basicSpeedQuarters / 4.0)
+    val basicSpeed: String get() = String.format(Locale.ROOT, "%.2f", basicSpeedQuarters / 4.0)
 }
 
 object SecondaryCharacteristics {

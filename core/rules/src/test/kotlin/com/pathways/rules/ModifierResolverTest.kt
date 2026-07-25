@@ -116,4 +116,30 @@ class ModifierResolverTest {
         )
         assertEquals(12, ModifierResolver.resolve(12, listOf(elsewhere), target, ctx).value)
     }
+
+    @Test
+    fun `an inactive superseder does not suppress the modifier it names`() {
+        // Seq 9 grants +1 unconditionally. Seq 8's "SetTo +2" only applies at
+        // night and supersedes Seq 9. During the day, Seq 8 is inactive, so
+        // it must not suppress Seq 9: 12 + 1 = 13.
+        val dayCtx = Context(isNight = false, isDarkness = false)
+        val seq9 = mod("seq9-flat", ModEffect.Flat(1), Layer.POTION)
+        val seq8 = mod(
+            "seq8-setto", ModEffect.SetTo(2), Layer.POTION,
+            supersedes = "seq9-flat", condition = Condition.AtNight,
+        )
+        assertEquals(13, ModifierResolver.resolve(12, listOf(seq9, seq8), target, dayCtx).value)
+    }
+
+    @Test
+    fun `a superseder aimed at another target does not suppress across targets`() {
+        val seq9 = mod("seq9-general", ModEffect.Flat(1), Layer.POTION)
+        val seq8ForSkill = Modifier(
+            id = ModifierId("seq8-skill"), source = ModifierSource.Situational("seq8-skill"),
+            target = ModTarget.Skill(SkillKey("Stealth", null, Attr.DX, Difficulty.AVERAGE)),
+            effect = ModEffect.SetTo(2), layer = Layer.POTION,
+            supersedes = ModifierId("seq9-general"),
+        )
+        assertEquals(13, ModifierResolver.resolve(12, listOf(seq9, seq8ForSkill), target, ctx).value)
+    }
 }

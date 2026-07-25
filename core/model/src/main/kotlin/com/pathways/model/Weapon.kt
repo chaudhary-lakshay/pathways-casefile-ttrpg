@@ -11,5 +11,4 @@ data class Weapon(
     val name: String,
     val skill: SkillKey,
     val parryMod: Int? = 0,
-    val unbalanced: Boolean = false,
 )

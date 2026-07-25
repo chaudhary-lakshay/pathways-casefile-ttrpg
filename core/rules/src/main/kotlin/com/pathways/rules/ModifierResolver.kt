@@ -19,10 +19,12 @@ data class Resolution(
 object ModifierResolver {
 
     fun resolve(base: Int, mods: List<Modifier>, target: ModTarget, ctx: Context): Resolution {
-        val superseded = mods.mapNotNull { it.supersedes }.toSet()
-        val live = mods.filter {
-            it.target == target && it.id !in superseded && matches(it.condition, ctx)
-        }
+        // Only modifiers that are themselves active (right target, condition
+        // holds) can supersede anything - an inactive or off-target
+        // "superseder" must not delete the modifier it names.
+        val activeForTarget = mods.filter { it.target == target && matches(it.condition, ctx) }
+        val superseded = activeForTarget.mapNotNull { it.supersedes }.toSet()
+        val live = activeForTarget.filter { it.id !in superseded }
 
         var value = base
         var forbidden = false

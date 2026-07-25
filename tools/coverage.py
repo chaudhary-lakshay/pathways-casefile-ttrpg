@@ -55,8 +55,8 @@ def main() -> int:
         ch_start = ch["startPage"]
         ch_end = ch["endPage"]
         ch_lines = [
-            (i, gl["text"])
-            for i, gl in enumerate(global_lines, 1)
+            (gl["n"], gl["text"])
+            for gl in global_lines
             if ch_start <= gl["page"] <= ch_end
         ]
 

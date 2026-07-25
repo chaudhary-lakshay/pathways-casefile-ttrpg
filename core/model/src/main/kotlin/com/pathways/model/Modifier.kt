@@ -47,7 +47,9 @@ sealed interface ModTarget {
 sealed interface ModEffect {
     @Serializable data class Flat(val n: Int) : ModEffect
     @Serializable data class Scale(val num: Int, val den: Int) : ModEffect
+    /** WARNING: ModifierResolver currently sums SetTo effects rather than assigning them, so correctness depends entirely on a supersedes link that nothing enforces at the type level. Two live SetTo modifiers in the same layer and group will add together instead of the later one replacing the earlier one. */
     @Serializable data class SetTo(val n: Int) : ModEffect
+    /** WARNING: ModifierResolver currently computes this effect's penalty budget by scanning raw Flat values in the live modifier list, rather than the post-cap contribution actually applied. This means it bypasses StackGroup caps and ignores Decay/Scale/SetTo penalties entirely. Measured: four Flat(-3) modifiers in a cap=2 StackGroup contribute -2 to the total, but Cancel(12) still adds +12 based on the raw -12 sum, turning a penalty into a bonus. Must be fixed before any content uses Cancel. */
     @Serializable data class Cancel(val upTo: Int, val of: SourceKind) : ModEffect
     @Serializable data class Decay(val from: Int, val perTurn: Int) : ModEffect
     @Serializable data object Forbid : ModEffect
@@ -69,6 +71,7 @@ sealed interface Scope {
     @Serializable data class Area(val radiusYards: Int) : Scope
 }
 
+/** Declared but not yet enforced by the resolver — nothing currently expires a modifier when its Duration elapses. */
 @Serializable
 sealed interface Duration {
     @Serializable data object Permanent : Duration
