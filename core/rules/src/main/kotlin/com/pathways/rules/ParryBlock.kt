@@ -12,13 +12,13 @@ enum class UnarmedStyle { BRAWLING, BOXING, WRESTLING }
 object ParryBlock {
 
     fun parryFor(weapon: Weapon, skillLevel: Int): Int? =
-        weapon.parryMod?.let { mod -> skillLevel / 2 + 3 + mod }
+        weapon.parryMod?.let { mod -> Math.floorDiv(skillLevel, 2) + 3 + mod }
 
     fun unarmedParry(style: UnarmedStyle, skillLevel: Int): Int = when (style) {
-        UnarmedStyle.BRAWLING, UnarmedStyle.BOXING -> skillLevel / 2 + 3
+        UnarmedStyle.BRAWLING, UnarmedStyle.BOXING -> Math.floorDiv(skillLevel, 2) + 3
         // The -3 sits inside the halving, so this is not the same as subtracting 3 at the end.
-        UnarmedStyle.WRESTLING -> (skillLevel - 3) / 2 + 3
+        UnarmedStyle.WRESTLING -> Math.floorDiv(skillLevel - 3, 2) + 3
     }
 
-    fun blockFor(shieldSkillLevel: Int, shieldDb: Int): Int = shieldSkillLevel / 2 + 3 + shieldDb
+    fun blockFor(shieldSkillLevel: Int, shieldDb: Int): Int = Math.floorDiv(shieldSkillLevel, 2) + 3 + shieldDb
 }

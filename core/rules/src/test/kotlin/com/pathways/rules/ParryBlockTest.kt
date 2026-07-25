@@ -47,4 +47,13 @@ class ParryBlockTest {
             .map { ParryBlock.parryFor(it, 12) }
         assertEquals(listOf(8, null), parries)
     }
+
+    @Test
+    fun `parry floors rather than truncates below zero`() {
+        // When skill < 3 in Wrestling, the numerator (skillLevel - 3) goes negative.
+        // Math.floorDiv(-1, 2) = -1 (floors toward negative infinity)
+        // But plain / in Kotlin truncates toward zero: -1 / 2 = 0
+        // Working: skill 2 WRESTLING: (2 - 3) / 2 + 3 = (-1) / 2 + 3 = -1 + 3 = 2 (with floorDiv)
+        assertEquals(2, ParryBlock.unarmedParry(UnarmedStyle.WRESTLING, 2))
+    }
 }
