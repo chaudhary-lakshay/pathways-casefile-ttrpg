@@ -1,0 +1,103 @@
+package com.pathways.model
+
+import kotlinx.serialization.Serializable
+
+@JvmInline @Serializable value class ModifierId(val value: String)
+
+@Serializable
+data class StackGroup(val name: String, val cap: Int)
+
+@Serializable
+enum class SourceKind { POTION, ADVANTAGE, DISADVANTAGE, EQUIPMENT, SITUATIONAL, STATE }
+
+@Serializable
+sealed interface ModifierSource {
+    val kind: SourceKind
+
+    @Serializable data class Potion(val pathway: String, val sequence: Int) : ModifierSource {
+        override val kind get() = SourceKind.POTION
+    }
+    @Serializable data class FromTrait(val name: String, val advantage: Boolean) : ModifierSource {
+        override val kind get() = if (advantage) SourceKind.ADVANTAGE else SourceKind.DISADVANTAGE
+    }
+    @Serializable data class Equipment(val name: String) : ModifierSource {
+        override val kind get() = SourceKind.EQUIPMENT
+    }
+    @Serializable data class Situational(val description: String) : ModifierSource {
+        override val kind get() = SourceKind.SITUATIONAL
+    }
+    @Serializable data class StateThreshold(val tracker: String) : ModifierSource {
+        override val kind get() = SourceKind.STATE
+    }
+}
+
+@Serializable
+sealed interface ModTarget {
+    @Serializable data class Attribute(val a: Attr) : ModTarget
+    @Serializable data class Skill(val key: SkillKey) : ModTarget
+    @Serializable data class RollClass(val tag: String) : ModTarget
+    @Serializable data object AllRolls : ModTarget
+    @Serializable data class Damage(val slot: String) : ModTarget
+    @Serializable data class Cost(val pool: String) : ModTarget
+    @Serializable data object RequiredMargin : ModTarget
+    // Deliberately NO Derived case — spec 4.2.
+}
+
+@Serializable
+sealed interface ModEffect {
+    @Serializable data class Flat(val n: Int) : ModEffect
+    @Serializable data class Scale(val num: Int, val den: Int) : ModEffect
+    @Serializable data class SetTo(val n: Int) : ModEffect
+    @Serializable data class Cancel(val upTo: Int, val of: SourceKind) : ModEffect
+    @Serializable data class Decay(val from: Int, val perTurn: Int) : ModEffect
+    @Serializable data object Forbid : ModEffect
+    @Serializable data object RequireCrit : ModEffect
+}
+
+/** Resolution order. Never a flat sum across layers. */
+@Serializable
+enum class Layer {
+    BASE, POTION, ADVANTAGE, EQUIPMENT, SITUATIONAL,
+    STATE_THRESHOLD, COUNTERMEASURE, COUNTER_COUNTER, BURN
+}
+
+@Serializable
+sealed interface Scope {
+    @Serializable data object Self : Scope
+    @Serializable data class Ally(val radiusYards: Int) : Scope
+    @Serializable data object Enemy : Scope
+    @Serializable data class Area(val radiusYards: Int) : Scope
+}
+
+@Serializable
+sealed interface Duration {
+    @Serializable data object Permanent : Duration
+    @Serializable data class Turns(val n: Int) : Duration
+    @Serializable data class Minutes(val n: Int) : Duration
+    @Serializable data object Scene : Duration
+}
+
+/** A data ADT, not a lambda, so new chapters stay data rather than code. */
+@Serializable
+sealed interface Condition {
+    @Serializable data object Always : Condition
+    @Serializable data object AtNight : Condition
+    @Serializable data object InDarkness : Condition
+    @Serializable data class AgainstLowerSequence(val delta: Int) : Condition
+    @Serializable data class All(val of: List<Condition>) : Condition
+    @Serializable data class Any(val of: List<Condition>) : Condition
+}
+
+@Serializable
+data class Modifier(
+    val id: ModifierId,
+    val source: ModifierSource,
+    val target: ModTarget,
+    val effect: ModEffect,
+    val layer: Layer,
+    val group: StackGroup? = null,
+    val supersedes: ModifierId? = null,
+    val scope: Scope = Scope.Self,
+    val duration: Duration = Duration.Permanent,
+    val condition: Condition = Condition.Always,
+)
