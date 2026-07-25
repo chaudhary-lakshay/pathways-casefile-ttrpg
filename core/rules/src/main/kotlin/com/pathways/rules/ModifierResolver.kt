@@ -59,10 +59,17 @@ object ModifierResolver {
      * null, Cancel effects are skipped entirely - this is how the shadow pass
      * (see [resolve]) measures penalties without ever referencing Cancel itself.
      *
-     * Every negative contribution actually applied by a non-Cancel effect - post
-     * StackGroup cap, post SetTo-override - is recorded into [penaltyLedger],
-     * keyed by the contributing modifier's SourceKind. That ledger is what the
-     * real pass's [cancelBudget] gets seeded from.
+     * Every negative contribution actually applied by a non-Cancel, non-Scale
+     * effect - post StackGroup cap, post SetTo-override - is recorded into
+     * [penaltyLedger], keyed by the contributing modifier's SourceKind. That
+     * ledger is what the real pass's [cancelBudget] gets seeded from. Scale is
+     * deliberately excluded: its delta (`scaled - before`) is a function of the
+     * running `value` at the point it runs, which differs between the shadow
+     * pass (Cancel disabled) and the real pass (Cancel possibly already
+     * restored an earlier penalty) whenever a Scale sits downstream of a
+     * Cancel - recording it would seed the real pass's budget from a delta
+     * measured against the wrong base. See [ModEffect.Cancel]'s KDoc: a
+     * Scale-delivered penalty is simply not cancellable.
      *
      * [contributions], when non-null (the real pass only — see [resolve]), is
      * appended with one [Contribution] per nonzero-delta step, in application
@@ -83,6 +90,9 @@ object ModifierResolver {
      *     produce (`scaled - before`), not the multiplier itself. This is only
      *     exercised (and only correct) for a *grouped* Scale, which always
      *     floors/caps immediately — see the "Scale composition" note below.
+     *     Note this delta is never fed into [penaltyLedger] (see above) - the
+     *     group cap still bounds what Scale itself applies, independent of
+     *     whether it's ledgered for Cancel.
      *   - Cancel: the cap bounds the offset it grants after budget-limiting -
      *     i.e. it cannot hand back more than its own group allows, even if the
      *     penalty pool would otherwise permit it.
@@ -100,10 +110,11 @@ object ModifierResolver {
      * grouped or round-up Scale, or the end of the whole layer loop. Two
      * Scale(3,2) on base 5 therefore give floor(5 * 3/2 * 3/2) = 11, not
      * floor(floor(5*3/2)*3/2) = 10 — matching spec 4.1's "compose by product".
-     * Each modifier's own marginal contribution (for [penaltyLedger] and
-     * [contributions]) is still attributed correctly by tracking the chain's
-     * running floor as each Scale joins it (see `applyScale` below) — the
-     * per-modifier deltas always sum exactly to the final floored delta.
+     * Each modifier's own marginal contribution (for [contributions]) is still
+     * attributed correctly by tracking the chain's running floor as each Scale
+     * joins it (see `applyScale` below) — the per-modifier deltas always sum
+     * exactly to the final floored delta. (Not [penaltyLedger]: Scale is never
+     * ledgered at all — see above.)
      */
     private fun runLayers(
         base: Int,
@@ -162,7 +173,6 @@ object ModifierResolver {
                 chainDen = d
                 val newFloor = Math.floorDiv(chainBase.toLong() * chainNum, chainDen).toInt()
                 val applied = newFloor - chainFloor
-                record(m.source.kind, applied)
                 contribute(listOf(m.id), applied)
                 chainFloor = newFloor
             } else {
@@ -177,7 +187,6 @@ object ModifierResolver {
                 }.toInt()
                 val applied = capped(scaled - before, m.group)
                 value = before + applied
-                record(m.source.kind, applied)
                 contribute(listOf(m.id), applied)
             }
         }
@@ -186,32 +195,60 @@ object ModifierResolver {
             val inLayer = live.filter { it.layer == layer }
             if (inLayer.isEmpty()) continue
 
-            // Flat + SetTo: joint stacking pool per (layer, group). A live SetTo
-            // overrides every Flat/SetTo sharing its bucket instead of summing
-            // with them - see ModEffect.SetTo KDoc. The highest SetTo wins when
-            // more than one is live in the same bucket.
+            // Flat + SetTo: joint stacking pool, but ONLY within an explicit
+            // StackGroup - a live SetTo overrides every Flat/SetTo sharing its
+            // named group instead of summing with them (see ModEffect.SetTo
+            // KDoc), and the highest SetTo wins when more than one is live in
+            // the same group. Without a group (group == null), a SetTo is NOT
+            // license to erase an unrelated ungrouped Flat that merely happens
+            // to land in the same layer - group == null is "no relationship
+            // declared", not "one shared bucket". A Flat/SetTo that a specific
+            // SetTo actually supersedes is already gone from `live` entirely
+            // by the time we get here (see [resolve]'s `supersedes` filter),
+            // so the only thing left to decide for group == null is multiple
+            // *live* SetTo's with no supersedes link between them - those
+            // still override each other (highest wins), which is the
+            // documented "two live SetTo" case (KNOWN_ISSUES #2) and names no
+            // group at all. So: ungrouped Flat's simply sum among themselves,
+            // ungrouped SetTo's separately override among themselves, and
+            // both contributions apply independently.
             val flatSetTo = inLayer.filter { it.effect is ModEffect.Flat || it.effect is ModEffect.SetTo }
             if (flatSetTo.isNotEmpty()) {
                 commitChain()
                 flatSetTo.groupBy { it.group }.forEach { (group, ms) ->
                     val setTos = ms.filter { it.effect is ModEffect.SetTo }
-                    if (setTos.isNotEmpty()) {
+                    val flats = ms.filter { it.effect is ModEffect.Flat }
+                    if (group != null && setTos.isNotEmpty()) {
                         val winner = setTos.maxBy { (it.effect as ModEffect.SetTo).n }
                         val applied = capped((winner.effect as ModEffect.SetTo).n, group)
                         value += applied
                         record(winner.source.kind, applied)
                         contribute(listOf(winner.id), applied)
                     } else {
-                        val raw = ms.sumOf { (it.effect as ModEffect.Flat).n }
-                        val applied = capped(raw, group)
-                        value += applied
-                        contribute(ms.map { it.id }, applied)
-                        // Attribute the (possibly capped) contribution per
-                        // SourceKind, each bounded individually by the same cap.
-                        // Exact when the bucket is single-kind - the only case
-                        // any rulebook example or fixture exercises.
-                        ms.groupBy { it.source.kind }.forEach { (kind, kms) ->
-                            record(kind, capped(kms.sumOf { (it.effect as ModEffect.Flat).n }, group))
+                        if (flats.isNotEmpty()) {
+                            val raw = flats.sumOf { (it.effect as ModEffect.Flat).n }
+                            val applied = capped(raw, group)
+                            value += applied
+                            contribute(flats.map { it.id }, applied)
+                            // Attribute the (possibly capped) contribution per
+                            // SourceKind, each bounded individually by the same cap.
+                            // Exact when the bucket is single-kind - the only case
+                            // any rulebook example or fixture exercises.
+                            flats.groupBy { it.source.kind }.forEach { (kind, kms) ->
+                                record(kind, capped(kms.sumOf { (it.effect as ModEffect.Flat).n }, group))
+                            }
+                        }
+                        if (setTos.isNotEmpty()) {
+                            // Only reachable here when group == null (the
+                            // group != null + setTos case is handled above) -
+                            // still overrides among themselves, applied on top
+                            // of (not instead of) whatever the Flat's above
+                            // just contributed.
+                            val winner = setTos.maxBy { (it.effect as ModEffect.SetTo).n }
+                            val applied = capped((winner.effect as ModEffect.SetTo).n, group)
+                            value += applied
+                            record(winner.source.kind, applied)
+                            contribute(listOf(winner.id), applied)
                         }
                     }
                 }

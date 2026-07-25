@@ -17,9 +17,19 @@ object ContentLoader {
     private val advantagesLazy: List<TraitDefinition> by lazy { load("advantages.json") }
     private val disadvantagesLazy: List<TraitDefinition> by lazy { load("disadvantages.json") }
     private val thrustSwingLazy: Map<Int, DamageRow> by lazy {
-        load<DamageRowJson>("thrust_swing.json").associate {
-            it.st to DamageRow(it.st, DiceExpr.parse(it.thrust), DiceExpr.parse(it.swing))
+        val rows = load<DamageRowJson>("thrust_swing.json")
+        // Same defect class as Character's duplicate-PurchasedSkill guard:
+        // associate() silently keeps only the last row for a repeated key and
+        // drops the rest, so two rows sharing an ST would quietly lose one
+        // instead of failing loudly. There are none in the committed content
+        // today, but this is cheap insurance against a future edit reintroducing
+        // one.
+        val duplicates = rows.groupBy { it.st }.filterValues { it.size > 1 }.keys
+        require(duplicates.isEmpty()) {
+            "thrust_swing.json has duplicate ST row(s): ${duplicates.sorted()} -- " +
+                "associate() would silently keep only the last and drop the rest"
         }
+        rows.associate { it.st to DamageRow(it.st, DiceExpr.parse(it.thrust), DiceExpr.parse(it.swing)) }
     }
 
     fun skills(): List<SkillDefinition> = skillsLazy

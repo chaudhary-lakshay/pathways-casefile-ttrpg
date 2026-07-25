@@ -159,6 +159,60 @@ class ContentLoaderTest {
     }
 
     // ---------------------------------------------------------------
+    // Skill attr/difficulty: resolving a fixture skill to a book entry (above)
+    // only checks the NAME/specialization; nothing previously reconciled the
+    // fixture's own `attr`/`difficulty` fields against that same book entry's
+    // `attr`/`difficulty`. A sheet-side typo here would silently feed
+    // SkillLadder the wrong controlling attribute or difficulty rung. Pinned
+    // as an exact set, same pattern as the trait cost conflicts above.
+    // ---------------------------------------------------------------
+
+    private data class SkillConflict(
+        val name: String,
+        val specialization: String?,
+        val fixtureAttr: String,
+        val bookAttr: String,
+        val fixtureDifficulty: String,
+        val bookDifficulty: String,
+    )
+
+    private fun resolveBookSkill(entries: List<SkillDefinition>, specialization: String?): SkillDefinition? =
+        entries.firstOrNull { it.specialization == specialization } ?: entries.firstOrNull { it.specializable }
+
+    @Test
+    fun `every fixture skill that resolves to a book entry agrees with it on attr and difficulty, except a documented set`() {
+        val byName = ContentLoader.skills().groupBy { it.name }
+        val conflicts = mutableSetOf<SkillConflict>()
+        Fixtures.all().forEach { fixture ->
+            fixture.skills.forEach { s ->
+                // Same exemptions as the name-resolution test above: a skill
+                // with no book entry at all has no book attr/difficulty to
+                // compare against in the first place.
+                if (s.name in ABSENT_FROM_BOOK_SKILLS) return@forEach
+                if ((s.name to s.specialization) in SKILL_NAME_CONFLICTS) return@forEach
+                val entries = byName[s.name] ?: return@forEach
+                val book = resolveBookSkill(entries, s.specialization) ?: return@forEach
+                if (s.attr != book.attr.code || s.difficulty != book.difficulty.code) {
+                    conflicts += SkillConflict(
+                        s.name, s.specialization, s.attr, book.attr.code, s.difficulty, book.difficulty.code,
+                    )
+                }
+            }
+        }
+        // Real sheet-vs-book disagreements (verified against the book text),
+        // reported rather than bent to match - same policy as trait conflicts.
+        val expected = setOf(
+            SkillConflict("Fishing", null, "IQ", "Per", "E", "E"),
+            SkillConflict("Lockpicking", null, "DX", "IQ", "A", "A"),
+            SkillConflict("Law", "Police", "IQ", "IQ", "A", "H"),
+            SkillConflict("Literature", null, "IQ", "IQ", "A", "H"),
+            SkillConflict("Cooking", null, "IQ", "IQ", "E", "A"),
+            SkillConflict("Camouflage", null, "IQ", "IQ", "A", "E"),
+        )
+        assertEquals(expected, conflicts, "skill attr/difficulty conflict set changed")
+    }
+
+    // ---------------------------------------------------------------
     // Advantages / disadvantages: every fixture trait must resolve to a
     // book entry (exactly, or by base name when the book entry is a
     // specify-marked or variable/range-cost template -- a range cost is
@@ -293,14 +347,33 @@ class ContentLoaderTest {
 
         // Real cost disagreements between the fixtures and the book -- reported, not bent.
         val expectedAdvConflicts = setOf(
-            TraitConflict("Charisma 2", 1, "book=5"),
+            // fixtureCost is now 10 (was 1): tools/extract_sheets.py's
+            // Roll/Cost checksum fix (FIX 2) corrected Fortune Teller's
+            // "Charisma 2" from the sheet's mis-transposed Cost column (1)
+            // to its Roll column (10, matching "Advantages: 20 pts" summed
+            // with Wealth: Comfortable). 10 still disagrees with the book's
+            // flat per-level rate of 5 (this comparison doesn't multiply by
+            // level), so the conflict itself persists - only its fixtureCost
+            // changed to reflect the now-correct fixture data.
+            TraitConflict("Charisma 2", 10, "book=5"),
             TraitConflict("Perfect Balance", 10, "book=20"),
             TraitConflict("Wealth: Comfortable", 10, "book=5"),
         )
         val expectedDisConflicts = setOf(
             TraitConflict("Absent-Minded", 5, "book=15"),
-            TraitConflict("Overconfidence", 10, "book=5"),
+            // "Overconfidence" dropped out of this set: FIX 2's checksum fix
+            // corrected Street Acrobat's Overconfidence from the sheet's
+            // mis-transposed Cost column (10) to its Roll column (5), which
+            // now agrees with the book (5) like every other fixture's
+            // Overconfidence already did - so no fixture disagrees any more.
+            // Poverty: Struggling stays: University Librarian (untouched by
+            // FIX 2 - a genuine, separate sheet inconsistency) still
+            // contributes a 5 alongside Street Acrobat's now-corrected 10.
             TraitConflict("Poverty: Struggling", 5, "book=10"),
+            // New: Street Acrobat's Paranoia: Bodies of water was 10 before
+            // the fix, coincidentally agreeing with the book's flat 10 -
+            // Roll correctly reads 5, which now genuinely disagrees.
+            TraitConflict("Paranoia: Bodies of water", 5, "book=10"),
         )
         assertEquals(expectedAdvConflicts, advConflicts, "advantage cost-conflict set changed")
         assertEquals(expectedDisConflicts, disConflicts, "disadvantage cost-conflict set changed")

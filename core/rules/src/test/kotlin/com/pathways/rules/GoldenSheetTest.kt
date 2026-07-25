@@ -27,20 +27,20 @@ class GoldenSheetTest {
         // Sheet prints "Advantages: 15 pts" but lists only one 5pt advantage
         // (Sanctity) - the item list is short by 10 points of its own subtotal.
         "Monastery Scholar",
-        // Sheet prints "Advantages: 20 pts"; its two items (Charisma 2 @ 1pt,
-        // Wealth: Comfortable @ 10pts) sum to 11. Charisma is priced per level
-        // elsewhere in this ruleset at 10/level, so "Charisma 2" costing 1pt
-        // here looks like a data-entry typo for 10 (which would total 20 and
-        // match) - but the book's actual per-level Charisma cost is not
-        // extracted content here, so this is recorded as-published rather
-        // than "corrected" by assumption.
-        "Fortune Teller",
+        // Fortune Teller is NOT excluded: tools/extract_sheets.py's traits()
+        // checksums the block's Roll and Cost columns against the printed
+        // subtotal and now reads Roll (Charisma 2 @ 10, Wealth: Comfortable
+        // @ 10 = 20, matching "Advantages: 20 pts") instead of the sheet's
+        // mis-transposed Cost column (which summed to 11).
     )
     private val disadvantagesExclusions = setOf(
-        // Sheet prints "Disadvantages: 30 pts"; its four items sum to 35.
-        "Street Acrobat",
         // Sheet prints "Disadvantages: 30 pts"; its four items sum to 25.
         "University Librarian",
+        // Street Acrobat is NOT excluded: same checksum fix as Fortune
+        // Teller above - its DISADVANTAGES block also had Roll/Cost
+        // transposed (Poverty: Struggling and Overconfidence read 5/10
+        // swapped), and Roll sums to 30, matching "Disadvantages: 30 pts";
+        // its ADVANTAGES block (Flexibility, Cost-only) was never affected.
     )
 
     private fun playable() = Fixtures.all().filter { it.skills.isNotEmpty() }
@@ -154,8 +154,14 @@ class GoldenSheetTest {
         assertEquals(22, Fixtures.all().count { it.published.attributesSubtotal != null })
     }
 
+    // NOTE: despite the historical name, the three TestFactory checks below
+    // (advantages/disadvantages/skills) are fixture-vs-fixture: they sum each
+    // sheet's own item list and compare it to that same sheet's own printed
+    // subtotal. Neither side comes from the engine. Only the attribute-cost
+    // check above calls into the engine (AttributeCosts.totalCost). See
+    // KNOWN_ISSUES.md.
     @TestFactory
-    fun `computed advantage cost matches the published subtotal, excluding known-contradictory sheets`(): List<DynamicTest> =
+    fun `each sheet's own advantage item list sums to its published subtotal, excluding known-contradictory sheets`(): List<DynamicTest> =
         Fixtures.all()
             .filter { it.published.advantagesSubtotal != null && it.name !in advantagesExclusions }
             .map { f ->
@@ -168,7 +174,7 @@ class GoldenSheetTest {
             }
 
     @TestFactory
-    fun `computed disadvantage cost matches the published subtotal, excluding known-contradictory sheets`(): List<DynamicTest> =
+    fun `each sheet's own disadvantage item list sums to its published subtotal, excluding known-contradictory sheets`(): List<DynamicTest> =
         Fixtures.all()
             .filter { it.published.disadvantagesSubtotal != null && it.name !in disadvantagesExclusions }
             .map { f ->
@@ -181,7 +187,7 @@ class GoldenSheetTest {
             }
 
     @TestFactory
-    fun `computed skill points match every sheet's published skills subtotal`(): List<DynamicTest> =
+    fun `each sheet's own skill point list sums to its published skills subtotal`(): List<DynamicTest> =
         Fixtures.all().filter { it.published.skillsSubtotal != null }.map { f ->
             DynamicTest.dynamicTest(f.name) {
                 assertEquals(f.published.skillsSubtotal, f.skills.sumOf { it.points }, "${f.name}: skills cost")
@@ -190,17 +196,16 @@ class GoldenSheetTest {
 
     @Test
     fun `the excluded advantage and disadvantage sheets really do disagree - guard against silent repair`() {
-        // If any of these ever starts matching, someone changed the engine
+        // If either of these ever starts matching, someone changed the engine
         // (or the extractor) to encode a spreadsheet bug rather than fixing
         // the actual discrepancy - re-check whether the exclusion still holds.
+        // Fortune Teller and Street Acrobat are deliberately NOT asserted
+        // here any more: their disagreement was a Roll/Cost transposition in
+        // the extractor, now fixed by tools/extract_sheets.py's subtotal
+        // checksum (see `computed advantage/disadvantage cost matches...`
+        // below, which now covers both on the engine's own terms).
         val monasteryScholar = Fixtures.byName("Monastery Scholar")
         assertTrue(monasteryScholar.published.advantagesSubtotal != monasteryScholar.advantages.sumOf { it.cost })
-
-        val fortuneTeller = Fixtures.byName("Fortune Teller")
-        assertTrue(fortuneTeller.published.advantagesSubtotal != fortuneTeller.advantages.sumOf { it.cost })
-
-        val streetAcrobat = Fixtures.byName("Street Acrobat")
-        assertTrue(streetAcrobat.published.disadvantagesSubtotal != streetAcrobat.disadvantages.sumOf { it.cost })
 
         val universityLibrarian = Fixtures.byName("University Librarian")
         assertTrue(

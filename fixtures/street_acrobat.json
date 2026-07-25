@@ -37,15 +37,15 @@
   },
   {
    "name": "Poverty: Struggling",
-   "cost": 5
+   "cost": 10
   },
   {
    "name": "Overconfidence",
-   "cost": 10
+   "cost": 5
   },
   {
    "name": "Paranoia: Bodies of water",
-   "cost": 10
+   "cost": 5
   }
  ],
  "skills": [

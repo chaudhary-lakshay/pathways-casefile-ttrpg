@@ -326,4 +326,112 @@ class ModifierResolverTest {
             r.applied,
         )
     }
+
+    // --- Fix wave: a Scale downstream of a Cancel must not be measured
+    // against the wrong base (see runLayers' [penaltyLedger] KDoc and
+    // ModEffect.Cancel's KDoc). Scale's own ledger contribution used to be
+    // recorded from the shadow pass (Cancel disabled), whose `value` differs
+    // from the real pass whenever a Cancel restores an earlier penalty before
+    // the Scale runs - so a downstream Cancel targeting the Scale's
+    // SourceKind could offset a delta that was never actually applied,
+    // turning a pure-penalty set into a net bonus. Fixed by never ledgering
+    // Scale at all: a Scale-delivered penalty is simply not cancellable. ---
+
+    @Test
+    fun `a Scale after a fully-cancelled Flat is not itself cancelled by a later Cancel`() {
+        // base 20; POTION Flat(-10) fully cancelled by ADV Cancel(10, POTION)
+        // brings value back to 20; EQUIP Scale(1,2) halves it to 10; the
+        // COUNTERMEASURE Cancel(10, EQUIPMENT) has nothing to draw on because
+        // Scale is never ledgered, so it must not turn the halving back into
+        // a bonus. Correct result is 10, not the naive "fully invariant" 20.
+        val r = ModifierResolver.resolve(20, listOf(
+            mod("potion-penalty", ModEffect.Flat(-10), Layer.POTION, source = ModifierSource.Potion("test", 1)),
+            mod("adv-cancel", ModEffect.Cancel(10, SourceKind.POTION), Layer.ADVANTAGE),
+            mod("equip-scale", ModEffect.Scale(1, 2), Layer.EQUIPMENT, source = ModifierSource.Equipment("gear")),
+            mod("countermeasure-cancel", ModEffect.Cancel(10, SourceKind.EQUIPMENT), Layer.COUNTERMEASURE),
+        ), target, ctx)
+        assertEquals(10, r.value)
+    }
+
+    @Test
+    fun `the same shape with an amplifying Scale never turns a penalty into a bonus`() {
+        // base -4; same shape as above but EQUIP Scale(2,1) doubles instead
+        // of halving. Before the fix this could hand back more than the
+        // Scale ever actually took, landing on +2 instead of a penalty.
+        val r = ModifierResolver.resolve(-4, listOf(
+            mod("potion-penalty", ModEffect.Flat(-10), Layer.POTION, source = ModifierSource.Potion("test", 1)),
+            mod("adv-cancel", ModEffect.Cancel(10, SourceKind.POTION), Layer.ADVANTAGE),
+            mod("equip-scale", ModEffect.Scale(2, 1), Layer.EQUIPMENT, source = ModifierSource.Equipment("gear")),
+            mod("countermeasure-cancel", ModEffect.Cancel(10, SourceKind.EQUIPMENT), Layer.COUNTERMEASURE),
+        ), target, ctx)
+        assertEquals(-8, r.value)
+    }
+
+    // --- Fix wave: an ungrouped SetTo must not erase an unrelated ungrouped
+    // Flat sharing its layer. `group == null` means "no declared
+    // relationship between these modifiers", not "one shared bucket" - only
+    // an explicit StackGroup pools Flat+SetTo jointly. ---
+
+    @Test
+    fun `an ungrouped SetTo does not erase an unrelated ungrouped Flat in the same layer`() {
+        val r = ModifierResolver.resolve(12, listOf(
+            mod("unrelated-flat", ModEffect.Flat(1), Layer.POTION),
+            mod("unrelated-setto", ModEffect.SetTo(2), Layer.POTION),
+        ), target, ctx)
+        assertEquals(15, r.value)   // both apply independently: 12 + 1 + 2, not 12 + 2
+    }
+
+    @Test
+    fun `an ungrouped SetTo does not erase an unrelated ungrouped Flat - applied is honest too`() {
+        // Same shape as above, but pins the audit trail: the Flat must show
+        // up in Resolution.applied, not be silently dropped.
+        val r = ModifierResolver.resolve(12, listOf(
+            mod("unrelated-flat", ModEffect.Flat(1), Layer.POTION),
+            mod("unrelated-setto", ModEffect.SetTo(2), Layer.POTION),
+        ), target, ctx)
+        assertEquals(15, r.value)
+        assertEquals(
+            setOf(
+                Contribution(listOf(ModifierId("unrelated-flat")), 1),
+                Contribution(listOf(ModifierId("unrelated-setto")), 2),
+            ),
+            r.applied.toSet(),
+        )
+    }
+
+    @Test
+    fun `two live ungrouped SetTo effects still override each other, not sum - unchanged by the fix`() {
+        // Re-pins the exact KNOWN_ISSUES #2 scenario above, but here to
+        // guard specifically against the FIX above accidentally making
+        // ungrouped SetTo's independent of EACH OTHER too.
+        val r = ModifierResolver.resolve(12, listOf(
+            mod("weak", ModEffect.SetTo(1), Layer.POTION),
+            mod("strong", ModEffect.SetTo(2), Layer.POTION),
+        ), target, ctx)
+        assertEquals(14, r.value)   // the higher SetTo (+2) wins; they must not sum to +3
+    }
+
+    @Test
+    fun `a grouped SetTo still overrides every Flat and SetTo sharing its named group`() {
+        // Explicit StackGroup semantics are untouched by the ungrouped fix.
+        val pool = StackGroup("shared-buff", cap = 10)
+        val r = ModifierResolver.resolve(12, listOf(
+            mod("base-flat", ModEffect.Flat(1), Layer.POTION, group = pool),
+            mod("overriding-setto", ModEffect.SetTo(5), Layer.POTION, group = pool),
+        ), target, ctx)
+        assertEquals(17, r.value)   // SetTo(5) replaces Flat(1) entirely within the shared group
+    }
+
+    @Test
+    fun `a composed Scale chain that nets to x1 is unaffected by an unrelated no-op Cancel`() {
+        // base 7; Scale(1,3) then Scale(3,1) compose to a net x1 (per the
+        // product-composition rule), and Cancel(99, POTION) has no POTION
+        // penalty anywhere to draw on, so it must stay a pure no-op.
+        val r = ModifierResolver.resolve(7, listOf(
+            mod("scale-down", ModEffect.Scale(1, 3), Layer.EQUIPMENT),
+            mod("scale-up", ModEffect.Scale(3, 1), Layer.SITUATIONAL),
+            mod("cancel-nothing", ModEffect.Cancel(99, SourceKind.POTION), Layer.ADVANTAGE),
+        ), target, ctx)
+        assertEquals(7, r.value)
+    }
 }
