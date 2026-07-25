@@ -14,8 +14,9 @@ class ModifierResolverTest {
         id: String, effect: ModEffect, layer: Layer = Layer.SITUATIONAL,
         group: StackGroup? = null, supersedes: String? = null,
         condition: Condition = Condition.Always,
+        source: ModifierSource = ModifierSource.Situational(id),
     ) = Modifier(
-        id = ModifierId(id), source = ModifierSource.Situational(id), target = target,
+        id = ModifierId(id), source = source, target = target,
         effect = effect, layer = layer, group = group,
         supersedes = supersedes?.let { ModifierId(it) }, condition = condition,
     )
@@ -141,5 +142,59 @@ class ModifierResolverTest {
             supersedes = ModifierId("seq9-general"),
         )
         assertEquals(13, ModifierResolver.resolve(12, listOf(seq9, seq8ForSkill), target, ctx).value)
+    }
+
+    // --- Phase C regression tests: fixes 1-3 (KNOWN_ISSUES #1, #2, #3) ---
+
+    @Test
+    fun `a stack group cap also bounds Decay, not just Flat and SetTo`() {
+        // KNOWN_ISSUES #3: a single Decay(from = -9) carrying StackGroup(cap = 2)
+        // used to apply -9 in full, ignoring its group entirely.
+        val cap = StackGroup("fear-decay", cap = 2)
+        val r = ModifierResolver.resolve(12, listOf(
+            mod("dread", ModEffect.Decay(from = -9, perTurn = 0), group = cap),
+        ), target, ctx.copy(turn = 0))
+        assertEquals(10, r.value)   // -9 raw, capped to -2
+    }
+
+    @Test
+    fun `Cancel offsets the post-cap contribution, not the raw Flat sum`() {
+        // KNOWN_ISSUES #1 (measured): four Flat(-3) in a StackGroup(cap = 2)
+        // contribute -2, but Cancel(12) used to compute its budget from the raw
+        // -12 sum and add +12, turning the penalty into a net bonus (12 -> 22).
+        // Correct behaviour: the -12 raw is capped to -2 before Cancel ever sees
+        // it, so Cancel can only offset -2, fully cancelling it and landing back
+        // at the base value - never a bonus.
+        val supportPenalty = StackGroup("multi-source-fear", cap = 2)
+        val r = ModifierResolver.resolve(12, listOf(
+            mod("f1", ModEffect.Flat(-3), Layer.SITUATIONAL, group = supportPenalty),
+            mod("f2", ModEffect.Flat(-3), Layer.SITUATIONAL, group = supportPenalty),
+            mod("f3", ModEffect.Flat(-3), Layer.SITUATIONAL, group = supportPenalty),
+            mod("f4", ModEffect.Flat(-3), Layer.SITUATIONAL, group = supportPenalty),
+            mod("cancel", ModEffect.Cancel(12, SourceKind.SITUATIONAL), Layer.ADVANTAGE),
+        ), target, ctx)
+        assertEquals(12, r.value)
+    }
+
+    @Test
+    fun `two live SetTo effects in the same layer and group override rather than sum`() {
+        // KNOWN_ISSUES #2: two live SetTo effects used to add together instead of
+        // one replacing the other.
+        val r = ModifierResolver.resolve(12, listOf(
+            mod("weak", ModEffect.SetTo(1), Layer.POTION),
+            mod("strong", ModEffect.SetTo(2), Layer.POTION),
+        ), target, ctx)
+        assertEquals(14, r.value)   // the higher SetTo (+2) wins; they must not sum to +3
+    }
+
+    @Test
+    fun `Cancel only cancels its own SourceKind, not a mismatched one`() {
+        // KNOWN_ISSUES #13: mod() used to hardcode source = Situational(id)
+        // regardless of layer, so this distinction was never exercised.
+        val r = ModifierResolver.resolve(12, listOf(
+            mod("fright", ModEffect.Flat(-5), Layer.SITUATIONAL, source = ModifierSource.Situational("fright")),
+            mod("wrong-kind", ModEffect.Cancel(3, SourceKind.POTION), Layer.ADVANTAGE),
+        ), target, ctx)
+        assertEquals(7, r.value)   // Cancel targets POTION; fright is SITUATIONAL, so nothing is cancelled
     }
 }
