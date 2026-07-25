@@ -1,0 +1,560 @@
+{
+ "sourceLines": {
+  "3": [
+   [
+    1131,
+    1175
+   ],
+   [
+    1180,
+    1207
+   ],
+   [
+    1210,
+    1235
+   ],
+   [
+    1240,
+    1284
+   ],
+   [
+    1287,
+    1361
+   ],
+   [
+    1364,
+    1384
+   ],
+   [
+    1392,
+    1418
+   ],
+   [
+    1423,
+    1434
+   ],
+   [
+    1437,
+    1472
+   ],
+   [
+    1477,
+    1513
+   ],
+   [
+    1520,
+    1569
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "name": "Wealth: Poor",
+   "cost": 15,
+   "notes": "Start with 5 soli; boarding house; barely afford basic food. Status −1 → −1 reaction from status-conscious NPCs."
+  },
+  {
+   "name": "Wealth: Dead Broke",
+   "cost": 25,
+   "notes": "Start with £0; no home; beg or steal for every meal. Status −2 → −2 reaction from status-conscious NPCs."
+  },
+  {
+   "name": "Wealth: Struggling",
+   "cost": 10,
+   "notes": "Start with 15 soli; modest room; occasional luxuries"
+  },
+  {
+   "name": "Curious",
+   "cost": 5,
+   "notes": "Must roll vs. 12 or investigate any mystery encountered"
+  },
+  {
+   "name": "Greed",
+   "cost": 15,
+   "notes": "Must roll vs. 12 or take any opportunity for significant profit"
+  },
+  {
+   "name": "Overconfidence",
+   "cost": 5,
+   "notes": "Believes they can handle situations they cannot"
+  },
+  {
+   "name": "Bad Temper",
+   "cost": 10,
+   "notes": "Must roll vs. 12 to avoid angry outbursts when provoked"
+  },
+  {
+   "name": "Bully",
+   "cost": 10,
+   "notes": "Must roll vs. 12 to resist intimidating or humiliating someone weaker when the opportunity arises"
+  },
+  {
+   "name": "Obsession",
+   "costMin": 5,
+   "costMax": 10,
+   "notes": "Consuming long-term goal dominates life and decisions"
+  },
+  {
+   "name": "Nightmares",
+   "cost": 5,
+   "notes": "Disturbed sleep; wake unrefreshed — lose 1 FP each morning"
+  },
+  {
+   "name": "Code of Honor",
+   "costMin": 5,
+   "costMax": 15,
+   "notes": "Personal code limits actions; must be followed even at cost"
+  },
+  {
+   "name": "Sense of Duty",
+   "costMin": 2,
+   "costMax": 15,
+   "notes": "Must help/protect certain groups even at personal risk"
+  },
+  {
+   "name": "Social Stigma",
+   "costMin": 5,
+   "costMax": 20,
+   "notes": "Society discriminates: Criminal Record -5, Servant Class -5"
+  },
+  {
+   "name": "Secret",
+   "costMin": 5,
+   "costMax": 30,
+   "notes": "Dangerous hidden truth; exposure has severe consequences"
+  },
+  {
+   "name": "Blacklisted",
+   "cost": 10,
+   "notes": "A specific industry, org, or church has your name. Employment or access there fails automatically without disguise."
+  },
+  {
+   "name": "Blood Feud",
+   "costMin": 5,
+   "costMax": 15,
+   "notes": "A family, gang, or faction holds a grievance. Their agents appear as recurring threats (scale reflects their power)."
+  },
+  {
+   "name": "Creditor's Target",
+   "cost": 10,
+   "notes": "You owe a dangerous debt. Periodic pressure, threats, or interference; cannot ignore it without severe consequences."
+  },
+  {
+   "name": "Drafted",
+   "cost": 5,
+   "notes": "Technically in a military reserve or conscript pool. Mobilisation orders can arrive at any time, legally compelling service."
+  },
+  {
+   "name": "Ex-Convict",
+   "cost": 10,
+   "notes": "Social Stigma in formal settings; increased police scrutiny; certain employment and legal protections unavailable."
+  },
+  {
+   "name": "Famous Face",
+   "cost": 5,
+   "notes": "Recognizable in the city. Disguise attempts at -2; surveillance harder; strangers approach you, sometimes dangerously."
+  },
+  {
+   "name": "Fugitive (Minor)",
+   "cost": 10,
+   "notes": "Open local warrant on a non-capital charge. Cannot approach police, visit courts, or enter government buildings without risk."
+  },
+  {
+   "name": "Fugitive (Serious)",
+   "cost": 20,
+   "notes": "Serious criminal charges outstanding. Significant arrest risk on sight in major cities; cannot use real name officially."
+  },
+  {
+   "name": "Illegitimate Birth",
+   "cost": 5,
+   "notes": "-1 to social rolls in formal/upper-class settings where this is known; inheritance and legal rights are complicated."
+  },
+  {
+   "name": "Orphan with Dependents",
+   "cost": 10,
+   "notes": "Support younger siblings or a sick relative. Regular financial drain; their safety is a lever enemies can use."
+  },
+  {
+   "name": "Refugee Status",
+   "cost": 10,
+   "notes": "No legal right of permanent residence. No papers, no safety net; deportation is a real threat; police encounters are dangerous."
+  },
+  {
+   "name": "Wanted by Church",
+   "cost": 15,
+   "notes": "An Orthodox Church has marked you. Not just the police — Nighthawks or equivalent Beyonder enforcers may be looking."
+  },
+  {
+   "name": "Duty (specify)",
+   "costMin": 2,
+   "costMax": 20,
+   "notes": "Regular, enforced obligation to an organization or individual. Value reflects frequency and danger: -5 for light duty (roll 6 or less), -10 for hazardous duty (roll 9 or less), -15 for extremely hazardous (roll 12 or less; appears weekly). Specify organization and nature at creation."
+  },
+  {
+   "name": "Absent-Mindedness",
+   "cost": 15,
+   "notes": "-3 to skill rolls requiring concentration or organisation in everyday life; must roll vs. IQ to remember to do something if interrupted or distracted. In combat, may forget to reload, change tactics, or use special abilities (GM's discretion)."
+  },
+  {
+   "name": "Addiction: Laudanum",
+   "cost": 10,
+   "notes": "Must use daily or suffer -2 to all rolls from withdrawal; supply costs drain income."
+  },
+  {
+   "name": "Addiction: Tobacco",
+   "cost": 3,
+   "notes": "Minor withdrawal irritability (-1 to Will) if unable to smoke for a full day."
+  },
+  {
+   "name": "Chronic Insomnia",
+   "cost": 5,
+   "notes": "Lose 1 FP each morning that cannot be recovered through rest; rolls requiring sustained concentration at -1."
+  },
+  {
+   "name": "Class Resentment",
+   "cost": 5,
+   "notes": "Must roll vs. Will-2 or express hostility when in prolonged contact with the resented class."
+  },
+  {
+   "name": "Compulsive Gambling",
+   "cost": 10,
+   "notes": "Regular income loss; prone to debt; requires Will roll at -2 to leave a game while ahead."
+  },
+  {
+   "name": "Duty-Bound",
+   "costMin": 5,
+   "costMax": 10,
+   "notes": "An obligation takes priority over personal safety. Must regularly sacrifice time, money, or risk to fulfil it."
+  },
+  {
+   "name": "Glass Jaw",
+   "cost": 5,
+   "notes": "All knockdown rolls from head strikes at -2; concussion effects last longer."
+  },
+  {
+   "name": "Glory Hound",
+   "cost": 5,
+   "notes": "Must roll vs. Will or ensure your role in any success is publicly known, even when discretion would be wiser."
+  },
+  {
+   "name": "Grief-Stricken",
+   "cost": 5,
+   "notes": "In situations that echo a specific loss, Will rolls to act clearly are at -2. Can be gradually resolved through play."
+  },
+  {
+   "name": "Guilt",
+   "cost": 5,
+   "notes": "-1 to Will in situations that echo the original act; may be exploited by people who know the truth."
+  },
+  {
+   "name": "Impulsive",
+   "cost": 10,
+   "notes": "Must roll vs. IQ-2 to pause and plan; failure means you act on the first reasonable impulse in any urgent situation."
+  },
+  {
+   "name": "Reckless",
+   "cost": 5,
+   "notes": "-1 to any roll where caution would be smarter; must roll vs. Will to back down from a physical challenge."
+  },
+  {
+   "name": "Reputation: Troublemaker",
+   "cost": 5,
+   "notes": "Employers, landlords, and officials treat you with pre-emptive suspicion; -2 to first reactions in formal settings."
+  },
+  {
+   "name": "Social Anxiety",
+   "cost": 5,
+   "notes": "-2 to social skill rolls in groups of 6+; -3 when addressing strangers of higher status."
+  },
+  {
+   "name": "Stubborn",
+   "cost": 5,
+   "notes": "Must roll vs. Will-3 to reverse your stated position in the same scene, even when clearly wrong."
+  },
+  {
+   "name": "Superstitious (mundane)",
+   "cost": 3,
+   "notes": "If warding routine is disrupted, -1 to all rolls for the day; will go out of their way to observe superstitions."
+  },
+  {
+   "name": "Reluctant Killer",
+   "cost": 5,
+   "notes": "-4 to hit recognizable people with deadly force (-2 if face hidden); cannot Aim. If you kill a recognizable person, become morose for 3d days — Will rolls required to use violence again."
+  },
+  {
+   "name": "Cannot Harm Innocents",
+   "cost": 10,
+   "notes": "Will not use deadly force when innocent bystanders might be affected, or against enemies not using deadly force on you. Non-deadly force is acceptable."
+  },
+  {
+   "name": "Cannot Kill",
+   "cost": 15,
+   "notes": "Unwilling to kill anyone, even through omission, or to allow comrades to kill. If responsible for a death, react as Reluctant Killer (-5)."
+  },
+  {
+   "name": "Self-Defence Only",
+   "cost": 15,
+   "notes": "Use violence only to protect yourself or those in your care, to the minimum degree necessary; no pre-emptive strikes."
+  },
+  {
+   "name": "Total Non-Violence",
+   "cost": 30,
+   "notes": "Will not use violence against intelligent creatures, even in self-defense. May defend against animals."
+  },
+  {
+   "name": "Workaholic",
+   "cost": 5,
+   "notes": "Cannot relax; always finds something productive to do. -2 to social rolls in leisure settings; rolls to take a day off at Will-3."
+  },
+  {
+   "name": "Callous",
+   "cost": 5,
+   "notes": "-3 to social skill rolls when warmth or empathy is required. You may still act kindly — but it is an effort and it shows."
+  },
+  {
+   "name": "Kleptomania",
+   "cost": 10,
+   "notes": "Compelled to steal small objects when the opportunity arises and no consequences are obvious. Roll vs. Will to resist when the situation makes theft easy."
+  },
+  {
+   "name": "Skinny",
+   "cost": 5,
+   "notes": "-2 to ST for purposes of knockback and grappling; +2 to rolls to escape bonds or fit into tight spaces. Clothing is hard to find off the rack."
+  },
+  {
+   "name": "Shyness",
+   "costMin": 5,
+   "costMax": 10,
+   "notes": "-1 to -2 to social skill rolls depending on severity and audience. Mild (-5): -1 in groups of 6+; Severe (-10): -2 in groups of 3+."
+  },
+  {
+   "name": "Laziness",
+   "cost": 10,
+   "notes": "Must roll vs. Will to undertake any sustained effort not immediately necessary or personally interesting. Unemployment is a real risk."
+  },
+  {
+   "name": "Clueless",
+   "cost": 10,
+   "notes": "-3 to all social skill rolls; generally miss social cues and subtlety. You do not understand subtext, sarcasm, or implication."
+  },
+  {
+   "name": "Unfit",
+   "cost": 5,
+   "notes": "-1 to all HT rolls; recover FP at half normal rate. Unfit for sustained physical exertion."
+  },
+  {
+   "name": "Vow (specify)",
+   "costMin": 5,
+   "costMax": 15,
+   "notes": "A solemn promise that restricts your actions. Common examples: Poverty (give away all wealth beyond subsistence) -10, Partial Silence (limited speech) -5, Vegetarian -5."
+  },
+  {
+   "name": "Charity",
+   "cost": 10,
+   "notes": "Cannot ignore genuine need. Must roll vs. Will to avoid helping anyone who asks for assistance you can reasonably provide. May be exploited."
+  },
+  {
+   "name": "Loner",
+   "cost": 5,
+   "notes": "Must roll vs. Will to spend extended time in groups larger than 3-4 people. Seek solitude when stressed; -1 to social rolls in crowds."
+  },
+  {
+   "name": "Bloodlust",
+   "cost": 10,
+   "notes": "Must go for killing blows in combat. IQ roll necessary to accept a surrender or take a prisoner. Downed foes get an extra shot to make sure."
+  },
+  {
+   "name": "Weirdness Magnet",
+   "cost": 15,
+   "notes": "Strange supernatural events are drawn to you constantly"
+  },
+  {
+   "name": "Paranoia",
+   "cost": 10,
+   "notes": "Must roll vs. 12 or assume strangers are threats; common potion side effect"
+  },
+  {
+   "name": "Hallucinations",
+   "cost": 10,
+   "notes": "Periodic false sensory experiences; visions, voices, phantom presences"
+  },
+  {
+   "name": "Compulsion (pathway)",
+   "costMin": 5,
+   "costMax": 15,
+   "notes": "Uncontrollable urge tied to pathway nature; triggered by stress"
+  },
+  {
+   "name": "Delusion (minor)",
+   "cost": 5,
+   "notes": "Firmly believes something false about the supernatural world"
+  },
+  {
+   "name": "Coldblooded",
+   "cost": 10,
+   "notes": "Morality erodes upon advancement. Roll Will when suppressing evil desires (murder, lust, theft, etc.). Define with the GM which desires apply to your character."
+  },
+  {
+   "name": "Compulsive Behavior (Indulge Evil Desires) SC 6",
+   "cost": 15,
+   "notes": "When an opportunity to commit an evil act (murder, torture, betrayal, etc.) presents itself, roll 3d6 ≤ 6 or indulge fully. Conscience offers no resistance."
+  },
+  {
+   "name": "Aura Leak",
+   "cost": 10,
+   "notes": "Spiritual body radiates faintly even suppressed. Beyonders with Spiritual Perception detect you automatically within 20 meters."
+  },
+  {
+   "name": "Bleed-Through Visions",
+   "cost": 10,
+   "notes": "Spirit Vision activates involuntarily in emotionally charged locations. Roll vs. Will or be briefly incapacitated by the vision."
+  },
+  {
+   "name": "CoR Brand",
+   "cost": 10,
+   "notes": "A visible or spiritually legible mark from prior CoR exposure. Church Beyonders who examine you react with suspicion or investigation."
+  },
+  {
+   "name": "Dream Invaded",
+   "cost": 10,
+   "notes": "Dreams are accessible to outside entities without effort. You are unaware of visitors unless they choose to reveal themselves."
+  },
+  {
+   "name": "Ether Body Damage",
+   "cost": 10,
+   "notes": "Prior spirit body damage (see Spirit Body Damage, Chapter 5) that never fully healed. All SPI-based rolls at -1; Spirit Vision on you reveals the damage immediately."
+  },
+  {
+   "name": "Fate Debt",
+   "cost": 15,
+   "notes": "You owe fate something. The GM holds a narrative debt to be called in at a dramatically significant moment. Beckoning Luck never applies."
+  },
+  {
+   "name": "Unlucky",
+   "cost": 10,
+   "notes": "Once per session the GM may inconvenience you by making your life slightly more difficult. This is a weaker Fate Debt that triggers every session and remains until bought off or resolved through the assistance of a powerful fate-related Beyonder or ritual."
+  },
+  {
+   "name": "Pathway Resonance (Hostile)",
+   "cost": 10,
+   "notes": "One specific Pathway resonates badly with you (specify). Beings of that Pathway react with instinctive hostility; their abilities against you at +1."
+  },
+  {
+   "name": "Residual Contamination",
+   "cost": 10,
+   "notes": "Spiritual residue from a forbidden item or ritual. Seers and Spiritual Perception users detect 'something wrong' about you."
+  },
+  {
+   "name": "Soul Scar",
+   "cost": 5,
+   "notes": "Under extreme spiritual stress (Fright Check failure by 5+, witnessing Seq. 5+ abilities), old pain resurfaces: -1 to all rolls for the scene."
+  },
+  {
+   "name": "Thinned Veil",
+   "cost": 10,
+   "notes": "Boundary between your senses and the spiritual world is unusually permeable. Concentration in spiritually active environments at -2."
+  },
+  {
+   "name": "Bound to a Place",
+   "cost": 10,
+   "notes": "Spiritually tethered to a location (specify). Leaving for more than one week causes growing unease: -1 to Will per additional week, cumulative."
+  },
+  {
+   "name": "Compulsion: Collection (pathway)",
+   "costMin": 5,
+   "costMax": 10,
+   "notes": "Compelled to collect specific items (bones, keys, mirrors, etc.). Roll vs. Will-2 when presented with a collectible you do not own."
+  },
+  {
+   "name": "Compulsion: Confess",
+   "cost": 5,
+   "notes": "Under significant stress, must tell someone a true secret. Roll vs. Will-2 or confess something genuine to the nearest trusted person."
+  },
+  {
+   "name": "Compulsion: Preserve the Dead",
+   "cost": 10,
+   "notes": "Cannot pass a neglected corpse without properly covering or acknowledging it. Roll vs. Will-3 to continue without addressing them first."
+  },
+  {
+   "name": "Drawn to Ritual Sites",
+   "cost": 5,
+   "notes": "Pulled toward places where rituals have been performed. When within blocks of a ritual site, compelled to investigate even without obvious reason."
+  },
+  {
+   "name": "Evil Eye Fear",
+   "cost": 5,
+   "notes": "Avoid eye contact with strangers; periodically perform warding rituals. If interrupted from a warding routine, -1 to Will rolls for the day."
+  },
+  {
+   "name": "Honest to Spirits",
+   "cost": 5,
+   "notes": "Cannot deliberately lie in the presence of ghosts or entities you know to be spiritually present. Instinctive, not a rational choice."
+  },
+  {
+   "name": "Pathway Pull",
+   "cost": 10,
+   "notes": "A specific Pathway exerts a narrative pull before you drink a potion. Compelled to follow situations that lead toward it even when wisdom says otherwise."
+  },
+  {
+   "name": "Chronophobia (Temporal)",
+   "cost": 10,
+   "notes": "Irrational terror of something time-related (clocks stopping, mirrors, specific hours). Triggered: immediate Fright Check at -3."
+  },
+  {
+   "name": "Dead-Eyed",
+   "cost": 5,
+   "notes": "-2 to first-impression social rolls with strangers; animals are skittish around you; children sometimes cry."
+  },
+  {
+   "name": "Unsettling Appearance",
+   "cost": 4,
+   "notes": "-1 to all reaction rolls. Your presence instinctively disturbs or repels others — a common consequence of Abyss and Chained Pathway potions."
+  },
+  {
+   "name": "Entity Fixation",
+   "cost": 10,
+   "notes": "-1 to all rolls when a specific entity type is present nearby; -2 to any roll that requires you to ignore them."
+  },
+  {
+   "name": "Fear of Silence",
+   "cost": 5,
+   "notes": "In complete silence — underground, at sea, in empty buildings — must roll vs. Will-2 or feel compelled to speak or make noise."
+  },
+  {
+   "name": "Haunted",
+   "cost": 10,
+   "notes": "A specific ghost follows you. Other spiritual beings notice it; it may interfere with rituals; can be used as leverage by those who know."
+  },
+  {
+   "name": "Memory Bleed",
+   "cost": 10,
+   "notes": "Someone else's genuine memories intrude periodically — an unrelated person from your past, or someone whose spiritual body overlapped yours."
+  },
+  {
+   "name": "Perceptual Splitting",
+   "cost": 10,
+   "notes": "At moments of high spiritual activity, senses temporarily separate from your body. All physical rolls at -2 during an episode (1d seconds)."
+  },
+  {
+   "name": "Phobia: Sacred Symbols",
+   "cost": 10,
+   "notes": "A specific church's symbols, prayers, or holy items cause genuine fright. Fright Check at -2 on direct exposure; -1 in consecrated buildings."
+  },
+  {
+   "name": "Spiritually Loud",
+   "cost": 5,
+   "notes": "Spiritual presence registers as larger than your actual Sequence would suggest. Perceived as more powerful than you are — a curse as much as a blessing."
+  },
+  {
+   "name": "Threshold Blindness",
+   "cost": 5,
+   "notes": "One specific entity type or supernatural phenomenon you cannot perceive with any spiritual skill, regardless of roll results (specify at creation)."
+  },
+  {
+   "name": "Phobia (specify)",
+   "costMin": 5,
+   "costMax": 15,
+   "notes": "Irrational fear of a specific thing (cities, spiders, crowds, etc.). Fright Check at -2 when exposed; -1 to all rolls while the phobic stimulus is present and unavoidable. Severity depends on how common the trigger is."
+  }
+ ]
+}

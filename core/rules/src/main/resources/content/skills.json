@@ -1,0 +1,1352 @@
+{
+ "sourceLines": {
+  "3": [
+   [
+    1669,
+    1704
+   ],
+   [
+    1707,
+    1727
+   ],
+   [
+    1729,
+    1776
+   ],
+   [
+    1778,
+    1813
+   ],
+   [
+    1816,
+    1860
+   ],
+   [
+    1862,
+    1876
+   ],
+   [
+    1878,
+    1907
+   ],
+   [
+    1909,
+    1917
+   ],
+   [
+    1920,
+    1922
+   ],
+   [
+    1928,
+    1937
+   ],
+   [
+    1939,
+    1986
+   ],
+   [
+    1988,
+    2005
+   ],
+   [
+    2007,
+    2015
+   ],
+   [
+    2018,
+    2032
+   ],
+   [
+    2034,
+    2075
+   ],
+   [
+    2077,
+    2106
+   ],
+   [
+    2108,
+    2122
+   ],
+   [
+    2125,
+    2140
+   ],
+   [
+    2142,
+    2159
+   ],
+   [
+    2161,
+    2178
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "name": "Guns",
+   "specialization": "Pistol",
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Derringers, semi-automatic pistols"
+  },
+  {
+   "name": "Guns",
+   "specialization": "Revolver",
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Revolvers of all calibres"
+  },
+  {
+   "name": "Guns",
+   "specialization": "Rifle",
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Rifles, muskets, carbines"
+  },
+  {
+   "name": "Guns",
+   "specialization": "Shotgun",
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Scatter weapons"
+  },
+  {
+   "name": "Fast-Draw",
+   "specialization": "Pistol",
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Quick weapon draw from holster"
+  },
+  {
+   "name": "Brawling",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Untrained street fighting"
+  },
+  {
+   "name": "Boxing",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Trained fisticuffs with technique"
+  },
+  {
+   "name": "Knife",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Combat knife use"
+  },
+  {
+   "name": "Axe/Mace",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Heavy blunt/edged weapons"
+  },
+  {
+   "name": "Bayonet",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Rifle-mounted blade"
+  },
+  {
+   "name": "Wrestling",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Grappling and takedowns"
+  },
+  {
+   "name": "Throwing",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Thrown weapons in general"
+  },
+  {
+   "name": "Thrown Weapon",
+   "specialization": "Knife",
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Throwing knives specifically"
+  },
+  {
+   "name": "Gunner",
+   "specialization": "Machine Gun",
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Vehicle-mounted machine guns, heavy weapon emplacements"
+  },
+  {
+   "name": "Gunner",
+   "specialization": "Cannon",
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Artillery pieces, ship cannons, field guns"
+  },
+  {
+   "name": "Shortsword",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Light one-handed blades; includes sabre, cutlass"
+  },
+  {
+   "name": "Broadsword",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Heavy one-handed blades; includes longsword"
+  },
+  {
+   "name": "Polearm",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Long hafted weapons; spears, halberds, pikes"
+  },
+  {
+   "name": "Shield",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Block and parry with any shield type"
+  },
+  {
+   "name": "Fast-Talk",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Con, deceive, talk your way out"
+  },
+  {
+   "name": "Intimidation",
+   "specialization": null,
+   "attr": "Will",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Threaten and coerce others"
+  },
+  {
+   "name": "Diplomacy",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Negotiate peacefully; reach compromise"
+  },
+  {
+   "name": "Public Speaking",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Address crowds effectively"
+  },
+  {
+   "name": "Acting",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Disguise emotions; theatrical performance"
+  },
+  {
+   "name": "Leadership",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Command and inspire others"
+  },
+  {
+   "name": "Detect Lies",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Spot deception and falsehood"
+  },
+  {
+   "name": "Interrogation",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Extract information under pressure"
+  },
+  {
+   "name": "Observation",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Notice and remember details"
+  },
+  {
+   "name": "Psychology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Understand and predict people"
+  },
+  {
+   "name": "Savoir-Faire",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "specializable": true,
+   "notes": "Social graces (specify class)"
+  },
+  {
+   "name": "Sex Appeal",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Attract, seduce, or distract through charisma"
+  },
+  {
+   "name": "Panhandling",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Beg for money or favours on the street"
+  },
+  {
+   "name": "Disguise",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Change appearance convincingly"
+  },
+  {
+   "name": "Forgery",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Create fake documents"
+  },
+  {
+   "name": "Holdout",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Conceal objects on your person"
+  },
+  {
+   "name": "Research",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Find information in libraries"
+  },
+  {
+   "name": "Writing",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Compose documents, reports"
+  },
+  {
+   "name": "History",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Historical knowledge"
+  },
+  {
+   "name": "Literature",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Literary and cultural knowledge"
+  },
+  {
+   "name": "Occultism",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "General supernatural lore"
+  },
+  {
+   "name": "Hidden Lore",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": true,
+   "notes": "Specific secret knowledge (specify type)"
+  },
+  {
+   "name": "Thaumatology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "VH",
+   "specializable": false,
+   "notes": "Deep magic theory"
+  },
+  {
+   "name": "Theology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Religious doctrine and practice"
+  },
+  {
+   "name": "Religious Ritual",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Conduct religious ceremonies"
+  },
+  {
+   "name": "Appraisal",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Value items and artifacts"
+  },
+  {
+   "name": "Merchant",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Trade, negotiation, market knowledge"
+  },
+  {
+   "name": "Criminology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Crime investigation methods"
+  },
+  {
+   "name": "Explosives",
+   "specialization": "Demolition",
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Prepare and set explosives to destroy targets"
+  },
+  {
+   "name": "Diagnosis",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Identify ailments and conditions"
+  },
+  {
+   "name": "Physician",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Medical treatment and surgery"
+  },
+  {
+   "name": "Surgery",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "VH",
+   "specializable": false,
+   "notes": "Invasive medical procedures; requires Physician"
+  },
+  {
+   "name": "Pharmacy",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Drug and remedy preparation"
+  },
+  {
+   "name": "Law",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": true,
+   "notes": "Legal knowledge; specializations include Military, Criminal, Civil"
+  },
+  {
+   "name": "Connoisseur",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": true,
+   "notes": "Expert knowledge of quality/value in a specific field (antiques, art, wine, etc.)"
+  },
+  {
+   "name": "Streetwise",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Urban underworld knowledge"
+  },
+  {
+   "name": "Gambling",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Games of chance"
+  },
+  {
+   "name": "Area Knowledge",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "specializable": true,
+   "notes": "Specific region (specify)"
+  },
+  {
+   "name": "Current Affairs",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "specializable": true,
+   "notes": "Recent events (specify topic)"
+  },
+  {
+   "name": "Cryptography",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Create and break codes, ciphers, and hidden messages"
+  },
+  {
+   "name": "Alchemy",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "VH",
+   "specializable": false,
+   "notes": "Transform substances; prepare elixirs, alchemical potions, and magical compounds"
+  },
+  {
+   "name": "Ritualistic Magic",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "VH",
+   "specializable": false,
+   "notes": "Perform supernatural rituals: divination, summoning, binding, enchanting; the core Beyonder skill"
+  },
+  {
+   "name": "Pickpocket",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Steal from people's person"
+  },
+  {
+   "name": "Lockpicking",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Open locks without key"
+  },
+  {
+   "name": "Stealth",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Move silently, avoid detection"
+  },
+  {
+   "name": "Shadowing",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Follow without being noticed"
+  },
+  {
+   "name": "Traps",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Detect, disarm, set traps"
+  },
+  {
+   "name": "Climbing",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Scale surfaces and walls"
+  },
+  {
+   "name": "Knot-Tying",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Bind, secure, and rig ropes; escape bonds at -2"
+  },
+  {
+   "name": "Acrobatics",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Tumbling, balance, gymnastics"
+  },
+  {
+   "name": "Aerobatics",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Aerial maneuvers, stunts, and diving"
+  },
+  {
+   "name": "Running",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Sprint and long-distance endurance"
+  },
+  {
+   "name": "Swimming",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Move through water"
+  },
+  {
+   "name": "Jumping",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Leap distances"
+  },
+  {
+   "name": "Lifting",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Hoist heavy loads"
+  },
+  {
+   "name": "Hiking",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Long-distance foot travel; pace and endurance overland"
+  },
+  {
+   "name": "First Aid",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Emergency medical care"
+  },
+  {
+   "name": "Mechanic",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": true,
+   "notes": "Repair machines (specify type)"
+  },
+  {
+   "name": "Engineering",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Design and analyse mechanical systems, structures, and blueprints"
+  },
+  {
+   "name": "Armoury",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": true,
+   "notes": "Repair and maintain weapons"
+  },
+  {
+   "name": "Electrician",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Work with electrical systems"
+  },
+  {
+   "name": "Spiritual Intuition",
+   "specialization": null,
+   "attr": "SPI",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Sense fate-changes and danger through spirit"
+  },
+  {
+   "name": "Spiritual Perception",
+   "specialization": null,
+   "attr": "SPI",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Detect hidden spirits and supernatural phenomena"
+  },
+  {
+   "name": "Divination Arts",
+   "specialization": null,
+   "attr": "SPI",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Perform focused divination: pendulum, coin, dowsing, dream interpretation, scrying, tarot"
+  },
+  {
+   "name": "Survival",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "specializable": true,
+   "notes": "Live off land (specify terrain)"
+  },
+  {
+   "name": "Urban Survival",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Survive in urban environments"
+  },
+  {
+   "name": "Scrounging",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Find useful items in unlikely places"
+  },
+  {
+   "name": "Navigation",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Find your way; chart courses"
+  },
+  {
+   "name": "Tracking",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Follow trails and quarry"
+  },
+  {
+   "name": "Seamanship",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Work aboard ships"
+  },
+  {
+   "name": "Camouflage",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Hide yourself or objects"
+  },
+  {
+   "name": "Tactics",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Military and combat planning"
+  },
+  {
+   "name": "Fortune Telling",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Read cards, palms; mundane methods"
+  },
+  {
+   "name": "Astrology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Interpret celestial patterns for divination, navigation, and fate-reading"
+  },
+  {
+   "name": "Cogitation",
+   "specialization": null,
+   "attr": "Will",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "A focused mental state that allows Beyonders to stabilise their spirituality, resist mental interference, and prepare for divination or spirit-related abilities. Replaces Meditation for Beyonder purposes."
+  },
+  {
+   "name": "Carousing",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Drink and socialize effectively"
+  },
+  {
+   "name": "Weather Sense",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Predict weather from natural observation"
+  },
+  {
+   "name": "Boating",
+   "specialization": "Sailboat",
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Sail and maneuver sailing vessels"
+  },
+  {
+   "name": "Boating",
+   "specialization": "Unpowered",
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Row and handle small unpowered boats"
+  },
+  {
+   "name": "Body Language",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Read physical cues; posture, expression, tells"
+  },
+  {
+   "name": "Forensics",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Scientific crime scene investigation"
+  },
+  {
+   "name": "Intelligence Analysis",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Evaluate and interpret gathered information"
+  },
+  {
+   "name": "Search",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Systematically locate hidden objects or people"
+  },
+  {
+   "name": "Lip Reading",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Understand speech without hearing it"
+  },
+  {
+   "name": "Cartography",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Read, draw, and interpret maps"
+  },
+  {
+   "name": "Performance",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "General stage and platform performance"
+  },
+  {
+   "name": "Singing",
+   "specialization": null,
+   "attr": "HT",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Vocal performance; also used by Bards for Beyonder abilities"
+  },
+  {
+   "name": "Musical Instrument",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": true,
+   "notes": "Play a specific instrument (specify)"
+  },
+  {
+   "name": "Dancing",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Formal and social dance"
+  },
+  {
+   "name": "Artist",
+   "specialization": "Drawing",
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Illustration and portraiture"
+  },
+  {
+   "name": "Artist",
+   "specialization": "Painting",
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Painted works on canvas or paper"
+  },
+  {
+   "name": "Ventriloquism",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Project voice to deceive listeners"
+  },
+  {
+   "name": "Poetry",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Write verse; also aids public speaking"
+  },
+  {
+   "name": "Accounting",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Financial records and business maths"
+  },
+  {
+   "name": "Administration",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Bureaucratic management and procedure"
+  },
+  {
+   "name": "Economics",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Markets, trade, and financial systems"
+  },
+  {
+   "name": "Philosophy",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Formal logic and ethical reasoning"
+  },
+  {
+   "name": "Linguistics",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Study of language structure; accelerates language learning"
+  },
+  {
+   "name": "Anthropology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Cultures, customs, and social structures"
+  },
+  {
+   "name": "Archaeology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Excavation and analysis of ancient sites"
+  },
+  {
+   "name": "Sociology",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Broad study of human society and groups"
+  },
+  {
+   "name": "Astronomy",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Celestial bodies and their movements"
+  },
+  {
+   "name": "Mathematics",
+   "specialization": "Applied",
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Practical maths for engineering and science"
+  },
+  {
+   "name": "Chemistry",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Compounds, reactions, and substances"
+  },
+  {
+   "name": "Physics",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "VH",
+   "specializable": false,
+   "notes": "Natural laws governing matter and energy; requires Mathematics"
+  },
+  {
+   "name": "Teaching",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Instruct and educate others effectively"
+  },
+  {
+   "name": "Speed-Reading",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Read and comprehend text at high speed"
+  },
+  {
+   "name": "Carpentry",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Work with wood; build and repair structures"
+  },
+  {
+   "name": "Masonry",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Stonework and brick construction"
+  },
+  {
+   "name": "Sewing",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Stitch, repair, and make garments"
+  },
+  {
+   "name": "Leatherworking",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Craft and repair leather goods and harnesses"
+  },
+  {
+   "name": "Smith",
+   "specialization": "Iron",
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Forge and work iron tools and parts"
+  },
+  {
+   "name": "Cooking",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Prepare food; basic herbalism uses this as default"
+  },
+  {
+   "name": "Jeweler",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Work with precious metals and gems"
+  },
+  {
+   "name": "Machinist",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Operate and maintain machine tools"
+  },
+  {
+   "name": "Photography",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Operate cameras; develop images in darkroom"
+  },
+  {
+   "name": "Freight Handling",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Dock and warehouse logistics"
+  },
+  {
+   "name": "Animal Handling",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": true,
+   "notes": "Control and care for animals (specify type)"
+  },
+  {
+   "name": "Riding",
+   "specialization": "Horse",
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Ride and direct a mounted animal at speed"
+  },
+  {
+   "name": "Falconry",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Train and hunt with birds of prey"
+  },
+  {
+   "name": "Fishing",
+   "specialization": null,
+   "attr": "Per",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Catch fish; read water conditions"
+  },
+  {
+   "name": "Gardening",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Cultivate plants in managed spaces"
+  },
+  {
+   "name": "Farming",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "E",
+   "specializable": false,
+   "notes": "Cultivate crops and manage farmland"
+  },
+  {
+   "name": "Naturalist",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Broad knowledge of plants, animals, and ecology"
+  },
+  {
+   "name": "Herbal Medicine",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "VH",
+   "specializable": false,
+   "notes": "Natural therapeutic use of plants; requires Naturalist"
+  },
+  {
+   "name": "Herb Lore",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "VH",
+   "specializable": false,
+   "notes": "Magical/occult plant knowledge; preparation of mystical herbal remedies and poisons"
+  },
+  {
+   "name": "Veterinary",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Medical diagnosis and treatment for animals"
+  },
+  {
+   "name": "Filch",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Swipe items from surfaces without notice"
+  },
+  {
+   "name": "Sleight of Hand",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Conceal and manipulate objects in plain sight"
+  },
+  {
+   "name": "Escape",
+   "specialization": null,
+   "attr": "DX",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Free oneself from bonds and confinement"
+  },
+  {
+   "name": "Counterfeiting",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Replicate currency or official seals"
+  },
+  {
+   "name": "Smuggling",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Move contraband past inspections"
+  },
+  {
+   "name": "Poisons",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Know, prepare, and apply toxins; also detect them"
+  },
+  {
+   "name": "Soldier",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "General military knowledge, drill, and doctrine"
+  },
+  {
+   "name": "Strategy",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Large-scale military and operational planning"
+  },
+  {
+   "name": "Forward Observer",
+   "specialization": null,
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Direct artillery or ranged fire from a distant position"
+  },
+  {
+   "name": "Shiphandling",
+   "specialization": "Ship",
+   "attr": "IQ",
+   "difficulty": "H",
+   "specializable": false,
+   "notes": "Command and navigate a large sailing or steam vessel"
+  },
+  {
+   "name": "Navigation",
+   "specialization": "Sea",
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Determine course by stars and charts at sea"
+  },
+  {
+   "name": "Navigation",
+   "specialization": "Land",
+   "attr": "IQ",
+   "difficulty": "A",
+   "specializable": false,
+   "notes": "Orienteer and chart routes overland"
+  }
+ ]
+}

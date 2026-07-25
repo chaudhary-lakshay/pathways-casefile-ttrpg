@@ -140,3 +140,77 @@ def test_coverage_intersects_claims_with_mechanical_lines():
         # Remove content directory only if the test created it
         if not content_dir_existed and content_dir.exists() and not list(content_dir.iterdir()):
             content_dir.rmdir()
+
+
+def test_coverage_glob_is_recursive_over_nested_content_dirs():
+    """Regression for KNOWN_ISSUES #6: CONTENT.glob("*.json") was
+    non-recursive, so a content file's claims silently vanished from
+    coverage if it happened to live in a subdirectory under
+    core/rules/src/main/resources/content/ instead of directly in it.
+
+    We claim the whole of chapter 3's line range from a file placed in a
+    nested subdirectory, and require the reported unclaimed-mechanical
+    count for chapter 3 to drop to 0 -- proving the nested file's claim
+    was actually picked up (a non-recursive glob would never see it, and
+    chapter 3 already has real unclaimed mechanical lines otherwise, per
+    the coverage.md fixture committed before content extraction existed).
+    """
+    subprocess.run([sys.executable, str(ROOT / "tools" / "extract_pdf.py")], check=True)
+
+    lines_data = json.loads((OUT / "lines.json").read_text(encoding="utf-8"))
+    chapters = json.loads((OUT / "chapters.json").read_text(encoding="utf-8"))
+    ch3 = next(c for c in chapters if c["id"] == "3")
+    ch3_lines = [line for line in lines_data if ch3["startPage"] <= line["page"] <= ch3["endPage"]]
+    claim_start, claim_end = ch3_lines[0]["n"], ch3_lines[-1]["n"]
+
+    content_dir = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
+    nested_dir = content_dir / "nested_subdir_regression_test"
+    nested_dir.mkdir(parents=True, exist_ok=True)
+    temp_file = nested_dir / "test_nested_temp.json"
+    temp_file.write_text(
+        json.dumps({"sourceLines": {"3": [[claim_start, claim_end]]}, "entries": []}),
+        encoding="utf-8",
+    )
+    try:
+        subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "coverage.py")],
+            capture_output=True, text=True,
+        )
+        report = (OUT / "coverage.md").read_text(encoding="utf-8")
+        import re as regex
+        match = regex.search(r"\| 3 \| Character Creation \|.*\| (\d+) \|$", report, regex.MULTILINE)
+        assert match, "Chapter 3 should be in coverage report"
+        unclaimed = int(match.group(1))
+        assert unclaimed == 0, (
+            f"expected 0 unclaimed mechanical lines for chapter 3 once its whole range is "
+            f"claimed by a nested content file, got {unclaimed}. A non-recursive glob would "
+            f"silently ignore the nested claim and leave this nonzero."
+        )
+    finally:
+        if temp_file.exists():
+            temp_file.unlink()
+        if nested_dir.exists() and not list(nested_dir.iterdir()):
+            nested_dir.rmdir()
+        # regenerate coverage.md from the real (non-synthetic) content files
+        # so this test doesn't leave a stale pathological report on disk.
+        subprocess.run([sys.executable, str(ROOT / "tools" / "coverage.py")], capture_output=True, text=True)
+
+
+def test_mechanical_regex_counts_spaced_sign_modifiers():
+    """Regression for KNOWN_ISSUES #7: the MECHANICAL regex required no
+    space between a sign and its digits, so a real signed modifier printed
+    with a space ("Attribute - 4") was not counted as mechanical. That
+    understates the denominator, making coverage look BETTER than it
+    really is -- the one direction this guard must never err in. Widening
+    the pattern to tolerate a space must not stop it matching the
+    unspaced/dice/point-cost forms it already handled.
+    """
+    import coverage as coverage_tool
+
+    assert coverage_tool.MECHANICAL.search("Attribute - 4") is not None
+    # still matches every previously-supported shape
+    assert coverage_tool.MECHANICAL.search("+1 to all active defenses") is not None
+    assert coverage_tool.MECHANICAL.search("-15") is not None
+    assert coverage_tool.MECHANICAL.search("15 pts") is not None
+    assert coverage_tool.MECHANICAL.search("1d-2") is not None
+    assert coverage_tool.MECHANICAL.search("no mechanical content here at all") is None
