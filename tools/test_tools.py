@@ -67,3 +67,65 @@ def test_coverage_reports_every_chapter():
     assert "| 9 | Sequence 9 Potion Effects |" in report
     # With no content extracted yet, every chapter is 0% claimed.
     assert "0.0%" in report
+
+def test_coverage_intersects_claims_with_mechanical_lines():
+    """Verify that claiming prose-only spans doesn't hide unclaimed mechanical lines elsewhere."""
+    import re as regex
+    subprocess.run([sys.executable, str(ROOT / "tools" / "extract_pdf.py")], check=True)
+    subprocess.run([sys.executable, str(ROOT / "tools" / "coverage.py")], capture_output=True, text=True)
+
+    # Read the global line numbering to find prose-only lines in a chapter with mechanical lines
+    lines_data = json.loads((OUT / "lines.json").read_text(encoding="utf-8"))
+    chapters = json.loads((OUT / "chapters.json").read_text(encoding="utf-8"))
+
+    # Find chapter 3 (Character Creation) which has mechanical lines
+    ch3 = next(c for c in chapters if c["id"] == "3")
+    ch3_lines = [
+        line for line in lines_data
+        if ch3["startPage"] <= line["page"] <= ch3["endPage"]
+    ]
+
+    # Find first few prose-only lines (no dice, no modifiers, no costs, no attributes)
+    mechanical_pattern = regex.compile(r"\d+d[-+]?\d*|[+-]\d+\b|\d+\s*pts?\b|\bAttr[+-]\d+")
+    prose_lines = [line for line in ch3_lines if not mechanical_pattern.search(line["text"])]
+
+    assert len(prose_lines) > 0, "Chapter 3 should have prose-only lines"
+
+    # Claim the first 5 prose lines
+    claimed_line_numbers = [prose_lines[i]["n"] for i in range(min(5, len(prose_lines)))]
+
+    # Create temporary content directory and file
+    content_dir = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
+    content_dir.mkdir(parents=True, exist_ok=True)
+    temp_file = content_dir / "test_temp.json"
+    temp_file.write_text(
+        json.dumps({
+            "sourceLines": {
+                "3": [[min(claimed_line_numbers), max(claimed_line_numbers)]]
+            },
+            "entries": []
+        }),
+        encoding="utf-8"
+    )
+
+    try:
+        # Run coverage again with the test content file
+        subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "coverage.py")],
+            capture_output=True,
+            text=True
+        )
+        report = (OUT / "coverage.md").read_text(encoding="utf-8")
+
+        # Extract the unclaimed mechanical lines count for chapter 3
+        # Format: "| 3 | Character Creation | 10-32 | X.X% | N |"
+        match = regex.search(r"\| 3 \| Character Creation \|.*\| (\d+) \|$", report, regex.MULTILINE)
+        assert match, "Chapter 3 should be in coverage report"
+        unclaimed = int(match.group(1))
+
+        # Should still have unclaimed mechanical lines since we only claimed prose
+        assert unclaimed > 0, "Claiming only prose lines should not hide unclaimed mechanical lines"
+    finally:
+        # Clean up temporary content file
+        if temp_file.exists():
+            temp_file.unlink()
