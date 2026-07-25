@@ -34,35 +34,37 @@ data class Fixture(
     val disadvantages: List<FixtureTrait> = emptyList(),
     val skills: List<FixtureSkill> = emptyList(),
 ) {
+    private fun attributesOnly() = Attributes(
+        st = attributes.getValue(Attr.ST), dx = attributes.getValue(Attr.DX),
+        iq = attributes.getValue(Attr.IQ), ht = attributes.getValue(Attr.HT),
+    )
+
     /**
      * The published sheets key skills off six controlling stats (ST/DX/IQ/HT
-     * plus Will and Per), but only the first four are purchasable [Attr]s.
-     * Will and Per are always IQ + 0 delta across this fixture set (verified:
-     * published.will == published.per == attributes.IQ on all 23 sheets), so
-     * skills controlled by Will or Per resolve through Attr.IQ here.
+     * plus Will and Per), resolved through the real [ControllingAttribute]
+     * and [Derive.controllingLevel]. None of the fixtures carry a
+     * [SecondaryDelta], so Will/Per resolve to raw IQ here, same as the
+     * published sheets (verified: published.will == published.per ==
+     * attributes.IQ on all 23 sheets) — but through the production
+     * resolution path, not a test-only substitution.
      */
-    private fun resolveAttr(code: String): Attr = when (code) {
-        "ST" -> Attr.ST
-        "DX" -> Attr.DX
-        "IQ" -> Attr.IQ
-        "HT" -> Attr.HT
-        "Will", "Per" -> Attr.IQ
-        else -> throw IllegalArgumentException("unknown skill-controlling attribute code '$code'")
+    fun attributeLevelFor(skill: FixtureSkill): Int {
+        val attrs = attributesOnly()
+        val secondaries = SecondaryCharacteristics.of(attrs, SecondaryDelta())
+        return Derive.controllingLevel(ControllingAttribute.fromCode(skill.attr), attrs, secondaries, spi = 0)
     }
-
-    fun attributeLevelFor(skill: FixtureSkill): Int = attributes.getValue(resolveAttr(skill.attr))
 
     fun toCharacter() = Character(
         name = name,
-        attributes = Attributes(
-            st = attributes.getValue(Attr.ST), dx = attributes.getValue(Attr.DX),
-            iq = attributes.getValue(Attr.IQ), ht = attributes.getValue(Attr.HT),
-        ),
+        attributes = attributesOnly(),
         traits = advantages.map { Trait(it.name, it.cost, TraitKind.ADVANTAGE) } +
             disadvantages.map { Trait(it.name, it.cost, TraitKind.DISADVANTAGE) },
         skills = skills.map {
             PurchasedSkill(
-                SkillKey(it.name, it.specialization, resolveAttr(it.attr), Difficulty.fromCode(it.difficulty)),
+                SkillKey(
+                    it.name, it.specialization,
+                    ControllingAttribute.fromCode(it.attr), Difficulty.fromCode(it.difficulty),
+                ),
                 it.points,
             )
         },

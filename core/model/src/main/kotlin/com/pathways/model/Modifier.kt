@@ -31,14 +31,38 @@ sealed interface ModifierSource {
     }
 }
 
+/** Closed set: the spec enumerates exactly SPI, FP, HP as cost pools. */
+@Serializable
+enum class Pool { SPI, FP, HP }
+
+/**
+ * Type-distinct wrapper over a damage-slot identifier. The closed set of
+ * valid slots is not yet known — it becomes an enum once Phase B's content
+ * reveals the real members. Until then this at least prevents crossing a
+ * damage slot with a bare String or with [SkillTag].
+ */
+@JvmInline
+@Serializable
+value class DamageSlot(val value: String)
+
+/**
+ * Type-distinct wrapper over a skill-tag identifier. The closed set of
+ * valid tags is not yet known — it becomes an enum once Phase B's content
+ * reveals the real members. Until then this at least prevents crossing a
+ * skill tag with a bare String or with [DamageSlot].
+ */
+@JvmInline
+@Serializable
+value class SkillTag(val value: String)
+
 @Serializable
 sealed interface ModTarget {
     @Serializable data class Attribute(val a: Attr) : ModTarget
     @Serializable data class Skill(val key: SkillKey) : ModTarget
-    @Serializable data class RollClass(val tag: String) : ModTarget
+    @Serializable data class RollClass(val tag: SkillTag) : ModTarget
     @Serializable data object AllRolls : ModTarget
-    @Serializable data class Damage(val slot: String) : ModTarget
-    @Serializable data class Cost(val pool: String) : ModTarget
+    @Serializable data class Damage(val slot: DamageSlot) : ModTarget
+    @Serializable data class Cost(val pool: Pool) : ModTarget
     @Serializable data object RequiredMargin : ModTarget
     // Deliberately NO Derived case — spec 4.2.
 }

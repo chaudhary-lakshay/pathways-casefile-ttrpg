@@ -111,7 +111,7 @@ class ModifierResolverTest {
     fun `modifiers aimed at another target are ignored`() {
         val elsewhere = Modifier(
             id = ModifierId("other"), source = ModifierSource.Situational("other"),
-            target = ModTarget.Skill(SkillKey("Stealth", null, Attr.DX, Difficulty.AVERAGE)),
+            target = ModTarget.Skill(SkillKey("Stealth", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)),
             effect = ModEffect.Flat(5), layer = Layer.SITUATIONAL,
         )
         assertEquals(12, ModifierResolver.resolve(12, listOf(elsewhere), target, ctx).value)
@@ -136,7 +136,7 @@ class ModifierResolverTest {
         val seq9 = mod("seq9-general", ModEffect.Flat(1), Layer.POTION)
         val seq8ForSkill = Modifier(
             id = ModifierId("seq8-skill"), source = ModifierSource.Situational("seq8-skill"),
-            target = ModTarget.Skill(SkillKey("Stealth", null, Attr.DX, Difficulty.AVERAGE)),
+            target = ModTarget.Skill(SkillKey("Stealth", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)),
             effect = ModEffect.SetTo(2), layer = Layer.POTION,
             supersedes = ModifierId("seq9-general"),
         )

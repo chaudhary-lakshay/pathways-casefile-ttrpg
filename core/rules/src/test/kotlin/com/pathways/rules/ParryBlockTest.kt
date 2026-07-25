@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class ParryBlockTest {
 
     private fun weapon(name: String, mod: Int?) =
-        Weapon(name, SkillKey(name, null, Attr.DX, Difficulty.AVERAGE), mod)
+        Weapon(name, SkillKey(name, null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE), mod)
 
     @Test
     fun `armed parry halves the skill and rounds down`() {
