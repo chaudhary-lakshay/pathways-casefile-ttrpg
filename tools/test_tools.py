@@ -58,3 +58,12 @@ def test_beat_cop_has_no_point_breakdown():
     f = json.loads((FIX / "beat_cop.json").read_text(encoding="utf-8"))
     assert f["published"]["bpTotal"] is None
     assert f["published"]["totalSpent"] is None
+
+def test_coverage_reports_every_chapter():
+    subprocess.run([sys.executable, str(ROOT / "tools" / "extract_pdf.py")], check=True)
+    subprocess.run([sys.executable, str(ROOT / "tools" / "coverage.py")], capture_output=True, text=True)
+    report = (OUT / "coverage.md").read_text(encoding="utf-8")
+    assert "| 3 | Character Creation |" in report
+    assert "| 9 | Sequence 9 Potion Effects |" in report
+    # With no content extracted yet, every chapter is 0% claimed.
+    assert "0.0%" in report
