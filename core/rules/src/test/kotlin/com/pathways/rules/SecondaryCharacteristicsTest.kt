@@ -72,4 +72,16 @@ class SecondaryCharacteristicsTest {
     fun `no purchases cost nothing`() {
         assertEquals(0, SecondaryCharacteristics.costOf(SecondaryDelta()))
     }
+
+    @Test
+    fun `basic speed floors rather than truncates below zero`() {
+        // Baseline (9, 9) gives 18 quarters. Delta of -25 gives -7 quarters.
+        // Math.floorDiv(-7, 4) = -2 (floor of -1.75, toward negative infinity).
+        // Kotlin's / truncates toward zero: -7 / 4 = -1.
+        // The two differ, so this test catches a regression from floorDiv to /.
+        val s = SecondaryCharacteristics.of(baseline, SecondaryDelta(basicSpeedQuarters = -25))
+        assertEquals(-7, s.basicSpeedQuarters)
+        assertEquals(-2, s.basicMove)   // floor(4.75) = -2, plus no delta
+        assertEquals(1, s.dodge)         // -2 + 3 = 1
+    }
 }
