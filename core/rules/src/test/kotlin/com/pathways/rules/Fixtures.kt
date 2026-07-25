@@ -23,6 +23,17 @@ data class FixturePublished(
     val spi: Int? = null, val cor: Int? = null, val basicSpeed: Double? = null,
     val basicMove: Int? = null, val dodge: Int? = null,
     val bpTotal: Int? = null, val totalSpent: Int? = null, val unspent: Int? = null,
+    /**
+     * Per-category POINT BREAKDOWN subtotals (KNOWN_ISSUES: "fixtures carry
+     * no per-category point breakdown"). Null on every field for Beat Cop,
+     * which has no such block at all. [disadvantagesSubtotal] is also null
+     * for Church Healer, whose Disadvantages cell is a broken spreadsheet
+     * formula ("#ERROR!") rather than a printed number.
+     */
+    val attributesSubtotal: Int? = null,
+    val advantagesSubtotal: Int? = null,
+    val disadvantagesSubtotal: Int? = null,
+    val skillsSubtotal: Int? = null,
 )
 
 @Serializable

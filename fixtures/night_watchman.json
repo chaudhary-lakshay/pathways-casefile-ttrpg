@@ -18,7 +18,11 @@
   "dodge": 7,
   "bpTotal": 95,
   "totalSpent": 95,
-  "unspent": 0
+  "unspent": 0,
+  "attributesSubtotal": 20,
+  "advantagesSubtotal": 15,
+  "disadvantagesSubtotal": 25,
+  "skillsSubtotal": 60
  },
  "advantages": [
   {

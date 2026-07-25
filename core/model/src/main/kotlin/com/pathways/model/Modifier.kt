@@ -70,11 +70,34 @@ sealed interface ModTarget {
 @Serializable
 sealed interface ModEffect {
     @Serializable data class Flat(val n: Int) : ModEffect
-    @Serializable data class Scale(val num: Int, val den: Int) : ModEffect
+    /**
+     * Multiplies the running value by `num/den`, rounding down by default
+     * (spec 4.1's default for damage multipliers) or up when [roundUp] is
+     * set (spec 4.1's Divination Arts case: active techniques apply their
+     * anti-divination penalty at half strength, rounded UP, while Direct
+     * Link's passive halving rounds DOWN -- the same effect type, opposite
+     * rounding, which is why this is a flag rather than a second effect).
+     *
+     * Multiple *ungrouped* (`group == null`), floor-mode (`roundUp ==
+     * false`) Scale effects that run back-to-back with nothing else
+     * (no Flat/Decay/Cancel, no grouped Scale) in between compose by
+     * PRODUCT and floor only ONCE at the end, per spec 4.1 ("cut x1.5 and
+     * imp x2 give x3") -- see [ModifierResolver]'s `runLayers` for why
+     * flooring each one independently is wrong. A [group] on a Scale (or
+     * `roundUp = true`) always floors/ceils and caps that step immediately,
+     * exactly as before -- nothing in the rulebook or fixtures asks two
+     * such Scales to compose, so this only changes behaviour for the
+     * documented product-composition case.
+     */
+    @Serializable data class Scale(val num: Int, val den: Int, val roundUp: Boolean = false) : ModEffect {
+        init { require(den != 0) { "Scale.den must not be zero (num=$num)" } }
+    }
     /** Overrides rather than adds within its (layer, group) bucket: when one or more SetTo effects are live in the same layer and group, the highest-value SetTo wins and replaces every Flat/SetTo contribution sharing that bucket (they do not sum). This is in addition to, not instead of, [Modifier.supersedes] - supersedes removes a named modifier from consideration entirely (used when the replacement is known by construction, e.g. Ch. 10's Midnight Poet), while this override handles the case where two SetTo effects are simply live together with nothing naming the other. */
     @Serializable data class SetTo(val n: Int) : ModEffect
     /** Offsets up to [upTo] of the penalty actually applied by modifiers whose [ModifierSource.kind] equals [of] - the post-StackGroup-cap, post-SetTo-override contribution, not a raw scan of Flat values, and not limited to Flat: a penalty delivered via Decay, Scale or SetTo is offset the same as one delivered via Flat. The budget is computed once per [ModifierResolver.resolve] call independently of layer order, so Cancel is correct whether its own layer runs before or after the layer carrying the penalty it targets. Multiple Cancel effects aimed at the same [SourceKind] share and deplete one pool rather than each independently re-reading the same total, so cancelling a penalty can never turn it into a net bonus. */
-    @Serializable data class Cancel(val upTo: Int, val of: SourceKind) : ModEffect
+    @Serializable data class Cancel(val upTo: Int, val of: SourceKind) : ModEffect {
+        init { require(upTo >= 0) { "Cancel.upTo must not be negative (was $upTo); a negative budget would act as an extra penalty" } }
+    }
     @Serializable data class Decay(val from: Int, val perTurn: Int) : ModEffect
     @Serializable data object Forbid : ModEffect
     @Serializable data object RequireCrit : ModEffect
@@ -95,7 +118,26 @@ sealed interface Scope {
     @Serializable data class Area(val radiusYards: Int) : Scope
 }
 
-/** Declared but not yet enforced by the resolver — nothing currently expires a modifier when its Duration elapses. */
+/**
+ * Declared but deliberately NOT enforced by [ModifierResolver] — nothing
+ * currently expires a modifier when its Duration elapses (KNOWN_ISSUES).
+ *
+ * This is a scope decision, not an oversight: enforcing it needs state the
+ * resolver does not have. [Modifier] carries no "activated at turn N" (or
+ * "activated at real time T") field, and [ModifierResolver.resolve] is a
+ * pure function of `(base, mods, target, ctx)` called fresh each time with
+ * no memory of when any given modifier's clock started -- `ctx.turn` alone
+ * cannot answer "has N turns elapsed since this Turns(N) modifier began"
+ * without a start-turn to compare it against. Adding that start-turn would
+ * mean either mutating [Modifier] (a model-wide change touching every
+ * content file and serialized instance) or moving activation bookkeeping
+ * into a stateful caller the resolver does not currently have — both are a
+ * bigger redesign than "enforce Duration" sounds like. Until a caller
+ * exists that can supply that state, [Turns] and [Minutes] behave exactly
+ * like [Permanent] and [Scene] currently do: never expiring on their own.
+ * `ModifierResolverTest` pins this current (non-)behaviour so it cannot
+ * silently change without updating this note.
+ */
 @Serializable
 sealed interface Duration {
     @Serializable data object Permanent : Duration

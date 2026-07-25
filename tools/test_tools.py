@@ -1,8 +1,36 @@
 import json, subprocess, sys, pathlib
 
+import pytest
+
+import extract_pdf
+import extract_sheets
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "build" / "extract"
 
+# KNOWN_ISSUES: "Python tooling is not reproducible off this machine" --
+# extract_pdf.py/extract_sheets.py hardcoded ~/Downloads paths and this
+# suite invoked both with check=True, so it failed hard on any machine
+# without the source rulebook/spreadsheets (including CI). The source
+# paths are now overridable (PATHWAYS_RULEBOOK_PDF / PATHWAYS_SHEETS_DIR
+# env vars, or --pdf/--src), and any test that needs the *source* files
+# (rather than the already-committed fixtures/content) skips gracefully
+# when they are absent, instead of failing.
+PDF_PATH = extract_pdf.resolve_pdf_path()
+SHEETS_DIR = extract_sheets.resolve_src_dir()
+
+needs_pdf = pytest.mark.skipif(
+    not PDF_PATH.exists(),
+    reason=f"source rulebook PDF not found at {PDF_PATH} "
+           f"(set PATHWAYS_RULEBOOK_PDF or pass --pdf to reproduce off this machine)",
+)
+needs_sheets = pytest.mark.skipif(
+    not (SHEETS_DIR.exists() and any(SHEETS_DIR.glob("*.xlsx"))),
+    reason=f"source character sheets not found at {SHEETS_DIR} "
+           f"(set PATHWAYS_SHEETS_DIR or pass --src to reproduce off this machine)",
+)
+
+@needs_pdf
 def test_extract_pdf_produces_pages_and_chapters():
     subprocess.run([sys.executable, str(ROOT / "tools" / "extract_pdf.py")], check=True)
 
@@ -25,10 +53,12 @@ def test_extract_pdf_produces_pages_and_chapters():
 
 FIX = ROOT / "fixtures"
 
+@needs_sheets
 def test_extract_sheets_produces_23_fixtures():
     subprocess.run([sys.executable, str(ROOT / "tools" / "extract_sheets.py")], check=True)
     assert len(sorted(FIX.glob("*.json"))) == 23
 
+@needs_sheets
 def test_occult_scholar_fixture_is_exact():
     subprocess.run([sys.executable, str(ROOT / "tools" / "extract_sheets.py")], check=True)
     f = json.loads((FIX / "occult_scholar.json").read_text(encoding="utf-8"))
@@ -38,6 +68,14 @@ def test_occult_scholar_fixture_is_exact():
     assert f["published"]["will"] == 10
     assert f["published"]["dodge"] == 7
     assert f["published"]["totalSpent"] == 91
+    # POINT BREAKDOWN subtotals (KNOWN_ISSUES: fixtures carried no
+    # per-category breakdown). 20 (attributes) + 15 (advantages) + 56
+    # (skills) = 91 = totalSpent; disadvantages give points back so they
+    # are not part of totalSpent, but are still captured here.
+    assert f["published"]["attributesSubtotal"] == 20
+    assert f["published"]["advantagesSubtotal"] == 15
+    assert f["published"]["disadvantagesSubtotal"] == 30
+    assert f["published"]["skillsSubtotal"] == 56
 
     occultism = next(s for s in f["skills"] if s["name"] == "Occultism")
     assert occultism["difficulty"] == "A"
@@ -55,10 +93,17 @@ def test_occult_scholar_fixture_is_exact():
     assert sum(d["cost"] for d in f["disadvantages"]) == 30
 
 def test_beat_cop_has_no_point_breakdown():
+    # Reads only the already-committed fixture, so this needs neither the
+    # source PDF nor the source spreadsheets -- no skip guard required.
     f = json.loads((FIX / "beat_cop.json").read_text(encoding="utf-8"))
     assert f["published"]["bpTotal"] is None
     assert f["published"]["totalSpent"] is None
+    assert f["published"]["attributesSubtotal"] is None
+    assert f["published"]["advantagesSubtotal"] is None
+    assert f["published"]["disadvantagesSubtotal"] is None
+    assert f["published"]["skillsSubtotal"] is None
 
+@needs_pdf
 def test_coverage_reports_every_chapter():
     subprocess.run([sys.executable, str(ROOT / "tools" / "extract_pdf.py")], check=True)
     subprocess.run([sys.executable, str(ROOT / "tools" / "coverage.py")], capture_output=True, text=True)
@@ -68,6 +113,7 @@ def test_coverage_reports_every_chapter():
     # With no content extracted yet, every chapter is 0% claimed.
     assert "0.0%" in report
 
+@needs_pdf
 def test_coverage_intersects_claims_with_mechanical_lines():
     """Verify set arithmetic detects unclaimed lines when count-based arithmetic would fail.
 
@@ -142,6 +188,7 @@ def test_coverage_intersects_claims_with_mechanical_lines():
             content_dir.rmdir()
 
 
+@needs_pdf
 def test_coverage_glob_is_recursive_over_nested_content_dirs():
     """Regression for KNOWN_ISSUES #6: CONTENT.glob("*.json") was
     non-recursive, so a content file's claims silently vanished from

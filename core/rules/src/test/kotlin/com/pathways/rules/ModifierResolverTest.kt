@@ -197,4 +197,133 @@ class ModifierResolverTest {
         ), target, ctx)
         assertEquals(7, r.value)   // Cancel targets POTION; fright is SITUATIONAL, so nothing is cancelled
     }
+
+    // --- Phase D: Scale composes by product (KNOWN_ISSUES: "Scale floors at
+    // each step rather than composing by product") ---
+
+    @Test
+    fun `two Scale effects compose by product and floor once, not per step`() {
+        // Spec 4.1: "cut x1.5 and imp x2 give x3". Flooring each Scale(3,2)
+        // independently gives floor(floor(5*1.5)*1.5) = floor(7*1.5) = 10.
+        // Composing by product gives floor(5*1.5*1.5) = floor(11.25) = 11.
+        val r = ModifierResolver.resolve(5, listOf(
+            mod("cut", ModEffect.Scale(3, 2), Layer.EQUIPMENT),
+            mod("impaling", ModEffect.Scale(3, 2), Layer.SITUATIONAL),
+        ), target, ctx)
+        assertEquals(11, r.value)
+    }
+
+    @Test
+    fun `a single Scale still just floors - no regression from composition`() {
+        assertEquals(8, ModifierResolver.resolve(10, listOf(
+            mod("encumbered", ModEffect.Scale(4, 5)),
+        ), target, ctx).value)
+    }
+
+    @Test
+    fun `a Flat between two Scales breaks the composing chain`() {
+        // The Flat commits (floors) whatever Scale chain preceded it, so the
+        // second Scale starts fresh from the post-Flat integer value - it
+        // does not retroactively "see" the first Scale's fractional remainder.
+        // floor(7*1.5) = 10 (first Scale); +1 = 11; floor(11*1.5) = 16.
+        val r = ModifierResolver.resolve(7, listOf(
+            mod("first-scale", ModEffect.Scale(3, 2), Layer.EQUIPMENT),
+            mod("between", ModEffect.Flat(1), Layer.SITUATIONAL),
+            mod("second-scale", ModEffect.Scale(3, 2), Layer.BURN),
+        ), target, ctx)
+        assertEquals(16, r.value)
+    }
+
+    @Test
+    fun `a grouped Scale still floors and caps immediately, unaffected by composition`() {
+        // Phase C's Scale-group-cap semantics (delta capped, immediate commit)
+        // must be untouched by the product-composition fix: only *ungrouped*
+        // Scales defer their floor.
+        val cap = StackGroup("cut-cap", cap = 1)
+        val r = ModifierResolver.resolve(5, listOf(
+            mod("cut", ModEffect.Scale(3, 2), Layer.EQUIPMENT, group = cap),
+        ), target, ctx)
+        assertEquals(6, r.value)   // raw delta would be +2 (floor(7.5)-5), capped to +1
+    }
+
+    // --- Phase D: Scale can round up instead of down (KNOWN_ISSUES: "ModEffect
+    // cannot express 'half, rounded up'") ---
+
+    @Test
+    fun `Scale rounds down by default, even when the exact half differs from the ceiling`() {
+        // -5 * 1/2 = -2.5. Floor is -3, ceiling is -2 - a value where the two
+        // directions genuinely differ, per Divination Arts (spec 4.1): Direct
+        // Link halves anti-divination penalties rounding down.
+        assertEquals(-3, ModifierResolver.resolve(-5, listOf(
+            mod("direct-link", ModEffect.Scale(1, 2)),
+        ), target, ctx).value)
+    }
+
+    @Test
+    fun `Scale rounds up when roundUp is set`() {
+        // Same -5 * 1/2, but active Divination Arts techniques apply their
+        // half-penalty rounded UP (spec 4.1): -2.5 ceilings to -2, not -3.
+        assertEquals(-2, ModifierResolver.resolve(-5, listOf(
+            mod("active-technique", ModEffect.Scale(1, 2, roundUp = true)),
+        ), target, ctx).value)
+    }
+
+    // --- Phase D: Duration remains deliberately unenforced (KNOWN_ISSUES) ---
+
+    @Test
+    fun `a Turns duration does not expire - Duration is not enforced by the resolver`() {
+        // Pins the documented, deliberate non-enforcement (see Duration's
+        // KDoc): ctx.turn alone cannot tell the resolver when a Turns(n)
+        // modifier's clock started, so it behaves exactly like Permanent.
+        // This must keep failing loudly (by this test changing) if Duration
+        // enforcement is ever added, rather than silently starting to pass.
+        val m = mod("still-active", ModEffect.Flat(-2), Layer.SITUATIONAL).let {
+            it.copy(duration = Duration.Turns(1))
+        }
+        assertEquals(10, ModifierResolver.resolve(12, listOf(m), target, ctx.copy(turn = 0)).value)
+        assertEquals(10, ModifierResolver.resolve(12, listOf(m), target, ctx.copy(turn = 500)).value)
+    }
+
+    // --- Phase D: Resolution.applied is an honest audit trail (KNOWN_ISSUES:
+    // "Resolution.applied is a misleading audit trail") ---
+
+    @Test
+    fun `applied reports only modifiers that actually contributed a nonzero delta`() {
+        val r = ModifierResolver.resolve(12, listOf(
+            mod("bonus", ModEffect.Flat(2)),
+            mod("noop-cancel", ModEffect.Cancel(5, SourceKind.SITUATIONAL), Layer.ADVANTAGE),
+            mod("silent-forbid", ModEffect.Forbid, Layer.ADVANTAGE),
+        ), target, ctx)
+        assertEquals(14, r.value)
+        assertEquals(listOf(Contribution(listOf(ModifierId("bonus")), 2)), r.applied)
+    }
+
+    @Test
+    fun `applied attributes a capped joint pool to every contributing modifier as one step`() {
+        val support = StackGroup("divination-support", cap = 2)
+        val r = ModifierResolver.resolve(12, listOf(
+            mod("occultism", ModEffect.Flat(1), group = support),
+            mod("hidden-lore", ModEffect.Flat(1), group = support),
+            mod("psychology", ModEffect.Flat(1), group = support),
+            mod("cogitation", ModEffect.Flat(1), group = support),
+        ), target, ctx)
+        assertEquals(14, r.value)
+        assertEquals(1, r.applied.size)
+        val step = r.applied.single()
+        assertEquals(2, step.delta)   // +4 raw, capped to +2
+        assertEquals(setOf("occultism", "hidden-lore", "psychology", "cogitation"), step.ids.map { it.value }.toSet())
+    }
+
+    @Test
+    fun `applied attributes each composed Scale its own marginal delta`() {
+        val r = ModifierResolver.resolve(5, listOf(
+            mod("cut", ModEffect.Scale(3, 2), Layer.EQUIPMENT),
+            mod("impaling", ModEffect.Scale(3, 2), Layer.SITUATIONAL),
+        ), target, ctx)
+        assertEquals(11, r.value)
+        assertEquals(
+            listOf(Contribution(listOf(ModifierId("cut")), 2), Contribution(listOf(ModifierId("impaling")), 4)),
+            r.applied,
+        )
+    }
 }

@@ -4,6 +4,7 @@ import com.pathways.model.Attr
 import com.pathways.model.Attributes
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 import org.junit.jupiter.api.Test
 
 class AttributeCostsTest {
@@ -35,5 +36,20 @@ class AttributeCostsTest {
     @Test
     fun `below nine is not a legal purchase`() {
         assertFailsWith<IllegalArgumentException> { AttributeCosts.costOf(Attr.ST, 8) }
+    }
+
+    @Test
+    fun `above MAX_ATTRIBUTE is rejected before the doubling ladder can overflow`() {
+        // KNOWN_ISSUES: costOf's shift ladder overflows Int past roughly level
+        // 40. MAX_ATTRIBUTE (30) rejects well before that, at construction time.
+        assertFailsWith<IllegalArgumentException> {
+            AttributeCosts.costOf(Attr.DX, com.pathways.model.MAX_ATTRIBUTE + 1)
+        }
+    }
+
+    @Test
+    fun `MAX_ATTRIBUTE itself is still a legal, non-overflowing purchase`() {
+        val cost = AttributeCosts.costOf(Attr.DX, com.pathways.model.MAX_ATTRIBUTE)
+        assertTrue(cost > 0)
     }
 }

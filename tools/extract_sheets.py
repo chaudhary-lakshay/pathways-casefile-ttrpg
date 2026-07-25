@@ -7,12 +7,28 @@ so the engine can show a computed-vs-published diff.
 Reads the CharSheetP1 tab only. ThrustTable is content (Task 10), and
 Summons is byte-identical boilerplate across all 23 files with no
 character data at all.
+
+The source directory is overridable (KNOWN_ISSUES: "Python tooling is not
+reproducible off this machine") so this runs on any machine or CI without
+the original spreadsheets, hardcoded only as the default for this
+workstation:
+  - `PATHWAYS_SHEETS_DIR` environment variable, or
+  - `--src <dir>` on the command line (takes precedence over the env var).
 """
-import glob, json, os, pathlib, re
+import argparse, glob, json, os, pathlib, re
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SRC = pathlib.Path(os.path.expanduser("~/Downloads/LOTM TTRPG Sheets"))
+DEFAULT_SRC = pathlib.Path(os.path.expanduser("~/Downloads/LOTM TTRPG Sheets"))
 OUT = ROOT / "fixtures"
+
+
+def resolve_src_dir(cli_arg: str | None = None) -> pathlib.Path:
+    if cli_arg:
+        return pathlib.Path(cli_arg)
+    env = os.environ.get("PATHWAYS_SHEETS_DIR")
+    if env:
+        return pathlib.Path(env)
+    return DEFAULT_SRC
 
 DIFFICULTIES = {"E", "A", "H", "VH"}
 
@@ -65,6 +81,34 @@ def extract(path: pathlib.Path) -> dict:
 
     attributes = {a: value_right_of(a) for a in ("ST", "DX", "IQ", "HT")}
 
+    def points_after(label):
+        """First '<int> pts'/'<int> points'-shaped string cell after `label`, or None.
+
+        Shared by "Budget (BP)"/"Total spent" (pre-existing) and the four
+        POINT BREAKDOWN subtotal rows (Attributes/Advantages/Disadvantages/
+        Skills) added for KNOWN_ISSUES: "fixtures carry no per-category
+        point breakdown". Column position drifts by one for at least one
+        subtotal row (Skills lands one column further right than
+        Attributes/Advantages on every sheet observed), which is exactly
+        why this scans forward for the "<n> pts" shape instead of reading
+        a fixed offset. Monastery Scholar spells this row "30 points"
+        rather than "30 pts" (every other sheet's Disadvantages row uses
+        "pts"), so both spellings are accepted; a cell that is itself a
+        broken formula (Church Healer's Disadvantages cell is the literal
+        string "#ERROR!") correctly falls through to None rather than
+        being misparsed.
+        """
+        pos = find(grid, label)
+        if pos is None:
+            return None
+        r, c = pos
+        for cell in grid[r][c + 1:]:
+            if isinstance(cell, str):
+                m = re.search(r"(\d+)\s*(?:pts|points)\b", cell)
+                if m:
+                    return int(m.group(1))
+        return None
+
     published = {
         "hp":         value_right_of("HP"),
         "fp":         value_right_of("FP"),
@@ -75,22 +119,22 @@ def extract(path: pathlib.Path) -> dict:
         "basicSpeed": value_right_of("BASE SPD"),
         "basicMove":  value_right_of("BASE MOVE"),
         "dodge":      value_right_of("Dodge"),
-        "bpTotal":    None,
-        "totalSpent": None,
+        "bpTotal":    points_after("Budget (BP)"),
+        "totalSpent": points_after("Total spent"),
         "unspent":    value_right_of("Unspent", 2),
+        # POINT BREAKDOWN subtotals (Ch. 3/6). Beat Cop has no such block at
+        # all, so every one of these is None for that sheet -- see
+        # test_beat_cop_has_no_point_breakdown. Several other sheets HAVE a
+        # block whose own printed subtotals contradict their own item lists
+        # (documented for University Librarian, Street Acrobat, Monastery
+        # Scholar in GoldenSheetTest) -- these are recorded as-published
+        # here regardless; reconciling engine-vs-sheet is the golden
+        # suite's job, not the extractor's.
+        "attributesSubtotal":    points_after("Attributes"),
+        "advantagesSubtotal":    points_after("Advantages"),
+        "disadvantagesSubtotal": points_after("Disadvantages"),
+        "skillsSubtotal":        points_after("Skills"),
     }
-
-    # "Budget (BP)" and "Total spent" print as strings like "100 pts".
-    for label, key in (("Budget (BP)", "bpTotal"), ("Total spent", "totalSpent")):
-        pos = find(grid, label)
-        if pos:
-            r, c = pos
-            for cell in grid[r][c + 1:]:
-                if isinstance(cell, str):
-                    m = re.search(r"(\d+)\s*pts", cell)
-                    if m:
-                        published[key] = int(m.group(1))
-                        break
 
     def traits(header):
         """Parse an ADVANTAGES/DISADVANTAGES block.
@@ -162,9 +206,14 @@ def extract(path: pathlib.Path) -> dict:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--src", default=None, help="directory of .xlsx sheets (overrides PATHWAYS_SHEETS_DIR)")
+    args = parser.parse_args()
+    src = resolve_src_dir(args.src)
+
     OUT.mkdir(parents=True, exist_ok=True)
     n = 0
-    for f in sorted(glob.glob(str(SRC / "*.xlsx"))):
+    for f in sorted(glob.glob(str(src / "*.xlsx"))):
         p = pathlib.Path(f)
         if p.name.startswith("~$"):        # Excel lock file
             continue
