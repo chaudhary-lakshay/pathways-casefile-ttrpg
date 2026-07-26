@@ -126,27 +126,16 @@ sealed interface Scope {
 }
 
 /**
- * Declared but deliberately NOT enforced by [ModifierResolver] — nothing
- * currently expires a modifier when its Duration elapses (KNOWN_ISSUES).
+ * Enforced by [ModifierResolver] only for a modifier that carries a
+ * [Modifier.startTurn] — the turn its clock began. Without a start turn
+ * there is nothing to measure elapsed time against, so a [Turns] or
+ * [Minutes] modifier with `startTurn == null` never expires and behaves
+ * exactly like [Permanent].
  *
- * This is a scope decision, not an oversight: enforcing it needs state the
- * resolver does not have. [Modifier] carries no "activated at turn N" (or
- * "activated at real time T") field, and [ModifierResolver.resolve] is a
- * pure function of `(base, mods, target, ctx)` called fresh each time with
- * no memory of when any given modifier's clock started -- `ctx.turn` alone
- * cannot answer "has N turns elapsed since this Turns(N) modifier began"
- * without a start-turn to compare it against. Adding that start-turn field
- * to [Modifier] itself would actually be cheap right now -- there are zero
- * `Modifier(...)` construction sites in main source today, and no content
- * file holds a serialized [Modifier] at all, so nothing would need touching.
- * The real blocker is simpler: that start-turn has to live somewhere a
- * caller can supply and update it turn-by-turn as play proceeds, and no such
- * stateful caller exists yet -- adding the field alone wouldn't accomplish
- * anything without one. Until a caller exists that can supply that state,
- * [Turns] and [Minutes] behave exactly like [Permanent] and [Scene]
- * currently do: never expiring on their own. `ModifierResolverTest` pins
- * this current (non-)behaviour so it cannot silently change without
- * updating this note.
+ * [Permanent] and [Scene] never expire on a turn count by design: a scene
+ * ends when the caller drops the modifier, not when a clock runs out.
+ *
+ * One turn is one second, so [Minutes] `n` elapses after `n * 60` turns.
  */
 @Serializable
 sealed interface Duration {
@@ -178,5 +167,7 @@ data class Modifier(
     val supersedes: ModifierId? = null,
     val scope: Scope = Scope.Self,
     val duration: Duration = Duration.Permanent,
+    /** Turn on which this modifier's clock started; null means it is not on a clock and never expires. See [Duration]. */
+    val startTurn: Int? = null,
     val condition: Condition = Condition.Always,
 )

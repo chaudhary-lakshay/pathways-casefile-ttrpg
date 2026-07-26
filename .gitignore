@@ -4,3 +4,4 @@ build/
 .idea/
 local.properties
 __pycache__/
+gradle/gradle-daemon-jvm.properties

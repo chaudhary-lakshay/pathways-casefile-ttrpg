@@ -230,12 +230,23 @@ object ModifierResolver {
                             val applied = capped(raw, group)
                             value += applied
                             contribute(flats.map { it.id }, applied)
-                            // Attribute the (possibly capped) contribution per
-                            // SourceKind, each bounded individually by the same cap.
-                            // Exact when the bucket is single-kind - the only case
-                            // any rulebook example or fixture exercises.
-                            flats.groupBy { it.source.kind }.forEach { (kind, kms) ->
-                                record(kind, capped(kms.sumOf { (it.effect as ModEffect.Flat).n }, group))
+                            // Split the (possibly capped) contribution across the
+                            // SourceKinds that produced it, in proportion to each
+                            // kind's raw share, via prefix differences so the parts
+                            // sum to EXACTLY `applied`. Capping each kind's own sum
+                            // independently (the previous approach) over-attributes
+                            // a mixed-kind group: a cap=2 bucket with -3 from two
+                            // different kinds recorded -2 twice, letting two Cancels
+                            // hand back +4 against a penalty that only applied -2.
+                            if (raw != 0) {
+                                var prefixRaw = 0L
+                                var prefixApplied = 0L
+                                flats.groupBy { it.source.kind }.forEach { (kind, kms) ->
+                                    prefixRaw += kms.sumOf { (it.effect as ModEffect.Flat).n }
+                                    val next = Math.floorDiv(applied.toLong() * prefixRaw, raw.toLong())
+                                    record(kind, (next - prefixApplied).toInt())
+                                    prefixApplied = next
+                                }
                             }
                         }
                         if (setTos.isNotEmpty()) {
@@ -291,7 +302,9 @@ object ModifierResolver {
         // Only modifiers that are themselves active (right target, condition
         // holds) can supersede anything - an inactive or off-target
         // "superseder" must not delete the modifier it names.
-        val activeForTarget = mods.filter { it.target == target && matches(it.condition, ctx) }
+        val activeForTarget = mods.filter {
+            it.target == target && !expired(it, ctx) && matches(it.condition, ctx)
+        }
         val superseded = activeForTarget.mapNotNull { it.supersedes }.toSet()
         val live = activeForTarget.filter { it.id !in superseded }
 
@@ -314,6 +327,22 @@ object ModifierResolver {
             )
 
         return Resolution(value, forbidden, requiresCritical, contributions)
+    }
+
+    /**
+     * True once [m]'s clock has run out by `ctx.turn`. A modifier with no
+     * [Modifier.startTurn] is not on a clock and never expires, which keeps
+     * every modifier that predates duration-tracking behaving as before.
+     * One turn is one second, so [Duration.Minutes] `n` is `n * 60` turns.
+     */
+    private fun expired(m: Modifier, ctx: Context): Boolean {
+        val start = m.startTurn ?: return false
+        val elapsed = (ctx.turn - start).toLong()
+        return when (val d = m.duration) {
+            Duration.Permanent, Duration.Scene -> false
+            is Duration.Turns -> elapsed >= d.n.toLong()
+            is Duration.Minutes -> elapsed >= d.n.toLong() * 60L
+        }
     }
 
     private fun matches(c: Condition, ctx: Context): Boolean = when (c) {

@@ -1,9 +1,8 @@
 # Known Issues
 
-Carried forward from the M0/M1 final whole-branch review (2026-07-25). Every item
-here is **unreachable today** — `ModifierResolver` has no production callers and no
-rulebook content has been extracted yet — but each becomes live the moment the
-milestone named against it lands.
+**There are no open issues.** Every item ever recorded here has been fixed and
+is pinned by a test. This file is kept as the audit trail of what was found and
+what was done about it, not as a backlog.
 
 Items 1-4 of the original review (raw-Flat Cancel budgets, summed SetTo, ungrouped
 Scale/Decay/Cancel caps, and the mod() test helper decoupling SourceKind from
@@ -194,57 +193,62 @@ resolution.
   everything else (current HP/FP, conditions, situational modifiers, the rest
   of Beyonder state) still arriving at M3/M4.
 
-Two items remain, by explicit decision rather than oversight:
+Both items that this doc previously left open have now been fixed as well:
 
 ---
 
-### Left unreachable by design: mixed-`SourceKind` group attribution
+### Fixed: mixed-`SourceKind` group attribution over-credited every kind
 
-A `StackGroup` whose live members come from more than one `SourceKind` doesn't
-attribute the group's capped total back to each contributing kind separately
-— `runLayers`'s per-kind attribution for a Flat/SetTo bucket is only exact
-when the bucket is single-kind (see its own comment). Measured: a `cap = 2`
+A `StackGroup` whose live members came from more than one `SourceKind` gave
+each kind the group's full capped total instead of that kind's share of it.
+`runLayers` capped each kind's own raw sum independently, so the parts could
+sum to far more than the group had actually applied. Measured: a `cap = 2`
 group with `Flat(-3)` from an ADVANTAGE source and `Flat(-3)` from a
-SITUATIONAL source correctly applies -2 net, but `Cancel(3, ADVANTAGE)` and
-`Cancel(3, SITUATIONAL)` — aimed at the two different contributing kinds —
-each separately collect +2 apiece, taking base 12 to 14 instead of leaving it
-at 10 (12 - 2).
+SITUATIONAL source correctly applies **-2** net, but recorded **-2 against
+each kind** — so `Cancel(3, ADVANTAGE)` and `Cancel(3, SITUATIONAL)` each
+collected +2, taking base 12 to **14**: strictly above the base, produced by
+nothing but penalties.
 
-Left alone because it is provably unreachable today: there are zero
-`Modifier(`/`StackGroup(` construction sites anywhere in main source (both
-are only ever constructed in test code), so no content or production path can
-currently produce a mixed-kind group to trigger this. It becomes relevant the
-moment a real content-authoring or Modifier-construction path exists; whoever
-adds that path should either keep every `StackGroup`'s live members
-single-kind by construction, or revisit `runLayers`'s per-kind attribution to
-handle a genuinely mixed-kind bucket correctly.
+Fixed by splitting the applied total across contributing kinds in proportion
+to each kind's raw share, computed as prefix differences
+(`floorDiv(applied * prefixRaw, raw)`) so the parts sum to **exactly**
+`applied` for any sign and any cap. Full cancellation of a mixed-kind group
+now restores the base (12) and can never exceed it. `ModifierResolverTest`
+pins both halves of the scenario — the -2 net application and the
+cancel-back-to-12 — and the test was verified to fail (only that test, at the
+cancel assertion) against the previous attribution logic before the fix
+landed.
 
-### `Duration` is declared but not enforced
+This closes the last correctness gap in `ModifierResolver`'s Cancel budget.
+The earlier caveat in `runLayers`'s comment — that per-kind attribution was
+"exact when the bucket is single-kind" — no longer applies: it is now exact
+for any mix of kinds.
 
-`Turns(5)` never expires; the Gauntlet case only works because `Decay` clamps
-at 0. This is a scope decision: enforcing it needs state `ModifierResolver`
-does not have. `Modifier` carries no "activated at turn N" field, and
-`resolve()` is a pure function of `(base, mods, target, ctx)` called fresh
-each time with no memory of when any given modifier's clock started —
-`ctx.turn` alone cannot answer "has N turns elapsed since this modifier
-began" without a start-turn to compare it against.
+### Fixed: `Duration` is now enforced for modifiers that carry a start turn
 
-The real reason this is deferred is simply that **no stateful caller exists
-yet** to own that bookkeeping — not, as a previous version of this note
-claimed, that adding a start-turn would require "mutating `Modifier` (a
-model-wide change touching every content file and serialized instance)".
-That claim doesn't hold up: there are zero `Modifier(...)` construction sites
-in main source today, and no content file holds a serialized `Modifier` at
-all (the only files under `core/rules/src/main/resources/content/` are
-`advantages.json`, `disadvantages.json`, `skills.json`, and
-`thrust_swing.json` — none of them a `Modifier`). Adding a start-turn field
-would be a small, blast-radius-free change to a type nothing constructs yet.
-The actual blocker is that the state has to live *somewhere* a caller can
-supply and update it turn-by-turn, and that caller doesn't exist until a
-later milestone wires modifiers into live play.
+`Modifier` gained a nullable `startTurn: Int?` (defaulting to `null`), and
+`ModifierResolver.resolve` now filters out any modifier whose clock has run
+out before `supersedes` and condition filtering run. The rules:
 
-Until a caller exists that can supply that state, `Turns` and `Minutes`
-behave exactly like `Permanent` and `Scene`: never expiring on their own.
-`Duration`'s KDoc spells this out, and `ModifierResolverTest` pins the current
-(non-)behaviour so a future change cannot silently alter it without the test
-(and this note) being updated.
+| Duration | Expires? |
+|---|---|
+| `Permanent` | never — by definition |
+| `Scene` | never on a turn count; a scene ends when the caller drops the modifier |
+| `Turns(n)` | when `ctx.turn - startTurn >= n` |
+| `Minutes(n)` | when `ctx.turn - startTurn >= n * 60` (one turn is one second) |
+
+A modifier with `startTurn == null` is not on a clock and never expires, so
+every modifier written before duration tracking existed keeps behaving
+exactly as it did. That default is what makes this a non-breaking change
+despite `Duration` having been declared since M0.
+
+Expiry is applied in the same filter as `condition`, which means an expired
+modifier also **cannot supersede** the modifier it names — the same rule
+already proven for a condition that does not hold, and pinned by its own
+test. `ModifierResolverTest` covers all four `Duration` cases, the no-start-
+turn default, the exact turn boundaries in both directions, and the
+supersedes interaction.
+
+The stateful caller that owns advancing `ctx.turn` and stamping `startTurn`
+still arrives at a later milestone — but the resolver no longer silently
+ignores a duration once that caller exists.

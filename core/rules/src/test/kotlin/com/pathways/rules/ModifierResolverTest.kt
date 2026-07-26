@@ -268,20 +268,75 @@ class ModifierResolverTest {
         ), target, ctx).value)
     }
 
-    // --- Phase D: Duration remains deliberately unenforced (KNOWN_ISSUES) ---
+    // --- Duration is enforced for modifiers that carry a start turn ---
 
     @Test
-    fun `a Turns duration does not expire - Duration is not enforced by the resolver`() {
-        // Pins the documented, deliberate non-enforcement (see Duration's
-        // KDoc): ctx.turn alone cannot tell the resolver when a Turns(n)
-        // modifier's clock started, so it behaves exactly like Permanent.
-        // This must keep failing loudly (by this test changing) if Duration
-        // enforcement is ever added, rather than silently starting to pass.
-        val m = mod("still-active", ModEffect.Flat(-2), Layer.SITUATIONAL).let {
-            it.copy(duration = Duration.Turns(1))
-        }
+    fun `a Turns modifier with no start turn never expires`() {
+        // No startTurn means the modifier is not on a clock, so it behaves
+        // exactly like Permanent no matter how far ctx.turn advances.
+        val m = mod("no-clock", ModEffect.Flat(-2), Layer.SITUATIONAL)
+            .copy(duration = Duration.Turns(1))
         assertEquals(10, ModifierResolver.resolve(12, listOf(m), target, ctx.copy(turn = 0)).value)
         assertEquals(10, ModifierResolver.resolve(12, listOf(m), target, ctx.copy(turn = 500)).value)
+    }
+
+    @Test
+    fun `a Turns modifier applies while its clock runs and stops on the turn it elapses`() {
+        val m = mod("two-turn-fear", ModEffect.Flat(-2), Layer.SITUATIONAL)
+            .copy(duration = Duration.Turns(2), startTurn = 10)
+        assertEquals(10, ModifierResolver.resolve(12, listOf(m), target, ctx.copy(turn = 10)).value)
+        assertEquals(10, ModifierResolver.resolve(12, listOf(m), target, ctx.copy(turn = 11)).value)
+        assertEquals(12, ModifierResolver.resolve(12, listOf(m), target, ctx.copy(turn = 12)).value)
+    }
+
+    @Test
+    fun `a Minutes modifier lasts sixty turns per minute`() {
+        val m = mod("one-minute-blessing", ModEffect.Flat(2), Layer.POTION)
+            .copy(duration = Duration.Minutes(1), startTurn = 0)
+        assertEquals(14, ModifierResolver.resolve(12, listOf(m), target, ctx.copy(turn = 59)).value)
+        assertEquals(12, ModifierResolver.resolve(12, listOf(m), target, ctx.copy(turn = 60)).value)
+    }
+
+    @Test
+    fun `Permanent and Scene never expire even with a start turn`() {
+        val permanent = mod("permanent", ModEffect.Flat(-1), Layer.SITUATIONAL)
+            .copy(duration = Duration.Permanent, startTurn = 0)
+        val scene = mod("scene", ModEffect.Flat(-1), Layer.SITUATIONAL)
+            .copy(duration = Duration.Scene, startTurn = 0)
+        assertEquals(10, ModifierResolver.resolve(12, listOf(permanent, scene), target, ctx.copy(turn = 9999)).value)
+    }
+
+    @Test
+    fun `an expired modifier cannot supersede the one it names`() {
+        // Same rule already proven for an inactive condition: a superseder that
+        // is not itself live must not delete the modifier it replaces.
+        val seq9 = mod("seq9-night", ModEffect.Flat(1), Layer.POTION)
+        val seq8 = mod("seq8-night", ModEffect.SetTo(2), Layer.POTION, supersedes = "seq9-night")
+            .copy(duration = Duration.Turns(1), startTurn = 0)
+        assertEquals(13, ModifierResolver.resolve(12, listOf(seq9, seq8), target, ctx.copy(turn = 5)).value)
+    }
+
+    @Test
+    fun `a capped mixed-SourceKind group attributes exactly what it applied, no more`() {
+        // Two kinds each contributing Flat(-3) into a cap=2 group apply -2 net.
+        // Attribution used to cap each kind's own sum independently, recording
+        // -2 for BOTH kinds, so a Cancel aimed at each kind collected +2 apiece
+        // and took base 12 to 14 - above the base, from nothing but penalties.
+        // The split must sum to exactly the -2 that was applied, so full
+        // cancellation restores the base and never exceeds it.
+        val group = StackGroup("mixed-fear", cap = 2)
+        val mods = listOf(
+            mod("adv-fear", ModEffect.Flat(-3), Layer.SITUATIONAL, group = group,
+                source = ModifierSource.FromTrait("adv-fear", advantage = true)),
+            mod("sit-fear", ModEffect.Flat(-3), Layer.SITUATIONAL, group = group,
+                source = ModifierSource.Situational("sit-fear")),
+        )
+        assertEquals(10, ModifierResolver.resolve(12, mods, target, ctx).value)
+        val cancels = listOf(
+            mod("cancel-adv", ModEffect.Cancel(3, SourceKind.ADVANTAGE), Layer.COUNTERMEASURE),
+            mod("cancel-sit", ModEffect.Cancel(3, SourceKind.SITUATIONAL), Layer.COUNTERMEASURE),
+        )
+        assertEquals(12, ModifierResolver.resolve(12, mods + cancels, target, ctx).value)
     }
 
     // --- Phase D: Resolution.applied is an honest audit trail (KNOWN_ISSUES:
