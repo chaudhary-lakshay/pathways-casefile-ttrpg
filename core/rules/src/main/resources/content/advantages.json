@@ -1,0 +1,662 @@
+{
+ "sourceLines": {
+  "3": [
+   [
+    537,
+    554
+   ],
+   [
+    561,
+    632
+   ],
+   [
+    752,
+    769
+   ],
+   [
+    772,
+    819
+   ],
+   [
+    824,
+    836
+   ],
+   [
+    841,
+    844
+   ],
+   [
+    847,
+    876
+   ],
+   [
+    881,
+    924
+   ],
+   [
+    927,
+    949
+   ],
+   [
+    958,
+    995
+   ],
+   [
+    998,
+    1001
+   ],
+   [
+    1006,
+    1032
+   ],
+   [
+    1037,
+    1066
+   ],
+   [
+    1069,
+    1097
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "name": "Combat Reflexes",
+   "cost": 15,
+   "perLevel": false,
+   "notes": "+1 to all active defenses, +6 to recover from stun, never freeze in surprise"
+  },
+  {
+   "name": "Danger Sense",
+   "cost": 15,
+   "perLevel": false,
+   "notes": "GM warns of threats just before they strike (surprise is negated)"
+  },
+  {
+   "name": "Hard to Kill",
+   "cost": 2,
+   "perLevel": true,
+   "notes": "+1/level to HT rolls to avoid death; can take 1–5 levels"
+  },
+  {
+   "name": "Hard to Subdue",
+   "cost": 2,
+   "perLevel": true,
+   "notes": "+1/level to remain conscious when reduced to 0 or negative HP"
+  },
+  {
+   "name": "High Pain Threshold",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "Ignore shock penalties from injury; +3 on HT rolls to avoid knockdown"
+  },
+  {
+   "name": "Lifting ST",
+   "cost": 3,
+   "perLevel": true,
+   "notes": "Extra ST only for lifting/carrying purposes; does not affect damage"
+  },
+  {
+   "name": "Charisma",
+   "cost": 5,
+   "perLevel": true,
+   "notes": "+1/level to reaction rolls and Influence skills (Leadership, Panhandling, Public Speaking, Savoir-Faire, Sex Appeal, Streetwise) [max 4 levels]"
+  },
+  {
+   "name": "Contact",
+   "costMin": 1,
+   "costMax": 10,
+   "perLevel": false,
+   "notes": "Reliable source of information or aid (varies by skill and frequency)"
+  },
+  {
+   "name": "Church Organisation Informant",
+   "costMin": 5,
+   "costMax": 15,
+   "perLevel": false,
+   "notes": "A representative of a church enforcement body (Nighthawks, Mandated Punishers, Machinery Hivemind, etc.) has chosen you as an informant. Receive help from authorities when in minor legal trouble or when caught using Beyonder powers without harm to innocents. Earn contribution points for important information or assistance, exchangeable for money or Beyonder formulas/ingredients. 5 pts: newly recruited, must prove your worth. 10–15 pts: trusted informant; the organisation's representative trusts your judgement."
+  },
+  {
+   "name": "Official Beyonder",
+   "cost": 15,
+   "perLevel": false,
+   "notes": "You operate under the sanction of a recognised church or organisation. Benefits: Revolver +2, Ritualistic Magic +1, Hidden Lore (Beyonders) +3, Occultism +2, Hermes Language (Broken). You have Legal Enforcement Powers as a sanctioned investigator. Drawback: Duty (to your organisation) — you can be called upon for assignments and must follow institutional protocol."
+  },
+  {
+   "name": "Eidetic Memory",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "+5 to remember things after one reading; near-perfect recall"
+  },
+  {
+   "name": "Empathy",
+   "cost": 15,
+   "perLevel": false,
+   "notes": "Sense emotions; +3 to social skill rolls"
+  },
+  {
+   "name": "Language Talent",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "All language skills cost half the normal points"
+  },
+  {
+   "name": "Reputation",
+   "variableCost": true,
+   "perLevel": false,
+   "notes": "Known for something specific — positive reactions from relevant groups"
+  },
+  {
+   "name": "Voice",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "+2 to all rolls to influence others through speech"
+  },
+  {
+   "name": "Alertness",
+   "cost": 5,
+   "perLevel": true,
+   "notes": "+1 per level to all Per rolls. Notice more of your surroundings — active and passive perception both benefit."
+  },
+  {
+   "name": "Healer",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "+2 to all rolls to diagnose, treat, and heal; +3 to First Aid specifically; HT rolls to avoid or recover from disease at +2."
+  },
+  {
+   "name": "Single-Minded",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "+3 to any extended concentration task (research, crafting, lockpicking, etc.) when you can focus without interruption."
+  },
+  {
+   "name": "Versatile",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "+1 to defaults skill rolls — any time you use a skill at default, you are effectively one level better."
+  },
+  {
+   "name": "Intuition",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Once per session, the GM may give you a meaningful hunch about a decision. Ask the GM: 'Is this a good/bad idea?' The GM must answer honestly."
+  },
+  {
+   "name": "Lightning Calculator",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Perfect mental arithmetic; quick estimates at no penalty; numerical puzzles and mental maths at +2."
+  },
+  {
+   "name": "Absolute Direction",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Always know which way is north; never become lost in natural terrain. +3 to Navigation and Body Sense rolls."
+  },
+  {
+   "name": "Language (specify)",
+   "variableCost": true,
+   "perLevel": false,
+   "notes": "Individual language proficiency. See the Languages section for cost tables based on proficiency (Native/Accented/Broken) and type (Common vs Mystical)."
+  },
+  {
+   "name": "Acute Social Awareness",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "+2 to all Body Language and Detect Lies rolls. You read a room before you enter it."
+  },
+  {
+   "name": "Class Mobility",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Move believably across two social classes. +2 to Savoir-Faire in either; NPCs rarely question your presence."
+  },
+  {
+   "name": "Connections: Church Lay Staff",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Recognized civilian assistant to one Orthodox Church. Access to facilities; some protection from routine Nighthawk scrutiny."
+  },
+  {
+   "name": "Connections: Press Credentials",
+   "cost": 3,
+   "perLevel": false,
+   "notes": "Recognized press identity. Opens doors otherwise closed; plausible reason to be anywhere in a city."
+  },
+  {
+   "name": "Fearsome Reputation",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Known in criminal circles. Relevant NPCs start cautious; Intimidation in these circles is at +2."
+  },
+  {
+   "name": "Local Legend",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Well-known in one neighbourhood (specify). +2 to social rolls there; people look out for you."
+  },
+  {
+   "name": "Mentor",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Senior figure offers intermittent guidance. Once per session consult for info, a contact, or a skill roll at their level."
+  },
+  {
+   "name": "Multilingual",
+   "cost": 3,
+   "perLevel": false,
+   "notes": "Fluent in two additional languages. No penalty to language-dependent social skills in those languages."
+  },
+  {
+   "name": "Natural Leader",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "When you issue a direct command under pressure, allies may reroll their first Fright Check or morale roll with +1. Once per scene."
+  },
+  {
+   "name": "Police Informant",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Arrangement with local constabulary. Minor legal trouble can often be redirected. Discreet — exposure would be dangerous."
+  },
+  {
+   "name": "Respectable Address",
+   "cost": 3,
+   "perLevel": false,
+   "notes": "Lodgings in a creditable neighbourhood. +1 to social rolls with middle/upper class NPCs who would otherwise look down on you."
+  },
+  {
+   "name": "Street Credibility",
+   "cost": 3,
+   "perLevel": false,
+   "notes": "Trusted in the working-class underground. Call in small favours from dock workers, factory hands, and street operators once per session."
+  },
+  {
+   "name": "Fearlessness",
+   "cost": 2,
+   "perLevel": true,
+   "notes": "+1 per level to Fright Checks; also grants immunity to intimidation from beings with fewer levels of Fearlessness than you. Vital in a world of horrors."
+  },
+  {
+   "name": "Fit",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "+1 to all HT rolls; recover FP at twice the normal rate"
+  },
+  {
+   "name": "Very Fit",
+   "cost": 15,
+   "perLevel": false,
+   "notes": "+2 to all HT rolls; lose FP at half the normal rate; recover FP at twice the normal rate"
+  },
+  {
+   "name": "Wealth: Comfortable",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Good income; start with £5. Status 1 → +1 reaction from those impressed by wealth."
+  },
+  {
+   "name": "Hunting License",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Legal in Loen for hunting rifle only. Costs £5 to obtain in-game. Valid in rural/suburban areas — carrying in city limits draws police attention."
+  },
+  {
+   "name": "General Weapon Certificate",
+   "cost": 15,
+   "perLevel": false,
+   "notes": "Full civilian firearm permit. Costs £50 to obtain in-game. Allows carry of any non-military weapon in cities; required for pistols, rifles, shotguns in urban areas."
+  },
+  {
+   "name": "Legal Enforcement Powers",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Official authority to investigate, detain, and carry weapons in the line of duty. Works within jurisdiction only; may vary by city or organization."
+  },
+  {
+   "name": "Black Market Access",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Reliable source for illegal or restricted goods. Once per session attempt to acquire a specific item outside legal channels."
+  },
+  {
+   "name": "Experienced Investigator",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Once per investigation scene ask the GM one yes/no question about observable evidence without a skill roll."
+  },
+  {
+   "name": "Former Military Officer",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "Leadership and Tactics at +1; military contacts; entitled to officer courtesies in formal settings."
+  },
+  {
+   "name": "Industrial Expertise",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Deep familiarity with a specific industry (specify). +2 to all relevant skill rolls; NPCs in that industry trust your knowledge."
+  },
+  {
+   "name": "Medical Training (Informal)",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Use Physician at IQ-2 without purchasing the skill; First Aid rolls gain +1."
+  },
+  {
+   "name": "Navigator's Eye",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Never become lost in any city previously visited; rural navigation rolls at +2."
+  },
+  {
+   "name": "Photographic Instinct",
+   "cost": 3,
+   "perLevel": false,
+   "notes": "Photography rolls at +2; instinctively know what to capture as evidence."
+  },
+  {
+   "name": "Safecracker",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "+3 to Lockpicking for combination locks and mechanical safes specifically."
+  },
+  {
+   "name": "Underworld Lawyer",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Once per session cite an obscure legal technicality convincingly enough to delay, redirect, or dismiss a legal problem."
+  },
+  {
+   "name": "Alcohol Tolerance",
+   "cost": 1,
+   "perLevel": false,
+   "notes": "Never suffer social penalties from moderate drinking; Carousing rolls to appear sober at +3."
+  },
+  {
+   "name": "Cold Resistance",
+   "cost": 2,
+   "perLevel": false,
+   "notes": "No penalties from cold weather up to freezing; hypothermia rolls at +2."
+  },
+  {
+   "name": "Controlled Breathing",
+   "cost": 3,
+   "perLevel": false,
+   "notes": "Hold breath for HT × 3 seconds without a roll; HT rolls to resist airborne toxins at +2."
+  },
+  {
+   "name": "Fast Healer",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Recover 1 additional HP per day of rest. Injuries that would leave others bedridden leave you functional in half the time."
+  },
+  {
+   "name": "Hard Stomach",
+   "cost": 2,
+   "perLevel": false,
+   "notes": "No HT rolls required for disgusting environments — gore, corpses, foul conditions."
+  },
+  {
+   "name": "Iron Jaw",
+   "cost": 3,
+   "perLevel": false,
+   "notes": "Knockdown rolls from blows to the head at +2; never bite through your own tongue under shock."
+  },
+  {
+   "name": "Light Sleeper",
+   "cost": 2,
+   "perLevel": false,
+   "notes": "Perception rolls while sleeping at +4; never caught completely unaware at night."
+  },
+  {
+   "name": "Low-Profile Build",
+   "cost": 3,
+   "perLevel": false,
+   "notes": "Physical appearance is unremarkable. All attempts to identify you from description are at -2."
+  },
+  {
+   "name": "Night Eyes",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Reduce all darkness penalties by 2; in dim gaslight or moonlight suffer no penalty at all."
+  },
+  {
+   "name": "Perfect Balance",
+   "cost": 20,
+   "perLevel": false,
+   "notes": "+6 to avoid knockdown; +2 to Acrobatics, Climbing, Piloting"
+  },
+  {
+   "name": "Great Balance",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "+2 to avoid knockdown; +1 to Acrobatics, Climbing, Piloting"
+  },
+  {
+   "name": "Rapid Recovery",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Stun durations halved; recover from knockdown in half normal time."
+  },
+  {
+   "name": "Flexibility",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "+3 to Climbing and Escape; ignore up to -3 close-quarters penalties."
+  },
+  {
+   "name": "Double-Jointed",
+   "cost": 15,
+   "perLevel": false,
+   "notes": "+5 to Climbing and Escape; ignore up to -5 close-quarters penalties; any body part bends any way."
+  },
+  {
+   "name": "Acute Vision",
+   "cost": 2,
+   "perLevel": false,
+   "notes": "+2 to Vision rolls; notice details at a distance, read lips, spot hidden objects."
+  },
+  {
+   "name": "Acute Hearing",
+   "cost": 2,
+   "perLevel": false,
+   "notes": "+2 to Hearing rolls; detect faint sounds, eavesdrop through walls, identify speech in noise."
+  },
+  {
+   "name": "Resistant (specify)",
+   "costMin": 3,
+   "costMax": 5,
+   "perLevel": false,
+   "notes": "HT rolls to resist a specific category at +3 (3 pts) or +8 (5 pts). Common choices: Disease, Poison, Temperature Extremes."
+  },
+  {
+   "name": "Outdoorsman",
+   "cost": 10,
+   "perLevel": true,
+   "notes": "+1 per level to all Outdoor skills (Camouflage, Fishing, Naturalist, Navigation, Survival, Tracking, Weather Sense). Max 4 levels."
+  },
+  {
+   "name": "Aura Sensitivity",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Sense the emotional weight of places. In locations where violence, grief, or supernatural events occurred, receive a vague impression without rolling."
+  },
+  {
+   "name": "Death Sense",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "Passive awareness of recent death within 30 meters (within 24 hours). Sense its direction without rolling; can sense whether a person is dying."
+  },
+  {
+   "name": "Divine Touchstone",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "An Orthodox deity has taken minor notice of you. Once per session ask the GM a yes/no question your character senses as an impression."
+  },
+  {
+   "name": "Dreamsight",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "Dreams contain genuine information. Once per session the GM may offer a cryptic dream-image related to current events; sharing it grants +1 to one investigation roll."
+  },
+  {
+   "name": "Ether Body Awareness",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Know immediately when a supernatural effect is targeting your soul, not just your body — even without Spirit Vision."
+  },
+  {
+   "name": "Fate Sensitivity",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "Once per session when making a decision with major consequences, ask the GM: 'Does this feel wrong?' The GM must answer honestly."
+  },
+  {
+   "name": "Ghost Proximity Sense",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Passive. Sense when a spirit is within 10 meters — a cold certainty. No details; no roll required."
+  },
+  {
+   "name": "Pathway Resonance",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "Unexplained affinity with one specific Pathway (specify). +3 to rolls to identify items, individuals, or rituals associated with it."
+  },
+  {
+   "name": "Ritual Intuition",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Sense when a ritual is being performed within 50 meters. Notice the spiritual disturbance without rolling — even without knowing its type."
+  },
+  {
+   "name": "Soul Reading (Untrained)",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "Once per scene the GM may offer one true impression about a target's emotional condition or hidden motive. Cannot be triggered deliberately."
+  },
+  {
+   "name": "Anchored Soul",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "All attempts to alter your mental identity — possession, compulsion, pathway side effects — are at -2 against you."
+  },
+  {
+   "name": "Cleansed Spirit",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "CoR gained from passive exposure are halved. Active corruption from deliberate acts is unaffected."
+  },
+  {
+   "name": "Cold Iron Tolerance",
+   "cost": 3,
+   "perLevel": false,
+   "notes": "Unaffected by the mild spiritual discomfort iron causes to sensitive individuals. Rare in those with significant spiritual heritage."
+  },
+  {
+   "name": "Faithful Grounding",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Genuine faith acts as an anchor. Fright Checks in church buildings, shrines, or during prayer are at +3."
+  },
+  {
+   "name": "Incorruptible Will",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "+3 to all Will rolls to resist Beyonder abilities, evil god whispers, and ritual compulsion. Does not apply to mundane social pressure."
+  },
+  {
+   "name": "Spiritual Fortitude",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Maximum CoR equal Will + 3 rather than just Will."
+  },
+  {
+   "name": "Warded Dreams",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "All supernatural attempts to enter, read, or alter your dreams require an additional success by 3 or more to take effect."
+  },
+  {
+   "name": "Luck",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "1 reroll per session — may reroll any one failed roll."
+  },
+  {
+   "name": "Beckoning Luck",
+   "cost": 20,
+   "perLevel": false,
+   "notes": "2 rerolls per session — reroll any failed roll, usable at any time. If the re-roll also fails there is no additional effect — and fate may balance later."
+  },
+  {
+   "name": "Born Under a Named Star",
+   "cost": 15,
+   "perLevel": false,
+   "notes": "Seers and Diviners who read your fate always notice something unusual. You register as 'marked' in ways they cannot fully interpret."
+  },
+  {
+   "name": "Mystical Item",
+   "costMin": 5,
+   "costMax": 15,
+   "perLevel": false,
+   "notes": "A single mystical item you already possess, defined with the GM. Cost scales with power: a minor charm (5 pts), a useful tool (10 pts), or a significant piece of equipment (15 pts). The item should match one of the 22 pathways' domains. If lost or destroyed, rename this advantage to 'Mystical Item (Lost)' — no refund."
+  },
+  {
+   "name": "Charmed Object",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "One item you own provides +1 to one specific skill when used (specify item and skill). Lost permanently if the item is destroyed."
+  },
+  {
+   "name": "Dead Language Fluency",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Read and speak one dead language (Ancient Hermes, Ancient Loen, etc.) without having formally learned it. Origin unexplained."
+  },
+  {
+   "name": "Familiar Presence",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Animals and spirits are unusually calm near you. Domestic animals never startle; non-hostile spirits observe rather than act against you."
+  },
+  {
+   "name": "Sequence Knowledge",
+   "cost": 15,
+   "perLevel": false,
+   "notes": "You know the formula for your next Sequence 8 potion — main ingredients, supplementary ingredients, and basic preparation method. This knowledge arrives instinctively once you reach Sequence 9. It does not grant the ingredients, a pre-prepared potion, or an Acting Method. Covers only the immediate next sequence."
+  },
+  {
+   "name": "Knows the Acting Method",
+   "cost": 15,
+   "perLevel": false,
+   "notes": "You innately understand the Acting Method for your Pathway. Doubles your digestion speed — all Digestion Gain Per Session is doubled (e.g. Exemplary +15–20% becomes +30–40%)."
+  },
+  {
+   "name": "Marked by Ritual",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "A lasting spiritual imprint (define with GM). Grants +2 to one type of SPI roll but may attract unusual attention."
+  },
+  {
+   "name": "Spirit Tongue",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "Communicate basic intent to ghosts and lingering spirits without the Language of the Dead ability. Limited to yes/no exchanges."
+  },
+  {
+   "name": "Uncanny Survivor",
+   "cost": 10,
+   "perLevel": false,
+   "notes": "Once per campaign arc, when you would die on a death roll, succeed automatically instead. The GM decides the cost."
+  },
+  {
+   "name": "Sanctity",
+   "cost": 5,
+   "perLevel": false,
+   "notes": "Your connection to the divine is unusually clear. +2 to Theology and Religious Ritual; once per session, the GM must answer one factual question about Church doctrine or history honestly."
+  }
+ ]
+}

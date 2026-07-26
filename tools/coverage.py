@@ -18,7 +18,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "build" / "extract"
 CONTENT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
-MECHANICAL = re.compile(r"\d+d[-+]?\d*|[+-]\d+\b|\d+\s*pts?\b|\bAttr[+-]\d+")
+MECHANICAL = re.compile(r"\d+d[-+]?\d*|[+-]\s*\d+\b|\d+\s*pts?\b|\bAttr\s*[+-]\s*\d+")
 
 
 def main() -> int:
@@ -39,7 +39,7 @@ def main() -> int:
     # Build claimed line numbers as sets, deduplicating overlaps
     claimed: dict[str, set[int]] = {}
     if CONTENT.exists():
-        for f in CONTENT.glob("*.json"):
+        for f in CONTENT.rglob("*.json"):
             data = json.loads(f.read_text(encoding="utf-8"))
             for cid, spans in (data.get("sourceLines") or {}).items():
                 for span in spans:

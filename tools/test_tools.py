@@ -1,8 +1,36 @@
 import json, subprocess, sys, pathlib
 
+import pytest
+
+import extract_pdf
+import extract_sheets
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "build" / "extract"
 
+# KNOWN_ISSUES: "Python tooling is not reproducible off this machine" --
+# extract_pdf.py/extract_sheets.py hardcoded ~/Downloads paths and this
+# suite invoked both with check=True, so it failed hard on any machine
+# without the source rulebook/spreadsheets (including CI). The source
+# paths are now overridable (PATHWAYS_RULEBOOK_PDF / PATHWAYS_SHEETS_DIR
+# env vars, or --pdf/--src), and any test that needs the *source* files
+# (rather than the already-committed fixtures/content) skips gracefully
+# when they are absent, instead of failing.
+PDF_PATH = extract_pdf.resolve_pdf_path()
+SHEETS_DIR = extract_sheets.resolve_src_dir()
+
+needs_pdf = pytest.mark.skipif(
+    not PDF_PATH.exists(),
+    reason=f"source rulebook PDF not found at {PDF_PATH} "
+           f"(set PATHWAYS_RULEBOOK_PDF or pass --pdf to reproduce off this machine)",
+)
+needs_sheets = pytest.mark.skipif(
+    not (SHEETS_DIR.exists() and any(SHEETS_DIR.glob("*.xlsx"))),
+    reason=f"source character sheets not found at {SHEETS_DIR} "
+           f"(set PATHWAYS_SHEETS_DIR or pass --src to reproduce off this machine)",
+)
+
+@needs_pdf
 def test_extract_pdf_produces_pages_and_chapters():
     subprocess.run([sys.executable, str(ROOT / "tools" / "extract_pdf.py")], check=True)
 
@@ -25,10 +53,12 @@ def test_extract_pdf_produces_pages_and_chapters():
 
 FIX = ROOT / "fixtures"
 
+@needs_sheets
 def test_extract_sheets_produces_23_fixtures():
     subprocess.run([sys.executable, str(ROOT / "tools" / "extract_sheets.py")], check=True)
     assert len(sorted(FIX.glob("*.json"))) == 23
 
+@needs_sheets
 def test_occult_scholar_fixture_is_exact():
     subprocess.run([sys.executable, str(ROOT / "tools" / "extract_sheets.py")], check=True)
     f = json.loads((FIX / "occult_scholar.json").read_text(encoding="utf-8"))
@@ -38,6 +68,14 @@ def test_occult_scholar_fixture_is_exact():
     assert f["published"]["will"] == 10
     assert f["published"]["dodge"] == 7
     assert f["published"]["totalSpent"] == 91
+    # POINT BREAKDOWN subtotals (KNOWN_ISSUES: fixtures carried no
+    # per-category breakdown). 20 (attributes) + 15 (advantages) + 56
+    # (skills) = 91 = totalSpent; disadvantages give points back so they
+    # are not part of totalSpent, but are still captured here.
+    assert f["published"]["attributesSubtotal"] == 20
+    assert f["published"]["advantagesSubtotal"] == 15
+    assert f["published"]["disadvantagesSubtotal"] == 30
+    assert f["published"]["skillsSubtotal"] == 56
 
     occultism = next(s for s in f["skills"] if s["name"] == "Occultism")
     assert occultism["difficulty"] == "A"
@@ -55,10 +93,17 @@ def test_occult_scholar_fixture_is_exact():
     assert sum(d["cost"] for d in f["disadvantages"]) == 30
 
 def test_beat_cop_has_no_point_breakdown():
+    # Reads only the already-committed fixture, so this needs neither the
+    # source PDF nor the source spreadsheets -- no skip guard required.
     f = json.loads((FIX / "beat_cop.json").read_text(encoding="utf-8"))
     assert f["published"]["bpTotal"] is None
     assert f["published"]["totalSpent"] is None
+    assert f["published"]["attributesSubtotal"] is None
+    assert f["published"]["advantagesSubtotal"] is None
+    assert f["published"]["disadvantagesSubtotal"] is None
+    assert f["published"]["skillsSubtotal"] is None
 
+@needs_pdf
 def test_coverage_reports_every_chapter():
     subprocess.run([sys.executable, str(ROOT / "tools" / "extract_pdf.py")], check=True)
     subprocess.run([sys.executable, str(ROOT / "tools" / "coverage.py")], capture_output=True, text=True)
@@ -68,6 +113,7 @@ def test_coverage_reports_every_chapter():
     # With no content extracted yet, every chapter is 0% claimed.
     assert "0.0%" in report
 
+@needs_pdf
 def test_coverage_intersects_claims_with_mechanical_lines():
     """Verify set arithmetic detects unclaimed lines when count-based arithmetic would fail.
 
@@ -140,3 +186,78 @@ def test_coverage_intersects_claims_with_mechanical_lines():
         # Remove content directory only if the test created it
         if not content_dir_existed and content_dir.exists() and not list(content_dir.iterdir()):
             content_dir.rmdir()
+
+
+@needs_pdf
+def test_coverage_glob_is_recursive_over_nested_content_dirs():
+    """Regression for KNOWN_ISSUES #6: CONTENT.glob("*.json") was
+    non-recursive, so a content file's claims silently vanished from
+    coverage if it happened to live in a subdirectory under
+    core/rules/src/main/resources/content/ instead of directly in it.
+
+    We claim the whole of chapter 3's line range from a file placed in a
+    nested subdirectory, and require the reported unclaimed-mechanical
+    count for chapter 3 to drop to 0 -- proving the nested file's claim
+    was actually picked up (a non-recursive glob would never see it, and
+    chapter 3 already has real unclaimed mechanical lines otherwise, per
+    the coverage.md fixture committed before content extraction existed).
+    """
+    subprocess.run([sys.executable, str(ROOT / "tools" / "extract_pdf.py")], check=True)
+
+    lines_data = json.loads((OUT / "lines.json").read_text(encoding="utf-8"))
+    chapters = json.loads((OUT / "chapters.json").read_text(encoding="utf-8"))
+    ch3 = next(c for c in chapters if c["id"] == "3")
+    ch3_lines = [line for line in lines_data if ch3["startPage"] <= line["page"] <= ch3["endPage"]]
+    claim_start, claim_end = ch3_lines[0]["n"], ch3_lines[-1]["n"]
+
+    content_dir = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
+    nested_dir = content_dir / "nested_subdir_regression_test"
+    nested_dir.mkdir(parents=True, exist_ok=True)
+    temp_file = nested_dir / "test_nested_temp.json"
+    temp_file.write_text(
+        json.dumps({"sourceLines": {"3": [[claim_start, claim_end]]}, "entries": []}),
+        encoding="utf-8",
+    )
+    try:
+        subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "coverage.py")],
+            capture_output=True, text=True,
+        )
+        report = (OUT / "coverage.md").read_text(encoding="utf-8")
+        import re as regex
+        match = regex.search(r"\| 3 \| Character Creation \|.*\| (\d+) \|$", report, regex.MULTILINE)
+        assert match, "Chapter 3 should be in coverage report"
+        unclaimed = int(match.group(1))
+        assert unclaimed == 0, (
+            f"expected 0 unclaimed mechanical lines for chapter 3 once its whole range is "
+            f"claimed by a nested content file, got {unclaimed}. A non-recursive glob would "
+            f"silently ignore the nested claim and leave this nonzero."
+        )
+    finally:
+        if temp_file.exists():
+            temp_file.unlink()
+        if nested_dir.exists() and not list(nested_dir.iterdir()):
+            nested_dir.rmdir()
+        # regenerate coverage.md from the real (non-synthetic) content files
+        # so this test doesn't leave a stale pathological report on disk.
+        subprocess.run([sys.executable, str(ROOT / "tools" / "coverage.py")], capture_output=True, text=True)
+
+
+def test_mechanical_regex_counts_spaced_sign_modifiers():
+    """Regression for KNOWN_ISSUES #7: the MECHANICAL regex required no
+    space between a sign and its digits, so a real signed modifier printed
+    with a space ("Attribute - 4") was not counted as mechanical. That
+    understates the denominator, making coverage look BETTER than it
+    really is -- the one direction this guard must never err in. Widening
+    the pattern to tolerate a space must not stop it matching the
+    unspaced/dice/point-cost forms it already handled.
+    """
+    import coverage as coverage_tool
+
+    assert coverage_tool.MECHANICAL.search("Attribute - 4") is not None
+    # still matches every previously-supported shape
+    assert coverage_tool.MECHANICAL.search("+1 to all active defenses") is not None
+    assert coverage_tool.MECHANICAL.search("-15") is not None
+    assert coverage_tool.MECHANICAL.search("15 pts") is not None
+    assert coverage_tool.MECHANICAL.search("1d-2") is not None
+    assert coverage_tool.MECHANICAL.search("no mechanical content here at all") is None

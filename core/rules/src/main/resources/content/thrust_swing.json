@@ -1,0 +1,155 @@
+{
+ "sourceLines": {},
+ "entries": [
+  {
+   "st": 1,
+   "thrust": "1d-6",
+   "swing": "1d-5"
+  },
+  {
+   "st": 2,
+   "thrust": "1d-6",
+   "swing": "1d-5"
+  },
+  {
+   "st": 3,
+   "thrust": "1d-5",
+   "swing": "1d-4"
+  },
+  {
+   "st": 4,
+   "thrust": "1d-5",
+   "swing": "1d-4"
+  },
+  {
+   "st": 5,
+   "thrust": "1d-4",
+   "swing": "1d-3"
+  },
+  {
+   "st": 6,
+   "thrust": "1d-4",
+   "swing": "1d-3"
+  },
+  {
+   "st": 7,
+   "thrust": "1d-3",
+   "swing": "1d-2"
+  },
+  {
+   "st": 8,
+   "thrust": "1d-3",
+   "swing": "1d-2"
+  },
+  {
+   "st": 9,
+   "thrust": "1d-2",
+   "swing": "1d-1"
+  },
+  {
+   "st": 10,
+   "thrust": "1d-2",
+   "swing": "1d"
+  },
+  {
+   "st": 11,
+   "thrust": "1d-1",
+   "swing": "1d+1"
+  },
+  {
+   "st": 12,
+   "thrust": "1d-1",
+   "swing": "1d+2"
+  },
+  {
+   "st": 13,
+   "thrust": "1d",
+   "swing": "2d-1"
+  },
+  {
+   "st": 14,
+   "thrust": "1d",
+   "swing": "2d"
+  },
+  {
+   "st": 15,
+   "thrust": "1d+1",
+   "swing": "2d+1"
+  },
+  {
+   "st": 16,
+   "thrust": "1d+1",
+   "swing": "2d+2"
+  },
+  {
+   "st": 17,
+   "thrust": "1d+2",
+   "swing": "3d-1"
+  },
+  {
+   "st": 18,
+   "thrust": "1d+2",
+   "swing": "3d"
+  },
+  {
+   "st": 19,
+   "thrust": "2d-1",
+   "swing": "3d+1"
+  },
+  {
+   "st": 20,
+   "thrust": "2d-1",
+   "swing": "3d+2"
+  },
+  {
+   "st": 21,
+   "thrust": "2d",
+   "swing": "4d-1"
+  },
+  {
+   "st": 22,
+   "thrust": "2d",
+   "swing": "4d"
+  },
+  {
+   "st": 23,
+   "thrust": "2d+1",
+   "swing": "4d+1"
+  },
+  {
+   "st": 24,
+   "thrust": "2d+1",
+   "swing": "4d+2"
+  },
+  {
+   "st": 25,
+   "thrust": "2d+2",
+   "swing": "5d-1"
+  },
+  {
+   "st": 26,
+   "thrust": "2d+2",
+   "swing": "5d"
+  },
+  {
+   "st": 27,
+   "thrust": "3d-1",
+   "swing": "5d+1"
+  },
+  {
+   "st": 28,
+   "thrust": "3d-1",
+   "swing": "5d+1"
+  },
+  {
+   "st": 29,
+   "thrust": "3d",
+   "swing": "5d+2"
+  },
+  {
+   "st": 30,
+   "thrust": "3d",
+   "swing": "5d+2"
+  }
+ ]
+}

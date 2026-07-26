@@ -23,6 +23,17 @@ data class FixturePublished(
     val spi: Int? = null, val cor: Int? = null, val basicSpeed: Double? = null,
     val basicMove: Int? = null, val dodge: Int? = null,
     val bpTotal: Int? = null, val totalSpent: Int? = null, val unspent: Int? = null,
+    /**
+     * Per-category POINT BREAKDOWN subtotals (KNOWN_ISSUES: "fixtures carry
+     * no per-category point breakdown"). Null on every field for Beat Cop,
+     * which has no such block at all. [disadvantagesSubtotal] is also null
+     * for Church Healer, whose Disadvantages cell is a broken spreadsheet
+     * formula ("#ERROR!") rather than a printed number.
+     */
+    val attributesSubtotal: Int? = null,
+    val advantagesSubtotal: Int? = null,
+    val disadvantagesSubtotal: Int? = null,
+    val skillsSubtotal: Int? = null,
 )
 
 @Serializable
@@ -34,35 +45,37 @@ data class Fixture(
     val disadvantages: List<FixtureTrait> = emptyList(),
     val skills: List<FixtureSkill> = emptyList(),
 ) {
+    private fun attributesOnly() = Attributes(
+        st = attributes.getValue(Attr.ST), dx = attributes.getValue(Attr.DX),
+        iq = attributes.getValue(Attr.IQ), ht = attributes.getValue(Attr.HT),
+    )
+
     /**
      * The published sheets key skills off six controlling stats (ST/DX/IQ/HT
-     * plus Will and Per), but only the first four are purchasable [Attr]s.
-     * Will and Per are always IQ + 0 delta across this fixture set (verified:
-     * published.will == published.per == attributes.IQ on all 23 sheets), so
-     * skills controlled by Will or Per resolve through Attr.IQ here.
+     * plus Will and Per), resolved through the real [ControllingAttribute]
+     * and [Derive.controllingLevel]. None of the fixtures carry a
+     * [SecondaryDelta], so Will/Per resolve to raw IQ here, same as the
+     * published sheets (verified: published.will == published.per ==
+     * attributes.IQ on all 23 sheets) — but through the production
+     * resolution path, not a test-only substitution.
      */
-    private fun resolveAttr(code: String): Attr = when (code) {
-        "ST" -> Attr.ST
-        "DX" -> Attr.DX
-        "IQ" -> Attr.IQ
-        "HT" -> Attr.HT
-        "Will", "Per" -> Attr.IQ
-        else -> throw IllegalArgumentException("unknown skill-controlling attribute code '$code'")
+    fun attributeLevelFor(skill: FixtureSkill): Int {
+        val attrs = attributesOnly()
+        val secondaries = SecondaryCharacteristics.of(attrs, SecondaryDelta())
+        return Derive.controllingLevel(ControllingAttribute.fromCode(skill.attr), attrs, secondaries, spi = 0)
     }
-
-    fun attributeLevelFor(skill: FixtureSkill): Int = attributes.getValue(resolveAttr(skill.attr))
 
     fun toCharacter() = Character(
         name = name,
-        attributes = Attributes(
-            st = attributes.getValue(Attr.ST), dx = attributes.getValue(Attr.DX),
-            iq = attributes.getValue(Attr.IQ), ht = attributes.getValue(Attr.HT),
-        ),
+        attributes = attributesOnly(),
         traits = advantages.map { Trait(it.name, it.cost, TraitKind.ADVANTAGE) } +
             disadvantages.map { Trait(it.name, it.cost, TraitKind.DISADVANTAGE) },
         skills = skills.map {
             PurchasedSkill(
-                SkillKey(it.name, it.specialization, resolveAttr(it.attr), Difficulty.fromCode(it.difficulty)),
+                SkillKey(
+                    it.name, it.specialization,
+                    ControllingAttribute.fromCode(it.attr), Difficulty.fromCode(it.difficulty),
+                ),
                 it.points,
             )
         },

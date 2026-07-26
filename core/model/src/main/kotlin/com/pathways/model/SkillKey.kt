@@ -11,13 +11,13 @@ import kotlinx.serialization.Serializable
 data class SkillKey(
     val name: String,
     val specialization: String? = null,
-    val attr: Attr,
+    val attr: ControllingAttribute,
     val difficulty: Difficulty,
 ) {
     val display: String
         get() = buildString {
             append(name)
             specialization?.let { append(" (").append(it).append(')') }
-            append('/').append(attr.name)
+            append('/').append(attr.code)
         }
 }
