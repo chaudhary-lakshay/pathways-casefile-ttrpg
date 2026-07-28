@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Serializable
-data class FixtureSkill(
+data class PremadeSkill(
     val name: String,
     val specialization: String? = null,
     val attr: String,
@@ -15,10 +15,10 @@ data class FixtureSkill(
 )
 
 @Serializable
-data class FixtureTrait(val name: String, val cost: Int)
+data class PremadeTrait(val name: String, val cost: Int)
 
 @Serializable
-data class FixturePublished(
+data class PublishedValues(
     val hp: Int? = null, val fp: Int? = null, val will: Int? = null, val per: Int? = null,
     val spi: Int? = null, val cor: Int? = null, val basicSpeed: Double? = null,
     val basicMove: Int? = null, val dodge: Int? = null,
@@ -37,13 +37,13 @@ data class FixturePublished(
 )
 
 @Serializable
-data class Fixture(
+data class PremadeSheet(
     val name: String,
     val attributes: Map<Attr, Int>,
-    val published: FixturePublished,
-    val advantages: List<FixtureTrait> = emptyList(),
-    val disadvantages: List<FixtureTrait> = emptyList(),
-    val skills: List<FixtureSkill> = emptyList(),
+    val published: PublishedValues,
+    val advantages: List<PremadeTrait> = emptyList(),
+    val disadvantages: List<PremadeTrait> = emptyList(),
+    val skills: List<PremadeSkill> = emptyList(),
 ) {
     private fun attributesOnly() = Attributes(
         st = attributes.getValue(Attr.ST), dx = attributes.getValue(Attr.DX),
@@ -58,15 +58,23 @@ data class Fixture(
      * published sheets (verified: published.will == published.per ==
      * attributes.IQ on all 23 sheets) — but through the production
      * resolution path, not a test-only substitution.
+     *
+     * SPI comes from [spiOf]: no sheet currently keys a skill off SPI, but a
+     * hardcoded 0 would resolve one wrongly the moment a Beyonder sheet does
+     * (M3).
      */
-    fun attributeLevelFor(skill: FixtureSkill): Int {
+    fun attributeLevelFor(skill: PremadeSkill): Int {
         val attrs = attributesOnly()
         val secondaries = SecondaryCharacteristics.of(attrs, SecondaryDelta())
-        return Derive.controllingLevel(ControllingAttribute.fromCode(skill.attr), attrs, secondaries, spi = 0)
+        return Derive.controllingLevel(ControllingAttribute.fromCode(skill.attr), attrs, secondaries, spiOf())
     }
+
+    /** Mortals print 0; four of the 23 sheets print 9. Absent means mortal. */
+    private fun spiOf(): Int = published.spi ?: 0
 
     fun toCharacter() = Character(
         name = name,
+        spi = spiOf(),
         attributes = attributesOnly(),
         traits = advantages.map { Trait(it.name, it.cost, TraitKind.ADVANTAGE) } +
             disadvantages.map { Trait(it.name, it.cost, TraitKind.DISADVANTAGE) },
@@ -82,7 +90,7 @@ data class Fixture(
     )
 }
 
-object Fixtures {
+object Premades {
     private val json = Json { ignoreUnknownKeys = true }
 
     private val NAMES = listOf(
@@ -94,14 +102,14 @@ object Fixtures {
         "underground_courier", "university_librarian",
     )
 
-    fun all(): List<Fixture> = NAMES.map { load(it) }
+    fun all(): List<PremadeSheet> = NAMES.map { load(it) }
 
-    fun byName(display: String): Fixture = all().first { it.name == display }
+    fun byName(display: String): PremadeSheet = all().first { it.name == display }
 
-    private fun load(slug: String): Fixture {
-        val text = Fixtures::class.java.getResourceAsStream("/$slug.json")
+    private fun load(slug: String): PremadeSheet {
+        val text = Premades::class.java.getResourceAsStream("/$slug.json")
             ?.bufferedReader()?.use { it.readText() }
-            ?: error("fixture not on the test classpath: $slug.json")
+            ?: error("premade sheet not on the classpath: $slug.json")
         return json.decodeFromString(text)
     }
 }

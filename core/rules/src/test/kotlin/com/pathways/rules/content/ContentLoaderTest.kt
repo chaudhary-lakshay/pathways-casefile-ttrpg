@@ -2,7 +2,7 @@ package com.pathways.rules.content
 
 import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
-import com.pathways.rules.Fixtures
+import com.pathways.rules.Premades
 import com.pathways.rules.SkillLadder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -119,7 +119,7 @@ class ContentLoaderTest {
     fun `every fixture skill resolves to a content entry except the documented book gaps and conflicts`() {
         val byName = ContentLoader.skills().groupBy { it.name }
         val failures = mutableListOf<String>()
-        Fixtures.all().forEach { fixture ->
+        Premades.all().forEach { fixture ->
             fixture.skills.forEach { s ->
                 if (s.name in ABSENT_FROM_BOOK_SKILLS) return@forEach
                 if ((s.name to s.specialization) in SKILL_NAME_CONFLICTS) return@forEach
@@ -183,7 +183,7 @@ class ContentLoaderTest {
     fun `every fixture skill that resolves to a book entry agrees with it on attr and difficulty, except a documented set`() {
         val byName = ContentLoader.skills().groupBy { it.name }
         val conflicts = mutableSetOf<SkillConflict>()
-        Fixtures.all().forEach { fixture ->
+        Premades.all().forEach { fixture ->
             fixture.skills.forEach { s ->
                 // Same exemptions as the name-resolution test above: a skill
                 // with no book entry at all has no book attr/difficulty to
@@ -333,7 +333,7 @@ class ContentLoaderTest {
 
         val advByName = mutableMapOf<String, MutableSet<Int>>()
         val disByName = mutableMapOf<String, MutableSet<Int>>()
-        Fixtures.all().forEach { fixture ->
+        Premades.all().forEach { fixture ->
             fixture.advantages.forEach { advByName.getOrPut(it.name) { mutableSetOf() }.add(it.cost) }
             fixture.disadvantages.forEach { disByName.getOrPut(it.name) { mutableSetOf() }.add(it.cost) }
         }

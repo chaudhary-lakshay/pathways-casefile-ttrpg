@@ -43,11 +43,11 @@ class GoldenSheetTest {
         // its ADVANTAGES block (Flexibility, Cost-only) was never affected.
     )
 
-    private fun playable() = Fixtures.all().filter { it.skills.isNotEmpty() }
+    private fun playable() = Premades.all().filter { it.skills.isNotEmpty() }
 
     @Test
     fun `all twenty three fixtures load`() {
-        assertEquals(23, Fixtures.all().size)
+        assertEquals(23, Premades.all().size)
     }
 
     @Test
@@ -98,9 +98,22 @@ class GoldenSheetTest {
         }
 
     @Test
+    fun `toCharacter carries published SPI rather than defaulting to mortal`() {
+        // SPI is table state, never derivable from attributes (section 4.4),
+        // so an import that drops it silently turns a Beyonder into a mortal.
+        // No fixture skill is SPI-controlled today, which is exactly why
+        // nothing else here would notice.
+        val beyonders = Premades.all().filter { (it.published.spi ?: 0) > 0 }
+        assertEquals(4, beyonders.size, "expected 4 sheets to print a nonzero SPI")
+        beyonders.forEach {
+            assertEquals(it.published.spi, it.toCharacter().spi, "${it.name}: SPI")
+        }
+    }
+
+    @Test
     fun `the excluded sheets really do disagree - guard against silent repair`() {
         // If this ever starts matching, someone changed the engine to encode a spreadsheet bug.
-        val bouncer = Fixtures.byName("Docks Bouncer")
+        val bouncer = Premades.byName("Docks Bouncer")
         val d = Derive.of(bouncer.toCharacter())
         assertTrue(
             bouncer.published.hp != d.secondaries.maxHp,
@@ -132,14 +145,14 @@ class GoldenSheetTest {
     // test). Uses all 23 fixtures (not just playable()): the breakdown
     // exists independent of whether a sheet has skills. ---
 
-    private fun attributesOf(f: Fixture) = Attributes(
+    private fun attributesOf(f: PremadeSheet) = Attributes(
         st = f.attributes.getValue(Attr.ST), dx = f.attributes.getValue(Attr.DX),
         iq = f.attributes.getValue(Attr.IQ), ht = f.attributes.getValue(Attr.HT),
     )
 
     @TestFactory
     fun `computed attribute cost matches every sheet's published attribute subtotal`(): List<DynamicTest> =
-        Fixtures.all().filter { it.published.attributesSubtotal != null }.map { f ->
+        Premades.all().filter { it.published.attributesSubtotal != null }.map { f ->
             DynamicTest.dynamicTest(f.name) {
                 assertEquals(
                     f.published.attributesSubtotal, AttributeCosts.totalCost(attributesOf(f)),
@@ -151,7 +164,7 @@ class GoldenSheetTest {
     @Test
     fun `every fixture but Beat Cop carries an attribute subtotal`() {
         // Guards the filter above from silently degrading to zero test cases.
-        assertEquals(22, Fixtures.all().count { it.published.attributesSubtotal != null })
+        assertEquals(22, Premades.all().count { it.published.attributesSubtotal != null })
     }
 
     // NOTE: despite the historical name, the three TestFactory checks below
@@ -162,7 +175,7 @@ class GoldenSheetTest {
     // KNOWN_ISSUES.md.
     @TestFactory
     fun `each sheet's own advantage item list sums to its published subtotal, excluding known-contradictory sheets`(): List<DynamicTest> =
-        Fixtures.all()
+        Premades.all()
             .filter { it.published.advantagesSubtotal != null && it.name !in advantagesExclusions }
             .map { f ->
                 DynamicTest.dynamicTest(f.name) {
@@ -175,7 +188,7 @@ class GoldenSheetTest {
 
     @TestFactory
     fun `each sheet's own disadvantage item list sums to its published subtotal, excluding known-contradictory sheets`(): List<DynamicTest> =
-        Fixtures.all()
+        Premades.all()
             .filter { it.published.disadvantagesSubtotal != null && it.name !in disadvantagesExclusions }
             .map { f ->
                 DynamicTest.dynamicTest(f.name) {
@@ -188,7 +201,7 @@ class GoldenSheetTest {
 
     @TestFactory
     fun `each sheet's own skill point list sums to its published skills subtotal`(): List<DynamicTest> =
-        Fixtures.all().filter { it.published.skillsSubtotal != null }.map { f ->
+        Premades.all().filter { it.published.skillsSubtotal != null }.map { f ->
             DynamicTest.dynamicTest(f.name) {
                 assertEquals(f.published.skillsSubtotal, f.skills.sumOf { it.points }, "${f.name}: skills cost")
             }
@@ -204,10 +217,10 @@ class GoldenSheetTest {
         // the extractor, now fixed by tools/extract_sheets.py's subtotal
         // checksum (see `computed advantage/disadvantage cost matches...`
         // below, which now covers both on the engine's own terms).
-        val monasteryScholar = Fixtures.byName("Monastery Scholar")
+        val monasteryScholar = Premades.byName("Monastery Scholar")
         assertTrue(monasteryScholar.published.advantagesSubtotal != monasteryScholar.advantages.sumOf { it.cost })
 
-        val universityLibrarian = Fixtures.byName("University Librarian")
+        val universityLibrarian = Premades.byName("University Librarian")
         assertTrue(
             universityLibrarian.published.disadvantagesSubtotal != universityLibrarian.disadvantages.sumOf { it.cost },
         )

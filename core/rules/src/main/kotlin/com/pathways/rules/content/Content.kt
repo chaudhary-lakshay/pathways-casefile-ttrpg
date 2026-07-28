@@ -16,7 +16,7 @@ import kotlinx.serialization.encoding.Encoder
  * polymorphic sealed interface (it needs its own `{"type": ...}` envelope
  * under kotlinx's default derived serializer). This use-site serializer
  * bridges the two: read/write the plain code, resolve through
- * [ControllingAttribute.fromCode] exactly like [com.pathways.rules.Fixtures]
+ * [ControllingAttribute.fromCode] exactly like [com.pathways.rules.Premades]
  * already does by hand.
  */
 private object ControllingAttributeCodeSerializer : KSerializer<ControllingAttribute> {

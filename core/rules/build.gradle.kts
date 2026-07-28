@@ -18,7 +18,10 @@ dependencies {
 tasks.test { useJUnitPlatform() }
 
 sourceSets {
-    named("test") {
+    // The 23 published character sheets ship on the MAIN classpath: they are
+    // the app's premade-import surface (spec section 8), not test data. The
+    // test classpath still sees them through main's output.
+    named("main") {
         resources.srcDir(rootProject.layout.projectDirectory.dir("fixtures"))
     }
 }
