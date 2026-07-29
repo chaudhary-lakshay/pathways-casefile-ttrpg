@@ -261,3 +261,166 @@ def test_mechanical_regex_counts_spaced_sign_modifiers():
     assert coverage_tool.MECHANICAL.search("15 pts") is not None
     assert coverage_tool.MECHANICAL.search("1d-2") is not None
     assert coverage_tool.MECHANICAL.search("no mechanical content here at all") is None
+
+
+# --- T1: pathway / sequence extraction (chapters 9-12) ---------------------
+
+import extract_pathways
+
+CONTENT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
+
+
+def test_sequence_header_parses_sequence_name_and_pathway():
+    assert extract_pathways.parse_header("Sequence 9: Seer · Fool Pathway") == (9, "Seer", "Fool")
+    # names carry parentheses and multiple words
+    assert extract_pathways.parse_header(
+        "Sequence 8: Unwinged Angel (Coldblooded) · Abyss Pathway"
+    ) == (8, "Unwinged Angel (Coldblooded)", "Abyss")
+    assert extract_pathways.parse_header("Ritualistic Magic/IQ [Very Hard]") is None
+
+
+def test_stat_rows_pair_an_attribute_with_its_signed_gain():
+    stats, prose = extract_pathways.parse_stats(["ST", "+1", "DX", "+2", "Will", "-1"])
+    assert stats == [
+        {"attr": "ST", "delta": 1.0},
+        {"attr": "DX", "delta": 2.0},
+        {"attr": "Will", "delta": -1.0},
+    ]
+    assert prose == ""
+
+
+def test_fractional_basic_speed_gain_keeps_the_note_on_its_line():
+    stats, prose = extract_pathways.parse_stats(
+        ["Basic Speed", "+0.25 — reflexes sharpen", "for precise timing"]
+    )
+    assert stats == [{"attr": "Basic Speed", "delta": 0.25, "note": "— reflexes sharpen"}]
+    # the wrapped remainder is not silently dropped
+    assert "for precise timing" in prose
+
+
+def test_advantage_rows_are_kept_as_prose_rather_than_invented_structure():
+    """The potion tables interleave attribute rows with advantage rows whose
+    name/effect boundary is not recoverable from the flattened PDF text
+    ("Sunlight/purification/holy" is a wrapped effect line, "Poison
+    Resistance" is a name, and nothing textual separates them). Attributes
+    are parsed strictly; everything else is preserved verbatim as prose."""
+    stats, prose = extract_pathways.parse_stats(
+        ["SPI", "+9", "Eidetic Memory", "continuously grows as the", "potion digests"]
+    )
+    assert stats == [{"attr": "SPI", "delta": 9.0}]
+    assert prose == "Eidetic Memory continuously grows as the potion digests"
+
+
+def test_skill_rows_parse_name_attribute_difficulty_and_bonus():
+    skills, unresolved = extract_pathways.parse_skills(
+        ["Ritualistic Magic/IQ [Very Hard]", "+3", "Observation/PER [Average]", "+2"],
+        known={"Ritualistic Magic", "Observation"},
+    )
+    # "Observation/PER" is printed in caps by one block; the attribute is
+    # normalised, not treated as a different attribute.
+    assert skills == [
+        {"name": "Ritualistic Magic", "attr": "IQ", "difficulty": "VH", "bonus": 3},
+        {"name": "Observation", "attr": "Per", "difficulty": "A", "bonus": 2},
+    ]
+    assert unresolved == []
+
+
+def test_bonus_note_wrapping_into_the_next_row_stays_with_its_own_grant():
+    """Harvest Priest prints "+2 (Nature, Life, and Weather domains)" across
+    four wrapped lines, so once the columns are flattened the note runs
+    straight into the next row's name. The note must stay attached to the
+    grant it qualifies, and must not be mistaken for part of the next name."""
+    skills, unresolved = extract_pathways.parse_skills(
+        ["Ritualistic Magic/IQ [Very Hard]", "+2 (Nature,", "Life, and", "Weather",
+         "domains)", "Herb Lore/IQ [Average]", "+3"],
+        known={"Ritualistic Magic", "Herb Lore"},
+    )
+    assert unresolved == []
+    assert [s["name"] for s in skills] == ["Ritualistic Magic", "Herb Lore"]
+    assert skills[0]["note"] == "(Nature, Life, and Weather domains)"
+    assert "note" not in skills[1]
+
+
+def test_a_grant_naming_no_known_skill_is_reported_not_guessed():
+    skills, unresolved = extract_pathways.parse_skills(
+        ["Chemistry/IQ [Hard]", "+2", "Inventor!/IQ [Wildcard]", "+2"],
+        known={"Chemistry"},
+    )
+    assert [s["name"] for s in skills] == ["Chemistry"]
+    assert unresolved == ["Inventor!/IQ [Wildcard] +2"]
+
+
+def test_a_block_stops_at_the_next_chapter_heading():
+    """A block runs until the next "Sequence N:" header -- but a chapter's
+    last blocks are printed on the next chapter's first page, and the next
+    chapter opens with intro prose before its own first block. Bounding a
+    block only by the next header swallowed that intro: Sequence 9 Lawyer's
+    ability text ended with chapter 10's "how to read a pathway entry"
+    paragraph, in the committed JSON."""
+    lines = [
+        {"n": 1, "page": 1, "text": "Sequence 9: Seer · Fool Pathway"},
+        {"n": 2, "page": 1, "text": " Ability"},
+        {"n": 3, "page": 1, "text": "Spirit Vision: sees ghosts and spectres."},
+        {"n": 4, "page": 2, "text": "Chapter 10: Sequence 8 Potion Effects"},
+        {"n": 5, "page": 2, "text": "How to Read These Entries: read +N as Attribute + N."},
+        {"n": 6, "page": 2, "text": "Sequence 8: Clown · Fool Pathway"},
+        {"n": 7, "page": 2, "text": " Ability"},
+        {"n": 8, "page": 2, "text": "Clown Agility: impossible acrobatics."},
+    ]
+    entries, spans, _ = extract_pathways.extract(lines, {"9": (1, 1), "10": (2, 2)})
+
+    assert entries[0]["ability"] == "Spirit Vision: sees ghosts and spectres."
+    assert entries[0]["sourceLines"] == [1, 3]
+    # the intro is left unclaimed rather than credited to the previous block
+    assert spans == {"9": [[1, 3]], "10": [[6, 8]]}
+
+
+def test_pathways_json_covers_88_blocks_across_22_pathways():
+    data = json.loads((CONTENT / "pathways.json").read_text(encoding="utf-8"))
+    entries = data["entries"]
+    assert len(entries) == 88
+    assert {e["sequence"] for e in entries} == {6, 7, 8, 9}
+    pathways = {e["pathway"] for e in entries}
+    assert len(pathways) == 22
+    # every pathway has exactly one block per sequence
+    for pathway in pathways:
+        seqs = sorted(e["sequence"] for e in entries if e["pathway"] == pathway)
+        assert seqs == [6, 7, 8, 9], f"{pathway} has {seqs}"
+    assert set(data["sourceLines"]) == {"9", "10", "11", "12"}
+
+
+def test_every_granted_skill_resolves_against_the_chapter_3_skill_list():
+    """Anti-lie guard (spec 7.1): a granted skill that names no real skill is
+    an extraction bug. The chapter-3 list is the vocabulary; blocks may only
+    reference names it defines."""
+    known = {
+        e["name"]
+        for e in json.loads((CONTENT / "skills.json").read_text(encoding="utf-8"))["entries"]
+    }
+    entries = json.loads((CONTENT / "pathways.json").read_text(encoding="utf-8"))["entries"]
+    unknown = sorted(
+        {extract_pathways.base_name(s["name"]) for e in entries for s in e["skills"]}
+        - known
+        - extract_pathways.SKILLS_NOT_IN_CHAPTER_3
+    )
+    assert unknown == [], f"granted skills absent from skills.json: {unknown}"
+
+
+def test_recorded_skill_disagreements_between_chapter_3_and_the_potion_tables():
+    """Guard against silent repair: some skills are printed with a different
+    difficulty in the potion tables than in the chapter-3 list. The book
+    disagrees with itself; the extractor records the disagreement and must
+    not normalise either side away."""
+    skills = json.loads((CONTENT / "skills.json").read_text(encoding="utf-8"))["entries"]
+    ch3 = {}
+    for e in skills:
+        ch3.setdefault(e["name"], set()).add((e["attr"], e["difficulty"]))
+    entries = json.loads((CONTENT / "pathways.json").read_text(encoding="utf-8"))["entries"]
+
+    disagreements = set()
+    for e in entries:
+        for s in e["skills"]:
+            base = extract_pathways.base_name(s["name"])
+            if base in ch3 and (s["attr"], s["difficulty"]) not in ch3[base]:
+                disagreements.add(base)
+    assert disagreements == extract_pathways.DIFFICULTY_DISAGREEMENTS
