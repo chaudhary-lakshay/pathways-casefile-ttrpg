@@ -193,6 +193,51 @@ data class SequenceBlock(
     val sourceLines: List<Int> = emptyList(),
 )
 
+/**
+ * One row of the Acting Method table (Ch. 6, p. 45): how much of the current
+ * potion a session of acting in the pathway's role digests.
+ *
+ * The book prints a RANGE per quality, not a figure -- the GM picks within
+ * it -- so there is no single number to expose. The "None" row prints no
+ * number at all ("0% or loses progress") and carries [losesProgress]
+ * instead; a 0 there would be an invented floor.
+ */
+@Serializable
+data class ActingQuality(
+    val quality: String,
+    val description: String,
+    val minGain: Int? = null,
+    val maxGain: Int? = null,
+    val losesProgress: Boolean = false,
+) {
+    init {
+        require((minGain != null && maxGain != null) || losesProgress) {
+            "acting quality '$quality' has neither a gain range nor losesProgress"
+        }
+        if (minGain != null && maxGain != null) {
+            require(minGain <= maxGain) { "acting quality '$quality' has $minGain-$maxGain" }
+        }
+    }
+}
+
+/**
+ * One row of the Potion Consumption Roll table (Ch. 6, p. 45-46).
+ *
+ * The roll is `3d6 <= 10 + modifier`, and the book prints the resulting
+ * target as its own column. Both are kept: recomputing the target would hide
+ * a disagreement between the book's own columns instead of surfacing it.
+ *
+ * The modifier progression is not linear (-9, -7, -5, -4, -2, 0, +2, +4, +5,
+ * +7, +9), so it is data, never a formula.
+ */
+@Serializable
+data class PcrRow(
+    val digestion: Int,
+    val modifier: Int,
+    val effectiveTarget: Int,
+    val note: String = "",
+)
+
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
 data class DamageRowJson(val st: Int, val thrust: String, val swing: String)

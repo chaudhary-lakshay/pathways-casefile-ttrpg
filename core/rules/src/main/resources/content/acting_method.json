@@ -1,0 +1,41 @@
+{
+ "sourceLines": {
+  "6": [
+   [
+    3046,
+    3057
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "quality": "Exemplary",
+   "description": "fully embodies pathway nature",
+   "minGain": 15,
+   "maxGain": 20
+  },
+  {
+   "quality": "Good",
+   "description": "follows most requirements",
+   "minGain": 10,
+   "maxGain": 15
+  },
+  {
+   "quality": "Adequate",
+   "description": "follows some requirements",
+   "minGain": 5,
+   "maxGain": 10
+  },
+  {
+   "quality": "Poor",
+   "description": "barely follows pathway",
+   "minGain": 0,
+   "maxGain": 5
+  },
+  {
+   "quality": "None",
+   "description": "ignores pathway nature entirely",
+   "losesProgress": true
+  }
+ ]
+}

@@ -25,6 +25,12 @@ const val HIGHEST_SEQUENCE = 9
 data class BeyonderState(
     val pathway: String,
     val sequence: Int,
+    /**
+     * How much of the CURRENT potion has been digested, 0-100% (Ch. 6, p. 44).
+     * A fresh potion starts at 0 and climbs through the Acting Method; it is
+     * not a level, and it resets when the next potion is drunk.
+     */
+    val digestion: Int = 0,
 ) {
     init {
         require(pathway.isNotBlank()) { "a Beyonder walks a named pathway" }
@@ -32,11 +38,21 @@ data class BeyonderState(
             "sequence must be between $LOWEST_SEQUENCE and $HIGHEST_SEQUENCE " +
                 "(the extracted content covers no others); was $sequence"
         }
+        require(digestion in 0..100) { "digestion is a percentage; was $digestion" }
     }
 
-    /** The next potion up the pathway, or null at the strongest Sequence held. */
+    /**
+     * The next potion up the pathway, or null at the strongest Sequence held.
+     * Digestion restarts at 0: the new potion is the one being digested now.
+     */
     fun advanced(): BeyonderState? =
-        if (sequence <= LOWEST_SEQUENCE) null else copy(sequence = sequence - 1)
+        if (sequence <= LOWEST_SEQUENCE) null else BeyonderState(pathway, sequence - 1)
+
+    /** Digestion after a session, clamped to the 0-100% the book defines. */
+    fun digested(points: Int): BeyonderState =
+        copy(digestion = (digestion + points).coerceIn(0, 100))
+
+    val isFullyDigested: Boolean get() = digestion == 100
 }
 
 /**

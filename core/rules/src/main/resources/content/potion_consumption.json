@@ -1,0 +1,70 @@
+{
+ "sourceLines": {
+  "6": [
+   [
+    3082,
+    3119
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "digestion": 0,
+   "modifier": -9,
+   "effectiveTarget": 1,
+   "note": "always fails"
+  },
+  {
+   "digestion": 10,
+   "modifier": -7,
+   "effectiveTarget": 3
+  },
+  {
+   "digestion": 20,
+   "modifier": -5,
+   "effectiveTarget": 5
+  },
+  {
+   "digestion": 30,
+   "modifier": -4,
+   "effectiveTarget": 6
+  },
+  {
+   "digestion": 40,
+   "modifier": -2,
+   "effectiveTarget": 8
+  },
+  {
+   "digestion": 50,
+   "modifier": 0,
+   "effectiveTarget": 10,
+   "note": "even odds"
+  },
+  {
+   "digestion": 60,
+   "modifier": 2,
+   "effectiveTarget": 12
+  },
+  {
+   "digestion": 70,
+   "modifier": 4,
+   "effectiveTarget": 14
+  },
+  {
+   "digestion": 80,
+   "modifier": 5,
+   "effectiveTarget": 15
+  },
+  {
+   "digestion": 90,
+   "modifier": 7,
+   "effectiveTarget": 17
+  },
+  {
+   "digestion": 100,
+   "modifier": 9,
+   "effectiveTarget": 19,
+   "note": "always succeeds"
+  }
+ ]
+}

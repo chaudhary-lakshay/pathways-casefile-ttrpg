@@ -17,6 +17,8 @@ object ContentLoader {
     private val advantagesLazy: List<TraitDefinition> by lazy { load("advantages.json") }
     private val disadvantagesLazy: List<TraitDefinition> by lazy { load("disadvantages.json") }
     private val pathwaysLazy: List<SequenceBlock> by lazy { load("pathways.json") }
+    private val actingMethodLazy: List<ActingQuality> by lazy { load("acting_method.json") }
+    private val potionConsumptionLazy: List<PcrRow> by lazy { load("potion_consumption.json") }
     private val thrustSwingLazy: Map<Int, DamageRow> by lazy {
         val rows = load<DamageRowJson>("thrust_swing.json")
         // Same defect class as Character's duplicate-PurchasedSkill guard:
@@ -40,6 +42,12 @@ object ContentLoader {
 
     /** The 88 Sequence stat blocks (22 pathways x Sequences 9/8/7/6). */
     fun pathways(): List<SequenceBlock> = pathwaysLazy
+
+    /** Digestion gain per session, by how well the role was acted (Ch. 6). */
+    fun actingMethod(): List<ActingQuality> = actingMethodLazy
+
+    /** The Potion Consumption Roll table, by digestion percentage (Ch. 6). */
+    fun potionConsumption(): List<PcrRow> = potionConsumptionLazy
 
     private inline fun <reified T> load(resource: String): List<T> {
         val stream = ContentLoader::class.java.getResourceAsStream("/content/$resource")
