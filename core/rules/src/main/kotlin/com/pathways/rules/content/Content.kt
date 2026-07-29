@@ -112,6 +112,87 @@ data class TraitDefinition(
     }
 }
 
+/**
+ * One attribute row of a potion's "Stat / Advantage" table (Ch. 9-12).
+ *
+ * [attr] is a plain code rather than a typed attribute because the rows span
+ * three different kinds of thing: buyable attributes (ST/DX/IQ/HT), the
+ * non-buyable controlling attributes (Will/Per/SPI), and two secondary
+ * characteristics (Basic Speed, Basic Move) that are no kind of attribute at
+ * all. [StatGain.KNOWN_ATTRS] is the closed set the book actually prints; an
+ * unknown code is a content bug and fails at load.
+ *
+ * [delta] is fractional only for Basic Speed (+0.25, Seq 9 Assassin), which
+ * is why it is not an Int.
+ */
+@Serializable
+data class StatGain(
+    val attr: String,
+    val delta: Double,
+    val note: String = "",
+) {
+    init {
+        require(attr in KNOWN_ATTRS) { "unknown stat row '$attr'; known: $KNOWN_ATTRS" }
+    }
+
+    companion object {
+        val KNOWN_ATTRS = setOf(
+            "ST", "DX", "IQ", "HT", "Will", "Per", "SPI", "HP", "FP", "Basic Speed", "Basic Move",
+        )
+    }
+}
+
+/**
+ * One row of a potion's "Skill" table (Ch. 9-12).
+ *
+ * [bonus] is read as "attribute + N", NOT as rungs up the skill ladder from
+ * default (p. 85: "Acrobatics/DX [Hard] +2" is DX+2, costing 16 points, not
+ * the 2 points two rungs would suggest). Where the character already has the
+ * same skill at the same difficulty, the book instead reads it as "current
+ * level + N" -- that branch belongs to the engine, not to this row.
+ *
+ * [note] carries the qualifier the book prints in the bonus cell ("(Nature,
+ * Life, and Weather domains)"), which is GM-facing text, not a modifier.
+ */
+@Serializable
+data class SkillGrant(
+    val name: String,
+    @Serializable(with = ControllingAttributeCodeSerializer::class)
+    val attr: ControllingAttribute,
+    @Serializable(with = DifficultyCodeSerializer::class)
+    val difficulty: Difficulty,
+    val bonus: Int,
+    val note: String = "",
+)
+
+/**
+ * One Sequence stat block: what drinking that Sequence's potion does to a
+ * character (Ch. 9-12, 22 pathways x Sequences 9/8/7/6).
+ *
+ * [advantages] and [drawbacks] are prose, not structured rows, and
+ * deliberately so: the source PDF flattens a two-column table with no
+ * recoverable boundary between a wrapped effect line and the next row's
+ * name. See tools/extract_pathways.py for the full reasoning. They are
+ * display text for the GM, exactly as the book prints them.
+ *
+ * [reinforcedAbilities] is the "Reinforced Abilities" section, present on 56
+ * of the 88 blocks: how this Sequence upgrades the abilities its earlier
+ * Sequences already granted.
+ */
+@Serializable
+data class SequenceBlock(
+    val sequence: Int,
+    val name: String,
+    val pathway: String,
+    val stats: List<StatGain> = emptyList(),
+    val skills: List<SkillGrant> = emptyList(),
+    val advantages: String = "",
+    val drawbacks: String = "",
+    val ability: String = "",
+    val reinforcedAbilities: String = "",
+    val sourceLines: List<Int> = emptyList(),
+)
+
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
 data class DamageRowJson(val st: Int, val thrust: String, val swing: String)
