@@ -52,8 +52,10 @@ fun PathwayScreen(sheet: PremadeSheet, onBack: () -> Unit) {
     val block = pathway?.let { chosen ->
         blocks.single { it.pathway == chosen && it.sequence == sequence }
     }
+    // Cumulative, not one potion in isolation: a Sequence 8 Fool drank the
+    // Sequence 9 potion first and carries its SPI +9.
     val digested = remember(sheet, block) {
-        block?.let { PotionDigestion.digest(sheet.toCharacter(), it) }
+        block?.let { PotionDigestion.digestThrough(sheet.toCharacter(), it.pathway, it.sequence, blocks) }
     }
 
     Scaffold { insets ->
@@ -111,6 +113,13 @@ private fun LazyListScope.digestion(block: SequenceBlock, digested: DigestedChar
     item {
         Column(Modifier.padding(16.dp)) {
             Text("Sequence ${block.sequence}: ${block.name}", style = MaterialTheme.typography.titleLarge)
+            if (block.sequence < PotionDigestion.STARTING_SEQUENCE) {
+                Text(
+                    "every potion from Sequence ${PotionDigestion.STARTING_SEQUENCE} down to " +
+                        "${block.sequence}, digested in order",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
             Text(
                 "point budget unchanged: ${digested.budget.spent} of ${digested.budget.budget} spent " +
                     "— the potion's gains are free",
@@ -119,7 +128,9 @@ private fun LazyListScope.digestion(block: SequenceBlock, digested: DigestedChar
         }
         HorizontalDivider()
 
-        SectionHeader("Stats")
+        // The rows are this potion's own; the totals beneath them are the
+        // whole chain's, which is why the two are labelled differently.
+        SectionHeader("Stats from this potion")
         if (block.stats.isEmpty()) {
             GrantRow("no stat gains", "", "")
         } else {
@@ -143,10 +154,23 @@ private fun LazyListScope.digestion(block: SequenceBlock, digested: DigestedChar
         item { SectionHeader("Skills") }
         items(block.skills) { grant ->
             // The engine resolved each grant to a level; fall back to the
-            // book's raw "+N" only if a name somehow fails to match, rather
+            // book's raw "+N" only if a grant somehow fails to match, rather
             // than showing a level that was never computed.
+            //
+            // The match is on the full identity, not the base name: the
+            // grants map now carries earlier Sequences too, and Death grants
+            // Hidden Lore (Spirits) at Seq 8 and Hidden Lore (Spirit World)
+            // at Seq 6 -- a base-name match would show one row's level on the
+            // other row.
+            val base = grant.name.substringBefore(" (")
+            val specialization =
+                if (" (" in grant.name) grant.name.substringAfter(" (").removeSuffix(")") else null
             val level = digested.grants.skillLevels.entries
-                .firstOrNull { it.key.name == grant.name.substringBefore(" (") }
+                .firstOrNull {
+                    it.key.name == base &&
+                        it.key.specialization == specialization &&
+                        it.key.difficulty == grant.difficulty
+                }
                 ?.value
             GrantRow(grant.name, level?.toString() ?: "+${grant.bonus}", grant.note)
         }

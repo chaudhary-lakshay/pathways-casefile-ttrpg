@@ -130,6 +130,55 @@ class PotionDigestionTest {
     }
 
     @Test
+    fun `advancing to a sequence carries every potion before it`() {
+        // A Sequence 8 Fool drank the Sequence 9 potion first: Seer grants
+        // SPI +9 and Clown another +2, so the Clown stands at 11, not 2.
+        // Digesting the Clown block alone describes one potion, not a Beyonder.
+        val blocks = ContentLoader.pathways()
+        val clownAlone = PotionDigestion.digest(mortal, blocks.single { it.sequence == 8 && it.pathway == "Fool" })
+        val throughClown = PotionDigestion.digestThrough(mortal, "Fool", sequence = 8, blocks = blocks)
+
+        assertEquals(2, clownAlone.effectiveSpi)
+        assertEquals(11, throughClown.effectiveSpi)
+        assertEquals(8, throughClown.sequence)
+        // Seer's own grants are still there
+        assertEquals(1, throughClown.grants.skillLevels.keys.count { it.name == "Occultism" })
+    }
+
+    @Test
+    fun `a second potion granting a known skill stacks on the level the first one gave`() {
+        // Spiritual Intuition/SPI [Hard] +3 from Seer, then +3 again from
+        // Clown. The second grant reads as "current level + 3" (p. 86), and
+        // current includes what the first potion granted.
+        val blocks = ContentLoader.pathways()
+        val seer = PotionDigestion.digestThrough(mortal, "Fool", sequence = 9, blocks = blocks)
+        val clown = PotionDigestion.digestThrough(mortal, "Fool", sequence = 8, blocks = blocks)
+
+        val at9 = seer.grants.skillLevels.entries.single { it.key.name == "Spiritual Intuition" }.value
+        val at8 = clown.grants.skillLevels.entries.single { it.key.name == "Spiritual Intuition" }.value
+        assertEquals(at9 + 3, at8)
+    }
+
+    @Test
+    fun `advancing to a sequence the pathway lacks fails instead of reporting another one`() {
+        // Partial content must not silently answer for Sequence 9 when
+        // Sequence 8 was asked for -- the totals would be a real Beyonder's,
+        // just the wrong one.
+        val seerOnly = ContentLoader.pathways().filter { it.pathway == "Fool" && it.sequence == 9 }
+        assertFailsWith<IllegalArgumentException> {
+            PotionDigestion.digestThrough(mortal, "Fool", sequence = 8, blocks = seerOnly)
+        }
+    }
+
+    @Test
+    fun `every pathway advances to sequence 6 without error`() {
+        val blocks = ContentLoader.pathways()
+        blocks.map { it.pathway }.distinct().forEach { pathway ->
+            PotionDigestion.digestThrough(mortal, pathway, sequence = 6, blocks = blocks)
+        }
+    }
+
+    @Test
     fun `every committed block digests without error`() {
         // The 88 blocks are the real input; a stat row this engine cannot
         // apply must fail here rather than in front of a player.

@@ -63,57 +63,102 @@ data class DigestedCharacter(
  */
 object PotionDigestion {
 
-    fun digest(character: Character, block: SequenceBlock): DigestedCharacter {
-        val statGrants = statGrants(block.stats)
+    /** Every standard pathway begins at Sequence 9 (Ch. 9). */
+    const val STARTING_SEQUENCE = 9
+
+    /** One potion, drunk by a character who has digested nothing before it. */
+    fun digest(character: Character, block: SequenceBlock): DigestedCharacter =
+        digest(character, listOf(block))
+
+    /**
+     * Every potion up to and including [sequence] on [pathway], in the order
+     * a Beyonder drinks them (9 first, then 8, ...).
+     *
+     * Sequences are cumulative: a Sequence 8 Fool drank the Sequence 9 potion
+     * first and keeps its SPI +9. Digesting the Sequence 8 block alone
+     * describes what that one potion adds, not what the Beyonder is.
+     */
+    fun digestThrough(
+        character: Character,
+        pathway: String,
+        sequence: Int,
+        blocks: List<SequenceBlock>,
+    ): DigestedCharacter {
+        val chain = blocks
+            .filter { it.pathway == pathway && it.sequence >= sequence }
+            .sortedByDescending { it.sequence }
+        require(chain.isNotEmpty()) { "no Sequence $sequence or earlier on the $pathway Pathway" }
+        require(chain.last().sequence == sequence) {
+            "the $pathway Pathway has no Sequence $sequence block; digesting through it would " +
+                "silently report Sequence ${chain.last().sequence} instead"
+        }
+        require(chain.first().sequence == STARTING_SEQUENCE) {
+            "the $pathway Pathway chain starts at Sequence ${chain.first().sequence}, " +
+                "not $STARTING_SEQUENCE -- a Beyonder cannot skip the potion they began with"
+        }
+        return digest(character, chain)
+    }
+
+    private fun digest(character: Character, chain: List<SequenceBlock>): DigestedCharacter {
         val derived = Derive.of(character)
-
-        val effectiveAttributes = Attributes(
-            st = character.attributes.st + (statGrants.attributes[Attr.ST] ?: 0),
-            dx = character.attributes.dx + (statGrants.attributes[Attr.DX] ?: 0),
-            iq = character.attributes.iq + (statGrants.attributes[Attr.IQ] ?: 0),
-            ht = character.attributes.ht + (statGrants.attributes[Attr.HT] ?: 0),
-        )
-        val effectiveSpi = character.spi + statGrants.spi
-        val secondaries = SecondaryCharacteristics.of(
-            effectiveAttributes,
-            character.secondaryDelta + statGrants.secondary,
-        )
-
-        // Purchased skills are re-levelled against the attributes the potion
-        // just raised: a skill level is "controlling attribute + rungs", so a
-        // DX+1 potion lifts every DX skill the character already bought, not
-        // only the ones the potion also grants.
-        val purchased = character.skills.associate { s ->
-            s.key to SkillLadder.levelFor(
-                s.points,
-                s.key.difficulty,
-                Derive.controllingLevel(s.key.attr, effectiveAttributes, secondaries, effectiveSpi),
-            )
-        }
-
+        var grants = PotionGrants()
         val superseded = mutableSetOf<SkillKey>()
-        val granted = block.skills.associate { grant ->
-            val key = skillKey(grant.name, grant.attr, grant.difficulty)
-            // p. 86: an exact name-and-difficulty match stacks on what the
-            // character already has; anything else is a new skill at attr+N.
-            // The controlling attribute is deliberately not part of the
-            // match -- the book keys the rule on name and difficulty.
-            val existing = purchased.entries.firstOrNull { (k, _) ->
-                k.name == key.name &&
-                    k.specialization == key.specialization &&
-                    k.difficulty == key.difficulty
+        var effectiveAttributes = character.attributes
+        var effectiveSpi = character.spi
+        var secondaries = SecondaryCharacteristics.of(effectiveAttributes, character.secondaryDelta)
+
+        for (block in chain) {
+            val stats = statGrants(block.stats)
+            grants = grants.mergeStats(stats)
+
+            effectiveAttributes = Attributes(
+                st = character.attributes.st + (grants.attributes[Attr.ST] ?: 0),
+                dx = character.attributes.dx + (grants.attributes[Attr.DX] ?: 0),
+                iq = character.attributes.iq + (grants.attributes[Attr.IQ] ?: 0),
+                ht = character.attributes.ht + (grants.attributes[Attr.HT] ?: 0),
+            )
+            effectiveSpi = character.spi + grants.spi
+            secondaries = SecondaryCharacteristics.of(
+                effectiveAttributes,
+                character.secondaryDelta + grants.secondary,
+            )
+
+            // Purchased skills are re-levelled against the attributes the
+            // potions raised: a skill level is "controlling attribute +
+            // rungs", so a DX+1 potion lifts every DX skill the character
+            // already bought, not only the ones a potion also grants. A
+            // level a potion GRANTED is not re-levelled -- the book fixes it
+            // at digestion ("your IQ + 3"), with no points behind it to
+            // recompute from.
+            val purchased = purchasedLevels(character, effectiveAttributes, secondaries, effectiveSpi)
+
+            for (grant in block.skills) {
+                val key = skillKey(grant.name, grant.attr, grant.difficulty)
+                // p. 86: an exact name-and-difficulty match stacks on what the
+                // character already has -- bought earlier, or granted by an
+                // earlier potion on this same pathway. The controlling
+                // attribute is deliberately not part of the match; the book
+                // keys the rule on name and difficulty.
+                val alreadyGranted = grants.skillLevels.entries.firstOrNull { it.key.matches(key) }
+                val bought = purchased.entries.firstOrNull { it.key.matches(key) }
+                bought?.let { superseded += it.key }
+
+                val from = alreadyGranted?.value
+                    ?: bought?.value
+                    ?: Derive.controllingLevel(grant.attr, effectiveAttributes, secondaries, effectiveSpi)
+                grants = grants.copy(
+                    skillLevels = grants.skillLevels
+                        .filterKeys { !it.matches(key) } + (key to from + grant.bonus),
+                )
             }
-            existing?.let { superseded += it.key }
-            val from = existing?.value
-                ?: Derive.controllingLevel(grant.attr, effectiveAttributes, secondaries, effectiveSpi)
-            key to from + grant.bonus
         }
 
+        val last = chain.last()
         return DigestedCharacter(
             base = character,
-            pathway = block.pathway,
-            sequence = block.sequence,
-            grants = statGrants.copy(skillLevels = granted),
+            pathway = last.pathway,
+            sequence = last.sequence,
+            grants = grants,
             effectiveAttributes = effectiveAttributes,
             effectiveSpi = effectiveSpi,
             secondaries = secondaries,
@@ -122,10 +167,36 @@ object PotionDigestion {
             // list the same skill twice at two different levels. The two keys
             // can differ (the match ignores the controlling attribute), so
             // the superseded entry is dropped by identity, not by map key.
-            skillLevels = purchased.filterKeys { it !in superseded } + granted,
+            skillLevels = purchasedLevels(character, effectiveAttributes, secondaries, effectiveSpi)
+                .filterKeys { it !in superseded } + grants.skillLevels,
             budget = derived.budget,
         )
     }
+
+    private fun purchasedLevels(
+        character: Character,
+        attributes: Attributes,
+        secondaries: Secondaries,
+        spi: Int,
+    ): Map<SkillKey, Int> = character.skills.associate { s ->
+        s.key to SkillLadder.levelFor(
+            s.points,
+            s.key.difficulty,
+            Derive.controllingLevel(s.key.attr, attributes, secondaries, spi),
+        )
+    }
+
+    /** The p. 86 identity: same name, same specialization, same difficulty. */
+    private fun SkillKey.matches(other: SkillKey) =
+        name == other.name && specialization == other.specialization && difficulty == other.difficulty
+
+    private fun PotionGrants.mergeStats(other: PotionGrants) = copy(
+        attributes = (attributes.keys + other.attributes.keys).associateWith {
+            (attributes[it] ?: 0) + (other.attributes[it] ?: 0)
+        },
+        spi = spi + other.spi,
+        secondary = secondary + other.secondary,
+    )
 
     private fun statGrants(stats: List<StatGain>): PotionGrants {
         var attributes = emptyMap<Attr, Int>()
