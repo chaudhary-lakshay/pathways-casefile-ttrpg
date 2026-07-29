@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.model.BeyonderState
 import com.pathways.model.Outcome
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.Premades
@@ -63,15 +64,24 @@ fun App(sheets: List<PremadeSheet>) {
     // ponytail: a third destination, still one boolean and no navigation
     // library. Add one at the fourth, or at the first deep link.
     var pathways by remember(selected) { mutableStateOf(false) }
+    // ponytail: the drunk potion lives in composition, so it survives
+    // navigation but not process death. Persist it when there is a character
+    // worth saving -- these 23 are read-only premades.
+    var drunk by remember(selected) { mutableStateOf<BeyonderState?>(null) }
 
     when (val sheet = selected) {
         null -> PremadeList(sheets) { selected = it }
         else -> {
             BackHandler { if (pathways) pathways = false else selected = null }
             if (pathways) {
-                PathwayScreen(sheet) { pathways = false }
+                PathwayScreen(sheet, drunk, onDrink = { drunk = it }) { pathways = false }
             } else {
-                SheetScreen(sheet, onPathways = { pathways = true }) { selected = null }
+                SheetScreen(
+                    sheet,
+                    drunk = drunk,
+                    onPathways = { pathways = true },
+                    onBack = { selected = null },
+                )
             }
         }
     }
@@ -109,7 +119,12 @@ fun PremadeList(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit) {
  * Skill rows are tappable and roll 3d6 against the resolved target.
  */
 @Composable
-fun SheetScreen(sheet: PremadeSheet, onPathways: () -> Unit, onBack: () -> Unit) {
+fun SheetScreen(
+    sheet: PremadeSheet,
+    drunk: BeyonderState?,
+    onPathways: () -> Unit,
+    onBack: () -> Unit,
+) {
     val rows = remember(sheet) { SheetComparison.of(sheet) }
     val differing = rows.count { !it.matches }
     var rolled by remember(sheet) { mutableStateOf<SkillRollOutcome?>(null) }
@@ -120,9 +135,22 @@ fun SheetScreen(sheet: PremadeSheet, onPathways: () -> Unit, onBack: () -> Unit)
                 Column(Modifier.padding(horizontal = 16.dp)) {
                     Row {
                         TextButton(onClick = onBack) { Text("Back to premades") }
-                        TextButton(onClick = onPathways) { Text("Drink a potion") }
+                        TextButton(onClick = onPathways) {
+                            Text(if (drunk == null) "Drink a potion" else "Pathway")
+                        }
                     }
                     Text(sheet.name, style = MaterialTheme.typography.headlineSmall)
+                    if (drunk != null) {
+                        // The sheet rows below are still the mortal's: the
+                        // diff they carry is against the published sheet, and
+                        // no published sheet records a pathway. Saying so is
+                        // better than silently mixing two states.
+                        Text(
+                            "Sequence ${drunk.sequence} of the ${drunk.pathway} Pathway — " +
+                                "see the pathway screen for what it grants",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                     Text(
                         if (differing == 0) {
                             "all ${rows.size} values match the published sheet"

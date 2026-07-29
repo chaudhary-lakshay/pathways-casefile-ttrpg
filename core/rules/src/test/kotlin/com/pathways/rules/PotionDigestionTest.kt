@@ -2,6 +2,8 @@ package com.pathways.rules
 
 import com.pathways.model.Attr
 import com.pathways.model.Attributes
+import com.pathways.model.BeyonderState
+import com.pathways.model.canDrink
 import com.pathways.model.Character
 import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
@@ -14,6 +16,8 @@ import com.pathways.rules.content.StatGain
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class PotionDigestionTest {
 
@@ -168,6 +172,48 @@ class PotionDigestionTest {
         assertFailsWith<IllegalArgumentException> {
             PotionDigestion.digestThrough(mortal, "Fool", sequence = 8, blocks = seerOnly)
         }
+    }
+
+    @Test
+    fun `a stored pathway and sequence digest to the same thing as asking directly`() {
+        val blocks = ContentLoader.pathways()
+        val beyonder = mortal.copy(beyonder = BeyonderState("Fool", 8))
+
+        val fromState = PotionDigestion.of(beyonder, blocks)
+        val asked = PotionDigestion.digestThrough(beyonder, "Fool", sequence = 8, blocks = blocks)
+
+        assertEquals(asked.skillLevels, fromState?.skillLevels)
+        assertEquals(asked.effectiveSpi, fromState?.effectiveSpi)
+        // storing the choice cannot change what was paid for
+        assertEquals(Derive.of(mortal).budget, fromState?.budget)
+    }
+
+    @Test
+    fun `a mortal digests to nothing rather than to an empty Beyonder`() {
+        assertEquals(null, PotionDigestion.of(mortal, ContentLoader.pathways()))
+    }
+
+    @Test
+    fun `advancing walks down the pathway and stops at the strongest sequence held`() {
+        assertEquals(BeyonderState("Fool", 8), BeyonderState("Fool", 9).advanced())
+        assertEquals(null, BeyonderState("Fool", 6).advanced())
+        assertFailsWith<IllegalArgumentException> { BeyonderState("Fool", 5) }
+    }
+
+    @Test
+    fun `a pathway is walked one potion at a time`() {
+        // Without this, a mortal could store "Sequence 6" and be granted the
+        // whole chain as though the three skipped potions had been drunk.
+        val seer = BeyonderState("Fool", 9)
+        val clown = BeyonderState("Fool", 8)
+
+        assertTrue(null.canDrink(seer))
+        assertFalse(null.canDrink(clown))
+        assertTrue(seer.canDrink(clown))
+        assertFalse(seer.canDrink(BeyonderState("Fool", 7)))
+        assertFalse(seer.canDrink(seer))
+        // a different pathway is a different Beyonder, not an advancement
+        assertFalse(seer.canDrink(BeyonderState("Error", 8)))
     }
 
     @Test

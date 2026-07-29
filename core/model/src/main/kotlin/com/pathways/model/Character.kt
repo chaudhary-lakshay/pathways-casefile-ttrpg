@@ -30,6 +30,13 @@ data class Character(
      * [com.pathways.rules.PointBudget].
      */
     val spi: Int = 0,
+    /**
+     * The pathway and Sequence this character has drunk their way to, or null
+     * for a mortal. Only the choice is stored; every gain that follows from it
+     * is derived through [com.pathways.rules.PotionDigestion], which is what
+     * keeps free potion gains out of [com.pathways.rules.PointBudget].
+     */
+    val beyonder: BeyonderState? = null,
     val traits: List<Trait> = emptyList(),
     val skills: List<PurchasedSkill> = emptyList(),
     val weapons: List<Weapon> = emptyList(),

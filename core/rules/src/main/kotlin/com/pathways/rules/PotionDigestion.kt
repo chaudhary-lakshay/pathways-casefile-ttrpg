@@ -71,6 +71,14 @@ object PotionDigestion {
         digest(character, listOf(block))
 
     /**
+     * What [character] currently is, given the pathway and Sequence they have
+     * drunk their way to. Null for a mortal -- there is nothing to digest, and
+     * a mortal is not a Beyonder at Sequence 9 with no grants.
+     */
+    fun of(character: Character, blocks: List<SequenceBlock>): DigestedCharacter? =
+        character.beyonder?.let { digestThrough(character, it.pathway, it.sequence, blocks) }
+
+    /**
      * Every potion up to and including [sequence] on [pathway], in the order
      * a Beyonder drinks them (9 first, then 8, ...).
      *

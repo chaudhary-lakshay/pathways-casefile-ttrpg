@@ -24,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.pathways.model.BeyonderState
+import com.pathways.model.canDrink
 import com.pathways.rules.DigestedCharacter
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PremadeSheet
@@ -43,11 +45,18 @@ private val SEQUENCES = listOf(9, 8, 7, 6)
  * engine has started billing gifts.
  */
 @Composable
-fun PathwayScreen(sheet: PremadeSheet, onBack: () -> Unit) {
+fun PathwayScreen(
+    sheet: PremadeSheet,
+    drunk: BeyonderState?,
+    onDrink: (BeyonderState) -> Unit,
+    onBack: () -> Unit,
+) {
     val blocks = remember { ContentLoader.pathways() }
     val pathways = remember(blocks) { blocks.map { it.pathway }.distinct().sorted() }
-    var pathway by remember { mutableStateOf<String?>(null) }
-    var sequence by remember { mutableIntStateOf(9) }
+    // Opening the screen on the potion already drunk, rather than on the
+    // pathway list, is the difference between a browser and a character sheet.
+    var pathway by remember(drunk) { mutableStateOf(drunk?.pathway) }
+    var sequence by remember(drunk) { mutableIntStateOf(drunk?.sequence ?: PotionDigestion.STARTING_SEQUENCE) }
 
     val block = pathway?.let { chosen ->
         blocks.single { it.pathway == chosen && it.sequence == sequence }
@@ -97,10 +106,26 @@ fun PathwayScreen(sheet: PremadeSheet, onBack: () -> Unit) {
                             )
                         }
                     }
-                    TextButton(
-                        onClick = { pathway = null },
-                        modifier = Modifier.padding(horizontal = 8.dp),
-                    ) { Text("Choose another pathway") }
+                    Row {
+                        TextButton(
+                            onClick = { pathway = null },
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                        ) { Text("Choose another pathway") }
+                        val chosen = BeyonderState(block.pathway, block.sequence)
+                        when {
+                            drunk.canDrink(chosen) ->
+                                TextButton(onClick = { onDrink(chosen) }) { Text("Drink this potion") }
+                            drunk == chosen -> Note("drunk")
+                            // A pathway is walked one potion at a time, so
+                            // every other block is readable but not drinkable.
+                            drunk == null -> Note("a pathway begins at Sequence ${PotionDigestion.STARTING_SEQUENCE}")
+                            else -> Note(
+                                drunk.advanced()
+                                    ?.let { "next: Sequence ${it.sequence} of the ${it.pathway} Pathway" }
+                                    ?: "already at Sequence ${drunk.sequence}",
+                            )
+                        }
+                    }
                     HorizontalDivider()
                 }
                 digestion(block, digested)
@@ -184,6 +209,12 @@ private fun LazyListScope.digestion(block: SequenceBlock, digested: DigestedChar
             Prose(block.reinforcedAbilities)
         }
     }
+}
+
+/** Why a potion is not drinkable, in the space its button would occupy. */
+@Composable
+private fun Note(text: String) {
+    Text(text, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(16.dp))
 }
 
 @Composable
