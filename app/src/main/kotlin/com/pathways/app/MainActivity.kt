@@ -60,12 +60,19 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App(sheets: List<PremadeSheet>) {
     var selected by remember { mutableStateOf<PremadeSheet?>(null) }
+    // ponytail: a third destination, still one boolean and no navigation
+    // library. Add one at the fourth, or at the first deep link.
+    var pathways by remember(selected) { mutableStateOf(false) }
 
     when (val sheet = selected) {
         null -> PremadeList(sheets) { selected = it }
         else -> {
-            BackHandler { selected = null }
-            SheetScreen(sheet) { selected = null }
+            BackHandler { if (pathways) pathways = false else selected = null }
+            if (pathways) {
+                PathwayScreen(sheet) { pathways = false }
+            } else {
+                SheetScreen(sheet, onPathways = { pathways = true }) { selected = null }
+            }
         }
     }
 }
@@ -102,7 +109,7 @@ fun PremadeList(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit) {
  * Skill rows are tappable and roll 3d6 against the resolved target.
  */
 @Composable
-fun SheetScreen(sheet: PremadeSheet, onBack: () -> Unit) {
+fun SheetScreen(sheet: PremadeSheet, onPathways: () -> Unit, onBack: () -> Unit) {
     val rows = remember(sheet) { SheetComparison.of(sheet) }
     val differing = rows.count { !it.matches }
     var rolled by remember(sheet) { mutableStateOf<SkillRollOutcome?>(null) }
@@ -111,7 +118,10 @@ fun SheetScreen(sheet: PremadeSheet, onBack: () -> Unit) {
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
             item {
                 Column(Modifier.padding(horizontal = 16.dp)) {
-                    TextButton(onClick = onBack) { Text("Back to premades") }
+                    Row {
+                        TextButton(onClick = onBack) { Text("Back to premades") }
+                        TextButton(onClick = onPathways) { Text("Drink a potion") }
+                    }
                     Text(sheet.name, style = MaterialTheme.typography.headlineSmall)
                     Text(
                         if (differing == 0) {
