@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -25,10 +27,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.model.Outcome
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.Premades
+import com.pathways.rules.RandomSource
 import com.pathways.rules.SheetComparison
 import com.pathways.rules.SheetRow
+import com.pathways.rules.SkillRoll
+import com.pathways.rules.SkillRollOutcome
+import kotlin.random.Random
+
+/** The app's real dice. Tests inject [com.pathways.rules.SeededRandom] instead. */
+private val appDice = RandomSource { sides -> Random.nextInt(1, sides + 1) }
+
+/** [SheetComparison] emits the seven secondaries before any skill row. */
+private const val SECONDARY_ROWS = 7
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,11 +98,14 @@ fun PremadeList(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit) {
  * never reconciled: most sheets floor Basic Speed where the book does not, and
  * Docks Bouncer's printed HP contradicts its own ST. Those rows render in the
  * error colour alongside what the sheet claimed.
+ *
+ * Skill rows are tappable and roll 3d6 against the resolved target.
  */
 @Composable
 fun SheetScreen(sheet: PremadeSheet, onBack: () -> Unit) {
     val rows = remember(sheet) { SheetComparison.of(sheet) }
     val differing = rows.count { !it.matches }
+    var rolled by remember(sheet) { mutableStateOf<SkillRollOutcome?>(null) }
 
     Scaffold { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
@@ -109,15 +125,28 @@ fun SheetScreen(sheet: PremadeSheet, onBack: () -> Unit) {
                 }
                 HorizontalDivider()
             }
-            items(rows) { ComparisonRow(it) }
+
+            items(rows.take(SECONDARY_ROWS)) { ComparisonRow(it) }
+
+            // Row order past the secondaries is one per purchased skill, in
+            // sheet order - pinned by SheetComparisonTest. That is what makes
+            // this positional pairing safe.
+            itemsIndexed(sheet.skills) { i, skill ->
+                val row = rows.getOrNull(SECONDARY_ROWS + i)
+                if (row != null) {
+                    ComparisonRow(row, Modifier.clickable { rolled = SkillRoll.of(sheet, skill, appDice) })
+                }
+            }
         }
     }
+
+    rolled?.let { RollDialog(it) { rolled = null } }
 }
 
 @Composable
-private fun ComparisonRow(row: SheetRow) {
+private fun ComparisonRow(row: SheetRow, modifier: Modifier = Modifier) {
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+        modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(row.label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
@@ -130,4 +159,58 @@ private fun ComparisonRow(row: SheetRow) {
             )
         }
     }
+}
+
+@Composable
+private fun RollDialog(out: SkillRollOutcome, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        title = { Text(out.label) },
+        text = {
+            Column {
+                val roll = out.roll
+                if (roll == null) {
+                    Text("Forbidden — this roll cannot be attempted.")
+                } else {
+                    Text(
+                        "3d6: ${roll.total} vs ${roll.target}",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    // effectiveOutcome, not roll.outcome: RequireCrit demotes
+                    // an ordinary success, and showing "Success" with a note
+                    // underneath would misreport the result.
+                    val shown = out.effectiveOutcome ?: roll.outcome
+                    Text(label(shown), color = colorFor(shown))
+                    Text("margin ${roll.margin}", style = MaterialTheme.typography.bodySmall)
+                }
+                if (out.target != out.baseTarget) {
+                    Text(
+                        "base ${out.baseTarget}, modified to ${out.target}",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                if (out.requiresCritical) {
+                    Text(
+                        "Only a critical success counts.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+        },
+    )
+}
+
+private fun label(outcome: Outcome) = when (outcome) {
+    Outcome.CRITICAL_SUCCESS -> "Critical success"
+    Outcome.SUCCESS -> "Success"
+    Outcome.FAILURE -> "Failure"
+    Outcome.CRITICAL_FAILURE -> "Critical failure"
+}
+
+@Composable
+private fun colorFor(outcome: Outcome) = when (outcome) {
+    Outcome.CRITICAL_FAILURE, Outcome.FAILURE -> MaterialTheme.colorScheme.error
+    else -> MaterialTheme.colorScheme.primary
 }

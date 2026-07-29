@@ -1,6 +1,5 @@
 package com.pathways.rules
 
-import com.pathways.model.Difficulty
 import java.util.Locale
 
 /**
@@ -47,20 +46,12 @@ object SheetComparison {
     }
 
     /**
-     * Levels are computed per skill through [SkillLadder] rather than read out
-     * of [DerivedCharacter.skillLevels], which is keyed by `SkillKey`: two
-     * entries sharing a key would collapse into one map entry and silently
-     * drop a row.
+     * Levels come from [PremadeSheet.levelFor] rather than out of
+     * [DerivedCharacter.skillLevels], which is keyed by `SkillKey`: two entries
+     * sharing a key would collapse into one map entry and silently drop a row.
      */
-    private fun skillRow(sheet: PremadeSheet, skill: PremadeSkill) = row(
-        label = skill.specialization?.let { "${skill.name} ($it)" } ?: skill.name,
-        computed = SkillLadder.levelFor(
-            points = skill.points,
-            difficulty = Difficulty.fromCode(skill.difficulty),
-            attributeLevel = sheet.attributeLevelFor(skill),
-        ),
-        published = skill.publishedLevel,
-    )
+    private fun skillRow(sheet: PremadeSheet, skill: PremadeSkill) =
+        row(skill.label, sheet.levelFor(skill), skill.publishedLevel)
 
     private fun row(label: String, computed: Int, published: Int?) =
         SheetRow(label, computed.toString(), published?.toString())

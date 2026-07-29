@@ -12,7 +12,15 @@ data class PremadeSkill(
     val difficulty: String,
     val points: Int,
     val publishedLevel: Int,
-)
+) {
+    /** "Occultism", or "Area Knowledge (Backlund)" when specialized. */
+    val label: String get() = specialization?.let { "$name ($it)" } ?: name
+
+    fun key() = SkillKey(
+        name, specialization,
+        ControllingAttribute.fromCode(attr), Difficulty.fromCode(difficulty),
+    )
+}
 
 @Serializable
 data class PremadeTrait(val name: String, val cost: Int)
@@ -72,21 +80,20 @@ data class PremadeSheet(
     /** Mortals print 0; four of the 23 sheets print 9. Absent means mortal. */
     private fun spiOf(): Int = published.spi ?: 0
 
+    /** The level this sheet's points buy for [skill], per the book. */
+    fun levelFor(skill: PremadeSkill): Int = SkillLadder.levelFor(
+        points = skill.points,
+        difficulty = Difficulty.fromCode(skill.difficulty),
+        attributeLevel = attributeLevelFor(skill),
+    )
+
     fun toCharacter() = Character(
         name = name,
         spi = spiOf(),
         attributes = attributesOnly(),
         traits = advantages.map { Trait(it.name, it.cost, TraitKind.ADVANTAGE) } +
             disadvantages.map { Trait(it.name, it.cost, TraitKind.DISADVANTAGE) },
-        skills = skills.map {
-            PurchasedSkill(
-                SkillKey(
-                    it.name, it.specialization,
-                    ControllingAttribute.fromCode(it.attr), Difficulty.fromCode(it.difficulty),
-                ),
-                it.points,
-            )
-        },
+        skills = skills.map { PurchasedSkill(it.key(), it.points) },
     )
 }
 
