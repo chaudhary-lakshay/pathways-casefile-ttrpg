@@ -1,7 +1,7 @@
 # Pathways — Agent Handover
 
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
-Everything below is verified against the tree at commit `9a02b46`, not recalled.
+Everything below is verified against the tree at commit `0a78ec2`, not recalled.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -27,8 +27,8 @@ Read it before designing anything.
 
 ## 2. Current state
 
-**M0 through M3 are complete and merged to `master`.** M4 (table play) is
-next — see section 6.
+**M0 through M3 are complete and merged to `master`**, and M4's first slice
+(CoR tracking) with them. The rest of M4 is next — see sections 6 and 6a.
 
 There is an Android module (`app/`, Compose) with three screens: premade list
 -> sheet (the `computed vs asPublished` diff, tap a skill to roll 3d6), the
@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **332 Kotlin** (JUnit 5) + **19 Python** (pytest), all green |
+| Tests | **343 Kotlin** (JUnit 5) + **23 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -71,12 +71,13 @@ docs/           spec, plan, KNOWN_ISSUES
 `RollResult`, `SecondaryDelta`, `SkillKey`, `Trait`, `Weapon`.
 
 `core/rules` — `AttributeCosts`, `Derive`, `ModifierResolver`, `ParryBlock`,
-`PointBudget`, `PotionConsumption`, `PotionDigestion`, `Premades`,
+`PointBudget`, `Corruption`, `PotionConsumption`, `PotionDigestion`, `Premades`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading seven JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading nine JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
-`pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11).
+`pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
+`cor_gained.json` (6), `ritual_cor_thresholds.json` (4).
 
 ### Public entry points
 
@@ -96,11 +97,15 @@ SkillLadder.defaultFor(difficulty, attributeLevel): Int?
 SuccessRoll.against(target, source: RandomSource): RollResult
 ContentLoader.skills() / .advantages() / .disadvantages() / .thrustSwing()
 ContentLoader.pathways() / .actingMethod() / .potionConsumption()
+ContentLoader.corGained() / .ritualCorThresholds()
 PotionDigestion.digest(c, block): DigestedCharacter
 PotionDigestion.digestThrough(c, pathway, sequence, blocks): DigestedCharacter
 PotionDigestion.of(c, blocks): DigestedCharacter?     // from c.beyonder
 PotionConsumption.attempt(state, source): PcrOutcome
 PotionConsumption.targetFor(digestion): Int
+Corruption.maxFor(c) / .maxFor(will, traits): Int          // Will, +3 with Spiritual Fortitude
+Corruption.clamp(cor, max) / .isLostAt(cor, max)
+Corruption.ritualPenalty(cor) / .ritualThresholdsReached(cor)
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -268,21 +273,57 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ### Known gaps left deliberately
 
-- **Nothing persists.** `BeyonderSession` and `BuilderScreen` hold state in
-  composition; it survives navigation, not process death. The 23 premades are
-  read-only, so there is no character worth saving yet. This is the
-  prerequisite for both saving and for editing skills/traits in the builder.
+- **Only the potion walk persists.** `SessionStore` writes each premade's
+  `SavedSession` (pathway, Sequence, digestion, CoR, both losses) to
+  `filesDir/sessions.json`; `BuilderScreen`'s attribute edits are still
+  composition-only. The 23 premades are read-only, so there is no edited
+  character worth saving yet — that is the prerequisite for editing
+  skills/traits in the builder.
 - **Advantage and drawback rows are prose, not structure.** The flattened PDF
   gives no boundary between a wrapped effect line and the next row's name, and
   this PDF reports x=0 for every glyph so column geometry is unavailable. See
   `tools/extract_pathways.py`'s docstring before trying again.
-- **CoR is reported, never tracked.** `PcrOutcome.minimumCorGained` states the
-  book's 10+ floor; no character field holds a running CoR total. Max CoR
-  equals Will (p. 45) — that belongs to M4.
+- **The app module has no test source set.** `BeyonderSession` and the screens
+  are verified on a device, not by JUnit. Rules-level logic is unit-tested;
+  app wiring is not. Add `app/src/test` the first time a UI rule is worth
+  pinning.
 
-**M4** (spec section 8): T2 + T3 — combat, FP/HP/CoR tracking, active
+---
+
+## 6a. CoR — the first slice of M4
+
+`Corruption` (core/rules) is the tracker, `SavedSession.cor` the total, and
+`PathwayScreen`'s stepper the interface. Four things it settles:
+
+- **Max CoR is Will**, +3 with the `Spiritual Fortitude` advantage (p. 18,
+  p. 45). `Corruption.maxFor` takes either a `Character` or an
+  already-derived Will, because a Beyonder's Will is the digested one.
+- **The loss is latched, never derived.** `SavedSession.corrupted` is stored.
+  Recomputing `cor >= max` would resurrect a lost character the moment a
+  potion raised Will — and would miss the reverse, which is real: the Abyss
+  pathway LOWERS Will at Sequences 9, 8 and 6, so a potion can drop the
+  ceiling onto a total that was safe. `BeyonderSession.drink` therefore takes
+  a `maxCorAfter` function and checks the cap of the state being drunk INTO,
+  even when the advancement costs 0 CoR (Codex caught this one).
+- **The 3/5/8/10 ladder is ritual-scoped.** The book prints it under
+  "Corruption from Ritual Work" and calls it "additional ritual-specific
+  thresholds"; spec section 5 paraphrases it as general. Book wins, so the
+  file is `ritual_cor_thresholds.json`, the loader is
+  `ContentLoader.ritualCorThresholds()`, and the only penalty exposed is
+  `Corruption.ritualPenalty`. There is deliberately no general `penaltyFor`.
+- **Advancing early charges the book's floor, not a guess.** 10 CoR on a
+  successful PCR before full digestion; the "+" stays the GM's. Against a
+  typical Will of 10 that single click can both integrate the potion and end
+  the character — verified on device.
+
+Still reported rather than modelled: the other CoR sources (`cor_gained.json`
+carries ranges and a `1d` row the GM rolls), and CoR removal (p. 68: one per
+month of abstinence, or a cleansing ritual).
+
+**The rest of M4** (spec section 8): T2 + T3 — combat, FP/HP tracking, active
 defenses, fright checks, ritual and divination resolution. `ModifierResolver`
-still has no production caller; combat is where it earns its keep.
+still has no production caller; combat is where it earns its keep, and
+`Corruption.ritualPenalty` is its first ready-made input.
 
 ---
 
