@@ -16,9 +16,12 @@ import com.pathways.rules.RandomSource
  * navigation, not process death, which is the right size while the 23
  * premades are read-only. Persist when there is a character worth saving.
  */
-class BeyonderSession(initial: BeyonderState? = null) {
+class BeyonderSession(
+    saved: SavedSession = SavedSession(),
+    private val onChange: (SavedSession) -> Unit = {},
+) {
 
-    var state by mutableStateOf(initial)
+    var state by mutableStateOf(saved.beyonder)
         private set
 
     /**
@@ -27,8 +30,10 @@ class BeyonderSession(initial: BeyonderState? = null) {
      * immediately, permanently under the GM's control" (p. 45). Nothing here
      * un-loses them; that is the point.
      */
-    var lost by mutableStateOf(false)
+    var lost by mutableStateOf(saved.lost)
         private set
+
+    private fun persist() = onChange(SavedSession(state, lost))
 
     /**
      * Move the current potion's digestion, clamped to 0-100% by the model.
@@ -40,6 +45,7 @@ class BeyonderSession(initial: BeyonderState? = null) {
     fun digest(delta: Int) {
         if (lost) return
         state = state?.digested(delta)
+        persist()
     }
 
     /**
@@ -56,10 +62,12 @@ class BeyonderSession(initial: BeyonderState? = null) {
 
         if (current == null) {
             state = next
+            persist()
             return null
         }
         val outcome = PotionConsumption.attempt(current, dice)
         if (outcome.integrated) state = next else lost = true
+        persist()
         return outcome
     }
 }

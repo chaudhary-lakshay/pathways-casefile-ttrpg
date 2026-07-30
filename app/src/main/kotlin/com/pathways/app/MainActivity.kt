@@ -36,6 +36,7 @@ import com.pathways.rules.SheetComparison
 import com.pathways.rules.SheetRow
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
+import java.io.File
 import kotlin.random.Random
 
 /** The app's real dice. Tests inject [com.pathways.rules.SeededRandom] instead. */
@@ -53,25 +54,33 @@ class MainActivity : ComponentActivity() {
         // ponytail: loaded on the main thread. 23 small JSONs off the APK
         // classpath; move behind a ViewModel when the sheet screen needs state
         // that survives rotation, not before.
-        setContent { MaterialTheme { App(Premades.all()) } }
+        val store = SessionStore(File(filesDir, "sessions.json"))
+        setContent { MaterialTheme { App(Premades.all(), store) } }
     }
 }
 
 /**
- * ponytail: two screens, one nullable selection, no navigation library. Add
- * one when there is a third destination or a deep link to honour.
+ * ponytail: four destinations, one enum, no navigation library. Add one at the
+ * first deep link or saved back stack.
  */
 @Composable
-fun App(sheets: List<PremadeSheet>) {
+fun App(sheets: List<PremadeSheet>, store: SessionStore) {
     var selected by remember { mutableStateOf<PremadeSheet?>(null) }
-    // ponytail: a third destination, still one boolean and no navigation
-    // library. Add one at the fourth, or at the first deep link.
-    // ponytail: a fourth destination and still one enum, no navigation
-    // library. Add one at the first deep link or saved back stack.
+    // Read once; every write goes straight back out, so the file and the
+    // screens cannot drift apart.
+    val saved = remember { store.load().toMutableMap() }
     var screen by remember(selected) { mutableStateOf(Screen.SHEET) }
-    // One walk down a pathway per selected premade; picking another sheet
-    // starts a fresh one.
-    val session = remember(selected) { BeyonderSession() }
+    // One walk down a pathway per selected premade, restored from disk and
+    // written back on every change.
+    val session = remember(selected) {
+        val name = selected?.name
+        BeyonderSession(saved[name] ?: SavedSession()) { updated ->
+            if (name != null) {
+                saved[name] = updated
+                store.save(saved)
+            }
+        }
+    }
 
     when (val sheet = selected) {
         null -> PremadeList(sheets) { selected = it }
