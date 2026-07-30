@@ -1,7 +1,7 @@
 # Pathways — Agent Handover
 
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
-Everything below is verified against the tree at commit `0a78ec2`, not recalled.
+Everything below is verified against the tree at commit `77c383e`, not recalled.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **343 Kotlin** (JUnit 5) + **23 Python** (pytest), all green |
+| Tests | **359 Kotlin** (JUnit 5) + **27 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -71,13 +71,14 @@ docs/           spec, plan, KNOWN_ISSUES
 `RollResult`, `SecondaryDelta`, `SkillKey`, `Trait`, `Weapon`.
 
 `core/rules` — `AttributeCosts`, `Derive`, `ModifierResolver`, `ParryBlock`,
-`PointBudget`, `Corruption`, `PotionConsumption`, `PotionDigestion`, `Premades`,
+`PointBudget`, `Corruption`, `Pools`, `PotionConsumption`, `PotionDigestion`, `Premades`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading nine JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading ten JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
-`cor_gained.json` (6), `ritual_cor_thresholds.json` (4).
+`cor_gained.json` (6), `ritual_cor_thresholds.json` (4),
+`pool_thresholds.json` (9).
 
 ### Public entry points
 
@@ -97,7 +98,7 @@ SkillLadder.defaultFor(difficulty, attributeLevel): Int?
 SuccessRoll.against(target, source: RandomSource): RollResult
 ContentLoader.skills() / .advantages() / .disadvantages() / .thrustSwing()
 ContentLoader.pathways() / .actingMethod() / .potionConsumption()
-ContentLoader.corGained() / .ritualCorThresholds()
+ContentLoader.corGained() / .ritualCorThresholds() / .poolThresholds()
 PotionDigestion.digest(c, block): DigestedCharacter
 PotionDigestion.digestThrough(c, pathway, sequence, blocks): DigestedCharacter
 PotionDigestion.of(c, blocks): DigestedCharacter?     // from c.beyonder
@@ -106,6 +107,8 @@ PotionConsumption.targetFor(digestion): Int
 Corruption.maxFor(c) / .maxFor(will, traits): Int          // Will, +3 with Spiritual Fortitude
 Corruption.clamp(cor, max) / .isLostAt(cor, max)
 Corruption.ritualPenalty(cor) / .ritualThresholdsReached(cor)
+Pools.hp(current, max) / .fp(current, max) / .spi(current, max): PoolStatus
+Pools.thresholds(pool): List<PoolThreshold>   // empty for FP: prose only
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -319,6 +322,26 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 Still reported rather than modelled: the other CoR sources (`cor_gained.json`
 carries ranges and a `1d` row the GM rolls), and CoR removal (p. 68: one per
 month of abstinence, or a cleansing ritual).
+
+## 6b. Pools — HP, FP, SPI (Ch. 5)
+
+`Pools` reports where a pool stands; `SavedSession` stores what has been
+LOST, never what is left, because potions move the maximums. Four readings
+worth keeping:
+
+- **FP has no printed table.** Its thresholds appear as prose in two
+  sections that disagree — p. 42 "at 1/3 FP or below: -1 to all rolls",
+  p. 41 "-1 per 1 FP below 0". `Pools.fp` takes the WORSE, never the sum,
+  and `extract_pools.py` deliberately emits no FP rows rather than authoring
+  a table the book does not print.
+- **Penalty scope travels with the number.** Spiritual Attrition is -3 to
+  SPI rolls and ability checks, not to a sword swing, so `PoolStatus.scope`
+  is part of the answer. Same lesson as the ritual CoR ladder.
+- **Spending FP below 0 costs 1 HP per point** (p. 42). `BeyonderSession`
+  applies it, and refunds it on the way back up — printing a rule the app
+  then fails to apply is how a tracker starts lying (Codex caught this).
+- **-5×HP is dead with NO roll**, so both roll flags are clear there; below
+  -HP they are set. Reeling is never withdrawn once HP falls further.
 
 **The rest of M4** (spec section 8): T2 + T3 — combat, FP/HP tracking, active
 defenses, fright checks, ritual and divination resolution. `ModifierResolver`
