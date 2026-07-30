@@ -64,21 +64,21 @@ fun App(sheets: List<PremadeSheet>) {
     // ponytail: a third destination, still one boolean and no navigation
     // library. Add one at the fourth, or at the first deep link.
     var pathways by remember(selected) { mutableStateOf(false) }
-    // ponytail: the drunk potion lives in composition, so it survives
-    // navigation but not process death. Persist it when there is a character
-    // worth saving -- these 23 are read-only premades.
-    var drunk by remember(selected) { mutableStateOf<BeyonderState?>(null) }
+    // One walk down a pathway per selected premade; picking another sheet
+    // starts a fresh one.
+    val session = remember(selected) { BeyonderSession() }
 
     when (val sheet = selected) {
         null -> PremadeList(sheets) { selected = it }
         else -> {
             BackHandler { if (pathways) pathways = false else selected = null }
             if (pathways) {
-                PathwayScreen(sheet, drunk, onDrink = { drunk = it }) { pathways = false }
+                PathwayScreen(sheet, session, appDice) { pathways = false }
             } else {
                 SheetScreen(
                     sheet,
-                    drunk = drunk,
+                    drunk = session.state,
+                    lost = session.lost,
                     onPathways = { pathways = true },
                     onBack = { selected = null },
                 )
@@ -122,6 +122,7 @@ fun PremadeList(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit) {
 fun SheetScreen(
     sheet: PremadeSheet,
     drunk: BeyonderState?,
+    lost: Boolean,
     onPathways: () -> Unit,
     onBack: () -> Unit,
 ) {
@@ -146,8 +147,9 @@ fun SheetScreen(
                         // no published sheet records a pathway. Saying so is
                         // better than silently mixing two states.
                         Text(
-                            "Sequence ${drunk.sequence} of the ${drunk.pathway} Pathway — " +
-                                "see the pathway screen for what it grants",
+                            "Sequence ${drunk.sequence} of the ${drunk.pathway} Pathway, " +
+                                "digested ${drunk.digestion}% — " +
+                                if (lost) "LOST to the Rampager" else "see the pathway screen for what it grants",
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -21,12 +22,16 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.pathways.model.BeyonderState
 import com.pathways.model.canDrink
 import com.pathways.rules.DigestedCharacter
+import com.pathways.rules.PcrOutcome
+import com.pathways.rules.PotionConsumption
+import com.pathways.rules.RandomSource
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.content.ContentLoader
@@ -47,10 +52,12 @@ private val SEQUENCES = listOf(9, 8, 7, 6)
 @Composable
 fun PathwayScreen(
     sheet: PremadeSheet,
-    drunk: BeyonderState?,
-    onDrink: (BeyonderState) -> Unit,
+    session: BeyonderSession,
+    dice: RandomSource,
     onBack: () -> Unit,
 ) {
+    val drunk = session.state
+    var pcr by remember { mutableStateOf<PcrOutcome?>(null) }
     val blocks = remember { ContentLoader.pathways() }
     val pathways = remember(blocks) { blocks.map { it.pathway }.distinct().sorted() }
     // Opening the screen on the potion already drunk, rather than on the
@@ -113,9 +120,13 @@ fun PathwayScreen(
                         ) { Text("Choose another pathway") }
                         val chosen = BeyonderState(block.pathway, block.sequence)
                         when {
+                            session.lost -> Note("lost to the Rampager")
                             drunk.canDrink(chosen) ->
-                                TextButton(onClick = { onDrink(chosen) }) { Text("Drink this potion") }
-                            drunk == chosen -> Note("drunk")
+                                TextButton(onClick = { pcr = session.drink(chosen, dice) }) {
+                                    Text(if (drunk == null) "Drink this potion" else "Drink and roll")
+                                }
+                            drunk?.pathway == chosen.pathway && drunk.sequence == chosen.sequence ->
+                                Note("digesting: ${drunk.digestion}%")
                             // A pathway is walked one potion at a time, so
                             // every other block is readable but not drinkable.
                             drunk == null -> Note("a pathway begins at Sequence ${PotionDigestion.STARTING_SEQUENCE}")
@@ -128,10 +139,80 @@ fun PathwayScreen(
                     }
                     HorizontalDivider()
                 }
+                val isCurrentPotion = drunk != null &&
+                    drunk.pathway == block.pathway &&
+                    drunk.sequence == block.sequence
+                if (isCurrentPotion && !session.lost) {
+                    item { DigestionTracker(drunk!!, session::digest) }
+                }
                 digestion(block, digested)
             }
         }
     }
+
+    pcr?.let { PcrDialog(it) { pcr = null } }
+}
+
+/**
+ * The Acting Method, as a table plays it: the GM judges the session's acting
+ * and moves the percentage.
+ *
+ * ponytail: a stepper, not a quality picker. Every acting quality prints a
+ * RANGE ("+15-20%") and the book leaves the pick to the GM, so a button per
+ * quality would have to invent a figure inside it. The ranges are shown
+ * beside the stepper so the judgement stays informed and stays theirs.
+ */
+@Composable
+private fun DigestionTracker(state: BeyonderState, onDigest: (Int) -> Unit) {
+    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Text("Digesting this potion", style = MaterialTheme.typography.titleSmall)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TextButton(onClick = { onDigest(-5) }) { Text("-5%") }
+            Text(
+                "${state.digestion}%",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(horizontal = 8.dp),
+            )
+            TextButton(onClick = { onDigest(5) }) { Text("+5%") }
+        }
+        Text(
+            "next potion rolls 3d6 ≤ ${PotionConsumption.targetFor(state.digestion)}" +
+                if (state.isFullyDigested) "" else " — advancing now also costs 10+ CoR",
+            style = MaterialTheme.typography.bodySmall,
+        )
+        Text(
+            ContentLoader.actingMethod().joinToString("   ") { quality ->
+                val gain = if (quality.losesProgress) "0 or lose" else "+${quality.minGain}-${quality.maxGain}%"
+                "${quality.quality} $gain"
+            },
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+    }
+}
+
+/** The Potion Consumption Roll, and what it cost. */
+@Composable
+private fun PcrDialog(outcome: PcrOutcome, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onDismiss) { Text("OK") } },
+        title = { Text(if (outcome.integrated) "The potion integrates" else "Lost to the Rampager") },
+        text = {
+            Column {
+                Text("3d6: ${outcome.roll.total} vs ${outcome.target} (digested ${outcome.digestion}%)")
+                if (outcome.minimumCorGained > 0) {
+                    Text("at least ${outcome.minimumCorGained} CoR for advancing before full digestion")
+                }
+                if (!outcome.integrated) {
+                    Text(
+                        "The character transforms into an NPC Rampager, permanently under the GM's control.",
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                }
+            }
+        },
+    )
 }
 
 private fun LazyListScope.digestion(block: SequenceBlock, digested: DigestedCharacter) {
