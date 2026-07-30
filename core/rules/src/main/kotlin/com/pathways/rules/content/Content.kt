@@ -238,6 +238,55 @@ data class PcrRow(
     val note: String = "",
 )
 
+/**
+ * One row of the "CoR Gained" table (Ch. 6, p. 45): what an action costs in
+ * corruption.
+ *
+ * The rows print four different shapes of number -- a flat 1, a range
+ * ("1-3"), an open floor ("10+"), and a die ("1d") -- so no single field fits
+ * them all and [gain] carries the printed text whatever else is parsed.
+ *
+ * [maximum] is absent where the book prints no ceiling; [minimum] is absent
+ * where it prints no floor (the "1d" row). Reading either as 0 would invent a
+ * bound. [dice] is kept verbatim rather than rolled here: the roll belongs to
+ * a caller with a RandomSource, not to content.
+ */
+@Serializable
+data class CorGain(
+    val action: String,
+    val gain: String,
+    val minimum: Int? = null,
+    val maximum: Int? = null,
+    val dice: String? = null,
+    val per: String = "",
+) {
+    init {
+        require(minimum != null || dice != null) {
+            "CoR row '$action' has neither a printed floor nor a die: '$gain'"
+        }
+        if (minimum != null && maximum != null) {
+            require(minimum <= maximum) { "CoR row '$action' has $minimum-$maximum" }
+        }
+    }
+}
+
+/**
+ * One rung of the corruption ladder printed under "Corruption from Ritual
+ * Work" (Ch. 7, p. 68).
+ *
+ * RITUAL-SPECIFIC, and named so deliberately. The book introduces these as
+ * "additional ritual-specific thresholds"; the design spec's section 5
+ * paraphrases the same 3/5/8/10 ladder as general CoR thresholds. The book is
+ * the authority (CLAUDE.md 4.1), so the disagreement stands recorded and the
+ * type name keeps a caller from applying a ritual penalty to a combat roll.
+ *
+ * The 10 rung is NOT the point of no return: that is CoR = Will, which
+ * [com.pathways.rules.Corruption.maxFor] computes per character and may sit
+ * either side of 10.
+ */
+@Serializable
+data class RitualCorThreshold(val cor: Int, val effect: String)
+
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
 data class DamageRowJson(val st: Int, val thrust: String, val swing: String)

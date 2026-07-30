@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.pathways.model.BeyonderState
 import com.pathways.model.canDrink
+import com.pathways.rules.Corruption
 import com.pathways.rules.DigestedCharacter
 import com.pathways.rules.PcrOutcome
 import com.pathways.rules.PotionConsumption
@@ -73,6 +74,19 @@ fun PathwayScreen(
     val digested = remember(sheet, block) {
         block?.let { PotionDigestion.digestThrough(sheet.toCharacter(), it.pathway, it.sequence, blocks) }
     }
+    // Maximum CoR is Will, and Will moves with the potions actually DRUNK --
+    // not with whichever block is being browsed, which is why this asks about
+    // a BeyonderState rather than reusing `digested`. Drinking asks it about
+    // the state being drunk INTO, since that potion may move Will itself.
+    val maxCorFor = remember(sheet, blocks) {
+        { state: BeyonderState? ->
+            val base = sheet.toCharacter()
+            val walked = PotionDigestion.of(base.copy(beyonder = state), blocks)
+            if (walked == null) Corruption.maxFor(base)
+            else Corruption.maxFor(walked.secondaries.will, base.traits)
+        }
+    }
+    val maxCor = maxCorFor(drunk)
 
     Scaffold { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
@@ -121,8 +135,9 @@ fun PathwayScreen(
                         val chosen = BeyonderState(block.pathway, block.sequence)
                         when {
                             session.lost -> Note("lost to the Rampager")
+                            session.corrupted -> Note("lost to corruption at ${session.cor} CoR")
                             drunk.canDrink(chosen) ->
-                                TextButton(onClick = { pcr = session.drink(chosen, dice) }) {
+                                TextButton(onClick = { pcr = session.drink(chosen, dice, maxCorFor) }) {
                                     Text(if (drunk == null) "Drink this potion" else "Drink and roll")
                                 }
                             drunk?.pathway == chosen.pathway && drunk.sequence == chosen.sequence ->
@@ -142,15 +157,20 @@ fun PathwayScreen(
                 val isCurrentPotion = drunk != null &&
                     drunk.pathway == block.pathway &&
                     drunk.sequence == block.sequence
-                if (isCurrentPotion && !session.lost) {
+                if (isCurrentPotion && !session.isLost) {
                     item { DigestionTracker(drunk!!, session::digest) }
+                }
+                // CoR is not tied to the potion being browsed: it is the
+                // character's, so it shows whenever they have walked at all.
+                if (drunk != null) {
+                    item { CorruptionTracker(session, maxCor) }
                 }
                 digestion(block, digested)
             }
         }
     }
 
-    pcr?.let { PcrDialog(it) { pcr = null } }
+    pcr?.let { PcrDialog(it, session.corrupted) { pcr = null } }
 }
 
 /**
@@ -191,18 +211,90 @@ private fun DigestionTracker(state: BeyonderState, onDigest: (Int) -> Unit) {
     }
 }
 
+/**
+ * CoR, its ceiling, and how close the character is to it (Ch. 6, p. 45).
+ *
+ * ponytail: a +1/-1 stepper, same reasoning as the digestion tracker. Every
+ * row of the book's CoR table is a range the GM picks inside ("1-3 CoR per
+ * session") or an open floor ("10+"), so a button per row would have to
+ * invent the figure. The table is printed beside the stepper instead, and the
+ * one CoR cost the rules DO compute -- advancing before full digestion -- is
+ * charged automatically when the potion is drunk.
+ */
+@Composable
+private fun CorruptionTracker(session: BeyonderSession, max: Int) {
+    val cor = session.cor
+    val atRisk = session.corrupted || cor >= max - 1
+    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Text("Corruption", style = MaterialTheme.typography.titleSmall)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TextButton(onClick = { session.gainCor(-1, max) }, enabled = !session.isLost) { Text("−1") }
+            Text(
+                "$cor / $max",
+                style = MaterialTheme.typography.titleLarge,
+                color = if (atRisk) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(horizontal = 8.dp),
+            )
+            TextButton(onClick = { session.gainCor(1, max) }, enabled = !session.isLost) { Text("+1") }
+        }
+        Text(
+            if (session.corrupted) {
+                "At maximum CoR the character is permanently lost. The GM takes full control."
+            } else {
+                "maximum CoR is Will ($max); reaching it removes the character from play"
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = if (session.corrupted) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+        )
+        // Ritual-scoped, and labelled so: the book files this ladder under
+        // "Corruption from Ritual Work", not under CoR in general.
+        Corruption.ritualThresholdsReached(cor).forEach { threshold ->
+            Text(
+                "${threshold.cor} CoR (ritual work): ${threshold.effect}",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
+        Text(
+            Corruption.gained().joinToString("   ") { "${it.action}: ${it.gain}" },
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+    }
+}
+
 /** The Potion Consumption Roll, and what it cost. */
 @Composable
-private fun PcrDialog(outcome: PcrOutcome, onDismiss: () -> Unit) {
+private fun PcrDialog(outcome: PcrOutcome, corrupted: Boolean, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("OK") } },
-        title = { Text(if (outcome.integrated) "The potion integrates" else "Lost to the Rampager") },
+        title = {
+            Text(
+                when {
+                    !outcome.integrated -> "Lost to the Rampager"
+                    // Surviving the roll and being lost anyway is the book's
+                    // own arithmetic: 10 CoR against a Will of 10 or less.
+                    corrupted -> "The potion integrates — and takes them"
+                    else -> "The potion integrates"
+                },
+            )
+        },
         text = {
             Column {
                 Text("3d6: ${outcome.roll.total} vs ${outcome.target} (digested ${outcome.digestion}%)")
-                if (outcome.minimumCorGained > 0) {
-                    Text("at least ${outcome.minimumCorGained} CoR for advancing before full digestion")
+                if (outcome.integrated && outcome.minimumCorGained > 0) {
+                    Text(
+                        "+${outcome.minimumCorGained} CoR charged for advancing before full " +
+                            "digestion — the book's floor; the GM may charge more",
+                    )
+                }
+                if (corrupted) {
+                    Text(
+                        "That reached their maximum CoR. The character is permanently lost; " +
+                            "the GM takes full control.",
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
                 }
                 if (!outcome.integrated) {
                     Text(

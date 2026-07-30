@@ -6,11 +6,25 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
 
-/** One premade's walk down a pathway, as written to disk. */
+/**
+ * One premade's walk down a pathway, as written to disk.
+ *
+ * Two separate losses, because they are two separate endings and neither
+ * implies the other: [lost] is a failed Potion Consumption Roll (the Rampager,
+ * p. 45), [corrupted] is CoR reaching the character's maximum (p. 45 again,
+ * "the character is permanently lost. The GM takes full control").
+ *
+ * [corrupted] is STORED, not derived from `cor >= max`. The maximum is Will,
+ * and a later potion can raise Will -- recomputing would hand a lost
+ * character back to the player because their ceiling moved. The crossing is
+ * latched when it happens.
+ */
 @Serializable
 data class SavedSession(
     val beyonder: BeyonderState? = null,
     val lost: Boolean = false,
+    val cor: Int = 0,
+    val corrupted: Boolean = false,
 )
 
 /**

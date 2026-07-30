@@ -91,8 +91,7 @@ fun App(sheets: List<PremadeSheet>, store: SessionStore) {
             when (screen) {
                 Screen.SHEET -> SheetScreen(
                     sheet,
-                    drunk = session.state,
-                    lost = session.lost,
+                    session = session,
                     onPathways = { screen = Screen.PATHWAY },
                     onBuild = { screen = Screen.BUILDER },
                     onBack = { selected = null },
@@ -138,12 +137,12 @@ fun PremadeList(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit) {
 @Composable
 fun SheetScreen(
     sheet: PremadeSheet,
-    drunk: BeyonderState?,
-    lost: Boolean,
+    session: BeyonderSession,
     onPathways: () -> Unit,
     onBuild: () -> Unit,
     onBack: () -> Unit,
 ) {
+    val drunk = session.state
     val rows = remember(sheet) { SheetComparison.of(sheet) }
     val differing = rows.count { !it.matches }
     var rolled by remember(sheet) { mutableStateOf<SkillRollOutcome?>(null) }
@@ -167,9 +166,18 @@ fun SheetScreen(
                         // better than silently mixing two states.
                         Text(
                             "Sequence ${drunk.sequence} of the ${drunk.pathway} Pathway, " +
-                                "digested ${drunk.digestion}% — " +
-                                if (lost) "LOST to the Rampager" else "see the pathway screen for what it grants",
+                                "digested ${drunk.digestion}%, ${session.cor} CoR — " +
+                                when {
+                                    session.lost -> "LOST to the Rampager"
+                                    session.corrupted -> "LOST to corruption"
+                                    else -> "see the pathway screen for what it grants"
+                                },
                             style = MaterialTheme.typography.bodySmall,
+                            color = if (session.isLost) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            },
                         )
                     }
                     Text(

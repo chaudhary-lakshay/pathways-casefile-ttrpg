@@ -424,3 +424,49 @@ def test_recorded_skill_disagreements_between_chapter_3_and_the_potion_tables():
             if base in ch3 and (s["attr"], s["difficulty"]) not in ch3[base]:
                 disagreements.add(base)
     assert disagreements == extract_pathways.DIFFICULTY_DISAGREEMENTS
+
+
+# --- CoR tables (Ch. 6 p. 45, Ch. 7 p. 68) ---------------------------------
+
+import extract_corruption
+
+
+def test_cor_gain_rows_parse_each_printed_number_shape():
+    rows = extract_corruption.parse_gained([
+        "Using powers while drained of Spirituality", "1 CoR per use",
+        "Seeing or Hearing things you're not supposed to", "1–3 CoR per session",
+        "Advancing sequence without full digestion", "10+ CoR",
+        "Ritual magic critical failure", "1d CoR",
+    ])
+    assert rows[0] == {
+        "action": "Using powers while drained of Spirituality",
+        "gain": "1 CoR per use", "minimum": 1, "maximum": 1, "per": "use",
+    }
+    assert rows[1]["minimum"] == 1 and rows[1]["maximum"] == 3
+    # "10+" prints no ceiling; inventing one would cap a cost the book leaves open
+    assert rows[2]["minimum"] == 10 and "maximum" not in rows[2]
+    # "1d" prints no floor; averaging the die here would be invention, not extraction
+    assert rows[3]["dice"] == "1d" and "minimum" not in rows[3]
+
+
+def test_an_unparsed_cor_gain_is_reported_not_dropped():
+    with pytest.raises(ValueError, match="unparsed CoR gain"):
+        extract_corruption.parse_gained(["Some new action", "a fistful of CoR"])
+
+
+def test_cor_thresholds_are_extracted_as_ritual_specific():
+    """The book files the 3/5/8/10 ladder under "Corruption from Ritual Work"
+    and calls them "additional ritual-specific thresholds". The design spec
+    paraphrases them as general CoR thresholds; the book wins, so they ship
+    under the ritual name and the disagreement stays visible."""
+    entries = json.loads((CONTENT / "ritual_cor_thresholds.json").read_text(encoding="utf-8"))["entries"]
+    assert [e["cor"] for e in entries] == [3, 5, 8, 10]
+    assert "-1" in entries[0]["effect"]
+    assert entries[3]["cor"] == 10  # NOT the max-CoR loss point: that is Will
+
+
+def test_committed_cor_gained_covers_every_action_the_book_prints():
+    entries = json.loads((CONTENT / "cor_gained.json").read_text(encoding="utf-8"))["entries"]
+    assert len(entries) == 6
+    advancing = [e for e in entries if e["action"].startswith("Advancing sequence")]
+    assert advancing[0]["minimum"] == 10

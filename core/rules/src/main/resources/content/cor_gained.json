@@ -1,0 +1,48 @@
+{
+ "sourceLines": {
+  "6": [
+   [
+    3061,
+    3074
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "action": "Using powers while drained of Spirituality",
+   "gain": "1 CoR per use",
+   "minimum": 1,
+   "maximum": 1,
+   "per": "use"
+  },
+  {
+   "action": "Seeing or Hearing things you're not supposed to",
+   "gain": "1–3 CoR per session",
+   "minimum": 1,
+   "maximum": 3,
+   "per": "session"
+  },
+  {
+   "action": "Witnessing higher-Sequence powers (Seq 6 or above)",
+   "gain": "1–4 CoR",
+   "minimum": 1,
+   "maximum": 4
+  },
+  {
+   "action": "Using forbidden rituals",
+   "gain": "2–5 CoR",
+   "minimum": 2,
+   "maximum": 5
+  },
+  {
+   "action": "Advancing sequence without full digestion",
+   "gain": "10+ CoR",
+   "minimum": 10
+  },
+  {
+   "action": "Ritual magic critical failure",
+   "gain": "1d CoR",
+   "dice": "1d"
+  }
+ ]
+}

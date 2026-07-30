@@ -19,6 +19,12 @@ object ContentLoader {
     private val pathwaysLazy: List<SequenceBlock> by lazy { load("pathways.json") }
     private val actingMethodLazy: List<ActingQuality> by lazy { load("acting_method.json") }
     private val potionConsumptionLazy: List<PcrRow> by lazy { load("potion_consumption.json") }
+    private val corGainedLazy: List<CorGain> by lazy { load("cor_gained.json") }
+    private val ritualCorThresholdsLazy: List<RitualCorThreshold> by lazy {
+        // Sorted here so every caller sees the ladder in ascending order
+        // whatever order the file happens to list it in.
+        load<RitualCorThreshold>("ritual_cor_thresholds.json").sortedBy { it.cor }
+    }
     private val thrustSwingLazy: Map<Int, DamageRow> by lazy {
         val rows = load<DamageRowJson>("thrust_swing.json")
         // Same defect class as Character's duplicate-PurchasedSkill guard:
@@ -48,6 +54,16 @@ object ContentLoader {
 
     /** The Potion Consumption Roll table, by digestion percentage (Ch. 6). */
     fun potionConsumption(): List<PcrRow> = potionConsumptionLazy
+
+    /** What each listed action costs in corruption (Ch. 6, p. 45). */
+    fun corGained(): List<CorGain> = corGainedLazy
+
+    /**
+     * The 3/5/8/10 corruption ladder printed under "Corruption from Ritual
+     * Work" (Ch. 7, p. 68), ascending. Ritual-scoped, not general: see
+     * [RitualCorThreshold].
+     */
+    fun ritualCorThresholds(): List<RitualCorThreshold> = ritualCorThresholdsLazy
 
     private inline fun <reified T> load(resource: String): List<T> {
         val stream = ContentLoader::class.java.getResourceAsStream("/content/$resource")

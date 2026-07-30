@@ -1,0 +1,28 @@
+{
+ "sourceLines": {
+  "7": [
+   [
+    4388,
+    4397
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "cor": 3,
+   "effect": "All ritual rolls at -1 from spiritual instability."
+  },
+  {
+   "cor": 5,
+   "effect": "Gain a -5 point mental disadvantage (GM choice, thematically linked to the source)."
+  },
+  {
+   "cor": 8,
+   "effect": "Gain a second -5 point mental disadvantage. Passively attracts unwanted spiritual attention."
+  },
+  {
+   "cor": 10,
+   "effect": "Character is fundamentally altered. May need to retire, become an NPC, or pursue a major story arc."
+  }
+ ]
+}
