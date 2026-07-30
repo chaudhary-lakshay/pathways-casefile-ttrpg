@@ -25,6 +25,16 @@ data class SavedSession(
     val lost: Boolean = false,
     val cor: Int = 0,
     val corrupted: Boolean = false,
+    /**
+     * Pools are stored as what has been LOST, not as what is left. The
+     * maximums move -- a potion raises HT and with it FP, and SPI starts at
+     * zero and is entirely a potion's gift -- so a stored current value would
+     * silently mean something different after the next Sequence. A loss of 4
+     * means the same thing at any maximum.
+     */
+    val hpLost: Int = 0,
+    val fpLost: Int = 0,
+    val spiSpent: Int = 0,
 )
 
 /**

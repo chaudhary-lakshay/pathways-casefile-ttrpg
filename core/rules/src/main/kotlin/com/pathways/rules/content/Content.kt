@@ -287,6 +287,30 @@ data class CorGain(
 @Serializable
 data class RitualCorThreshold(val cor: Int, val effect: String)
 
+/**
+ * One row of the HP or SPI threshold ladder (Ch. 5, p. 35 and p. 40).
+ *
+ * [level] is the printed label ("1/3 HP remaining", "-5xHP", "<= 1/3 Max
+ * SPI"), kept verbatim and never turned into arithmetic here: "-5xHP" means
+ * five times the character's OWN maximum, which is a rule and belongs to
+ * [com.pathways.rules.Pools]. `PoolsTest` asserts the labels Pools switches
+ * on are still the labels this file carries.
+ *
+ * FP has no row: the book states its thresholds only in prose, in two
+ * sections that disagree. See tools/extract_pools.py.
+ */
+@Serializable
+data class PoolThreshold(val pool: String, val level: String, val effect: String) {
+    init {
+        require(pool in KNOWN_POOLS) { "unknown pool '$pool'; known: $KNOWN_POOLS" }
+        require(effect.isNotBlank()) { "pool threshold '$level' has no effect text" }
+    }
+
+    companion object {
+        val KNOWN_POOLS = setOf("HP", "SPI")
+    }
+}
+
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
 data class DamageRowJson(val st: Int, val thrust: String, val swing: String)

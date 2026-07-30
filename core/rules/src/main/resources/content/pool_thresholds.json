@@ -1,0 +1,61 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2346,
+    2356
+   ],
+   [
+    2697,
+    2708
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "pool": "SPI",
+   "level": "SPI to 1",
+   "effect": "Normal function; no penalties"
+  },
+  {
+   "pool": "SPI",
+   "level": "<= 1/3 Max SPI",
+   "effect": "Spiritual Attrition: -3 to all SPI-based skill rolls and Beyonder ability checks"
+  },
+  {
+   "pool": "SPI",
+   "level": "0 SPI",
+   "effect": "Spiritual Exhaustion: All Beyonder abilities deactivate; cannot activate any SPI-cost abilities; Spirit Vision shuts off"
+  },
+  {
+   "pool": "SPI",
+   "level": "Below 0 SPI",
+   "effect": "Soul Debt: +1 CoR per 1 point below 0 (e.g. SPI -4 = +4 CoR). See CoR (Chapter 6)."
+  },
+  {
+   "pool": "HP",
+   "level": "HP to 1",
+   "effect": "Normal function; no penalties"
+  },
+  {
+   "pool": "HP",
+   "level": "1/3 HP remaining",
+   "effect": "Reeling: -1 to all rolls"
+  },
+  {
+   "pool": "HP",
+   "level": "0 HP",
+   "effect": "Roll 3d6 <= HT or fall unconscious; roll each turn to remain conscious"
+  },
+  {
+   "pool": "HP",
+   "level": "-HP",
+   "effect": "Roll vs. HT or die; must roll vs. HT each turn while below this threshold"
+  },
+  {
+   "pool": "HP",
+   "level": "-5×HP",
+   "effect": "Dead — no roll required"
+  }
+ ]
+}

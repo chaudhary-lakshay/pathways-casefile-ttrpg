@@ -470,3 +470,42 @@ def test_committed_cor_gained_covers_every_action_the_book_prints():
     assert len(entries) == 6
     advancing = [e for e in entries if e["action"].startswith("Advancing sequence")]
     assert advancing[0]["minimum"] == 10
+
+
+# --- HP / SPI pool thresholds (Ch. 5) --------------------------------------
+
+import extract_pools
+
+
+def test_a_wrapped_effect_line_stays_with_its_own_level():
+    """The 0 SPI effect wraps onto a second line. Pairing rows positionally
+    would cut "Spirit Vision shuts off" loose and shift every later row."""
+    rows = extract_pools.parse([
+        "0 SPI",
+        "Spiritual Exhaustion: All Beyonder abilities deactivate;",
+        "Spirit Vision shuts off",
+        "Below 0 SPI",
+        "Soul Debt: +1 CoR per 1 point below 0.",
+    ], "SPI")
+    assert [r["level"] for r in rows] == ["0 SPI", "Below 0 SPI"]
+    assert rows[0]["effect"].endswith("Spirit Vision shuts off")
+    assert rows[1]["effect"].startswith("Soul Debt")
+
+
+def test_a_level_with_no_effect_text_is_reported_not_shipped():
+    with pytest.raises(ValueError, match="has no effect text"):
+        extract_pools.parse(["0 HP", "-HP", "Roll vs. HT or die"], "HP")
+
+
+def test_committed_pool_thresholds_match_the_printed_ladders():
+    entries = json.loads((CONTENT / "pool_thresholds.json").read_text(encoding="utf-8"))["entries"]
+    for pool, expected in extract_pools.EXPECTED.items():
+        assert [e["level"] for e in entries if e["pool"] == pool] == expected
+
+
+def test_fp_has_no_table_and_is_deliberately_absent():
+    """The book gives FP thresholds only in prose, in two separate sections.
+    Pools carries them as constants; a row here would be authored, not
+    extracted."""
+    entries = json.loads((CONTENT / "pool_thresholds.json").read_text(encoding="utf-8"))["entries"]
+    assert {e["pool"] for e in entries} == {"HP", "SPI"}

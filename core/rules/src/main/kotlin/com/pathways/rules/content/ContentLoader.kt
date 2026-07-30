@@ -20,6 +20,7 @@ object ContentLoader {
     private val actingMethodLazy: List<ActingQuality> by lazy { load("acting_method.json") }
     private val potionConsumptionLazy: List<PcrRow> by lazy { load("potion_consumption.json") }
     private val corGainedLazy: List<CorGain> by lazy { load("cor_gained.json") }
+    private val poolThresholdsLazy: List<PoolThreshold> by lazy { load("pool_thresholds.json") }
     private val ritualCorThresholdsLazy: List<RitualCorThreshold> by lazy {
         // Sorted here so every caller sees the ladder in ascending order
         // whatever order the file happens to list it in.
@@ -57,6 +58,12 @@ object ContentLoader {
 
     /** What each listed action costs in corruption (Ch. 6, p. 45). */
     fun corGained(): List<CorGain> = corGainedLazy
+
+    /**
+     * The HP and SPI threshold ladders (Ch. 5), in the order the book prints
+     * them -- worst last. FP has no rows; see [PoolThreshold].
+     */
+    fun poolThresholds(): List<PoolThreshold> = poolThresholdsLazy
 
     /**
      * The 3/5/8/10 corruption ladder printed under "Corruption from Ritual

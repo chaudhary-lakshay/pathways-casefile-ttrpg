@@ -1,0 +1,187 @@
+package com.pathways.rules
+
+import com.pathways.rules.content.ContentLoader
+import com.pathways.rules.content.PoolThreshold
+
+/** The three pools a character spends and loses in play (Ch. 5). */
+enum class Pool { HP, FP, SPI }
+
+/**
+ * What a penalty applies to. Carried beside the number so it cannot be
+ * misapplied: Spiritual Attrition is "-3 to all SPI-based skill rolls and
+ * Beyonder ability checks" (p. 35), which is not -3 to a sword swing.
+ */
+enum class PenaltyScope { ALL_ROLLS, SPI_ROLLS }
+
+/**
+ * Where a pool stands and what the book says about standing there.
+ *
+ * [level] and [effect] are the printed row, verbatim, so a GM can see the
+ * rule rather than this object's reading of it. Everything else is that
+ * reading, and each field is pinned by `PoolsTest`.
+ */
+data class PoolStatus(
+    val pool: Pool,
+    val current: Int,
+    val max: Int,
+    val level: String,
+    val effect: String,
+    val penalty: Int = 0,
+    val scope: PenaltyScope = PenaltyScope.ALL_ROLLS,
+    val corGained: Int = 0,
+    val isDead: Boolean = false,
+    val isUnconscious: Boolean = false,
+    val abilitiesOffline: Boolean = false,
+    val rollsToStayConscious: Boolean = false,
+    val rollsToSurvive: Boolean = false,
+)
+
+/**
+ * HP, FP and SPI against their thresholds (Ch. 5).
+ *
+ * Nothing is stored here: a status is computed from a current value and a
+ * maximum, exactly like [Corruption]. Current values are table state and
+ * belong to whoever is running the session.
+ *
+ * **HP and SPI come from the book's own tables** (`pool_thresholds.json`).
+ * **FP does not have one.** Its thresholds are printed in prose, twice, in
+ * two different sections, and they do not say the same thing:
+ *
+ *  - p. 42, the recovery table: "At 1/3 FP or below: -1 to all rolls; Move
+ *    and Dodge halved".
+ *  - p. 41, spirit body damage: "FP below 0: -1 to all rolls per 1 FP below
+ *    0. If FP drops below -1xMaxFP, you fall unconscious."
+ *
+ * Two penalties, and the book never says whether they stack. [fp] applies
+ * the WORSE of the two rather than summing them, which is the reading that
+ * cannot make a character worse off than either rule alone states. The
+ * disagreement is recorded, not resolved -- see `tools/extract_pools.py`.
+ */
+object Pools {
+
+    /** "1/3 HP remaining" and "<= 1/3 Max SPI" -- thirds, floored (CLAUDE.md 4.3). */
+    private const val THIRD = 3
+
+    /** p. 40: "At -5xHP, death is automatic with no roll." */
+    private const val DEAD_MULTIPLE = 5
+
+    /** p. 40: "Reeling: -1 to all rolls". */
+    const val REELING_PENALTY = -1
+
+    /** p. 35: "Spiritual Attrition: -3 to all SPI-based skill rolls...". */
+    const val ATTRITION_PENALTY = -3
+
+    /** p. 42: "At 1/3 FP or below: -1 to all rolls; Move and Dodge halved". */
+    const val TIRED_PENALTY = -1
+
+    /** The book's printed rows for [pool]; empty for [Pool.FP], which has none. */
+    fun thresholds(pool: Pool): List<PoolThreshold> =
+        ContentLoader.poolThresholds().filter { it.pool == pool.name }
+
+    /**
+     * Physical health (p. 40).
+     *
+     * Reeling is not withdrawn as HP falls further: the book states it at 1/3
+     * and never lifts it, so it still applies at -2 HP. Death at -5xHP is
+     * reported with both roll flags CLEAR, because that row's own text is
+     * "Dead -- no roll required".
+     */
+    fun hp(current: Int, max: Int): PoolStatus {
+        requireMax(max, Pool.HP)
+        val rows = thresholds(Pool.HP)
+        val dead = current <= -DEAD_MULTIPLE * max
+        val row = when {
+            dead -> rows[4]
+            current <= -max -> rows[3]
+            current <= 0 -> rows[2]
+            current <= Math.floorDiv(max, THIRD) -> rows[1]
+            else -> rows[0]
+        }
+        return PoolStatus(
+            pool = Pool.HP,
+            current = current,
+            max = max,
+            level = row.level,
+            effect = row.effect,
+            penalty = if (current <= Math.floorDiv(max, THIRD)) REELING_PENALTY else 0,
+            isDead = dead,
+            rollsToStayConscious = !dead && current <= 0,
+            rollsToSurvive = !dead && current <= -max,
+        )
+    }
+
+    /**
+     * Fatigue (p. 41-42). See this object's KDoc for why FP is code, not
+     * content, and why the two printed penalties are taken at their worse
+     * rather than summed.
+     */
+    fun fp(current: Int, max: Int): PoolStatus {
+        requireMax(max, Pool.FP)
+        val tired = if (current <= Math.floorDiv(max, THIRD)) TIRED_PENALTY else 0
+        // "-1 to all rolls per 1 FP below 0": at -3 FP that is -3.
+        val spent = if (current < 0) current else 0
+        return PoolStatus(
+            pool = Pool.FP,
+            current = current,
+            max = max,
+            level = fpLevel(current, max),
+            effect = fpEffect(current, max),
+            penalty = minOf(tired, spent),
+            isUnconscious = current < -max,
+        )
+    }
+
+    /**
+     * Spirituality (p. 35).
+     *
+     * [max] must be at least 1. A mortal has no SPI pool at all -- "Non-
+     * Beyonders (SPI 0) ... have no spirituality to sacrifice" (p. 41) -- and
+     * reporting them as Spiritually Exhausted would be a status they cannot
+     * have. Callers check the maximum first.
+     *
+     * SPI loss never kills: "Unlike HP depletion, there is no risk of death
+     * from SPI loss" (p. 35). Below zero it buys Soul Debt instead, one CoR
+     * per point, which [Corruption] then caps against Will.
+     */
+    fun spi(current: Int, max: Int): PoolStatus {
+        require(max >= 1) {
+            "SPI max must be at least 1; a mortal has no SPI pool to report on (p. 41)"
+        }
+        val rows = thresholds(Pool.SPI)
+        val row = when {
+            current < 0 -> rows[3]
+            current == 0 -> rows[2]
+            current <= Math.floorDiv(max, THIRD) -> rows[1]
+            else -> rows[0]
+        }
+        return PoolStatus(
+            pool = Pool.SPI,
+            current = current,
+            max = max,
+            level = row.level,
+            effect = row.effect,
+            penalty = if (current <= Math.floorDiv(max, THIRD)) ATTRITION_PENALTY else 0,
+            scope = PenaltyScope.SPI_ROLLS,
+            corGained = if (current < 0) -current else 0,
+            abilitiesOffline = current <= 0,
+        )
+    }
+
+    private fun fpLevel(current: Int, max: Int): String = when {
+        current < -max -> "below -1×Max FP"
+        current < 0 -> "below 0 FP"
+        current <= Math.floorDiv(max, THIRD) -> "1/3 FP or below"
+        else -> "FP to 1"
+    }
+
+    private fun fpEffect(current: Int, max: Int): String = when {
+        current < -max -> "Unconscious (p. 41)."
+        current < 0 ->
+            "-1 to all rolls per 1 FP below 0 (p. 41). Every point spent below 0 also costs 1 HP (p. 42)."
+        current <= Math.floorDiv(max, THIRD) -> "-1 to all rolls; Move and Dodge halved (p. 42)."
+        else -> "Normal function; no penalties."
+    }
+
+    private fun requireMax(max: Int, pool: Pool) =
+        require(max >= 1) { "$pool max must be at least 1; was $max" }
+}

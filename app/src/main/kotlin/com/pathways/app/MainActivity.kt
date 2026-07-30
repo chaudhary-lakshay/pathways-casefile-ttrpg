@@ -27,8 +27,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.pathways.model.BeyonderState
 import com.pathways.model.Outcome
+import com.pathways.rules.Derive
+import com.pathways.rules.PenaltyScope
+import com.pathways.rules.Pool
+import com.pathways.rules.PoolStatus
+import com.pathways.rules.Pools
+import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.Premades
 import com.pathways.rules.RandomSource
@@ -36,6 +41,7 @@ import com.pathways.rules.SheetComparison
 import com.pathways.rules.SheetRow
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
+import com.pathways.rules.content.ContentLoader
 import java.io.File
 import kotlin.random.Random
 
@@ -146,6 +152,14 @@ fun SheetScreen(
     val rows = remember(sheet) { SheetComparison.of(sheet) }
     val differing = rows.count { !it.matches }
     var rolled by remember(sheet) { mutableStateOf<SkillRollOutcome?>(null) }
+    // Maximums move with the potions drunk: HT gains lift FP, and SPI is
+    // entirely a potion's gift. Recomputed from the walk, never stored.
+    val vitals = remember(sheet, drunk) {
+        val base = sheet.toCharacter()
+        val walked = PotionDigestion.of(base.copy(beyonder = drunk), ContentLoader.pathways())
+        val secondaries = walked?.secondaries ?: Derive.of(base).secondaries
+        Vitals(secondaries.maxHp, secondaries.maxFp, walked?.effectiveSpi ?: base.spi)
+    }
 
     Scaffold { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
@@ -193,6 +207,8 @@ fun SheetScreen(
                 HorizontalDivider()
             }
 
+            item { PoolTrackers(session, vitals) }
+
             items(rows.take(SECONDARY_ROWS)) { ComparisonRow(it) }
 
             // Row order past the secondaries is one per purchased skill, in
@@ -208,6 +224,87 @@ fun SheetScreen(
     }
 
     rolled?.let { RollDialog(it) { rolled = null } }
+}
+
+/** The three pool maximums as they stand after whatever has been drunk. */
+private data class Vitals(val maxHp: Int, val maxFp: Int, val maxSpi: Int)
+
+/**
+ * HP, FP and SPI at the table (Ch. 5).
+ *
+ * SPI is shown only for a Beyonder: "Non-Beyonders (SPI 0) ... have no
+ * spirituality to sacrifice" (p. 41), and [Pools.spi] refuses a maximum of
+ * zero rather than reporting a mortal as Spiritually Exhausted.
+ */
+@Composable
+private fun PoolTrackers(session: BeyonderSession, vitals: Vitals) {
+    Column(Modifier.padding(vertical = 4.dp)) {
+        PoolRow(Pools.hp(vitals.maxHp - session.hpLost, vitals.maxHp)) {
+            session.spend(Pool.HP, it, vitals.maxHp)
+        }
+        PoolRow(Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp)) {
+            session.spend(Pool.FP, it, vitals.maxFp)
+        }
+        if (vitals.maxSpi > 0) {
+            PoolRow(Pools.spi(vitals.maxSpi - session.spiSpent, vitals.maxSpi)) {
+                session.spend(Pool.SPI, it, vitals.maxSpi)
+            }
+        }
+        HorizontalDivider()
+    }
+}
+
+/**
+ * One pool: where it stands, what the book says about standing there, and a
+ * stepper.
+ *
+ * ponytail: -1/+1 only. Damage is rolled at the table off dice this app does
+ * not own, and a "take N damage" field is a keyboard in the middle of a sheet.
+ *
+ * Soul Debt is REPORTED, not applied: SPI below zero is "+1 CoR per 1 point
+ * below 0" (p. 35), but CoR is permanent and this stepper is not -- stepping
+ * back up would have to un-charge it. The GM adds it on the pathway screen.
+ */
+@Composable
+private fun PoolRow(status: PoolStatus, onSpend: (Int) -> Unit) {
+    val bad = status.penalty != 0 || status.isDead || status.isUnconscious
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                "${status.pool} ${status.current} / ${status.max}",
+                style = MaterialTheme.typography.titleMedium,
+                color = if (bad) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+            )
+            if (bad) {
+                Text(
+                    buildList {
+                        add(status.level)
+                        // The number first, with what it applies to: -3 for
+                        // Spiritual Attrition is SPI rolls only, and a GM
+                        // reading it as -3 to everything would be the whole
+                        // point of carrying the scope.
+                        if (status.penalty != 0) {
+                            val what = when (status.scope) {
+                                PenaltyScope.SPI_ROLLS -> "SPI rolls and ability checks"
+                                PenaltyScope.ALL_ROLLS -> "all rolls"
+                            }
+                            add("${status.penalty} to $what")
+                        }
+                        // The effect line below already names Soul Debt; this
+                        // is the number to act on, not a second label.
+                        if (status.corGained > 0) add("add ${status.corGained} CoR on the pathway screen")
+                        add(status.effect)
+                    }.joinToString(" — "),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
+        TextButton(onClick = { onSpend(1) }) { Text("−1") }
+        TextButton(onClick = { onSpend(-1) }) { Text("+1") }
+    }
 }
 
 @Composable

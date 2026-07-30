@@ -8,6 +8,7 @@ import com.pathways.model.BeyonderState
 import com.pathways.model.canDrink
 import com.pathways.rules.Corruption
 import com.pathways.rules.PcrOutcome
+import com.pathways.rules.Pool
 import com.pathways.rules.PotionConsumption
 import com.pathways.rules.RandomSource
 
@@ -53,7 +54,53 @@ class BeyonderSession(
     /** Both endings, for callers that only need to know play has stopped. */
     val isLost: Boolean get() = lost || corrupted
 
-    private fun persist() = onChange(SavedSession(state, lost, cor, corrupted))
+    /**
+     * Damage taken and energy spent, as losses from the current maximum --
+     * see [SavedSession]. Negative losses are legal and mean the pool is
+     * above its maximum, which nothing in the book grants today; the clamp
+     * lives at the top only.
+     */
+    var hpLost by mutableIntStateOf(saved.hpLost)
+        private set
+
+    var fpLost by mutableIntStateOf(saved.fpLost)
+        private set
+
+    var spiSpent by mutableIntStateOf(saved.spiSpent)
+        private set
+
+    private fun persist() =
+        onChange(SavedSession(state, lost, cor, corrupted, hpLost, fpLost, spiSpent))
+
+    /**
+     * Spend or restore [pool] by [delta] points against a maximum of [max],
+     * never taking the pool above that maximum.
+     *
+     * There is no floor: HP below zero is where the book's death rules live
+     * (p. 40), FP below zero costs HP (p. 42), and SPI below zero is Soul
+     * Debt (p. 35). Clamping any of them at zero would delete the three most
+     * consequential states a character can be in.
+     *
+     * FP below zero also bills HP -- "Every point of FP spent below 0 also
+     * costs 1 HP" (p. 42). Printing that rule under the tracker while leaving
+     * the HP row untouched would show a character less hurt than they are, so
+     * the charge is applied here. It is applied SYMMETRICALLY: stepping back
+     * up refunds it, because a stepper the GM cannot undo is a worse tool
+     * than one that occasionally needs a correction.
+     */
+    fun spend(pool: Pool, delta: Int, max: Int) {
+        when (pool) {
+            Pool.HP -> hpLost = (hpLost + delta).coerceAtLeast(0)
+            Pool.FP -> {
+                val chargedBefore = (fpLost - max).coerceAtLeast(0)
+                fpLost = (fpLost + delta).coerceAtLeast(0)
+                val chargedAfter = (fpLost - max).coerceAtLeast(0)
+                hpLost = (hpLost + chargedAfter - chargedBefore).coerceAtLeast(0)
+            }
+            Pool.SPI -> spiSpent = (spiSpent + delta).coerceAtLeast(0)
+        }
+        persist()
+    }
 
     /**
      * Move CoR by [delta], held inside 0..[max], and latch the loss if this
