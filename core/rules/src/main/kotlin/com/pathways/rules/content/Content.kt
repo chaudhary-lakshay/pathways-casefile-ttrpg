@@ -311,6 +311,45 @@ data class PoolThreshold(val pool: String, val level: String, val effect: String
     }
 }
 
+/**
+ * One row of the Fright Check trigger table (Ch. 5, p. 43).
+ *
+ * [modifier] is the gentler end of what the row prints, because that is the
+ * only figure all three printed shapes share: a flat "+2", a range
+ * ("-2 to -6", whose other end is [worstCase]), and "-8 or worse" (which sets
+ * [openEnded] and has no other end at all). The GM picks inside the range;
+ * [printed] is what they are picking from.
+ */
+@Serializable
+data class FrightTrigger(
+    val trigger: String,
+    val printed: String,
+    val modifier: Int,
+    val worstCase: Int? = null,
+    val openEnded: Boolean = false,
+)
+
+/**
+ * One band of the Fright / Awe / Confusion effects table (Ch. 5, p. 43-44).
+ *
+ * The same 3d6 + margin roll reads across three columns; which one applies is
+ * the trigger's nature, not the roll's. [high] is null only on the "35+" band,
+ * which the book leaves open.
+ */
+@Serializable
+data class FrightEffect(
+    val low: Int,
+    val high: Int? = null,
+    val printed: String,
+    val fright: String,
+    val awe: String,
+    val confusion: String,
+) {
+    init {
+        require(high == null || high >= low) { "fright band '$printed' runs $low..$high" }
+    }
+}
+
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
 data class DamageRowJson(val st: Int, val thrust: String, val swing: String)

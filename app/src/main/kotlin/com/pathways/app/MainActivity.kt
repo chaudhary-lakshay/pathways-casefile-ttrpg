@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,6 +32,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Outcome
 import com.pathways.rules.Derive
+import com.pathways.rules.FrightCheck
+import com.pathways.rules.FrightKind
+import com.pathways.rules.FrightOutcome
+import com.pathways.rules.content.FrightTrigger
 import com.pathways.rules.PenaltyScope
 import com.pathways.rules.Pool
 import com.pathways.rules.PoolStatus
@@ -152,25 +159,29 @@ fun SheetScreen(
     val rows = remember(sheet) { SheetComparison.of(sheet) }
     val differing = rows.count { !it.matches }
     var rolled by remember(sheet) { mutableStateOf<SkillRollOutcome?>(null) }
+    var frightening by remember(sheet) { mutableStateOf(false) }
     // Maximums move with the potions drunk: HT gains lift FP, and SPI is
     // entirely a potion's gift. Recomputed from the walk, never stored.
     val vitals = remember(sheet, drunk) {
         val base = sheet.toCharacter()
         val walked = PotionDigestion.of(base.copy(beyonder = drunk), ContentLoader.pathways())
         val secondaries = walked?.secondaries ?: Derive.of(base).secondaries
-        Vitals(secondaries.maxHp, secondaries.maxFp, walked?.effectiveSpi ?: base.spi)
+        Vitals(secondaries.maxHp, secondaries.maxFp, walked?.effectiveSpi ?: base.spi, secondaries.will)
     }
 
     Scaffold { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
             item {
                 Column(Modifier.padding(horizontal = 16.dp)) {
-                    Row {
+                    // Four destinations no longer fit a phone's width; the
+                    // fourth was clipped to a sliver on a 1080px screen.
+                    Row(Modifier.horizontalScroll(rememberScrollState())) {
                         TextButton(onClick = onBack) { Text("Back to premades") }
                         TextButton(onClick = onPathways) {
                             Text(if (drunk == null) "Drink a potion" else "Pathway")
                         }
                         TextButton(onClick = onBuild) { Text("Spend points") }
+                        TextButton(onClick = { frightening = true }) { Text("Fright") }
                     }
                     Text(sheet.name, style = MaterialTheme.typography.headlineSmall)
                     if (drunk != null) {
@@ -224,10 +235,109 @@ fun SheetScreen(
     }
 
     rolled?.let { RollDialog(it) { rolled = null } }
+    if (frightening) {
+        FrightDialog(vitals.will) { frightening = false }
+    }
 }
 
-/** The three pool maximums as they stand after whatever has been drunk. */
-private data class Vitals(val maxHp: Int, val maxFp: Int, val maxSpi: Int)
+/**
+ * A Fright Check at the table (Ch. 5, p. 43).
+ *
+ * ponytail: the trigger list IS the interface. Two of the book's five rows
+ * print a range and one is open-ended, so the app offers the gentler end it
+ * prints and shows the range beside it -- the severity inside that range is
+ * the GM's call, exactly like the acting-quality ranges on the pathway screen.
+ */
+@Composable
+private fun FrightDialog(will: Int, onDismiss: () -> Unit) {
+    var kind by remember { mutableStateOf(FrightKind.FRIGHT) }
+    var outcome by remember { mutableStateOf<FrightOutcome?>(null) }
+    var picked by remember { mutableStateOf<FrightTrigger?>(null) }
+    var modifier by remember { mutableIntStateOf(0) }
+    val triggers = remember { FrightCheck.triggers() }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        title = { Text(outcome?.let { if (it.passed) "Held their nerve" else "Fright Check failed" } ?: "Fright Check") },
+        text = {
+            Column {
+                val result = outcome
+                val chosen = picked
+                if (result == null && chosen != null) {
+                    // Three of the book's five rows do not print a single
+                    // number -- "-2 to -6" and "-8 or worse" are severities the
+                    // GM chooses. Rolling the gentlest end for them would
+                    // quietly turn their failures into successes.
+                    Text(chosen.trigger, style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        "the book prints ${chosen.printed}" +
+                            if (chosen.openEnded) " — no floor, so worse is legal" else "",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(onClick = { modifier -= 1 }) { Text("−1") }
+                        Text(
+                            (if (modifier > 0) "+" else "") + modifier,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                        )
+                        TextButton(onClick = { modifier += 1 }) { Text("+1") }
+                    }
+                    Text("3d6 vs ${will + modifier}", style = MaterialTheme.typography.bodySmall)
+                    TextButton(onClick = { outcome = FrightCheck.against(will, modifier, appDice) }) {
+                        Text("Roll")
+                    }
+                } else if (result == null) {
+                    Text("3d6 vs Will $will, modified by what was witnessed.")
+                    Row {
+                        FrightKind.entries.forEach { option ->
+                            TextButton(onClick = { kind = option }) {
+                                Text(
+                                    option.name.lowercase(),
+                                    color = if (option == kind) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    },
+                                )
+                            }
+                        }
+                    }
+                    triggers.forEach { trigger ->
+                        Text(
+                            "${trigger.trigger} (${trigger.printed})",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    picked = trigger
+                                    modifier = trigger.modifier
+                                }
+                                .padding(vertical = 8.dp),
+                        )
+                    }
+                } else {
+                    Text(
+                        "3d6: ${result.roll.total} vs ${result.target}",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    if (!result.passed) {
+                        Text("failed by ${result.margin}; effect roll ${result.effectRoll}")
+                        Text(
+                            "${result.effect?.printed}: ${result.effect?.let { FrightCheck.text(it, kind) }}",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                    }
+                }
+            }
+        },
+    )
+}
+
+/** The pool maximums and Will as they stand after whatever has been drunk. */
+private data class Vitals(val maxHp: Int, val maxFp: Int, val maxSpi: Int, val will: Int)
 
 /**
  * HP, FP and SPI at the table (Ch. 5).

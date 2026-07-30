@@ -21,6 +21,12 @@ object ContentLoader {
     private val potionConsumptionLazy: List<PcrRow> by lazy { load("potion_consumption.json") }
     private val corGainedLazy: List<CorGain> by lazy { load("cor_gained.json") }
     private val poolThresholdsLazy: List<PoolThreshold> by lazy { load("pool_thresholds.json") }
+    private val frightTriggersLazy: List<FrightTrigger> by lazy { load("fright_triggers.json") }
+    private val frightEffectsLazy: List<FrightEffect> by lazy {
+        // Sorted so a band lookup can walk the table in the order the book
+        // prints it whatever order the file happens to list.
+        load<FrightEffect>("fright_effects.json").sortedBy { it.low }
+    }
     private val ritualCorThresholdsLazy: List<RitualCorThreshold> by lazy {
         // Sorted here so every caller sees the ladder in ascending order
         // whatever order the file happens to list it in.
@@ -64,6 +70,12 @@ object ContentLoader {
      * them -- worst last. FP has no rows; see [PoolThreshold].
      */
     fun poolThresholds(): List<PoolThreshold> = poolThresholdsLazy
+
+    /** What each kind of supernatural sight does to a Fright Check (Ch. 5). */
+    fun frightTriggers(): List<FrightTrigger> = frightTriggersLazy
+
+    /** The Fright / Awe / Confusion effects table, ascending by band (Ch. 5). */
+    fun frightEffects(): List<FrightEffect> = frightEffectsLazy
 
     /**
      * The 3/5/8/10 corruption ladder printed under "Corruption from Ritual

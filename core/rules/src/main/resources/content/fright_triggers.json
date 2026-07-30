@@ -1,0 +1,39 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2904,
+    2915
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "trigger": "Minor supernatural event (strange sounds, moved objects)",
+   "printed": "+2",
+   "modifier": 2
+  },
+  {
+   "trigger": "Beyonder using powers (visible supernatural ability)",
+   "printed": "+0",
+   "modifier": 0
+  },
+  {
+   "trigger": "Encountering a monster or undead creature",
+   "printed": "-2 to -6",
+   "modifier": -2,
+   "worstCase": -6
+  },
+  {
+   "trigger": "Witnessing a supernatural death",
+   "printed": "-4",
+   "modifier": -4
+  },
+  {
+   "trigger": "Outer God influence or manifestation",
+   "printed": "-8 or worse",
+   "modifier": -8,
+   "openEnded": true
+  }
+ ]
+}

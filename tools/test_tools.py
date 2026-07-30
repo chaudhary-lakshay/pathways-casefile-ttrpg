@@ -509,3 +509,64 @@ def test_fp_has_no_table_and_is_deliberately_absent():
     extracted."""
     entries = json.loads((CONTENT / "pool_thresholds.json").read_text(encoding="utf-8"))["entries"]
     assert {e["pool"] for e in entries} == {"HP", "SPI"}
+
+
+# --- Fright Check tables (Ch. 5, p. 43-44) ---------------------------------
+
+import extract_fright
+
+
+def test_a_cell_is_not_ended_by_the_abbreviation_it_contains():
+    """The 12 row reads "roll vs." mid-clause. Ending the cell at that period
+    would cut every column of that row in half and shift the rest."""
+    rows = extract_fright.parse_effects([
+        "12",
+        "Retching for (25 − HT) sec; roll vs.", "Will to recover.",
+        "Ecstasy for (25 − Will) sec; roll vs.", "Will to recover.",
+        "Dazed for (25 − IQ) sec; roll vs. IQ to", "recover.",
+    ])
+    assert rows[0]["fright"] == "Retching for (25 − HT) sec; roll vs. Will to recover."
+    assert rows[0]["confusion"].endswith("roll vs. IQ to recover.")
+
+
+def test_cells_of_unequal_length_still_split_three_ways():
+    """22-23 runs to seven lines: 2 + 2 + 3. Splitting the lines evenly would
+    mis-cut this row and 24-29 while looking correct everywhere else."""
+    rows = extract_fright.parse_effects([
+        "22–23",
+        "New −15 pt disadvantage: Severe", "Phobia or Paranoia.",
+        "New −15 pt disadvantage: Extreme", "Fanaticism or self-sacrificing Vow.",
+        "New −15 pt disadvantage: Dementia", "(age-related confusion) or Deep", "Sleeper.",
+    ])
+    assert rows[0]["confusion"].endswith("or Deep Sleeper.")
+
+
+def test_a_row_missing_a_column_is_reported_not_shipped():
+    with pytest.raises(ValueError, match="parsed 2 cells"):
+        extract_fright.parse_effects([
+            "13–15", "Acquire a quirk.", "Acquire a devotion.",
+        ])
+
+
+def test_a_trigger_range_keeps_both_ends():
+    rows = extract_fright.parse_triggers([
+        "Encountering a monster or undead creature", "-2 to -6",
+        "Outer God influence or manifestation", "-8 or worse",
+    ])
+    assert rows[0]["modifier"] == -2 and rows[0]["worstCase"] == -6
+    # "-8 or worse" prints no floor; claiming one would cap the GM's worst case
+    assert rows[1]["modifier"] == -8 and rows[1]["openEnded"] is True
+    assert "worstCase" not in rows[1]
+
+
+def test_committed_fright_bands_tile_without_gaps():
+    entries = json.loads((CONTENT / "fright_effects.json").read_text(encoding="utf-8"))["entries"]
+    assert [(e["low"], e["high"]) for e in entries] == extract_fright.EXPECTED_BANDS
+    for lower, upper in zip(entries, entries[1:]):
+        assert upper["low"] == lower["high"] + 1
+    assert entries[-1]["high"] is None, "35+ has no ceiling"
+
+
+def test_an_odd_trigger_stream_is_reported_not_silently_paired():
+    with pytest.raises(ValueError, match="pairs must be even"):
+        extract_fright.parse_triggers(["Witnessing a supernatural death", "-4", "A new row"])
