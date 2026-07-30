@@ -1,7 +1,7 @@
 # Pathways — Agent Handover
 
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
-Everything below is verified against the tree at commit `357b299`, not recalled.
+Everything below is verified against the tree at commit `48a58fd`, not recalled.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **381 Kotlin** (JUnit 5, incl. 22 in `app/`) + **27 Python** (pytest), all green |
+| Tests | **391 Kotlin** (JUnit 5, incl. 22 in `app/`) + **33 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -71,14 +71,16 @@ docs/           spec, plan, KNOWN_ISSUES
 `RollResult`, `SecondaryDelta`, `SkillKey`, `Trait`, `Weapon`.
 
 `core/rules` — `AttributeCosts`, `Derive`, `ModifierResolver`, `ParryBlock`,
-`PointBudget`, `Corruption`, `Pools`, `PotionConsumption`, `PotionDigestion`, `Premades`,
+`PointBudget`, `Corruption`, `FrightCheck`, `Pools`, `PotionConsumption`, `PotionDigestion`,
+`Premades`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading ten JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twelve JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
 `cor_gained.json` (6), `ritual_cor_thresholds.json` (4),
-`pool_thresholds.json` (9).
+`pool_thresholds.json` (9), `fright_triggers.json` (5),
+`fright_effects.json` (9).
 
 ### Public entry points
 
@@ -99,6 +101,7 @@ SuccessRoll.against(target, source: RandomSource): RollResult
 ContentLoader.skills() / .advantages() / .disadvantages() / .thrustSwing()
 ContentLoader.pathways() / .actingMethod() / .potionConsumption()
 ContentLoader.corGained() / .ritualCorThresholds() / .poolThresholds()
+ContentLoader.frightTriggers() / .frightEffects()
 PotionDigestion.digest(c, block): DigestedCharacter
 PotionDigestion.digestThrough(c, pathway, sequence, blocks): DigestedCharacter
 PotionDigestion.of(c, blocks): DigestedCharacter?     // from c.beyonder
@@ -109,6 +112,8 @@ Corruption.clamp(cor, max) / .isLostAt(cor, max)
 Corruption.ritualPenalty(cor) / .ritualThresholdsReached(cor)
 Pools.hp(current, max) / .fp(current, max) / .spi(current, max): PoolStatus
 Pools.thresholds(pool): List<PoolThreshold>   // empty for FP: prose only
+FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
+FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -343,10 +348,33 @@ worth keeping:
 - **-5×HP is dead with NO roll**, so both roll flags are clear there; below
   -HP they are set. Reeling is never withdrawn once HP falls further.
 
-**The rest of M4** (spec section 8): T2 + T3 — combat, FP/HP tracking, active
-defenses, fright checks, ritual and divination resolution. `ModifierResolver`
-still has no production caller; combat is where it earns its keep, and
-`Corruption.ritualPenalty` is its first ready-made input.
+## 6c. Fright checks (Ch. 5, p. 43-44)
+
+`FrightCheck` rolls twice — 3d6 vs Will + the trigger's modifier, then
+3d6 + margin of failure against a nine-band table. Three things it settles:
+
+- **The table does NOT override the critical rules.** The PCR prints its own
+  "1 always fails / 19 always succeeds"; this one prints nothing, so
+  `SuccessRoll` stands and a 3 passes at any target. Specific beats general
+  only where the specific rule actually speaks.
+- **A 17 or 18 can fail a target it never beat**, overshooting by nothing —
+  and the table starts at 4, so a bare 3 would land on no row. The mildest
+  band is the answer there; crashing mid-scene is not.
+- **Three of the five triggers print no single number** (`-2 to -6`,
+  `-8 or worse`). The dialog offers a stepper, because rolling the gentlest
+  end turns the GM's harsher call into a softer one (Codex caught this).
+
+The effects table is three columns wide with unevenly wrapped cells, so
+`extract_fright.py` ends a cell on a sentence — `vs.` excluded — and requires
+exactly three per row rather than splitting lines evenly, which mis-cuts the
+22–23 and 24–29 rows while looking correct everywhere else.
+
+**The rest of M4** (spec section 8): T2 — combat proper, active defenses —
+and ritual/divination resolution. `ModifierResolver` still has no production
+caller; combat is where it earns its keep, and `Corruption.ritualPenalty`
+plus `Pools`' penalties are its first ready-made inputs. Note the 23 fixtures
+carry NO weapons, so wiring `ParryBlock` to the sheet shows nothing until a
+character can be edited.
 
 ---
 
