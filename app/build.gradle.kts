@@ -25,6 +25,16 @@ android {
     }
 
     buildFeatures { compose = true }
+
+    testOptions {
+        unitTests {
+            // SessionStore logs discarded saves through android.util.Log, which
+            // is a stub on the JVM classpath and throws by default. Returning
+            // defaults lets the failure PATH be tested; nothing here asserts on
+            // logging itself.
+            isReturnDefaultValues = true
+        }
+    }
 }
 
 kotlin { jvmToolchain(17) }
@@ -36,4 +46,13 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
     implementation(libs.kotlinx.serialization.json)
+
+    // The screens are still verified on a device; this source set is for the
+    // logic under them -- BeyonderSession's rules wiring and SessionStore's
+    // file handling -- where two defects have already reached master.
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
+
+tasks.withType<Test>().configureEach { useJUnitPlatform() }
