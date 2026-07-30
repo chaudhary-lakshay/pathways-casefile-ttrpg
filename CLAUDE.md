@@ -1,7 +1,7 @@
 # Pathways — Agent Handover
 
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
-Everything below is verified against the tree at commit `1f98d1e`, not recalled.
+Everything below is verified against the tree at commit `9a02b46`, not recalled.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -27,20 +27,17 @@ Read it before designing anything.
 
 ## 2. Current state
 
-**M0 (engine primitives), M1 (oracle + content) and M2 (vertical slice) are
-complete and merged to `master`. M3 is in progress.** There is an Android
-module (`app/`, Compose): premade list -> sheet screen with the
-`computed vs asPublished` diff -> tap a skill to roll 3d6.
+**M0 through M3 are complete and merged to `master`.** M4 (table play) is
+next — see section 6.
 
-M3 so far: T1 extracted (`tools/extract_pathways.py` ->
-`content/pathways.json`, 88 Sequence blocks), `ContentLoader.pathways()`,
-`PotionDigestion.digest()`, and a pathway screen. Still open: potion
-consumption as persistent state, sequence advancement, digestion tracker,
-and live budget validation in a character builder.
+There is an Android module (`app/`, Compose) with three screens: premade list
+-> sheet (the `computed vs asPublished` diff, tap a skill to roll 3d6), the
+pathway screen (potion grants, digestion tracker, Potion Consumption Roll),
+and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **282 Kotlin** (JUnit 5) + **8 Python** (pytest), all green |
+| Tests | **332 Kotlin** (JUnit 5) + **19 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -63,20 +60,23 @@ Note: on this machine `python` is not on PATH. Use the `py` launcher. Gradle's
 ```
 core/model/     pure data types, no logic       (kotlinx-serialization)
 core/rules/     all computation + book content  (api-depends on :core:model)
+app/            Compose UI: premade list, sheet, pathway, builder
 fixtures/       23 character-sheet JSON fixtures (wired onto core:rules TEST classpath)
 tools/          offline Python extractors (pypdf, openpyxl) + their tests
 docs/           spec, plan, KNOWN_ISSUES
 ```
 
-`core/model` — `Attr`, `Attributes`, `Character`, `ControllingAttribute`,
-`Dice`, `Difficulty`, `Modifier`, `PurchasedSkill`, `RollResult`,
-`SecondaryDelta`, `SkillKey`, `Trait`, `Weapon`.
+`core/model` — `Attr`, `Attributes`, `BeyonderState`, `Character`,
+`ControllingAttribute`, `Dice`, `Difficulty`, `Modifier`, `PurchasedSkill`,
+`RollResult`, `SecondaryDelta`, `SkillKey`, `Trait`, `Weapon`.
 
 `core/rules` — `AttributeCosts`, `Derive`, `ModifierResolver`, `ParryBlock`,
-`PointBudget`, `RandomSource`, `SecondaryCharacteristics`, `SkillLadder`,
-`SuccessRoll`, plus `content/ContentLoader` reading four JSON files from
-`core/rules/src/main/resources/content/`: `skills.json` (158),
-`advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30).
+`PointBudget`, `PotionConsumption`, `PotionDigestion`, `Premades`,
+`RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading seven JSON
+files from `core/rules/src/main/resources/content/`: `skills.json` (158),
+`advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
+`pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11).
 
 ### Public entry points
 
@@ -95,6 +95,12 @@ SkillLadder.levelFor(points, difficulty, attributeLevel): Int
 SkillLadder.defaultFor(difficulty, attributeLevel): Int?
 SuccessRoll.against(target, source: RandomSource): RollResult
 ContentLoader.skills() / .advantages() / .disadvantages() / .thrustSwing()
+ContentLoader.pathways() / .actingMethod() / .potionConsumption()
+PotionDigestion.digest(c, block): DigestedCharacter
+PotionDigestion.digestThrough(c, pathway, sequence, blocks): DigestedCharacter
+PotionDigestion.of(c, blocks): DigestedCharacter?     // from c.beyonder
+PotionConsumption.attempt(state, source): PcrOutcome
+PotionConsumption.targetFor(digestion): Int
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
