@@ -570,3 +570,52 @@ def test_committed_fright_bands_tile_without_gaps():
 def test_an_odd_trigger_stream_is_reported_not_silently_paired():
     with pytest.raises(ValueError, match="pairs must be even"):
         extract_fright.parse_triggers(["Witnessing a supernatural death", "-4", "A new row"])
+
+
+# --- Ritual resolution (Ch. 7, p. 67-68) -----------------------------------
+
+import extract_ritual
+
+
+def test_the_critical_failure_row_carries_no_margin_band():
+    """"Critical Failure (roll 17-18)" is entered by the ROLL, not by a margin.
+    Giving it a numeric band would let a margin lookup match it and skip the
+    real severe-misfire row."""
+    rows = extract_ritual.parse_failures([
+        "Failure by 10+", "Severe misfire. Roll on Critical Failure Table with -2 to the result roll.",
+        "Critical Failure (roll 17-18)", "Roll on Critical Failure Table immediately.",
+    ])
+    assert rows[0]["from"] == 10 and rows[0]["to"] is None
+    assert rows[1]["critical"] is True
+    assert "from" not in rows[1]
+
+
+def test_wrapped_ritual_prose_stays_with_its_own_row():
+    rows = extract_ritual.parse_weights([
+        "Moderate (-2)",
+        "Enhancement, Curse, Cleansing, Marking, Fabrication, Concealment, Oath-Sealing,",
+        "Protection/Warding",
+        "Heavy (-4)",
+        "Summoning, Binding, Unraveling, Affliction, Transference, Soul-Anchoring",
+    ])
+    assert rows[0]["categories"].endswith("Oath-Sealing, Protection/Warding")
+    assert rows[1]["modifier"] == -4
+
+
+def test_committed_critical_table_covers_every_3d6_result():
+    entries = json.loads((CONTENT / "ritual_critical.json").read_text(encoding="utf-8"))["entries"]
+    covered = {n for e in entries for n in range(e["low"], e["high"] + 1)}
+    assert covered == set(range(3, 19))
+
+
+def test_the_critical_table_is_not_ordered_by_severity():
+    """3-4 is Backlash and 18 is Catastrophe, but 13-14 (gain CoR) sits above
+    11-12 (Wrong Arrival). The book shifts this roll by -2 on a severe
+    misfire, so a caller assuming monotonic severity reads the shift
+    backwards."""
+    entries = json.loads((CONTENT / "ritual_critical.json").read_text(encoding="utf-8"))["entries"]
+    outcomes = {e["low"]: e["outcome"].split(".")[0] for e in entries}
+    assert outcomes[3] == "Backlash"
+    assert outcomes[11] == "Wrong Arrival"
+    assert outcomes[13] == "Corruption"
+    assert outcomes[18] == "Catastrophe"

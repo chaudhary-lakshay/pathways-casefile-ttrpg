@@ -21,6 +21,11 @@ object ContentLoader {
     private val potionConsumptionLazy: List<PcrRow> by lazy { load("potion_consumption.json") }
     private val corGainedLazy: List<CorGain> by lazy { load("cor_gained.json") }
     private val poolThresholdsLazy: List<PoolThreshold> by lazy { load("pool_thresholds.json") }
+    private val ritualWeightsLazy: List<RitualWeight> by lazy { load("ritual_weights.json") }
+    private val ritualFailuresLazy: List<RitualFailure> by lazy { load("ritual_failures.json") }
+    private val ritualCriticalsLazy: List<RitualCritical> by lazy {
+        load<RitualCritical>("ritual_critical.json").sortedBy { it.low }
+    }
     private val frightTriggersLazy: List<FrightTrigger> by lazy { load("fright_triggers.json") }
     private val frightEffectsLazy: List<FrightEffect> by lazy {
         // Sorted so a band lookup can walk the table in the order the book
@@ -70,6 +75,15 @@ object ContentLoader {
      * them -- worst last. FP has no rows; see [PoolThreshold].
      */
     fun poolThresholds(): List<PoolThreshold> = poolThresholdsLazy
+
+    /** How hard each category of ritual is to cast (Ch. 7, p. 67). */
+    fun ritualWeights(): List<RitualWeight> = ritualWeightsLazy
+
+    /** What a failed ritual costs, by margin (Ch. 7, p. 67). */
+    fun ritualFailures(): List<RitualFailure> = ritualFailuresLazy
+
+    /** The Critical Failure Table, ascending by band (Ch. 7, p. 67-68). */
+    fun ritualCriticals(): List<RitualCritical> = ritualCriticalsLazy
 
     /** What each kind of supernatural sight does to a Fright Check (Ch. 5). */
     fun frightTriggers(): List<FrightTrigger> = frightTriggersLazy

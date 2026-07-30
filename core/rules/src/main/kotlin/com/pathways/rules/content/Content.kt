@@ -350,6 +350,41 @@ data class FrightEffect(
     }
 }
 
+/** One row of the ritual weight table (Ch. 7, p. 67): how hard a category is. */
+@Serializable
+data class RitualWeight(val weight: String, val modifier: Int, val categories: String)
+
+/**
+ * One row of "Failure & Consequences" (Ch. 7, p. 67).
+ *
+ * [from]/[to] are a margin of failure, and are absent on the row the book
+ * enters by the ROLL rather than by a margin -- "Critical Failure (roll
+ * 17-18)", which sets [critical]. Giving that row a numeric band would let a
+ * margin lookup match it and skip the real severe-misfire row.
+ */
+@Serializable
+data class RitualFailure(
+    val printed: String,
+    val consequence: String,
+    val from: Int? = null,
+    val to: Int? = null,
+    val critical: Boolean = false,
+) {
+    init {
+        require(critical || from != null) { "non-critical row '$printed' has no margin band" }
+    }
+}
+
+/**
+ * One band of the Critical Failure Table (Ch. 7, p. 67-68), rolled on 3d6.
+ *
+ * The outcomes are NOT ordered by severity -- 3-4 is Backlash, 13-14 costs a
+ * CoR, 18 is Catastrophe -- which matters because a severe misfire shifts the
+ * roll by -2. The shift moves down the TABLE, not down a severity scale.
+ */
+@Serializable
+data class RitualCritical(val low: Int, val high: Int, val printed: String, val outcome: String)
+
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
 data class DamageRowJson(val st: Int, val thrust: String, val swing: String)

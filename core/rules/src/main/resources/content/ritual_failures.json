@@ -1,0 +1,38 @@
+{
+ "sourceLines": {
+  "7": [
+   [
+    4349,
+    4359
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "printed": "Failure by 1-4",
+   "from": 1,
+   "to": 4,
+   "critical": false,
+   "consequence": "No effect. Faint spiritual disturbance — the GM may note it."
+  },
+  {
+   "printed": "Failure by 5-9",
+   "from": 5,
+   "to": 9,
+   "critical": false,
+   "consequence": "Partial, wrong activation. GM chooses a distorted outcome loosely related to intent."
+  },
+  {
+   "printed": "Failure by 10+",
+   "from": 10,
+   "to": null,
+   "critical": false,
+   "consequence": "Severe misfire. Roll on Critical Failure Table with -2 to the result roll."
+  },
+  {
+   "printed": "Critical Failure (roll 17-18)",
+   "critical": true,
+   "consequence": "Roll on Critical Failure Table immediately."
+  }
+ ]
+}
