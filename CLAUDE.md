@@ -1,7 +1,7 @@
 # Pathways — Agent Handover
 
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
-Everything below is verified against the tree at commit `77c383e`, not recalled.
+Everything below is verified against the tree at commit `357b299`, not recalled.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **359 Kotlin** (JUnit 5) + **27 Python** (pytest), all green |
+| Tests | **381 Kotlin** (JUnit 5, incl. 22 in `app/`) + **27 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -45,7 +45,7 @@ and the builder (attributes against a live point budget).
 ### Commands
 
 ```bash
-./gradlew test                    # all Kotlin tests
+./gradlew test                    # all Kotlin tests, app module included
 ./gradlew :core:rules:test        # one module
 py -m pytest tools/test_tools.py -q   # Python tooling tests (Windows: `py`, not `python`)
 ```
@@ -286,10 +286,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
   gives no boundary between a wrapped effect line and the next row's name, and
   this PDF reports x=0 for every glyph so column geometry is unavailable. See
   `tools/extract_pathways.py`'s docstring before trying again.
-- **The app module has no test source set.** `BeyonderSession` and the screens
-  are verified on a device, not by JUnit. Rules-level logic is unit-tested;
-  app wiring is not. Add `app/src/test` the first time a UI rule is worth
-  pinning.
+- **The screens themselves are still device-only.** `app/src/test` now covers
+  `BeyonderSession` and `SessionStore` (22 tests), which is where both
+  app-level defects have landed so far. Composables are not tested; that
+  needs `androidx.compose.ui.test` and a reason better than coverage.
 
 ---
 
@@ -427,6 +427,12 @@ are not portable.
 | `writing-plans` | `docs/superpowers/plans/2026-07-25-m0-m1-engine.md` (14 TDD tasks) |
 | `subagent-driven-development` | fresh implementer per task, review gate after each, broad whole-branch review at the end |
 | `finishing-a-development-branch` | verify tests -> present merge options -> execute -> clean up |
+
+**Codex is the review gate now** (section 7 lists the invocation). In M4 it
+found one P2 per slice, both in app wiring rather than in rules: a
+Will-lowering potion that never latched the corruption loss it caused, and an
+FP row that printed "every point below 0 costs 1 HP" without charging it.
+`app/src/test` exists because of those two.
 
 **The single most valuable lesson:** review gates caught defects the tests
 could not — 7 in M0/M1, 6 more in the hardening branch, including two that
