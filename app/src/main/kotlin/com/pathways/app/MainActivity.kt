@@ -41,6 +41,9 @@ import kotlin.random.Random
 /** The app's real dice. Tests inject [com.pathways.rules.SeededRandom] instead. */
 private val appDice = RandomSource { sides -> Random.nextInt(1, sides + 1) }
 
+/** The destinations reachable from a selected premade. */
+private enum class Screen { SHEET, PATHWAY, BUILDER }
+
 /** [SheetComparison] emits the seven secondaries before any skill row. */
 private const val SECONDARY_ROWS = 7
 
@@ -63,7 +66,9 @@ fun App(sheets: List<PremadeSheet>) {
     var selected by remember { mutableStateOf<PremadeSheet?>(null) }
     // ponytail: a third destination, still one boolean and no navigation
     // library. Add one at the fourth, or at the first deep link.
-    var pathways by remember(selected) { mutableStateOf(false) }
+    // ponytail: a fourth destination and still one enum, no navigation
+    // library. Add one at the first deep link or saved back stack.
+    var screen by remember(selected) { mutableStateOf(Screen.SHEET) }
     // One walk down a pathway per selected premade; picking another sheet
     // starts a fresh one.
     val session = remember(selected) { BeyonderSession() }
@@ -71,17 +76,20 @@ fun App(sheets: List<PremadeSheet>) {
     when (val sheet = selected) {
         null -> PremadeList(sheets) { selected = it }
         else -> {
-            BackHandler { if (pathways) pathways = false else selected = null }
-            if (pathways) {
-                PathwayScreen(sheet, session, appDice) { pathways = false }
-            } else {
-                SheetScreen(
+            BackHandler {
+                if (screen == Screen.SHEET) selected = null else screen = Screen.SHEET
+            }
+            when (screen) {
+                Screen.SHEET -> SheetScreen(
                     sheet,
                     drunk = session.state,
                     lost = session.lost,
-                    onPathways = { pathways = true },
+                    onPathways = { screen = Screen.PATHWAY },
+                    onBuild = { screen = Screen.BUILDER },
                     onBack = { selected = null },
                 )
+                Screen.PATHWAY -> PathwayScreen(sheet, session, appDice) { screen = Screen.SHEET }
+                Screen.BUILDER -> BuilderScreen(sheet) { screen = Screen.SHEET }
             }
         }
     }
@@ -124,6 +132,7 @@ fun SheetScreen(
     drunk: BeyonderState?,
     lost: Boolean,
     onPathways: () -> Unit,
+    onBuild: () -> Unit,
     onBack: () -> Unit,
 ) {
     val rows = remember(sheet) { SheetComparison.of(sheet) }
@@ -139,6 +148,7 @@ fun SheetScreen(
                         TextButton(onClick = onPathways) {
                             Text(if (drunk == null) "Drink a potion" else "Pathway")
                         }
+                        TextButton(onClick = onBuild) { Text("Spend points") }
                     }
                     Text(sheet.name, style = MaterialTheme.typography.headlineSmall)
                     if (drunk != null) {
