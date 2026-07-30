@@ -1,7 +1,7 @@
 # Pathways — Agent Handover
 
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
-Everything below is verified against the tree at commit `48a58fd`, not recalled.
+Everything below is verified against the tree at commit `cf32f27`, not recalled.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **391 Kotlin** (JUnit 5, incl. 22 in `app/`) + **33 Python** (pytest), all green |
+| Tests | **404 Kotlin** (JUnit 5, incl. 22 in `app/`) + **37 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -72,15 +72,16 @@ docs/           spec, plan, KNOWN_ISSUES
 
 `core/rules` — `AttributeCosts`, `Derive`, `ModifierResolver`, `ParryBlock`,
 `PointBudget`, `Corruption`, `FrightCheck`, `Pools`, `PotionConsumption`, `PotionDigestion`,
-`Premades`,
+`Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twelve JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading fifteen JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
 `cor_gained.json` (6), `ritual_cor_thresholds.json` (4),
 `pool_thresholds.json` (9), `fright_triggers.json` (5),
-`fright_effects.json` (9).
+`fright_effects.json` (9), `ritual_weights.json` (3),
+`ritual_failures.json` (4), `ritual_critical.json` (9).
 
 ### Public entry points
 
@@ -102,6 +103,7 @@ ContentLoader.skills() / .advantages() / .disadvantages() / .thrustSwing()
 ContentLoader.pathways() / .actingMethod() / .potionConsumption()
 ContentLoader.corGained() / .ritualCorThresholds() / .poolThresholds()
 ContentLoader.frightTriggers() / .frightEffects()
+ContentLoader.ritualWeights() / .ritualFailures() / .ritualCriticals()
 PotionDigestion.digest(c, block): DigestedCharacter
 PotionDigestion.digestThrough(c, pathway, sequence, blocks): DigestedCharacter
 PotionDigestion.of(c, blocks): DigestedCharacter?     // from c.beyonder
@@ -114,6 +116,8 @@ Pools.hp(current, max) / .fp(current, max) / .spi(current, max): PoolStatus
 Pools.thresholds(pool): List<PoolThreshold>   // empty for FP: prose only
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
+RitualResolution.attempt(skill, weight, cor, source): RitualOutcome
+RitualResolution.targetFor(skill, weight, cor) / .criticalFor(roll) / .weights()
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -369,12 +373,33 @@ The effects table is three columns wide with unevenly wrapped cells, so
 exactly three per row rather than splitting lines evenly, which mis-cuts the
 22–23 and 24–29 rows while looking correct everywhere else.
 
-**The rest of M4** (spec section 8): T2 — combat proper, active defenses —
-and ritual/divination resolution. `ModifierResolver` still has no production
-caller; combat is where it earns its keep, and `Corruption.ritualPenalty`
-plus `Pools`' penalties are its first ready-made inputs. Note the 23 fixtures
-carry NO weapons, so wiring `ParryBlock` to the sheet shows nothing until a
-character can be edited.
+## 6d. Rituals (Ch. 7, p. 67-68)
+
+`RitualResolution` is `Corruption.ritualPenalty`'s first production caller —
+the reason that penalty was scoped to rituals instead of made general. Target
+= skill + weight (Light +0 / Moderate -2 / Heavy -4) + the CoR penalty.
+
+- **Two doors into the Critical Failure Table.** One row is named by the ROLL
+  ("Critical Failure (roll 17-18)"), one by the MARGIN ("Failure by 10+ …
+  with -2 to the result roll"). GURPS already calls a failure by 10+ critical,
+  so an 18 against a low target is both. The roll-named row wins and carries
+  no -2 — same shape as the PCR reading.
+- **Success goes by outcome, never by margin.** A rolled 18 against a target
+  of 22 has a non-negative margin; reading the margin reported the book's own
+  critical-failure row as a success (Codex — the same slip `FrightCheck` had
+  made an hour earlier). Regression test verified against the old branch.
+- **The critical table is not ordered by severity** — 3-4 Backlash, 13-14 a
+  CoR, 18 Catastrophe — so the -2 shift moves down the TABLE, not down a
+  severity scale. Pinned in `test_tools.py`.
+
+**Blocked, and it is one blocker, not three:** the 23 premades are mortals
+with no weapons and no Ritualistic Magic skill. That means wiring `ParryBlock`
+to the sheet shows nothing, and a ritual screen has no caster to hang on.
+`RitualResolution` and `ParryBlock` are tested and ready; **an editable
+character is the prerequisite for both**, and for the rest of T2 combat.
+`ModifierResolver` still has no production caller — combat is where it earns
+its keep, with `Corruption.ritualPenalty` and `Pools`' penalties as its first
+ready-made inputs.
 
 ---
 
