@@ -452,6 +452,33 @@ data class ExtraEffort(val option: String, val fp: Int, val effect: String)
 @Serializable
 data class AttackOption(val option: String, val rule: String)
 
+/**
+ * One row of the Brawling or Boxing attack table (Ch. 5, p. 38-39).
+ *
+ * [damage] is the printed cell ("thr-1 cr"); [base], [modifier] and [type] are
+ * its three parts, parsed once by the extractor and checked there against the
+ * text they came from. All three are absent on Shove, whose cell reads
+ * "Special" -- an attack that knocks down instead of wounding deals no damage,
+ * which is not the same as dealing zero.
+ *
+ * Wrestling has no row here: the book's own summary gives it "None (grapple
+ * only)".
+ */
+@Serializable
+data class UnarmedAttack(
+    val skill: String,
+    val attack: String,
+    val rollModifier: Int,
+    val damage: String,
+    val notes: String,
+    val base: String? = null,
+    val modifier: Int = 0,
+    val type: String? = null,
+) {
+    /** False for Shove, the one row that rolls no damage at all. */
+    val wounds: Boolean get() = base != null
+}
+
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
 data class DamageRowJson(val st: Int, val thrust: String, val swing: String)

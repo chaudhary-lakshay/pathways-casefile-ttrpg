@@ -7,6 +7,7 @@ import com.pathways.model.Modifier
 import com.pathways.model.ModifierId
 import com.pathways.model.ModifierSource
 import com.pathways.rules.content.ContentLoader
+import com.pathways.rules.content.UnarmedAttack
 
 /**
  * The maneuvers whose choice moves the attack roll (Ch. 5, p. 36).
@@ -23,6 +24,8 @@ enum class AttackManeuver(
     val printed: String,
     private val melee: Int,
     private val ranged: Int,
+    /** What this maneuver adds to damage, which most of them do not touch. */
+    val damageBonus: Int = 0,
 ) {
     /** "Make one melee or ranged attack." No modifier of its own. */
     REGULAR("Regular Attack", 0, 0),
@@ -30,8 +33,8 @@ enum class AttackManeuver(
     /** "Pay 2 FP. +4 to hit melee, +1 to hit ranged." */
     DETERMINED("All-Out Attack (Determined)", 4, 1),
 
-    /** "+2 to damage" -- damage, not to hit, so nothing lands on the roll. */
-    STRONG("All-Out Attack (Strong)", 0, 0),
+    /** "Pay 2 FP. +2 to damage" -- damage only; the roll is unchanged. */
+    STRONG("All-Out Attack (Strong)", 0, 0, damageBonus = 2),
 
     /** "Two separate attacks (roll twice)" at no penalty; each is a plain roll. */
     DOUBLE("All-Out Attack (Double)", 0, 0),
@@ -104,6 +107,20 @@ object Attacks {
         Math.floorDiv(Math.floorDiv(skillLevel.coerceAtLeast(0), 2), -DECEPTIVE_STEP_PENALTY)
 
     /**
+     * What [plan] adds to the damage of a hit, on top of [fromSkill].
+     *
+     * A function rather than a bare `plan.maneuver.damageBonus` because the
+     * bonuses come from unrelated places -- All-Out Attack (Strong) is the
+     * maneuver's, Boxing's is the character's skill above DX -- and a caller
+     * reading only one of them under-reports the other. That is exactly what
+     * the first version of the attack screen did with Strong (Codex).
+     */
+    fun damageBonus(plan: AttackPlan, fromSkill: Int = 0): Int {
+        require(fromSkill >= 0) { "a skill damage bonus cannot be negative: $fromSkill" }
+        return plan.maneuver.damageBonus + fromSkill
+    }
+
+    /**
      * How many attack rolls [plan] produces.
      *
      * Two of the choices make more than one attack, and rolling once for them
@@ -148,8 +165,18 @@ object Attacks {
      *
      * [skillLevel] is only the cap's input -- the level itself reaches the
      * roll through [SkillRoll], not through here.
+     *
+     * [unarmed] is the listed attack being made, if any: the book rolls a Kick
+     * at "Brawling-2" and a Headbutt at "Brawling-3", and that penalty is a
+     * to-hit modifier like every other one here. Keeping it in this list
+     * rather than folding it into the level is what lets the screen show the
+     * player why the number moved.
      */
-    fun modifiers(plan: AttackPlan, skillLevel: Int): List<Modifier> {
+    fun modifiers(
+        plan: AttackPlan,
+        skillLevel: Int,
+        unarmed: UnarmedAttack? = null,
+    ): List<Modifier> {
         require(plan.rapidStrikes >= 0) { "rapidStrikes must not be negative: ${plan.rapidStrikes}" }
         require(plan.deceptive >= 0) { "deceptive steps must not be negative: ${plan.deceptive}" }
         require(plan.deceptive <= maxDeceptive(skillLevel)) {
@@ -168,6 +195,9 @@ object Attacks {
         }
 
         return buildList {
+            if (unarmed != null) {
+                situational("unarmed", unarmed.rollModifier, unarmed.attack)?.let(::add)
+            }
             // Heroic Charge cancels the charge penalty by not levying it.
             // ponytail: a ModEffect.Cancel or `supersedes` would show both
             // sides in the applied list; do that when a screen wants to print

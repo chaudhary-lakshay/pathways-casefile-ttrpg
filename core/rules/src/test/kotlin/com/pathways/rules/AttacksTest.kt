@@ -7,6 +7,7 @@ import com.pathways.model.ModEffect
 import com.pathways.model.SkillKey
 import com.pathways.model.SourceKind
 import com.pathways.rules.content.ContentLoader
+import com.pathways.rules.content.UnarmedAttack
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -23,8 +24,8 @@ class AttacksTest {
 
     private val brawling = SkillKey("Brawling", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
 
-    private fun flats(plan: AttackPlan, skill: Int = 20) =
-        Attacks.modifiers(plan, skill).map { (it.effect as ModEffect.Flat).n }
+    private fun flats(plan: AttackPlan, skill: Int = 20, unarmed: UnarmedAttack? = null) =
+        Attacks.modifiers(plan, skill, unarmed).map { (it.effect as ModEffect.Flat).n }
 
     @Test
     fun `a plain attack carries no modifier at all`() {
@@ -44,6 +45,25 @@ class AttacksTest {
         // reading them as such would hand a fighter four free points.
         assertTrue(Attacks.modifiers(AttackPlan(AttackManeuver.STRONG), 12).isEmpty())
         assertTrue(Attacks.modifiers(AttackPlan(AttackManeuver.DOUBLE), 12).isEmpty())
+    }
+
+    @Test
+    fun `strong's plus two reaches damage even though it misses the roll`() {
+        // The first attack screen applied only Boxing's bonus and dropped
+        // this one, so Strong cost 2 FP and did nothing at all (Codex).
+        assertEquals(2, Attacks.damageBonus(AttackPlan(AttackManeuver.STRONG)))
+        assertEquals(0, Attacks.damageBonus(AttackPlan(AttackManeuver.DETERMINED)))
+        assertEquals(0, Attacks.damageBonus(AttackPlan()))
+    }
+
+    @Test
+    fun `the maneuver's damage bonus adds to the skill's, never replaces it`() {
+        // Boxing at DX+2 punching with All-Out (Strong): +2 and +2.
+        assertEquals(4, Attacks.damageBonus(AttackPlan(AttackManeuver.STRONG), fromSkill = 2))
+        assertEquals(2, Attacks.damageBonus(AttackPlan(), fromSkill = 2))
+        assertThrows<IllegalArgumentException> {
+            Attacks.damageBonus(AttackPlan(), fromSkill = -1)
+        }
     }
 
     @Test
@@ -159,6 +179,24 @@ class AttacksTest {
         val double = AttackPlan(AttackManeuver.DOUBLE, rapidStrikes = 1)
         assertEquals(4, Attacks.attackCount(double))
         assertEquals(2, Attacks.fpCost(double))
+    }
+
+    @Test
+    fun `a listed attack brings its own to-hit penalty`() {
+        // The book rolls a Kick at "Brawling-2" and a Headbutt at
+        // "Brawling-3". Folding that into the level instead would hide from
+        // the player why the number moved.
+        val kick = ContentLoader.unarmedAttacks().first { it.attack == "Kick" }
+        assertEquals(listOf(-2), flats(AttackPlan(), unarmed = kick))
+        val punch = ContentLoader.unarmedAttacks().first { it.attack == "Punch" }
+        assertTrue(Attacks.modifiers(AttackPlan(), 12, punch).isEmpty())
+    }
+
+    @Test
+    fun `a listed attack stacks with the maneuver, it does not replace it`() {
+        val headbutt = ContentLoader.unarmedAttacks().first { it.attack == "Headbutt" }
+        val plan = AttackPlan(AttackManeuver.DETERMINED)
+        assertEquals(listOf(-3, 4), flats(plan, unarmed = headbutt))
     }
 
     @Test

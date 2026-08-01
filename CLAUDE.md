@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **448 Kotlin** (JUnit 5, incl. 38 in `app/`) + **49 Python** (pytest), all green |
+| Tests | **464 Kotlin** (JUnit 5, incl. 38 in `app/`) + **54 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -73,9 +73,9 @@ docs/           spec, plan, KNOWN_ISSUES
 `core/rules` — `AttributeCosts`, `Derive`, `ModifierResolver`, `ParryBlock`,
 `PointBudget`, `Conditions`, `Corruption`, `FrightCheck`, `Pools`, `PotionConsumption`,
 `PotionDigestion`,
-`Attacks`, `Premades`, `RitualResolution`,
+`Attacks`, `Damage`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty-one JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -84,7 +84,8 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `fright_effects.json` (9), `ritual_weights.json` (3),
 `ritual_failures.json` (4), `ritual_critical.json` (9), `defenses.json` (4),
 `defense_modifiers.json` (5), `maneuvers.json` (14),
-`extra_effort.json` (4), `attack_options.json` (2).
+`extra_effort.json` (4), `attack_options.json` (2),
+`unarmed_attacks.json` (10).
 
 ### Public entry points
 
@@ -109,6 +110,7 @@ ContentLoader.frightTriggers() / .frightEffects()
 ContentLoader.ritualWeights() / .ritualFailures() / .ritualCriticals()
 ContentLoader.defenses() / .defenseModifiers()
 ContentLoader.maneuvers() / .extraEffort() / .attackOptions()
+ContentLoader.unarmedAttacks()
 PotionDigestion.digest(c, block): DigestedCharacter
 PotionDigestion.digestThrough(c, pathway, sequence, blocks): DigestedCharacter
 PotionDigestion.of(c, blocks): DigestedCharacter?     // from c.beyonder
@@ -122,6 +124,9 @@ Pools.thresholds(pool): List<PoolThreshold>   // empty for FP: prose only
 Conditions.forSkill(skill, hp, fp, spi, cor): List<Modifier>   // scoped per skill
 Attacks.modifiers(plan, skillLevel): List<Modifier>        // maneuver + options
 Attacks.attackCount(plan) / .fpCost(plan) / .maxDeceptive(skillLevel)
+Attacks.damageBonus(plan, fromSkill): Int                  // Strong + Boxing
+Damage.forAttack(attack, st, bonus): DamageRoll?           // null = Shove
+Damage.thrust(st) / .swing(st) / .attacksFor(skill) / .boxingBonus(dx, level)
 SkillRoll.at(label, base, key, source, mods, ctx): SkillRollOutcome
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
@@ -520,9 +525,45 @@ Device-verified on Barmaid Brawler at 3/10 HP: All-Out (Determined) with two
 deceptive steps read **"base 13, modified to 12"** (+4 −4 −1 reeling) and took
 2 FP; one Rapid Strike produced **two** rolls at 6 and charged nothing.
 
-**Still ahead in M4:** damage. `ContentLoader.thrustSwing()` is loaded and
-still has no caller, so it is the last piece of T2. Also unmodelled: Feint's
-Quick Contest, and Aim's ACC (no weapon in this book prints one).
+## 6j. Damage — the ST table's first reader
+
+`Damage` closes T2. `ContentLoader.thrustSwing()` had been loaded, tested and
+callerless since M0; until an attack roll existed there was nothing to attach
+it to.
+
+- **Wrestling has no attack rows and gets none.** Its table is Maneuver /
+  Roll / Opposed Roll, and the book's own summary says "None (grapple only)".
+  Parsing it beside the other two would invent damage.
+- **Shove returns null, not zero.** Its damage cell reads "Special" — it
+  knocks down instead of wounding, and `1d-4 cr` on that row would be a claim
+  the book never makes. Same shape as `RitualCritical.corGained`.
+- **Two unrelated bonuses reach damage** (Codex): All-Out Attack (Strong)'s
+  +2, which touches damage and not the roll, and Boxing's for skill above DX.
+  The first version applied only Boxing's, so Strong cost 2 FP and did
+  nothing. `Attacks.damageBonus` composes them so a caller cannot read one and
+  miss the other.
+- **No minimum damage.** `DiceExpr` allows a negative total and this book
+  prints no floor, so an elbow at ST 1 really is `1d-8 cr`. Flooring it at 1
+  would quietly strengthen the weak.
+- **The attack's own to-hit penalty is a modifier**, not a smaller level: a
+  Kick is "Brawling-2", and folding that into the level would hide from the
+  player why the number moved.
+
+Wounding multipliers (cut ×1.5, imp ×2) are deliberately not applied — they
+belong to the target's side of the hit, with DR, and every unarmed attack here
+is crushing. `DamageTest` asserts that, so a cut row appearing is a finding.
+
+**Found on device, by nothing else:** a horizontally scrolling `Row` of chips
+inside an `AlertDialog` never receives the drag on a 1080px phone, so three of
+the five maneuvers — Strong, Double, Charge — could not be selected at all.
+Shipped in the previous commit and invisible to every test. They wrap in a
+`FlowRow` now. Device-verified after the fix: Punch `1d-3 cr`, Kick `-2` to
+hit and `1d-2 cr`, Strong `1d-1 cr` with the roll unchanged, and Heroic Charge
+buying off Charge's -4 for 2 FP.
+
+**Still ahead in M4:** wounding multipliers and hit locations, ranged range
+penalties (Ch. 5, p. 39-40), spirit-body damage, and shields. Also unmodelled:
+Feint's Quick Contest, and Aim's ACC (no weapon in this book prints one).
 
 ### A note on Codex
 

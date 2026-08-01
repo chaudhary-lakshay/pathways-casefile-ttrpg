@@ -303,9 +303,20 @@ fun SheetScreen(
         ) { defending = false }
     }
     if (attacking) {
+        // Damage rolls off ST and Boxing's bonus off DX, both AFTER any
+        // potion that raised them -- the same digested character the skill
+        // levels above came from.
+        val attributes = remember(sheet, drunk, session.edits) {
+            val played = session.characterFor(sheet)
+            PotionDigestion.of(played.copy(beyonder = drunk), ContentLoader.pathways())
+                ?.effectiveAttributes
+                ?: played.attributes
+        }
         AttackDialog(
             skillLevels = skillLevels,
             conditions = { conditionsFor(it) },
+            st = attributes.st,
+            dx = attributes.dx,
             dice = appDice,
             // An All-Out maneuver's own FP is spent like any other: through
             // the tracker, so the next roll is made by a tireder character.

@@ -752,3 +752,59 @@ def test_the_numbers_Attacks_kt_implements_are_still_printed():
     by_option = {e["option"]: e["rule"] for e in options}
     assert "-6 to skill" in by_option["Rapid Strike"]
     assert "Maximum penalty is half your skill (rounded down)" in by_option["Deceptive Attack"]
+
+
+# --- Unarmed attacks (Ch. 5, p. 38-39) -------------------------------------
+
+import extract_unarmed
+
+
+def test_a_wrapped_note_does_not_swallow_the_next_attack():
+    """Rows are cut on the ROLL column, not by counting four lines each."""
+    rows = extract_unarmed.parse_table("Brawling", [
+        "Punch", "Brawling", "thr-1 cr", "Most common attack",
+        "spread over two lines",
+        "Kick", "Brawling-2", "thr cr", "Longer reach, slower",
+    ])
+    assert [r["attack"] for r in rows] == ["Punch", "Kick"]
+    assert rows[0]["notes"] == "Most common attack spread over two lines"
+    assert rows[1]["rollModifier"] == -2
+
+
+def test_damage_parts_are_read_once_and_kept_beside_the_printed_cell():
+    rows = extract_unarmed.parse_table("Boxing", [
+        "Uppercut", "Boxing-2", "thr+2 cr", "Upward strike",
+    ])
+    assert rows[0]["base"] == "thr"
+    assert rows[0]["modifier"] == 2
+    assert rows[0]["type"] == "cr"
+    assert rows[0]["damage"] == "thr+2 cr"
+
+
+def test_a_special_damage_cell_carries_no_parts_at_all():
+    """Shove knocks down; an attack dealing no damage is not one dealing 0."""
+    rows = extract_unarmed.parse_table("Brawling", [
+        "Shove", "Brawling-2", "Special", "Knock down: target rolls DX or fall",
+    ])
+    assert "base" not in rows[0]
+    assert rows[0]["damage"] == "Special"
+
+
+def test_an_unreadable_damage_cell_is_an_error_not_a_guess():
+    with pytest.raises(ValueError):
+        extract_unarmed.parse_table("Brawling", [
+            "Bite", "Brawling-1", "lots cr", "not in the book",
+        ])
+
+
+def test_committed_unarmed_attacks_match_the_two_printed_tables():
+    entries = json.loads((CONTENT / "unarmed_attacks.json").read_text(encoding="utf-8"))["entries"]
+    by_skill = {}
+    for e in entries:
+        by_skill.setdefault(e["skill"], []).append(e["attack"])
+    assert by_skill == extract_unarmed.EXPECTED
+    # Damage applies no wounding multiplier; that is only safe while every
+    # listed unarmed attack is crushing thrust.
+    wounding = [e for e in entries if "base" in e]
+    assert {e["base"] for e in wounding} == {"thr"}
+    assert {e["type"] for e in wounding} == {"cr"}

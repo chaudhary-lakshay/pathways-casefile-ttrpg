@@ -26,6 +26,7 @@ object ContentLoader {
     private val ritualCriticalsLazy: List<RitualCritical> by lazy {
         load<RitualCritical>("ritual_critical.json").sortedBy { it.low }
     }
+    private val unarmedAttacksLazy: List<UnarmedAttack> by lazy { load("unarmed_attacks.json") }
     private val maneuversLazy: List<Maneuver> by lazy { load("maneuvers.json") }
     private val extraEffortLazy: List<ExtraEffort> by lazy { load("extra_effort.json") }
     private val attackOptionsLazy: List<AttackOption> by lazy { load("attack_options.json") }
@@ -80,6 +81,9 @@ object ContentLoader {
      * them -- worst last. FP has no rows; see [PoolThreshold].
      */
     fun poolThresholds(): List<PoolThreshold> = poolThresholdsLazy
+
+    /** The Brawling and Boxing attack tables (Ch. 5, p. 38-39). */
+    fun unarmedAttacks(): List<UnarmedAttack> = unarmedAttacksLazy
 
     /** The one-per-turn Maneuvers table (Ch. 5, p. 36), in printed order. */
     fun maneuvers(): List<Maneuver> = maneuversLazy

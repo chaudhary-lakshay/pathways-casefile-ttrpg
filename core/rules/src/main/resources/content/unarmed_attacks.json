@@ -1,0 +1,117 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2545,
+    2572
+   ],
+   [
+    2577,
+    2596
+   ],
+   [
+    2575,
+    2576
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "skill": "Brawling",
+   "attack": "Punch",
+   "rollModifier": 0,
+   "damage": "thr-1 cr",
+   "notes": "Most common attack",
+   "base": "thr",
+   "modifier": -1,
+   "type": "cr"
+  },
+  {
+   "skill": "Brawling",
+   "attack": "Kick",
+   "rollModifier": -2,
+   "damage": "thr cr",
+   "notes": "Longer reach, slower",
+   "base": "thr",
+   "modifier": 0,
+   "type": "cr"
+  },
+  {
+   "skill": "Brawling",
+   "attack": "Elbow",
+   "rollModifier": -2,
+   "damage": "thr-2 cr",
+   "notes": "Close range, quick",
+   "base": "thr",
+   "modifier": -2,
+   "type": "cr"
+  },
+  {
+   "skill": "Brawling",
+   "attack": "Knee",
+   "rollModifier": -2,
+   "damage": "thr-1 cr",
+   "notes": "Close range, quick",
+   "base": "thr",
+   "modifier": -1,
+   "type": "cr"
+  },
+  {
+   "skill": "Brawling",
+   "attack": "Headbutt",
+   "rollModifier": -3,
+   "damage": "thr-2 cr",
+   "notes": "Close range, risky",
+   "base": "thr",
+   "modifier": -2,
+   "type": "cr"
+  },
+  {
+   "skill": "Brawling",
+   "attack": "Shove",
+   "rollModifier": -2,
+   "damage": "Special",
+   "notes": "Knock down: target rolls DX or fall"
+  },
+  {
+   "skill": "Boxing",
+   "attack": "Jab",
+   "rollModifier": 0,
+   "damage": "thr cr",
+   "notes": "Quick, leading hand",
+   "base": "thr",
+   "modifier": 0,
+   "type": "cr"
+  },
+  {
+   "skill": "Boxing",
+   "attack": "Cross",
+   "rollModifier": 0,
+   "damage": "thr+1 cr",
+   "notes": "Power shot, rear hand",
+   "base": "thr",
+   "modifier": 1,
+   "type": "cr"
+  },
+  {
+   "skill": "Boxing",
+   "attack": "Hook",
+   "rollModifier": -1,
+   "damage": "thr+1 cr",
+   "notes": "Side attack, arcs around guard",
+   "base": "thr",
+   "modifier": 1,
+   "type": "cr"
+  },
+  {
+   "skill": "Boxing",
+   "attack": "Uppercut",
+   "rollModifier": -2,
+   "damage": "thr+2 cr",
+   "notes": "Upward strike, vulnerable to counter",
+   "base": "thr",
+   "modifier": 2,
+   "type": "cr"
+  }
+ ]
+}
