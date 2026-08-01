@@ -132,14 +132,34 @@ class BeyonderSession(
      * Debt (p. 35). Clamping any of them at zero would delete the three most
      * consequential states a character can be in.
      *
-     * FP below zero also bills HP -- "Every point of FP spent below 0 also
-     * costs 1 HP" (p. 42). Printing that rule under the tracker while leaving
-     * the HP row untouched would show a character less hurt than they are, so
-     * the charge is applied here. It is applied SYMMETRICALLY: stepping back
-     * up refunds it, because a stepper the GM cannot undo is a worse tool
-     * than one that occasionally needs a correction.
+     * Two of the three pools bill a SECOND pool once they go negative, and
+     * both charges are applied here rather than printed and forgotten:
+     *
+     *  - FP below zero costs HP, one per point (p. 42).
+     *  - SPI below zero is Soul Debt: "+1 CoR per 1 point below 0" (p. 35).
+     *
+     * They differ in one way, and the book is the reason. FP's charge is
+     * SYMMETRIC -- stepping back up refunds the HP, because a stepper the GM
+     * cannot undo is a worse tool than one that occasionally needs a
+     * correction, and the book says nothing to the contrary.
+     *
+     * **Soul Debt is one-way.** "CoR from Soul Debt are permanent and require
+     * special rituals (Chapter 6) to remove" (p. 41), so recovering SPI does
+     * NOT hand the corruption back (Codex). [cor] is a single total with no
+     * memory of what charged it, so a refund could also take back CoR a ritual
+     * or a potion put there. Removal has its own path: the CoR stepper on the
+     * pathway screen, which is the explicit action the book asks for.
+     *
+     * Charging runs through [gainCor], so it cannot fire once the character is
+     * lost -- a Rampager's books are the GM's now.
+     *
+     * [maxCor] is the drinker's CoR ceiling, read only on the SPI pool. It is
+     * required rather than defaulted because no value is safe when it is
+     * wrong: too low corrupts a character who should have survived. It is the
+     * character's CURRENT Will, so it is passed per call for the same reason
+     * [gainCor] takes one -- a potion can move it mid-walk.
      */
-    fun spend(pool: Pool, delta: Int, max: Int) {
+    fun spend(pool: Pool, delta: Int, max: Int, maxCor: Int) {
         when (pool) {
             Pool.HP -> hpLost = (hpLost + delta).coerceAtLeast(0)
             Pool.FP -> {
@@ -148,7 +168,15 @@ class BeyonderSession(
                 val chargedAfter = (fpLost - max).coerceAtLeast(0)
                 hpLost = (hpLost + chargedAfter - chargedBefore).coerceAtLeast(0)
             }
-            Pool.SPI -> spiSpent = (spiSpent + delta).coerceAtLeast(0)
+            Pool.SPI -> {
+                val debtBefore = (spiSpent - max).coerceAtLeast(0)
+                spiSpent = (spiSpent + delta).coerceAtLeast(0)
+                val debtAfter = (spiSpent - max).coerceAtLeast(0)
+                // Only a DEEPER debt charges; recovery gives nothing back.
+                // Also keeps gainCor(0) meaning what it means elsewhere --
+                // how a Will-lowering potion latches its loss.
+                if (debtAfter > debtBefore) gainCor(debtAfter - debtBefore, maxCor)
+            }
         }
         persist()
     }

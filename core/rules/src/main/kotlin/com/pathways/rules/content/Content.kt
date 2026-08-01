@@ -453,6 +453,20 @@ data class ExtraEffort(val option: String, val fp: Int, val effect: String)
 data class AttackOption(val option: String, val rule: String)
 
 /**
+ * One rule of the Spirit Body Damage section (Ch. 5, p. 40-41).
+ *
+ * [section] is the book's own label, untidied -- "Recovery follows each pool's
+ * normal rate" is what it prints, and shortening it would put a heading on the
+ * screen that the rulebook does not have.
+ *
+ * The "Threshold Penalties by Pool" group is absent on purpose: its HP and SPI
+ * lines are [PoolThreshold] rows and its FP line is one of the two prose
+ * sources [com.pathways.rules.Pools] quotes. See tools/extract_spirit.py.
+ */
+@Serializable
+data class SpiritDamageRule(val section: String, val rule: String)
+
+/**
  * One row of the Optional Hit Locations table (Ch. 5, p. 41).
  *
  * [penalty] is the to-hit cost of calling the shot; [multiplier] is what a hit

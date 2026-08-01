@@ -34,6 +34,7 @@ object ContentLoader {
         load<RangePenalty>("range_penalties.json").sortedBy { it.from }
     }
     private val rangedModifiersLazy: List<RangedModifier> by lazy { load("ranged_modifiers.json") }
+    private val spiritDamageLazy: List<SpiritDamageRule> by lazy { load("spirit_damage.json") }
     private val hitLocationsLazy: List<HitLocation> by lazy { load("hit_locations.json") }
     private val woundingMultipliersLazy: List<WoundingMultiplier> by lazy {
         load("wounding_multipliers.json")
@@ -98,6 +99,9 @@ object ContentLoader {
 
     /** Other Ranged Modifiers: movement, cover, darkness, Aim (Ch. 5). */
     fun rangedModifiers(): List<RangedModifier> = rangedModifiersLazy
+
+    /** The Spirit Body Damage rules (Ch. 5, p. 40-41), grouped as printed. */
+    fun spiritDamage(): List<SpiritDamageRule> = spiritDamageLazy
 
     /** The Optional Hit Locations table (Ch. 5, p. 41), in printed order. */
     fun hitLocations(): List<HitLocation> = hitLocationsLazy

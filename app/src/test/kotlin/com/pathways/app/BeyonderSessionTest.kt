@@ -150,7 +150,7 @@ class BeyonderSessionTest {
     @Test
     fun `spending FP below zero costs one HP per point`() {
         val (s, saved) = session()
-        repeat(11) { s.spend(Pool.FP, 1, max = 9) }
+        repeat(11) { s.spend(Pool.FP, 1, max = 9, maxCor = 10) }
         assertEquals(11, s.fpLost, "FP is at -2")
         assertEquals(2, s.hpLost)
         assertEquals(2, saved().hpLost)
@@ -161,8 +161,8 @@ class BeyonderSessionTest {
         // A stepper the GM cannot undo is a worse tool than one that needs a
         // correction now and then.
         val (s, _) = session()
-        repeat(11) { s.spend(Pool.FP, 1, max = 9) }
-        repeat(2) { s.spend(Pool.FP, -1, max = 9) }
+        repeat(11) { s.spend(Pool.FP, 1, max = 9, maxCor = 10) }
+        repeat(2) { s.spend(Pool.FP, -1, max = 9, maxCor = 10) }
         assertEquals(9, s.fpLost)
         assertEquals(0, s.hpLost)
     }
@@ -170,28 +170,89 @@ class BeyonderSessionTest {
     @Test
     fun `FP above zero costs no HP at all`() {
         val (s, _) = session()
-        repeat(9) { s.spend(Pool.FP, 1, max = 9) }
+        repeat(9) { s.spend(Pool.FP, 1, max = 9, maxCor = 10) }
         assertEquals(0, s.hpLost)
+    }
+
+    /**
+     * REGRESSION (pre-fix behaviour: CoR untouched). p. 35: "Soul Debt: +1 CoR
+     * per 1 point below 0". The SPI row printed that rule and did not apply it
+     * -- the same defect Codex found on FP, one pool over.
+     */
+    @Test
+    fun `spending SPI below zero buys one corruption per point`() {
+        val (s, saved) = session()
+        repeat(12) { s.spend(Pool.SPI, 1, max = 9, maxCor = 10) }
+        assertEquals(12, s.spiSpent, "SPI is at -3")
+        assertEquals(3, s.cor)
+        assertEquals(3, saved().cor)
+    }
+
+    /**
+     * REGRESSION (Codex, pre-fix behaviour: CoR refunded on the way back up).
+     * FP's HP charge is symmetric because the book leaves it ordinary; this
+     * one it does not -- "CoR from Soul Debt are permanent and require special
+     * rituals (Chapter 6) to remove" (p. 41).
+     */
+    @Test
+    fun `recovering SPI does not hand the Soul Debt corruption back`() {
+        val (s, _) = session()
+        repeat(12) { s.spend(Pool.SPI, 1, max = 9, maxCor = 10) }
+        repeat(5) { s.spend(Pool.SPI, -1, max = 9, maxCor = 10) }
+        assertEquals(7, s.spiSpent, "SPI is back above zero")
+        assertEquals(3, s.cor, "and the debt it bought is still owed")
+    }
+
+    @Test
+    fun `recovering SPI cannot take back corruption Soul Debt never charged`() {
+        // cor is one total with no memory of what charged it, so a refund
+        // would spend a ritual's corruption to pay for a pool going back up.
+        val (s, _) = session(SavedSession(cor = 6))
+        repeat(11) { s.spend(Pool.SPI, 1, max = 9, maxCor = 20) }
+        assertEquals(8, s.cor, "6 from before, 2 from the debt")
+        repeat(11) { s.spend(Pool.SPI, -1, max = 9, maxCor = 20) }
+        assertEquals(8, s.cor)
+    }
+
+    @Test
+    fun `SPI above zero buys no corruption at all`() {
+        val (s, _) = session()
+        repeat(9) { s.spend(Pool.SPI, 1, max = 9, maxCor = 10) }
+        assertEquals(0, s.cor)
+    }
+
+    @Test
+    fun `Soul Debt can corrupt the character, and coming back does not undo it`() {
+        // SPI loss never kills (p. 35) but it can still end a character this
+        // way, and the loss is latched like every other -- climbing back out
+        // of debt is not a route out of being lost.
+        val (s, _) = session()
+        repeat(11) { s.spend(Pool.SPI, 1, max = 9, maxCor = 2) }
+        assertEquals(2, s.cor)
+        assertTrue(s.corrupted)
+        repeat(5) { s.spend(Pool.SPI, -1, max = 9, maxCor = 2) }
+        assertTrue(s.corrupted, "a latched loss is never withdrawn")
+        assertEquals(2, s.cor)
     }
 
     @Test
     fun `a pool never rises above its maximum`() {
         val (s, _) = session()
-        s.spend(Pool.HP, -5, max = 10)
+        s.spend(Pool.HP, -5, max = 10, maxCor = 10)
         assertEquals(0, s.hpLost)
     }
 
     @Test
     fun `pools have no floor because the book's rules live below zero`() {
         val (s, _) = session()
-        repeat(60) { s.spend(Pool.HP, 1, max = 10) }
+        repeat(60) { s.spend(Pool.HP, 1, max = 10, maxCor = 10) }
         assertEquals(60, s.hpLost, "-50 HP is dead, and the tracker must be able to say so")
     }
 
     @Test
     fun `every mutation is written back`() {
         val (s, saved) = session()
-        s.spend(Pool.SPI, 3, max = 9)
+        s.spend(Pool.SPI, 3, max = 9, maxCor = 10)
         assertEquals(3, saved().spiSpent)
         s.drink(fool9, fixed(6)) { 10 }
         assertEquals(fool9, saved().beyonder)

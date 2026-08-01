@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **492 Kotlin** (JUnit 5, incl. 38 in `app/`) + **68 Python** (pytest), all green |
+| Tests | **498 Kotlin** (JUnit 5, incl. 44 in `app/`) + **72 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -75,7 +75,7 @@ docs/           spec, plan, KNOWN_ISSUES
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty-five JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty-six JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -87,7 +87,7 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `extra_effort.json` (4), `attack_options.json` (2),
 `unarmed_attacks.json` (10), `range_penalties.json` (7),
 `ranged_modifiers.json` (9), `hit_locations.json` (9),
-`wounding_multipliers.json` (8).
+`wounding_multipliers.json` (8), `spirit_damage.json` (15).
 
 ### Public entry points
 
@@ -134,6 +134,7 @@ Ranged.modifiers(band, conditions, gmValue): List<Modifier>
 Wounds.locationNamed(target): HitLocation / .locations() / .damageTypes()
 Wounds.multiplierFor(location, type): Double   // both tables, composed
 Wounds.typeMultiplier(type) / .modifier(location) / .render(multiplier)
+ContentLoader.hitLocations() / .woundingMultipliers() / .spiritDamage()
 SkillRoll.at(label, base, key, source, mods, ctx): SkillRollOutcome
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
@@ -642,8 +643,53 @@ only)" while leaving the crushing punch's damage line at plain `1d-3 cr` —
 the exact answer a naive parse gets wrong. "Another turn" clears the location,
 and the Roll button is still reachable now that the panel is one line taller.
 
-**Still ahead in M4:** spirit-body damage (the target picks which of HP, FP or
-SPI absorbs it), the Major Wound threshold, and shields. Also unmodelled:
+## 6m. Spirit-body damage, and the debt that never clears
+
+`SpiritDamageDialog` applies one amount to one pool, and `BeyonderSession`
+finally charges the Soul Debt the SPI row had been printing for two
+milestones. The trackers already let a GM move any pool by hand, so what this
+adds is the CHOICE the book puts on the target — and enforcing "One pool per
+instance — you cannot split a single hit across multiple pools" by having one
+amount, one pool, and a dialog that closes.
+
+- **The rule was printed and never applied.** `Pools.spi` has computed
+  `corGained` since M4's pool slice, the SPI row displayed "Soul Debt: +1 CoR
+  per 1 point below 0", and `spend(Pool.SPI, …)` moved the pool and stopped.
+  Exactly the FP→HP defect Codex caught, one pool over, sitting in `master`
+  the whole time. Three regression tests, all verified failing against the old
+  branch.
+- **Soul Debt is ONE-WAY, and Codex is why** (this was the review's blocker,
+  and it beat my own reasoning with the book). FP's HP charge is refunded when
+  the pool comes back up, because a stepper the GM cannot undo is a worse
+  tool. I copied that symmetry to CoR — but the section extracted in this very
+  slice says "CoR from Soul Debt are permanent and require special rituals
+  (Chapter 6) to remove". Worse, `cor` is one total with no memory of what
+  charged it, so recovering SPI could have spent a RITUAL's corruption paying
+  the pool back. Charging is on the increase only; removal keeps its own path.
+- **"add 3 CoR on the pathway screen" was found on device.** Honest while
+  nothing charged it, an instruction to double-count the moment something did.
+  It reads "3 CoR charged" now. No test could have caught it — the string was
+  correct in isolation and wrong in the same commit that made it stale.
+- **`maxCor` is a required parameter on `spend`, not a defaulted one.** No
+  value is safe when it is wrong: too low corrupts a character who should have
+  survived. `MainActivity` computes it once and both the ritual dialog and the
+  trackers charge against the same number.
+- **"Threshold Penalties by Pool" is deliberately not extracted.** Its HP and
+  SPI lines are already `pool_thresholds.json` and its FP line is one of the
+  two prose sources `Pools` quotes. `verify()` asserts the group is still
+  THERE in the source, so the drop stays a decision rather than a parse that
+  quietly stopped working.
+- **The sheets give mortals SPI, and the book says non-Beyonders have none.**
+  Barmaid Brawler's published block prints `spi: 9`. Rather than pick a side,
+  the app reads p. 41's "Non-Beyonders **(SPI 0)**" as the definition it is —
+  whoever has SPI 0 cannot choose it — so `maxSpi > 0` gates both the tracker
+  and the dialog's third chip, and no premade is contradicted.
+
+Device-verified on Barmaid Brawler: 12 spirit damage to SPI took 9/9 to
+**-3 / 9** and the saved session read `cor: 3`. Recovering SPI to +2 left
+`cor` at **1** — the debt stayed owed.
+
+**Still ahead in M4:** the Major Wound threshold and shields. Also unmodelled:
 Feint's Quick Contest, and Aim's ACC.
 
 ### A note on Codex

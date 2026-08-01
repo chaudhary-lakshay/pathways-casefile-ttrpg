@@ -170,6 +170,7 @@ fun SheetScreen(
     var casting by remember(sheet) { mutableStateOf(false) }
     var defending by remember(sheet) { mutableStateOf(false) }
     var attacking by remember(sheet) { mutableStateOf(false) }
+    var spiritDamage by remember(sheet) { mutableStateOf(false) }
     // Maximums move with the potions drunk: HT gains lift FP, and SPI is
     // entirely a potion's gift. Recomputed from the walk, never stored.
     val vitals = remember(sheet, drunk, session.edits) {
@@ -183,6 +184,12 @@ fun SheetScreen(
             secondaries.will,
             secondaries.dodge,
         )
+    }
+    // The CoR ceiling is the character's CURRENT Will, which a potion can
+    // move. Computed once: the ritual dialog and the SPI tracker's Soul Debt
+    // both charge against it, and two readings of one rule is how they drift.
+    val maxCor = remember(sheet, vitals.will, session.edits) {
+        Corruption.maxFor(vitals.will, session.characterFor(sheet).traits)
     }
     // The levels actually rolled: a potion's grants are in here, the sheet's
     // printed column is not. Computed once for defence, attack and the ritual
@@ -226,6 +233,7 @@ fun SheetScreen(
                         }
                         TextButton(onClick = { attacking = true }) { Text("Attack") }
                         TextButton(onClick = { defending = true }) { Text("Defend") }
+                        TextButton(onClick = { spiritDamage = true }) { Text("Spirit") }
                     }
                     Text(sheet.name, style = MaterialTheme.typography.headlineSmall)
                     if (drunk != null) {
@@ -262,7 +270,7 @@ fun SheetScreen(
                 HorizontalDivider()
             }
 
-            item { PoolTrackers(session, vitals) }
+            item { PoolTrackers(session, vitals, maxCor) }
 
             items(rows.take(SECONDARY_ROWS)) { ComparisonRow(it) }
 
@@ -295,6 +303,23 @@ fun SheetScreen(
     if (frightening) {
         FrightDialog(vitals.will) { frightening = false }
     }
+    if (spiritDamage) {
+        SpiritDamageDialog(
+            // The same test that hides the SPI tracker: a mortal has no
+            // spirituality to spend, so it is not offered as somewhere to
+            // absorb a hit.
+            hasSpirituality = vitals.maxSpi > 0,
+            onApply = { pool, amount ->
+                val max = when (pool) {
+                    Pool.HP -> vitals.maxHp
+                    Pool.FP -> vitals.maxFp
+                    Pool.SPI -> vitals.maxSpi
+                }
+                session.spend(pool, amount, max, maxCor)
+            },
+            onDismiss = { spiritDamage = false },
+        )
+    }
     if (defending) {
         DefenseDialog(
             dodge = vitals.dodge,
@@ -320,7 +345,7 @@ fun SheetScreen(
             dice = appDice,
             // An All-Out maneuver's own FP is spent like any other: through
             // the tracker, so the next roll is made by a tireder character.
-            onSpendFp = { session.spend(Pool.FP, it, vitals.maxFp) },
+            onSpendFp = { session.spend(Pool.FP, it, vitals.maxFp, maxCor) },
             onDismiss = { attacking = false },
         )
     }
@@ -341,12 +366,7 @@ fun SheetScreen(
             ).sumOf { (it.effect as ModEffect.Flat).n },
             cor = session.cor,
             dice = appDice,
-            // The cap is the character's CURRENT Will, which a potion can
-            // move; Corruption.maxFor is the same call the pathway screen
-            // makes rather than a second reading of the same rule.
-            onCorGained = { gained ->
-                session.gainCor(gained, Corruption.maxFor(vitals.will, session.characterFor(sheet).traits))
-            },
+            onCorGained = { gained -> session.gainCor(gained, maxCor) },
             onDismiss = { casting = false },
         )
     }
@@ -465,17 +485,17 @@ private data class Vitals(
  * zero rather than reporting a mortal as Spiritually Exhausted.
  */
 @Composable
-private fun PoolTrackers(session: BeyonderSession, vitals: Vitals) {
+private fun PoolTrackers(session: BeyonderSession, vitals: Vitals, maxCor: Int) {
     Column(Modifier.padding(vertical = 4.dp)) {
         PoolRow(Pools.hp(vitals.maxHp - session.hpLost, vitals.maxHp)) {
-            session.spend(Pool.HP, it, vitals.maxHp)
+            session.spend(Pool.HP, it, vitals.maxHp, maxCor)
         }
         PoolRow(Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp)) {
-            session.spend(Pool.FP, it, vitals.maxFp)
+            session.spend(Pool.FP, it, vitals.maxFp, maxCor)
         }
         if (vitals.maxSpi > 0) {
             PoolRow(Pools.spi(vitals.maxSpi - session.spiSpent, vitals.maxSpi)) {
-                session.spend(Pool.SPI, it, vitals.maxSpi)
+                session.spend(Pool.SPI, it, vitals.maxSpi, maxCor)
             }
         }
         HorizontalDivider()
@@ -521,9 +541,12 @@ private fun PoolRow(status: PoolStatus, onSpend: (Int) -> Unit) {
                             }
                             add("${status.penalty} to $what")
                         }
-                        // The effect line below already names Soul Debt; this
-                        // is the number to act on, not a second label.
-                        if (status.corGained > 0) add("add ${status.corGained} CoR on the pathway screen")
+                        // Reported as DONE, not as a chore. It used to read
+                        // "add N CoR on the pathway screen", which was honest
+                        // while nothing charged it and became an instruction
+                        // to double-count the moment something did. Found on
+                        // device, in the same slice that applied the charge.
+                        if (status.corGained > 0) add("${status.corGained} CoR charged")
                         add(status.effect)
                     }.joinToString(" — "),
                     style = MaterialTheme.typography.bodySmall,

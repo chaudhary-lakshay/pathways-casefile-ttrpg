@@ -947,3 +947,54 @@ def test_committed_hit_locations_are_the_nine_the_book_prints():
     assert byname["Torso"]["penalty"] == 0 and byname["Eye"]["penalty"] == -9
     # Only the two cells that vary by damage type carry byType.
     assert {t for t, e in byname.items() if "byType" in e} == {"Neck", "Vitals"}
+
+
+# --- Spirit body damage (Ch. 5, p. 40-41) -----------------------------------
+
+import extract_spirit
+
+
+def test_a_bullet_that_wraps_is_rejoined_on_its_sentence():
+    """"(e.g. skull" ends nothing, so the next line belongs to it. Cutting by
+    position would leave half a rule and start the next one mid-word."""
+    rules = extract_spirit.parse([
+        (False, "Damage Application:"),
+        (True, "Wounding multipliers apply normally to the chosen pool (e.g. skull"),
+        (False, "×4, vitals ×3) stack with wounding multipliers when applied to HP."),
+    ])
+    assert len(rules) == 1
+    assert rules[0]["rule"].endswith("when applied to HP.")
+    assert rules[0]["section"] == "Damage Application"
+
+
+def test_a_finished_bullet_does_not_swallow_the_note_after_it():
+    """The section's last line is a standalone note, and the recovery bullet
+    above it ends in a full stop. Joining by position would glue them."""
+    rules = extract_spirit.parse([
+        (False, "Recovery follows each pool's normal rate:"),
+        (True, "CoR from Soul Debt are permanent and require special rituals to remove."),
+        (False, "Non-Beyonders (SPI 0): Can only choose HP or FP — no spirituality to sacrifice."),
+    ])
+    assert len(rules) == 2
+    assert rules[1]["section"] == "Non-Beyonders (SPI 0)"
+
+
+def test_the_threshold_group_is_dropped_but_still_anchors_the_section_after_it():
+    """Its five lines live in pool_thresholds.json; a second copy would be a
+    rule with two homes. Dropping it must not shift what follows."""
+    rules = extract_spirit.parse([
+        (False, "Threshold Penalties by Pool:"),
+        (True, "HP ≤ 0: Standard GURPS death/dying rules."),
+        (False, "Damage Expression: Spirit body damage is given either as:"),
+        (True, "Flat dice: roll damage, then choose a pool."),
+    ])
+    assert [r["section"] for r in rules] == ["Damage Expression"]
+
+
+def test_committed_spirit_rules_keep_the_phrases_the_app_states():
+    entries = json.loads((CONTENT / "spirit_damage.json").read_text(encoding="utf-8"))["entries"]
+    assert list(dict.fromkeys(e["section"] for e in entries)) == extract_spirit.EXPECTED_SECTIONS
+    body = " ".join(e["rule"] for e in entries)
+    for phrase in extract_spirit.PINNED:
+        assert phrase in body
+    assert extract_spirit.DROPPED not in {e["section"] for e in entries}
