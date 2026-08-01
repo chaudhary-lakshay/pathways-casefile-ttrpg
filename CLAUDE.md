@@ -1,7 +1,7 @@
 # Pathways — Agent Handover
 
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
-Everything below is verified against the tree at commit `012c602`, not recalled.
+Everything below is verified against the tree at commit `cf14e7c`, not recalled.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **421 Kotlin** (JUnit 5, incl. 38 in `app/`) + **43 Python** (pytest), all green |
+| Tests | **430 Kotlin** (JUnit 5, incl. 38 in `app/`) + **43 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -71,7 +71,8 @@ docs/           spec, plan, KNOWN_ISSUES
 `RollResult`, `SecondaryDelta`, `SkillKey`, `Trait`, `Weapon`.
 
 `core/rules` — `AttributeCosts`, `Derive`, `ModifierResolver`, `ParryBlock`,
-`PointBudget`, `Corruption`, `FrightCheck`, `Pools`, `PotionConsumption`, `PotionDigestion`,
+`PointBudget`, `Conditions`, `Corruption`, `FrightCheck`, `Pools`, `PotionConsumption`,
+`PotionDigestion`,
 `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
 `SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading seventeen JSON
@@ -116,6 +117,7 @@ Corruption.clamp(cor, max) / .isLostAt(cor, max)
 Corruption.ritualPenalty(cor) / .ritualThresholdsReached(cor)
 Pools.hp(current, max) / .fp(current, max) / .spi(current, max): PoolStatus
 Pools.thresholds(pool): List<PoolThreshold>   // empty for FP: prose only
+Conditions.forSkill(skill, hp, fp, spi, cor): List<Modifier>   // scoped per skill
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
 RitualResolution.attempt(skill, weight, cor, source): RitualOutcome
@@ -457,9 +459,28 @@ differing because Wrestling's -3 sits INSIDE the halving.
   as **U+007F**, which `stream()` strips — worth knowing for any future
   bullet list.
 
-**Still ahead in M4:** T2 combat proper — maneuvers, attack options, damage —
-where `ModifierResolver` finally earns its keep with `Corruption.ritualPenalty`
-and `Pools`' penalties as its first ready-made inputs.
+## 6h. Conditions — the trackers reaching the dice
+
+`Conditions.forSkill` is the join between the trackers and a roll. Correction
+to what this doc said for three milestones: **`ModifierResolver` always had a
+production caller** — `SkillRoll.of` routes every roll through it. What was
+missing is that the app passed an EMPTY modifier list, so a character at 0 HP
+rolled at full skill and the trackers were decoration.
+
+- **Built per skill, not per character.** Spiritual Attrition is -3 to
+  SPI-based rolls only (p. 35); the CoR ladder is -1 to ritual rolls only
+  (p. 68). `ModTarget.RollClass` cannot express either — `SkillKey` carries no
+  tag — so the scope is decided where the skill is known. A list built once
+  per character would have to lie about one of them.
+- **The ritual dialog takes the same penalties minus CoR** (Codex), because
+  `RitualResolution` applies the ladder itself; passing both would charge a
+  corrupted caster twice for one rule.
+- Device-verified: at 10/10 HP, Knife rolled against 10 flat; at 3/10 the
+  same roll read **"base 10, modified to 9"**.
+
+**Still ahead in M4:** T2 combat proper — maneuvers, attack options, damage.
+The modifier plumbing it needs is now live, so a Deceptive Attack or Rapid
+Strike is another entry in the list `Conditions` already builds.
 
 ### A note on Codex
 
