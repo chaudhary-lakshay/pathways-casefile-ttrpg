@@ -1,7 +1,7 @@
 # Pathways — Agent Handover
 
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
-Everything below is verified against the tree at commit `cf32f27`, not recalled.
+Everything below is verified against the tree at commit `6a4a0df`, not recalled.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **404 Kotlin** (JUnit 5, incl. 22 in `app/`) + **37 Python** (pytest), all green |
+| Tests | **415 Kotlin** (JUnit 5, incl. 33 in `app/`) + **37 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -285,12 +285,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ### Known gaps left deliberately
 
-- **Only the potion walk persists.** `SessionStore` writes each premade's
-  `SavedSession` (pathway, Sequence, digestion, CoR, both losses) to
-  `filesDir/sessions.json`; `BuilderScreen`'s attribute edits are still
-  composition-only. The 23 premades are read-only, so there is no edited
-  character worth saving yet — that is the prerequisite for editing
-  skills/traits in the builder.
+- **Traits and weapons are not editable yet.** `SavedEdits` covers the four
+  attributes and bought skills; advantages, disadvantages and weapons still
+  come only from the published sheet. Weapons are what `ParryBlock` is waiting
+  on.
 - **Advantage and drawback rows are prose, not structure.** The flattened PDF
   gives no boundary between a wrapped effect line and the next row's name, and
   this PDF reports x=0 for every glyph so column geometry is unavailable. See
@@ -392,14 +390,34 @@ the reason that penalty was scoped to rituals instead of made general. Target
   CoR, 18 Catastrophe — so the -2 shift moves down the TABLE, not down a
   severity scale. Pinned in `test_tools.py`.
 
-**Blocked, and it is one blocker, not three:** the 23 premades are mortals
-with no weapons and no Ritualistic Magic skill. That means wiring `ParryBlock`
-to the sheet shows nothing, and a ritual screen has no caster to hang on.
-`RitualResolution` and `ParryBlock` are tested and ready; **an editable
-character is the prerequisite for both**, and for the rest of T2 combat.
-`ModifierResolver` still has no production caller — combat is where it earns
-its keep, with `Corruption.ritualPenalty` and `Pools`' penalties as its first
-ready-made inputs.
+## 6e. The edit layer (`SavedEdits`)
+
+A premade is read-only, so an edit is a **delta** stored per session:
+attributes (null = as printed) and skills bought in play. `applyTo` composes
+sheet + edits, and every screen that needs the character being played goes
+through `session.characterFor(sheet)` — while `SheetComparison` keeps using
+the unedited sheet, because that diff is the engine against the book.
+
+- **A bought skill stores name + points only.** Attribute and difficulty are
+  resolved from `skills.json` on load, so a save file cannot contradict the
+  book after a content fix. A skill the book no longer prints is dropped, not
+  guessed at; one the sheet already prints is not duplicated (`Character`
+  rejects two purchases of a key).
+- **Specialization travels with the pick.** Five names carry several rows —
+  Guns has four, Navigation three, plus Gunner/Boating/Artist. Resolving by
+  name alone bought whichever the book printed first (Codex).
+- **Only skills bought in play are editable.** The sheet's printed purchases
+  are shown because the budget bills them, but re-pointing them would make the
+  published-sheet diff meaningless.
+
+This unblocked rituals: no premade prints Ritualistic Magic, so buying it is
+the only way to have a caster. Device-verified — bought at 1 point (level 7 on
+IQ 10, Very Hard), raised to 4 points (level 9), survived a force-stop.
+
+**Still ahead in M4:** a ritual screen on top of `RitualResolution`; weapons in
+`SavedEdits` so `ParryBlock` has something to parry with; then T2 combat, where
+`ModifierResolver` finally earns its keep with `Corruption.ritualPenalty` and
+`Pools`' penalties as its first ready-made inputs.
 
 ---
 
