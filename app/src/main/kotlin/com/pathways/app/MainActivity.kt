@@ -30,7 +30,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.model.Attr
+import com.pathways.model.ControllingAttribute
+import com.pathways.model.Difficulty
+import com.pathways.model.ModEffect
 import com.pathways.model.Outcome
+import com.pathways.model.SkillKey
+import com.pathways.rules.Conditions
 import com.pathways.rules.Corruption
 import com.pathways.rules.Derive
 import com.pathways.rules.FrightCheck
@@ -250,7 +256,30 @@ fun SheetScreen(
             itemsIndexed(sheet.skills) { i, skill ->
                 val row = rows.getOrNull(SECONDARY_ROWS + i)
                 if (row != null) {
-                    ComparisonRow(row, Modifier.clickable { rolled = SkillRoll.of(sheet, skill, appDice) })
+                    ComparisonRow(
+                        row,
+                        Modifier.clickable {
+                            // The trackers reach the dice here: a reeling,
+                            // fatigued or corrupted character no longer rolls
+                            // at full skill.
+                            rolled = SkillRoll.of(
+                                sheet,
+                                skill,
+                                appDice,
+                                mods = Conditions.forSkill(
+                                    skill = skill.key(),
+                                    hp = Pools.hp(vitals.maxHp - session.hpLost, vitals.maxHp),
+                                    fp = Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp),
+                                    spi = if (vitals.maxSpi > 0) {
+                                        Pools.spi(vitals.maxSpi - session.spiSpent, vitals.maxSpi)
+                                    } else {
+                                        null
+                                    },
+                                    cor = session.cor,
+                                ),
+                            )
+                        },
+                    )
                 }
             }
         }
@@ -275,6 +304,25 @@ fun SheetScreen(
     if (casting && ritualLevel != null) {
         RitualDialog(
             skillLevel = ritualLevel,
+            // cor = 0 here on purpose: RitualResolution applies the CoR
+            // ladder itself, so including it would charge the caster twice
+            // for the same rule.
+            conditionPenalty = Conditions.forSkill(
+                skill = SkillKey(
+                    Conditions.RITUAL_SKILL,
+                    null,
+                    ControllingAttribute.Buyable(Attr.IQ),
+                    Difficulty.VERY_HARD,
+                ),
+                hp = Pools.hp(vitals.maxHp - session.hpLost, vitals.maxHp),
+                fp = Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp),
+                spi = if (vitals.maxSpi > 0) {
+                    Pools.spi(vitals.maxSpi - session.spiSpent, vitals.maxSpi)
+                } else {
+                    null
+                },
+                cor = 0,
+            ).sumOf { (it.effect as ModEffect.Flat).n },
             cor = session.cor,
             dice = appDice,
             // The cap is the character's CURRENT Will, which a potion can

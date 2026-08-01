@@ -29,6 +29,10 @@ const val RITUAL_SKILL = "Ritualistic Magic"
  * reachable when they have the skill -- no premade prints it, which is why
  * buying it in the builder had to come first.
  *
+ * Injury, fatigue and spiritual attrition arrive as [conditionPenalty] --
+ * the same [com.pathways.rules.Conditions] the sheet's skill rolls use, minus
+ * the corruption penalty, which [RitualResolution] applies itself.
+ *
  * CoR is charged automatically on the three critical rows that print a cost
  * ("Corruption. Gain 1 CoR."), read by the extractor rather than scraped from
  * the text here. The rest of a critical result stays the GM's: an entity
@@ -37,6 +41,7 @@ const val RITUAL_SKILL = "Ritualistic Magic"
 @Composable
 fun RitualDialog(
     skillLevel: Int,
+    conditionPenalty: Int,
     cor: Int,
     dice: RandomSource,
     onCorGained: (Int) -> Unit,
@@ -45,7 +50,12 @@ fun RitualDialog(
     val weights = remember { RitualResolution.weights() }
     var weight by remember { mutableStateOf(weights.first()) }
     var outcome by remember { mutableStateOf<RitualOutcome?>(null) }
-    val target = RitualResolution.targetFor(skillLevel, weight, cor)
+    // Injury and fatigue reach a ritual like any other roll; the CoR penalty
+    // is NOT included in [conditionPenalty] because RitualResolution applies
+    // it itself, and counting it twice would penalise a corrupted caster
+    // once for the ladder and once again for the same ladder.
+    val effectiveSkill = skillLevel + conditionPenalty
+    val target = RitualResolution.targetFor(effectiveSkill, weight, cor)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -78,12 +88,13 @@ fun RitualDialog(
                     Text("3d6 ≤ $target", style = MaterialTheme.typography.titleMedium)
                     Text(
                         "$RITUAL_SKILL $skillLevel, ${weight.weight} ${weight.modifier}" +
-                            if (cor >= 3) ", -1 for $cor CoR" else "",
+                            (if (conditionPenalty != 0) ", $conditionPenalty hurt or tired" else "") +
+                            (if (cor >= 3) ", -1 for $cor CoR" else ""),
                         style = MaterialTheme.typography.bodySmall,
                     )
                     TextButton(
                         onClick = {
-                            val rolled = RitualResolution.attempt(skillLevel, weight, cor, dice)
+                            val rolled = RitualResolution.attempt(effectiveSkill, weight, cor, dice)
                             outcome = rolled
                             rolled.critical?.corGained?.let(onCorGained)
                         },
