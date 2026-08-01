@@ -1,0 +1,32 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2438,
+    2442
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "option": "Giant Step",
+   "fp": 1,
+   "effect": "Take an extra step before or after attack"
+  },
+  {
+   "option": "Strong Blow",
+   "fp": 1,
+   "effect": "+2 damage. Regular melee attacks only."
+  },
+  {
+   "option": "Heroic Charge",
+   "fp": 2,
+   "effect": "Ignore Charge Attack penalties (-4 to hit)"
+  },
+  {
+   "option": "Feverish Defense — Variant Rule",
+   "fp": 1,
+   "effect": "+2 to one defense roll. Cannot defend next turn."
+  }
+ ]
+}

@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **430 Kotlin** (JUnit 5, incl. 38 in `app/`) + **43 Python** (pytest), all green |
+| Tests | **448 Kotlin** (JUnit 5, incl. 38 in `app/`) + **49 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -73,9 +73,9 @@ docs/           spec, plan, KNOWN_ISSUES
 `core/rules` — `AttributeCosts`, `Derive`, `ModifierResolver`, `ParryBlock`,
 `PointBudget`, `Conditions`, `Corruption`, `FrightCheck`, `Pools`, `PotionConsumption`,
 `PotionDigestion`,
-`Premades`, `RitualResolution`,
+`Attacks`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading seventeen JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -83,7 +83,8 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `pool_thresholds.json` (9), `fright_triggers.json` (5),
 `fright_effects.json` (9), `ritual_weights.json` (3),
 `ritual_failures.json` (4), `ritual_critical.json` (9), `defenses.json` (4),
-`defense_modifiers.json` (5).
+`defense_modifiers.json` (5), `maneuvers.json` (14),
+`extra_effort.json` (4), `attack_options.json` (2).
 
 ### Public entry points
 
@@ -107,6 +108,7 @@ ContentLoader.corGained() / .ritualCorThresholds() / .poolThresholds()
 ContentLoader.frightTriggers() / .frightEffects()
 ContentLoader.ritualWeights() / .ritualFailures() / .ritualCriticals()
 ContentLoader.defenses() / .defenseModifiers()
+ContentLoader.maneuvers() / .extraEffort() / .attackOptions()
 PotionDigestion.digest(c, block): DigestedCharacter
 PotionDigestion.digestThrough(c, pathway, sequence, blocks): DigestedCharacter
 PotionDigestion.of(c, blocks): DigestedCharacter?     // from c.beyonder
@@ -118,6 +120,9 @@ Corruption.ritualPenalty(cor) / .ritualThresholdsReached(cor)
 Pools.hp(current, max) / .fp(current, max) / .spi(current, max): PoolStatus
 Pools.thresholds(pool): List<PoolThreshold>   // empty for FP: prose only
 Conditions.forSkill(skill, hp, fp, spi, cor): List<Modifier>   // scoped per skill
+Attacks.modifiers(plan, skillLevel): List<Modifier>        // maneuver + options
+Attacks.attackCount(plan) / .fpCost(plan) / .maxDeceptive(skillLevel)
+SkillRoll.at(label, base, key, source, mods, ctx): SkillRollOutcome
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
 RitualResolution.attempt(skill, weight, cor, source): RitualOutcome
@@ -478,9 +483,46 @@ rolled at full skill and the trackers were decoration.
 - Device-verified: at 10/10 HP, Knife rolled against 10 flat; at 3/10 the
   same roll read **"base 10, modified to 9"**.
 
-**Still ahead in M4:** T2 combat proper — maneuvers, attack options, damage.
-The modifier plumbing it needs is now live, so a Deceptive Attack or Rapid
-Strike is another entry in the list `Conditions` already builds.
+## 6i. Attack options — the chosen half of a roll
+
+`Attacks` is the other half of `Conditions`: what the PLAYER chose this turn,
+where `Conditions` is what the character is carrying. `AttackDialog` picks the
+skill first, then the maneuver and its options, and hands both lists to the
+same `SkillRoll`.
+
+- **Skill first, because the cap depends on it.** Deceptive Attack's ceiling is
+  "half your skill (rounded down)", so a stepper offered before the skill is
+  known would either cap against the best skill on the sheet or trim the choice
+  afterwards — and `Attacks.modifiers` refuses a plan past the cap rather than
+  silently obeying it.
+- **The cap reads the sheet's level, not this turn's.** Anything else is
+  circular: Deceptive's own -2s would move the ceiling limiting them, and
+  All-Out Attack would let a fighter feint deeper by swinging harder.
+- **Some options make more than one attack** (Codex). All-Out Double is "roll
+  twice" and a Rapid Strike splits one attack into two; rolling once dropped
+  the rest, and rolling the missing one as a fresh maneuver charged its 2 FP
+  again. `Attacks.attackCount` settles it, and how the two COMPOSE (2 × splits,
+  not 2 + splits) is a documented reading — the book composes them nowhere.
+- **Numbers printed in prose stay in Kotlin.** Same split the defenses slice
+  settled: `maneuvers.json` carries what the GM reads plus the FP the app
+  SPENDS; the +4/-4/-6/-2 live in `Attacks`, and `extract_combat.py`'s
+  `verify()` pins the sentences they were read from.
+- **Every skill is offered, not a combat list.** This book tags no skill as a
+  combat skill and prints no weapon table, so which of them can attack is the
+  GM's call; curating the list here would be inventing content.
+
+The middle column is what makes the table parseable at all: it is a closed set
+of five tokens, so a line is a maneuver NAME exactly when the line after it is
+one of them. A shape heuristic cuts "(max ACC+2). Canceled by…" into a row of
+its own and shifts everything below it.
+
+Device-verified on Barmaid Brawler at 3/10 HP: All-Out (Determined) with two
+deceptive steps read **"base 13, modified to 12"** (+4 −4 −1 reeling) and took
+2 FP; one Rapid Strike produced **two** rolls at 6 and charged nothing.
+
+**Still ahead in M4:** damage. `ContentLoader.thrustSwing()` is loaded and
+still has no caller, so it is the last piece of T2. Also unmodelled: Feint's
+Quick Contest, and Aim's ACC (no weapon in this book prints one).
 
 ### A note on Codex
 

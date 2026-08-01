@@ -419,6 +419,39 @@ data class Defense(val defense: String, val formula: String, val notes: String)
 @Serializable
 data class DefenseModifier(val modifier: String)
 
+/**
+ * One row of the Maneuvers table (Ch. 5, p. 36).
+ *
+ * [fp] is the maneuver's own cost, present on the five All-Out rows and absent
+ * on the nine that cost nothing -- absent, not zero, for the same reason
+ * [RitualCritical.corGained] is: charging nothing is not charging zero. It is
+ * extracted because the app SPENDS it; the to-hit numbers inside [description]
+ * are not, because [com.pathways.rules.Attacks] implements those and is tested
+ * against the book. Two copies of a number are one copy too many.
+ */
+@Serializable
+data class Maneuver(
+    val maneuver: String,
+    val movement: String,
+    val description: String,
+    val fp: Int? = null,
+)
+
+/** One Extra Effort bullet (Ch. 5, p. 36): a free action bought with FP. */
+@Serializable
+data class ExtraEffort(val option: String, val fp: Int, val effect: String)
+
+/**
+ * One Attack Option bullet (Ch. 5, p. 36-37).
+ *
+ * Prose only. Rapid Strike is a flat penalty and Deceptive Attack is a rate
+ * with a cap; there is no single number that means the same thing for both,
+ * so [com.pathways.rules.Attacks] carries the arithmetic and this carries
+ * what the GM reads.
+ */
+@Serializable
+data class AttackOption(val option: String, val rule: String)
+
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
 data class DamageRowJson(val st: Int, val thrust: String, val swing: String)

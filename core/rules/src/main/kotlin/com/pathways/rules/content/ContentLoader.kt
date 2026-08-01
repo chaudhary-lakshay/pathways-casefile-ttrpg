@@ -26,6 +26,9 @@ object ContentLoader {
     private val ritualCriticalsLazy: List<RitualCritical> by lazy {
         load<RitualCritical>("ritual_critical.json").sortedBy { it.low }
     }
+    private val maneuversLazy: List<Maneuver> by lazy { load("maneuvers.json") }
+    private val extraEffortLazy: List<ExtraEffort> by lazy { load("extra_effort.json") }
+    private val attackOptionsLazy: List<AttackOption> by lazy { load("attack_options.json") }
     private val defensesLazy: List<Defense> by lazy { load("defenses.json") }
     private val defenseModifiersLazy: List<DefenseModifier> by lazy { load("defense_modifiers.json") }
     private val frightTriggersLazy: List<FrightTrigger> by lazy { load("fright_triggers.json") }
@@ -77,6 +80,15 @@ object ContentLoader {
      * them -- worst last. FP has no rows; see [PoolThreshold].
      */
     fun poolThresholds(): List<PoolThreshold> = poolThresholdsLazy
+
+    /** The one-per-turn Maneuvers table (Ch. 5, p. 36), in printed order. */
+    fun maneuvers(): List<Maneuver> = maneuversLazy
+
+    /** The Extra Effort bullets under it: free actions bought with FP. */
+    fun extraEffort(): List<ExtraEffort> = extraEffortLazy
+
+    /** Rapid Strike and Deceptive Attack, as prose (Ch. 5, p. 36-37). */
+    fun attackOptions(): List<AttackOption> = attackOptionsLazy
 
     /** The Active Defenses table as the book prints it (Ch. 5, p. 36-37). */
     fun defenses(): List<Defense> = defensesLazy

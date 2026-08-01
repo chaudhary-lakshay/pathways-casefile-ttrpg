@@ -169,6 +169,7 @@ fun SheetScreen(
     var frightening by remember(sheet) { mutableStateOf(false) }
     var casting by remember(sheet) { mutableStateOf(false) }
     var defending by remember(sheet) { mutableStateOf(false) }
+    var attacking by remember(sheet) { mutableStateOf(false) }
     // Maximums move with the potions drunk: HT gains lift FP, and SPI is
     // entirely a potion's gift. Recomputed from the walk, never stored.
     val vitals = remember(sheet, drunk, session.edits) {
@@ -183,15 +184,29 @@ fun SheetScreen(
             secondaries.dodge,
         )
     }
-    // Only a caster can cast. No premade prints Ritualistic Magic, so this is
-    // null until someone buys it in the builder.
-    val ritualLevel = remember(sheet, drunk, session.edits) {
+    // The levels actually rolled: a potion's grants are in here, the sheet's
+    // printed column is not. Computed once for defence, attack and the ritual
+    // gate rather than three times over.
+    val skillLevels = remember(sheet, drunk, session.edits) {
         val played = session.characterFor(sheet)
-        val levels = PotionDigestion.of(played.copy(beyonder = drunk), ContentLoader.pathways())
+        PotionDigestion.of(played.copy(beyonder = drunk), ContentLoader.pathways())
             ?.skillLevels
             ?: Derive.of(played).skillLevels
-        skillLevelOf(RITUAL_SKILL, levels)
     }
+    // Only a caster can cast. No premade prints Ritualistic Magic, so this is
+    // null until someone buys it in the builder.
+    val ritualLevel = skillLevelOf(RITUAL_SKILL, skillLevels)
+
+    // What the trackers are costing a roll of [key]. [cor] is a parameter
+    // because RitualResolution applies the corruption ladder itself, and
+    // passing it here as well would charge a corrupted caster twice.
+    fun conditionsFor(key: SkillKey, cor: Int = session.cor) = Conditions.forSkill(
+        skill = key,
+        hp = Pools.hp(vitals.maxHp - session.hpLost, vitals.maxHp),
+        fp = Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp),
+        spi = if (vitals.maxSpi > 0) Pools.spi(vitals.maxSpi - session.spiSpent, vitals.maxSpi) else null,
+        cor = cor,
+    )
 
     Scaffold { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
@@ -209,6 +224,7 @@ fun SheetScreen(
                         if (ritualLevel != null) {
                             TextButton(onClick = { casting = true }) { Text("Ritual") }
                         }
+                        TextButton(onClick = { attacking = true }) { Text("Attack") }
                         TextButton(onClick = { defending = true }) { Text("Defend") }
                     }
                     Text(sheet.name, style = MaterialTheme.typography.headlineSmall)
@@ -266,17 +282,7 @@ fun SheetScreen(
                                 sheet,
                                 skill,
                                 appDice,
-                                mods = Conditions.forSkill(
-                                    skill = skill.key(),
-                                    hp = Pools.hp(vitals.maxHp - session.hpLost, vitals.maxHp),
-                                    fp = Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp),
-                                    spi = if (vitals.maxSpi > 0) {
-                                        Pools.spi(vitals.maxSpi - session.spiSpent, vitals.maxSpi)
-                                    } else {
-                                        null
-                                    },
-                                    cor = session.cor,
-                                ),
+                                mods = conditionsFor(skill.key()),
                             )
                         },
                     )
@@ -290,16 +296,22 @@ fun SheetScreen(
         FrightDialog(vitals.will) { frightening = false }
     }
     if (defending) {
-        val played = session.characterFor(sheet)
         DefenseDialog(
             dodge = vitals.dodge,
-            skillLevels = remember(sheet, drunk, session.edits) {
-                PotionDigestion.of(played.copy(beyonder = drunk), ContentLoader.pathways())
-                    ?.skillLevels
-                    ?: Derive.of(played).skillLevels
-            },
-            weapons = played.weapons,
+            skillLevels = skillLevels,
+            weapons = session.characterFor(sheet).weapons,
         ) { defending = false }
+    }
+    if (attacking) {
+        AttackDialog(
+            skillLevels = skillLevels,
+            conditions = { conditionsFor(it) },
+            dice = appDice,
+            // An All-Out maneuver's own FP is spent like any other: through
+            // the tracker, so the next roll is made by a tireder character.
+            onSpendFp = { session.spend(Pool.FP, it, vitals.maxFp) },
+            onDismiss = { attacking = false },
+        )
     }
     if (casting && ritualLevel != null) {
         RitualDialog(
@@ -307,20 +319,13 @@ fun SheetScreen(
             // cor = 0 here on purpose: RitualResolution applies the CoR
             // ladder itself, so including it would charge the caster twice
             // for the same rule.
-            conditionPenalty = Conditions.forSkill(
-                skill = SkillKey(
+            conditionPenalty = conditionsFor(
+                key = SkillKey(
                     Conditions.RITUAL_SKILL,
                     null,
                     ControllingAttribute.Buyable(Attr.IQ),
                     Difficulty.VERY_HARD,
                 ),
-                hp = Pools.hp(vitals.maxHp - session.hpLost, vitals.maxHp),
-                fp = Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp),
-                spi = if (vitals.maxSpi > 0) {
-                    Pools.spi(vitals.maxSpi - session.spiSpent, vitals.maxSpi)
-                } else {
-                    null
-                },
                 cor = 0,
             ).sumOf { (it.effect as ModEffect.Flat).n },
             cor = session.cor,

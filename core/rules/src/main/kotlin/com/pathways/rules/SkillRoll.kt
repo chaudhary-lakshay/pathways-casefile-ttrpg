@@ -4,6 +4,7 @@ import com.pathways.model.ModTarget
 import com.pathways.model.Modifier
 import com.pathways.model.Outcome
 import com.pathways.model.RollResult
+import com.pathways.model.SkillKey
 
 /**
  * One skill roll, start to finish: the skill's computed level, the modifier
@@ -37,10 +38,12 @@ data class SkillRollOutcome(
 object SkillRoll {
 
     /**
-     * [mods] defaults to empty because the app has no modifier sources yet
-     * (conditions and combat are M4). The resolver still runs: routing every
-     * roll through it from the first one means a modifier gains its effect by
-     * being *added to the list*, with no second code path to migrate later.
+     * A roll of one of the sheet's printed skills.
+     *
+     * [mods] defaults to empty for a roll nothing is modifying; the resolver
+     * still runs either way, which is why [Conditions] and [Attacks] gained
+     * their effect by being *added to the list* rather than by growing a
+     * second code path here.
      */
     fun of(
         sheet: PremadeSheet,
@@ -48,9 +51,22 @@ object SkillRoll {
         source: RandomSource,
         mods: List<Modifier> = emptyList(),
         ctx: Context = Context(),
+    ): SkillRollOutcome = at(skill.label, sheet.levelFor(skill), skill.key(), source, mods, ctx)
+
+    /**
+     * A roll of a skill known only by its key and level -- the shape a
+     * Beyonder's digested skill levels come in, where there is no
+     * [PremadeSkill] to hand because a potion granted the skill.
+     */
+    fun at(
+        label: String,
+        base: Int,
+        key: SkillKey,
+        source: RandomSource,
+        mods: List<Modifier> = emptyList(),
+        ctx: Context = Context(),
     ): SkillRollOutcome {
-        val base = sheet.levelFor(skill)
-        val target = ModTarget.Skill(skill.key())
+        val target = ModTarget.Skill(key)
         // ModifierResolver matches targets by exact equality, so a modifier
         // aimed at AllRolls would silently miss this one. Retarget it here
         // rather than loosening the matching rule for every caller of the
@@ -59,7 +75,7 @@ object SkillRoll {
         val aimed = mods.map { if (it.target == ModTarget.AllRolls) it.copy(target = target) else it }
         val resolved = ModifierResolver.resolve(base, aimed, target, ctx)
         return SkillRollOutcome(
-            label = skill.label,
+            label = label,
             baseTarget = base,
             target = resolved.value,
             applied = resolved.applied,

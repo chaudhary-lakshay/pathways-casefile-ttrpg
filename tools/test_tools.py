@@ -679,3 +679,76 @@ def test_defense_modifiers_survive_their_pdf_bullets():
     assert any("Retreat" in e["modifier"] for e in entries)
     # The bullet glyph itself must not reach the app.
     assert all(not e["modifier"].startswith("") for e in entries)
+
+
+# --- Maneuvers and attack options (Ch. 5, p. 36-37) ------------------------
+
+import extract_combat
+
+
+def test_a_wrapped_description_does_not_start_a_new_maneuver():
+    """A row is a NAME only when the next line is a movement token. Reading
+    "(max ACC+2). Canceled by..." as a row of its own would shift the whole
+    table and give Do Nothing the wrong description."""
+    rows = extract_combat.parse_maneuvers([
+        "Aim (Ranged)", "Step",
+        "Add weapon's ACC to your next ranged Attack. +1 per additional Aim",
+        "(max ACC+2). Canceled by any Active Defense or injury.",
+        "Do Nothing", "None", "If Stunned: -4 to Active Defense.",
+    ])
+    assert [r["maneuver"] for r in rows] == ["Aim (Ranged)", "Do Nothing"]
+    assert rows[0]["description"].endswith("or injury.")
+
+
+def test_only_the_maneuvers_that_charge_FP_carry_the_field():
+    """Absent, not zero: a maneuver charging nothing is not one charging 0."""
+    rows = extract_combat.parse_maneuvers([
+        "Regular Attack", "Step", "Make one melee or ranged attack.",
+        "All-Out Attack (Strong)", "Step", "Pay 2 FP. +2 to damage.",
+    ])
+    assert "fp" not in rows[0]
+    assert rows[1]["fp"] == 2
+
+
+def test_intro_prose_above_a_bullet_list_is_not_read_as_a_bullet():
+    """The Attack Options list opens with three unbulleted sentences; the
+    bullet flag comes from the PDF's own U+007F, not from line shape."""
+    rows = extract_combat.parse_attack_options([
+        (False, "Unlike full maneuvers, Attack Options are modifiers."),
+        (True, "Rapid Strike: Split a melee Attack maneuver. Both attacks"),
+        (False, "suffer -6 to skill."),
+    ])
+    assert len(rows) == 1
+    assert rows[0]["option"] == "Rapid Strike"
+    assert rows[0]["rule"].endswith("-6 to skill.")
+
+
+def test_extra_effort_must_stay_a_free_action_with_a_price():
+    rows = extract_combat.parse_extra_effort([
+        (True, "[Free Action] [Heroic Charge] Pay 2 FP: Ignore Charge Attack penalties (-4 to hit)"),
+    ])
+    assert rows == [{"option": "Heroic Charge", "fp": 2, "effect": "Ignore Charge Attack penalties (-4 to hit)"}]
+    with pytest.raises(ValueError):
+        extract_combat.parse_extra_effort([(True, "[Maneuver] [Heroic Charge] Pay 2 FP: x")])
+
+
+def test_committed_maneuvers_are_the_fourteen_the_book_prints():
+    entries = json.loads((CONTENT / "maneuvers.json").read_text(encoding="utf-8"))["entries"]
+    assert [e["maneuver"] for e in entries] == extract_combat.EXPECTED_MANEUVERS
+    # The five All-Out rows, and only those, cost FP.
+    charged = {e["maneuver"] for e in entries if "fp" in e}
+    assert charged == {n for n in extract_combat.EXPECTED_MANEUVERS if n.startswith("All-Out")}
+
+
+def test_the_numbers_Attacks_kt_implements_are_still_printed():
+    """com.pathways.rules.Attacks is the only copy of these; if the book stops
+    printing them, that is a finding, not a silent drift."""
+    entries = json.loads((CONTENT / "maneuvers.json").read_text(encoding="utf-8"))["entries"]
+    by_name = {e["maneuver"]: e["description"] for e in entries}
+    assert "+4 to hit melee, +1 to hit ranged" in by_name["All-Out Attack (Determined)"]
+    assert "-4 to hit" in by_name["Charge Attack"]
+
+    options = json.loads((CONTENT / "attack_options.json").read_text(encoding="utf-8"))["entries"]
+    by_option = {e["option"]: e["rule"] for e in options}
+    assert "-6 to skill" in by_option["Rapid Strike"]
+    assert "Maximum penalty is half your skill (rounded down)" in by_option["Deceptive Attack"]

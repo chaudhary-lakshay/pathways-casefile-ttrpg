@@ -1,0 +1,20 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2443,
+    2451
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "option": "Rapid Strike",
+   "rule": "Split a melee Attack maneuver into two separate attacks against the same or different targets. Both attacks suffer -6 to skill. Additional rapid strikes in the same maneuver stack the penalty."
+  },
+  {
+   "option": "Deceptive Attack",
+   "rule": "Take a -2 penalty to your melee attack roll for every -1 you wish to impose on the target's active defense against that attack. Maximum penalty is half your skill (rounded down). Can be combined with Rapid Strike (apply to each attack separately)."
+  }
+ ]
+}

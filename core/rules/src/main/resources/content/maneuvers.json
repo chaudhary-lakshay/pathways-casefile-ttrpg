@@ -1,0 +1,87 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2384,
+    2437
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "maneuver": "Move",
+   "movement": "Full Move",
+   "description": "Move up to your full Basic Move in meters. May face any direction."
+  },
+  {
+   "maneuver": "Ready",
+   "movement": "Step",
+   "description": "Reload a weapon, draw an item, drink a vial, or prepare equipment."
+  },
+  {
+   "maneuver": "Aim (Ranged)",
+   "movement": "Step",
+   "description": "Add weapon's ACC to your next ranged Attack. +1 per additional Aim (max ACC+2). Canceled by any Active Defense or injury."
+  },
+  {
+   "maneuver": "Do Nothing",
+   "movement": "None",
+   "description": "If Stunned: -4 to Active Defense. Otherwise rest to recover FP."
+  },
+  {
+   "maneuver": "Concentrate",
+   "movement": "Step*",
+   "description": "Channel powers or skills requiring focus. Roll Will-3 if injured or defending."
+  },
+  {
+   "maneuver": "Wait",
+   "movement": "—",
+   "description": "Define a trigger; if it occurs, perform your chosen maneuver immediately."
+  },
+  {
+   "maneuver": "Regular Attack",
+   "movement": "Step",
+   "description": "Make one melee or ranged attack. Step 1 meter before or after."
+  },
+  {
+   "maneuver": "All-Out Attack (Determined)",
+   "movement": "Step",
+   "description": "Pay 2 FP. +4 to hit melee, +1 to hit ranged. Cannot defend next turn.",
+   "fp": 2
+  },
+  {
+   "maneuver": "All-Out Attack (Strong)",
+   "movement": "Step",
+   "description": "Pay 2 FP. +2 to damage. Cannot defend next turn.",
+   "fp": 2
+  },
+  {
+   "maneuver": "All-Out Attack (Double)",
+   "movement": "Step",
+   "description": "Pay 2 FP. Two separate attacks (roll twice). Cannot defend next turn.",
+   "fp": 2
+  },
+  {
+   "maneuver": "Charge Attack",
+   "movement": "Full Move",
+   "description": "Move full distance, then attack. -4 to hit. Cannot defend next turn."
+  },
+  {
+   "maneuver": "All-Out Defense (Increased)",
+   "movement": "Step",
+   "description": "Pay 2 FP. +2 to one active defense until next turn. Cannot attack.",
+   "fp": 2
+  },
+  {
+   "maneuver": "All-Out Defense (Double)",
+   "movement": "Step",
+   "description": "Pay 2 FP. Use two different defenses vs. one attack. Cannot attack.",
+   "fp": 2
+  },
+  {
+   "maneuver": "Feint",
+   "movement": "Step",
+   "description": "Roll a Quick Contest of your Melee skill vs. opponent's Melee, Cloak, Shield, or DX. If you succeed (or succeed by more), subtract your margin of success/victory from their active defense on your next Attack, All-Out Attack, or Move and Attack this turn."
+  }
+ ]
+}
