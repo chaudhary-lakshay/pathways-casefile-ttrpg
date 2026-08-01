@@ -1,0 +1,27 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2480,
+    2485
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "modifier": "Attacked from side: -2 to defense"
+  },
+  {
+   "modifier": "Attacked from rear: -4 to defense"
+  },
+  {
+   "modifier": "[Free Action] [Retreat] Step back 1 hex: +3 Dodge / +1 Block / +1 Parry vs. 1 melee attack per round"
+  },
+  {
+   "modifier": "[Free Action] [Acrobatic Dodge] Roll vs. Acrobatics: success gives +2 Dodge; failure gives -2 Dodge. Stacks with Retreat."
+  },
+  {
+   "modifier": "[Free Action] [Dive!] +3 Dodge vs. ranged only. Spend 1 turn getting back up (Change Posture)."
+  }
+ ]
+}

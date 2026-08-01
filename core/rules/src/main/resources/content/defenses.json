@@ -1,0 +1,32 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2458,
+    2478
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "defense": "Dodge",
+   "formula": "Basic Speed (drop fractions) + 3",
+   "notes": "Universal; no weapon required. May be used repeatedly."
+  },
+  {
+   "defense": "Parry (Armed)",
+   "formula": "Weapon Skill ÷ 2 + 3",
+   "notes": "Weapon must be ready. Cumulative -4 per additional parry (-2 fencing, -1 rapier)."
+  },
+  {
+   "defense": "Parry (Unarmed)",
+   "formula": "Brawling or DX ÷ 2 + 3",
+   "notes": "Brawling parries weapons at -3. Boxing uses Boxing ÷ 2 + 3 and ignores that penalty. Cannot parry ranged attacks."
+  },
+  {
+   "defense": "Block",
+   "formula": "Shield Skill ÷ 2 + 3",
+   "notes": "Once per round. Add shield's DB to your Block score."
+  }
+ ]
+}

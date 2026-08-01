@@ -638,3 +638,44 @@ def test_committed_critical_rows_charge_what_the_book_prints():
     entries = json.loads((CONTENT / "ritual_critical.json").read_text(encoding="utf-8"))["entries"]
     charged = {e["printed"]: e.get("corGained") for e in entries if e.get("corGained")}
     assert charged == {"13-14": 1, "15-16": 1, "17": 2}
+
+
+# --- Active defenses (Ch. 5, p. 36-37) -------------------------------------
+
+import extract_defenses
+
+
+def test_a_wrapped_defense_label_does_not_start_a_new_row():
+    """"Parry" and "(Unarmed)" are one heading split across two lines. Taking
+    the second for a new row would shift every remaining row by one."""
+    rows = extract_defenses.parse_defenses([
+        "Parry", "(Unarmed)", "Brawling or DX ÷ 2 + 3",
+        "Brawling parries weapons at -3.",
+        "Block", "Shield Skill ÷ 2 + 3", "Once per round.",
+    ])
+    assert [r["defense"] for r in rows] == ["Parry (Unarmed)", "Block"]
+    assert rows[0]["notes"].startswith("Brawling parries")
+
+
+def test_a_wrapped_formula_stays_in_the_formula(): 
+    rows = extract_defenses.parse_defenses([
+        "Dodge", "Basic Speed (drop", "fractions) + 3",
+        "Universal; no weapon required.",
+    ])
+    assert rows[0]["formula"] == "Basic Speed (drop fractions) + 3"
+    assert rows[0]["notes"] == "Universal; no weapon required."
+
+
+def test_committed_defenses_are_the_four_the_book_prints():
+    entries = json.loads((CONTENT / "defenses.json").read_text(encoding="utf-8"))["entries"]
+    assert [e["defense"] for e in entries] == extract_defenses.EXPECTED
+    # ParryBlock implements these; the content is what the GM reads beside them.
+    assert "2 + 3" in next(e for e in entries if e["defense"] == "Block")["formula"]
+
+
+def test_defense_modifiers_survive_their_pdf_bullets():
+    entries = json.loads((CONTENT / "defense_modifiers.json").read_text(encoding="utf-8"))["entries"]
+    assert len(entries) == 5
+    assert any("Retreat" in e["modifier"] for e in entries)
+    # The bullet glyph itself must not reach the app.
+    assert all(not e["modifier"].startswith("") for e in entries)

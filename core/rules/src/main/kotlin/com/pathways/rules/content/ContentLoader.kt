@@ -26,6 +26,8 @@ object ContentLoader {
     private val ritualCriticalsLazy: List<RitualCritical> by lazy {
         load<RitualCritical>("ritual_critical.json").sortedBy { it.low }
     }
+    private val defensesLazy: List<Defense> by lazy { load("defenses.json") }
+    private val defenseModifiersLazy: List<DefenseModifier> by lazy { load("defense_modifiers.json") }
     private val frightTriggersLazy: List<FrightTrigger> by lazy { load("fright_triggers.json") }
     private val frightEffectsLazy: List<FrightEffect> by lazy {
         // Sorted so a band lookup can walk the table in the order the book
@@ -75,6 +77,12 @@ object ContentLoader {
      * them -- worst last. FP has no rows; see [PoolThreshold].
      */
     fun poolThresholds(): List<PoolThreshold> = poolThresholdsLazy
+
+    /** The Active Defenses table as the book prints it (Ch. 5, p. 36-37). */
+    fun defenses(): List<Defense> = defensesLazy
+
+    /** The bullets under that table: facing, Retreat, Acrobatic Dodge, Dive. */
+    fun defenseModifiers(): List<DefenseModifier> = defenseModifiersLazy
 
     /** How hard each category of ritual is to cast (Ch. 7, p. 67). */
     fun ritualWeights(): List<RitualWeight> = ritualWeightsLazy

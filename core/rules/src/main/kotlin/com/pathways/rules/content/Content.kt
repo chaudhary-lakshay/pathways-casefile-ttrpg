@@ -399,6 +399,26 @@ data class RitualCritical(
     val corGained: Int? = null,
 )
 
+/**
+ * One row of the Active Defenses table (Ch. 5, p. 36-37).
+ *
+ * [formula] is the book's printed text, NOT arithmetic: [com.pathways.rules.ParryBlock]
+ * implements the maths and is tested against the book, and a second copy that
+ * drifted would be worse than none. [notes] is what the GM needs beside the
+ * number -- "Cumulative -4 per additional parry", "Once per round".
+ */
+@Serializable
+data class Defense(val defense: String, val formula: String, val notes: String)
+
+/**
+ * One bullet of the Defense Modifiers list (Ch. 5, p. 37).
+ *
+ * Prose, not signed numbers: "Acrobatic Dodge" grants +2 on a success and -2
+ * on a failure, so there is no single figure to extract.
+ */
+@Serializable
+data class DefenseModifier(val modifier: String)
+
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
 data class DamageRowJson(val st: Int, val thrust: String, val swing: String)

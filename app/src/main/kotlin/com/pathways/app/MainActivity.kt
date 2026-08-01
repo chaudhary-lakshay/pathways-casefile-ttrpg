@@ -162,13 +162,20 @@ fun SheetScreen(
     var rolled by remember(sheet) { mutableStateOf<SkillRollOutcome?>(null) }
     var frightening by remember(sheet) { mutableStateOf(false) }
     var casting by remember(sheet) { mutableStateOf(false) }
+    var defending by remember(sheet) { mutableStateOf(false) }
     // Maximums move with the potions drunk: HT gains lift FP, and SPI is
     // entirely a potion's gift. Recomputed from the walk, never stored.
     val vitals = remember(sheet, drunk, session.edits) {
         val base = session.characterFor(sheet)
         val walked = PotionDigestion.of(base.copy(beyonder = drunk), ContentLoader.pathways())
         val secondaries = walked?.secondaries ?: Derive.of(base).secondaries
-        Vitals(secondaries.maxHp, secondaries.maxFp, walked?.effectiveSpi ?: base.spi, secondaries.will)
+        Vitals(
+            secondaries.maxHp,
+            secondaries.maxFp,
+            walked?.effectiveSpi ?: base.spi,
+            secondaries.will,
+            secondaries.dodge,
+        )
     }
     // Only a caster can cast. No premade prints Ritualistic Magic, so this is
     // null until someone buys it in the builder.
@@ -196,6 +203,7 @@ fun SheetScreen(
                         if (ritualLevel != null) {
                             TextButton(onClick = { casting = true }) { Text("Ritual") }
                         }
+                        TextButton(onClick = { defending = true }) { Text("Defend") }
                     }
                     Text(sheet.name, style = MaterialTheme.typography.headlineSmall)
                     if (drunk != null) {
@@ -251,6 +259,18 @@ fun SheetScreen(
     rolled?.let { RollDialog(it) { rolled = null } }
     if (frightening) {
         FrightDialog(vitals.will) { frightening = false }
+    }
+    if (defending) {
+        val played = session.characterFor(sheet)
+        DefenseDialog(
+            dodge = vitals.dodge,
+            skillLevels = remember(sheet, drunk, session.edits) {
+                PotionDigestion.of(played.copy(beyonder = drunk), ContentLoader.pathways())
+                    ?.skillLevels
+                    ?: Derive.of(played).skillLevels
+            },
+            weapons = played.weapons,
+        ) { defending = false }
     }
     if (casting && ritualLevel != null) {
         RitualDialog(
@@ -365,7 +385,13 @@ private fun FrightDialog(will: Int, onDismiss: () -> Unit) {
 }
 
 /** The pool maximums and Will as they stand after whatever has been drunk. */
-private data class Vitals(val maxHp: Int, val maxFp: Int, val maxSpi: Int, val will: Int)
+private data class Vitals(
+    val maxHp: Int,
+    val maxFp: Int,
+    val maxSpi: Int,
+    val will: Int,
+    val dodge: Int,
+)
 
 /**
  * HP, FP and SPI at the table (Ch. 5).
