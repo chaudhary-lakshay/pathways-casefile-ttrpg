@@ -43,6 +43,8 @@ WEIGHT = re.compile(rf"^(Light|Moderate|Heavy)\s*\(([+{MINUS}]?\d+)\)$")
 FAILURE = re.compile(rf"^Failure by (\d+)(?:[{MINUS}–—](\d+)|(\+))$")
 CRITICAL_LABEL = re.compile(r"^Critical Failure \(roll [\d–—-]+\)$")
 BAND = re.compile(rf"^(\d+)(?:[{MINUS}–—](\d+))?$")
+# "Corruption. Gain 1 CoR." / "... Gain 2 CoR. Nightmares for 1d weeks."
+CRITICAL_COR = re.compile(r"\bGain (\d+) CoR\b", re.IGNORECASE)
 
 EXPECTED_CRITICAL_BANDS = [(3, 4), (5, 6), (7, 8), (9, 10), (11, 12),
                            (13, 14), (15, 16), (17, 17), (18, 18)]
@@ -127,7 +129,17 @@ def parse_critical(lines):
         return {"low": int(low), "high": int(high) if high else int(low), "printed": line}
 
     rows = collect(lines, lambda l: BAND.match(l) is not None, start)
-    return [without_text(r, "outcome") for r in rows]
+    out = []
+    for row in rows:
+        entry = without_text(row, "outcome")
+        # The cost is printed inside the prose ("Corruption. Gain 1 CoR."), so
+        # it is read here rather than in the app: a UI that scanned rule text
+        # for numbers at render time would be a parser nobody tests.
+        charge = CRITICAL_COR.search(entry["outcome"])
+        if charge:
+            entry["corGained"] = int(charge.group(1))
+        out.append(entry)
+    return out
 
 
 def verify(weights, failures, critical):
@@ -149,6 +161,12 @@ def verify(weights, failures, critical):
     covered = {n for c in critical for n in range(c["low"], c["high"] + 1)}
     if covered != set(range(3, 19)):
         raise ValueError(f"critical table does not cover 3..18: {sorted(covered)}")
+
+    # Three rows charge CoR and the rest charge none. If that changes, the
+    # ritual screen starts under- or over-charging silently.
+    charges = {c["printed"]: c.get("corGained") for c in critical if c.get("corGained")}
+    if charges != {"13-14": 1, "15-16": 1, "17": 2}:
+        raise ValueError(f"CoR charges changed: {charges}")
 
 
 def write(name, entries, spans):

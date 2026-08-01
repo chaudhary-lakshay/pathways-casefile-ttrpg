@@ -619,3 +619,22 @@ def test_the_critical_table_is_not_ordered_by_severity():
     assert outcomes[11] == "Wrong Arrival"
     assert outcomes[13] == "Corruption"
     assert outcomes[18] == "Catastrophe"
+
+
+def test_the_cor_a_critical_row_charges_is_read_from_its_prose():
+    rows = extract_ritual.parse_critical([
+        "13-14", "Corruption. Gain 1 CoR. The ritual still fails.",
+        "17", "Soul Exposure. Gain 2 CoR. Nightmares for 1d weeks.",
+        "18", "Catastrophe. The GM invents something terrible.",
+    ])
+    assert rows[0]["corGained"] == 1
+    assert rows[1]["corGained"] == 2
+    # A row that charges nothing carries no key at all rather than a 0: the
+    # book charging no corruption is not the same as charging zero.
+    assert "corGained" not in rows[2]
+
+
+def test_committed_critical_rows_charge_what_the_book_prints():
+    entries = json.loads((CONTENT / "ritual_critical.json").read_text(encoding="utf-8"))["entries"]
+    charged = {e["printed"]: e.get("corGained") for e in entries if e.get("corGained")}
+    assert charged == {"13-14": 1, "15-16": 1, "17": 2}

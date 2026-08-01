@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Outcome
+import com.pathways.rules.Corruption
 import com.pathways.rules.Derive
 import com.pathways.rules.FrightCheck
 import com.pathways.rules.FrightKind
@@ -160,6 +161,7 @@ fun SheetScreen(
     val differing = rows.count { !it.matches }
     var rolled by remember(sheet) { mutableStateOf<SkillRollOutcome?>(null) }
     var frightening by remember(sheet) { mutableStateOf(false) }
+    var casting by remember(sheet) { mutableStateOf(false) }
     // Maximums move with the potions drunk: HT gains lift FP, and SPI is
     // entirely a potion's gift. Recomputed from the walk, never stored.
     val vitals = remember(sheet, drunk, session.edits) {
@@ -167,6 +169,15 @@ fun SheetScreen(
         val walked = PotionDigestion.of(base.copy(beyonder = drunk), ContentLoader.pathways())
         val secondaries = walked?.secondaries ?: Derive.of(base).secondaries
         Vitals(secondaries.maxHp, secondaries.maxFp, walked?.effectiveSpi ?: base.spi, secondaries.will)
+    }
+    // Only a caster can cast. No premade prints Ritualistic Magic, so this is
+    // null until someone buys it in the builder.
+    val ritualLevel = remember(sheet, drunk, session.edits) {
+        val played = session.characterFor(sheet)
+        val levels = PotionDigestion.of(played.copy(beyonder = drunk), ContentLoader.pathways())
+            ?.skillLevels
+            ?: Derive.of(played).skillLevels
+        skillLevelOf(RITUAL_SKILL, levels)
     }
 
     Scaffold { insets ->
@@ -182,6 +193,9 @@ fun SheetScreen(
                         }
                         TextButton(onClick = onBuild) { Text("Spend points") }
                         TextButton(onClick = { frightening = true }) { Text("Fright") }
+                        if (ritualLevel != null) {
+                            TextButton(onClick = { casting = true }) { Text("Ritual") }
+                        }
                     }
                     Text(sheet.name, style = MaterialTheme.typography.headlineSmall)
                     if (drunk != null) {
@@ -237,6 +251,20 @@ fun SheetScreen(
     rolled?.let { RollDialog(it) { rolled = null } }
     if (frightening) {
         FrightDialog(vitals.will) { frightening = false }
+    }
+    if (casting && ritualLevel != null) {
+        RitualDialog(
+            skillLevel = ritualLevel,
+            cor = session.cor,
+            dice = appDice,
+            // The cap is the character's CURRENT Will, which a potion can
+            // move; Corruption.maxFor is the same call the pathway screen
+            // makes rather than a second reading of the same rule.
+            onCorGained = { gained ->
+                session.gainCor(gained, Corruption.maxFor(vitals.will, session.characterFor(sheet).traits))
+            },
+            onDismiss = { casting = false },
+        )
     }
 }
 

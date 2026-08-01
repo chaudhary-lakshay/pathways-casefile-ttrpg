@@ -42,19 +42,22 @@
    "low": 13,
    "high": 14,
    "printed": "13-14",
-   "outcome": "Corruption. Gain 1 CoR. The ritual still fails."
+   "outcome": "Corruption. Gain 1 CoR. The ritual still fails.",
+   "corGained": 1
   },
   {
    "low": 15,
    "high": 16,
    "printed": "15-16",
-   "outcome": "Shatter. All ward or protection effects on the caster are dispelled. Gain 1 CoR."
+   "outcome": "Shatter. All ward or protection effects on the caster are dispelled. Gain 1 CoR.",
+   "corGained": 1
   },
   {
    "low": 17,
    "high": 17,
    "printed": "17",
-   "outcome": "Soul Exposure. Caster's spiritual self is partially exposed to the entity invoked. Gain 2 CoR. Nightmares for 1d weeks."
+   "outcome": "Soul Exposure. Caster's spiritual self is partially exposed to the entity invoked. Gain 2 CoR. Nightmares for 1d weeks.",
+   "corGained": 2
   },
   {
    "low": 18,

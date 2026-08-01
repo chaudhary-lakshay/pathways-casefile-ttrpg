@@ -129,6 +129,17 @@ class RitualResolutionTest {
     }
 
     @Test
+    fun `three critical rows charge corruption and the rest charge none`() {
+        assertEquals(1, RitualResolution.criticalFor(13).corGained)
+        assertEquals(1, RitualResolution.criticalFor(15).corGained)
+        assertEquals(2, RitualResolution.criticalFor(17).corGained)
+        // Catastrophe is the worst row and charges no CoR at all -- what it
+        // costs is the GM's invention, which is not a number.
+        assertNull(RitualResolution.criticalFor(18).corGained)
+        assertNull(RitualResolution.criticalFor(3).corGained)
+    }
+
+    @Test
     fun `the critical table still says what the rules read off it`() {
         // Guard against silent repair: one row charges 1 CoR and one charges
         // two. If the content stops saying so, the data changed.

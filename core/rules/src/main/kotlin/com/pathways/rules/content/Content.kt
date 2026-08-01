@@ -383,7 +383,21 @@ data class RitualFailure(
  * roll by -2. The shift moves down the TABLE, not down a severity scale.
  */
 @Serializable
-data class RitualCritical(val low: Int, val high: Int, val printed: String, val outcome: String)
+data class RitualCritical(
+    val low: Int,
+    val high: Int,
+    val printed: String,
+    val outcome: String,
+    /**
+     * The CoR this row charges, read out of its printed prose by the
+     * extractor ("Corruption. Gain 1 CoR."). Null on the six rows that charge
+     * none -- the book charging no corruption is not the same as charging
+     * zero. Scanning rule text for numbers at render time would be a parser
+     * nobody tests; doing it once, in the extractor, is checked by verify()
+     * and by test_tools.py.
+     */
+    val corGained: Int? = null,
+)
 
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
