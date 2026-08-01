@@ -4,12 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.pathways.model.Attr
+import com.pathways.model.BASE_ATTRIBUTE
 import com.pathways.model.BeyonderState
+import com.pathways.model.Character
+import com.pathways.model.MAX_ATTRIBUTE
 import com.pathways.model.canDrink
 import com.pathways.rules.Corruption
 import com.pathways.rules.PcrOutcome
 import com.pathways.rules.Pool
 import com.pathways.rules.PotionConsumption
+import com.pathways.rules.PremadeSheet
 import com.pathways.rules.RandomSource
 
 /**
@@ -69,8 +74,54 @@ class BeyonderSession(
     var spiSpent by mutableIntStateOf(saved.spiSpent)
         private set
 
+    /**
+     * What the player has bought since the sheet was printed. Attributes are
+     * a delta against the published values and skills are additions; see
+     * [SavedEdits].
+     */
+    var edits by mutableStateOf(saved.edits)
+        private set
+
     private fun persist() =
-        onChange(SavedSession(state, lost, cor, corrupted, hpLost, fpLost, spiSpent))
+        onChange(SavedSession(state, lost, cor, corrupted, hpLost, fpLost, spiSpent, edits))
+
+    /** Set [attr] to [level]; the point budget answers back through Derive. */
+    fun setAttribute(attr: Attr, level: Int) {
+        edits = edits.withAttribute(attr, level.coerceIn(BASE_ATTRIBUTE, MAX_ATTRIBUTE))
+        persist()
+    }
+
+    /**
+     * Buy [name] at one point, the cheapest a skill can be owned at.
+     *
+     * A skill already bought is left exactly as it is rather than reset: a
+     * double tap on a list is not a rules violation, and silently discarding
+     * the points already spent would be the worse answer.
+     */
+    fun buySkill(name: String, specialization: String? = null) {
+        if (edits.skills.any { it.name == name && it.specialization == specialization }) return
+        edits = edits.copy(skills = edits.skills + SavedSkill(name, specialization, points = 1))
+        persist()
+    }
+
+    /**
+     * Move a bought skill's points by [delta], dropping it at zero.
+     *
+     * Zero points is not a skill at level 0 -- [com.pathways.model.PurchasedSkill]
+     * refuses it and the book has no such thing -- so stepping below 1 removes
+     * the purchase, which is also how a player un-buys a mistake.
+     */
+    fun spendOnSkill(name: String, specialization: String?, delta: Int) {
+        val updated = edits.skills.mapNotNull { skill ->
+            if (skill.name != name || skill.specialization != specialization) skill
+            else (skill.points + delta).takeIf { it > 0 }?.let { skill.copy(points = it) }
+        }
+        edits = edits.copy(skills = updated)
+        persist()
+    }
+
+    /** The premade as it is actually being played: published sheet plus edits. */
+    fun characterFor(sheet: PremadeSheet): Character = edits.applyTo(sheet.toCharacter())
 
     /**
      * Spend or restore [pool] by [delta] points against a maximum of [max],

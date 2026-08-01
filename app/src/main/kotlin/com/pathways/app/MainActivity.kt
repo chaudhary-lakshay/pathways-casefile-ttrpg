@@ -110,7 +110,7 @@ fun App(sheets: List<PremadeSheet>, store: SessionStore) {
                     onBack = { selected = null },
                 )
                 Screen.PATHWAY -> PathwayScreen(sheet, session, appDice) { screen = Screen.SHEET }
-                Screen.BUILDER -> BuilderScreen(sheet) { screen = Screen.SHEET }
+                Screen.BUILDER -> BuilderScreen(sheet, session) { screen = Screen.SHEET }
             }
         }
     }
@@ -162,8 +162,8 @@ fun SheetScreen(
     var frightening by remember(sheet) { mutableStateOf(false) }
     // Maximums move with the potions drunk: HT gains lift FP, and SPI is
     // entirely a potion's gift. Recomputed from the walk, never stored.
-    val vitals = remember(sheet, drunk) {
-        val base = sheet.toCharacter()
+    val vitals = remember(sheet, drunk, session.edits) {
+        val base = session.characterFor(sheet)
         val walked = PotionDigestion.of(base.copy(beyonder = drunk), ContentLoader.pathways())
         val secondaries = walked?.secondaries ?: Derive.of(base).secondaries
         Vitals(secondaries.maxHp, secondaries.maxFp, walked?.effectiveSpi ?: base.spi, secondaries.will)

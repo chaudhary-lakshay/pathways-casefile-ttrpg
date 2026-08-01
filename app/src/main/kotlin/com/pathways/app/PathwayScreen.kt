@@ -71,16 +71,18 @@ fun PathwayScreen(
     }
     // Cumulative, not one potion in isolation: a Sequence 8 Fool drank the
     // Sequence 9 potion first and carries its SPI +9.
-    val digested = remember(sheet, block) {
-        block?.let { PotionDigestion.digestThrough(sheet.toCharacter(), it.pathway, it.sequence, blocks) }
+    val digested = remember(sheet, block, session.edits) {
+        block?.let {
+            PotionDigestion.digestThrough(session.characterFor(sheet), it.pathway, it.sequence, blocks)
+        }
     }
     // Maximum CoR is Will, and Will moves with the potions actually DRUNK --
     // not with whichever block is being browsed, which is why this asks about
     // a BeyonderState rather than reusing `digested`. Drinking asks it about
     // the state being drunk INTO, since that potion may move Will itself.
-    val maxCorFor = remember(sheet, blocks) {
+    val maxCorFor = remember(sheet, blocks, session.edits) {
         { state: BeyonderState? ->
-            val base = sheet.toCharacter()
+            val base = session.characterFor(sheet)
             val walked = PotionDigestion.of(base.copy(beyonder = state), blocks)
             if (walked == null) Corruption.maxFor(base)
             else Corruption.maxFor(walked.secondaries.will, base.traits)

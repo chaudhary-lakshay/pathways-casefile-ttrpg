@@ -7,6 +7,46 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 /**
+ * A skill bought in play, as written to disk.
+ *
+ * Only the identity and the points are stored. The controlling attribute and
+ * difficulty are NOT: they belong to the book's skill list, and a save file
+ * carrying its own copy could contradict it after a content fix. They are
+ * resolved through the content loader on the way back in, which is the same
+ * rule the rest of this codebase follows -- the book is the authority
+ * (CLAUDE.md 4.1).
+ */
+@Serializable
+data class SavedSkill(
+    val name: String,
+    val specialization: String? = null,
+    val points: Int,
+) {
+    init { require(points > 0) { "a purchased skill needs at least 1 point; '$name' had $points" } }
+}
+
+/**
+ * What has been changed about a premade in play.
+ *
+ * The 23 published sheets are read-only, so an edit is stored as a DELTA
+ * against one rather than as a replacement character: a null attribute means
+ * "as printed". That keeps the `computed vs asPublished` diff honest -- it
+ * still compares the engine against the published sheet, not against whatever
+ * the player has since bought.
+ */
+@Serializable
+data class SavedEdits(
+    val st: Int? = null,
+    val dx: Int? = null,
+    val iq: Int? = null,
+    val ht: Int? = null,
+    val skills: List<SavedSkill> = emptyList(),
+) {
+    val isEmpty: Boolean
+        get() = st == null && dx == null && iq == null && ht == null && skills.isEmpty()
+}
+
+/**
  * One premade's walk down a pathway, as written to disk.
  *
  * Two separate losses, because they are two separate endings and neither
@@ -35,6 +75,7 @@ data class SavedSession(
     val hpLost: Int = 0,
     val fpLost: Int = 0,
     val spiSpent: Int = 0,
+    val edits: SavedEdits = SavedEdits(),
 )
 
 /**
