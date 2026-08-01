@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **479 Kotlin** (JUnit 5, incl. 38 in `app/`) + **61 Python** (pytest), all green |
+| Tests | **492 Kotlin** (JUnit 5, incl. 38 in `app/`) + **68 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -73,9 +73,9 @@ docs/           spec, plan, KNOWN_ISSUES
 `core/rules` — `AttributeCosts`, `Derive`, `ModifierResolver`, `ParryBlock`,
 `PointBudget`, `Conditions`, `Corruption`, `FrightCheck`, `Pools`, `PotionConsumption`,
 `PotionDigestion`,
-`Attacks`, `Damage`, `Ranged`, `Premades`, `RitualResolution`,
+`Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty-three JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty-five JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -86,7 +86,8 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `defense_modifiers.json` (5), `maneuvers.json` (14),
 `extra_effort.json` (4), `attack_options.json` (2),
 `unarmed_attacks.json` (10), `range_penalties.json` (7),
-`ranged_modifiers.json` (9).
+`ranged_modifiers.json` (9), `hit_locations.json` (9),
+`wounding_multipliers.json` (8).
 
 ### Public entry points
 
@@ -130,6 +131,9 @@ Damage.forAttack(attack, st, bonus): DamageRoll?           // null = Shove
 Damage.thrust(st) / .swing(st) / .attacksFor(skill) / .boxingBonus(dx, level)
 Ranged.bandFor(meters): RangePenalty / .penaltyFor(meters): Int
 Ranged.modifiers(band, conditions, gmValue): List<Modifier>
+Wounds.locationNamed(target): HitLocation / .locations() / .damageTypes()
+Wounds.multiplierFor(location, type): Double   // both tables, composed
+Wounds.typeMultiplier(type) / .modifier(location) / .render(multiplier)
 SkillRoll.at(label, base, key, source, mods, ctx): SkillRollOutcome
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
@@ -598,8 +602,49 @@ the Roll button fell off the bottom — an `AlertDialog` does not scroll its own
 text slot. Device-verified after: `100+` with cover read "Range and cover: -8"
 and a reeling Brawling 13 rolled against 4.
 
-**Still ahead in M4:** wounding multipliers and hit locations, spirit-body
-damage, and shields. Also unmodelled: Feint's Quick Contest, and Aim's ACC.
+## 6l. Called shots — the two tables that multiply a hit
+
+`Wounds` holds both Optional tables from p. 41, because they are one decision:
+aiming at a skull is -7 AND ×4. The to-hit half joins `Conditions`, `Attacks`
+and `Ranged` on the roll; the damage half is shown beside the expression.
+
+- **The two multipliers STACK, and that is not GURPS.** In GURPS proper a hit
+  location's multiplier replaces the damage type's. This book prints the
+  opposite with a worked example — "a cutting hit to the Neck (Cut ×2) with a
+  sword (Cut ×1.5) applies ×3 total" — so the book wins, and an impaling hit
+  to the Vitals is ×6. Codex read the source lines and confirmed the sentence
+  is general, not scoped to the Neck row.
+- **Two rows have no single multiplier.** The Neck prints "Cr ×1.5 / Cut ×2 /
+  Imp ×2" and the Vitals "×3 (imp/pi only)", both wrapped mid-cell. Reading
+  the first number would call a cutting neck hit ×1.5 and triple every punch
+  to the vitals. The extractor consumes a multiplier cell while a line still
+  holds a "×" or the text so far has an unclosed bracket — so both wraps are
+  handled for a stated reason rather than by counting lines.
+- **A missing key and an unlisted type are not the same thing** (Codex). The
+  Neck row is silent about piercing, so `pi` takes the plain ×1; `pi-` is not
+  a damage type this book prints at all and is refused. The first draft put
+  the fallback on `HitLocation.multiplierFor(String)`, where a typo resolved
+  to ×1 — the lookup now lives only in `Wounds.multiplierFor`, which validates
+  the type first. Nothing could reach the permissive path yet; removing it is
+  what stops the next caller finding it.
+- **Only the four abbreviations the book prints exist.** "Cr", "Cut", "Imp"
+  come from the Neck cell and "pi" from the Vitals cell. GURPS writes the
+  other two piercing rows "pi-" and "pi+"; this book never does, so they carry
+  no key and cannot be looked up.
+- **The multiplier is shown, never applied.** Damage here is an expression,
+  not a rolled total, so there is no product to round — and this book prints
+  no rounding rule to round it by. GURPS's round-down is GURPS's.
+
+Device-verified on Barmaid Brawler at 3/10 HP: Skull read "Called shot: Skull
+-7, ×4" and "Damage on a hit: 1d-3 cr, ×4 there", and the roll read **"base
+13, modified to 5"** (−7 called shot, −1 reeling). Vitals quoted "×3 (imp/pi
+only)" while leaving the crushing punch's damage line at plain `1d-3 cr` —
+the exact answer a naive parse gets wrong. "Another turn" clears the location,
+and the Roll button is still reachable now that the panel is one line taller.
+
+**Still ahead in M4:** spirit-body damage (the target picks which of HP, FP or
+SPI absorbs it), the Major Wound threshold, and shields. Also unmodelled:
+Feint's Quick Contest, and Aim's ACC.
 
 ### A note on Codex
 

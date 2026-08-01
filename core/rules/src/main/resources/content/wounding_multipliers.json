@@ -1,0 +1,60 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2790,
+    2816
+   ],
+   [
+    2817,
+    2818
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "type": "Crushing",
+   "multiplier": 1.0,
+   "examples": "Fists, clubs, maces, falling",
+   "abbreviation": "cr"
+  },
+  {
+   "type": "Cutting",
+   "multiplier": 1.5,
+   "examples": "Swords, axes, claws, fangs",
+   "abbreviation": "cut"
+  },
+  {
+   "type": "Impaling",
+   "multiplier": 2.0,
+   "examples": "Spears, arrows, rapiers, fangs",
+   "abbreviation": "imp"
+  },
+  {
+   "type": "Piercing (small)",
+   "multiplier": 0.5,
+   "examples": "Daggers, small-calibre pistols"
+  },
+  {
+   "type": "Piercing",
+   "multiplier": 1.0,
+   "examples": "Revolvers, rifles",
+   "abbreviation": "pi"
+  },
+  {
+   "type": "Large Piercing",
+   "multiplier": 1.5,
+   "examples": "Hunting rifles, anti-material weapons"
+  },
+  {
+   "type": "Burning",
+   "multiplier": 1.0,
+   "examples": "Fire, flame spells, lasers"
+  },
+  {
+   "type": "Toxic",
+   "multiplier": 1.0,
+   "examples": "Poison (ignores DR)"
+  }
+ ]
+}

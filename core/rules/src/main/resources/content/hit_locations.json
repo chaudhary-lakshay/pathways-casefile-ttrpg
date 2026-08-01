@@ -1,0 +1,84 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2743,
+    2784
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "target": "Torso",
+   "penalty": 0,
+   "printedMultiplier": "×1",
+   "multiplier": 1.0,
+   "effect": "Default location. No special effect."
+  },
+  {
+   "target": "Arm",
+   "penalty": -2,
+   "printedMultiplier": "×1",
+   "multiplier": 1.0,
+   "effect": "Drop held item if damage >= 3; crippled at > ½ HP of limb (~ HP/3)"
+  },
+  {
+   "target": "Leg",
+   "penalty": -2,
+   "printedMultiplier": "×1",
+   "multiplier": 1.0,
+   "effect": "Knock prone if damage >= 3; crippled at > ½ HP of limb (~ HP/3)"
+  },
+  {
+   "target": "Hand",
+   "penalty": -4,
+   "printedMultiplier": "×1",
+   "multiplier": 1.0,
+   "effect": "Drop held item; crippled easily (> HP/6)"
+  },
+  {
+   "target": "Neck",
+   "penalty": -5,
+   "printedMultiplier": "Cr ×1.5 / Cut ×2 / Imp ×2",
+   "multiplier": 1.0,
+   "effect": "Knockdown roll at -5; choke possible if damage > HP/2",
+   "byType": {
+    "cr": 1.5,
+    "cut": 2.0,
+    "imp": 2.0
+   }
+  },
+  {
+   "target": "Face",
+   "penalty": -5,
+   "printedMultiplier": "×1",
+   "multiplier": 1.0,
+   "effect": "Knockdown at -5; risk of blindness or disfigurement"
+  },
+  {
+   "target": "Skull",
+   "penalty": -7,
+   "printedMultiplier": "×4",
+   "multiplier": 4.0,
+   "effect": "Knockdown at -10; DR 2 (skull bone, stacks with helmet)"
+  },
+  {
+   "target": "Vitals",
+   "penalty": -3,
+   "printedMultiplier": "×3 (imp/pi only)",
+   "multiplier": 1.0,
+   "effect": "Extra shock (adds +1 turn to stun duration); bleeding risk",
+   "byType": {
+    "imp": 3.0,
+    "pi": 3.0
+   }
+  },
+  {
+   "target": "Eye",
+   "penalty": -9,
+   "printedMultiplier": "×4",
+   "multiplier": 4.0,
+   "effect": "Blind at > HP/10; bypasses head DR (not eye protection)"
+  }
+ ]
+}

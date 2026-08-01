@@ -877,3 +877,73 @@ def test_committed_ranged_modifiers_are_the_nine_the_book_prints():
     entries = json.loads((CONTENT / "ranged_modifiers.json").read_text(encoding="utf-8"))["entries"]
     assert [e["condition"] for e in entries] == extract_ranged.EXPECTED_MODIFIERS
     assert sum(1 for e in entries if e.get("weaponAcc")) == 2
+
+
+# --- Hit locations and wounding multipliers (Ch. 5, p. 40-41) ---------------
+
+import extract_wounds
+
+
+def test_a_row_is_cut_on_the_bare_signed_penalty():
+    rows = extract_wounds.rows([
+        "Torso", "+0", "×1", "Default location. No special effect.",
+        "Skull", "-7", "×4", "Knockdown at -10; DR 2 (skull bone, stacks with helmet)",
+    ])
+    assert [(r[0], r[1]) for r in rows] == [("Torso", 0), ("Skull", -7)]
+    assert rows[0][2] == ["×1", "Default location. No special effect."]
+
+
+def test_an_effect_holding_a_signed_number_does_not_start_a_row():
+    """"Knockdown at -5; risk of blindness" contains -5. It is not bare, so it
+    cannot be mistaken for the penalty column -- which would shift every row
+    below it by one."""
+    rows = extract_wounds.rows([
+        "Face", "-5", "×1", "Knockdown at -5; risk of blindness or disfigurement",
+    ])
+    assert len(rows) == 1 and rows[0][1] == -5
+
+
+def test_the_neck_multiplier_wraps_and_varies_by_damage_type():
+    """"Cr x1.5 / Cut x2 / Imp x2" prints across two lines. Reading the first
+    number would call a cutting hit to the neck x1.5."""
+    printed, effect = extract_wounds.split_cells([
+        "Cr ×1.5 / Cut", "×2 / Imp ×2",
+        "Knockdown roll at -5; choke possible if damage > HP/2",
+    ])
+    assert printed == "Cr ×1.5 / Cut ×2 / Imp ×2"
+    assert effect.startswith("Knockdown roll")
+    assert extract_wounds.parse_multiplier(printed) == (1.0, {"cr": 1.5, "cut": 2.0, "imp": 2.0})
+
+
+def test_the_vitals_restriction_survives_its_line_break():
+    """"x3 (imp/pi only)" wraps mid-bracket. Dropping "only)" as noise would
+    triple a punch to the vitals, which the book says is x1."""
+    printed, effect = extract_wounds.split_cells([
+        "×3 (imp/pi", "only)", "Extra shock (adds +1 turn to stun duration); bleeding risk",
+    ])
+    assert printed == "×3 (imp/pi only)"
+    assert effect.startswith("Extra shock")
+    assert extract_wounds.parse_multiplier(printed) == (1.0, {"imp": 3.0, "pi": 3.0})
+
+
+def test_a_plain_multiplier_reaches_every_damage_type():
+    assert extract_wounds.parse_multiplier("×4") == (4.0, {})
+
+
+def test_only_the_abbreviations_the_book_prints_are_emitted():
+    """GURPS writes the piercing rows "pi-" and "pi+". This book never does,
+    and a key it never wrote would answer for a row it never printed."""
+    entries = json.loads((CONTENT / "wounding_multipliers.json").read_text(encoding="utf-8"))["entries"]
+    assert [e["type"] for e in entries] == extract_wounds.EXPECTED_TYPES
+    keyed = {e["type"]: e["abbreviation"] for e in entries if "abbreviation" in e}
+    assert keyed == {"Crushing": "cr", "Cutting": "cut", "Impaling": "imp", "Piercing": "pi"}
+    assert "abbreviation" not in next(e for e in entries if e["type"] == "Piercing (small)")
+
+
+def test_committed_hit_locations_are_the_nine_the_book_prints():
+    entries = json.loads((CONTENT / "hit_locations.json").read_text(encoding="utf-8"))["entries"]
+    assert [e["target"] for e in entries] == extract_wounds.EXPECTED_LOCATIONS
+    byname = {e["target"]: e for e in entries}
+    assert byname["Torso"]["penalty"] == 0 and byname["Eye"]["penalty"] == -9
+    # Only the two cells that vary by damage type carry byType.
+    assert {t for t, e in byname.items() if "byType" in e} == {"Neck", "Vitals"}

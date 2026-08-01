@@ -34,6 +34,10 @@ object ContentLoader {
         load<RangePenalty>("range_penalties.json").sortedBy { it.from }
     }
     private val rangedModifiersLazy: List<RangedModifier> by lazy { load("ranged_modifiers.json") }
+    private val hitLocationsLazy: List<HitLocation> by lazy { load("hit_locations.json") }
+    private val woundingMultipliersLazy: List<WoundingMultiplier> by lazy {
+        load("wounding_multipliers.json")
+    }
     private val maneuversLazy: List<Maneuver> by lazy { load("maneuvers.json") }
     private val extraEffortLazy: List<ExtraEffort> by lazy { load("extra_effort.json") }
     private val attackOptionsLazy: List<AttackOption> by lazy { load("attack_options.json") }
@@ -94,6 +98,12 @@ object ContentLoader {
 
     /** Other Ranged Modifiers: movement, cover, darkness, Aim (Ch. 5). */
     fun rangedModifiers(): List<RangedModifier> = rangedModifiersLazy
+
+    /** The Optional Hit Locations table (Ch. 5, p. 41), in printed order. */
+    fun hitLocations(): List<HitLocation> = hitLocationsLazy
+
+    /** The Optional Wounding Multipliers table (Ch. 5, p. 41). */
+    fun woundingMultipliers(): List<WoundingMultiplier> = woundingMultipliersLazy
 
     /** The Brawling and Boxing attack tables (Ch. 5, p. 38-39). */
     fun unarmedAttacks(): List<UnarmedAttack> = unarmedAttacksLazy

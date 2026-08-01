@@ -34,6 +34,8 @@ import com.pathways.rules.RandomSource
 import com.pathways.rules.Ranged
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
+import com.pathways.rules.Wounds
+import com.pathways.rules.content.HitLocation
 import com.pathways.rules.content.RangePenalty
 import com.pathways.rules.content.UnarmedAttack
 
@@ -74,6 +76,10 @@ fun AttackDialog(
     // ranged attack reads them.
     var band by remember { mutableStateOf<RangePenalty?>(null) }
     var circumstances by remember { mutableStateOf<Set<String>>(emptySet()) }
+    // Null is the Torso: the book's own default, and the row it prints at +0.
+    // A called shot survives the reach/range toggle -- unlike distance and
+    // cover, "aiming at the skull" means the same thing with a fist or a gun.
+    var location by remember { mutableStateOf<HitLocation?>(null) }
     // A list, not one roll: All-Out Double and Rapid Strike each make more
     // than one attack, and rolling once for them silently drops the rest
     // (Codex). Resolving the whole maneuver here is also what keeps its FP
@@ -99,6 +105,7 @@ fun AttackDialog(
                         unarmed = null
                         band = null
                         circumstances = emptySet()
+                        location = null
                     },
                 ) { Text("Another turn") }
             }
@@ -142,8 +149,12 @@ fun AttackDialog(
                     attacks = Damage.attacksFor(chosen.key.name),
                     band = band,
                     circumstances = circumstances,
+                    location = location,
                     onAttack = { unarmed = it },
                     onBand = { band = it },
+                    // Tapping the chosen location again goes back to the torso
+                    // rather than leaving the player stuck with a -9 eye shot.
+                    onLocation = { location = if (it == location) null else it },
                     onCircumstance = { name ->
                         circumstances = if (name in circumstances) {
                             circumstances - name
@@ -168,7 +179,8 @@ fun AttackDialog(
                         // lands, so the NEXT turn feels it.
                         val mods = conditions(chosen.key) +
                             Attacks.modifiers(plan, chosen.value, unarmed) +
-                            rangedModifiers(plan, band, circumstances)
+                            rangedModifiers(plan, band, circumstances) +
+                            listOfNotNull(location?.let(Wounds::modifier))
                         outcomes = List(Attacks.attackCount(plan)) {
                             SkillRoll.at(
                                 label = chosen.key.label(),
@@ -196,9 +208,11 @@ private fun AttackOptions(
     attacks: List<UnarmedAttack>,
     band: RangePenalty?,
     circumstances: Set<String>,
+    location: HitLocation?,
     onAttack: (UnarmedAttack) -> Unit,
     onBand: (RangePenalty) -> Unit,
     onCircumstance: (String) -> Unit,
+    onLocation: (HitLocation) -> Unit,
     onPlan: (AttackPlan) -> Unit,
     onRoll: () -> Unit,
 ) {
@@ -269,6 +283,7 @@ private fun AttackOptions(
                 onPlan(plan.copy(deceptive = (plan.deceptive + it).coerceIn(0, maxDeceptive)))
             }
         }
+        CalledShot(location, onLocation)
         if (plan.maneuver == AttackManeuver.CHARGE) {
             FilterChip(
                 selected = plan.heroicCharge,
@@ -297,9 +312,21 @@ private fun AttackOptions(
                 style = MaterialTheme.typography.bodySmall,
             )
         }
+        location?.let {
+            Text(
+                "Called shot: ${it.target} ${signed(it.penalty)}, ${it.printedMultiplier} — ${it.effect}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
         Text(
-            damage?.let { "Damage on a hit: ${it.render()}" }
-                ?: if (unarmed != null) "Rolls no damage; see the note above." else "",
+            // The multiplier is SHOWN, never applied: damage here is an
+            // expression, not a rolled total, so there is no product to round
+            // and this book prints no rounding rule to round it by.
+            damage?.let { roll ->
+                val times = Wounds.multiplierFor(location, roll.type)
+                "Damage on a hit: ${roll.render()}" +
+                    if (times == 1.0) "" else ", ${Wounds.render(times)} there"
+            } ?: if (unarmed != null) "Rolls no damage; see the note above." else "",
             style = MaterialTheme.typography.bodySmall,
         )
         Text(
@@ -380,6 +407,37 @@ private fun RangedOptions(
             "${it.condition}: ${it.printed} — no weapon in this book prints one.",
             style = MaterialTheme.typography.bodySmall,
         )
+    }
+}
+
+/**
+ * Calling a body part (Ch. 5, p. 41, Optional).
+ *
+ * The chip carries only the to-hit cost. Two of the nine multipliers are not
+ * one number -- the Neck prints "Cr x1.5 / Cut x2 / Imp x2" -- so the printed
+ * cell goes in the summary line below, where it has room to be quoted whole
+ * rather than trimmed to whichever number came first.
+ *
+ * The Torso is offered like any other row: it is the book's own +0 default, and
+ * leaving it out would make "no called shot" a state with no chip to return to.
+ */
+@Composable
+private fun CalledShot(location: HitLocation?, onLocation: (HitLocation) -> Unit) {
+    val locations = remember { Wounds.locations() }
+    Text(
+        "Called shot",
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(top = 8.dp),
+    )
+    FlowRow {
+        locations.forEach { option ->
+            FilterChip(
+                selected = option == location,
+                onClick = { onLocation(option) },
+                label = { Text("${option.target} ${signed(option.penalty)}") },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
     }
 }
 

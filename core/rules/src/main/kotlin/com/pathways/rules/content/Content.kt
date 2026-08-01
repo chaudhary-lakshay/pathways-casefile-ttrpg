@@ -453,6 +453,55 @@ data class ExtraEffort(val option: String, val fp: Int, val effect: String)
 data class AttackOption(val option: String, val rule: String)
 
 /**
+ * One row of the Optional Hit Locations table (Ch. 5, p. 41).
+ *
+ * [penalty] is the to-hit cost of calling the shot; [multiplier] is what a hit
+ * does to penetrating damage, and STACKS with the damage type's own multiplier
+ * rather than replacing it -- the book's worked example is a cutting sword to
+ * the neck at x2 * x1.5 = x3.
+ *
+ * Two rows do not have one multiplier. The Neck prints "Cr x1.5 / Cut x2 /
+ * Imp x2" and the Vitals "x3 (imp/pi only)", so [byType] carries the values
+ * that vary and [multiplier] is what everything else takes. On the Vitals that
+ * fallback is the book's own word ("only"); on the Neck it is a reading, since
+ * the book prints three types there and is silent about burning or toxic. An
+ * unlisted type takes the plain x1 rather than the nearest listed one, because
+ * which is nearest is not something the rulebook says.
+ *
+ * Resolve a type through [com.pathways.rules.Wounds.multiplierFor], never by
+ * reading [byType] directly. A bare `byType[key] ?: multiplier` cannot tell a
+ * type the row leaves unlisted from a key that is not a damage type at all,
+ * and would answer x1 for a misspelling (Codex) -- the same silent default
+ * this project refuses on the Aim rows and on Shove.
+ */
+@Serializable
+data class HitLocation(
+    val target: String,
+    val penalty: Int,
+    val printedMultiplier: String,
+    val multiplier: Double,
+    val byType: Map<String, Double> = emptyMap(),
+    val effect: String,
+)
+
+/**
+ * One row of the Optional Wounding Multipliers table (Ch. 5, p. 41).
+ *
+ * [abbreviation] is present only for the four types the book abbreviates
+ * somewhere -- "Cr", "Cut" and "Imp" in the Neck cell, "pi" in the Vitals
+ * cell. Piercing (small) and Large Piercing carry none: GURPS writes them
+ * "pi-" and "pi+", this book never does, and a key it never printed would let
+ * a lookup answer for a row that does not exist here.
+ */
+@Serializable
+data class WoundingMultiplier(
+    val type: String,
+    val multiplier: Double,
+    val examples: String,
+    val abbreviation: String? = null,
+)
+
+/**
  * One band of the Range Penalties table (Ch. 5, p. 39).
  *
  * [to] is null on "100+ meters", the one open band. The bands OVERLAP at
