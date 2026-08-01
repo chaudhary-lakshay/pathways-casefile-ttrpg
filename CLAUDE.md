@@ -1,7 +1,7 @@
 # Pathways — Agent Handover
 
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
-Everything below is verified against the tree at commit `9568d93`, not recalled.
+Everything below is verified against the tree at commit `012c602`, not recalled.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **416 Kotlin** (JUnit 5, incl. 33 in `app/`) + **39 Python** (pytest), all green |
+| Tests | **421 Kotlin** (JUnit 5, incl. 38 in `app/`) + **43 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -74,14 +74,15 @@ docs/           spec, plan, KNOWN_ISSUES
 `PointBudget`, `Corruption`, `FrightCheck`, `Pools`, `PotionConsumption`, `PotionDigestion`,
 `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading fifteen JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading seventeen JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
 `cor_gained.json` (6), `ritual_cor_thresholds.json` (4),
 `pool_thresholds.json` (9), `fright_triggers.json` (5),
 `fright_effects.json` (9), `ritual_weights.json` (3),
-`ritual_failures.json` (4), `ritual_critical.json` (9).
+`ritual_failures.json` (4), `ritual_critical.json` (9), `defenses.json` (4),
+`defense_modifiers.json` (5).
 
 ### Public entry points
 
@@ -104,6 +105,7 @@ ContentLoader.pathways() / .actingMethod() / .potionConsumption()
 ContentLoader.corGained() / .ritualCorThresholds() / .poolThresholds()
 ContentLoader.frightTriggers() / .frightEffects()
 ContentLoader.ritualWeights() / .ritualFailures() / .ritualCriticals()
+ContentLoader.defenses() / .defenseModifiers()
 PotionDigestion.digest(c, block): DigestedCharacter
 PotionDigestion.digestThrough(c, pathway, sequence, blocks): DigestedCharacter
 PotionDigestion.of(c, blocks): DigestedCharacter?     // from c.beyonder
@@ -432,10 +434,32 @@ Buying the skill in the builder is the whole reason 6e came first.
   a charging row needs a critical roll of 13+, which after the −2 shift is
   ~0.4% per attempt. It rests on `RitualResolutionTest` and `gainCor`'s tests.
 
-**Still ahead in M4:** weapons in `SavedEdits` so `ParryBlock` has something to
-parry with; then T2 combat, where `ModifierResolver` finally earns its keep
-with `Corruption.ritualPenalty` and `Pools`' penalties as its first ready-made
-inputs.
+## 6g. Active defenses
+
+`DefenseDialog` pairs the character's own skills with `ParryBlock`: Dodge from
+Basic Speed, an unarmed parry per Brawling/Boxing/Wrestling, Block off the
+Shield skill, plus the book's modifier bullets. Device-verified on Barmaid
+Brawler — Dodge 7, Parry (Brawling) 9, Parry (Wrestling) 6, the last two
+differing because Wrestling's -3 sits INSIDE the halving.
+
+- **The formulas are content, not arithmetic.** `ParryBlock` implements them
+  and is tested against the book, so `defenses.json` carries the printed
+  formula and notes for the GM to read, never a second copy of the maths.
+- **Weapons never needed a table.** This book prints no weapon list at all —
+  parry is `Weapon Skill / 2 + 3`, so the number follows the skill. That
+  retires the "weapons in `SavedEdits`" item: what was actually missing was
+  the pairing, not the data.
+- `armedParries()` handles the armed case anyway (Codex) — no premade carries
+  a weapon, but the model does, and a silent omission would be wrong the first
+  time one appeared. It is a plain function so it is unit-tested.
+- Two parsing notes: the table's label wraps ("Parry" / "(Unarmed)"), so
+  labels are a known set rather than a shape; and this PDF prints list bullets
+  as **U+007F**, which `stream()` strips — worth knowing for any future
+  bullet list.
+
+**Still ahead in M4:** T2 combat proper — maneuvers, attack options, damage —
+where `ModifierResolver` finally earns its keep with `Corruption.ritualPenalty`
+and `Pools`' penalties as its first ready-made inputs.
 
 ### A note on Codex
 
