@@ -1,7 +1,7 @@
 # Pathways — Agent Handover
 
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
-Everything below is verified against the tree at commit `6a4a0df`, not recalled.
+Everything below is verified against the tree at commit `9568d93`, not recalled.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **415 Kotlin** (JUnit 5, incl. 33 in `app/`) + **37 Python** (pytest), all green |
+| Tests | **416 Kotlin** (JUnit 5, incl. 33 in `app/`) + **39 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -414,10 +414,36 @@ This unblocked rituals: no premade prints Ritualistic Magic, so buying it is
 the only way to have a caster. Device-verified — bought at 1 point (level 7 on
 IQ 10, Very Hard), raised to 4 points (level 9), survived a force-stop.
 
-**Still ahead in M4:** a ritual screen on top of `RitualResolution`; weapons in
-`SavedEdits` so `ParryBlock` has something to parry with; then T2 combat, where
-`ModifierResolver` finally earns its keep with `Corruption.ritualPenalty` and
-`Pools`' penalties as its first ready-made inputs.
+## 6f. The ritual screen
+
+`RitualDialog` is reachable only when the character owns Ritualistic Magic —
+gated on `skillLevelOf(RITUAL_SKILL, …)`, which is null for all 23 premades.
+Buying the skill in the builder is the whole reason 6e came first.
+
+- **The CoR a critical row charges is extracted, not scraped.** Three rows
+  print a cost inside their prose ("Corruption. Gain 1 CoR."); `corGained` is
+  parsed once in `extract_ritual.py` and pinned by `verify()`. A UI that read
+  numbers out of rule text at render time would be a parser nobody tests.
+  The six rows that charge nothing carry no field — charging no corruption is
+  not the same as charging zero.
+- Device-verified: Heavy on a level-9 caster gives target 5; a 16 failed by
+  11, took the "Failure by 10+" row, and rolled the Critical Failure Table at
+  8 after the −2 shift. The CoR charge itself was NOT observed live — reaching
+  a charging row needs a critical roll of 13+, which after the −2 shift is
+  ~0.4% per attempt. It rests on `RitualResolutionTest` and `gainCor`'s tests.
+
+**Still ahead in M4:** weapons in `SavedEdits` so `ParryBlock` has something to
+parry with; then T2 combat, where `ModifierResolver` finally earns its keep
+with `Corruption.ritualPenalty` and `Pools`' penalties as its first ready-made
+inputs.
+
+### A note on Codex
+
+It has found one real defect per slice for six slices running, but it reads
+files through PowerShell and mis-decodes UTF-8: on this slice it reported the
+`≤` and `—` in `RitualDialog.kt` as mojibake and claimed a P1 build break. The
+module compiled clean and the device rendered `3d6 ≤ 5`. Treat encoding
+complaints as tooling noise; check `./gradlew` before acting on them.
 
 ---
 
