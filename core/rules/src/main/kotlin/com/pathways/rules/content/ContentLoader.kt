@@ -27,6 +27,13 @@ object ContentLoader {
         load<RitualCritical>("ritual_critical.json").sortedBy { it.low }
     }
     private val unarmedAttacksLazy: List<UnarmedAttack> by lazy { load("unarmed_attacks.json") }
+    private val rangePenaltiesLazy: List<RangePenalty> by lazy {
+        // Sorted so a distance lookup walks the bands nearest-first whatever
+        // order the file lists them in -- which is also what settles the
+        // book's own overlap at 100 metres. See Ranged.penaltyFor.
+        load<RangePenalty>("range_penalties.json").sortedBy { it.from }
+    }
+    private val rangedModifiersLazy: List<RangedModifier> by lazy { load("ranged_modifiers.json") }
     private val maneuversLazy: List<Maneuver> by lazy { load("maneuvers.json") }
     private val extraEffortLazy: List<ExtraEffort> by lazy { load("extra_effort.json") }
     private val attackOptionsLazy: List<AttackOption> by lazy { load("attack_options.json") }
@@ -81,6 +88,12 @@ object ContentLoader {
      * them -- worst last. FP has no rows; see [PoolThreshold].
      */
     fun poolThresholds(): List<PoolThreshold> = poolThresholdsLazy
+
+    /** The Range Penalties bands (Ch. 5, p. 39), ascending by distance. */
+    fun rangePenalties(): List<RangePenalty> = rangePenaltiesLazy
+
+    /** Other Ranged Modifiers: movement, cover, darkness, Aim (Ch. 5). */
+    fun rangedModifiers(): List<RangedModifier> = rangedModifiersLazy
 
     /** The Brawling and Boxing attack tables (Ch. 5, p. 38-39). */
     fun unarmedAttacks(): List<UnarmedAttack> = unarmedAttacksLazy

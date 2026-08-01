@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **464 Kotlin** (JUnit 5, incl. 38 in `app/`) + **54 Python** (pytest), all green |
+| Tests | **479 Kotlin** (JUnit 5, incl. 38 in `app/`) + **61 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -73,9 +73,9 @@ docs/           spec, plan, KNOWN_ISSUES
 `core/rules` — `AttributeCosts`, `Derive`, `ModifierResolver`, `ParryBlock`,
 `PointBudget`, `Conditions`, `Corruption`, `FrightCheck`, `Pools`, `PotionConsumption`,
 `PotionDigestion`,
-`Attacks`, `Damage`, `Premades`, `RitualResolution`,
+`Attacks`, `Damage`, `Ranged`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty-one JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty-three JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -85,7 +85,8 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `ritual_failures.json` (4), `ritual_critical.json` (9), `defenses.json` (4),
 `defense_modifiers.json` (5), `maneuvers.json` (14),
 `extra_effort.json` (4), `attack_options.json` (2),
-`unarmed_attacks.json` (10).
+`unarmed_attacks.json` (10), `range_penalties.json` (7),
+`ranged_modifiers.json` (9).
 
 ### Public entry points
 
@@ -110,7 +111,7 @@ ContentLoader.frightTriggers() / .frightEffects()
 ContentLoader.ritualWeights() / .ritualFailures() / .ritualCriticals()
 ContentLoader.defenses() / .defenseModifiers()
 ContentLoader.maneuvers() / .extraEffort() / .attackOptions()
-ContentLoader.unarmedAttacks()
+ContentLoader.unarmedAttacks() / .rangePenalties() / .rangedModifiers()
 PotionDigestion.digest(c, block): DigestedCharacter
 PotionDigestion.digestThrough(c, pathway, sequence, blocks): DigestedCharacter
 PotionDigestion.of(c, blocks): DigestedCharacter?     // from c.beyonder
@@ -127,6 +128,8 @@ Attacks.attackCount(plan) / .fpCost(plan) / .maxDeceptive(skillLevel)
 Attacks.damageBonus(plan, fromSkill): Int                  // Strong + Boxing
 Damage.forAttack(attack, st, bonus): DamageRoll?           // null = Shove
 Damage.thrust(st) / .swing(st) / .attacksFor(skill) / .boxingBonus(dx, level)
+Ranged.bandFor(meters): RangePenalty / .penaltyFor(meters): Int
+Ranged.modifiers(band, conditions, gmValue): List<Modifier>
 SkillRoll.at(label, base, key, source, mods, ctx): SkillRollOutcome
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
@@ -561,9 +564,42 @@ Shipped in the previous commit and invisible to every test. They wrap in a
 hit and `1d-2 cr`, Strong `1d-1 cr` with the roll unchanged, and Heroic Charge
 buying off Charge's -4 for 2 FP.
 
-**Still ahead in M4:** wounding multipliers and hit locations, ranged range
-penalties (Ch. 5, p. 39-40), spirit-body damage, and shields. Also unmodelled:
-Feint's Quick Contest, and Aim's ACC (no weapon in this book prints one).
+## 6k. Ranged — distance and the scene
+
+`Ranged` is the third modifier source, beside `Conditions` (what the character
+carries) and `Attacks` (what the player chose). Same `SITUATIONAL` kind as
+`Attacks`: a shot into fog is circumstance, not a threshold state.
+
+- **The book's own bands overlap at 100 metres.** "51-100" is -5 and "100+" is
+  -6, so exactly 100 matches both. Recorded, never repaired. The nearer band
+  wins — if the open one did, "51-100" would silently stop at 99.
+- **That overlap immediately bit** (Codex): the screen stored a chosen band and
+  passed back its lower bound, so picking "100+" displayed -6 and rolled -5.
+  `Ranged.modifiers` now takes a `RangePenalty`, not a distance; a caller
+  holding metres calls `bandFor` itself and gets one answer. The regression
+  test was verified against the old signature.
+- **Two rows have no number this app can know.** "+ weapon's Acc" — and this
+  book prints no weapon table. Reading the first signed integer would have
+  called the second Aim row +2. They are shown as prose and refused by
+  `modifiers`, because applying zero is not the same as having no value.
+- **Prone means two different things.** "-2 ranged (but -4 in melee)" — one
+  row, two scopes, so the melee value is kept beside the ranged one. Same
+  lesson as Spiritual Attrition and the ritual CoR ladder.
+- **Darkness is a range the GM picks inside** ("-3 to -9"), so `modifiers`
+  takes an override and validates it against both printed ends. The screen
+  applies the gentle end for now.
+- **Cover's "+2 DR" is not a to-hit modifier.** Only the -2 reaches the roll;
+  DR belongs to the damage side, which is not modelled.
+
+**Two defects only the device found**, both invisible to 479 tests: the
+`Another turn` reset left last turn's distance and cover in place, silently
+modifying the next roll (Codex); and the dialog grew taller than a phone, so
+the Roll button fell off the bottom — an `AlertDialog` does not scroll its own
+text slot. Device-verified after: `100+` with cover read "Range and cover: -8"
+and a reeling Brawling 13 rolled against 4.
+
+**Still ahead in M4:** wounding multipliers and hit locations, spirit-body
+damage, and shields. Also unmodelled: Feint's Quick Contest, and Aim's ACC.
 
 ### A note on Codex
 

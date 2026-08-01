@@ -1,0 +1,61 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2648,
+    2664
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "printed": "Up to 2 meters (close — arm's reach)",
+   "penalty": 0,
+   "printedPenalty": "+0",
+   "from": 0,
+   "to": 2
+  },
+  {
+   "printed": "3–5 meters (short)",
+   "penalty": -1,
+   "printedPenalty": "-1",
+   "from": 3,
+   "to": 5
+  },
+  {
+   "printed": "6–10 meters",
+   "penalty": -2,
+   "printedPenalty": "-2",
+   "from": 6,
+   "to": 10
+  },
+  {
+   "printed": "11–20 meters",
+   "penalty": -3,
+   "printedPenalty": "-3",
+   "from": 11,
+   "to": 20
+  },
+  {
+   "printed": "21–50 meters",
+   "penalty": -4,
+   "printedPenalty": "-4",
+   "from": 21,
+   "to": 50
+  },
+  {
+   "printed": "51–100 meters",
+   "penalty": -5,
+   "printedPenalty": "-5",
+   "from": 51,
+   "to": 100
+  },
+  {
+   "printed": "100+ meters",
+   "penalty": -6,
+   "printedPenalty": "-6 or worse (GM discretion)",
+   "from": 100,
+   "gmDiscretion": true
+  }
+ ]
+}

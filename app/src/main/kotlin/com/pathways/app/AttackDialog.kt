@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -29,8 +31,10 @@ import com.pathways.rules.Attacks
 import com.pathways.rules.Damage
 import com.pathways.rules.DamageRoll
 import com.pathways.rules.RandomSource
+import com.pathways.rules.Ranged
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
+import com.pathways.rules.content.RangePenalty
 import com.pathways.rules.content.UnarmedAttack
 
 /** The one skill whose table pays a damage bonus for skill above DX (p. 38). */
@@ -65,6 +69,11 @@ fun AttackDialog(
     // Null for every skill with no attack table -- Wrestling included, which
     // the book gives "None (grapple only)".
     var unarmed by remember { mutableStateOf<UnarmedAttack?>(null) }
+    // Distance and circumstances, kept out of AttackPlan: they describe the
+    // TARGET and the scene, not the attacker's choice of maneuver, and only a
+    // ranged attack reads them.
+    var band by remember { mutableStateOf<RangePenalty?>(null) }
+    var circumstances by remember { mutableStateOf<Set<String>>(emptySet()) }
     // A list, not one roll: All-Out Double and Rapid Strike each make more
     // than one attack, and rolling once for them silently drops the rest
     // (Codex). Resolving the whole maneuver here is also what keeps its FP
@@ -80,10 +89,16 @@ fun AttackDialog(
             if (outcomes.isNotEmpty() || chosen != null) {
                 TextButton(
                     onClick = {
+                        // Everything the turn chose, including where the
+                        // target was standing: inheriting last turn's distance
+                        // or cover would modify the next roll invisibly
+                        // (Codex).
                         outcomes = emptyList()
                         picked = null
                         plan = AttackPlan()
                         unarmed = null
+                        band = null
+                        circumstances = emptySet()
                     },
                 ) { Text("Another turn") }
             }
@@ -125,15 +140,35 @@ fun AttackDialog(
                         Damage.forAttack(it, st, Attacks.damageBonus(plan, fromSkill))
                     },
                     attacks = Damage.attacksFor(chosen.key.name),
+                    band = band,
+                    circumstances = circumstances,
                     onAttack = { unarmed = it },
-                    onPlan = { plan = it },
+                    onBand = { band = it },
+                    onCircumstance = { name ->
+                        circumstances = if (name in circumstances) {
+                            circumstances - name
+                        } else {
+                            circumstances + name
+                        }
+                    },
+                    onPlan = {
+                        // Range and circumstances describe a shot; going back
+                        // into reach drops them rather than applying a
+                        // distance penalty to a punch.
+                        if (!it.isRanged) {
+                            band = null
+                            circumstances = emptySet()
+                        }
+                        plan = it
+                    },
                     onRoll = {
                         // Rolled at the level the exertion started from, then
                         // charged: a character is not yet tired by an effort
                         // they are in the middle of making. The cost still
                         // lands, so the NEXT turn feels it.
                         val mods = conditions(chosen.key) +
-                            Attacks.modifiers(plan, chosen.value, unarmed)
+                            Attacks.modifiers(plan, chosen.value, unarmed) +
+                            rangedModifiers(plan, band, circumstances)
                         outcomes = List(Attacks.attackCount(plan)) {
                             SkillRoll.at(
                                 label = chosen.key.label(),
@@ -159,12 +194,19 @@ private fun AttackOptions(
     unarmed: UnarmedAttack?,
     damage: DamageRoll?,
     attacks: List<UnarmedAttack>,
+    band: RangePenalty?,
+    circumstances: Set<String>,
     onAttack: (UnarmedAttack) -> Unit,
+    onBand: (RangePenalty) -> Unit,
+    onCircumstance: (String) -> Unit,
     onPlan: (AttackPlan) -> Unit,
     onRoll: () -> Unit,
 ) {
     val maxDeceptive = Attacks.maxDeceptive(skillLevel)
-    Column {
+    // Scrolls: with a distance band and nine conditions to choose from, the
+    // panel is taller than a phone and the Roll button fell off the bottom.
+    // An AlertDialog does not scroll its own text slot. Found on device.
+    Column(Modifier.verticalScroll(rememberScrollState())) {
         Text("$label $skillLevel", style = MaterialTheme.typography.titleMedium)
         if (attacks.isNotEmpty()) {
             FlowRow {
@@ -213,7 +255,9 @@ private fun AttackOptions(
             modifier = Modifier.padding(vertical = 8.dp),
         )
 
-        if (!plan.isRanged) {
+        if (plan.isRanged) {
+            RangedOptions(band, circumstances, onBand, onCircumstance)
+        } else {
             Stepper("Rapid Strike", plan.rapidStrikes, "${Attacks.RAPID_STRIKE_PENALTY} each") {
                 onPlan(plan.copy(rapidStrikes = (plan.rapidStrikes + it).coerceAtLeast(0)))
             }
@@ -239,12 +283,20 @@ private fun AttackOptions(
         val total = Attacks.modifiers(plan, skillLevel, unarmed)
             .sumOf { (it.effect as ModEffect.Flat).n }
         val count = Attacks.attackCount(plan)
+        val fromRange = rangedModifiers(plan, band, circumstances)
+            .sumOf { (it.effect as ModEffect.Flat).n }
         Text(
             "Attack options: ${if (total == 0) "no modifier" else signed(total)}" +
                 (if (count > 1) ", $count attacks" else "") +
                 if (fp > 0) ", costs $fp FP" else "",
             style = MaterialTheme.typography.bodySmall,
         )
+        if (plan.isRanged) {
+            Text(
+                "Range and cover: ${if (fromRange == 0) "no modifier" else signed(fromRange)}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
         Text(
             damage?.let { "Damage on a hit: ${it.render()}" }
                 ?: if (unarmed != null) "Rolls no damage; see the note above." else "",
@@ -279,6 +331,79 @@ private fun AttackResult(outcome: SkillRollOutcome) {
             modifier = Modifier.padding(top = 8.dp),
         )
     }
+}
+
+/**
+ * Distance and the scene, for a shot (Ch. 5, p. 39-40).
+ *
+ * The two Aim rows are shown but not selectable: their modifier is the
+ * weapon's Acc, and this book prints no weapon table, so there is no number to
+ * apply. Saying so beats hiding a rule the GM may still want to use by hand.
+ */
+@Composable
+private fun RangedOptions(
+    band: RangePenalty?,
+    circumstances: Set<String>,
+    onBand: (RangePenalty) -> Unit,
+    onCircumstance: (String) -> Unit,
+) {
+    val bands = remember { Ranged.bands() }
+    val conditions = remember { Ranged.conditions() }
+    Text("Distance", style = MaterialTheme.typography.titleSmall)
+    FlowRow {
+        bands.forEach { option ->
+            FilterChip(
+                selected = band?.printed == option.printed,
+                onClick = { onBand(option) },
+                label = { Text("${option.printed.substringBefore(" meters")} ${signed(option.penalty)}") },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
+    }
+    Text(
+        "Conditions",
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(top = 8.dp),
+    )
+    FlowRow {
+        conditions.filterNot { it.weaponAcc }.forEach { option ->
+            FilterChip(
+                selected = option.condition in circumstances,
+                onClick = { onCircumstance(option.condition) },
+                label = { Text("${option.condition} ${option.printed}") },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
+    }
+    conditions.filter { it.weaponAcc }.forEach {
+        Text(
+            "${it.condition}: ${it.printed} — no weapon in this book prints one.",
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
+}
+
+/**
+ * The range and condition modifiers for [plan], or none for a melee attack.
+ *
+ * Darkness is applied at the gentle end the book prints. Its cell reads "-3 to
+ * -9 depending on severity", and the harsher end is the GM's call to make out
+ * loud rather than the app's to assume -- [Ranged.modifiers] takes an override
+ * for exactly that, and the screen does not yet offer one.
+ * ponytail: a stepper here when a GM asks for it.
+ */
+private fun rangedModifiers(
+    plan: AttackPlan,
+    band: RangePenalty?,
+    circumstances: Set<String>,
+): List<com.pathways.model.Modifier> {
+    if (!plan.isRanged) return emptyList()
+    // The chosen band is passed whole, never re-looked-up by its lower bound:
+    // "100+" begins at 100 and bandFor(100) is the -5 row (Codex).
+    return Ranged.modifiers(
+        band = band,
+        conditions = Ranged.conditions().filter { it.condition in circumstances },
+    )
 }
 
 @Composable

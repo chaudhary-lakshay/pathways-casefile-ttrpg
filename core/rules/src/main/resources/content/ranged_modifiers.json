@@ -1,0 +1,59 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2665,
+    2685
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "condition": "Target is stationary",
+   "printed": "+0",
+   "modifier": 0
+  },
+  {
+   "condition": "Target walking (up to 3 meters/sec)",
+   "printed": "-1",
+   "modifier": -1
+  },
+  {
+   "condition": "Target running (4+ meters/sec)",
+   "printed": "-2",
+   "modifier": -2
+  },
+  {
+   "condition": "Shooter moved this turn",
+   "printed": "-2",
+   "modifier": -2
+  },
+  {
+   "condition": "Shooter used Aim last turn",
+   "printed": "+ weapon's Acc (see weapon table)",
+   "weaponAcc": true
+  },
+  {
+   "condition": "Shooter used Aim for 3+ turns",
+   "printed": "+ weapon's Acc +2 (max Acc +2 total)",
+   "weaponAcc": true
+  },
+  {
+   "condition": "Target is prone",
+   "printed": "-2 ranged (but -4 in melee)",
+   "modifier": -2,
+   "melee": -4
+  },
+  {
+   "condition": "Darkness or heavy fog",
+   "printed": "-3 to -9 depending on severity",
+   "modifier": -3,
+   "worstCase": -9
+  },
+  {
+   "condition": "Target has cover (half body)",
+   "printed": "-2 to hit, +2 DR on covered areas",
+   "modifier": -2
+  }
+ ]
+}

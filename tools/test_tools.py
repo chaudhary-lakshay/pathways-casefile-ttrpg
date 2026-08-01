@@ -808,3 +808,72 @@ def test_committed_unarmed_attacks_match_the_two_printed_tables():
     wounding = [e for e in entries if "base" in e]
     assert {e["base"] for e in wounding} == {"thr"}
     assert {e["type"] for e in wounding} == {"cr"}
+
+
+# --- Ranged combat (Ch. 5, p. 39-40) ---------------------------------------
+
+import extract_ranged
+
+
+def test_a_row_is_cut_on_the_modifier_sign_not_by_counting():
+    rows = extract_ranged.pair([
+        "Target is stationary", "+0",
+        "Target walking (up to 3 meters/sec)", "-1",
+    ])
+    assert rows == [
+        ("Target is stationary", "+0"),
+        ("Target walking (up to 3 meters/sec)", "-1"),
+    ]
+
+
+def test_an_open_band_carries_no_upper_bound():
+    bands = extract_ranged.parse_bands([
+        "51–100 meters", "-5",
+        "100+ meters", "-6 or worse (GM discretion)",
+    ])
+    assert bands[0]["from"] == 51 and bands[0]["to"] == 100
+    assert bands[1]["from"] == 100 and "to" not in bands[1]
+    assert bands[1]["gmDiscretion"] is True
+
+
+def test_the_aim_rows_are_not_read_as_plus_two():
+    """"+ weapon's Acc +2 (max Acc +2 total)" opens with a sign and contains
+    +2 twice; neither is the modifier. This book prints no weapon table."""
+    rows = extract_ranged.parse_modifiers([
+        "Shooter used Aim for 3+ turns", "+ weapon's Acc +2 (max Acc +2 total)",
+    ])
+    assert rows[0]["weaponAcc"] is True
+    assert "modifier" not in rows[0]
+
+
+def test_a_row_with_a_melee_value_keeps_both():
+    rows = extract_ranged.parse_modifiers([
+        "Target is prone", "-2 ranged (but -4 in melee)",
+    ])
+    assert rows[0]["modifier"] == -2
+    assert rows[0]["melee"] == -4
+
+
+def test_a_printed_range_keeps_both_ends():
+    rows = extract_ranged.parse_modifiers([
+        "Darkness or heavy fog", "-3 to -9 depending on severity",
+    ])
+    assert rows[0]["modifier"] == -3
+    assert rows[0]["worstCase"] == -9
+
+
+def test_committed_bands_still_overlap_at_a_hundred_metres():
+    """The book's own arithmetic: "51-100" is -5 and "100+" is -6, so exactly
+    100 matches both. Recorded, never repaired -- Ranged.penaltyFor documents
+    which wins."""
+    entries = json.loads((CONTENT / "range_penalties.json").read_text(encoding="utf-8"))["entries"]
+    assert len(entries) == 7
+    closed = next(e for e in entries if e["printed"].startswith("51"))
+    openband = next(e for e in entries if "to" not in e)
+    assert closed["to"] == 100 and openband["from"] == 100
+
+
+def test_committed_ranged_modifiers_are_the_nine_the_book_prints():
+    entries = json.loads((CONTENT / "ranged_modifiers.json").read_text(encoding="utf-8"))["entries"]
+    assert [e["condition"] for e in entries] == extract_ranged.EXPECTED_MODIFIERS
+    assert sum(1 for e in entries if e.get("weaponAcc")) == 2

@@ -453,6 +453,54 @@ data class ExtraEffort(val option: String, val fp: Int, val effect: String)
 data class AttackOption(val option: String, val rule: String)
 
 /**
+ * One band of the Range Penalties table (Ch. 5, p. 39).
+ *
+ * [to] is null on "100+ meters", the one open band. The bands OVERLAP at
+ * exactly 100 metres -- "51-100" is -5 and "100+" is -6 -- which is the
+ * book's own arithmetic and is recorded rather than repaired; see
+ * [com.pathways.rules.Ranged.penaltyFor] for which one wins and why.
+ */
+@Serializable
+data class RangePenalty(
+    val printed: String,
+    val from: Int,
+    val to: Int? = null,
+    val penalty: Int,
+    val printedPenalty: String,
+    val gmDiscretion: Boolean = false,
+) {
+    init {
+        require(to == null || to >= from) { "range band '$printed' runs $from..$to" }
+    }
+}
+
+/**
+ * One row of Other Ranged Modifiers (Ch. 5, p. 39-40).
+ *
+ * Three of the nine carry something a single signed integer cannot express:
+ *
+ * [weaponAcc] marks the two Aim rows, whose modifier is "+ weapon's Acc" --
+ * and this book prints no weapon table, so the number does not exist to be
+ * applied. They carry no [modifier] at all.
+ *
+ * [worstCase] is the harsh end of "-3 to -9 depending on severity"; [modifier]
+ * is the gentle end, and the GM picks between them.
+ *
+ * [melee] is the same condition's value in reach: a prone target is -2 to hit
+ * at range but -4 in melee, so one row means two different things depending on
+ * how it is being attacked.
+ */
+@Serializable
+data class RangedModifier(
+    val condition: String,
+    val printed: String,
+    val modifier: Int? = null,
+    val worstCase: Int? = null,
+    val melee: Int? = null,
+    val weaponAcc: Boolean = false,
+)
+
+/**
  * One row of the Brawling or Boxing attack table (Ch. 5, p. 38-39).
  *
  * [damage] is the printed cell ("thr-1 cr"); [base], [modifier] and [type] are
