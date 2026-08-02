@@ -36,6 +36,21 @@ object ContentLoader {
     private val rangedModifiersLazy: List<RangedModifier> by lazy { load("ranged_modifiers.json") }
     private val spiritDamageLazy: List<SpiritDamageRule> by lazy { load("spirit_damage.json") }
     private val majorWoundLazy: List<MajorWound> by lazy { load("major_wound.json") }
+    private val divinationDifficultyLazy: List<DivinationDifficulty> by lazy {
+        load("divination_difficulty.json")
+    }
+    private val divinationMethodsLazy: List<DivinationMethod> by lazy {
+        load("divination_methods.json")
+    }
+    private val divinationModifiersLazy: List<DivinationModifier> by lazy {
+        load("divination_modifiers.json")
+    }
+    private val divinationClarityLazy: List<DivinationClarity> by lazy {
+        load("divination_clarity.json")
+    }
+    private val divinationSupportLazy: List<DivinationSupport> by lazy {
+        load("divination_support.json")
+    }
     private val shieldsLazy: List<Shield> by lazy { load("shields.json") }
     private val shieldRulesLazy: List<ShieldRule> by lazy { load("shield_rules.json") }
     private val hitLocationsLazy: List<HitLocation> by lazy { load("hit_locations.json") }
@@ -102,6 +117,21 @@ object ContentLoader {
 
     /** Other Ranged Modifiers: movement, cover, darkness, Aim (Ch. 5). */
     fun rangedModifiers(): List<RangedModifier> = rangedModifiersLazy
+
+    /** The Question Difficulty bands (Ch. 6.5, Step 1), easiest first. */
+    fun divinationDifficulty(): List<DivinationDifficulty> = divinationDifficultyLazy
+
+    /** The eight divination methods and what each costs (Ch. 6.5, Sec. II). */
+    fun divinationMethods(): List<DivinationMethod> = divinationMethodsLazy
+
+    /** The Step 3 modifier sources (Ch. 6.5). */
+    fun divinationModifiers(): List<DivinationModifier> = divinationModifiersLazy
+
+    /** The Step 4 clarity table (Ch. 6.5), best result first. */
+    fun divinationClarity(): List<DivinationClarity> = divinationClarityLazy
+
+    /** The four skills that support a divination, each +1 (Ch. 6.5, Sec. I). */
+    fun divinationSupport(): List<DivinationSupport> = divinationSupportLazy
 
     /** The four shields (Ch. 5, p. 37), in printed order. */
     fun shields(): List<Shield> = shieldsLazy

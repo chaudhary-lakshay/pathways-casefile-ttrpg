@@ -1,0 +1,43 @@
+{
+ "sourceLines": {
+  "6.5": [
+   [
+    3711,
+    3736
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "result": "Success by 5+",
+   "clarity": "Crystal clear",
+   "effect": "Precise answer, additional useful detail, possibly a vision"
+  },
+  {
+   "result": "Success by 3–4",
+   "clarity": "Clear",
+   "effect": "Direct answer to the question"
+  },
+  {
+   "result": "Success by 0–2",
+   "clarity": "Vague",
+   "effect": "Symbolic or partial answer — requires interpretation (IQ or Occultism roll to fully understand)"
+  },
+  {
+   "result": "Failure by 1–4",
+   "clarity": "Murky",
+   "effect": "No useful information. SPI spent. May retry after 1 hour with fresh approach."
+  },
+  {
+   "result": "Failure by 5+",
+   "clarity": "Distorted",
+   "effect": "Misleading or inverted answer. The caster believes it is genuine."
+  },
+  {
+   "result": "Critical Failure",
+   "clarity": "Backlash",
+   "effect": "Roll on the Critical Failure Table (Chapter 7, Section VI) — treat as a ritual critical failure.",
+   "isCritical": true
+  }
+ ]
+}

@@ -970,6 +970,77 @@ def test_committed_major_wound_table_is_the_three_rows_printed():
     assert entries[0]["effect"].startswith("-4 to all rolls")
 
 
+# --- Divination Arts (Ch. 6.5) ----------------------------------------------
+
+import extract_divination
+
+
+def test_the_overnight_time_cell_is_rejoined_across_a_mid_word_split():
+    """The PDF cut "Overnight" into "Overnig" and "ht". No cell-shaped rule can
+    see that; joining without a separator and checking the printed times can."""
+    assert extract_divination.join_time(["Overnig", "ht"]) == "Overnight"
+    assert extract_divination.join_time(["30 sec"]) == "30 sec"
+    with pytest.raises(ValueError):
+        extract_divination.join_time(["whenever"])
+
+
+def test_a_wrapped_method_name_is_one_row_not_two():
+    """"Dream" / "Interpretation" is one method. Read as two, every column
+    below it shifts by a row."""
+    rows = extract_divination.parse_methods([
+        "Pendulum", "Yes/no questions", "1 min", "1", "The most common method.",
+        "Coin", "Binary outcomes", "30 sec", "1", "Simplest method.",
+        "Dowsing Rods", "Finding objects", "5 min", "1–2", "Uses L-shaped rods.",
+        "Dream", "Interpretation", "Complex questions", "Overnig", "ht", "2", "Set an intent.",
+        "Mirror Scrying", "Viewing distant places", "10 min", "2", "A darkened mirror.",
+        "Crystal Ball", "Precise visions", "15 min", "2", "A quartz sphere.",
+        "Tarot / Cards", "Pattern recognition", "10 min", "2", "A spread of cards.",
+        "Bone Oracle", "Spirit communication", "15 min", "2", "Toss inscribed bones.",
+    ])
+    assert [r["method"] for r in rows] == extract_divination.METHODS
+    dream = rows[3]
+    assert dream["time"] == "Overnight" and dream["spi"] == 2
+    assert rows[2]["spiMax"] == 2, "Dowsing Rods cost 1-2 SPI"
+    assert "spiMax" not in rows[0]
+
+
+def test_the_cross_reference_row_carries_no_modifier():
+    """"See Step 1 table" is a pointer, not a number. Parsed as 0 it would
+    silently drop the whole of Step 1."""
+    rows = extract_divination.parse_modifiers([
+        "Question difficulty", "See Step 1 table",
+        "Target link (true name, possession, blood)", "+0 to +4 (same as ritual link rules)",
+    ])
+    assert rows[0]["crossReference"] is True and "modifier" not in rows[0]
+    assert rows[1]["modifier"] == 0 and rows[1]["best"] == 4
+
+
+def test_a_repeating_penalty_is_marked_as_one():
+    rows = extract_divination.parse_modifiers([
+        "Previous divination about the same subject (cumulative)", "-2 per repeat",
+    ])
+    assert rows[0]["modifier"] == -2 and rows[0]["perRepeat"] is True
+
+
+def test_a_wrapped_difficulty_band_keeps_both_halves():
+    rows = extract_divination.parse_difficulty([
+        "Trivial — personal, present,", "simple", "+2", '"Is there danger behind this door?"',
+        "Extreme — divine, fate-bound,", "cosmic", "-6 or worse",
+        '"What is the true name of the Hidden One?"',
+    ])
+    assert rows[0]["band"] == "Trivial — personal, present, simple"
+    assert rows[0]["modifier"] == 2 and "openEnded" not in rows[0]
+    assert rows[1]["modifier"] == -6 and rows[1]["openEnded"] is True
+
+
+def test_committed_clarity_table_has_one_row_named_by_outcome():
+    entries = json.loads((CONTENT / "divination_clarity.json").read_text(encoding="utf-8"))["entries"]
+    assert [e["result"] for e in entries] == extract_divination.CLARITY_RESULTS
+    critical = [e for e in entries if e.get("isCritical")]
+    assert len(critical) == 1
+    assert "Critical Failure Table" in critical[0]["effect"]
+
+
 # --- Shields (Ch. 5, p. 37) -------------------------------------------------
 
 import extract_shields

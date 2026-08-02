@@ -39,6 +39,7 @@ import com.pathways.model.SkillKey
 import com.pathways.rules.Conditions
 import com.pathways.rules.Corruption
 import com.pathways.rules.Derive
+import com.pathways.rules.Divination
 import com.pathways.rules.FrightCheck
 import com.pathways.rules.FrightKind
 import com.pathways.rules.FrightOutcome
@@ -171,6 +172,7 @@ fun SheetScreen(
     var defending by remember(sheet) { mutableStateOf(false) }
     var attacking by remember(sheet) { mutableStateOf(false) }
     var damaging by remember(sheet) { mutableStateOf(false) }
+    var divining by remember(sheet) { mutableStateOf(false) }
     // Maximums move with the potions drunk: HT gains lift FP, and SPI is
     // entirely a potion's gift. Recomputed from the walk, never stored.
     val vitals = remember(sheet, drunk, session.edits) {
@@ -212,6 +214,9 @@ fun SheetScreen(
     // Only a caster can cast. No premade prints Ritualistic Magic, so this is
     // null until someone buys it in the builder.
     val ritualLevel = skillLevelOf(RITUAL_SKILL, skillLevels)
+    // Same gate, same reason: no premade prints Divination Arts either, so it
+    // is bought in the builder before a question can be asked.
+    val divinationLevel = skillLevelOf(Divination.SKILL, skillLevels)
 
     // What the trackers are costing a roll of [key]. [cor] is a parameter
     // because RitualResolution applies the corruption ladder itself, and
@@ -239,6 +244,9 @@ fun SheetScreen(
                         TextButton(onClick = { frightening = true }) { Text("Fright") }
                         if (ritualLevel != null) {
                             TextButton(onClick = { casting = true }) { Text("Ritual") }
+                        }
+                        if (divinationLevel != null) {
+                            TextButton(onClick = { divining = true }) { Text("Divine") }
                         }
                         TextButton(onClick = { attacking = true }) { Text("Attack") }
                         TextButton(onClick = { defending = true }) { Text("Defend") }
@@ -350,6 +358,28 @@ fun SheetScreen(
             // the tracker, so the next roll is made by a tireder character.
             onSpendFp = { session.spend(Pool.FP, it, vitals.maxFp, maxCor) },
             onDismiss = { attacking = false },
+        )
+    }
+    if (divining && divinationLevel != null) {
+        DivinationDialog(
+            skillLevel = divinationLevel,
+            // Divination Arts is SPI/Hard, so Spiritual Attrition reaches it.
+            // The CoR ladder does not: it is scoped to ritual rolls (p. 68).
+            conditionPenalty = conditionsFor(
+                key = SkillKey(
+                    Divination.SKILL,
+                    null,
+                    ControllingAttribute.Spi,
+                    Difficulty.HARD,
+                ),
+                cor = 0,
+            ).sumOf { (it.effect as ModEffect.Flat).n },
+            spiAvailable = vitals.maxSpi - session.spiSpent,
+            dice = appDice,
+            // Through the tracker, so a question asked at 0 SPI buys the Soul
+            // Debt the book charges for it.
+            onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
+            onDismiss = { divining = false },
         )
     }
     if (casting && ritualLevel != null) {

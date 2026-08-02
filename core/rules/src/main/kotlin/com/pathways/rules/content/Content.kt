@@ -453,6 +453,78 @@ data class ExtraEffort(val option: String, val fp: Int, val effect: String)
 data class AttackOption(val option: String, val rule: String)
 
 /**
+ * One band of the Question Difficulty table (Ch. 6.5, Step 1).
+ *
+ * [openEnded] marks "-6 or worse", the one band whose modifier is a floor
+ * rather than a value -- the same shape as the "100+ meters" range band and
+ * the darkness row. [modifier] is its gentle end.
+ */
+@Serializable
+data class DivinationDifficulty(
+    val band: String,
+    val modifier: Int,
+    val printedModifier: String,
+    val example: String,
+    val openEnded: Boolean = false,
+)
+
+/**
+ * One row of the Methods & Tools table (Ch. 6.5, Section II).
+ *
+ * [spiMax] is present only on Dowsing Rods, whose cell reads "1-2": a cost the
+ * GM picks inside, not a fixed one.
+ */
+@Serializable
+data class DivinationMethod(
+    val method: String,
+    val bestFor: String,
+    val time: String,
+    val spi: Int,
+    val spiMax: Int? = null,
+    val notes: String,
+)
+
+/**
+ * One row of the Step 3 modifier table (Ch. 6.5).
+ *
+ * [crossReference] marks "Question difficulty / See Step 1 table", which is
+ * not a number at all -- it points at [DivinationDifficulty], which the caller
+ * already applies. Reading it as zero would drop the whole of Step 1, so it is
+ * refused, the same way the Aim rows are.
+ *
+ * [best] is the other end of a printed range ("+0 to +2"); [modifier] is the
+ * end nearer zero. [perRepeat] marks the one row that multiplies.
+ */
+@Serializable
+data class DivinationModifier(
+    val source: String,
+    val printed: String,
+    val modifier: Int? = null,
+    val best: Int? = null,
+    val perRepeat: Boolean = false,
+    val crossReference: Boolean = false,
+)
+
+/**
+ * One row of the Step 4 clarity table (Ch. 6.5).
+ *
+ * Five rows are named by margin and [isCritical] marks the sixth, which is
+ * named by OUTCOME. Two doors into one table, exactly as the ritual failure
+ * table has -- see [com.pathways.rules.Divination.clarityFor].
+ */
+@Serializable
+data class DivinationClarity(
+    val result: String,
+    val clarity: String,
+    val effect: String,
+    val isCritical: Boolean = false,
+)
+
+/** One row of the Supporting Skills table (Ch. 6.5), each worth +1. */
+@Serializable
+data class DivinationSupport(val skill: String, val bonus: Int)
+
+/**
  * One row of the Shields table (Ch. 5, p. 37).
  *
  * [db] is the Defense Bonus, which "adds to all active defenses (Dodge, Parry,

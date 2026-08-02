@@ -1,0 +1,43 @@
+{
+ "sourceLines": {
+  "6.5": [
+   [
+    3662,
+    3684
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "band": "Trivial — personal, present, simple",
+   "modifier": 2,
+   "printedModifier": "+2",
+   "example": "\"Is there danger behind this door?\""
+  },
+  {
+   "band": "Easy — personal, recent, concrete",
+   "modifier": 0,
+   "printedModifier": "+0",
+   "example": "\"Where did I lose my key?\""
+  },
+  {
+   "band": "Moderate — impersonal, distant, vague",
+   "modifier": -2,
+   "printedModifier": "-2",
+   "example": "\"Is the merchant hiding something?\""
+  },
+  {
+   "band": "Hard — well-guarded, future, abstract",
+   "modifier": -4,
+   "printedModifier": "-4",
+   "example": "\"Will the Church raid this hideout?\""
+  },
+  {
+   "band": "Extreme — divine, fate-bound, cosmic",
+   "modifier": -6,
+   "printedModifier": "-6 or worse",
+   "example": "\"What is the true name of the Hidden One?\"",
+   "openEnded": true
+  }
+ ]
+}

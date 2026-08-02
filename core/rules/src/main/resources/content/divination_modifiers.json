@@ -1,0 +1,57 @@
+{
+ "sourceLines": {
+  "6.5": [
+   [
+    3690,
+    3708
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "source": "Question difficulty",
+   "printed": "See Step 1 table",
+   "crossReference": true
+  },
+  {
+   "source": "Method match (right tool for the question)",
+   "printed": "+0 to +2",
+   "modifier": 0,
+   "best": 2
+  },
+  {
+   "source": "Target link (true name, possession, blood)",
+   "printed": "+0 to +4 (same as ritual link rules)",
+   "modifier": 0,
+   "best": 4
+  },
+  {
+   "source": "Favourable timing (astrological, domain-appropriate)",
+   "printed": "+1",
+   "modifier": 1
+  },
+  {
+   "source": "Unfavourable timing (wrong phase, entity's off-day)",
+   "printed": "-1 to -2",
+   "modifier": -1,
+   "best": -2
+  },
+  {
+   "source": "Interrupted or rushed (half the usual time)",
+   "printed": "-2",
+   "modifier": -2
+  },
+  {
+   "source": "Quiet, dedicated space",
+   "printed": "+0 to +1",
+   "modifier": 0,
+   "best": 1
+  },
+  {
+   "source": "Previous divination about the same subject (cumulative)",
+   "printed": "-2 per repeat",
+   "modifier": -2,
+   "perRepeat": true
+  }
+ ]
+}

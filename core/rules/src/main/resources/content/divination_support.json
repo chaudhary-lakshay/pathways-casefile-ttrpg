@@ -1,0 +1,28 @@
+{
+ "sourceLines": {
+  "6.5": [
+   [
+    3563,
+    3580
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "skill": "Occultism",
+   "bonus": 1
+  },
+  {
+   "skill": "Hidden Lore (relevant)",
+   "bonus": 1
+  },
+  {
+   "skill": "Psychology",
+   "bonus": 1
+  },
+  {
+   "skill": "Cogitation",
+   "bonus": 1
+  }
+ ]
+}

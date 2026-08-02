@@ -1,0 +1,69 @@
+{
+ "sourceLines": {
+  "6.5": [
+   [
+    3583,
+    3654
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "method": "Pendulum",
+   "bestFor": "Yes/no questions, quick checks, spiritual dowsing",
+   "time": "1 min",
+   "spi": 1,
+   "notes": "The most common method. Requires a weighted object on a chain. The direction of swing indicates yes/no."
+  },
+  {
+   "method": "Coin",
+   "bestFor": "Binary outcomes, pass/fail checks",
+   "time": "30 sec",
+   "spi": 1,
+   "notes": "Simplest method. Toss and interpret based on the spiritual feeling accompanying the result."
+  },
+  {
+   "method": "Dowsing Rods",
+   "bestFor": "Finding objects, locations, water, hidden passages",
+   "time": "5 min",
+   "spi": 1,
+   "notes": "Uses L-shaped rods or a Y-branch. The rods cross or dip when over the target.",
+   "spiMax": 2
+  },
+  {
+   "method": "Dream Interpretation",
+   "bestFor": "Complex questions, symbolic answers, prophetic glimpses",
+   "time": "Overnight",
+   "spi": 2,
+   "notes": "The caster sets an intent before sleep. The dream contains a symbolic answer requiring interpretation. +2 if the caster keeps a dream journal."
+  },
+  {
+   "method": "Mirror Scrying",
+   "bestFor": "Viewing distant places or people, surveillance",
+   "time": "10 min",
+   "spi": 2,
+   "notes": "A darkened mirror or bowl of still water. The caster gazes until an image forms. Sensitive to light and noise."
+  },
+  {
+   "method": "Crystal Ball",
+   "bestFor": "Precise visions, seeing the past/future",
+   "time": "15 min",
+   "spi": 2,
+   "notes": "Requires a clear quartz or glass sphere. Provides clear imagery. +1 if the ball has been consecrated."
+  },
+  {
+   "method": "Tarot / Cards",
+   "bestFor": "Pattern recognition, multiple connected questions",
+   "time": "10 min",
+   "spi": 2,
+   "notes": "A spread of cards reveals relationships between factors. Requires a deck with spiritual resonance."
+  },
+  {
+   "method": "Bone Oracle",
+   "bestFor": "Spirit communication, ancestral guidance",
+   "time": "15 min",
+   "spi": 2,
+   "notes": "Toss inscribed bones or lots and read the pattern. Effective for questions about the dead or spirits. A Beyonder may specialise in one method, gaining +1 when using it. This counts as a technique (see GURPS Techniques, p. B229). Specialisation does not penalise other methods — it simply reflects focused practice."
+  }
+ ]
+}

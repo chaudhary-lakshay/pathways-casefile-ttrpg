@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **513 Kotlin** (JUnit 5, incl. 44 in `app/`) + **78 Python** (pytest), all green |
+| Tests | **528 Kotlin** (JUnit 5, incl. 44 in `app/`) + **84 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -75,7 +75,7 @@ docs/           spec, plan, KNOWN_ISSUES
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty-nine JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading thirty-four JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -88,7 +88,10 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `unarmed_attacks.json` (10), `range_penalties.json` (7),
 `ranged_modifiers.json` (9), `hit_locations.json` (9),
 `wounding_multipliers.json` (8), `spirit_damage.json` (15),
-`major_wound.json` (3), `shields.json` (4), `shield_rules.json` (3).
+`major_wound.json` (3), `shields.json` (4), `shield_rules.json` (3),
+`divination_difficulty.json` (5), `divination_methods.json` (8),
+`divination_modifiers.json` (8), `divination_clarity.json` (6),
+`divination_support.json` (4).
 
 ### Public entry points
 
@@ -142,6 +145,10 @@ ContentLoader.majorWound() / .shields() / .shieldRules()
 Shields.all() / .rules() / .named(type): Shield
 Shields.withBonus(defense, shield) / .blockFor(shield, skill, isRanged)
 Shields.blockPenalty(shield, isRanged): Int
+Divination.targetFor(skill, difficulty, extras) / .attempt(...): DivinationOutcome
+Divination.clarityFor(roll) / .modifierTotal(rows, gmValue, repeats)
+Divination.supportBonus(skills) / .spiFor(method, chosen, burned)
+Divination.difficulties() / .methods() / .modifiers() / .clarities()
 SkillRoll.at(label, base, key, source, mods, ctx): SkillRollOutcome
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
@@ -772,10 +779,64 @@ Block 7): a heavy shield read Dodge **7 → 10**, a light one Dodge **7 → 8**,
 Block **7 → 8** and "Against ranged attacks: **7**" — the -1 landing on shots
 and nothing else.
 
-**M4 is complete.** Still unmodelled and deliberately so: Feint's Quick
-Contest, Aim's ACC (no weapon in this book prints one), a shield's facing arc,
-and the shield bash's damage (it is `thr-2`/`thr-1`/`thr`, which `Damage`
-could roll, but a bash is a weapon attack and this book lists no weapons).
+Still unmodelled and deliberately so: Feint's Quick Contest, Aim's ACC (no
+weapon in this book prints one), a shield's facing arc, and the shield bash's
+damage (it is `thr-2`/`thr-1`/`thr`, which `Damage` could roll, but a bash is
+a weapon attack and this book lists no weapons).
+
+**Correction:** this section first said "M4 is complete". It was not. M4 is
+spec section 8's "T2 + T3", and T3 is chapters 6.5, 7, 7.5 and 13 — so
+**Divination Arts (Ch. 6.5) was still at 0%** when Chapter 5 closed. Section
+6p is that slice. Check `tools/coverage.py` against the tier table before
+calling a milestone done; the chapter you just finished is not the milestone.
+
+## 6p. Divination — the second caster, and one table with two doors
+
+`Divination` is `RitualResolution`'s sibling: state the question's difficulty,
+choose a method and pay its SPI, add the circumstances, roll, read the clarity
+off the margin. Same gate as rituals — no premade prints Divination Arts, so
+it is bought in the builder before the `Divine` button appears.
+
+- **The clarity table has two doors, and this time it was expected.** Five
+  rows are named by margin ("Success by 3-4") and the sixth by OUTCOME
+  ("Critical Failure"), which is exactly the shape `FrightCheck` and
+  `RitualResolution` each got wrong once. Outcome first, margin second.
+- **A critical SUCCESS is read by its margin.** The book prints a
+  critical-failure row and no critical-success row, and that asymmetry is
+  deliberate enough to follow: a 4 against a target of 5 is "Vague", and
+  inventing "Crystal clear" for it would be inventing content. Codex read the
+  source lines and agreed.
+- **One modifier row is not a modifier.** "Question difficulty / See Step 1
+  table" points back at Step 1, which `targetFor` already applies. Read as
+  zero it silently drops the whole question; added beside Step 1 it charges it
+  twice. `modifierTotal` refuses it and the dialog never offers it.
+- **The critical row prints no effects of its own** — it says "treat as a
+  ritual critical failure" — so `RitualResolution.criticalFor` is rolled
+  rather than a second copy of that table being carried here.
+- **Dowsing Rods costs "1-2 SPI", and the app charged 1** (Codex). The screen
+  displayed the range while `spiFor` returned the low end. Undercharging SPI
+  is not a rounding difference: below 0 it is Soul Debt, and that CoR is
+  permanent. There are chips for the two ends now, and `spiFor` validates.
+- **`Ask` was re-entrant** (Codex). Two taps could reach the handler before
+  the button left the tree and spend the SPI twice — again buying permanent
+  CoR from one visible action. It returns early when an answer is already
+  showing.
+- **"Overnight" arrives split MID-WORD** as "Overnig" / "ht". No cell-shaped
+  rule can see that; the extractor joins the time cell without a separator and
+  checks it against the six times this book prints. "Dream" / "Interpretation"
+  wraps the method NAME in the same table, which is why the closed set of
+  eight method names is that table's anchor.
+
+Device-verified on Academic Researcher with Divination Arts bought at 1 point:
+the skill reads **-2**, because it is SPI/Hard and a non-Beyonder has SPI 0 —
+the book gating divination on spirituality, arithmetically. A Trivial question
+gave "Roll 3d6 ≤ 0"; a 9 landed on **"Failure by 5+ — Distorted"**; choosing
+the 2 SPI end of Dowsing Rods saved `spiSpent: 2` and `cor: 2`, the Soul Debt
+charging itself.
+
+**Still ahead in M4 (T3):** summoning (Ch. 7.5), boon granting (Ch. 13), and
+Ch. 6.5's Section IV onward — divination awareness and countermeasures, which
+is a per-pathway detection subsystem and a slice of its own.
 
 ### A note on Codex
 
