@@ -1249,3 +1249,58 @@ def test_the_committed_boon_modifiers_are_two_groups_of_four():
         groups.setdefault(row["group"], []).append(row)
     assert sorted(groups) == ["Ritual quality", "Sacrifice quality"]
     assert all(len(rows) == 4 for rows in groups.values())
+
+
+import extract_non_standard
+
+
+def test_the_non_standard_blocks_are_not_in_the_potion_file():
+    """Chapter 14's pathways advance by boon. PotionDigestion walks whatever
+    pathways.json holds, so one name in both files makes a boon-granted path
+    drinkable -- the reason these are a separate file at all."""
+    granted = json.loads(
+        (CONTENT / "non_standard_pathways.json").read_text(encoding="utf-8")
+    )["entries"]
+    potions = json.loads((CONTENT / "pathways.json").read_text(encoding="utf-8"))["entries"]
+    assert not {e["pathway"] for e in granted} & {e["pathway"] for e in potions}
+
+
+def test_the_non_standard_ladder_has_the_holes_the_intro_warns_about():
+    entries = json.loads(
+        (CONTENT / "non_standard_pathways.json").read_text(encoding="utf-8")
+    )["entries"]
+    assert len(entries) == extract_non_standard.EXPECTED_BLOCKS
+    with_nine = {e["pathway"] for e in entries if e["sequence"] == 9}
+    gaps = {e["pathway"] for e in entries if e["sequence"] == 8} - with_nine
+    assert gaps == extract_non_standard.SEQUENCE_8_WITHOUT_9
+
+
+def test_both_spellings_of_one_pathway_survive_the_extraction():
+    """Ch. 14 prints "Eternal Aeon (Inevitability)", ch. 15 "Eternal Aeon".
+    Recorded, never repaired -- which is why the gap list above has four
+    entries and only three are real gaps."""
+    entries = json.loads(
+        (CONTENT / "non_standard_pathways.json").read_text(encoding="utf-8")
+    )["entries"]
+    printed = {e["pathway"] for e in entries}
+    for spelling in extract_non_standard.PATHWAY_NAME_DISAGREEMENT:
+        assert spelling in printed
+
+
+def test_the_three_silent_ability_sections_stay_named():
+    """An " Ability" heading with nothing under it is what the BOOK prints in
+    three blocks; in each the next line is a page break or the next header."""
+    entries = json.loads(
+        (CONTENT / "non_standard_pathways.json").read_text(encoding="utf-8")
+    )["entries"]
+    silent = {(e["name"], e["sequence"]) for e in entries if not e["ability"]}
+    assert silent == extract_non_standard.ABILITY_MISSING
+
+
+def test_a_block_that_grew_an_ability_would_fail_verification():
+    entries = [
+        {"name": "Villain", "sequence": 9, "pathway": "Mother Goddess of Depravity",
+         "ability": "something the book does not print"},
+    ]
+    with pytest.raises(ValueError):
+        extract_non_standard.verify(entries)

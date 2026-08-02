@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **551 Kotlin** (JUnit 5, incl. 46 in `app/`) + **94 Python** (pytest), all green |
+| Tests | **559 Kotlin** (JUnit 5, incl. 46 in `app/`) + **99 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -75,7 +75,7 @@ docs/           spec, plan, KNOWN_ISSUES
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading thirty-seven JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading thirty-eight JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -92,7 +92,8 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `divination_difficulty.json` (5), `divination_methods.json` (8),
 `divination_modifiers.json` (8), `divination_clarity.json` (6),
 `divination_support.json` (4), `ritual_preparation.json` (5),
-`boon_granting.json` (1), `boon_modifiers.json` (8).
+`boon_granting.json` (1), `boon_modifiers.json` (8),
+`non_standard_pathways.json` (17).
 
 ### Public entry points
 
@@ -161,6 +162,9 @@ Boons.granting() / .modifiers() / .groups() / .weight(): RitualWeight
 Boons.penaltyForSequence(sequence): Int      // doubling, 9=0 down to 0=-512
 Boons.modifierTotal(chosen, gmValue) / .spiFor(chosen, burned)
 Boons.targetFor(skill, cor, sequence, chosen, gmValue) / .attempt(...)
+NonStandardPathways.all() / .pathways() / .blocksFor(pathway)
+NonStandardPathways.blockFor(pathway, sequence): SequenceBlock?  // null = no such rung
+NonStandardPathways.knownSequences(pathway) / .alsoPrintedAs(pathway)
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -936,13 +940,64 @@ roll-named critical row with no −2 shift and landed on "9-10 Spiritual
 Drain". Sequence 0 read **"3d6 ≤ −505 — a rolled 3 or 4 still succeeds"**. A
 7 against 13 granted the boon and printed Section IV's four consequences.
 
+## 6s. The non-standard pathways — 17 blocks that must never be drinkable
+
+Chapters 14 and 15 print Sequence blocks in exactly the shape chapters 9-12
+do, so `extract_non_standard.py` is `extract_pathways.extract()` with a
+different chapter list and its own `verify()`. What the slice is actually
+about is where they are NOT allowed to go.
+
+- **They are not potions, and `pathways.json` is what makes something a
+  potion.** Ch. 14: "Unlike standard Beyonders who consume potions brewed
+  from Beyonder Characteristics, followers of non-standard pathways advance
+  through boons." `PotionDigestion.of` walks whatever that file holds and
+  `canDrink` offers whatever it walks, so one row in the wrong file puts a
+  Sequence 9 Dancer potion on the pathway screen. Separate file, separate
+  object, and `not_also_a_potion()` fails the extract if the two ever
+  intersect.
+- **The ladder has holes, which is a second reason they could not go there.**
+  Ten Sequence 9 blocks, seven Sequence 8, and they do not line up: Second
+  Law, Sublunary Eye and Eternal Edict print a Sequence 8 whose Sequence 9
+  the book never records. `pathways.json` verifies that every pathway carries
+  all of 6/7/8/9 — these would have broken it, and the intro says why: "most
+  pathways are only known at this sequence".
+- **Three blocks print an " Ability" heading with nothing under it** —
+  Villain, Astronomy Aficionado, Secretary. In each the next line is a page
+  break or the following block's header, so the section is empty in the BOOK
+  and nothing was lost in the parse. Named exclusion set, same shape as
+  `GoldenSheetTest`'s; the screen says so out loud rather than showing a gap.
+- **One pathway is spelled two ways and both survive.** Ch. 14 prints
+  "Eternal Aeon (Inevitability)", ch. 15 "Eternal Aeon". Merging them is a
+  repair, so the lookups stay exact — which means the computed gap list has
+  four members and only three are real gaps.
+- **That disagreement immediately misled the UI** (Codex): the picker lists
+  printed names, so both appear, and choosing ch. 15's spelling at Sequence 9
+  read "the book records no Sequence 9" while the Dancer block sat under the
+  other name. Codex's fix was an alias map collapsing them into one patron;
+  that was declined, because it repairs the data and hides that the book
+  prints two names. `alsoPrintedAs` names the pair instead, and the screen
+  points across: "The other chapter prints this pathway as ... and records 9.
+  The book never reconciles the two names."
+- **`blockFor` throws for an unknown pathway and returns null for an
+  unrecorded rung.** Same distinction `Wounds.multiplierFor` draws between an
+  unlisted damage type and a silent cell. The dialog's pathway is nullable on
+  purpose — the Great Ones are not a closed list, and petitioning one the
+  book never printed is the GM's call.
+
+Device-verified on Academic Researcher: all 14 pathway chips render; "Eternal
+Aeon (Inevitability)" at Sequence 9 shows **Dancer — DX +2, SPI +6, HT +1,
+Dancing +4, Acrobatics +3**; "Eternal Aeon" at Sequence 9 shows the
+cross-reference; Mother Goddess of Depravity shows the Villain's stats,
+skills and drawback followed by **"The book prints an Ability heading for
+this block and nothing under it."**
+
 **Still ahead in M4 (T3):** summoning is closed as a decision (above), so
 what is left is Ch. 6.5's Section IV onward — divination
 awareness and countermeasures, which is a per-pathway detection subsystem and
 a slice of its own. Chapter 7 is also still only part-claimed: power sources,
-entity response, ritual timing and the sample rituals are unread. Chapters 14
-and 15 (the non-standard pathways the boon system feeds) are at 0% and are
-the largest unclaimed content left in the book.
+entity response, ritual timing and the sample rituals are unread. Chapters 14 and 15 are
+now complete (section 6s). The largest unclaimed content left is chapter 3's
+remaining third and chapter 8 (Equipment & Starting Wealth), at 0%.
 
 ### A note on Codex
 

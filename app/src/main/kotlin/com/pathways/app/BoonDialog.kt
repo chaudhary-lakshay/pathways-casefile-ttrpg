@@ -21,10 +21,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.Boons
+import com.pathways.rules.NonStandardPathways
 import com.pathways.rules.RandomSource
 import com.pathways.rules.RitualOutcome
 import com.pathways.rules.SuccessRoll
 import com.pathways.rules.content.BoonModifier
+import com.pathways.rules.content.SequenceBlock
 
 private fun signed(n: Int) = if (n >= 0) "+$n" else "$n"
 
@@ -40,6 +42,50 @@ internal fun targetLine(target: Int): String {
     val printed = "3d6 ≤ $target"
     if (target >= SuccessRoll.ALWAYS_SUCCEEDS_AT_OR_UNDER) return printed
     return "$printed — a rolled 3 or 4 still succeeds"
+}
+
+/**
+ * What the book records for the pathway and sequence being petitioned.
+ *
+ * Shown before the roll, because "Sequence 8 of the Chaos Mist Pathway" is
+ * the thing being asked for and a player choosing a boon level blind is
+ * choosing a number. Advantages and drawbacks stay the prose the extractor
+ * preserved -- their name/effect boundary is not recoverable from this PDF.
+ */
+@Composable
+private fun GrantedBlock(block: SequenceBlock) {
+    Text(
+        "${block.name} — Sequence ${block.sequence}",
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(top = 8.dp),
+    )
+    val gains = block.stats.joinToString { "${it.attr} ${signed(it.delta.toInt())}" }
+    if (gains.isNotEmpty()) Text(gains, style = MaterialTheme.typography.bodySmall)
+    block.skills.forEach {
+        Text("${it.name} ${signed(it.bonus)}", style = MaterialTheme.typography.bodySmall)
+    }
+    listOf("Advantages" to block.advantages, "Drawbacks" to block.drawbacks).forEach { (label, text) ->
+        if (text.isNotBlank()) {
+            Text("$label: $text", style = MaterialTheme.typography.bodySmall)
+        }
+    }
+    if (block.ability.isBlank()) {
+        // Three blocks print an " Ability" heading with nothing under it.
+        // Saying so beats an empty gap the reader has to interpret.
+        Text(
+            "The book prints an Ability heading for this block and nothing under it.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+        )
+    } else {
+        Text(block.ability, style = MaterialTheme.typography.bodySmall)
+    }
+    if (block.reinforcedAbilities.isNotBlank()) {
+        Text(
+            "Reinforced: ${block.reinforcedAbilities}",
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
 }
 
 /** The ends a ranged option offers, nearer zero first ("+1 to +3" -> 1, 2, 3). */
@@ -91,6 +137,10 @@ fun BoonDialog(
     // label, which the two groups are free to share.
     val picked = remember { mutableStateMapOf<String, Int>() }
     var spiChoice by remember { mutableIntStateOf(granting.spi) }
+    // Null is a real answer: the Great Ones are not a closed list, and the
+    // book records only fourteen of their pathways. Petitioning one it never
+    // printed is the GM's to adjudicate, not this dialog's to refuse.
+    var pathway by remember { mutableStateOf<String?>(null) }
     var outcome by remember { mutableStateOf<RitualOutcome?>(null) }
 
     val picks = groups.mapNotNull { chosen[it] }
@@ -132,6 +182,48 @@ fun BoonDialog(
                             granting.boonLevelRule,
                         style = MaterialTheme.typography.bodySmall,
                     )
+
+                    Text(
+                        "Patron's pathway",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    FlowRow {
+                        NonStandardPathways.pathways().forEach { option ->
+                            FilterChip(
+                                selected = option == pathway,
+                                onClick = { pathway = if (option == pathway) null else option },
+                                label = { Text(option) },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                    val patron = pathway
+                    val documented = patron?.let { NonStandardPathways.blockFor(it, sequence) }
+                    when {
+                        documented != null -> GrantedBlock(documented)
+                        patron != null -> {
+                            Text(
+                                "The book records no Sequence $sequence for the $patron" +
+                                    " Pathway — it prints " +
+                                    NonStandardPathways.knownSequences(patron).joinToString(),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            // The two chapters spell one pathway differently.
+                            // Saying so beats a gap that reads as "the book
+                            // never wrote this down" when it did, under the
+                            // other name (Codex).
+                            NonStandardPathways.alsoPrintedAs(patron)?.let { other ->
+                                Text(
+                                    "The other chapter prints this pathway as \"$other\" and " +
+                                        "records " +
+                                        NonStandardPathways.knownSequences(other).joinToString() +
+                                        ". The book never reconciles the two names.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                        }
+                    }
 
                     groups.forEach { group ->
                         Text(
@@ -263,9 +355,13 @@ fun BoonDialog(
                         // hands all of it to the GM -- but a boon accepted
                         // without them on screen is a bargain half read.
                         Text(
-                            "Sequence $sequence granted. The patron is aware of you now:",
+                            "Sequence $sequence" +
+                                (pathway?.let { " of the $it Pathway" } ?: "") +
+                                " granted. The patron is aware of you now:",
                             modifier = Modifier.padding(top = 8.dp),
                         )
+                        pathway?.let { NonStandardPathways.blockFor(it, sequence) }
+                            ?.let { GrantedBlock(it) }
                         granting.consequences.forEach {
                             Text("• $it", style = MaterialTheme.typography.bodySmall)
                         }

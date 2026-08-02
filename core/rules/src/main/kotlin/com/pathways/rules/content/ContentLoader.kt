@@ -54,6 +54,12 @@ object ContentLoader {
     private val divinationSupportLazy: List<DivinationSupport> by lazy {
         load("divination_support.json")
     }
+    private val nonStandardPathwaysLazy: List<SequenceBlock> by lazy {
+        // A SEPARATE file from pathways.json on purpose: these advance by
+        // boon, not potion, and PotionDigestion walks whatever pathways.json
+        // holds. See NonStandardPathways.
+        load("non_standard_pathways.json")
+    }
     private val boonModifiersLazy: List<BoonModifier> by lazy { load("boon_modifiers.json") }
     private val boonGrantingLazy: BoonGranting by lazy {
         // One row, because the book fixes these parameters rather than
@@ -190,6 +196,9 @@ object ContentLoader {
 
     /** The Critical Failure Table, ascending by band (Ch. 7, p. 67-68). */
     fun ritualCriticals(): List<RitualCritical> = ritualCriticalsLazy
+
+    /** The boon-granted Sequence blocks of the Outer Deities (Ch. 14-15). */
+    fun nonStandardPathways(): List<SequenceBlock> = nonStandardPathwaysLazy
 
     /** The circumstantial options a boon ritual offers (Ch. 13, p. 144). */
     fun boonModifiers(): List<BoonModifier> = boonModifiersLazy
