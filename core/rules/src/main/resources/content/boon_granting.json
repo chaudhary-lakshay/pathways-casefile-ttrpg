@@ -1,0 +1,47 @@
+{
+ "sourceLines": {
+  "13": [
+   [
+    8933,
+    8934
+   ],
+   [
+    8936,
+    8937
+   ],
+   [
+    8926,
+    8931
+   ],
+   [
+    8954,
+    8962
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "skill": "Ritualistic Magic",
+   "attribute": "IQ",
+   "difficulty": "Very Hard",
+   "complexity": "Heavy",
+   "complexityTime": "1 hour base time",
+   "weight": "Moderate",
+   "weightModifier": -2,
+   "spi": 4,
+   "spiMax": 6,
+   "boonLevelRule": "Sequence 9 equivalent (+0), Sequence 8 (-2), Sequence 7 (-4), and so on, doubling the penalty with each sequence. Generous sacrifices that align with the patron's domain can offset or even negate this penalty — see Sacrifice quality modifiers above.",
+   "requirements": [
+    "The full honorific name of the Hidden Existence. Incomplete or incorrect names are likely to attract the wrong attention — or no attention at all.",
+    "Corresponding mystical ingredients for appeasement. These vary by Great One and are tied to their domain and symbolism. Incense, rare oils, consecrated items, or the blood of specific creatures are common requirements.",
+    "A sacrifice. Sacrifices are almost mandatory for even a Sequence 9 equivalent boon. The quality, significance, and appropriateness of the sacrifice directly affect the ritual's outcome."
+   ],
+   "consequences": [
+    "Personality drift: The GM should periodically introduce subtle changes to the character's personality, reflecting the patron's influence. A boon-granted Beyonder of a Fool-adjacent Great One may become more deceptive; one aligned with a Calamity Existence may grow more destructive.",
+    "Dreams and visions: The patron may communicate — or simply observe — through the boon connection. Sleep is no longer private.",
+    "Increased vulnerability: The connection works both ways. Those with knowledge of the patron may detect the supplicant's taint. Church Inquisitors and Mandated Punishers are trained to recognise boon-granted Beyonders.",
+    "Refusal penalty: Once a boon has been accepted, refusing a direct request from the patron may incur spiritual backlash (see Critical Failure Table, Chapter 7, Section VI)."
+   ]
+  }
+ ]
+}

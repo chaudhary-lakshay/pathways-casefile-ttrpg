@@ -173,6 +173,7 @@ fun SheetScreen(
     var attacking by remember(sheet) { mutableStateOf(false) }
     var damaging by remember(sheet) { mutableStateOf(false) }
     var divining by remember(sheet) { mutableStateOf(false) }
+    var supplicating by remember(sheet) { mutableStateOf(false) }
     // Maximums move with the potions drunk: HT gains lift FP, and SPI is
     // entirely a potion's gift. Recomputed from the walk, never stored.
     val vitals = remember(sheet, drunk, session.edits) {
@@ -247,6 +248,11 @@ fun SheetScreen(
                         }
                         if (divinationLevel != null) {
                             TextButton(onClick = { divining = true }) { Text("Divine") }
+                        }
+                        if (ritualLevel != null) {
+                            // Same gate as the ritual: Chapter 13 rolls the
+                            // same skill, because a boon IS a ritual.
+                            TextButton(onClick = { supplicating = true }) { Text("Boon") }
                         }
                         TextButton(onClick = { attacking = true }) { Text("Attack") }
                         TextButton(onClick = { defending = true }) { Text("Defend") }
@@ -405,6 +411,28 @@ fun SheetScreen(
             // Soul Debt the book charges for it.
             onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
             onDismiss = { casting = false },
+        )
+    }
+    if (supplicating && ritualLevel != null) {
+        BoonDialog(
+            skillLevel = ritualLevel,
+            // cor = 0 for the same reason the ritual passes 0: Boons routes
+            // through RitualResolution, which applies the ladder itself.
+            conditionPenalty = conditionsFor(
+                key = SkillKey(
+                    Conditions.RITUAL_SKILL,
+                    null,
+                    ControllingAttribute.Buyable(Attr.IQ),
+                    Difficulty.VERY_HARD,
+                ),
+                cor = 0,
+            ).sumOf { (it.effect as ModEffect.Flat).n },
+            cor = session.cor,
+            spiAvailable = vitals.maxSpi - session.spiSpent,
+            dice = appDice,
+            onCorGained = { gained -> session.gainCor(gained, maxCor) },
+            onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
+            onDismiss = { supplicating = false },
         )
     }
 }

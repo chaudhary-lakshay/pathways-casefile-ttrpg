@@ -54,6 +54,13 @@ object ContentLoader {
     private val divinationSupportLazy: List<DivinationSupport> by lazy {
         load("divination_support.json")
     }
+    private val boonModifiersLazy: List<BoonModifier> by lazy { load("boon_modifiers.json") }
+    private val boonGrantingLazy: BoonGranting by lazy {
+        // One row, because the book fixes these parameters rather than
+        // tabulating them. single() rather than first(): a second row would
+        // mean the chapter grew a variant nobody has read.
+        load<BoonGranting>("boon_granting.json").single()
+    }
     private val shieldsLazy: List<Shield> by lazy { load("shields.json") }
     private val shieldRulesLazy: List<ShieldRule> by lazy { load("shield_rules.json") }
     private val hitLocationsLazy: List<HitLocation> by lazy { load("hit_locations.json") }
@@ -183,6 +190,12 @@ object ContentLoader {
 
     /** The Critical Failure Table, ascending by band (Ch. 7, p. 67-68). */
     fun ritualCriticals(): List<RitualCritical> = ritualCriticalsLazy
+
+    /** The circumstantial options a boon ritual offers (Ch. 13, p. 144). */
+    fun boonModifiers(): List<BoonModifier> = boonModifiersLazy
+
+    /** The fixed parameters of the boon granting ritual (Ch. 13, p. 144-145). */
+    fun boonGranting(): BoonGranting = boonGrantingLazy
 
     /** What each kind of supernatural sight does to a Fright Check (Ch. 5). */
     fun frightTriggers(): List<FrightTrigger> = frightTriggersLazy

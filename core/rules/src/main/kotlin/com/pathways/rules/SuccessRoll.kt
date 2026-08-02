@@ -9,14 +9,23 @@ object SuccessRoll {
 
     private val THREE_D_SIX = DiceExpr(3, 6, 0)
 
+    /**
+     * A 3 or a 4 succeeds whatever the target, and a 17 or 18 fails whatever
+     * the target. Named because callers other than [evaluate] need to say so:
+     * a screen that prints only "3d6 <= target" tells the player a target
+     * below 3 is hopeless, and it is not.
+     */
+    const val ALWAYS_SUCCEEDS_AT_OR_UNDER = 4
+    const val ALWAYS_FAILS_AT_OR_OVER = 17
+
     fun against(target: Int, source: RandomSource): RollResult =
         evaluate(THREE_D_SIX.roll(source), target)
 
     fun evaluate(total: Int, target: Int): RollResult {
         val margin = target - total
         val outcome = when {
-            total <= 4 -> Outcome.CRITICAL_SUCCESS
-            total >= 17 -> Outcome.CRITICAL_FAILURE
+            total <= ALWAYS_SUCCEEDS_AT_OR_UNDER -> Outcome.CRITICAL_SUCCESS
+            total >= ALWAYS_FAILS_AT_OR_OVER -> Outcome.CRITICAL_FAILURE
             margin <= -10 -> Outcome.CRITICAL_FAILURE
             margin >= 0 -> Outcome.SUCCESS
             else -> Outcome.FAILURE

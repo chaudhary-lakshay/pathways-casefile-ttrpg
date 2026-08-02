@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **534 Kotlin** (JUnit 5, incl. 44 in `app/`) + **88 Python** (pytest), all green |
+| Tests | **551 Kotlin** (JUnit 5, incl. 46 in `app/`) + **94 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -75,7 +75,7 @@ docs/           spec, plan, KNOWN_ISSUES
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading thirty-five JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading thirty-seven JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -91,7 +91,8 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `major_wound.json` (3), `shields.json` (4), `shield_rules.json` (3),
 `divination_difficulty.json` (5), `divination_methods.json` (8),
 `divination_modifiers.json` (8), `divination_clarity.json` (6),
-`divination_support.json` (4), `ritual_preparation.json` (5).
+`divination_support.json` (4), `ritual_preparation.json` (5),
+`boon_granting.json` (1), `boon_modifiers.json` (8).
 
 ### Public entry points
 
@@ -156,6 +157,10 @@ RitualResolution.attempt(skill, weight, cor, source): RitualOutcome
 RitualResolution.targetFor(skill, weight, cor, preparation) / .criticalFor(roll)
 RitualResolution.weights() / .preparations() / .preparationNamed(quality)
 RitualResolution.spiFor(weight, chosen, burned): Int
+Boons.granting() / .modifiers() / .groups() / .weight(): RitualWeight
+Boons.penaltyForSequence(sequence): Int      // doubling, 9=0 down to 0=-512
+Boons.modifierTotal(chosen, gmValue) / .spiFor(chosen, burned)
+Boons.targetFor(skill, cor, sequence, chosen, gmValue) / .attempt(...)
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -873,11 +878,71 @@ chips 8/9/10/11. A 16 failed by 8 and took "Failure by 5-9 — Partial, wrong
 activation"; the saved session went from `spiSpent: 2` to **10** and `cor: 2`
 to **10**, the Soul Debt charging itself because that caster had no SPI pool.
 
-**Still ahead in M4 (T3):** summoning (Ch. 7.5), boon granting (Ch. 13), and
-Ch. 6.5's Section IV onward — divination awareness and countermeasures, which
-is a per-pathway detection subsystem and a slice of its own. Chapter 7 is also
-still only part-claimed: power sources, entity response, ritual timing and the
-sample rituals are unread.
+## 6r. Boons — a ritual whose two parameters are not the same axis
+
+`Boons` is Chapter 13, and it re-implements nothing: a boon IS a Chapter 7
+ritual with its parameters nailed down, so `RitualResolution` rolls it,
+charges its failure bands, and rolls the Critical Failure Table the refusal
+penalty points back at. `BoonDialog` is gated on Ritualistic Magic, the same
+skill and the same reason the ritual screen is.
+
+- **"Heavy" and "Moderate" are printed one line apart and only one reaches
+  the dice.** "Ritual Complexity: Heavy (1 hour base time)" is TIME; "Effect
+  Weight: Moderate (−2 difficulty, 4−6 SPI required)" is the roll — the book
+  says why, in the next sentence: "because the actual power comes from the
+  patron, not the ritual itself." Reading the first as the weight rolls at −4
+  and charges 8+ SPI for a ritual priced at 4−6. Both are extracted so the
+  two cannot be collapsed silently, and `verify()` fails if they ever read
+  the same.
+- **The boon-level ladder is a DOUBLING, and the printed values do not settle
+  it.** "Sequence 9 equivalent (+0), Sequence 8 (−2), Sequence 7 (−4), and so
+  on, doubling the penalty with each sequence." Those three fit a doubling
+  and a flat −2 per step equally; they diverge first at Sequence 6 (−8 vs
+  −6). The sentence says doubling, so Sequence 0 is **−512** — which is the
+  point, because the chapter says a generous sacrifice "can offset or even
+  negate this penalty" and the best one printed is +6. A reading, so it is
+  pinned by a named test rather than left to be rediscovered.
+- **That ladder made a UI line lie** (Codex). At Sequence 0 the panel read
+  "3d6 ≤ −505", which says impossible — and it is not, because `SuccessRoll`
+  treats a rolled 3 or 4 as a critical success whatever the target and this
+  chapter prints no override. `targetLine` says so now, and `SuccessRoll`'s
+  4/17 thresholds are named constants instead of two magic numbers a screen
+  had to guess at.
+- **A GM's chosen value inside a range was keyed by label** (Codex). Nothing
+  in the book or the extractor stops the two groups printing the same words,
+  and one value would then have moved both rows. `BoonModifier.key` is
+  `group / label`, an override naming nothing chosen is refused rather than
+  ignored, and the dialog builds the map from the CURRENT picks — so no path
+  can leave a stale value behind, which is what "Another turn" did.
+- **The third modifier bullet is a rule, not a row set.** Parsed like the
+  other two it would stop at Sequence 7 and the ladder would have to be
+  guessed. It ships as the sentence; the ladder is Kotlin. Same split as the
+  maneuver table's +4/−4/−6/−2.
+- **Ch. 7's Phase I preparation is deliberately not applied.** Chapter 13
+  prints its own Ritual quality row for the same idea, and applying both
+  would charge one preparation twice — the double-count the CoR ladder
+  already had to be scoped out of.
+- **Summoning (Ch. 7.5) was read and deliberately left unmodelled.** It says
+  "the GM must roll an additional 3d for the creature's response" and prints
+  no response table; the creature's abilities, cost and attributes are a
+  format for the GM to fill in. Coverage agrees: one mechanical line in two
+  pages.
+
+Device-verified on Academic Researcher (Ritualistic Magic 9, SPI 0): Sequence
+8 with a great sacrifice at +6 read **"3d6 ≤ 11"** (9 −2 −2 +6) and a 13
+failed by 2 onto "Failure by 1-4"; the fuel was charged anyway and
+`spiSpent: 4` bought `cor: 4`, the Soul Debt again. A rolled **17** took the
+roll-named critical row with no −2 shift and landed on "9-10 Spiritual
+Drain". Sequence 0 read **"3d6 ≤ −505 — a rolled 3 or 4 still succeeds"**. A
+7 against 13 granted the boon and printed Section IV's four consequences.
+
+**Still ahead in M4 (T3):** summoning is closed as a decision (above), so
+what is left is Ch. 6.5's Section IV onward — divination
+awareness and countermeasures, which is a per-pathway detection subsystem and
+a slice of its own. Chapter 7 is also still only part-claimed: power sources,
+entity response, ritual timing and the sample rituals are unread. Chapters 14
+and 15 (the non-standard pathways the boon system feeds) are at 0% and are
+the largest unclaimed content left in the book.
 
 ### A note on Codex
 

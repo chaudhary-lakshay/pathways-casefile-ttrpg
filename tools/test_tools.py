@@ -1177,3 +1177,75 @@ def test_committed_spirit_rules_keep_the_phrases_the_app_states():
     for phrase in extract_spirit.PINNED:
         assert phrase in body
     assert extract_spirit.DROPPED not in {e["section"] for e in entries}
+
+
+import extract_boons
+
+
+def test_a_modifier_bullet_splits_into_its_bracketed_options():
+    rows = extract_boons.parse_options(
+        "Sacrifice quality",
+        "A perfunctory sacrifice (-2 to -4), an appropriate sacrifice (+0), a "
+        "meaningful sacrifice (+1 to +3), or a great sacrifice that aligns "
+        "perfectly with the Great One's domain (+4 to +6).",
+    )
+    assert [r["modifier"] for r in rows] == [-2, 0, 1, 4]
+    assert [r.get("best") for r in rows] == [-4, None, 3, 6]
+    # The connector is dropped; the rest of the label is the book's own text,
+    # commas and all -- and no printed label contains one, which is why the
+    # comma can be the boundary.
+    assert rows[3]["label"] == "a great sacrifice that aligns perfectly with the Great One's domain"
+
+
+def test_the_boon_level_bullet_is_kept_whole_because_it_is_a_rule():
+    """Three examples and then "doubling the penalty with each sequence".
+    Parsed into rows it would stop at Sequence 7 and the ladder would have to
+    be guessed; kept whole, the ladder is implemented and tested in Kotlin."""
+    rows, rule = extract_boons.parse_modifiers([
+        "Ritual quality: Sloppy or rushed (-3), standard preparation (+0).",
+        "Boon level: Sequence 9 equivalent (+0), Sequence 8 (-2), Sequence 7 "
+        "(-4), and so on, doubling the penalty with each sequence.",
+    ])
+    assert {r["group"] for r in rows} == {"Ritual quality"}
+    assert "doubling the penalty with each sequence" in rule
+
+
+def test_a_modifier_bullet_with_no_options_is_a_finding_not_an_empty_group():
+    with pytest.raises(ValueError):
+        extract_boons.parse_options("Sacrifice quality", "some prose with no brackets")
+
+
+def test_a_bullet_continuation_rejoins_across_the_page_break():
+    byn = {
+        1: "\x7f Boon level: Sequence 9 equivalent (+0), and so on — see Sacrifice",
+        2: "Powered by GURPS: Pathways — Lord of the Mysteries",
+        3: "Page 145",
+        4: "quality modifiers above.",
+    }
+    assert extract_boons.bullets(byn, 1, 4) == [
+        "Boon level: Sequence 9 equivalent (+0), and so on — see Sacrifice "
+        "quality modifiers above."
+    ]
+
+
+def test_the_committed_boon_ritual_keeps_time_and_weight_apart():
+    """Heavy is how long it takes; Moderate is what it rolls at. Collapsing
+    them rolls at -4 and charges 8+ SPI for a 4-6 SPI ritual."""
+    entry = json.loads((CONTENT / "boon_granting.json").read_text(encoding="utf-8"))["entries"][0]
+    assert entry["complexity"] == "Heavy"
+    assert entry["weight"] == "Moderate"
+    assert (entry["weightModifier"], entry["spi"], entry["spiMax"]) == (-2, 4, 6)
+    assert entry["skill"] == "Ritualistic Magic"
+    # Both printings of the Moderate cost must agree with Chapter 7's own.
+    weights = json.loads((CONTENT / "ritual_weights.json").read_text(encoding="utf-8"))["entries"]
+    moderate = next(w for w in weights if w["weight"] == "Moderate")
+    assert (moderate["spi"], moderate["spiMax"]) == (entry["spi"], entry["spiMax"])
+
+
+def test_the_committed_boon_modifiers_are_two_groups_of_four():
+    entries = json.loads((CONTENT / "boon_modifiers.json").read_text(encoding="utf-8"))["entries"]
+    groups = {}
+    for row in entries:
+        groups.setdefault(row["group"], []).append(row)
+    assert sorted(groups) == ["Ritual quality", "Sacrifice quality"]
+    assert all(len(rows) == 4 for rows in groups.values())

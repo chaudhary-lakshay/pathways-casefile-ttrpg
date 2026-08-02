@@ -1,0 +1,64 @@
+{
+ "sourceLines": {
+  "13": [
+   [
+    8942,
+    8950
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "group": "Sacrifice quality",
+   "label": "A perfunctory sacrifice",
+   "modifier": -2,
+   "printed": "-2 to -4",
+   "best": -4
+  },
+  {
+   "group": "Sacrifice quality",
+   "label": "an appropriate sacrifice",
+   "modifier": 0,
+   "printed": "+0"
+  },
+  {
+   "group": "Sacrifice quality",
+   "label": "a meaningful sacrifice",
+   "modifier": 1,
+   "printed": "+1 to +3",
+   "best": 3
+  },
+  {
+   "group": "Sacrifice quality",
+   "label": "a great sacrifice that aligns perfectly with the Great One's domain",
+   "modifier": 4,
+   "printed": "+4 to +6",
+   "best": 6
+  },
+  {
+   "group": "Ritual quality",
+   "label": "Sloppy or rushed",
+   "modifier": -3,
+   "printed": "-3"
+  },
+  {
+   "group": "Ritual quality",
+   "label": "standard preparation",
+   "modifier": 0,
+   "printed": "+0"
+  },
+  {
+   "group": "Ritual quality",
+   "label": "meticulous with rare materials",
+   "modifier": 1,
+   "printed": "+1 to +3",
+   "best": 3
+  },
+  {
+   "group": "Ritual quality",
+   "label": "performed at a place of power aligned with the patron",
+   "modifier": 4,
+   "printed": "+4"
+  }
+ ]
+}

@@ -432,6 +432,57 @@ data class RitualCritical(
 )
 
 /**
+ * One circumstantial option in a boon-granting modifier bullet (Ch. 13, p. 144).
+ *
+ * [best] is the other end of "+1 to +3" and "-2 to -4"; [modifier] is always
+ * the end nearer zero, so a caller that ignores the range is gentle rather
+ * than harsh. A row with no [best] prints one number and takes no override.
+ */
+@Serializable
+data class BoonModifier(
+    val group: String,
+    val label: String,
+    val modifier: Int,
+    val printed: String,
+    val best: Int? = null,
+) {
+    /**
+     * A stable identity for this option. The label alone is not one: nothing
+     * in the book or the extractor stops the two groups printing the same
+     * words, and a GM's chosen value keyed by label would then move both.
+     */
+    val key: String get() = "$group / $label"
+}
+
+/**
+ * The fixed parameters of the boon granting ritual (Ch. 13, p. 144-145).
+ *
+ * [complexity] and [weight] are two different axes and the book prints them
+ * one line apart: complexity is TIME ("Heavy (1 hour base time)"), weight is
+ * what the roll uses ("Moderate (-2 difficulty, 4-6 SPI required)"). Reading
+ * the first as the second rolls at -4 and charges 8+ SPI.
+ *
+ * [boonLevelRule] is carried whole rather than parsed into rows: the book
+ * prints three examples and then a rule, and three rows would have meant
+ * inventing Sequence 6. The ladder lives in [com.pathways.rules.Boons].
+ */
+@Serializable
+data class BoonGranting(
+    val skill: String,
+    val attribute: String,
+    val difficulty: String,
+    val complexity: String,
+    val complexityTime: String,
+    val weight: String,
+    val weightModifier: Int,
+    val spi: Int,
+    val spiMax: Int,
+    val boonLevelRule: String,
+    val requirements: List<String>,
+    val consequences: List<String>,
+)
+
+/**
  * One row of the Active Defenses table (Ch. 5, p. 36-37).
  *
  * [formula] is the book's printed text, NOT arithmetic: [com.pathways.rules.ParryBlock]
