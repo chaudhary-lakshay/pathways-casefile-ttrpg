@@ -352,7 +352,39 @@ data class FrightEffect(
 
 /** One row of the ritual weight table (Ch. 7, p. 67): how hard a category is. */
 @Serializable
-data class RitualWeight(val weight: String, val modifier: Int, val categories: String)
+data class RitualWeight(
+    val weight: String,
+    val modifier: Int,
+    val categories: String,
+    val spi: Int = 0,
+    val spiMax: Int? = null,
+    val spiOpen: Boolean = false,
+) {
+    /** "2 SPI", "4-6 SPI", "8+ SPI" -- the cell as the book prints it. */
+    val printedCost: String get() = when {
+        spiOpen -> "$spi+ SPI"
+        spiMax != null -> "$spi-$spiMax SPI"
+        else -> "$spi SPI"
+    }
+}
+
+/**
+ * One row of the Phase I Preparation Quality table (Ch. 7, p. 63).
+ *
+ * Three of the five carry something a single number cannot say: [best] is the
+ * other end of "+1 to +2" and "-1 to -2", and [openEnded] marks "-4 or worse",
+ * which is a floor rather than a value. [modifier] is always the end nearer
+ * zero, so a caller that ignores the rest is gentle rather than harsh.
+ */
+@Serializable
+data class RitualPreparation(
+    val quality: String,
+    val modifier: Int,
+    val printed: String,
+    val best: Int? = null,
+    val openEnded: Boolean = false,
+    val looksLike: String,
+)
 
 /**
  * One row of "Failure & Consequences" (Ch. 7, p. 67).

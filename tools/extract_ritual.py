@@ -31,11 +31,30 @@ OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "7"
 WEIGHT_RANGE = (4337, 4345)
+# The SAME three weights, printed a second time with the columns the summary
+# above leaves out. The summary is where the categories come from; this is the
+# only place the SPI cost appears, and a ritual that costs nothing is a ritual
+# the app lets a caster spam.
+WEIGHT_COST_RANGE = (4318, 4335)
+PREPARATION_RANGE = (4120, 4139)
 FAILURE_RANGE = (4349, 4359)
 CRITICAL_RANGE = (4361, 4384)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
-HEADER = {"Weight", "Categories", "Result", "Consequence", "Roll", "Outcome"}
+HEADER = {
+    "Weight", "Categories", "Result", "Consequence", "Roll", "Outcome",
+    "Base Mod", "Typical SPI", "Example Categories",
+    "Preparation Quality", "Modifier", "What This Looks Like",
+}
+
+# "2 SPI", "4-6 SPI", "8+ SPI" -- one fixed, one a range the GM picks inside,
+# one open at the top.
+SPI_COST = re.compile(r"^(\d+)(?:\s*[-−–—]\s*(\d+)|\s*(\+))?\s*SPI$")
+WEIGHT_NAME = re.compile(r"^(Light|Moderate|Heavy)$")
+# "Excellent", "Good", "Adequate", "Poor", "None" -- the closed column.
+PREPARATIONS = ["Excellent", "Good", "Adequate", "Poor", "None"]
+# "+3", "+1 to +2", "-4 or worse"
+PREP_MODIFIER = re.compile(r"^([+\-−]\d+)(?:\s*to\s*([+\-−]\d+))?")
 
 MINUS = "-−"
 WEIGHT = re.compile(rf"^(Light|Moderate|Heavy)\s*\(([+{MINUS}]?\d+)\)$")
@@ -101,6 +120,63 @@ def parse_weights(lines):
     return [without_text(r, "categories") for r in rows]
 
 
+def parse_weight_costs(lines):
+    """{weight: (spi, spiMax, spiOpen)} off the fuller Effect Categories table.
+
+    Anchored on the weight NAME, which is a closed set of three; the Base Mod
+    column repeats what the summary table already gives, so only the SPI cell
+    is read here.
+    """
+    costs = {}
+    for i, line in enumerate(lines):
+        if not WEIGHT_NAME.match(line):
+            continue
+        cell = next(
+            (c for c in lines[i + 1:i + 4] if SPI_COST.match(normalise(c))),
+            None,
+        )
+        if cell is None:
+            raise ValueError(f"{line!r} prints no SPI cost")
+        low, high, plus = SPI_COST.match(normalise(cell)).groups()
+        costs[line] = (int(low), int(high) if high else None, bool(plus))
+    return costs
+
+
+def parse_preparation(lines):
+    """Preparation Quality / Modifier / What This Looks Like (Phase I)."""
+    rows = []
+    for i, line in enumerate(lines):
+        if line not in PREPARATIONS:
+            continue
+        if i + 1 >= len(lines):
+            raise ValueError(f"{line!r} prints no modifier")
+        cell = normalise(lines[i + 1])
+        match = PREP_MODIFIER.match(cell)
+        if not match:
+            raise ValueError(f"{line!r} prints an unreadable modifier: {cell!r}")
+        entry = {
+            "quality": line,
+            "modifier": int(match.group(1)),
+            "printed": lines[i + 1],
+        }
+        if match.group(2):
+            # "+1 to +2" and "-1 to -2": a range the GM picks inside.
+            entry["best"] = int(match.group(2))
+        if "worse" in cell:
+            # "-4 or worse" is a floor, not a value.
+            entry["openEnded"] = True
+        rows.append(entry)
+    # The prose cell runs from the modifier to the next quality, and two of
+    # them wrap onto a second line.
+    starts = [i for i, line in enumerate(lines) if line in PREPARATIONS]
+    for pos, i in enumerate(starts):
+        end = starts[pos + 1] if pos + 1 < len(starts) else len(lines)
+        rows[pos]["looksLike"] = " ".join(lines[i + 2:end])
+        if not rows[pos]["looksLike"]:
+            raise ValueError(f"{rows[pos]['quality']!r} has no description")
+    return rows
+
+
 def parse_failures(lines):
     def start(line):
         if CRITICAL_LABEL.match(line):
@@ -142,7 +218,7 @@ def parse_critical(lines):
     return out
 
 
-def verify(weights, failures, critical):
+def verify(weights, failures, critical, preparation):
     if [w["weight"] for w in weights] != ["Light", "Moderate", "Heavy"]:
         raise ValueError(f"weights changed: {weights}")
     if [w["modifier"] for w in weights] != [0, -2, -4]:
@@ -168,6 +244,25 @@ def verify(weights, failures, critical):
     if charges != {"13-14": 1, "15-16": 1, "17": 2}:
         raise ValueError(f"CoR charges changed: {charges}")
 
+    # Every weight must cost something. A ritual the app charges nothing for
+    # is one a caster can repeat forever, which is the opposite of what SPI is
+    # in this book for.
+    costs = {w["weight"]: w.get("spi") for w in weights}
+    if costs != {"Light": 2, "Moderate": 4, "Heavy": 8}:
+        raise ValueError(f"ritual SPI costs changed: {costs}")
+    if not next(w for w in weights if w["weight"] == "Heavy").get("spiOpen"):
+        raise ValueError("Heavy used to print '8+ SPI'; the open end is gone")
+    if next(w for w in weights if w["weight"] == "Moderate").get("spiMax") != 6:
+        raise ValueError("Moderate used to print '4-6 SPI'; the range is gone")
+
+    got = [p["quality"] for p in preparation]
+    if got != PREPARATIONS:
+        raise ValueError(f"preparation qualities changed: {got} != {PREPARATIONS}")
+    if [p["modifier"] for p in preparation] != [3, 1, 0, -1, -4]:
+        raise ValueError(f"preparation modifiers changed: {preparation}")
+    if not next(p for p in preparation if p["quality"] == "None").get("openEnded"):
+        raise ValueError("'None' used to print '-4 or worse'; the floor is gone")
+
 
 def write(name, entries, spans):
     OUT.mkdir(parents=True, exist_ok=True)
@@ -180,15 +275,26 @@ def write(name, entries, spans):
 def main():
     byn = load_lines()
     weights = parse_weights(stream(byn, *WEIGHT_RANGE))
+    costs = parse_weight_costs(stream(byn, *WEIGHT_COST_RANGE))
+    for weight in weights:
+        low, high, open_ended = costs[weight["weight"]]
+        weight["spi"] = low
+        if high is not None:
+            weight["spiMax"] = high
+        if open_ended:
+            weight["spiOpen"] = True
+    preparation = parse_preparation(stream(byn, *PREPARATION_RANGE))
     failures = parse_failures(stream(byn, *FAILURE_RANGE))
     critical = parse_critical(stream(byn, *CRITICAL_RANGE))
-    verify(weights, failures, critical)
+    verify(weights, failures, critical, preparation)
 
-    write("ritual_weights", weights, [list(WEIGHT_RANGE)])
+    write("ritual_weights", weights, [list(WEIGHT_RANGE), list(WEIGHT_COST_RANGE)])
+    write("ritual_preparation", preparation, [list(PREPARATION_RANGE)])
     write("ritual_failures", failures, [list(FAILURE_RANGE)])
     write("ritual_critical", critical, [list(CRITICAL_RANGE)])
 
-    print(f"ritual_weights: {[w['weight'] for w in weights]}")
+    print(f"ritual_weights: {[(w['weight'], w['spi']) for w in weights]}")
+    print(f"ritual_preparation: {[(p['quality'], p['printed']) for p in preparation]}")
     print(f"ritual_failures: {len(failures)} rows")
     print(f"ritual_critical: {len(critical)} bands")
     return 0

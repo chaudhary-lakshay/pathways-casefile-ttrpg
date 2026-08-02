@@ -1,0 +1,45 @@
+{
+ "sourceLines": {
+  "7": [
+   [
+    4120,
+    4139
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "quality": "Excellent",
+   "modifier": 3,
+   "printed": "+3",
+   "looksLike": "Sanctified space, rare domain-matched materials, celestial timing, perfect link, high-grade sacrifice"
+  },
+  {
+   "quality": "Good",
+   "modifier": 1,
+   "printed": "+1 to +2",
+   "best": 2,
+   "looksLike": "Domain-matched candles, proper altar, strong link, clean space, adequate materials"
+  },
+  {
+   "quality": "Adequate",
+   "modifier": 0,
+   "printed": "+0",
+   "looksLike": "Correct materials, clean space, basic link, Cogitation + Wall erected"
+  },
+  {
+   "quality": "Poor",
+   "modifier": -1,
+   "printed": "-1 to -2",
+   "best": -2,
+   "looksLike": "Improvised space, generic items, no cleansing, weak link, rushed"
+  },
+  {
+   "quality": "None",
+   "modifier": -4,
+   "printed": "-4 or worse",
+   "openEnded": true,
+   "looksLike": "Open street, wrong materials, no link, no Cogitation, no Wall"
+  }
+ ]
+}

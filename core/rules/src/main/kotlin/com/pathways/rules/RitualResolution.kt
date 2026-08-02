@@ -5,6 +5,7 @@ import com.pathways.model.RollResult
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.RitualCritical
 import com.pathways.rules.content.RitualFailure
+import com.pathways.rules.content.RitualPreparation
 import com.pathways.rules.content.RitualWeight
 
 /**
@@ -59,12 +60,59 @@ object RitualResolution {
 
     fun weights(): List<RitualWeight> = ContentLoader.ritualWeights()
 
+    /** The Phase I preparation qualities, best first (p. 63). */
+    fun preparations(): List<RitualPreparation> = ContentLoader.ritualPreparation()
+
+    /** The preparation quality named [quality]; refused rather than defaulted. */
+    fun preparationNamed(quality: String): RitualPreparation =
+        preparations().firstOrNull { it.quality.equals(quality, ignoreCase = true) }
+            ?: throw IllegalArgumentException(
+                "no preparation quality named '$quality'; the book prints " +
+                    preparations().joinToString { it.quality },
+            )
+
+    /**
+     * What [weight] costs in SPI when the GM picks [chosen] inside its cell.
+     *
+     * Every weight prints a cost -- 2, "4-6", "8+" -- and the app charged none
+     * of them until this slice, which made a ritual something a caster could
+     * repeat forever. Two of the three cells are not a single number, so the
+     * end is the GM's; a value outside what the book prints is refused rather
+     * than clamped, because a clamp would quietly charge a different ritual.
+     */
+    fun spiFor(weight: RitualWeight, chosen: Int = weight.spi, burned: Int = 0): Int {
+        require(burned >= 0) { "SPI burned cannot be negative; was $burned" }
+        // Null, not Int.MAX_VALUE: an open cell has no ceiling to compare
+        // against, and using the largest Int as one let chosen + burned wrap
+        // to a NEGATIVE cost -- which spend() would have paid back as healing
+        // rather than charged (Codex).
+        val most = if (weight.spiOpen) null else weight.spiMax ?: weight.spi
+        require(chosen >= weight.spi && (most == null || chosen <= most)) {
+            "a ${weight.weight} ritual costs ${weight.printedCost}; $chosen is outside that"
+        }
+        return try {
+            Math.addExact(chosen, burned)
+        } catch (overflow: ArithmeticException) {
+            throw IllegalArgumentException("$chosen SPI plus $burned burned does not fit", overflow)
+        }
+    }
+
     /**
      * The number to roll under: skill, less the ritual's weight, less the
-     * spiritual instability of [cor].
+     * spiritual instability of [cor], plus how well it was [preparation]ed.
+     *
+     * Preparation is null for the quick mode, which the book resolves without
+     * Phase I at all. Where it is given, [RitualPreparation.modifier] is the
+     * end of its cell nearer zero -- the gentle reading the darkness row and
+     * the fright triggers already settled.
      */
-    fun targetFor(skillLevel: Int, weight: RitualWeight, cor: Int): Int =
-        skillLevel + weight.modifier + Corruption.ritualPenalty(cor)
+    fun targetFor(
+        skillLevel: Int,
+        weight: RitualWeight,
+        cor: Int,
+        preparation: RitualPreparation? = null,
+    ): Int = skillLevel + weight.modifier + Corruption.ritualPenalty(cor) +
+        (preparation?.modifier ?: 0)
 
     /**
      * Attempt the ritual, and resolve the consequence if it fails.
@@ -77,10 +125,11 @@ object RitualResolution {
         weight: RitualWeight,
         cor: Int,
         source: RandomSource,
+        preparation: RitualPreparation? = null,
         failures: List<RitualFailure> = ContentLoader.ritualFailures(),
         criticals: List<RitualCritical> = ContentLoader.ritualCriticals(),
     ): RitualOutcome {
-        val target = targetFor(skillLevel, weight, cor)
+        val target = targetFor(skillLevel, weight, cor, preparation)
         val roll = SuccessRoll.against(target, source)
         // By outcome, not by margin. A 17 or 18 fails whatever the target, and
         // against a target of 18 its margin is not even negative -- reading

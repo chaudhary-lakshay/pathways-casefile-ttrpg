@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **528 Kotlin** (JUnit 5, incl. 44 in `app/`) + **84 Python** (pytest), all green |
+| Tests | **534 Kotlin** (JUnit 5, incl. 44 in `app/`) + **88 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -75,7 +75,7 @@ docs/           spec, plan, KNOWN_ISSUES
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading thirty-four JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading thirty-five JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -91,7 +91,7 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `major_wound.json` (3), `shields.json` (4), `shield_rules.json` (3),
 `divination_difficulty.json` (5), `divination_methods.json` (8),
 `divination_modifiers.json` (8), `divination_clarity.json` (6),
-`divination_support.json` (4).
+`divination_support.json` (4), `ritual_preparation.json` (5).
 
 ### Public entry points
 
@@ -153,7 +153,9 @@ SkillRoll.at(label, base, key, source, mods, ctx): SkillRollOutcome
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
 RitualResolution.attempt(skill, weight, cor, source): RitualOutcome
-RitualResolution.targetFor(skill, weight, cor) / .criticalFor(roll) / .weights()
+RitualResolution.targetFor(skill, weight, cor, preparation) / .criticalFor(roll)
+RitualResolution.weights() / .preparations() / .preparationNamed(quality)
+RitualResolution.spiFor(weight, chosen, burned): Int
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -834,9 +836,48 @@ gave "Roll 3d6 ≤ 0"; a 9 landed on **"Failure by 5+ — Distorted"**; choosing
 the 2 SPI end of Dowsing Rods saved `spiSpent: 2` and `cor: 2`, the Soul Debt
 charging itself.
 
+## 6q. Rituals stop being free
+
+A ritual cost nothing until this slice. `RitualDialog` rolled, charged the
+critical rows' CoR, and never touched SPI — so a caster could cast forever,
+which is the opposite of what SPI is in this book for. Two tables fix it, both
+of which were sitting unclaimed in Chapter 7.
+
+- **The SPI column was in a different printing of the same table.**
+  `ritual_weights.json` came from the p.67 SUMMARY (Weight / Categories). The
+  fuller table at p.67's Section V prints Base Mod, **Typical SPI** and
+  Example Categories, and only there does the cost appear. The two printings
+  agree on the modifier, so the cost is merged onto the existing rows by
+  weight name rather than becoming a second weights table.
+- **Two of the three costs are not a number.** Light is "2 SPI", Moderate
+  "4-6 SPI", Heavy "8+ SPI" — fixed, a range, and a floor. The open cell
+  offers its floor and three above it in the UI, because the book names no
+  ceiling and a stepper that runs to a hundred is not a choice worth making
+  at the table.
+- **`Int.MAX_VALUE` was the wrong way to say "no ceiling"** (Codex). With it
+  as the upper bound, `chosen + burned` wrapped NEGATIVE — and a negative cost
+  would have been paid back as SPI by `spend`, healing the caster. It is a
+  null bound and `Math.addExact` now. Unreachable from the dialog, which
+  offers 8..11; reachable through the rules API, which is the point.
+- **Preparation is Phase I, and its default is Adequate.** Excellent is +3 and
+  starting there would hand out the book's best preparation for free. Two rows
+  print ranges ("+1 to +2", "-1 to -2") and one a floor ("-4 or worse"), all
+  applied at the end nearer zero — the same gentle reading as the darkness row.
+- **The fuel is spent on a failure too**: "No effect. SPI and materials
+  spent" (p. 62). And `Roll` returns early when an answer is already showing,
+  the same re-entrancy guard the divination dialog needed.
+
+Device-verified on Academic Researcher (Ritualistic Magic 9): a Heavy ritual
+with Excellent preparation read **"3d6 ≤ 8"** (9 − 4 + 3) and offered fuel
+chips 8/9/10/11. A 16 failed by 8 and took "Failure by 5-9 — Partial, wrong
+activation"; the saved session went from `spiSpent: 2` to **10** and `cor: 2`
+to **10**, the Soul Debt charging itself because that caster had no SPI pool.
+
 **Still ahead in M4 (T3):** summoning (Ch. 7.5), boon granting (Ch. 13), and
 Ch. 6.5's Section IV onward — divination awareness and countermeasures, which
-is a per-pathway detection subsystem and a slice of its own.
+is a per-pathway detection subsystem and a slice of its own. Chapter 7 is also
+still only part-claimed: power sources, entity response, ritual timing and the
+sample rituals are unread.
 
 ### A note on Codex
 

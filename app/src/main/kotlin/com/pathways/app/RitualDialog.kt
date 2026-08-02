@@ -1,8 +1,12 @@
 package com.pathways.app
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -10,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -18,9 +23,30 @@ import androidx.compose.ui.unit.dp
 import com.pathways.rules.RandomSource
 import com.pathways.rules.RitualOutcome
 import com.pathways.rules.RitualResolution
+import com.pathways.rules.content.RitualWeight
 
 /** The skill every ritual is rolled against (Ch. 7). */
 const val RITUAL_SKILL = "Ritualistic Magic"
+
+/**
+ * The fuel amounts to offer for [weight].
+ *
+ * A closed cell ("4-6 SPI") offers exactly what it prints. An open one ("8+")
+ * offers the floor and three above it: the book names no ceiling, and a
+ * stepper that could run to a hundred is not a choice a GM needs made for
+ * them at the table.
+ * ponytail: widen it if a GM asks.
+ */
+private fun spiChoices(weight: RitualWeight): List<Int> {
+    val max = weight.spiMax
+    return when {
+        weight.spiOpen -> (weight.spi..weight.spi + 3).toList()
+        max != null -> (weight.spi..max).toList()
+        else -> listOf(weight.spi)
+    }
+}
+
+private fun signed(n: Int) = if (n >= 0) "+$n" else "$n"
 
 /**
  * Cast a ritual (Ch. 7, p. 67-68).
@@ -38,24 +64,36 @@ const val RITUAL_SKILL = "Ritualistic Magic"
  * the text here. The rest of a critical result stays the GM's: an entity
  * noticing you is not a number.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RitualDialog(
     skillLevel: Int,
     conditionPenalty: Int,
     cor: Int,
+    spiAvailable: Int,
     dice: RandomSource,
     onCorGained: (Int) -> Unit,
+    onSpendSpi: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val weights = remember { RitualResolution.weights() }
+    val preparations = remember { RitualResolution.preparations() }
     var weight by remember { mutableStateOf(weights.first()) }
+    // Adequate (+0) is the default, not Excellent: a ritual nobody described
+    // is an ordinary one, and starting at +3 would hand out the book's best
+    // preparation for free.
+    var preparation by remember { mutableStateOf(preparations.first { it.modifier == 0 }) }
+    // Reset with the weight, or a Heavy ritual's 8 SPI would follow the caster
+    // onto a Light one that costs 2.
+    var spiChoice by remember(weight) { mutableIntStateOf(weight.spi) }
     var outcome by remember { mutableStateOf<RitualOutcome?>(null) }
     // Injury and fatigue reach a ritual like any other roll; the CoR penalty
     // is NOT included in [conditionPenalty] because RitualResolution applies
     // it itself, and counting it twice would penalise a corrupted caster
     // once for the ladder and once again for the same ladder.
     val effectiveSkill = skillLevel + conditionPenalty
-    val target = RitualResolution.targetFor(effectiveSkill, weight, cor)
+    val target = RitualResolution.targetFor(effectiveSkill, weight, cor, preparation)
+    val cost = RitualResolution.spiFor(weight, spiChoice)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -67,7 +105,10 @@ fun RitualDialog(
             )
         },
         text = {
-            Column {
+            // Scrolls: fuel and preparation add two chip rows, and an
+            // AlertDialog does not scroll its own text slot -- the defect that
+            // put the Roll button off the bottom of the attack dialog.
+            Column(Modifier.verticalScroll(rememberScrollState())) {
                 val result = outcome
                 if (result == null) {
                     Row {
@@ -85,17 +126,74 @@ fun RitualDialog(
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(vertical = 8.dp),
                     )
-                    Text("3d6 ≤ $target", style = MaterialTheme.typography.titleMedium)
+                    // Two of the three cells are a range, so the end is the
+                    // GM's; an open one ("8+") offers the printed floor and
+                    // three above it rather than pretending to know the top.
+                    Text("Fuel", style = MaterialTheme.typography.titleSmall)
+                    FlowRow {
+                        spiChoices(weight).forEach { option ->
+                            FilterChip(
+                                selected = option == spiChoice,
+                                onClick = { spiChoice = option },
+                                label = { Text("$option SPI") },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                    Text(
+                        "Preparation (Phase I)",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    FlowRow {
+                        preparations.forEach { option ->
+                            FilterChip(
+                                selected = option.quality == preparation.quality,
+                                onClick = { preparation = option },
+                                label = { Text("${option.quality} ${option.printed}") },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                    Text(preparation.looksLike, style = MaterialTheme.typography.bodySmall)
+
+                    Text(
+                        "3d6 ≤ $target",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
                     Text(
                         "$RITUAL_SKILL $skillLevel, ${weight.weight} ${weight.modifier}" +
+                            ", preparation ${signed(preparation.modifier)}" +
                             (if (conditionPenalty != 0) ", $conditionPenalty hurt or tired" else "") +
-                            (if (cor >= 3) ", -1 for $cor CoR" else ""),
+                            (if (cor >= 3) ", -1 for $cor CoR" else "") +
+                            ". Costs $cost SPI.",
                         style = MaterialTheme.typography.bodySmall,
                     )
+                    if (cost > spiAvailable) {
+                        Text(
+                            "Only $spiAvailable SPI left — going below 0 is Soul Debt.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
                     TextButton(
                         onClick = {
-                            val rolled = RitualResolution.attempt(effectiveSkill, weight, cor, dice)
+                            // One Roll spends once: a second tap before the
+                            // button leaves the tree would charge the fuel
+                            // again, and below 0 that buys permanent CoR.
+                            if (outcome != null) return@TextButton
+                            val rolled = RitualResolution.attempt(
+                                effectiveSkill,
+                                weight,
+                                cor,
+                                dice,
+                                preparation,
+                            )
                             outcome = rolled
+                            // The fuel is spent whether or not it works: "No
+                            // effect. SPI and materials spent" (p. 62).
+                            onSpendSpi(cost)
                             rolled.critical?.corGained?.let(onCorGained)
                         },
                     ) { Text("Roll") }

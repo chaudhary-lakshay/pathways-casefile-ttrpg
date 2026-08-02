@@ -577,6 +577,48 @@ def test_an_odd_trigger_stream_is_reported_not_silently_paired():
 import extract_ritual
 
 
+def test_every_ritual_weight_carries_its_printed_SPI_cost():
+    """One cell is fixed, one a range, one open at the top. The app charged
+    nothing for a ritual until these were read."""
+    costs = extract_ritual.parse_weight_costs([
+        "Light", "+0", "2 SPI", "Divination, minor communication",
+        "Moderate", "-2", "4–6 SPI", "Enhancement, curse",
+        "Heavy", "-4", "8+ SPI", "Summoning, binding",
+    ])
+    assert costs["Light"] == (2, None, False)
+    assert costs["Moderate"] == (4, 6, False)
+    assert costs["Heavy"] == (8, None, True)
+
+
+def test_a_preparation_row_keeps_both_ends_of_its_range():
+    rows = extract_ritual.parse_preparation([
+        "Excellent", "+3", "Sanctified space, rare materials",
+        "Good", "+1 to +2", "Domain-matched candles, proper altar",
+        "None", "-4 or worse", "Open street, wrong materials",
+    ])
+    assert rows[0]["modifier"] == 3 and "best" not in rows[0]
+    assert rows[1]["modifier"] == 1 and rows[1]["best"] == 2
+    assert rows[2]["modifier"] == -4 and rows[2]["openEnded"] is True
+
+
+def test_a_wrapped_preparation_description_stays_with_its_row():
+    rows = extract_ritual.parse_preparation([
+        "Excellent", "+3", "Sanctified space, rare domain-matched materials,",
+        "celestial timing, perfect link",
+        "Adequate", "+0", "Correct materials, clean space",
+    ])
+    assert rows[0]["looksLike"].endswith("perfect link")
+    assert rows[1]["quality"] == "Adequate"
+
+
+def test_committed_ritual_content_carries_cost_and_preparation():
+    weights = json.loads((CONTENT / "ritual_weights.json").read_text(encoding="utf-8"))["entries"]
+    assert {w["weight"]: w["spi"] for w in weights} == {"Light": 2, "Moderate": 4, "Heavy": 8}
+    assert next(w for w in weights if w["weight"] == "Heavy")["spiOpen"] is True
+    prep = json.loads((CONTENT / "ritual_preparation.json").read_text(encoding="utf-8"))["entries"]
+    assert [p["quality"] for p in prep] == extract_ritual.PREPARATIONS
+
+
 def test_the_critical_failure_row_carries_no_margin_band():
     """"Critical Failure (roll 17-18)" is entered by the ROLL, not by a margin.
     Giving it a numeric band would let a margin lookup match it and skip the

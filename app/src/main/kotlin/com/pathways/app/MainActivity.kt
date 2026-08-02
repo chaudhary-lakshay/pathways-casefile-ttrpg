@@ -398,8 +398,12 @@ fun SheetScreen(
                 cor = 0,
             ).sumOf { (it.effect as ModEffect.Flat).n },
             cor = session.cor,
+            spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = appDice,
             onCorGained = { gained -> session.gainCor(gained, maxCor) },
+            // Through the tracker, so a ritual fuelled past 0 SPI buys the
+            // Soul Debt the book charges for it.
+            onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
             onDismiss = { casting = false },
         )
     }

@@ -146,4 +146,80 @@ class RitualResolutionTest {
         assertTrue("1 CoR" in RitualResolution.criticalFor(13).outcome)
         assertTrue("2 CoR" in RitualResolution.criticalFor(17).outcome)
     }
+
+    // --- preparation and cost ----------------------------------------------
+
+    private fun weight(name: String) = RitualResolution.weights().first { it.weight == name }
+
+    @Test
+    fun `every ritual costs SPI, and two of the cells are not one number`() {
+        // The app charged nothing for a ritual until this slice, which made
+        // one repeatable forever -- the opposite of what SPI is here for.
+        assertEquals(2, RitualResolution.spiFor(weight("Light")))
+        assertEquals(4, RitualResolution.spiFor(weight("Moderate")))
+        assertEquals(6, RitualResolution.spiFor(weight("Moderate"), chosen = 6))
+        assertThrows<IllegalArgumentException> {
+            RitualResolution.spiFor(weight("Moderate"), chosen = 7)
+        }
+        assertThrows<IllegalArgumentException> {
+            RitualResolution.spiFor(weight("Light"), chosen = 1)
+        }
+    }
+
+    @Test
+    fun `a heavy ritual's cost is open at the top`() {
+        // "8+ SPI": the printed number is a floor, so 20 is legal and 7 is not.
+        val heavy = weight("Heavy")
+        assertTrue(heavy.spiOpen)
+        assertEquals(8, RitualResolution.spiFor(heavy))
+        assertEquals(20, RitualResolution.spiFor(heavy, chosen = 20))
+        assertThrows<IllegalArgumentException> { RitualResolution.spiFor(heavy, chosen = 7) }
+    }
+
+    @Test
+    fun `an open cost cannot be pushed past what an Int holds`() {
+        // REGRESSION (Codex): the open cell used Int.MAX_VALUE as its ceiling,
+        // so chosen + burned wrapped NEGATIVE -- and a negative cost would
+        // have been paid back as SPI rather than charged.
+        val heavy = weight("Heavy")
+        assertThrows<IllegalArgumentException> {
+            RitualResolution.spiFor(heavy, chosen = Int.MAX_VALUE, burned = 1)
+        }
+        assertThrows<IllegalArgumentException> { RitualResolution.spiFor(heavy, burned = -1) }
+    }
+
+    @Test
+    fun `preparation moves the target, and none of it is required`() {
+        val light = weight("Light")
+        val excellent = RitualResolution.preparationNamed("Excellent")
+        assertEquals(3, excellent.modifier)
+        assertEquals(14, RitualResolution.targetFor(14, light, cor = 0))
+        assertEquals(17, RitualResolution.targetFor(14, light, cor = 0, preparation = excellent))
+        // The quick mode has no Phase I at all, so null is a real answer.
+        assertEquals(14, RitualResolution.targetFor(14, light, cor = 0, preparation = null))
+    }
+
+    @Test
+    fun `the ranged and open-ended preparation rows keep both ends`() {
+        val good = RitualResolution.preparationNamed("Good")
+        assertEquals(1, good.modifier)
+        assertEquals(2, good.best)
+        val none = RitualResolution.preparationNamed("None")
+        assertEquals(-4, none.modifier)
+        assertTrue(none.openEnded, "'-4 or worse' is a floor, not a value")
+        assertThrows<IllegalArgumentException> { RitualResolution.preparationNamed("Perfect") }
+    }
+
+    @Test
+    fun `a botched preparation can cost more than the ritual's own weight`() {
+        // -4 preparation against a Heavy ritual's -4 is -8 before corruption:
+        // worth pinning, because it is the case a GM will not expect.
+        val target = RitualResolution.targetFor(
+            skillLevel = 14,
+            weight = weight("Heavy"),
+            cor = 0,
+            preparation = RitualResolution.preparationNamed("None"),
+        )
+        assertEquals(6, target)
+    }
 }

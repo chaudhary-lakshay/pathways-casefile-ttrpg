@@ -23,6 +23,9 @@ object ContentLoader {
     private val poolThresholdsLazy: List<PoolThreshold> by lazy { load("pool_thresholds.json") }
     private val ritualWeightsLazy: List<RitualWeight> by lazy { load("ritual_weights.json") }
     private val ritualFailuresLazy: List<RitualFailure> by lazy { load("ritual_failures.json") }
+    private val ritualPreparationLazy: List<RitualPreparation> by lazy {
+        load("ritual_preparation.json")
+    }
     private val ritualCriticalsLazy: List<RitualCritical> by lazy {
         load<RitualCritical>("ritual_critical.json").sortedBy { it.low }
     }
@@ -171,6 +174,9 @@ object ContentLoader {
 
     /** How hard each category of ritual is to cast (Ch. 7, p. 67). */
     fun ritualWeights(): List<RitualWeight> = ritualWeightsLazy
+
+    /** How well the ritual was prepared, and what that is worth (Ch. 7, p. 63). */
+    fun ritualPreparation(): List<RitualPreparation> = ritualPreparationLazy
 
     /** What a failed ritual costs, by margin (Ch. 7, p. 67). */
     fun ritualFailures(): List<RitualFailure> = ritualFailuresLazy

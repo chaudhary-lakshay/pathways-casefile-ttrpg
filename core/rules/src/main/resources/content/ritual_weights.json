@@ -4,6 +4,10 @@
    [
     4337,
     4345
+   ],
+   [
+    4318,
+    4335
    ]
   ]
  },
@@ -11,17 +15,22 @@
   {
    "weight": "Light",
    "modifier": 0,
-   "categories": "Divination (1–2 SPI via Divination Arts), Communication (minor), Warding (simple)"
+   "categories": "Divination (1–2 SPI via Divination Arts), Communication (minor), Warding (simple)",
+   "spi": 2
   },
   {
    "weight": "Moderate",
    "modifier": -2,
-   "categories": "Enhancement, Curse, Cleansing, Marking, Fabrication, Concealment, Oath-Sealing, Protection/Warding"
+   "categories": "Enhancement, Curse, Cleansing, Marking, Fabrication, Concealment, Oath-Sealing, Protection/Warding",
+   "spi": 4,
+   "spiMax": 6
   },
   {
    "weight": "Heavy",
    "modifier": -4,
-   "categories": "Summoning, Binding, Unraveling, Affliction, Transference, Soul-Anchoring"
+   "categories": "Summoning, Binding, Unraveling, Affliction, Transference, Soul-Anchoring",
+   "spi": 8,
+   "spiOpen": true
   }
  ]
 }
