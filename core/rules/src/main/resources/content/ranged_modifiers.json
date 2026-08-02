@@ -36,7 +36,8 @@
   {
    "condition": "Shooter used Aim for 3+ turns",
    "printed": "+ weapon's Acc +2 (max Acc +2 total)",
-   "weaponAcc": true
+   "weaponAcc": true,
+   "accBonus": 2
   },
   {
    "condition": "Target is prone",

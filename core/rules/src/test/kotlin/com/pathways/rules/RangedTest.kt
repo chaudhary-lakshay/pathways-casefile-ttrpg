@@ -131,23 +131,58 @@ class RangedTest {
     }
 
     @Test
-    fun `an Aim row is refused, because no weapon in this book has an Acc`() {
+    fun `an Aim row is worth the chosen weapon's Acc`() {
+        // This test used to assert the opposite -- that an Aim row could only
+        // ever be refused, "because no weapon in this book has an Acc". The
+        // book prints nine of them, in chapter 8, which nothing had read; the
+        // row's own cell says "see weapon table".
         val aim = row("Shooter used Aim last turn")
         assertTrue(aim.weaponAcc)
         assertNull(aim.modifier)
+        assertEquals(0, aim.accBonus)
+        assertEquals(listOf(4), flats(Ranged.modifiers(conditions = listOf(aim), weaponAcc = 4)))
+    }
+
+    @Test
+    fun `an Aim row with no weapon is still refused rather than applied as zero`() {
         val ex = assertThrows<IllegalArgumentException> {
-            Ranged.modifiers(conditions = listOf(aim))
+            Ranged.modifiers(conditions = listOf(row("Shooter used Aim last turn")))
         }
-        assertTrue(ex.message!!.contains("no weapon table"))
+        assertTrue(ex.message!!.contains("no weapon was chosen"))
+    }
+
+    @Test
+    fun `a shot is aimed for one length of time, not both`() {
+        // Both rows are the same aim held longer. Applying them together pays
+        // the weapon's Acc twice and blows through the second row's own
+        // printed ceiling, "max Acc +2 total".
+        val ex = assertThrows<IllegalArgumentException> {
+            Ranged.modifiers(
+                conditions = listOf(
+                    row("Shooter used Aim last turn"),
+                    row("Shooter used Aim for 3+ turns"),
+                ),
+                weaponAcc = 4,
+            )
+        }
+        assertTrue(ex.message!!.contains("one length of time"))
     }
 
     @Test
     fun `the second Aim row is not read as plus two`() {
         // "+ weapon's Acc +2 (max Acc +2 total)" -- the first signed integer
-        // in that cell is +2, and it is not the modifier.
+        // in that cell is +2, and it is not the modifier. It is what this row
+        // adds ON TOP of the weapon's Acc, so a rifle at Acc 4 aims to +6 and
+        // not to +2. Reading it as the modifier would make the longer aim
+        // WORSE than the short one for every weapon with Acc 3 or better.
         val aim = row("Shooter used Aim for 3+ turns")
         assertTrue(aim.weaponAcc)
         assertNull(aim.modifier)
+        assertEquals(2, aim.accBonus)
+        assertEquals(
+            listOf(6),
+            flats(Ranged.modifiers(conditions = listOf(aim), weaponAcc = 4)),
+        )
     }
 
     @Test

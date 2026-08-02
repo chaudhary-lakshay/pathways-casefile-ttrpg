@@ -67,6 +67,7 @@ object ContentLoader {
         // mean the chapter grew a variant nobody has read.
         load<BoonGranting>("boon_granting.json").single()
     }
+    private val weaponsLazy: List<CataloguedWeapon> by lazy { load("weapons.json") }
     private val shieldsLazy: List<Shield> by lazy { load("shields.json") }
     private val shieldRulesLazy: List<ShieldRule> by lazy { load("shield_rules.json") }
     private val hitLocationsLazy: List<HitLocation> by lazy { load("hit_locations.json") }
@@ -148,6 +149,9 @@ object ContentLoader {
 
     /** The four skills that support a divination, each +1 (Ch. 6.5, Sec. I). */
     fun divinationSupport(): List<DivinationSupport> = divinationSupportLazy
+
+    /** The nine weapons (Ch. 8, p. 80), in printed order. */
+    fun weapons(): List<CataloguedWeapon> = weaponsLazy
 
     /** The four shields (Ch. 5, p. 37), in printed order. */
     fun shields(): List<Shield> = shieldsLazy

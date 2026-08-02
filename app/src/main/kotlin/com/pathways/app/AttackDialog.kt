@@ -34,10 +34,13 @@ import com.pathways.rules.RandomSource
 import com.pathways.rules.Ranged
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
+import com.pathways.rules.Weapons
 import com.pathways.rules.Wounds
+import com.pathways.rules.content.CataloguedWeapon
 import com.pathways.rules.content.HitLocation
 import com.pathways.rules.content.RangePenalty
 import com.pathways.rules.content.UnarmedAttack
+import com.pathways.rules.content.WeaponMode
 
 /** The one skill whose table pays a damage bonus for skill above DX (p. 38). */
 private const val BOXING = "Boxing"
@@ -50,10 +53,10 @@ private const val BOXING = "Boxing"
  * against the best skill on the sheet or trimming the choice afterwards, and
  * [Attacks] refuses a trimmed plan rather than silently obeying it.
  *
- * Every skill is offered, not a curated combat list: this book prints no
- * weapon table and tags no skill as a combat skill, so which of them can
- * attack is the GM's call, and inventing the list here would be inventing
- * content.
+ * Every skill is offered, not a curated combat list: this book tags no skill
+ * as a combat skill, so which of them can attack is the GM's call, and
+ * inventing the list here would be inventing content. Chapter 8's weapon
+ * table names only seven of them, and [Weapons.forSkill] arms those.
  */
 @Composable
 fun AttackDialog(
@@ -71,6 +74,11 @@ fun AttackDialog(
     // Null for every skill with no attack table -- Wrestling included, which
     // the book gives "None (grapple only)".
     var unarmed by remember { mutableStateOf<UnarmedAttack?>(null) }
+    // A weapon off chapter 8's table, and which of its attacks is being made:
+    // the Combat Knife and the Broadsword each print two. Mutually exclusive
+    // with [unarmed] -- a Brawling character punches OR swings the truncheon,
+    // and showing both damage lines at once would claim one turn does both.
+    var armed by remember { mutableStateOf<Armed?>(null) }
     // Distance and circumstances, kept out of AttackPlan: they describe the
     // TARGET and the scene, not the attacker's choice of maneuver, and only a
     // ranged attack reads them.
@@ -103,6 +111,7 @@ fun AttackDialog(
                         picked = null
                         plan = AttackPlan()
                         unarmed = null
+                        armed = null
                         band = null
                         circumstances = emptySet()
                         location = null
@@ -126,6 +135,20 @@ fun AttackDialog(
                                     // ordinary one (Punch, Jab); an unlisted
                                     // skill simply has no damage to show.
                                     unarmed = Damage.attacksFor(entry.key.name).firstOrNull()
+                                    // Only when the skill has no unarmed table
+                                    // of its own: Brawling has both, and the
+                                    // book's own first answer there is a fist.
+                                    armed = if (unarmed == null) {
+                                        Weapons.forSkill(entry.key).firstOrNull()?.let(::Armed)
+                                    } else {
+                                        null
+                                    }
+                                    // A Guns skill opens on a firearm, so the
+                                    // attack starts AT RANGE. Left in reach it
+                                    // would take All-Out Determined's melee +4
+                                    // instead of its ranged +1 and hide the
+                                    // distance and Aim rows entirely (Codex).
+                                    plan = AttackPlan(isRanged = armed.isFired)
                                 }
                                 .padding(vertical = 6.dp),
                         ) {
@@ -141,25 +164,62 @@ fun AttackDialog(
                     unarmed = unarmed,
                     // Two unrelated bonuses reach damage: All-Out Attack
                     // (Strong)'s +2 and Boxing's for skill above DX. Attacks
-                    // composes them so neither can be dropped here.
-                    damage = unarmed?.let {
-                        val fromSkill = if (it.skill == BOXING) Damage.boxingBonus(dx, chosen.value) else 0
-                        Damage.forAttack(it, st, Attacks.damageBonus(plan, fromSkill))
-                    },
+                    // composes them so neither can be dropped here. Boxing's
+                    // is a property of the bare fist, so a weapon takes only
+                    // the maneuver's.
+                    damage = armed?.let { Weapons.damageFor(it.weapon, it.mode, st, Attacks.damageBonus(plan, 0)) }
+                        ?: unarmed?.let {
+                            val fromSkill = if (it.skill == BOXING) Damage.boxingBonus(dx, chosen.value) else 0
+                            Damage.forAttack(it, st, Attacks.damageBonus(plan, fromSkill))
+                        },
                     attacks = Damage.attacksFor(chosen.key.name),
+                    armed = armed,
+                    weapons = Weapons.forSkill(chosen.key),
                     band = band,
                     circumstances = circumstances,
                     location = location,
-                    onAttack = { unarmed = it },
+                    onAttack = {
+                        unarmed = it
+                        armed = null
+                        circumstances = circumstances - AIM_ROWS
+                    },
+                    onArmed = { held ->
+                        armed = held
+                        // Putting the weapon down goes back to the skill's own
+                        // first attack, not to nothing: for Brawling that is
+                        // the fist, and leaving both null showed no damage
+                        // line at all until Punch was tapped by hand (Codex).
+                        unarmed = if (held == null) {
+                            Damage.attacksFor(chosen.key.name).firstOrNull()
+                        } else {
+                            null
+                        }
+                        // A firearm is fired at range and a sword is not
+                        // thrown; the toggle still overrides either way.
+                        plan = plan.copy(isRanged = held.isFired)
+                        // Aim is worth the WEAPON's Acc, and distance belongs
+                        // to a shot. Carrying either into reach asks
+                        // Ranged.modifiers for a number nothing can supply --
+                        // the same shape as the distance and cover that
+                        // "Another turn" used to leave behind.
+                        if (!held.isFired) {
+                            band = null
+                            circumstances = emptySet()
+                        }
+                    },
                     onBand = { band = it },
                     // Tapping the chosen location again goes back to the torso
                     // rather than leaving the player stuck with a -9 eye shot.
                     onLocation = { location = if (it == location) null else it },
                     onCircumstance = { name ->
-                        circumstances = if (name in circumstances) {
-                            circumstances - name
-                        } else {
-                            circumstances + name
+                        circumstances = when {
+                            name in circumstances -> circumstances - name
+                            // Aiming is one act held for one length of time.
+                            // Ranged.modifiers refuses both rows together, so
+                            // picking the second must REPLACE the first rather
+                            // than build a plan that throws on Roll.
+                            name in AIM_ROWS -> circumstances - AIM_ROWS + name
+                            else -> circumstances + name
                         }
                     },
                     onPlan = {
@@ -179,7 +239,7 @@ fun AttackDialog(
                         // lands, so the NEXT turn feels it.
                         val mods = conditions(chosen.key) +
                             Attacks.modifiers(plan, chosen.value, unarmed) +
-                            rangedModifiers(plan, band, circumstances) +
+                            rangedModifiers(plan, band, circumstances, armed.aimAcc) +
                             listOfNotNull(location?.let(Wounds::modifier))
                         outcomes = List(Attacks.attackCount(plan)) {
                             SkillRoll.at(
@@ -206,10 +266,13 @@ private fun AttackOptions(
     unarmed: UnarmedAttack?,
     damage: DamageRoll?,
     attacks: List<UnarmedAttack>,
+    armed: Armed?,
+    weapons: List<CataloguedWeapon>,
     band: RangePenalty?,
     circumstances: Set<String>,
     location: HitLocation?,
     onAttack: (UnarmedAttack) -> Unit,
+    onArmed: (Armed?) -> Unit,
     onBand: (RangePenalty) -> Unit,
     onCircumstance: (String) -> Unit,
     onLocation: (HitLocation) -> Unit,
@@ -243,6 +306,7 @@ private fun AttackOptions(
                 )
             }
         }
+        ArmedWith(weapons, armed, skillLevel, onArmed)
         // Chips WRAP rather than scroll sideways: a horizontally scrolling Row
         // inside an AlertDialog never received the drag on a 1080px phone, so
         // three of the five maneuvers -- Strong, Double and Charge -- could not
@@ -270,7 +334,7 @@ private fun AttackOptions(
         )
 
         if (plan.isRanged) {
-            RangedOptions(band, circumstances, onBand, onCircumstance)
+            RangedOptions(band, circumstances, armed, onBand, onCircumstance)
         } else {
             Stepper("Rapid Strike", plan.rapidStrikes, "${Attacks.RAPID_STRIKE_PENALTY} each") {
                 onPlan(plan.copy(rapidStrikes = (plan.rapidStrikes + it).coerceAtLeast(0)))
@@ -298,7 +362,7 @@ private fun AttackOptions(
         val total = Attacks.modifiers(plan, skillLevel, unarmed)
             .sumOf { (it.effect as ModEffect.Flat).n }
         val count = Attacks.attackCount(plan)
-        val fromRange = rangedModifiers(plan, band, circumstances)
+        val fromRange = rangedModifiers(plan, band, circumstances, armed.aimAcc)
             .sumOf { (it.effect as ModEffect.Flat).n }
         Text(
             "Attack options: ${if (total == 0) "no modifier" else signed(total)}" +
@@ -323,9 +387,18 @@ private fun AttackOptions(
             // expression, not a rolled total, so there is no product to round
             // and this book prints no rounding rule to round it by.
             damage?.let { roll ->
-                val times = Wounds.multiplierFor(location, roll.type)
-                "Damage on a hit: ${roll.render()}" +
-                    if (times == 1.0) "" else ", ${Wounds.render(times)} there"
+                // The Bolt-Action Rifle deals "pi+", which chapter 5's
+                // wounding table never abbreviates, so asking it for a number
+                // throws. Recorded, not repaired: the line says which chapter
+                // is silent rather than the dialog crashing on a real weapon.
+                if (!Wounds.knowsType(roll.type)) {
+                    "Damage on a hit: ${roll.render()} — chapter 5 prints no " +
+                        "wounding multiplier for \"${roll.type}\""
+                } else {
+                    val times = Wounds.multiplierFor(location, roll.type)
+                    "Damage on a hit: ${roll.render()}" +
+                        if (times == 1.0) "" else ", ${Wounds.render(times)} there"
+                }
             } ?: if (unarmed != null) "Rolls no damage; see the note above." else "",
             style = MaterialTheme.typography.bodySmall,
         )
@@ -361,16 +434,85 @@ private fun AttackResult(outcome: SkillRollOutcome) {
 }
 
 /**
+ * What the character is holding (Ch. 8, p. 80).
+ *
+ * Shown for any skill the weapon table names -- Knife, Brawling, Axe/Mace,
+ * Broadsword and the three Guns specializations. Tapping the selected weapon
+ * again puts it down, which is how a Brawling character gets back to a fist
+ * after picking up the truncheon.
+ *
+ * A second chip row appears only for the two weapons that print two attacks:
+ * the Combat Knife and the Broadsword can cut or thrust, and the mode changes
+ * both the damage and the wounding multiplier a called shot would apply.
+ */
+@Composable
+private fun ArmedWith(
+    weapons: List<CataloguedWeapon>,
+    armed: Armed?,
+    skillLevel: Int,
+    onArmed: (Armed?) -> Unit,
+) {
+    if (weapons.isEmpty()) return
+    Text(
+        "Weapon",
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(top = 8.dp),
+    )
+    FlowRow {
+        weapons.forEach { option ->
+            FilterChip(
+                selected = armed?.weapon?.name == option.name,
+                onClick = {
+                    onArmed(if (armed?.weapon?.name == option.name) null else Armed(option))
+                },
+                label = { Text(option.name) },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
+    }
+    armed?.let { held ->
+        if (held.weapon.damage.size > 1) {
+            FlowRow {
+                held.weapon.damage.forEach { mode ->
+                    FilterChip(
+                        selected = held.mode == mode,
+                        onClick = { onArmed(Armed(held.weapon, mode)) },
+                        label = { Text(mode.printed) },
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+                }
+            }
+        }
+        Text(
+            // Parry is the number ParryBlock has had a formula for since M0
+            // with no weapon to apply it to. A firearm gets "cannot parry"
+            // rather than a 0: parrying at nothing is not parrying badly.
+            "Acc ${held.weapon.acc} · reach/range ${held.weapon.range} · " +
+                (Weapons.parryFor(held.weapon, skillLevel)
+                    ?.let { "parry $it" } ?: "cannot parry") +
+                " · ${held.weapon.cost}",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(vertical = 4.dp),
+        )
+        if (held.weapon.notes.isNotBlank()) {
+            Text(held.weapon.notes, style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+/**
  * Distance and the scene, for a shot (Ch. 5, p. 39-40).
  *
- * The two Aim rows are shown but not selectable: their modifier is the
- * weapon's Acc, and this book prints no weapon table, so there is no number to
- * apply. Saying so beats hiding a rule the GM may still want to use by hand.
+ * The two Aim rows are selectable only with a weapon in hand: their modifier
+ * is that weapon's Acc, and the cell says so ("see weapon table"). Without one
+ * there is no number, and [Ranged.modifiers] refuses rather than applying
+ * zero, so offering the chip would build a plan that throws on Roll.
  */
 @Composable
 private fun RangedOptions(
     band: RangePenalty?,
     circumstances: Set<String>,
+    armed: Armed?,
     onBand: (RangePenalty) -> Unit,
     onCircumstance: (String) -> Unit,
 ) {
@@ -402,11 +544,28 @@ private fun RangedOptions(
             )
         }
     }
-    conditions.filter { it.weaponAcc }.forEach {
-        Text(
-            "${it.condition}: ${it.printed} — no weapon in this book prints one.",
-            style = MaterialTheme.typography.bodySmall,
-        )
+    val acc = armed.aimAcc
+    conditions.filter { it.weaponAcc }.forEach { option ->
+        if (acc == null) {
+            Text(
+                // A FIRED weapon, not merely a held one: the toggle above is
+                // the player's, so a knife can be carried into a ranged plan,
+                // and the Hand Axe prints Acc 1 -- enough to aim a hatchet for
+                // +3 over three turns if the chip were offered (Codex).
+                "${option.condition}: ${option.printed} — choose a firearm above.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        } else {
+            FilterChip(
+                selected = option.condition in circumstances,
+                // One aim, one length of time: Ranged.modifiers refuses both
+                // rows together, because each pays the weapon's Acc and two
+                // would break the second row's own "max Acc +2 total".
+                onClick = { onCircumstance(option.condition) },
+                label = { Text("${option.condition} ${signed(acc + option.accBonus)}") },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
     }
 }
 
@@ -454,6 +613,7 @@ private fun rangedModifiers(
     plan: AttackPlan,
     band: RangePenalty?,
     circumstances: Set<String>,
+    weaponAcc: Int?,
 ): List<com.pathways.model.Modifier> {
     if (!plan.isRanged) return emptyList()
     // The chosen band is passed whole, never re-looked-up by its lower bound:
@@ -461,8 +621,50 @@ private fun rangedModifiers(
     return Ranged.modifiers(
         band = band,
         conditions = Ranged.conditions().filter { it.condition in circumstances },
+        weaponAcc = weaponAcc,
     )
 }
+
+/**
+ * The two rows whose modifier is the weapon's Acc.
+ *
+ * Read off the content rather than spelled out here, so a re-extraction that
+ * renames a row cannot leave this holding a string nothing matches -- which
+ * would silently stop clearing an aim the character can no longer take.
+ */
+private val AIM_ROWS: Set<String> by lazy {
+    Ranged.conditions().filter { it.weaponAcc }.map { it.condition }.toSet()
+}
+
+/**
+ * A weapon off the catalogue and which of its attacks is being made.
+ *
+ * [mode] defaults to the first the book prints, which is the ordinary one --
+ * the Combat Knife's cut before its thrust -- matching how an unarmed skill
+ * defaults to its first listed attack.
+ */
+internal data class Armed(val weapon: CataloguedWeapon, val mode: WeaponMode) {
+    constructor(weapon: CataloguedWeapon) : this(weapon, weapon.damage.first())
+}
+
+/**
+ * Whether what is being attacked with is fired at a distance.
+ *
+ * Null -- an empty hand -- is false: this book prints no thrown weapon and no
+ * unarmed attack that reaches past arm's length.
+ */
+internal val Armed?.isFired: Boolean get() = this != null && Weapons.isRanged(weapon)
+
+/**
+ * The Acc to aim with, or null when nothing in hand is fired.
+ *
+ * Not simply the held weapon's Acc (Codex): the "At range" toggle stays the
+ * player's, so a knife can be carried into a ranged plan, and the Hand Axe
+ * prints **Acc 1**. Gating on the weapon merely being present let a hatchet
+ * be aimed for +1, or +3 over three turns -- a modifier the book gives only
+ * to something fired.
+ */
+internal val Armed?.aimAcc: Int? get() = if (isFired) this?.weapon?.acc else null
 
 @Composable
 private fun Stepper(label: String, value: Int, note: String, onStep: (Int) -> Unit) {

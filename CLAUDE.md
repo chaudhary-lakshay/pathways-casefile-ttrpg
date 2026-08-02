@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **559 Kotlin** (JUnit 5, incl. 46 in `app/`) + **99 Python** (pytest), all green |
+| Tests | **579 Kotlin** (JUnit 5, incl. 50 in `app/`) + **106 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -75,7 +75,7 @@ docs/           spec, plan, KNOWN_ISSUES
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading thirty-eight JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading thirty-nine JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -93,7 +93,7 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `divination_modifiers.json` (8), `divination_clarity.json` (6),
 `divination_support.json` (4), `ritual_preparation.json` (5),
 `boon_granting.json` (1), `boon_modifiers.json` (8),
-`non_standard_pathways.json` (17).
+`non_standard_pathways.json` (17), `weapons.json` (9).
 
 ### Public entry points
 
@@ -165,6 +165,12 @@ Boons.targetFor(skill, cor, sequence, chosen, gmValue) / .attempt(...)
 NonStandardPathways.all() / .pathways() / .blocksFor(pathway)
 NonStandardPathways.blockFor(pathway, sequence): SequenceBlock?  // null = no such rung
 NonStandardPathways.knownSequences(pathway) / .alsoPrintedAs(pathway)
+Weapons.all() / .named(name) / .forSkill(key): List<CataloguedWeapon>
+Weapons.damageFor(weapon, mode, st, bonus): DamageRoll
+Weapons.isRanged(weapon) / .canParry(weapon) / .parryFor(weapon, skill): Int?
+Weapons.hasWoundingMultiplier(mode)   // false for the rifle's pi+
+Wounds.knowsType(type): Boolean       // ask before multiplierFor
+ContentLoader.weapons()
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -490,10 +496,11 @@ differing because Wrestling's -3 sits INSIDE the halving.
 - **The formulas are content, not arithmetic.** `ParryBlock` implements them
   and is tested against the book, so `defenses.json` carries the printed
   formula and notes for the GM to read, never a second copy of the maths.
-- **Weapons never needed a table.** This book prints no weapon list at all —
-  parry is `Weapon Skill / 2 + 3`, so the number follows the skill. That
-  retires the "weapons in `SavedEdits`" item: what was actually missing was
-  the pairing, not the data.
+- **Weapons never needed a table** *(wrong — see section 6t)*. This slice
+  concluded the book printed no weapon list, because parry is
+  `Weapon Skill / 2 + 3` and the number follows the skill. It prints nine, in
+  chapter 8, which nothing had read. The formula claim still holds; the
+  "no weapon list" one does not.
 - `armedParries()` handles the armed case anyway (Codex) — no premade carries
   a weapon, but the model does, and a silent omission would be wrong the first
   time one appeared. It is a plain function so it is unit-tested.
@@ -546,8 +553,10 @@ same `SkillRoll`.
   SPENDS; the +4/-4/-6/-2 live in `Attacks`, and `extract_combat.py`'s
   `verify()` pins the sentences they were read from.
 - **Every skill is offered, not a combat list.** This book tags no skill as a
-  combat skill and prints no weapon table, so which of them can attack is the
-  GM's call; curating the list here would be inventing content.
+  combat skill, so which of them can attack is the GM's call; curating the
+  list here would be inventing content. (The reason given alongside — "and
+  prints no weapon table" — was wrong; see section 6t. The conclusion is not:
+  chapter 8's table names seven skills and the sheets carry dozens.)
 
 The middle column is what makes the table parseable at all: it is a closed set
 of five tokens, so a line is a maneuver NAME exactly when the line after it is
@@ -608,10 +617,12 @@ carries) and `Attacks` (what the player chose). Same `SITUATIONAL` kind as
   `Ranged.modifiers` now takes a `RangePenalty`, not a distance; a caller
   holding metres calls `bandFor` itself and gets one answer. The regression
   test was verified against the old signature.
-- **Two rows have no number this app can know.** "+ weapon's Acc" — and this
-  book prints no weapon table. Reading the first signed integer would have
-  called the second Aim row +2. They are shown as prose and refused by
-  `modifiers`, because applying zero is not the same as having no value.
+- **Two rows have no number this app can know** *(no longer true — see 6t)*.
+  "+ weapon's Acc". Reading the first signed integer would have called the
+  second Aim row +2, which is still the parsing trap; what was wrong was the
+  conclusion that the number did not exist. The cell says "see weapon table"
+  and chapter 8 is that table. `modifiers` now takes the Acc, and still
+  refuses the row when no weapon was chosen.
 - **Prone means two different things.** "-2 ranged (but -4 in melee)" — one
   row, two scopes, so the melee value is kept beside the ranged one. Same
   lesson as Spiritual Attrition and the ritual CoR ladder.
@@ -790,10 +801,11 @@ Block 7): a heavy shield read Dodge **7 → 10**, a light one Dodge **7 → 8**,
 Block **7 → 8** and "Against ranged attacks: **7**" — the -1 landing on shots
 and nothing else.
 
-Still unmodelled and deliberately so: Feint's Quick Contest, Aim's ACC (no
-weapon in this book prints one), a shield's facing arc, and the shield bash's
-damage (it is `thr-2`/`thr-1`/`thr`, which `Damage` could roll, but a bash is
-a weapon attack and this book lists no weapons).
+Still unmodelled and deliberately so: Feint's Quick Contest, a shield's facing
+arc, and the shield bash's damage (it is `thr-2`/`thr-1`/`thr`, which `Damage`
+could roll, but a bash is a weapon attack and the shield is not in chapter 8's
+weapon table). Aim's ACC was on this list — "no weapon in this book prints
+one" — and section 6t retires it: nine do.
 
 **Correction:** this section first said "M4 is complete". It was not. M4 is
 spec section 8's "T2 + T3", and T3 is chapters 6.5, 7, 7.5 and 13 — so
@@ -991,13 +1003,90 @@ cross-reference; Mother Goddess of Depravity shows the Villain's stats,
 skills and drawback followed by **"The book prints an Ability heading for
 this block and nothing under it."**
 
-**Still ahead in M4 (T3):** summoning is closed as a decision (above), so
-what is left is Ch. 6.5's Section IV onward — divination
-awareness and countermeasures, which is a per-pathway detection subsystem and
-a slice of its own. Chapter 7 is also still only part-claimed: power sources,
-entity response, ritual timing and the sample rituals are unread. Chapters 14 and 15 are
-now complete (section 6s). The largest unclaimed content left is chapter 3's
-remaining third and chapter 8 (Equipment & Starting Wealth), at 0%.
+## 6t. The weapon table this doc said four times did not exist
+
+Chapter 8 prints nine weapons with Damage, Acc, Range, Cost and Skill. Four
+sections above asserted it printed none — 6g, 6j, 6k and 6o — and three
+features were deferred on that premise: armed parry, weapon damage, and Aim,
+whose whole modifier is "+ weapon's Acc". `Ranged.modifiers` refused those two
+rows with the message *"this book prints no weapon table"*. The table had been
+in chapter 8 the entire time, at **0.0% coverage**, because nothing had read
+it. Every claim above was checked against `defenses.json` and chapter 5 and
+never against the chapter that would have disproved it.
+
+**The lesson is procedural, not about weapons.** A "the book does not print
+X" conclusion is only as good as the chapters that were read, and this repo
+already had the instrument that would have caught it: `coverage.py` listed
+chapter 8 at 0.0% next to every one of those four claims. Check the coverage
+table before recording an absence.
+
+- **The Aim cell said so out loud.** "+ weapon's Acc **(see weapon table)**".
+  The parenthetical was extracted, committed, displayed on screen and read
+  four times as decoration.
+- **`accBonus` is what the row adds ON TOP of the Acc.** The long-aim cell is
+  "+ weapon's Acc +2 (max Acc +2 total)" — three numbers' worth of trap. The
+  old reading refused the row; reading +2 as the modifier would make a long
+  aim *worse* than a short one for any weapon with Acc 3+. The regex anchors
+  to the Acc mention so the restated ceiling is not counted twice.
+- **Two Aim rows cannot both apply.** They are one aim held for different
+  lengths; together they pay the Acc twice and break the cell's own printed
+  ceiling. `Ranged.modifiers` refuses the pair and the dialog swaps rather
+  than toggles — offering a chip that throws on Roll is not offering a choice.
+- **Chapter 8 prints a damage type chapter 5 cannot price.** The Bolt-Action
+  Rifle deals `pi+`, and chapter 5's wounding table prints its Large Piercing
+  row with **no abbreviation** — section 6l recorded that "this book never
+  does". It does, one chapter over. Adding the abbreviation would be repairing
+  chapter 5 from chapter 8, so `Wounds.knowsType` answers instead and the
+  damage line names which chapter is silent. Without that guard
+  `multiplierFor` throws and the dialog dies on a real weapon.
+- **And the same row disagrees about which rifle it means.** Large Piercing's
+  example is "Hunting rifles" — while chapter 8 prints the *Hunting Rifle* as
+  plain `pi` and gives `pi+` to the Bolt-Action. Two disagreements, one row,
+  neither reconciled; `verify()` fails if either quietly goes away.
+- **A firearm cannot parry, and that is a reading.** The table has no parry
+  column, so the only signal is the Range cell: a reach letter ("C", "C/1") is
+  a weapon in the hand, metres are a gun. It lives in `Weapons`, not as an
+  invented column in `weapons.json` — a column would look extracted.
+- **ST reaches a swing and stops.** `sw`/`thr` rows read the thrust/swing
+  table; `2d pi` is printed outright, because a stronger arm does not push a
+  bullet harder. All-Out Attack (Strong)'s +2 still lands on both: the book
+  scopes Determined ("+4 melee, +1 ranged") and deliberately does not scope
+  Strong.
+- **`Guns (Pistol)` is armed by nothing.** The skill list prints four Guns
+  specializations and the table covers three. Beat Cop, Night Watchman,
+  Nighthawk Recruit and the Private Investigator all carry Pistol and get no
+  weapon chip. Not a parse failure — the book arms three of its four.
+
+Both Codex findings were app wiring again, and both were live defects: a Guns
+skill opened **in reach**, so an immediate roll took All-Out Determined's
+melee +4 instead of its ranged +1 and hid the distance rows entirely; and
+putting a weapon down cleared the unarmed attack with it, leaving a Brawling
+character with no damage line at all until Punch was tapped by hand.
+
+Device-verified on Hunter-Tracker (Guns (Rifle) 10, Knife 9, ST 10): the rifle
+opens **At range**, reads "Acc 4 · reach/range 500/3500 · cannot parry · £8",
+and a 3-turn aim reads **+6** — tapping the short aim first leaves +6, not
++10. Rolled **base 10, modified to 16**, a number the old code could only
+throw on. Damage read *"5d pi+ — chapter 5 prints no wounding multiplier for
+"pi+""*. The Combat Knife offers **sw-1 cut** and **thr imp**, reads "parry
+7", and a cut to the Neck reads **×3** — the book's own worked example. On
+Barmaid Brawler, Brawling opens on the fist, the Truncheon reads "parry 9 /
+1d cr", and putting it down returns **1d-3 cr**.
+
+Not extracted from chapter 8, deliberately: armour (3 rows of DR, and nothing
+applies DR — damage here is an expression, never a total), starting wealth and
+the two currencies, ~70 rows of common equipment, licences, and hired allies.
+The chapter is at **9.6%**; the weapons are the part that had callers waiting.
+
+**Still ahead in M4 (T3):** summoning is closed as a decision (6r), so what is
+left is Ch. 6.5's Section IV onward — divination awareness and
+countermeasures, which is a per-pathway detection subsystem and a slice of its
+own. Chapter 7 is also still only part-claimed: power sources, entity
+response, ritual timing and the sample rituals are unread. Chapters 14 and 15
+are complete (6s). The largest unclaimed content left is chapter 3's remaining
+third and the rest of chapter 8 — starting wealth is the piece with a caller
+already waiting, since Wealth is a point-costed trait and `PointBudget` bills
+traits.
 
 ### A note on Codex
 

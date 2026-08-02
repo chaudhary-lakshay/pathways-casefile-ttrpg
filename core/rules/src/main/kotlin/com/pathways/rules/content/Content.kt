@@ -736,8 +736,10 @@ data class RangePenalty(
  * Three of the nine carry something a single signed integer cannot express:
  *
  * [weaponAcc] marks the two Aim rows, whose modifier is "+ weapon's Acc" --
- * and this book prints no weapon table, so the number does not exist to be
- * applied. They carry no [modifier] at all.
+ * a number that belongs to the weapon being fired, not to the row, so they
+ * carry no [modifier] at all. The cell's "(see weapon table)" points at
+ * chapter 8, which [CataloguedWeapon] now reads. [accBonus] is what the row
+ * adds on top of that Acc: 0 for the short aim and +2 for the long one.
  *
  * [worstCase] is the harsh end of "-3 to -9 depending on severity"; [modifier]
  * is the gentle end, and the GM picks between them.
@@ -754,6 +756,8 @@ data class RangedModifier(
     val worstCase: Int? = null,
     val melee: Int? = null,
     val weaponAcc: Boolean = false,
+    /** What the row adds ON TOP of the weapon's Acc; 0 for the bare Aim row. */
+    val accBonus: Int = 0,
 )
 
 /**
@@ -782,6 +786,48 @@ data class UnarmedAttack(
     /** False for Shove, the one row that rolls no damage at all. */
     val wounds: Boolean get() = base != null
 }
+
+/**
+ * One way a weapon can hurt someone: "sw-1 cut", "2d pi".
+ *
+ * [base] is an ST column ("sw", "thr") or a fixed die count ("2d"). The
+ * difference is the whole point: a sword's damage grows with the arm swinging
+ * it and a revolver's does not.
+ */
+@Serializable
+data class WeaponMode(
+    val base: String,
+    val modifier: Int,
+    val type: String,
+    val printed: String,
+) {
+    /** True when [base] names a column of the thrust/swing table. */
+    val isFromSt: Boolean get() = base == "sw" || base == "thr"
+}
+
+/**
+ * A row of the Weapons table (Ch. 8, p. 80).
+ *
+ * Named apart from [com.pathways.model.Weapon] on purpose: that is a weapon a
+ * character is carrying, this is a line in the book's catalogue.
+ *
+ * [damage] holds every mode the row prints -- two for the Combat Knife and the
+ * Broadsword, which can cut or thrust. [halfRange]/[maxRange] are null for a
+ * melee weapon, whose Range cell is a reach letter ("C", "C/1") and not a
+ * distance in metres.
+ */
+@Serializable
+data class CataloguedWeapon(
+    val name: String,
+    val damage: List<WeaponMode>,
+    val acc: Int,
+    val range: String,
+    val halfRange: Int? = null,
+    val maxRange: Int? = null,
+    val cost: String,
+    val skill: String,
+    val notes: String = "",
+)
 
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable

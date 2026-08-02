@@ -12,9 +12,11 @@ Three cells carry more than one number, and getting them wrong is the point
 of this file:
 
   * "+ weapon's Acc +2 (max Acc +2 total)" -- reading the first signed integer
-    would call this +2. It is not a number at all: it is the weapon's Acc, and
-    THIS BOOK PRINTS NO WEAPON TABLE (see the defenses slice). So both Aim
-    rows are flagged and carry no modifier.
+    would call this +2, when +2 is only the part ADDED to the weapon's Acc.
+    Both Aim rows are therefore flagged and carry no plain modifier; the one
+    that adds something on top carries it as accBonus. The cell's own "(see
+    weapon table)" was right all along -- extract_weapons.py reads that table
+    out of chapter 8, which nothing had claimed until now.
   * "-2 ranged (but -4 in melee)" -- one row, two scopes. The melee value is
     kept separately rather than dropped, because a prone target is easier to
     hit in reach and harder at distance, and an app applying -2 to a kick
@@ -54,6 +56,10 @@ SIGNED = re.compile(r"[+-]\d+")
 WORST = re.compile(r"to\s+(-\d+)")
 IN_MELEE = re.compile(r"\((?:but\s+)?(-\d+)\s+in melee\)")
 WEAPON_ACC = "weapon's Acc"
+# What the cell adds ON TOP of the weapon's Acc, if anything. Anchored to the
+# Acc mention so the "(max Acc +2 total)" restatement cannot be read as a
+# second bonus.
+ACC_BONUS = re.compile(rf"{WEAPON_ACC}\s*([+-]\d+)")
 GM_DISCRETION = "GM discretion"
 
 EXPECTED_BANDS = 7
@@ -127,8 +133,12 @@ def parse_modifiers(lines):
     for condition, cell in pair(lines):
         entry = {"condition": condition, "printed": cell}
         if WEAPON_ACC in cell:
-            # Not a number this app can know: no weapon table is printed.
+            # The number is the chosen weapon's, so the row carries no plain
+            # modifier -- only what it adds on top of that Acc.
             entry["weaponAcc"] = True
+            bonus = ACC_BONUS.search(cell)
+            if bonus:
+                entry["accBonus"] = int(bonus.group(1))
             out.append(entry)
             continue
         modifier = SIGNED.search(cell)
@@ -168,9 +178,17 @@ def verify(bands, modifiers):
     got = [m["condition"] for m in modifiers]
     if got != EXPECTED_MODIFIERS:
         raise ValueError(f"ranged modifiers changed: {got} != {EXPECTED_MODIFIERS}")
-    acc = [m["condition"] for m in modifiers if m.get("weaponAcc")]
+    acc = [m for m in modifiers if m.get("weaponAcc")]
     if len(acc) != 2:
-        raise ValueError(f"expected the two Aim rows to need a weapon's Acc, got {acc}")
+        raise ValueError(
+            f"expected the two Aim rows to need a weapon's Acc, got "
+            f"{[m['condition'] for m in acc]}"
+        )
+    # One Aim row is the bare Acc and the other adds +2 on top. If they ever
+    # read the same, one cell was mis-parsed and aiming longer stopped helping.
+    bonuses = sorted(m.get("accBonus", 0) for m in acc)
+    if bonuses != [0, 2]:
+        raise ValueError(f"the Aim rows' bonuses over Acc changed: {bonuses} != [0, 2]")
     if not any("melee" in m for m in modifiers):
         raise ValueError("no row carries a separate melee value; prone used to")
 

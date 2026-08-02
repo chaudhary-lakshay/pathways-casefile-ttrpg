@@ -64,24 +64,39 @@ object Ranged {
      * the gentle end silently would turn the GM's harsher call into a softer
      * one -- the same reading the fright triggers settled.
      *
-     * A row needing a weapon's Acc is refused rather than applied as zero:
-     * this book prints no weapon table, so the number does not exist. Passing
-     * one is a caller bug, not a shrug.
+     * [weaponAcc] is the Acc of the weapon being fired, for the two Aim rows.
+     * It used to be refused outright, on the grounds that this book printed no
+     * weapon table -- it does, in chapter 8, and the row's own cell said so
+     * ("see weapon table"). Still refused when no weapon was chosen: applying
+     * zero is not the same as having no value, which is the reading this file
+     * already takes for the darkness row.
      */
     fun modifiers(
         band: RangePenalty? = null,
         conditions: List<RangedModifier> = emptyList(),
         gmValue: Map<String, Int> = emptyMap(),
+        weaponAcc: Int? = null,
     ): List<Modifier> = buildList {
+        // "Aim last turn" and "Aim for 3+ turns" are the same aim, held for
+        // different lengths. Both at once would pay the Acc twice and break
+        // the second row's own printed ceiling ("max Acc +2 total").
+        require(conditions.count { it.weaponAcc } <= 1) {
+            "a shot is aimed for one length of time; " +
+                conditions.filter { it.weaponAcc }.joinToString { it.condition } +
+                " cannot both apply"
+        }
         if (band != null) {
             situational("range", band.penalty, band.printed)?.let(::add)
         }
         conditions.forEach { row ->
-            require(!row.weaponAcc) {
-                "'${row.condition}' is worth the weapon's Acc, and this book prints no weapon table"
+            val value = if (row.weaponAcc) {
+                requireNotNull(weaponAcc) {
+                    "'${row.condition}' is worth the weapon's Acc, and no weapon was chosen"
+                } + row.accBonus
+            } else {
+                gmValue[row.condition] ?: row.modifier
+                    ?: error("'${row.condition}' prints no modifier and none was given")
             }
-            val value = gmValue[row.condition] ?: row.modifier
-                ?: error("'${row.condition}' prints no modifier and none was given")
             if (row.worstCase != null) {
                 // The printed range runs from the gentle end to the harsh one,
                 // both negative, so the harsh end is the LOWER bound.

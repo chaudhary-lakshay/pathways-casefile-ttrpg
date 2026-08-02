@@ -880,12 +880,16 @@ def test_an_open_band_carries_no_upper_bound():
 
 def test_the_aim_rows_are_not_read_as_plus_two():
     """"+ weapon's Acc +2 (max Acc +2 total)" opens with a sign and contains
-    +2 twice; neither is the modifier. This book prints no weapon table."""
+    +2 twice; neither is the modifier. The first is what the row adds ON TOP
+    of the weapon's Acc and the second restates the ceiling, so anchoring to
+    the Acc mention is what stops the restatement being read as a second
+    bonus."""
     rows = extract_ranged.parse_modifiers([
         "Shooter used Aim for 3+ turns", "+ weapon's Acc +2 (max Acc +2 total)",
     ])
     assert rows[0]["weaponAcc"] is True
     assert "modifier" not in rows[0]
+    assert rows[0]["accBonus"] == 2
 
 
 def test_a_row_with_a_melee_value_keeps_both():
@@ -1304,3 +1308,82 @@ def test_a_block_that_grew_an_ability_would_fail_verification():
     ]
     with pytest.raises(ValueError):
         extract_non_standard.verify(entries)
+
+
+import extract_weapons
+
+
+def test_the_book_does_print_a_weapon_table():
+    """Four sections of the handover doc said it did not, and three features
+    were deferred on that premise. It is in chapter 8, which coverage.py
+    reported at 0.0% because nothing had ever read it."""
+    entries = json.loads((CONTENT / "weapons.json").read_text(encoding="utf-8"))["entries"]
+    assert [e["name"] for e in entries] == extract_weapons.EXPECTED_WEAPONS
+    assert all(e["skill"] and e["cost"] for e in entries)
+
+
+def test_a_wrapped_damage_cell_keeps_both_attacks():
+    """The Combat Knife prints "sw-1 cut / thr" then "imp" on the next line.
+    Reading the first mode only drops half of what it can do."""
+    entries = json.loads((CONTENT / "weapons.json").read_text(encoding="utf-8"))["entries"]
+    knife = next(e for e in entries if e["name"] == "Combat Knife")
+    assert [m["printed"] for m in knife["damage"]] == ["sw-1 cut", "thr imp"]
+    assert [m["type"] for m in knife["damage"]] == ["cut", "imp"]
+    assert knife["damage"][0]["base"] == "sw" and knife["damage"][0]["modifier"] == -1
+
+
+def test_only_a_firearm_carries_a_range_in_metres():
+    """"C" and "C/1" are reach. Parsed as distances, Ranged.bandFor would put
+    a sword one metre away and apply a range penalty to it."""
+    entries = json.loads((CONTENT / "weapons.json").read_text(encoding="utf-8"))["entries"]
+    revolver = next(e for e in entries if e["name"] == "Revolver (.38 cal)")
+    assert (revolver["halfRange"], revolver["maxRange"]) == (150, 1800)
+    for melee in ("Combat Knife", "Broadsword", "Truncheon/Baton", "Hand Axe"):
+        row = next(e for e in entries if e["name"] == melee)
+        assert row["halfRange"] is None and row["maxRange"] is None
+
+
+def test_chapter_8_prints_a_damage_type_chapter_5_cannot_price():
+    """The Bolt-Action Rifle deals "pi+"; chapter 5's wounding table never
+    abbreviates its Large Piercing row. Recorded, never repaired -- adding the
+    abbreviation would be editing a chapter that does not print it."""
+    entries = json.loads((CONTENT / "weapons.json").read_text(encoding="utf-8"))["entries"]
+    assert extract_weapons.orphan_types(entries) == extract_weapons.ORPHAN_TYPES
+    rifle = next(e for e in entries if e["name"] == "Bolt-Action Rifle")
+    assert rifle["damage"][0]["type"] == "pi+"
+    # And the same table gives "Hunting rifles" as its Large Piercing example
+    # while chapter 8 prints that gun as plain pi. Both disagreements stand.
+    assert next(e for e in entries if e["name"] == "Hunting Rifle")["damage"][0]["type"] == "pi"
+
+
+def test_a_reconciled_rifle_would_fail_verification():
+    """If a future extraction quietly agreed the two chapters, that is a
+    finding about the data, not a repair to copy forward."""
+    entries = json.loads((CONTENT / "weapons.json").read_text(encoding="utf-8"))["entries"]
+    patched = [
+        {**e, "damage": [{**e["damage"][0], "type": "pi+"}]}
+        if e["name"] == "Hunting Rifle" else e
+        for e in entries
+    ]
+    with pytest.raises(ValueError):
+        extract_weapons.verify(patched)
+
+
+def test_the_shotgun_note_attaches_to_the_shotgun():
+    entries = json.loads((CONTENT / "weapons.json").read_text(encoding="utf-8"))["entries"]
+    shotgun = next(e for e in entries if e["name"] == "Double-Barrel Shotgun")
+    assert "pellets" in shotgun["notes"]
+    assert all(not e["notes"] for e in entries if e["name"] != "Double-Barrel Shotgun")
+
+
+def test_the_longer_aim_adds_two_on_top_of_the_weapons_acc():
+    """"+ weapon's Acc +2 (max Acc +2 total)". Read as the modifier itself,
+    +2 would make the longer aim WORSE than the short one for every weapon
+    with Acc 3 or better."""
+    entries = json.loads(
+        (CONTENT / "ranged_modifiers.json").read_text(encoding="utf-8")
+    )["entries"]
+    aim = [e for e in entries if e.get("weaponAcc")]
+    assert len(aim) == 2
+    assert sorted(e.get("accBonus", 0) for e in aim) == [0, 2]
+    assert all("modifier" not in e for e in aim)

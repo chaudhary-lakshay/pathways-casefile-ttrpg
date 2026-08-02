@@ -57,11 +57,16 @@ object Wounds {
     /**
      * The wounding multiplier for a damage-type abbreviation ("cr", "cut").
      *
-     * Only the four the book abbreviates resolve. "pi-" and "pi+" are GURPS's
-     * spelling of Piercing (small) and Large Piercing and appear nowhere in
-     * this rulebook, so they are refused rather than quietly read as x1 --
-     * silently halving a small-piercing hit is exactly the kind of wrong
-     * answer a default produces.
+     * Only the four this TABLE abbreviates resolve. "pi-" and "pi+" are
+     * GURPS's spelling of Piercing (small) and Large Piercing, and chapter 5
+     * prints both rows without an abbreviation, so they are refused rather
+     * than quietly read as x1 -- silently halving a small-piercing hit is
+     * exactly the kind of wrong answer a default produces.
+     *
+     * **Chapter 8 prints "pi+" anyway**, on the Bolt-Action Rifle, so the
+     * refusal is now reachable from real content and not only from a typo.
+     * The two chapters disagree and neither is repaired; a caller holding a
+     * weapon's damage type asks [knowsType] before it asks for a number.
      */
     fun typeMultiplier(type: String): Double {
         val row = damageTypes().firstOrNull { it.abbreviation.equals(type, ignoreCase = true) }
@@ -71,6 +76,14 @@ object Wounds {
         }
         return row.multiplier
     }
+
+    /**
+     * Whether this table abbreviates [type] at all, so [typeMultiplier] can
+     * price it. False for the Bolt-Action Rifle's "pi+" and nothing else in
+     * the committed content.
+     */
+    fun knowsType(type: String): Boolean =
+        damageTypes().any { it.abbreviation.equals(type, ignoreCase = true) }
 
     /**
      * What a [type] hit at [location] does to penetrating damage, both tables

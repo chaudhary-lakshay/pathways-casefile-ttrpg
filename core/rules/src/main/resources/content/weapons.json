@@ -1,0 +1,186 @@
+{
+ "sourceLines": {
+  "8": [
+   [
+    4977,
+    5042
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "name": "Revolver (.38 cal)",
+   "damage": [
+    {
+     "base": "2d",
+     "modifier": 0,
+     "type": "pi",
+     "printed": "2d pi"
+    }
+   ],
+   "acc": 2,
+   "range": "150/1800",
+   "halfRange": 150,
+   "maxRange": 1800,
+   "cost": "£3",
+   "skill": "Guns (Revolver)",
+   "notes": ""
+  },
+  {
+   "name": "Revolver (.44 cal)",
+   "damage": [
+    {
+     "base": "2d",
+     "modifier": 2,
+     "type": "pi",
+     "printed": "2d+2 pi"
+    }
+   ],
+   "acc": 2,
+   "range": "175/1900",
+   "halfRange": 175,
+   "maxRange": 1900,
+   "cost": "£4",
+   "skill": "Guns (Revolver)",
+   "notes": ""
+  },
+  {
+   "name": "Bolt-Action Rifle",
+   "damage": [
+    {
+     "base": "5d",
+     "modifier": 0,
+     "type": "pi+",
+     "printed": "5d pi+"
+    }
+   ],
+   "acc": 4,
+   "range": "500/3500",
+   "halfRange": 500,
+   "maxRange": 3500,
+   "cost": "£8",
+   "skill": "Guns (Rifle)",
+   "notes": ""
+  },
+  {
+   "name": "Hunting Rifle",
+   "damage": [
+    {
+     "base": "4d",
+     "modifier": 0,
+     "type": "pi",
+     "printed": "4d pi"
+    }
+   ],
+   "acc": 3,
+   "range": "500/3500",
+   "halfRange": 500,
+   "maxRange": 3500,
+   "cost": "£8",
+   "skill": "Guns (Rifle)",
+   "notes": ""
+  },
+  {
+   "name": "Double-Barrel Shotgun",
+   "damage": [
+    {
+     "base": "1d",
+     "modifier": 1,
+     "type": "pi",
+     "printed": "1d+1 pi"
+    }
+   ],
+   "acc": 1,
+   "range": "40/800",
+   "halfRange": 40,
+   "maxRange": 800,
+   "cost": "£4",
+   "skill": "Guns (Shotgun)",
+   "notes": "Shotgun note: The Double-Barrel Shotgun fires multiple pellets. At close range (under 20 meters), multiply base damage by the number of pellets (×9 per barrel, both barrels = ROF 2). Each pellet hits separately — roll each separately or multiply average damage. Beyond 20 meters, the shot spreads and only 1d-2 pellets hit (roll randomly)."
+  },
+  {
+   "name": "Combat Knife",
+   "damage": [
+    {
+     "base": "sw",
+     "modifier": -1,
+     "type": "cut",
+     "printed": "sw-1 cut"
+    },
+    {
+     "base": "thr",
+     "modifier": 0,
+     "type": "imp",
+     "printed": "thr imp"
+    }
+   ],
+   "acc": 0,
+   "range": "C/1",
+   "halfRange": null,
+   "maxRange": null,
+   "cost": "10s",
+   "skill": "Knife",
+   "notes": ""
+  },
+  {
+   "name": "Truncheon/Baton",
+   "damage": [
+    {
+     "base": "sw",
+     "modifier": 0,
+     "type": "cr",
+     "printed": "sw cr"
+    }
+   ],
+   "acc": 0,
+   "range": "C",
+   "halfRange": null,
+   "maxRange": null,
+   "cost": "5s",
+   "skill": "Brawling",
+   "notes": ""
+  },
+  {
+   "name": "Hand Axe",
+   "damage": [
+    {
+     "base": "sw",
+     "modifier": 1,
+     "type": "cut",
+     "printed": "sw+1 cut"
+    }
+   ],
+   "acc": 1,
+   "range": "C/1",
+   "halfRange": null,
+   "maxRange": null,
+   "cost": "8s",
+   "skill": "Axe/Mace",
+   "notes": ""
+  },
+  {
+   "name": "Broadsword",
+   "damage": [
+    {
+     "base": "sw",
+     "modifier": 1,
+     "type": "cut",
+     "printed": "sw+1 cut"
+    },
+    {
+     "base": "thr",
+     "modifier": 2,
+     "type": "imp",
+     "printed": "thr+2 imp"
+    }
+   ],
+   "acc": 0,
+   "range": "C",
+   "halfRange": null,
+   "maxRange": null,
+   "cost": "£3",
+   "skill": "Broadsword",
+   "notes": ""
+  }
+ ]
+}
