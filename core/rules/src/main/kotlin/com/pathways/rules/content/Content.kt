@@ -453,6 +453,17 @@ data class ExtraEffort(val option: String, val fp: Int, val effect: String)
 data class AttackOption(val option: String, val rule: String)
 
 /**
+ * One row of the Optional Major Wound Threshold table (Ch. 5, p. 41-42).
+ *
+ * [failBy] is present on the third row only ("Fail by 5+"): the first two are
+ * reached by outcome, not by margin. Carrying no margin is not the same as
+ * carrying a margin of zero, so the field is absent rather than 0 -- the same
+ * shape as [RitualCritical.corGained].
+ */
+@Serializable
+data class MajorWound(val result: String, val effect: String, val failBy: Int? = null)
+
+/**
  * One rule of the Spirit Body Damage section (Ch. 5, p. 40-41).
  *
  * [section] is the book's own label, untidied -- "Recovery follows each pool's

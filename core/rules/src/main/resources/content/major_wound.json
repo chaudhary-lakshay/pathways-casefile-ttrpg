@@ -1,0 +1,25 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2819,
+    2832
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "result": "Success",
+   "effect": "-4 to all rolls for 1 turn from shock and pain"
+  },
+  {
+   "result": "Failure",
+   "effect": "Stunned for 1d6 seconds (roll HT each turn to recover early)"
+  },
+  {
+   "result": "Fail by 5+",
+   "effect": "Knocked down and unconscious for 1d hours",
+   "failBy": 5
+  }
+ ]
+}

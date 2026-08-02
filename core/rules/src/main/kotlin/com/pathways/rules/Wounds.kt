@@ -6,8 +6,11 @@ import com.pathways.model.ModTarget
 import com.pathways.model.Modifier
 import com.pathways.model.ModifierId
 import com.pathways.model.ModifierSource
+import com.pathways.model.Outcome
+import com.pathways.model.RollResult
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.HitLocation
+import com.pathways.rules.content.MajorWound
 import com.pathways.rules.content.WoundingMultiplier
 
 /**
@@ -97,6 +100,59 @@ object Wounds {
             effect = ModEffect.Flat(location.penalty),
             layer = Layer.SITUATIONAL,
         )
+    }
+
+    /** The three Major Wound rows, in printed order. */
+    fun majorWounds(): List<MajorWound> = ContentLoader.majorWound()
+
+    /**
+     * The smallest single hit that is a Major Wound at [maxHp] (p. 41-42).
+     *
+     * The book's sentence is two instructions that do not agree: "more than
+     * half your HP (round up)". Taken literally that is "damage > ceil(HP/2)",
+     * which at HP 9 means 6 -- and the book's own worked example says a
+     * 5-damage strike triggers it. So "round up" is describing what to do with
+     * the half, not a ceiling to then exceed, and the test is simply
+     * `damage > HP/2`.
+     *
+     * **The example is an ODD total, so it does not settle even ones** (Codex).
+     * Two readings survive it: `damage >= ceil(HP/2)`, which at HP 10 makes 5
+     * a Major Wound, and `damage > HP/2`, which needs 6. The second is taken,
+     * for two reasons:
+     *
+     *  - At HP 10 a 5-damage hit deals EXACTLY half, and the sentence asks for
+     *    more than half. The other reading contradicts the words it came from.
+     *  - GURPS 4e, which this rulebook is derived from, defines a major wound
+     *    as damage over 1/2 HP -- strictly greater. Where this book's own
+     *    phrasing is ambiguous, the parent rule breaks the tie the same way.
+     *
+     * It is still a reading rather than the book's word, so it is recorded
+     * here and pinned by a named test rather than left to be rediscovered.
+     */
+    fun majorWoundThreshold(maxHp: Int): Int {
+        require(maxHp >= 1) { "HP must be at least 1; was $maxHp" }
+        return Math.floorDiv(maxHp, 2) + 1
+    }
+
+    /** Whether one hit of [damage] is a Major Wound at [maxHp]. */
+    fun isMajorWound(damage: Int, maxHp: Int): Boolean = damage >= majorWoundThreshold(maxHp)
+
+    /**
+     * The row an HT [roll] lands on.
+     *
+     * Read by OUTCOME first and only then by margin. A 17 always fails, even
+     * against a target it beat on the dice, so a margin-first reading reports
+     * the book's own failure rows as successes -- the slip [FrightCheck] and
+     * [RitualResolution] each made once before.
+     */
+    fun majorWoundFor(roll: RollResult): MajorWound {
+        val rows = majorWounds()
+        if (roll.outcome == Outcome.SUCCESS || roll.outcome == Outcome.CRITICAL_SUCCESS) {
+            return rows[0]
+        }
+        val by = rows[2].failBy ?: error("the 'Fail by' row prints no margin")
+        // margin is target - total, so a failure's margin is negative.
+        return if (-roll.margin >= by) rows[2] else rows[1]
     }
 
     /** "x3", "x1.5" -- a whole multiplier prints without a decimal tail. */

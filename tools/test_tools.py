@@ -949,6 +949,27 @@ def test_committed_hit_locations_are_the_nine_the_book_prints():
     assert {t for t, e in byname.items() if "byType" in e} == {"Neck", "Vitals"}
 
 
+def test_a_major_wound_row_is_cut_on_the_closed_result_column():
+    """The Effect cells hold "-4" and "1d6"; a number rule would cut them
+    wrong. The Result column is three known strings, so it is the anchor."""
+    rows = extract_wounds.parse_major_wounds([
+        "Success", "-4 to all rolls for 1 turn from shock and pain",
+        "Failure", "Stunned for 1d6 seconds (roll HT each turn to recover early)",
+        "Fail by 5+", "Knocked down and unconscious for 1d hours",
+    ])
+    assert [r["result"] for r in rows] == extract_wounds.RESULTS
+    assert rows[2]["failBy"] == 5
+    # The first two rows are reached by outcome, not by margin, so they carry
+    # no margin at all rather than a margin of zero.
+    assert "failBy" not in rows[0] and "failBy" not in rows[1]
+
+
+def test_committed_major_wound_table_is_the_three_rows_printed():
+    entries = json.loads((CONTENT / "major_wound.json").read_text(encoding="utf-8"))["entries"]
+    assert [e["result"] for e in entries] == extract_wounds.RESULTS
+    assert entries[0]["effect"].startswith("-4 to all rolls")
+
+
 # --- Spirit body damage (Ch. 5, p. 40-41) -----------------------------------
 
 import extract_spirit

@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **498 Kotlin** (JUnit 5, incl. 44 in `app/`) + **72 Python** (pytest), all green |
+| Tests | **504 Kotlin** (JUnit 5, incl. 44 in `app/`) + **74 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -75,7 +75,7 @@ docs/           spec, plan, KNOWN_ISSUES
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty-six JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty-seven JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -87,7 +87,8 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `extra_effort.json` (4), `attack_options.json` (2),
 `unarmed_attacks.json` (10), `range_penalties.json` (7),
 `ranged_modifiers.json` (9), `hit_locations.json` (9),
-`wounding_multipliers.json` (8), `spirit_damage.json` (15).
+`wounding_multipliers.json` (8), `spirit_damage.json` (15),
+`major_wound.json` (3).
 
 ### Public entry points
 
@@ -134,7 +135,10 @@ Ranged.modifiers(band, conditions, gmValue): List<Modifier>
 Wounds.locationNamed(target): HitLocation / .locations() / .damageTypes()
 Wounds.multiplierFor(location, type): Double   // both tables, composed
 Wounds.typeMultiplier(type) / .modifier(location) / .render(multiplier)
+Wounds.majorWoundThreshold(maxHp) / .isMajorWound(damage, maxHp)
+Wounds.majorWoundFor(roll): MajorWound / .majorWounds()
 ContentLoader.hitLocations() / .woundingMultipliers() / .spiritDamage()
+ContentLoader.majorWound()
 SkillRoll.at(label, base, key, source, mods, ctx): SkillRollOutcome
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
@@ -689,8 +693,47 @@ Device-verified on Barmaid Brawler: 12 spirit damage to SPI took 9/9 to
 **-3 / 9** and the saved session read `cor: 3`. Recovering SPI to +2 left
 `cor` at **1** — the debt stayed owed.
 
-**Still ahead in M4:** the Major Wound threshold and shields. Also unmodelled:
-Feint's Quick Contest, and Aim's ACC.
+## 6n. The Major Wound, and one sentence that needs its own example
+
+`Wounds` gained the p. 41-42 threshold, and `SpiritDamageDialog` became
+`DamageDialog` — one hit, one amount, one pool, because a Major Wound is a
+property of the SINGLE hit and that is exactly what a -1/+1 stepper destroys.
+
+- **The threshold sentence contradicts itself, and the example only half
+  settles it.** "Any single attack that deals more than half your HP (round
+  up)". Read literally that is `damage > ceil(HP/2)`, which at HP 9 needs 6 —
+  and the book's own example says a 5-damage strike triggers it. So "round up"
+  describes what to do with the half, not a ceiling to then exceed.
+- **The example is an ODD total, so it does not settle even ones** (Codex
+  called this out and asked for the decision to be recorded rather than
+  changed). Two readings survive it: `damage >= ceil(HP/2)`, making 5 a Major
+  Wound at HP 10, and `damage > HP/2`, needing 6. The second is taken, because
+  at HP 10 a 5-damage hit deals EXACTLY half and the sentence asks for more
+  than half — and because GURPS 4e, which this book is derived from, defines a
+  major wound as damage over 1/2 HP, strictly greater. Still a reading, so it
+  is pinned by a named test rather than left to be rediscovered.
+- **The roll is offered, not made.** The book says "make an immediate HT
+  roll", and a roll the app fires on its own is one the GM cannot decline for a
+  hit they already resolved at the table. Changing the amount or the pool
+  clears the result, because a roll belongs to the hit it was rolled for.
+- **Read by outcome, then by margin.** A 17 fails a target of 18 with a
+  POSITIVE margin, so a margin-first reading would report the book's own
+  failure rows as successes — the slip `FrightCheck` and `RitualResolution`
+  each made once. Only `Fail by 5+` carries a margin; the other two rows carry
+  none rather than a zero.
+- **The Result column is the anchor.** Its Effect cells hold "-4" and "1d6",
+  so the signed-number rule the hit-location table uses would cut them wrong.
+  Three known strings, like the maneuver table's movement column.
+
+Device-verified on both parities: Academic Researcher at **HP 9** — the book's
+own example character — reads "Major wound at 5+", and Barmaid Brawler at
+**HP 10** reads "Major wound at 6+", with 5 damage refusing to trigger it. At
+6 the HT button appeared, rolled **12 vs 10** and took "Failure — Stunned for
+1d6 seconds" rather than the Fail-by-5 row; stepping back to 5 cleared it. The
+mortal's dialog offers HP and FP only.
+
+**Still ahead in M4:** shields. Also unmodelled: Feint's Quick Contest, and
+Aim's ACC.
 
 ### A note on Codex
 

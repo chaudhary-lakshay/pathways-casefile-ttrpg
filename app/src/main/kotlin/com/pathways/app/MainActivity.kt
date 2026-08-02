@@ -170,7 +170,7 @@ fun SheetScreen(
     var casting by remember(sheet) { mutableStateOf(false) }
     var defending by remember(sheet) { mutableStateOf(false) }
     var attacking by remember(sheet) { mutableStateOf(false) }
-    var spiritDamage by remember(sheet) { mutableStateOf(false) }
+    var damaging by remember(sheet) { mutableStateOf(false) }
     // Maximums move with the potions drunk: HT gains lift FP, and SPI is
     // entirely a potion's gift. Recomputed from the walk, never stored.
     val vitals = remember(sheet, drunk, session.edits) {
@@ -190,6 +190,15 @@ fun SheetScreen(
     // both charge against it, and two readings of one rule is how they drift.
     val maxCor = remember(sheet, vitals.will, session.edits) {
         Corruption.maxFor(vitals.will, session.characterFor(sheet).traits)
+    }
+    // Damage rolls off ST, Boxing's bonus off DX and a Major Wound off HT, all
+    // AFTER any potion that raised them -- the same digested character the
+    // skill levels come from.
+    val attributes = remember(sheet, drunk, session.edits) {
+        val played = session.characterFor(sheet)
+        PotionDigestion.of(played.copy(beyonder = drunk), ContentLoader.pathways())
+            ?.effectiveAttributes
+            ?: played.attributes
     }
     // The levels actually rolled: a potion's grants are in here, the sheet's
     // printed column is not. Computed once for defence, attack and the ritual
@@ -233,7 +242,7 @@ fun SheetScreen(
                         }
                         TextButton(onClick = { attacking = true }) { Text("Attack") }
                         TextButton(onClick = { defending = true }) { Text("Defend") }
-                        TextButton(onClick = { spiritDamage = true }) { Text("Spirit") }
+                        TextButton(onClick = { damaging = true }) { Text("Damage") }
                     }
                     Text(sheet.name, style = MaterialTheme.typography.headlineSmall)
                     if (drunk != null) {
@@ -303,12 +312,15 @@ fun SheetScreen(
     if (frightening) {
         FrightDialog(vitals.will) { frightening = false }
     }
-    if (spiritDamage) {
-        SpiritDamageDialog(
+    if (damaging) {
+        DamageDialog(
             // The same test that hides the SPI tracker: a mortal has no
             // spirituality to spend, so it is not offered as somewhere to
             // absorb a hit.
             hasSpirituality = vitals.maxSpi > 0,
+            maxHp = vitals.maxHp,
+            ht = attributes.ht,
+            dice = appDice,
             onApply = { pool, amount ->
                 val max = when (pool) {
                     Pool.HP -> vitals.maxHp
@@ -317,7 +329,7 @@ fun SheetScreen(
                 }
                 session.spend(pool, amount, max, maxCor)
             },
-            onDismiss = { spiritDamage = false },
+            onDismiss = { damaging = false },
         )
     }
     if (defending) {
@@ -328,15 +340,6 @@ fun SheetScreen(
         ) { defending = false }
     }
     if (attacking) {
-        // Damage rolls off ST and Boxing's bonus off DX, both AFTER any
-        // potion that raised them -- the same digested character the skill
-        // levels above came from.
-        val attributes = remember(sheet, drunk, session.edits) {
-            val played = session.characterFor(sheet)
-            PotionDigestion.of(played.copy(beyonder = drunk), ContentLoader.pathways())
-                ?.effectiveAttributes
-                ?: played.attributes
-        }
         AttackDialog(
             skillLevels = skillLevels,
             conditions = { conditionsFor(it) },

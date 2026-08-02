@@ -44,12 +44,21 @@ CHAPTER = "5"
 LOCATION_RANGE = (2743, 2784)
 MULTIPLIER_RANGE = (2790, 2816)
 STACKING_RANGE = (2817, 2818)
+MAJOR_RANGE = (2819, 2832)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 HEADER = {
     "Target", "Penalty", "×", "Special Effect on Hit",
     "Damage Type", "Examples",
+    "Optional — Major Wound Threshold", "Result", "Effect",
 }
+
+# The Major Wound table's Result column is a closed set of three, so a line is
+# a result exactly when it is one of them -- the same anchor extract_combat.py
+# uses on the movement column. Its Effect cells contain "-4" and "1d6", so a
+# signed-number rule would cut them wrong.
+RESULTS = ["Success", "Failure", "Fail by 5+"]
+FAIL_BY = re.compile(r"Fail by (\d+)\+")
 
 PENALTY = re.compile(r"^[+-]\d+$")
 # "x1", "x1.5", "x3 (imp/pi only)" -- the cell opens with the sign.
@@ -67,6 +76,11 @@ ABBREVIATIONS = {
     "Impaling": "imp",
     "Piercing": "pi",
 }
+
+THRESHOLD_RULE = "more than half your HP (round up)"
+# The book's own worked example, and the only thing that settles the sentence
+# above -- see com.pathways.rules.Wounds.majorWoundThreshold.
+THRESHOLD_EXAMPLE = "At HP 9, a single 5-damage strike triggers a Major Wound"
 
 EXPECTED_LOCATIONS = [
     "Torso", "Arm", "Leg", "Hand", "Neck", "Face", "Skull", "Vitals", "Eye",
@@ -185,7 +199,23 @@ def parse_types(lines):
     return out
 
 
-def verify(locations, types, stacking):
+def parse_major_wounds(lines):
+    """The three Result/Effect rows, cut on the closed Result column."""
+    out = []
+    for i, line in enumerate(lines):
+        if line not in RESULTS:
+            continue
+        if i + 1 >= len(lines):
+            raise ValueError(f"result {line!r} has no effect after it")
+        entry = {"result": line, "effect": lines[i + 1]}
+        margin = FAIL_BY.match(line)
+        if margin:
+            entry["failBy"] = int(margin.group(1))
+        out.append(entry)
+    return out
+
+
+def verify(locations, types, stacking, major, major_lines):
     got = [l["target"] for l in locations]
     if got != EXPECTED_LOCATIONS:
         raise ValueError(f"hit locations changed: {got} != {EXPECTED_LOCATIONS}")
@@ -216,6 +246,19 @@ def verify(locations, types, stacking):
     if STACKING not in " ".join(stacking):
         raise ValueError(f"the stacking sentence is gone: {stacking}")
 
+    got = [m["result"] for m in major]
+    if got != RESULTS:
+        raise ValueError(f"major wound rows changed: {got} != {RESULTS}")
+    if [m for m in major if "failBy" in m] != [major[2]]:
+        raise ValueError("exactly one major wound row prints a margin; that changed")
+    # Both halves of the threshold rule. The sentence says "more than half ...
+    # (round up)", which is two instructions that only agree once the example
+    # is read beside them -- so neither may go missing on its own.
+    body = " ".join(major_lines)
+    for phrase in (THRESHOLD_RULE, THRESHOLD_EXAMPLE):
+        if phrase not in body:
+            raise ValueError(f"the major wound threshold rule is gone: {phrase!r}")
+
 
 def write(name, entries, spans):
     OUT.mkdir(parents=True, exist_ok=True)
@@ -230,10 +273,13 @@ def main():
     locations = parse_locations(stream(byn, *LOCATION_RANGE))
     types = parse_types(stream(byn, *MULTIPLIER_RANGE))
     stacking = stream(byn, *STACKING_RANGE)
-    verify(locations, types, stacking)
+    major_lines = stream(byn, *MAJOR_RANGE)
+    major = parse_major_wounds(major_lines)
+    verify(locations, types, stacking, major, major_lines)
 
     write("hit_locations", locations, [list(LOCATION_RANGE)])
     write("wounding_multipliers", types, [list(MULTIPLIER_RANGE), list(STACKING_RANGE)])
+    write("major_wound", major, [list(MAJOR_RANGE)])
 
     print(f"hit_locations: {len(locations)} rows")
     for row in locations:
@@ -241,6 +287,9 @@ def main():
     print(f"wounding_multipliers: {len(types)} rows")
     for row in types:
         print(f"  {row['type']:18} x{row['multiplier']:<5} {row.get('abbreviation', '-')}")
+    print(f"major_wound: {len(major)} rows")
+    for row in major:
+        print(f"  {row['result']:12} {row['effect'][:60]}")
     return 0
 
 

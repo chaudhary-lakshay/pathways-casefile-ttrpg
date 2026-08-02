@@ -4,6 +4,7 @@ import com.pathways.model.ModEffect
 import com.pathways.model.SourceKind
 import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -121,6 +122,58 @@ class WoundsTest {
     @Test
     fun `an unknown location is refused, not defaulted to the torso`() {
         assertThrows<IllegalArgumentException> { Wounds.locationNamed("Wing") }
+    }
+
+    @Test
+    fun `the book's own example fixes the major wound threshold`() {
+        // "At HP 9, a single 5-damage strike triggers a Major Wound." Half of
+        // 9 is 4.5, so 5 is more than half -- and 4 is not.
+        assertEquals(5, Wounds.majorWoundThreshold(9))
+        assertTrue(Wounds.isMajorWound(5, maxHp = 9))
+        assertFalse(Wounds.isMajorWound(4, maxHp = 9))
+    }
+
+    @Test
+    fun `an even HP total takes more than half, not half rounded up`() {
+        // The sentence reads "more than half your HP (round up)", which is two
+        // instructions, and the book's example is an ODD total where both give
+        // 5. At HP 10 they part: "half rounded up" is 5, "more than half" is 6.
+        // "More than" is what the sentence actually requires, so exactly half
+        // is not a major wound -- a documented reading, not the book's word.
+        assertEquals(6, Wounds.majorWoundThreshold(10))
+        assertFalse(Wounds.isMajorWound(5, maxHp = 10), "5 is half of 10, not more")
+        assertTrue(Wounds.isMajorWound(6, maxHp = 10))
+    }
+
+    @Test
+    fun `the threshold is never zero, so a scratch is never a major wound`() {
+        assertEquals(1, Wounds.majorWoundThreshold(1))
+        assertFalse(Wounds.isMajorWound(0, maxHp = 1))
+        assertThrows<IllegalArgumentException> { Wounds.majorWoundThreshold(0) }
+    }
+
+    @Test
+    fun `a successful HT roll takes the mildest row`() {
+        val row = Wounds.majorWoundFor(SuccessRoll.evaluate(total = 8, target = 11))
+        assertEquals("Success", row.result)
+        assertNull(row.failBy)
+    }
+
+    @Test
+    fun `a critical failure is read as an outcome, not as a margin`() {
+        // A 17 against a target of 18 has a POSITIVE margin and is still a
+        // failure -- the slip FrightCheck and RitualResolution both made once.
+        val roll = SuccessRoll.evaluate(total = 17, target = 18)
+        assertTrue(roll.margin > 0)
+        assertEquals("Failure", Wounds.majorWoundFor(roll).result)
+    }
+
+    @Test
+    fun `failing by five or more is knocked down`() {
+        assertEquals("Failure", Wounds.majorWoundFor(SuccessRoll.evaluate(14, 11)).result)
+        val bad = Wounds.majorWoundFor(SuccessRoll.evaluate(16, 11))
+        assertEquals("Fail by 5+", bad.result)
+        assertEquals(5, bad.failBy)
     }
 
     @Test
