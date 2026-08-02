@@ -1,0 +1,48 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2486,
+    2537
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "type": "Light (buckler, target)",
+   "db": 1,
+   "coverDr": 3,
+   "hp": 15,
+   "weight": "2 kg",
+   "cost": "£2",
+   "notes": "Worn on forearm; frees hand; -1 to Block vs. ranged"
+  },
+  {
+   "type": "Medium (round, heater)",
+   "db": 2,
+   "coverDr": 5,
+   "hp": 20,
+   "weight": "5 kg",
+   "cost": "£5",
+   "notes": "Standard shield; common among watchmen and soldiers"
+  },
+  {
+   "type": "Heavy (tower, riot)",
+   "db": 3,
+   "coverDr": 7,
+   "hp": 30,
+   "weight": "10 kg",
+   "cost": "£8",
+   "notes": "Full body cover when crouching; Move -1 while Readied"
+  },
+  {
+   "type": "Improvised (lid, crate side)",
+   "db": 1,
+   "coverDr": 2,
+   "hp": 12,
+   "weight": "varies",
+   "cost": "—",
+   "notes": "-2 to Block; Shatters on damage exceeding Cover DR"
+  }
+ ]
+}

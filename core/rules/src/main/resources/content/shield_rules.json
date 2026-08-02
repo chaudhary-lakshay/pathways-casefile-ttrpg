@@ -1,0 +1,21 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2486,
+    2537
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "rule": "Breaking a shield: Once Cover DR is exceeded, any excess damage reduces the shield's HP. At 0 HP the shield is destroyed. A shield can be targeted directly (size penalty -5 for light, -4 for medium, -3 for heavy)."
+  },
+  {
+   "rule": "Shield as cover: A Readied shield can be used to block a doorway or arrow slit on your turn. Treat it as having Cover DR equal to its listed value × 1.5 for this purpose. HP remains the same."
+  },
+  {
+   "rule": "Shield Bash: Use the shield as an improvised weapon: damage = thr-2 cr for light, thr-1 cr for medium, thr cr for heavy. Skill defaults to Shield/DX or Brawling-2."
+  }
+ ]
+}

@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **504 Kotlin** (JUnit 5, incl. 44 in `app/`) + **74 Python** (pytest), all green |
+| Tests | **513 Kotlin** (JUnit 5, incl. 44 in `app/`) + **78 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -75,7 +75,7 @@ docs/           spec, plan, KNOWN_ISSUES
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty-seven JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading twenty-nine JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -88,7 +88,7 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `unarmed_attacks.json` (10), `range_penalties.json` (7),
 `ranged_modifiers.json` (9), `hit_locations.json` (9),
 `wounding_multipliers.json` (8), `spirit_damage.json` (15),
-`major_wound.json` (3).
+`major_wound.json` (3), `shields.json` (4), `shield_rules.json` (3).
 
 ### Public entry points
 
@@ -138,7 +138,10 @@ Wounds.typeMultiplier(type) / .modifier(location) / .render(multiplier)
 Wounds.majorWoundThreshold(maxHp) / .isMajorWound(damage, maxHp)
 Wounds.majorWoundFor(roll): MajorWound / .majorWounds()
 ContentLoader.hitLocations() / .woundingMultipliers() / .spiritDamage()
-ContentLoader.majorWound()
+ContentLoader.majorWound() / .shields() / .shieldRules()
+Shields.all() / .rules() / .named(type): Shield
+Shields.withBonus(defense, shield) / .blockFor(shield, skill, isRanged)
+Shields.blockPenalty(shield, isRanged): Int
 SkillRoll.at(label, base, key, source, mods, ctx): SkillRollOutcome
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
@@ -732,8 +735,47 @@ own example character — reads "Major wound at 5+", and Barmaid Brawler at
 1d6 seconds" rather than the Fail-by-5 row; stepping back to 5 cleared it. The
 mortal's dialog offers HP and FP only.
 
-**Still ahead in M4:** shields. Also unmodelled: Feint's Quick Contest, and
-Aim's ACC.
+## 6o. Shields — the number `ParryBlock` waited four milestones for
+
+`ParryBlock.blockFor` has taken a `shieldDb` since M0 with nothing able to
+supply one: the defense dialog printed `"+ shield DB"` and left it to the GM.
+The book prints four shields, so it is a chip row now. **This closes M4.**
+
+- **The DB is not a Block bonus.** "While Readied, its DB (Defense Bonus) adds
+  to all active defenses (Dodge, Parry, and Block)." Block is the only defence
+  whose FORMULA mentions a shield, which makes Block-only the easy wrong
+  reading — and it would understate a shielded Dodge by up to 3.
+- **Facing is not modelled, so the total is not presented as one** (Codex).
+  The bonus applies only "against attacks from the front or shield side", and
+  this book prints no arc to test against. Baking it in would let a GM roll a
+  shielded Dodge against a backstab, so every row shows **both** numbers —
+  `7 → 10` — with the condition stated once above. Cheaper than a facing
+  selector and impossible to misread as unconditional.
+- **The two Block penalties are not the same rule.** Light is "-1 to Block vs.
+  ranged" and Improvised is "-2 to Block" with no scope named, so it applies in
+  reach too. Same lesson as Spiritual Attrition and the prone target's melee
+  value: the scope travels with the number. They live in `Shields` rather than
+  the JSON because they are numbers inside prose — `extract_shields.py` pins
+  the sentences and `ShieldsTest` pins that the cells still say them.
+- **A shield name always wraps** ("Light (buckler," / "target)"), so the name
+  is walked BACKWARD from the DB cell while its brackets are still open — the
+  unclosed-bracket rule the Vitals multiplier already needed. Counting two
+  lines per name works today and breaks on the first one-line shield.
+- **The DB column is the anchor**, being the only bare signed integer: three of
+  the four Notes cells carry their own signed numbers ("-1 to Block vs.
+  ranged", "Move -1 while Readied").
+- **Weight and Cost stay text.** The improvised row prints "varies" and an em
+  dash, which are values, not gaps.
+
+Device-verified on Academic Researcher with Shield bought at 1 point (level 9,
+Block 7): a heavy shield read Dodge **7 → 10**, a light one Dodge **7 → 8**,
+Block **7 → 8** and "Against ranged attacks: **7**" — the -1 landing on shots
+and nothing else.
+
+**M4 is complete.** Still unmodelled and deliberately so: Feint's Quick
+Contest, Aim's ACC (no weapon in this book prints one), a shield's facing arc,
+and the shield bash's damage (it is `thr-2`/`thr-1`/`thr`, which `Damage`
+could roll, but a bash is a weapon attack and this book lists no weapons).
 
 ### A note on Codex
 

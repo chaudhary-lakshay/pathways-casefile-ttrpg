@@ -453,6 +453,33 @@ data class ExtraEffort(val option: String, val fp: Int, val effect: String)
 data class AttackOption(val option: String, val rule: String)
 
 /**
+ * One row of the Shields table (Ch. 5, p. 37).
+ *
+ * [db] is the Defense Bonus, which "adds to all active defenses (Dodge, Parry,
+ * and Block) against attacks from the front or shield side" -- not to Block
+ * alone. [weight] and [cost] stay text because the improvised row prints
+ * "varies" and an em dash, which are real values rather than missing ones.
+ *
+ * [notes] is the printed cell, and two of the four carry a Block penalty in
+ * prose. The numbers are applied by [com.pathways.rules.Shields], which is
+ * where the scope of each can be said out loud.
+ */
+@Serializable
+data class Shield(
+    val type: String,
+    val db: Int,
+    val coverDr: Int,
+    val hp: Int,
+    val weight: String,
+    val cost: String,
+    val notes: String,
+)
+
+/** One bullet under the Shields table: breaking, cover, or a shield bash. */
+@Serializable
+data class ShieldRule(val rule: String)
+
+/**
  * One row of the Optional Major Wound Threshold table (Ch. 5, p. 41-42).
  *
  * [failBy] is present on the third row only ("Fail by 5+"): the first two are

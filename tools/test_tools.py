@@ -970,6 +970,51 @@ def test_committed_major_wound_table_is_the_three_rows_printed():
     assert entries[0]["effect"].startswith("-4 to all rolls")
 
 
+# --- Shields (Ch. 5, p. 37) -------------------------------------------------
+
+import extract_shields
+
+
+def test_a_wrapped_shield_name_is_walked_back_on_its_brackets():
+    """"Light (buckler," / "target)" is one cell. Counting two lines per name
+    would break the first time the book prints one that fits on one line."""
+    cells = ["Light (buckler,", "target)", "+1", "3", "15", "2 kg", "£2", "worn"]
+    assert extract_shields.name_before(cells, 2) == "Light (buckler, target)"
+    # A name that does not wrap is taken whole, not glued to the row above.
+    assert extract_shields.name_before(["Tower", "+3"], 1) == "Tower"
+
+
+def test_a_note_holding_a_signed_number_does_not_start_a_row():
+    """"-1 to Block vs. ranged" and "Move -1 while Readied" both sit in Notes
+    cells. Only the bare signed integer is the DB column."""
+    rows = extract_shields.parse([
+        "Light (buckler,", "target)", "+1", "3", "15", "2 kg", "£2",
+        "Worn on forearm; frees hand; -1 to Block vs. ranged",
+    ])
+    assert len(rows) == 1
+    assert rows[0]["db"] == 1 and rows[0]["coverDr"] == 3 and rows[0]["hp"] == 15
+    assert rows[0]["notes"].endswith("-1 to Block vs. ranged")
+
+
+def test_a_bullet_takes_the_lines_that_wrap_out_of_it():
+    rules = extract_shields.join_bullets([
+        (False, "table row that is not a bullet"),
+        (True, "Shield as cover: treat it as having Cover"),
+        (False, "DR equal to its listed value × 1.5 for this purpose."),
+        (True, "Shield Bash: damage = thr-2 cr for light."),
+    ])
+    assert len(rules) == 2
+    assert rules[0].endswith("for this purpose.")
+
+
+def test_committed_shields_are_the_four_the_book_prints():
+    entries = json.loads((CONTENT / "shields.json").read_text(encoding="utf-8"))["entries"]
+    assert [e["type"] for e in entries] == extract_shields.EXPECTED_TYPES
+    # Weight and Cost stay text: the improvised row prints "varies" and a dash.
+    improvised = entries[3]
+    assert improvised["weight"] == "varies" and not improvised["cost"].isdigit()
+
+
 # --- Spirit body damage (Ch. 5, p. 40-41) -----------------------------------
 
 import extract_spirit

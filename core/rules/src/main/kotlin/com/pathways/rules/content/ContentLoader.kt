@@ -36,6 +36,8 @@ object ContentLoader {
     private val rangedModifiersLazy: List<RangedModifier> by lazy { load("ranged_modifiers.json") }
     private val spiritDamageLazy: List<SpiritDamageRule> by lazy { load("spirit_damage.json") }
     private val majorWoundLazy: List<MajorWound> by lazy { load("major_wound.json") }
+    private val shieldsLazy: List<Shield> by lazy { load("shields.json") }
+    private val shieldRulesLazy: List<ShieldRule> by lazy { load("shield_rules.json") }
     private val hitLocationsLazy: List<HitLocation> by lazy { load("hit_locations.json") }
     private val woundingMultipliersLazy: List<WoundingMultiplier> by lazy {
         load("wounding_multipliers.json")
@@ -100,6 +102,12 @@ object ContentLoader {
 
     /** Other Ranged Modifiers: movement, cover, darkness, Aim (Ch. 5). */
     fun rangedModifiers(): List<RangedModifier> = rangedModifiersLazy
+
+    /** The four shields (Ch. 5, p. 37), in printed order. */
+    fun shields(): List<Shield> = shieldsLazy
+
+    /** The bullets under that table: breaking, cover, and the shield bash. */
+    fun shieldRules(): List<ShieldRule> = shieldRulesLazy
 
     /** The Major Wound Threshold table (Ch. 5, p. 41-42), in printed order. */
     fun majorWound(): List<MajorWound> = majorWoundLazy
