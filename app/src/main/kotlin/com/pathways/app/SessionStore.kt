@@ -41,9 +41,21 @@ data class SavedEdits(
     val iq: Int? = null,
     val ht: Int? = null,
     val skills: List<SavedSkill> = emptyList(),
+    /**
+     * The chosen economic status ("Wealthy"), or null for the level the sheet
+     * printed (Ch. 8, p. 80).
+     *
+     * The NAME only, exactly as a bought skill stores a name and its points:
+     * the cost, the reaction modifier and the lifestyle belong to the book,
+     * and a save file carrying its own copy could contradict it after a
+     * content fix. Resolved through [com.pathways.rules.Wealth] on the way
+     * back in, and dropped when the book prints no such level.
+     */
+    val wealth: String? = null,
 ) {
     val isEmpty: Boolean
-        get() = st == null && dx == null && iq == null && ht == null && skills.isEmpty()
+        get() = st == null && dx == null && iq == null && ht == null &&
+            skills.isEmpty() && wealth == null
 }
 
 /**

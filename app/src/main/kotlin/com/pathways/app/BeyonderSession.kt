@@ -92,6 +92,21 @@ class BeyonderSession(
     }
 
     /**
+     * Choose an economic status, or null to keep the sheet's printed one
+     * (Ch. 8, p. 80).
+     *
+     * Only the NAME is stored; the points, the reaction modifier and the
+     * lifestyle are re-read from the book on every load, the same way a bought
+     * skill's controlling attribute is. [com.pathways.rules.Wealth.applied]
+     * replaces rather than adds when the character is composed, because a
+     * character has one economic status and two wealth traits would bill twice.
+     */
+    fun setWealth(status: String?) {
+        edits = edits.copy(wealth = status)
+        persist()
+    }
+
+    /**
      * Buy [name] at one point, the cheapest a skill can be owned at.
      *
      * A skill already bought is left exactly as it is rather than reset: a

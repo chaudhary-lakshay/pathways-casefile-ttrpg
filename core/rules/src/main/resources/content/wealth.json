@@ -1,0 +1,61 @@
+{
+ "sourceLines": {
+  "8": [
+   [
+    4938,
+    4976
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "status": "Dead Broke",
+   "points": -25,
+   "startingMoney": "£0",
+   "reactionModifier": -2,
+   "lifestyle": "No home; beg or steal for every meal"
+  },
+  {
+   "status": "Poor",
+   "points": -15,
+   "startingMoney": "5 soli",
+   "reactionModifier": -1,
+   "lifestyle": "Boarding house; barely afford basic food"
+  },
+  {
+   "status": "Struggling",
+   "points": -10,
+   "startingMoney": "15 soli",
+   "reactionModifier": 0,
+   "lifestyle": "Modest room; occasional luxuries"
+  },
+  {
+   "status": "Average",
+   "points": 0,
+   "startingMoney": "£1",
+   "reactionModifier": 0,
+   "lifestyle": "Decent flat; regular meals; some savings"
+  },
+  {
+   "status": "Comfortable",
+   "points": 5,
+   "startingMoney": "£5",
+   "reactionModifier": 1,
+   "lifestyle": "Good lodgings; regular clothing budget"
+  },
+  {
+   "status": "Wealthy",
+   "points": 15,
+   "startingMoney": "£50",
+   "reactionModifier": 2,
+   "lifestyle": "Nice townhouse; fine clothes; a servant"
+  },
+  {
+   "status": "Very Wealthy",
+   "points": 25,
+   "startingMoney": "£100",
+   "reactionModifier": 3,
+   "lifestyle": "Large house; multiple servants; carriage"
+  }
+ ]
+}

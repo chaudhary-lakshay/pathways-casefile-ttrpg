@@ -3,6 +3,8 @@ package com.pathways.app
 import com.pathways.model.Attr
 import com.pathways.model.Attributes
 import com.pathways.model.Character
+import com.pathways.model.Trait
+import com.pathways.model.TraitKind
 import com.pathways.rules.Derive
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -130,5 +132,74 @@ class EditedCharacterTest {
         assertTrue(SavedEdits().isEmpty)
         assertTrue(!SavedEdits(ht = 11).isEmpty)
         assertTrue(!SavedEdits(skills = listOf(SavedSkill("Brawling", points = 1))).isEmpty)
+        assertTrue(!SavedEdits(wealth = "Wealthy").isEmpty)
+    }
+
+    @Test
+    fun `a chosen wealth level replaces the one the sheet printed`() {
+        // A character has one economic status. Left beside each other, the
+        // printed level and the bought one would raise the budget and spend
+        // from it at the same time, and both totals would look plausible.
+        val poor = mortal.copy(traits = listOf(Trait("Wealth: Poor", 15, TraitKind.DISADVANTAGE)))
+        val edited = SavedEdits(wealth = "Wealthy").applyTo(poor)
+
+        assertEquals(listOf("Wealth: Wealthy"), edited.traits.map { it.name })
+        assertEquals(
+            Derive.of(poor).budget.surplus - 30,
+            Derive.of(edited).budget.surplus,
+            "15 points of disadvantage lost and 15 spent is a 30-point move",
+        )
+    }
+
+    @Test
+    fun `a sheet's other traits survive a wealth change`() {
+        val printed = mortal.copy(
+            traits = listOf(
+                Trait("Skinny", 5, TraitKind.DISADVANTAGE),
+                Trait("Wealth: Poor", 15, TraitKind.DISADVANTAGE),
+            ),
+        )
+        assertEquals(
+            listOf("Skinny", "Wealth: Comfortable"),
+            SavedEdits(wealth = "Comfortable").applyTo(printed).traits.map { it.name },
+        )
+    }
+
+    @Test
+    fun `Average leaves no wealth trait behind`() {
+        val poor = mortal.copy(traits = listOf(Trait("Wealth: Poor", 15, TraitKind.DISADVANTAGE)))
+        assertTrue(SavedEdits(wealth = "Average").applyTo(poor).traits.isEmpty())
+    }
+
+    @Test
+    fun `choosing Average is still a choice, and still shows as one`() {
+        // REGRESSION (Codex): Average costs 0 pts, so Wealth.applied leaves no
+        // trait behind. A display derived from the composed character read
+        // "the sheet prints no wealth level" for a player who had deliberately
+        // picked Average -- while the budget had moved by 15 points.
+        val poor = mortal.copy(traits = listOf(Trait("Wealth: Poor", 15, TraitKind.DISADVANTAGE)))
+        val edits = SavedEdits(wealth = "Average")
+
+        assertTrue(edits.applyTo(poor).traits.isEmpty(), "and it really does leave no trait")
+        assertEquals("Average", edits.wealthShownFor(edits.applyTo(poor))?.status)
+    }
+
+    @Test
+    fun `an unchosen level falls back to the one the sheet printed`() {
+        val poor = mortal.copy(traits = listOf(Trait("Wealth: Poor", 15, TraitKind.DISADVANTAGE)))
+        assertEquals("Poor", SavedEdits().wealthShownFor(poor)?.status)
+        // And a level the book does not print falls through the same way, so
+        // the row agrees with what applyTo actually billed.
+        assertEquals("Poor", SavedEdits(wealth = "Fabulously Rich").wealthShownFor(poor)?.status)
+        assertNull(SavedEdits().wealthShownFor(mortal), "a sheet with no wealth row still has none")
+    }
+
+    @Test
+    fun `a saved wealth level the book does not print is dropped, never guessed at`() {
+        // Same rule as a saved skill the book no longer prints: a save file is
+        // convenience, never authority. Answering "Average" for an unreadable
+        // level would silently move the budget by up to 25 points.
+        val poor = mortal.copy(traits = listOf(Trait("Wealth: Poor", 15, TraitKind.DISADVANTAGE)))
+        assertEquals(poor.traits, SavedEdits(wealth = "Fabulously Rich").applyTo(poor).traits)
     }
 }

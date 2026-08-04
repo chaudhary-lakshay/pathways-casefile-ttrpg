@@ -829,6 +829,26 @@ data class CataloguedWeapon(
     val notes: String = "",
 )
 
+/**
+ * One row of Starting Wealth by Economic Status (Ch. 8, p. 80).
+ *
+ * [points] is SIGNED, exactly as the table prints it ("Dead Broke (-25 pts)"),
+ * while [com.pathways.model.Trait.cost] is a magnitude whose direction lives
+ * in its kind. [com.pathways.rules.Wealth.traitFor] is the one place the two
+ * meet; applying both conventions would double the sign.
+ *
+ * [reactionModifier] is the printed column, which is not symmetric around
+ * Average -- see [com.pathways.rules.Wealth].
+ */
+@Serializable
+data class WealthLevel(
+    val status: String,
+    val points: Int,
+    val startingMoney: String,
+    val reactionModifier: Int,
+    val lifestyle: String,
+)
+
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
 data class DamageRowJson(val st: Int, val thrust: String, val swing: String)

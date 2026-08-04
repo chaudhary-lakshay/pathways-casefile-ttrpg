@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **579 Kotlin** (JUnit 5, incl. 50 in `app/`) + **106 Python** (pytest), all green |
+| Tests | **595 Kotlin** (JUnit 5, incl. 57 in `app/`) + **113 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -75,7 +75,7 @@ docs/           spec, plan, KNOWN_ISSUES
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading thirty-nine JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading forty JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -93,7 +93,7 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `divination_modifiers.json` (8), `divination_clarity.json` (6),
 `divination_support.json` (4), `ritual_preparation.json` (5),
 `boon_granting.json` (1), `boon_modifiers.json` (8),
-`non_standard_pathways.json` (17), `weapons.json` (9).
+`non_standard_pathways.json` (17), `weapons.json` (9), `wealth.json` (7).
 
 ### Public entry points
 
@@ -171,6 +171,10 @@ Weapons.isRanged(weapon) / .canParry(weapon) / .parryFor(weapon, skill): Int?
 Weapons.hasWoundingMultiplier(mode)   // false for the rifle's pi+
 Wounds.knowsType(type): Boolean       // ask before multiplierFor
 ContentLoader.weapons()
+Wealth.all() / .named(status): WealthLevel        // throws for an unprinted level
+Wealth.traitFor(level): Trait?                    // null at 0 pts (Average)
+Wealth.levelOf(traits) / .applied(traits, level)  // replaces, never adds
+ContentLoader.wealth()
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -1083,10 +1087,81 @@ left is Ch. 6.5's Section IV onward — divination awareness and
 countermeasures, which is a per-pathway detection subsystem and a slice of its
 own. Chapter 7 is also still only part-claimed: power sources, entity
 response, ritual timing and the sample rituals are unread. Chapters 14 and 15
-are complete (6s). The largest unclaimed content left is chapter 3's remaining
-third and the rest of chapter 8 — starting wealth is the piece with a caller
-already waiting, since Wealth is a point-costed trait and `PointBudget` bills
-traits.
+are complete (6s). Starting wealth was the piece with a caller already waiting
+and is section 6u; the largest unclaimed content left is chapter 3's remaining
+third and the rest of chapter 8.
+
+## 6u. Starting Wealth — the table chapter 3 only half prints
+
+`Wealth` (core/rules) reads Ch. 8's Starting Wealth by Economic Status, and
+`BuilderScreen`'s wealth row is its interface. The caller really had been
+waiting since M0: `PointBudget` bills traits, and a wealth level IS a trait.
+
+- **Chapter 3 prints four of the seven levels, and only the cheap end.** Its
+  advantage and disadvantage lists carry Dead Broke, Poor, Struggling and
+  Comfortable; Average, Wealthy and Very Wealthy exist only in chapter 8. So
+  until this table was read, nothing could give a character either level above
+  Comfortable — a 25-point hole in the builder that looked like a complete
+  list. Where both chapters price a level they agree exactly, and
+  `extract_wealth.py`'s `verify()` fails if that ever stops being true.
+- **The reaction ladder is not symmetric, and the prose says it is.** "+1 to
+  reaction rolls per Status level above Average ... and −1 per level below
+  Average." Above Average the column obeys that exactly. Below it, it does
+  not: Struggling is one level down and the column prints **0**, and the
+  paragraph's own example puts Poor — two levels down — at −1. Deriving the
+  modifier from a level's position is the tidy wrong answer; the printed
+  column wins (4.1), and both halves are pinned so a later parse cannot
+  straighten it.
+- **The page prints two kinds of minus.** Point costs are ASCII (`-25 pts`),
+  reaction modifiers are U+2212 (` −2`). A regex that knows one silently drops
+  half the negative numbers — and the half it drops still parses, as positives.
+- **The sign is in the number here and in the KIND everywhere else.** `Trait`
+  carries a magnitude with `TraitKind` giving direction; this table signs its
+  points. `Wealth.traitFor` is the single place the two conventions meet,
+  because applying both is how a disadvantage starts paying twice.
+- **Average is 0 pts and therefore produces no trait at all.** A zero-cost
+  advantage or disadvantage would be a row that bills nothing — the same
+  distinction `RitualCritical.corGained` draws between charging no corruption
+  and charging zero. That immediately bit the UI (Codex): the row read the
+  composed character, so choosing Average showed "the sheet prints no wealth
+  level" and left the picker unticked, while the budget had silently moved by
+  15 points. The CHOICE is authoritative and the trait is only what the sheet
+  printed — `wealthShownFor` asks in that order.
+- **Changing wealth REPLACES, never adds.** A character has one economic
+  status; a printed "Wealth: Poor" left beside a bought "Wealth: Wealthy"
+  raises the budget by 15 and spends 15 in the same breath, and both totals
+  still look plausible.
+- **The reaction modifier is shown, never applied.** This book has no reaction
+  roll to apply it to, and the paragraph hands it to the GM out loud ("GMs may
+  limit this modifier based on context"). Same shape as a called shot's
+  wounding multiplier, quoted beside the damage rather than multiplied into it.
+- **A choice needs a way back, and 20 of the 23 premades need it most**
+  (Codex). `setWealth(null)` existed and was tested from the first commit of
+  this slice, and was unreachable from the picker — which offered seven book
+  levels and Close. Twenty premades print no wealth level at all, so one tap
+  would have permanently given such a character a status the book never gave
+  them. The picker's first row is "As printed" now, and its tick reads the
+  OVERRIDE rather than the shown level, because the shown one falls back to
+  the sheet's and could never tick.
+- **Only the level's NAME is saved.** The points, money and lifestyle are
+  re-read from the book every load, exactly as a bought skill's controlling
+  attribute is, and a level the book no longer prints falls back to the
+  printed one rather than defaulting to Average — which would move a budget by
+  up to 25 points in silence.
+
+Deliberately not extracted: "Starting Wealth in Feysac", which restates the
+same ladder in gold hoorn and omits Dead Broke. It belongs with the currency
+conversion table above it, and nothing converts currencies today. The money
+column is committed exactly as printed, pounds and soli both; chapter 8's own
+1 pound = 20 soli is used only to check that the ladder climbs.
+
+Device-verified on Academic Researcher (prints Wealth: Poor, 95 of 100
+points): the row reads **"Poor — −15 pts, 5 soli to start, reaction −1"**, all
+seven levels render in the picker with Poor ticked, and choosing **Average**
+gives "Average — 0 pts, £1 to start — sheet prints Poor" with the budget
+flipping to **95 of 85 — over budget**. `wealth: "Average"` survived a
+force-stop, and "As printed" put the budget back to **95 of 100, 5 spare**
+with `wealth: null` saved. Chapter 8 is now at **21.2%**.
 
 ### A note on Codex
 

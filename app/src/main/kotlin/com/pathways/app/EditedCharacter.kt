@@ -4,8 +4,10 @@ import com.pathways.model.Attr
 import com.pathways.model.Character
 import com.pathways.model.PurchasedSkill
 import com.pathways.model.SkillKey
+import com.pathways.rules.Wealth
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SkillDefinition
+import com.pathways.rules.content.WealthLevel
 
 /**
  * Turning a published premade plus a session's edits into a character.
@@ -25,8 +27,39 @@ fun SavedEdits.applyTo(base: Character): Character {
         iq = iq ?: base.attributes.iq,
         ht = ht ?: base.attributes.ht,
     )
-    return base.copy(attributes = attributes, skills = base.skills + purchases(base))
+    return base.copy(
+        attributes = attributes,
+        traits = wealthLevel()?.let { Wealth.applied(base.traits, it) } ?: base.traits,
+        skills = base.skills + purchases(base),
+    )
 }
+
+/**
+ * The saved economic status, resolved against the book (Ch. 8, p. 80).
+ *
+ * A level the book does not print is DROPPED rather than guessed at, the same
+ * way a saved skill it no longer prints is: the nearest wrong answer here is
+ * Average, and taking it would move a character's budget by up to 25 points
+ * without saying so.
+ */
+fun SavedEdits.wealthLevel(): WealthLevel? =
+    wealth?.let { name -> Wealth.all().firstOrNull { it.status.equals(name, ignoreCase = true) } }
+
+/**
+ * The economic status to SHOW for [character]: the level chosen in play, or
+ * the one the sheet printed.
+ *
+ * The choice is asked first because Average costs 0 pts and therefore leaves
+ * no trait behind (see [Wealth.traitFor]). Reading the composed character
+ * alone would report a player who deliberately picked Average as having no
+ * wealth level at all -- and on a sheet that printed Poor, the budget would
+ * have moved by 15 points with nothing on screen saying why (Codex).
+ *
+ * A saved level the book does not print falls through to the printed one,
+ * which is what [SavedEdits.applyTo] did with it too.
+ */
+fun SavedEdits.wealthShownFor(character: Character): WealthLevel? =
+    wealthLevel() ?: Wealth.levelOf(character.traits)
 
 /**
  * The level of [name] on this character, or null if they do not have it.

@@ -1387,3 +1387,86 @@ def test_the_longer_aim_adds_two_on_top_of_the_weapons_acc():
     assert len(aim) == 2
     assert sorted(e.get("accBonus", 0) for e in aim) == [0, 2]
     assert all("modifier" not in e for e in aim)
+
+
+import extract_wealth
+
+
+def wealth_entries():
+    return json.loads((CONTENT / "wealth.json").read_text(encoding="utf-8"))["entries"]
+
+
+def wealth_note():
+    _, note = extract_wealth.split_note(
+        extract_wealth.stream(extract_wealth.load_lines(), *extract_wealth.WEALTH_RANGE)
+    )
+    return note
+
+
+def test_the_wealth_ladder_climbs_on_every_column():
+    entries = wealth_entries()
+    assert [e["status"] for e in entries] == extract_wealth.EXPECTED_STATUSES
+    assert [e["points"] for e in entries] == [-25, -15, -10, 0, 5, 15, 25]
+    assert [e["startingMoney"] for e in entries] == [
+        "£0", "5 soli", "15 soli", "£1", "£5", "£50", "£100",
+    ]
+    assert all(e["lifestyle"] for e in entries)
+
+
+def test_the_two_kinds_of_minus_are_both_read():
+    """The point costs are ASCII-signed ("-25 pts") and the reaction column is
+    U+2212 (" -2"). A parser that knows only one silently drops half the
+    negative numbers on this page."""
+    broke = next(e for e in wealth_entries() if e["status"] == "Dead Broke")
+    assert broke["points"] == -25 and broke["reactionModifier"] == -2
+
+
+def test_the_reaction_ladder_is_not_symmetric_around_average():
+    """The paragraph says "+1 per Status level above Average ... and -1 per
+    level below". Above Average the column agrees exactly. Below it, it does
+    not: Struggling is one level down and prints 0, and the paragraph's own
+    example puts Poor -- two levels down -- at -1."""
+    by_status = {e["status"]: e for e in wealth_entries()}
+    assert [by_status[s]["reactionModifier"] for s in
+            ("Comfortable", "Wealthy", "Very Wealthy")] == [1, 2, 3]
+    assert by_status["Struggling"]["reactionModifier"] == 0
+    assert by_status["Poor"]["reactionModifier"] == -1
+
+
+@needs_pdf
+def test_a_straightened_ladder_would_fail_verification():
+    """Giving Struggling the -1 the paragraph implies is a repair, not a fix.
+    The printed column is the authority (CLAUDE.md 4.1)."""
+    patched = [
+        {**e, "reactionModifier": -1} if e["status"] == "Struggling" else e
+        for e in wealth_entries()
+    ]
+    with pytest.raises(ValueError):
+        extract_wealth.verify(patched, wealth_note())
+
+
+def test_three_levels_are_printed_only_in_chapter_8():
+    """Chapter 3's advantage and disadvantage lists carry four wealth levels.
+    Average, Wealthy and Very Wealthy are not among them, so nothing could
+    give a character the two levels above Comfortable until this table."""
+    shared = extract_wealth.chapter_3_levels()
+    assert shared == extract_wealth.CHAPTER_3_LEVELS
+    only_here = {e["status"] for e in wealth_entries()} - set(shared)
+    assert only_here == extract_wealth.ONLY_IN_CHAPTER_8
+
+
+def test_the_two_chapters_agree_where_they_overlap():
+    """Both price Poor at 15 points of disadvantage. If they ever stopped
+    agreeing that would be a finding about the book, not a column to pick."""
+    by_status = {e["status"]: e["points"] for e in wealth_entries()}
+    for status, points in extract_wealth.CHAPTER_3_LEVELS.items():
+        assert by_status[status] == points
+
+
+@needs_pdf
+def test_a_chapter_that_repriced_a_shared_level_would_fail_verification():
+    patched = [
+        {**e, "points": -20} if e["status"] == "Poor" else e for e in wealth_entries()
+    ]
+    with pytest.raises(ValueError):
+        extract_wealth.verify(patched, wealth_note())

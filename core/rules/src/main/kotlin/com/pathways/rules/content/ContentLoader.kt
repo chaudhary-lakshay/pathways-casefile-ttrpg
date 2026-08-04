@@ -68,6 +68,7 @@ object ContentLoader {
         load<BoonGranting>("boon_granting.json").single()
     }
     private val weaponsLazy: List<CataloguedWeapon> by lazy { load("weapons.json") }
+    private val wealthLazy: List<WealthLevel> by lazy { load("wealth.json") }
     private val shieldsLazy: List<Shield> by lazy { load("shields.json") }
     private val shieldRulesLazy: List<ShieldRule> by lazy { load("shield_rules.json") }
     private val hitLocationsLazy: List<HitLocation> by lazy { load("hit_locations.json") }
@@ -152,6 +153,9 @@ object ContentLoader {
 
     /** The nine weapons (Ch. 8, p. 80), in printed order. */
     fun weapons(): List<CataloguedWeapon> = weaponsLazy
+
+    /** Starting Wealth by Economic Status, poorest first (Ch. 8, p. 80). */
+    fun wealth(): List<WealthLevel> = wealthLazy
 
     /** The four shields (Ch. 5, p. 37), in printed order. */
     fun shields(): List<Shield> = shieldsLazy

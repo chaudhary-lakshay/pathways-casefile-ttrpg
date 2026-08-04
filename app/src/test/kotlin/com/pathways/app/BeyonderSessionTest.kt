@@ -31,6 +31,26 @@ class BeyonderSessionTest {
         return BeyonderSession(saved) { last = it } to { last }
     }
 
+    @Test
+    fun `a wealth level is stored as a choice and survives a save`() {
+        // Only the CHOICE is stored, never the trait it resolves to: the
+        // points and the reaction modifier belong to the book, and a save file
+        // carrying its own copy could contradict it after a content fix --
+        // the same rule a bought skill already follows.
+        val (s, saved) = session()
+        s.setWealth("Very Wealthy")
+        assertEquals("Very Wealthy", s.edits.wealth)
+        assertEquals("Very Wealthy", saved().edits.wealth)
+
+        // Clearing it is reachable from the picker's "As printed" row, and is
+        // the only way back to the published sheet: 20 of the 23 premades
+        // print no wealth level, so without it one tap would permanently give a
+        // character a level the book never gave them (Codex).
+        s.setWealth(null)
+        assertNull(s.edits.wealth, "clearing it puts the character back on the printed level")
+        assertNull(saved().edits.wealth)
+    }
+
     // --- drinking ----------------------------------------------------------
 
     @Test

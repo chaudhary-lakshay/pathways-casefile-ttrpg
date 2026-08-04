@@ -30,8 +30,10 @@ import com.pathways.model.MAX_ATTRIBUTE
 import com.pathways.rules.AttributeCosts
 import com.pathways.rules.Derive
 import com.pathways.rules.PremadeSheet
+import com.pathways.rules.Wealth
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SkillDefinition
+import com.pathways.rules.content.WealthLevel
 
 /**
  * Spend points and watch the budget answer back (M3).
@@ -54,6 +56,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     val derived = remember(character) { Derive.of(character) }
     val report = derived.budget
     var adding by remember { mutableStateOf(false) }
+    var picking by remember { mutableStateOf(false) }
 
     Scaffold { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
@@ -82,6 +85,17 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     onChange = { delta ->
                         session.setAttribute(attr, character.attributes[attr] + delta)
                     },
+                )
+                HorizontalDivider()
+            }
+
+            item {
+                WealthRow(
+                    // The CHOICE, not the composed character: Average costs 0
+                    // pts and so leaves no trait to read back (Codex).
+                    level = session.edits.wealthShownFor(character),
+                    printed = Wealth.levelOf(start.traits),
+                    onPick = { picking = true },
                 )
                 HorizontalDivider()
             }
@@ -120,6 +134,20 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                 HorizontalDivider()
             }
         }
+    }
+
+    if (picking) {
+        WealthPicker(
+            // The OVERRIDE, not the shown level: with the sheet's own level
+            // here, "As printed" could never tick.
+            chosen = session.edits.wealthLevel()?.status,
+            printed = Wealth.levelOf(start.traits),
+            onPick = { level ->
+                session.setWealth(level?.status)
+                picking = false
+            },
+            onDismiss = { picking = false },
+        )
     }
 
     if (adding) {
@@ -219,6 +247,126 @@ private fun SkillRow(label: String, level: Int?, points: Int, onSpend: ((Int) ->
             TextButton(onClick = { onSpend(1) }) { Text("+") }
         }
     }
+}
+
+/**
+ * The character's economic status, and what it is worth (Ch. 8, p. 80).
+ *
+ * The reaction modifier is SHOWN, never applied: this book has no reaction
+ * roll to apply it to, and the paragraph under the table hands it to the GM
+ * ("GMs may limit this modifier based on context"). Same shape as a called
+ * shot's wounding multiplier, which is quoted beside the damage rather than
+ * multiplied into it.
+ */
+@Composable
+private fun WealthRow(level: WealthLevel?, printed: WealthLevel?, onPick: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text("Wealth", style = MaterialTheme.typography.titleMedium)
+            Text(
+                buildString {
+                    // Null is not Average: a sheet that prints no wealth row
+                    // has said nothing about its character's status, and
+                    // naming a level here would invent the book's silence away.
+                    if (level == null) append("The sheet prints no wealth level")
+                    else {
+                        append("${level.status} — ${level.pointsLabel()}, ")
+                        append("${level.startingMoney} to start")
+                        if (level.reactionModifier != 0) {
+                            append(", reaction ${level.reactionModifier.signed()}")
+                        }
+                        if (printed != null && printed.status != level.status) {
+                            append(" — sheet prints ${printed.status}")
+                        }
+                    }
+                },
+                style = MaterialTheme.typography.bodySmall,
+            )
+            level?.let { Text(it.lifestyle, style = MaterialTheme.typography.bodySmall) }
+        }
+        TextButton(onClick = onPick) { Text("Change") }
+    }
+}
+
+/**
+ * The seven printed levels, poorest first.
+ *
+ * A vertical list rather than a chip row: a horizontally scrolling Row inside
+ * an AlertDialog never receives the drag on a phone, which cost three
+ * maneuvers their selectability in M4's damage slice and was invisible to
+ * every test.
+ */
+@Composable
+private fun WealthPicker(
+    chosen: String?,
+    printed: WealthLevel?,
+    onPick: (WealthLevel?) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        title = { Text("Economic status") },
+        text = {
+            LazyColumn {
+                // The way back to the published sheet (Codex). Without it a
+                // single tap is permanent, and the 20 of 23 premades that
+                // print no wealth level could never be returned to printing
+                // none.
+                item {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { onPick(null) }
+                            .padding(vertical = 8.dp),
+                    ) {
+                        Text(
+                            "As printed" + if (chosen == null) " ✓" else "",
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            printed?.let { "The sheet prints ${it.status}" }
+                                ?: "The sheet prints no wealth level",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    HorizontalDivider()
+                }
+                items(Wealth.all()) { level ->
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { onPick(level) }
+                            .padding(vertical = 8.dp),
+                    ) {
+                        Text(
+                            level.status + if (level.status == chosen) " ✓" else "",
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            "${level.pointsLabel()} · ${level.startingMoney} · " +
+                                "reaction ${level.reactionModifier.signed()}",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Text(level.lifestyle, style = MaterialTheme.typography.bodySmall)
+                    }
+                    HorizontalDivider()
+                }
+            }
+        },
+    )
+}
+
+private fun WealthLevel.pointsLabel(): String = "${points.signed()} pts"
+
+/** Zero is unsigned: "+0 pts" and "reaction +0" read as typos, not as nothing. */
+private fun Int.signed(): String = when {
+    this > 0 -> "+$this"
+    this < 0 -> "−${-this}"
+    else -> "0"
 }
 
 /**
