@@ -168,8 +168,10 @@ NonStandardPathways.knownSequences(pathway) / .alsoPrintedAs(pathway)
 Weapons.all() / .named(name) / .forSkill(key): List<CataloguedWeapon>
 Weapons.damageFor(weapon, mode, st, bonus): DamageRoll
 Weapons.isRanged(weapon) / .canParry(weapon) / .parryFor(weapon, skill): Int?
-Weapons.hasWoundingMultiplier(mode)   // false for the rifle's pi+
+Weapons.hasWoundingMultiplier(mode)   // true for pi+ since Appendix A (6v)
 Wounds.knowsType(type): Boolean       // ask before multiplierFor
+Wounds.knownAbbreviations()           // chapter 5's four, plus the appendix's
+ContentLoader.damageAbbreviations()   // Appendix A's Wounding line
 ContentLoader.weapons()
 Wealth.all() / .named(status): WealthLevel        // throws for an unprinted level
 Wealth.traitFor(level): Trait?                    // null at 0 pts (Average)
@@ -668,10 +670,11 @@ and `Ranged` on the roll; the damage half is shown beside the expression.
   to ×1 — the lookup now lives only in `Wounds.multiplierFor`, which validates
   the type first. Nothing could reach the permissive path yet; removing it is
   what stops the next caller finding it.
-- **Only the four abbreviations the book prints exist.** "Cr", "Cut", "Imp"
-  come from the Neck cell and "pi" from the Vitals cell. GURPS writes the
-  other two piercing rows "pi-" and "pi+"; this book never does, so they carry
-  no key and cannot be looked up.
+- **Only the four abbreviations CHAPTER 5 prints exist** *(the second half of
+  this was wrong — see section 6v)*. "Cr", "Cut", "Imp" come from the Neck
+  cell and "pi" from the Vitals cell. This section then said GURPS writes
+  "pi-" and "pi+" and "this book never does". Appendix A does, at p. 159. The
+  chapter-5 half still holds; the claim about the book did not.
 - **The multiplier is shown, never applied.** Damage here is an expression,
   not a rolled total, so there is no product to round — and this book prints
   no rounding rule to round it by. GURPS's round-down is GURPS's.
@@ -1036,13 +1039,15 @@ table before recording an absence.
   lengths; together they pay the Acc twice and break the cell's own printed
   ceiling. `Ranged.modifiers` refuses the pair and the dialog swaps rather
   than toggles — offering a chip that throws on Roll is not offering a choice.
-- **Chapter 8 prints a damage type chapter 5 cannot price.** The Bolt-Action
-  Rifle deals `pi+`, and chapter 5's wounding table prints its Large Piercing
-  row with **no abbreviation** — section 6l recorded that "this book never
-  does". It does, one chapter over. Adding the abbreviation would be repairing
-  chapter 5 from chapter 8, so `Wounds.knowsType` answers instead and the
-  damage line names which chapter is silent. Without that guard
-  `multiplierFor` throws and the dialog dies on a real weapon.
+- **Chapter 8 prints a damage type chapter 5 cannot price** *(and the BOOK
+  can — see 6v)*. The Bolt-Action Rifle deals `pi+`, and chapter 5's wounding
+  table prints its Large Piercing row with **no abbreviation** — section 6l
+  recorded that "this book never does". It does, one chapter over. Adding the
+  abbreviation would be repairing chapter 5 from chapter 8, so
+  `Wounds.knowsType` answered instead and the damage line named which chapter
+  was silent. **The conclusion drawn from that was still too broad**: two
+  chapters being silent is not the book being silent, and Appendix A prints
+  the label. The guard survives; the message no longer names a chapter.
 - **And the same row disagrees about which rifle it means.** Large Piercing's
   example is "Hunting rifles" — while chapter 8 prints the *Hunting Rifle* as
   plain `pi` and gives `pi+` to the Bolt-Action. Two disagreements, one row,
@@ -1162,6 +1167,66 @@ gives "Average — 0 pts, £1 to start — sheet prints Poor" with the budget
 flipping to **95 of 85 — over budget**. `wealth: "Average"` survived a
 force-stop, and "As printed" put the budget back to **95 of 100, 5 spare**
 with `wealth: null` saved. Chapter 8 is now at **21.2%**.
+
+## 6v. The appendix, and the same lesson a second time
+
+Section 6t's whole lesson was: check the coverage table before recording an
+absence, because a chapter at 0.0% disproves nothing. **This slice is that
+lesson repeating**, one appendix over and with the doc's own correction
+already on the page.
+
+Appendix A, p. 159, line 9671:
+
+    Wounding: Crush ×1 | Cut ×1.5 | Impale ×2 |
+              Pi (small) ×0.5 / Pi ×1 / Pi+ ×1.5 | Burn ×1 | Toxic ×1
+
+- **The app was telling players something false.** Chapter 8's Bolt-Action
+  Rifle deals `pi+`; `Wounds.knowsType` returned false and the damage line
+  read *"chapter 5 prints no wounding multiplier for pi+"*. True of chapter 5.
+  False of the book, which prints ×1.5 for it — and chapter 5 had printed the
+  Large Piercing multiplier all along, just unlabelled. What was missing was
+  never the number.
+- **So the fix adds a label and no number, and the extractor proves it.**
+  `extract_appendix.py`'s `verify()` fails if any multiplier the appendix
+  repeats disagrees with chapter 5. That agreement is the whole basis for
+  adopting the label — without it this would be a second opinion being
+  silently preferred, which is not what the book-is-authority rule allows.
+- **Provenance stays visible: a separate file, not a new column.** Writing
+  `pi+` into `wounding_multipliers.json` would make the committed content
+  claim chapter 5 prints something it does not. The multiplier is chapter
+  5's, the label is the appendix's, and `damage_abbreviations.json` says so.
+- **Only the piercing group is read as abbreviations, and the line says
+  why.** The appendix writes "Crush" where chapter 5 abbreviates "cr" and
+  "Impale" where it says "imp" — those are short names, and adopting them
+  would give one damage type two spellings. Inside the slash-separated
+  piercing group it writes "Pi", which is EXACTLY chapter 5's abbreviation
+  for that row, and that agreement is what makes its siblings labels of the
+  same kind. `verify()` fails if that matching "Pi" ever disappears, because
+  it is the only evidence the group has.
+- **GURPS's "pi-" is still refused.** The appendix spells small piercing
+  "Pi (small)", so that is the key. A book that never writes "pi-" still
+  never writes it.
+- **Making `pi+` real made a called shot reachable, and that is a reading**
+  (Codex). The Vitals cell prints "×3 (imp/pi only)" and chapter 5
+  abbreviates exactly one row "pi", so the bracket names plain Piercing and a
+  `pi+` hit takes the location's plain ×1 — ×1.5 in total. GURPS gives the
+  whole piercing family ×3 there; following it would triple a rifle hit on a
+  bracket this book wrote narrowly, and GURPS's conventions are GURPS's
+  (6l). Same fallback the Neck row already uses. Pinned by a named test.
+- **Coverage did not catch this one, and could not.** `coverage.py` counts a
+  line as mechanical when it holds dice, a signed number or a point cost —
+  `×1.5` is none of those, so Appendix A reads **0.0% both before and after**
+  this slice claimed a line from it. The instrument that would have caught
+  chapter 8 is blind here. Where a table's numbers are bare multipliers,
+  read the pages; do not ask the percentage.
+
+Deliberately not extracted from the appendix: it is otherwise a summary of
+chapters already claimed, and in one place a summary that DISAGREES with
+them — its hit-location line reads "Vitals -3 ×3" flat, dropping the
+"(imp/pi only)" scope, and lists a "Hand/Foot" location where chapter 5's
+table has only Hand. A summary does not overrule the chapter it summarises.
+Its success ladder (Good Success at Target−3, Excellent at Target−5) is
+genuinely new material and a slice of its own.
 
 ### A note on Codex
 

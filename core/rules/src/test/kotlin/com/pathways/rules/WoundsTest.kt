@@ -98,9 +98,69 @@ class WoundsTest {
         assertEquals(1.5, Wounds.typeMultiplier("cut"))
         assertEquals(2.0, Wounds.typeMultiplier("imp"))
         assertEquals(1.0, Wounds.typeMultiplier("pi"))
-        // "pi-" is how GURPS writes Piercing (small); this book never does.
+        // "pi-" is how GURPS writes Piercing (small); this book never does --
+        // Appendix A spells that row "Pi (small)". So GURPS's spelling is
+        // still refused even now that the appendix has been read.
         val ex = assertThrows<IllegalArgumentException> { Wounds.typeMultiplier("pi-") }
         assertTrue(ex.message!!.contains("pi-"))
+    }
+
+    @Test
+    fun `the appendix labels the two rows chapter 5 leaves unlabelled`() {
+        // REGRESSION. Four sections of the handover doc, one test here and one
+        // in WeaponsTest recorded "this book prints no abbreviation for pi+".
+        // Appendix A prints it, at 0.0% coverage, which is exactly how the
+        // weapon table stayed invisible for four milestones.
+        assertEquals(1.5, Wounds.typeMultiplier("pi+"))
+        assertEquals(0.5, Wounds.typeMultiplier("pi (small)"))
+        assertTrue(Wounds.knowsType("pi+"))
+        assertFalse(Wounds.knowsType("pi-"), "GURPS's spelling, which this book never uses")
+    }
+
+    @Test
+    fun `a large piercing hit to the vitals takes the location's plain value`() {
+        // A READING, and reachable only since the appendix made "pi+" a type
+        // (Codex raised it). The Vitals cell prints "x3 (imp/pi only)" and
+        // chapter 5 abbreviates exactly one row "pi" -- plain Piercing -- so
+        // the bracket names that row, not the piercing family. An unlisted
+        // type falls back to the location's x1, which is the same rule the
+        // Neck row already follows for piercing.
+        //
+        // GURPS proper gives the whole pi family x3 at the vitals. Following
+        // it here would triple a rifle hit on a bracket the book wrote
+        // narrowly, and GURPS's conventions are GURPS's.
+        assertEquals(1.5, Wounds.multiplierFor(location("Vitals"), "pi+"))
+        assertEquals(3.0, Wounds.multiplierFor(location("Vitals"), "pi"))
+    }
+
+    @Test
+    fun `the appendix adds a label and never a number`() {
+        // The whole basis for adopting it: every multiplier the appendix
+        // repeats already matches chapter 5, so the label reaches a value the
+        // book had printed all along. If they ever disagreed, the extractor
+        // fails rather than one being silently preferred.
+        val chapterFive = Wounds.damageTypes().associateBy { it.type }
+        ContentLoader.damageAbbreviations().forEach { row ->
+            assertEquals(
+                chapterFive.getValue(row.type).multiplier,
+                row.multiplier,
+                "${row.type} disagrees between chapter 5 and the appendix",
+            )
+        }
+    }
+
+    @Test
+    fun `only the piercing group is read as abbreviations`() {
+        // The appendix writes "Crush" where chapter 5 abbreviates "cr", so
+        // its other cells are short names, not labels. Reading them would give
+        // one damage type two spellings.
+        assertTrue(Wounds.knowsType("cr"))
+        assertFalse(Wounds.knowsType("crush"))
+        assertFalse(Wounds.knowsType("impale"))
+        assertEquals(
+            listOf("cr", "cut", "imp", "pi", "pi (small)", "pi+"),
+            Wounds.knownAbbreviations().sorted(),
+        )
     }
 
     @Test

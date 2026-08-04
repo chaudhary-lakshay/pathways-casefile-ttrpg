@@ -1470,3 +1470,60 @@ def test_a_chapter_that_repriced_a_shared_level_would_fail_verification():
     ]
     with pytest.raises(ValueError):
         extract_wealth.verify(patched, wealth_note())
+
+
+import extract_appendix
+
+
+def appendix_entries():
+    return json.loads(
+        (CONTENT / "damage_abbreviations.json").read_text(encoding="utf-8")
+    )["entries"]
+
+
+def test_the_appendix_prints_the_abbreviation_chapter_5_omits():
+    """Four doc sections, and two tests, recorded "this book prints no
+    abbreviation for pi+". Appendix A prints it, at 0.0% coverage — the same
+    way chapter 8's weapon table stayed invisible for four milestones."""
+    by_type = {e["type"]: e for e in appendix_entries()}
+    assert by_type["Large Piercing"]["abbreviation"] == "pi+"
+    assert by_type["Large Piercing"]["multiplier"] == 1.5
+    assert by_type["Piercing (small)"]["abbreviation"] == "pi (small)"
+
+
+def test_the_appendix_adds_a_label_and_never_a_number():
+    """The basis for adopting the label: every multiplier it repeats already
+    matches chapter 5, so nothing new is claimed about the book."""
+    chapter5 = extract_appendix.chapter_5_types()
+    for row in appendix_entries():
+        assert chapter5[row["type"]][0] == row["multiplier"]
+
+
+def test_only_the_piercing_group_is_read_as_abbreviations():
+    """The appendix writes "Crush" where chapter 5 abbreviates "cr", so its
+    other cells are short names. Adopting them would give one damage type two
+    spellings. "Pi" matching chapter 5's own "pi" is the whole evidence that
+    this group is different."""
+    labelled = {e["printedAs"] for e in appendix_entries() if e.get("abbreviation")}
+    assert labelled == extract_appendix.ABBREVIATED_GROUP
+    unlabelled = {e["printedAs"] for e in appendix_entries() if not e.get("abbreviation")}
+    assert unlabelled == {"Crush", "Cut", "Impale", "Burn", "Toxic"}
+
+
+def test_a_disagreeing_multiplier_would_fail_verification():
+    """If the appendix ever priced a row differently from chapter 5, that is a
+    finding about the book, not a column to prefer."""
+    patched = [
+        {**e, "multiplier": 2.5} if e["type"] == "Large Piercing" else e
+        for e in appendix_entries()
+    ]
+    with pytest.raises(ValueError):
+        extract_appendix.verify(patched)
+
+
+def test_losing_the_matching_pi_would_fail_verification():
+    """"Pi" agreeing with chapter 5 is the only evidence these are labels and
+    not short names. Without it the group has no standing."""
+    patched = [e for e in appendix_entries() if e["type"] != "Piercing"]
+    with pytest.raises(ValueError):
+        extract_appendix.verify(patched)

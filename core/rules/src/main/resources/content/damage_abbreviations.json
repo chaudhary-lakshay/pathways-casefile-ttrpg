@@ -1,0 +1,55 @@
+{
+ "sourceLines": {
+  "A": [
+   [
+    9671,
+    9671
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "type": "Crushing",
+   "multiplier": 1.0,
+   "printedAs": "Crush"
+  },
+  {
+   "type": "Cutting",
+   "multiplier": 1.5,
+   "printedAs": "Cut"
+  },
+  {
+   "type": "Impaling",
+   "multiplier": 2.0,
+   "printedAs": "Impale"
+  },
+  {
+   "type": "Piercing (small)",
+   "multiplier": 0.5,
+   "printedAs": "Pi (small)",
+   "abbreviation": "pi (small)"
+  },
+  {
+   "type": "Piercing",
+   "multiplier": 1.0,
+   "printedAs": "Pi",
+   "abbreviation": "pi"
+  },
+  {
+   "type": "Large Piercing",
+   "multiplier": 1.5,
+   "printedAs": "Pi+",
+   "abbreviation": "pi+"
+  },
+  {
+   "type": "Burning",
+   "multiplier": 1.0,
+   "printedAs": "Burn"
+  },
+  {
+   "type": "Toxic",
+   "multiplier": 1.0,
+   "printedAs": "Toxic"
+  }
+ ]
+}

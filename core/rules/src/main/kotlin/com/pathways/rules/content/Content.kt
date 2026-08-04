@@ -830,6 +830,26 @@ data class CataloguedWeapon(
 )
 
 /**
+ * One entry of Appendix A's Wounding quick-reference line (p. 159).
+ *
+ * [abbreviation] is present only for the piercing group, which is the one
+ * place the appendix's spelling matches chapter 5's own ("Pi" / "pi"). The
+ * other five cells print short names ("Crush" where chapter 5 abbreviates
+ * "cr"), so they carry none rather than a second spelling for one type.
+ *
+ * [multiplier] duplicates chapter 5 deliberately: `extract_appendix.py`
+ * asserts the two agree, and that agreement is what makes adopting the
+ * appendix's label a reading rather than a repair.
+ */
+@Serializable
+data class DamageAbbreviation(
+    val type: String,
+    val multiplier: Double,
+    val printedAs: String,
+    val abbreviation: String? = null,
+)
+
+/**
  * One row of Starting Wealth by Economic Status (Ch. 8, p. 80).
  *
  * [points] is SIGNED, exactly as the table prints it ("Dead Broke (-25 pts)"),

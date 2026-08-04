@@ -70,20 +70,51 @@ object Wounds {
      */
     fun typeMultiplier(type: String): Double {
         val row = damageTypes().firstOrNull { it.abbreviation.equals(type, ignoreCase = true) }
-        require(row != null) {
+        if (row != null) return row.multiplier
+        val fromAppendix = appendixMultiplier(type)
+        require(fromAppendix != null) {
             "no damage type is abbreviated '$type'; this book prints " +
-                damageTypes().mapNotNull { it.abbreviation }.joinToString()
+                knownAbbreviations().joinToString()
         }
-        return row.multiplier
+        return fromAppendix
     }
 
     /**
-     * Whether this table abbreviates [type] at all, so [typeMultiplier] can
-     * price it. False for the Bolt-Action Rifle's "pi+" and nothing else in
-     * the committed content.
+     * The multiplier an Appendix A label reaches, or null when it names none.
+     *
+     * The appendix agrees with chapter 5 on every multiplier it repeats, so
+     * this adds no number the book does not already print -- only the two
+     * labels chapter 5 omits. `extract_appendix.py` fails if that agreement
+     * ever breaks, which is what keeps this a reading rather than a second
+     * opinion silently preferred.
+     */
+    private fun appendixMultiplier(type: String): Double? =
+        ContentLoader.damageAbbreviations()
+            .firstOrNull { it.abbreviation?.equals(type, ignoreCase = true) == true }
+            ?.multiplier
+
+    /** Every abbreviation this book prints, chapter 5's and the appendix's. */
+    fun knownAbbreviations(): List<String> {
+        val chapterFive = damageTypes().mapNotNull { it.abbreviation }
+        val appendixOnly = ContentLoader.damageAbbreviations()
+            .mapNotNull { it.abbreviation }
+            .filterNot { it in chapterFive }
+        return chapterFive + appendixOnly
+    }
+
+    /**
+     * Whether the BOOK abbreviates [type] anywhere, so [typeMultiplier] can
+     * price it.
+     *
+     * True for the Bolt-Action Rifle's "pi+" since Appendix A was read. It was
+     * false for four milestones on the belief that chapter 5's silence was the
+     * whole book's -- the appendix sat at 0.0% coverage and prints the label.
+     * Still false for GURPS's "pi-", which this book never writes: the
+     * appendix spells small piercing "Pi (small)".
      */
     fun knowsType(type: String): Boolean =
-        damageTypes().any { it.abbreviation.equals(type, ignoreCase = true) }
+        damageTypes().any { it.abbreviation.equals(type, ignoreCase = true) } ||
+            appendixMultiplier(type) != null
 
     /**
      * What a [type] hit at [location] does to penetrating damage, both tables
@@ -95,6 +126,14 @@ object Wounds {
      * at x1) and a key that is not a damage type at all (a typo, or GURPS's
      * "pi-"). [typeMultiplier] runs FIRST so the second is refused; only then
      * does an unlisted type fall back (Codex).
+     *
+     * **"pi+" at the Vitals is that fallback, and it is a reading.** The cell
+     * prints "x3 (imp/pi only)" and chapter 5 abbreviates exactly one row
+     * "pi" -- plain Piercing -- so the bracket names that row rather than the
+     * piercing family, and Large Piercing takes the location's plain x1.
+     * GURPS gives the whole family x3 there; following it would triple a
+     * rifle hit on a bracket this book wrote narrowly. Reachable only since
+     * Appendix A made "pi+" a type at all, and pinned by a named test.
      */
     fun multiplierFor(location: HitLocation?, type: String): Double {
         val ofType = typeMultiplier(type)

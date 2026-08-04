@@ -121,15 +121,24 @@ class WeaponsTest {
     }
 
     @Test
-    fun `the rifle deals a damage type chapter 5 cannot look up`() {
-        // Chapter 8 prints "5d pi+"; chapter 5's Optional Wounding Multipliers
-        // table never abbreviates its Large Piercing row, so the lookup throws.
-        // Recorded, never repaired -- and a caller has to survive it.
+    fun `the rifle's damage type is priced by the appendix, not by chapter 5`() {
+        // CORRECTION. This test used to assert the lookup THREW, on the
+        // reading that chapter 5's silence was the whole book's. Appendix A
+        // prints "Pi+ x1.5" (p. 159) and sat at 0.0% coverage, so nothing had
+        // read it -- the same failure chapter 8's weapon table produced, one
+        // appendix over. Chapter 5 is still unrepaired: it supplies the
+        // multiplier, the appendix supplies the label.
         val rifle = Weapons.named("Bolt-Action Rifle")
         assertEquals("pi+", rifle.damage.single().type)
-        assertThrows<IllegalArgumentException> { Wounds.typeMultiplier("pi+") }
-        assertFalse(Weapons.hasWoundingMultiplier(rifle.damage.single()))
+        assertEquals(1.5, Wounds.typeMultiplier("pi+"))
+        assertTrue(Weapons.hasWoundingMultiplier(rifle.damage.single()))
         assertTrue(Weapons.hasWoundingMultiplier(Weapons.named("Hunting Rifle").damage.single()))
+        // And the number is chapter 5's own, printed against a row it left
+        // unlabelled. Adopting the label adds no multiplier to the book.
+        assertEquals(
+            1.5,
+            Wounds.damageTypes().single { it.type == "Large Piercing" }.multiplier,
+        )
     }
 
     @Test

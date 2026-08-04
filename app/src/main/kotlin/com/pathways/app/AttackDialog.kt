@@ -387,12 +387,14 @@ private fun AttackOptions(
             // expression, not a rolled total, so there is no product to round
             // and this book prints no rounding rule to round it by.
             damage?.let { roll ->
-                // The Bolt-Action Rifle deals "pi+", which chapter 5's
-                // wounding table never abbreviates, so asking it for a number
-                // throws. Recorded, not repaired: the line says which chapter
-                // is silent rather than the dialog crashing on a real weapon.
+                // The guard stays, and the message no longer names a chapter.
+                // It used to read "chapter 5 prints no wounding multiplier for
+                // pi+" — true of chapter 5 and false of the BOOK, which prints
+                // it in Appendix A. Nothing in the committed content reaches
+                // this branch today; it is here so an unlabelled type in future
+                // content cannot crash the dialog.
                 if (!Wounds.knowsType(roll.type)) {
-                    "Damage on a hit: ${roll.render()} — chapter 5 prints no " +
+                    "Damage on a hit: ${roll.render()} — this book prints no " +
                         "wounding multiplier for \"${roll.type}\""
                 } else {
                     val times = Wounds.multiplierFor(location, roll.type)
