@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +21,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.EntityAnswer
+import com.pathways.rules.Invocation
 import com.pathways.rules.Languages
 import com.pathways.rules.RandomSource
 import com.pathways.rules.RitualMode
@@ -111,6 +114,17 @@ fun RitualDialog(
     // declaration, like the fright trigger's stepper.
     var language by remember { mutableStateOf<LanguageProficiency?>(null) }
     val canSpeak = language?.let { Languages.canPerformRituals(it) } != false
+    // The entity is asked once, before the ritual roll: "The GM rolls secretly
+    // on the Entity Response Table first, then applies the entity's modifier".
+    // Null means the caster is praying to themselves, which is the safest
+    // power source and the one that needs no table.
+    var invoked by remember { mutableStateOf(false) }
+    var goodStanding by remember { mutableStateOf(false) }
+    var answer by remember { mutableStateOf<EntityAnswer?>(null) }
+    // Cleared whenever the declaration changes: an answer belongs to the
+    // entity it was asked of, the same way a Major Wound's HT roll belongs to
+    // the hit it was rolled for.
+    LaunchedEffect(invoked, goodStanding) { answer = null }
     // Injury and fatigue reach a ritual like any other roll; the CoR penalty
     // is NOT included in [conditionPenalty] because RitualResolution applies
     // it itself, and counting it twice would penalise a corrupted caster
@@ -119,9 +133,14 @@ fun RitualDialog(
     // Not computed at all when the book forbids the attempt: Broken prints
     // "Cannot perform rituals in the language", and targetFor refuses it
     // rather than inventing a penalty to roll at.
-    val target = if (canSpeak) {
+    // An entity that actively rejects the ritual fails it outright, so there
+    // is no target to show -- the same shape as a language the caster cannot
+    // speak. An entity not yet asked contributes nothing.
+    val rejected = answer?.failsRitual == true
+    val target = if (canSpeak && !rejected) {
         RitualResolution.targetFor(
-            effectiveSkill, weight, cor, preparation, language, mode, link,
+            effectiveSkill + (answer?.ritualModifier ?: 0),
+            weight, cor, preparation, language, mode, link,
         )
     } else {
         null
@@ -236,6 +255,55 @@ fun RitualDialog(
                         link?.let { Text(it.looksLike, style = MaterialTheme.typography.bodySmall) }
                     }
 
+                    // Ch. 7 IV.F. Invoking is optional -- praying to oneself
+                    // needs no entity and no table.
+                    Text(
+                        "Power source",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    FlowRow {
+                        FilterChip(
+                            selected = !invoked,
+                            onClick = { invoked = false },
+                            label = { Text("Personal SPI") },
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                        FilterChip(
+                            selected = invoked,
+                            onClick = { invoked = true },
+                            label = { Text("Invocation") },
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                    }
+                    if (invoked) {
+                        FilterChip(
+                            selected = goodStanding,
+                            onClick = { goodStanding = !goodStanding },
+                            label = { Text("Orthodox deity, in good standing") },
+                        )
+                        Text(
+                            // Spelled out because the -2 is the slice's whole
+                            // trap: it moves the GM's table roll toward the
+                            // good rows, and would be a penalty on the ritual.
+                            "Shifts the entity's 3d6 by −2, toward a better response.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        val given = answer
+                        if (given == null) {
+                            TextButton(onClick = {
+                                answer = Invocation.ask(dice, goodStanding)
+                            }) { Text("Ask the entity") }
+                        } else {
+                            Text(
+                                "Rolled ${given.roll}" +
+                                    (if (given.shifted != given.roll) " → ${given.shifted}" else "") +
+                                    ": ${given.response.response}",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+
                     // Ch. 3, p. 14. Only the MYSTICAL table speaks about
                     // rituals; a common tongue is not offered, because the
                     // book never grants it ritual power and offering it would
@@ -269,7 +337,11 @@ fun RitualDialog(
                         // to see WHY there is no roll. Same reason the book's
                         // sentence is quoted instead of paraphrased.
                         Text(
-                            "No roll — the book forbids this attempt.",
+                            if (rejected) {
+                                "No roll — the entity rejected the ritual."
+                            } else {
+                                "No roll — the book forbids this attempt."
+                            },
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(top = 8.dp),
@@ -284,6 +356,8 @@ fun RitualDialog(
                             "$RITUAL_SKILL $skillLevel, ${weight.weight} ${weight.modifier}" +
                                 ", preparation ${signed(preparation.modifier)}" +
                                 (link?.let { ", ${signed(it.modifier)} ${it.link.lowercase()} link" } ?: "") +
+                                (answer?.ritualModifier?.takeIf { it != 0 }
+                                    ?.let { ", ${signed(it)} from the entity" } ?: "") +
                                 (language?.ritualModifier?.takeIf { it != 0 }
                                     ?.let { ", $it for an accented tongue" } ?: "") +
                                 (if (conditionPenalty != 0) ", $conditionPenalty hurt or tired" else "") +
@@ -306,7 +380,7 @@ fun RitualDialog(
                                 // CoR.
                                 if (outcome != null) return@TextButton
                                 val rolled = RitualResolution.attempt(
-                                    effectiveSkill,
+                                    effectiveSkill + (answer?.ritualModifier ?: 0),
                                     weight,
                                     cor,
                                     dice,

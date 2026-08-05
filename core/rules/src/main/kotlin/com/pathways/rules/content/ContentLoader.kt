@@ -70,6 +70,9 @@ object ContentLoader {
     private val weaponsLazy: List<CataloguedWeapon> by lazy { load("weapons.json") }
     private val wealthLazy: List<WealthLevel> by lazy { load("wealth.json") }
     private val appearanceLazy: List<AppearanceLevel> by lazy { load("appearance.json") }
+    private val entityResponseLazy: List<EntityResponse> by lazy {
+        load("entity_response.json")
+    }
     private val ritualSupportLazy: List<RitualSupportSkill> by lazy {
         load("ritual_support.json")
     }
@@ -177,6 +180,9 @@ object ContentLoader {
 
     /** The eight Appearance levels, best first (Ch. 3, p. 13-14). */
     fun appearance(): List<AppearanceLevel> = appearanceLazy
+
+    /** The six Entity Response bands (Ch. 7, p. 66). See [EntityResponse]. */
+    fun entityResponse(): List<EntityResponse> = entityResponseLazy
 
     /** Section II's five supporting skills (Ch. 7, p. 61). */
     fun ritualSupport(): List<RitualSupportSkill> = ritualSupportLazy

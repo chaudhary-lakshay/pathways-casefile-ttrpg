@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **639 Kotlin** (JUnit 5, incl. 61 in `app/`) + **144 Python** (pytest), all green |
+| Tests | **650 Kotlin** (JUnit 5, incl. 61 in `app/`) + **152 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -97,7 +97,8 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `damage_abbreviations.json` (8), `appearance.json` (8),
 `languages.json` (12), `language_proficiency.json` (6),
 `language_notes.json` (2), `ritual_support.json` (5),
-`ritual_quick_preparation.json` (3), `ritual_target_link.json` (4).
+`ritual_quick_preparation.json` (3), `ritual_target_link.json` (4),
+`entity_response.json` (6).
 
 ### Public entry points
 
@@ -195,6 +196,10 @@ RitualMode.QUICK / .FULL                      // two tables, two link rules
 RitualMode.preparations() / .preparationNamed(quality) / .modifierTotal(prep, link)
 RitualMode.links() / .linkNamed(name) / .supportSkills() / .supportBonus(names)
 ContentLoader.ritualSupport() / .ritualQuickPreparation() / .ritualTargetLink()
+Invocation.ORTHODOX_SHIFT = -2        // on the TABLE roll, never the ritual
+Invocation.responses() / .responseFor(roll) / .ritualModifier(row)  // throws on 18
+Invocation.shiftedRoll(roll, orthodoxInGoodStanding) / .ask(source, standing)
+ContentLoader.entityResponse()
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -1468,6 +1473,74 @@ external sacrifice at +0/+2/+4, catalysts at +0 to +2) and the **Entity
 Response Table**, plus the Time & Complexity table (Rushed −3 to −5, Extended
 +1 to +2) and the suspension rule's −2. All are real roll modifiers with a
 caller already built; they are the next slice of this chapter.
+
+## 6z. Invocation — a minus sign that means the opposite of what it looks like
+
+`Invocation` (core/rules) reads Ch. 7's Entity Response Table, and the ritual
+dialog grew a Power source row. A ritual could already be fuelled; now it can
+be *borrowed*, which is what the book calls "the most common method for
+low-Sequence Beyonders".
+
+- **"Orthodox deities shift the table result by −2" lands on the GM's 3d6, not
+  on the ritual roll.** The table runs best-first — 3-5 is a Full response
+  worth +5, 18 is Active rejection — so subtracting 2 walks a favoured caster
+  TOWARD the good rows. It is a reward. Read onto the ritual roll it is a
+  penalty, and a Nighthawk praying to the Evernight Goddess ends up worse off
+  than a stranger. One sentence, two opposite outcomes, and the wrong one
+  looks perfectly plausible on screen. `shiftedRoll` therefore takes a roll
+  and returns a roll: nothing in this object hands back a number that could be
+  added to a skill by mistake.
+- **`verify()` pins the direction, not just the value.** It asserts the table
+  is still ordered best-first, because that ordering is the entire reason a
+  negative shift helps — if the order ever broke, the sign would need
+  rereading rather than reusing.
+- **The shift is applied BEFORE the row is read.** It moves the roll, not the
+  result; reading the row first and adjusting afterwards answers from the
+  wrong band entirely. Pinned by a test where the two orders differ: a 9 is
+  Minimal (+1), and shifted to 7 it is Partial (+3).
+- **Two rows print no modifier for two different reasons.** 12-14 is an entity
+  that does not answer — the ritual proceeds unaided, so nothing is added.
+  18 is a refusal: the ritual fails whatever the caster rolled, exactly as a
+  Broken mystical language forbids the attempt rather than pricing it (6x).
+  `ritualModifier` answers 0 for the first and REFUSES the second, and
+  `EntityAnswer` carries the failure in `failsRitual` rather than as a large
+  negative a caller might add to a target and roll against anyway.
+- **The shift floors at 3.** A rolled 3 is already the best row and shifting
+  it to 1 would land on no row at all. No ceiling is needed — it only moves
+  down.
+- **A roll outside 3..18 is refused, not clamped.** A caller holding a 2 has a
+  bug in its dice, and answering "Full response" would hide it.
+- **The −2 lives in Kotlin, not the JSON** — a number inside a sentence, the
+  same split as the +3 support cap (6y) and the maneuver table's +4/−4. A
+  committed column would also lose the one fact that matters most about it:
+  which roll it lands on. A test asserts `"shift"` is absent from the file.
+- **The secret roll is deliberately not modelled.** The book has the GM roll
+  this unseen; this app is one screen held by one person, and hiding a roll
+  from its only viewer is theatre. A GM can roll here and not say what came up.
+- **The answer is cleared whenever the declaration changes**, because an
+  answer belongs to the entity it was asked of — the same rule the Major
+  Wound's HT roll follows (6n).
+
+**Codex did not review this slice either** — fourth in a row inside the usage
+limit (resets 2026-08-08).
+
+Device-verified on Academic Researcher (Ritualistic Magic 9, CoR 8): Personal
+SPI is the default and shows no table. Under Invocation a first ask rolled
+**7 — Partial, +3**, taking the target from 8 to **11**. Ticking "Orthodox
+deity, in good standing" cleared the answer; re-asking showed **"Rolled 7 → 5:
+Full response. +5"** — the same 7 now reading a better row, which is the whole
+point — and **"Rolled 15 → 13: No response"** landed on the indifferent row
+with the target unmoved. The 18 rejection was NOT observed live (1 in 216, and
+good standing shifts away from it); it rests on `InvocationTest`, the same way
+the ritual CoR charge rests on its own tests (6f).
+
+Chapter 7 is now at **32.9%**. Still unread: power sources A-E — personal
+SPI's four-row complexity ladder (2-3 / 4-6 / 7-10 / 11-15+, which does NOT
+line up with `ritual_weights.json`'s three rows and needs that decision made),
+HP sacrifice at 2 HP per SPI, participants at +1 each to a maximum +3,
+external sacrifice at +0/+2/+4 plus +2 per sentient being, and catalysts at
++0 to +2 — plus the Time & Complexity table (Rushed −3 to −5, Extended +1 to
++2) and the suspension rule's −2.
 
 ### A note on Codex
 

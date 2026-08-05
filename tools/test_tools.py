@@ -1878,3 +1878,88 @@ def test_the_cap_is_a_sentence_not_a_column():
     # And the cap is deliberately not committed as data.
     raw = json.loads((CONTENT / "ritual_support.json").read_text(encoding="utf-8"))
     assert "cap" not in raw
+
+
+import extract_entity_response
+
+
+def entity_entries():
+    return _entries("entity_response.json")
+
+
+def entity_prose():
+    cells = extract_entity_response.stream(
+        extract_entity_response.load_lines(), *extract_entity_response.ENTITY_RANGE
+    )
+    prose, _ = extract_entity_response.split_prose(cells)
+    return prose
+
+
+def test_the_six_bands_tile_a_3d6_exactly():
+    entries = entity_entries()
+    assert [(e["low"], e["high"]) for e in entries] == extract_entity_response.EXPECTED_BANDS
+    covered = sorted(n for e in entries for n in range(e["low"], e["high"] + 1))
+    assert covered == list(range(3, 19))
+
+
+def test_the_table_is_ordered_best_first():
+    """Which is the whole reason a NEGATIVE shift is a reward. If this order
+    ever broke, the shift's direction would need rereading rather than
+    reusing."""
+    values = [e["ritualModifier"] for e in entity_entries() if "ritualModifier" in e]
+    assert values == sorted(values, reverse=True) == [5, 3, 1, -2]
+
+
+def test_the_orthodox_shift_is_negative_and_lands_on_the_table_roll():
+    """"Orthodox deities shift the table result by -2." On the GM's 3d6, not
+    on the ritual roll. Applied to the ritual roll it penalises the caster in
+    good standing -- one sentence, two opposite outcomes."""
+    prose = entity_prose()
+    assert extract_entity_response.SHIFT.search(prose).group(1) == "-2"
+    assert "shift the table result" in prose
+    assert extract_entity_response.UNMODIFIED in prose
+
+
+@needs_pdf
+def test_a_positive_shift_would_fail_verification():
+    """A positive shift would send a favoured caster toward Active rejection."""
+    with pytest.raises(ValueError):
+        extract_entity_response.verify(entity_entries(), entity_prose(), 2)
+
+
+@needs_pdf
+def test_an_unordered_table_would_fail_verification():
+    patched = [
+        {**e, "ritualModifier": 9} if e["low"] == 15 else e for e in entity_entries()
+    ]
+    with pytest.raises(ValueError):
+        extract_entity_response.verify(patched, entity_prose(), -2)
+
+
+def test_the_two_silent_rows_are_silent_for_different_reasons():
+    """12-14 is an entity that does not answer -- nothing is added, and the
+    ritual still happens. 18 is a refusal: it fails whatever was rolled, the
+    way a Broken mystical language forbids the attempt rather than pricing
+    it. Emitting -0 for one or a large negative for the other invents both."""
+    by_low = {e["low"]: e for e in entity_entries()}
+    assert "ritualModifier" not in by_low[12]
+    assert not by_low[12].get("automaticFailure")
+    assert by_low[18]["automaticFailure"] is True
+    assert "ritualModifier" not in by_low[18]
+
+
+@needs_pdf
+def test_pricing_the_rejection_would_fail_verification():
+    patched = [
+        {**e, "ritualModifier": -10} if e["low"] == 18 else e for e in entity_entries()
+    ]
+    with pytest.raises(ValueError):
+        extract_entity_response.verify(patched, entity_prose(), -2)
+
+
+def test_the_shift_is_not_committed_as_data():
+    """It is a number inside a sentence, so it lives in Kotlin
+    (Invocation.ORTHODOX_SHIFT) -- and a committed column would lose the fact
+    that matters most about it: which roll it lands on."""
+    raw = json.loads((CONTENT / "entity_response.json").read_text(encoding="utf-8"))
+    assert "shift" not in raw

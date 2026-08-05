@@ -870,6 +870,28 @@ data class WealthLevel(
 )
 
 /**
+ * One band of the Entity Response Table (Ch. 7, Section IV.F, p. 66).
+ *
+ * [ritualModifier] and [automaticFailure] are BOTH absent on the 12-14 row and
+ * that is deliberate: "No response. Ritual draws only on caster's residual
+ * power" is an entity that does not answer, so nothing is added and nothing
+ * fails. The 18 row carries [automaticFailure] and no modifier -- it is a
+ * refusal, not a penalty, the same way a Broken mystical language forbids the
+ * attempt rather than pricing it.
+ *
+ * See [com.pathways.rules.Invocation], which also carries the orthodox shift:
+ * a -2 on the roll AGAINST this table, never on the ritual roll.
+ */
+@Serializable
+data class EntityResponse(
+    val low: Int,
+    val high: Int,
+    val response: String,
+    val ritualModifier: Int? = null,
+    val automaticFailure: Boolean = false,
+)
+
+/**
  * One supporting skill for a ritual (Ch. 7, Section II, p. 61).
  *
  * Each grants +1 and the five together are capped at +3 by a sentence, not a
