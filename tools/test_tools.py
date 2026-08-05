@@ -1527,3 +1527,90 @@ def test_losing_the_matching_pi_would_fail_verification():
     patched = [e for e in appendix_entries() if e["type"] != "Piercing"]
     with pytest.raises(ValueError):
         extract_appendix.verify(patched)
+
+
+import extract_appearance
+
+
+def appearance_entries():
+    return json.loads((CONTENT / "appearance.json").read_text(encoding="utf-8"))["entries"]
+
+
+def appearance_note():
+    _, note = extract_appearance.stream(
+        extract_appearance.load_lines(), *extract_appearance.APPEARANCE_RANGE
+    )
+    return note
+
+
+def test_the_appearance_ladder_runs_best_to_worst():
+    entries = appearance_entries()
+    assert [e["level"] for e in entries] == extract_appearance.EXPECTED_LEVELS
+    assert [e["points"] for e in entries] == [1, 4, 8, -4, -8, -16, -20, -24]
+    assert [e["reactionModifier"] for e in entries] == [1, 2, 3, -1, -2, -4, -5, -6]
+
+
+def test_the_reaction_column_is_not_derivable_from_the_cost():
+    """If it were, the second column would be redundant and reading it would be
+    arithmetic rather than extraction. It is not: the good half doubles its
+    cost per step while its modifier climbs by one, and the bad half skips -12
+    entirely, so -8 pts gives -2 and -16 gives -4."""
+    by_level = {e["level"]: e for e in appearance_entries()}
+    assert (by_level["Attractive"]["points"], by_level["Attractive"]["reactionModifier"]) == (1, 1)
+    assert (by_level["Ugly"]["points"], by_level["Ugly"]["reactionModifier"]) == (-8, -2)
+    assert (by_level["Hideous"]["points"], by_level["Hideous"]["reactionModifier"]) == (-16, -4)
+    assert not any(-12 == e["points"] for e in appearance_entries())
+
+
+def test_chapter_3_prints_none_of_these_levels():
+    """Starting Wealth was HALF printed in chapter 3's trait lists, which is
+    what made "Wealth: Poor" the spelling to match on. Appearance is printed
+    there zero times, so the trait carries the level's own name and no prefix.
+    The one row whose name says "Appearance" is a potion's doing."""
+    named = extract_appearance.appearance_named_traits()
+    assert named == [extract_appearance.NOT_AN_APPEARANCE_LEVEL]
+    assert extract_appearance.NOT_AN_APPEARANCE_LEVEL not in {
+        e["level"] for e in appearance_entries()
+    }
+
+
+def test_no_level_is_free_so_ordinary_looks_are_not_a_row():
+    """Wealth prints Average at 0 pts. This table's cheapest row is Attractive
+    at 1 point, so ordinary looks are the absence of a trait, not a level."""
+    assert all(e["points"] != 0 for e in appearance_entries())
+
+
+@needs_pdf
+def test_a_level_that_crossed_the_two_columns_would_fail_verification():
+    """A level that costs points and does not help -- or refunds them and does
+    not hurt -- means a row was read out of order."""
+    patched = [
+        {**e, "reactionModifier": -1} if e["level"] == "Attractive" else e
+        for e in appearance_entries()
+    ]
+    with pytest.raises(ValueError):
+        extract_appearance.verify(patched, appearance_note())
+
+
+@needs_pdf
+def test_folding_in_unsettling_appearance_would_fail_verification():
+    """4 pts, -1 to all reaction rolls, and "a common consequence of Abyss and
+    Chained Pathway potions" -- suffered in play, not chosen at creation.
+    Pricing it as this table's ninth row would sell a disfigurement."""
+    patched = appearance_entries() + [
+        {"level": extract_appearance.NOT_AN_APPEARANCE_LEVEL,
+         "points": -4, "reactionModifier": -1}
+    ]
+    with pytest.raises(ValueError):
+        extract_appearance.verify(patched, appearance_note())
+
+
+@needs_pdf
+def test_the_note_disclaiming_the_gurps_costs_must_survive():
+    """"Appearance point costs have been adjusted for the Pathways setting and
+    differ from standard GURPS values." Every number here is this book's, so a
+    reviewer reaching for GURPS 4e (Attractive at 4 pts, not 1) would be
+    correcting the book with its own source material."""
+    assert extract_appearance.NOTE_PHRASE in appearance_note()
+    with pytest.raises(ValueError):
+        extract_appearance.verify(appearance_entries(), "some other sentence")

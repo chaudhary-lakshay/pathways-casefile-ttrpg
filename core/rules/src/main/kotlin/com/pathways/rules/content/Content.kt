@@ -869,6 +869,24 @@ data class WealthLevel(
     val lifestyle: String,
 )
 
+/**
+ * One row of the Appearance table (Ch. 3, p. 13-14).
+ *
+ * [points] is SIGNED like [WealthLevel.points], and meets
+ * [com.pathways.model.Trait]'s magnitude-plus-kind convention in exactly one
+ * place, [com.pathways.rules.Appearance.traitFor].
+ *
+ * [reactionModifier] is the printed column and is NOT derivable from [points]:
+ * the bad half skips -12, so -8 pts gives -2 and -16 gives -4. Both columns
+ * are read for that reason.
+ */
+@Serializable
+data class AppearanceLevel(
+    val level: String,
+    val points: Int,
+    val reactionModifier: Int,
+)
+
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
 data class DamageRowJson(val st: Int, val thrust: String, val swing: String)

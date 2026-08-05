@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **595 Kotlin** (JUnit 5, incl. 57 in `app/`) + **113 Python** (pytest), all green |
+| Tests | **613 Kotlin** (JUnit 5, incl. 61 in `app/`) + **125 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -93,7 +93,8 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `divination_modifiers.json` (8), `divination_clarity.json` (6),
 `divination_support.json` (4), `ritual_preparation.json` (5),
 `boon_granting.json` (1), `boon_modifiers.json` (8),
-`non_standard_pathways.json` (17), `weapons.json` (9), `wealth.json` (7).
+`non_standard_pathways.json` (17), `weapons.json` (9), `wealth.json` (7),
+`damage_abbreviations.json` (8), `appearance.json` (8).
 
 ### Public entry points
 
@@ -177,6 +178,10 @@ Wealth.all() / .named(status): WealthLevel        // throws for an unprinted lev
 Wealth.traitFor(level): Trait?                    // null at 0 pts (Average)
 Wealth.levelOf(traits) / .applied(traits, level)  // replaces, never adds
 ContentLoader.wealth()
+Appearance.all() / .named(level): AppearanceLevel  // throws for an unprinted level
+Appearance.traitFor(level): Trait                 // never null; no level is free
+Appearance.levelOf(traits) / .applied(traits, level) / .without(traits)
+ContentLoader.appearance()
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -1227,6 +1232,73 @@ them — its hit-location line reads "Vitals -3 ×3" flat, dropping the
 table has only Hand. A summary does not overrule the chapter it summarises.
 Its success ladder (Good Success at Target−3, Excellent at Target−5) is
 genuinely new material and a slice of its own.
+
+## 6w. Appearance — the same shape as wealth, and three ways it is not
+
+`Appearance` (core/rules) reads Ch. 3's eight-level table and `BuilderScreen`
+grew a second point-costed row beside Wealth. Same caller, same reason —
+`PointBudget` bills traits — and the differences are the whole slice.
+
+- **Chapter 3's trait lists print none of the eight levels.** Wealth was HALF
+  printed there, which is what made `"Wealth: Poor"` the spelling to match on.
+  Appearance appears among the advantages and disadvantages zero times, so the
+  trait carries the level's own printed name and no prefix — committing
+  `"Appearance: Ugly"` would invent a spelling the book never uses. That
+  disjointness is not assumed: `extract_appearance.py` fails if any of the
+  eight names turns up in those lists, and it is exactly what makes matching a
+  bare name unambiguous. The one chapter 3 trait whose NAME says appearance is
+  "Unsettling Appearance" (4 pts, −1 to all reactions), and the book calls it
+  "a common consequence of Abyss and Chained Pathway potions" — suffered in
+  play, not chosen at creation, so folding it in would price a disfigurement.
+- **There is no zero-cost middle row, so ordinary looks are the ABSENCE of a
+  trait.** Wealth prints Average at 0 pts, which is why `Wealth.traitFor`
+  returns null and why `wealthShownFor` had to ask the choice before the
+  character (6u, Codex). The cheapest row here is Attractive at 1 point, so
+  every level leaves a trait behind and the composed character is enough —
+  there is deliberately no `appearanceShownFor`.
+- **The reaction column is not derivable from the cost, and both are read.**
+  The good half doubles its cost per step (1/4/8) while its modifier climbs by
+  one, and the bad half skips −12 entirely, so −8 pts gives −2 and −16 gives
+  −4. Deriving one from the other is the tidy wrong answer the wealth ladder
+  already punished.
+- **The costs are this book's and a reviewer must not "correct" them.** The
+  note under the table says so: "Appearance point costs have been adjusted for
+  the Pathways setting and differ from standard GURPS values." Attractive is 1
+  point here and 4 in GURPS 4e. `NOTE_PHRASE` pins the sentence.
+- **Reaction modifiers are shown per source and NEVER summed.** This book
+  prints no reaction roll procedure and no result table anywhere, while at
+  least five things hand one out — this table, wealth's Status column,
+  Charisma, Reputation and Unsettling Appearance. With no printed rule for
+  combining them a single total would be arithmetic the book never asked for.
+  Same shape as a called shot's wounding multiplier, quoted beside the damage
+  rather than multiplied into it.
+
+**Codex did not review this slice** — the account hit its usage limit
+(resets 2026-08-08), and the review gate section 8 relies on simply did not
+run. Standing in for it, the source page was re-read end to end to check for
+the defect class Codex keeps finding (a rule printed and not applied): lines
+714–744 print reaction rolls and nothing else — no Influence-skill or Sex
+Appeal tie — so nothing on the page goes unapplied. That is a weaker check
+than a real review, and this slice should be re-reviewed when Codex is back.
+
+**The device found the one defect anyway**: `pointsLabel` printed a flat
+"pts", so Attractive read **"+1 pts"** where the book prints "+1 pt". Wealth
+never reached it — its smallest magnitude is 5 — and no test asserts prose.
+The helper takes the singular now.
+
+Device-verified on Academic Researcher: the row reads "Ordinary — the book
+prints no level for it" with "As printed ✓" in the picker; all eight levels
+render; choosing **Ugly** moves the budget from **95 of 100** to **95 of 108**
+and reads "Ugly — −8 pts, reaction −2" while the Wealth row stays on Poor,
+which is the two choices not colliding. `appearance: "Ugly"` survived a
+force-stop, and "As printed" put it back to 100 with `appearance: null`.
+
+Chapter 3 is now at **70.3%**. Its remaining third is the mundane advantage
+and disadvantage effect tables, plus the Languages tables directly above this
+one (global 690–713) — common and mystical proficiency, whose Broken/Accented
+rows print "Rituals using the language at −2" and "Cannot perform rituals in
+the language". Those have a caller already waiting in `RitualResolution`, the
+same way this table had one in `PointBudget`.
 
 ### A note on Codex
 

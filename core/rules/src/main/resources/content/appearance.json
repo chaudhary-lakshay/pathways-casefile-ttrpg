@@ -1,0 +1,52 @@
+{
+ "sourceLines": {
+  "3": [
+   [
+    714,
+    744
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "level": "Attractive",
+   "points": 1,
+   "reactionModifier": 1
+  },
+  {
+   "level": "Handsome / Beautiful",
+   "points": 4,
+   "reactionModifier": 2
+  },
+  {
+   "level": "Very Handsome / Very Beautiful",
+   "points": 8,
+   "reactionModifier": 3
+  },
+  {
+   "level": "Unattractive",
+   "points": -4,
+   "reactionModifier": -1
+  },
+  {
+   "level": "Ugly",
+   "points": -8,
+   "reactionModifier": -2
+  },
+  {
+   "level": "Hideous",
+   "points": -16,
+   "reactionModifier": -4
+  },
+  {
+   "level": "Monstrous",
+   "points": -20,
+   "reactionModifier": -5
+  },
+  {
+   "level": "Horrific",
+   "points": -24,
+   "reactionModifier": -6
+  }
+ ]
+}

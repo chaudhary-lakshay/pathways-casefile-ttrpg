@@ -5,7 +5,9 @@ import com.pathways.model.Attributes
 import com.pathways.model.Character
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
+import com.pathways.rules.Appearance
 import com.pathways.rules.Derive
+import com.pathways.rules.Wealth
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -201,5 +203,49 @@ class EditedCharacterTest {
         // level would silently move the budget by up to 25 points.
         val poor = mortal.copy(traits = listOf(Trait("Wealth: Poor", 15, TraitKind.DISADVANTAGE)))
         assertEquals(poor.traits, SavedEdits(wealth = "Fabulously Rich").applyTo(poor).traits)
+    }
+
+    @Test
+    fun `a chosen appearance level is billed like any other trait`() {
+        val edited = SavedEdits(appearance = "Ugly").applyTo(mortal)
+        assertEquals(listOf("Ugly"), edited.traits.map { it.name })
+        assertEquals(
+            Derive.of(mortal).budget.surplus + 8,
+            Derive.of(edited).budget.surplus,
+            "Ugly refunds 8 points",
+        )
+    }
+
+    @Test
+    fun `wealth and appearance are two choices, not one`() {
+        // They resolve by different rules -- wealth by its "Wealth: " prefix,
+        // appearance by the bare level name -- so one must not disturb the
+        // other. Chapter 3's trait lists print none of the appearance levels,
+        // which is what makes the bare name safe to match on.
+        val printed = mortal.copy(traits = listOf(Trait("Wealth: Poor", 15, TraitKind.DISADVANTAGE)))
+        val both = SavedEdits(wealth = "Comfortable", appearance = "Attractive").applyTo(printed)
+
+        assertEquals(listOf("Wealth: Comfortable", "Attractive"), both.traits.map { it.name })
+        assertEquals("Comfortable", Wealth.levelOf(both.traits)?.status)
+        assertEquals("Attractive", Appearance.levelOf(both.traits)?.level)
+    }
+
+    @Test
+    fun `clearing the choice returns the sheet's own looks`() {
+        // No premade prints an appearance level, so on all 23 this is the way
+        // back to ordinary. A tested setter that no screen can reach is not a
+        // way back -- the picker's first row calls this.
+        val ugly = SavedEdits(appearance = "Ugly").applyTo(mortal)
+        assertEquals(listOf("Ugly"), ugly.traits.map { it.name })
+        assertTrue(SavedEdits(appearance = null).applyTo(mortal).traits.isEmpty())
+    }
+
+    @Test
+    fun `a saved appearance level the book does not print is dropped`() {
+        // Same rule as wealth and as a bought skill. There is no nearest level
+        // to fall back on here: the table prints no ordinary row at all.
+        assertTrue(SavedEdits(appearance = "Radiant").applyTo(mortal).traits.isEmpty())
+        assertNull(SavedEdits(appearance = "Radiant").appearanceLevel())
+        assertTrue(!SavedEdits(appearance = "Ugly").isEmpty)
     }
 }

@@ -69,6 +69,7 @@ object ContentLoader {
     }
     private val weaponsLazy: List<CataloguedWeapon> by lazy { load("weapons.json") }
     private val wealthLazy: List<WealthLevel> by lazy { load("wealth.json") }
+    private val appearanceLazy: List<AppearanceLevel> by lazy { load("appearance.json") }
     private val damageAbbreviationsLazy: List<DamageAbbreviation> by lazy {
         load("damage_abbreviations.json")
     }
@@ -159,6 +160,9 @@ object ContentLoader {
 
     /** Starting Wealth by Economic Status, poorest first (Ch. 8, p. 80). */
     fun wealth(): List<WealthLevel> = wealthLazy
+
+    /** The eight Appearance levels, best first (Ch. 3, p. 13-14). */
+    fun appearance(): List<AppearanceLevel> = appearanceLazy
 
     /**
      * Appendix A's Wounding line (p. 159), which labels the two piercing rows

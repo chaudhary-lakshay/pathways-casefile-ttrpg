@@ -4,7 +4,10 @@ import com.pathways.model.Attr
 import com.pathways.model.Character
 import com.pathways.model.PurchasedSkill
 import com.pathways.model.SkillKey
+import com.pathways.model.Trait
+import com.pathways.rules.Appearance
 import com.pathways.rules.Wealth
+import com.pathways.rules.content.AppearanceLevel
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SkillDefinition
 import com.pathways.rules.content.WealthLevel
@@ -29,10 +32,40 @@ fun SavedEdits.applyTo(base: Character): Character {
     )
     return base.copy(
         attributes = attributes,
-        traits = wealthLevel()?.let { Wealth.applied(base.traits, it) } ?: base.traits,
+        traits = chosenTraits(base.traits),
         skills = base.skills + purchases(base),
     )
 }
+
+/**
+ * [printed] with each chosen point-costed level swapped in.
+ *
+ * The two are independent and cannot collide: [Wealth] matches on its
+ * "Wealth: " prefix and [Appearance] on the eight bare level names, which
+ * chapter 3's trait lists print none of. Order therefore does not matter, and
+ * a level left unchosen leaves whatever the sheet printed alone.
+ */
+private fun SavedEdits.chosenTraits(printed: List<Trait>): List<Trait> {
+    val withWealth = wealthLevel()?.let { Wealth.applied(printed, it) } ?: printed
+    return appearanceLevel()?.let { Appearance.applied(withWealth, it) } ?: withWealth
+}
+
+/**
+ * The saved appearance level, resolved against the book (Ch. 3, p. 13-14).
+ *
+ * Dropped rather than guessed at when the book prints no such level, exactly
+ * as [wealthLevel] does -- there is no nearest level to fall back on here,
+ * because the table prints no ordinary row to fall back TO.
+ *
+ * There is deliberately no `appearanceShownFor`. Wealth needs one because
+ * Average costs 0 pts and leaves no trait to read back, so the choice has to
+ * be asked before the character. Every level here costs something, so the
+ * composed character always carries the chosen level and reading it is enough.
+ */
+fun SavedEdits.appearanceLevel(): AppearanceLevel? =
+    appearance?.let { name ->
+        Appearance.all().firstOrNull { it.level.equals(name, ignoreCase = true) }
+    }
 
 /**
  * The saved economic status, resolved against the book (Ch. 8, p. 80).

@@ -106,6 +106,12 @@ class BeyonderSession(
         persist()
     }
 
+    /** Choose an appearance level, or null to go back to the printed sheet. */
+    fun setAppearance(level: String?) {
+        edits = edits.copy(appearance = level)
+        persist()
+    }
+
     /**
      * Buy [name] at one point, the cheapest a skill can be owned at.
      *

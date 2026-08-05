@@ -52,10 +52,19 @@ data class SavedEdits(
      * back in, and dropped when the book prints no such level.
      */
     val wealth: String? = null,
+    /**
+     * The chosen appearance level ("Ugly"), or null for the sheet's own
+     * (Ch. 3, p. 13-14).
+     *
+     * The NAME only, for the same reason [wealth] stores one. Unlike wealth
+     * there is no zero-cost level to pick, so null here means ordinary looks
+     * on all 23 premades -- none of them prints an appearance level at all.
+     */
+    val appearance: String? = null,
 ) {
     val isEmpty: Boolean
         get() = st == null && dx == null && iq == null && ht == null &&
-            skills.isEmpty() && wealth == null
+            skills.isEmpty() && wealth == null && appearance == null
 }
 
 /**

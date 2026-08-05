@@ -30,7 +30,9 @@ import com.pathways.model.MAX_ATTRIBUTE
 import com.pathways.rules.AttributeCosts
 import com.pathways.rules.Derive
 import com.pathways.rules.PremadeSheet
+import com.pathways.rules.Appearance
 import com.pathways.rules.Wealth
+import com.pathways.rules.content.AppearanceLevel
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SkillDefinition
 import com.pathways.rules.content.WealthLevel
@@ -57,6 +59,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     val report = derived.budget
     var adding by remember { mutableStateOf(false) }
     var picking by remember { mutableStateOf(false) }
+    var pickingLooks by remember { mutableStateOf(false) }
 
     Scaffold { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
@@ -96,6 +99,18 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     level = session.edits.wealthShownFor(character),
                     printed = Wealth.levelOf(start.traits),
                     onPick = { picking = true },
+                )
+                HorizontalDivider()
+            }
+
+            item {
+                AppearanceRow(
+                    // The composed character is enough here, unlike wealth:
+                    // every level costs something, so a chosen one always
+                    // leaves a trait behind to read back.
+                    level = Appearance.levelOf(character.traits),
+                    printed = Appearance.levelOf(start.traits),
+                    onPick = { pickingLooks = true },
                 )
                 HorizontalDivider()
             }
@@ -147,6 +162,18 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                 picking = false
             },
             onDismiss = { picking = false },
+        )
+    }
+
+    if (pickingLooks) {
+        AppearancePicker(
+            chosen = session.edits.appearanceLevel()?.level,
+            printed = Appearance.levelOf(start.traits),
+            onPick = { level ->
+                session.setAppearance(level?.level)
+                pickingLooks = false
+            },
+            onDismiss = { pickingLooks = false },
         )
     }
 
@@ -360,7 +387,128 @@ private fun WealthPicker(
     )
 }
 
-private fun WealthLevel.pointsLabel(): String = "${points.signed()} pts"
+/**
+ * The chosen appearance level, or ordinary looks (Ch. 3, p. 13-14).
+ *
+ * The reaction modifier is shown here and beside wealth, and the two are NEVER
+ * added together. This book prints no reaction roll procedure and no result
+ * table at all, while at least five things hand out a modifier for one -- this
+ * table, wealth's Status column, Charisma, Reputation and Unsettling
+ * Appearance. With no printed rule for combining them, a single total would be
+ * arithmetic the book never asked for; each is reported beside the thing that
+ * grants it.
+ */
+@Composable
+private fun AppearanceRow(
+    level: AppearanceLevel?,
+    printed: AppearanceLevel?,
+    onPick: () -> Unit,
+) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text("Appearance", style = MaterialTheme.typography.titleMedium)
+            Text(
+                buildString {
+                    // Null is ordinary looks, and that is not a level: the
+                    // book's cheapest row is Attractive at 1 point, so it
+                    // prints no ordinary row to name here.
+                    if (level == null) append("Ordinary — the book prints no level for it")
+                    else {
+                        append("${level.level} — ${level.points.pointsLabel()}")
+                        append(", reaction ${level.reactionModifier.signed()}")
+                        if (printed != null && printed.level != level.level) {
+                            append(" — sheet prints ${printed.level}")
+                        }
+                    }
+                },
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        TextButton(onClick = onPick) { Text("Change") }
+    }
+}
+
+/**
+ * The eight printed levels, best first.
+ *
+ * A vertical list for the same reason [WealthPicker] is one.
+ *
+ * ponytail: "As printed" is the only way back, which on all 23 premades is
+ * also the way to ordinary looks -- none of them prints an appearance level.
+ * If a sheet ever printed one, ordinary would become unreachable for that
+ * character; the upgrade is a separate "Ordinary" row storing a sentinel, and
+ * it is not worth a saved-state distinction until a sheet needs it.
+ */
+@Composable
+private fun AppearancePicker(
+    chosen: String?,
+    printed: AppearanceLevel?,
+    onPick: (AppearanceLevel?) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        title = { Text("Appearance") },
+        text = {
+            LazyColumn {
+                item {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { onPick(null) }
+                            .padding(vertical = 8.dp),
+                    ) {
+                        Text(
+                            "As printed" + if (chosen == null) " ✓" else "",
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            printed?.let { "The sheet prints ${it.level}" }
+                                ?: "The sheet prints no appearance level — ordinary looks",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    HorizontalDivider()
+                }
+                items(Appearance.all()) { level ->
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { onPick(level) }
+                            .padding(vertical = 8.dp),
+                    ) {
+                        Text(
+                            level.level + if (level.level == chosen) " ✓" else "",
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            "${level.points.pointsLabel()} · " +
+                                "reaction ${level.reactionModifier.signed()}",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    HorizontalDivider()
+                }
+            }
+        },
+    )
+}
+
+private fun WealthLevel.pointsLabel(): String = points.pointsLabel()
+
+/**
+ * "+1 pt", "−8 pts" -- the book's own spelling.
+ *
+ * Wealth never needed the singular: its smallest magnitude is 5. Appearance's
+ * Attractive is one point and the book prints "+1 pt", so a flat "pts" made
+ * the app quote the table wrongly (found on device).
+ */
+private fun Int.pointsLabel(): String =
+    "${signed()} " + if (this == 1 || this == -1) "pt" else "pts"
 
 /** Zero is unsigned: "+0 pts" and "reaction +0" read as typos, not as nothing. */
 private fun Int.signed(): String = when {
