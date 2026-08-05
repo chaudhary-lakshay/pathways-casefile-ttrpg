@@ -1614,3 +1614,141 @@ def test_the_note_disclaiming_the_gurps_costs_must_survive():
     assert extract_appearance.NOTE_PHRASE in appearance_note()
     with pytest.raises(ValueError):
         extract_appearance.verify(appearance_entries(), "some other sentence")
+
+
+import extract_languages
+
+
+def language_entries():
+    return json.loads((CONTENT / "languages.json").read_text(encoding="utf-8"))["entries"]
+
+
+def proficiency_entries():
+    return json.loads(
+        (CONTENT / "language_proficiency.json").read_text(encoding="utf-8")
+    )["entries"]
+
+
+def language_notes():
+    return [
+        e["text"] for e in
+        json.loads((CONTENT / "language_notes.json").read_text(encoding="utf-8"))["entries"]
+    ]
+
+
+def test_twelve_languages_in_two_lists():
+    entries = language_entries()
+    assert [e["name"] for e in entries if e["type"] == "Common"] == extract_languages.EXPECTED_COMMON
+    assert [e["name"] for e in entries if e["type"] == "Mystical"] == extract_languages.EXPECTED_MYSTICAL
+
+
+def test_the_same_three_rows_are_priced_twice():
+    """Native / Accented / Broken appear under both tables at 6/4/2 and
+    30/20/10. Nothing inside a row says which table it came from -- only the
+    header above it does -- so a parser keyed on the name alone prices a
+    mystical Native at a fifth of the book's cost."""
+    by_key = {(e["type"], e["proficiency"]): e["points"] for e in proficiency_entries()}
+    assert [by_key[("Common", p)] for p in extract_languages.EXPECTED_PROFICIENCIES] == [6, 4, 2]
+    assert [by_key[("Mystical", p)] for p in extract_languages.EXPECTED_PROFICIENCIES] == [30, 20, 10]
+
+
+@needs_pdf
+def test_a_merged_proficiency_table_would_fail_verification():
+    patched = [
+        {**e, "points": 6} if e["type"] == "Mystical" and e["proficiency"] == "Native" else e
+        for e in proficiency_entries()
+    ]
+    with pytest.raises(ValueError):
+        extract_languages.verify(language_entries(), patched, language_notes())
+
+
+def test_only_the_mystical_table_speaks_about_rituals():
+    """A common row carries neither ritual field. Saying nothing is not the
+    same as permitting a ritual at no penalty -- the distinction the ritual
+    critical table already draws about corruption."""
+    for row in proficiency_entries():
+        assert ("canPerformRituals" in row) == (row["type"] == "Mystical")
+    mystical = {e["proficiency"]: e for e in proficiency_entries() if e["type"] == "Mystical"}
+    assert mystical["Native"]["ritualModifier"] == 0
+    assert mystical["Accented"]["ritualModifier"] == -2
+    assert mystical["Broken"]["canPerformRituals"] is False
+    assert "ritualModifier" not in mystical["Broken"]
+
+
+def test_the_accented_row_names_a_penalty_without_granting_permission():
+    """"Functional but imperfect. -2 to language-dependent skill rolls.
+    Rituals using the language at -2." It never says the caster MAY cast, so
+    requiring those words as well made this row unreadable -- printing a
+    ritual modifier is the permission."""
+    accented = next(
+        e for e in proficiency_entries()
+        if e["type"] == "Mystical" and e["proficiency"] == "Accented"
+    )
+    assert "Can perform rituals" not in accented["effect"]
+    assert accented["canPerformRituals"] is True
+
+
+def test_a_seven_character_wrap_is_not_a_thirteenth_language():
+    """Balam's note wraps onto "similar" -- short enough to look exactly like
+    a language name to the short-line rule that cuts these rows. It has to
+    land inside the note it belongs to."""
+    balam = next(e for e in language_entries() if e["name"] == "Balam (Dutan)")
+    assert balam["notes"].endswith("structurally similar")
+    assert all(e["name"] != "similar" for e in language_entries())
+
+
+def test_the_intro_rule_survives_the_page_break():
+    """"Spoken-only or written-only costs" ends one line and "half." starts
+    the next, with a page footer between them. Matched per line, the rule
+    simply is not there."""
+    assert any(extract_languages.SPOKEN_WRITTEN_PHRASE in n for n in language_notes())
+    assert any(extract_languages.HALVING_PHRASE in n for n in language_notes())
+
+
+def test_the_footnote_is_not_part_of_the_broken_row():
+    """Left in the stream it became the tail of Broken's effect cell, so the
+    app would have quoted a trait footnote as a rule about speaking badly.
+    It is found by its own shape: it prices traits inline, "(10 pts)"."""
+    broken = next(
+        e for e in proficiency_entries()
+        if e["type"] == "Mystical" and e["proficiency"] == "Broken"
+    )
+    assert "Language Talent" not in broken["effect"]
+    assert broken["effect"].endswith("Cannot perform rituals in the language.")
+    assert any("Language Talent (10 pts)" in n for n in language_notes())
+
+
+def test_chapter_3_points_at_this_section_and_then_disagrees_with_it():
+    """Unlike Appearance, whose levels the trait lists print zero times, this
+    section is cross-referenced by "Language (specify)". Two neighbouring rows
+    then contradict it, and both are recorded rather than repaired."""
+    pointer = extract_languages.trait_named(extract_languages.CROSS_REFERENCE)
+    assert "Languages section" in pointer["notes"]
+
+    # The section says "two COMMON languages ... does not apply to mystical";
+    # the trait row says "two additional languages" and drops the restriction.
+    assert "common" not in extract_languages.trait_named("Multilingual")["notes"]
+    # And this row names a language neither table prints.
+    dead = extract_languages.trait_named(extract_languages.DEAD_LANGUAGE_TRAIT)
+    assert extract_languages.UNPRINTED_LANGUAGE in dead["notes"]
+    assert all(
+        e["name"] != extract_languages.UNPRINTED_LANGUAGE for e in language_entries()
+    )
+
+
+@needs_pdf
+def test_a_repaired_multilingual_row_would_fail_verification():
+    """If someone "fixed" the trait row to agree with the section, the
+    disagreement would vanish silently. verify() fails instead."""
+    original = extract_languages.trait_named
+    try:
+        extract_languages.trait_named = lambda name: (
+            {"name": name, "notes": "Fluent in two additional common languages."}
+            if name == "Multilingual" else original(name)
+        )
+        with pytest.raises(ValueError):
+            extract_languages.verify(
+                language_entries(), proficiency_entries(), language_notes()
+            )
+    finally:
+        extract_languages.trait_named = original

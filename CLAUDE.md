@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **613 Kotlin** (JUnit 5, incl. 61 in `app/`) + **125 Python** (pytest), all green |
+| Tests | **625 Kotlin** (JUnit 5, incl. 61 in `app/`) + **135 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -94,7 +94,9 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `divination_support.json` (4), `ritual_preparation.json` (5),
 `boon_granting.json` (1), `boon_modifiers.json` (8),
 `non_standard_pathways.json` (17), `weapons.json` (9), `wealth.json` (7),
-`damage_abbreviations.json` (8), `appearance.json` (8).
+`damage_abbreviations.json` (8), `appearance.json` (8),
+`languages.json` (12), `language_proficiency.json` (6),
+`language_notes.json` (2).
 
 ### Public entry points
 
@@ -182,6 +184,12 @@ Appearance.all() / .named(level): AppearanceLevel  // throws for an unprinted le
 Appearance.traitFor(level): Trait                 // never null; no level is free
 Appearance.levelOf(traits) / .applied(traits, level) / .without(traits)
 ContentLoader.appearance()
+Languages.all() / .common() / .mystical(): List<LanguageEntry>
+Languages.proficiencies(type) / .proficiency(type, name)   // type is REQUIRED
+Languages.ritualModifier(prof?): Int    // throws for Broken and for common
+Languages.canPerformRituals(prof) / .ritualProficiencies() / .notes()
+ContentLoader.languages() / .languageProficiencies() / .languageNotes()
+RitualResolution.targetFor(skill, weight, cor, preparation, language)
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -1299,6 +1307,92 @@ one (global 690–713) — common and mystical proficiency, whose Broken/Accente
 rows print "Rituals using the language at −2" and "Cannot perform rituals in
 the language". Those have a caller already waiting in `RitualResolution`, the
 same way this table had one in `PointBudget`.
+
+## 6x. Languages — two tables that print the same three row names
+
+`Languages` (core/rules) reads Ch. 3's language section, and
+`RitualResolution.targetFor` gained a `language` parameter. The caller really
+had been waiting: the mystical Accented row prints "Rituals using the language
+at −2" and nothing had ever read it, so a ritual rolled at full skill in a
+tongue the caster barely speaks.
+
+- **Native / Accented / Broken are printed TWICE at different prices** — 6/4/2
+  common, 30/20/10 mystical — and nothing inside a row says which table it
+  came from. Only the header above it does. Keyed on the row name, a mystical
+  Native costs 6 points, a fifth of the book's price. So the two are parsed as
+  two blocks split on their section headers, every lookup takes a type, and
+  `verify()` fails if a proficiency ever stops being dearer as a mystical
+  language — the shape a silent merge would take.
+- **Only the mystical table speaks about rituals, and a common row's silence
+  is not permission.** Reading it as +0 would let a ritual be cast in everyday
+  Loen on the strength of the book saying nothing. `ritualModifier` refuses
+  both refusing cases and says which is which: Broken because the book forbids
+  it outright, a common tongue because the book never grants it. Same
+  distinction `Wounds.multiplierFor` draws between an unlisted damage type and
+  a key that is not a damage type at all.
+- **"Cannot perform rituals" is a refusal, not a penalty.** A modifier there
+  would imply a roll exists to modify, so `Broken` carries `false` and no
+  number — charging no penalty is not the same as charging zero, the
+  distinction `RitualCritical.corGained` already draws. On screen the chip is
+  still OFFERED and then withdraws the Roll button, because a caster who only
+  speaks Broken needs to see why there is no roll.
+- **The Accented row names its penalty and never says the caster may cast.**
+  Requiring the words "can perform" as well left the row unreadable — the
+  extract died on it. Printing a ritual modifier IS the permission.
+- **The −2/−3 to "language-dependent skill rolls" is deliberately NOT
+  applied.** This book tags no skill as language-dependent, and the two whose
+  names look like it — Body Language (Per) and Linguistics — are exactly the
+  ones a name match would wrongly catch. Which rolls it touches is the GM's
+  call, like a reaction modifier. Only the ritual clause is scoped tightly
+  enough to apply.
+- **The cost rules stay sentences.** "Spoken-only or written-only costs half"
+  and "Language Talent halves all costs (rounded up)" interact, and the book
+  combines them in no worked example. Nothing buys a language yet, so a
+  calculator here would be arithmetic with no printed total to check it
+  against.
+- **Chapter 3 cross-references this section and then disagrees with it
+  twice.** Unlike Appearance, whose levels the trait lists print zero times,
+  "Language (specify) / varies / See the Languages section for cost tables"
+  has pointed at these numbers since M0 — the pointer is what makes them
+  reachable from a billable trait, and `verify()` fails if it goes. Then
+  `Multilingual` says "two additional languages" where the section says "two
+  COMMON languages … it does not apply to mystical languages", and
+  `Dead Language Fluency` names **Ancient Loen**, which neither table prints.
+  Both recorded, neither repaired, and a test asserts the Multilingual row
+  still fails to mention "common" so a later "fix" cannot erase the conflict.
+- **Chapter 13's boons deliberately take no language**, the same way they take
+  no Phase I preparation: the chapter prints its own modifier list and names
+  neither, "because the actual power comes from the patron, not the ritual
+  itself" (6r).
+
+Three parsing notes, all of which failed first: the Mystical section prints
+three lines of intro prose whose last line ("resonance.") is short enough to
+look like a language name, so rows are anchored on the table's first real
+name; "Spoken-only or written-only costs" ends one line and "half." starts the
+next **across a page break**, so the rule exists only in the joined intro; and
+the closing footnote, left in the stream, became the tail of Broken's effect
+cell — the app would have quoted a trait footnote as a rule about speaking
+badly. It is found by its own shape, pricing traits inline as "(10 pts)",
+which no effect cell does. Balam's note wraps onto "similar", seven characters
+and indistinguishable from a name, which is why a row needs its NEXT line to
+be long too.
+
+**Codex did not review this slice either** — still inside the usage limit that
+stopped 6w (resets 2026-08-08). Standing in for it, the callers of
+`RitualResolution.targetFor` were enumerated rather than assumed: `Boons` is
+the only other one, and its omission is now documented in its KDoc instead of
+being invisible.
+
+Device-verified on Academic Researcher (Ritualistic Magic 9, CoR 4): a Light
+ritual reads **"3d6 ≤ 8"** at "Not stated" and at Native; **Accented** takes it
+to **"3d6 ≤ 6"** and adds "−2 for an accented tongue" to the breakdown, with
+the book's own effect cell quoted underneath; **Broken** shows "Cannot perform
+rituals in the language", replaces the target with "No roll — the book forbids
+this attempt", and **withdraws the Roll button entirely**, so no SPI is
+charged. Going back to "Not stated" restores 8.
+
+Chapter 3 is now at **72.8%**. What is left there is the mundane advantage and
+disadvantage effect tables.
 
 ### A note on Codex
 

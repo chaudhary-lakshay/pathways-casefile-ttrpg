@@ -222,4 +222,54 @@ class RitualResolutionTest {
         )
         assertEquals(6, target)
     }
+
+    @Test
+    fun `speaking the ritual in an accented mystical tongue costs two`() {
+        // Ch. 3, p. 14: "Rituals using the language at -2". The clause had
+        // been printed in a table nothing read until the Languages slice.
+        fun target(language: com.pathways.rules.content.LanguageProficiency?) =
+            RitualResolution.targetFor(
+                skillLevel = 12, weight = weight("Light"), cor = 0, language = language,
+            )
+
+        assertEquals(12, target(null), "no language stated leaves the target alone")
+        assertEquals(12, target(Languages.proficiency(Languages.MYSTICAL, "Native")))
+        assertEquals(10, target(Languages.proficiency(Languages.MYSTICAL, "Accented")))
+    }
+
+    @Test
+    fun `a caster who cannot speak the language does not roll at a penalty`() {
+        // "Cannot perform rituals in the language" is a refusal, not a
+        // modifier. Rolling anyway at some invented penalty would let a
+        // character do what the book forbids, and succeed at it.
+        assertThrows<IllegalArgumentException> {
+            RitualResolution.targetFor(
+                skillLevel = 12, weight = weight("Light"), cor = 0,
+                language = Languages.proficiency(Languages.MYSTICAL, "Broken"),
+            )
+        }
+        // A common language is refused for the other reason: its table says
+        // nothing about rituals at all.
+        assertThrows<IllegalArgumentException> {
+            RitualResolution.targetFor(
+                skillLevel = 12, weight = weight("Light"), cor = 0,
+                language = Languages.proficiency(Languages.COMMON, "Native"),
+            )
+        }
+    }
+
+    @Test
+    fun `the language penalty stacks with weight, corruption and preparation`() {
+        // Four independent sources on one target, which is the case a GM will
+        // not add up by hand: 12 - 4 (Heavy) - 1 (CoR 3) + 3 (Excellent)
+        // - 2 (Accented).
+        val target = RitualResolution.targetFor(
+            skillLevel = 12,
+            weight = weight("Heavy"),
+            cor = 3,
+            preparation = RitualResolution.preparationNamed("Excellent"),
+            language = Languages.proficiency(Languages.MYSTICAL, "Accented"),
+        )
+        assertEquals(8, target)
+    }
 }

@@ -869,6 +869,38 @@ data class WealthLevel(
     val lifestyle: String,
 )
 
+/** One language, common or mystical (Ch. 3, p. 13-14). */
+@Serializable
+data class LanguageEntry(val type: String, val name: String, val notes: String)
+
+/**
+ * One row of a language proficiency table (Ch. 3, p. 13-14).
+ *
+ * There are TWO such tables and they print the same three [proficiency] names
+ * at different [points] -- 6/4/2 common, 30/20/10 mystical. [type] is the only
+ * thing telling them apart, so it is part of every lookup; keyed on the name
+ * alone a mystical Native costs a fifth of what the book charges.
+ *
+ * [canPerformRituals] and [ritualModifier] are null on every COMMON row,
+ * because that table says nothing about rituals -- which is not the same as
+ * permitting one at no penalty. Mystical Broken carries `false` and no
+ * modifier: "Cannot perform rituals in the language", and a penalty would
+ * imply a roll exists to modify. See [com.pathways.rules.Languages].
+ */
+@Serializable
+data class LanguageProficiency(
+    val type: String,
+    val proficiency: String,
+    val points: Int,
+    val effect: String,
+    val canPerformRituals: Boolean? = null,
+    val ritualModifier: Int? = null,
+)
+
+/** A prose rule printed with the language tables, carried as its sentence. */
+@Serializable
+data class LanguageNote(val text: String)
+
 /**
  * One row of the Appearance table (Ch. 3, p. 13-14).
  *

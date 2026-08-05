@@ -1,0 +1,72 @@
+{
+ "sourceLines": {
+  "3": [
+   [
+    633,
+    713
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "type": "Common",
+   "name": "Loen",
+   "notes": "Loen Kingdom — the lingua franca of the Northern Continent"
+  },
+  {
+   "type": "Common",
+   "name": "Feysac",
+   "notes": "Feysac Empire — derived from Ancient Feysac"
+  },
+  {
+   "type": "Common",
+   "name": "Intis",
+   "notes": "Intis Republic — derived from Ancient Feysac"
+  },
+  {
+   "type": "Common",
+   "name": "Balam (Dutan)",
+   "notes": "East and West Balam, Southern Continent — distinct origin from Ancient Feysac but structurally similar"
+  },
+  {
+   "type": "Common",
+   "name": "Highland",
+   "notes": "Mountain regions of the Northern Continent — various dialects"
+  },
+  {
+   "type": "Common",
+   "name": "Rorsted",
+   "notes": "Rorsted Archipelago — derived from Ancient Feysac"
+  },
+  {
+   "type": "Mystical",
+   "name": "Ancient Hermes",
+   "notes": "Created by the ancient sage Hermes in the Second Epoch, based on Jotun and Dragonese. Direct, powerful — but lacks concealment, making it dangerous for the unprotected. Used for sacrifice and prayer."
+  },
+  {
+   "type": "Mystical",
+   "name": "Hermes",
+   "notes": "The improved, safer descendant of Ancient Hermes. Better concealment and protection. Essential knowledge for all Beyonders."
+  },
+  {
+   "type": "Mystical",
+   "name": "Elvish",
+   "notes": "Ancient language of the elves. Every word is rich in meaning; sentences are very short. Can shake natural forces. Used for sacrifice, prayer, and spellcasting."
+  },
+  {
+   "type": "Mystical",
+   "name": "Dragonese",
+   "notes": "Ancient language of dragons. Can shake natural forces. Used for sacrifice, prayer, and spellcasting."
+  },
+  {
+   "type": "Mystical",
+   "name": "Jotun (Giant's)",
+   "notes": "Ancient language of giants. Can shake natural forces. Still in daily use in the City of Silver (Forsaken Land of the Gods). Basis of Ancient Feysac."
+  },
+  {
+   "type": "Mystical",
+   "name": "Ancient Feysac",
+   "notes": "Common tongue of the Fourth Epoch and root of all modern Northern Continent languages. Derived from Jotun. Has minor mystical properties but cannot shake natural forces. Considered a mystical language due to its origin and ritual use."
+  }
+ ]
+}

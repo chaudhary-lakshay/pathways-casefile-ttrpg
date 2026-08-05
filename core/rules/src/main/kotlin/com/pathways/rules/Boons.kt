@@ -116,6 +116,12 @@ object Boons {
     /**
      * The number to roll under: the caster's skill, the fixed Moderate weight,
      * the boon's sequence, their corruption, and the circumstances chosen.
+     *
+     * No language is passed, for the same reason no preparation is. Chapter 13
+     * prints its own modifier list and names neither, and the chapter says why:
+     * "the actual power comes from the patron, not the ritual itself". Applying
+     * chapter 3's mystical-tongue penalty here would charge a boon for a
+     * property of the ritual the chapter has already discounted.
      */
     fun targetFor(
         skillLevel: Int,

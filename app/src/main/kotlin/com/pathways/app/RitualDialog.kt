@@ -20,9 +20,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.Languages
 import com.pathways.rules.RandomSource
 import com.pathways.rules.RitualOutcome
 import com.pathways.rules.RitualResolution
+import com.pathways.rules.content.LanguageProficiency
 import com.pathways.rules.content.RitualWeight
 
 /** The skill every ritual is rolled against (Ch. 7). */
@@ -87,12 +89,25 @@ fun RitualDialog(
     // onto a Light one that costs 2.
     var spiChoice by remember(weight) { mutableIntStateOf(weight.spi) }
     var outcome by remember { mutableStateOf<RitualOutcome?>(null) }
+    // Null by default -- "not stated" -- so a ritual described without a
+    // language rolls exactly where it did before Ch. 3's table was read. No
+    // premade prints a language and nothing buys one, so this is the GM's
+    // declaration, like the fright trigger's stepper.
+    var language by remember { mutableStateOf<LanguageProficiency?>(null) }
+    val canSpeak = language?.let { Languages.canPerformRituals(it) } != false
     // Injury and fatigue reach a ritual like any other roll; the CoR penalty
     // is NOT included in [conditionPenalty] because RitualResolution applies
     // it itself, and counting it twice would penalise a corrupted caster
     // once for the ladder and once again for the same ladder.
     val effectiveSkill = skillLevel + conditionPenalty
-    val target = RitualResolution.targetFor(effectiveSkill, weight, cor, preparation)
+    // Not computed at all when the book forbids the attempt: Broken prints
+    // "Cannot perform rituals in the language", and targetFor refuses it
+    // rather than inventing a penalty to roll at.
+    val target = if (canSpeak) {
+        RitualResolution.targetFor(effectiveSkill, weight, cor, preparation, language)
+    } else {
+        null
+    }
     val cost = RitualResolution.spiFor(weight, spiChoice)
 
     AlertDialog(
@@ -157,46 +172,90 @@ fun RitualDialog(
                     }
                     Text(preparation.looksLike, style = MaterialTheme.typography.bodySmall)
 
+                    // Ch. 3, p. 14. Only the MYSTICAL table speaks about
+                    // rituals; a common tongue is not offered, because the
+                    // book never grants it ritual power and offering it would
+                    // read as permission.
                     Text(
-                        "3d6 ≤ $target",
-                        style = MaterialTheme.typography.titleMedium,
+                        "Mystical language",
+                        style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.padding(top = 8.dp),
                     )
-                    Text(
-                        "$RITUAL_SKILL $skillLevel, ${weight.weight} ${weight.modifier}" +
-                            ", preparation ${signed(preparation.modifier)}" +
-                            (if (conditionPenalty != 0) ", $conditionPenalty hurt or tired" else "") +
-                            (if (cor >= 3) ", -1 for $cor CoR" else "") +
-                            ". Costs $cost SPI.",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    if (cost > spiAvailable) {
-                        Text(
-                            "Only $spiAvailable SPI left — going below 0 is Soul Debt.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
+                    FlowRow {
+                        FilterChip(
+                            selected = language == null,
+                            onClick = { language = null },
+                            label = { Text("Not stated") },
+                            modifier = Modifier.padding(end = 8.dp),
                         )
-                    }
-                    TextButton(
-                        onClick = {
-                            // One Roll spends once: a second tap before the
-                            // button leaves the tree would charge the fuel
-                            // again, and below 0 that buys permanent CoR.
-                            if (outcome != null) return@TextButton
-                            val rolled = RitualResolution.attempt(
-                                effectiveSkill,
-                                weight,
-                                cor,
-                                dice,
-                                preparation,
+                        Languages.proficiencies(Languages.MYSTICAL).forEach { option ->
+                            FilterChip(
+                                selected = language?.proficiency == option.proficiency,
+                                onClick = { language = option },
+                                label = { Text(option.proficiency) },
+                                modifier = Modifier.padding(end = 8.dp),
                             )
-                            outcome = rolled
-                            // The fuel is spent whether or not it works: "No
-                            // effect. SPI and materials spent" (p. 62).
-                            onSpendSpi(cost)
-                            rolled.critical?.corGained?.let(onCorGained)
-                        },
-                    ) { Text("Roll") }
+                        }
+                    }
+                    language?.let { Text(it.effect, style = MaterialTheme.typography.bodySmall) }
+
+                    if (target == null) {
+                        // Broken is offered as a chip and then refuses, rather
+                        // than being hidden: a caster who only speaks it needs
+                        // to see WHY there is no roll. Same reason the book's
+                        // sentence is quoted instead of paraphrased.
+                        Text(
+                            "No roll — the book forbids this attempt.",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                    } else {
+                        Text(
+                            "3d6 ≤ $target",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        Text(
+                            "$RITUAL_SKILL $skillLevel, ${weight.weight} ${weight.modifier}" +
+                                ", preparation ${signed(preparation.modifier)}" +
+                                (language?.ritualModifier?.takeIf { it != 0 }
+                                    ?.let { ", $it for an accented tongue" } ?: "") +
+                                (if (conditionPenalty != 0) ", $conditionPenalty hurt or tired" else "") +
+                                (if (cor >= 3) ", -1 for $cor CoR" else "") +
+                                ". Costs $cost SPI.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        if (cost > spiAvailable) {
+                            Text(
+                                "Only $spiAvailable SPI left — going below 0 is Soul Debt.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        }
+                        TextButton(
+                            onClick = {
+                                // One Roll spends once: a second tap before
+                                // the button leaves the tree would charge the
+                                // fuel again, and below 0 that buys permanent
+                                // CoR.
+                                if (outcome != null) return@TextButton
+                                val rolled = RitualResolution.attempt(
+                                    effectiveSkill,
+                                    weight,
+                                    cor,
+                                    dice,
+                                    preparation,
+                                    language,
+                                )
+                                outcome = rolled
+                                // The fuel is spent whether or not it works:
+                                // "No effect. SPI and materials spent" (p. 62).
+                                onSpendSpi(cost)
+                                rolled.critical?.corGained?.let(onCorGained)
+                            },
+                        ) { Text("Roll") }
+                    }
                 } else {
                     Text(
                         "3d6: ${result.roll.total} vs ${result.target}",

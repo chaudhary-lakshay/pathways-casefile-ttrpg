@@ -3,6 +3,7 @@ package com.pathways.rules
 import com.pathways.model.Outcome
 import com.pathways.model.RollResult
 import com.pathways.rules.content.ContentLoader
+import com.pathways.rules.content.LanguageProficiency
 import com.pathways.rules.content.RitualCritical
 import com.pathways.rules.content.RitualFailure
 import com.pathways.rules.content.RitualPreparation
@@ -105,14 +106,23 @@ object RitualResolution {
      * Phase I at all. Where it is given, [RitualPreparation.modifier] is the
      * end of its cell nearer zero -- the gentle reading the darkness row and
      * the fright triggers already settled.
+     *
+     * [language] is the mystical proficiency the ritual is spoken in (Ch. 3,
+     * p. 14). Null leaves the target exactly where it was before that table
+     * was read, which is what every caller that does not ask for a language
+     * still gets. A proficiency that cannot cast -- Broken, or any common
+     * language -- is REFUSED by [Languages.ritualModifier] rather than rolled
+     * at a penalty: the book forbids the attempt, and a roll at -4 is not the
+     * same answer as no roll.
      */
     fun targetFor(
         skillLevel: Int,
         weight: RitualWeight,
         cor: Int,
         preparation: RitualPreparation? = null,
+        language: LanguageProficiency? = null,
     ): Int = skillLevel + weight.modifier + Corruption.ritualPenalty(cor) +
-        (preparation?.modifier ?: 0)
+        (preparation?.modifier ?: 0) + Languages.ritualModifier(language)
 
     /**
      * Attempt the ritual, and resolve the consequence if it fails.
@@ -126,10 +136,11 @@ object RitualResolution {
         cor: Int,
         source: RandomSource,
         preparation: RitualPreparation? = null,
+        language: LanguageProficiency? = null,
         failures: List<RitualFailure> = ContentLoader.ritualFailures(),
         criticals: List<RitualCritical> = ContentLoader.ritualCriticals(),
     ): RitualOutcome {
-        val target = targetFor(skillLevel, weight, cor, preparation)
+        val target = targetFor(skillLevel, weight, cor, preparation, language)
         val roll = SuccessRoll.against(target, source)
         // By outcome, not by margin. A 17 or 18 fails whatever the target, and
         // against a target of 18 its margin is not even negative -- reading

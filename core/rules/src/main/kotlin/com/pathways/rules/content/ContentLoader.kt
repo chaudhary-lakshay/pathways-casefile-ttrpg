@@ -70,6 +70,11 @@ object ContentLoader {
     private val weaponsLazy: List<CataloguedWeapon> by lazy { load("weapons.json") }
     private val wealthLazy: List<WealthLevel> by lazy { load("wealth.json") }
     private val appearanceLazy: List<AppearanceLevel> by lazy { load("appearance.json") }
+    private val languagesLazy: List<LanguageEntry> by lazy { load("languages.json") }
+    private val languageProficiencyLazy: List<LanguageProficiency> by lazy {
+        load("language_proficiency.json")
+    }
+    private val languageNotesLazy: List<LanguageNote> by lazy { load("language_notes.json") }
     private val damageAbbreviationsLazy: List<DamageAbbreviation> by lazy {
         load("damage_abbreviations.json")
     }
@@ -163,6 +168,15 @@ object ContentLoader {
 
     /** The eight Appearance levels, best first (Ch. 3, p. 13-14). */
     fun appearance(): List<AppearanceLevel> = appearanceLazy
+
+    /** The twelve languages, six common then six mystical (Ch. 3, p. 13-14). */
+    fun languages(): List<LanguageEntry> = languagesLazy
+
+    /** Both proficiency tables, common first. See [LanguageProficiency]. */
+    fun languageProficiencies(): List<LanguageProficiency> = languageProficiencyLazy
+
+    /** The prose rules printed around those tables. */
+    fun languageNotes(): List<LanguageNote> = languageNotesLazy
 
     /**
      * Appendix A's Wounding line (p. 159), which labels the two piercing rows

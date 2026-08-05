@@ -1,0 +1,53 @@
+{
+ "sourceLines": {
+  "3": [
+   [
+    633,
+    713
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "type": "Common",
+   "proficiency": "Native",
+   "points": 6,
+   "effect": "Fluent. No penalty to language-dependent skill rolls. Pass as a native speaker."
+  },
+  {
+   "type": "Common",
+   "proficiency": "Accented",
+   "points": 4,
+   "effect": "Noticeable accent. -2 to language-dependent skill rolls."
+  },
+  {
+   "type": "Common",
+   "proficiency": "Broken",
+   "points": 2,
+   "effect": "Simple ideas only. -3 to language-dependent skill rolls. Cannot read complex texts."
+  },
+  {
+   "type": "Mystical",
+   "proficiency": "Native",
+   "points": 30,
+   "effect": "Fluent. No penalty. Can perform rituals, read ancient texts, and channel mystical forces through the language.",
+   "canPerformRituals": true,
+   "ritualModifier": 0
+  },
+  {
+   "type": "Mystical",
+   "proficiency": "Accented",
+   "points": 20,
+   "effect": "Functional but imperfect. -2 to language-dependent skill rolls. Rituals using the language at -2.",
+   "canPerformRituals": true,
+   "ritualModifier": -2
+  },
+  {
+   "type": "Mystical",
+   "proficiency": "Broken",
+   "points": 10,
+   "effect": "Recognise common words and phrases. -3 to language-dependent skill rolls. Cannot perform rituals in the language.",
+   "canPerformRituals": false
+  }
+ ]
+}
