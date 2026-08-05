@@ -869,6 +869,35 @@ data class WealthLevel(
     val lifestyle: String,
 )
 
+/**
+ * One supporting skill for a ritual (Ch. 7, Section II, p. 61).
+ *
+ * Each grants +1 and the five together are capped at +3 by a sentence, not a
+ * column -- see [com.pathways.rules.RitualMode.SUPPORT_CAP].
+ */
+@Serializable
+data class RitualSupportSkill(val skill: String, val bonus: Int, val notes: String)
+
+/**
+ * One row of the Quick Ritual's Target Link table (Ch. 7, p. 62).
+ *
+ * QUICK MODE ONLY. The Full Ritual folds the link into its single Preparation
+ * Modifier -- its rows say "perfect link", "strong link", "weak link" -- so
+ * adding this beside it pays a perfect link twice.
+ * [com.pathways.rules.RitualMode.modifierTotal] refuses that.
+ *
+ * [modifier] is the end of a printed range nearer zero, [best] the other end,
+ * exactly as [RitualPreparation] reads its own ranges.
+ */
+@Serializable
+data class TargetLink(
+    val link: String,
+    val modifier: Int,
+    val printed: String,
+    val best: Int? = null,
+    val looksLike: String,
+)
+
 /** One language, common or mystical (Ch. 3, p. 13-14). */
 @Serializable
 data class LanguageEntry(val type: String, val name: String, val notes: String)

@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **625 Kotlin** (JUnit 5, incl. 61 in `app/`) + **135 Python** (pytest), all green |
+| Tests | **639 Kotlin** (JUnit 5, incl. 61 in `app/`) + **144 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -96,7 +96,8 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `non_standard_pathways.json` (17), `weapons.json` (9), `wealth.json` (7),
 `damage_abbreviations.json` (8), `appearance.json` (8),
 `languages.json` (12), `language_proficiency.json` (6),
-`language_notes.json` (2).
+`language_notes.json` (2), `ritual_support.json` (5),
+`ritual_quick_preparation.json` (3), `ritual_target_link.json` (4).
 
 ### Public entry points
 
@@ -189,7 +190,11 @@ Languages.proficiencies(type) / .proficiency(type, name)   // type is REQUIRED
 Languages.ritualModifier(prof?): Int    // throws for Broken and for common
 Languages.canPerformRituals(prof) / .ritualProficiencies() / .notes()
 ContentLoader.languages() / .languageProficiencies() / .languageNotes()
-RitualResolution.targetFor(skill, weight, cor, preparation, language)
+RitualResolution.targetFor(skill, weight, cor, preparation, language, mode, link, support)
+RitualMode.QUICK / .FULL                      // two tables, two link rules
+RitualMode.preparations() / .preparationNamed(quality) / .modifierTotal(prep, link)
+RitualMode.links() / .linkNamed(name) / .supportSkills() / .supportBonus(names)
+ContentLoader.ritualSupport() / .ritualQuickPreparation() / .ritualTargetLink()
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -1393,6 +1398,76 @@ charged. Going back to "Not stated" restores 8.
 
 Chapter 3 is now at **72.8%**. What is left there is the mundane advantage and
 disadvantage effect tables.
+
+## 6y. The two ritual modes — one table the app had been using for both
+
+`RitualMode` (core/rules) reads Ch. 7's Section II and the Quick Ritual's own
+modifiers. The slice exists because the book prints **two** preparation tables
+and the app knew about one.
+
+- **Excellent is +2 in Quick mode and +3 in Full, and the app used +3 for
+  everything.** `ritual_preparation.json` is Phase I's table, extracted in
+  M4's ritual slice; the Quick Ritual prints its own three-row table on the
+  previous page. Every routine ritual has therefore been rolling a point
+  higher than its own table allows since that slice shipped. Neither is
+  repaired — they are two modes and the book says so.
+- **They agree that Adequate is +0**, which is what makes this one
+  disagreement a real difference rather than two unrelated ladders. `verify()`
+  asserts BOTH halves: that Excellent still differs and that Adequate still
+  matches. Straightening either would erase the distinction silently.
+- **The target link is counted once in each mode, in different places.** Quick
+  says "Sum the following two modifiers: 1. Preparation Quality 2. Target
+  Link". Full lists "Link to target" among the declarations feeding "a single
+  Preparation Modifier", and its rows say so themselves — Excellent is
+  "perfect link", Poor "weak link". So a full ritual that also added the link
+  would pay a perfect one twice, **+8 on a 3d6 roll**. `modifierTotal` refuses
+  it rather than summing, and refuses rather than ignoring: silently dropping
+  it would leave a GM believing the link was counted. `verify()` pins the
+  full table's link phrasing, because it is the entire evidence.
+- **Section II's supporting skills are NOT scoped to a mode.** They sit above
+  the split and mention neither, so both take them — the opposite call to the
+  link, and made for the same reason: scope follows what the book says, not
+  what looks symmetrical. Five skills grant +1 each and a sentence caps the
+  total at **+3**, so the cap is the whole reason the table is not addition.
+- **The cap lives in Kotlin, not in the JSON.** It is a number inside a
+  sentence, the same split the maneuver table's +4/−4/−6/−2 take (6i);
+  committing it as a column would make it look like the book printed one. A
+  test asserts `"cap"` is absent from the file.
+- **An unknown supporting skill is refused, not skipped.** A caller passing
+  "Occultsm" would otherwise lose a point in silence. Naming one twice pays
+  once — a character has one Occultism.
+- **`targetFor` defaults to `RitualMode.FULL`**, because that is the table
+  every existing caller was already passing rows from. The new parameter
+  therefore moves nothing until a caller asks for Quick.
+
+The stale-state trap this created is the one the ranged dialog already found
+(6k): `preparation` and `link` are both `remember(mode)`, because a Phase I row
+left selected after a switch to Quick would apply +3 inside a quick ritual —
+and a link left over after a switch to Full would make `modifierTotal` **throw**
+rather than merely mislead. Device-verified in both directions.
+
+Also corrected: `targetFor`'s KDoc said "preparation is null for the quick
+mode, which the book resolves without Phase I at all". Quick mode has its own
+preparation table; that sentence was wrong from the ritual slice onward.
+
+**Codex did not review this slice either** — third in a row inside the usage
+limit (resets 2026-08-08).
+
+Device-verified on Academic Researcher (Ritualistic Magic 9, CoR 8): **Full**
+shows the five-row Phase I table, no link row, and "3d6 ≤ 8". **Quick** swaps
+in the three-row table (Excellent **+2**) and reveals Link to target;
+Excellent plus a Perfect link reads **"3d6 ≤ 14"** with "preparation +2, +4
+perfect link, −1 for 8 CoR" spelled out. Switching back to **Full** clears
+both — link row gone, preparation back to Adequate, target back to 8, no
+crash. The Roll button is below the fold on a 1080px phone and reachable by
+scrolling, which is what that dialog's `verticalScroll` was added for.
+
+Chapter 7 is now at **25.9%**. Still unread there: Section IV (power sources —
+HP sacrifice at 2 HP per SPI, multiple participants at +1 each to a max +3,
+external sacrifice at +0/+2/+4, catalysts at +0 to +2) and the **Entity
+Response Table**, plus the Time & Complexity table (Rushed −3 to −5, Extended
++1 to +2) and the suspension rule's −2. All are real roll modifiers with a
+caller already built; they are the next slice of this chapter.
 
 ### A note on Codex
 

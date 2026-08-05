@@ -1,0 +1,31 @@
+{
+ "sourceLines": {
+  "7": [
+   [
+    4055,
+    4064
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "quality": "Excellent",
+   "modifier": 2,
+   "printed": "+2",
+   "looksLike": "sanctified space, domain-matched materials, proper altar, Cogitation + Wall"
+  },
+  {
+   "quality": "Adequate",
+   "modifier": 0,
+   "printed": "+0",
+   "looksLike": "clean space, basic materials, Cogitation + Wall"
+  },
+  {
+   "quality": "Poor / None",
+   "modifier": -2,
+   "printed": "-2 to -4",
+   "looksLike": "no preparation, wrong materials, rushed, no Wall",
+   "best": -4
+  }
+ ]
+}

@@ -70,6 +70,15 @@ object ContentLoader {
     private val weaponsLazy: List<CataloguedWeapon> by lazy { load("weapons.json") }
     private val wealthLazy: List<WealthLevel> by lazy { load("wealth.json") }
     private val appearanceLazy: List<AppearanceLevel> by lazy { load("appearance.json") }
+    private val ritualSupportLazy: List<RitualSupportSkill> by lazy {
+        load("ritual_support.json")
+    }
+    private val ritualQuickPreparationLazy: List<RitualPreparation> by lazy {
+        load("ritual_quick_preparation.json")
+    }
+    private val ritualTargetLinkLazy: List<TargetLink> by lazy {
+        load("ritual_target_link.json")
+    }
     private val languagesLazy: List<LanguageEntry> by lazy { load("languages.json") }
     private val languageProficiencyLazy: List<LanguageProficiency> by lazy {
         load("language_proficiency.json")
@@ -168,6 +177,19 @@ object ContentLoader {
 
     /** The eight Appearance levels, best first (Ch. 3, p. 13-14). */
     fun appearance(): List<AppearanceLevel> = appearanceLazy
+
+    /** Section II's five supporting skills (Ch. 7, p. 61). */
+    fun ritualSupport(): List<RitualSupportSkill> = ritualSupportLazy
+
+    /**
+     * The QUICK Ritual's preparation table (Ch. 7, p. 62), which is a
+     * different table from [ritualPreparation] and disagrees with it on
+     * Excellent. See [com.pathways.rules.RitualMode].
+     */
+    fun ritualQuickPreparation(): List<RitualPreparation> = ritualQuickPreparationLazy
+
+    /** The Quick Ritual's Target Link table (Ch. 7, p. 62). See [TargetLink]. */
+    fun ritualTargetLink(): List<TargetLink> = ritualTargetLinkLazy
 
     /** The twelve languages, six common then six mystical (Ch. 3, p. 13-14). */
     fun languages(): List<LanguageEntry> = languagesLazy

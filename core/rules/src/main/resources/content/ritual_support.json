@@ -1,0 +1,37 @@
+{
+ "sourceLines": {
+  "7": [
+   [
+    4009,
+    4028
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "skill": "Occultism",
+   "bonus": 1,
+   "notes": "General ritual theory, symbol knowledge, mysticism fundamentals"
+  },
+  {
+   "skill": "Thaumatology",
+   "bonus": 1,
+   "notes": "Theoretical magical framework; stacks with Occultism"
+  },
+  {
+   "skill": "Hidden Lore (relevant domain)",
+   "bonus": 1,
+   "notes": "Specific knowledge of the entity, domain, or spirit world"
+  },
+  {
+   "skill": "Research",
+   "bonus": 1,
+   "notes": "If caster spent significant time researching this specific effect"
+  },
+  {
+   "skill": "Professional Skill (Astrology etc)",
+   "bonus": 1,
+   "notes": "When the ritual's material component or timing falls within that domain"
+  }
+ ]
+}

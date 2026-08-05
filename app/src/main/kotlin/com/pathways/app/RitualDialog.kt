@@ -22,10 +22,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.Languages
 import com.pathways.rules.RandomSource
+import com.pathways.rules.RitualMode
 import com.pathways.rules.RitualOutcome
 import com.pathways.rules.RitualResolution
 import com.pathways.rules.content.LanguageProficiency
 import com.pathways.rules.content.RitualWeight
+import com.pathways.rules.content.TargetLink
 
 /** The skill every ritual is rolled against (Ch. 7). */
 const val RITUAL_SKILL = "Ritualistic Magic"
@@ -79,12 +81,26 @@ fun RitualDialog(
     onDismiss: () -> Unit,
 ) {
     val weights = remember { RitualResolution.weights() }
-    val preparations = remember { RitualResolution.preparations() }
     var weight by remember { mutableStateOf(weights.first()) }
+    // Full was the only mode the app had, and it applied Phase I's table to
+    // every ritual -- including the routine ones the book resolves with its
+    // own, gentler table. Kept as the default so nothing silently moves.
+    var mode by remember { mutableStateOf(RitualMode.FULL) }
+    val preparations = mode.preparations()
     // Adequate (+0) is the default, not Excellent: a ritual nobody described
     // is an ordinary one, and starting at +3 would hand out the book's best
     // preparation for free.
-    var preparation by remember { mutableStateOf(preparations.first { it.modifier == 0 }) }
+    //
+    // Keyed on the MODE: the two tables are different objects, so a row picked
+    // in one is not a row in the other, and letting it survive the switch
+    // would apply Phase I's +3 inside a quick ritual -- exactly the stale
+    // state the ranged dialog's "Another turn" reset once left behind. Both
+    // tables print an Adequate +0, so the default itself is stable.
+    var preparation by remember(mode) { mutableStateOf(preparations.first { it.modifier == 0 }) }
+    // Reset with the mode too, and for a harder reason: modifierTotal REFUSES
+    // a link in full mode, so a link left over from a quick ritual would throw
+    // rather than merely mislead.
+    var link by remember(mode) { mutableStateOf<TargetLink?>(null) }
     // Reset with the weight, or a Heavy ritual's 8 SPI would follow the caster
     // onto a Light one that costs 2.
     var spiChoice by remember(weight) { mutableIntStateOf(weight.spi) }
@@ -104,7 +120,9 @@ fun RitualDialog(
     // "Cannot perform rituals in the language", and targetFor refuses it
     // rather than inventing a penalty to roll at.
     val target = if (canSpeak) {
-        RitualResolution.targetFor(effectiveSkill, weight, cor, preparation, language)
+        RitualResolution.targetFor(
+            effectiveSkill, weight, cor, preparation, language, mode, link,
+        )
     } else {
         null
     }
@@ -126,6 +144,30 @@ fun RitualDialog(
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 val result = outcome
                 if (result == null) {
+                    // The mode comes first, because it decides which
+                    // preparation table the chips below are drawn from.
+                    Text("Mode", style = MaterialTheme.typography.titleSmall)
+                    FlowRow {
+                        RitualMode.entries.forEach { option ->
+                            FilterChip(
+                                selected = option == mode,
+                                onClick = { mode = option },
+                                label = { Text(if (option == RitualMode.QUICK) "Quick" else "Full") },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                    Text(
+                        if (mode == RitualMode.QUICK) {
+                            "Routine work — four steps. Preparation reaches +2 " +
+                                "and the target link is counted separately."
+                        } else {
+                            "Consequential magic — three phases. Preparation " +
+                                "reaches +3 and already includes the link."
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
                     Row {
                         weights.forEach { option ->
                             FilterChip(
@@ -156,7 +198,7 @@ fun RitualDialog(
                         }
                     }
                     Text(
-                        "Preparation (Phase I)",
+                        if (mode == RitualMode.QUICK) "Preparation" else "Preparation (Phase I)",
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.padding(top = 8.dp),
                     )
@@ -171,6 +213,28 @@ fun RitualDialog(
                         }
                     }
                     Text(preparation.looksLike, style = MaterialTheme.typography.bodySmall)
+
+                    // Quick mode only. In a full ritual the preparation row
+                    // above already priced the link -- its own text names one
+                    // -- so offering it here would pay a perfect link twice.
+                    if (mode.usesTargetLink) {
+                        Text(
+                            "Link to target",
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        FlowRow {
+                            RitualMode.links().forEach { option ->
+                                FilterChip(
+                                    selected = link?.link == option.link,
+                                    onClick = { link = if (link?.link == option.link) null else option },
+                                    label = { Text("${option.link} ${option.printed}") },
+                                    modifier = Modifier.padding(end = 8.dp),
+                                )
+                            }
+                        }
+                        link?.let { Text(it.looksLike, style = MaterialTheme.typography.bodySmall) }
+                    }
 
                     // Ch. 3, p. 14. Only the MYSTICAL table speaks about
                     // rituals; a common tongue is not offered, because the
@@ -219,6 +283,7 @@ fun RitualDialog(
                         Text(
                             "$RITUAL_SKILL $skillLevel, ${weight.weight} ${weight.modifier}" +
                                 ", preparation ${signed(preparation.modifier)}" +
+                                (link?.let { ", ${signed(it.modifier)} ${it.link.lowercase()} link" } ?: "") +
                                 (language?.ritualModifier?.takeIf { it != 0 }
                                     ?.let { ", $it for an accented tongue" } ?: "") +
                                 (if (conditionPenalty != 0) ", $conditionPenalty hurt or tired" else "") +
@@ -247,6 +312,8 @@ fun RitualDialog(
                                     dice,
                                     preparation,
                                     language,
+                                    mode,
+                                    link,
                                 )
                                 outcome = rolled
                                 // The fuel is spent whether or not it works:

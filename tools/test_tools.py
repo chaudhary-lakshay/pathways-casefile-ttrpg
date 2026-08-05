@@ -1752,3 +1752,129 @@ def test_a_repaired_multilingual_row_would_fail_verification():
             )
     finally:
         extract_languages.trait_named = original
+
+
+import extract_ritual_modes
+
+
+def _entries(name):
+    return json.loads((CONTENT / name).read_text(encoding="utf-8"))["entries"]
+
+
+def support_entries():
+    return _entries("ritual_support.json")
+
+
+def quick_preparation_entries():
+    return _entries("ritual_quick_preparation.json")
+
+
+def target_link_entries():
+    return _entries("ritual_target_link.json")
+
+
+def full_preparation_entries():
+    return _entries("ritual_preparation.json")
+
+
+def ritual_cap_sentence():
+    cells = extract_ritual_modes.stream(
+        extract_ritual_modes.load_lines(), *extract_ritual_modes.SUPPORT_RANGE
+    )
+    return next(c for c in cells if extract_ritual_modes.CAP_SENTENCE in c)
+
+
+def test_the_two_preparation_tables_disagree_on_excellent():
+    """The book prints one preparation table per mode. Quick's Excellent is
+    +2, Phase I's is +3, and the app applied Phase I's to every ritual --
+    including the routine ones the Quick table governs."""
+    quick = {e["quality"]: e["modifier"] for e in quick_preparation_entries()}
+    full = {e["quality"]: e["modifier"] for e in full_preparation_entries()}
+    assert quick["Excellent"] == 2
+    assert full["Excellent"] == 3
+
+
+def test_they_agree_on_adequate_which_is_what_makes_it_a_disagreement():
+    """Two unrelated ladders would differ everywhere. These are two printings
+    of one idea that part company on exactly one row."""
+    quick = {e["quality"]: e["modifier"] for e in quick_preparation_entries()}
+    full = {e["quality"]: e["modifier"] for e in full_preparation_entries()}
+    assert quick["Adequate"] == full["Adequate"] == 0
+
+
+@needs_pdf
+def test_reconciled_preparation_tables_would_fail_verification():
+    """If someone "fixed" the quick table to match Phase I, the whole mode
+    distinction would vanish silently."""
+    patched = [
+        {**e, "modifier": 3} if e["quality"] == "Excellent" else e
+        for e in quick_preparation_entries()
+    ]
+    with pytest.raises(ValueError):
+        extract_ritual_modes.verify(
+            support_entries(), ritual_cap_sentence(), patched, target_link_entries()
+        )
+
+
+def test_the_full_tables_rows_name_their_links():
+    """The only evidence the link is folded INTO Phase I's modifier rather
+    than added beside it. Without this phrasing nothing stops a full ritual
+    counting a perfect link twice, +8 on a 3d6 roll."""
+    described = " ".join(e["looksLike"].lower() for e in full_preparation_entries())
+    for phrase in extract_ritual_modes.LINKS_NAMED_BY_FULL_TABLE:
+        assert phrase in described
+
+
+@needs_pdf
+def test_losing_that_phrasing_would_fail_verification():
+    original = extract_ritual_modes.full_preparation
+    try:
+        extract_ritual_modes.full_preparation = lambda: [
+            {**e, "looksLike": e["looksLike"].replace("link", "thing")}
+            for e in full_preparation_entries()
+        ]
+        with pytest.raises(ValueError):
+            extract_ritual_modes.verify(
+                support_entries(), ritual_cap_sentence(),
+                quick_preparation_entries(), target_link_entries(),
+            )
+    finally:
+        extract_ritual_modes.full_preparation = original
+
+
+def test_the_target_link_ladder_runs_perfect_to_none():
+    entries = target_link_entries()
+    assert [e["link"] for e in entries] == extract_ritual_modes.EXPECTED_LINKS
+    assert [e["modifier"] for e in entries] == [4, 2, 0, -4]
+    # Ranges are carried at both ends, applied at the end nearer zero.
+    by_link = {e["link"]: e for e in entries}
+    assert by_link["Strong"]["printed"] == "+2 to +3" and by_link["Strong"]["best"] == 3
+    assert by_link["Weak"]["printed"] == "+0 to -1" and by_link["Weak"]["best"] == -1
+
+
+def test_five_supporting_skills_each_grant_one():
+    entries = support_entries()
+    assert [e["skill"] for e in entries] == extract_ritual_modes.EXPECTED_SUPPORT
+    assert all(e["bonus"] == 1 for e in entries)
+    assert all(e["notes"] for e in entries)
+
+
+def test_the_last_supporting_skills_note_wraps_and_is_joined():
+    """"When the ritual's material component or timing falls within that" /
+    "domain". Counting three cells per row would make "domain" the next
+    skill's name."""
+    professional = next(
+        e for e in support_entries() if e["skill"].startswith("Professional")
+    )
+    assert professional["notes"].endswith("that domain")
+
+
+def test_the_cap_is_a_sentence_not_a_column():
+    """Five skills grant five points and the book allows three. The number
+    lives in Kotlin (RitualMode.SUPPORT_CAP) the same way the maneuver
+    table's +4/-4 do; this pins the sentence it was read from."""
+    assert extract_ritual_modes.CAP_SENTENCE in ritual_cap_sentence()
+    assert sum(e["bonus"] for e in support_entries()) > extract_ritual_modes.SUPPORT_CAP
+    # And the cap is deliberately not committed as data.
+    raw = json.loads((CONTENT / "ritual_support.json").read_text(encoding="utf-8"))
+    assert "cap" not in raw

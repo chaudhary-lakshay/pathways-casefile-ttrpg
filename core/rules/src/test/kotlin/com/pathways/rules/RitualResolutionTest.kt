@@ -224,6 +224,67 @@ class RitualResolutionTest {
     }
 
     @Test
+    fun `a quick ritual's excellent preparation is worth one less`() {
+        // The two modes print different tables and the app used the Full one
+        // for everything. Same declared preparation, one point apart.
+        fun target(mode: RitualMode) = RitualResolution.targetFor(
+            skillLevel = 12,
+            weight = weight("Light"),
+            cor = 0,
+            preparation = mode.preparationNamed("Excellent"),
+            mode = mode,
+        )
+        assertEquals(15, target(RitualMode.FULL))
+        assertEquals(14, target(RitualMode.QUICK))
+    }
+
+    @Test
+    fun `a quick ritual adds the target link and a full one refuses it`() {
+        assertEquals(
+            18,
+            RitualResolution.targetFor(
+                skillLevel = 12,
+                weight = weight("Light"),
+                cor = 0,
+                preparation = RitualMode.QUICK.preparationNamed("Excellent"),
+                mode = RitualMode.QUICK,
+                link = RitualMode.linkNamed("Perfect"),
+            ),
+            "12 + 2 preparation + 4 link",
+        )
+        assertThrows<IllegalArgumentException> {
+            RitualResolution.targetFor(
+                skillLevel = 12,
+                weight = weight("Light"),
+                cor = 0,
+                preparation = RitualMode.FULL.preparationNamed("Excellent"),
+                mode = RitualMode.FULL,
+                link = RitualMode.linkNamed("Perfect"),
+            )
+        }
+    }
+
+    @Test
+    fun `supporting skills help both modes and stop at three`() {
+        // Five skills grant five points; the book allows three.
+        val all = RitualMode.supportSkills().map { it.skill }
+        assertEquals(
+            15,
+            RitualResolution.targetFor(
+                skillLevel = 12, weight = weight("Light"), cor = 0, support = all,
+            ),
+            "12 + 3, not 12 + 5",
+        )
+        assertEquals(
+            13,
+            RitualResolution.targetFor(
+                skillLevel = 12, weight = weight("Light"), cor = 0,
+                support = listOf("Occultism"),
+            ),
+        )
+    }
+
+    @Test
     fun `speaking the ritual in an accented mystical tongue costs two`() {
         // Ch. 3, p. 14: "Rituals using the language at -2". The clause had
         // been printed in a table nothing read until the Languages slice.

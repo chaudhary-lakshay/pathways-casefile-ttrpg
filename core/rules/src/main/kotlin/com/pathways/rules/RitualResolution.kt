@@ -8,6 +8,7 @@ import com.pathways.rules.content.RitualCritical
 import com.pathways.rules.content.RitualFailure
 import com.pathways.rules.content.RitualPreparation
 import com.pathways.rules.content.RitualWeight
+import com.pathways.rules.content.TargetLink
 
 /**
  * A ritual attempt and everything the book charges for it.
@@ -102,10 +103,21 @@ object RitualResolution {
      * The number to roll under: skill, less the ritual's weight, less the
      * spiritual instability of [cor], plus how well it was [preparation]ed.
      *
-     * Preparation is null for the quick mode, which the book resolves without
-     * Phase I at all. Where it is given, [RitualPreparation.modifier] is the
-     * end of its cell nearer zero -- the gentle reading the darkness row and
-     * the fright triggers already settled.
+     * Preparation may be null, which is simply "not described". Where it is
+     * given, [RitualPreparation.modifier] is the end of its cell nearer zero
+     * -- the gentle reading the darkness row and the fright triggers already
+     * settled.
+     *
+     * **CORRECTION.** This KDoc used to say "preparation is null for the quick
+     * mode, which the book resolves without Phase I at all". That is wrong:
+     * the Quick Ritual prints its OWN preparation table (p. 62) whose
+     * Excellent is +2 where Phase I's is +3. [mode] picks between them, and
+     * defaults to [RitualMode.FULL] because that is the table every caller was
+     * already passing rows from.
+     *
+     * [link] is the Quick Ritual's Target Link and belongs to that mode alone
+     * -- a Full ritual's preparation row already priced one, so passing both
+     * is refused rather than summed. See [RitualMode].
      *
      * [language] is the mystical proficiency the ritual is spoken in (Ch. 3,
      * p. 14). Null leaves the target exactly where it was before that table
@@ -121,8 +133,13 @@ object RitualResolution {
         cor: Int,
         preparation: RitualPreparation? = null,
         language: LanguageProficiency? = null,
+        mode: RitualMode = RitualMode.FULL,
+        link: TargetLink? = null,
+        support: List<String> = emptyList(),
     ): Int = skillLevel + weight.modifier + Corruption.ritualPenalty(cor) +
-        (preparation?.modifier ?: 0) + Languages.ritualModifier(language)
+        mode.modifierTotal(preparation, link) +
+        RitualMode.supportBonus(support) +
+        Languages.ritualModifier(language)
 
     /**
      * Attempt the ritual, and resolve the consequence if it fails.
@@ -137,10 +154,13 @@ object RitualResolution {
         source: RandomSource,
         preparation: RitualPreparation? = null,
         language: LanguageProficiency? = null,
+        mode: RitualMode = RitualMode.FULL,
+        link: TargetLink? = null,
+        support: List<String> = emptyList(),
         failures: List<RitualFailure> = ContentLoader.ritualFailures(),
         criticals: List<RitualCritical> = ContentLoader.ritualCriticals(),
     ): RitualOutcome {
-        val target = targetFor(skillLevel, weight, cor, preparation, language)
+        val target = targetFor(skillLevel, weight, cor, preparation, language, mode, link, support)
         val roll = SuccessRoll.against(target, source)
         // By outcome, not by margin. A 17 or 18 fails whatever the target, and
         // against a target of 18 its margin is not even negative -- reading
