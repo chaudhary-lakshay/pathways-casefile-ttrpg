@@ -1,0 +1,148 @@
+{
+ "sourceLines": {
+  "3": [
+   [
+    1580,
+    1602
+   ],
+   [
+    1603,
+    1648
+   ],
+   [
+    1649,
+    1658
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "cumulative": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256
+   ],
+   "incremental": [
+    1,
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128
+   ],
+   "rungs": [
+    {
+     "difficulty": "Easy",
+     "offsets": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+     ]
+    },
+    {
+     "difficulty": "Average",
+     "offsets": [
+      -1,
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ]
+    },
+    {
+     "difficulty": "Hard",
+     "offsets": [
+      -2,
+      -1,
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ]
+    },
+    {
+     "difficulty": "Very Hard",
+     "offsets": [
+      -3,
+      -2,
+      -1,
+      0,
+      1,
+      2,
+      3,
+      4
+     ]
+    }
+   ],
+   "examples": [
+    {
+     "skill": "Research",
+     "attribute": "IQ",
+     "difficulty": "Hard",
+     "attributeLevel": 9,
+     "steps": [
+      {
+       "points": 1,
+       "level": 7
+      },
+      {
+       "points": 2,
+       "level": 8
+      },
+      {
+       "points": 4,
+       "level": 9
+      },
+      {
+       "points": 8,
+       "level": 10
+      },
+      {
+       "points": 16,
+       "level": 11
+      }
+     ]
+    },
+    {
+     "skill": "Brawling",
+     "attribute": "DX",
+     "difficulty": "Easy",
+     "attributeLevel": 9,
+     "steps": [
+      {
+       "points": 1,
+       "level": 9
+      },
+      {
+       "points": 2,
+       "level": 10
+      },
+      {
+       "points": 4,
+       "level": 11
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

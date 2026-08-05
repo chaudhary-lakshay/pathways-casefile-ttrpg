@@ -2218,3 +2218,76 @@ def test_ritual_eight_names_the_cheapest_tier_a_second_way():
         (CONTENT / "ritual_sacrifice.json").read_text(encoding="utf-8"))["entries"]
     assert tiers[0]["tier"] == "Ordinary"
     assert "Trivial" not in json.dumps(tiers)
+
+
+import extract_skill_ladder
+
+
+def ladder_table():
+    return json.loads(
+        (CONTENT / "skill_ladder.json").read_text(encoding="utf-8"))["entries"][0]
+
+
+def test_the_skill_grid_is_regular_in_both_directions():
+    """Each difficulty row is the one above it shifted down by one, and each
+    climbs by one along its length. That double regularity is the entire
+    reason Difficulty carries ONE firstRungOffset instead of a stored row."""
+    rows = [r["offsets"] for r in ladder_table()["rungs"]]
+    for above, below in zip(rows, rows[1:]):
+        assert [x - 1 for x in above] == below
+    for row in rows:
+        assert row == list(range(row[0], row[0] + len(row)))
+
+
+def test_the_grid_is_one_column_short_of_the_ladder():
+    """256 pts is printed as a cost and given no offset, so SkillLadder
+    extrapolating that rung by +1 is a reading rather than a transcription."""
+    table = ladder_table()
+    assert len(table["cumulative"]) == 9
+    assert all(len(r["offsets"]) == 8 for r in table["rungs"])
+
+
+def test_the_worked_skill_examples_reproduce_from_the_grid():
+    """Eight printed steps across two difficulties. Each is the attribute plus
+    the difficulty's offset plus the rung index."""
+    table = ladder_table()
+    offsets = {r["difficulty"]: r["offsets"] for r in table["rungs"]}
+    steps = 0
+    for example in table["examples"]:
+        row = offsets[example["difficulty"]]
+        for step in example["steps"]:
+            rung = max(
+                i for i, c in enumerate(table["cumulative"]) if c <= step["points"])
+            assert example["attributeLevel"] + row[0] + rung == step["level"]
+            steps += 1
+    assert steps == 8
+
+
+def test_the_ladder_is_not_gurps_core():
+    """Core 4e is 1/2/4/8/12/16 with +4 per level past Attr+2. Using it would
+    make 14 of the 23 sheets' 232 skill levels wrong."""
+    cumulative = ladder_table()["cumulative"]
+    assert 12 not in cumulative
+    assert all(b == a * 2 for a, b in zip(cumulative, cumulative[1:]))
+
+
+@needs_pdf
+def test_the_worked_examples_need_the_bullet_stripped():
+    """This PDF prints list bullets as U+007F and the worked examples are a
+    bulleted list, so an unstripped cell starts with a control character and
+    every step regex silently matches nothing -- the parse looked like a
+    table with no examples rather than like a failure."""
+    _, _, _, examples = extract_skill_ladder.extract()
+    assert sum(len(e["steps"]) for e in examples) == 8
+
+
+@needs_pdf
+def test_straightening_the_grid_would_fail_verification():
+    cumulative, _, offsets, examples = extract_skill_ladder.extract()
+    byn = extract_skill_ladder.load_lines()
+    prose = " ".join(
+        extract_skill_ladder.stream(byn, *extract_skill_ladder.PROSE_RANGE))
+    bent = {d: list(v) for d, v in offsets.items()}
+    bent["Hard"] = [o + 1 for o in bent["Hard"]]
+    with pytest.raises(ValueError):
+        extract_skill_ladder.verify(cumulative, bent, examples, prose)

@@ -94,6 +94,11 @@ object ContentLoader {
     private val ritualExamplesLazy: List<RitualExample> by lazy {
         load("ritual_examples.json")
     }
+    private val skillLadderLazy: SkillLadderTable by lazy {
+        // One entry, because it is one table rather than a row set -- the
+        // same shape boon_granting.json takes.
+        load<SkillLadderTable>("skill_ladder.json").single()
+    }
     private val languagesLazy: List<LanguageEntry> by lazy { load("languages.json") }
     private val languageProficiencyLazy: List<LanguageProficiency> by lazy {
         load("language_proficiency.json")
@@ -280,6 +285,13 @@ object ContentLoader {
      * own regression suite. A partial oracle; see [RitualExample].
      */
     fun ritualExamples(): List<RitualExample> = ritualExamplesLazy
+
+    /**
+     * The skill cost ladder (Ch. 3, p. 25-26) --
+     * [com.pathways.rules.SkillLadder]'s own source table, plus the book's two
+     * worked walk-ups. See [SkillLadderTable].
+     */
+    fun skillLadder(): SkillLadderTable = skillLadderLazy
 
     /** How well the ritual was prepared, and what that is worth (Ch. 7, p. 63). */
     fun ritualPreparation(): List<RitualPreparation> = ritualPreparationLazy

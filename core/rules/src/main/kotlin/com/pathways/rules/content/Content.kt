@@ -422,6 +422,40 @@ data class RitualComplexity(
 @Serializable
 data class SacrificeTier(val tier: String, val modifier: Int, val looksLike: String)
 
+/** One difficulty's row of the skill cost grid (Ch. 3, p. 26). */
+@Serializable
+data class SkillLadderRung(val difficulty: String, val offsets: List<Int>)
+
+/** One step of a worked skill walk-up (Ch. 3, p. 26). */
+@Serializable
+data class SkillLadderStep(val points: Int, val level: Int)
+
+/** One of the book's two worked skill examples (Ch. 3, p. 26). */
+@Serializable
+data class SkillLadderExample(
+    val skill: String,
+    val attribute: String,
+    val difficulty: String,
+    val attributeLevel: Int,
+    val steps: List<SkillLadderStep>,
+)
+
+/**
+ * The skill cost ladder (Ch. 3, p. 25-26) -- [com.pathways.rules.SkillLadder]'s
+ * own source table, extracted so something fails if the two ever drift.
+ *
+ * [cumulative] prints NINE rungs and every [rungs] row prints eight offsets:
+ * the 256-point rung has a cost and no printed offset, and continuing it by
+ * +1 is a reading the prose supports and the grid does not show.
+ */
+@Serializable
+data class SkillLadderTable(
+    val cumulative: List<Int>,
+    val incremental: List<Int>,
+    val rungs: List<SkillLadderRung>,
+    val examples: List<SkillLadderExample>,
+)
+
 /** One row of a worked ritual's modifier table (Ch. 7, Section VIII). */
 @Serializable
 data class RitualExampleModifier(val source: String, val value: Int)

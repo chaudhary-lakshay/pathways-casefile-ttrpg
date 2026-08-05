@@ -1727,6 +1727,55 @@ tabulated modifiers looks like to `coverage.py`. Still unread there: the
 12-step canon procedure (reference prose the book itself labels as texture),
 Section VII's Sequence notes, and rituals 8-10's templates.
 
+## 6ac. Marking M0's homework — the skill ladder
+
+`GoldenSkillLadderTest` replays Ch. 3's skill cost grid (p. 25-26) and its two
+worked examples against `SkillLadder`, which has been production code since
+M0. Every skill level the app displays goes through that object — 232 of them
+across the 23 sheets — and nothing had ever compared it to the table it was
+written from. `SkillLadderTest` checks the behaviour it was given; this checks
+the behaviour it was supposed to be given.
+
+**It passes on the code as written**, which is the expected outcome of marking
+homework and is still worth having. The value is in what now fails if either
+side drifts, and in three things the table turned out to say:
+
+- **The grid is one column SHORT of the ladder.** The cumulative column prints
+  nine costs (1 … 256) and every difficulty row prints eight offsets, so the
+  256-point rung has a cost and no printed offset. `SkillLadder` continues the
+  row by +1, which the prose supports ("each level after the third costs twice
+  as much as the level before it") and the grid never shows. A reading, so it
+  is pinned by a named test in both languages rather than left to be
+  rediscovered by whoever first buys a skill that far.
+- **The grid's regularity is what justifies `Difficulty.firstRungOffset`.**
+  Each row is the one above shifted down by one and each climbs by one along
+  its length, so one number per difficulty stands in for a whole stored row.
+  Asserted in both directions — if that ever broke, the offsets would have to
+  become data.
+- **The ladder is deliberately not GURPS core**, and the test says so out
+  loud: core 4e is 1/2/4/8/12/16 with +4 per level past Attr+2, and using it
+  would make 14 of those 232 levels wrong. `12 !in cumulative` is the guard.
+
+The parse needed one thing that cost a debugging cycle: **this PDF prints list
+bullets as U+007F** (6g already recorded it) and the worked examples are a
+bulleted list, so every step regex matched nothing until the control character
+was stripped — and the failure looked like "a table with no examples" rather
+than like a parse error. The extractor strips it now and a test asserts all
+eight steps survive.
+
+Also confirmed while looking: p. 19's "up to -40 points of disadvantages" and
+the quirk cap are ALREADY enforced (`PointBudget.MAX_DISADVANTAGES`), so the
+unclaimed lines there were coverage bookkeeping rather than a printed rule
+going unapplied. Worth checking before assuming otherwise.
+
+Chapter 3 is now at **84.7%**, from 72.8%. What is left there is the mundane
+advantage and disadvantage effect tables, and the study/training system on
+p. 32 — tutors, study points, and "a skill cannot exceed Attribute+1 through
+study alone", which is a real subsystem with no caller in the app yet.
+
+**Codex did not review this slice either** — seventh in a row inside the usage
+limit.
+
 ### A note on Codex
 
 It has found one real defect per slice for six slices running, but it reads
