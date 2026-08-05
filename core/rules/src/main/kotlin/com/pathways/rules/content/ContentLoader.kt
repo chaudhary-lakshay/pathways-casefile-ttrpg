@@ -82,6 +82,15 @@ object ContentLoader {
     private val ritualTargetLinkLazy: List<TargetLink> by lazy {
         load("ritual_target_link.json")
     }
+    private val ritualComplexityLazy: List<RitualComplexity> by lazy {
+        // A SEPARATE file from ritual_weights.json on purpose: they are two
+        // axes, they price the same rituals differently at both ends, and the
+        // book's own worked examples follow this one. See RitualComplexity.
+        load("ritual_complexity.json")
+    }
+    private val ritualSacrificeLazy: List<SacrificeTier> by lazy {
+        load("ritual_sacrifice.json")
+    }
     private val languagesLazy: List<LanguageEntry> by lazy { load("languages.json") }
     private val languageProficiencyLazy: List<LanguageProficiency> by lazy {
         load("language_proficiency.json")
@@ -250,6 +259,18 @@ object ContentLoader {
 
     /** How hard each category of ritual is to cast (Ch. 7, p. 67). */
     fun ritualWeights(): List<RitualWeight> = ritualWeightsLazy
+
+    /**
+     * What each SCOPE of ritual costs, takes, and gives up when rushed
+     * (Ch. 7, Section IV.A and the Time & Complexity Reference, p. 65-66).
+     *
+     * Four rungs against [ritualWeights]' three, and they disagree at both
+     * ends. Deliberately, on both counts -- see [RitualComplexity].
+     */
+    fun ritualComplexity(): List<RitualComplexity> = ritualComplexityLazy
+
+    /** The three External Sacrifice tiers (Ch. 7, Section IV.D, p. 66). */
+    fun ritualSacrifice(): List<SacrificeTier> = ritualSacrificeLazy
 
     /** How well the ritual was prepared, and what that is worth (Ch. 7, p. 63). */
     fun ritualPreparation(): List<RitualPreparation> = ritualPreparationLazy

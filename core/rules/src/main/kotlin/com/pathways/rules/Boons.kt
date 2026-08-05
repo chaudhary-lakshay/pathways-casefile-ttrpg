@@ -122,6 +122,13 @@ object Boons {
      * "the actual power comes from the patron, not the ritual itself". Applying
      * chapter 3's mystical-tongue penalty here would charge a boon for a
      * property of the ritual the chapter has already discounted.
+     *
+     * No power sources either, and mostly for that same reason: chapter 13
+     * prices the patron's involvement itself, and its own Ritual quality row
+     * already stands in for Section IV's circumstances. The genuinely open one
+     * is IV.C's assistants, which chapter 13 neither offers nor forbids -- so
+     * it is left off rather than assumed, and this sentence exists so the
+     * omission stays a decision instead of becoming an oversight.
      */
     fun targetFor(
         skillLevel: Int,

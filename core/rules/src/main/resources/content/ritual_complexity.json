@@ -1,0 +1,60 @@
+{
+ "sourceLines": {
+  "7": [
+   [
+    4223,
+    4247
+   ],
+   [
+    4255,
+    4264
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "complexity": "Light",
+   "looksLike": "Light (divination, minor enhancement)",
+   "baseTime": "15 min",
+   "rushed": -3,
+   "extended": 1,
+   "description": "Simple effect, short duration, single target",
+   "spi": 2,
+   "spiMax": 3,
+   "spiOpen": false
+  },
+  {
+   "complexity": "Moderate",
+   "looksLike": "Moderate (curses, wards, communication)",
+   "baseTime": "30 min",
+   "rushed": -3,
+   "extended": 1,
+   "description": "Moderate effect, hours to days, single target",
+   "spi": 4,
+   "spiMax": 6,
+   "spiOpen": false
+  },
+  {
+   "complexity": "Heavy",
+   "looksLike": "Heavy (summoning, binding, fabrication)",
+   "baseTime": "1 hour",
+   "rushed": -4,
+   "extended": 2,
+   "description": "Powerful effect, long duration or wider scope",
+   "spi": 7,
+   "spiMax": 10,
+   "spiOpen": false
+  },
+  {
+   "complexity": "Major",
+   "looksLike": "Major (soul-touching, large-scale effects)",
+   "baseTime": "3+ hours",
+   "rushed": -5,
+   "extended": 2,
+   "description": "Major effect (territory-scale, permanent, or very powerful)",
+   "spi": 11,
+   "spiMax": 15,
+   "spiOpen": true
+  }
+ ]
+}

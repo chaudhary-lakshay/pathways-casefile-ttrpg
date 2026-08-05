@@ -4,6 +4,7 @@ import com.pathways.model.Outcome
 import com.pathways.model.RollResult
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.LanguageProficiency
+import com.pathways.rules.content.RitualComplexity
 import com.pathways.rules.content.RitualCritical
 import com.pathways.rules.content.RitualFailure
 import com.pathways.rules.content.RitualPreparation
@@ -81,6 +82,13 @@ object RitualResolution {
      * repeat forever. Two of the three cells are not a single number, so the
      * end is the GM's; a value outside what the book prints is refused rather
      * than clamped, because a clamp would quietly charge a different ritual.
+     *
+     * **The app no longer charges from here.** Section IV.A prints a second,
+     * fuller SPI table on the COMPLEXITY axis, and the book's own six worked
+     * rituals follow that one -- three of them fall outside these cells. Fuel
+     * comes from [PowerSources.spiFor] now. This reader stays because Section
+     * V's column is genuinely printed and refusing to read it would be its own
+     * kind of repair; see [com.pathways.rules.content.RitualComplexity].
      */
     fun spiFor(weight: RitualWeight, chosen: Int = weight.spi, burned: Int = 0): Int {
         require(burned >= 0) { "SPI burned cannot be negative; was $burned" }
@@ -119,6 +127,20 @@ object RitualResolution {
      * -- a Full ritual's preparation row already priced one, so passing both
      * is refused rather than summed. See [RitualMode].
      *
+     * [complexity] and [powerSources] are Section IV's declaration (p. 65-66):
+     * how long the caster took, who helped, what was sacrificed, what was
+     * burned as a catalyst, and whether the work was suspended part-way. They
+     * default to "nothing declared", which leaves the target exactly where it
+     * was before that section was read. HP sacrifice is NOT among them -- it
+     * is fuel, and the book says in its own sentence that it "does not grant a
+     * bonus to the roll". See [PowerSources].
+     *
+     * [complexity] also carries the ritual's SPI cost, on a different axis
+     * from [weight]: the weight is the CATEGORY and gives the modifier above,
+     * the complexity is the SCOPE and gives the fuel. See
+     * [com.pathways.rules.content.RitualComplexity] for why they are not one
+     * table, and for the three worked rituals that settle it.
+     *
      * [language] is the mystical proficiency the ritual is spoken in (Ch. 3,
      * p. 14). Null leaves the target exactly where it was before that table
      * was read, which is what every caller that does not ask for a language
@@ -136,10 +158,13 @@ object RitualResolution {
         mode: RitualMode = RitualMode.FULL,
         link: TargetLink? = null,
         support: List<String> = emptyList(),
+        complexity: RitualComplexity? = null,
+        powerSources: PowerSourceDeclaration = PowerSourceDeclaration(),
     ): Int = skillLevel + weight.modifier + Corruption.ritualPenalty(cor) +
         mode.modifierTotal(preparation, link) +
         RitualMode.supportBonus(support) +
-        Languages.ritualModifier(language)
+        Languages.ritualModifier(language) +
+        PowerSources.modifierTotal(complexity, powerSources)
 
     /**
      * Attempt the ritual, and resolve the consequence if it fails.
@@ -157,10 +182,15 @@ object RitualResolution {
         mode: RitualMode = RitualMode.FULL,
         link: TargetLink? = null,
         support: List<String> = emptyList(),
+        complexity: RitualComplexity? = null,
+        powerSources: PowerSourceDeclaration = PowerSourceDeclaration(),
         failures: List<RitualFailure> = ContentLoader.ritualFailures(),
         criticals: List<RitualCritical> = ContentLoader.ritualCriticals(),
     ): RitualOutcome {
-        val target = targetFor(skillLevel, weight, cor, preparation, language, mode, link, support)
+        val target = targetFor(
+            skillLevel, weight, cor, preparation, language, mode, link, support,
+            complexity, powerSources,
+        )
         val roll = SuccessRoll.against(target, source)
         // By outcome, not by margin. A 17 or 18 fails whatever the target, and
         // against a target of 18 its margin is not even negative -- reading

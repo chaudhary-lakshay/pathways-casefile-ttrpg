@@ -24,34 +24,49 @@ import androidx.compose.ui.unit.dp
 import com.pathways.rules.EntityAnswer
 import com.pathways.rules.Invocation
 import com.pathways.rules.Languages
+import com.pathways.rules.PowerSourceDeclaration
+import com.pathways.rules.PowerSources
 import com.pathways.rules.RandomSource
 import com.pathways.rules.RitualMode
 import com.pathways.rules.RitualOutcome
+import com.pathways.rules.RitualPacing
 import com.pathways.rules.RitualResolution
 import com.pathways.rules.content.LanguageProficiency
-import com.pathways.rules.content.RitualWeight
+import com.pathways.rules.content.RitualComplexity
+import com.pathways.rules.content.SacrificeTier
 import com.pathways.rules.content.TargetLink
 
 /** The skill every ritual is rolled against (Ch. 7). */
 const val RITUAL_SKILL = "Ritualistic Magic"
 
 /**
- * The fuel amounts to offer for [weight].
+ * The fuel amounts to offer for [complexity].
  *
- * A closed cell ("4-6 SPI") offers exactly what it prints. An open one ("8+")
- * offers the floor and three above it: the book names no ceiling, and a
- * stepper that could run to a hundred is not a choice a GM needs made for
- * them at the table.
+ * A closed cell ("2-3 SPI") offers exactly what it prints. An open one
+ * ("11-15+") offers three above its printed ceiling: the book names no top,
+ * and a stepper that could run to a hundred is not a choice a GM needs made
+ * for them at the table.
  * ponytail: widen it if a GM asks.
+ *
+ * Read off the COMPLEXITY, not the weight. The weight table prints its own
+ * cost column and the book's own worked rituals fall outside it three times
+ * in six -- see RitualComplexity.
  */
-private fun spiChoices(weight: RitualWeight): List<Int> {
-    val max = weight.spiMax
-    return when {
-        weight.spiOpen -> (weight.spi..weight.spi + 3).toList()
-        max != null -> (weight.spi..max).toList()
-        else -> listOf(weight.spi)
-    }
+private fun spiChoices(complexity: RitualComplexity): List<Int> {
+    val top = complexity.spiMax ?: complexity.spi
+    return (complexity.spi..(if (complexity.spiOpen) top + 3 else top)).toList()
 }
+
+/**
+ * The HP sacrifices to offer against a [cost], as whole SPI bought.
+ *
+ * Stepped in SPI-sized pairs because that is the only granularity the book
+ * sells: "every 2 HP spent counts as 1 SPI", so an odd point buys nothing and
+ * a chip offering one would be a chip for wasting a hit point.
+ * ponytail: four steps covers the rungs a caster survives.
+ */
+private fun hpChoices(cost: Int): List<Int> =
+    (0..minOf(cost, 4)).map { PowerSources.hpFor(it) }
 
 private fun signed(n: Int) = if (n >= 0) "+$n" else "$n"
 
@@ -81,6 +96,7 @@ fun RitualDialog(
     dice: RandomSource,
     onCorGained: (Int) -> Unit,
     onSpendSpi: (Int) -> Unit,
+    onSpendHp: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val weights = remember { RitualResolution.weights() }
@@ -104,9 +120,27 @@ fun RitualDialog(
     // a link in full mode, so a link left over from a quick ritual would throw
     // rather than merely mislead.
     var link by remember(mode) { mutableStateOf<TargetLink?>(null) }
-    // Reset with the weight, or a Heavy ritual's 8 SPI would follow the caster
-    // onto a Light one that costs 2.
-    var spiChoice by remember(weight) { mutableIntStateOf(weight.spi) }
+    // Section IV.A's axis, and the one the fuel comes off. NOT the weight:
+    // the weight gives the base modifier above, this gives the cost, and the
+    // book's own worked rituals charge outside the weight column three times
+    // in six. See RitualComplexity.
+    var complexity by remember { mutableStateOf(PowerSources.complexities().first()) }
+    // Reset with the complexity, or a Major ritual's 11 SPI would follow the
+    // caster onto a Light one that costs 2.
+    var spiChoice by remember(complexity) { mutableIntStateOf(complexity.spi) }
+    // Reset with the FUEL, and for the harder reason the quick mode's link
+    // had: spiOwed REFUSES HP that covers more than the ritual costs, so a
+    // sacrifice left over from an 11 SPI ritual would throw on a 2 SPI one
+    // rather than merely mislead.
+    var hpSacrificed by remember(spiChoice) { mutableIntStateOf(0) }
+    var pacing by remember { mutableStateOf(RitualPacing.NORMAL) }
+    var assistants by remember { mutableIntStateOf(0) }
+    var sacrifice by remember { mutableStateOf<SacrificeTier?>(null) }
+    // Reset with the tier for the same reason: sacrificeBonus refuses sentient
+    // beings offered with no sacrifice declared.
+    var sentientBeings by remember(sacrifice) { mutableIntStateOf(0) }
+    var catalyst by remember { mutableIntStateOf(0) }
+    var suspended by remember { mutableStateOf(false) }
     var outcome by remember { mutableStateOf<RitualOutcome?>(null) }
     // Null by default -- "not stated" -- so a ritual described without a
     // language rolls exactly where it did before Ch. 3's table was read. No
@@ -137,15 +171,29 @@ fun RitualDialog(
     // is no target to show -- the same shape as a language the caster cannot
     // speak. An entity not yet asked contributes nothing.
     val rejected = answer?.failsRitual == true
+    val declaration = PowerSourceDeclaration(
+        pacing = pacing,
+        assistants = assistants,
+        sacrifice = sacrifice,
+        sentientBeings = sentientBeings,
+        catalyst = catalyst,
+        suspended = suspended,
+    )
     val target = if (canSpeak && !rejected) {
         RitualResolution.targetFor(
             effectiveSkill + (answer?.ritualModifier ?: 0),
             weight, cor, preparation, language, mode, link,
+            complexity = complexity, powerSources = declaration,
         )
     } else {
         null
     }
-    val cost = RitualResolution.spiFor(weight, spiChoice)
+    val cost = PowerSources.spiFor(complexity, spiChoice)
+    // B: HP is fuel and nothing else. It never reaches `declaration`, because
+    // the book says in its own sentence that it "does not grant a bonus to
+    // the roll" -- and a fuel rule printed one line above a list of roll
+    // modifiers is exactly the sentence that gets turned into one.
+    val spiOwed = PowerSources.spiOwed(cost, hpSacrificed)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -202,12 +250,41 @@ fun RitualDialog(
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(vertical = 8.dp),
                     )
-                    // Two of the three cells are a range, so the end is the
-                    // GM's; an open one ("8+") offers the printed floor and
-                    // three above it rather than pretending to know the top.
-                    Text("Fuel", style = MaterialTheme.typography.titleSmall)
+                    // Ch. 7 IV.A. A SECOND axis, not a restatement of the
+                    // weight above: the weight is the category and gives the
+                    // modifier, this is the scope and gives the cost and the
+                    // time. The book prints a Major rung here and none in the
+                    // weight table, which is why Major has no base modifier.
+                    Text(
+                        "Complexity",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
                     FlowRow {
-                        spiChoices(weight).forEach { option ->
+                        PowerSources.complexities().forEach { option ->
+                            FilterChip(
+                                selected = option.complexity == complexity.complexity,
+                                onClick = { complexity = option },
+                                label = { Text(option.complexity) },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                    Text(
+                        "${complexity.description} — ${complexity.baseTime}",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+
+                    // Every cell is a range, so the end is the GM's; the open
+                    // one ("11-15+") offers three above its printed ceiling
+                    // rather than pretending to know the top.
+                    Text(
+                        "Fuel",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    FlowRow {
+                        spiChoices(complexity).forEach { option ->
                             FilterChip(
                                 selected = option == spiChoice,
                                 onClick = { spiChoice = option },
@@ -216,6 +293,161 @@ fun RitualDialog(
                             )
                         }
                     }
+
+                    // Ch. 7 IV.B. Fuel, never a bonus -- the panel says so
+                    // out loud, because the sentence next to it in the book
+                    // is the one that gets misread.
+                    Text(
+                        "Paid in HP (2 HP = 1 SPI, no bonus to the roll)",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    FlowRow {
+                        hpChoices(cost).forEach { option ->
+                            FilterChip(
+                                selected = option == hpSacrificed,
+                                onClick = { hpSacrificed = option },
+                                label = { Text(if (option == 0) "None" else "$option HP") },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+
+                    // The Time & Complexity table, whose Rushed and Extended
+                    // values differ BY RUNG -- -3 at Light, -5 at Major -- so
+                    // they are read off the complexity chosen above.
+                    Text(
+                        "Pacing",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    FlowRow {
+                        RitualPacing.entries.forEach { option ->
+                            val shift = PowerSources.pacingModifier(complexity, option)
+                            FilterChip(
+                                selected = option == pacing,
+                                onClick = { pacing = option },
+                                label = {
+                                    Text(
+                                        when (option) {
+                                            RitualPacing.RUSHED -> "Rushed ${signed(shift)}"
+                                            RitualPacing.NORMAL -> complexity.baseTime
+                                            RitualPacing.EXTENDED -> "Extended ${signed(shift)}"
+                                        },
+                                    )
+                                },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+
+                    // Ch. 7 IV.C. Every assistant is worth +1 -- the book's
+                    // own Ritual 3 prints "Two trained assistants  +2", which
+                    // is the only thing that disambiguates "beyond the first".
+                    Text(
+                        "Assistants",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    FlowRow {
+                        (0..4).forEach { option ->
+                            FilterChip(
+                                selected = option == assistants,
+                                onClick = { assistants = option },
+                                label = {
+                                    Text(
+                                        if (option == 0) "None"
+                                        else "$option ${signed(PowerSources.participantBonus(option))}",
+                                    )
+                                },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                    if (assistants > PowerSources.PARTICIPANT_CAP) {
+                        Text(
+                            "Capped at ${signed(PowerSources.PARTICIPANT_CAP)}; " +
+                                "the rest still pool their SPI.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+
+                    // Ch. 7 IV.D.
+                    Text(
+                        "External sacrifice",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    FlowRow {
+                        FilterChip(
+                            selected = sacrifice == null,
+                            onClick = { sacrifice = null },
+                            label = { Text("None") },
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                        PowerSources.sacrificeTiers().forEach { option ->
+                            FilterChip(
+                                selected = sacrifice?.tier == option.tier,
+                                onClick = { sacrifice = option },
+                                label = { Text("${option.tier} ${signed(option.modifier)}") },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                    sacrifice?.let { tier ->
+                        Text(tier.looksLike, style = MaterialTheme.typography.bodySmall)
+                        // Offered only alongside a tier, because the per-being
+                        // bonus rides on one and sacrificeBonus refuses it
+                        // without. It ADDS to the tier rather than replacing
+                        // it -- two consecutive sentences, both applied.
+                        Text(
+                            "Sentient beings offered " +
+                                "(${signed(PowerSources.SENTIENT_BONUS)} each, on top)",
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        FlowRow {
+                            (0..3).forEach { option ->
+                                FilterChip(
+                                    selected = option == sentientBeings,
+                                    onClick = { sentientBeings = option },
+                                    label = { Text(if (option == 0) "None" else "$option") },
+                                    modifier = Modifier.padding(end = 8.dp),
+                                )
+                            }
+                        }
+                    }
+
+                    // Ch. 7 IV.E. A range the GM picks inside, like darkness.
+                    Text(
+                        "Catalyst",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    FlowRow {
+                        (PowerSources.CATALYST_LOWEST..PowerSources.CATALYST_HIGHEST)
+                            .forEach { option ->
+                                FilterChip(
+                                    selected = option == catalyst,
+                                    onClick = { catalyst = option },
+                                    label = {
+                                        Text(if (option == 0) "None" else signed(option))
+                                    },
+                                    modifier = Modifier.padding(end = 8.dp),
+                                )
+                            }
+                    }
+
+                    // p. 65, above the Time table. Not a power source, but the
+                    // same declaration: it moves the effective skill.
+                    FilterChip(
+                        selected = suspended,
+                        onClick = { suspended = !suspended },
+                        label = {
+                            Text("Suspended part-way ${signed(PowerSources.SUSPENSION_PENALTY)}")
+                        },
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
                     Text(
                         if (mode == RitualMode.QUICK) "Preparation" else "Preparation (Phase I)",
                         style = MaterialTheme.typography.titleSmall,
@@ -362,10 +594,32 @@ fun RitualDialog(
                                     ?.let { ", $it for an accented tongue" } ?: "") +
                                 (if (conditionPenalty != 0) ", $conditionPenalty hurt or tired" else "") +
                                 (if (cor >= 3) ", -1 for $cor CoR" else "") +
-                                ". Costs $cost SPI.",
+                                (PowerSources.pacingModifier(complexity, pacing)
+                                    .takeIf { it != 0 }
+                                    ?.let { ", ${signed(it)} ${pacing.name.lowercase()}" } ?: "") +
+                                (PowerSources.participantBonus(assistants).takeIf { it != 0 }
+                                    ?.let { ", ${signed(it)} from $assistants assisting" } ?: "") +
+                                (sacrifice?.let {
+                                    ", ${signed(
+                                        PowerSources.sacrificeBonus(it, sentientBeings),
+                                    )} sacrifice"
+                                } ?: "") +
+                                (catalyst.takeIf { it != 0 }
+                                    ?.let { ", ${signed(it)} catalyst" } ?: "") +
+                                (if (suspended) {
+                                    ", ${signed(PowerSources.SUSPENSION_PENALTY)} suspended"
+                                } else {
+                                    ""
+                                }) +
+                                ". Costs " +
+                                (if (hpSacrificed > 0) {
+                                    "$spiOwed SPI and $hpSacrificed HP."
+                                } else {
+                                    "$cost SPI."
+                                }),
                             style = MaterialTheme.typography.bodySmall,
                         )
-                        if (cost > spiAvailable) {
+                        if (spiOwed > spiAvailable) {
                             Text(
                                 "Only $spiAvailable SPI left — going below 0 is Soul Debt.",
                                 style = MaterialTheme.typography.bodySmall,
@@ -388,11 +642,17 @@ fun RitualDialog(
                                     language,
                                     mode,
                                     link,
+                                    complexity = complexity,
+                                    powerSources = declaration,
                                 )
                                 outcome = rolled
                                 // The fuel is spent whether or not it works:
                                 // "No effect. SPI and materials spent" (p. 62).
-                                onSpendSpi(cost)
+                                // HP goes through the tracker too -- printing
+                                // a sacrifice the app then fails to charge is
+                                // how a tracker starts lying.
+                                onSpendSpi(spiOwed)
+                                if (hpSacrificed > 0) onSpendHp(hpSacrificed)
                                 rolled.critical?.corGained?.let(onCorGained)
                             },
                         ) { Text("Roll") }

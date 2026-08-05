@@ -1963,3 +1963,148 @@ def test_the_shift_is_not_committed_as_data():
     that matters most about it: which roll it lands on."""
     raw = json.loads((CONTENT / "entity_response.json").read_text(encoding="utf-8"))
     assert "shift" not in raw
+
+
+import extract_power_sources
+
+
+def complexity_entries():
+    return json.loads(
+        (CONTENT / "ritual_complexity.json").read_text(encoding="utf-8"))["entries"]
+
+
+def weight_entries():
+    return json.loads(
+        (CONTENT / "ritual_weights.json").read_text(encoding="utf-8"))["entries"]
+
+
+def sacrifice_entries():
+    return json.loads(
+        (CONTENT / "ritual_sacrifice.json").read_text(encoding="utf-8"))["entries"]
+
+
+@needs_pdf
+def test_the_power_sources_extract_end_to_end():
+    rows, tiers, numbers = extract_power_sources.extract()
+    assert [r["complexity"] for r in rows] == ["Light", "Moderate", "Heavy", "Major"]
+    assert [t["tier"] for t in tiers] == ["Ordinary", "Meaningful", "Precious"]
+    assert numbers["suspension"] == -2
+
+
+def test_the_complexity_ladder_has_a_rung_the_weight_table_never_prints():
+    """Section V prints three weights; the Time & Complexity table keys on
+    four. Major is the extra one, and it carries no base difficulty modifier
+    because the weight table -- the only place that column exists -- has no
+    row for it. That is why it lives on the complexity axis."""
+    assert [r["complexity"] for r in complexity_entries()] == [
+        "Light", "Moderate", "Heavy", "Major",
+    ]
+    assert [w["weight"] for w in weight_entries()] == ["Light", "Moderate", "Heavy"]
+
+
+def test_the_two_spi_tables_disagree_at_both_ends_and_agree_in_the_middle():
+    """The whole reason this is a second axis and not a merge. Section V
+    prices Light at a flat 2 and Heavy at 8+; the ladder says 2-3 and 7-10.
+    The book's own Ritual 2 charges 3 for a Light divination and Ritual 3
+    charges 7 for a Heavy summoning -- outside the weight column both times,
+    inside the ladder both times. Moderate agrees exactly, and that single
+    agreement is what makes the other two a real difference rather than two
+    unrelated ladders."""
+    weights = {w["weight"]: w for w in weight_entries()}
+    rows = complexity_entries()
+
+    assert (weights["Light"]["spi"], weights["Light"].get("spiMax")) == (2, None)
+    assert (rows[0]["spi"], rows[0]["spiMax"]) == (2, 3)
+
+    assert weights["Heavy"]["spi"] == 8
+    assert (rows[2]["spi"], rows[2]["spiMax"]) == (7, 10)
+
+    assert (weights["Moderate"]["spi"], weights["Moderate"]["spiMax"]) == (
+        rows[1]["spi"], rows[1]["spiMax"],
+    )
+
+
+@needs_pdf
+def test_reconciling_the_two_spi_tables_would_fail_verification():
+    """The failure mode this slice exists to prevent: a later parse quietly
+    straightening the ladder onto the weight column, or the reverse."""
+    rows, tiers, numbers = extract_power_sources.extract()
+    byn = extract_power_sources.load_lines()
+    prose = " ".join(extract_power_sources.stream(byn, *extract_power_sources.PROSE_RANGE))
+    worked = ("Two trained assistants", 2)
+
+    straightened = [dict(r) for r in rows]
+    straightened[0]["spi"], straightened[0]["spiMax"] = 2, None
+    with pytest.raises(ValueError):
+        extract_power_sources.verify(
+            straightened, tiers, numbers, prose, weight_entries(), worked)
+
+
+@needs_pdf
+def test_losing_the_moderate_agreement_would_fail_verification():
+    rows, tiers, numbers = extract_power_sources.extract()
+    byn = extract_power_sources.load_lines()
+    prose = " ".join(extract_power_sources.stream(byn, *extract_power_sources.PROSE_RANGE))
+    drifted = [dict(r) for r in rows]
+    drifted[1]["spi"] = 5
+    with pytest.raises(ValueError):
+        extract_power_sources.verify(
+            drifted, tiers, numbers, prose, weight_entries(),
+            ("Two trained assistants", 2))
+
+
+@needs_pdf
+def test_the_worked_ritual_is_what_settles_beyond_the_first():
+    """"Each assistant beyond the first also grants +1" reads two ways.
+    Ritual 3's "Two trained assistants  +2" is the only thing in the chapter
+    that says which: the first participant is the CASTER, so every assistant
+    counts. Read the other way, that row would be +1."""
+    rows, tiers, numbers = extract_power_sources.extract()
+    byn = extract_power_sources.load_lines()
+    prose = " ".join(extract_power_sources.stream(byn, *extract_power_sources.PROSE_RANGE))
+    with pytest.raises(ValueError):
+        extract_power_sources.verify(
+            rows, tiers, numbers, prose, weight_entries(),
+            ("Two trained assistants", 1))
+
+
+@needs_pdf
+def test_the_hp_fuel_clause_is_pinned():
+    """"HP sacrifice does not grant a bonus to the roll" sits one line under
+    "every 2 HP spent counts as 1 SPI" -- exactly the position from which a
+    fuel rule gets read as a modifier."""
+    rows, tiers, numbers = extract_power_sources.extract()
+    byn = extract_power_sources.load_lines()
+    prose = " ".join(extract_power_sources.stream(byn, *extract_power_sources.PROSE_RANGE))
+    scrubbed = prose.replace(extract_power_sources.HP_NO_BONUS, "")
+    with pytest.raises(ValueError):
+        extract_power_sources.verify(
+            rows, tiers, numbers, scrubbed, weight_entries(),
+            ("Two trained assistants", 2))
+
+
+def test_the_sentence_numbers_are_not_committed_as_data():
+    """+1 per assistant, +2 per sentient being, +0 to +2 for a catalyst and
+    the suspension -2 are all values inside prose. Committing columns for
+    them would make the book look like it printed tables it never printed --
+    the split the support cap and the orthodox shift already take."""
+    raw = json.loads((CONTENT / "ritual_complexity.json").read_text(encoding="utf-8"))
+    assert "participantBonus" not in json.dumps(raw)
+    assert "suspension" not in json.dumps(raw)
+    sacrifice = json.loads((CONTENT / "ritual_sacrifice.json").read_text(encoding="utf-8"))
+    assert "sentientBonus" not in json.dumps(sacrifice)
+
+
+def test_the_sacrifice_tiers_keep_their_examples():
+    """A GM choosing a tier needs to know what counts as Precious."""
+    for tier in sacrifice_entries():
+        assert tier["looksLike"].strip()
+    assert [(t["tier"], t["modifier"]) for t in sacrifice_entries()] == [
+        ("Ordinary", 0), ("Meaningful", 2), ("Precious", 4),
+    ]
+
+
+def test_rushing_always_costs_and_extending_always_pays():
+    for row in complexity_entries():
+        assert row["rushed"] < 0
+        assert row["extended"] > 0

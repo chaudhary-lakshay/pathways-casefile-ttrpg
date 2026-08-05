@@ -1542,6 +1542,119 @@ external sacrifice at +0/+2/+4 plus +2 per sentient being, and catalysts at
 +0 to +2 — plus the Time & Complexity table (Rushed −3 to −5, Extended +1 to
 +2) and the suspension rule's −2.
 
+## 6aa. Power sources — and the SPI table the app had been charging from
+
+`PowerSources` (core/rules) reads Ch. 7's Section IV.A-E and the Time &
+Complexity Reference above it. The slice's whole weight is one decision, and
+it was made before a line of the extractor was written.
+
+**The decision: two axes, not two printings and not a disagreement to record.**
+Section IV.A prints a four-row SPI ladder (2-3 / 4-6 / 7-10 / 11-15+) against
+`ritual_weights.json`'s three (Light 2 / Moderate 4-6 / Heavy 8+). Only
+Moderate agrees. The book's own six worked rituals settle which one it uses:
+
+| Section VIII | Category → weight | Weight column | Charged |
+|---|---|---|---|
+| Ritual 2, Divination | Light | 2 | **3** |
+| Ritual 3, Summoning | Heavy | 8+ | **7** |
+| Ritual 4, Curse | Moderate | 4-6 | **7** |
+
+Three of six fall outside the weight column; six of six fall inside the
+ladder. And every parenthetical the book gives to justify a cost is written in
+the LADDER's vocabulary, never a weight name — "3 SPI (simple category, single
+fact)", "4 SPI (moderate duration, single target)". So the WEIGHT is the
+ritual's category and gives its base difficulty modifier; the COMPLEXITY is
+its scope and gives the SPI cost, the base time and the pacing. Section V's
+sentence — "three weights that determine its base difficulty and SPI cost" —
+loses its second half to the book's own examples, the way the Major Wound
+sentence lost to its worked example (6n).
+
+- **Nothing is merged and nothing is straightened.** `ritual_weights.json`
+  keeps its printed cost column, and `extract_power_sources.verify()` FAILS if
+  the two tables ever reconcile at either end — or if they stop agreeing on
+  Moderate, because that single agreement is what makes the other two a real
+  difference rather than two unrelated ladders. **The app charges fuel from
+  the complexity now**; `RitualResolution.spiFor` still reads Section V's
+  column, because refusing to read a table the book genuinely prints would be
+  its own kind of repair.
+- **The Time table is the evidence that the ladder is an axis.** It keys Base
+  Time, Rushed and Extended on FOUR names — Light, Moderate, Heavy, **Major** —
+  and Section V prints no Major at all. That fourth rung is a tier the weight
+  table cannot express, and it is exactly why Major carries no base difficulty
+  modifier. The two tables are joined by POSITION, which is defensible only
+  because two rows also agree by NAME at the same index; `verify()` pins that,
+  the same standard the appendix's matching "Pi" had to meet (6v).
+- **"Each assistant beyond the first" reads two ways and the sentence cannot
+  settle it.** Beyond the first assistant, two helpers are +1; beyond the
+  first PARTICIPANT — the caster — they are +2. Ritual 3's modifier table
+  prints "Two trained assistants **+2**", so every assistant counts. Nothing
+  else in the chapter disambiguates it, so `verify()` pins that worked row;
+  the natural reading would have every ritual with helpers rolling a point low.
+- **HP sacrifice is fuel and reaches the roll nowhere.** "Every 2 HP spent
+  counts as 1 SPI toward the ritual cost" is followed one line later by "HP
+  sacrifice does not grant a bonus to the roll — it only provides spiritual
+  fuel." A fuel rule printed directly above a list of roll modifiers is the
+  exact shape that gets turned into one, so there is deliberately **no HP
+  field on `PowerSourceDeclaration` at all** — a caller cannot route it into
+  `modifierTotal` by mistake — and a test asserts that absence. 2 HP buys 1
+  SPI with `Math.floorDiv`, so 5 HP buys 2 and the odd point is spent for
+  nothing; rounding it up would hand out free fuel.
+- **A tier and a living offering ADD.** Precious names "sentient sacrifices"
+  among its own examples and the next sentence still says "Living sacrifice
+  adds +2 per sentient being offered", so one sentient being on a Precious
+  altar is +4 and +2. That is the literal reading of two consecutive
+  sentences; excluding one from the other needs a clause the book never
+  prints. Sentient beings offered with no sacrifice declared are REFUSED
+  rather than ignored — the stale-value shape the boon dialog was fixed for.
+- **Rushed with no complexity declared is refused, not dropped.** It is -3 at
+  one rung and -5 at another, so there is no safe value to assume, and
+  silently ignoring it would leave a GM believing the rush was priced. The
+  four rung-independent sources still apply without one.
+- **Everything else is a number inside a sentence, so it is in Kotlin** —
+  +1 per assistant capped at +3, +2 per sentient being, the catalyst's +0 to
+  +2, the suspension's -2. Only the ladder and the three sacrifice tiers are
+  real tables. A committed column would make the book look like it printed one
+  it never did, the split the +3 support cap (6y) and the orthodox -2 (6z)
+  already take; a test asserts those keys are absent from both JSON files.
+- **Ch. 13's boons deliberately take no power sources**, the same way they
+  take no language and no Phase I preparation. The chapter prices the patron's
+  involvement itself and its Ritual quality row stands in for the
+  circumstances. The genuinely open one is IV.C's assistants, which chapter 13
+  neither offers nor forbids — left off rather than assumed, and said so in
+  `Boons.targetFor`'s KDoc so the omission stays a decision.
+
+**Codex did not review this slice either** — fifth in a row inside the usage
+limit (resets 2026-08-08 16:52; re-tested at the start of this session and
+still refused). Standing in for it, the defect class Codex keeps finding — a
+rule printed and not applied — was swept for across the whole section: IV.B's
+HP now charges through the tracker rather than being displayed and dropped
+(`onSpendHp`), and p.66's burning clause ("+1 per SPI, no cap ... the two uses
+of SPI are cumulative") is the one line in the range still reported rather
+than applied, because nothing in the app rolls-then-boosts yet. Slices 6w-6z
+and this one are five consecutive slices of app wiring with no review gate;
+they should be re-reviewed together when Codex is back.
+
+Device-verified on Academic Researcher (Ritualistic Magic 9, CoR 8): the two
+axes render as two separate chip rows — weight Light/Moderate/Heavy above,
+complexity Light/Moderate/Heavy/**Major** below. Choosing Major moved the fuel
+chips from 2-3 to **11..18** (the printed ceiling of 15 plus three) and the
+pacing row from "Rushed −3 / 15 min / Extended +1" to **"Rushed −5 / 3+ hours
+/ Extended +2"**, which is the per-rung reading working. Assistants read
+**2 → +2** and **4 → +3**; picking Precious revealed the sentient-beings row
+with its own examples, and one being made the sacrifice line read **+6**.
+A Heavy/Major ritual, extended, two assisting, Precious plus one sentient, +2
+catalyst read **"3d6 ≤ 16"** (9 −4 +0 −1 +2 +2 +6 +2) and **"Costs 10 SPI and
+2 HP"** — 11 fuel with 2 HP covering one of it. A rolled 13 succeeded, and the
+saved session went `hpLost` **0 → 2**, `spiSpent` **8 → 18** (the ten owed,
+not the eleven), `cor` **8 → 10** with `corrupted: true`, the Soul Debt
+charging itself on a caster with no SPI pool.
+
+Chapter 7 is now at **41.8%**, from 32.9%. Still unread there: the 12-step
+canon procedure (reference prose the book itself labels as texture), Section
+VII's Sequence notes, and Section VIII's six worked rituals — which this slice
+READ, as evidence, without extracting. They are the chapter's own regression
+suite and would make a good test fixture.
+
 ### A note on Codex
 
 It has found one real defect per slice for six slices running, but it reads

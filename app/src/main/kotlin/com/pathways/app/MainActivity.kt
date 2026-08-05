@@ -410,6 +410,9 @@ fun SheetScreen(
             // Through the tracker, so a ritual fuelled past 0 SPI buys the
             // Soul Debt the book charges for it.
             onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
+            // Ch. 7 IV.B: 2 HP buys 1 SPI of fuel. Through the tracker, so a
+            // caster who bleeds for a ritual actually ends it wounded.
+            onSpendHp = { session.spend(Pool.HP, it, vitals.maxHp, maxCor) },
             onDismiss = { casting = false },
         )
     }

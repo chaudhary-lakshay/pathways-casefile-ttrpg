@@ -1,0 +1,27 @@
+{
+ "sourceLines": {
+  "7": [
+   [
+    4281,
+    4286
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "tier": "Ordinary",
+   "modifier": 0,
+   "looksLike": "common goods, small animals"
+  },
+  {
+   "tier": "Meaningful",
+   "modifier": 2,
+   "looksLike": "valuable items, Beyonder materials"
+  },
+  {
+   "tier": "Precious",
+   "modifier": 4,
+   "looksLike": "Sealed Artifacts, sentient sacrifices"
+  }
+ ]
+}

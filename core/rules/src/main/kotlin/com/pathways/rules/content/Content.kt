@@ -369,6 +369,60 @@ data class RitualWeight(
 }
 
 /**
+ * One rung of the ritual COMPLEXITY axis (Ch. 7, Section IV.A and the Time &
+ * Complexity Reference, p. 65-66).
+ *
+ * Not the same axis as [RitualWeight], and deliberately not merged with it.
+ * The weight is the ritual's CATEGORY -- divination, curse, summoning -- and
+ * gives its base difficulty modifier. The complexity is its SCOPE -- duration,
+ * target count, territory -- and gives its SPI cost, base time and pacing.
+ *
+ * Section V claims the weight determines the SPI cost too, and the book's own
+ * six worked rituals disagree with it three times while agreeing with this
+ * ladder six times out of six: a Light divination charged 3 where the weight
+ * column says 2, a Heavy summoning charged 7 where it says 8+. The sentence
+ * loses to the examples. `ritual_weights.json` keeps its printed cost anyway,
+ * and `extract_power_sources.verify()` fails if the two ever reconcile.
+ *
+ * Section V prints no Major weight at all, which is why Major carries no base
+ * difficulty modifier: it is a complexity, not a weight.
+ *
+ * [spiOpen] here means an open TOP on a printed range ("11-15+"). That is not
+ * the weight table's "8+", which prints no ceiling at all.
+ */
+@Serializable
+data class RitualComplexity(
+    val complexity: String,
+    val looksLike: String,
+    val baseTime: String,
+    val rushed: Int,
+    val extended: Int,
+    val description: String,
+    val spi: Int,
+    val spiMax: Int? = null,
+    val spiOpen: Boolean = false,
+) {
+    /** "2-3 SPI", "11-15+ SPI" -- the cell as the book prints it. */
+    val printedCost: String get() = buildString {
+        append(spi)
+        spiMax?.let { append("-").append(it) }
+        if (spiOpen) append("+")
+        append(" SPI")
+    }
+}
+
+/**
+ * One tier of External Sacrifice (Ch. 7, Section IV.D, p. 66).
+ *
+ * Committed with its examples because a GM choosing a tier needs to know what
+ * counts as Precious. The "+2 per sentient being" riding on top of these is a
+ * number inside the same sentence, and lives in
+ * [com.pathways.rules.PowerSources.SENTIENT_BONUS].
+ */
+@Serializable
+data class SacrificeTier(val tier: String, val modifier: Int, val looksLike: String)
+
+/**
  * One row of the Phase I Preparation Quality table (Ch. 7, p. 63).
  *
  * Three of the five carry something a single number cannot say: [best] is the
