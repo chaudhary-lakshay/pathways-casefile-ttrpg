@@ -2108,3 +2108,113 @@ def test_rushing_always_costs_and_extending_always_pays():
     for row in complexity_entries():
         assert row["rushed"] < 0
         assert row["extended"] > 0
+
+
+import extract_worked_rituals
+
+
+def worked_entries():
+    return json.loads(
+        (CONTENT / "ritual_examples.json").read_text(encoding="utf-8"))["entries"]
+
+
+def test_the_section_prints_seven_costed_rituals_not_six():
+    """A previous slice's notes said six. Section VIII prints ten; seven carry
+    a full modifier table and one worked total, and 8-10 are templates that
+    print ranges instead. The miscount mattered because the two-axis SPI
+    decision was argued from 'six of six'."""
+    assert len(worked_entries()) == 7
+
+
+def test_the_books_own_arithmetic_holds_in_every_worked_ritual():
+    for ritual in worked_entries():
+        assert sum(m["value"] for m in ritual["modifiers"]) == ritual["net"]
+        assert ritual["casterSkill"] + ritual["net"] == ritual["effectiveSkill"]
+
+
+def test_all_seven_fit_the_ladder_and_three_miss_the_weight_column():
+    """The evidence the fuel decision rests on, asserted rather than
+    remembered: seven of seven inside the complexity ladder, three of seven
+    outside Section V's cost column, none the other way round."""
+    rungs = json.loads(
+        (CONTENT / "ritual_complexity.json").read_text(encoding="utf-8"))["entries"]
+    weights = json.loads(
+        (CONTENT / "ritual_weights.json").read_text(encoding="utf-8"))["entries"]
+
+    for ritual in worked_entries():
+        assert any(
+            ritual["spi"] >= r["spi"]
+            and (r["spiOpen"] or r["spiMax"] is None or ritual["spi"] <= r["spiMax"])
+            for r in rungs
+        ), f"ritual {ritual['number']} fell off the ladder"
+
+    outside = []
+    for ritual in worked_entries():
+        weight = next(
+            (w for w in weights
+             if ritual["category"].lower() in w["categories"].lower()), None)
+        if weight is None:
+            continue
+        top = None if weight.get("spiOpen") else weight.get("spiMax") or weight["spi"]
+        if ritual["spi"] < weight["spi"] or (top is not None and ritual["spi"] > top):
+            outside.append(ritual["number"])
+    assert outside == [2, 3, 4]
+
+
+def test_three_worked_rituals_grade_inside_the_moderate_band():
+    """Curse, Oath-Sealing and Fabrication all print -3 where the weight table
+    prints Moderate -2, and Ritual 8 runs to -6 where the table stops at -4.
+    So Section V's modifier column is a summary the worked examples grade
+    inside -- the same shape as its SPI column. Never repaired into a fourth
+    weight: the book prints no table of -3s."""
+    weights = json.loads(
+        (CONTENT / "ritual_weights.json").read_text(encoding="utf-8"))["entries"]
+    printed = {w["modifier"] for w in weights}
+    graded = [r for r in worked_entries() if r["baseDifficulty"] not in printed]
+    assert [r["category"] for r in graded] == ["Curse", "Oath-Sealing", "Fabrication"]
+    assert all(r["baseDifficulty"] == -3 for r in graded)
+    assert -3 not in printed
+
+
+@needs_pdf
+def test_swallowing_the_intent_prose_would_fail_verification():
+    """The parse that shipped first joined a wrapped label onto the line above
+    it with no anchor, which ate each ritual's Intent and Setup paragraphs
+    into its first modifier row. The book prints its own anchor -- a
+    "Modifier Source" header -- and every row inside it carries a value."""
+    for ritual in worked_entries():
+        for row in ritual["modifiers"]:
+            assert "Intent:" not in row["source"]
+            assert "Setup:" not in row["source"]
+            assert len(row["source"]) < 70
+
+
+@needs_pdf
+def test_losing_a_worked_ritual_would_fail_verification():
+    rituals, caster = extract_worked_rituals.extract()
+    byn = extract_worked_rituals.load_lines()
+    template = " ".join(
+        extract_worked_rituals.stream(byn, *extract_worked_rituals.TEMPLATE_RANGE))
+    weights = json.loads(
+        (CONTENT / "ritual_weights.json").read_text(encoding="utf-8"))["entries"]
+    rungs = json.loads(
+        (CONTENT / "ritual_complexity.json").read_text(encoding="utf-8"))["entries"]
+    with pytest.raises(ValueError):
+        extract_worked_rituals.verify(
+            rituals[:-1], caster, weights, rungs, template)
+
+
+@needs_pdf
+def test_ritual_eight_names_the_cheapest_tier_a_second_way():
+    """Section IV.D prints "Ordinary (common goods, small animals) grants +0";
+    Ritual 8 prints "Trivial +0" for the same three values. Two names, one
+    tier, and neither is merged -- the way "Eternal Aeon" keeps both of its
+    spellings."""
+    byn = extract_worked_rituals.load_lines()
+    template = " ".join(
+        extract_worked_rituals.stream(byn, *extract_worked_rituals.TEMPLATE_RANGE))
+    assert extract_worked_rituals.TEMPLATE_TIERS.search(template)
+    tiers = json.loads(
+        (CONTENT / "ritual_sacrifice.json").read_text(encoding="utf-8"))["entries"]
+    assert tiers[0]["tier"] == "Ordinary"
+    assert "Trivial" not in json.dumps(tiers)

@@ -91,6 +91,9 @@ object ContentLoader {
     private val ritualSacrificeLazy: List<SacrificeTier> by lazy {
         load("ritual_sacrifice.json")
     }
+    private val ritualExamplesLazy: List<RitualExample> by lazy {
+        load("ritual_examples.json")
+    }
     private val languagesLazy: List<LanguageEntry> by lazy { load("languages.json") }
     private val languageProficiencyLazy: List<LanguageProficiency> by lazy {
         load("language_proficiency.json")
@@ -271,6 +274,12 @@ object ContentLoader {
 
     /** The three External Sacrifice tiers (Ch. 7, Section IV.D, p. 66). */
     fun ritualSacrifice(): List<SacrificeTier> = ritualSacrificeLazy
+
+    /**
+     * Section VIII's seven worked rituals (Ch. 7, p. 69-72) -- the chapter's
+     * own regression suite. A partial oracle; see [RitualExample].
+     */
+    fun ritualExamples(): List<RitualExample> = ritualExamplesLazy
 
     /** How well the ritual was prepared, and what that is worth (Ch. 7, p. 63). */
     fun ritualPreparation(): List<RitualPreparation> = ritualPreparationLazy

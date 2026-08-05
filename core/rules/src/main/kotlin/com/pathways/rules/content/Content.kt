@@ -422,6 +422,40 @@ data class RitualComplexity(
 @Serializable
 data class SacrificeTier(val tier: String, val modifier: Int, val looksLike: String)
 
+/** One row of a worked ritual's modifier table (Ch. 7, Section VIII). */
+@Serializable
+data class RitualExampleModifier(val source: String, val value: Int)
+
+/**
+ * One of Section VIII's worked rituals (Ch. 7, p. 69-72).
+ *
+ * The book doing its own arithmetic in public, seven times, for one stated
+ * caster. `GoldenRitualTest` replays them against the engine the way
+ * `GoldenSheetTest` replays the 23 character sheets -- as a PARTIAL oracle:
+ * where a worked example disagrees with a printed table, the disagreement is
+ * recorded and the table is not repaired from the example, nor the reverse.
+ *
+ * [baseDifficulty] is the ritual's own, and three of the seven print a -3 that
+ * [RitualWeight]'s +0/-2/-4 cannot express. [spi] is its own too, and three
+ * fall outside the weight table's cost column while all seven fall inside
+ * [RitualComplexity]'s ladder -- which is the evidence that the ladder is the
+ * operative one.
+ */
+@Serializable
+data class RitualExample(
+    val number: Int,
+    val name: String,
+    val category: String,
+    val baseDifficulty: Int,
+    val time: String,
+    val modifiers: List<RitualExampleModifier>,
+    val net: Int,
+    val casterSkill: Int,
+    val effectiveSkill: Int,
+    val spi: Int,
+    val printedDelta: Int,
+)
+
 /**
  * One row of the Phase I Preparation Quality table (Ch. 7, p. 63).
  *

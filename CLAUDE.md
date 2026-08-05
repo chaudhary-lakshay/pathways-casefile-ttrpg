@@ -1551,7 +1551,7 @@ it was made before a line of the extractor was written.
 **The decision: two axes, not two printings and not a disagreement to record.**
 Section IV.A prints a four-row SPI ladder (2-3 / 4-6 / 7-10 / 11-15+) against
 `ritual_weights.json`'s three (Light 2 / Moderate 4-6 / Heavy 8+). Only
-Moderate agrees. The book's own six worked rituals settle which one it uses:
+Moderate agrees. The book's own worked rituals settle which one it uses:
 
 | Section VIII | Category → weight | Weight column | Charged |
 |---|---|---|---|
@@ -1559,8 +1559,13 @@ Moderate agrees. The book's own six worked rituals settle which one it uses:
 | Ritual 3, Summoning | Heavy | 8+ | **7** |
 | Ritual 4, Curse | Moderate | 4-6 | **7** |
 
-Three of six fall outside the weight column; six of six fall inside the
-ladder. And every parenthetical the book gives to justify a cost is written in
+Three fall outside the weight column; all of them fall inside the ladder.
+(**Correction, made in 6ab:** this section first said "six worked rituals" and
+"six of six". Section VIII prints **ten**, seven of them costed. Rechecked
+against all seven the conclusion holds and is stronger — seven of seven inside
+the ladder, three of seven outside the weight column, none the reverse — but
+the denominator was wrong and the count is now asserted by a test rather than
+recalled.) Every parenthetical the book gives to justify a cost is written in
 the LADDER's vocabulary, never a weight name — "3 SPI (simple category, single
 fact)", "4 SPI (moderate duration, single target)". So the WEIGHT is the
 ritual's category and gives its base difficulty modifier; the COMPLEXITY is
@@ -1649,11 +1654,78 @@ saved session went `hpLost` **0 → 2**, `spiSpent` **8 → 18** (the ten owed,
 not the eleven), `cor` **8 → 10** with `corrupted: true`, the Soul Debt
 charging itself on a caster with no SPI pool.
 
-Chapter 7 is now at **41.8%**, from 32.9%. Still unread there: the 12-step
-canon procedure (reference prose the book itself labels as texture), Section
-VII's Sequence notes, and Section VIII's six worked rituals — which this slice
-READ, as evidence, without extracting. They are the chapter's own regression
-suite and would make a good test fixture.
+Chapter 7 is now at **41.8%**, from 32.9%. Section VIII's worked rituals — read
+here as evidence and not extracted — became 6ab.
+
+## 6ab. The chapter's own homework, marked
+
+`GoldenRitualTest` replays Section VIII's seven costed rituals against the
+engine, the way `GoldenSheetTest` replays the 23 character sheets: as a
+**partial oracle**, where a disagreement is recorded and neither side is
+repaired. The book works its own arithmetic in public seven times, for one
+stated caster (Ritualistic Magic-14), and nothing had ever checked it.
+
+**It immediately corrected the slice above it.** 6aa said "six worked
+rituals". There are ten — seven with tables, three templates printing ranges —
+and the two-axis decision had been argued from the wrong denominator. It
+survives the recheck unchanged, which is the good outcome; what it no longer
+rests on is my count. Both halves are now asserted in `verify()` and again in
+Kotlin, because a decision that outlives its evidence is how the weapon-table
+claim survived four sections (6t).
+
+- **Every printed row lands on a printed table.** All six "true name" rows are
+  Target Link cells (Perfect +4 twice, Strong's +3 and +2 ends, Weak's +0);
+  both "space" rows are preparation qualities (+0 Adequate, +2 Good's better
+  end); all three "materials/offerings" rows are Meaningful sacrifices at +2;
+  both "assistants" rows are +2 for two, which is the whole evidence for
+  reading "beyond the first" as counting from the caster (6aa).
+- **The rows nothing covers are named, not skipped.** Four of the thirty-two
+  come from no table this book prints — "One month duration -1", "Indefinite
+  duration -3", "Single-use object +1", "Both parties willing +0". Chapter 7
+  tabulates duration nowhere. Naming them is what keeps the engine's coverage
+  honest: it reproduces the printed part and says so.
+- **The weight table's MODIFIER column is a summary too.** Curse,
+  Oath-Sealing and Fabrication each print a base difficulty of **-3**, and the
+  table puts all three under Moderate **-2**; Ritual 8 runs "-2 (minor
+  offering) to **-6** (living sacrifice)", past Heavy's -4 entirely. So both
+  of Section V's columns are summaries the worked examples grade inside —
+  same shape twice. Deliberately NOT turned into a fourth weight: the book
+  prints no table of -3s, and inventing one from three examples is authoring.
+- **`RitualComplexity`'s join has a counter-example, and 6aa did not know
+  it.** That row pairs the Time table's four names with the SPI ladder's four
+  rungs by position, so one rung gives both a ritual's base time and its cost.
+  **Ritual 6 is Heavy by time and Moderate by cost**: "triple the base time"
+  producing 3 hours makes its base an hour (Heavy), its extended bonus is +2
+  (Heavy), and its 6 SPI is the Moderate rung. Ritual 7 obeys the join
+  exactly, and the other five print no pacing row. Recorded, not repaired —
+  one example is not enough to split a row into two axes — but the join is
+  now known to be a READING rather than a fact, and the test says where.
+- **Ritual 8 names the cheapest sacrifice tier "Trivial"** where Section IV.D
+  names it "Ordinary", for the same +0/+2/+4. Two names, one tier, neither
+  merged — the way "Eternal Aeon" keeps both spellings (6s). It also rolls the
+  Critical Failure Table at **+2** where Section VI's severe misfire rolls it
+  at -2; different trigger, opposite shift, and that table is not ordered by
+  severity (6d), so neither is "worse".
+- **The parse needed the book's own anchor.** The first version joined a
+  wrapped label onto the line above with no marker, and ate each ritual's
+  Intent and Setup paragraphs into its first modifier row — the arithmetic
+  still summed, because the swallowed rows kept their numbers. The table
+  prints a "Modifier Source" header; using it is what makes every row inside
+  short, valued and real. A test asserts no row contains "Intent:".
+
+Rituals 8-10 are deliberately not extracted — they print ranges rather than a
+worked total, so there is no arithmetic to check an engine against. Ritual
+10's pathway/material table (17 rows of "Fool / Silver, Paper") is real
+content with no caller: nothing in the app creates charms.
+
+**Codex did not review this slice either** — sixth in a row inside the usage
+limit, re-tested twice this session and refused both times.
+
+Chapter 7 is now at **81.0%**, from 41.8% — the worked rituals were a third of
+the chapter by mechanical line count, which is what a section of nothing but
+tabulated modifiers looks like to `coverage.py`. Still unread there: the
+12-step canon procedure (reference prose the book itself labels as texture),
+Section VII's Sequence notes, and rituals 8-10's templates.
 
 ### A note on Codex
 
