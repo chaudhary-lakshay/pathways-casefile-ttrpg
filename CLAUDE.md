@@ -1924,6 +1924,21 @@ render and the untrained row is absent; picking "Adverse conditions −4" plus
 modified to 11"** with both rows named in the contribution line, and Roll
 greyed out afterwards.
 
+**Coverage did not move, and the reason is the instrument's third blind
+spot.** Appendix A reads **8.6% with 32 unclaimed, before and after** this
+slice. The table is physically on **page 160**, and `chapters.json` gives
+Appendix A the range `159-159` and Appendix B `160-161` — so a claim keyed
+`"A"` (which is correct: Appendix B's heading does not start until line 9748)
+falls outside A's own line universe and is credited to nothing, while B still
+reads 0.0%. Appendix A's tables simply spill onto the next page and the
+chapter ranges are page-granular. Nothing here is worth repairing — renaming
+the claim to `"B"` would file Appendix A's content under the political
+gazetteer — but it is the third time this instrument has been wrong in a
+different way: 6t (a chapter at 0.0% disproving nothing), 6v (bare
+multipliers counting as no mechanical line), and now a table whose page
+belongs to the next appendix. **Percentages are a floor and an argument, never
+a receipt.**
+
 **A debugging note worth more than the slice.** Roll appeared to dismiss the
 dialog instead of rolling, and three rounds of uiautomator dumps and logcat
 tails all pointed at the app. Both instruments were lying: **logcat was
