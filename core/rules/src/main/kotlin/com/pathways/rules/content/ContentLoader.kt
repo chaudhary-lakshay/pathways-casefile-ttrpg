@@ -39,6 +39,7 @@ object ContentLoader {
     private val rangedModifiersLazy: List<RangedModifier> by lazy { load("ranged_modifiers.json") }
     private val spiritDamageLazy: List<SpiritDamageRule> by lazy { load("spirit_damage.json") }
     private val majorWoundLazy: List<MajorWound> by lazy { load("major_wound.json") }
+    private val successLadderLazy: List<SuccessBand> by lazy { load("success_ladder.json") }
     private val divinationDifficultyLazy: List<DivinationDifficulty> by lazy {
         load("divination_difficulty.json")
     }
@@ -323,6 +324,14 @@ object ContentLoader {
      * [RitualCorThreshold].
      */
     fun ritualCorThresholds(): List<RitualCorThreshold> = ritualCorThresholdsLazy
+
+    /**
+     * Appendix A's degree-of-success ladder (p. 159), in printed order --
+     * least- to most-demanding, so the LAST matching row is the answer. Read
+     * it through [com.pathways.rules.DegreeOfSuccess] rather than directly:
+     * the two "always" rows have to be settled before any margin is compared.
+     */
+    fun successLadder(): List<SuccessBand> = successLadderLazy
 
     private inline fun <reified T> load(resource: String): List<T> {
         val stream = ContentLoader::class.java.getResourceAsStream("/content/$resource")

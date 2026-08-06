@@ -33,6 +33,18 @@ data class SkillRollOutcome(
         requiresCritical && roll.outcome == Outcome.SUCCESS -> Outcome.FAILURE
         else -> roll.outcome
     }
+
+    /**
+     * How well this succeeded (Appendix A), or null when it did not.
+     *
+     * Computed from [effectiveOutcome] rather than from [roll] directly: a
+     * roll demoted by `requiresCritical` is displayed as a failure, and
+     * grading its margin would print "Good success" beside the word Failure.
+     * Exposed here so no caller has to remember which of the two outcomes to
+     * pass to [DegreeOfSuccess].
+     */
+    val degree: SuccessDegree? get() =
+        roll?.let { DegreeOfSuccess.of(effectiveOutcome, it.margin) }
 }
 
 object SkillRoll {

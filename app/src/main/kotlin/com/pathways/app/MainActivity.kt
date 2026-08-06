@@ -56,6 +56,7 @@ import com.pathways.rules.SheetComparison
 import com.pathways.rules.SheetRow
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
+import com.pathways.rules.SuccessDegree
 import com.pathways.rules.content.ContentLoader
 import java.io.File
 import kotlin.random.Random
@@ -664,7 +665,7 @@ private fun RollDialog(out: SkillRollOutcome, onDismiss: () -> Unit) {
                     // an ordinary success, and showing "Success" with a note
                     // underneath would misreport the result.
                     val shown = out.effectiveOutcome ?: roll.outcome
-                    Text(label(shown), color = colorFor(shown))
+                    Text(label(shown, out.degree), color = colorFor(shown))
                     Text("margin ${roll.margin}", style = MaterialTheme.typography.bodySmall)
                 }
                 if (out.target != out.baseTarget) {
@@ -685,9 +686,19 @@ private fun RollDialog(out: SkillRollOutcome, onDismiss: () -> Unit) {
     )
 }
 
-private fun label(outcome: Outcome) = when (outcome) {
+/**
+ * Appendix A grades a success into three bands and gives a critical success
+ * its own row above them, so the degree only ever refines the SUCCESS line --
+ * a critical is already the best result the table prints and re-labelling it
+ * by margin would demote it.
+ */
+private fun label(outcome: Outcome, degree: SuccessDegree? = null) = when (outcome) {
     Outcome.CRITICAL_SUCCESS -> "Critical success"
-    Outcome.SUCCESS -> "Success"
+    Outcome.SUCCESS -> when (degree) {
+        SuccessDegree.EXCELLENT -> "Excellent success"
+        SuccessDegree.GOOD -> "Good success"
+        else -> "Success"
+    }
     Outcome.FAILURE -> "Failure"
     Outcome.CRITICAL_FAILURE -> "Critical failure"
 }

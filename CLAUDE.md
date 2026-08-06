@@ -1776,6 +1776,94 @@ study alone", which is a real subsystem with no caller in the app yet.
 **Codex did not review this slice either** — seventh in a row inside the usage
 limit.
 
+## 6ad. Degrees of success — when an appendix is allowed to define a rule
+
+`DegreeOfSuccess` (core/rules) reads Appendix A's seven-row ladder (p. 159)
+and the skill-roll dialog now grades a success rather than only reporting
+one. 6v said this appendix's success ladder was "genuinely new material and a
+slice of its own"; this is that slice, and its whole weight is one question.
+
+**The question: 6v also established that "a summary does not overrule the
+chapter it summarises", and this is the same appendix that gets chapter 5
+wrong twice.** So why is this table adopted at all?
+
+- **Because it is not summarising anything.** "Good Success" and "Excellent
+  Success" appear at global lines 9680 and 9682 and NOWHERE else in the book —
+  a test asserts that, and it is the assertion that would fail first if a
+  chapter turned out to print them. Ch. 2 line 278 says "Margins matter — the
+  degree of success or failure often determines quality of outcome" and
+  tabulates nothing, then five Sequence abilities scale their effect by "the
+  degree of success" (4679, 9419, 9556, 9595, 9625). The chapters ask; only
+  this page answers. Same shape as ch. 3's "See the Languages section for cost
+  tables" (6x): a cross-reference is what makes another page reachable.
+- **The warrant is per-table, never per-appendix.** "The appendix is reliable"
+  is exactly the generalisation 6v disproves. Five of these seven rows repeat
+  rules `SuccessRoll` has implemented since M0 — 3-4 always succeeds, 17-18
+  always fails, roll ≤ target succeeds, roll > target fails, roll ≥ target+10
+  is a critical failure — and `verify()` checks all five BY VALUE, in both
+  languages. That exact agreement is the only reason the two unrepeated rows
+  are adopted, and it is the standard the appendix's matching "Pi" had to meet
+  in 6v. The fail-by-10 row is written from the target's side where
+  `SuccessRoll` writes it from the margin's; asserting they meet is what
+  proves it is the same rule and not a second opinion.
+- **It is deliberately NOT part of `Outcome`.** Good and Excellent are
+  sub-bands of a success, and six production sites compare `== Outcome.SUCCESS`
+  (`Divination`, `FrightCheck`, `RitualResolution`, `Wounds`, `SkillRoll`,
+  `MainActivity`). Widening that enum would make a caster who rolled *well*
+  stop counting as having cast the ritual — a defect that would look like a
+  dice problem. The degree is a separate object for that reason alone.
+- **Outcome first, margin second — and the device showed it.** A rolled 3 or 4
+  is a critical success by the always-rule whatever its margin, and the table
+  prints that row ABOVE the ladder. Grading by margin first reports the book's
+  best row as an ordinary success. This is the slip `FrightCheck`,
+  `RitualResolution` and `Wounds` each made once; a rolled 4 against 13 has a
+  margin of 9, which is Excellent by margin alone, and the screen correctly
+  reads **Critical success**.
+- **The roll-under bands OVERLAP, so the LAST match wins.** A margin of 5
+  satisfies "≤ Target", "≤ Target −3" and "≤ Target −5" at once. The book
+  prints them least- to most-demanding; taking the first match would report
+  every success as plain and leave the two new rows loaded, tested and
+  unreachable. A test asserts a margin of 10 really does satisfy all three.
+- **Scoped to plain skill rolls.** Divination reads clarity off its own margin
+  table, and `RitualResolution`, `FrightCheck` and `Wounds` each grade against
+  a table their own chapter prints. Specific beats general — the call the PCR's
+  critical rules and the ritual CoR ladder already needed — so none of them
+  layers this general ladder on top. Pinned by a test asserting the divination
+  clarity rows are not named "Good Success"/"Excellent Success".
+- **`SkillRollOutcome.degree` reads `effectiveOutcome`, not `roll.outcome`.**
+  A roll demoted by `requiresCritical` is displayed as a failure, and grading
+  its raw margin would print "Good success" beside the word Failure. Exposing
+  the degree as a property is what stops a caller having to remember which of
+  the two outcomes to pass.
+
+Deliberately not extracted from the same page, both their own slices:
+**"Common Modifiers"** (9725-9745) — nine rows of GM circumstance, easy task
++4 or more, adverse −4, improvised tools −2 to −4, aided +2 — which is a
+fourth modifier source beside `Conditions`, `Attacks` and `Ranged` with the
+caller already built, and deserves the ranges-and-scope treatment those got;
+and **"SPI Recovery"** (9718-9724), one row of 1 SPI per hour of rest, where
+nothing in the app recovers SPI and nothing holds a clock. The difficulty grid
+at 9634-9664 restates ch. 3's ladder, already carried from the chapter (6ac).
+
+**Codex refused for the eighth consecutive slice** (same usage limit, resets
+2026-08-08 16:52). This is the first slice where the documented fallback was
+taken rather than the gate simply being skipped: one `ecc:kotlin-reviewer`
+pass over the real diff, primed with the defect class Codex keeps finding.
+It returned **zero findings** across all nine files and confirmed `.degree`
+has exactly one call site. That is weaker than Codex — it did not catch
+anything, and six slices running Codex did — so 6w-6ad still want a real
+review when the limit resets.
+
+Device-verified on a physical tablet, Academic Researcher, Research 13: margins
+0/1/2 read **"Success"**, margin 4 **"Good success"**, margins 5 and 7
+**"Excellent success"**, and a rolled 4 at margin 9 **"Critical success"**.
+The margin-3 boundary itself was not observed live (it is bracketed by the
+observed 2 and 4) and rests on `DegreeOfSuccessTest`.
+
+Appendix A is now at **8.6%**, from 0.0%. Note that `coverage.py` cannot see
+most of what is left there — 6v recorded that a bare `×1.5` counts as no
+mechanical line at all — so the remaining 32 are a floor, not a total.
+
 ### A note on Codex
 
 It has found one real defect per slice for six slices running, but it reads

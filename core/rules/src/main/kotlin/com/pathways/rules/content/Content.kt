@@ -1100,6 +1100,29 @@ data class DamageRowJson(val st: Int, val thrust: String, val swing: String)
 data class DamageRow(val st: Int, val thrust: com.pathways.model.DiceExpr, val swing: com.pathways.model.DiceExpr)
 
 /**
+ * One row of Appendix A's degree-of-success ladder (p. 159).
+ *
+ * A row is named EITHER by the roll itself ([rollLow]..[rollHigh], the two
+ * "always" rows) OR by a comparison against the target ([comparison] and
+ * [offset]) -- never both, which is why each pair is nullable rather than the
+ * row carrying a zero it does not print. The same two-doors shape as the
+ * divination clarity table and the ritual critical table.
+ *
+ * The roll-under rows OVERLAP by construction: a roll of target-5 satisfies
+ * all three of them. The table prints them least- to most-demanding and the
+ * last match is the answer, so read this list in order and keep the final
+ * row that fits.
+ */
+@Serializable
+data class SuccessBand(
+    val result: String,
+    val rollLow: Int? = null,
+    val rollHigh: Int? = null,
+    val comparison: String? = null,
+    val offset: Int? = null,
+)
+
+/**
  * Generic envelope every content file shares: the entries themselves, plus
  * the real global line numbers (from build/extract/lines.json) that were
  * claimed to produce them -- the contract tools/coverage.py depends on.

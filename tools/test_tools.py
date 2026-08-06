@@ -2291,3 +2291,99 @@ def test_straightening_the_grid_would_fail_verification():
     bent["Hard"] = [o + 1 for o in bent["Hard"]]
     with pytest.raises(ValueError):
         extract_skill_ladder.verify(cumulative, bent, examples, prose)
+
+
+import extract_success_ladder
+
+
+def ladder_rows():
+    return json.loads(
+        (CONTENT / "success_ladder.json").read_text(encoding="utf-8"))["entries"]
+
+
+def row_named(result):
+    return next(r for r in ladder_rows() if r["result"] == result)
+
+
+def test_the_two_degrees_are_printed_nowhere_else_in_the_book():
+    """The whole reason this is a definition rather than a summary. If either
+    phrase ever turns up in a chapter, that chapter is the authority and this
+    extract is repeating it -- which is the situation 6v warns about."""
+    byn = extract_success_ladder.load_lines()
+    low, high = extract_success_ladder.TABLE_RANGE
+    elsewhere = [
+        n for n, text in byn.items()
+        if not low <= n <= high
+        and ("Good Success" in text or "Excellent Success" in text)
+    ]
+    assert elsewhere == []
+
+
+def test_five_rows_repeat_rules_the_engine_already_implements():
+    """The warrant for adopting the two new rows. Checked by VALUE, because a
+    presence check would pass on a table that had quietly changed its
+    numbers."""
+    assert (row_named("Critical Success (always)")["rollLow"],
+            row_named("Critical Success (always)")["rollHigh"]) == (3, 4)
+    assert (row_named("Critical Failure (always)")["rollLow"],
+            row_named("Critical Failure (always)")["rollHigh"]) == (17, 18)
+    assert row_named("Success")["comparison"] == "<="
+    assert row_named("Success")["offset"] == 0
+    assert row_named("Failure")["comparison"] == ">"
+    assert row_named("Critical Failure")["offset"] == 10
+
+
+def test_a_row_is_named_by_the_roll_or_by_the_target_never_both():
+    """Two doors, the same shape as the divination clarity and ritual critical
+    tables. A row carrying both would mean the parse paired the wrong cells."""
+    for row in ladder_rows():
+        by_roll = "rollLow" in row
+        by_target = "comparison" in row
+        assert by_roll != by_target, row
+
+
+def test_the_degrees_are_strictly_harder_than_plain_success():
+    """The roll-under bands overlap, so the order is what makes the ladder
+    readable -- a swap would still produce a table that looks right."""
+    plain = row_named("Success")["offset"]
+    good = row_named("Good Success")["offset"]
+    excellent = row_named("Excellent Success")["offset"]
+    assert excellent < good < plain
+    assert (good, excellent) == (-3, -5)
+
+
+@needs_pdf
+def test_straightening_a_degree_would_fail_verification():
+    rows = extract_success_ladder.extract()
+    byn = extract_success_ladder.load_lines()
+    core = " ".join(
+        extract_success_ladder.stream(byn, *extract_success_ladder.CORE_RANGE))
+    pointer = " ".join(
+        extract_success_ladder.stream(byn, *extract_success_ladder.POINTER_RANGE))
+    bent = [dict(r) for r in rows]
+    for row in bent:
+        if row["result"] == "Excellent Success":
+            row["offset"] = -2          # now easier than Good
+    with pytest.raises(ValueError):
+        extract_success_ladder.verify(bent, core, pointer)
+
+
+@needs_pdf
+def test_losing_chapter_2s_pointer_would_fail_verification():
+    """Without it the appendix is inventing a rule instead of supplying the
+    table five abilities and one chapter already point at."""
+    rows = extract_success_ladder.extract()
+    byn = extract_success_ladder.load_lines()
+    core = " ".join(
+        extract_success_ladder.stream(byn, *extract_success_ladder.CORE_RANGE))
+    with pytest.raises(ValueError):
+        extract_success_ladder.verify(rows, core, "margins matter, somehow")
+
+
+@needs_pdf
+def test_a_dropped_cell_is_caught_rather_than_shifting_every_row():
+    """Pairing the stream off blindly would let one missing result cell shift
+    every row below it and still yield a plausible table."""
+    with pytest.raises(ValueError):
+        extract_success_ladder.parse_rows(
+            ["3-4", "Critical Success (always)", "Roll <= Target", "Roll <= Target -3"])

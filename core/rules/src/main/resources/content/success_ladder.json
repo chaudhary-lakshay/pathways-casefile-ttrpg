@@ -1,0 +1,47 @@
+{
+ "sourceLines": {
+  "A": [
+   [
+    9673,
+    9688
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "rollLow": 3,
+   "rollHigh": 4,
+   "result": "Critical Success (always)"
+  },
+  {
+   "comparison": "<=",
+   "offset": 0,
+   "result": "Success"
+  },
+  {
+   "comparison": "<=",
+   "offset": -3,
+   "result": "Good Success"
+  },
+  {
+   "comparison": "<=",
+   "offset": -5,
+   "result": "Excellent Success"
+  },
+  {
+   "comparison": ">",
+   "offset": 0,
+   "result": "Failure"
+  },
+  {
+   "comparison": ">=",
+   "offset": 10,
+   "result": "Critical Failure"
+  },
+  {
+   "rollLow": 17,
+   "rollHigh": 18,
+   "result": "Critical Failure (always)"
+  }
+ ]
+}
