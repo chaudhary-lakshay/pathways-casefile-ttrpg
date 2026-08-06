@@ -2058,17 +2058,30 @@ Flagon reads **"Costs 2 SPI."** with no HP clause, directly above a drawback
 that prints "(1 HP burn to the hand)" — the exact number the narrow reading
 refuses.
 
-**One change made after that run is NOT device-verified, and it is the button
-that spends.** The first version disabled Use permanently once a receipt
-showed, so maintaining False Majesty — the book's one "1 SPI/turn" ability,
-where repeating IS the printed rule — meant closing and reopening the dialog
-once per turn. It reads "Use again" now and the taps alternate: the first
-clears the receipt, the second pays, so nothing charges a pool without the
-button having read "Use" when it was hit. Found by tracing, not by the device,
-and the tablet dropped off USB before it could be re-run. The reviewer pass
-below validated the PREVIOUS version of that button — it cites the
-`enabled = used == null` that is now gone — so this one line rests on reasoning
-alone and wants two taps on hardware before it is trusted.
+**The button that spends was changed after that run, and re-verified on an
+emulator.** The first version disabled Use permanently once a receipt showed,
+so maintaining False Majesty — the book's one "1 SPI/turn" ability, where
+repeating IS the printed rule — meant closing and reopening the dialog once
+per turn. It reads "Use again" now and the taps ALTERNATE: the first clears
+the receipt, the second pays. Nothing charges a pool without the button having
+read "Use" when it was hit, which is a stronger guard than the `enabled` flag
+it replaced — and the reviewer pass below validated the OLD version, since it
+cites the `enabled = used == null` that is now gone.
+
+Verified on `Medium_Phone_API_36.1` (1080x2400), Academic Researcher, session
+cleared first: False Majesty's first Use took **HP 9/9 → 8/9** and saved
+`spiSpent: 1, hpLost: 1, cor: 1`; tapping **"Use again" left all three
+unchanged** and returned the label to "Use"; the next Use charged the second
+turn at `spiSpent: 2, hpLost: 2, cor: 2`. **Two rapid taps with no delay
+produced ONE spend, not two** (2 → 3 across all three fields), which is the
+alternation holding under the input a re-entrancy guard exists for.
+
+Two notes on the emulator, both cost a cycle: a cold boot throws a "System UI
+isn't responding" dialog OVER the app, which is SystemUI and not the app under
+test; and `uiautomator dump` returned "null root node" while still leaving a
+STALE ui.xml on disk to be pulled — so a dump can appear to succeed and
+describe the previous screen. Screenshots were the only honest instrument
+again, the same conclusion 6ae reached for a different reason.
 
 Deliberately not extracted from the same pages: Charms (10 rows), Mystical
 Ammunition (8), Special Medicines and Consumables (~16) — all Name / Domain /
