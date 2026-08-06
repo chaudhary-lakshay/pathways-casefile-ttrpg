@@ -1,0 +1,61 @@
+{
+ "sourceLines": {
+  "A": [
+   [
+    9725,
+    9745
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "situation": "Easy task (well-lit, calm, plenty of time)",
+   "printed": "+4 or more",
+   "modifier": 4,
+   "isOpenEnded": true
+  },
+  {
+   "situation": "Routine conditions",
+   "printed": "+0",
+   "modifier": 0
+  },
+  {
+   "situation": "Distracted or hurried",
+   "printed": "-2",
+   "modifier": -2
+  },
+  {
+   "situation": "Adverse conditions (dark, noisy, dangerous)",
+   "printed": "-4",
+   "modifier": -4
+  },
+  {
+   "situation": "Very adverse conditions (combat, extreme weather)",
+   "printed": "-6 or worse",
+   "modifier": -6,
+   "isOpenEnded": true
+  },
+  {
+   "situation": "Using untrained skill (default)",
+   "printed": "Attribute -4 to -6",
+   "isDefault": true
+  },
+  {
+   "situation": "Good tools / equipment",
+   "printed": "+1 to +2",
+   "modifier": 1,
+   "otherEnd": 2
+  },
+  {
+   "situation": "Improvised / poor tools",
+   "printed": "-2 to -4",
+   "modifier": -2,
+   "otherEnd": -4
+  },
+  {
+   "situation": "Aided by someone with the same skill",
+   "printed": "+2 (if they succeed first)",
+   "modifier": 2
+  }
+ ]
+}

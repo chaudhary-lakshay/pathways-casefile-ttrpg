@@ -2387,3 +2387,107 @@ def test_a_dropped_cell_is_caught_rather_than_shifting_every_row():
     with pytest.raises(ValueError):
         extract_success_ladder.parse_rows(
             ["3-4", "Critical Success (always)", "Roll <= Target", "Roll <= Target -3"])
+
+
+import extract_common_modifiers
+
+
+def common_rows():
+    return json.loads(
+        (CONTENT / "common_modifiers.json").read_text(encoding="utf-8"))["entries"]
+
+
+def common_row(situation):
+    return next(r for r in common_rows() if r["situation"] == situation)
+
+
+UNTRAINED = "Using untrained skill (default)"
+
+
+def test_the_untrained_row_carries_no_modifier():
+    """It is not a modifier: it replaces the roll with an attribute default.
+    Applied to a skill it would stack on SkillLadder.defaultFor AND subtract
+    from the wrong number. Printing no value is not printing zero."""
+    row = common_row(UNTRAINED)
+    assert row["isDefault"] is True
+    assert "modifier" not in row
+    assert row["printed"] == "Attribute -4 to -6"
+
+
+def test_the_untrained_range_is_the_engines_own_default_penalties():
+    """The warrant for the whole table. Difficulty.defaultPenalty is -4 Easy,
+    -5 Average, -6 Hard, and this row prints that column's two ends -- the one
+    row here the engine can be checked against, agreeing exactly."""
+    assert extract_common_modifiers.EXPECTED_DEFAULT_ENDS == (-4, -6)
+    printed = common_row(UNTRAINED)["printed"]
+    assert "-4" in printed and "-6" in printed
+
+
+def test_routine_conditions_print_a_real_zero():
+    """A row that prints +0 is a choice that adds nothing. The untrained row is
+    the other thing -- a row that prints no modifier at all."""
+    assert common_row("Routine conditions")["modifier"] == 0
+
+
+def test_every_other_row_carries_a_value():
+    for row in common_rows():
+        if row["situation"] == UNTRAINED:
+            continue
+        assert "modifier" in row, row
+
+
+def test_the_gentle_end_is_what_a_range_offers():
+    """Two ranges and two open ends. The value offered is nearer zero and the
+    other bound is kept, so a GM's pick is validated against the book."""
+    good = common_row("Good tools / equipment")
+    assert (good["modifier"], good["otherEnd"]) == (1, 2)
+    poor = common_row("Improvised / poor tools")
+    assert (poor["modifier"], poor["otherEnd"]) == (-2, -4)
+    easy = common_row("Easy task (well-lit, calm, plenty of time)")
+    assert easy["modifier"] == 4 and easy["isOpenEnded"] is True
+    assert "otherEnd" not in easy
+
+
+def test_the_conditional_row_keeps_its_condition_in_the_printed_cell():
+    """"+2 (if they succeed first)" -- the condition is another character's
+    roll, which this app cannot test, so it is shown rather than applied."""
+    row = common_row("Aided by someone with the same skill")
+    assert row["modifier"] == 2
+    assert "if they succeed first" in row["printed"]
+
+
+def test_this_table_and_chapter_5_both_price_darkness():
+    """Why the general table is not offered on a ranged attack: offering both
+    charges one dark room twice."""
+    assert any("dark" in r["situation"] for r in common_rows())
+    ranged = json.loads(
+        (CONTENT / "ranged_modifiers.json").read_text(encoding="utf-8"))["entries"]
+    assert any("Darkness" in r["condition"] for r in ranged)
+
+
+@needs_pdf
+def test_pricing_the_untrained_row_would_fail_verification():
+    rows = [dict(r) for r in extract_common_modifiers.extract()]
+    for row in rows:
+        if row["situation"] == UNTRAINED:
+            row["modifier"] = -4
+    with pytest.raises(ValueError):
+        extract_common_modifiers.verify(rows)
+
+
+@needs_pdf
+def test_flattening_a_range_would_fail_verification():
+    rows = [dict(r) for r in extract_common_modifiers.extract()]
+    for row in rows:
+        row.pop("otherEnd", None)
+    with pytest.raises(ValueError):
+        extract_common_modifiers.verify(rows)
+
+
+@needs_pdf
+def test_a_dropped_modifier_cell_is_caught():
+    """Pairing the stream off blindly would shift every row below the gap and
+    still produce a table that sums."""
+    with pytest.raises(ValueError):
+        extract_common_modifiers.parse_rows(
+            ["Routine conditions", "Distracted or hurried", "-2"])

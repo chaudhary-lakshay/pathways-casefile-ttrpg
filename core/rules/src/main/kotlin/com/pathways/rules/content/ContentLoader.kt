@@ -40,6 +40,9 @@ object ContentLoader {
     private val spiritDamageLazy: List<SpiritDamageRule> by lazy { load("spirit_damage.json") }
     private val majorWoundLazy: List<MajorWound> by lazy { load("major_wound.json") }
     private val successLadderLazy: List<SuccessBand> by lazy { load("success_ladder.json") }
+    private val commonModifiersLazy: List<CommonModifier> by lazy {
+        load("common_modifiers.json")
+    }
     private val divinationDifficultyLazy: List<DivinationDifficulty> by lazy {
         load("divination_difficulty.json")
     }
@@ -332,6 +335,13 @@ object ContentLoader {
      * the two "always" rows have to be settled before any margin is compared.
      */
     fun successLadder(): List<SuccessBand> = successLadderLazy
+
+    /**
+     * Appendix A's Common Modifiers (p. 159), in printed order. Read through
+     * [com.pathways.rules.CommonModifiers]: one of these rows is not a
+     * modifier and must be refused rather than applied.
+     */
+    fun commonModifiers(): List<CommonModifier> = commonModifiersLazy
 
     private inline fun <reified T> load(resource: String): List<T> {
         val stream = ContentLoader::class.java.getResourceAsStream("/content/$resource")

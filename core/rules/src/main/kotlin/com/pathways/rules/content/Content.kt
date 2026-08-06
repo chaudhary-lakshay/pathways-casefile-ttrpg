@@ -1100,6 +1100,31 @@ data class DamageRowJson(val st: Int, val thrust: String, val swing: String)
 data class DamageRow(val st: Int, val thrust: com.pathways.model.DiceExpr, val swing: com.pathways.model.DiceExpr)
 
 /**
+ * One row of Appendix A's Common Modifiers table (p. 159) -- the general
+ * circumstances a GM applies to any skill roll.
+ *
+ * [modifier] is the end NEARER ZERO of whatever the row prints, so a range
+ * ("+1 to +2") and an open end ("-6 or worse") both offer the gentle value
+ * and keep the other bound in [otherEnd] or [isOpenEnded]. A GM choosing
+ * inside a range is validated against the printed ends rather than against
+ * nothing.
+ *
+ * [isDefault] marks the one row that is NOT a modifier: "Using untrained
+ * skill / Attribute -4 to -6" replaces the roll with an attribute default
+ * rather than adjusting a skill, and it carries no [modifier] at all --
+ * printing no value is not the same as printing zero.
+ */
+@Serializable
+data class CommonModifier(
+    val situation: String,
+    val printed: String,
+    val modifier: Int? = null,
+    val otherEnd: Int? = null,
+    val isOpenEnded: Boolean = false,
+    val isDefault: Boolean = false,
+)
+
+/**
  * One row of Appendix A's degree-of-success ladder (p. 159).
  *
  * A row is named EITHER by the roll itself ([rollLow]..[rollHigh], the two

@@ -1864,6 +1864,78 @@ Appendix A is now at **8.6%**, from 0.0%. Note that `coverage.py` cannot see
 most of what is left there — 6v recorded that a bare `×1.5` counts as no
 mechanical line at all — so the remaining 32 are a floor, not a total.
 
+## 6ae. Common Modifiers — the fourth source, and a row that is not one
+
+`CommonModifiers` (core/rules) reads Appendix A's nine-row circumstance table
+(p. 159) and the skill-roll dialog now asks before it rolls. It joins
+`Conditions` (what the character is carrying), `Attacks` (what the player chose
+this turn) and `Ranged` (the distance and the scene); this one is what the GM
+says the situation is.
+
+- **"Using untrained skill (default) / Attribute −4 to −6" is not a
+  modifier, and the row proves it itself.** That printed range is exactly
+  `Difficulty.defaultPenalty`'s two ends — −4 Easy, −5 Average, −6 Hard, Very
+  Hard having no default at all — so the row is chapter 3's untrained defaults
+  restated, and `SkillLadder.defaultFor` has implemented them since M0.
+  Applied as a modifier it would be wrong twice over: stacked on a default
+  already taken, and subtracted from the SKILL where the book subtracts from
+  the ATTRIBUTE. It is **refused** rather than read as +0, because a caller
+  handed 0 would believe the rule had been priced — the same shape as
+  divination's "See Step 1 table" row (6p). `offered()` withholds it, so no
+  chip can reach it.
+- **That same agreement is the table's warrant.** Adopting an appendix needs
+  per-table evidence, never per-appendix (6ad, and 6v is why). This is the one
+  row here the engine can be checked against, and it agrees exactly. Without
+  it there would be no basis for the other eight.
+- **It is deliberately NOT offered on a ranged attack.** "Adverse conditions
+  (dark, noisy, dangerous) −4" and chapter 5's "Darkness or heavy fog −3 to
+  −9" are one circumstance priced twice, generally and specifically. Both on
+  one roll charges a dark room twice. Specific beats general — the scoping the
+  ritual CoR ladder needed (6h) and that keeps chapter 13's boons off Phase I
+  preparation (6r). `verify()` and a Kotlin test both pin that the overlap is
+  still really there, because the day it stops being there is the day the
+  scoping stops being needed.
+- **Only four of nine rows print a single number.** Two print ranges, two
+  print an open end, one carries its condition in the cell ("+2 (if they
+  succeed first)" — another character's roll, which this app cannot test, so
+  it is shown rather than applied). The end nearer zero is offered and the
+  other bound validates a GM's pick, the gentle reading the darkness row and
+  the ritual preparation ranges already take. An open end bounds only the side
+  the book prints: +2 on an "easy task" would be gentler than the book's own
+  floor, so it is refused.
+- **"Routine conditions / +0" is a real printed row that adds nothing**,
+  which is not the same as a row that prints no modifier. It stays selectable
+  and drops out at the ledger, like any other zero. The untrained row sits on
+  the other side of that distinction.
+- **The roll now happens inside the dialog.** It used to fire on the tap that
+  opened it, which left nowhere to state a circumstance before the dice were
+  cast. Re-rolling as each chip toggles would be worse — the GM would watch
+  results scroll past and keep whichever arrived last. Roll goes disabled
+  after firing rather than being replaced by Close, so the re-entrancy guard
+  is visible instead of implied.
+
+**Codex refused for the ninth consecutive slice** (usage limit, resets
+2026-08-08 16:52). One `ecc:kotlin-reviewer` fallback pass, primed with six
+named probes: **zero findings**, each traced rather than asserted.
+
+Device-verified on the tablet, Academic Researcher, Research 13: eight chips
+render and the untrained row is absent; picking "Adverse conditions −4" plus
+"Good tools / equipment" at its **+2** end read **"3d6: 11 vs 11 — base 13,
+modified to 11"** with both rows named in the contribution line, and Roll
+greyed out afterwards.
+
+**A debugging note worth more than the slice.** Roll appeared to dismiss the
+dialog instead of rolling, and three rounds of uiautomator dumps and logcat
+tails all pointed at the app. Both instruments were lying: **logcat was
+filtered wrongly** (an unrelated health app floods this device, so a tail
+without `--pid` proves nothing about a crash), and **uiautomator's coordinate
+scale differs between the activity window and a dialog window** — the activity
+reports in a 1440x900 space against a physical 1920x1200, but a dialog's
+bounds do not take the same factor, so a scaled tap landed on the scrim past
+the dialog's right edge and dismissed it. One `screencap` answered in a single
+step what four dumps could not. For a Compose dialog, **take the screenshot
+and read the pixels**; they are already physical coordinates.
+
 ### A note on Codex
 
 It has found one real defect per slice for six slices running, but it reads

@@ -6,8 +6,11 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,6 +28,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,6 +63,9 @@ import com.pathways.rules.SheetRow
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.SuccessDegree
+import com.pathways.rules.CommonModifiers
+import com.pathways.rules.PremadeSkill
+import com.pathways.rules.content.CommonModifier
 import com.pathways.rules.content.ContentLoader
 import java.io.File
 import kotlin.random.Random
@@ -167,7 +176,9 @@ fun SheetScreen(
     val drunk = session.state
     val rows = remember(sheet) { SheetComparison.of(sheet) }
     val differing = rows.count { !it.matches }
-    var rolled by remember(sheet) { mutableStateOf<SkillRollOutcome?>(null) }
+    // The SKILL, not the outcome: the roll now happens inside the dialog, after
+    // the GM has stated the circumstances.
+    var rolling by remember(sheet) { mutableStateOf<PremadeSkill?>(null) }
     var frightening by remember(sheet) { mutableStateOf(false) }
     var casting by remember(sheet) { mutableStateOf(false) }
     var defending by remember(sheet) { mutableStateOf(false) }
@@ -306,24 +317,31 @@ fun SheetScreen(
                 if (row != null) {
                     ComparisonRow(
                         row,
-                        Modifier.clickable {
-                            // The trackers reach the dice here: a reeling,
-                            // fatigued or corrupted character no longer rolls
-                            // at full skill.
-                            rolled = SkillRoll.of(
-                                sheet,
-                                skill,
-                                appDice,
-                                mods = conditionsFor(skill.key()),
-                            )
-                        },
+                        Modifier.clickable { rolling = skill },
                     )
                 }
             }
         }
     }
 
-    rolled?.let { RollDialog(it) { rolled = null } }
+    rolling?.let { skill ->
+        RollDialog(
+            label = skill.label,
+            base = sheet.levelFor(skill),
+            onRoll = { circumstances ->
+                // The trackers reach the dice here: a reeling, fatigued or
+                // corrupted character no longer rolls at full skill. The GM's
+                // circumstances are a separate source and simply join the list.
+                SkillRoll.of(
+                    sheet,
+                    skill,
+                    appDice,
+                    mods = conditionsFor(skill.key()) + circumstances,
+                )
+            },
+            onDismiss = { rolling = null },
+        )
+    }
     if (frightening) {
         FrightDialog(vitals.will) { frightening = false }
     }
@@ -645,45 +663,166 @@ private fun ComparisonRow(row: SheetRow, modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Pick the circumstances, then roll.
+ *
+ * The roll used to fire on the tap that opened this dialog, which left nowhere
+ * to state Appendix A's Common Modifiers before the dice were already cast.
+ * Re-rolling as each chip is toggled would be worse: the GM would watch
+ * results scroll past and keep whichever one arrived last.
+ */
 @Composable
-private fun RollDialog(out: SkillRollOutcome, onDismiss: () -> Unit) {
+private fun RollDialog(
+    label: String,
+    base: Int,
+    onRoll: (List<com.pathways.model.Modifier>) -> SkillRollOutcome,
+    onDismiss: () -> Unit,
+) {
+    var out by remember { mutableStateOf<SkillRollOutcome?>(null) }
+    val chosen = remember { mutableStateListOf<CommonModifier>() }
+    // A GM's pick inside a printed range, keyed by situation. Rebuilt from the
+    // current picks on every roll, so dropping a chip cannot leave its value
+    // behind -- the stale-state defect the boon dialog was fixed for.
+    val gmValue = remember { mutableStateMapOf<String, Int>() }
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
-        title = { Text(out.label) },
+        // Both buttons always exist, rather than one slot whose label and
+        // onClick swap from Roll to Close once the dice are cast. Roll simply
+        // goes disabled, which makes the re-entrancy guard below visible
+        // instead of implied -- a GM can see the roll has happened.
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = {
+            TextButton(
+                enabled = out == null,
+                onClick = {
+                    // Belt to the disabled state's braces: two taps in the same
+                    // frame could otherwise roll twice and show the second, the
+                    // guard the divination and ritual dialogs also needed.
+                    if (out == null) {
+                        out = onRoll(
+                            CommonModifiers.modifiers(
+                                chosen = chosen.toList(),
+                                gmValue = gmValue.filterKeys { key ->
+                                    chosen.any { it.situation == key }
+                                },
+                            ),
+                        )
+                    }
+                },
+            ) { Text("Roll") }
+        },
+        title = { Text(label) },
         text = {
-            Column {
-                val roll = out.roll
-                if (roll == null) {
-                    Text("Forbidden — this roll cannot be attempted.")
-                } else {
-                    Text(
-                        "3d6: ${roll.total} vs ${roll.target}",
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    // effectiveOutcome, not roll.outcome: RequireCrit demotes
-                    // an ordinary success, and showing "Success" with a note
-                    // underneath would misreport the result.
-                    val shown = out.effectiveOutcome ?: roll.outcome
-                    Text(label(shown, out.degree), color = colorFor(shown))
-                    Text("margin ${roll.margin}", style = MaterialTheme.typography.bodySmall)
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                val shownOut = out
+                if (shownOut == null) {
+                    Text("Skill $base", style = MaterialTheme.typography.titleLarge)
+                    CircumstanceRow(chosen, gmValue)
+                    return@Column
                 }
-                if (out.target != out.baseTarget) {
-                    Text(
-                        "base ${out.baseTarget}, modified to ${out.target}",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                if (out.requiresCritical) {
-                    Text(
-                        "Only a critical success counts.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
+                RollResult(shownOut)
             }
         },
     )
+}
+
+/**
+ * Appendix A's Common Modifiers. The untrained-default row is absent because
+ * `CommonModifiers.offered()` withholds it: it replaces the roll with an
+ * attribute default rather than modifying a skill, and this screen has no way
+ * to offer that as a chip without lying about what it does.
+ *
+ * Chapter 5's darkness and cover rows are deliberately not here either — they
+ * belong to the ranged dialog, and offering both would charge one dark room
+ * twice.
+ */
+@Composable
+private fun CircumstanceRow(
+    chosen: MutableList<CommonModifier>,
+    gmValue: MutableMap<String, Int>,
+) {
+    Text(
+        "Circumstances (Appendix A)",
+        style = MaterialTheme.typography.labelLarge,
+        modifier = Modifier.padding(top = 12.dp),
+    )
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        CommonModifiers.offered().forEach { row ->
+            val isOn = chosen.any { it.situation == row.situation }
+            FilterChip(
+                selected = isOn,
+                onClick = {
+                    if (isOn) {
+                        chosen.removeAll { it.situation == row.situation }
+                        gmValue.remove(row.situation)
+                    } else {
+                        chosen.add(row)
+                    }
+                },
+                label = { Text("${row.situation.substringBefore(" (")} ${row.printed}") },
+            )
+        }
+    }
+    // Both printed ends, for the four rows that print two. The gentle end is
+    // the default; nothing here can offer a value the book does not print.
+    chosen.filter { it.otherEnd != null || it.isOpenEnded }.forEach { row ->
+        val ends = listOfNotNull(row.modifier, row.otherEnd)
+        Text(
+            "${row.situation}: ${row.printed}",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 6.dp),
+        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            ends.forEach { value ->
+                FilterChip(
+                    selected = (gmValue[row.situation] ?: row.modifier) == value,
+                    onClick = { gmValue[row.situation] = value },
+                    label = { Text(if (value > 0) "+$value" else "$value") },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RollResult(out: SkillRollOutcome) {
+    Column {
+        val roll = out.roll
+        if (roll == null) {
+            Text("Forbidden — this roll cannot be attempted.")
+        } else {
+            Text(
+                "3d6: ${roll.total} vs ${roll.target}",
+                style = MaterialTheme.typography.titleLarge,
+            )
+            // effectiveOutcome, not roll.outcome: RequireCrit demotes an
+            // ordinary success, and showing "Success" with a note underneath
+            // would misreport the result.
+            val shown = out.effectiveOutcome ?: roll.outcome
+            Text(label(shown, out.degree), color = colorFor(shown))
+            Text("margin ${roll.margin}", style = MaterialTheme.typography.bodySmall)
+        }
+        if (out.target != out.baseTarget) {
+            Text(
+                "base ${out.baseTarget}, modified to ${out.target}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        out.applied.forEach { contribution ->
+            Text(
+                "${contribution.ids.joinToString { it.value }}: ${contribution.delta}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        if (out.requiresCritical) {
+            Text(
+                "Only a critical success counts.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+    }
 }
 
 /**
