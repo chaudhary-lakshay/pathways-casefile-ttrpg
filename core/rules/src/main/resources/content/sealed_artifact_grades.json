@@ -1,0 +1,44 @@
+{
+ "sourceLines": {
+  "6": [
+   [
+    3180,
+    3210
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "grade": 3,
+   "danger": "Considerable",
+   "powerEquivalent": "Low-Sequence Beyonder (Seq 8–9)",
+   "sequenceLow": 8,
+   "sequenceHigh": 9,
+   "churchAccess": "Formal Nighthawk members and above"
+  },
+  {
+   "grade": 2,
+   "danger": "Dangerous",
+   "powerEquivalent": "Mid-Sequence Beyonder (Seq 5–7)",
+   "sequenceLow": 5,
+   "sequenceHigh": 7,
+   "churchAccess": "Bishop or Nighthawk team captain and above; 3–5 per cathedral"
+  },
+  {
+   "grade": 1,
+   "danger": "Highly Dangerous",
+   "powerEquivalent": "Saint (Seq 3–4)",
+   "sequenceLow": 3,
+   "sequenceHigh": 4,
+   "churchAccess": "Diocesan Bishop or Nighthawk deacon and above; 1–2 per diocese HQ"
+  },
+  {
+   "grade": 0,
+   "danger": "Extremely Dangerous",
+   "powerEquivalent": "Angel (Seq 1–2 equivalent)",
+   "sequenceLow": 1,
+   "sequenceHigh": 2,
+   "churchAccess": "Most confidential — not to be inquired, described, or spied upon"
+  }
+ ]
+}

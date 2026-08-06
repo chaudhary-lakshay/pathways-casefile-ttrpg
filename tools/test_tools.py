@@ -2491,3 +2491,168 @@ def test_a_dropped_modifier_cell_is_caught():
     with pytest.raises(ValueError):
         extract_common_modifiers.parse_rows(
             ["Routine conditions", "Distracted or hurried", "-2"])
+
+
+import extract_artifacts
+
+ARTIFACTS = json.loads(
+    (CONTENT / "sealed_artifacts.json").read_text(encoding="utf-8"))["entries"]
+GRADES = json.loads(
+    (CONTENT / "sealed_artifact_grades.json").read_text(encoding="utf-8"))["entries"]
+
+
+def artifact(name):
+    return next(a for a in ARTIFACTS if a["name"] == name)
+
+
+def test_every_artifact_confirms_its_own_grades_printed_band():
+    """THE WARRANT for joining the two tables. Each artifact header prints its
+    own "Seq N equivalent"; all four land inside their grade's printed band, so
+    the grade table's power column is confirmed four times independently."""
+    bands = {g["grade"]: (g["sequenceLow"], g["sequenceHigh"]) for g in GRADES}
+    assert bands == {3: (8, 9), 2: (5, 7), 1: (3, 4), 0: (1, 2)}
+    for a in ARTIFACTS:
+        low, high = bands[a["grade"]]
+        assert low <= a["sequenceEquivalent"] <= high, a["name"]
+
+
+def test_a_grade_gates_on_rank_and_never_on_a_sequence():
+    """The fourth column is "Church Access Rules" and every cell names a rank.
+    Nothing in it names a Sequence the wielder must have reached, which is why
+    SealedArtifacts exposes no canUse."""
+    assert [g["grade"] for g in GRADES] == [3, 2, 1, 0]
+    for g in GRADES:
+        assert any(w in g["churchAccess"]
+                   for w in ("Nighthawk", "Bishop", "confidential")), g
+
+
+def test_a_power_cell_wrapping_onto_a_bracket_is_one_cell():
+    """"Low-Sequence Beyonder" / "(Seq 8-9)" is one column. A line opening with
+    "(" cannot start a cell, which is the unclosed-bracket rule the Vitals
+    multiplier already needs."""
+    rows = extract_artifacts.parse_grades([
+        "Grade 3", "Considerable", "Low-Sequence Beyonder", "(Seq 8–9)",
+        "Formal Nighthawk members and above",
+    ])
+    assert rows[0]["powerEquivalent"] == "Low-Sequence Beyonder (Seq 8–9)"
+    assert rows[0]["danger"] == "Considerable"
+    assert (rows[0]["sequenceLow"], rows[0]["sequenceHigh"]) == (8, 9)
+    # A power cell that does NOT wrap keeps the danger cell intact beside it.
+    flat = extract_artifacts.parse_grades([
+        "Grade 1", "Highly", "Dangerous", "Saint (Seq 3–4)", "Diocesan Bishop",
+    ])
+    assert flat[0]["danger"] == "Highly Dangerous"
+    assert flat[0]["powerEquivalent"] == "Saint (Seq 3–4)"
+
+
+def test_the_spi_cell_is_the_ability_anchor():
+    """Three of the four ability tables sit across a page break, so only the
+    cost cell has a fixed shape. The name is the line before it."""
+    rows = extract_artifacts.parse_abilities([
+        "Bribe — Weaken", "1 SPI", "Touch the palm to a target.",
+        "False Majesty", "1 SPI/turn", "An aura of command.",
+    ])
+    assert [r["name"] for r in rows] == ["Bribe — Weaken", "False Majesty"]
+    assert rows[0]["perTurn"] is False and rows[1]["perTurn"] is True
+    assert rows[0]["effect"] == "Touch the palm to a target."
+
+
+def test_only_the_per_use_hp_rule_is_charged():
+    """Three of the four artifacts print an HP number in their drawbacks and
+    only the gauntlet's is per use. The others are conditional on telling a
+    lie, on touching the flame, or on a use count."""
+    per_use = {a["name"]: a["hpPerUse"] for a in ARTIFACTS if "hpPerUse" in a}
+    assert per_use == {"Gauntlet of the False Baron": 1}
+    per_ability = {ab["name"]: ab["hpCost"]
+                   for a in ARTIFACTS for ab in a["abilities"] if "hpCost" in ab}
+    assert per_ability == {"Extinguish Memory": 1}
+    # The uncharged HP is still printed, so the narrow reading stays a decision.
+    prose = " ".join(d for a in ARTIFACTS for d in a["drawbacks"])
+    assert "the flagon grows hot (1 HP burn to the hand)" in prose
+    assert "the user loses 1 HP permanently" in prose
+
+
+def test_an_ability_charging_no_hp_carries_no_field():
+    """Charging no HP is not charging zero -- the RitualCritical.corGained
+    distinction, one chapter over."""
+    for a in ARTIFACTS:
+        for ab in a["abilities"]:
+            if ab["name"] != "Extinguish Memory":
+                assert "hpCost" not in ab, (a["name"], ab["name"])
+    assert "hpPerUse" not in artifact("The Peerless Flagon")
+
+
+def test_no_artifact_ate_a_label_or_lost_a_section():
+    """The first ability NAME is the line before the first SPI cell and nothing
+    marks it, so it lands in appearance and has to be taken back. If that ever
+    slipped, the appearance prose would swallow it."""
+    assert len(ARTIFACTS) == 4
+    assert sum(len(a["abilities"]) for a in ARTIFACTS) == 13
+    for a in ARTIFACTS:
+        assert "Appearance" not in a["appearance"], a["name"]
+        assert "Drawbacks" not in a["appearance"], a["name"]
+        assert len(a["drawbacks"]) == 3 and a["sealing"], a["name"]
+        assert not a["appearance"].endswith(a["abilities"][0]["name"]), a["name"]
+    assert artifact("Gauntlet of the False Baron")["abilities"][0]["name"] \
+        == "Bribe — Weaken"
+
+
+@needs_pdf
+def test_an_artifact_outside_its_grades_band_would_fail_verification():
+    """The join is warranted only while the two tables agree. If one artifact
+    stopped confirming its grade, joining them would need rereading."""
+    grades = extract_artifacts.parse_grades(
+        [t for b, t in extract_artifacts.stream(
+            extract_artifacts.load_lines(), *extract_artifacts.GRADE_RANGE) if not b])
+    artifacts = [dict(a) for a in extract_artifacts.parse_artifacts(
+        extract_artifacts.stream(
+            extract_artifacts.load_lines(), *extract_artifacts.ARTIFACT_RANGE))]
+    intro = " ".join(t for b, t in extract_artifacts.stream(
+        extract_artifacts.load_lines(), *extract_artifacts.INTRO_RANGE))
+    extract_artifacts.verify(grades, artifacts, intro)  # agrees today
+    artifacts[0]["sequenceEquivalent"] = 9
+    with pytest.raises(ValueError):
+        extract_artifacts.verify(grades, artifacts, intro)
+
+
+@needs_pdf
+def test_charging_hp_on_a_conditional_drawback_would_fail_verification():
+    grades = extract_artifacts.parse_grades(
+        [t for b, t in extract_artifacts.stream(
+            extract_artifacts.load_lines(), *extract_artifacts.GRADE_RANGE) if not b])
+    artifacts = [dict(a) for a in extract_artifacts.parse_artifacts(
+        extract_artifacts.stream(
+            extract_artifacts.load_lines(), *extract_artifacts.ARTIFACT_RANGE))]
+    intro = " ".join(t for b, t in extract_artifacts.stream(
+        extract_artifacts.load_lines(), *extract_artifacts.INTRO_RANGE))
+    for a in artifacts:
+        a["hpPerUse"] = 1
+    with pytest.raises(ValueError):
+        extract_artifacts.verify(grades, artifacts, intro)
+
+
+import extract_digestion
+
+
+@needs_pdf
+def test_the_pcr_formula_sentence_is_pinned_beside_its_table():
+    """extract_digestion asserts effectiveTarget == 10 + modifier. That check is
+    only meaningful while the book still PRINTS the formula, so the sentence is
+    claimed alongside the table rather than left outside the span."""
+    byn = extract_digestion.load_lines()
+    formula = " ".join(extract_digestion.stream(
+        byn, *extract_digestion.FORMULA_RANGE))
+    assert extract_digestion.FORMULA in formula
+    assert extract_digestion.RAW_ROLL in formula
+    acting = extract_digestion.parse_acting(extract_digestion.stream(
+        byn, *extract_digestion.ACTING_RANGE))
+    pcr = extract_digestion.parse_pcr(extract_digestion.stream(
+        byn, *extract_digestion.PCR_RANGE))
+    with pytest.raises(ValueError):
+        extract_digestion.verify(acting, pcr, "the formula went away")
+
+
+def test_the_pcr_claims_the_prose_and_the_table():
+    spans = json.loads((CONTENT / "potion_consumption.json")
+                       .read_text(encoding="utf-8"))["sourceLines"]["6"]
+    assert spans == [[3079, 3081], [3082, 3119]]

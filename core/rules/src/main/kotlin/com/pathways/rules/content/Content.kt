@@ -1148,6 +1148,71 @@ data class SuccessBand(
 )
 
 /**
+ * One row of the Sealed Artifact grade table (Ch. 6, p. 47).
+ *
+ * **[churchAccess] is the gate and [powerEquivalent] is not.** Every access
+ * cell names an institutional RANK; the power column says how strong the
+ * artifact is, in Sequence terms, and the book nowhere requires a wielder to
+ * match it. Read through [com.pathways.rules.SealedArtifacts], which shows
+ * both and enforces neither.
+ */
+@Serializable
+data class SealedArtifactGrade(
+    val grade: Int,
+    val danger: String,
+    val powerEquivalent: String,
+    val sequenceLow: Int,
+    val sequenceHigh: Int,
+    val churchAccess: String,
+)
+
+/**
+ * One ability of a Sealed Artifact (Ch. 6, p. 49-53).
+ *
+ * [spi] is the printed cost and the one number the app spends. [perTurn] marks
+ * the gauntlet's False Majesty, whose cell reads "1 SPI/turn" -- maintained,
+ * not paid once.
+ *
+ * [hpCost] is present only for the one ability whose own effect cell charges HP
+ * unconditionally (the candle's Extinguish Memory). Absent means the ability
+ * charges no HP, which is not the same as charging zero.
+ */
+@Serializable
+data class ArtifactAbility(
+    val name: String,
+    val spi: Int,
+    val perTurn: Boolean = false,
+    val effect: String,
+    val hpCost: Int? = null,
+)
+
+/**
+ * One documented Sealed Artifact (Ch. 6, p. 49-53).
+ *
+ * [hpPerUse] is the gauntlet's Soul's Price -- "Each use of any ability costs
+ * 1 HP in addition to SPI" -- and is absent on the other three. Three of the
+ * four print an HP number SOMEWHERE in [drawbacks], but the other three are
+ * conditional on lying, on touching the flame, or on a use count, so they are
+ * quoted for the GM and never charged.
+ *
+ * [grade] and [sequenceEquivalent] are shown, never enforced: see
+ * [SealedArtifactGrade].
+ */
+@Serializable
+data class SealedArtifact(
+    val code: String,
+    val name: String,
+    val pathway: String,
+    val grade: Int,
+    val sequenceEquivalent: Int,
+    val appearance: String,
+    val abilities: List<ArtifactAbility>,
+    val drawbacks: List<String>,
+    val sealing: String,
+    val hpPerUse: Int? = null,
+)
+
+/**
  * Generic envelope every content file shares: the entries themselves, plus
  * the real global line numbers (from build/extract/lines.json) that were
  * claimed to produce them -- the contract tools/coverage.py depends on.

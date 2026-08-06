@@ -43,6 +43,12 @@ object ContentLoader {
     private val commonModifiersLazy: List<CommonModifier> by lazy {
         load("common_modifiers.json")
     }
+    private val sealedArtifactGradesLazy: List<SealedArtifactGrade> by lazy {
+        load("sealed_artifact_grades.json")
+    }
+    private val sealedArtifactsLazy: List<SealedArtifact> by lazy {
+        load("sealed_artifacts.json")
+    }
     private val divinationDifficultyLazy: List<DivinationDifficulty> by lazy {
         load("divination_difficulty.json")
     }
@@ -342,6 +348,20 @@ object ContentLoader {
      * modifier and must be refused rather than applied.
      */
     fun commonModifiers(): List<CommonModifier> = commonModifiersLazy
+
+    /**
+     * The four Sealed Artifact grades (Ch. 6, p. 47), most accessible first.
+     * A classification of danger and church access, not a wielder requirement:
+     * read through [com.pathways.rules.SealedArtifacts].
+     */
+    fun sealedArtifactGrades(): List<SealedArtifactGrade> = sealedArtifactGradesLazy
+
+    /**
+     * The four documented Sealed Artifacts (Ch. 6, p. 49-53), in printed order.
+     * Their SPI and HP costs are the part the app spends; every effect,
+     * drawback and sealing instruction is prose the GM reads.
+     */
+    fun sealedArtifacts(): List<SealedArtifact> = sealedArtifactsLazy
 
     private inline fun <reified T> load(resource: String): List<T> {
         val stream = ContentLoader::class.java.getResourceAsStream("/content/$resource")

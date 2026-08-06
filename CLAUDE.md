@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **650 Kotlin** (JUnit 5, incl. 61 in `app/`) + **152 Python** (pytest), all green |
+| Tests | **724 Kotlin** (JUnit 5, incl. 61 in `app/`) + **203 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -75,7 +75,7 @@ docs/           spec, plan, KNOWN_ISSUES
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading forty JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading 57 JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -98,7 +98,8 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `languages.json` (12), `language_proficiency.json` (6),
 `language_notes.json` (2), `ritual_support.json` (5),
 `ritual_quick_preparation.json` (3), `ritual_target_link.json` (4),
-`entity_response.json` (6).
+`entity_response.json` (6), `sealed_artifact_grades.json` (4),
+`sealed_artifacts.json` (4).
 
 ### Public entry points
 
@@ -200,6 +201,11 @@ Invocation.ORTHODOX_SHIFT = -2        // on the TABLE roll, never the ritual
 Invocation.responses() / .responseFor(roll) / .ritualModifier(row)  // throws on 18
 Invocation.shiftedRoll(roll, orthodoxInGoodStanding) / .ask(source, standing)
 ContentLoader.entityResponse()
+SealedArtifacts.all() / .grades() / .named(name) / .abilityNamed(artifact, name)
+SealedArtifacts.gradeOf(a) / .powerEquivalentOf(a) / .agreesWithGrade(a)
+SealedArtifacts.costOf(artifact, ability): ArtifactCost   // spi, hp, perTurn
+                                      // deliberately NO canUse: grade is not a gate
+ContentLoader.sealedArtifactGrades() / .sealedArtifacts()
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -1950,6 +1956,126 @@ bounds do not take the same factor, so a scaled tap landed on the scrim past
 the dialog's right edge and dismissed it. One `screencap` answered in a single
 step what four dumps could not. For a Compose dialog, **take the screenshot
 and read the pixels**; they are already physical coordinates.
+
+## 6af. Sealed Artifacts — a column that looks exactly like a gate
+
+`SealedArtifacts` (core/rules) reads Ch. 6's grade table (p. 47) and the four
+documented artifacts (p. 49-53), and `ArtifactDialog` spends what they cost.
+This is the chapter the app is *named* after and it sat at **31.2%**; the
+artifacts were the part with callers already waiting, because
+`BeyonderSession.spend` has charged SPI since M4's pool slice and HP since
+6aa.
+
+- **"Power Equivalent (Seq 5-7)" is not a requirement, and it reads exactly
+  like one.** The grade table's four columns are Grade / Danger / Power
+  Equivalent / **Church Access Rules**, and only the fourth gates anything —
+  every cell in it names an institutional RANK ("Formal Nighthawk members and
+  above", "Diocesan Bishop or Nighthawk deacon and above"). The power column
+  says how strong the ARTIFACT is. Enforced as a wielder requirement it would
+  lock a Sequence 9 character out of a gauntlet the chapter says arises "as a
+  result of the death of an out-of-control Beyonder" — found on a corpse, not
+  issued by rank. So there is deliberately **no `canUse`**, and the screen
+  prints both columns with the distinction spelled out, because a sentence is
+  cheaper than a check that would be wrong. Same shape as a wealth level's
+  reaction modifier (6u) and a called shot's wounding multiplier (6l).
+- **The warrant is the artifacts' own headers, not the chapter's
+  reliability.** Each prints its own "Seq N equivalent" and all four land
+  inside their grade's printed band — Grade 2 gets 7 and 6, Grade 3 gets 8,
+  Grade 1 gets 4. Four independent confirmations are what license joining the
+  two tables by grade number at all; `verify()` and `SealedArtifactsTest`
+  check every one by value, and the join is declared a READING rather than a
+  fact. That is the standard 6ad set and 6v is why it has to be per-table.
+- **Three of the four artifacts print an HP number in their drawbacks and
+  only one is charged.** The gauntlet's Soul's Price is "Each use of any
+  ability costs 1 HP in addition to SPI" — unconditional. The flagon's is
+  conditional on telling a lie, the candle's Burns True on touching the flame,
+  and the coin's Time Debt only bites after three uses in a week. A loose
+  "1 HP" rule charges all of them. The two regexes are narrow on purpose and
+  `verify()` pins the three uncharged sentences too, so the narrow reading
+  stays a decision rather than becoming an accident.
+- **The two HP rules are different rules and `costOf` adds them.** The
+  candle's Extinguish Memory charges HP in its own effect cell, on an artifact
+  with no per-use price; the gauntlet charges per use, and none of its
+  abilities charge their own. No artifact prints both today — composing them
+  is what stops the first one that does from being charged once.
+- **The effects are not modelled and there is no formula to model.** Thirteen
+  abilities, each unique: duplicate an object, walk through a wall, erase a
+  memory, ask a target to roll HT-2. Only the pools move. The gauntlet's
+  "-3 ... dropping by 1 each turn" is a decaying modifier `ModifierResolver`
+  could carry, but one instance is not a subsystem.
+- **"1 SPI/turn" is carried forward rather than flattened.** False Majesty is
+  maintained, so a caller spending it once has underpaid. `ArtifactCost.perTurn`
+  travels with the number and the dialog charges one turn per tap and says
+  which. Same reason `PoolStatus.scope` exists (6b): the qualifier belongs to
+  the value.
+- The stale-state trap is the one 6k and 6y already found, one degree worse:
+  `ability` is `remember(artifact)`, because an ability left selected across a
+  switch makes `costOf` **throw** rather than merely mislead. Device-verified
+  in both directions.
+
+**Also fixed here, and it was pure bookkeeping:** the PCR's own formula
+("Roll 3d6 <= 10 + Digestion Modifier", "no stat or skill applies") sat
+outside `potion_consumption.json`'s claimed span, even though
+`extract_digestion.verify()` has asserted `effectiveTarget == 10 + modifier`
+since M3. An assertion whose source sentence is unclaimed is a rule nobody can
+find again, so the file claims two spans now.
+
+**Coverage's page-granularity bites a fourth time, in a fourth way.** Ch 6
+went 31.2% -> **85.4%**, and the 7 lines still unclaimed are Chapter 5's
+fright-effects table, which spills onto **page 44** — inside ch 6's page
+range. `fright_effects.json` claims them correctly under `"5"`, so
+coverage.py credits them to nothing and counts them against ch 6. Ch 6.5 has
+the mirror image: the flagon spills onto page 53 and is claimed under `"6"`.
+Neither is worth repairing. Recording it because the instrument has now been
+wrong four distinct ways — 6t (a chapter at 0.0% disproving nothing), 6v (bare
+multipliers counting as no mechanical line), 6ae (a table on the next
+appendix's page), and now a table straddling a chapter boundary. **A
+percentage is a floor and an argument, never a receipt.** Before reading an
+unclaimed count as work remaining, check whether the lines are already claimed
+under a neighbour.
+
+**Codex refused for the tenth consecutive slice** (usage limit, resets
+2026-08-08 16:52). The fallback did not go smoothly either: the first
+`ecc:kotlin-reviewer` pass **stalled out entirely** after 600s with no output,
+so a second, narrower one was run over three files with four named probes. It
+returned zero findings and traced each probe to a file:line rather than
+asserting cleanliness. Slices 6w-6af are now ten consecutive slices without the
+real review gate and should be re-reviewed together when it returns — and note
+that a broad "review the working tree" prompt is what stalled; scoping the
+reviewer to named files is what got an answer.
+
+Device-verified on the tablet, Academic Researcher (a MORTAL, SPI 0 — which is
+the interesting case, since the grade table would have locked them out):
+all four artifacts render; the Gauntlet reads "Grade 2 (Dangerous)" with
+"Power equivalent: Mid-Sequence Beyonder (Seq 5–7) — how strong the artifact
+is, not what its wielder must be". `Bribe — Weaken` read **"Costs 1 SPI and
+1 HP — the artifact's own price for any use"** and took **HP 9/9 → 8/9**, with
+the session going `spiSpent: 1`, `hpLost: 1`, `cor: 1` — the Soul Debt
+charging itself. Switching to the Candle reset the ability without crashing;
+**Extinguish Memory** read the same shape with "this ability itself" as the
+reason and took **HP 8 → 7**, `spiSpent` to 4 and `cor` to 4. The Peerless
+Flagon reads **"Costs 2 SPI."** with no HP clause, directly above a drawback
+that prints "(1 HP burn to the hand)" — the exact number the narrow reading
+refuses.
+
+**One change made after that run is NOT device-verified, and it is the button
+that spends.** The first version disabled Use permanently once a receipt
+showed, so maintaining False Majesty — the book's one "1 SPI/turn" ability,
+where repeating IS the printed rule — meant closing and reopening the dialog
+once per turn. It reads "Use again" now and the taps alternate: the first
+clears the receipt, the second pays, so nothing charges a pool without the
+button having read "Use" when it was hit. Found by tracing, not by the device,
+and the tablet dropped off USB before it could be re-run. The reviewer pass
+below validated the PREVIOUS version of that button — it cites the
+`enabled = used == null` that is now gone — so this one line rests on reasoning
+alone and wants two taps on hardware before it is trusted.
+
+Deliberately not extracted from the same pages: Charms (10 rows), Mystical
+Ammunition (8), Special Medicines and Consumables (~16) — all Name / Domain /
+Effect prose with no numbers, which is why `coverage.py` never counted them;
+and the Sealing Instructions are committed but nothing acts on them. Ch 6's
+remaining mechanical lines are the ch-5 spill described above, so the chapter
+is done.
 
 ### A note on Codex
 

@@ -1,0 +1,156 @@
+{
+ "sourceLines": {
+  "6": [
+   [
+    3344,
+    3541
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "code": "2-17",
+   "name": "Gauntlet of the False Baron",
+   "pathway": "Black Emperor",
+   "grade": 2,
+   "sequenceEquivalent": 7,
+   "appearance": "A gauntlet of blackened leather reaching mid-forearm, stitched with silver thread in intricate patterns resembling contract clauses and legal seals. The stitching occasionally rearranges itself when not observed directly. The palm bears a faint, warm pressure as if perpetually holding an invisible coin. Rumoured to have been crafted in the late Fourth Epoch from the Beyonder characteristic of a Briber who attempted to bribe Death itself — and failed.",
+   "abilities": [
+    {
+     "name": "Bribe — Weaken",
+     "spi": 1,
+     "perTurn": false,
+     "effect": "Touch the gauntlet's palm to a target or a held object as an Attack maneuver. The target suffers -3 to all attack and active defense rolls for 5 turns (penalty drops by 1 each turn: -3 -> -2 -> -1 -> 0). If the target cannot be touched directly, a symbolic object thrown at them (DX roll to land) works at half duration (3 turns, -3 -> -2 -> -1 -> 0)."
+    },
+    {
+     "name": "Bribe — Arrogance",
+     "spi": 1,
+     "perTurn": false,
+     "effect": "As above, but the target rolls IQ at -2 each turn. On a failure, they are compelled to make a reckless or arrogant action (GM's discretion). Penalty diminishes by 1 each turn (-2 -> -1 -> 0). Duration: 3 turns."
+    },
+    {
+     "name": "Minor Distortion",
+     "spi": 2,
+     "perTurn": false,
+     "effect": "Snap the gauntlet's fingers as a free action to twist a single incoming ranged attack (bullet, arrow, thrown weapon) within 10 meters. The attack's trajectory curves harmlessly away — the attacker must roll again at -4 or miss entirely. Cannot be used on melee attacks or area effects. Once per round."
+    },
+    {
+     "name": "False Majesty",
+     "spi": 1,
+     "perTurn": true,
+     "effect": "The gauntlet exudes an aura of command. As a Concentrate maneuver, the wearer can force a single target within 5 meters to roll Will. On failure, the target hesitates — they cannot attack the wearer directly on their next turn (they may defend themselves and act otherwise). Maintained by spending 1 SPI each turn."
+    }
+   ],
+   "drawbacks": [
+    "Corruptive Influence. Each day the gauntlet is worn for more than one hour, the wearer must roll Will. On failure, they gain a temporary Disadvantage for the rest of the day: Greed (12), Overconfidence (12), or Trickster Mentality (always seeking a loophole, -1 to cooperative skill rolls). The GM chooses which. After 7 cumulative failures, the Disadvantage becomes permanent until the artifact is relinquished and the wearer undergoes spiritual cleansing.",
+    "Soul's Price. Each use of any ability costs 1 HP in addition to SPI. The gauntlet draws blood from the wearer's hand — dark veins creep up the arm for several minutes after use.",
+    "Withdrawal. If the gauntlet is not used for 24 hours, the wearer suffers a splitting headache (-2 to all IQ and Per rolls) until they use at least one ability. If 48 hours pass without use, the gauntlet tightens painfully, dealing 1d6-2 crushing damage to the hand and arm (ignores DR; cannot be healed until used)."
+   ],
+   "sealing": "Keep in a lead-lined box etched with the Seven Seals of Contract. The gauntlet must be offered a voluntary sacrifice of one silver coin per week, placed inside the box. If the offering is missed for three consecutive weeks, the gauntlet begins whispering temptations to anyone within 10 meters (Will-2 to resist acting on them).",
+   "hpPerUse": 1
+  },
+  {
+   "code": "3-05",
+   "name": "Echoing Coin of the Serpent",
+   "pathway": "Error",
+   "grade": 3,
+   "sequenceEquivalent": 8,
+   "appearance": "A gold coin the size of a Loen sixpence, stamped with the profile of a crowned serpent on one side and a labyrinth of concentric circles on the other. The coin is unnervingly warm to the touch and, when held close to the ear, emits a faint rhythmic hum — like a distant clock ticking in reverse. It was discovered in the ruins of a Fourth Epoch swindler's vault, alongside three identical coins that had all rusted to dust the moment the vault was opened.",
+   "abilities": [
+    {
+     "name": "Duplicate",
+     "spi": 1,
+     "perTurn": false,
+     "effect": "Place the coin atop any single non-magical, non-living object no larger than a loaf of bread and speak the activation incantation (\"As above, so below\"). After 1 minute of concentration, a perfect duplicate of the object appears beside the original. The duplicate is physically identical but has no spiritual or Beyonder properties — it cannot replicate Mystical Items, potions, characteristics, or artifacts. The original is unaffected. Maximum one duplicate per hour."
+    },
+    {
+     "name": "Minor Misfortune",
+     "spi": 1,
+     "perTurn": false,
+     "effect": "Flick the coin into the air as a free action. While it is spinning, choose a target within 5 meters. For the next 3 turns, that target suffers -1 to all rolls (attacks, defenses, skill checks) as minor coincidences go against them (loose cobblestone, gust of wind, slipping grip). The coin lands and the effect ends. Usable once per scene."
+    },
+    {
+     "name": "Worm's Whim",
+     "spi": 2,
+     "perTurn": false,
+     "effect": "Press the coin firmly against a non-living surface no larger than a door and will it to merge. The coin sinks into the material and creates a temporary passage — a subtle distortion that creatures can pass through as if the wall were an open archway. The passage lasts 5 minutes or until the coin is retrieved (which collapses it instantly). The coin cannot be retrieved from inside the passage and must be collected from the opposite side."
+    }
+   ],
+   "drawbacks": [
+    "Time Debt. Each use of the coin's abilities ages the user by one day (visible as a momentary grey streak in the hair or a new wrinkle). The aging is cosmetic and temporary — it fades over 24 hours — but if the coin is used more than 7 times in a single week, the aging becomes permanent and the user loses 1 HP permanently until the coin is relinquished for at least a month.",
+    "Coin's Greed. Once per day, if the user attempts to discard, give away, or destroy the coin, it teleports back into their pocket or purse within 1d10 minutes. The coin can only be permanently relinquished through a formal ritual (Ritualistic Magic -2) or by transferring it to a willing new owner who accepts the burden.",
+    "Echoing Whispers. While in possession of the coin, the user occasionally hears faint whispers of past owners' conversations — typically lies, betrayals, or temptations. During moments of stress (combat, chase, interrogation), the GM may call for a Will-1 roll. On failure, the user is distracted for one turn (-2 to active defenses or skill rolls)."
+   ],
+   "sealing": "Place the coin in a bag of lead shot and submerge it in holy water blessed by a priest of the Evernight Goddess. The container must be stored in a room without windows or clocks — timekeeping devices of any kind cause the coin to hum audibly. The water must be changed every new moon. If the coin begins ticking audibly through the lead, it has successfully deceived the seal and should be immediately reclassified as Grade 2 or higher."
+  },
+  {
+   "code": "2-11",
+   "name": "Candle of Shared Slumber",
+   "pathway": "Darkness",
+   "grade": 2,
+   "sequenceEquivalent": 6,
+   "appearance": "A tall, tapered candle of deep purple wax flecked with silver particles that shimmer like distant stars. It stands approximately 30 cm tall and burns with a pale, smokeless flame that sheds no heat. The candle never melts or shortens during normal use — it only diminishes when one of its abilities is activated. When not lit, the wax exudes a faint scent of night-blooming jasmine and old parchment. The candle was recovered from a sealed crypt beneath the Cathedral of the Evernight Goddess in Backlund, where it had been burning for an estimated 800 years without perceptible consumption.",
+   "abilities": [
+    {
+     "name": "Slumber",
+     "spi": 1,
+     "perTurn": false,
+     "effect": "Light the candle as a Concentrate maneuver. All living creatures within a 5-meter radius must roll HT-2 or fall into a deep, dreamless sleep for 1d10 minutes. Those who succeed are drowsy (-1 to all rolls) for 3 turns. The flame gutters and the candle shortens by 1 cm. Sleeping creatures can only be awakened by taking damage or by a successful First Aid roll at -4."
+    },
+    {
+     "name": "Shared Dream",
+     "spi": 2,
+     "perTurn": false,
+     "effect": "Light the candle and focus on a willing or unconscious target within 10 meters as a Concentrate maneuver for 3 turns. The user enters a shared dream with the target, enabling direct conversation, memory exploration, or the planting of suggestions. The user may stay in the dream for up to 10 minutes of real time (which may feel much longer in-dream). The candle shortens by 3 cm. If the target is unwilling, they may resist with a Will-2 roll each turn of the focusing period."
+    },
+    {
+     "name": "Extinguish Memory",
+     "spi": 3,
+     "perTurn": false,
+     "effect": "Pinch out the candle's flame with bare fingers (deals 1 HP burn damage to the user — this damage is real and cannot be prevented by DR). Choose a target within 5 meters. One specific memory the user is aware of is erased from the target's mind — they lose all recollection of that event, person, or piece of knowledge. The memory is not destroyed but stored within the candle wax. The candle shortens by 5 cm. Restoring the memory requires re-lighting the candle from the same wax pool, or a Miracle-level ritual.",
+     "hpCost": 1
+    }
+   ],
+   "drawbacks": [
+    "Dream Bleed. Every time the candle is used, the user must roll Will-0. On failure, fragments of dreams — not their own — intrude upon their sleep that night. These dreams contain images from the minds of previous users. After 5 such failures, the user begins experiencing waking hallucinations (glimpses of strangers' memories) during moments of quiet, imposing -1 to Perception rolls in calm environments.",
+    "Candle's Hunger. The candle must be fed at least one hour of uninterrupted flame every 7 days, or it begins attracting ghosts and wandering spirits within a 100-meter radius. These entities are not hostile per se — they are drawn to the candle's lingering dream energy — but their presence complicates stealth, sleep, and spiritual work.",
+    "Burns True. The fire of this candle, though cool to objects, burns living flesh as if it were white-hot iron. Any creature that touches the flame takes 1d6 burning damage that ignores mundane armour. This damage is spiritual in nature — the wound aches in moonlight and cannot be healed by mundane means until the next dawn."
+   ],
+   "sealing": "The candle must be kept in a bell jar of lead crystal on an altar draped in black velvet. It must never be exposed to direct sunlight or the light of a full moon. Once per month, a prayer to the Evernight Goddess must be recited over it. If the candle begins burning on its own, it indicates possession by an external intelligence — the seal has been breached and emergency measures are required."
+  },
+  {
+   "code": "1-04",
+   "name": "The Peerless Flagon",
+   "pathway": "Sun",
+   "grade": 1,
+   "sequenceEquivalent": 4,
+   "appearance": "A simple ceramic flagon of unglazed earthenware, roughly 20 cm tall, with a single symbol fired into its side — the Radiant Sun in full glory with twelve rays. It is extraordinarily heavy for its size (approximately 7 kg) and always feels slightly warm. When its stopper is removed, a golden light spills from the opening, illuminating dark spaces as though a lantern were inside. The flagon predates the Fourth Epoch and is believed to have been crafted by a Solar High Priest of the Ancient Sun Church who, in a moment of divine madness, attempted to bottle the dawn. The church officially denies any knowledge of this artifact; unofficially, it is the subject of three ongoing internal investigations.",
+   "abilities": [
+    {
+     "name": "Dawn's Draught",
+     "spi": 2,
+     "perTurn": false,
+     "effect": "Drink from the flagon as a Ready maneuver. The user is immediately healed of 1d6+2 HP of injury and cured of any mundane poison or disease in their system. Undead creatures within 5 meters take 1d6 burning damage from the released radiance. The flagon refills itself at the next sunrise. Maximum one draught per day, even if the flagon is refilled."
+    },
+    {
+     "name": "Purifying Flood",
+     "spi": 3,
+     "perTurn": false,
+     "effect": "Upset the flagon as an Attack maneuver, spilling its contents across a 3-meter radius. The liquid burns with golden light for 3 turns, dealing 2d6 burning damage each turn to undead, demons, and corrupted beings within the area. Living creatures are unaffected but are blinded for 1 turn if they look directly at the spilled light. The liquid evaporates at the end of the duration. Usable once per hour — the flagon must slowly replenish from ambient sunlight."
+    },
+    {
+     "name": "Bottled Dawn",
+     "spi": 5,
+     "perTurn": false,
+     "effect": "Remove the stopper and speak the True Name of the Sun (a three-syllable word that inflicts 1 HP of spiritual damage to any non-Sun-pathway being who hears it spoken aloud) as a Concentrate maneuver. A beam of brilliant golden light fires from the flagon's opening in a straight line 20 meters long and 1 meter wide. Everything in its path takes 4d6 burning damage (halved if the target succeeds on HT-3). Against undead, demons, or Beyonders of the Chained, Abyss, or Death pathways, damage is doubled and no half-damage is allowed. The flagon cracks noticeably after each use — after 3 uses of Bottled Dawn, it shatters permanently. The shards remain dangerous and retain Grade 2 classification."
+    }
+   ],
+   "drawbacks": [
+    "Light's Burden. While in possession of the flagon (carried on the person or within 3 meters for more than 1 hour), the user's eyes glow with a faint golden light. This imposes -4 to Stealth in darkness and makes the user memorable (+2 to any roll to identify or recall them). The glow fades 1d6 hours after the flagon is removed.",
+    "Sun's Judgment. The flagon judges its bearer. Any time the user knowingly tells a lie, breaks a sworn oath, or commits a cowardly act, the flagon grows hot (1 HP burn to the hand) and its light dims for 1 hour — during which time all abilities cost +1 SPI (minimum 1). After 10 such marks, the flagon refuses to grant any abilities until the user undertakes a genuine act of heroism (GM's discretion).",
+    "Burning Thirst. The flagon induces a constant, mild thirst in its bearer. The user must drink at least twice as much water as normal each day or suffer from mild dehydration (-1 to HT rolls). Alcohol does not satisfy this thirst — it makes it worse (doubles the penalty)."
+   ],
+   "sealing": "The flagon must be wrapped in a shroud of black silk that has never seen sunlight and stored in a stone vault at least 10 meters underground. Once per week, the shroud must be replaced with a fresh one. The old shroud must be burned at noon under an open sky. If the flagon's warmth becomes uncomfortably hot through the shroud, it is attempting to break containment — a bishop-level exorcism must be performed within 24 hours."
+  }
+ ]
+}

@@ -186,6 +186,7 @@ fun SheetScreen(
     var damaging by remember(sheet) { mutableStateOf(false) }
     var divining by remember(sheet) { mutableStateOf(false) }
     var supplicating by remember(sheet) { mutableStateOf(false) }
+    var handling by remember(sheet) { mutableStateOf(false) }
     // Maximums move with the potions drunk: HT gains lift FP, and SPI is
     // entirely a potion's gift. Recomputed from the walk, never stored.
     val vitals = remember(sheet, drunk, session.edits) {
@@ -266,6 +267,11 @@ fun SheetScreen(
                             // same skill, because a boon IS a ritual.
                             TextButton(onClick = { supplicating = true }) { Text("Boon") }
                         }
+                        // Not gated on anything. A Sealed Artifact is found,
+                        // not bought or awarded by Sequence: the grade table's
+                        // only gate is church rank, which this app does not
+                        // model. See SealedArtifacts.
+                        TextButton(onClick = { handling = true }) { Text("Artifacts") }
                         TextButton(onClick = { attacking = true }) { Text("Attack") }
                         TextButton(onClick = { defending = true }) { Text("Defend") }
                         TextButton(onClick = { damaging = true }) { Text("Damage") }
@@ -433,6 +439,17 @@ fun SheetScreen(
             // caster who bleeds for a ritual actually ends it wounded.
             onSpendHp = { session.spend(Pool.HP, it, vitals.maxHp, maxCor) },
             onDismiss = { casting = false },
+        )
+    }
+    if (handling) {
+        ArtifactDialog(
+            spiAvailable = vitals.maxSpi - session.spiSpent,
+            // Both through the tracker, so an artifact used at 0 SPI buys the
+            // Soul Debt the book charges for it, and the gauntlet's Soul's
+            // Price actually wounds the hand it is worn on.
+            onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
+            onSpendHp = { session.spend(Pool.HP, it, vitals.maxHp, maxCor) },
+            onDismiss = { handling = false },
         )
     }
     if (supplicating && ritualLevel != null) {

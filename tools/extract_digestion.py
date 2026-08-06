@@ -39,6 +39,14 @@ OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 CHAPTER = "6"
 ACTING_RANGE = (3046, 3057)
 PCR_RANGE = (3082, 3119)
+# The two prose lines the "10 + modifier" check below was read from. Claimed
+# alongside the table, because an assertion whose source sentence sits outside
+# the claimed span is a rule nobody can find again.
+FORMULA_RANGE = (3079, 3081)
+FORMULA = "Roll 3d6 <= 10 + Digestion Modifier."
+# The PCR is a raw roll: no stat, no skill. Pinned because PotionConsumption
+# takes no skill level, and this sentence is the only reason it does not.
+RAW_ROLL = "no stat or skill applies"
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 QUALITY = re.compile(r"^([A-Z][a-z]+)\s*\(([^)]*)\)$")
@@ -117,7 +125,14 @@ def parse_pcr(lines):
     return rows
 
 
-def verify(acting, pcr):
+def verify(acting, pcr, formula=""):
+    if formula:
+        # The sentence the column check below is read from. Without it the two
+        # columns agreeing would be a coincidence nobody had checked against
+        # the book's own statement of the rule.
+        for phrase in (FORMULA, RAW_ROLL):
+            if phrase not in formula:
+                raise ValueError(f"the PCR's printed rule is gone: {phrase!r}")
     if len(acting) != 5:
         raise ValueError(f"expected 5 acting-quality rows, got {len(acting)}")
     percentages = [r["digestion"] for r in pcr]
@@ -145,10 +160,13 @@ def main():
     byn = load_lines()
     acting = parse_acting(stream(byn, *ACTING_RANGE))
     pcr = parse_pcr(stream(byn, *PCR_RANGE))
-    verify(acting, pcr)
+    formula = " ".join(stream(byn, *FORMULA_RANGE))
+    verify(acting, pcr, formula)
 
     write("acting_method", acting, [list(ACTING_RANGE)])
-    write("potion_consumption", pcr, [list(PCR_RANGE)])
+    # Two spans: the prose that states the rule, then the table that tabulates
+    # it. Parsed separately, because only the table has columns.
+    write("potion_consumption", pcr, [list(FORMULA_RANGE), list(PCR_RANGE)])
 
     print(f"acting_method: {len(acting)} rows")
     print(f"potion_consumption: {len(pcr)} rows, "
