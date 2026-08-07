@@ -1,0 +1,44 @@
+{
+ "sourceLines": {
+  "4": [
+   [
+    2268,
+    2276
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "tier": "high",
+   "pathways": [
+    "Fool",
+    "Hanged Man",
+    "Darkness",
+    "Hermit",
+    "Wheel of Fortune"
+   ],
+   "printed": "receive significantly more SPI than other pathways"
+  },
+  {
+   "tier": "moderate",
+   "low": 2,
+   "high": 6,
+   "printed": "Pathways with strong spiritual abilities at Sequence 9 receive moderate bonuses"
+  },
+  {
+   "tier": "baseline",
+   "low": 1,
+   "high": 1,
+   "printed": "Reality-leaning pathways receive a baseline +1 SPI"
+  },
+  {
+   "tier": "constrained",
+   "pathways": [
+    "Chained"
+   ],
+   "low": 0,
+   "high": 0,
+   "printed": "its spirituality is actively constrained by the potion itself"
+  }
+ ]
+}

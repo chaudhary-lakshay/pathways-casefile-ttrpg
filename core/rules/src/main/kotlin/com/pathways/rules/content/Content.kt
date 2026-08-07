@@ -1351,6 +1351,62 @@ data class AntiDivinationItem(
  * the real global line numbers (from build/extract/lines.json) that were
  * claimed to produce them -- the contract tools/coverage.py depends on.
  */
+/**
+ * One band of a spiritual sense's result table (Ch. 4, p. 33-34).
+ *
+ * [margin] is set only on the two rows the book names by margin, and is
+ * absent -- not zero -- on "Success" and "Critical Success". A critical is
+ * reached by OUTCOME, and a margin of 0 on it would make a bare success
+ * satisfy the same band.
+ */
+@Serializable
+data class SenseRow(
+    val result: String,
+    val effect: String,
+    val margin: Int? = null,
+)
+
+/** One circumstance on a spiritual sense roll (Ch. 4, p. 33-34). */
+@Serializable
+data class SenseModifier(val situation: String, val modifier: Int)
+
+/**
+ * A spiritual sense skill and the table its own chapter prints for it
+ * (Ch. 4, p. 33-34).
+ *
+ * Both tables band at "Success by 3+" and "Success by 5+", which are exactly
+ * [com.pathways.rules.DegreeOfSuccess]'s Good and Excellent edges. They are
+ * deliberately NOT that ladder: the effect text is per-skill, and a chapter's
+ * own table beats the general one. Read through
+ * [com.pathways.rules.SpiritualSenses].
+ */
+@Serializable
+data class SpiritualSense(
+    val skill: String,
+    val attr: String,
+    val difficulty: String,
+    val rows: List<SenseRow>,
+    val modifiers: List<SenseModifier>,
+)
+
+/**
+ * One tier of Chapter 4's claims about what a Sequence 9 potion grants
+ * (p. 33).
+ *
+ * Not a rule the app applies -- `pathways.json` already holds every grant.
+ * This is the chapter describing another chapter's data, kept as data so
+ * `GoldenSpiAffinityTest` can mark it. [low] and [high] are absent on the
+ * tier the book describes only in words.
+ */
+@Serializable
+data class SpiAffinity(
+    val tier: String,
+    val printed: String,
+    val pathways: List<String> = emptyList(),
+    val low: Int? = null,
+    val high: Int? = null,
+)
+
 @Serializable
 data class ContentFile<T>(
     val sourceLines: Map<String, List<List<Int>>> = emptyMap(),

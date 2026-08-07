@@ -2930,3 +2930,119 @@ def test_the_resolution_order_is_still_printed():
     text = " ".join((byn.get(n) or "") for n in range(3737, 3755))
     for step in extract_detection.RESOLUTION_STEPS:
         assert step in text
+
+
+import extract_spirituality
+
+
+def sense_entries():
+    return json.loads(
+        (CONTENT / "spiritual_senses.json").read_text(encoding="utf-8"))["entries"]
+
+
+def affinity_entries():
+    return json.loads(
+        (CONTENT / "spi_affinity.json").read_text(encoding="utf-8"))["entries"]
+
+
+def test_chapter_four_prints_two_sense_tables():
+    blocks = sense_entries()
+    assert [b["skill"] for b in blocks] == [
+        "Spiritual Intuition", "Spiritual Perception",
+    ]
+    assert [b["attr"] for b in blocks] == ["SPI", "SPI"]
+    # Hard and Average, which is why they cannot share one table.
+    assert [b["difficulty"] for b in blocks] == ["H", "A"]
+
+
+def test_neither_sense_table_prints_a_failure_row():
+    """All four rows are successes.
+
+    So a failed roll gets NO row rather than an invented consolation, and
+    nothing here overrides SuccessRoll's 3-4/17-18 -- there is nothing printed
+    to override them with. The FrightCheck reading, not the PCR's.
+    """
+    for block in sense_entries():
+        results = [r["result"] for r in block["rows"]]
+        assert results == list(extract_spirituality.RESULT_ROWS)
+        assert not any("Failure" in r for r in results)
+
+
+def test_only_the_margin_named_rows_carry_a_margin():
+    """"Success" and "Critical Success" carry none rather than a zero.
+
+    A margin of 0 on the critical row would let a bare success satisfy it.
+    """
+    for block in sense_entries():
+        assert [r.get("margin") for r in block["rows"]] == [None, 3, 5, None]
+
+
+def test_the_seer_bonus_names_a_rank_and_not_a_pathway():
+    """"+6 Seer" is the Fool's SEQUENCE 9 NAME.
+
+    A Fool at Sequence 8 is a Clown, so applying it to the Fool pathway would
+    author a rule the book did not print. Offered, never granted.
+    """
+    perception = sense_entries()[1]
+    seer = next(m for m in perception["modifiers"] if m["situation"] == "Seer")
+    assert seer["modifier"] == 6
+    assert not any(m["situation"] == "Fool" for m in perception["modifiers"])
+
+
+def test_chapter_four_and_appendix_a_still_price_the_same_distraction():
+    """The overlap that makes the scoping necessary.
+
+    Chapter 4 prints "-2 distracted/in combat"; Appendix A prints "Distracted
+    or hurried" and "Very adverse conditions (combat, ...)". Both words are
+    verbatim in both, so offering both charges one distraction twice. The day
+    this stops being true is the day the scoping stops being needed.
+    """
+    intuition = sense_entries()[0]
+    row = next(m for m in intuition["modifiers"] if m["modifier"] == -2)
+    common = json.loads(
+        (CONTENT / "common_modifiers.json").read_text(encoding="utf-8"))["entries"]
+    situations = " ".join(e["situation"] for e in common).lower()
+    for word in extract_spirituality.OVERLAP_WORDS:
+        assert word in situations
+        assert word in row["situation"].lower()
+
+
+def test_the_affinity_claims_reconcile_with_chapter_nine():
+    """Chapter 4 describing chapter 9's data, marked.
+
+    A disagreement here would be a FINDING recorded under 4.1, never a repair.
+    Today all four claims hold exactly.
+    """
+    tiers = affinity_entries()
+    assert [t["tier"] for t in tiers] == [
+        "high", "moderate", "baseline", "constrained",
+    ]
+    pathways = json.loads(
+        (CONTENT / "pathways.json").read_text(encoding="utf-8"))["entries"]
+    grants = {
+        b["pathway"]: int(sum(s["delta"] for s in b["stats"] if s["attr"] == "SPI"))
+        for b in pathways if b["sequence"] == 9
+    }
+    named = tiers[0]["pathways"]
+    assert named == extract_spirituality.HIGH_AFFINITY
+    assert min(grants[p] for p in named) > max(
+        v for p, v in grants.items() if p not in named)
+    assert grants["Chained"] == 0
+    assert [p for p, v in grants.items() if v == 0] == ["Chained"]
+
+
+@needs_pdf
+def test_the_sense_tables_verify_against_the_book():
+    blocks, tiers = extract_spirituality.extract()
+    extract_spirituality.verify(blocks, tiers, extract_spirituality.load_lines())
+
+
+@needs_pdf
+def test_a_sense_table_that_grew_a_failure_row_is_refused():
+    """The guard against inventing the row the book declined to print."""
+    blocks, tiers = extract_spirituality.extract()
+    blocks = [dict(b, rows=list(b["rows"])) for b in blocks]
+    blocks[0]["rows"].append({"result": "Failure", "effect": "you sense nothing"})
+    with pytest.raises(AssertionError):
+        extract_spirituality.verify(
+            blocks, tiers, extract_spirituality.load_lines())

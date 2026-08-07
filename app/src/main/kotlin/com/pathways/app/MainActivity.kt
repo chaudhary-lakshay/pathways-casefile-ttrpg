@@ -65,8 +65,11 @@ import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.SuccessDegree
 import com.pathways.rules.CommonModifiers
 import com.pathways.rules.PremadeSkill
+import com.pathways.rules.SpiritualSenses
 import com.pathways.rules.content.CommonModifier
 import com.pathways.rules.content.ContentLoader
+import com.pathways.rules.content.SenseModifier
+import com.pathways.rules.content.SpiritualSense
 import java.io.File
 import kotlin.random.Random
 
@@ -341,6 +344,10 @@ fun SheetScreen(
         RollDialog(
             label = skill.label,
             base = sheet.levelFor(skill),
+            // Null for every skill but two. Chapter 4 prints a result table
+            // for Spiritual Intuition and Spiritual Perception and for
+            // nothing else, so the rest keep Appendix A's general ladder.
+            sense = SpiritualSenses.forSkill(skill.key()),
             onRoll = { circumstances ->
                 // The trackers reach the dice here: a reeling, fatigued or
                 // corrupted character no longer rolls at full skill. The GM's
@@ -721,11 +728,18 @@ private fun ComparisonRow(row: SheetRow, modifier: Modifier = Modifier) {
 private fun RollDialog(
     label: String,
     base: Int,
+    sense: SpiritualSense? = null,
     onRoll: (List<com.pathways.model.Modifier>) -> SkillRollOutcome,
     onDismiss: () -> Unit,
 ) {
     var out by remember { mutableStateOf<SkillRollOutcome?>(null) }
     val chosen = remember { mutableStateListOf<CommonModifier>() }
+    // Chapter 4's own circumstances, for the two skills that print them.
+    val senseChosen = remember { mutableStateListOf<SenseModifier>() }
+    // Appendix A rows this sense's own price supersedes. Recomputed rather
+    // than stored, so a chip turned back off cannot leave a withheld row
+    // hidden -- the stale-state defect the boon dialog was fixed for.
+    val withheld = SpiritualSenses.displacedCommonModifiers(senseChosen.toList())
     // A GM's pick inside a printed range, keyed by situation. Rebuilt from the
     // current picks on every roll, so dropping a chip cannot leave its value
     // behind -- the stale-state defect the boon dialog was fixed for.
@@ -752,7 +766,15 @@ private fun RollDialog(
                                 gmValue = gmValue.filterKeys { key ->
                                     chosen.any { it.situation == key }
                                 },
-                            ),
+                            ) +
+                                // Passed the general picks as well, so the
+                                // double-charge is refused in rules even
+                                // though the chips above cannot produce it.
+                                if (sense == null) emptyList() else SpiritualSenses.modifiers(
+                                    sense = sense,
+                                    chosen = senseChosen.toList(),
+                                    common = chosen.toList(),
+                                ),
                         )
                     }
                 },
@@ -764,10 +786,11 @@ private fun RollDialog(
                 val shownOut = out
                 if (shownOut == null) {
                     Text("Skill $base", style = MaterialTheme.typography.titleLarge)
-                    CircumstanceRow(chosen, gmValue)
+                    if (sense != null) SenseRow(sense, senseChosen, chosen, gmValue)
+                    CircumstanceRow(chosen, gmValue, withheld)
                     return@Column
                 }
-                RollResult(shownOut)
+                RollResult(shownOut, sense)
             }
         },
     )
@@ -787,14 +810,22 @@ private fun RollDialog(
 private fun CircumstanceRow(
     chosen: MutableList<CommonModifier>,
     gmValue: MutableMap<String, Int>,
+    withheld: Set<String> = emptySet(),
 ) {
     Text(
         "Circumstances (Appendix A)",
         style = MaterialTheme.typography.labelLarge,
         modifier = Modifier.padding(top = 12.dp),
     )
+    if (withheld.isNotEmpty()) {
+        Text(
+            "Chapter 4 prices being distracted or in combat itself, so " +
+                "Appendix A's general rows for it do not also apply.",
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        CommonModifiers.offered().forEach { row ->
+        CommonModifiers.offered().filterNot { it.situation in withheld }.forEach { row ->
             val isOn = chosen.any { it.situation == row.situation }
             FilterChip(
                 selected = isOn,
@@ -831,8 +862,59 @@ private fun CircumstanceRow(
     }
 }
 
+/**
+ * Chapter 4's own circumstances, for the two skills that print them.
+ *
+ * "+6 Seer" is offered rather than applied. Seer is the Fool pathway's
+ * SEQUENCE 9 NAME -- a Fool at Sequence 8 is a Clown -- so granting it to
+ * anyone on the Fool pathway would author a rule the book did not print.
+ * Same call as the Sealed Artifact grade table (6af): show it, do not gate.
+ */
 @Composable
-private fun RollResult(out: SkillRollOutcome) {
+private fun SenseRow(
+    sense: SpiritualSense,
+    senseChosen: MutableList<SenseModifier>,
+    chosen: MutableList<CommonModifier>,
+    gmValue: MutableMap<String, Int>,
+) {
+    Text(
+        "Circumstances (${sense.skill}, Ch. 4)",
+        style = MaterialTheme.typography.labelLarge,
+        modifier = Modifier.padding(top = 12.dp),
+    )
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        SpiritualSenses.offered(sense).forEach { row ->
+            val isOn = senseChosen.any { it.situation == row.situation }
+            FilterChip(
+                selected = isOn,
+                onClick = {
+                    if (isOn) {
+                        senseChosen.removeAll { it.situation == row.situation }
+                    } else {
+                        senseChosen.add(row)
+                        // Drop any Appendix A pick this row now supersedes,
+                        // with the value a GM chose inside it. Leaving one
+                        // selected but hidden is how a withheld row gets
+                        // charged anyway.
+                        val displaced = SpiritualSenses
+                            .displacedCommonModifiers(senseChosen.toList())
+                        chosen.removeAll { it.situation in displaced }
+                        gmValue.keys.retainAll { it !in displaced }
+                    }
+                },
+                label = {
+                    Text(
+                        "${row.situation} " +
+                            if (row.modifier >= 0) "+${row.modifier}" else "${row.modifier}",
+                    )
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun RollResult(out: SkillRollOutcome, sense: SpiritualSense? = null) {
     Column {
         val roll = out.roll
         if (roll == null) {
@@ -848,6 +930,22 @@ private fun RollResult(out: SkillRollOutcome) {
             val shown = out.effectiveOutcome ?: roll.outcome
             Text(label(shown, out.degree), color = colorFor(shown))
             Text("margin ${roll.margin}", style = MaterialTheme.typography.bodySmall)
+            // The skill's own table, when its chapter prints one. Read from
+            // the EFFECTIVE outcome, so a roll demoted by requiresCritical
+            // cannot come back carrying a success row -- the defect
+            // SkillRollOutcome.degree avoids one object over. A failure lands
+            // on no row, because chapter 4 prints none.
+            if (sense != null) {
+                val row = SpiritualSenses.rowFor(sense, shown, roll.margin)
+                if (row != null) {
+                    Text("${row.result} — ${row.effect}")
+                } else {
+                    Text(
+                        "${sense.skill} prints no row for this result.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
         }
         if (out.target != out.baseTarget) {
             Text(

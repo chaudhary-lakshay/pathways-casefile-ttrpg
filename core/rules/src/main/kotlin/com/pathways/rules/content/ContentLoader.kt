@@ -64,6 +64,12 @@ object ContentLoader {
     private val antiDivinationItemsLazy: List<AntiDivinationItem> by lazy {
         load("anti_divination_items.json")
     }
+    private val spiritualSensesLazy: List<SpiritualSense> by lazy {
+        load("spiritual_senses.json")
+    }
+    private val spiAffinityLazy: List<SpiAffinity> by lazy {
+        load("spi_affinity.json")
+    }
     private val sealedArtifactGradesLazy: List<SealedArtifactGrade> by lazy {
         load("sealed_artifact_grades.json")
     }
@@ -426,6 +432,20 @@ object ContentLoader {
      * drawback and sealing instruction is prose the GM reads.
      */
     fun sealedArtifacts(): List<SealedArtifact> = sealedArtifactsLazy
+
+    /**
+     * The two spiritual sense skills and their own result tables (Ch. 4,
+     * p. 33-34), in printed order. Read through
+     * [com.pathways.rules.SpiritualSenses].
+     */
+    fun spiritualSenses(): List<SpiritualSense> = spiritualSensesLazy
+
+    /**
+     * Chapter 4's four claims about the Sequence 9 SPI grants chapter 9
+     * prints (p. 33). Describes data rather than adding a rule; marked by
+     * `GoldenSpiAffinityTest`.
+     */
+    fun spiAffinity(): List<SpiAffinity> = spiAffinityLazy
 
     private inline fun <reified T> load(resource: String): List<T> {
         val stream = ContentLoader::class.java.getResourceAsStream("/content/$resource")

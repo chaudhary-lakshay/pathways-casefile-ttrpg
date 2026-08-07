@@ -1,0 +1,94 @@
+{
+ "sourceLines": {
+  "4": [
+   [
+    2278,
+    2307
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "skill": "Spiritual Intuition",
+   "attr": "SPI",
+   "difficulty": "H",
+   "rows": [
+    {
+     "result": "Success",
+     "effect": "Vague feeling of wrongness or impending danger"
+    },
+    {
+     "result": "Success by 3+",
+     "margin": 3,
+     "effect": "Know approximate direction of the threat"
+    },
+    {
+     "result": "Success by 5+",
+     "margin": 5,
+     "effect": "Specific premonition (ambush, poison, betrayal)"
+    },
+    {
+     "result": "Critical Success",
+     "effect": "Brief mental vision of the exact danger"
+    }
+   ],
+   "modifiers": [
+    {
+     "situation": "meditative state",
+     "modifier": 2
+    },
+    {
+     "situation": "distracted/in combat",
+     "modifier": -2
+    },
+    {
+     "situation": "magically concealed",
+     "modifier": -4
+    }
+   ]
+  },
+  {
+   "skill": "Spiritual Perception",
+   "attr": "SPI",
+   "difficulty": "A",
+   "rows": [
+    {
+     "result": "Success",
+     "effect": "Notice a 'spiritual weight' or unnatural presence in the area"
+    },
+    {
+     "result": "Success by 3+",
+     "margin": 3,
+     "effect": "Pinpoint the location of the spiritual disturbance"
+    },
+    {
+     "result": "Success by 5+",
+     "margin": 5,
+     "effect": "Identify type of entity (ghost, Beyonder, cursed item)"
+    },
+    {
+     "result": "Critical Success",
+     "effect": "Detailed information: sequence level, pathway, emotional state"
+    }
+   ],
+   "modifiers": [
+    {
+     "situation": "graveyard/ritual site",
+     "modifier": 2
+    },
+    {
+     "situation": "industrial/polluted area",
+     "modifier": -2
+    },
+    {
+     "situation": "entity hiding",
+     "modifier": -4
+    },
+    {
+     "situation": "Seer",
+     "modifier": 6
+    }
+   ]
+  }
+ ]
+}
