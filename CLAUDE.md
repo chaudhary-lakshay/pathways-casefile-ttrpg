@@ -3,7 +3,7 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `5dcfc25`.
+sections below are current as of `98a53e1`.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -39,7 +39,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **792 Kotlin** (JUnit 5, incl. 61 in `app/`) + **232 Python** (pytest), all green |
+| Tests | **810 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -2323,7 +2323,7 @@ than asserted. It did name one latent inconsistency worth closing:
 `modifierNamed` resolved case-insensitively while the charm-overlap guard
 compared case-sensitively, so a caller that reached a row through the tolerant
 lookup could have slipped past the strict guard. Both are insensitive now.
-Slices 6w-6aj are FOURTEEN consecutive slices without the real review gate,
+Slices 6w-6ak are FIFTEEN consecutive slices without the real review gate,
 and `f0ccc56` (6ai's fix) has been seen only by the fallback reviewer. All of
 them belong in one Codex sweep once the limit resets — 2026-08-08 16:52, from
 Codex's own error text.
@@ -2600,6 +2600,133 @@ on one roll, neither merged into the other. Perception offers **Seer +6**
 un-ticked on a Seer, and a 6 vs 15 read **"Excellent success"** with
 **"Success by 5+ — Identify type of entity"**, the deeper band beating the two
 it also satisfied.
+
+## 6ak. "Core Rules" — the chapter that looked like a summary of the engine
+
+`EffortBurn` (core/rules) reads Ch. 2's burn (p. 9), `GoldenCoreRulesTest`
+marks the success roll and the untrained defaults against the chapter they
+were written from, and the Quick Contests are extracted at last.
+
+**Why a chapter at 0.0% called "Core Rules" was never read.** Every heading
+names something M0 already built — `SuccessRoll` is the success roll,
+`Difficulty.defaultPenalty` is the skill defaults, `SecondaryCharacteristics`
+is the secondary table. Read that way it is a summary of the code. It is not:
+two of its rules reach a roll and nothing applied either. 6t's lesson in its
+purest form — a chapter at 0.0% disproves nothing, and **"I already
+implemented that" is a weaker reason to skip a page than a percentage is.**
+
+- **Burning FP and SPI was printed and unapplied.** "Spend 1 FP to gain +1 on
+  any roll based on ST, DX, or HT … Max +5 per roll." "Spend 1 SPI to gain +1
+  on any SPI-based or supernatural skill roll … There is no cap." Both usable
+  "after seeing the result", and the section closes with a sentence nothing
+  enforced: "You cannot spend both FP and SPI on the same roll."
+- **The warrant is that two later chapters already implement it.**
+  `Divination.BURN_PER_SPI` (ch 6.5, p. 55) and `RitualResolution`'s `burned`
+  (ch 7, p. 66) are this same rule scoped to their own rolls and agree
+  exactly — 1 SPI, +1, no cap. That agreement is what licenses the general
+  form, the per-table standard 6ad set and 6v is why it must be per-table.
+  Neither chapter prints the FP half, the +5 cap, or the either-or.
+- **Specific still beats general**, so a ritual and a divination keep charging
+  their own: offering this one as well would charge one point of effort twice
+  — the scoping the CoR ladder needed (6h), that keeps ch 13's boons off
+  Phase I preparation (6r), and that withholds Appendix A's darkness on a
+  ranged shot (6ae).
+- **The bonus raises the TARGET and re-reads the same dice.** The book allows
+  it after the result is seen, so re-ROLLING would answer a different question
+  — and on a seeded source it would desynchronise every roll after it.
+  `SuccessRoll.evaluate` already existed for exactly this; a test asserts the
+  total is unchanged, which is what proves it.
+- **IQ, Will and Per fall in a gap and are refused, not defaulted.** The FP
+  row lists ST/DX/HT and the SPI row lists SPI-based rolls; neither mentions
+  the mental attributes, so those skills get no burn rather than fatigue on
+  the strength of the book saying nothing. The refusal
+  `Languages.ritualModifier` makes about a common tongue's silence (6x).
+- **The either-or cannot be violated from the screen**, because the SKILL
+  decides which pool applies, so a roll only ever reaches one. `requireOnePool`
+  exists anyway as an API-level guard — a plain function, so it is unit-tested,
+  the call `armedParries` already made in 6g.
+- **Quick Contests are extracted and still not resolved.** Several sections
+  record one as "deliberately not modelled" — Feint (6o), six more in 6ah —
+  and the reason given each time, that this app holds one sheet, is still
+  true. What was implied and is NOT true is that the book leaves the procedure
+  unstated: it prints six worked rows, "the winner is the one who succeeds by
+  the larger margin", and "ties always go to the defender".
+
+**A correction to 6ad, and U+007F is why.** That section adopted Appendix A's
+degree ladder partly because "Ch. 2 … tabulates nothing". Chapter 2 tabulates
+it — "Success by 0–2 / 3–4 / 5+", the same three edges under different names.
+The sentence above the list was read and the list was not, because **this PDF
+prints list bullets as U+007F** (6g, and 6ac lost a debugging cycle to it): a
+bulleted list can look like no list at all. The conclusion survives and is
+stronger — only Appendix A NAMES the bands, which is what makes it a
+definition rather than a summary, and chapter 2 corroborates its edges
+independently. `verify()` pins the agreement in both directions.
+
+Chapter 2 also prints a FAILURE band ("Failure by 1–2: Barely failed") that
+Appendix A has no counterpart for. Recorded and graded nowhere: one band is
+not a ladder, and a test fails if it ever gains siblings.
+
+**The reviewer found three defects and all three were the same shape: a pool
+charged without the player getting what they paid for.**
+
+- **The cap was per CALL where the book says per ROLL.** "Max +5 per roll" —
+  five one-point pushes walked straight past it, because `bonusFor` only ever
+  saw its own call and the ceiling lived in the screen's chip list. It takes
+  the running total now, and it lives in rules: **a UI computing its own
+  ceiling is a second copy of one rule**, which is how these numbers stopped
+  reconciling in 6ag and 6ai.
+- **The burn read a stale outcome.** `shownOut` was captured when the row was
+  composed, so two taps before a recomposition both read it — the second push
+  overwrote the first while the pool paid for both. It reads the live state
+  and bails rather than guessing if it is gone.
+- **A roll only a critical can win was pushable, and buying nothing.** Whether
+  a roll is critical depends on the TOTAL (3 or 4), which a burn never
+  touches, so under anti-divination's "only a critical can succeed" (6ag) the
+  displayed result cannot improve however much is spent — and on the mystical
+  side it bought permanent Soul Debt CoR for it (6m). Refused in `canPush`, so
+  a screen that forgets to ask still cannot charge for it. That is arithmetic,
+  not a reading.
+- Plus a MEDIUM: the bonus moved the target and never appeared in the
+  contribution list, so the breakdown no longer summed to the number above it
+  — the invariant 6ag added its own 300-case test for, reintroduced one slice
+  later. It is a `Contribution` now, and a test sums them across every legal
+  spend.
+
+Two parsing notes, both of which failed first. The contest table's trailing
+paragraph wraps as "…if the situation" / "allows. If one succeeds…", so
+anything counting rows reads two more cells; it stops on the paragraph's own
+marker ("If both succeed") instead. And both burn scopes wrap mid-bracket, one
+of them inside "Occultism **vs.** Beyonder phenomena" — splitting on ". "
+truncated the example list exactly as `extract_fright.py` was once caught
+doing (6c). The closing bracket is the terminator, and `verify()` asserts the
+brackets balance, because a truncated cell still parses and still reads
+plausibly.
+
+**Codex refused for the fifteenth consecutive slice** (usage limit, resets
+2026-08-08 16:52 — today, later). One `ecc:kotlin-reviewer` fallback pass
+scoped to three named files with eight probes returned **two HIGH, one MEDIUM
+and four probes traced to a file:line**; all three were fixed and each new
+test was verified failing against the pre-fix code.
+
+Device-verified on `Medium_Phone_API_36.1`, Barmaid Brawler (Brawling 13,
+FP 10/10): the burn row is **absent before the roll** and appears under the
+result, quoting the book's own scope. A 7 vs 13 read "Excellent success";
+**+4 FP** took it to **7 vs 17** with "base 13, modified to 17", `burn:fp: 4`
+in the breakdown, and the tracker at **FP 6/10**. Only **+1** was then
+offered; taking it read **7 vs 18** with `burn:fp: 4` and `burn:fp: 1` summing
+to the five-point move, FP at **5/10**, and **the chip row gone entirely** —
+no sixth point purchasable, which is the cap the reviewer caught. The dice
+total stayed **7** throughout: the same roll, re-read. Streetwise (IQ-based)
+offered no burn at all and failed by 1 with no way to buy it off.
+
+Chapter 2 is now at **30.8%**, from 0.0%. The nine lines still unclaimed are
+the play-loop example, the worked Stealth example, the "modifiers change your
+target" paragraph, and the Secondary Characteristics cost column — that last
+one deliberately, because `SecondaryCharacteristics.COST_HP`…`COST_MOVE`
+already hold those six numbers and ch 3's attribute table is where the costs
+were claimed. The skill-defaults table's BODY sits on page 10, which
+`chapters.json` gives to Chapter 3, so it is claimed under `"2"` and credited
+to nobody: the **seventh** instance of that page-granularity gap.
 
 ### A note on Codex
 
