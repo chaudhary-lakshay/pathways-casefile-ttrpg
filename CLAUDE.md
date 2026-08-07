@@ -2335,6 +2335,23 @@ Sec. 2's general charm row does not also apply", and moved the target to
 **8 vs 12** and landed on **"Success by 3+"** with the book's own effect cell,
 the deeper band beating plain "Success" where both bands fit.
 
+**Not observed live, and the reason is the instrument.** The SPI-wins branch
+(a Beyonder whose SPI exceeds Per) and Sec. 1's bonus chip were not confirmed
+on screen. A Fool Seq 9 Academic Researcher reaches SPI 9 against Per 10, so
+Per still wins and no premade + first potion flips it; and on
+`Medium_Phone_API_36.1` the app then ANRed twice on the same chip tap. The
+logcat says why and it is not this code: `Davey! duration=6973ms`, a **3.95s
+GC pause**, 139 skipped frames, and 1.4-2.7s frames on interactions that
+predate this slice — the emulator was missing frame deadlines from the premade
+list onward. No exception, no deadlock, and `/data/anr` is unreadable on a
+production build (`adbd cannot run as root`). Both behaviours rest on
+`DetectionTest`, the same way the `RequireCrit` demotion rests on
+`AntiDivinationTest` (6ag). The physical tablet was tried as the faster
+instrument and its NotificationShade held window focus through `statusbar
+collapse`, `KEYCODE_BACK` and `am start`, so every tap went to the shade —
+**check `mCurrentFocus` before concluding an app ignored a tap**, which is a
+fifth way these instruments lie.
+
 **Coverage moved this time**, and only because the pages happened to fall
 right: Ch 6.5 went 39.3% -> 48.2% -> **85.7%**, with the 8 lines still
 unclaimed being Sec. 5-6's spill onto page 60 (6ag). The lines claimed here
