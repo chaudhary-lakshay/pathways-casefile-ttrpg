@@ -1,0 +1,35 @@
+{
+ "sourceLines": {
+  "2": [
+   [
+    423,
+    427
+   ],
+   [
+    430,
+    442
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "difficulty": "Easy",
+   "code": "E",
+   "penalty": -4
+  },
+  {
+   "difficulty": "Average",
+   "code": "A",
+   "penalty": -5
+  },
+  {
+   "difficulty": "Hard",
+   "code": "H",
+   "penalty": -6
+  },
+  {
+   "difficulty": "Very Hard",
+   "code": "VH"
+  }
+ ]
+}

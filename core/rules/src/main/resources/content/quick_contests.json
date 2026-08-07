@@ -1,0 +1,42 @@
+{
+ "sourceLines": {
+  "2": [
+   [
+    396,
+    422
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "situation": "Deception vs. detection",
+   "attacker": "Fast-Talk or Acting",
+   "defender": "Detect Lies or Per"
+  },
+  {
+   "situation": "Grapple vs. escape",
+   "attacker": "Wrestling",
+   "defender": "ST or Escape"
+  },
+  {
+   "situation": "Intimidation vs. resistance",
+   "attacker": "Intimidation",
+   "defender": "Will"
+  },
+  {
+   "situation": "Ritual effect vs. target",
+   "attacker": "Ritualistic Magic",
+   "defender": "Will or HT"
+  },
+  {
+   "situation": "Pursuit on foot",
+   "attacker": "Running",
+   "defender": "Running"
+  },
+  {
+   "situation": "Beyonder ability vs. target",
+   "attacker": "Ability roll",
+   "defender": "Will or HT (as specified)"
+  }
+ ]
+}

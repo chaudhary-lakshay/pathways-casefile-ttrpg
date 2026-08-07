@@ -1407,6 +1407,61 @@ data class SpiAffinity(
     val high: Int? = null,
 )
 
+/**
+ * One band of Ch. 2's own success-roll list (p. 7).
+ *
+ * Corroboration, not a rule the app applies: these are the same three edges
+ * Appendix A names Good and Excellent (6ad), printed unnamed one chapter in.
+ * [low] and [high] are absent on the two rows named by the roll itself, and
+ * [high] alone is absent on "Success by 5+", which prints no ceiling.
+ */
+@Serializable
+data class CoreBand(
+    val outcome: String,
+    val meaning: String,
+    val low: Int? = null,
+    val high: Int? = null,
+)
+
+/**
+ * One pool that can be spent to push a roll (Ch. 2, p. 9).
+ *
+ * [max] is the FP row's "+5 per roll" and is ABSENT on the SPI row, which
+ * says "There is no cap" in words. Read through
+ * [com.pathways.rules.EffortBurn].
+ */
+@Serializable
+data class BurnablePool(
+    val pool: String,
+    val kind: String,
+    val scope: String,
+    val perPoint: Int = 1,
+    val max: Int? = null,
+)
+
+/** One worked Quick Contest (Ch. 2, p. 9) -- who rolls what against whom. */
+@Serializable
+data class QuickContest(
+    val situation: String,
+    val attacker: String,
+    val defender: String,
+)
+
+/**
+ * One untrained default (Ch. 2, p. 9-10) -- the PRIMARY printing of the table
+ * Appendix A's Common Modifiers restates as "Attribute -4 to -6" (6ae).
+ *
+ * [penalty] is absent for Very Hard, which prints "No default -- cannot
+ * attempt untrained". A refusal, not a number, so it carries none rather than
+ * a large one.
+ */
+@Serializable
+data class SkillDefault(
+    val difficulty: String,
+    val code: String,
+    val penalty: Int? = null,
+)
+
 @Serializable
 data class ContentFile<T>(
     val sourceLines: Map<String, List<List<Int>>> = emptyMap(),

@@ -3046,3 +3046,96 @@ def test_a_sense_table_that_grew_a_failure_row_is_refused():
     with pytest.raises(AssertionError):
         extract_spirituality.verify(
             blocks, tiers, extract_spirituality.load_lines())
+
+
+import extract_core_rules
+
+
+def core_entries(name):
+    return json.loads((CONTENT / f"{name}.json").read_text(encoding="utf-8"))["entries"]
+
+
+def test_chapter_two_prints_two_burnable_pools():
+    """One capped, one explicitly uncapped."""
+    fp, spi = core_entries("effort_burn")
+    assert (fp["pool"], fp["kind"], fp["max"]) == ("FP", "physical", 5)
+    assert (spi["pool"], spi["kind"]) == ("SPI", "mystical")
+    # Absent, not a large number: "There is no cap". A ceiling here would be
+    # one this app invented, the distinction RitualCritical.corGained draws
+    # between printing nothing and printing zero.
+    assert "max" not in spi
+    assert fp["perPoint"] == spi["perPoint"] == 1
+
+
+def test_both_burn_scopes_survive_their_wrap():
+    """Both scope cells wrap mid-bracket, and one wraps inside "vs.".
+
+    A truncated cell still parses and still reads plausibly -- "(Ritualistic
+    Magic, Spiritual" -- so the closing bracket is what proves the example
+    list survived. Splitting on ". " instead cut SPI's list at "Occultism vs.",
+    the same trap extract_fright.py had to be taught.
+    """
+    for row in core_entries("effort_burn"):
+        assert row["scope"].count("(") == row["scope"].count(")"), row["scope"]
+        assert row["scope"].endswith(")"), row["scope"]
+    _, spi = core_entries("effort_burn")
+    assert "Occultism vs. Beyonder phenomena" in spi["scope"]
+
+
+def test_chapter_two_tabulates_the_margin_bands_appendix_a_names():
+    """The correction to 6ad.
+
+    That section said chapter 2 "tabulates nothing". It tabulates the same
+    three edges -- 0-2, 3-4, 5+ -- under different names. The bulleted list was
+    invisible because this PDF prints list bullets as U+007F. Only Appendix A
+    NAMES the bands, which is what makes it a definition rather than a
+    summary, and that asymmetry is asserted here so a later reading cannot
+    quietly erase it.
+    """
+    success = [b for b in core_entries("core_mechanic") if b["outcome"] == "Success"]
+    assert [b["low"] for b in success] == [0, 3, 5]
+    assert [b.get("high") for b in success] == [2, 4, None]
+    ladder = core_entries("success_ladder")
+    edges = sorted({-(e.get("offset") or 0) for e in ladder if e.get("comparison") == "<="})
+    assert edges == [0, 3, 5]
+    named = {e["result"] for e in ladder}
+    assert {"Good Success", "Excellent Success"} <= named
+    assert not any("Good Success" in b["meaning"] for b in success)
+
+
+def test_very_hard_prints_a_refusal_and_not_a_number():
+    """"No default -- cannot attempt untrained" is not a large penalty."""
+    defs = core_entries("skill_defaults")
+    assert [d["code"] for d in defs] == ["E", "A", "H", "VH"]
+    assert [d.get("penalty") for d in defs] == [-4, -5, -6, None]
+    assert "penalty" not in defs[-1]
+
+
+def test_the_six_quick_contests_survive_their_trailing_paragraph():
+    """The table ends where the resolution paragraph begins, by MARKER.
+
+    A wrapped sentence -- "...if the situation" / "allows. If one succeeds..."
+    -- reads as two more cells to anything that counts rows instead.
+    """
+    rows = core_entries("quick_contests")
+    assert len(rows) == 6
+    assert rows[0]["situation"] == "Deception vs. detection"
+    assert any(r["attacker"] == "Ritualistic Magic" for r in rows)
+    assert not any("allows." in r["situation"] for r in rows)
+
+
+@needs_pdf
+def test_the_core_rules_verify_against_the_book():
+    bands, pools, rows, defs = extract_core_rules.extract()
+    extract_core_rules.verify(bands, pools, rows, defs, extract_core_rules.load_lines())
+
+
+@needs_pdf
+def test_a_capped_spi_burn_is_refused():
+    """The SPI row says "There is no cap"; growing one is a finding."""
+    bands, pools, rows, defs = extract_core_rules.extract()
+    pools = [dict(p) for p in pools]
+    pools[1]["max"] = 5
+    with pytest.raises(AssertionError):
+        extract_core_rules.verify(
+            bands, pools, rows, defs, extract_core_rules.load_lines())

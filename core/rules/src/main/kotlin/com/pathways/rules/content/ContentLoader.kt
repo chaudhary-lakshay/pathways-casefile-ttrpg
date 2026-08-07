@@ -64,6 +64,14 @@ object ContentLoader {
     private val antiDivinationItemsLazy: List<AntiDivinationItem> by lazy {
         load("anti_divination_items.json")
     }
+    private val coreMechanicLazy: List<CoreBand> by lazy { load("core_mechanic.json") }
+    private val effortBurnLazy: List<BurnablePool> by lazy { load("effort_burn.json") }
+    private val quickContestsLazy: List<QuickContest> by lazy {
+        load("quick_contests.json")
+    }
+    private val skillDefaultsLazy: List<SkillDefault> by lazy {
+        load("skill_defaults.json")
+    }
     private val spiritualSensesLazy: List<SpiritualSense> by lazy {
         load("spiritual_senses.json")
     }
@@ -432,6 +440,31 @@ object ContentLoader {
      * drawback and sealing instruction is prose the GM reads.
      */
     fun sealedArtifacts(): List<SealedArtifact> = sealedArtifactsLazy
+
+    /**
+     * Ch. 2's own success-roll list (p. 7), in printed order. Corroborates
+     * Appendix A's ladder rather than competing with it; marked by
+     * `GoldenCoreRulesTest`.
+     */
+    fun coreMechanic(): List<CoreBand> = coreMechanicLazy
+
+    /**
+     * The two pools a roll can be pushed with (Ch. 2, p. 9). Read through
+     * [com.pathways.rules.EffortBurn].
+     */
+    fun effortBurn(): List<BurnablePool> = effortBurnLazy
+
+    /**
+     * The six worked Quick Contests (Ch. 2, p. 9), in printed order. Shown to
+     * the GM, never resolved here: this app holds one character sheet.
+     */
+    fun quickContests(): List<QuickContest> = quickContestsLazy
+
+    /**
+     * The untrained defaults (Ch. 2, p. 9-10) -- the book's own copy of what
+     * [com.pathways.model.Difficulty.defaultPenalty] has held since M0.
+     */
+    fun skillDefaults(): List<SkillDefault> = skillDefaultsLazy
 
     /**
      * The two spiritual sense skills and their own result tables (Ch. 4,

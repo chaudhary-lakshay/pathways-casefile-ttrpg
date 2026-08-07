@@ -1,0 +1,47 @@
+{
+ "sourceLines": {
+  "2": [
+   [
+    276,
+    285
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "outcome": "Critical Success",
+   "meaning": "Roll of 3 or 4 (always succeeds brilliantly)"
+  },
+  {
+   "outcome": "Critical Success in Combat",
+   "meaning": "A critical success on an attack roll deals double damage."
+  },
+  {
+   "outcome": "Success",
+   "low": 0,
+   "meaning": "Barely succeeded",
+   "high": 2
+  },
+  {
+   "outcome": "Success",
+   "low": 3,
+   "meaning": "Clean success",
+   "high": 4
+  },
+  {
+   "outcome": "Success",
+   "low": 5,
+   "meaning": "Exceptional result"
+  },
+  {
+   "outcome": "Failure",
+   "low": 1,
+   "meaning": "Barely failed",
+   "high": 2
+  },
+  {
+   "outcome": "Critical Failure",
+   "meaning": "Roll of 17 or 18, or fail by 10+"
+  }
+ ]
+}

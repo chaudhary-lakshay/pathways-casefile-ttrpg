@@ -65,6 +65,8 @@ import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.SuccessDegree
 import com.pathways.rules.CommonModifiers
 import com.pathways.rules.PremadeSkill
+import com.pathways.rules.BurnKind
+import com.pathways.rules.EffortBurn
 import com.pathways.rules.SpiritualSenses
 import com.pathways.rules.content.CommonModifier
 import com.pathways.rules.content.ContentLoader
@@ -376,6 +378,12 @@ fun SheetScreen(
             // for Spiritual Intuition and Spiritual Perception and for
             // nothing else, so the rest keep Appendix A's general ladder.
             sense = SpiritualSenses.forSkill(skill.key),
+            // Which pool may push this roll, decided by the skill's own
+            // controlling attribute. Null for IQ, Will and Per, which the
+            // book's two rows name neither of -- so no burn is offered
+            // rather than fatigue being allowed on a Research roll.
+            burnKind = EffortBurn.kindFor(skill.key)
+                ?.takeIf { it != BurnKind.MYSTICAL || vitals.maxSpi > 0 },
             onRoll = { circumstances ->
                 // The trackers reach the dice here: a reeling, fatigued or
                 // corrupted character no longer rolls at full skill. The GM's
@@ -387,6 +395,15 @@ fun SheetScreen(
                     source = appDice,
                     mods = conditionsFor(skill.key) + circumstances,
                 )
+            },
+            // Ch. 2's burn, charged the moment it is bought. The book allows
+            // it after the result is seen, so the pool moves when the player
+            // pushes -- printing the rule and not charging it is how a
+            // tracker starts lying (6m).
+            onBurn = { kind, points ->
+                val pool = if (kind == BurnKind.PHYSICAL) Pool.FP else Pool.SPI
+                val max = if (pool == Pool.FP) vitals.maxFp else vitals.maxSpi
+                session.spend(pool, points, max, maxCor)
             },
             onDismiss = { rolling = null },
         )
@@ -793,10 +810,16 @@ private fun RollDialog(
     label: String,
     base: Int,
     sense: SpiritualSense? = null,
+    burnKind: BurnKind? = null,
+    onBurn: (BurnKind, Int) -> Unit = { _, _ -> },
     onRoll: (List<com.pathways.model.Modifier>) -> SkillRollOutcome,
     onDismiss: () -> Unit,
 ) {
     var out by remember { mutableStateOf<SkillRollOutcome?>(null) }
+    // Points already burned on THIS roll. The book caps the FP side at +5 and
+    // caps the SPI side at nothing, so the ceiling comes from EffortBurn
+    // rather than from a number chosen here.
+    var burned by remember { mutableIntStateOf(0) }
     val chosen = remember { mutableStateListOf<CommonModifier>() }
     // Chapter 4's own circumstances, for the two skills that print them.
     val senseChosen = remember { mutableStateListOf<SenseModifier>() }
@@ -855,6 +878,18 @@ private fun RollDialog(
                     return@Column
                 }
                 RollResult(shownOut, sense)
+                // Ch. 2, p. 9: "You may use this after seeing the result."
+                // That is the whole reason this sits BELOW the result rather
+                // than beside the chips -- it is a decision made once the
+                // dice are known, and the same dice are then re-read against
+                // a higher target.
+                if (burnKind != null) {
+                    BurnRow(burnKind, burned) { points ->
+                        onBurn(burnKind, points)
+                        burned += points
+                        out = EffortBurn.applied(shownOut, burnKind, points)
+                    }
+                }
             }
         },
     )
@@ -972,6 +1007,50 @@ private fun SenseRow(
                             if (row.modifier >= 0) "+${row.modifier}" else "${row.modifier}",
                     )
                 },
+            )
+        }
+    }
+}
+
+/**
+ * Ch. 2's burn (p. 9), offered once the dice are known.
+ *
+ * One pool per roll, and which one is decided by the SKILL, not by the
+ * player: the FP row names ST/DX/HT rolls and the SPI row names SPI-based
+ * ones, so a roll can only ever reach one of them and the book's "you cannot
+ * spend both" cannot be violated from here. An IQ, Will or Per skill is named
+ * by neither row and gets no burn at all, which is why this row is absent
+ * rather than empty on most rolls.
+ */
+@Composable
+private fun BurnRow(kind: BurnKind, burned: Int, onBurn: (Int) -> Unit) {
+    val pool = EffortBurn.pool(kind)
+    val cap = pool.max
+    val left = cap?.minus(burned)
+    Text(
+        "Push the roll — ${pool.pool} on ${pool.scope}",
+        style = MaterialTheme.typography.labelLarge,
+        modifier = Modifier.padding(top = 12.dp),
+    )
+    Text(
+        if (cap == null) {
+            "1 ${pool.pool} buys +1, and the book prints no cap. Spent so far: $burned."
+        } else {
+            "1 ${pool.pool} buys +1, at most +$cap per roll. Spent so far: $burned."
+        },
+        style = MaterialTheme.typography.bodySmall,
+    )
+    // Four steps, or fewer when the printed cap is closer. The uncapped pool
+    // is not offered without limit: the book names no ceiling, and a stepper
+    // running to a hundred is not a choice worth making at the table -- the
+    // same reading the open-ended ritual fuel cell already takes (6q).
+    val steps = (1..minOf(4, left ?: 4)).toList()
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        steps.forEach { points ->
+            FilterChip(
+                selected = false,
+                onClick = { onBurn(points) },
+                label = { Text("+$points") },
             )
         }
     }

@@ -1,0 +1,25 @@
+{
+ "sourceLines": {
+  "2": [
+   [
+    387,
+    395
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "pool": "FP",
+   "kind": "physical",
+   "perPoint": 1,
+   "scope": "any roll based on ST, DX, or HT (attack rolls, dodging, climbing, lifting, etc.)",
+   "max": 5
+  },
+  {
+   "pool": "SPI",
+   "kind": "mystical",
+   "perPoint": 1,
+   "scope": "any SPI-based or supernatural skill roll (Ritualistic Magic, Spiritual Perception, Occultism vs. Beyonder phenomena, etc.)"
+  }
+ ]
+}
