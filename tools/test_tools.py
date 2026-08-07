@@ -2771,3 +2771,162 @@ def test_seq_5_disagreeing_with_the_halving_would_fail_verification():
             row["linkedPenalty"] = -4
     with pytest.raises(ValueError):
         extract_anti_divination.verify(rows, counters)
+
+
+# ---------------------------------------------------------------------------
+# Ch. 6.5 Sec. 1-4 -- the TARGET's half of anti-divination
+# ---------------------------------------------------------------------------
+import extract_detection
+
+
+def _detection():
+    byn = extract_detection.load_lines()
+    return byn, extract_detection.extract()
+
+
+@needs_pdf
+def test_detection_extracts_all_four_tables():
+    _, (awareness, outcomes, modifiers, techniques, items) = _detection()
+    assert [r["pathway"] for r in awareness] == extract_detection.EXPECTED_PATHWAYS
+    assert [r["result"] for r in outcomes] == extract_detection.OUTCOME_NAMES
+    assert [r["situation"] for r in modifiers] == extract_detection.EXPECTED_SITUATIONS
+    assert [t["id"] for t in techniques] == extract_detection.EXPECTED_TECHNIQUES
+    assert [r["name"] for r in items] == extract_detection.EXPECTED_ITEMS
+
+
+@needs_pdf
+def test_only_two_techniques_price_a_divination_and_both_are_even():
+    """The whole warrant for summing technique penalties before halving them.
+
+    Sec. 6 halves twice with opposite printed rounding. Sum-then-halve and
+    halve-then-sum differ only on odd magnitudes, and this book prints none --
+    so the orders agree on every combination it can produce, and the reading
+    is a decision rather than something the data settled.
+    """
+    _, (_, _, _, techniques, _) = _detection()
+    priced = {t["id"]: t["divinationPenalty"] for t in techniques
+              if "divinationPenalty" in t}
+    assert priced == {"3A": -2, "3B": -4}
+    assert all(v % 2 == 0 for v in priced.values())
+
+
+@needs_pdf
+def test_an_odd_technique_penalty_would_fail_verification(monkeypatch):
+    """The guard has to survive its own expected-values pin being updated.
+
+    A maintainer meeting a changed book updates PENALTY_TECHNIQUES to match --
+    and that is exactly the moment the stacking reading needs re-deciding, so
+    the evenness check is asserted with the pin already moved.
+    """
+    byn, (awareness, outcomes, modifiers, techniques, items) = _detection()
+    techniques = [dict(t) for t in techniques]
+    for t in techniques:
+        if t["id"] == "3A":
+            t["divinationPenalty"] = -3
+    monkeypatch.setattr(
+        extract_detection, "PENALTY_TECHNIQUES", {"3A": -3, "3B": -4}
+    )
+    with pytest.raises(ValueError, match="odd penalty"):
+        extract_detection.verify(byn, awareness, outcomes, modifiers, techniques, items)
+
+
+@needs_pdf
+def test_the_charm_is_priced_in_both_sections():
+    """One item, generally and specifically -- the overlap Detection refuses.
+
+    Sec. 2 prices any protective item at +1; Sec. 4 prices this one at +2.
+    The day they agree is the day the scoping stops being needed, so verify()
+    fails then too.
+    """
+    _, (_, _, modifiers, _, items) = _detection()
+    generic = next(r for r in modifiers
+                   if r["situation"] == extract_detection.GENERIC_CHARM_SITUATION)
+    pendant = next(r for r in items if r["name"] == extract_detection.PENDANT)
+    assert generic["modifier"] == 1
+    assert pendant["detectionBonus"] == 2
+
+
+@needs_pdf
+def test_the_two_charm_prices_agreeing_would_fail_verification():
+    byn, (awareness, outcomes, modifiers, techniques, items) = _detection()
+    modifiers = [dict(r) for r in modifiers]
+    for r in modifiers:
+        if r["situation"] == extract_detection.GENERIC_CHARM_SITUATION:
+            r["modifier"] = 2
+    with pytest.raises(ValueError, match="scoping is moot"):
+        extract_detection.verify(byn, awareness, outcomes, modifiers, techniques, items)
+
+
+@needs_pdf
+def test_the_candle_is_scoped_to_a_ritual_and_never_to_the_detection_roll():
+    _, (_, _, _, _, items) = _detection()
+    candle = next(r for r in items if r["name"] == extract_detection.CANDLE)
+    assert candle["ritualDetectionPenalty"] == -3
+    assert "detectionBonus" not in candle
+    assert extract_detection.CANDLE_SCOPE in candle["effect"]
+
+
+@needs_pdf
+def test_the_monster_row_penalises_the_diviner_inside_an_awareness_table():
+    """A row in a table that is not what the table is about.
+
+    Recorded, applied nowhere: routing it through `techniquePenalty` would put
+    a passive, GM-discretion penalty through two halvings that both name
+    "active techniques".
+    """
+    _, (awareness, _, _, _, _) = _detection()
+    monster = next(r for r in awareness
+                   if r["pathway"] == extract_detection.CROSS_AXIS_PATHWAY)
+    assert monster["divinerPenalty"] == -1
+    assert "bonus" not in monster and "freeRoll" not in monster
+    assert sum(1 for r in awareness if "divinerPenalty" in r) == 1
+
+
+@needs_pdf
+def test_the_monster_row_gaining_awareness_would_fail_verification():
+    byn, (awareness, outcomes, modifiers, techniques, items) = _detection()
+    awareness = [dict(r) for r in awareness]
+    for r in awareness:
+        if r["pathway"] == extract_detection.CROSS_AXIS_PATHWAY:
+            r["bonus"] = 2
+    with pytest.raises(ValueError, match="grants awareness"):
+        extract_detection.verify(byn, awareness, outcomes, modifiers, techniques, items)
+
+
+@needs_pdf
+def test_the_ward_reaches_both_rolls():
+    _, (_, _, _, techniques, _) = _detection()
+    ward = next(t for t in techniques if t["id"] == "3A")
+    assert ward["divinationPenalty"] == -2
+    assert ward["detectionBonus"] == 2
+    assert ward["spi"] == 2
+
+
+@needs_pdf
+def test_the_technique_priced_in_prose_carries_no_number():
+    """3F costs "SPI equal to what a divination of that scope would normally
+    cost". No field, so a caller must refuse it rather than read it as free."""
+    _, (_, _, _, techniques, _) = _detection()
+    echo = next(t for t in techniques if t["id"] == "3F")
+    assert "spi" not in echo
+    assert "divination of that scope" in dict(
+        (b["label"], b["text"]) for b in echo["bullets"]
+    )["Cost"]
+
+
+@needs_pdf
+def test_only_the_margin_named_row_carries_a_margin():
+    """Four rows named by outcome, one by margin -- the two doors again."""
+    _, (_, outcomes, _, _, _) = _detection()
+    assert [r["result"] for r in outcomes if "margin" in r] == ["Success by 3+"]
+    assert next(r for r in outcomes if r["result"] == "Success by 3+")["margin"] == 3
+
+
+@needs_pdf
+def test_the_resolution_order_is_still_printed():
+    """The book's own statement that these sections are separate axes."""
+    byn, (awareness, outcomes, modifiers, techniques, items) = _detection()
+    extract_detection.verify(byn, awareness, outcomes, modifiers, techniques, items)
+    text = " ".join((byn.get(n) or "") for n in range(3737, 3755))
+    for step in extract_detection.RESOLUTION_STEPS:
+        assert step in text

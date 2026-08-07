@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.AntiDivination
 import com.pathways.rules.AntiDivinationResult
+import com.pathways.rules.AntiDivinationTechniques
 import com.pathways.rules.Divination
 import com.pathways.rules.DivinationOutcome
 import com.pathways.rules.RandomSource
@@ -62,6 +63,7 @@ fun DivinationDialog(
     // The cross-reference row is not a modifier; Divination refuses it.
     val rows = remember { Divination.modifiers().filterNot { it.crossReference } }
     val immunityRows = remember { AntiDivination.rows() }
+    val allTechniques = remember { AntiDivinationTechniques.all() }
 
     var difficulty by remember { mutableStateOf(difficulties.first()) }
     var method by remember { mutableStateOf(methods.first()) }
@@ -85,10 +87,23 @@ fun DivinationDialog(
     val hpForSacrifice = remember {
         AntiDivination.counterNamed("HP Sacrifice").hpRequired ?: 0
     }
-    val protection = remember(targetSequence, directLink, sacrificeHp) {
+    // Ch. 6.5 Sec. 3. What the TARGET has raised against being found -- a
+    // declaration here, because the target has no sheet in this dialog. Not
+    // reset with targetSequence: a ward is up whether or not the GM has named
+    // the Sequence behind it.
+    var techniqueIds by remember { mutableStateOf<Set<String>>(emptySet()) }
+    val techniques = remember(techniqueIds) {
+        allTechniques.filter { it.id in techniqueIds }
+    }
+    // Summed BEFORE the counters halve it: "their penalties add together when
+    // a divination is attempted", which is the moment Sec. 6 acts.
+    val techniquePenalty = AntiDivinationTechniques.penaltyTotal(techniques)
+
+    val protection = remember(targetSequence, directLink, sacrificeHp, techniquePenalty) {
         targetSequence?.let {
             AntiDivination.against(
                 targetSequence = it,
+                techniquePenalty = techniquePenalty,
                 // The diviner's own Sequence is not modelled on the sheet, so
                 // Sequence Advantage and the equal-Sequence row cannot apply.
                 // Passing a guess would silently pick a side (AntiDivination).
@@ -96,7 +111,7 @@ fun DivinationDialog(
                 directLink = directLink,
                 hpSacrificed = if (sacrificeHp) hpForSacrifice else 0,
             )
-        } ?: AntiDivinationResult(0, false, emptyList())
+        } ?: techniquesOnly(techniquePenalty)
     }
 
     // Kept apart from the protection penalty, because the breakdown line names
@@ -255,6 +270,47 @@ fun DivinationDialog(
                     }
                 }
 
+                Text(
+                    "Active techniques (Sec. 3)",
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+                Text(
+                    "What the target has raised, and paid SPI for. All active " +
+                        "techniques stack.",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                FlowRow {
+                    allTechniques.forEach { option ->
+                        FilterChip(
+                            selected = option.id in techniqueIds,
+                            onClick = {
+                                techniqueIds =
+                                    if (option.id in techniqueIds) techniqueIds - option.id
+                                    else techniqueIds + option.id
+                            },
+                            label = {
+                                Text(
+                                    option.name + (
+                                        option.divinationPenalty
+                                            ?.let { " ${signed(it)}" } ?: ""
+                                        ),
+                                )
+                            },
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                    }
+                }
+                techniques.forEach { chosen ->
+                    // Four of the six price no roll at all -- they divert,
+                    // redirect or answer falsely. Saying what one DOES is the
+                    // only honest thing to show beside a chip worth +0.
+                    Text(
+                        "${chosen.name}: ${chosen.bullet("Effect")}",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 Text("Roll 3d6 ≤ $target", style = MaterialTheme.typography.titleMedium)
                 if (protection.requiresCritical) {
@@ -357,3 +413,18 @@ private fun spiLabel(method: DivinationMethod): String =
     method.spiMax?.let { "${method.spi}-$it" } ?: "${method.spi}"
 
 private fun signed(n: Int) = if (n >= 0) "+$n" else "$n"
+
+/**
+ * A target with techniques up but no Sequence declared.
+ *
+ * [AntiDivination.against] needs a row from the immunity table and there is
+ * none; the techniques still apply, because a ward does not stop working
+ * because the GM has not said how strong its owner is. No counter is offered
+ * without a Sequence either, so nothing is dropped here.
+ */
+private fun techniquesOnly(penalty: Int) = AntiDivinationResult(
+    penalty = penalty,
+    requiresCritical = false,
+    parts = if (penalty == 0) emptyList()
+    else listOf("active techniques ${signed(penalty)}"),
+)

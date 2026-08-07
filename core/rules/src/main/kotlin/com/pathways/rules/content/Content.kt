@@ -1254,6 +1254,99 @@ data class AntiDivinationCounter(
 )
 
 /**
+ * One pathway that feels a divination coming (Ch. 6.5, Sec. 1, p. 57).
+ *
+ * The row's primary output is a GATE, not a number: [isAutomatic] means no
+ * roll is needed, [freeRoll] names the attribute when the book grants one
+ * anyway, and a row with neither grants nothing.
+ *
+ * [bonusText] travels with [bonus] because three of the four printed bonuses
+ * are scoped to what the divination is ABOUT ("related to their hidden
+ * knowledge"), which this app cannot test. The scope belongs beside the value,
+ * the same reason [PoolThreshold] carries its own.
+ *
+ * [divinerPenalty] appears on exactly one row and is not awareness at all --
+ * Wheel of Fortune's passive luck penalises the DIVINER. Recorded here so the
+ * cross-axis row stays visible; nothing applies it. See
+ * [com.pathways.rules.Detection].
+ */
+@Serializable
+data class DivinationAwareness(
+    val pathway: String,
+    val sequence: String,
+    val detection: String,
+    val isAutomatic: Boolean = false,
+    val freeRoll: String? = null,
+    val bonus: Int? = null,
+    val bonusText: String? = null,
+    val divinerPenalty: Int? = null,
+)
+
+/**
+ * What noticing a divination tells the target (Ch. 6.5, Sec. 2, p. 57).
+ *
+ * Four rows are named by [outcome] and one by [margin] -- the two doors
+ * [com.pathways.rules.FrightCheck], [com.pathways.rules.RitualResolution] and
+ * [com.pathways.rules.Wounds] each read the wrong way round once.
+ */
+@Serializable
+data class DetectionOutcome(
+    val result: String,
+    val outcome: String,
+    val effect: String,
+    val margin: Int? = null,
+)
+
+/** One circumstance on the target's detection roll (Ch. 6.5, Sec. 2, p. 57). */
+@Serializable
+data class DetectionModifier(val situation: String, val modifier: Int)
+
+/**
+ * One active anti-divination technique (Ch. 6.5, Sec. 3, p. 58-59).
+ *
+ * [divinationPenalty] is what the DIVINER takes; [detectionBonus] is what the
+ * target gains on its own roll. 3A prints both, which is why the two are
+ * separate fields rather than one signed number.
+ *
+ * [spi] is absent rather than zero for 3F, which prices itself as "SPI equal
+ * to what a divination of that scope would normally cost" -- a rule, not a
+ * number, the distinction [RitualCritical.corGained] already draws.
+ */
+@Serializable
+data class AntiDivinationTechnique(
+    val id: String,
+    val name: String,
+    val availability: String,
+    val bullets: List<TechniqueBullet>,
+    val spi: Int? = null,
+    val divinationPenalty: Int? = null,
+    val detectionBonus: Int? = null,
+) {
+    fun bullet(label: String): String? = bullets.firstOrNull { it.label == label }?.text
+}
+
+/** One labelled line of a technique's printed rules ("Cost", "Duration", ...). */
+@Serializable
+data class TechniqueBullet(val label: String, val text: String)
+
+/**
+ * One item that protects against divination (Ch. 6.5, Sec. 4, p. 59).
+ *
+ * [ritualDetectionPenalty] is deliberately not [detectionBonus]'s opposite:
+ * the candle suppresses "detection of that ritual", which is sensing a ritual
+ * being performed, not the being-divined roll Sec. 2 defines. Two keys so a
+ * caller cannot sum them.
+ */
+@Serializable
+data class AntiDivinationItem(
+    val name: String,
+    val effect: String,
+    val cost: String,
+    val detectionBonus: Int? = null,
+    val ritualDetectionPenalty: Int? = null,
+)
+
+/**
  * Generic envelope every content file shares: the entries themselves, plus
  * the real global line numbers (from build/extract/lines.json) that were
  * claimed to produce them -- the contract tools/coverage.py depends on.

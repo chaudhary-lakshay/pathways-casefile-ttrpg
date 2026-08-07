@@ -1,0 +1,66 @@
+{
+ "sourceLines": {
+  "6.5": [
+   [
+    3755,
+    3807
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "pathway": "Fool (Seer)",
+   "sequence": "Seq 8+ (Clown Intuition)",
+   "detection": "Sensed as a 'prying gaze' or subtle spiritual pressure. Free Per roll at +2 when someone actively divines them.",
+   "freeRoll": "PER",
+   "bonus": 2,
+   "bonusText": "Free Per roll at +2 when someone actively divines them."
+  },
+  {
+   "pathway": "Darkness (Sleepless -> Midnight Poet -> Nightmare)",
+   "sequence": "Seq 7+ (Nightmare)",
+   "detection": "Feel the disturbance as a cold touch on their Ether Body. Automatic SPI roll to notice.",
+   "freeRoll": "SPI"
+  },
+  {
+   "pathway": "Hanged Man (Secrets Supplicant)",
+   "sequence": "Seq 7+",
+   "detection": "Instinctive awareness when their secrets are pried into. +2 to detect divination related to their hidden knowledge.",
+   "bonus": 2,
+   "bonusText": "+2 to detect divination related to their hidden knowledge."
+  },
+  {
+   "pathway": "Hermit (Mystery Pryer)",
+   "sequence": "Seq 9+ (Eyes of Mystery Prying)",
+   "detection": "Always-on spiritual perception. Automatic SPI roll to detect any divination targeting them within 50 meters.",
+   "freeRoll": "SPI"
+  },
+  {
+   "pathway": "Justiciar (Arbiter -> Sheriff)",
+   "sequence": "Seq 8+ (Sheriff)",
+   "detection": "Sense when a law or rule is being broken spiritually. +2 to detect divination as a form of spiritual trespass.",
+   "bonus": 2,
+   "bonusText": "+2 to detect divination as a form of spiritual trespass."
+  },
+  {
+   "pathway": "Wheel of Fortune (Monster)",
+   "sequence": "Seq 9+",
+   "detection": "Passive luck interference. At the GM's discretion, any divination attempt against a Monster may suffer -1 as random chance skews the result. (Passive, unconscious.)",
+   "divinerPenalty": -1
+  },
+  {
+   "pathway": "Fool / Error / Door",
+   "sequence": "Seq 5+ (any)",
+   "detection": "Free Per roll (no bonus) to detect any divination targeting them. +2 if the divination concerns fate, concealment, or secrets. Lord of the Mysteries pathways gain innate divination awareness as part of their authority.",
+   "freeRoll": "PER",
+   "bonus": 2,
+   "bonusText": "+2 if the divination concerns fate, concealment, or secrets."
+  },
+  {
+   "pathway": "Any pathway",
+   "sequence": "Seq 4+ (Demigod)",
+   "detection": "Automatic awareness. A demigod always knows when someone of weaker Sequence attempts to divine them. Equal or stronger Sequence requires a Quick Contest of SPI vs the diviner's Divination Arts or Ritualistic Magic.",
+   "isAutomatic": true
+  }
+ ]
+}

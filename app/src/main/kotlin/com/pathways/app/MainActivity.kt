@@ -187,6 +187,7 @@ fun SheetScreen(
     var divining by remember(sheet) { mutableStateOf(false) }
     var supplicating by remember(sheet) { mutableStateOf(false) }
     var handling by remember(sheet) { mutableStateOf(false) }
+    var sensing by remember(sheet) { mutableStateOf(false) }
     // Maximums move with the potions drunk: HT gains lift FP, and SPI is
     // entirely a potion's gift. Recomputed from the walk, never stored.
     val vitals = remember(sheet, drunk, session.edits) {
@@ -198,6 +199,7 @@ fun SheetScreen(
             secondaries.maxFp,
             walked?.effectiveSpi ?: base.spi,
             secondaries.will,
+            secondaries.per,
             secondaries.dodge,
         )
     }
@@ -262,6 +264,11 @@ fun SheetScreen(
                         if (divinationLevel != null) {
                             TextButton(onClick = { divining = true }) { Text("Divine") }
                         }
+                        // Not gated. Divination Arts is the DIVINER's skill;
+                        // being divined needs no skill at all, and the book's
+                        // detection roll falls back to Per, which a mortal
+                        // has. Who suspects is the GM's call (Detection).
+                        TextButton(onClick = { sensing = true }) { Text("Detect") }
                         if (ritualLevel != null) {
                             // Same gate as the ritual: Chapter 13 rolls the
                             // same skill, because a boon IS a ritual.
@@ -415,6 +422,17 @@ fun SheetScreen(
             // the scene wounded.
             onSpendHp = { session.spend(Pool.HP, it, vitals.maxHp, maxCor) },
             onDismiss = { divining = false },
+        )
+    }
+    if (sensing) {
+        // The other side of the divination dialog. Nothing is spent here: the
+        // book calls this "a free action (once per divination attempt)" that
+        // "does not cost SPI".
+        DetectionDialog(
+            spi = vitals.maxSpi - session.spiSpent,
+            per = vitals.per,
+            dice = appDice,
+            onDismiss = { sensing = false },
         )
     }
     if (casting && ritualLevel != null) {
@@ -582,6 +600,7 @@ private data class Vitals(
     val maxFp: Int,
     val maxSpi: Int,
     val will: Int,
+    val per: Int,
     val dodge: Int,
 )
 

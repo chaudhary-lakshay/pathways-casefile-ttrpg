@@ -1,0 +1,38 @@
+{
+ "sourceLines": {
+  "6.5": [
+   [
+    3808,
+    3830
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "result": "Success",
+   "outcome": "SUCCESS",
+   "effect": "You feel a distinct sense of being watched or pried into. You know the general direction of the diviner (if within 100 meters) and the domain being probed (identity, location, secrets, etc.)."
+  },
+  {
+   "result": "Success by 3+",
+   "outcome": "SUCCESS",
+   "effect": "You sense the diviner's approximate Sequence (±1) and their general Pathway family. You may attempt to trace the connection back to its source (Quick Contest of your SPI vs the diviner's SPI).",
+   "margin": 3
+  },
+  {
+   "result": "Critical Success",
+   "outcome": "CRITICAL_SUCCESS",
+   "effect": "You gain a clear vision of the diviner's face and surroundings. You may attempt to feed a false image or piece of information back through the connection — make a Ritualistic Magic or Acting roll contested by the diviner's SPI. On success, they receive your false information as genuine."
+  },
+  {
+   "result": "Failure",
+   "outcome": "FAILURE",
+   "effect": "You feel nothing unusual. The divination proceeds unnoticed."
+  },
+  {
+   "result": "Critical Failure",
+   "outcome": "CRITICAL_FAILURE",
+   "effect": "You sense nothing, and the diviner is aware that you could have detected them — they know you failed to notice."
+  }
+ ]
+}

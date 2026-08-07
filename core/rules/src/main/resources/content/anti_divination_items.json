@@ -1,0 +1,44 @@
+{
+ "sourceLines": {
+  "6.5": [
+   [
+    3904,
+    3937
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "name": "Concealment Pendant (Darkness charm)",
+   "effect": "+2 to detect divination; worn passively.",
+   "cost": "£50 / 5 pts",
+   "detectionBonus": 2
+  },
+  {
+   "name": "Eyes of the Spirit World (Hermit charm)",
+   "effect": "When activated (1 SPI), reveals if you are being divined right now. One charge per use.",
+   "cost": "£30 / 3 pts per charge"
+  },
+  {
+   "name": "Blank Paper Talisman (Fool pathway)",
+   "effect": "Affix to a surface: the room cannot be divined for 1 hour. One-time use.",
+   "cost": "£20 each"
+  },
+  {
+   "name": "Mystical Candle of Obscurity",
+   "effect": "Burning during a ritual suppresses detection of that ritual by -3 to anyone sensing it. Lasts 1 hour.",
+   "cost": "£15",
+   "ritualDetectionPenalty": -3
+  },
+  {
+   "name": "Silver Mirror of Reflection",
+   "effect": "When placed on an altar, any divination targeting the owner has a 50% chance (1–3 on 1d6) of reflecting back on the diviner.",
+   "cost": "£40 + blessing ritual"
+  },
+  {
+   "name": "Salt of Spiritual Clarity",
+   "effect": "A pinch thrown into the air purifies the spiritual environment. Any active divination targeting the area is interrupted and must restart.",
+   "cost": "£5 per pouch (3 uses)"
+  }
+ ]
+}

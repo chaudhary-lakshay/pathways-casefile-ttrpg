@@ -1,0 +1,36 @@
+{
+ "sourceLines": {
+  "6.5": [
+   [
+    3831,
+    3844
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "situation": "Diviner is 2+ Sequences weaker than the target",
+   "modifier": 2
+  },
+  {
+   "situation": "Diviner is 2+ Sequences stronger than the target",
+   "modifier": -2
+  },
+  {
+   "situation": "Target carries a protective charm or item",
+   "modifier": 1
+  },
+  {
+   "situation": "Diviner has the target's true name + personal item",
+   "modifier": -2
+  },
+  {
+   "situation": "Target is in a warded or sacred space",
+   "modifier": 2
+  },
+  {
+   "situation": "Diviner and target are of equal Sequence",
+   "modifier": 0
+  }
+ ]
+}

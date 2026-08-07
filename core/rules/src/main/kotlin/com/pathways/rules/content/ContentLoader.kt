@@ -49,6 +49,21 @@ object ContentLoader {
     private val antiDivinationCountersLazy: List<AntiDivinationCounter> by lazy {
         load("anti_divination_counters.json")
     }
+    private val divinationAwarenessLazy: List<DivinationAwareness> by lazy {
+        load("divination_awareness.json")
+    }
+    private val detectionOutcomesLazy: List<DetectionOutcome> by lazy {
+        load("detection_outcomes.json")
+    }
+    private val detectionModifiersLazy: List<DetectionModifier> by lazy {
+        load("detection_modifiers.json")
+    }
+    private val antiDivinationTechniquesLazy: List<AntiDivinationTechnique> by lazy {
+        load("anti_divination_techniques.json")
+    }
+    private val antiDivinationItemsLazy: List<AntiDivinationItem> by lazy {
+        load("anti_divination_items.json")
+    }
     private val sealedArtifactGradesLazy: List<SealedArtifactGrade> by lazy {
         load("sealed_artifact_grades.json")
     }
@@ -369,6 +384,34 @@ object ContentLoader {
      */
     fun antiDivinationCounters(): List<AntiDivinationCounter> =
         antiDivinationCountersLazy
+
+    /**
+     * Ch. 6.5's eight passive-awareness rows (Sec. 1), in printed order.
+     * Read through [com.pathways.rules.Detection], which knows that one of
+     * them grants no awareness at all.
+     */
+    fun divinationAwareness(): List<DivinationAwareness> = divinationAwarenessLazy
+
+    /**
+     * The five outcomes of a target's detection roll (Sec. 2), in printed
+     * order -- which is also least- to most-demanding among the successes, so
+     * the LAST matching margin band is the answer.
+     */
+    fun detectionOutcomes(): List<DetectionOutcome> = detectionOutcomesLazy
+
+    /** The six circumstances on that roll (Sec. 2), in printed order. */
+    fun detectionModifiers(): List<DetectionModifier> = detectionModifiersLazy
+
+    /**
+     * Ch. 6.5's six active anti-divination techniques (Sec. 3, 3A-3F). Only
+     * two price a divination attempt; read through
+     * [com.pathways.rules.AntiDivinationTechniques].
+     */
+    fun antiDivinationTechniques(): List<AntiDivinationTechnique> =
+        antiDivinationTechniquesLazy
+
+    /** The six anti-divination items and materials (Sec. 4), in printed order. */
+    fun antiDivinationItems(): List<AntiDivinationItem> = antiDivinationItemsLazy
 
     /**
      * The four Sealed Artifact grades (Ch. 6, p. 47), most accessible first.

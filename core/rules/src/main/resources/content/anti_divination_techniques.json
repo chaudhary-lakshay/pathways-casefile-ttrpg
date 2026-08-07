@@ -1,0 +1,178 @@
+{
+ "sourceLines": {
+  "6.5": [
+   [
+    3845,
+    3903
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "id": "3A",
+   "name": "Spiritual Warding",
+   "availability": "Universal, Seq 7+",
+   "bullets": [
+    {
+     "label": "Cost",
+     "text": "2 SPI"
+    },
+    {
+     "label": "Duration",
+     "text": "1 hour, or until the ward is broken"
+    },
+    {
+     "label": "Effect",
+     "text": "All divination attempts against you are at -2 while the ward holds"
+    },
+    {
+     "label": "Bonus",
+     "text": "You gain +2 on detection rolls (see Sec. 2 above) while warding is active"
+    },
+    {
+     "label": "Limitation",
+     "text": "Ward breaks if you suffer injury greater than HP/3 (round down) from a single attack"
+    }
+   ],
+   "spi": 2,
+   "divinationPenalty": -2,
+   "detectionBonus": 2
+  },
+  {
+   "id": "3B",
+   "name": "Concealment",
+   "availability": "Darkness Pathway, Seq 5 — Spirit Warlock",
+   "bullets": [
+    {
+     "label": "Cost",
+     "text": "2 SPI"
+    },
+    {
+     "label": "Duration",
+     "text": "1 hour"
+    },
+    {
+     "label": "Effect",
+     "text": "All divination against you is at -4"
+    },
+    {
+     "label": "Bonus",
+     "text": "Anyone trying to recall specific details about you must first win a Quick Contest of Will vs your SPI"
+    },
+    {
+     "label": "Extension",
+     "text": "You may extend Concealment to one willing target within touch range at +1 SPI per additional target"
+    }
+   ],
+   "spi": 2,
+   "divinationPenalty": -4
+  },
+  {
+   "id": "3C",
+   "name": "Identity Confusion",
+   "availability": "Fool Pathway, Seq 6 — Faceless",
+   "bullets": [
+    {
+     "label": "Cost",
+     "text": "2 SPI"
+    },
+    {
+     "label": "Duration",
+     "text": "1 hour, or until the Faceless changes their masked identity"
+    },
+    {
+     "label": "Effect",
+     "text": "Any divination attempting to identify you or locate you by your spiritual signature diverts to the person you are impersonating"
+    },
+    {
+     "label": "Limitation",
+     "text": "You must have met or studied the target whose aura you mimic. A simple description is not enough — you need 10+ minutes of close observation or a personal item."
+    },
+    {
+     "label": "Counter",
+     "text": "A diviner who critically succeeds on their Divination Arts or Ritualistic Magic roll realises the spiritual signature is a mask and may attempt a Quick Contest of Divination Arts or Ritualistic Magic vs your SPI to pierce it"
+    }
+   ],
+   "spi": 2
+  },
+  {
+   "id": "3D",
+   "name": "Door Misdirection",
+   "availability": "Door Pathway, Seq 5 — Traveler",
+   "bullets": [
+    {
+     "label": "Cost",
+     "text": "3 SPI"
+    },
+    {
+     "label": "Duration",
+     "text": "Instant (opposes a single divination attempt)"
+    },
+    {
+     "label": "Effect",
+     "text": "On a successful SPI roll, the divination is redirected to a random location or person within 1 mile"
+    },
+    {
+     "label": "Deception",
+     "text": "The diviner does not know their spell was misdirected unless they critically succeed"
+    },
+    {
+     "label": "Limitation",
+     "text": "Does not work against diviners 2+ Sequences stronger than you"
+    }
+   ],
+   "spi": 3
+  },
+  {
+   "id": "3E",
+   "name": "Historical Mimicry: Spiritual Blank",
+   "availability": "Fool Pathway, Seq 3 — Scholar of Yore",
+   "bullets": [
+    {
+     "label": "Cost",
+     "text": "5 SPI"
+    },
+    {
+     "label": "Duration",
+     "text": "1d6 minutes (the projection collapses immediately if you take any hostile action)"
+    },
+    {
+     "label": "Effect",
+     "text": "Any divination targeting you returns information about the projected historical figure or scene instead of you"
+    },
+    {
+     "label": "Penalty",
+     "text": "Concentrating to maintain the projection prevents you from taking other complex actions"
+    },
+    {
+     "label": "Detection",
+     "text": "A demigod of equal or stronger Sequence can perceive the projection as a 'laminated' spiritual layer and may attempt a Quick Contest of Divination Arts or Ritualistic Magic vs your SPI to see through it"
+    }
+   ],
+   "spi": 5
+  },
+  {
+   "id": "3F",
+   "name": "Self-Divination Interference",
+   "availability": "Universal, Seq 5+",
+   "bullets": [
+    {
+     "label": "Cost",
+     "text": "SPI equal to what a divination of that scope would normally cost (see Chapter 6.5, Section III, or Chapter 7, Power Sources)"
+    },
+    {
+     "label": "Duration",
+     "text": "24 hours, or until you perform a new self-divination that overwrites the previous one"
+    },
+    {
+     "label": "Effect",
+     "text": "The external diviner receives a false but plausible result — the echo of your self-divination"
+    },
+    {
+     "label": "Deception",
+     "text": "The diviner does not know the result is false unless they critically succeed"
+    }
+   ]
+  }
+ ]
+}

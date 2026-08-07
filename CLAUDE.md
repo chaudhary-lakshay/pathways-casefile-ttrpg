@@ -2213,6 +2213,103 @@ everything from Seq 2 onward plus all of Section 6 is claimed correctly under
 repaired — **check every chapter's claims before reading an unclaimed count as
 work remaining.**
 
+## 6ah. The target's half — a roll the diviner's dialog cannot make
+
+`Detection` and `AntiDivinationTechniques` (core/rules) read Ch. 6.5's
+Sec. 1-4, and `DetectionDialog` is where the played character asks whether
+someone is watching. 6ag took Sec. 5-6, the DIVINER's half, and left this
+deliberately; the seam between them was `AntiDivination.against`'s
+`techniquePenalty`, a parameter with no caller. Sec. 3 fills it.
+
+- **The detection roll is the TARGET's, and this app holds one character.**
+  In the divination dialog that character is the diviner: the target is a
+  declared Sequence with no sheet, so there is no SPI or Per there to roll and
+  no amount of UI would produce one. So the roll got its own entry point,
+  reachable when the played character IS the target, and what went into the
+  divination dialog is Sec. 3 as a DECLARATION about the target. Two
+  touchpoints, one chapter, split by whose sheet the numbers come from.
+- **One GM fact reaches both rolls with opposite sign, and that is not a
+  conflict to reconcile.** "The diviner has your true name + personal item" is
+  Sec. 6's Direct Link, which HALVES the diviner's penalty, and it is also a
+  -2 on the target's detection roll. Two rolls, two effects, one fact.
+  `verify()` pins both so a later reading cannot collapse them into one.
+- **Sum the techniques, then halve — and the book's own numbers cannot prove
+  it.** Sec. 3 says "All active techniques stack — their penalties add
+  together when a divination is attempted", which is the moment Sec. 6's two
+  opposite-rounding halvings act, so they are one penalty by then. But only
+  3A (-2) and 3B (-4) print a flat penalty and BOTH ARE EVEN, so sum-then-halve
+  and halve-then-sum agree on every combination this book can produce — the
+  Major Wound trap (6n) with the parities the other way round. `verify()`
+  asserts the evenness and fails on the first odd one, which is the moment the
+  reading has to be made again rather than inherited.
+- **Sec. 1 and Sec. 2 are two axes, because Sec. 1's primary output is a
+  GATE.** Its eight rows answer whether there is a roll at all — automatic
+  awareness, a free roll, or nothing — and only three also print a bonus.
+  Sec. 2's six rows are the situation. Two more sources join them: 3A's ward
+  grants "+2 on detection rolls" and Sec. 4's pendant "+2 to detect
+  divination", so this roll has FOUR declared sources exactly as a skill roll
+  has `Conditions`, `Attacks`, `Ranged` and `CommonModifiers`. The book's own
+  Quick Reference is the evidence — it numbers the sections as six resolution
+  steps with different jobs — and `verify()` pins all six.
+- **That produced one overlap immediately.** Sec. 2 prices any protective item
+  at +1 and Sec. 4 prices the Concealment Pendant at +2: one charm, generally
+  and specifically. Specific beats general, so `modifierTotal` REFUSES the
+  pair rather than summing, and the dialog withdraws the general chip rather
+  than offering one that throws — the lesson the two Aim rows taught (6t).
+  Same scoping as Appendix A's adverse conditions against chapter 5's
+  darkness (6ae).
+- **The candle does not join them.** Its -3 "suppresses detection of that
+  ritual", which is sensing a ritual being performed, not the being-divined
+  roll. It carries its own key so no caller can reach the nearest number and
+  sum it, and `verify()` pins the scope phrase.
+- **One row is in the wrong table.** Wheel of Fortune (Monster) sits in the
+  passive-awareness table and grants no awareness: it prints "any divination
+  attempt against a Monster may suffer -1", a penalty on the DIVINER, at the
+  GM's discretion, from a passive source. Recorded and applied nowhere —
+  routing it through `techniquePenalty` would put it through two halvings that
+  both name "active techniques", which it is not, and offering it as a chip
+  would put a number the GM must first grant beside penalties the target
+  actually paid SPI for. Same family as divination's "See Step 1 table" row
+  (6p) and Common Modifiers' untrained row (6ae).
+- **Nothing gates who may roll.** Sec. 2 scopes itself to Beyonders in prose,
+  but the roll it defines is SPI or Per whichever is higher and a mortal has a
+  Per. Who suspects they are watched is the GM's call — the reading that
+  refused to enforce the Sealed Artifact grade table's Power Equivalent
+  column (6af). The Detect button is therefore ungated, unlike Divine.
+- **3F is refused, not free.** It prices itself as "SPI equal to what a
+  divination of that scope would normally cost", which is a rule and not a
+  number, so it carries no `spi` field and `spiFor` throws. Reading it as zero
+  would make the strongest effect in the section the cheapest — the
+  distinction `RitualCritical.corGained` draws between charging nothing and
+  charging zero, with a real consequence this time.
+- **Durations are printed and deliberately not tracked.** 1 hour, 1d6 minutes,
+  24 hours, and nothing in this app holds a clock (the reason Appendix A's SPI
+  recovery was left, 6ad). A technique is a declaration: spend its SPI on the
+  tracker, then say the ward is up.
+- **Outcome first, then the LAST matching margin.** Four rows are named by
+  outcome and one by margin ("Success by 3+"); the success bands overlap, so a
+  margin of 5 satisfies both and the deeper one wins, as `DegreeOfSuccess`
+  reads its ladder (6ad). This table prints no critical override, so
+  `SuccessRoll`'s 3-4/17-18 stand — the FrightCheck reading (6c), not the
+  PCR's.
+
+Deliberately not modelled: the six Quick Contests these sections call for —
+tracing the connection back, feeding the diviner a false image, piercing a
+Faceless's mask, seeing through a Scholar's projection, recalling details
+about a concealed target, and the Seq 4+ row's contest against an equal or
+stronger diviner. Every one needs both sides' attributes and this app holds
+one sheet, the same reason Feint's Quick Contest is unmodelled (6o). Four of
+Sec. 4's six items likewise do something no number expresses — a room that
+cannot be divined, a 50% reflection, an interruption.
+
+**Coverage moved this time**, and only because the pages happened to fall
+right: Ch 6.5 went 39.3% -> 48.2% -> **85.7%**, with the 8 lines still
+unclaimed being Sec. 5-6's spill onto page 60 (6ag). The lines claimed here
+are 3755-3937, entirely inside pages 56-59, which `chapters.json` gives to
+6.5. Checked against the union of every content file's claims before writing a
+single span — the highest claim below was 3736 and the lowest above 3938, so
+the range was genuinely unclaimed rather than assumed to be.
+
 ### A note on Codex
 
 It has found one real defect per slice for six slices running, but it reads
