@@ -3,7 +3,7 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `3c15777`.
+sections below are current as of `5dcfc25`.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -39,7 +39,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **773 Kotlin** (JUnit 5, incl. 61 in `app/`) + **224 Python** (pytest), all green |
+| Tests | **792 Kotlin** (JUnit 5, incl. 61 in `app/`) + **232 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -2323,7 +2323,7 @@ than asserted. It did name one latent inconsistency worth closing:
 `modifierNamed` resolved case-insensitively while the charm-overlap guard
 compared case-sensitively, so a caller that reached a row through the tolerant
 lookup could have slipped past the strict guard. Both are insensitive now.
-Slices 6w-6ai are THIRTEEN consecutive slices without the real review gate,
+Slices 6w-6aj are FOURTEEN consecutive slices without the real review gate,
 and `f0ccc56` (6ai's fix) has been seen only by the fallback reviewer. All of
 them belong in one Codex sweep once the limit resets — 2026-08-08 16:52, from
 Codex's own error text.
@@ -2482,6 +2482,124 @@ higher of SPI 11 and Per 10)"**; choosing **Fool** takes it to **10** and says
 the row named it; **Take +2** reads **12** with *"Per 10 (the row grants a Per
 roll), +2"*, which sums; and going back to **None** restores 11 with the bonus
 cleared. Before the fix the same character read 13 under the Per sentence.
+
+## 6aj. Chapter 4 — the attribute the whole app rolls on, at 0.0%
+
+`SpiritualSenses` (core/rules) reads Ch. 4's two result tables (p. 33-34) and
+`GoldenSpiAffinityTest` marks its four claims about chapter 9's data. The
+chapter DEFINING SPI — the attribute every divination, ritual and detection
+roll in this app runs through — had never been read.
+
+**The instrument's fifth distinct failure, and 6v already named this exact
+mode.** `coverage.py` counts a line as mechanical when it holds dice, a signed
+number or a point cost. These tables are four rows of `Success by 3+ /
+<prose>` with no numbers at all, so only the two `Modifiers:` lines register:
+the chapter reported **3 unclaimed lines** while holding two complete skill
+resolution tables. 6v recorded that a bare `×1.5` counts as nothing; the same
+blindness applies to a bare margin band, and nothing had gone looking. Ch 4 is
+now at **100.0%**, from 0.0%, on 39 claimed lines.
+
+**What was going unapplied.** Both skills have been in `skills.json` and
+buyable since M0, so a character could buy one, tap it and get a bare success
+or failure while the book printed a four-row table and three or four
+circumstances for each. Same class as the trackers reaching no roll (6h) and
+the Soul Debt printed and not charged (6m).
+
+- **Not `DegreeOfSuccess`, and the edges make that tempting.** Both tables band
+  at "Success by 3+" and "Success by 5+" — EXACTLY Appendix A's Good
+  (Target−3) and Excellent (Target−5). Reusing the general ladder would look
+  tidy and would be the silent merge 4.1 forbids: the effect text is per-skill,
+  Intuition's 5+ being "Specific premonition (ambush, poison, betrayal)" where
+  Perception's is "Identify type of entity". A chapter's own table beats the
+  appendix's general one — the call `Divination`'s clarity rows, `FrightCheck`,
+  `RitualResolution` and `Wounds` each already make. The shared edges are a
+  coincidence recorded, never a warrant, and a test pins that the two tables
+  share no effect.
+- **Neither table prints a failure row**, so a failed roll gets NO row rather
+  than an invented "you sense nothing", and nothing here overrides the critical
+  rules — there is nothing printed to override them with, so `SuccessRoll`'s
+  3-4/17-18 stand. The `FrightCheck` reading (6c), not the PCR's. `verify()`
+  fails if a failure row ever appears, because a consolation row would look
+  perfectly plausible.
+- **"−2 distracted/in combat" is Appendix A priced specifically.** That
+  appendix prints "Distracted or hurried −2" and "Very adverse conditions
+  (combat, extreme weather) −6 or worse" — the same circumstances, the same
+  words. Offering both charges one distraction twice, so the general chips are
+  WITHHELD and the pair refused in rules, the scoping that keeps chapter 5's
+  darkness off the general adverse row (6ae). Deliberately NOT extended to
+  "Adverse conditions (dark, noisy, dangerous) −4": chapter 4 prints none of
+  those words, and refusing it would be reasoning from a resemblance rather
+  than from the text.
+- **"+6 Seer" names a SEQUENCE 9 RANK, not a pathway.** A Fool at Sequence 8 is
+  a Clown, so it is offered as a chip quoting the book rather than granted to
+  anyone on the Fool pathway — which would author a rule the book did not
+  print. Same call as the Sealed Artifact grade table's Power Equivalent column
+  (6af): show it, do not gate on it. Device-verified on a character who IS a
+  Seer, which is exactly where the shortcut would have been invisible.
+- **The affinity paragraph describes chapter 9 and is marked, not applied.**
+  Five named pathways receive "significantly more", others "+2 to +6",
+  reality-leaning ones "a baseline +1", and the Prisoner exactly 0.
+  `pathways.json` has held those numbers since M3 and nothing had ever compared
+  them. All four reconcile EXACTLY — the five named are the five highest
+  (12/11/9/9/9 against a next-best 6), both bands are populated, and Chained is
+  the only 0. A rarer outcome here than a disagreement, and the reason the
+  paragraph can be trusted as a description of the data. Checked as a strict
+  separation rather than against a threshold the book never prints, which would
+  keep passing after the gap closed.
+
+**The reviewer found a permissive path, and it is 6l's lesson verbatim.**
+`modifiers()` validated a chosen row against EVERY printed row rather than
+against the sense being rolled, so Perception's "+6 Seer" would have passed on
+an Intuition roll. Unreachable from the dialog, which only ever offers one
+sense's own rows — and removed for exactly that reason: "nothing could reach it
+yet; removing it is what stops the next caller finding it." `sense` is a
+required parameter now. It also caught the golden test truncating a `Double`
+SPI sum with no whole-number guard, the truncation-vs-floor family 4.3 exists
+for; `PotionDigestion.wholeSteps` already guards it one file over.
+
+**Then the device found what no test could: the tables were UNREACHABLE.** The
+sheet screen listed one row per PUBLISHED skill (`itemsIndexed(sheet.skills)`),
+so a skill bought in the builder could be paid for, levelled, and never rolled.
+Ritualistic Magic and Divination Arts each got their own button and every other
+purchase was invisible — a hole open since the edit layer shipped (6e), which
+these two senses fell straight into, since no premade prints either. Shipped as
+its own `fix:` commit. Bought rows are deliberately NOT comparison rows:
+`SheetComparison` keeps using the unedited sheet because that diff is the
+engine against the book, so a bought skill has no published column to differ
+from, and "sheet: —" would invent a disagreement where there is only an
+addition.
+
+Deliberately not extracted from the same pages: **Spirit Vision's aura table**
+(already claimed under Ch. 7.6, which prints the fuller version — a second span
+would double-claim a summary), its Sequence scaling bands ("SPI typically 0-8 /
+6-14 / 12+", descriptive, with no roll to attach them to), and **Spirituality
+Recovery** — "1 SPI per hour of rest", now on its THIRD printing (here, p. 35,
+and Appendix A, which 6ad also left) and still with no clock in this app to run
+it against. Blocks 4 and 5 are one-line cross-references to chapters 7 and 6.5,
+both fully modelled.
+
+**Codex refused for the fourteenth consecutive slice** (usage limit, resets
+2026-08-08 16:52, confirmed from its own error text this session). One
+`ecc:kotlin-reviewer` fallback pass scoped to four named files with seven
+probes — the scoping 6af learned to use — returning **one MEDIUM, one LOW and
+five probes traced to a file:line** rather than asserted. Both findings were
+fixed and are described above.
+
+Device-verified on `Medium_Phone_API_36.1`, Academic Researcher seeded as a
+**Fool Seq 9** (SPI 9) with both senses bought: the sheet's last two rows read
+**"Spiritual Intuition 12 (bought)"** and **"Spiritual Perception 9 (bought)"**
+— 12 because a bought SPI skill re-levels on the digested attribute and the
+Seer potion's +3 is frozen on top. Intuition's dialog shows two chip rows;
+ticking **distracted/in combat −2** removes Appendix A's "Distracted or
+hurried" and "Very adverse conditions" and prints why, while leaving "Adverse
+conditions −4" in place. A 14 vs 10 read **"Failure … Spiritual Intuition
+prints no row for this result"**, which is the whole no-failure-row reading on
+screen. Reopening cleared every chip. An 8 vs 12 read **"Good success"** beside
+**"Success by 3+ — Know approximate direction of the threat"** — both ladders
+on one roll, neither merged into the other. Perception offers **Seer +6**
+un-ticked on a Seer, and a 6 vs 15 read **"Excellent success"** with
+**"Success by 5+ — Identify type of entity"**, the deeper band beating the two
+it also satisfied.
 
 ### A note on Codex
 
