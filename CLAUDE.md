@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **724 Kotlin** (JUnit 5, incl. 61 in `app/`) + **203 Python** (pytest), all green |
+| Tests | **743 Kotlin** (JUnit 5, incl. 61 in `app/`) + **212 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -75,7 +75,7 @@ docs/           spec, plan, KNOWN_ISSUES
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading 57 JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading 59 JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -99,7 +99,8 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `language_notes.json` (2), `ritual_support.json` (5),
 `ritual_quick_preparation.json` (3), `ritual_target_link.json` (4),
 `entity_response.json` (6), `sealed_artifact_grades.json` (4),
-`sealed_artifacts.json` (4).
+`sealed_artifacts.json` (4), `sequence_immunity.json` (5),
+`anti_divination_counters.json` (5).
 
 ### Public entry points
 
@@ -206,6 +207,13 @@ SealedArtifacts.gradeOf(a) / .powerEquivalentOf(a) / .agreesWithGrade(a)
 SealedArtifacts.costOf(artifact, ability): ArtifactCost   // spi, hp, perTurn
                                       // deliberately NO canUse: grade is not a gate
 ContentLoader.sealedArtifactGrades() / .sealedArtifacts()
+AntiDivination.rows() / .counters() / .counterNamed(name) / .rowFor(sequence)
+AntiDivination.halvedMagnitude(penalty, roundUp)   // by MAGNITUDE, floorDiv
+AntiDivination.against(targetSequence, divinerSequence?, techniquePenalty,
+                       directLink, hpSacrificed): AntiDivinationResult
+AntiDivination.modifiers(result)      // Flat + RequireCrit, never one alone
+Divination.attempt(..., requiresCritical)  // demotes, and re-reads clarity
+ContentLoader.sequenceImmunity() / .antiDivinationCounters()
 ```
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
@@ -2089,6 +2097,121 @@ Effect prose with no numbers, which is why `coverage.py` never counted them;
 and the Sealing Instructions are committed but nothing acts on them. Ch 6's
 remaining mechanical lines are the ch-5 spill described above, so the chapter
 is done.
+
+## 6ag. Sequence Immunity — a penalty and a prohibition are not the same rule
+
+`AntiDivination` (core/rules) reads Ch. 6.5's Sec. 5 and Sec. 6, and the
+divination dialog grew a "Target's protection" row. This is the per-pathway
+detection subsystem 6t named as M4's next slice — or rather the DIVINER's half
+of it, which is the half with a caller already built.
+
+- **"-10" and "only a critical success (3-4) can succeed" are two rules, and
+  the second is not implied by the first.** Seq 4 and Seq 3 print both. A
+  skill-20 diviner at -10 rolls against 10 and an ordinary 10 succeeds — which
+  is exactly what "the penalty cannot be offset by skill alone" forbids. So the
+  clause travels as `ModEffect.RequireCrit`, which `ModifierResolver` has
+  carried and `SkillRoll` has honoured since M1 with nothing ever emitting it.
+  A test proves the difference THROUGH the engine rather than by assertion: a
+  rolled 9 beats the target, `roll.outcome` is SUCCESS, and `effectiveOutcome`
+  is FAILURE.
+- **A demoted success must not keep a success CLARITY row.** `Divination` reads
+  its clarity from the outcome, so a forbidden success would have printed
+  "Clear" beside the word Failure — the defect `SkillRollOutcome.degree` avoids
+  one object over (6ad). Its margin is positive, so it lands on the mildest
+  failure row, the call `FrightCheck` already makes for a roll that overshoots
+  its table by nothing.
+- **Seq 2 (Angel) prints -10 and NO critical clause**, while the two weaker
+  rows do. Read literally the strongest listed target is the EASIEST of the
+  three for a highly skilled diviner. That looks like a slip; 4.1 says the book
+  wins, so `verify()` and a named test both assert the asymmetry is still there
+  and will fail if a later reading tidies it.
+- **Lower Sequence is stronger, so "2+ Sequences stronger" counts DOWN.**
+  Reversed, Sequence Advantage lands on the weaker party and still produces
+  plausible numbers. And when it applies, the critical clause goes with the
+  penalty it names — the clause is *about* the -10, and a diviner who never
+  takes the -10 is not bound by a sentence describing it.
+- **Two halvings with OPPOSITE printed rounding, on negatives** — the defect
+  class 4.3 exists for. Direct Link "halves ... (round down)"; Sequence
+  Advantage leaves techniques "at half penalty, rounded up". Both are read as
+  halving the MAGNITUDE, because reading "round down" numerically on -5 gives
+  -3, which is HARSHER than the -5 it was meant to soften, in a section where
+  every other bullet helps the diviner. **The book's only worked halving is
+  Seq 5's -6 -> -3, which is even and settles nothing** — the Major Wound trap
+  (6n) with the parities swapped. A reading, pinned by a named test.
+- **That -6 -> -3 is also the warrant** for treating Sections 5 and 6 as one
+  system: the row's own printed link value equals the general halving, so the
+  general rule may be applied to rows that do not restate it. Checked by value
+  in both languages.
+- **Order matters and the book prints none, so printed order is the reading.**
+  Halve then forgive gives -3; forgive then halve gives -4. Device-verified
+  at -3.
+- Sec. 3's active techniques are a PARAMETER, not a table here. They are
+  something the TARGET activates and pays SPI for, so they belong with the
+  detection half; the counters correctly halve whatever is passed, and 0 is the
+  honest default. Sections 1, 2 and 4 — passive awareness, the detection roll,
+  and anti-divination items — are the target's side and the next slice.
+
+**Three defects, all the same class: arithmetic on screen that does not
+reconcile.** Every number was correct in isolation, which is why no test caught
+any of them and why the guard that now exists is a SUM.
+
+- **The device found the first.** The breakdown read *"circumstances -10, Seq 4
+  (Demigod) -10"* for a single -10, because `extras` already contained the
+  protection penalty and the line printed both. A GM adding it up got -20
+  against a target of -10. `circumstances` is computed separately now.
+- **The reviewer found two more**, both inside `AntiDivination.against`. The
+  parts list was built from the PRE-halved values and then appended "Direct
+  Link halves them" with no number; and the HP relief printed the book's stored
+  sign, so a step that moves the total TOWARD zero read as "forgives -2". Shown
+  together: *"-10 ... forgives -2"* for a total of -3. Parts are now built from
+  the final values — *"Seq 4 (Demigod) -5 (halved by Direct Link), 4 HP forgives
+  +2"*.
+- **The guard is general, not three patches.** A test sums the signed numbers in
+  `parts` and asserts they equal `penalty`, across every combination of target,
+  diviner, technique, link and HP — 300 cases. It fails against the old code.
+
+**And the reviewer found a real cost defect too:** the dialog charged 4 HP
+whenever the chip was ticked, while `against()` correctly declines to forgive
+anything when there is no penalty. So burning HP against an unprotected target
+cost 4 HP and bought nothing. `AntiDivinationResult.hpSpent` reports what the
+sacrifice actually cost and the dialog spends that — the decision lives in
+rules, where it is tested.
+
+**Codex refused for the eleventh consecutive slice** (usage limit, resets
+2026-08-08 16:52), so this was one `ecc:kotlin-reviewer` fallback pass, scoped
+to three named files with seven probes. It returned **three HIGH findings and
+five clean probes** — the first fallback pass in this project to find anything,
+and a reminder that scoping the reviewer to named files is what gets an answer
+(a whole-working-tree prompt stalled out in 6af).
+
+Device-verified on the emulator, Academic Researcher with Divination Arts
+bought (skill **-2**, since a non-Beyonder has SPI 0): the protection chips stop
+at Seq 2 where the table does; **Seq 4** quotes the book's own row and reads
+**"3d6 ≤ -10"** with the critical-only warning in red; ticking **True name +
+personal item** and **Burn 4 HP** reads **"3d6 ≤ -3"** with "Seq 4 (Demigod)
+-10, Direct Link halves them, 4 HP forgives -2" spelled out — the documented
+order, since the other one gives -4. Asking took **HP 9/9 → 5/9** and saved
+`hpLost: 4, spiSpent: 1, cor: 1`, the Soul Debt charging itself. A rolled 17
+took Critical Failure — Backlash and rolled Ch. 7's table ("Wrong Attention").
+After the review fixes: the same pair of chips reads **"Seq 4 (Demigod) -5
+(halved by Direct Link), 4 HP forgives +2"**, which sums to the -3 above it; and
+ticking **Burn 4 HP** against **Seq 6–9** left `hpLost` at 4 while `spiSpent`
+and `cor` moved — the sacrifice bought nothing, so it cost nothing.
+
+**The demotion itself was NOT observed live.** It needs a diviner skilled
+enough that an ordinary roll beats the target, and at Divination Arts -2 no
+premade can get there against a -10. It rests on `AntiDivinationTest`, which
+exercises it twice — once through `SkillRoll` and once through
+`Divination.attempt` — the same way the ritual CoR charge rests on its tests
+(6f) and the entity's 18 rejection on its own (6z).
+
+**Coverage's page boundary, a fourth time in one session.** Ch 6.5 went
+39.3% -> **48.2%**, crediting only 5 lines: the immunity table starts on page 59
+and finishes on page **60**, which `chapters.json` gives to Chapter 7, so
+everything from Seq 2 onward plus all of Section 6 is claimed correctly under
+`"6.5"` and credited to nobody. Ch 7 reads 81.0% before and after. Not
+repaired — **check every chapter's claims before reading an unclaimed count as
+work remaining.**
 
 ### A note on Codex
 

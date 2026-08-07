@@ -115,10 +115,17 @@ object Divination {
      * omission is deliberate enough to follow: inventing "Crystal clear" for a
      * lucky 4 against a target of 5 would be inventing content.
      */
-    fun clarityFor(roll: RollResult): DivinationClarity {
+    fun clarityFor(roll: RollResult, demoted: Boolean = false): DivinationClarity {
         val rows = clarities()
         if (roll.outcome == Outcome.CRITICAL_FAILURE) return rows.first { it.isCritical }
-        val succeeded = roll.outcome == Outcome.SUCCESS || roll.outcome == Outcome.CRITICAL_SUCCESS
+        // A success the target's Sequence Immunity forbids is a failure, and
+        // must not keep a success row: "Clear" printed beside the word Failure
+        // is the defect [SkillRollOutcome.degree] avoids by reading the
+        // effective outcome. Its margin is positive, so it lands on the mildest
+        // failure row -- the call FrightCheck already makes for a roll that
+        // overshoots its table by nothing.
+        val succeeded = !demoted &&
+            (roll.outcome == Outcome.SUCCESS || roll.outcome == Outcome.CRITICAL_SUCCESS)
         return if (succeeded) {
             when {
                 roll.margin >= 5 -> rows[0]
@@ -143,11 +150,16 @@ object Divination {
         source: RandomSource,
         extras: Int = 0,
         burned: Int = 0,
+        requiresCritical: Boolean = false,
     ): DivinationOutcome {
         require(burned >= 0) { "SPI burned cannot be negative; was $burned" }
         val target = targetFor(skill, difficulty, extras) + burned * BURN_PER_SPI
         val roll = SuccessRoll.against(target, source)
-        return DivinationOutcome(roll, clarityFor(roll), burned)
+        // Sec. 5's "only a critical success (3-4) can succeed" against a Seq 4
+        // or Seq 3 target. Not expressible as a penalty, which is the whole
+        // point of it -- see [AntiDivination].
+        val demoted = requiresCritical && roll.outcome == Outcome.SUCCESS
+        return DivinationOutcome(roll, clarityFor(roll, demoted), burned, requiresCritical)
     }
 
     /**
@@ -181,6 +193,21 @@ data class DivinationOutcome(
     val roll: RollResult,
     val clarity: DivinationClarity,
     val spiBurned: Int,
+    val requiresCritical: Boolean = false,
 ) {
     val isCritical: Boolean get() = clarity.isCritical
+
+    /**
+     * The outcome after Sequence Immunity's critical-only rule.
+     *
+     * Exposed as a property so a caller cannot read [roll]'s outcome and
+     * forget the demotion -- the trap [SkillRollOutcome.effectiveOutcome]
+     * exists for one object over.
+     */
+    val effectiveOutcome: Outcome
+        get() = if (requiresCritical && roll.outcome == Outcome.SUCCESS) {
+            Outcome.FAILURE
+        } else {
+            roll.outcome
+        }
 }

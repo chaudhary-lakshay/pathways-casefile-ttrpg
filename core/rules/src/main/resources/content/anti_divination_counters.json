@@ -1,0 +1,34 @@
+{
+ "sourceLines": {
+  "6.5": [
+   [
+    3964,
+    3976
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "name": "Sequence Advantage",
+   "text": "If the diviner is 2+ Sequences stronger than the target, they ignore the target's passive Sequence penalty (but active techniques like Concealment or Identity Confusion still apply at half penalty, rounded up)."
+  },
+  {
+   "name": "Direct Link",
+   "text": "Having the target's true name + an intimate personal item halves all anti-divination penalties (round down)."
+  },
+  {
+   "name": "HP Sacrifice",
+   "text": "Burning 4+ HP (at 2 HP = 1 SPI rate) when casting a divination ignores -2 of anti-divination penalties for that attempt.",
+   "ignoresPenalty": -2,
+   "hpRequired": 4
+  },
+  {
+   "name": "Anti-Anti-Divination Ritual",
+   "text": "A dedicated ritual (base difficulty -4, requires rare materials worth £100+) can temporarily suppress a target's protective techniques for 1d hours. This requires the target's name and a personal item."
+  },
+  {
+   "name": "Divine Intervention",
+   "text": "A prayer to an orthodox deity whose domain includes divination (the God of Knowledge and Wisdom, the Evernight Goddess) may grant a temporary bypass — but the deity will expect something in return. The GM should set a clear cost (a future service, a sacrifice, or a quest) and may limit this to once per story arc."
+  }
+ ]
+}

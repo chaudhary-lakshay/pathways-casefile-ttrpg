@@ -2656,3 +2656,118 @@ def test_the_pcr_claims_the_prose_and_the_table():
     spans = json.loads((CONTENT / "potion_consumption.json")
                        .read_text(encoding="utf-8"))["sourceLines"]["6"]
     assert spans == [[3079, 3081], [3082, 3119]]
+
+
+import extract_anti_divination
+
+IMMUNITY = json.loads(
+    (CONTENT / "sequence_immunity.json").read_text(encoding="utf-8"))["entries"]
+COUNTERS = json.loads(
+    (CONTENT / "anti_divination_counters.json").read_text(encoding="utf-8"))["entries"]
+
+
+def immunity(label):
+    return next(r for r in IMMUNITY if r["label"] == label)
+
+
+def test_a_row_can_print_two_rules_and_the_second_is_not_the_first():
+    """"-10" and "only a critical success can succeed" are different claims: a
+    skill-20 diviner at -10 rolls against 10 and an ordinary 10 succeeds."""
+    demigod = immunity("Seq 4 (Demigod)")
+    assert demigod["penalty"] == -10
+    assert demigod["requiresCritical"] is True
+    assert immunity("Seq 3 (Saint)")["requiresCritical"] is True
+
+
+def test_the_angel_row_prints_no_critical_clause():
+    """Recorded, not repaired: the strongest listed target forbids nothing, so
+    it is the easiest of the three for a highly skilled diviner."""
+    angel = immunity("Seq 2 (Angel)")
+    assert angel["penalty"] == -10
+    assert angel["requiresCritical"] is False
+    crit = {r["label"] for r in IMMUNITY if r["requiresCritical"]}
+    assert crit == {"Seq 4 (Demigod)", "Seq 3 (Saint)"}
+
+
+def test_the_seq_5_row_agrees_with_the_general_halving():
+    """THE WARRANT for treating Sections 5 and 6 as one system: the row's own
+    printed direct-link value is exactly half its own penalty."""
+    row = immunity("Seq 5 (Beyonder Threshold)")
+    assert (row["penalty"], row["linkedPenalty"]) == (-6, -3)
+    assert row["linkedPenalty"] * 2 == row["penalty"]
+
+
+def test_a_row_charging_nothing_carries_no_penalty_field():
+    """Seq 6-9 prints a real rule that costs nothing, which is not the same as
+    printing zero."""
+    weak = immunity("Seq 6–9")
+    assert "penalty" not in weak
+    assert (weak["sequenceLow"], weak["sequenceHigh"]) == (6, 9)
+    assert "Sequence Advantage" in weak["text"]
+
+
+def test_a_wrapped_row_label_is_walked_on_its_brackets():
+    """"Seq 5 (Beyonder" / "Threshold)" is one label. Counting two lines per
+    label works today and breaks on the first one that fits on one."""
+    rows = extract_anti_divination.parse_rows([
+        "Seq 5 (Beyonder", "Threshold)", "Divination ... is at -6 unless ...",
+        "Seq 4 (Demigod)", "Divination ... is at -10.",
+    ])
+    assert [r["label"] for r in rows] == [
+        "Seq 5 (Beyonder Threshold)", "Seq 4 (Demigod)"]
+    assert rows[0]["penalty"] == -6 and rows[1]["penalty"] == -10
+
+
+def test_only_the_hp_sacrifice_carries_numbers_the_app_applies():
+    """The ritual and the deity are the GM's; a field on them would say the app
+    prices them."""
+    assert [c["name"] for c in COUNTERS] == [
+        "Sequence Advantage", "Direct Link", "HP Sacrifice",
+        "Anti-Anti-Divination Ritual", "Divine Intervention",
+    ]
+    numbered = {c["name"] for c in COUNTERS
+                if "ignoresPenalty" in c or "hpRequired" in c}
+    assert numbered == {"HP Sacrifice"}
+    hp = next(c for c in COUNTERS if c["name"] == "HP Sacrifice")
+    # The sign is the book's: "ignores -2 of anti-divination penalties".
+    assert (hp["ignoresPenalty"], hp["hpRequired"]) == (-2, 4)
+
+
+def test_the_two_opposite_rounding_sentences_are_pinned():
+    """AntiDivination reads these in opposite directions, on negatives."""
+    prose = " ".join(c["text"] for c in COUNTERS)
+    assert "still apply at half penalty, rounded up" in prose
+    assert "halves all anti-divination penalties (round down)" in prose
+
+
+@needs_pdf
+def test_tidying_the_angel_asymmetry_would_fail_verification():
+    byn = extract_anti_divination.load_lines()
+    rows = [dict(r) for r in extract_anti_divination.parse_rows(
+        [t for b, t in extract_anti_divination.stream(
+            byn, *extract_anti_divination.IMMUNITY_RANGE) if not b])]
+    counters = extract_anti_divination.parse_counters(
+        extract_anti_divination.stream(
+            byn, *extract_anti_divination.COUNTER_RANGE))
+    extract_anti_divination.verify(rows, counters)  # agrees today
+    for row in rows:
+        if row["label"] == "Seq 2 (Angel)":
+            row["requiresCritical"] = True
+    with pytest.raises(ValueError):
+        extract_anti_divination.verify(rows, counters)
+
+
+@needs_pdf
+def test_seq_5_disagreeing_with_the_halving_would_fail_verification():
+    byn = extract_anti_divination.load_lines()
+    rows = [dict(r) for r in extract_anti_divination.parse_rows(
+        [t for b, t in extract_anti_divination.stream(
+            byn, *extract_anti_divination.IMMUNITY_RANGE) if not b])]
+    counters = extract_anti_divination.parse_counters(
+        extract_anti_divination.stream(
+            byn, *extract_anti_divination.COUNTER_RANGE))
+    for row in rows:
+        if row["label"] == "Seq 5 (Beyonder Threshold)":
+            row["linkedPenalty"] = -4
+    with pytest.raises(ValueError):
+        extract_anti_divination.verify(rows, counters)

@@ -20,6 +20,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.AntiDivination
+import com.pathways.rules.AntiDivinationResult
 import com.pathways.rules.Divination
 import com.pathways.rules.DivinationOutcome
 import com.pathways.rules.RandomSource
@@ -52,12 +54,14 @@ fun DivinationDialog(
     spiAvailable: Int,
     dice: RandomSource,
     onSpendSpi: (Int) -> Unit,
+    onSpendHp: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val difficulties = remember { Divination.difficulties() }
     val methods = remember { Divination.methods() }
     // The cross-reference row is not a modifier; Divination refuses it.
     val rows = remember { Divination.modifiers().filterNot { it.crossReference } }
+    val immunityRows = remember { AntiDivination.rows() }
 
     var difficulty by remember { mutableStateOf(difficulties.first()) }
     var method by remember { mutableStateOf(methods.first()) }
@@ -68,8 +72,40 @@ fun DivinationDialog(
     // with the method, or a 2 chosen for the rods would follow them onto a
     // method that costs 1 (Codex).
     var spiChoice by remember(method) { mutableIntStateOf(method.spi) }
+    // null = an ordinary target. The two counters reset with it, so a link
+    // ticked against a demigod cannot survive onto a shopkeeper -- the stale
+    // pick the boon and ritual dialogs were each fixed for.
+    var targetSequence by remember { mutableStateOf<Int?>(null) }
+    var directLink by remember(targetSequence) { mutableStateOf(false) }
+    var sacrificeHp by remember(targetSequence) { mutableStateOf(false) }
 
-    val extras = Divination.modifierTotal(rows.filter { it.source in chosen }) + conditionPenalty
+    // Ch. 6.5 Sec. 5-6. The HP is a real cost, so it is only offered when the
+    // GM has named a protected target -- burning 4 HP against a shopkeeper
+    // would buy nothing and the tracker would still be down 4.
+    val hpForSacrifice = remember {
+        AntiDivination.counterNamed("HP Sacrifice").hpRequired ?: 0
+    }
+    val protection = remember(targetSequence, directLink, sacrificeHp) {
+        targetSequence?.let {
+            AntiDivination.against(
+                targetSequence = it,
+                // The diviner's own Sequence is not modelled on the sheet, so
+                // Sequence Advantage and the equal-Sequence row cannot apply.
+                // Passing a guess would silently pick a side (AntiDivination).
+                divinerSequence = null,
+                directLink = directLink,
+                hpSacrificed = if (sacrificeHp) hpForSacrifice else 0,
+            )
+        } ?: AntiDivinationResult(0, false, emptyList())
+    }
+
+    // Kept apart from the protection penalty, because the breakdown line names
+    // them separately: folding them and printing both showed "circumstances
+    // -10, Seq 4 (Demigod) -10" for one -10, which does not add up to the
+    // target printed directly above it (found on the emulator).
+    val circumstances =
+        Divination.modifierTotal(rows.filter { it.source in chosen }) + conditionPenalty
+    val extras = circumstances + protection.penalty
     val target = Divination.targetFor(skillLevel, difficulty, extras)
     val cost = Divination.spiFor(method, spiChoice)
 
@@ -172,10 +208,76 @@ fun DivinationDialog(
                 }
 
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                Text("Target's protection", style = MaterialTheme.typography.titleSmall)
+                Text(
+                    "A Beyonder resists being divined. Leave this off for an " +
+                        "ordinary target.",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                FlowRow {
+                    FilterChip(
+                        selected = targetSequence == null,
+                        onClick = { targetSequence = null },
+                        label = { Text("Not a Beyonder") },
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+                    // The book's table covers 2..9 and stops; AntiDivination
+                    // throws below that rather than inventing a god's row, so
+                    // the chips stop where the table does.
+                    immunityRows.forEach { row ->
+                        FilterChip(
+                            selected = targetSequence
+                                ?.let { it in row.sequenceLow..row.sequenceHigh } == true,
+                            onClick = { targetSequence = row.sequenceHigh },
+                            label = { Text(row.label.substringBefore(" (")) },
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                    }
+                }
+                targetSequence?.let { seq ->
+                    Text(
+                        AntiDivination.rowFor(seq).text,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    FlowRow {
+                        FilterChip(
+                            selected = directLink,
+                            onClick = { directLink = !directLink },
+                            label = { Text("True name + personal item") },
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                        FilterChip(
+                            selected = sacrificeHp,
+                            onClick = { sacrificeHp = !sacrificeHp },
+                            label = { Text("Burn $hpForSacrifice HP") },
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                    }
+                }
+
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 Text("Roll 3d6 ≤ $target", style = MaterialTheme.typography.titleMedium)
+                if (protection.requiresCritical) {
+                    // Not expressible as a penalty, so it cannot be left to the
+                    // target number: the book forbids the ordinary success a
+                    // high skill would otherwise buy.
+                    Text(
+                        "Only a critical success (3–4) can succeed — the book says " +
+                            "this penalty cannot be offset by skill alone.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
                 Text(
                     "Skill $skillLevel, question ${signed(difficulty.modifier)}" +
-                        (if (extras != 0) ", circumstances ${signed(extras)}" else "") +
+                        (
+                            if (circumstances != 0) ", circumstances ${signed(circumstances)}"
+                            else ""
+                            ) +
+                        (
+                            if (protection.parts.isEmpty()) ""
+                            else ", " + protection.parts.joinToString(", ")
+                            ) +
                         // What will actually be CHARGED, not the printed
                         // range: the range is above, beside the chips that
                         // choose inside it.
@@ -196,8 +298,20 @@ fun DivinationDialog(
                         // would charge the SPI again -- which below 0 buys
                         // Soul Debt, and that CoR never comes back (Codex).
                         if (outcome != null) return@TextButton
-                        val result = Divination.attempt(skillLevel, difficulty, dice, extras)
+                        val result = Divination.attempt(
+                            skill = skillLevel,
+                            difficulty = difficulty,
+                            source = dice,
+                            extras = extras,
+                            requiresCritical = protection.requiresCritical,
+                        )
                         outcome = result
+                        // Spent whatever the roll says, like the SPI: it is
+                        // burned to cast, not paid on success. But only what
+                        // the sacrifice actually BOUGHT -- against a target
+                        // with no penalty to forgive, AntiDivination reports 0
+                        // and the offer costs nothing.
+                        if (protection.hpSpent > 0) onSpendHp(protection.hpSpent)
                         // The clarity row prints no effects of its own: it says
                         // "treat as a ritual critical failure", so the ritual
                         // table is ROLLED rather than copied -- off the same

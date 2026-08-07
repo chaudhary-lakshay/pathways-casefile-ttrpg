@@ -1213,6 +1213,47 @@ data class SealedArtifact(
 )
 
 /**
+ * One row of Ch. 6.5's Sequence Immunity table (Sec. 5, p. 59-60).
+ *
+ * [penalty] is what a weaker diviner takes; [equalPenalty] and [linkedPenalty]
+ * are printed by one row each and are absent elsewhere, because printing no
+ * value is not printing zero.
+ *
+ * **[requiresCritical] is a SECOND rule, not a restatement of [penalty].** Seq
+ * 4 and Seq 3 print "only a critical success (3-4) can succeed -- the penalty
+ * cannot be offset by skill alone", which forbids the ordinary success a
+ * skill-20 diviner would otherwise buy at -10. Seq 2 prints -10 and no such
+ * clause; that asymmetry is the book's and is recorded, never repaired.
+ */
+@Serializable
+data class SequenceImmunity(
+    val label: String,
+    val sequenceLow: Int,
+    val sequenceHigh: Int,
+    val requiresCritical: Boolean = false,
+    val text: String,
+    val penalty: Int? = null,
+    val equalPenalty: Int? = null,
+    val linkedPenalty: Int? = null,
+)
+
+/**
+ * One way a diviner pierces anti-divination (Ch. 6.5, Sec. 6, p. 60).
+ *
+ * [ignoresPenalty] keeps the sign the book prints ("ignores -2 of
+ * anti-divination penalties"), so a caller subtracts it rather than guessing a
+ * convention. Only HP Sacrifice carries numbers the app applies; the ritual and
+ * the deity are the GM's, and a field on them would imply otherwise.
+ */
+@Serializable
+data class AntiDivinationCounter(
+    val name: String,
+    val text: String,
+    val ignoresPenalty: Int? = null,
+    val hpRequired: Int? = null,
+)
+
+/**
  * Generic envelope every content file shares: the entries themselves, plus
  * the real global line numbers (from build/extract/lines.json) that were
  * claimed to produce them -- the contract tools/coverage.py depends on.

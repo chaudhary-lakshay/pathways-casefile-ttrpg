@@ -1,0 +1,53 @@
+{
+ "sourceLines": {
+  "6.5": [
+   [
+    3938,
+    3963
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "label": "Seq 5 (Beyonder Threshold)",
+   "sequenceLow": 5,
+   "sequenceHigh": 5,
+   "requiresCritical": false,
+   "text": "Divination from Seq 9–7 Beyonders is at -6 unless the diviner has a direct link (true name + blood or hair), which reduces the penalty to -3.",
+   "penalty": -6,
+   "linkedPenalty": -3
+  },
+  {
+   "label": "Seq 4 (Demigod)",
+   "sequenceLow": 4,
+   "sequenceHigh": 4,
+   "requiresCritical": true,
+   "text": "Divination from any weaker-Sequence Beyonder is at -10. Equal-Sequence divination is at -3. Only a critical success (3–4) can succeed — the -10 penalty cannot be offset by skill alone.",
+   "penalty": -10,
+   "equalPenalty": -3
+  },
+  {
+   "label": "Seq 3 (Saint)",
+   "sequenceLow": 3,
+   "sequenceHigh": 3,
+   "requiresCritical": true,
+   "text": "Only demigods (Seq 4+) or those with a special connection can attempt to divine you. Weaker Sequences are at -10 and only a critical success (3–4) can succeed — the penalty cannot be offset by skill alone.",
+   "penalty": -10
+  },
+  {
+   "label": "Seq 2 (Angel)",
+   "sequenceLow": 2,
+   "sequenceHigh": 2,
+   "requiresCritical": false,
+   "text": "Divination is at -10 and requires the diviner to possess your true honorific name and an intimate possession. The mere attempt may draw your attention — the GM decides when and how.",
+   "penalty": -10
+  },
+  {
+   "label": "Seq 6–9",
+   "sequenceLow": 6,
+   "sequenceHigh": 9,
+   "requiresCritical": false,
+   "text": "No passive penalty applies. The Sequence Advantage rule (below) only affects targets at Seq 5+."
+  }
+ ]
+}

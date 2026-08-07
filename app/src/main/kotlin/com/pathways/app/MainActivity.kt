@@ -410,6 +410,10 @@ fun SheetScreen(
             // Through the tracker, so a question asked at 0 SPI buys the Soul
             // Debt the book charges for it.
             onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
+            // Sec. 6's HP Sacrifice: 4+ HP forgives 2 of a target's protection.
+            // Through the tracker, so a diviner who bleeds for an answer ends
+            // the scene wounded.
+            onSpendHp = { session.spend(Pool.HP, it, vitals.maxHp, maxCor) },
             onDismiss = { divining = false },
         )
     }

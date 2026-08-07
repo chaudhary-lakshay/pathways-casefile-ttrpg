@@ -43,6 +43,12 @@ object ContentLoader {
     private val commonModifiersLazy: List<CommonModifier> by lazy {
         load("common_modifiers.json")
     }
+    private val sequenceImmunityLazy: List<SequenceImmunity> by lazy {
+        load("sequence_immunity.json")
+    }
+    private val antiDivinationCountersLazy: List<AntiDivinationCounter> by lazy {
+        load("anti_divination_counters.json")
+    }
     private val sealedArtifactGradesLazy: List<SealedArtifactGrade> by lazy {
         load("sealed_artifact_grades.json")
     }
@@ -348,6 +354,21 @@ object ContentLoader {
      * modifier and must be refused rather than applied.
      */
     fun commonModifiers(): List<CommonModifier> = commonModifiersLazy
+
+    /**
+     * Ch. 6.5's Sequence Immunity table (Sec. 5), strongest target first. Read
+     * through [com.pathways.rules.AntiDivination]: two rows carry a
+     * critical-only rule that the penalty alone does not express.
+     */
+    fun sequenceImmunity(): List<SequenceImmunity> = sequenceImmunityLazy
+
+    /**
+     * Ch. 6.5's five ways to counter anti-divination (Sec. 6), in printed
+     * order -- which is also the order [com.pathways.rules.AntiDivination]
+     * applies them, since the book states no other.
+     */
+    fun antiDivinationCounters(): List<AntiDivinationCounter> =
+        antiDivinationCountersLazy
 
     /**
      * The four Sealed Artifact grades (Ch. 6, p. 47), most accessible first.
