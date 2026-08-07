@@ -63,8 +63,20 @@ object Detection {
     /** Sec. 2's general price for a charm, superseded by naming the charm. */
     const val GENERIC_CHARM = "Target carries a protective charm or item"
 
-    /** "the GM calls for a SPI or Per roll (whichever is higher)" (p. 57). */
-    fun attributeFor(spi: Int, per: Int): Int = maxOf(spi, per)
+    /**
+     * "the GM calls for a SPI or Per roll (whichever is higher)" (p. 57).
+     *
+     * Both are ATTRIBUTES. Neither is a pool balance: passing what is left of
+     * SPI makes a caster who spent it on a ritual worse at noticing, and in
+     * Soul Debt it goes negative — which is why a negative is refused rather
+     * than quietly losing to Per. Found on the emulator, where the breakdown
+     * read "the higher of SPI -2 and Per 10".
+     */
+    fun attributeFor(spi: Int, per: Int): Int {
+        require(spi >= 0) { "SPI is an attribute, not a pool balance; was $spi" }
+        require(per >= 0) { "Per is an attribute, not a pool balance; was $per" }
+        return maxOf(spi, per)
+    }
 
     /** Sec. 1's eight rows, in printed order. */
     fun awareness(): List<DivinationAwareness> = ContentLoader.divinationAwareness()

@@ -2302,6 +2302,39 @@ one sheet, the same reason Feint's Quick Contest is unmodelled (6o). Four of
 Sec. 4's six items likewise do something no number expresses — a room that
 cannot be divined, a 50% reflection, an interruption.
 
+**The device found the one defect, and it was a pool where an attribute
+belonged.** `DetectionDialog` was wired to `maxSpi - spiSpent`, so the
+breakdown read **"the higher of SPI -2 and Per 10"** for a character who had
+spent SPI into Soul Debt. Two things wrong at once: a caster who had cast a
+ritual became worse at noticing he was watched, and below zero the number was
+nonsense. No test caught it — every rules test passes an attribute, because
+that is what the parameter is for. `Detection.attributeFor` now REFUSES a
+negative rather than letting Per quietly win, since losing to Per is precisely
+what hid it; and the reading it protects is that a detection roll is an
+attribute roll, not a resource check.
+
+**Codex refused for the twelfth consecutive slice** (usage limit, resets
+2026-08-08 16:52). The fallback was one `ecc:kotlin-reviewer` pass scoped to
+four named files with seven explicit probes — the scoping 6af learned to use —
+and it returned **zero findings with all seven traced to a file:line** rather
+than asserted. It did name one latent inconsistency worth closing:
+`modifierNamed` resolved case-insensitively while the charm-overlap guard
+compared case-sensitively, so a caller that reached a row through the tolerant
+lookup could have slipped past the strict guard. Both are insensitive now.
+Slices 6w-6ah are twelve consecutive slices without the real review gate.
+
+Device-verified on `Medium_Phone_API_36.1` (1080x2400), Academic Researcher —
+a MORTAL with SPI 0, which is the interesting case since the section is
+written for Beyonders: **Detect** renders beside Divine and is ungated; all
+eight awareness chips and all six situation rows appear with their printed
+signs. Ticking Sec. 2's generic charm read **"3d6 ≤ 11"** — "Per 10 (the
+higher of SPI 0 and Per 10), +1". Then ticking the **Concealment Pendant**
+greyed the generic row out, printed "The charm you named prices itself, so
+Sec. 2's general charm row does not also apply", and moved the target to
+**12** — +2, not +3, which is the double-count not happening. Sense rolled
+**8 vs 12** and landed on **"Success by 3+"** with the book's own effect cell,
+the deeper band beating plain "Success" where both bands fit.
+
 **Coverage moved this time**, and only because the pages happened to fall
 right: Ch 6.5 went 39.3% -> 48.2% -> **85.7%**, with the 8 lines still
 unclaimed being Sec. 5-6's spill onto page 60 (6ag). The lines claimed here

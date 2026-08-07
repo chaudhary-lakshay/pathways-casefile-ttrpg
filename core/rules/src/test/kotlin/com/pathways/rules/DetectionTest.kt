@@ -40,6 +40,22 @@ class DetectionTest {
     }
 
     /**
+     * **A pool balance is not an attribute, and the device proved it.** The
+     * dialog was first wired to `maxSpi - spiSpent`, so the breakdown read
+     * "the higher of SPI -2 and Per 10" for a mortal who had spent SPI into
+     * Soul Debt. Two defects in one: a caster who cast a ritual got worse at
+     * noticing, and below zero the number was nonsense. Refused rather than
+     * quietly losing to Per, because losing to Per is exactly what hid it.
+     */
+    @Test
+    fun `a negative attribute is refused, not silently beaten by the other`() {
+        assertThrows<IllegalArgumentException> { Detection.attributeFor(spi = -2, per = 10) }
+        assertThrows<IllegalArgumentException> { Detection.targetFor(spi = -1, per = 10) }
+        // Zero is fine: that is a mortal, not a debt.
+        assertEquals(10, Detection.attributeFor(spi = 0, per = 10))
+    }
+
+    /**
      * A mortal has SPI 0 and a Per, so the roll is defined for them. The
      * section scopes itself to Beyonders in prose; who suspects they are
      * watched is the GM's call and nothing here gates it (6af).

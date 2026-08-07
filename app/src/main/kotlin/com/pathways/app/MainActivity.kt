@@ -429,7 +429,13 @@ fun SheetScreen(
         // book calls this "a free action (once per divination attempt)" that
         // "does not cost SPI".
         DetectionDialog(
-            spi = vitals.maxSpi - session.spiSpent,
+            // The ATTRIBUTE, not what is left in the pool. The book rolls
+            // "SPI or Per, whichever is higher" the way any attribute roll
+            // goes; passing the remaining pool made a caster who had spent
+            // SPI on a ritual worse at noticing, and in Soul Debt it went
+            // NEGATIVE — found on the emulator, which printed "the higher of
+            // SPI -2 and Per 10".
+            spi = vitals.maxSpi,
             per = vitals.per,
             dice = appDice,
             onDismiss = { sensing = false },
