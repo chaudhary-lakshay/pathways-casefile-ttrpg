@@ -2,6 +2,7 @@ package com.pathways.rules
 
 import com.pathways.model.Attr
 import com.pathways.model.ControllingAttribute
+import com.pathways.model.ModifierId
 import com.pathways.model.SkillKey
 import com.pathways.rules.content.BurnablePool
 import com.pathways.rules.content.ContentLoader
@@ -68,22 +69,50 @@ object EffortBurn {
     fun maxFor(kind: BurnKind): Int? = pool(kind).max
 
     /**
-     * The bonus [points] spent on [kind] buys.
+     * The bonus [points] spent on [kind] buys, given [alreadyBurned] on the
+     * SAME roll.
      *
-     * Refuses a negative, and refuses more than the printed cap. The SPI row
-     * has no cap at all, so nothing is checked there beyond the sign: "There
-     * is no cap -- you may spend as much SPI as you have", and how much a
-     * character HAS is the tracker's question, not this object's.
+     * **The cap is per ROLL, not per spend.** "Max +5 per roll" -- so five
+     * separate one-point pushes hit it exactly as one five-point push does,
+     * and a caller that checked only its own call would let a stepper walk
+     * past the book by clicking twice. Enforced here rather than by the
+     * screen's chip list, because a UI that computes its own ceiling is a
+     * second copy of the rule, and two copies is how these numbers stop
+     * reconciling (6ai).
+     *
+     * The SPI row has no cap at all, so nothing is checked there beyond the
+     * sign: "There is no cap -- you may spend as much SPI as you have", and
+     * how much a character HAS is the tracker's question, not this object's.
      */
-    fun bonusFor(kind: BurnKind, points: Int): Int {
+    fun bonusFor(kind: BurnKind, points: Int, alreadyBurned: Int = 0): Int {
         require(points >= 0) { "cannot burn a negative number of points; was $points" }
+        require(alreadyBurned >= 0) { "already burned cannot be negative; was $alreadyBurned" }
         val row = pool(kind)
         val cap = row.max
-        require(cap == null || points <= cap) {
-            "${row.pool} buys at most +$cap per roll; $points is more than that"
+        require(cap == null || alreadyBurned + points <= cap) {
+            "${row.pool} buys at most +$cap per roll; " +
+                "$alreadyBurned already spent plus $points is more than that"
         }
         return points * row.perPoint
     }
+
+    /** How many more points [kind] may still buy on a roll [alreadyBurned] into. */
+    fun remaining(kind: BurnKind, alreadyBurned: Int): Int? =
+        pool(kind).max?.minus(alreadyBurned)?.coerceAtLeast(0)
+
+    /**
+     * Whether [outcome] is a roll effort can actually move.
+     *
+     * False for a roll that never happened -- there is no total to re-read --
+     * and false when `requiresCritical` is set. That is arithmetic rather
+     * than a reading: whether a roll is a critical depends on the TOTAL (3 or
+     * 4), and a burn moves only the target, so under a rule that admits none
+     * but criticals the displayed result cannot improve however much is
+     * spent. Offering it anyway would charge FP, or SPI whose Soul Debt is
+     * permanent (6m), for something incapable of helping.
+     */
+    fun canPush(outcome: SkillRollOutcome): Boolean =
+        outcome.roll != null && !outcome.requiresCritical
 
     /**
      * The same dice read against a target [points] higher.
@@ -94,16 +123,34 @@ object EffortBurn {
      * dice are never touched twice -- rolling again would be a different
      * roll, and a seeded source would desynchronise.
      *
-     * A forbidden roll is returned unchanged. There is no total to re-read,
-     * and buying a bonus on a roll that never happened would invent one.
+     * Returns [outcome] unchanged when [canPush] is false, so a caller that
+     * forgets to ask cannot spend a pool on a roll the burn cannot move.
+     *
+     * The bonus joins [SkillRollOutcome.applied] as its own contribution.
+     * Leaving it out would move the target while the breakdown beneath it
+     * still summed to the old one -- the arithmetic-that-does-not-reconcile
+     * defect 6ag added a 300-case test for.
      */
-    fun applied(outcome: SkillRollOutcome, kind: BurnKind, points: Int): SkillRollOutcome {
+    fun applied(
+        outcome: SkillRollOutcome,
+        kind: BurnKind,
+        points: Int,
+        alreadyBurned: Int = 0,
+    ): SkillRollOutcome {
+        if (!canPush(outcome)) return outcome
         val roll = outcome.roll ?: return outcome
-        val bonus = bonusFor(kind, points)
+        val bonus = bonusFor(kind, points, alreadyBurned)
         if (bonus == 0) return outcome
         val target = outcome.target + bonus
-        return outcome.copy(target = target, roll = SuccessRoll.evaluate(roll.total, target))
+        return outcome.copy(
+            target = target,
+            applied = outcome.applied + Contribution(listOf(idFor(kind)), bonus),
+            roll = SuccessRoll.evaluate(roll.total, target),
+        )
     }
+
+    /** The ledger name a burned point appears under. */
+    fun idFor(kind: BurnKind) = ModifierId("burn:${pool(kind).pool.lowercase()}")
 
     /**
      * The either-or, as a check a caller can make before offering both.

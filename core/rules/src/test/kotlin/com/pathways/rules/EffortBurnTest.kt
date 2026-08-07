@@ -65,6 +65,29 @@ class EffortBurnTest {
     }
 
     /**
+     * **"Max +5 per ROLL", not per spend.** Five separate one-point pushes
+     * reach the ceiling exactly as one five-point push does, so the running
+     * total has to be part of the check -- a per-call guard lets a stepper
+     * walk past the book by being clicked twice. Enforced here rather than by
+     * the screen, because a UI computing its own ceiling is a second copy of
+     * one rule, and two copies is how these numbers stop reconciling (6ai).
+     */
+    @Test
+    fun `the cap counts everything already spent on the same roll`() {
+        assertEquals(2, EffortBurn.bonusFor(BurnKind.PHYSICAL, 2, alreadyBurned = 3))
+        val thrown = assertThrows<IllegalArgumentException> {
+            EffortBurn.bonusFor(BurnKind.PHYSICAL, 3, alreadyBurned = 3)
+        }
+        assertTrue(thrown.message!!.contains("already spent"), thrown.message)
+        assertEquals(5, EffortBurn.remaining(BurnKind.PHYSICAL, 0))
+        assertEquals(2, EffortBurn.remaining(BurnKind.PHYSICAL, 3))
+        assertEquals(0, EffortBurn.remaining(BurnKind.PHYSICAL, 5))
+        // Uncapped stays uncapped however much has gone already.
+        assertNull(EffortBurn.remaining(BurnKind.MYSTICAL, 40))
+        assertEquals(9, EffortBurn.bonusFor(BurnKind.MYSTICAL, 9, alreadyBurned = 40))
+    }
+
+    /**
      * "You cannot spend both FP and SPI on the same roll." Refused rather than
      * silently preferring one: a caller handed a quietly dropped pool would
      * charge for it and not receive it.
@@ -155,6 +178,45 @@ class EffortBurnTest {
             roll = null,
         )
         assertEquals(forbidden, EffortBurn.applied(forbidden, BurnKind.MYSTICAL, points = 4))
+    }
+
+    /**
+     * **The breakdown must still sum to the target.** `applied()` moves the
+     * target, so the burn joins the contribution list -- leaving it out would
+     * print a modifier list that no longer adds up to the number above it,
+     * the arithmetic-that-does-not-reconcile defect 6ag added its own
+     * 300-case test for. Checked here across every legal spend.
+     */
+    @Test
+    fun `the contributions always sum to the target the burn produced`() {
+        for (points in 0..5) {
+            val before = rolled(total = 10, target = 11)
+            val after = EffortBurn.applied(before, BurnKind.PHYSICAL, points)
+            assertEquals(
+                after.target - after.baseTarget,
+                after.applied.sumOf { it.delta },
+                "$points burned: the breakdown no longer sums to the target",
+            )
+        }
+    }
+
+    /**
+     * **A roll only a critical can win cannot be pushed, and that is
+     * arithmetic rather than a reading.** `requiresCritical` demotes any
+     * ordinary success, and whether a roll is critical depends on the TOTAL
+     * (3 or 4), which a burn never touches. So spending here buys nothing --
+     * and on the mystical side it would buy permanent Soul Debt CoR for it
+     * (6m). Refused in rules, so a screen that forgets to ask still cannot
+     * charge for it.
+     */
+    @Test
+    fun `a roll only a critical can win is not pushable`() {
+        val demoted = rolled(total = 9, target = 8).copy(requiresCritical = true)
+        assertEquals(Outcome.FAILURE, demoted.effectiveOutcome)
+        assertTrue(EffortBurn.canPush(rolled(total = 9, target = 8)))
+        assertTrue(!EffortBurn.canPush(demoted))
+        // ...and applying anyway is a no-op rather than a silent charge.
+        assertEquals(demoted, EffortBurn.applied(demoted, BurnKind.PHYSICAL, points = 5))
     }
 
     /**

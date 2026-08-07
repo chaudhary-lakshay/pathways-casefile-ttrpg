@@ -883,11 +883,20 @@ private fun RollDialog(
                 // than beside the chips -- it is a decision made once the
                 // dice are known, and the same dice are then re-read against
                 // a higher target.
-                if (burnKind != null) {
+                // Withheld when the burn cannot move the result: a roll that
+                // never happened, or one only a critical can win, where the
+                // total decides and raising the target changes nothing.
+                if (burnKind != null && EffortBurn.canPush(shownOut)) {
                     BurnRow(burnKind, burned) { points ->
+                        // The LIVE outcome, never the `shownOut` captured when
+                        // this lambda was composed: two taps before a
+                        // recomposition would both read the stale one, so the
+                        // second push would overwrite the first while the pool
+                        // paid for both. Bail rather than guess if it is gone.
+                        val live = out ?: return@BurnRow
+                        out = EffortBurn.applied(live, burnKind, points, burned)
                         onBurn(burnKind, points)
                         burned += points
-                        out = EffortBurn.applied(shownOut, burnKind, points)
                     }
                 }
             }
@@ -1026,7 +1035,10 @@ private fun SenseRow(
 private fun BurnRow(kind: BurnKind, burned: Int, onBurn: (Int) -> Unit) {
     val pool = EffortBurn.pool(kind)
     val cap = pool.max
-    val left = cap?.minus(burned)
+    // Asked for, never computed here. The book's cap is per ROLL, and a
+    // screen that worked out its own ceiling would be a second copy of that
+    // rule sitting where no test can see it (6ai).
+    val left = EffortBurn.remaining(kind, burned)
     Text(
         "Push the roll — ${pool.pool} on ${pool.scope}",
         style = MaterialTheme.typography.labelLarge,
