@@ -65,6 +65,89 @@ class DetectionTest {
         assertEquals(10, Detection.targetFor(spi = 0, per = 10))
     }
 
+    /**
+     * **A row that names its own attribute beats "whichever is higher".**
+     *
+     * Sec. 2 says "the GM calls for a SPI or Per roll (whichever is higher)"
+     * and scopes that sentence to "a Beyonder with passive awareness" -- which
+     * is Sec. 1's own population. Then four Sec. 1 rows name an attribute, and
+     * they do NOT all name the same one: Fool and Fool/Error/Door grant a free
+     * PER roll, Darkness and Hermit an automatic SPI roll. Naming different
+     * attributes per pathway is a choice, not loose phrasing, so the row wins
+     * for the roll the row grants. The two sentences disagree and neither is
+     * repaired -- Sec. 2 still governs the roll a Beyonder makes on suspicion
+     * alone, where no row has spoken.
+     *
+     * Found on the emulator: a Fool Seq 8 with SPI 11 and Per 10 read
+     * "Free Per roll at +2" one line above "SPI 11 ..., +2" for a target of
+     * 13, where the row grants Per 10 +2 = 12.
+     */
+    @Test
+    fun `a row that names its attribute rolls that one, not the higher`() {
+        // The Fool's Per is the LOWER here, which is the only case that tells
+        // the two readings apart.
+        assertEquals(10, Detection.attributeFor(spi = 11, per = 10, freeRoll = "PER"))
+        // and the other direction, so this is not a Fool special case
+        assertEquals(9, Detection.attributeFor(spi = 9, per = 12, freeRoll = "SPI"))
+        // With no row named, Sec. 2's general rule still stands.
+        assertEquals(11, Detection.attributeFor(spi = 11, per = 10))
+    }
+
+    /**
+     * **The sentence and the number must have one author.** The screen prints
+     * [Detection.attributeLine] directly above a target built from
+     * [Detection.attributeFor], and while the dialog hand-wrote its own copy of
+     * the choice it kept saying "the higher of SPI and Per" after the rule
+     * learned to honour a row's named attribute -- a Fool read "SPI 11" over a
+     * target of 12. Asserted across every combination, not just the row that
+     * showed it, because the next second copy will be somewhere else.
+     */
+    @Test
+    fun `the attribute line always names the attribute the target used`() {
+        for (spi in 0..12) {
+            for (per in 0..12) {
+                for (free in listOf(null, "PER", "SPI")) {
+                    val used = Detection.attributeFor(spi, per, free)
+                    val line = Detection.attributeLine(spi, per, free)
+                    assertTrue(
+                        line.startsWith("SPI $used ") || line.startsWith("Per $used "),
+                        "spi=$spi per=$per freeRoll=$free used=$used but said '$line'",
+                    )
+                }
+            }
+        }
+    }
+
+    /** The book names two attributes; anything else is a caller's bug. */
+    @Test
+    fun `an attribute the table never names is refused`() {
+        assertThrows<IllegalArgumentException> {
+            Detection.attributeFor(spi = 11, per = 10, freeRoll = "IQ")
+        }
+    }
+
+    /**
+     * End to end, and the breakdown says WHY the lower attribute won -- a
+     * number that silently disagrees with the sentence above it is the defect
+     * class this dialog already produced once (6ag).
+     */
+    @Test
+    fun `the free roll reaches the target and names its reason`() {
+        val fool = Detection.awarenessFor("Fool (Seer)")
+        assertEquals("PER", fool.freeRoll)
+        val result = Detection.attempt(
+            spi = 11,
+            per = 10,
+            awarenessBonus = fool.bonus!!,
+            awarenessLabel = fool.pathway,
+            freeRoll = fool.freeRoll,
+            source = rolling(9),
+        )
+        assertEquals(12, result.roll.target)
+        assertTrue(result.parts.first().contains("Per 10"), result.parts.first())
+        assertTrue(result.parts.first().contains("grants"), result.parts.first())
+    }
+
     // ---- the two doors ---------------------------------------------------
 
     /**

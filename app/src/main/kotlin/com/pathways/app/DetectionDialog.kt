@@ -89,7 +89,11 @@ fun DetectionDialog(
         items = pickedItems,
         awarenessBonus = bonus,
     )
-    val target = Detection.targetFor(spi, per, modifier)
+    // The row's own roll, when it grants one: four rows name an attribute and
+    // it is not always the higher of the two, so the roll a Fool is granted is
+    // a Per roll even when their SPI is better. See Detection.attributeFor.
+    val freeRoll = awareness?.freeRoll
+    val target = Detection.targetFor(spi, per, modifier, freeRoll)
     val automatic = awareness?.isAutomatic == true
 
     AlertDialog(
@@ -263,8 +267,12 @@ fun DetectionDialog(
                         style = MaterialTheme.typography.titleMedium,
                     )
                     Text(
-                        (if (spi >= per) "SPI $spi" else "Per $per") +
-                            " (the higher of SPI $spi and Per $per)" +
+                        // The rules object authors this sentence, because it is
+                        // the one the target above is computed from. A second
+                        // copy here is how the caption came to say "the higher
+                        // of SPI and Per" over a target taken from the row's
+                        // own attribute.
+                        Detection.attributeLine(spi, per, freeRoll) +
                             (if (modifier != 0) ", ${signedInt(modifier)}" else "") +
                             ". Free action, costs no SPI.",
                         style = MaterialTheme.typography.bodySmall,
@@ -282,6 +290,7 @@ fun DetectionDialog(
                                 items = pickedItems,
                                 awarenessBonus = bonus,
                                 awarenessLabel = awareness?.pathway,
+                                freeRoll = freeRoll,
                                 source = dice,
                             )
                         },

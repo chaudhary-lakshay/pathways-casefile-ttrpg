@@ -63,20 +63,67 @@ object Detection {
     /** Sec. 2's general price for a charm, superseded by naming the charm. */
     const val GENERIC_CHARM = "Target carries a protective charm or item"
 
+    /** The two attributes Sec. 1's rows name for the rolls they grant. */
+    const val PER = "PER"
+    const val SPI = "SPI"
+
     /**
-     * "the GM calls for a SPI or Per roll (whichever is higher)" (p. 57).
+     * "the GM calls for a SPI or Per roll (whichever is higher)" (p. 57) --
+     * unless a Sec. 1 row named the attribute for the roll it grants.
      *
      * Both are ATTRIBUTES. Neither is a pool balance: passing what is left of
      * SPI makes a caster who spent it on a ritual worse at noticing, and in
      * Soul Debt it goes negative — which is why a negative is refused rather
      * than quietly losing to Per. Found on the emulator, where the breakdown
      * read "the higher of SPI -2 and Per 10".
+     *
+     * **[freeRoll] is a disagreement, not a refinement, and the book is left
+     * holding both halves.** Sec. 2's sentence scopes itself to "a Beyonder
+     * with passive awareness" -- Sec. 1's own population -- and says whichever
+     * is higher. Sec. 1 then names an attribute on four rows, and not the same
+     * one twice: Fool and Fool / Error / Door grant a free PER roll, Darkness
+     * and Hermit an automatic SPI roll. Naming different attributes per
+     * pathway is a choice rather than loose phrasing, so the row wins for the
+     * roll the row grants -- specific beats general, the call the PCR's own
+     * critical rules and the ritual CoR ladder already needed. Sec. 2 still
+     * governs the other roll its sentence defines, the one a Beyonder makes on
+     * suspicion alone, where no row has spoken: that is what null means here.
      */
-    fun attributeFor(spi: Int, per: Int): Int {
+    fun attributeFor(spi: Int, per: Int, freeRoll: String? = null): Int {
         require(spi >= 0) { "SPI is an attribute, not a pool balance; was $spi" }
         require(per >= 0) { "Per is an attribute, not a pool balance; was $per" }
-        return maxOf(spi, per)
+        return when (freeRoll?.uppercase()) {
+            null -> maxOf(spi, per)
+            SPI -> spi
+            PER -> per
+            // Refused rather than falling back to the higher: a caller holding
+            // an attribute this table never names has read the wrong row, and
+            // the higher of the two would hide that behind a plausible number.
+            else -> throw IllegalArgumentException(
+                "the awareness table grants only $SPI and $PER rolls; was '$freeRoll'",
+            )
+        }
     }
+
+    /**
+     * How a breakdown explains which attribute it took, and why.
+     *
+     * Public because the screen prints this sentence directly above the target
+     * it explains, and the screen had its own hand-written copy of the choice.
+     * That copy still read "the higher of SPI and Per" after [attributeFor]
+     * learned to honour a row's named attribute, so a Fool saw a target of 12
+     * over a sentence that adds up to 13 -- the reconcile-on-screen defect this
+     * dialog already produced once (6ag), reintroduced by the fix for it and
+     * caught in review. One sentence, one author.
+     */
+    fun attributeLine(spi: Int, per: Int, freeRoll: String? = null): String =
+        when (freeRoll?.uppercase()) {
+            SPI -> "SPI $spi (the row grants a SPI roll)"
+            PER -> "Per $per (the row grants a Per roll)"
+            else ->
+                if (spi >= per) "SPI $spi (the higher of SPI $spi and Per $per)"
+                else "Per $per (the higher of SPI $spi and Per $per)"
+        }
 
     /** Sec. 1's eight rows, in printed order. */
     fun awareness(): List<DivinationAwareness> = ContentLoader.divinationAwareness()
@@ -153,8 +200,8 @@ object Detection {
     }
 
     /** SPI or Per, whichever is higher, plus what the circumstances are worth. */
-    fun targetFor(spi: Int, per: Int, modifier: Int = 0): Int =
-        attributeFor(spi, per) + modifier
+    fun targetFor(spi: Int, per: Int, modifier: Int = 0, freeRoll: String? = null): Int =
+        attributeFor(spi, per, freeRoll) + modifier
 
     /**
      * The row [roll] landed on.
@@ -186,15 +233,13 @@ object Detection {
         items: List<AntiDivinationItem> = emptyList(),
         awarenessBonus: Int = 0,
         awarenessLabel: String? = null,
+        freeRoll: String? = null,
         source: RandomSource,
     ): DetectionResult {
         val total = modifierTotal(situations, techniques, items, awarenessBonus)
-        val roll = SuccessRoll.against(targetFor(spi, per, total), source)
+        val roll = SuccessRoll.against(targetFor(spi, per, total, freeRoll), source)
         val parts = buildList {
-            add(
-                if (spi >= per) "SPI $spi (the higher of SPI and Per)"
-                else "Per $per (the higher of SPI and Per)",
-            )
+            add(attributeLine(spi, per, freeRoll))
             situations.filter { it.modifier != 0 }
                 .forEach { add("${it.situation} ${signed(it.modifier)}") }
             techniques.filter { (it.detectionBonus ?: 0) != 0 }

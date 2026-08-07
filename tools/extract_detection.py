@@ -178,6 +178,19 @@ OUTCOME_KINDS = {
 OUTCOME_MARGIN = re.compile(r"^Success by (\d+)\+$")
 # The sentence that defines the roll. Two attributes, take the higher.
 ROLL_PHRASE = "SPI or Per roll (whichever is higher)"
+# ...and the clause that scopes it to Sec. 1's OWN population, which is what
+# makes this a disagreement rather than two rules about different people.
+PASSIVE_SCOPE_PHRASE = "When a Beyonder with passive awareness is being divined"
+# The rows whose own sentence names the attribute for the roll they grant.
+# They do NOT all name the same one, and that is the entire warrant for
+# letting a row beat ROLL_PHRASE: one attribute throughout would read as
+# loose phrasing for Sec. 2's rule, four rows splitting 2-2 does not.
+NAMED_ROLL_ROWS = {
+    "Fool (Seer)": "PER",
+    "Darkness (Sleepless -> Midnight Poet -> Nightmare)": "SPI",
+    "Hermit (Mystery Pryer)": "SPI",
+    "Fool / Error / Door": "PER",
+}
 
 MODIFIER_HEADERS = {"Situation", "Modifier"}
 MODIFIER_VALUE = re.compile(rf"^({SIGNED})$")
@@ -558,6 +571,26 @@ def verify(byn, awareness, outcomes, modifiers, techniques, items):
 
     if ROLL_PHRASE not in text:
         raise ValueError(f"Sec. 2 no longer defines the roll as {ROLL_PHRASE!r}")
+    # THE DISAGREEMENT the roll is read through, pinned from BOTH sides.
+    # Sec. 2 scopes "whichever is higher" to characters with passive awareness
+    # -- Sec. 1's own population -- and four Sec. 1 rows then name an attribute
+    # anyway, splitting 2-2 between Per and SPI. The row wins for the roll the
+    # row grants; Sec. 2 keeps the roll made on suspicion alone. Neither side
+    # is repaired, so both sentences have to stay findable.
+    if PASSIVE_SCOPE_PHRASE not in text:
+        raise ValueError(
+            f"Sec. 2 no longer scopes its roll with {PASSIVE_SCOPE_PHRASE!r}; it "
+            "may no longer overlap Sec. 1 at all, so re-read before trusting "
+            "Detection.attributeFor's freeRoll"
+        )
+    named = {r["pathway"]: r["freeRoll"] for r in awareness if r.get("freeRoll")}
+    if named != NAMED_ROLL_ROWS:
+        raise ValueError(f"the rows naming their own attribute changed: {named}")
+    if len(set(named.values())) < 2:
+        raise ValueError(
+            "the named rolls no longer disagree with each other; one attribute "
+            "throughout would read as loose phrasing for Sec. 2's rule"
+        )
     if [r["result"] for r in outcomes] != OUTCOME_NAMES:
         raise ValueError(
             f"Sec. 2's outcome rows changed: {[r['result'] for r in outcomes]}"
