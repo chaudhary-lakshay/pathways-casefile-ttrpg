@@ -141,6 +141,36 @@ class AntiDivinationTechniquesTest {
         )
     }
 
+    /**
+     * **Every printed line survives to a reader.** Each technique names who
+     * may use it ("Fool Pathway, Seq 6 -- Faceless") and prints its own
+     * caveats beside the Effect -- 3A's ward breaking on a wound over HP/3,
+     * 3D failing against a diviner 2+ Sequences stronger, 3B's +1 SPI per
+     * extra target. The screen showed the Effect alone for a whole slice, so
+     * a GM ticking a Darkness-only technique for a Justiciar saw nothing to
+     * stop them. None of it can be enforced here (the target has no sheet),
+     * which is exactly why it has to be shown -- 6af's call for the Sealed
+     * Artifact grade table.
+     */
+    @Test
+    fun `every technique keeps its availability and all its printed lines`() {
+        AntiDivinationTechniques.all().forEach {
+            assertTrue(
+                it.availability.isNotBlank(),
+                "${it.id} lost the pathway and Sequence that may use it",
+            )
+            assertTrue(
+                it.bullets.size >= 4,
+                "${it.id} prints ${it.bullets.size} lines; the book prints 4-5",
+            )
+        }
+        // The caveats specifically, since they are the ones the Effect hides.
+        assertEquals(
+            "Limitation",
+            AntiDivinationTechniques.named("3D").bullets.last().label,
+        )
+    }
+
     /** Durations are printed and deliberately not tracked -- no clock here. */
     @Test
     fun `every technique keeps its printed duration`() {

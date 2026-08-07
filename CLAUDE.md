@@ -2434,6 +2434,40 @@ was sitting there in plain sight — `divinerPenalty`'s KDoc says "nothing
 applies it" and `freeRoll`'s did not, so the code already recorded that one was
 deliberate and the other was not.
 
+**Running that sweep across all 71 content classes and 345 fields** left 11
+read by nothing at all and 23 read only by tests. Most are legitimate and the
+sweep's value is that it says which: the 198-row trait catalogue has no
+production reader because traits are not editable yet (section 6), the golden
+tables are consumed by `GoldenRitualTest` and `GoldenSkillLadderTest` marking
+the book's homework, and provenance fields like `SequenceBlock.sourceLines`
+are meant to be inert. **Write the parser paren-balanced**: a first pass keyed
+on `data class X(...\n)` made every ONE-LINE class swallow the next class's
+fields, which invented `DetectionModifier.availability` and would have sent a
+reader hunting a field that does not exist.
+
+**One real gap came out of it**, of the shape 6af already settled rather than a
+new decision: `AntiDivinationTechnique.availability` and four of every five
+`bullets` were extracted and never rendered. Each technique prints who may use
+it — "Fool Pathway, Seq 6 — Faceless", "Darkness Pathway, Seq 5 — Spirit
+Warlock" — and its own caveats, and the dialog showed the Effect line alone.
+So a GM declaring a Darkness-only technique for a Justiciar target saw nothing
+to stop them, and 3A's ward breaking on a wound over HP/3, 3D's failure against
+a diviner 2+ Sequences stronger and 3B's +1 SPI per extra target were invisible.
+None is enforceable here — the target has no sheet — which is precisely why it
+is shown, the call the Sealed Artifact grade table already needed.
+
+**And one candidate that looked like a defect and was not.** 3D prints
+"Does not work against diviners 2+ Sequences stronger than you" while
+`AntiDivination` computes exactly that comparison, so it read as a rule the
+engine could apply and did not. It cannot: 3D prints no flat penalty at all
+(only 3A and 3B do), so it contributes nothing to `penaltyTotal` and there is
+nothing for the limitation to switch off. Checked before it was claimed.
+
+Device-verified on the same seeded Fool Seq 8: **"Identity Confusion — Fool
+Pathway, Seq 6 — Faceless"** now renders above Cost, Duration, Effect,
+Limitation and Counter, and the Ask button is still reachable — the taller
+dialog was the risk 6k found in the ranged one.
+
 **Codex refused for the thirteenth consecutive slice**, confirming the reset
 date from its own error text ("try again at Aug 8th, 2026 4:52 PM"). The
 fallback was one `ecc:kotlin-reviewer` pass scoped to three named files with

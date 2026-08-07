@@ -305,10 +305,26 @@ fun DivinationDialog(
                     // Four of the six price no roll at all -- they divert,
                     // redirect or answer falsely. Saying what one DOES is the
                     // only honest thing to show beside a chip worth +0.
+                    //
+                    // Every printed line, not just the Effect. Each technique
+                    // also prints who may use it ("Fool Pathway, Seq 6 --
+                    // Faceless") and its own caveats -- 3A's ward breaks on a
+                    // wound over HP/3, 3D fails against a diviner 2+ Sequences
+                    // stronger, 3B extends to another target for +1 SPI. The
+                    // target has no sheet here, so none of it can be checked;
+                    // showing it is the call 6af made for the Sealed Artifact
+                    // grade table, and a caveat that is extracted but never
+                    // rendered is one the GM cannot apply either.
                     Text(
-                        "${chosen.name}: ${chosen.bullet("Effect")}",
-                        style = MaterialTheme.typography.bodySmall,
+                        "${chosen.name} — ${chosen.availability}",
+                        style = MaterialTheme.typography.bodyMedium,
                     )
+                    chosen.bullets.forEach { line ->
+                        Text(
+                            "${line.label}: ${line.text}",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                 }
 
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
