@@ -1,7 +1,9 @@
 # Pathways — Agent Handover
 
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
-Everything below is verified against the tree at commit `cf14e7c`, not recalled.
+Everything below is verified against the tree, not recalled. Section 1-5 were
+written against commit `cf14e7c`; the counts in section 2 and the slice
+sections below are current as of `3c15777`.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -2321,7 +2323,10 @@ than asserted. It did name one latent inconsistency worth closing:
 `modifierNamed` resolved case-insensitively while the charm-overlap guard
 compared case-sensitively, so a caller that reached a row through the tolerant
 lookup could have slipped past the strict guard. Both are insensitive now.
-Slices 6w-6ah are twelve consecutive slices without the real review gate.
+Slices 6w-6ai are THIRTEEN consecutive slices without the real review gate,
+and `f0ccc56` (6ai's fix) has been seen only by the fallback reviewer. All of
+them belong in one Codex sweep once the limit resets — 2026-08-08 16:52, from
+Codex's own error text.
 
 Device-verified on `Medium_Phone_API_36.1` (1080x2400), Academic Researcher —
 a MORTAL with SPI 0, which is the interesting case since the section is
