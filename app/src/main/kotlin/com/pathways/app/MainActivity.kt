@@ -181,7 +181,7 @@ fun SheetScreen(
     val differing = rows.count { !it.matches }
     // The SKILL, not the outcome: the roll now happens inside the dialog, after
     // the GM has stated the circumstances.
-    var rolling by remember(sheet) { mutableStateOf<PremadeSkill?>(null) }
+    var rolling by remember(sheet) { mutableStateOf<RollableSkill?>(null) }
     var frightening by remember(sheet) { mutableStateOf(false) }
     var casting by remember(sheet) { mutableStateOf(false) }
     var defending by remember(sheet) { mutableStateOf(false) }
@@ -333,8 +333,36 @@ fun SheetScreen(
                 if (row != null) {
                     ComparisonRow(
                         row,
-                        Modifier.clickable { rolling = skill },
+                        Modifier.clickable {
+                            rolling = RollableSkill(
+                                skill.label,
+                                sheet.levelFor(skill),
+                                skill.key(),
+                            )
+                        },
                     )
+                }
+            }
+
+            // Skills bought in play. NOT comparison rows: `SheetComparison`
+            // keeps using the unedited sheet, because that diff is the engine
+            // against the book (6e), so a bought skill has no published
+            // column to differ from. Until now it also had no way to be
+            // ROLLED -- Ritualistic Magic and Divination Arts got their own
+            // buttons and every other purchase was invisible, which is how a
+            // chapter's result table could be wired up and still be
+            // unreachable. The level comes from [skillLevels], the same
+            // digested map the ritual and attack dialogs read.
+            items(session.edits.skills) { bought ->
+                val level = skillLevelOf(bought.name, skillLevels)
+                val key = skillLevels.keys.firstOrNull {
+                    it.name.equals(bought.name, ignoreCase = true) &&
+                        it.specialization == bought.specialization
+                }
+                if (level != null && key != null) {
+                    BoughtSkillRow(key.label(), level) {
+                        rolling = RollableSkill(key.label(), level, key)
+                    }
                 }
             }
         }
@@ -343,20 +371,21 @@ fun SheetScreen(
     rolling?.let { skill ->
         RollDialog(
             label = skill.label,
-            base = sheet.levelFor(skill),
+            base = skill.base,
             // Null for every skill but two. Chapter 4 prints a result table
             // for Spiritual Intuition and Spiritual Perception and for
             // nothing else, so the rest keep Appendix A's general ladder.
-            sense = SpiritualSenses.forSkill(skill.key()),
+            sense = SpiritualSenses.forSkill(skill.key),
             onRoll = { circumstances ->
                 // The trackers reach the dice here: a reeling, fatigued or
                 // corrupted character no longer rolls at full skill. The GM's
                 // circumstances are a separate source and simply join the list.
-                SkillRoll.of(
-                    sheet,
-                    skill,
-                    appDice,
-                    mods = conditionsFor(skill.key()) + circumstances,
+                SkillRoll.at(
+                    label = skill.label,
+                    base = skill.base,
+                    key = skill.key,
+                    source = appDice,
+                    mods = conditionsFor(skill.key) + circumstances,
                 )
             },
             onDismiss = { rolling = null },
@@ -695,6 +724,41 @@ private fun PoolRow(status: PoolStatus, onSpend: (Int) -> Unit) {
         }
         TextButton(onClick = { onSpend(1) }) { Text("−1") }
         TextButton(onClick = { onSpend(-1) }) { Text("+1") }
+    }
+}
+
+/**
+ * A skill the sheet screen can roll, wherever it came from.
+ *
+ * A published skill resolves its level off the sheet; one bought in play
+ * resolves it off the digested skill map, and has no published column to be
+ * compared against at all. The dialog needs neither distinction -- only a
+ * label, a level and a key -- so the two paths meet here rather than in the
+ * dialog's parameter list.
+ */
+private data class RollableSkill(val label: String, val base: Int, val key: SkillKey)
+
+/**
+ * A skill bought in the builder, shown so it can be rolled.
+ *
+ * Deliberately not a [ComparisonRow]: there is nothing to compare it to. The
+ * published sheet never printed it, and saying "sheet: -" would invent a
+ * disagreement where there is only an addition.
+ */
+@Composable
+private fun BoughtSkillRow(label: String, level: Int, onClick: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+        Text("$level", style = MaterialTheme.typography.bodyMedium)
+        Text(
+            " (bought)",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
     }
 }
 
