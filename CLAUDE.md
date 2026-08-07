@@ -37,7 +37,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **743 Kotlin** (JUnit 5, incl. 61 in `app/`) + **212 Python** (pytest), all green |
+| Tests | **773 Kotlin** (JUnit 5, incl. 61 in `app/`) + **224 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -2335,22 +2335,38 @@ Sec. 2's general charm row does not also apply", and moved the target to
 **8 vs 12** and landed on **"Success by 3+"** with the book's own effect cell,
 the deeper band beating plain "Success" where both bands fit.
 
-**Not observed live, and the reason is the instrument.** The SPI-wins branch
-(a Beyonder whose SPI exceeds Per) and Sec. 1's bonus chip were not confirmed
-on screen. A Fool Seq 9 Academic Researcher reaches SPI 9 against Per 10, so
-Per still wins and no premade + first potion flips it; and on
-`Medium_Phone_API_36.1` the app then ANRed twice on the same chip tap. The
-logcat says why and it is not this code: `Davey! duration=6973ms`, a **3.95s
-GC pause**, 139 skipped frames, and 1.4-2.7s frames on interactions that
-predate this slice — the emulator was missing frame deadlines from the premade
-list onward. No exception, no deadlock, and `/data/anr` is unreadable on a
-production build (`adbd cannot run as root`). Both behaviours rest on
-`DetectionTest`, the same way the `RequireCrit` demotion rests on
-`AntiDivinationTest` (6ag). The physical tablet was tried as the faster
-instrument and its NotificationShade held window focus through `statusbar
-collapse`, `KEYCODE_BACK` and `am start`, so every tap went to the shade —
-**check `mCurrentFocus` before concluding an app ignored a tap**, which is a
-fifth way these instruments lie.
+**Not observed live at first, and the reason was the instrument.** The SPI-wins
+branch (a Beyonder whose SPI exceeds Per) and Sec. 1's bonus chip could not be
+confirmed on screen in the slice's own session. A Fool Seq 9 Academic
+Researcher reaches SPI 9 against Per 10, so Per still wins and no premade plus
+a FIRST potion flips it; and on `Medium_Phone_API_36.1` the app then ANRed
+twice on the same chip tap. The logcat said why and it was not this code:
+`Davey! duration=6973ms`, a **3.95s GC pause**, 139 skipped frames, and
+1.4-2.7s frames on interactions that predate this slice. No exception, no
+deadlock, and `/data/anr` is unreadable on a production build (`adbd cannot run
+as root`). The physical tablet was tried as the faster instrument and its
+NotificationShade held window focus through `statusbar collapse`,
+`KEYCODE_BACK` and `am start`, so every tap went to the shade — **check
+`mCurrentFocus` before concluding an app ignored a tap**, which is a fifth way
+these instruments lie.
+
+**Both were confirmed in the next session, and the ANR now has a cause rather
+than a symptom.** Two `hs_err_pid*.log` files were sitting in the repo root:
+*"There is insufficient memory for the Java Runtime Environment to continue.
+Native memory allocation (malloc) failed"* — a Gradle JVM had died of it. The
+machine measured **33.7 GB committed against a 39.2 GB limit on 15.2 GB
+physical**, so the emulator was running out of the pagefile. That is what
+"CPU-starved" actually was. The fix is scheduling, not code: stop the Gradle
+daemons, run the emulator at `-memory 2048`, and never hold a Gradle test run
+and a live emulator at once — that combination is what killed the JVM.
+
+**Two potions, not one, is what flips the branch.** Fool grants SPI 9 at Seq 9
+and +2 more at Seq 8, so **SPI 11 against Per 10**. Seeded by writing
+`sessions.json` through `run-as` (base64 in, `{"beyonder": {"pathway": "Fool",
+"sequence": 8, "digestion": 100}}`), which is cheaper than walking the pathway
+in the UI and survives a reinstall.
+
+**And that run immediately found a defect nothing else could.** See 6ai.
 
 **Coverage moved this time**, and only because the pages happened to fall
 right: Ch 6.5 went 39.3% -> 48.2% -> **85.7%**, with the 8 lines still
@@ -2359,6 +2375,74 @@ are 3755-3937, entirely inside pages 56-59, which `chapters.json` gives to
 6.5. Checked against the union of every content file's claims before writing a
 single span — the highest claim below was 3736 and the lowest above 3938, so
 the range was genuinely unclaimed rather than assumed to be.
+
+## 6ai. The field that was extracted, stored, documented, and never read
+
+`DivinationAwareness.freeRoll` came out of the book in 6ah's own extractor,
+went into `divination_awareness.json` on four rows, and got a KDoc line saying
+what it meant. **Nothing ever read it.** A grep for the identifier returns the
+extractor that writes it, the data class that declares it, and no consumer at
+all — so every detection roll took Sec. 2's "whichever is higher" and the four
+rows that name their own attribute were decoration. This is the same defect
+class as 6h (the trackers reaching no roll) and 6m (a Soul Debt printed and not
+charged), inside the very slice whose review swept for it.
+
+- **The screen said both things at once.** A Fool Seq 8 with SPI 11 and Per 10
+  read *"Free Per roll at +2"* one line above *"SPI 11 ..., +2"* for a target
+  of 13. The row grants Per 10 +2 = 12. Neither line is wrong on its own,
+  which is why 26 passing tests and a clean reviewer pass both missed it — the
+  contradiction only exists when the two are read together, on a character no
+  premade can be without two potions.
+- **It is a book disagreement underneath, and both halves are kept.** Sec. 2
+  scopes "the GM calls for a SPI or Per roll (whichever is higher)" to *"a
+  Beyonder with passive awareness"* — Sec. 1's own population — so the two
+  sections genuinely conflict whenever the named attribute is the lower one.
+  The row wins for the roll the row grants (specific beats general, 6c); Sec. 2
+  keeps the roll its own sentence also defines, the one a Beyonder makes on
+  suspicion alone, which is what `freeRoll = null` means.
+- **The warrant is that the four rows disagree with EACH OTHER.** Fool and
+  Fool / Error / Door name PER; Darkness and Hermit name SPI. One attribute
+  throughout would read as loose phrasing for Sec. 2's rule and the fix would
+  be unjustified; a 2-2 split is a choice per pathway. `verify()` pins the
+  split, both sentences, and fails if the named rows ever collapse to one
+  attribute — the standard 6ad set and 6v is why it must be per-table.
+- **An attribute the table never names is refused, not defaulted.** Falling
+  back to the higher would hide a caller reading the wrong row behind a
+  perfectly plausible number — the same reason `attributeFor` refuses a
+  negative rather than letting Per quietly win (6ah).
+- **The fix then reintroduced the defect one line lower, and the reviewer
+  caught it.** The dialog had its own hand-written copy of the attribute
+  choice for the caption, so the target moved to 12 while the sentence above it
+  still said "the higher of SPI and Per" and added up to 13. `Detection`
+  authors that sentence now, and the guard is general rather than a patch: a
+  test asserts the line names the value the target used across every
+  combination of SPI, Per and `freeRoll`. **Two copies of one decision is how
+  this file's numbers stop reconciling**, and it has now happened twice in two
+  slices (6ag printed a penalty twice).
+
+**The lesson is about the sweep, not the field.** 6ah's own review pass looked
+for "a rule printed and not applied" and found none, because it read the rules
+objects and the dialog — not the gap between a content field and its consumers.
+The cheap instrument is a grep per extracted field: if the only hits are the
+extractor and the data class, the field is decoration. Note the asymmetry that
+was sitting there in plain sight — `divinerPenalty`'s KDoc says "nothing
+applies it" and `freeRoll`'s did not, so the code already recorded that one was
+deliberate and the other was not.
+
+**Codex refused for the thirteenth consecutive slice**, confirming the reset
+date from its own error text ("try again at Aug 8th, 2026 4:52 PM"). The
+fallback was one `ecc:kotlin-reviewer` pass scoped to three named files with
+seven probes, and it returned **one HIGH with five probes traced clean** — the
+second fallback pass in this project to find something real, and again it was
+the scoped prompt that got an answer (6af's whole-tree prompt stalled).
+
+Device-verified on `Medium_Phone_API_36.1`, a Fool Seq 8 Academic Researcher
+(SPI 11, Per 10): with no row chosen the panel reads **"3d6 ≤ 11 — SPI 11 (the
+higher of SPI 11 and Per 10)"**; choosing **Fool** takes it to **10** and says
+*"Per 10 (the row grants a Per roll)"*, the lower attribute winning because
+the row named it; **Take +2** reads **12** with *"Per 10 (the row grants a Per
+roll), +2"*, which sums; and going back to **None** restores 11 with the bonus
+cleared. Before the fix the same character read 13 under the Per sentence.
 
 ### A note on Codex
 
