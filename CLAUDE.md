@@ -3345,7 +3345,7 @@ The mojibake anecdote is real advice and its attribution is unsupported;
 
 Codex answered on the first probe after its limit reset. **Thirteen chunks,
 61 commits, 6n through 6ar, and it never refused once.** Two chunks came back
-clean; the other eleven produced **17 findings**. Eight are fixed here.
+clean; the other eleven produced **17 findings**. Nine are fixed here.
 
 **The gap was bigger than anyone had recorded.** The slice log says the
 unreviewed run started at 6w. The companion's own job history says otherwise:
@@ -3484,9 +3484,23 @@ directly under the one that was already being read. Worth the lesson: when a
 fix rests on an inference from elsewhere, finish reading the paragraph it
 actually lives in.
 
+The FP half of the same row had the mirror gap: it names **attack rolls
+first** — "any roll based on ST, DX, or HT (attack rolls, dodging, climbing,
+lifting, etc.)" — and the push was wired only into the generic skill dialog,
+so the roll the rule names before any other could not use it.
+
+**It is per OUTCOME, not per dialog**, and that is the whole subtlety. The cap
+is "Max +5 per roll"; All-Out Double and Rapid Strike each make two, so one
+shared budget would let a fighter push one attack with the other's allowance —
+the per-call-vs-per-roll slip 6ak already made once, here in the one place a
+screen shows the difference. `burned` is keyed by index and cleared both by a
+fresh roll and by Another turn, because a push belongs to the roll it bought.
+`BurnRow` became `internal` rather than being copied into the attack dialog:
+two copies of a ceiling is exactly what 6ak's finding was.
+
 ### Left open on purpose
 
-Nine findings remain, listed with their file:line in the session's plan file.
+Eight findings remain, listed with their file:line in the session's plan file.
 The one that most needs a decision before a patch is **the divination dialog
 spending its SPI AFTER rolling** — a reading needing ch. 6.5's own step list,
 because applying it moves every divination target whose method cost crosses an
@@ -3509,9 +3523,18 @@ true — reap the Kotlin compile daemons, `--stop` does not):
   same panel read **"Costs 2 SPI. The entity did not answer, so the ritual
   draws only on residual power."** Two, where the old code charged seven.
 
+- **Barmaid Brawler, Brawling 13, FP 10/10, a Rapid Strike** — "Attack
+  options: −6, **2 attacks**" — rolled **10 vs 7** and **15 vs 7**, each under
+  its own push row reading "Spent so far: 0". Pushing the FIRST by +3 took it
+  to **10 vs 10, success**, on the same dice total of 10: the roll re-read,
+  not re-rolled. Its chips dropped to **+1/+2** while **the second stayed at
+  15 vs 7 with all four chips and "Spent so far: 0"**, and the tracker read
+  **FP 7**. A shared budget would have capped both.
+
 Not observed live and resting on their tests, the way the ritual CoR charge
 rests on `RitualResolutionTest` (6f): the drained-Beyonder burn floor, the
-bought-specialization level, and the potion-granted support skill.
+bought-specialization level, the potion-granted support skill, and the
+Ritualistic Magic push.
 
 ---
 
