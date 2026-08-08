@@ -3345,7 +3345,8 @@ The mojibake anecdote is real advice and its attribution is unsupported;
 
 Codex answered on the first probe after its limit reset. **Thirteen chunks,
 61 commits, 6n through 6ar, and it never refused once.** Two chunks came back
-clean; the other eleven produced **17 findings**. Nine are fixed here.
+clean; the other eleven produced **17 findings**. Ten are fixed here and two
+are refused with evidence.
 
 **The gap was bigger than anyone had recorded.** The slice log says the
 unreviewed run started at 6w. The companion's own job history says otherwise:
@@ -3433,11 +3434,26 @@ code cannot produce is a finding. Grep the number.
   6ah diagnosed the pagefile exhaustion from, carrying local paths and full
   command lines. Untracked and ignored by pattern; history left alone, because
   rewriting it is destructive and the owner's call.
-- **One P1 was REFUSED.** Codex called a missing
-  `@OptIn(ExperimentalLayoutApi::class)` on `FlowRow` a build break.
-  `:app:compileDebugKotlin` is green with no opt-in anywhere in
-  `MainActivity` — this Compose version has it stable. Codex output is
-  evidence, not orders (section 7); the disproof is a build, not an argument.
+- **Stale saved input was dropped at the wrong place.** 6aq stopped BILLING
+  the three forbidden SPI purchases but dropped them during composition only,
+  leaving the raw entry in the file — and the sheet's bought-skill rows read
+  that raw list, so a potion granting the same skill brought it back as a
+  rollable row. Dropped at LOAD now. **Only the forbidden ones**: an SPI skill
+  is barred permanently, while a name the book does not print TODAY may be
+  printed again after a content fix, so those keep being skipped
+  non-destructively. A test pins both halves.
+- **Two findings were REFUSED**, both on section 7's rule that Codex output is
+  evidence and not orders. A missing `@OptIn(ExperimentalLayoutApi::class)` on
+  `FlowRow` was called a build break; `:app:compileDebugKotlin` is green with
+  no opt-in anywhere in `MainActivity`, so this Compose version has it stable.
+  And `DefenseDialog` was said to flatten the parry tiers — it passes
+  `ORDINARY` for every row because **no weapon in the book carries another
+  tier**: chapter 8 prints five firearms, a knife, a truncheon, a hand axe and
+  a broadsword, `Weapon` has no tier column because the book prints none, and
+  `ParryClass.FENCING`/`RAPIER` are reachable only from tests. Carrying a
+  class through would mean inventing the column first — the call 6t already
+  made about which weapons can parry at all. Both disproofs are the build and
+  the data, not an argument.
 
 ### Two more, both about a comparison the app refused to make
 
@@ -3500,7 +3516,7 @@ two copies of a ceiling is exactly what 6ak's finding was.
 
 ### Left open on purpose
 
-Eight findings remain, listed with their file:line in the session's plan file.
+Five findings remain, listed with their file:line in the session's plan file.
 The one that most needs a decision before a patch is **the divination dialog
 spending its SPI AFTER rolling** — a reading needing ch. 6.5's own step list,
 because applying it moves every divination target whose method cost crosses an

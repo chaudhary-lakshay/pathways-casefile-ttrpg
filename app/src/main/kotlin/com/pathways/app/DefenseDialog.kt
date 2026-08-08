@@ -142,6 +142,14 @@ fun DefenseDialog(
     // the GM, and applied by nothing -- the class 6h, 6m and 6ai each found.
     // Zero is the honest default: a round starts with the free parry.
     var priorParries by remember { mutableIntStateOf(0) }
+    // ORDINARY for every row, and that is not a flattening: chapter 8's nine
+    // weapons are five firearms, a knife, a truncheon, a hand axe and a
+    // broadsword, and none of them is a fencing weapon or a rapier. `Weapon`
+    // carries no tier because the book prints no column for one, and adding
+    // it here would invent data -- the call 6t already made about which
+    // weapons can parry at all. The two other tiers stay modelled in
+    // [ParryClass] for the GM's own smallsword, and the note under these rows
+    // says on screen that they exist and that nothing here reaches them.
     val parryPenalty = ParryBlock.parryPenalty(priorParries)
 
     AlertDialog(
