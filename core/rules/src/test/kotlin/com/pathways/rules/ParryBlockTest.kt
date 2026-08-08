@@ -1,9 +1,12 @@
 package com.pathways.rules
 
 import com.pathways.model.*
+import com.pathways.rules.content.ContentLoader
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class ParryBlockTest {
 
@@ -55,5 +58,65 @@ class ParryBlockTest {
         // But plain / in Kotlin truncates toward zero: -1 / 2 = 0
         // Working: skill 2 WRESTLING: (2 - 3) / 2 + 3 = (-1) / 2 + 3 = -1 + 3 = 2 (with floorDiv)
         assertEquals(2, ParryBlock.unarmedParry(UnarmedStyle.WRESTLING, 2))
+    }
+
+    @Test
+    fun `the first parry of a round is free and each one after costs a tier`() {
+        // "Parry accumulates a -4 cumulative penalty AFTER THE FIRST", so the
+        // opening parry is unmodified -- reading it as -4 per parry would
+        // penalise a fighter who parried once and never again.
+        assertEquals(0, ParryBlock.parryPenalty(0))
+        assertEquals(-4, ParryBlock.parryPenalty(1))
+        assertEquals(-8, ParryBlock.parryPenalty(2))
+        assertEquals(-12, ParryBlock.parryPenalty(3))
+    }
+
+    @Test
+    fun `the two softer tiers exist and nothing in chapter 8 can reach them`() {
+        // The book prints -2 for fencing weapons and -1 for a rapier; chapter
+        // 8's nine weapons are five firearms, a knife, a truncheon, a hand axe
+        // and a broadsword. Printed rules with nothing to reach them, the
+        // `Guns (Pistol)` shape (6t) -- modelled so a GM's smallsword is not
+        // silently charged the broadsword's penalty.
+        assertEquals(-2, ParryBlock.parryPenalty(1, ParryClass.FENCING))
+        assertEquals(-1, ParryBlock.parryPenalty(1, ParryClass.RAPIER))
+        assertEquals(-4, ParryBlock.parryPenalty(1, ParryClass.ORDINARY))
+        val parryable = Weapons.all().filter { Weapons.canParry(it) }.map { it.name }
+        assertTrue(parryable.isNotEmpty())
+        assertTrue(
+            parryable.none { it.contains("rapier", true) || it.contains("fencing", true) },
+            "chapter 8 now prints a fencing weapon: $parryable",
+        )
+    }
+
+    @Test
+    fun `a negative count of earlier parries is refused, not clamped`() {
+        // A caller holding -1 has a bug in its round tracking, and answering
+        // with a BONUS would hide it behind a plausible number.
+        assertThrows<IllegalArgumentException> { ParryBlock.parryPenalty(-1) }
+    }
+
+    @Test
+    fun `the sentences the Kotlin numbers were read from are still printed`() {
+        // The tiers live in Kotlin because they are numbers inside a prose
+        // notes cell -- the split the maneuver table's +4/-4 (6i) and the +3
+        // support cap (6y) take. This pins the cell they came from, so the
+        // committed content and the constants cannot drift apart in silence.
+        val defenses = ContentLoader.defenses()
+        val armed = defenses.single { it.defense == "Parry (Armed)" }.notes
+        assertTrue(
+            armed.contains("Cumulative -4 per additional parry (-2 fencing, -1 rapier)"),
+            "the parry accumulation sentence has moved: $armed",
+        )
+        // Block is a LIMIT, not a penalty, and that is why parryPenalty takes
+        // no defence parameter.
+        assertTrue(
+            defenses.single { it.defense == "Block" }.notes.contains("Once per round"),
+        )
+        assertEquals(1, ParryBlock.BLOCKS_PER_ROUND)
+        // ...and Dodge takes neither, which is what makes the scope parries.
+        assertTrue(
+            defenses.single { it.defense == "Dodge" }.notes.contains("May be used repeatedly"),
+        )
     }
 }

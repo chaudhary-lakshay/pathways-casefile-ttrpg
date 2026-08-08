@@ -15,9 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.SkillKey
@@ -135,6 +137,12 @@ fun DefenseDialog(
     // a turn before it does anything, so assuming one is carried would hand
     // out a bonus the character has not paid a turn for.
     var carried by remember { mutableStateOf<Shield?>(null) }
+    // Parries already made THIS ROUND. The book's cumulative penalty was
+    // committed in defenses.json's own notes cell from 6g onward, shown to
+    // the GM, and applied by nothing -- the class 6h, 6m and 6ai each found.
+    // Zero is the honest default: a round starts with the free parry.
+    var priorParries by remember { mutableIntStateOf(0) }
+    val parryPenalty = ParryBlock.parryPenalty(priorParries)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -150,7 +158,7 @@ fun DefenseDialog(
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 }
                 items(armed) { (name, value) ->
-                    DefenseRow("Parry ($name)", shielded(value, carried, reflexes))
+                    DefenseRow("Parry ($name)", shielded(value + parryPenalty, carried, reflexes))
                 }
                 item {
                     if (armed.isNotEmpty()) {
@@ -159,7 +167,7 @@ fun DefenseDialog(
                     }
                 }
                 items(parries) { (name, value) ->
-                    DefenseRow("Parry ($name)", shielded(value, carried, reflexes))
+                    DefenseRow("Parry ($name)", shielded(value + parryPenalty, carried, reflexes))
                 }
                 item {
                     if (parries.isEmpty() && armed.isEmpty()) {
@@ -167,6 +175,13 @@ fun DefenseDialog(
                     }
                     printed.firstOrNull { it.defense.startsWith("Parry (Unarmed)") }
                         ?.let { Note(it.notes) }
+                    // The stepper sits UNDER the parry rows, because it moves
+                    // them and a control above them would read as applying to
+                    // Dodge too -- which takes no such penalty ("May be used
+                    // repeatedly").
+                    if (parries.isNotEmpty() || armed.isNotEmpty()) {
+                        ParriesThisRound(priorParries, parryPenalty) { priorParries = it }
+                    }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
 
                     if (shieldSkill != null) {
@@ -207,6 +222,32 @@ fun DefenseDialog(
                 }
                 items(modifiers) { Note(it.modifier) }
             }
+        },
+    )
+}
+
+/**
+ * How many parries this character has already made this round.
+ *
+ * A stepper rather than a counter the app increments, because nothing here
+ * knows a round has passed -- the same reason a Fright Check and a Major
+ * Wound's HT roll are buttons the GM presses (6c, 6n). The penalty is shown
+ * beside it so the number on the rows above can be reconciled.
+ */
+@Composable
+private fun ParriesThisRound(prior: Int, penalty: Int, onChange: (Int) -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("Parries already this round", style = MaterialTheme.typography.bodySmall)
+        TextButton(onClick = { onChange((prior - 1).coerceAtLeast(0)) }) { Text("−1") }
+        Text("$prior", style = MaterialTheme.typography.titleMedium)
+        TextButton(onClick = { onChange(prior + 1) }) { Text("+1") }
+    }
+    Note(
+        if (penalty == 0) {
+            "The first parry of a round is free."
+        } else {
+            "Parry rows above include $penalty. " +
+                "Chapter 8 prints no fencing weapon or rapier, whose tiers are −2 and −1."
         },
     )
 }
