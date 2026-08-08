@@ -3345,7 +3345,7 @@ The mojibake anecdote is real advice and its attribution is unsupported;
 
 Codex answered on the first probe after its limit reset. **Thirteen chunks,
 61 commits, 6n through 6ar, and it never refused once.** Two chunks came back
-clean; the other eleven produced **17 findings**. Seven are fixed here.
+clean; the other eleven produced **17 findings**. Eight are fixed here.
 
 **The gap was bigger than anyone had recorded.** The slice log says the
 unreviewed run started at 6w. The companion's own job history says otherwise:
@@ -3461,9 +3461,32 @@ code cannot produce is a finding. Grep the number.
   it is not given the fallback is the ordinary Sense roll, never a claim of
   awareness.
 
+### "Supernatural" did no work, and the row's last sentence settled 6ar
+
+The SPI burn reads "any **SPI-based or supernatural** skill roll (Ritualistic
+Magic, Spiritual Perception, Occultism vs. Beyonder phenomena, etc.)".
+`kindFor` read only the first half, so the row's **own first example could not
+use the rule that names it**: Ritualistic Magic is IQ/Very Hard, and since 6aj
+made bought skills rollable, tapping it offered no push at all.
+
+- **Occultism is named to the GM, not granted.** Its entry is qualified by
+  what is rolled AGAINST, and a `SkillKey` carries no subject matter. Granting
+  it always pushes rolls the book does not; refusing it in silence hides a
+  printed rule. Shown beside the result — the wealth reaction modifier's call.
+- **The "etc." is not guessed at.** The set holds only what the book prints
+  unqualified, and a test pins it against the row's own sentence.
+
+**And the same row ends: "There is no cap — you may spend as much SPI as you
+have."** That is this row's OWN words for the floor the effort-burn fix above
+had to argue across from ch. 7's Power Source A. 6ar's evidence was a contrast
+between two chapters; here the rule states its own ceiling in the sentence
+directly under the one that was already being read. Worth the lesson: when a
+fix rests on an inference from elsewhere, finish reading the paragraph it
+actually lives in.
+
 ### Left open on purpose
 
-Ten findings remain, listed with their file:line in the session's plan file.
+Nine findings remain, listed with their file:line in the session's plan file.
 The one that most needs a decision before a patch is **the divination dialog
 spending its SPI AFTER rolling** — a reading needing ch. 6.5's own step list,
 because applying it moves every divination target whose method cost crosses an
