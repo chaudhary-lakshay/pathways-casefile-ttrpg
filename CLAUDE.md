@@ -3,7 +3,7 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `5615011` (slice 6am).
+sections below are current as of `74c99f9` (slice 6an).
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -42,7 +42,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **844 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
+| Tests | **851 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -2982,9 +2982,72 @@ Research, Professional Skill (Astrology etc))"* with no chip row at all and
 the target unmoved at **3d6 ≤ 8**. Naming the five it does not have is the
 point: a bare absence would read as a screen that forgot to render.
 
-Still unread in chapter 3: the study/training system on p. 32 — tutors, study
-points, and "a skill cannot exceed Attribute+1 through study alone" — a real
-subsystem with no caller in the app yet.
+## 6an. Study Points — read, mostly marked, deliberately not extracted
+
+`GoldenStudyPointsTest` replays Ch. 3's p. 32 against the engine. This was
+the other half of chapter 3's remaining third, and reading it first is what
+kept it from becoming a content file nobody uses.
+
+**The page prints three things and only one of them is new.**
+
+- **Its "Cumulative CP" grid (2206-2230) is a truncated SECOND PRINTING of
+  the skill cost grid** `skill_ladder.json` has carried from p. 25-26 since
+  6ac. Four rungs against nine, and every cell agrees. Not stored — a second
+  copy of a table this repo already commits is the silent merge 4.1 forbids,
+  and 6y's two preparation tables and 6aa's two SPI ladders already set what
+  a second printing is FOR: the agreement, checked in both directions, so
+  the day it breaks the question of which page wins comes back on the table.
+- **Asserted as a PREFIX, not as the ladder.** It stops at 8 CP where the
+  fuller grid runs to 256. Read as complete it caps every skill at
+  Attribute+3, which is the tidy wrong answer a truncated restatement invites.
+- **Its worked example is the only one in the book to exercise the untrained
+  default and the ladder in one breath** — Tomás, DX 10, Guns (Pistol)
+  DX/Average, "default DX-5 = 5", then 1 CP → 9, 2 CP → 10, 4 CP → 11. A
+  third worked example beside 6ac's two, from a different page.
+- **And it demonstrates its own printed limit.** The Limits say "a skill
+  cannot exceed Attribute+1 through study alone"; the example stops at
+  Guns-11 and calls it "the cap". So the cap is the engine's Attr+1 rung and
+  not a fifth number the page invented — pinned, along with the fact that the
+  rung ABOVE it is reachable by ordinary purchase, which is exactly why the
+  limit has to say "through study alone".
+- **Two refusals that look like one and are not.** The time table's Very Hard
+  self-study cell reads "Not possible"; `Difficulty.VERY_HARD` has carried a
+  null default since M0. Both refuse rather than price, and neither implies
+  the other — one is about learning alone, the other about rolling untaught.
+  Recorded side by side.
+- **The Character Creation Summary (2238-2244) checks out bullet by bullet**,
+  which is what makes it checkable rather than authoritative (6v). 70-point
+  budget, −40 disadvantage floor, the 9 baseline costing nothing, and the
+  doubling. `STARTING_TOTAL` really is 70.
+
+**The test caught the engine and the book using two different quantities, and
+neither is wrong.** The summary prints the cost of EACH level (ST 10 → 20 →
+40); `AttributeCosts.costOf` returns the running total from the free baseline
+(10 / 30 / 70). Compared directly they look like a disagreement. The
+assertion is written as a diff and says so, because "the engine contradicts
+the book" is a conclusion a later reader would otherwise reach from a passing
+codebase.
+
+**The time-and-money table is NOT extracted, and that is the slice's real
+decision.** It is genuinely new content — four difficulties against tutor and
+self-study, "6 hrs + 4s" up to "48 hrs + £2", with one cell reading "Not
+possible" — and nothing can consume it. Study points are a separate currency
+earned over downtime ("between adventures", "per downtime period"), and this
+app holds no clock, the reason Appendix A's SPI recovery (6ad) and a
+technique's duration (6ah) are both unmodelled. Extracting it would produce a
+content file read by nothing, which is precisely the defect 6ai, 6al and 6am
+each found in turn — three consecutive slices whose lesson was *do not do
+this*. **A slice that ends in "read, marked, not extracted" is a finished
+slice**, and the lines stay unclaimed on purpose; coverage will keep counting
+them, which is a floor and not a receipt.
+
+What would make it buildable is a stateless planner rather than a downtime
+tracker: given a skill's current level, name the CP the next rung costs and
+the hours and money that buy it. That needs no clock — the GM says when time
+passed. Recorded as the shape, not started.
+
+Chapter 3's remaining lines after this are the mundane advantage and
+disadvantage effect tables.
 
 ### A note on Codex
 
