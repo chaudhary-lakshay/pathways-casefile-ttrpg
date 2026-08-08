@@ -3345,7 +3345,7 @@ The mojibake anecdote is real advice and its attribution is unsupported;
 
 Codex answered on the first probe after its limit reset. **Thirteen chunks,
 61 commits, 6n through 6ar, and it never refused once.** Two chunks came back
-clean; the other eleven produced **17 findings**. Eleven are fixed here and
+clean; the other eleven produced **17 findings**. Twelve are fixed here and
 two are refused with evidence.
 
 **The gap was bigger than anyone had recorded.** The slice log says the
@@ -3542,14 +3542,34 @@ not a reason to leave it indefinitely.
 pagefile exhaustion again, not the app. The target change on screen is the
 part still unobserved.
 
+### A range's middle was unaskable, and an open end offered one chip
+
+"Improvised / poor tools **-2 to -4**" prints -3 as surely as it prints its
+ends, and `CommonModifiers.valueFor` has always accepted it. The chips were
+the only thing that could not say it. An open end ("-6 or worse") was worse
+off: with no `otherEnd` there was exactly one chip, which is not a choice at
+all. It offers its printed end and three steps beyond now — away from zero,
+the only direction the book bounds — the same reading the open-ended ritual
+fuel cell takes (6q).
+
+`valueFor` still validates every one, so nothing here can widen the book, and
+a test pins that every value the chips can produce is one it accepts: offering
+a chip that throws on Roll is not offering a choice (6t).
+
 ### Left open on purpose
 
-Four findings remain, listed with their file:line in the session's plan file.
-None needs a decision — they are `CircumstanceRow` offering only a range's two
-ends where `CommonModifiers.valueFor` already accepts the values between,
-`RitualMode` letting an API caller mix Full-mode preparation into a Quick
-ritual (unreachable from the dialog), and two UI notes with no behavioural
-consequence.
+Three findings remain, listed with their file:line in the session's plan file.
+None needs a decision: `RitualMode` lets an API caller mix Full-mode
+preparation into a Quick ritual (unreachable from the dialog), plus two UI
+notes with no behavioural consequence.
+
+**Two fixes here are unit-verified only** — the divination payment order and
+this one. The emulator's `system_server` died twice mid-verification ("Can't
+find service: window", then "…service: input") at 33 GB of a 38.2 GB commit
+limit on 15.2 GB of physical memory. That is 6ah's pagefile exhaustion, not
+the app, and reaping the Kotlin daemons did not buy back enough. Both changes
+alter a number the GM reads, so both want a device pass when the machine has
+the headroom.
 
 Device-verified on `Medium_Phone_API_36.1`, and the emulator was CPU-starved
 enough that a cold start took ~90 seconds (6ah's pagefile diagnosis, still
