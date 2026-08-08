@@ -164,6 +164,41 @@ class CommonModifiersTest {
      * being needed, and someone should notice that rather than inherit it.
      */
     @Test
+    fun `every value inside a printed range is accepted`() {
+        // The screen offered a range's two ENDS only, so "Improvised / poor
+        // tools -2 to -4" could not produce -3 -- a value the row prints as
+        // surely as its ends, and one this object has always accepted. The
+        // chips are the whole range now, and this is the contract they lean
+        // on: offering a chip that throws on Roll is not offering a choice
+        // (the lesson the two Aim rows taught in 6t).
+        val ranged = CommonModifiers.offered().filter { it.otherEnd != null }
+        assertTrue(ranged.isNotEmpty(), "the table still prints ranges")
+        ranged.forEach { row ->
+            val printed = row.modifier!!
+            val other = row.otherEnd!!
+            (minOf(printed, other)..maxOf(printed, other)).forEach { value ->
+                assertEquals(value, CommonModifiers.valueFor(row, value))
+            }
+        }
+    }
+
+    @Test
+    fun `an open end is bounded on the side the book prints and open on the other`() {
+        // "-6 or worse" names no ceiling, so the UI offers a few steps past
+        // it; what it must NOT do is offer something gentler than the printed
+        // end, which would be kinder than the book's own floor.
+        val open = CommonModifiers.offered().filter { it.isOpenEnded }
+        assertTrue(open.isNotEmpty(), "the table still prints an open end")
+        open.forEach { row ->
+            val printed = row.modifier!!
+            val away = if (printed < 0) printed - 3 else printed + 3
+            assertEquals(away, CommonModifiers.valueFor(row, away))
+            val toward = if (printed < 0) printed + 1 else printed - 1
+            assertThrows<IllegalArgumentException> { CommonModifiers.valueFor(row, toward) }
+        }
+    }
+
+    @Test
     fun `chapter 5 prices the same darkness this table does`() {
         assertTrue(CommonModifiers.all().any { it.situation == adverse })
         assertTrue(

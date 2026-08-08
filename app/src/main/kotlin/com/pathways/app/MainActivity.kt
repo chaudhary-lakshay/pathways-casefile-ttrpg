@@ -90,6 +90,15 @@ private enum class Screen { SHEET, PATHWAY, BUILDER }
 /** [SheetComparison] emits the seven secondaries before any skill row. */
 private const val SECONDARY_ROWS = 7
 
+/**
+ * Steps offered past an open-ended modifier's printed end ("-6 or worse").
+ *
+ * The book names no ceiling, so this is a UI reading and not a rule: the same
+ * one the open-ended ritual fuel cell takes (6q). `CommonModifiers.valueFor`
+ * still validates whatever is passed, so nothing here can widen the book.
+ */
+private const val OPEN_END_STEPS = 3
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -1232,10 +1241,28 @@ private fun CircumstanceRow(
             )
         }
     }
-    // Both printed ends, for the four rows that print two. The gentle end is
-    // the default; nothing here can offer a value the book does not print.
+    // The whole printed range, not just its ends. "Improvised / poor tools
+    // -2 to -4" prints -3 as surely as it prints -2 and -4, and
+    // `CommonModifiers.valueFor` has always accepted it -- the chips were the
+    // only thing that could not say it. The gentle end stays the default.
+    //
+    // An open end ("-6 or worse", "+4 or more") names no ceiling, so it
+    // offers its printed end and three steps beyond: the same reading the
+    // open-ended ritual fuel cell takes (6q), because a stepper running to a
+    // hundred is not a choice worth making at the table.
     chosen.filter { it.otherEnd != null || it.isOpenEnded }.forEach { row ->
-        val ends = listOfNotNull(row.modifier, row.otherEnd)
+        val printed = row.modifier
+        val ends = when {
+            printed == null -> emptyList()
+            row.otherEnd != null -> {
+                val lo = minOf(printed, row.otherEnd!!)
+                val hi = maxOf(printed, row.otherEnd!!)
+                (lo..hi).sortedBy { kotlin.math.abs(it - printed) }
+            }
+            // Away from zero, which is the only direction the book bounds.
+            printed < 0 -> (0..OPEN_END_STEPS).map { printed - it }
+            else -> (0..OPEN_END_STEPS).map { printed + it }
+        }
         Text(
             "${row.situation}: ${row.printed}",
             style = MaterialTheme.typography.bodySmall,
