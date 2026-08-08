@@ -42,6 +42,7 @@ import com.pathways.model.Difficulty
 import com.pathways.model.ModEffect
 import com.pathways.model.Outcome
 import com.pathways.model.SkillKey
+import com.pathways.model.TraitKind
 import com.pathways.rules.Conditions
 import com.pathways.rules.Corruption
 import com.pathways.rules.Derive
@@ -62,6 +63,9 @@ import com.pathways.rules.RandomSource
 import com.pathways.rules.SheetComparison
 import com.pathways.rules.SheetRow
 import com.pathways.rules.SkillRoll
+import com.pathways.rules.SelfControl
+import com.pathways.rules.SelfControlCheck
+import com.pathways.rules.SelfControlOutcome
 import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.SuccessDegree
 import com.pathways.rules.CommonModifiers
@@ -195,6 +199,9 @@ fun SheetScreen(
     var supplicating by remember(sheet) { mutableStateOf(false) }
     var handling by remember(sheet) { mutableStateOf(false) }
     var sensing by remember(sheet) { mutableStateOf(false) }
+    // The CHECK, not the outcome, exactly as `rolling` holds the skill: the
+    // roll happens inside the dialog, after the GM has stated a modifier.
+    var controlling by remember(sheet) { mutableStateOf<SelfControlCheck?>(null) }
     // Maximums move with the potions drunk: HT gains lift FP, and SPI is
     // entirely a potion's gift. Recomputed from the walk, never stored.
     val vitals = remember(sheet, drunk, session.edits) {
@@ -219,6 +226,24 @@ fun SheetScreen(
     val traits = remember(sheet, session.edits) { session.characterFor(sheet).traits }
     val maxCor = remember(sheet, vitals.will, traits) {
         Corruption.maxFor(vitals.will, traits)
+    }
+    // The disadvantages that print a number to roll under (6am). Until this
+    // slice a character's disadvantages rendered NOWHERE in the app at all --
+    // `TraitEffects.reported` reads the advantage catalogue only -- so the
+    // self-control rolls the book prints had no way to be made.
+    val selfControl = remember(traits) {
+        SelfControl.checksFor(traits).associateBy { it.trait }
+    }
+    // Every disadvantage the character carries, in sheet order, with the
+    // book's own effect cell where the two spellings meet. A sheet name that
+    // matches nothing gets its name alone -- three sheets print
+    // "Absent-Minded" against the book's "Absent-Mindedness" and one prints
+    // "Paranoia: Bodies of water" against a bare "Paranoia", and 4.1 says
+    // those are recorded, not repaired. The blank effect line is the record.
+    val drawbacks = remember(traits) {
+        val printed = ContentLoader.disadvantages().associateBy { it.name.lowercase() }
+        traits.filter { it.kind == TraitKind.DISADVANTAGE }
+            .map { it to printed[it.name.lowercase()]?.notes }
     }
     // Damage rolls off ST, Boxing's bonus off DX and a Major Wound off HT, all
     // AFTER any potion that raised them -- the same digested character the
@@ -350,6 +375,58 @@ fun SheetScreen(
                 }
             }
 
+            // The disadvantages, which until this slice rendered NOWHERE in
+            // the app: `TraitEffects.reported` reads the advantage catalogue
+            // only, so a character's drawbacks -- and the ~24 rows that print
+            // a number to roll under -- had no home at all. The same hole
+            // 5dcfc25 fixed for bought skills, one list over.
+            //
+            // The self-control rows are tappable, and nothing rolls on its
+            // own: WHEN to call for one is the GM's, exactly as a Fright Check
+            // (6c) and a Major Wound's HT roll (6n) are, and both of those
+            // ship as a button the GM presses.
+            items(drawbacks) { (trait, printed) ->
+                val check = selfControl[trait.name]
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (check != null) {
+                                Modifier.clickable { controlling = check }
+                            } else {
+                                Modifier
+                            },
+                        )
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                ) {
+                    Text(
+                        // `Trait.cost` is a MAGNITUDE and the sign lives in
+                        // the kind (6u). Printed back with the minus the book
+                        // gives a disadvantage, never negated in the data.
+                        "${trait.name} — −${trait.cost} pts" +
+                            (
+                                check?.let {
+                                    " — 3d6 ≤ " +
+                                        SelfControl.targetFor(
+                                            it.spec,
+                                            vitals.will,
+                                            attributes.iq,
+                                        )
+                                } ?: ""
+                                ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (check != null) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
+                    )
+                    if (printed != null) {
+                        Text(printed, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+
             items(rows.take(SECONDARY_ROWS)) { ComparisonRow(it) }
 
             // Row order past the secondaries is one per purchased skill, in
@@ -439,6 +516,10 @@ fun SheetScreen(
             onDismiss = { rolling = null },
         )
     }
+    controlling?.let { check ->
+        SelfControlDialog(check, vitals.will, attributes.iq) { controlling = null }
+    }
+
     if (frightening) {
         FrightDialog(vitals.will) { frightening = false }
     }
@@ -697,6 +778,96 @@ private fun FrightDialog(will: Int, onDismiss: () -> Unit) {
                             modifier = Modifier.padding(top = 8.dp),
                         )
                     }
+                }
+            }
+        },
+    )
+}
+
+/**
+ * One self-control roll at the table (Ch. 3, 6am).
+ *
+ * The consequence is [SelfControlCheck.printed] verbatim. Three sentence
+ * shapes -- "or investigate any mystery", "to avoid angry outbursts", "to
+ * undertake any sustained effort" -- mean a paraphrase would get one of them
+ * backwards, so the book's own cell is quoted and nothing is generated.
+ *
+ * ponytail: one stepper, the [FrightDialog] idiom. [Conditions] are
+ * deliberately NOT layered on, because a Fright Check takes a GM modifier and
+ * no ledger either, and two Will rolls behaving differently in one app is
+ * worse than either choice on its own.
+ */
+@Composable
+private fun SelfControlDialog(
+    check: SelfControlCheck,
+    will: Int,
+    iq: Int,
+    onDismiss: () -> Unit,
+) {
+    // Keyed on the check: a modifier left over from another disadvantage
+    // would silently move this one's target -- the stale-state family 6k, 6y
+    // and 6af each found once.
+    var modifier by remember(check) { mutableIntStateOf(0) }
+    var outcome by remember(check) { mutableStateOf<SelfControlOutcome?>(null) }
+    // The ONE place the number is computed. A caption that re-derived the
+    // will/iq choice beside it is 6ai's defect exactly.
+    val target = SelfControl.targetFor(check.spec, will, iq, modifier)
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        title = {
+            Text(
+                outcome?.let { if (it.held) "Held" else "Gave in" } ?: check.trait,
+            )
+        },
+        text = {
+            Column {
+                // Quoted once, and turning red on a failure IS the
+                // consequence -- printing it twice would read as two rules.
+                Text(
+                    check.printed,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (outcome?.held == false) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    },
+                )
+                Text(
+                    check.spec.attribute?.let {
+                        "keyed on $it${if (check.spec.offset > 0) "+" else ""}" +
+                            "${if (check.spec.offset != 0) "${check.spec.offset}" else ""}" +
+                            ", after any potion"
+                    } ?: "a flat number the book prints — no attribute moves it",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                val result = outcome
+                if (result == null) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(onClick = { modifier -= 1 }) { Text("−1") }
+                        Text(
+                            (if (modifier > 0) "+" else "") + modifier,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                        )
+                        TextButton(onClick = { modifier += 1 }) { Text("+1") }
+                    }
+                    Text("3d6 ≤ $target", style = MaterialTheme.typography.titleLarge)
+                    // Replaced by the result rather than disabled: the same
+                    // re-entrancy guard FrightDialog uses, and one the tree
+                    // enforces rather than a flag.
+                    TextButton(
+                        onClick = {
+                            outcome = SelfControl.attempt(check, will, iq, appDice, modifier)
+                        },
+                    ) { Text("Roll") }
+                } else {
+                    Text(
+                        "3d6: ${result.roll.total} vs ${result.target}",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
                 }
             }
         },
