@@ -54,6 +54,10 @@ fun DivinationDialog(
     skillLevel: Int,
     conditionPenalty: Int,
     spiAvailable: Int,
+    // The diviner's own Sequence, or null for a mortal. Sec. 6's Sequence
+    // Advantage compares the two parties, so withholding this silently picked
+    // the side that always applies the full penalty.
+    divinerSequence: Int? = null,
     dice: RandomSource,
     onSpendSpi: (Int) -> Unit,
     onSpendHp: (Int) -> Unit,
@@ -100,15 +104,25 @@ fun DivinationDialog(
     // a divination is attempted", which is the moment Sec. 6 acts.
     val techniquePenalty = AntiDivinationTechniques.penaltyTotal(techniques)
 
-    val protection = remember(targetSequence, directLink, sacrificeHp, techniquePenalty) {
+    val protection = remember(
+        targetSequence,
+        directLink,
+        sacrificeHp,
+        techniquePenalty,
+        divinerSequence,
+    ) {
         targetSequence?.let {
             AntiDivination.against(
                 targetSequence = it,
                 techniquePenalty = techniquePenalty,
-                // The diviner's own Sequence is not modelled on the sheet, so
-                // Sequence Advantage and the equal-Sequence row cannot apply.
-                // Passing a guess would silently pick a side (AntiDivination).
-                divinerSequence = null,
+                // A Beyonder's own Sequence, which `BeyonderState` has carried
+                // since M3. This was hardcoded null with a comment saying the
+                // sheet does not model it -- it does, and the effect was that
+                // Sec. 6's Sequence Advantage could never fire: a Seq 2
+                // diviner reading a Seq 4 target still took the full -10 and
+                // the critical-only rule that the section forgives outright.
+                // Null stays right for a mortal, who has no Sequence at all.
+                divinerSequence = divinerSequence,
                 directLink = directLink,
                 hpSacrificed = if (sacrificeHp) hpForSacrifice else 0,
             )

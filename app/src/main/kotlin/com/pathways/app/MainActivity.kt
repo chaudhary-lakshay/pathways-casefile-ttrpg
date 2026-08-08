@@ -580,6 +580,8 @@ fun SheetScreen(
     if (divining && divinationLevel != null) {
         DivinationDialog(
             skillLevel = divinationLevel,
+            // Null for a mortal, who has no Sequence for Sec. 6 to compare.
+            divinerSequence = drunk?.sequence,
             // Divination Arts is SPI/Hard, so Spiritual Attrition reaches it.
             // The CoR ladder does not: it is scoped to ritual rolls (p. 68).
             conditionPenalty = conditionsFor(
