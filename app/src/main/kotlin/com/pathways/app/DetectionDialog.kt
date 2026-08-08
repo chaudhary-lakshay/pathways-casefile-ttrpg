@@ -49,6 +49,14 @@ import com.pathways.rules.content.DivinationAwareness
 fun DetectionDialog(
     spi: Int,
     per: Int,
+    /**
+     * Ch. 3's Alertness, "+1 per level to all Per rolls" -- and this is a Per
+     * roll the app makes OUTSIDE `SkillKey`, so `TraitEffects.modifiers`
+     * cannot reach it. Passed explicitly rather than left as a silent gap
+     * (found in review). It lifts the Per branch only; a roll that takes SPI
+     * is not a Per roll.
+     */
+    alertness: Int = 0,
     dice: RandomSource,
     onDismiss: () -> Unit,
 ) {
@@ -93,7 +101,7 @@ fun DetectionDialog(
     // it is not always the higher of the two, so the roll a Fool is granted is
     // a Per roll even when their SPI is better. See Detection.attributeFor.
     val freeRoll = awareness?.freeRoll
-    val target = Detection.targetFor(spi, per, modifier, freeRoll)
+    val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness)
     val automatic = awareness?.isAutomatic == true
 
     AlertDialog(
@@ -272,7 +280,7 @@ fun DetectionDialog(
                         // copy here is how the caption came to say "the higher
                         // of SPI and Per" over a target taken from the row's
                         // own attribute.
-                        Detection.attributeLine(spi, per, freeRoll) +
+                        Detection.attributeLine(spi, per, freeRoll, alertness) +
                             (if (modifier != 0) ", ${signedInt(modifier)}" else "") +
                             ". Free action, costs no SPI.",
                         style = MaterialTheme.typography.bodySmall,
@@ -283,6 +291,7 @@ fun DetectionDialog(
                             // divination and ritual dialogs both needed.
                             if (result != null) return@TextButton
                             result = Detection.attempt(
+                                alertness = alertness,
                                 spi = spi,
                                 per = per,
                                 situations = pickedSituations,

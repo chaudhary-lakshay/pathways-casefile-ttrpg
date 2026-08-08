@@ -162,6 +162,25 @@ class TraitEffectsTest {
     }
 
     /**
+     * **An advantage is what a character IS, not what the GM says this turn.**
+     * `ModifierSource.FromTrait` and `Layer.ADVANTAGE` have existed since M0
+     * with no production caller, and this is the first -- so tagging these as
+     * `Situational` would have put a permanent trait in the same `SourceKind`
+     * bucket a Cancel budget is measured against. Nothing can reach that
+     * today, which is exactly why it is pinned now (caught in review).
+     */
+    @Test
+    fun `a trait bonus is sourced as a trait, not as a circumstance`() {
+        val mod = TraitEffects.modifiers(listOf(advantage("Alertness 1")), per).single()
+        assertEquals(
+            com.pathways.model.ModifierSource.FromTrait("Alertness", advantage = true),
+            mod.source,
+        )
+        assertEquals(com.pathways.model.SourceKind.ADVANTAGE, mod.source.kind)
+        assertEquals(com.pathways.model.Layer.ADVANTAGE, mod.layer)
+    }
+
+    /**
      * Every trait this object names is one the book actually prints. A typo
      * would make a row unreachable in silence -- and `reported` resolves its
      * text through the catalogue, so a name that misses matches nothing.

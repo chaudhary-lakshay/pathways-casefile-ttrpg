@@ -89,13 +89,14 @@ object Detection {
      * governs the other roll its sentence defines, the one a Beyonder makes on
      * suspicion alone, where no row has spoken: that is what null means here.
      */
-    fun attributeFor(spi: Int, per: Int, freeRoll: String? = null): Int {
+    fun attributeFor(spi: Int, per: Int, freeRoll: String? = null, alertness: Int = 0): Int {
         require(spi >= 0) { "SPI is an attribute, not a pool balance; was $spi" }
         require(per >= 0) { "Per is an attribute, not a pool balance; was $per" }
+        require(alertness >= 0) { "Alertness is a bonus, not a penalty; was $alertness" }
         return when (freeRoll?.uppercase()) {
-            null -> maxOf(spi, per)
+            null -> if (takesPer(spi, per)) per + alertness else spi
             SPI -> spi
-            PER -> per
+            PER -> per + alertness
             // Refused rather than falling back to the higher: a caller holding
             // an attribute this table never names has read the wrong row, and
             // the higher of the two would hide that behind a plausible number.
@@ -116,14 +117,35 @@ object Detection {
      * dialog already produced once (6ag), reintroduced by the fix for it and
      * caught in review. One sentence, one author.
      */
-    fun attributeLine(spi: Int, per: Int, freeRoll: String? = null): String =
-        when (freeRoll?.uppercase()) {
+    fun attributeLine(
+        spi: Int,
+        per: Int,
+        freeRoll: String? = null,
+        alertness: Int = 0,
+    ): String {
+        val alert = if (alertness > 0) ", +$alertness Alertness" else ""
+        return when (freeRoll?.uppercase()) {
             SPI -> "SPI $spi (the row grants a SPI roll)"
-            PER -> "Per $per (the row grants a Per roll)"
+            PER -> "Per ${per + alertness} (the row grants a Per roll$alert)"
             else ->
-                if (spi >= per) "SPI $spi (the higher of SPI $spi and Per $per)"
-                else "Per $per (the higher of SPI $spi and Per $per)"
+                if (takesPer(spi, per)) {
+                    "Per ${per + alertness} (the higher of SPI $spi and Per $per$alert)"
+                } else {
+                    "SPI $spi (the higher of SPI $spi and Per $per)"
+                }
         }
+    }
+
+    /**
+     * Whether the general rule takes Per, deciding on the RAW attributes.
+     *
+     * Alertness lifts a Per roll and is deliberately not allowed to decide
+     * WHICH attribute is rolled: "the higher of SPI or Per" is a comparison
+     * the book makes between two attributes, and letting a trait tip it would
+     * be a claim the book never makes. Choose first, then apply -- the
+     * smaller reading. Ties still go to SPI, as they always did.
+     */
+    private fun takesPer(spi: Int, per: Int): Boolean = per > spi
 
     /** Sec. 1's eight rows, in printed order. */
     fun awareness(): List<DivinationAwareness> = ContentLoader.divinationAwareness()
@@ -200,8 +222,13 @@ object Detection {
     }
 
     /** SPI or Per, whichever is higher, plus what the circumstances are worth. */
-    fun targetFor(spi: Int, per: Int, modifier: Int = 0, freeRoll: String? = null): Int =
-        attributeFor(spi, per, freeRoll) + modifier
+    fun targetFor(
+        spi: Int,
+        per: Int,
+        modifier: Int = 0,
+        freeRoll: String? = null,
+        alertness: Int = 0,
+    ): Int = attributeFor(spi, per, freeRoll, alertness) + modifier
 
     /**
      * The row [roll] landed on.
@@ -234,12 +261,13 @@ object Detection {
         awarenessBonus: Int = 0,
         awarenessLabel: String? = null,
         freeRoll: String? = null,
+        alertness: Int = 0,
         source: RandomSource,
     ): DetectionResult {
         val total = modifierTotal(situations, techniques, items, awarenessBonus)
-        val roll = SuccessRoll.against(targetFor(spi, per, total, freeRoll), source)
+        val roll = SuccessRoll.against(targetFor(spi, per, total, freeRoll, alertness), source)
         val parts = buildList {
-            add(attributeLine(spi, per, freeRoll))
+            add(attributeLine(spi, per, freeRoll, alertness))
             situations.filter { it.modifier != 0 }
                 .forEach { add("${it.situation} ${signed(it.modifier)}") }
             techniques.filter { (it.detectionBonus ?: 0) != 0 }

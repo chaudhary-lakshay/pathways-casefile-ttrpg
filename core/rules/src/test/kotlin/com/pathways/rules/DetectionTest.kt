@@ -344,4 +344,47 @@ class DetectionTest {
         val summed = result.parts.drop(1).sumOf { signed.find(it)!!.value.toInt() }
         assertEquals(result.roll.target - Detection.attributeFor(10, 8), summed)
     }
+
+    /**
+     * **Alertness lifts this roll too, and it is the one bare Per roll the
+     * app makes.** "+1 per level to all Per rolls" -- not "all Per-controlled
+     * SKILL rolls", so a detection roll that takes Per is covered by the
+     * sentence. `TraitEffects.modifiers` cannot reach it, because this roll
+     * never goes through a `SkillKey`; it is threaded explicitly instead of
+     * left a silent gap (found in review).
+     */
+    @Test
+    fun `Alertness lifts a detection roll that takes Per`() {
+        assertEquals(12, Detection.attributeFor(spi = 9, per = 10, alertness = 2))
+        assertEquals(11, Detection.attributeFor(spi = 9, per = 10, freeRoll = "PER", alertness = 1))
+        // ...and not one that takes SPI: that is not a Per roll.
+        assertEquals(11, Detection.attributeFor(spi = 11, per = 10, alertness = 2))
+        assertEquals(9, Detection.attributeFor(spi = 9, per = 10, freeRoll = "SPI", alertness = 2))
+    }
+
+    /**
+     * **A trait may not decide WHICH attribute is rolled.** "The higher of SPI
+     * or Per" is a comparison the book makes between two attributes; letting
+     * Alertness tip it would be a claim the book never makes. Choose on the
+     * raw values, then apply -- the smaller reading, so it is pinned.
+     */
+    @Test
+    fun `Alertness cannot tip the choice of attribute`() {
+        // SPI 10 vs Per 10: SPI wins on the tie, and stays winning at +5.
+        assertEquals(10, Detection.attributeFor(spi = 10, per = 10, alertness = 5))
+        assertTrue(Detection.attributeLine(spi = 10, per = 10, alertness = 5).startsWith("SPI 10"))
+    }
+
+    /** The sentence always names the value the target used -- 6ai's guard. */
+    @Test
+    fun `the attribute line still names the value the target used, with Alertness`() {
+        for (spi in 0..12) for (p in 0..12) for (a in 0..3) {
+            val used = Detection.attributeFor(spi, p, alertness = a)
+            val line = Detection.attributeLine(spi, p, alertness = a)
+            assertTrue(
+                line.startsWith("SPI $used ") || line.startsWith("Per $used "),
+                "spi=$spi per=$p alertness=$a used=$used line=$line",
+            )
+        }
+    }
 }

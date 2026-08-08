@@ -155,11 +155,18 @@ object TraitEffects {
 
     private fun bonus(trait: String, value: Int) = Modifier(
         id = ModifierId("trait:${trait.lowercase()}"),
-        source = ModifierSource.Situational(trait),
+        // FromTrait, NOT Situational. Both existed from M0 and this is the
+        // first production caller of either; `Situational` is what a GM says
+        // about this turn, and an advantage is what the character permanently
+        // IS. They resolve to different `SourceKind`s, which is what a
+        // `Cancel` budget is measured against -- so mislabelling one as the
+        // other would only surface the day some situational rule tried to
+        // cancel a circumstance and silently ate a trait instead.
+        source = ModifierSource.FromTrait(trait, advantage = true),
         // Retargeted onto the skill being rolled by SkillRoll, exactly as
         // Conditions' and CommonModifiers' rows are.
         target = ModTarget.AllRolls,
         effect = ModEffect.Flat(value),
-        layer = Layer.SITUATIONAL,
+        layer = Layer.ADVANTAGE,
     )
 }

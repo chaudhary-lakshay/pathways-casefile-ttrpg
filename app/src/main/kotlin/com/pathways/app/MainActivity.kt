@@ -515,6 +515,11 @@ fun SheetScreen(
         // book calls this "a free action (once per divination attempt)" that
         // "does not cost SPI".
         DetectionDialog(
+            // Ch. 3's Alertness. This is a Per roll made outside SkillKey, so
+            // TraitEffects.modifiers cannot reach it; passed explicitly rather
+            // than left a silent gap (found in review).
+            alertness = TraitEffects.levelOf(traits, TraitEffects.ALERTNESS)
+                ?.times(TraitEffects.ALERTNESS_PER_LEVEL) ?: 0,
             // The ATTRIBUTE, not what is left in the pool. The book rolls
             // "SPI or Per, whichever is higher" the way any attribute roll
             // goes; passing the remaining pool made a caster who had spent
