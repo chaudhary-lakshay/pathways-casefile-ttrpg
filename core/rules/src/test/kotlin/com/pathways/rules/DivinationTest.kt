@@ -2,6 +2,7 @@ package com.pathways.rules
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -102,6 +103,65 @@ class DivinationTest {
         assertEquals("Clear", Divination.clarityFor(SuccessRoll.evaluate(9, 12)).clarity)
         assertEquals("Vague", Divination.clarityFor(SuccessRoll.evaluate(11, 12)).clarity)
         assertEquals(6, Divination.clarities().size)
+    }
+
+    /**
+     * **The join, as a general invariant rather than five spot checks.**
+     * `clarityFor` used to hold 5 and 3 as Kotlin literals and reach its rows
+     * by array position -- the only margin-reader in this codebase that did,
+     * where `MajorWound.failBy`, `RitualFailure.from` and
+     * `SpiritualSenseRow.margin` all carry the number ON the row. Both sides
+     * were pinned -- the extractor pins the printed strings, the tests above
+     * pin the behaviour -- and NOTHING JOINED THEM: re-read a band as "Success
+     * by 4+" and the extractor's pin would fail loudly while Kotlin's `>= 5`
+     * sat there silently, selecting a row whose own text contradicted it.
+     *
+     * This walks every value of every printed band and asserts the row the
+     * engine picks is the row whose cell names that margin -- the general
+     * guard 6ag's parts-sum test is, rather than three patches.
+     */
+    @Test
+    fun `every band selects the row whose own printed cell names it`() {
+        val band = Regex("""^(Success|Failure) by (\d+)(?:[–-](\d+))?""")
+        val rows = Divination.clarities().filterNot { it.isCritical }
+        assertEquals(5, rows.size, "five rows are named by margin, one by outcome")
+
+        rows.forEach { row ->
+            val m = band.find(row.result) ?: error("unparsed Result cell: ${row.result}")
+            val isFailure = m.groupValues[1] == "Failure"
+            val lower = m.groupValues[2].toInt()
+            assertEquals(isFailure, row.isFailure, "${row.result} sits on the wrong side")
+            assertEquals(lower, row.margin, "${row.result} parsed the wrong bound")
+
+            val target = if (isFailure) 8 else 12
+            // An open end ("5+") is walked four steps past its printed bound.
+            // On the failure side it stops before a rolled 17, where the
+            // book's own always-fails rule takes the roll critical and this
+            // table's outcome-first door opens instead -- the deepest margin
+            // band is simply unreachable past there.
+            val printedUpper = m.groupValues[3].takeIf { it.isNotEmpty() }?.toInt()
+            val reachable =
+                if (isFailure) SuccessRoll.ALWAYS_FAILS_AT_OR_OVER - 1 - target else lower + 4
+            val upper = printedUpper ?: minOf(lower + 4, reachable)
+            (lower..upper).forEach { by ->
+                val total = if (isFailure) target + by else target - by
+                val roll = SuccessRoll.evaluate(total, target)
+                assertEquals(
+                    row.clarity,
+                    Divination.clarityFor(roll).clarity,
+                    "a margin of $by should land on ${row.result}",
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `the row named by outcome prints no margin at all`() {
+        // Printing no number is not printing zero -- at zero it would be the
+        // mildest success band and could outrank the row that really is.
+        val critical = Divination.clarities().first { it.isCritical }
+        assertNull(critical.margin)
+        assertFalse(critical.isFailure)
     }
 
     @Test

@@ -68,6 +68,13 @@ CLARITY_RESULTS = [
     "Failure by 1–4", "Failure by 5+", "Critical Failure",
 ]
 CRITICAL = "Critical Failure"
+# The margin a Result cell prints, so the number travels ON the row rather
+# than being copied into Kotlin -- the shape MajorWound.failBy, RitualFailure
+# .from/.to and SpiritualSense.margin already have. A band's lower bound is
+# all it needs: they overlap by design and the deepest match wins.
+CLARITY_BAND = re.compile(r"^(Success|Failure) by (\d+)")
+# (isFailure, margin) for the five rows named by margin, in printed order.
+EXPECTED_CLARITY_BANDS = [(False, 5), (False, 3), (False, 0), (True, 1), (True, 5)]
 
 EXPECTED_SUPPORT = ["Occultism", "Hidden Lore (relevant)", "Psychology", "Cogitation"]
 EXPECTED_DIFFICULTY = 5
@@ -234,8 +241,16 @@ def parse_clarity(lines):
             "effect": " ".join(lines[i + 2:end]),
         }
         if lines[i] == CRITICAL:
-            # Named by OUTCOME where the other five are named by margin.
+            # Named by OUTCOME where the other five are named by margin, so it
+            # carries no margin at all -- printing no number is not printing 0.
             entry["isCritical"] = True
+        else:
+            band = CLARITY_BAND.match(lines[i])
+            if not band:
+                raise ValueError(f"{lines[i]!r} names neither an outcome nor a margin")
+            entry["margin"] = int(band.group(2))
+            if band.group(1) == "Failure":
+                entry["isFailure"] = True
         out.append(entry)
     return out
 
@@ -254,6 +269,14 @@ def verify(support, methods, difficulty, modifiers, clarity, prose):
         raise ValueError("the 'See Step 1 table' row is the only one with no number")
     if sum(1 for c in clarity if c.get("isCritical")) != 1:
         raise ValueError("exactly one clarity row is named by outcome, not margin")
+    # The join the app was missing: the margin that SELECTS a row now comes
+    # from the row's own printed cell, so this pins the parse of that cell.
+    bands = [(bool(c.get("isFailure")), c["margin"])
+             for c in clarity if not c.get("isCritical")]
+    if bands != EXPECTED_CLARITY_BANDS:
+        raise ValueError(f"clarity bands changed: {bands} != {EXPECTED_CLARITY_BANDS}")
+    if any("margin" in c for c in clarity if c.get("isCritical")):
+        raise ValueError("the critical row is named by outcome and must print no margin")
     if len(methods) != len(METHODS):
         raise ValueError(f"expected {len(METHODS)} methods, got {len(methods)}")
 

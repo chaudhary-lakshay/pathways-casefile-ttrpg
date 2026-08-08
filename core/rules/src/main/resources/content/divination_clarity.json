@@ -11,27 +11,34 @@
   {
    "result": "Success by 5+",
    "clarity": "Crystal clear",
-   "effect": "Precise answer, additional useful detail, possibly a vision"
+   "effect": "Precise answer, additional useful detail, possibly a vision",
+   "margin": 5
   },
   {
    "result": "Success by 3–4",
    "clarity": "Clear",
-   "effect": "Direct answer to the question"
+   "effect": "Direct answer to the question",
+   "margin": 3
   },
   {
    "result": "Success by 0–2",
    "clarity": "Vague",
-   "effect": "Symbolic or partial answer — requires interpretation (IQ or Occultism roll to fully understand)"
+   "effect": "Symbolic or partial answer — requires interpretation (IQ or Occultism roll to fully understand)",
+   "margin": 0
   },
   {
    "result": "Failure by 1–4",
    "clarity": "Murky",
-   "effect": "No useful information. SPI spent. May retry after 1 hour with fresh approach."
+   "effect": "No useful information. SPI spent. May retry after 1 hour with fresh approach.",
+   "margin": 1,
+   "isFailure": true
   },
   {
    "result": "Failure by 5+",
    "clarity": "Distorted",
-   "effect": "Misleading or inverted answer. The caster believes it is genuine."
+   "effect": "Misleading or inverted answer. The caster believes it is genuine.",
+   "margin": 5,
+   "isFailure": true
   },
   {
    "result": "Critical Failure",

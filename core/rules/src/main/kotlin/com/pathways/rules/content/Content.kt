@@ -780,6 +780,22 @@ data class DivinationClarity(
     val clarity: String,
     val effect: String,
     val isCritical: Boolean = false,
+    /**
+     * The lower bound the Result cell prints ("Success by 5+" is 5), with
+     * [isFailure] saying which side of the table it sits on. They exist so the
+     * number that SELECTS a row travels ON the row -- the shape
+     * `MajorWound.failBy`, `RitualFailure.from` and `SpiritualSenseRow.margin`
+     * already have. [com.pathways.rules.Divination.clarityFor] held 5 and 3 as
+     * Kotlin literals and reached its rows by array position, the only
+     * margin-reader in this codebase that did. Bands overlap by design, so the
+     * DEEPEST match wins.
+     *
+     * The critical row carries neither, being named by outcome: printing no
+     * margin is not printing zero, the distinction [RitualCritical.corGained]
+     * draws for corruption.
+     */
+    val margin: Int? = null,
+    val isFailure: Boolean = false,
 )
 
 /** One row of the Supporting Skills table (Ch. 6.5), each worth +1. */

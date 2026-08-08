@@ -126,15 +126,18 @@ object Divination {
         // overshoots its table by nothing.
         val succeeded = !demoted &&
             (roll.outcome == Outcome.SUCCESS || roll.outcome == Outcome.CRITICAL_SUCCESS)
-        return if (succeeded) {
-            when {
-                roll.margin >= 5 -> rows[0]
-                roll.margin >= 3 -> rows[1]
-                else -> rows[2]
-            }
-        } else {
-            if (-roll.margin >= 5) rows[4] else rows[3]
-        }
+        val side = rows.filter { !it.isCritical && it.isFailure != succeeded }
+        val by = if (succeeded) roll.margin else -roll.margin
+        // Bands overlap -- a margin of 5 satisfies "0-2", "3-4" and "5+" at
+        // once -- so the DEEPEST match wins, as DegreeOfSuccess reads its own
+        // ladder. Taking the first would report every success as "Vague".
+        return side.filter { (it.margin ?: 0) <= by }.maxByOrNull { it.margin ?: 0 }
+        // A 17 fails a target it beat on the dice, so `by` can be negative and
+        // match no band at all. The mildest row is the answer there -- the
+        // call FrightCheck makes for a roll that overshoots its table by
+        // nothing -- and crashing mid-scene is not.
+            ?: side.minByOrNull { it.margin ?: 0 }
+            ?: error("the clarity table prints no ${if (succeeded) "success" else "failure"} row")
     }
 
     /**
