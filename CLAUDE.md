@@ -3,7 +3,7 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `98a53e1`.
+sections below are current as of `b3b677e`.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -39,7 +39,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **810 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
+| Tests | **824 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -2323,7 +2323,7 @@ than asserted. It did name one latent inconsistency worth closing:
 `modifierNamed` resolved case-insensitively while the charm-overlap guard
 compared case-sensitively, so a caller that reached a row through the tolerant
 lookup could have slipped past the strict guard. Both are insensitive now.
-Slices 6w-6ak are FIFTEEN consecutive slices without the real review gate,
+Slices 6w-6al are SIXTEEN consecutive slices without the real review gate,
 and `f0ccc56` (6ai's fix) has been seen only by the fallback reviewer. All of
 them belong in one Codex sweep once the limit resets — 2026-08-08 16:52, from
 Codex's own error text.
@@ -2727,6 +2727,102 @@ already hold those six numbers and ch 3's attribute table is where the costs
 were claimed. The skill-defaults table's BODY sits on page 10, which
 `chapters.json` gives to Chapter 3, so it is claimed under `"2"` and credited
 to nobody: the **seventh** instance of that page-granularity gap.
+
+## 6al. The trait catalogue — 198 rows, no reader, and the sweep that excused it
+
+`TraitEffects` (core/rules) turns a premade's own advantages into modifiers.
+Three reach a roll; the other seven are shown with the reason they cannot.
+
+**6ai's sweep found this and let it go.** That slice grepped all 345 extracted
+fields for a consumer, found the 198-row trait catalogue read by nothing, and
+recorded it as legitimate because "traits are not editable yet". That is true
+of BUYING one and irrelevant to the 23 premades, every one of which prints
+traits the book gives numbers to. **`Alertness 1` is on eight of them and says
+"+1 per level to all Per rolls"** — and every Per roll in this app was made at
+flat skill. The sweep asked whether a field had a reader; it did not ask
+whether the DATA already in the app had one. That is the lesson, and it is a
+narrower version of 6ak's: an explanation that sounds sufficient is the most
+expensive kind of wrong.
+
+- **A printed number is not enough — it has to name a roll the app can
+  identify.** `ControllingAttribute` distinguishes a Per skill from an HT one
+  and `ParryBlock` computes the active defences, so Alertness, Fit and Combat
+  Reflexes have a real join. The other seven do not, and inventing one would
+  be authoring a rule to justify reading another: a "shock penalty" so High
+  Pain Threshold could ignore it, a death roll for Hard to Kill, a recall roll
+  for Eidetic Memory. They are REPORTED on the sheet with the book's own words
+  and the reason — the call the Sealed Artifact grade table (6af) and a
+  technique's availability (6ai) already needed.
+- **"+1 to all active defenses" means all of them.** Block is the only defence
+  whose formula names a modifier, which makes Block-only the easy wrong
+  reading and would understate a Dodge by one — the same trap a shield's DB
+  had to avoid (6o). Every row in the dialog goes through one function for
+  exactly that reason.
+- **A sheet prints the level IN the name** ("Alertness 1", "Hard to Kill 2")
+  while the catalogue prints the bare name and a `perLevel` flag. An
+  unlevelled trait counts as ONE level of itself, never zero — zero would
+  silently cancel its own bonus. A trailing word that is not a number stays
+  part of the name, which is what keeps "Poverty: Struggling" (on ten
+  premades) from being read as a level.
+- **The numbers live in Kotlin and the sentences are pinned in a test.** Each
+  is a value inside a prose `notes` cell, so committing it as a column would
+  make the book look like it printed one — the split the maneuver table's
+  +4/−4 (6i), the +3 support cap (6y) and the orthodox −2 (6z) all take. The
+  pin reads `ContentLoader.advantages()`, which is the copy production reads.
+- **Matching a trait by name had precedent**: `Corruption.FORTITUDE` has read
+  `Spiritual Fortitude` off a character since M4's first slice.
+
+**The reviewer found two more things, and the first is 6ai's shape exactly.**
+
+- **`ModifierSource.FromTrait` and `Layer.ADVANTAGE` have existed since M0
+  with no production caller** — and this slice, the first advantage effect in
+  the app, tagged its modifiers `Situational` instead. `Situational` is what a
+  GM says about this turn; an advantage is what a character permanently IS,
+  and the two resolve to different `SourceKind`s. Nothing can reach the
+  difference today, because no `Cancel` targets `SITUATIONAL` yet — which is
+  precisely why it is pinned now rather than found the day one does. Note the
+  irony: the fix for "a field with no consumer" was itself written past two
+  more fields with no consumer.
+- **Alertness says "all Per rolls", not "all Per-controlled SKILL rolls."**
+  The detection roll (6ah) is the one bare Per roll this app makes — rolled
+  through `Detection.attributeFor`, never through a `SkillKey` — so
+  `TraitEffects.modifiers` could not reach it. Threaded explicitly rather than
+  left a silent gap. It lifts the Per branch only, because a roll that takes
+  SPI is not a Per roll; and it deliberately **cannot decide which attribute
+  is rolled**, since "the higher of SPI or Per" is a comparison the book makes
+  between two attributes and letting a trait tip it would be a claim the book
+  never makes. Choose on the raw values, then apply — the smaller reading, so
+  it is pinned by a named test. `attributeLine` names the bonus, because that
+  sentence and the target above it must reconcile (6ai).
+
+Five probes traced clean, and two are worth keeping: the Block branch
+deliberately does NOT go through `shielded()`, because `Shields.blockFor`
+folds in a Block-specific penalty that `Shields.withBonus` cannot express; and
+the hoisted `traits` memo is keyed correctly because a potion in this codebase
+grants attributes, SPI, secondaries and skill levels — never a trait.
+
+**Codex refused for the sixteenth consecutive slice** (usage limit; it now
+reports the reset as "4:52 PM" the same day, retested at 06:23). One
+`ecc:kotlin-reviewer` fallback pass scoped to four named files with eight
+probes returned one MEDIUM, one LOW and six probes traced to a file:line.
+
+Device-verified on `Medium_Phone_API_36.1`. **Night Watchman** (Alertness 1,
+Fit): Observation read **"base 12, modified to 13"** with `trait:alertness: 1`,
+and Running read **"base 12, modified to 13"** with `trait:fit: 1` — Alertness
+correctly absent from the HT roll, which is the scoping holding. Its Detect
+dialog read **"3d6 ≤ 10 — Per 10 (the higher of SPI 0 and Per 9, +1
+Alertness)"**, against **Hunter-Tracker** (no Alertness) reading **"3d6 ≤ 9 —
+Per 9 (the higher of SPI 0 and Per 9)"** on the identical screen.
+**Military Police** (Combat Reflexes) prints Dodge 8 on the sheet and the
+defence dialog reads **Dodge 9** and **Parry (Brawling) 9** — every defence,
+not just Block.
+
+Still unread in chapter 3: the study/training system on p. 32 (tutors, study
+points, "a skill cannot exceed Attribute+1 through study alone"), and the
+self-control disadvantages' own rolls — Curious "vs. 12", Bad Temper "vs. 12",
+Impulsive "vs. IQ−2", Stubborn "vs. Will−3". Those four are rolls this app
+could make; WHEN to call for one is the GM's, which is the same shape as
+Single-Minded's extended concentration and is why they are not in this slice.
 
 ### A note on Codex
 
