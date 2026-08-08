@@ -273,11 +273,22 @@ fun SheetScreen(
     // What the trackers are costing a roll of [key]. [cor] is a parameter
     // because RitualResolution applies the corruption ladder itself, and
     // passing it here as well would charge a corrupted caster twice.
-    fun conditionsFor(key: SkillKey, cor: Int = session.cor) = Conditions.forSkill(
+    // [spiAboutToSpend] is SPI this roll will pay BEFORE it is rolled, which
+    // ch. 6.5 pays in Step 2 and rolls in Step 3 (p. 55). Zero everywhere
+    // else, where nothing is paid to make the roll at all.
+    fun conditionsFor(
+        key: SkillKey,
+        cor: Int = session.cor,
+        spiAboutToSpend: Int = 0,
+    ) = Conditions.forSkill(
         skill = key,
         hp = Pools.hp(vitals.maxHp - session.hpLost, vitals.maxHp),
         fp = Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp),
-        spi = if (vitals.maxSpi > 0) Pools.spi(vitals.maxSpi - session.spiSpent, vitals.maxSpi) else null,
+        spi = if (vitals.maxSpi > 0) {
+            Pools.spi(vitals.maxSpi - session.spiSpent - spiAboutToSpend, vitals.maxSpi)
+        } else {
+            null
+        },
         cor = cor,
     )
 
@@ -585,15 +596,21 @@ fun SheetScreen(
             divinerSequence = drunk?.sequence,
             // Divination Arts is SPI/Hard, so Spiritual Attrition reaches it.
             // The CoR ladder does not: it is scoped to ritual rolls (p. 68).
-            conditionPenalty = conditionsFor(
-                key = SkillKey(
-                    Divination.SKILL,
-                    null,
-                    ControllingAttribute.Spi,
-                    Difficulty.HARD,
-                ),
-                cor = 0,
-            ).sumOf { (it.effect as ModEffect.Flat).n },
+            // Asked per method cost, not computed once: paying for the
+            // question can itself push the diviner across a Spiritual
+            // Attrition threshold, and the book charges before it rolls.
+            conditionPenaltyAfterSpending = { cost ->
+                conditionsFor(
+                    key = SkillKey(
+                        Divination.SKILL,
+                        null,
+                        ControllingAttribute.Spi,
+                        Difficulty.HARD,
+                    ),
+                    cor = 0,
+                    spiAboutToSpend = cost,
+                ).sumOf { (it.effect as ModEffect.Flat).n }
+            },
             spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = appDice,
             // Through the tracker, so a question asked at 0 SPI buys the Soul

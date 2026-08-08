@@ -52,7 +52,14 @@ import com.pathways.rules.content.DivinationMethod
 @Composable
 fun DivinationDialog(
     skillLevel: Int,
-    conditionPenalty: Int,
+    // What the trackers cost this roll, GIVEN the SPI this divination is
+    // about to spend. A function rather than a number because the book pays
+    // BEFORE it rolls -- Step 2 "Choose Method & Pay SPI", Step 3 "Roll &
+    // Apply Modifiers" (p. 55) -- so a method whose cost pushes the diviner
+    // across an attrition threshold must roll under that penalty. A flat Int
+    // was computed before the payment and could only ever describe the
+    // caster who had not paid yet.
+    conditionPenaltyAfterSpending: (Int) -> Int,
     spiAvailable: Int,
     // The diviner's own Sequence, or null for a mortal. Sec. 6's Sequence
     // Advantage compares the two parties, so withholding this silently picked
@@ -133,11 +140,13 @@ fun DivinationDialog(
     // them separately: folding them and printing both showed "circumstances
     // -10, Seq 4 (Demigod) -10" for one -10, which does not add up to the
     // target printed directly above it (found on the emulator).
-    val circumstances =
-        Divination.modifierTotal(rows.filter { it.source in chosen }) + conditionPenalty
+    // The cost is known before the penalty, because the penalty depends on
+    // it: the book pays in Step 2 and rolls in Step 3.
+    val cost = Divination.spiFor(method, spiChoice)
+    val circumstances = Divination.modifierTotal(rows.filter { it.source in chosen }) +
+        conditionPenaltyAfterSpending(cost)
     val extras = circumstances + protection.penalty
     val target = Divination.targetFor(skillLevel, difficulty, extras)
-    val cost = Divination.spiFor(method, spiChoice)
 
     AlertDialog(
         onDismissRequest = onDismiss,
