@@ -3067,6 +3067,13 @@ tracker: given a skill's current level, name the CP the next rung costs and
 the hours and money that buy it. That needs no clock — the GM says when time
 passed. Recorded as the shape, not started.
 
+**Built in 6au**, and the reason this section could not see it is worth
+keeping: the sentence that makes the planner possible ("1 character point
+locked to that skill") is on the same page, above everything quoted here, and
+this section measured its own summary against a downtime tracker it had
+already ruled out. It also records ONE Limits bullet where the book prints
+three.
+
 ## 6ao. The attribute table, and a ceiling the book's own example breaks
 
 `GoldenAttributeTableTest` replays Ch. 3's attribute cost grid (p. 10-11)
@@ -3714,6 +3721,110 @@ reference moves with the bug. 37 of the 57 constants are never named in a
 test and nearly all are fine. The question is whether a printed sentence
 exists and whether anything joins it to the number, which is a question only
 the book can answer.
+
+## 6au. Study points — the slice 6an closed as unbuildable
+
+`Study` (core/rules) reads Ch. 3's Study & Training tables (p. 32) and the
+builder prints what each skill's next rung would cost. 6an read this page,
+marked what it restated, and deliberately did NOT extract it: *"Extracting it
+would produce a content file read by nothing, which is precisely the defect
+6ai, 6al and 6am each found in turn."* That was the right call with the
+information that section had. It was working from its own summary.
+
+**Reading the page again is what changed the answer**, and the sentence is
+line 2185, above everything 6an quoted: a study session earns **"1 character
+point locked to that skill"**. Study points ARE character points. So
+`SkillLadder` already prices the rung and this table only prices the point,
+which makes a **stateless** planner possible in an app with no clock — the GM
+says when the time passed, the planner says what the time buys. 6an even
+named that shape as the way in and then measured it against a downtime
+tracker it had already ruled out.
+
+- **The Limits are THREE bullets and 6an recorded one.** Beside "a skill
+  cannot exceed Attribute+1 through study alone" the book prints *"Beyonder
+  potion-granted skills (Chapters 9-11) cannot be studied"* and *"No more than
+  two skills may be studied per downtime period."* A section's summary of a
+  page is not the page — the same lesson 6t taught about a chapter at 0.0%.
+- **Three rules applied, three shown.** Applied: the Attr+1 cap, the potion
+  refusal, and Very Hard self-study's "Not possible". Shown and deliberately
+  not enforced: the tutor's own Attr+2 requirement, its 3-student limit, and
+  the two-skills-per-period cap — this app models no tutor and no downtime
+  period, so enforcing them would be inventing state. The call the Sealed
+  Artifact grade table needed (6af).
+- **"Not possible" is a refusal, and refusing it is the whole reason the cell
+  is stored with no numbers.** Read as zero it would make the hardest road in
+  the table the cheapest. `StudyPrice` carries `printed` alone there, the
+  distinction `RitualCritical.corGained` draws for corruption, with teeth for
+  once.
+- **A plan is advice and must never be spent.** Nothing writes through
+  `SavedEdits`, because that path bills the 70-point creation budget through
+  `PointBudget` and study points are earned OUTSIDE it. A planner that quietly
+  bought the rung would charge a character points for time they spent.
+- **The money column prints two currencies** — "4s" and "£1" — so a regex
+  knowing one silently drops half the column and the half it drops still
+  parses. The wealth ladder's two minus signs set that trap first (6u);
+  `verify()` now fails if either currency stops surviving.
+- **`SkillLadder.nextRungPoints` was added rather than a second copy of the
+  rungs.** The doubling ladder is `SkillLadder`'s, and this slice shipped one
+  commit after 6at deleted exactly that kind of duplicate from the clarity
+  table.
+- **The extractor's first cut ate the worked example.** Tomas's paragraph
+  wraps across three lines directly above the Limits, so a `startswith`
+  blacklist took its first continuation as a fourth Limit — the
+  trailing-paragraph trap `extract_core.py` and `extract_rituals.py` each
+  needed rescuing from. **The book separates them itself**: the Limits are
+  bulleted and the example is not, so `stream()` keeps the U+007F marker
+  instead of discarding it.
+- **The "Cumulative CP" grid at 2206-2230 is deliberately left unclaimed**, so
+  the two spans have a hole in them. It is a truncated second printing of the
+  skill cost grid `skill_ladder.json` has carried since 6ac, and
+  `GoldenStudyPointsTest` already asserts it as a PREFIX. Storing it would be
+  the silent merge 4.1 forbids.
+
+**Codex found the defect, and it is this session's own class.** `Study.plan`
+priced SPI-based skills happily: the API took a difficulty and an attribute
+LEVEL, so a caller could not even express the refusal. Ch. 9 p. 85 says those
+skills *"cannot be raised with character points"* (6aq) and this planner's
+foundational sentence says study earns character points — so the prohibition
+follows directly from the rule the slice was built on, and the slice
+contradicted it. **A currency the book forbids spending on a skill is still
+forbidden when it is earned over downtime.** `plan` takes the controlling
+attribute now and routes through the same `SkillLadder.isBuyableWithPoints`
+gate the builder uses, so the two cannot drift apart. Deliberately NOT left to
+`isPotionGranted` to cover, even though every SPI skill in play today arrived
+by potion and would be refused anyway: that overlap is a fact about the
+premades, not a rule.
+
+All four applied readings were RED-proved by neutering each in turn — the cap
+raised to Attr+2, the per-point cost made per-rung, the potion refusal
+disabled, and the SPI gate disabled. Each failed; each was restored.
+
+**The golden test now marks the whole worked example.** 6an asserted its CP
+arithmetic and left the time and money unassertable, because nothing consumed
+them. Tomas is the only proof the cost is LINEAR per point: a printed cell
+buys one CP, and he pays *"another 24 hours (16s)"* for two — exactly twice
+"12 hrs + 8s". Nothing else on the page says how a multi-point rung is priced.
+
+Device-verified on `Medium_Phone_API_36.1`, Academic Researcher (IQ 10, so the
+study cap is 11):
+
+- Seven skills at level 11 or above read **"Study alone cannot pass 11, and
+  this skill is already 11."** — History at exactly 11 showing the boundary is
+  `>=`, not `>`.
+- **Public Speaking** (2 pts, Average, level 10) reads **"24 hrs + 16s for 2
+  CP → level 11"**: the book's own Tomas arithmetic on a real character.
+- **Switch** to Self-Study takes the same row to **"48 hrs + 4s"** — twice the
+  time and LESS money, which is the two currencies not being conflated
+  (8s×2 against 2s×2). Mathematics and Cryptography (Hard) read **96 hrs + 8s**
+  against Public Speaking's 48, so the difficulty column moves per row.
+- **Alchemy** bought at 1 point (IQ/Very Hard, level 7) reads **"The book
+  prints "Not possible" for a Very Hard skill by self-study."** and, after one
+  tap of Switch, **"48 hrs + £2 for 1 CP → level 8"** — the same skill on the
+  same character refused by one road and priced by the other, and the pound
+  branch rendering beside the soli rows.
+
+Chapter 3's remaining unclaimed lines are the CP grid above (a second printing,
+left on purpose) and the mundane advantage and disadvantage effect tables.
 
 ---
 
