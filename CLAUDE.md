@@ -3336,6 +3336,139 @@ files through PowerShell and mis-decodes UTF-8: on this slice it reported the
 module compiled clean and the device rendered `3d6 ≤ 5`. Treat encoding
 complaints as tooling noise; check `./gradlew` before acting on them.
 
+**Correction (6as):** the companion's job history holds no review for this
+slice, or for any slice after 2026-08-01 — every later job is a quota stub.
+The mojibake anecdote is real advice and its attribution is unsupported;
+6ar was reviewed for the first time in 6as's sweep, and came back **clean**.
+
+## 6as. The sweep that finally ran, and what 25 slices of no review cost
+
+Codex answered on the first probe after its limit reset. **Thirteen chunks,
+61 commits, 6n through 6ar, and it never refused once.** Two chunks came back
+clean; the other eleven produced **17 findings**. Five are fixed here.
+
+**The gap was bigger than anyone had recorded.** The slice log says the
+unreviewed run started at 6w. The companion's own job history says otherwise:
+the last substantive review is `review-msaonwcj-43nq9k.log`, **2026-08-01**,
+covering the called-shot / Soul Debt era — 6l/6m. Everything after it is a
+1068-byte quota stub. So 6n-6v's "(Codex)" attributions are **unsupported by
+the job history**, not disproven: a direct `codex` CLI run outside the
+companion would not log there. Recorded, not repaired.
+
+**And the hour mattered, twice.** 6am recorded reading "try again at 4:52 PM"
+as already past when local time was 08:31. This session probed at 13:28 —
+still 3h23m early, refused — and again at 19:48, which worked. **Check the
+clock, not the date.**
+
+### The sharpest finding was money, and it was in committed content
+
+`entity_response.json` has carried this since 6z:
+
+> 12-14 — "No response. Ritual draws only on caster's residual power
+> **(treat as 2 SPI personal)**."
+
+The dialog charged the declared complexity cost on every row, so a Heavy
+invocation that went unanswered took **8+ SPI where the book prints 2** — and
+on a caster with no pool the excess bought permanent Soul Debt CoR. Extracted,
+committed, displayed on screen, and charged by nothing. That is the class 6aq
+and 6ar named — printed and CONTRADICTED — for the third time, and the first
+time it was hiding inside a file this repo wrote itself.
+
+- **Only the row that prints a price changes.** The five answering rows keep
+  the declared cost. Reading Section IV.F's "you borrow power from someone
+  higher" as "those rows are free" would author five prices the book never
+  prints — the refusal `Languages.ritualModifier` makes about a common
+  tongue's silence (6x). A row saying nothing is not a row saying zero.
+- **That leaves the best outcome costing the most.** A Full response charges a
+  Heavy ritual's whole 8; No response charges 2. The book prints both and
+  reconciles neither, so it is pinned by a named test rather than smoothed.
+- **The same section prints the ORDER, and it was not applied either.** "The
+  GM rolls secretly on the Entity Response Table **first**, then applies the
+  entity's modifier to the Ritualistic Magic roll." Roll was reachable with no
+  answer given. Withdrawn with a reason now, not left to refuse on tap — 6x's
+  Broken language and 6ar's SPI floor, the same shape a third time.
+- **The 12-14 row is identified by its SHAPE, not its band** — answering, yet
+  printing no modifier — so a re-extraction that moved the bands cannot point
+  the substitution at the wrong row.
+- **A declared HP sacrifice is displaced with the rest of the fuel.** "Draws
+  ONLY on residual power". The book is silent about HP already offered; that
+  step is a reading, and `Invocation.drawsOnResidualPower` is the single place
+  both the SPI and the HP charge ask, because two copies is how this dialog's
+  numbers stopped reconciling in 6ag and 6ai.
+
+### The fifth SPI spend, and why a sweep could not see it
+
+6ar's commit message says all **five** SPI-spending dialogs withdraw rather
+than charge a debt. Only four call `Pools.canAffordSpi`. The fifth is ch. 2's
+effort burn — and it was missed because **it is not a dialog of its own**, so
+a sweep of the dialogs never reached it. Its only gate was `maxSpi > 0`, which
+excludes a mortal and not a Beyonder who has spent everything.
+
+The physical push is deliberately untouched: p. 42 PRICES fatigue below 0 at
+1 HP per point where ch. 7 forbids the same for SPI outright, and that
+contrast was 6ar's whole evidence. The ceiling lives in
+`EffortBurn.affordable`, not in the chip list — a screen that works out its
+own limit is how "max +5 per roll" came to be checked per call (6ak).
+
+**The tell was the commit message's own "five".** A count in prose that the
+code cannot produce is a finding. Grep the number.
+
+### The rest, and one review that was refused
+
+- **A live crash.** `AttackDialog` copied the plan when a firearm was picked
+  up while the range toggle rebuilt it — two copies of one decision,
+  disagreeing. Rapid Strike survived onto a ranged plan, and
+  `Attacks.modifiers` refuses that with a `require`, so the next composition
+  threw. `Attacks.atRange` now lives beside the two requires it satisfies.
+- **6e's lesson missed the row that rolls.** A bought skill's level was looked
+  up by NAME, so Guns (Pistol) + bought Guns (Rifle) rolled the pistol's
+  level. Specialization was made to travel with the purchase and not with the
+  display.
+- **6am's own silence, one route over.** The ritual dialog's supporting skills
+  were built from what was PURCHASED while every other row reads the digested
+  map, so a Beyonder granted Occultism by a potion was refused Section II's +1
+  without being told. `pathways.json` grants Occultism, Thaumatology, Research
+  and six spellings of Hidden Lore.
+- **4.2 MB of JVM crash dumps were committed** rather than deleted — the files
+  6ah diagnosed the pagefile exhaustion from, carrying local paths and full
+  command lines. Untracked and ignored by pattern; history left alone, because
+  rewriting it is destructive and the owner's call.
+- **One P1 was REFUSED.** Codex called a missing
+  `@OptIn(ExperimentalLayoutApi::class)` on `FlowRow` a build break.
+  `:app:compileDebugKotlin` is green with no opt-in anywhere in
+  `MainActivity` — this Compose version has it stable. Codex output is
+  evidence, not orders (section 7); the disproof is a build, not an argument.
+
+### Left open on purpose
+
+Twelve findings remain, listed with their file:line in the session's plan
+file. Two need a decision before a patch, and neither should be taken blind:
+**the divination dialog spends its SPI AFTER rolling**, which is a reading
+needing ch. 6.5's own step list because it moves every divination target; and
+**`divinerSequence = null` is hardcoded**, so a Beyonder diviner never gets
+Sequence Advantage even though `SheetScreen` holds the sequence.
+
+Device-verified on `Medium_Phone_API_36.1`, and the emulator was CPU-starved
+enough that a cold start took ~90 seconds (6ah's pagefile diagnosis, still
+true — reap the Kotlin compile daemons, `--stop` does not):
+
+- **Hunter-Tracker, the crash path**: Bolt-Action Rifle → **In reach** →
+  Rapid Strike **1**, Deceptive **1** → tap **Hunting Rifle**. The dialog
+  survives, reads "Acc 3", snaps back to **At range**, and the Rapid Strike
+  and Deceptive rows are **gone**. The old code threw on exactly this tap.
+- **Academic Researcher seeded as a Fool Seq 9** (SPI 9/9, Ritualistic Magic
+  12), Heavy complexity, Invocation: before asking, the panel reads **"3d6 ≤
+  12 … Costs 7 SPI"** with **no Roll button** and, in red, "No roll yet — ask
+  the entity first." A first ask rolled **9 — Minimal response, +1**, taking
+  it to **"3d6 ≤ 13 … Costs 7 SPI"** with Roll restored: an answering row
+  keeping the declared cost. A later ask rolled **13 — No response**, and the
+  same panel read **"Costs 2 SPI. The entity did not answer, so the ritual
+  draws only on residual power."** Two, where the old code charged seven.
+
+Not observed live and resting on their tests, the way the ritual CoR charge
+rests on `RitualResolutionTest` (6f): the drained-Beyonder burn floor, the
+bought-specialization level, and the potion-granted support skill.
+
 ---
 
 ## 7. Global rules the owner has set
