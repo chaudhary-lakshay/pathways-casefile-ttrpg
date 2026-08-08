@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.Pools
 import com.pathways.rules.Corruption
 import com.pathways.rules.EntityAnswer
 import com.pathways.rules.Invocation
@@ -689,14 +690,22 @@ fun RitualDialog(
                                 }),
                             style = MaterialTheme.typography.bodySmall,
                         )
-                        if (spiOwed > spiAvailable) {
+                        // Ch. 7's Power Source A: "SPI cannot be reduced below
+                        // 0." The Roll button is WITHDRAWN rather than left to
+                        // refuse on tap -- 6x's Broken mystical language, the
+                        // same shape. The book's own answer is the rest of
+                        // Section IV: bleed for it, bring assistants, offer a
+                        // sacrifice.
+                        if (!Pools.canAffordSpi(spiOwed, spiAvailable)) {
                             Text(
-                                "Only $spiAvailable SPI left — going below 0 is Soul Debt.",
+                                "No roll — $spiOwed SPI is more than the " +
+                                    "$spiAvailable this caster has, and personal " +
+                                    "spirituality cannot be spent below 0. Pay in HP, " +
+                                    "bring assistants, or offer a sacrifice.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.error,
                             )
-                        }
-                        TextButton(
+                        } else TextButton(
                             onClick = {
                                 // One Roll spends once: a second tap before
                                 // the button leaves the tree would charge the

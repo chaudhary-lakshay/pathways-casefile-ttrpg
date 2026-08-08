@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.Pools
 import com.pathways.rules.SealedArtifacts
 import com.pathways.rules.content.SealedArtifact
 
@@ -62,7 +63,11 @@ fun ArtifactDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(
+            // "Spiritual Exhaustion: all Beyonder abilities deactivate; cannot
+            // activate any SPI-cost abilities" -- an artifact's price is an
+            // SPI cost like any other, so at 0 the button is withdrawn rather
+            // than left to charge a debt the book does not allow.
+            if (Pools.canAffordSpi(cost.spi, spiAvailable)) TextButton(
                 onClick = {
                     // Two taps, always, to spend twice: the first clears the
                     // receipt and the second pays. So nothing charges the pool
@@ -145,12 +150,15 @@ fun ArtifactDialog(
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(top = 8.dp),
                 )
-                if (cost.spi > spiAvailable) {
-                    // Not a refusal: spending past 0 is legal and buys the Soul
-                    // Debt the book charges for it. Worth saying out loud first.
+                // This WAS a warning that spending past 0 is legal. It is not:
+                // Soul Debt is what spirit body damage does to you, and the
+                // pool table's own 0 SPI row forbids activating an SPI-cost
+                // ability. The Use button is withdrawn above.
+                if (!Pools.canAffordSpi(cost.spi, spiAvailable)) {
                     Text(
-                        "Only $spiAvailable SPI left — the rest is Soul Debt, " +
-                            "and that corruption is permanent.",
+                        "Cannot be used — this costs ${cost.spi} SPI and only " +
+                            "$spiAvailable is left. At 0 SPI a Beyonder's " +
+                            "abilities deactivate.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                     )

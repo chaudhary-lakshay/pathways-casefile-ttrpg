@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.Pools
 import com.pathways.rules.Boons
 import com.pathways.rules.NonStandardPathways
 import com.pathways.rules.RandomSource
@@ -291,9 +292,13 @@ fun BoonDialog(
                             ". Costs $cost SPI, takes ${granting.complexityTime}.",
                         style = MaterialTheme.typography.bodySmall,
                     )
-                    if (cost > spiAvailable) {
+                    // A boon IS a ch. 7 ritual with its parameters fixed (6r),
+                    // so Power Source A's floor applies here too: "SPI cannot
+                    // be reduced below 0."
+                    if (!Pools.canAffordSpi(cost, spiAvailable)) {
                         Text(
-                            "Only $spiAvailable SPI left — going below 0 is Soul Debt.",
+                            "No supplication — this costs $cost SPI and only " +
+                                "$spiAvailable is left. SPI cannot be spent below 0.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
                         )
@@ -306,7 +311,7 @@ fun BoonDialog(
                     granting.requirements.forEach {
                         Text("• $it", style = MaterialTheme.typography.bodySmall)
                     }
-                    TextButton(
+                    if (Pools.canAffordSpi(cost, spiAvailable)) TextButton(
                         onClick = {
                             // One Pray spends once: a second tap before the
                             // button leaves the tree charges the fuel again,

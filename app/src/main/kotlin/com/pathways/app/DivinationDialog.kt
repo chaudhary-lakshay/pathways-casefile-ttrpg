@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.Pools
 import com.pathways.rules.AntiDivination
 import com.pathways.rules.AntiDivinationResult
 import com.pathways.rules.AntiDivinationTechniques
@@ -356,14 +357,16 @@ fun DivinationDialog(
                         ". Costs $cost SPI.",
                     style = MaterialTheme.typography.bodySmall,
                 )
-                if (cost > spiAvailable) {
+                // At 0 SPI the pool table says a Beyonder "cannot activate any
+                // SPI-cost abilities". Withdrawn rather than refused on tap.
+                if (!Pools.canAffordSpi(cost, spiAvailable)) {
                     Text(
-                        "Only $spiAvailable SPI left — going below 0 is Soul Debt.",
+                        "No question — this method costs $cost SPI and only " +
+                            "$spiAvailable is left. SPI cannot be spent below 0.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                     )
-                }
-                TextButton(
+                } else TextButton(
                     onClick = {
                         // One Ask spends once. Two taps can reach this handler
                         // before the button leaves the tree, and the second
