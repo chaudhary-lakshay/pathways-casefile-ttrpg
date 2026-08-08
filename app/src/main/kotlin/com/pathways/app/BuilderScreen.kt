@@ -30,6 +30,7 @@ import com.pathways.model.MAX_ATTRIBUTE
 import com.pathways.rules.AttributeCosts
 import com.pathways.rules.Derive
 import com.pathways.rules.PremadeSheet
+import com.pathways.rules.SkillLadder
 import com.pathways.rules.Appearance
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.AppearanceLevel
@@ -533,6 +534,11 @@ private fun SkillPicker(
     val skills = remember(owned) {
         ContentLoader.skills()
             .filterNot { (it.name.lowercase() to it.specialization) in owned }
+            // Ch. 9 p. 85: the three SPI-based skills "cannot be raised with
+            // character points ... they improve only through Sequence
+            // progression and pathway bonuses". Withheld rather than offered
+            // and then refused, the lesson the two Aim rows taught (6t).
+            .filter { SkillLadder.isBuyableWithPoints(it.attr) }
             .sortedBy { it.name }
     }
     AlertDialog(

@@ -6,6 +6,7 @@ import com.pathways.model.PurchasedSkill
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.rules.Appearance
+import com.pathways.rules.SkillLadder
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.AppearanceLevel
 import com.pathways.rules.content.ContentLoader
@@ -133,6 +134,12 @@ private fun SavedEdits.purchases(base: Character): List<PurchasedSkill> {
     val owned = base.skills.map { it.key.name.lowercase() to it.key.specialization }.toSet()
     return skills.mapNotNull { saved ->
         val definition = definitionOf(saved.name, saved.specialization) ?: return@mapNotNull null
+        // Ch. 9 p. 85 forbids buying the three SPI-based skills with points.
+        // Dropped on LOAD as well as withheld from the picker, because a
+        // session saved before that rule was applied would otherwise keep
+        // billing for a purchase the book does not allow -- the same path a
+        // skill the book no longer prints already takes.
+        if (!SkillLadder.isBuyableWithPoints(definition.attr)) return@mapNotNull null
         val key = SkillKey(
             name = definition.name,
             specialization = saved.specialization ?: definition.specialization,
