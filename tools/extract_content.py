@@ -166,11 +166,120 @@ DIS_NAME_OVERRIDES = {
     1492: [1490, 1491],  # "Compulsion: Preserve the" / "Dead"
 }
 
-SELF_CONTROL_SUFFIX = re.compile(r"\s*\(\d+\)$")  # e.g. "Curious (12)" -> "Curious"
+SELF_CONTROL_SUFFIX = re.compile(r"\s*\((\d+)\)$")  # e.g. "Curious (12)" -> "Curious"
 
 
 def strip_self_control_number(name: str) -> str:
     return SELF_CONTROL_SUFFIX.sub("", name).strip()
+
+
+# ---------------------------------------------------------------------------
+# Self-control rolls (6am)
+#
+# Chapter 3 prints a self-control number in THREE places and this extractor
+# read none of them:
+#
+#   A. inside the trait NAME  -- "Curious (12)", nine rows;
+#      `strip_self_control_number` has deleted it since M0.
+#   B. inside the effect cell -- "Must roll vs. 12 or investigate any
+#      mystery encountered", "Must roll vs. Will-3 to reverse your stated
+#      position" -- flat numbers and attribute offsets.
+#   C. as a bare 3d6 line     -- "roll 3d6 <= 6 or indulge fully", exactly
+#      one row, whose name carries "SC 6" instead of "(6)".
+#
+# Three printed spellings of one mechanic. None is merged into another:
+# each has its own anchor, and verify() fails if any of the three stops
+# being present.
+#
+# **The warrant for reading A is that five rows print BOTH A and B and all
+# five agree exactly** (Curious, Greed, Bad Temper, Bully, Paranoia). That
+# agreement is what licenses reading the bare number on the four rows --
+# Overconfidence, Obsession, Nightmares, Hallucinations -- whose effect
+# cell names no roll at all, so the name is the only place their number
+# exists. Overconfidence is on 11 of the 23 premades. Without A those 11
+# characters carry a printed number with no way to roll it. The same
+# per-table standard the appendix's matching "Pi" had to meet (6v) and the
+# artifacts' own "Seq N equivalent" headers met (6af): a join is licensed
+# by rows that print both sides and reconcile, never by a source looking
+# reliable.
+#
+# The anchor for B is "roll vs." and nothing looser. Two nearby phrasings
+# would be swallowed by a rule that merely looked for a number to roll
+# under, and neither is a self-control roll:
+#   - Duty's "(roll 9 or less)" is how OFTEN the duty comes up, not a roll
+#     made to resist it;
+#   - Phobia's "Fright Check at -2" is a join to Chapter 5's own table.
+# Both stay report-only, and verify() pins both sentences, so the narrow
+# reading stays a decision rather than becoming an accident -- the guard
+# the artifacts' two HP regexes needed (6af).
+# ---------------------------------------------------------------------------
+
+# "Must roll vs. 12 ...", "Must roll vs. Will-3 ...", "Roll vs. Will to ..."
+NOTES_SELF_CONTROL = re.compile(
+    r"\broll\s+vs\.\s*(?:(\d+)|(Will|IQ|HT|Per|ST|DX|SPI))\s*([+-]\s*\d+)?",
+    re.IGNORECASE,
+)
+
+# The one row that prints the roll outright instead of naming a target.
+NOTES_BARE_3D6 = re.compile(r"\broll\s+3d6\s*[≤<]=?\s*(\d+)")
+
+# Printed near a self-control number and deliberately NOT one of them.
+NOT_SELF_CONTROL = (
+    "roll 9 or less",      # Duty -- frequency of appearance
+    "Fright Check at -2",  # Phobia -- a join to chapter 5
+)
+
+ATTRIBUTE_SPELLING = {"will": "Will", "iq": "IQ", "ht": "HT",
+                      "per": "Per", "st": "ST", "dx": "DX", "spi": "SPI"}
+
+
+def parse_self_control(name_with_number: str, notes: str):
+    """The self-control roll a disadvantage row prints, or None.
+
+    `target` and `attribute` are mutually exclusive. A flat "vs. 12" is not
+    an attribute roll, and keeping the two apart is what stops a potion
+    that raises Will from quietly making Curious easier to resist.
+    """
+    in_name = SELF_CONTROL_SUFFIX.search(name_with_number)
+    from_name = int(in_name.group(1)) if in_name else None
+
+    from_effect = None
+    m = NOTES_SELF_CONTROL.search(notes)
+    if m:
+        flat, attr, offset = m.group(1), m.group(2), m.group(3)
+        off = int(offset.replace(" ", "")) if offset else 0
+        if flat is not None:
+            # An offset on a flat target is a shape the book never prints,
+            # so reading one would be inventing arithmetic.
+            if off:
+                raise ValueError(
+                    f"{name_with_number!r}: flat self-control target {flat} "
+                    f"carries offset {offset!r}, which this book never prints"
+                )
+            from_effect = {"target": int(flat)}
+        else:
+            from_effect = {"attribute": ATTRIBUTE_SPELLING[attr.lower()], "offset": off}
+    else:
+        bare = NOTES_BARE_3D6.search(notes)
+        if bare:
+            from_effect = {"target": int(bare.group(1))}
+
+    if from_name is not None and from_effect is not None:
+        # The five rows that print it twice. They agree today; if a later
+        # reading ever splits them that is a finding, not something to
+        # average away.
+        if from_effect.get("target") != from_name:
+            raise ValueError(
+                f"{name_with_number!r}: name prints self-control {from_name} "
+                f"but the effect cell prints {from_effect!r}; the book "
+                f"disagrees with itself and that must be recorded, not merged"
+            )
+        return {"target": from_name, "source": "both"}
+    if from_name is not None:
+        return {"target": from_name, "source": "name"}
+    if from_effect is not None:
+        return {**from_effect, "source": "effect"}
+    return None
 
 
 def parse_adv_cost(t):
@@ -253,12 +362,21 @@ def extract_traits(byn, start, end, header_word, cost_fn, cost_parser, overrides
     entries = []
     spans = []
     for i, b in enumerate(blocks):
-        name = strip_self_control_number(" ".join(t.strip() for _, t in b["name_lines"]))
+        printed_name = " ".join(t.strip() for _, t in b["name_lines"])
+        name = strip_self_control_number(printed_name)
         cost_fields = cost_parser(b["cost_t"])
         notes_lines = blocks[i + 1]["pre_name_lines"] if i + 1 < len(blocks) else trailing_notes_lines
         notes = " ".join(t.strip() for _, t in notes_lines)
 
         entry = {"name": name, **cost_fields, "notes": notes}
+        # Disadvantages only. Self-control is a disadvantage mechanic and no
+        # advantage row prints a "(N)" name; reading advantage prose for
+        # "roll vs." would invent a resistance roll for a thing you bought.
+        if header_word == "Disadvantage":
+            # Read from the PRINTED name, before the number is stripped off.
+            self_control = parse_self_control(printed_name, notes)
+            if self_control is not None:
+                entry["selfControl"] = self_control
         _require_cost_shape(entry, b["cost_n"])
         entries.append(entry)
 
@@ -459,6 +577,86 @@ def extract_thrust_swing():
     return first
 
 
+# The five rows that print their self-control number in BOTH the name and
+# the effect cell. Their agreement is the entire warrant for reading the
+# bare number on the four rows that print it only in the name.
+SELF_CONTROL_IN_BOTH = {"Curious": 12, "Greed": 12, "Bad Temper": 12,
+                        "Bully": 12, "Paranoia": 12}
+# Printed as "(12)" and NOWHERE else -- the effect cell names no roll at
+# all, so without the name the rule has no number. Overconfidence is on 11
+# of the 23 premades.
+SELF_CONTROL_IN_NAME_ONLY = {"Overconfidence": 12, "Obsession": 12,
+                             "Nightmares": 12, "Hallucinations": 12}
+# The third spelling: neither "(N)" nor "roll vs.", but the roll itself.
+SELF_CONTROL_BARE_3D6 = "Compulsive Behavior (Indulge Evil Desires) SC 6"
+
+
+def verify(dis_entries):
+    """Fail the extract if the self-control reading loses its evidence."""
+    byname = {e["name"]: e for e in dis_entries}
+
+    for name, target in SELF_CONTROL_IN_BOTH.items():
+        sc = byname[name].get("selfControl")
+        if sc != {"target": target, "source": "both"}:
+            raise ValueError(
+                f"{name}: expected the name and the effect cell to agree on "
+                f"{target}; got {sc!r}. That agreement is the only warrant "
+                f"for reading the bare number on {sorted(SELF_CONTROL_IN_NAME_ONLY)}"
+            )
+
+    for name, target in SELF_CONTROL_IN_NAME_ONLY.items():
+        sc = byname[name].get("selfControl")
+        if sc != {"target": target, "source": "name"}:
+            raise ValueError(f"{name}: expected name-only self-control {target}, got {sc!r}")
+        # The claim that makes this row interesting: its effect cell really
+        # does name no roll. If one ever gains a "roll vs.", it becomes a
+        # "both" row and the warrant above gets stronger, not weaker -- but
+        # it must be noticed rather than silently reclassified.
+        if "roll vs." in byname[name]["notes"].lower():
+            raise ValueError(
+                f"{name}: effect cell now names a roll; it is no longer a "
+                f"name-only row and SELF_CONTROL_IN_NAME_ONLY must be re-read"
+            )
+
+    sc = byname[SELF_CONTROL_BARE_3D6].get("selfControl")
+    if sc != {"target": 6, "source": "effect"}:
+        raise ValueError(f"{SELF_CONTROL_BARE_3D6}: expected bare-3d6 target 6, got {sc!r}")
+
+    # Three spellings, three anchors, none merged into another.
+    sources = {e["selfControl"]["source"] for e in dis_entries if "selfControl" in e}
+    if sources != {"both", "name", "effect"}:
+        raise ValueError(f"expected all three printed spellings to survive; got {sources}")
+
+    # An attribute row, to pin that the offset is read and signed correctly.
+    if byname["Stubborn"].get("selfControl") != {
+        "attribute": "Will", "offset": -3, "source": "effect"
+    }:
+        raise ValueError(f"Stubborn: got {byname['Stubborn'].get('selfControl')!r}")
+    if byname["Impulsive"].get("selfControl") != {
+        "attribute": "IQ", "offset": -2, "source": "effect"
+    }:
+        raise ValueError(f"Impulsive: got {byname['Impulsive'].get('selfControl')!r}")
+    # A bare attribute with no offset is offset 0, not a missing field.
+    if byname["Loner"].get("selfControl") != {
+        "attribute": "Will", "offset": 0, "source": "effect"
+    }:
+        raise ValueError(f"Loner: got {byname['Loner'].get('selfControl')!r}")
+
+    # The two phrasings the narrow anchor deliberately refuses. Both print a
+    # number to roll under and neither is a self-control roll, so if either
+    # sentence goes the narrow reading has lost the reason it is narrow.
+    duty = byname["Duty (specify)"]
+    if NOT_SELF_CONTROL[0] not in duty["notes"]:
+        raise ValueError("Duty no longer prints 'roll 9 or less'; re-read the anchor")
+    if "selfControl" in duty:
+        raise ValueError("Duty's frequency roll was read as a self-control roll")
+    phobia = byname["Phobia (specify)"]
+    if NOT_SELF_CONTROL[1] not in phobia["notes"]:
+        raise ValueError("Phobia no longer prints 'Fright Check at -2'; re-read the anchor")
+    if "selfControl" in phobia:
+        raise ValueError("Phobia's Fright Check was read as a self-control roll")
+
+
 def main():
     byn = load_lines()
 
@@ -470,6 +668,7 @@ def main():
         byn, 1119, 1569, "Disadvantage", cost_line_dis, parse_dis_cost,
         DIS_NAME_OVERRIDES,
     )
+    verify(dis_entries)
     skill_entries, skill_spans, skipped_skills = extract_skills(byn)
     thrust_swing_rows = extract_thrust_swing()
 

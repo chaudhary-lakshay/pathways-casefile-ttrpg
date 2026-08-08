@@ -91,6 +91,48 @@ data class SkillDefinition(
  * "cost is a magnitude; the sign lives in how it's used" convention -- a
  * disadvantage's -15 is stored here as 15.
  */
+/**
+ * The self-control roll a disadvantage prints (Ch. 3), or absent.
+ *
+ * [target] and [attribute] are mutually exclusive, and keeping them apart is
+ * the whole point. A flat "roll vs. 12" is NOT an attribute roll: a potion
+ * that raises Will must not quietly make Curious easier to resist. Merging
+ * the two into one "effective target" is the shape that would hide it.
+ *
+ * [source] records WHERE the book printed the number, because for four rows
+ * it is the only place it exists:
+ *  - `"both"` -- name and effect cell, agreeing (five rows). That agreement
+ *    is the warrant for reading the other four.
+ *  - `"name"` -- "Overconfidence (12)", with an effect cell naming no roll.
+ *    `strip_self_control_number` deleted these from M0 until 6am, and
+ *    Overconfidence is on 11 of the 23 premades.
+ *  - `"effect"` -- "Must roll vs. Will-3 ...", and the one row printing the
+ *    roll outright as "roll 3d6 <= 6". Three spellings, none merged.
+ *
+ * Absent means the row prints no self-control roll at all -- not a target of
+ * zero, the distinction [RitualCritical.corGained] already draws.
+ */
+@Serializable
+data class SelfControlRoll(
+    val target: Int? = null,
+    val attribute: String? = null,
+    val offset: Int = 0,
+    val source: String,
+) {
+    init {
+        require((target != null) != (attribute != null)) {
+            "a self-control roll is a flat target or an attribute roll, " +
+                "never both and never neither (target=$target, attribute=$attribute)"
+        }
+        require(target == null || offset == 0) {
+            "a flat self-control target carries no offset; this book prints none"
+        }
+        require(source in setOf("both", "name", "effect")) {
+            "unknown self-control provenance '$source'"
+        }
+    }
+}
+
 @Serializable
 data class TraitDefinition(
     val name: String,
@@ -100,6 +142,7 @@ data class TraitDefinition(
     val variableCost: Boolean = false,
     val perLevel: Boolean = false,
     val notes: String = "",
+    val selfControl: SelfControlRoll? = null,
 ) {
     init {
         require(cost != null || (costMin != null && costMax != null) || variableCost) {

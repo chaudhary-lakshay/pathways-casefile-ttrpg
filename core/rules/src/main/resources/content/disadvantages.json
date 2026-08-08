@@ -66,38 +66,66 @@
   {
    "name": "Curious",
    "cost": 5,
-   "notes": "Must roll vs. 12 or investigate any mystery encountered"
+   "notes": "Must roll vs. 12 or investigate any mystery encountered",
+   "selfControl": {
+    "target": 12,
+    "source": "both"
+   }
   },
   {
    "name": "Greed",
    "cost": 15,
-   "notes": "Must roll vs. 12 or take any opportunity for significant profit"
+   "notes": "Must roll vs. 12 or take any opportunity for significant profit",
+   "selfControl": {
+    "target": 12,
+    "source": "both"
+   }
   },
   {
    "name": "Overconfidence",
    "cost": 5,
-   "notes": "Believes they can handle situations they cannot"
+   "notes": "Believes they can handle situations they cannot",
+   "selfControl": {
+    "target": 12,
+    "source": "name"
+   }
   },
   {
    "name": "Bad Temper",
    "cost": 10,
-   "notes": "Must roll vs. 12 to avoid angry outbursts when provoked"
+   "notes": "Must roll vs. 12 to avoid angry outbursts when provoked",
+   "selfControl": {
+    "target": 12,
+    "source": "both"
+   }
   },
   {
    "name": "Bully",
    "cost": 10,
-   "notes": "Must roll vs. 12 to resist intimidating or humiliating someone weaker when the opportunity arises"
+   "notes": "Must roll vs. 12 to resist intimidating or humiliating someone weaker when the opportunity arises",
+   "selfControl": {
+    "target": 12,
+    "source": "both"
+   }
   },
   {
    "name": "Obsession",
    "costMin": 5,
    "costMax": 10,
-   "notes": "Consuming long-term goal dominates life and decisions"
+   "notes": "Consuming long-term goal dominates life and decisions",
+   "selfControl": {
+    "target": 12,
+    "source": "name"
+   }
   },
   {
    "name": "Nightmares",
    "cost": 5,
-   "notes": "Disturbed sleep; wake unrefreshed — lose 1 FP each morning"
+   "notes": "Disturbed sleep; wake unrefreshed — lose 1 FP each morning",
+   "selfControl": {
+    "target": 12,
+    "source": "name"
+   }
   },
   {
    "name": "Code of Honor",
@@ -193,7 +221,12 @@
   {
    "name": "Absent-Mindedness",
    "cost": 15,
-   "notes": "-3 to skill rolls requiring concentration or organisation in everyday life; must roll vs. IQ to remember to do something if interrupted or distracted. In combat, may forget to reload, change tactics, or use special abilities (GM's discretion)."
+   "notes": "-3 to skill rolls requiring concentration or organisation in everyday life; must roll vs. IQ to remember to do something if interrupted or distracted. In combat, may forget to reload, change tactics, or use special abilities (GM's discretion).",
+   "selfControl": {
+    "attribute": "IQ",
+    "offset": 0,
+    "source": "effect"
+   }
   },
   {
    "name": "Addiction: Laudanum",
@@ -213,7 +246,12 @@
   {
    "name": "Class Resentment",
    "cost": 5,
-   "notes": "Must roll vs. Will-2 or express hostility when in prolonged contact with the resented class."
+   "notes": "Must roll vs. Will-2 or express hostility when in prolonged contact with the resented class.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": -2,
+    "source": "effect"
+   }
   },
   {
    "name": "Compulsive Gambling",
@@ -234,7 +272,12 @@
   {
    "name": "Glory Hound",
    "cost": 5,
-   "notes": "Must roll vs. Will or ensure your role in any success is publicly known, even when discretion would be wiser."
+   "notes": "Must roll vs. Will or ensure your role in any success is publicly known, even when discretion would be wiser.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": 0,
+    "source": "effect"
+   }
   },
   {
    "name": "Grief-Stricken",
@@ -249,12 +292,22 @@
   {
    "name": "Impulsive",
    "cost": 10,
-   "notes": "Must roll vs. IQ-2 to pause and plan; failure means you act on the first reasonable impulse in any urgent situation."
+   "notes": "Must roll vs. IQ-2 to pause and plan; failure means you act on the first reasonable impulse in any urgent situation.",
+   "selfControl": {
+    "attribute": "IQ",
+    "offset": -2,
+    "source": "effect"
+   }
   },
   {
    "name": "Reckless",
    "cost": 5,
-   "notes": "-1 to any roll where caution would be smarter; must roll vs. Will to back down from a physical challenge."
+   "notes": "-1 to any roll where caution would be smarter; must roll vs. Will to back down from a physical challenge.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": 0,
+    "source": "effect"
+   }
   },
   {
    "name": "Reputation: Troublemaker",
@@ -269,7 +322,12 @@
   {
    "name": "Stubborn",
    "cost": 5,
-   "notes": "Must roll vs. Will-3 to reverse your stated position in the same scene, even when clearly wrong."
+   "notes": "Must roll vs. Will-3 to reverse your stated position in the same scene, even when clearly wrong.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": -3,
+    "source": "effect"
+   }
   },
   {
    "name": "Superstitious (mundane)",
@@ -314,7 +372,12 @@
   {
    "name": "Kleptomania",
    "cost": 10,
-   "notes": "Compelled to steal small objects when the opportunity arises and no consequences are obvious. Roll vs. Will to resist when the situation makes theft easy."
+   "notes": "Compelled to steal small objects when the opportunity arises and no consequences are obvious. Roll vs. Will to resist when the situation makes theft easy.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": 0,
+    "source": "effect"
+   }
   },
   {
    "name": "Skinny",
@@ -330,7 +393,12 @@
   {
    "name": "Laziness",
    "cost": 10,
-   "notes": "Must roll vs. Will to undertake any sustained effort not immediately necessary or personally interesting. Unemployment is a real risk."
+   "notes": "Must roll vs. Will to undertake any sustained effort not immediately necessary or personally interesting. Unemployment is a real risk.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": 0,
+    "source": "effect"
+   }
   },
   {
    "name": "Clueless",
@@ -351,12 +419,22 @@
   {
    "name": "Charity",
    "cost": 10,
-   "notes": "Cannot ignore genuine need. Must roll vs. Will to avoid helping anyone who asks for assistance you can reasonably provide. May be exploited."
+   "notes": "Cannot ignore genuine need. Must roll vs. Will to avoid helping anyone who asks for assistance you can reasonably provide. May be exploited.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": 0,
+    "source": "effect"
+   }
   },
   {
    "name": "Loner",
    "cost": 5,
-   "notes": "Must roll vs. Will to spend extended time in groups larger than 3-4 people. Seek solitude when stressed; -1 to social rolls in crowds."
+   "notes": "Must roll vs. Will to spend extended time in groups larger than 3-4 people. Seek solitude when stressed; -1 to social rolls in crowds.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": 0,
+    "source": "effect"
+   }
   },
   {
    "name": "Bloodlust",
@@ -371,12 +449,20 @@
   {
    "name": "Paranoia",
    "cost": 10,
-   "notes": "Must roll vs. 12 or assume strangers are threats; common potion side effect"
+   "notes": "Must roll vs. 12 or assume strangers are threats; common potion side effect",
+   "selfControl": {
+    "target": 12,
+    "source": "both"
+   }
   },
   {
    "name": "Hallucinations",
    "cost": 10,
-   "notes": "Periodic false sensory experiences; visions, voices, phantom presences"
+   "notes": "Periodic false sensory experiences; visions, voices, phantom presences",
+   "selfControl": {
+    "target": 12,
+    "source": "name"
+   }
   },
   {
    "name": "Compulsion (pathway)",
@@ -397,7 +483,11 @@
   {
    "name": "Compulsive Behavior (Indulge Evil Desires) SC 6",
    "cost": 15,
-   "notes": "When an opportunity to commit an evil act (murder, torture, betrayal, etc.) presents itself, roll 3d6 ≤ 6 or indulge fully. Conscience offers no resistance."
+   "notes": "When an opportunity to commit an evil act (murder, torture, betrayal, etc.) presents itself, roll 3d6 ≤ 6 or indulge fully. Conscience offers no resistance.",
+   "selfControl": {
+    "target": 6,
+    "source": "effect"
+   }
   },
   {
    "name": "Aura Leak",
@@ -407,7 +497,12 @@
   {
    "name": "Bleed-Through Visions",
    "cost": 10,
-   "notes": "Spirit Vision activates involuntarily in emotionally charged locations. Roll vs. Will or be briefly incapacitated by the vision."
+   "notes": "Spirit Vision activates involuntarily in emotionally charged locations. Roll vs. Will or be briefly incapacitated by the vision.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": 0,
+    "source": "effect"
+   }
   },
   {
    "name": "CoR Brand",
@@ -463,17 +558,32 @@
    "name": "Compulsion: Collection (pathway)",
    "costMin": 5,
    "costMax": 10,
-   "notes": "Compelled to collect specific items (bones, keys, mirrors, etc.). Roll vs. Will-2 when presented with a collectible you do not own."
+   "notes": "Compelled to collect specific items (bones, keys, mirrors, etc.). Roll vs. Will-2 when presented with a collectible you do not own.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": -2,
+    "source": "effect"
+   }
   },
   {
    "name": "Compulsion: Confess",
    "cost": 5,
-   "notes": "Under significant stress, must tell someone a true secret. Roll vs. Will-2 or confess something genuine to the nearest trusted person."
+   "notes": "Under significant stress, must tell someone a true secret. Roll vs. Will-2 or confess something genuine to the nearest trusted person.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": -2,
+    "source": "effect"
+   }
   },
   {
    "name": "Compulsion: Preserve the Dead",
    "cost": 10,
-   "notes": "Cannot pass a neglected corpse without properly covering or acknowledging it. Roll vs. Will-3 to continue without addressing them first."
+   "notes": "Cannot pass a neglected corpse without properly covering or acknowledging it. Roll vs. Will-3 to continue without addressing them first.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": -3,
+    "source": "effect"
+   }
   },
   {
    "name": "Drawn to Ritual Sites",
@@ -518,7 +628,12 @@
   {
    "name": "Fear of Silence",
    "cost": 5,
-   "notes": "In complete silence — underground, at sea, in empty buildings — must roll vs. Will-2 or feel compelled to speak or make noise."
+   "notes": "In complete silence — underground, at sea, in empty buildings — must roll vs. Will-2 or feel compelled to speak or make noise.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": -2,
+    "source": "effect"
+   }
   },
   {
    "name": "Haunted",
