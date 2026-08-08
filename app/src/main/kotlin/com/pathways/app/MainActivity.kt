@@ -857,11 +857,15 @@ private fun SelfControlDialog(
                         TextButton(onClick = { modifier += 1 }) { Text("+1") }
                     }
                     Text("3d6 ≤ $target", style = MaterialTheme.typography.titleLarge)
-                    // Replaced by the result rather than disabled: the same
-                    // re-entrancy guard FrightDialog uses, and one the tree
-                    // enforces rather than a flag.
+                    // Replaced by the result, AND guarded inline: two taps can
+                    // both reach the handler before the button leaves the
+                    // tree, which is the fix 6p needed for the divination
+                    // dialog. Nothing is charged here, but the second tap
+                    // would silently discard a rolled outcome and pull an
+                    // extra draw from the dice.
                     TextButton(
                         onClick = {
+                            if (outcome != null) return@TextButton
                             outcome = SelfControl.attempt(check, will, iq, appDice, modifier)
                         },
                     ) { Text("Roll") }

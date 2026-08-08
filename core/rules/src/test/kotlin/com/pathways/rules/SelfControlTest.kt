@@ -189,9 +189,27 @@ class SelfControlTest {
     }
 
     @Test
-    fun `an attribute this book never keys on is refused, not defaulted`() {
-        val odd = SelfControlRoll(attribute = "HT", offset = 0, source = "effect")
-        assertThrows<IllegalArgumentException> { SelfControl.targetFor(odd, 10, 10) }
+    fun `an attribute this book never keys on is refused at LOAD, not at render`() {
+        // The sheet screen prints this target for every disadvantage it
+        // lists, so a row keyed on an attribute the book never uses would
+        // take the whole screen down rather than a dismissable dialog.
+        // Refused where the content is built, so it can never get that far.
+        assertThrows<IllegalArgumentException> {
+            SelfControlRoll(attribute = "HT", offset = 0, source = "effect")
+        }
+        // ...and the two spellings the rules object keys on are the two the
+        // content type admits, so neither can drift from the other.
+        assertEquals(setOf(SelfControl.WILL, SelfControl.IQ), SelfControlRoll.ATTRIBUTES)
+    }
+
+    @Test
+    fun `every printed row survives the loader, so no sheet row can throw`() {
+        // The guard above is only worth having if the committed content
+        // passes it -- and this is what would fail first if a later extract
+        // wrote an attribute the book does not key on.
+        val specs = ContentLoader.disadvantages().mapNotNull { it.selfControl }
+        assertTrue(specs.size >= 20, "expected the ~24 printed rows, got ${specs.size}")
+        specs.forEach { SelfControl.targetFor(it, will = 10, iq = 10) }
     }
 
     @Test

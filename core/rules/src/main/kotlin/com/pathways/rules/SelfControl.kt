@@ -82,7 +82,15 @@ data class SelfControlOutcome(
  */
 object SelfControl {
 
-    /** The two attributes this book keys a self-control roll on. */
+    /**
+     * The two attributes this book keys a self-control roll on.
+     *
+     * [SelfControlRoll] refuses anything else at LOAD time, so the throw
+     * below is unreachable from content -- it guards a caller that builds a
+     * spec by hand. The sheet screen prints this target for every
+     * disadvantage it lists, and a content row that only failed here would
+     * have taken that whole screen down.
+     */
     const val WILL = "Will"
     const val IQ = "IQ"
 

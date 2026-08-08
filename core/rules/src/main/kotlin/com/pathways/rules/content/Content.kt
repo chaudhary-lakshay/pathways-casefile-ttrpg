@@ -130,6 +130,20 @@ data class SelfControlRoll(
         require(source in setOf("both", "name", "effect")) {
             "unknown self-control provenance '$source'"
         }
+        // Validated HERE, at load, and not where the number is read. The
+        // sheet screen prints this target for every disadvantage it lists, so
+        // an attribute this book never keys on would take the whole screen
+        // down rather than a dismissable dialog -- and swallowing it at the
+        // render site would hide a content defect behind a missing line.
+        require(attribute == null || attribute in ATTRIBUTES) {
+            "self-control roll keyed on '$attribute'; this book prints " +
+                ATTRIBUTES.joinToString()
+        }
+    }
+
+    companion object {
+        /** The two attributes this book keys a self-control roll on. */
+        val ATTRIBUTES = setOf("Will", "IQ")
     }
 }
 
