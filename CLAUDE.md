@@ -2961,7 +2961,11 @@ Will while Curious's does not. It needs a seeded Beyonder state and the
 emulator died three times getting there; it rests on `SelfControlTest`'s
 `a flat target does not move with Will` and
 `an attribute row moves with the digested attribute`, the same way the ritual
-CoR charge rests on its tests (6f).
+CoR charge rests on its tests (6f). Also unverified on device: the ritual
+dialog's "This character has none of the book's 5 supporting skills" branch
+(`RitualDialog.kt:572`) — it is guarded by `isEmpty()` and needs a caster
+carrying none of the five, which is another emulator round. Recorded rather
+than left to read as verified by omission.
 
 Still unread in chapter 3: the study/training system on p. 32 — tutors, study
 points, and "a skill cannot exceed Attribute+1 through study alone" — a real
