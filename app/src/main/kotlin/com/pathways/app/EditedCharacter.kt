@@ -113,6 +113,32 @@ fun skillLevelOf(name: String, levels: Map<SkillKey, Int>): Int? =
  * is the one exception -- its specialization is the player's to pick, so the
  * printed row is the right answer for any of them.
  */
+/**
+ * [SavedEdits] with purchases the book forbids outright removed.
+ *
+ * Ch. 9 p. 85 bars buying the three SPI-based skills with points, and 6aq
+ * dropped them during COMPOSITION. That left the raw entry in the save file
+ * forever, and `SheetScreen` iterates `session.edits.skills` directly for its
+ * bought-skill rows -- so once a potion granted the same skill, the stale edit
+ * came back as a rollable "bought" row for a purchase that is not legal and is
+ * no longer billed.
+ *
+ * Applied at LOAD, which is where invalid saved input belongs (6e, and the
+ * repo's own rule that boundaries validate). **Only the forbidden purchases
+ * are dropped, and the difference matters:** a skill the book does not print
+ * TODAY may be printed again after a content fix, so `purchases` keeps
+ * skipping those non-destructively rather than deleting them from the file.
+ * An SPI skill is barred permanently, so there is nothing to preserve.
+ */
+fun SavedEdits.withoutForbiddenPurchases(): SavedEdits {
+    val legal = skills.filter { saved ->
+        val definition = definitionOf(saved.name, saved.specialization)
+            ?: return@filter true // unknown today, possibly printed again tomorrow
+        SkillLadder.isBuyableWithPoints(definition.attr)
+    }
+    return if (legal.size == skills.size) this else copy(skills = legal)
+}
+
 fun definitionOf(name: String, specialization: String? = null): SkillDefinition? {
     val byName = ContentLoader.skills().filter { it.name.equals(name, ignoreCase = true) }
     if (specialization == null) return byName.firstOrNull()

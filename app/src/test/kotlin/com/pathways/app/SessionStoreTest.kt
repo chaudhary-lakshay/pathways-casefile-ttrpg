@@ -70,6 +70,40 @@ class SessionStoreTest {
     }
 
     @Test
+    fun `a purchase the book forbids is dropped on load`() {
+        // Ch. 9 p. 85 bars buying the three SPI-based skills. 6aq stopped
+        // BILLING them, but the raw entry stayed in the file -- and the
+        // sheet's bought-skill rows read that raw list, so once a potion
+        // granted the same skill it came back as a rollable "bought" row for
+        // a purchase that is not legal.
+        val file = File(dir, "sessions.json")
+        file.writeText(
+            """
+            {"Academic Researcher":{"edits":{"skills":[
+              {"name":"Divination Arts","points":4},
+              {"name":"Ritualistic Magic","points":4}
+            ]}}}
+            """.trimIndent(),
+        )
+        val edits = SessionStore(file).load().getValue("Academic Researcher").edits
+        assertEquals(listOf("Ritualistic Magic"), edits.skills.map { it.name })
+    }
+
+    @Test
+    fun `a skill the book does not print today survives the load`() {
+        // The difference that makes dropping safe: an SPI skill is barred
+        // permanently, but a name the book does not print TODAY may be
+        // printed again after a content fix. `purchases` keeps skipping those
+        // non-destructively; deleting them here would lose them for good.
+        val file = File(dir, "sessions.json")
+        file.writeText(
+            """{"Beat Cop":{"edits":{"skills":[{"name":"Zzz Not A Skill","points":2}]}}}""",
+        )
+        val edits = SessionStore(file).load().getValue("Beat Cop").edits
+        assertEquals(listOf("Zzz Not A Skill"), edits.skills.map { it.name })
+    }
+
+    @Test
     fun `a field this build does not know about is ignored`() {
         val file = File(dir, "sessions.json")
         file.writeText("""{"Beat Cop":{"lost":false,"somethingFromTheFuture":7}}""")
