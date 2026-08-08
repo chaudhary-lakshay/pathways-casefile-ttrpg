@@ -47,6 +47,7 @@ import com.pathways.rules.Corruption
 import com.pathways.rules.Derive
 import com.pathways.rules.Divination
 import com.pathways.rules.FrightCheck
+import com.pathways.rules.RitualMode
 import com.pathways.rules.FrightKind
 import com.pathways.rules.FrightOutcome
 import com.pathways.rules.content.FrightTrigger
@@ -535,6 +536,17 @@ fun SheetScreen(
     if (casting && ritualLevel != null) {
         RitualDialog(
             skillLevel = ritualLevel,
+            // Section II's five, narrowed to the ones this character bought.
+            // Offering all five would let a GM claim an Occultism the sheet
+            // does not print; the book means skills the caster brings.
+            ownedSupportSkills = remember(sheet, session.edits) {
+                val owned = session.characterFor(sheet).skills
+                    .map { it.key.name.lowercase() }
+                    .toSet()
+                RitualMode.supportSkills()
+                    .map { it.skill }
+                    .filter { it.lowercase() in owned }
+            },
             // cor = 0 here on purpose: RitualResolution applies the CoR
             // ladder itself, so including it would charge the caster twice
             // for the same rule.

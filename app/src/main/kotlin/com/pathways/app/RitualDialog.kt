@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.Corruption
 import com.pathways.rules.EntityAnswer
 import com.pathways.rules.Invocation
 import com.pathways.rules.Languages
@@ -93,6 +94,15 @@ fun RitualDialog(
     conditionPenalty: Int,
     cor: Int,
     spiAvailable: Int,
+    /**
+     * The Section II supporting skills this character actually owns.
+     *
+     * Not the book's five: those are skills the CASTER brings, and this app
+     * knows the sheet, so offering a skill the character has never bought
+     * would let a GM claim an Occultism that is not there. Computed at the
+     * call site against [RitualMode.supportSkills].
+     */
+    ownedSupportSkills: List<String>,
     dice: RandomSource,
     onCorGained: (Int) -> Unit,
     onSpendSpi: (Int) -> Unit,
@@ -132,7 +142,19 @@ fun RitualDialog(
     // had: spiOwed REFUSES HP that covers more than the ritual costs, so a
     // sacrifice left over from an 11 SPI ritual would throw on a 2 SPI one
     // rather than merely mislead.
-    var hpSacrificed by remember(spiChoice) { mutableIntStateOf(0) }
+    // Keyed on the complexity TOO, not on the fuel's value alone: two rungs
+    // can coincide on a base cost, and the stated intent is that a sacrifice
+    // does not outlive the ritual it was offered for.
+    var hpSacrificed by remember(complexity, spiChoice) { mutableIntStateOf(0) }
+    // Section II's supporting skills: +1 each, capped at +3 by a sentence
+    // rather than by the table (6y). Extracted, implemented and tested in
+    // that slice and reachable from no screen until now -- `targetFor` has
+    // taken a `support` list since then and this dialog never passed one, so
+    // the bonus was unreachable. The same shape as 6ai's `freeRoll`.
+    // NOT keyed on the mode: the book prints these above the Quick/Full
+    // split and scopes them to neither, which is the opposite call to the
+    // target link and made for the same reason -- scope follows the text.
+    var support by remember { mutableStateOf(emptyList<String>()) }
     var pacing by remember { mutableStateOf(RitualPacing.NORMAL) }
     var assistants by remember { mutableIntStateOf(0) }
     var sacrifice by remember { mutableStateOf<SacrificeTier?>(null) }
@@ -182,7 +204,7 @@ fun RitualDialog(
     val target = if (canSpeak && !rejected) {
         RitualResolution.targetFor(
             effectiveSkill + (answer?.ritualModifier ?: 0),
-            weight, cor, preparation, language, mode, link,
+            weight, cor, preparation, language, mode, link, support,
             complexity = complexity, powerSources = declaration,
         )
     } else {
@@ -524,6 +546,12 @@ fun RitualDialog(
                         val given = answer
                         if (given == null) {
                             TextButton(onClick = {
+                                // Guarded inline, not by the button leaving
+                                // the tree: two taps can both reach the
+                                // handler before a recomposition, and the
+                                // book has the GM roll this once. The same
+                                // guard Divination's Ask needed (6p).
+                                if (answer != null) return@TextButton
                                 answer = Invocation.ask(dice, goodStanding)
                             }) { Text("Ask the entity") }
                         } else {
@@ -533,6 +561,41 @@ fun RitualDialog(
                                     ": ${given.response.response}",
                                 style = MaterialTheme.typography.bodySmall,
                             )
+                        }
+                    }
+
+                    // Section II, and the one part of this chapter that is
+                    // scoped to neither mode. A skill the character does not
+                    // own is not offered, so the list is empty for most
+                    // casters -- said out loud rather than shown as a gap.
+                    Text("Supporting skills", style = MaterialTheme.typography.titleSmall)
+                    if (ownedSupportSkills.isEmpty()) {
+                        Text(
+                            "This character has none of the book's " +
+                                "${RitualMode.supportSkills().size} supporting skills " +
+                                "(${RitualMode.supportSkills().joinToString { it.skill }}).",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    } else {
+                        Text(
+                            "+1 each, capped at +${RitualMode.SUPPORT_CAP} in total.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        FlowRow {
+                            ownedSupportSkills.forEach { name ->
+                                FilterChip(
+                                    selected = name in support,
+                                    onClick = {
+                                        support = if (name in support) {
+                                            support - name
+                                        } else {
+                                            support + name
+                                        }
+                                    },
+                                    label = { Text(name) },
+                                    modifier = Modifier.padding(end = 8.dp),
+                                )
+                            }
                         }
                     }
 
@@ -593,7 +656,14 @@ fun RitualDialog(
                                 (language?.ritualModifier?.takeIf { it != 0 }
                                     ?.let { ", $it for an accented tongue" } ?: "") +
                                 (if (conditionPenalty != 0) ", $conditionPenalty hurt or tired" else "") +
-                                (if (cor >= 3) ", -1 for $cor CoR" else "") +
+                                // Read from the same function targetFor calls.
+                                // A literal here was a second copy of one
+                                // rule -- correct today, and exactly how the
+                                // breakdown stopped reconciling in 6ag/6ai.
+                                (Corruption.ritualPenalty(cor).takeIf { it != 0 }
+                                    ?.let { ", $it for $cor CoR" } ?: "") +
+                                (RitualMode.supportBonus(support).takeIf { it != 0 }
+                                    ?.let { ", ${signed(it)} from supporting skills" } ?: "") +
                                 (PowerSources.pacingModifier(complexity, pacing)
                                     .takeIf { it != 0 }
                                     ?.let { ", ${signed(it)} ${pacing.name.lowercase()}" } ?: "") +
@@ -642,6 +712,7 @@ fun RitualDialog(
                                     language,
                                     mode,
                                     link,
+                                    support,
                                     complexity = complexity,
                                     powerSources = declaration,
                                 )
