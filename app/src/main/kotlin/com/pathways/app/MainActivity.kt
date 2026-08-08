@@ -486,6 +486,10 @@ fun SheetScreen(
             // rather than fatigue being allowed on a Research roll.
             burnKind = EffortBurn.kindFor(skill.key)
                 ?.takeIf { it != BurnKind.MYSTICAL || vitals.maxSpi > 0 },
+            // The pool's BALANCE, not its maximum. The gate above excludes a
+            // mortal, who never had SPI; this excludes a Beyonder who has
+            // spent it, which the gate above cannot see.
+            spiAvailable = vitals.maxSpi - session.spiSpent,
             onRoll = { circumstances ->
                 // The trackers reach the dice here: a reeling, fatigued or
                 // corrupted character no longer rolls at full skill. The GM's
@@ -1038,6 +1042,11 @@ private fun RollDialog(
     base: Int,
     sense: SpiritualSense? = null,
     burnKind: BurnKind? = null,
+    // What the mystical push may spend. Not the maximum and not what the
+    // tracker shows: SPI already spent is gone, and 6ah's lesson is that
+    // passing a pool where a rule wants a different quantity is a defect no
+    // test catches.
+    spiAvailable: Int = 0,
     onBurn: (BurnKind, Int) -> Unit = { _, _ -> },
     onRoll: (List<com.pathways.model.Modifier>) -> SkillRollOutcome,
     onDismiss: () -> Unit,
@@ -1114,7 +1123,7 @@ private fun RollDialog(
                 // never happened, or one only a critical can win, where the
                 // total decides and raising the target changes nothing.
                 if (burnKind != null && EffortBurn.canPush(shownOut)) {
-                    BurnRow(burnKind, burned) { points ->
+                    BurnRow(burnKind, burned, spiAvailable) { points ->
                         // The LIVE outcome, never the `shownOut` captured when
                         // this lambda was composed: two taps before a
                         // recomposition would both read the stale one, so the
@@ -1259,13 +1268,36 @@ private fun SenseRow(
  * rather than empty on most rolls.
  */
 @Composable
-private fun BurnRow(kind: BurnKind, burned: Int, onBurn: (Int) -> Unit) {
+private fun BurnRow(
+    kind: BurnKind,
+    burned: Int,
+    spiAvailable: Int,
+    onBurn: (Int) -> Unit,
+) {
     val pool = EffortBurn.pool(kind)
     val cap = pool.max
-    // Asked for, never computed here. The book's cap is per ROLL, and a
-    // screen that worked out its own ceiling would be a second copy of that
-    // rule sitting where no test can see it (6ai).
-    val left = EffortBurn.remaining(kind, burned)
+    // Ch. 7 Power Source A: "SPI cannot be reduced below 0." The burn is a
+    // CHOICE, so it is capped by what the caster has -- the floor 6ar applied
+    // to the ritual, boon, artifact and divination dialogs and missed here,
+    // in the one SPI spend that is not a dialog of its own. FP is deliberately
+    // untouched: p. 42 prices FP below 0 at 1 HP per point, so an unbounded
+    // physical push is the book's own rule, and treating the two pools alike
+    // is exactly the merge 6ar was written to undo.
+    val affordable = EffortBurn.affordable(kind, burned, spiAvailable)
+    if (affordable == 0 && kind == BurnKind.MYSTICAL) {
+        Text(
+            "Push the roll — ${pool.pool} on ${pool.scope}",
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.padding(top = 12.dp),
+        )
+        Text(
+            "No push — this character has no spirituality left, and personal " +
+                "SPI cannot be spent below 0.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+        )
+        return
+    }
     Text(
         "Push the roll — ${pool.pool} on ${pool.scope}",
         style = MaterialTheme.typography.labelLarge,
@@ -1283,7 +1315,7 @@ private fun BurnRow(kind: BurnKind, burned: Int, onBurn: (Int) -> Unit) {
     // is not offered without limit: the book names no ceiling, and a stepper
     // running to a hundred is not a choice worth making at the table -- the
     // same reading the open-ended ritual fuel cell already takes (6q).
-    val steps = (1..minOf(4, left ?: 4)).toList()
+    val steps = (1..minOf(4, affordable)).toList()
     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         steps.forEach { points ->
             FilterChip(

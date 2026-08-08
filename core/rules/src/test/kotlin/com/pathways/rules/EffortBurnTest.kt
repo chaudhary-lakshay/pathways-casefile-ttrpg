@@ -219,6 +219,42 @@ class EffortBurnTest {
         assertEquals(demoted, EffortBurn.applied(demoted, BurnKind.PHYSICAL, points = 5))
     }
 
+    @Test
+    fun `a drained Beyonder cannot buy a mystical push`() {
+        // The fifth SPI spend, and the one 6ar missed: the burn is not a
+        // dialog of its own, so a sweep of the dialogs never reached it. The
+        // screen's only gate was `maxSpi > 0`, which excludes a MORTAL and not
+        // a Beyonder who has spent everything -- who was still offered chips,
+        // still spent below 0, and still bought permanent Soul Debt CoR.
+        assertEquals(0, EffortBurn.affordable(BurnKind.MYSTICAL, 0, spiAvailable = 0))
+        // Already in debt from spirit-body damage: nothing more may be bought,
+        // and the answer is 0 rather than a negative a caller might spend.
+        assertEquals(0, EffortBurn.affordable(BurnKind.MYSTICAL, 0, spiAvailable = -4))
+        // What is left is what may be bought, and the book caps this bonus at
+        // nothing -- so the pool is the only ceiling on this side.
+        assertEquals(3, EffortBurn.affordable(BurnKind.MYSTICAL, 0, spiAvailable = 3))
+        assertNull(EffortBurn.maxFor(BurnKind.MYSTICAL))
+    }
+
+    @Test
+    fun `the physical push keeps its unbounded reach`() {
+        // p. 42 PRICES fatigue below 0 at 1 HP per point instead of forbidding
+        // it, while ch. 7 forbids the same for SPI outright. That contrast was
+        // 6ar's whole evidence, so capping FP by its balance here would erase
+        // a distinction the book draws in two directions at once.
+        assertEquals(5, EffortBurn.affordable(BurnKind.PHYSICAL, 0, spiAvailable = 0))
+        // The +5 cap is per ROLL and still wins on this side.
+        assertEquals(2, EffortBurn.affordable(BurnKind.PHYSICAL, 3, spiAvailable = 0))
+    }
+
+    @Test
+    fun `the smaller of the two ceilings wins`() {
+        // Two different limits: what the book allows as a bonus, and what the
+        // character can pay. Neither subsumes the other.
+        assertEquals(1, EffortBurn.affordable(BurnKind.PHYSICAL, 4, spiAvailable = 99))
+        assertEquals(1, EffortBurn.affordable(BurnKind.MYSTICAL, 9, spiAvailable = 1))
+    }
+
     /**
      * **The two chapters that already burn SPI agree with this one exactly**,
      * and that agreement is the whole warrant for adopting the general rule

@@ -101,6 +101,33 @@ object EffortBurn {
         pool(kind).max?.minus(alreadyBurned)?.coerceAtLeast(0)
 
     /**
+     * The most points that may actually be BOUGHT, given the pool's balance.
+     *
+     * [remaining] answers the book's cap on the bonus; this answers what the
+     * character can pay for. The two are different ceilings and the smaller
+     * wins.
+     *
+     * **Only the mystical push is capped by its pool, and the asymmetry is the
+     * book's.** Ch. 7 Power Source A says "SPI cannot be reduced below 0", and
+     * a push is a choice, so [Pools.spendableSpi] bounds it. p. 42 prices FP
+     * below 0 at 1 HP per point instead of forbidding it, so the physical push
+     * keeps its unbounded reach -- the contrast that was 6ar's whole evidence.
+     * Treating the pools alike in either direction erases a distinction the
+     * book draws in two directions at once.
+     *
+     * This is the fifth SPI spend, and the one 6ar missed: it is not a dialog
+     * of its own, so a sweep of the dialogs did not reach it. Kept here rather
+     * than in the chip list because a screen that works out its own ceiling is
+     * a second copy of the rule, which is how "max +5 per roll" came to be
+     * checked per call instead of per roll.
+     */
+    fun affordable(kind: BurnKind, alreadyBurned: Int, spiAvailable: Int): Int {
+        val capLeft = remaining(kind, alreadyBurned)
+        val poolLeft = if (kind == BurnKind.MYSTICAL) Pools.spendableSpi(spiAvailable) else null
+        return listOfNotNull(capLeft, poolLeft).min()
+    }
+
+    /**
      * Whether [outcome] is a roll effort can actually move.
      *
      * False for a roll that never happened -- there is no total to re-read --
