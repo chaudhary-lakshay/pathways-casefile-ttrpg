@@ -3537,10 +3537,17 @@ strength of it looking wrong. The list exists, it is numbered, and it took one
 grep — the lesson being that "this needs a reading" is a reason to go and read,
 not a reason to leave it indefinitely.
 
-**Unit-verified only.** The emulator's `system_server` died mid-verification
-("Can't find service: window", 32.9 GB of a 38.2 GB commit limit) — 6ah's
-pagefile exhaustion again, not the app. The target change on screen is the
-part still unobserved.
+**Device-verified in a later session**, once the machine had headroom — the
+first two attempts died to 6ah's pagefile exhaustion, not the app. On
+`Medium_Phone_API_36.1`, Academic Researcher seeded as a **Fool Seq 9** with
+`spiSpent: 4`, so the sheet reads **SPI 5 / 9**: a Trivial question through
+**Pendulum (1 SPI)** reads **"Roll 3d6 ≤ 14 — Skill 12, question +2. Costs 1
+SPI"**, because paying 1 leaves 4 and the threshold is 3. Tapping **Crystal
+Ball (2 SPI)** — changing nothing else — reads **"Roll 3d6 ≤ 11 — Skill 12,
+question +2, circumstances −3. Costs 2 SPI"**. Paying 2 lands the caster ON
+the 1/3 rung and Spiritual Attrition reaches the roll that bought it; the old
+code read the pool before payment and left the target at 14, with the
+"circumstances −3" line absent entirely.
 
 ### A range's middle was unaskable, and an open end offered one chip
 
@@ -3556,6 +3563,14 @@ fuel cell takes (6q).
 a test pins that every value the chips can produce is one it accepts: offering
 a chip that throws on Roll is not offering a choice (6t).
 
+Device-verified with the divination fix above, same session and same device.
+Academic Researcher, **Research 13**: the row **"Improvised / poor tools -2 to
+-4"** opens **−2 / −3 / −4**, and taking the middle one rolled **5 vs 10** —
+*"base 13, modified to 10, common:improvised / poor tools: -3"* — a value the
+old chip row could not produce at all. **"Very adverse conditions -6 or
+worse"** opens **−6 / −7 / −8 / −9**, where it used to open one chip: bounded
+on the printed side (no −5 is offered) and open only away from zero.
+
 ### Left open on purpose
 
 Three findings remain, listed with their file:line in the session's plan file.
@@ -3563,13 +3578,22 @@ None needs a decision: `RitualMode` lets an API caller mix Full-mode
 preparation into a Quick ritual (unreachable from the dialog), plus two UI
 notes with no behavioural consequence.
 
-**Two fixes here are unit-verified only** — the divination payment order and
-this one. The emulator's `system_server` died twice mid-verification ("Can't
-find service: window", then "…service: input") at 33 GB of a 38.2 GB commit
-limit on 15.2 GB of physical memory. That is 6ah's pagefile exhaustion, not
-the app, and reaping the Kotlin daemons did not buy back enough. Both changes
-alter a number the GM reads, so both want a device pass when the machine has
-the headroom.
+**Two fixes shipped unit-verified and were device-verified in a later
+session** — the divination payment order and the printed-range chips, each
+recorded in its own section above. The emulator's `system_server` died twice
+during the first attempt ("Can't find service: window", then "…service:
+input") at 33 GB of a 38.2 GB commit limit on 15.2 GB of physical memory:
+6ah's pagefile exhaustion, not the app, and reaping the Kotlin daemons did not
+buy back enough.
+
+**What made the retry work is worth more than either fix.** The APK already on
+disk post-dated both commits, so **nothing had to be built** — and a Gradle
+run is what puts the machine over the line. Check the APK's mtime against the
+commit before rebuilding; the emulator and a Gradle daemon cannot both fit
+here (6am). The dead `system_server` also survives as a **zombie emulator**
+that `adb devices` reports as `device` while `service check window` answers
+`not found`, so it holds ~3.3 GB and answers nothing. Ask the service, not the
+device list.
 
 Device-verified on `Medium_Phone_API_36.1`, and the emulator was CPU-starved
 enough that a cold start took ~90 seconds (6ah's pagefile diagnosis, still
