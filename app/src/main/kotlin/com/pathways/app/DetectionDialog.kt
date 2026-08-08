@@ -102,7 +102,13 @@ fun DetectionDialog(
     // a Per roll even when their SPI is better. See Detection.attributeFor.
     val freeRoll = awareness?.freeRoll
     val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness)
-    val automatic = awareness?.isAutomatic == true
+    // The row grants automatic awareness only against a WEAKER diviner, and
+    // this screen holds the target's sheet alone -- so the comparison is the
+    // GM's to state. Reset with the row, or a declaration about one pathway's
+    // demigod would outlive the pick (the stale-state trap 6k and 6y found).
+    var divinerIsWeaker by remember(awareness) { mutableStateOf(false) }
+    val grantsAutomatic = awareness?.isAutomatic == true
+    val automatic = awareness?.let { Detection.isAutomaticAgainst(it, divinerIsWeaker) } == true
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -260,6 +266,29 @@ fun DetectionDialog(
                 }
 
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                if (grantsAutomatic) {
+                    // Offered rather than assumed: the row's automatic clause
+                    // is scoped to a weaker diviner and this app never sees
+                    // the diviner's sheet. Against an equal or stronger one
+                    // the book calls for a Quick Contest, which is not
+                    // modelled here for the same reason -- so the fallback is
+                    // the ordinary Sense roll, not a claim of awareness.
+                    FilterChip(
+                        selected = divinerIsWeaker,
+                        onClick = { divinerIsWeaker = !divinerIsWeaker },
+                        label = { Text("The diviner is of weaker Sequence") },
+                    )
+                    if (!divinerIsWeaker) {
+                        Text(
+                            "Against an equal or stronger Sequence the book calls " +
+                                "for a Quick Contest of SPI vs the diviner's " +
+                                "Divination Arts or Ritualistic Magic, which needs " +
+                                "both sheets and is not rolled here. Sense below.",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
+                }
                 if (automatic) {
                     Text(
                         "Automatic awareness — no roll.",

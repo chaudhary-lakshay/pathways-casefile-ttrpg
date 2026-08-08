@@ -274,6 +274,30 @@ class DetectionTest {
         assertTrue(row.detection.contains("Quick Contest of SPI"))
     }
 
+    @Test
+    fun `automatic awareness fires only against a weaker diviner`() {
+        // The test above has stated this scope in prose since 6ah while the
+        // screen read the bare `isAutomatic` flag and withdrew the Sense roll
+        // against every diviner -- telling a demigod they were aware of an
+        // equal who might well have gone unnoticed.
+        val row = Detection.awarenessFor("Any pathway")
+        assertTrue(Detection.isAutomaticAgainst(row, divinerIsWeaker = true))
+        assertFalse(Detection.isAutomaticAgainst(row, divinerIsWeaker = false))
+    }
+
+    @Test
+    fun `no other row becomes automatic however the comparison goes`() {
+        // The flag is the gate; the comparison only narrows it. A row that
+        // never grants automatic awareness must not acquire it from a GM
+        // saying the diviner is weak.
+        Detection.awareness().filterNot { it.isAutomatic }.forEach { row ->
+            assertFalse(
+                Detection.isAutomaticAgainst(row, divinerIsWeaker = true),
+                "${row.pathway} does not grant automatic awareness",
+            )
+        }
+    }
+
     /** Two rows grant a free roll and name which attribute it uses. */
     @Test
     fun `a free roll names its own attribute`() {

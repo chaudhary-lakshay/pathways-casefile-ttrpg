@@ -117,6 +117,29 @@ object Detection {
      * dialog already produced once (6ag), reintroduced by the fix for it and
      * caught in review. One sentence, one author.
      */
+    /**
+     * Whether [row]'s automatic awareness actually fires.
+     *
+     * The Seq 4+ row is the only one that grants it, and it scopes itself in
+     * its own cell: "A demigod always knows when someone of **weaker**
+     * Sequence attempts to divine them. Equal or stronger Sequence requires a
+     * Quick Contest of SPI vs the diviner's Divination Arts or Ritualistic
+     * Magic." The screen read only the `isAutomatic` flag, so it withdrew the
+     * Sense roll against every diviner and told a demigod they were aware of
+     * an equal who might well have gone unnoticed.
+     *
+     * [divinerIsWeaker] is the GM's, not the app's. This dialog holds the
+     * TARGET's sheet and the diviner is a declared other party with no
+     * numbers, which is the same reason the six Quick Contests this chapter
+     * calls for are unmodelled (6ah, and Feint before it in 6o). So the
+     * comparison is asked for, the way the darkness row's value and a fright
+     * trigger's severity are asked for.
+     *
+     * False for every other row: no other awareness row prints the word.
+     */
+    fun isAutomaticAgainst(row: DivinationAwareness, divinerIsWeaker: Boolean): Boolean =
+        row.isAutomatic && divinerIsWeaker
+
     fun attributeLine(
         spi: Int,
         per: Int,
