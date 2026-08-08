@@ -869,6 +869,13 @@ choose a method and pay its SPI, add the circumstances, roll, read the clarity
 off the margin. Same gate as rituals — no premade prints Divination Arts, so
 it is bought in the builder before the `Divine` button appears.
 
+**Correction (6aq):** it cannot be bought. Ch. 9 p. 85 forbids raising any of
+the three SPI-based skills with points, and the builder no longer offers
+them. The gate is real and the screen is unchanged; what reaches it is a
+POTION, which is the book's own route — fifteen Sequence blocks grant one of
+the three. Every "bought in the builder" in this section is how the slice was
+verified, not how the feature is reached.
+
 - **The clarity table has two doors, and this time it was expected.** Five
   rows are named by margin ("Success by 3-4") and the sixth by OUTCOME
   ("Critical Failure"), which is exactly the shape `FrightCheck` and
@@ -899,9 +906,11 @@ it is bought in the builder before the `Divine` button appears.
   wraps the method NAME in the same table, which is why the closed set of
   eight method names is that table's anchor.
 
-Device-verified on Academic Researcher with Divination Arts bought at 1 point:
-the skill reads **-2**, because it is SPI/Hard and a non-Beyonder has SPI 0 —
-the book gating divination on spirituality, arithmetically. A Trivial question
+Device-verified on Academic Researcher with Divination Arts bought at 1 point
+(a purchase 6aq later established the book forbids; a Fool Seq 9 potion is the
+route now): the skill reads **-2**, because it is SPI/Hard and a non-Beyonder
+has SPI 0 — the book gating divination on spirituality, arithmetically. *That
+last clause is wrong: the gate is PRINTED, not arithmetic. See 6aq.* A Trivial question
 gave "Roll 3d6 ≤ 0"; a 9 landed on **"Failure by 5+ — Distorted"**; choosing
 the 2 SPI end of Dowsing Rods saved `spiSpent: 2` and `cor: 2`, the Soul Debt
 charging itself.
@@ -2190,7 +2199,9 @@ and a reminder that scoping the reviewer to named files is what gets an answer
 (a whole-working-tree prompt stalled out in 6af).
 
 Device-verified on the emulator, Academic Researcher with Divination Arts
-bought (skill **-2**, since a non-Beyonder has SPI 0): the protection chips stop
+bought — a purchase 6aq later established the book forbids, so reproducing
+this now means seeding a Beyonder — (skill **-2**, since a non-Beyonder has
+SPI 0): the protection chips stop
 at Seq 2 where the table does; **Seq 4** quotes the book's own row and reads
 **"3d6 ≤ -10"** with the critical-only warning in red; ticking **True name +
 personal item** and **Burn 4 HP** reads **"3d6 ≤ -3"** with "Seq 4 (Demigod)
@@ -2592,7 +2603,17 @@ Device-verified on `Medium_Phone_API_36.1`, Academic Researcher seeded as a
 **Fool Seq 9** (SPI 9) with both senses bought: the sheet's last two rows read
 **"Spiritual Intuition 12 (bought)"** and **"Spiritual Perception 9 (bought)"**
 — 12 because a bought SPI skill re-levels on the digested attribute and the
-Seer potion's +3 is frozen on top. Intuition's dialog shows two chip rows;
+Seer potion's +3 is frozen on top.
+
+**Correction (6aq):** buying either is forbidden by ch. 9 p. 85 and is no
+longer possible. The Seer block grants **Spiritual Intuition +3** itself, so
+that row survives on the same character by the book's own route. **Spiritual
+Perception does not**: no Fool block grants it, and the four blocks that do
+are Hanged Man 9/8, Wheel of Fortune 9 and Death 7. So reproducing this run
+means seeding one of those — the sense is not reachable on a Fool at all,
+which is the pathway affinity the book intends and not a gap. The
+re-levelling reading itself is untouched: it is what a POTION-granted SPI
+skill does when a later potion raises SPI. Intuition's dialog shows two chip rows;
 ticking **distracted/in combat −2** removes Appendix A's "Distracted or
 hurried" and "Very adverse conditions" and prints why, while leaving "Adverse
 conditions −4" in place. A 14 vs 10 read **"Failure … Spiritual Intuition
