@@ -31,6 +31,12 @@ import com.pathways.rules.AttributeCosts
 import com.pathways.rules.Derive
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.SkillLadder
+import com.pathways.rules.Study
+import com.pathways.rules.StudyMethod
+import com.pathways.rules.StudyRefusedException
+import com.pathways.model.Character
+import com.pathways.model.PurchasedSkill
+import com.pathways.rules.DerivedCharacter
 import com.pathways.rules.Appearance
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.AppearanceLevel
@@ -61,6 +67,10 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     var adding by remember { mutableStateOf(false) }
     var picking by remember { mutableStateOf(false) }
     var pickingLooks by remember { mutableStateOf(false) }
+    // Which road the study lines are priced for. The book prints two
+    // and they differ by more than money -- Very Hard self-study is
+    // "Not possible" at any price.
+    var studyMethod by remember { mutableStateOf(StudyMethod.TUTOR) }
 
     Scaffold { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
@@ -128,6 +138,23 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     )
                     TextButton(onClick = { adding = true }) { Text("Add a skill") }
                 }
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        "Study cost shown for: ${studyMethod.label}",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.weight(1f),
+                    )
+                    TextButton(onClick = {
+                        studyMethod = if (studyMethod == StudyMethod.TUTOR) {
+                            StudyMethod.SELF_STUDY
+                        } else {
+                            StudyMethod.TUTOR
+                        }
+                    }) { Text("Switch") }
+                }
                 HorizontalDivider()
             }
 
@@ -139,6 +166,15 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     label = purchased.key.display,
                     level = derived.skillLevels[purchased.key],
                     points = purchased.points,
+                    // What downtime study would cost to reach the next rung
+                    // (Ch. 3, p. 32). Advice only: study points are earned
+                    // outside the creation budget, so nothing here spends.
+                    //
+                    // `isPotionGranted` is left false because it cannot be
+                    // true on THIS screen -- a Character holds purchases only
+                    // (M3), so every row here was bought. The rule is enforced
+                    // in `Study` regardless, for a caller that does hold grants.
+                    study = studyLine(purchased, character, derived, studyMethod),
                     // Only skills bought in play are editable. The published
                     // sheet's own purchases stay put: the diff against it is a
                     // feature (spec section 6), and quietly re-pointing a
@@ -252,13 +288,57 @@ private fun BudgetBar(spent: Int, budget: Int) {
 }
 
 /**
+ * What downtime study would cost this skill's next rung (Ch. 3, p. 32).
+ *
+ * Advice, never a purchase. Study points are earned outside the 70-point
+ * creation budget, so this line must never reach `SavedEdits` -- a planner
+ * that quietly bought the rung would charge the character points for time
+ * they spent instead.
+ *
+ * A refusal is SHOWN rather than hidden, because a row that simply stops
+ * offering study is indistinguishable from a screen that forgot to render it
+ * (6am). All three of the book's refusals reach this line.
+ */
+private fun studyLine(
+    purchased: PurchasedSkill,
+    character: Character,
+    derived: DerivedCharacter,
+    method: StudyMethod,
+): String {
+    val attributeLevel = Derive.controllingLevel(
+        purchased.key.attr,
+        character.attributes,
+        derived.secondaries,
+        character.spi,
+    )
+    return Study.plan(
+        points = purchased.points,
+        difficulty = purchased.key.difficulty,
+        attributeLevel = attributeLevel,
+        method = method,
+        attr = purchased.key.attr,
+    ).fold(
+        onSuccess = {
+            "Study: ${it.printed} for ${it.pointsNeeded} CP → level ${it.toLevel}"
+        },
+        onFailure = { "Study: ${(it as StudyRefusedException).reason}" },
+    )
+}
+
+/**
  * One skill: its level, what it cost, and a stepper when it was bought here.
  *
  * A skill with no [onSpend] is one the published sheet printed. It is shown
  * because the budget bills it, but it is not editable -- see BuilderScreen.
  */
 @Composable
-private fun SkillRow(label: String, level: Int?, points: Int, onSpend: ((Int) -> Unit)?) {
+private fun SkillRow(
+    label: String,
+    level: Int?,
+    points: Int,
+    onSpend: ((Int) -> Unit)?,
+    study: String? = null,
+) {
     Row(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -269,6 +349,13 @@ private fun SkillRow(label: String, level: Int?, points: Int, onSpend: ((Int) ->
                 "$points pts" + (level?.let { " - level $it" } ?: ""),
                 style = MaterialTheme.typography.bodySmall,
             )
+            study?.let {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
         if (onSpend != null) {
             TextButton(onClick = { onSpend(-1) }) { Text("\u2212") }
