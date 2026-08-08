@@ -1298,7 +1298,7 @@ private fun SenseRow(
  * rather than empty on most rolls.
  */
 @Composable
-private fun BurnRow(
+internal fun BurnRow(
     kind: BurnKind,
     burned: Int,
     spiAvailable: Int,

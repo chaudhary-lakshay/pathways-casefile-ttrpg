@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -28,6 +29,8 @@ import com.pathways.model.SkillKey
 import com.pathways.rules.AttackManeuver
 import com.pathways.rules.AttackPlan
 import com.pathways.rules.Attacks
+import com.pathways.rules.BurnKind
+import com.pathways.rules.EffortBurn
 import com.pathways.rules.Damage
 import com.pathways.rules.DamageRoll
 import com.pathways.rules.RandomSource
@@ -94,6 +97,11 @@ fun AttackDialog(
     // charged once -- rolling the second attack as a fresh maneuver would
     // charge the 2 FP twice.
     var outcomes by remember { mutableStateOf<List<SkillRollOutcome>>(emptyList()) }
+    // Points pushed onto each roll, keyed by its index in [outcomes]. Keyed
+    // rather than counted once because "Max +5 per roll" is per ROLL, and a
+    // Rapid Strike is two -- the per-call-vs-per-roll slip 6ak already made
+    // once, here in the one place the distinction is visible on screen.
+    var burned by remember { mutableStateOf<Map<Int, Int>>(emptyMap()) }
 
     val chosen = picked
     AlertDialog(
@@ -108,6 +116,8 @@ fun AttackDialog(
                         // or cover would modify the next roll invisibly
                         // (Codex).
                         outcomes = emptyList()
+                        // The pushes belong to the rolls they were spent on.
+                        burned = emptyMap()
                         picked = null
                         plan = AttackPlan()
                         unarmed = null
@@ -123,7 +133,31 @@ fun AttackDialog(
         text = {
             when {
                 outcomes.isNotEmpty() -> LazyColumn {
-                    items(outcomes) { AttackResult(it) }
+                    itemsIndexed(outcomes) { index, outcome ->
+                        AttackResult(outcome)
+                        // Ch. 2's FP push, whose scope names attack rolls
+                        // outright: "any roll based on ST, DX, or HT (attack
+                        // rolls, dodging, climbing, lifting, etc.)". It was
+                        // wired only into the generic skill dialog, so the
+                        // one roll the rule names first could not use it.
+                        //
+                        // PER OUTCOME, because the cap is "Max +5 per roll"
+                        // and All-Out Double and Rapid Strike each make two:
+                        // one shared budget would let a fighter push one
+                        // attack with the other's allowance. `burned` is
+                        // therefore keyed by index and reset with the roll.
+                        val kind = chosen?.key?.let(EffortBurn::kindFor)
+                        if (kind != null && EffortBurn.canPush(outcome)) {
+                            BurnRow(kind, burned[index] ?: 0, spiAvailable = 0) { points ->
+                                val already = burned[index] ?: 0
+                                outcomes = outcomes.toMutableList().also {
+                                    it[index] = EffortBurn.applied(outcome, kind, points, already)
+                                }
+                                burned = burned + (index to already + points)
+                                if (kind == BurnKind.PHYSICAL) onSpendFp(points)
+                            }
+                        }
+                    }
                 }
                 chosen == null -> LazyColumn {
                     items(skills) { entry ->
@@ -241,6 +275,8 @@ fun AttackDialog(
                             Attacks.modifiers(plan, chosen.value, unarmed) +
                             rangedModifiers(plan, band, circumstances, armed.aimAcc) +
                             listOfNotNull(location?.let(Wounds::modifier))
+                        // A fresh roll starts with a fresh +5 budget per roll.
+                        burned = emptyMap()
                         outcomes = List(Attacks.attackCount(plan)) {
                             SkillRoll.at(
                                 label = chosen.key.label(),
