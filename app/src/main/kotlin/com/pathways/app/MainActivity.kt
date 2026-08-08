@@ -458,11 +458,18 @@ fun SheetScreen(
             // unreachable. The level comes from [skillLevels], the same
             // digested map the ritual and attack dialogs read.
             items(session.edits.skills) { bought ->
-                val level = skillLevelOf(bought.name, skillLevels)
+                // The KEY first, then its level. Asking for a level by NAME
+                // returns whichever specialization the map happens to hold
+                // first, so a character with Guns (Pistol) who bought Guns
+                // (Rifle) displayed and rolled the pistol's level under the
+                // rifle's label. 6e settled that specialization travels with
+                // the pick; it was applied to the purchase and not to the row
+                // that rolls it.
                 val key = skillLevels.keys.firstOrNull {
                     it.name.equals(bought.name, ignoreCase = true) &&
                         it.specialization == bought.specialization
                 }
+                val level = key?.let { skillLevels[it] }
                 if (level != null && key != null) {
                     BoughtSkillRow(key.label(), level) {
                         rolling = RollableSkill(key.label(), level, key)
@@ -629,10 +636,14 @@ fun SheetScreen(
             // withhold one it would accept. It did -- one of the five rows is
             // printed "Hidden Lore (relevant domain)" and no sheet spells it
             // that way, so the caster's +1 was dropped in silence.
-            ownedSupportSkills = remember(sheet, session.edits) {
-                RitualMode.supportSkillsOwnedBy(
-                    session.characterFor(sheet).skills.map { it.key.name },
-                )
+            // Read from the DIGESTED map, not from what was purchased. A
+            // potion grants Occultism, Thaumatology, Research and six
+            // spellings of Hidden Lore, and a Beyonder granted one was denied
+            // Section II's +1 in silence -- the same silence this slice was
+            // written to end, one route over. `drunk` is in the memo key for
+            // the same reason: without it a potion would not recompute the row.
+            ownedSupportSkills = remember(skillLevels) {
+                RitualMode.supportSkillsOwnedBy(skillLevels.keys.map { it.name })
             },
             // cor = 0 here on purpose: RitualResolution applies the CoR
             // ladder itself, so including it would charge the caster twice
