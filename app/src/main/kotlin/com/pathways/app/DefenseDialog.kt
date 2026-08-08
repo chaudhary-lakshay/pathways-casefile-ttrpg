@@ -54,8 +54,14 @@ private const val SHIELD_SKILL = "Shield"
  * explained once above. Cheaper than a facing selector, and it cannot be read
  * as an unconditional total.
  */
-private fun shielded(base: Int, shield: Shield?): String =
-    if (shield == null) "$base" else "$base → ${Shields.withBonus(base, shield)}"
+private fun shielded(base: Int, shield: Shield?, reflexes: Int = 0): String {
+    // Combat Reflexes is unconditional -- "+1 to all active defenses" -- so it
+    // is folded into the base, where the shield's conditional DB cannot be.
+    // Every row goes through this one function for exactly that reason: two
+    // places adding the same +1 is how these numbers stop reconciling (6ai).
+    val own = base + reflexes
+    return if (shield == null) "$own" else "$own → ${Shields.withBonus(own, shield)}"
+}
 
 /**
  * Which shield is Readied, if any.
@@ -107,6 +113,8 @@ fun DefenseDialog(
     dodge: Int,
     skillLevels: Map<SkillKey, Int>,
     weapons: List<Weapon> = emptyList(),
+    /** Ch. 3's Combat Reflexes, +1 to every active defence. See TraitEffects. */
+    reflexes: Int = 0,
     onDismiss: () -> Unit,
 ) {
     val printed = remember { ContentLoader.defenses() }
@@ -137,12 +145,12 @@ fun DefenseDialog(
                 item {
                     ShieldPicker(shields, carried) { carried = if (it == carried) null else it }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                    DefenseRow("Dodge", shielded(dodge, carried))
+                    DefenseRow("Dodge", shielded(dodge, carried, reflexes))
                     printed.firstOrNull { it.defense == "Dodge" }?.let { Note(it.notes) }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 }
                 items(armed) { (name, value) ->
-                    DefenseRow("Parry ($name)", shielded(value, carried))
+                    DefenseRow("Parry ($name)", shielded(value, carried, reflexes))
                 }
                 item {
                     if (armed.isNotEmpty()) {
@@ -151,7 +159,7 @@ fun DefenseDialog(
                     }
                 }
                 items(parries) { (name, value) ->
-                    DefenseRow("Parry ($name)", shielded(value, carried))
+                    DefenseRow("Parry ($name)", shielded(value, carried, reflexes))
                 }
                 item {
                     if (parries.isEmpty() && armed.isEmpty()) {
@@ -163,19 +171,23 @@ fun DefenseDialog(
 
                     if (shieldSkill != null) {
                         val held = carried
+                        val bare = ParryBlock.blockFor(shieldSkill, shieldDb = 0)
                         if (held == null) {
-                            DefenseRow("Block", ParryBlock.blockFor(shieldSkill, shieldDb = 0).toString())
+                            DefenseRow("Block", shielded(bare, null, reflexes))
                             Note("Pick a shield above; Block needs one Readied.")
                         } else {
-                            val melee = Shields.blockFor(held, shieldSkill)
-                            DefenseRow(
-                                "Block",
-                                "${ParryBlock.blockFor(shieldSkill, shieldDb = 0)} → $melee",
-                            )
+                            // Shields.blockFor already folds the DB in, so the
+                            // arrow is built by hand here rather than through
+                            // shielded() -- but the trait bonus is added to
+                            // one bare figure and carried across, so the two
+                            // ends of the arrow cannot drift apart.
+                            val own = bare + reflexes
+                            val melee = Shields.blockFor(held, shieldSkill) + reflexes
+                            DefenseRow("Block", "$own → $melee")
                             // The ranged figure is shown beside it rather than
                             // replacing it: a light shield is "-1 to Block vs.
                             // ranged" and one number cannot say both.
-                            val shot = Shields.blockFor(held, shieldSkill, isRanged = true)
+                            val shot = Shields.blockFor(held, shieldSkill, isRanged = true) + reflexes
                             if (shot != melee) Note("Against ranged attacks: $shot")
                         }
                         printed.firstOrNull { it.defense == "Block" }?.let { Note(it.notes) }

@@ -68,6 +68,7 @@ import com.pathways.rules.PremadeSkill
 import com.pathways.rules.BurnKind
 import com.pathways.rules.EffortBurn
 import com.pathways.rules.SpiritualSenses
+import com.pathways.rules.TraitEffects
 import com.pathways.rules.content.CommonModifier
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SenseModifier
@@ -211,8 +212,12 @@ fun SheetScreen(
     // The CoR ceiling is the character's CURRENT Will, which a potion can
     // move. Computed once: the ritual dialog and the SPI tracker's Soul Debt
     // both charge against it, and two readings of one rule is how they drift.
-    val maxCor = remember(sheet, vitals.will, session.edits) {
-        Corruption.maxFor(vitals.will, session.characterFor(sheet).traits)
+    // The traits actually in play -- the sheet's, plus anything the edit
+    // layer changed. Hoisted because three readers need them: the CoR cap,
+    // a skill roll, and the active defences.
+    val traits = remember(sheet, session.edits) { session.characterFor(sheet).traits }
+    val maxCor = remember(sheet, vitals.will, traits) {
+        Corruption.maxFor(vitals.will, traits)
     }
     // Damage rolls off ST, Boxing's bonus off DX and a Major Wound off HT, all
     // AFTER any potion that raised them -- the same digested character the
@@ -325,6 +330,25 @@ fun SheetScreen(
 
             item { PoolTrackers(session, vitals, maxCor) }
 
+            // Traits whose printed effect is real and lands on nothing this
+            // app rolls. Shown with the reason rather than silently dropped:
+            // a GM who can read "no shock penalty to ignore" applies it
+            // themselves, one who sees nothing assumes it was counted. The
+            // call the artifact grade table (6af) already needed.
+            items(TraitEffects.reported(traits)) { note ->
+                Column(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
+                    Text(
+                        "${note.trait} — ${note.printed}",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Text(
+                        "Not applied here: ${note.reason}.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+
             items(rows.take(SECONDARY_ROWS)) { ComparisonRow(it) }
 
             // Row order past the secondaries is one per purchased skill, in
@@ -393,7 +417,13 @@ fun SheetScreen(
                     base = skill.base,
                     key = skill.key,
                     source = appDice,
-                    mods = conditionsFor(skill.key) + circumstances,
+                    // Three sources now: what the trackers cost (Conditions),
+                    // what the character IS (TraitEffects -- Alertness on a
+                    // Per roll, Fit on an HT one), and what the GM says the
+                    // situation is.
+                    mods = conditionsFor(skill.key) +
+                        TraitEffects.modifiers(traits, skill.key) +
+                        circumstances,
                 )
             },
             // Ch. 2's burn, charged the moment it is bought. The book allows
@@ -436,6 +466,9 @@ fun SheetScreen(
             dodge = vitals.dodge,
             skillLevels = skillLevels,
             weapons = session.characterFor(sheet).weapons,
+            // "+1 to all active defenses" -- ALL of them, so it is added
+            // once here and every row picks it up.
+            reflexes = TraitEffects.defenseBonus(traits),
         ) { defending = false }
     }
     if (attacking) {

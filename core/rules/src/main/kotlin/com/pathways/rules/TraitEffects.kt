@@ -1,0 +1,165 @@
+package com.pathways.rules
+
+import com.pathways.model.Attr
+import com.pathways.model.ControllingAttribute
+import com.pathways.model.Layer
+import com.pathways.model.ModEffect
+import com.pathways.model.ModTarget
+import com.pathways.model.Modifier
+import com.pathways.model.ModifierId
+import com.pathways.model.ModifierSource
+import com.pathways.model.SkillKey
+import com.pathways.model.Trait
+import com.pathways.rules.content.ContentLoader
+
+/** A trait whose printed effect is real and reaches nothing here, and why. */
+data class TraitNote(val trait: String, val printed: String, val reason: String)
+
+/**
+ * Ch. 3's advantages, where their printed effects reach a roll.
+ *
+ * The 198-row trait catalogue has had no production reader since M0. The
+ * repo-wide field sweep (6ai) recorded that as legitimate on the grounds that
+ * "traits are not editable yet" -- which is true of BUYING one and irrelevant
+ * to the 23 premades, every one of which prints traits the book gives numbers
+ * to. **`Alertness 1` is on eight of them and says "+1 per level to all Per
+ * rolls"**, and every Per roll in this app has been made at flat skill.
+ * Exactly the defect class 6h fixed for the trackers, one source over.
+ *
+ * **Only three traits are applied, and the scope is what decides.** A printed
+ * number is not enough: it also has to name a roll this app can identify.
+ * [ControllingAttribute] distinguishes a Per skill from an HT skill, and
+ * [ParryBlock] computes the active defences, so those joins are real.
+ * Everything else is [reported] -- shown to the GM with the reason -- which
+ * is the call the Sealed Artifact grade table (6af) and a technique's
+ * availability (6ai) already needed. Inventing a "shock penalty" so that High
+ * Pain Threshold could cancel one would be authoring one rule to justify
+ * reading another.
+ *
+ * **The numbers live here, not in the JSON.** Each is a value inside a prose
+ * `notes` cell, so committing it as a column would make the book look like it
+ * printed one -- the split the maneuver table's +4/-4 (6i), the +3 support cap
+ * (6y) and the orthodox -2 (6z) all take. `TraitEffectsTest` pins every
+ * sentence against `ContentLoader.advantages()`, which is the copy production
+ * reads.
+ *
+ * **Matching a trait by name has precedent**: [Corruption.FORTITUDE] has read
+ * `Spiritual Fortitude` off a character since M4's first slice.
+ */
+object TraitEffects {
+
+    const val ALERTNESS = "Alertness"
+    const val FIT = "Fit"
+    const val COMBAT_REFLEXES = "Combat Reflexes"
+
+    /** "+1 per level to all Per rolls." */
+    const val ALERTNESS_PER_LEVEL = 1
+
+    /** "+1 to all HT rolls; recover FP at twice the normal rate." */
+    const val FIT_BONUS = 1
+
+    /** "+1 to all active defenses, +6 to recover from stun, never freeze." */
+    const val COMBAT_REFLEXES_BONUS = 1
+
+    /**
+     * The level a character owns [name] at, or null when they do not own it.
+     *
+     * A sheet prints a levelled trait with the level IN the name --
+     * "Alertness 1", "Hard to Kill 2" -- while the catalogue prints the bare
+     * name and a `perLevel` flag. An unlevelled trait matches exactly and
+     * counts as ONE, never zero: zero would silently cancel its own bonus.
+     */
+    fun levelOf(traits: List<Trait>, name: String): Int? {
+        val owned = traits.firstOrNull {
+            it.name.equals(name, ignoreCase = true) ||
+                it.name.startsWith("$name ", ignoreCase = true)
+        } ?: return null
+        // A trailing integer is a level; anything else is part of the name
+        // ("Poverty: Struggling"), so it does not become one.
+        return owned.name.substringAfterLast(' ').toIntOrNull() ?: 1
+    }
+
+    /**
+     * What [traits] add to a roll of [skill].
+     *
+     * Scoped by the skill's controlling attribute, the same test [Conditions]
+     * uses to keep Spiritual Attrition on SPI rolls (6h). A trait whose
+     * printed scope this app cannot identify contributes nothing here and is
+     * named by [reported] instead.
+     */
+    fun modifiers(traits: List<Trait>, skill: SkillKey): List<Modifier> = buildList {
+        if (skill.attr == ControllingAttribute.Per) {
+            levelOf(traits, ALERTNESS)?.let {
+                add(bonus(ALERTNESS, it * ALERTNESS_PER_LEVEL))
+            }
+        }
+        if (skill.attr == ControllingAttribute.Buyable(Attr.HT)) {
+            levelOf(traits, FIT)?.let { add(bonus(FIT, FIT_BONUS)) }
+        }
+    }
+
+    /**
+     * What [traits] add to every active defence (Dodge, Parry and Block).
+     *
+     * "+1 to all active defenses" -- ALL of them, so this is not a Block
+     * bonus even though Block is the only defence whose formula names a
+     * modifier. The reading a shield's DB already needed (6o), and the same
+     * trap: applying it to Block alone would understate a shielded Dodge.
+     */
+    fun defenseBonus(traits: List<Trait>): Int =
+        if (levelOf(traits, COMBAT_REFLEXES) != null) COMBAT_REFLEXES_BONUS else 0
+
+    /**
+     * The traits a character owns whose printed effect is real and lands on
+     * nothing this app rolls, each with the reason.
+     *
+     * Shown rather than silently dropped. A GM who can see "High Pain
+     * Threshold -- this app models no shock penalty to ignore" can apply it
+     * themselves; one who sees nothing assumes it was counted.
+     */
+    fun reported(traits: List<Trait>): List<TraitNote> {
+        val catalogue = ContentLoader.advantages().associateBy { it.name.lowercase() }
+        return traits.mapNotNull { owned ->
+            val bare = bareName(owned.name)
+            val reason = UNAPPLIED[bare] ?: return@mapNotNull null
+            val printed = catalogue[bare.lowercase()]?.notes ?: return@mapNotNull null
+            TraitNote(owned.name, printed, reason)
+        }
+    }
+
+    /** Every trait this object knows about, applied or not. */
+    fun known(): Set<String> = UNAPPLIED.keys + setOf(ALERTNESS, FIT, COMBAT_REFLEXES)
+
+    /**
+     * Printed, real, and reaching no roll here -- with the reason, so the
+     * omission stays a decision rather than becoming an accident. The
+     * asymmetry 6ai turned on: a field left unapplied on purpose says so.
+     */
+    private val UNAPPLIED = mapOf(
+        "Hard to Kill" to "this app models no death roll to avoid",
+        "High Pain Threshold" to "this app models no shock penalty to ignore",
+        "Danger Sense" to "the book hands this to the GM, not to a roll",
+        "Eidetic Memory" to "this app models no recall roll",
+        "Single-Minded" to "which tasks count as extended concentration is the GM's call",
+        "Lightning Calculator" to "this app models no numerical-puzzle roll",
+        "Versatile" to "every skill on a sheet is bought, so no default is rolled here",
+    )
+
+    /** "Alertness 1" -> "Alertness"; an unlevelled name is returned as-is. */
+    private fun bareName(name: String): String =
+        if (name.substringAfterLast(' ').toIntOrNull() != null) {
+            name.substringBeforeLast(' ')
+        } else {
+            name
+        }
+
+    private fun bonus(trait: String, value: Int) = Modifier(
+        id = ModifierId("trait:${trait.lowercase()}"),
+        source = ModifierSource.Situational(trait),
+        // Retargeted onto the skill being rolled by SkillRoll, exactly as
+        // Conditions' and CommonModifiers' rows are.
+        target = ModTarget.AllRolls,
+        effect = ModEffect.Flat(value),
+        layer = Layer.SITUATIONAL,
+    )
+}
