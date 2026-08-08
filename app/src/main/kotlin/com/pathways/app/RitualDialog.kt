@@ -216,7 +216,20 @@ fun RitualDialog(
     // the book says in its own sentence that it "does not grant a bonus to
     // the roll" -- and a fuel rule printed one line above a list of roll
     // modifiers is exactly the sentence that gets turned into one.
-    val spiOwed = PowerSources.spiOwed(cost, hpSacrificed)
+    val declaredSpi = PowerSources.spiOwed(cost, hpSacrificed)
+    // F: an entity that does not answer prices the attempt itself -- "treat as
+    // 2 SPI personal" -- and the app charged the declared cost on every row,
+    // so an unanswered Heavy invocation took 8+ where the book prints 2. The
+    // decision lives in [Invocation]; re-deriving it here is how this
+    // breakdown stopped reconciling in 6ag and 6ai.
+    val residual = answer?.response?.let(Invocation::drawsOnResidualPower) == true
+    val spiOwed = answer?.takeIf { !it.failsRitual }
+        ?.let { Invocation.fuelFor(it.response, declaredSpi) }
+        ?: declaredSpi
+    // The row says the ritual draws ONLY on residual power, so a declared HP
+    // sacrifice is displaced with the rest of the fuel rather than charged
+    // beside a cost it no longer covers.
+    val hpOwed = if (residual) 0 else hpSacrificed
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -683,10 +696,16 @@ fun RitualDialog(
                                     ""
                                 }) +
                                 ". Costs " +
-                                (if (hpSacrificed > 0) {
-                                    "$spiOwed SPI and $hpSacrificed HP."
+                                (if (hpOwed > 0) {
+                                    "$spiOwed SPI and $hpOwed HP."
                                 } else {
-                                    "$cost SPI."
+                                    "$spiOwed SPI."
+                                }) +
+                                (if (residual) {
+                                    " The entity did not answer, so the ritual " +
+                                        "draws only on residual power."
+                                } else {
+                                    ""
                                 }),
                             style = MaterialTheme.typography.bodySmall,
                         )
@@ -696,7 +715,25 @@ fun RitualDialog(
                         // same shape. The book's own answer is the rest of
                         // Section IV: bleed for it, bring assistants, offer a
                         // sacrifice.
-                        if (!Pools.canAffordSpi(spiOwed, spiAvailable)) {
+                        if (invoked && answer == null) {
+                            // "The GM rolls secretly on the Entity Response
+                            // Table FIRST, then applies the entity's modifier
+                            // to the Ritualistic Magic roll" (p. 66). Rolling
+                            // before asking casts an unaided ritual under a
+                            // power source whose whole content is the entity's
+                            // answer -- and the answer also prices the attempt
+                            // (Invocation.fuelFor), so the charge is not known
+                            // until it is given. Withdrawn rather than left to
+                            // refuse on tap, the shape 6x and 6ar both took.
+                            Text(
+                                "No roll yet — ask the entity first. The book " +
+                                    "rolls the Entity Response Table before the " +
+                                    "ritual, and its answer sets both the modifier " +
+                                    "and what this attempt costs.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        } else if (!Pools.canAffordSpi(spiOwed, spiAvailable)) {
                             Text(
                                 "No roll — $spiOwed SPI is more than the " +
                                     "$spiAvailable this caster has, and personal " +
@@ -732,7 +769,7 @@ fun RitualDialog(
                                 // a sacrifice the app then fails to charge is
                                 // how a tracker starts lying.
                                 onSpendSpi(spiOwed)
-                                if (hpSacrificed > 0) onSpendHp(hpSacrificed)
+                                if (hpOwed > 0) onSpendHp(hpOwed)
                                 rolled.critical?.corGained?.let(onCorGained)
                             },
                         ) { Text("Roll") }

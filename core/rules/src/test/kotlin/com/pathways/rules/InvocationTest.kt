@@ -126,6 +126,65 @@ class InvocationTest {
     }
 
     @Test
+    fun `an unanswered invocation costs the printed 2 SPI, not the ritual's own`() {
+        // Three 4s is a 12: No response. A Heavy ritual declared at 8 SPI is
+        // charged 2, because that row prints its own price. The app spent the
+        // declared cost on every row until this was applied, so an unanswered
+        // Heavy invocation took 8+ where the book prints 2 -- and on a caster
+        // with no pool the excess bought permanent Soul Debt CoR.
+        val answer = Invocation.ask(fixed(4), orthodoxInGoodStanding = false)
+        assertEquals(12, answer.shifted)
+        assertEquals(0, answer.ritualModifier)
+        assertEquals(Invocation.RESIDUAL_SPI, Invocation.fuelFor(answer.response, declared = 8))
+        assertEquals(2, Invocation.RESIDUAL_SPI)
+    }
+
+    @Test
+    fun `a row that answers keeps the ritual's own cost`() {
+        // The book prices none of the five answering rows, so they are left
+        // alone. Reading "you borrow power from someone higher" as "those rows
+        // are free" would author a price on five rows the book never prices.
+        listOf(3, 6, 9, 15).forEach { low ->
+            val response = Invocation.responseFor(low)
+            assertEquals(8, Invocation.fuelFor(response, declared = 8))
+        }
+    }
+
+    @Test
+    fun `the best outcome costs the most, and that disagreement is recorded`() {
+        // A Full response charges a Heavy ritual's whole 8 while No response
+        // charges 2. The book prints both and reconciles neither. This test
+        // exists so a later reading cannot quietly straighten it.
+        val full = Invocation.fuelFor(Invocation.responseFor(3), declared = 8)
+        val none = Invocation.fuelFor(Invocation.responseFor(12), declared = 8)
+        assertTrue(full > none, "the printed prices really do run backwards")
+    }
+
+    @Test
+    fun `the 2 SPI is read from the row's own sentence`() {
+        // The number lives in Kotlin because it is inside prose; this pins the
+        // sentence it came from, so a re-extraction that dropped the
+        // parenthetical fails here rather than leaving RESIDUAL_SPI floating.
+        val row = Invocation.responseFor(12)
+        assertTrue(
+            row.response.contains("treat as ${Invocation.RESIDUAL_SPI} SPI personal"),
+            "the 12-14 row no longer prints its own price: ${row.response}",
+        )
+        assertTrue(row.response.contains("residual power"))
+    }
+
+    @Test
+    fun `a rejected ritual has no fuel to spend`() {
+        // Same refusal shape as ritualModifier: the ritual fails automatically
+        // and is never rolled, so answering with a number would let a caller
+        // charge for a roll that did not happen.
+        val rejection = Invocation.responseFor(18)
+        assertThrows<IllegalArgumentException> {
+            Invocation.fuelFor(rejection, declared = 8)
+        }
+    }
+
+    @Test
     fun `a rejected ritual reports zero modifier and its own refusal`() {
         // Three 6s is an 18. The modifier is 0 because there is nothing to
         // add -- the failure is carried by failsRitual, not smuggled into a

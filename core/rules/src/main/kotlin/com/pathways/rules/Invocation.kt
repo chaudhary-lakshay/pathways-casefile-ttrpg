@@ -61,6 +61,22 @@ object Invocation {
      */
     const val ORTHODOX_SHIFT = -2
 
+    /**
+     * What the caster pays personally when the entity does not answer.
+     *
+     * The 12-14 row reads "No response. Ritual draws only on caster's residual
+     * power (treat as 2 SPI personal)." That parenthetical is the ONLY place
+     * this chapter prices a ritual fuelled by invocation, and it was printed,
+     * committed to `entity_response.json` and charged by nothing -- the app
+     * spent the declared complexity cost on every row, so a Heavy invocation
+     * that went unanswered took 8+ SPI where the book prints 2.
+     *
+     * Kept here rather than in the JSON because it is a number inside a
+     * sentence, the same split [ORTHODOX_SHIFT] and [RitualMode.SUPPORT_CAP]
+     * take. `InvocationTest` pins the sentence it was read from.
+     */
+    const val RESIDUAL_SPI = 2
+
     /** The lowest and highest a 3d6 can show, and this table's own bounds. */
     private const val LOWEST = 3
     private const val HIGHEST = 18
@@ -94,6 +110,60 @@ object Invocation {
         }
         return response.ritualModifier ?: 0
     }
+
+    /**
+     * The SPI the caster pays personally, given what the entity gave.
+     *
+     * [declared] is what the ritual would have cost out of the caster's own
+     * pool -- Section IV.A's complexity ladder, less any HP already sacrificed
+     * toward it. It is returned unchanged whenever the entity answers.
+     *
+     * **Only the no-response row changes the charge, and only because it
+     * prints a number.** The book states no cost for the five rows that DO
+     * answer, so they keep the declared one. Reading the section's "you borrow
+     * power from someone higher" as "the entity pays, so those rows cost 0"
+     * would author a price on five rows the book never prices -- the refusal
+     * [Languages.ritualModifier] makes about a common tongue's silence, where
+     * a row saying nothing is not the same as a row saying zero.
+     *
+     * **That leaves the best outcome costing the most, and it is recorded
+     * rather than smoothed.** A Full response charges the full 8+ of a Heavy
+     * ritual while No response charges 2. The book prints both and reconciles
+     * neither; straightening it means inventing the five missing prices.
+     *
+     * The row is identified by its own shape -- answering, yet printing no
+     * modifier -- rather than by the band 12-14, so a re-extraction that moved
+     * the bands cannot silently point this at the wrong row.
+     *
+     * Refused for the rejection row, like [ritualModifier]: that ritual fails
+     * automatically and is never rolled, so there is no fuel to spend.
+     */
+    fun fuelFor(response: EntityResponse, declared: Int): Int {
+        require(declared >= 0) { "a ritual cannot cost negative SPI; was $declared" }
+        require(!response.automaticFailure) {
+            "the ${response.low}-${response.high} row fails the ritual automatically; " +
+                "there is no fuel to spend"
+        }
+        return if (drawsOnResidualPower(response)) RESIDUAL_SPI else declared
+    }
+
+    /**
+     * Whether [response] throws the ritual back on the caster's own power.
+     *
+     * True only for the row that answers while printing no modifier -- the
+     * "No response" band. Exposed because [fuelFor] is not the only thing that
+     * has to know: a declared HP sacrifice is fuel too, and the row says the
+     * ritual "draws ONLY on caster's residual power", so the substitution
+     * replaces the whole declared fuel rather than only its SPI half. **That
+     * last step is a reading** -- the book prices the row and says nothing
+     * about HP already offered -- and it is pinned by a named test.
+     *
+     * A caller asking this and then re-deriving the charge itself would be the
+     * second copy of one decision that made the ritual breakdown stop
+     * reconciling twice already (6ag, 6ai). Ask here, then call [fuelFor].
+     */
+    fun drawsOnResidualPower(response: EntityResponse): Boolean =
+        !response.automaticFailure && response.ritualModifier == null
 
     /**
      * [roll] as it should be read off the table.
