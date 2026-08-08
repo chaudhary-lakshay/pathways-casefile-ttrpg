@@ -2824,6 +2824,149 @@ Impulsive "vs. IQ−2", Stubborn "vs. Will−3". Those four are rolls this app
 could make; WHEN to call for one is the GM's, which is the same shape as
 Single-Minded's extended concentration and is why they are not in this slice.
 
+## 6am. The number a tidy-up regex threw away, five milestones ago
+
+`SelfControl` (core/rules) reads the self-control target off a disadvantage
+and `SelfControlDialog` rolls it. The finding is not in the book — it is in
+this repo's own extractor.
+
+**`strip_self_control_number` has deleted a printed rule since M0.**
+`tools/extract_content.py:172` turned the book's `"Curious (12)"` into
+`"Curious"` so a sheet's spelling would match the catalogue. That
+parenthesised number IS the self-control target, and nothing else captured
+it. The regex had no capture group; the number went nowhere.
+
+- **Three spellings, three anchors, and none of them merged.** The book
+  prints the target in the trait NAME ("Curious (12)", nine rows), in the
+  effect cell ("Must roll vs. Will−3 …", sixteen rows), and once as the roll
+  itself ("roll 3d6 ≤ 6"). `parse_self_control` reads each on its own terms
+  and records which one answered in `source`, so a later reader can tell a
+  number the book printed twice from one it printed once.
+- **Five rows print it BOTH ways and all five agree exactly.** That agreement
+  is the entire warrant for reading the bare number on the four that print it
+  only in the name — Overconfidence, Obsession, Nightmares, Hallucinations —
+  whose effect cells name no roll at all. `verify()` fails if the five stop
+  agreeing, because the day they disagree is the day the reading has to be
+  made again rather than inherited. The per-table standard 6ad set, and 6v is
+  why it must be per-table.
+- **Overconfidence is on ELEVEN of the twenty-three premades.** Not an edge
+  case that went unread: the most common self-control disadvantage in the
+  book's own cast, silently unrollable for five milestones.
+- **A flat target and an attribute roll are different rules and are stored
+  apart.** "Curious (12)" is 12 whatever the character's Will is, so a potion
+  that raises Will must not make it easier to resist; fifteen rows key off
+  Will or IQ and move with the digested character. `SelfControlRoll` makes
+  the two exclusive by construction, so an attribute can never reach a flat
+  row.
+- **Two phrasings that print a number to roll under are REFUSED.** Duty's
+  "(roll 9 or less)" is how often the duty comes up and Phobia's "Fright
+  Check at −2" is a join to chapter 5. Both would have parsed. `verify()`
+  pins that each still prints its sentence and still carries no
+  `selfControl`, so the refusals stay decisions.
+- **The roll is offered, never fired.** 6al left these out because WHEN to
+  call for one is the GM's. True, and not a reason to leave the number
+  unreachable: a Fright Check (6c) and a Major Wound's HT roll (6n) are
+  equally the GM's and both ship as a button the GM presses.
+- **`Conditions` are deliberately NOT layered on.** `FrightCheck` takes a
+  single GM modifier and no ledger, and two Will rolls behaving differently
+  in one app would be worse than either choice alone.
+- **The consequence is quoted, never generated.** Three sentence shapes — "or
+  investigate any mystery", "to avoid angry outbursts", "to undertake any
+  sustained effort" — mean a paraphrase would get one of them backwards.
+
+**Two sheet spellings match nothing, and that is the finding.** Three sheets
+print "Absent-Minded" where the book's list prints "Absent-Mindedness", and
+one prints "Paranoia: Bodies of water" against a bare "Paranoia". Both rows
+the sheets are almost certainly reaching for DO print a self-control number,
+which is what makes the mismatch cost something. 4.1 says the book wins and
+the disagreement is recorded, so matching is by exact name and a test pins
+that they are still unmatched — fuzzy-matching would guess, and guessing is
+repair. On screen the row simply carries no effect line, which is the record.
+
+### The app half, which is where the whole slice was stuck
+
+`SelfControl` shipped tested and reachable from no screen, because
+**`TraitEffects.reported` reads `ContentLoader.advantages()` only** — so a
+character's disadvantages rendered NOWHERE in this app at all. The same hole
+`5dcfc25` fixed for bought skills, one list over, and the exact defect class
+6ai named. Every disadvantage is a row now; the ~24 that print a number are
+tappable.
+
+**The reviewer found the sharpest thing here.** `targetFor` throws for an
+attribute this book never keys on — a good refusal (6ah's `attributeFor`
+precedent) — but the sheet row computes that target for EVERY disadvantage
+during composition of the main `LazyColumn`. A bad content row would have
+taken the whole sheet screen down for every character rather than a
+dismissable dialog. The fix is at the boundary, not the render site:
+`SelfControlRoll` refuses it at construction, so it fails at content load.
+Wrapping the render in `runCatching` would have hidden a content defect
+behind a missing line. Also caught: the Roll button relied on tree removal
+alone, the un-hardened idiom 6p already had to fix for divination.
+
+### And the ritual slice's own gap, found while verifying it
+
+Section II prints five supporting skills and one of them is
+**"Hidden Lore (relevant domain)"**. The bracket is the book telling the
+caster to pick a domain — the shape `"Duty (specify)"` has one list over —
+not part of a skill's name, and no sheet spells it that way. Keyed on the
+printed string that row was unreachable and its +1 vanished in silence for
+the four premades carrying Hidden Lore. `0f038d3` had just made the other
+four reachable for the first time and left this one exactly as unreachable
+as before.
+
+The matching moved into `RitualMode` with the fix, because a screen doing
+its own comparison can offer a chip `supportBonus` then refuses, or withhold
+one it would accept — the two-copies-of-one-decision failure 6ag and 6ai each
+produced once.
+
+**Codex refused for the eighteenth consecutive slice, and the reset had not
+passed.** Its error text says "try again at 4:52 PM"; local time when this
+was run was **08:31**, so 16:52 was still eight hours out. Recording that
+because the session brief had read the date as already past — the hour
+matters, not just the day. One `ecc:kotlin-reviewer` fallback pass scoped to
+four named files with seven probes returned **one HIGH, one MEDIUM, two LOW
+and four probes traced to a file:line**; both real findings are described
+above and each new test was verified failing against the pre-fix code.
+Slices 6w–6am are now nineteen consecutive slices without the real gate.
+
+**A machine note that cost three emulator deaths.** `./gradlew --stop` stops
+the Gradle daemon and **does not reap Kotlin compile daemons**, which survive
+every build and accumulate: six of them held ~6 GB, and commit charge reached
+**38.7 GB of a 39.2 GB limit**, at which point the emulator cannot start at
+all and a running one is killed mid-session. Killing the java processes whose
+command line matches `kotlin-compiler-embeddable` returned 7 GB instantly. Do
+that between a build and a device run, not just `--stop` — the same pagefile
+exhaustion 6ah diagnosed, with the actual culprit named.
+
+Device-verified on `Medium_Phone_API_36.1`, **Journalist** — the one premade
+carrying all three shapes at once. **Overconfidence — −5 pts — 3d6 ≤ 12**
+above "Believes they can handle situations they cannot", which is the whole
+finding on screen: that 12 exists nowhere but the name the extractor was
+deleting. **Stubborn — −5 pts — 3d6 ≤ 7** against Will 10, the attribute row
+resolving. **Curious** quotes "Must roll vs. 12 or investigate any mystery
+encountered". **Wierdness Magnet — −15 pts** renders with no target and no
+effect line, a THIRD unmatched sheet spelling beside the two the tests pin.
+The dialog reads "a flat number the book prints — no attribute moves it",
+stepping to **−2** took the target 12 → 10, and a rolled **14 vs 10** gave
+**"Gave in"** with the effect cell in red and the Roll button gone.
+On **Academic Researcher** (no self-control rows) the four drawbacks render
+plain, and "Absent-Minded — −5 pts" carries no effect line — the recorded
+disagreement, visible. Its ritual dialog offers **Occultism / Hidden Lore
+(relevant domain) / Research**; ticking all three reads **"3d6 ≤ 12 —
+Ritualistic Magic 9, Light 0, preparation +0, +3 from supporting skills"**,
+which sums, and caps at +3 as the sentence says.
+
+**NOT verified on device:** that Stubborn's target MOVES when a potion moves
+Will while Curious's does not. It needs a seeded Beyonder state and the
+emulator died three times getting there; it rests on `SelfControlTest`'s
+`a flat target does not move with Will` and
+`an attribute row moves with the digested attribute`, the same way the ritual
+CoR charge rests on its tests (6f).
+
+Still unread in chapter 3: the study/training system on p. 32 — tutors, study
+points, and "a skill cannot exceed Attribute+1 through study alone" — a real
+subsystem with no caller in the app yet.
+
 ### A note on Codex
 
 It has found one real defect per slice for six slices running, but it reads
