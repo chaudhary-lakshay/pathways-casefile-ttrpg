@@ -246,7 +246,10 @@ private fun ParriesThisRound(prior: Int, penalty: Int, onChange: (Int) -> Unit) 
         if (penalty == 0) {
             "The first parry of a round is free."
         } else {
-            "Parry rows above include $penalty. " +
+            // The minus sign is normalised: `penalty` is an Int and prints
+            // ASCII "-", while the two tiers beside it are typed. One line
+            // with two different dashes reads as two different rules.
+            "Parry rows above include ${"$penalty".replace('-', '−')}. " +
                 "Chapter 8 prints no fencing weapon or rapier, whose tiers are −2 and −1."
         },
     )

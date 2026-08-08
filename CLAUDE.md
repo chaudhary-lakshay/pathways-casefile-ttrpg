@@ -3,7 +3,7 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `18c166d` (slice 6ao).
+sections below are current as of `8e6a1e1` (slice 6ap).
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -42,7 +42,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **857 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
+| Tests | **861 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -3100,6 +3100,69 @@ twice and its skill ladder twice. Neither pair is merged.
 
 Chapter 3's remaining lines after this are the mundane advantage and
 disadvantage effect tables.
+
+## 6ap. The parry penalty the defences table has been printing since M4
+
+`ParryBlock.parryPenalty` applies Ch. 5 p. 37's cumulative parry penalty, and
+`DefenseDialog` grew the stepper that feeds it. **The rule was committed in
+`defenses.json`'s own notes cell in 6g, displayed to the GM on that screen ever
+since, and applied by nothing** — the class 6h (trackers reaching no roll),
+6m (the Soul Debt printed and not charged) and 6ai (`freeRoll`) each found in
+turn. This one was on screen the whole time, in the sentence directly under
+the number it should have been moving.
+
+- **Two printings and they agree.** The prose says "Parry accumulates a −4
+  cumulative penalty **after the first** (−2 for fencing weapons)"; the
+  table's Notes cell says "Cumulative −4 per additional parry (−2 fencing, −1
+  rapier)". Nothing to record as a disagreement — the rarer outcome, and the
+  reason the reading needed no argument.
+- **The FIRST parry of a round is free.** "After the first" is the whole
+  sentence: read as −4 per parry it penalises a fighter who parried once and
+  never again. `parryPenalty(0)` is 0 and the screen says so out loud, because
+  a stepper sitting at zero with no explanation reads as a control that does
+  nothing.
+- **Block is a LIMIT, not a penalty, and Dodge is neither.** Block prints
+  "Once per round"; Dodge prints "May be used repeatedly". Three defences,
+  three different rules about repetition, and `parryPenalty` takes no defence
+  parameter precisely so a caller cannot hand it a Dodge. The general sentence
+  above the table says every type "may be used multiple times per round" and
+  the Block row contradicts it — specific beats general, the call the PCR's
+  critical rules and the ritual CoR ladder already needed.
+- **Two of the three tiers are unreachable and are modelled anyway.** −2 is
+  for fencing weapons and −1 for a rapier; chapter 8's nine weapons are five
+  firearms, a knife, a truncheon, a hand axe and a broadsword. Printed rules
+  with nothing in this book to reach them — the `Guns (Pistol)` shape (6t),
+  a skill the weapon table never arms. Modelled so a GM's smallsword is not
+  silently charged the broadsword's penalty, and named on screen so the
+  absence is visible rather than looking like a gap. A test fails if chapter 8
+  ever prints one.
+- **A negative count is refused, not clamped.** A caller holding −1 has a bug
+  in its round tracking, and answering with a BONUS would hide it behind a
+  plausible number — `Detection.attributeFor`'s call (6ah).
+- **The stepper sits UNDER the parry rows.** Above them it would read as
+  applying to Dodge too, which takes no such penalty. Placement is the only
+  thing distinguishing the two on a screen that lists them together.
+- **A stepper, not a counter the app increments**, because nothing here knows
+  a round has passed — the reason a Fright Check (6c) and a Major Wound's HT
+  roll (6n) are both buttons the GM presses.
+
+Device-verified on `Medium_Phone_API_36.1`, **Military Police** (Combat
+Reflexes, Brawling 11, Basic Speed 5.00): the dialog opens at **Dodge 9**,
+**Parry (Brawling) 9** — 8 + 1 from the trait each — with "The first parry of
+a round is free." Stepping to **1** takes Parry to **5** and **leaves Dodge at
+9**, which is the scoping holding, and the note reads "Parry rows above
+include −4. Chapter 8 prints no fencing weapon or rapier, whose tiers are −2
+and −1." The two effects compose: the trait's +1 survives the −4.
+
+One cosmetic follow-up after that run and NOT re-verified on device, because
+it cannot move a number: the penalty is an `Int` and printed an ASCII hyphen
+beside two typed minus signs, so one line carried two different dashes and
+read as two rules. Normalised.
+
+Chapter 5's remaining unclaimed lines are the Wrestling grappling ST bonus
+("+1 ST at DX+1, +2 at DX+2, grappling only"), which needs the Quick Contest
+this app does not model (6o, 6ah), and the round-order and unconsciousness
+prose.
 
 ### A note on Codex
 
