@@ -1,12 +1,19 @@
 # Known Issues
 
-**One open issue: OPEN-1 below.** Everything else recorded here has been fixed
-and is pinned by a test. This file is otherwise the audit trail of what was
-found and what was done about it, not a backlog.
+**There are no open issues.** Every item ever recorded here has been fixed and
+is pinned by a test. This file is kept as the audit trail of what was found and
+what was done about it, not as a backlog.
 
 ---
 
-## OPEN-1 — voluntary SPI spending goes below 0, and the book forbids it
+## FIXED-1 — voluntary SPI spending went below 0, and the book forbids it
+
+**Fixed in slice 6ar** (`a8323a4`), same session it was found. `Pools.canAffordSpi`
+floors voluntary spending at zero and all five dialogs withdraw their action;
+the damage path is untouched, so spirit body damage still reaches Soul Debt and
+still charges for it. Five tests in `PoolsTest`, three verified failing against
+the old behaviour, and device-verified in both directions on a mortal caster.
+The record of what was wrong follows.
 
 Found 2026-08-08 by a sweep for *prohibitions the app violates* — a defect
 class 6aq turned up (a rule printed and CONTRADICTED, as against printed and
@@ -58,7 +65,7 @@ behaviour as correct (6q, 6r, 6aa) because it matched ch 5's table read alone.
    sacrifice, catalysts. `PowerSources` already models all four (6aa), so the
    book's own escape route is built and reachable.
 
-**Why it is recorded rather than fixed here.** It is a reading that reverses
+**Why it was worth its own slice.** It is a reading that reverses
 long-standing, device-verified behaviour across four screens, and it deserves
 a slice with its own device pass rather than being tacked onto the end of an
 audit. The evidence is above so the next session need not re-derive it.

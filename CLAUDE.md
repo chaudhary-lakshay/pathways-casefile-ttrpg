@@ -3,7 +3,7 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `71eaee7` (slice 6aq).
+sections below are current as of `a8323a4` (slice 6ar).
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -42,8 +42,8 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **865 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
-| Open issues | **One — OPEN-1** in `docs/KNOWN_ISSUES.md`: voluntary SPI spending goes below 0 and buys permanent CoR, which ch 5 and ch 7 both forbid. Evidence and fix shape recorded; not started |
+| Tests | **870 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
+| Open issues | **Zero.** OPEN-1 was found and fixed in slice 6ar; `docs/KNOWN_ISSUES.md` is an audit trail again |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
@@ -3254,6 +3254,79 @@ Chapter 9's remaining unclaimed lines are the two upgrade examples (a Seer
 paying 16 pts for Occultism at IQ+3, a Sailor paying 40 for ST 12), which are
 `SkillLadder` and `AttributeCosts` restated from chapter 3 and now marked
 there by 6ao and 6an.
+
+## 6ar. Soul Debt is what an attack does to you, not what overspending does
+
+`Pools.canAffordSpi` floors voluntary SPI spending at zero, and all five
+SPI-spending dialogs withdraw their action rather than charging a debt. This
+closes OPEN-1, and it is the second find of a defect class that only appeared
+in 6aq: **a rule printed and CONTRADICTED**, as against printed and unapplied.
+
+**The sweep that found it is the slice's real product.** Two audits had run on
+this repo — 6ai's field-consumer grep and the recurring "printed but not
+applied" pass — and both look for the same shape: something extracted and then
+ignored. Neither can see a rule the app actively contradicts, because there
+the code is present, reachable, and confidently wrong. Grepping the source for
+prohibition language (`cannot|may not|must not|never|not allowed|not
+possible`) gives 165 lines, 89 with a mechanical hook, and the handful with a
+live consumer are the audit.
+
+**What the book actually says, in four lines across two chapters:**
+
+| Line | Text | Where it sits |
+|---|---|---|
+| 2716 | "You may choose a pool already at 0 (risking death, unconsciousness, or **Soul Debt**)" | Spirit Body Damage |
+| 2727 | "SPI below 0: Soul Debt — +1 CoR per 1 point below 0" | *Threshold Penalties by Pool*, same section |
+| 2353 | "SPI = 0: Spiritual Exhaustion — **cannot activate any SPI-cost abilities**" | ch 5's pool table |
+| 4254 | "The caster pays SPI equal to the ritual's complexity cost. **SPI cannot be reduced below 0.**" | ch 7, Power Source A |
+
+Both definitions of Soul Debt sit inside **Spirit Body Damage**. It is what an
+ATTACK on the spirit body does to you. Voluntary spending is capped by what
+you have — and the app had merged the two, letting a mortal at 0 SPI fund a
+Heavy ritual and walk away with 10 permanent CoR.
+
+- **The contrast with FP is the evidence, not either sentence alone.** p. 42
+  prints "Every point of FP spent below 0 also costs 1 HP", so the book knows
+  exactly how to permit overspending and price it. It does that for FP and
+  states the opposite for SPI. Treating the two pools alike erases a
+  distinction the book draws in two directions at once — and `spend`'s KDoc
+  had argued for exactly that symmetry since 6m.
+- **6m was right about the debt and wrong about the route.** Charging Soul
+  Debt was the correct fix; applying it to voluntary spending was not. The
+  damage path is untouched: `spend` keeps its floorless behaviour, so
+  `DamageDialog` still sends a pool below 0 and still charges for it.
+- **Three slices had device-verified the wrong behaviour** (6q, 6r, 6aa),
+  each reading ch 5's table on its own and finding it consistent. That is
+  what makes this class dangerous: the numbers reconcile, the tests pass, and
+  the screen looks right.
+- **Withdrawn, not refused on tap** — 6x's Broken mystical language, the same
+  shape, for the same reason: a button that throws is not a choice.
+- **A cost of zero stays available.** `canAffordSpi(0, current = 0)` is true:
+  the book charges nothing for it, and gating it would refuse an action the
+  book gives away free.
+- **A character already in Soul Debt may spend nothing, not a negative.**
+  `spendableSpi(-4)` is 0, because damage can leave the pool there and a
+  negative budget would make the comparison nonsense.
+- **Ch. 7's Section IV is the book's own answer**, which is what makes the
+  refusal safe rather than a dead end: HP sacrifice at 2 HP per SPI,
+  participants, external sacrifice, catalysts. `PowerSources` has modelled all
+  four since 6aa, so the escape route was already built and reachable.
+
+Device-verified on `Medium_Phone_API_36.1`, Academic Researcher — a MORTAL
+with SPI 0, seeded with Ritualistic Magic at 4 points, which is the exact
+character the old code charged permanent CoR:
+
+- A Light ritual costing 2 SPI reads **"3d6 ≤ 9 … Costs 2 SPI"** followed in
+  red by **"No roll — 2 SPI is more than the 0 this caster has, and personal
+  spirituality cannot be spent below 0. Pay in HP, bring assistants, or offer
+  a sacrifice."** The Roll button is **gone**.
+- Choosing **4 HP** on the Paid-in-HP row takes the same panel to **"Costs 0
+  SPI and 4 HP"** and **the Roll button returns** — the book's own Section IV
+  route, working, on the character that needed it.
+
+Chapter 5 and chapter 7's remaining unclaimed lines are unchanged by this; the
+sweep's other 88 candidates are ability prose with nothing in the app to
+contradict.
 
 ### A note on Codex
 
