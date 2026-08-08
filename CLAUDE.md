@@ -3,7 +3,7 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `74c99f9` (slice 6an).
+sections below are current as of `18c166d` (slice 6ao).
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -42,7 +42,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **851 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
+| Tests | **857 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -3045,6 +3045,58 @@ What would make it buildable is a stateless planner rather than a downtime
 tracker: given a skill's current level, name the CP the next rung costs and
 the hours and money that buy it. That needs no clock — the GM says when time
 passed. Recorded as the shape, not started.
+
+## 6ao. The attribute table, and a ceiling the book's own example breaks
+
+`GoldenAttributeTableTest` replays Ch. 3's attribute cost grid (p. 10-11)
+against `AttributeCosts`. That object has been production code since M0 and
+**every point total the app displays runs through it** — the budget line, the
+builder, the premade diff — and nothing had ever compared it to the twenty
+printed cells it was written from. The skill half was marked in 6ac and the
+study page's restatement in 6an; this is the half with real money on it.
+
+- **The grid prints INCREMENTAL costs and `costOf` returns the CUMULATIVE
+  total**, so the two worked examples — "DX 11 … Total: 60 pts", "ST 12 …
+  Total: 70 pts" — are the only place the book gives a cumulative figure and
+  therefore the only bridge between the two quantities. 6an's summary test
+  discovered that distinction by failing on it, comparing 10/20/40 against
+  10/30/70 and reading it as a disagreement. Marked explicitly here so the
+  next reader does not repeat the deduction.
+- **Nine is free and below nine is REFUSED, not refunded.** "A character who
+  leaves an attribute at 9 pays nothing and receives no refund — 9 is simply
+  the starting point, not a discount." A negative cost would pay points for
+  weakness, which is what that sentence forbids, so the engine throws — the
+  refusal-over-a-plausible-number call `Detection.attributeFor` needed (6ah).
+- **Two base rates, not four, asserted across the printed width.** A
+  single-cell check passes for any ladder that happens to agree at that rung;
+  the shape is that DX and IQ are exactly twice ST and HT at every level.
+
+**And chapter 3 contradicts itself about SPI, in the sentence's own
+examples.** Lines 505-506: *"mysticism-leaning pathways (e.g., Seer,
+Sleepless, Monster) grant as much as **+9**, while reality-leaning pathways
+(e.g., Hunter, Warrior, Savant) grant as little as +1."*
+
+| Named | Pathway | Grants |
+|---|---|---|
+| Hunter / Warrior / Savant | Red Priest / Twilight Giant / Paragon | **1 each** |
+| Seer / Sleepless | Fool / Darkness | **9** |
+| **Monster** | Wheel of Fortune | **12** |
+
+The low half holds exactly. The high half does not: the sentence's own third
+example exceeds the ceiling the same sentence states. Ch. 4's paragraph
+describes the same data with no ceiling and reconciles with it perfectly
+(6aj), which is what makes this chapter 3's slip rather than chapter 9's.
+4.1: recorded, not repaired. Nothing reads the sentence, so there is nothing
+to fix — what the test stops is a later reader treating "+9" as a validation
+bound and trimming the data, or "correcting" Monster to 9, either of which
+erases the conflict. Note the shape: this is the third time a paragraph and a
+table have been checked against each other in this repo, and the first time
+the paragraph lost.
+
+Also worth recording: **six of chapter 3's unclaimed lines are the same
+attribute ladder printed a third time** in the Character Creation Summary
+(2240-2241), already checked by 6an. Chapter 3 prints its attribute costs
+twice and its skill ladder twice. Neither pair is merged.
 
 Chapter 3's remaining lines after this are the mundane advantage and
 disadvantage effect tables.
