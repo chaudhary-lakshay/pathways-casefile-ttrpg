@@ -3,7 +3,7 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `b3b677e`.
+sections below are current as of `5615011` (slice 6am).
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -29,8 +29,11 @@ Read it before designing anything.
 
 ## 2. Current state
 
-**M0 through M3 are complete and merged to `master`**, and M4's first slice
-(CoR tracking) with them. The rest of M4 is next — see sections 6 and 6a.
+**M0 through M4 are complete and merged to `master`.** M4's slices are
+sections 6a–6am; the ones after 6o are chapter-by-chapter content work rather
+than milestone scope, so read the slice log from the END, not from 6a. Section
+6 still describes M4's original shape and is kept for that; the live picture
+of what is left is the closing paragraph of the most recent slice.
 
 There is an Android module (`app/`, Compose) with three screens: premade list
 -> sheet (the `computed vs asPublished` diff, tap a skill to roll 3d6), the
@@ -39,7 +42,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **824 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
+| Tests | **844 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -2956,16 +2959,25 @@ disagreement, visible. Its ritual dialog offers **Occultism / Hidden Lore
 Ritualistic Magic 9, Light 0, preparation +0, +3 from supporting skills"**,
 which sums, and caps at +3 as the sentence says.
 
-**NOT verified on device:** that Stubborn's target MOVES when a potion moves
-Will while Curious's does not. It needs a seeded Beyonder state and the
-emulator died three times getting there; it rests on `SelfControlTest`'s
-`a flat target does not move with Will` and
-`an attribute row moves with the digested attribute`, the same way the ritual
-CoR charge rests on its tests (6f). Also unverified on device: the ritual
-dialog's "This character has none of the book's 5 supporting skills" branch
-(`RitualDialog.kt:572`) — it is guarded by `isEmpty()` and needs a caster
-carrying none of the five, which is another emulator round. Recorded rather
-than left to read as verified by omission.
+**The two shapes were then separated on device, which is the claim that
+matters.** The same Journalist seeded as a **Justiciar Sequence 9** — whose
+potion grants Will +1 — reads **Stubborn 3d6 ≤ 8** where the mortal read 7,
+while **Curious** and **Overconfidence** both stay at **12**. One potion,
+three disadvantages, and only the attribute-keyed one moves.
+
+**A legibility trap that is NOT a defect, recorded so it is not "fixed".** On
+that same screen the comparison table's `Will` row still reads **10** while
+Stubborn reads 8, which looks like arithmetic that fails to reconcile — 8 is
+11−3, not 10−3. The comparison rows are deliberately computed from the
+UNEDITED sheet, because that diff is the engine against the book (6e); the
+disadvantage rows use the digested character, because that is who is rolling.
+Two correct numbers from two different characters on one screen. Anyone
+tempted to make them agree should read 6e first.
+
+**Still NOT verified on device:** the ritual dialog's "This character has none
+of the book's 5 supporting skills" branch (`RitualDialog.kt:572`) — guarded by
+`isEmpty()` and needing a caster carrying none of the five, which is another
+emulator round. Recorded rather than left to read as verified by omission.
 
 Still unread in chapter 3: the study/training system on p. 32 — tutors, study
 points, and "a skill cannot exceed Attribute+1 through study alone" — a real
