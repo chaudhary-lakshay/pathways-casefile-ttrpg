@@ -3625,6 +3625,96 @@ rests on `RitualResolutionTest` (6f): the drained-Beyonder burn floor, the
 bought-specialization level, the potion-granted support skill, and the
 Ritualistic Magic push.
 
+## 6at. The fourth blind spot — sweeping code→book
+
+Three sweeps have run on this repo and each found what the one before it
+structurally could not see: **a rule printed and not applied** (6h, 6m, 6ai,
+6ap), **an extracted field with no consumer** (6ai's grep of all 345 fields),
+and **a rule printed and CONTRADICTED** (6aq, 6ar, and 6as's residual-power
+row). The question this slice opened with was what the FOURTH one is, and the
+answer is a direction rather than a shape.
+
+**All three start at the book or at an extracted field. Nothing has ever
+swept from the CODE back to the book.** A number that lives in Kotlin is
+invisible to every one of them: there is no book sentence to search on, and
+no extracted field to grep. And this repo puts numbers in Kotlin *on
+purpose* — "numbers inside prose live in Kotlin, with `verify()` or a Kotlin
+test pinning the sentence they were read from" — so the sweep is a compliance
+audit of a stated invariant, not a fishing trip.
+
+The sweep, in three passes:
+
+- **57 named numeric constants** across `core/rules` and `core/model`. Traced
+  clean. Two worth recording because they LOOK like findings: `Divination
+  .MAX_SUPPORT_BONUS = 2` sits beside `RitualMode.SUPPORT_CAP = 3`, and that
+  is two printed rules, not a defect — ch. 6.5 line 3580 prints "cumulative
+  but **cap at +2 total** from supporting skills" where ch. 7 prints +3, the
+  same shape as 6y's two preparation tables. Straightening the pair would be
+  the 4.1 sin. And `Character.MAX_SPI = 1000` / `MAX_ATTRIBUTE = 30` are
+  documented in their own KDoc as sanity bounds — *"not a rulebook figure.
+  The book never states a numeric ceiling for SPI"* — which is exactly the
+  disclosure that makes them fine.
+- **20 inline literals** in function bodies, which is where an invented
+  number hides best, precisely because naming it would invite a pin. All but
+  one are printed formulas: parry `skill/2 + 3`, dodge `speed + 3`, the
+  10/20 attribute rates, the -10 critical margin.
+- **The one finding**, below.
+
+### `Divination` was the only margin-reader that kept its number in Kotlin
+
+Five objects in this codebase read a margin off a table. Four take the
+threshold FROM THE ROW — `MajorWound.failBy`, `RitualFailure.from`/`.to`,
+`SpiritualSenseRow.margin`, `DegreeBand.offset`. `Divination.clarityFor` held
+**5 and 3 as Kotlin literals and reached its rows by array position**.
+
+- **Both sides were already pinned, and nothing joined them.**
+  `extract_divination.py` pins the exact printed strings and their order
+  (`CLARITY_RESULTS`, raising *"clarity rows changed"*); `DivinationTest`
+  pinned the behaviour at each margin. Neither knows about the other. Re-read
+  a band as "Success by 4+" and the extractor fails loudly, a developer
+  updates the pin, and Kotlin's `>= 5` sits there silently — **selecting a row
+  whose own printed text contradicts the margin that selected it**, while the
+  dialog displays that text. That is the "two copies of one decision" failure
+  6ag and 6ai each produced once, in the one object that both selects by
+  margin and renders the band.
+- **No wrong number today, and that is stated rather than glossed.** The
+  printed bands are 5+/3–4/0–2 and 1–4/5+; Kotlin's thresholds agree on every
+  value. This is hardening, and pretending otherwise would be inventing a
+  defect.
+- **The fix deletes the copy rather than pinning two together.**
+  `DivinationClarity` gains `margin` and `isFailure`, parsed by the extractor
+  out of the Result cell, and `clarityFor` reads them. The critical row gets
+  **neither** — named by outcome, and printing no margin is not printing zero,
+  which matters here for once: at 0 it would be the mildest success band and
+  could outrank the row that really is.
+- **Three readings survive the rewrite unchanged**, and each is still pinned:
+  outcome before margin, the deepest of the overlapping bands (a margin of 5
+  satisfies all three success rows), and the mildest failure row for a rolled
+  17 that beat its target on the dice — where `by` goes negative and matches
+  no band at all.
+- **The guard is general, not five spot checks.** A test parses each row's own
+  Result cell and walks every value of the band it prints, asserting the
+  engine picks that row. Same shape as 6ag's parts-sum test.
+
+**The RED proof needed a divergence to exist**, since both copies agree today:
+the old hardcoded reading was restored AND one band re-read as "Success by
+2–4", which is the exact scenario the test guards. It failed with *"a margin
+of 2 should land on Success by 2–4 — expected Clear, was Vague"*. **The other
+16 tests in the file passed** in that state, which is the whole argument for
+the general form.
+
+**Codex reviewed it and found no correctness issues** — its own targeted
+Gradle run was blocked by a sandbox lock on the wrapper's `.lck` file, so the
+green suite here is mine: full Kotlin suite and 239 Python tests.
+
+Worth keeping about the sweep itself: **"never named in a test" is the wrong
+discriminator.** A test hard-coding `-6` pins `RAPID_STRIKE_PENALTY`
+perfectly, and a test that names the symbol pins nothing at all — a symbolic
+reference moves with the bug. 37 of the 57 constants are never named in a
+test and nearly all are fine. The question is whether a printed sentence
+exists and whether anything joins it to the number, which is a question only
+the book can answer.
+
 ---
 
 ## 7. Global rules the owner has set
