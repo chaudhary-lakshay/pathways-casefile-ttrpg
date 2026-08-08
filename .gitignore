@@ -5,3 +5,6 @@ build/
 local.properties
 __pycache__/
 gradle/gradle-daemon-jvm.properties
+hs_err_pid*.log
+replay_pid*.log
+*.stackdump
