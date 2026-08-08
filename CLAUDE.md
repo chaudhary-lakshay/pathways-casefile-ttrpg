@@ -3345,7 +3345,7 @@ The mojibake anecdote is real advice and its attribution is unsupported;
 
 Codex answered on the first probe after its limit reset. **Thirteen chunks,
 61 commits, 6n through 6ar, and it never refused once.** Two chunks came back
-clean; the other eleven produced **17 findings**. Five are fixed here.
+clean; the other eleven produced **17 findings**. Seven are fixed here.
 
 **The gap was bigger than anyone had recorded.** The slice log says the
 unreviewed run started at 6w. The companion's own job history says otherwise:
@@ -3439,14 +3439,35 @@ code cannot produce is a finding. Grep the number.
   `MainActivity` — this Compose version has it stable. Codex output is
   evidence, not orders (section 7); the disproof is a build, not an argument.
 
+### Two more, both about a comparison the app refused to make
+
+- **`divinerSequence = null` was hardcoded**, under a comment saying the sheet
+  does not model the diviner's Sequence. `BeyonderState` has carried it since
+  M3. So Sec. 6's Sequence Advantage could never fire: a Seq 2 diviner reading
+  a Seq 4 target still took the full -10 and the critical-only clause the
+  section forgives outright. `AntiDivination` has implemented and tested that
+  comparison since 6ag; nothing ever handed it the number. Null stays right
+  for a mortal, who has no Sequence.
+- **Automatic awareness fired against every diviner.** The Seq 4+ row scopes
+  itself in its own cell — "always knows when someone of **weaker** Sequence
+  attempts to divine them. Equal or stronger Sequence requires a Quick
+  Contest" — and the screen read the bare flag, so a demigod was told they
+  were aware of an equal who might well have gone unnoticed. **`DetectionTest`
+  had stated that scope in prose since 6ah**: the test knew and the code did
+  not, which is the cheapest kind of finding to have missed. The comparison is
+  the GM's, because this dialog holds the target's sheet and the diviner is a
+  declared party with no numbers — the same reason the chapter's six Quick
+  Contests are unmodelled. Asked for, like the darkness row's value; and when
+  it is not given the fallback is the ordinary Sense roll, never a claim of
+  awareness.
+
 ### Left open on purpose
 
-Twelve findings remain, listed with their file:line in the session's plan
-file. Two need a decision before a patch, and neither should be taken blind:
-**the divination dialog spends its SPI AFTER rolling**, which is a reading
-needing ch. 6.5's own step list because it moves every divination target; and
-**`divinerSequence = null` is hardcoded**, so a Beyonder diviner never gets
-Sequence Advantage even though `SheetScreen` holds the sequence.
+Ten findings remain, listed with their file:line in the session's plan file.
+The one that most needs a decision before a patch is **the divination dialog
+spending its SPI AFTER rolling** — a reading needing ch. 6.5's own step list,
+because applying it moves every divination target whose method cost crosses an
+attrition threshold.
 
 Device-verified on `Medium_Phone_API_36.1`, and the emulator was CPU-starved
 enough that a cold start took ~90 seconds (6ah's pagefile diagnosis, still
