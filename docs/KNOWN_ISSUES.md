@@ -1,8 +1,67 @@
 # Known Issues
 
-**There are no open issues.** Every item ever recorded here has been fixed and
-is pinned by a test. This file is kept as the audit trail of what was found and
-what was done about it, not as a backlog.
+**One open issue: OPEN-1 below.** Everything else recorded here has been fixed
+and is pinned by a test. This file is otherwise the audit trail of what was
+found and what was done about it, not a backlog.
+
+---
+
+## OPEN-1 — voluntary SPI spending goes below 0, and the book forbids it
+
+Found 2026-08-08 by a sweep for *prohibitions the app violates* — a defect
+class 6aq turned up (a rule printed and CONTRADICTED, as against printed and
+unapplied) and that nothing had ever searched for.
+
+**The app charges permanent CoR for an action the book does not allow.**
+`BeyonderSession.spend` applies Soul Debt to any SPI reduction, and its KDoc
+argues there is deliberately no floor. That reasoning is right for spirit body
+DAMAGE and wrong for voluntary spending, because the book separates the two:
+
+| Line | Text | Context |
+|---|---|---|
+| 2353 / 2726 | "SPI = 0: Spiritual Exhaustion — all Beyonder abilities deactivate; **cannot activate any SPI-cost abilities**" | ch 5 pool table |
+| 4254 | "The caster pays SPI equal to the ritual's complexity cost. **SPI cannot be reduced below 0.**" | ch 7, Power Source A |
+| 2716 | "You may choose a pool already at 0 (risking death, unconsciousness, or **Soul Debt**)" | ch 5, **Spirit Body Damage** |
+| 2727 | "SPI below 0: Soul Debt — +1 CoR per 1 point below 0" | ch 5, under *Threshold Penalties by Pool*, inside that same damage section |
+
+Read together the book is coherent, and the reading is not a stretch: **Soul
+Debt is what an ATTACK on the spirit body does to you**, not what overspending
+does. Lines 2716 and 2727 both sit inside Spirit Body Damage. Voluntary
+spending is capped by what you have — you cannot activate what you cannot pay
+for.
+
+**The contrast with FP is explicit and deliberate**, which is the strongest
+evidence: line 2848 prints "Every point of FP spent below 0 also costs 1 HP",
+so the book knows how to permit overspending and price it. It does that for FP
+and does the opposite for SPI. An app that treats the two pools alike erases a
+distinction the book draws in two directions at once.
+
+**What is affected.** Every voluntary SPI spend in the app: `RitualDialog`
+fuel, `DivinationDialog`'s method cost, `ArtifactDialog`'s per-use and per-turn
+costs, and `DetectionDialog`'s techniques. All can currently be performed at
+0 SPI, and each buys permanent CoR — `Corruption` is explicit that Soul Debt
+CoR "are permanent and require special rituals to remove" (6m), so this is not
+a recoverable mistake at the table. Several slices device-verified that
+behaviour as correct (6q, 6r, 6aa) because it matched ch 5's table read alone.
+
+**Shape of the fix, not started.**
+1. A rules-level affordability question: what a character may voluntarily
+   spend is their current SPI, floored at 0.
+2. The four dialogs ask it before OFFERING the action, and withdraw the
+   button rather than refusing on tap — the precedent is 6x's Broken mystical
+   language, which "replaces the target with 'No roll — the book forbids this
+   attempt' and withdraws the Roll button entirely, so no SPI is charged".
+3. `spend` keeps its floorless behaviour for the DAMAGE path
+   (`DamageDialog`), which is the one route the book does send below 0.
+4. Ch 7's alternative power sources are the answer for a caster who cannot
+   afford a ritual — HP sacrifice at 2 HP per SPI, participants, external
+   sacrifice, catalysts. `PowerSources` already models all four (6aa), so the
+   book's own escape route is built and reachable.
+
+**Why it is recorded rather than fixed here.** It is a reading that reverses
+long-standing, device-verified behaviour across four screens, and it deserves
+a slice with its own device pass rather than being tacked onto the end of an
+audit. The evidence is above so the next session need not re-derive it.
 
 Items 1-4 of the original review (raw-Flat Cancel budgets, summed SetTo, ungrouped
 Scale/Decay/Cancel caps, and the mod() test helper decoupling SourceKind from

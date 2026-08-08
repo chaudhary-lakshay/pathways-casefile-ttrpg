@@ -43,7 +43,7 @@ and the builder (attributes against a live point budget).
 | | |
 |---|---|
 | Tests | **865 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
-| Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
+| Open issues | **One — OPEN-1** in `docs/KNOWN_ISSUES.md`: voluntary SPI spending goes below 0 and buys permanent CoR, which ch 5 and ch 7 both forbid. Evidence and fix shape recorded; not started |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
