@@ -3345,8 +3345,8 @@ The mojibake anecdote is real advice and its attribution is unsupported;
 
 Codex answered on the first probe after its limit reset. **Thirteen chunks,
 61 commits, 6n through 6ar, and it never refused once.** Two chunks came back
-clean; the other eleven produced **17 findings**. Ten are fixed here and two
-are refused with evidence.
+clean; the other eleven produced **17 findings**. Eleven are fixed here and
+two are refused with evidence.
 
 **The gap was bigger than anyone had recorded.** The slice log says the
 unreviewed run started at 6w. The companion's own job history says otherwise:
@@ -3514,13 +3514,42 @@ fresh roll and by Another turn, because a push belongs to the roll it bought.
 `BurnRow` became `internal` rather than being copied into the attack dialog:
 two copies of a ceiling is exactly what 6ak's finding was.
 
+### The divination paid after it rolled, and the chapter numbers its own steps
+
+This one was deferred twice as "a reading" and it turned out the book settles
+it outright. Ch. 6.5 p. 55: **"Step 2 — Choose Method & Pay SPI ... Pay the
+SPI cost."** then **"Step 3 — Roll & Apply Modifiers."** The dialog rolled
+first and called `onSpendSpi` afterwards, so the payment could not reach the
+roll it paid for.
+
+**It is a three-point swing, not a technicality.** Spiritual Attrition is -3
+to all SPI-based rolls at or below 1/3 max SPI, and Divination Arts is
+SPI/Hard — so a diviner at 5 of 9 SPI paying 2 for their method lands on 3,
+inside the threshold, and the book has them roll under a penalty the app was
+computing from the pool they had before paying. `conditionPenalty` is a
+function of the pending cost now: a flat Int could only ever describe the
+caster who had not paid yet, and the method chip changes the cost after the
+dialog is composed.
+
+**Deferring it was right and so was finally reading the page.** Two sessions
+recorded it as needing "ch. 6.5's own step list" rather than patching on the
+strength of it looking wrong. The list exists, it is numbered, and it took one
+grep — the lesson being that "this needs a reading" is a reason to go and read,
+not a reason to leave it indefinitely.
+
+**Unit-verified only.** The emulator's `system_server` died mid-verification
+("Can't find service: window", 32.9 GB of a 38.2 GB commit limit) — 6ah's
+pagefile exhaustion again, not the app. The target change on screen is the
+part still unobserved.
+
 ### Left open on purpose
 
-Five findings remain, listed with their file:line in the session's plan file.
-The one that most needs a decision before a patch is **the divination dialog
-spending its SPI AFTER rolling** — a reading needing ch. 6.5's own step list,
-because applying it moves every divination target whose method cost crosses an
-attrition threshold.
+Four findings remain, listed with their file:line in the session's plan file.
+None needs a decision — they are `CircumstanceRow` offering only a range's two
+ends where `CommonModifiers.valueFor` already accepts the values between,
+`RitualMode` letting an API caller mix Full-mode preparation into a Quick
+ritual (unreachable from the dialog), and two UI notes with no behavioural
+consequence.
 
 Device-verified on `Medium_Phone_API_36.1`, and the emulator was CPU-starved
 enough that a cold start took ~90 seconds (6ah's pagefile diagnosis, still
