@@ -130,6 +130,42 @@ class RitualModeTest {
     }
 
     @Test
+    fun `the row printed with a bracket is reachable from a real sheet`() {
+        // "Hidden Lore (relevant domain)" is the book telling the caster to
+        // pick a domain, not a skill's name -- the shape "Duty (specify)"
+        // already has one list over. No sheet spells it that way, so keyed on
+        // the printed string the row was unreachable and its +1 vanished in
+        // silence. Four premades carry Hidden Lore.
+        assertEquals(1, RitualMode.supportBonus(listOf("Hidden Lore")))
+        assertEquals(2, RitualMode.supportBonus(listOf("Hidden Lore", "Occultism")))
+        // ...and the printed spelling still answers, so the book's own string
+        // is not the thing that broke.
+        assertEquals(1, RitualMode.supportBonus(listOf("Hidden Lore (relevant domain)")))
+        // One skill, one point: the two spellings are the same row.
+        assertEquals(
+            1,
+            RitualMode.supportBonus(listOf("Hidden Lore", "Hidden Lore (relevant domain)")),
+        )
+    }
+
+    @Test
+    fun `a caster is offered exactly the supporting skills they own`() {
+        // The Academic Researcher's own list. Three of the five, and the one
+        // that used to be dropped is in it.
+        val owned = listOf(
+            "Research", "Writing", "History", "Occultism",
+            "Hidden Lore", "Literature", "Mathematics",
+        )
+        assertEquals(
+            listOf("Occultism", "Hidden Lore (relevant domain)", "Research"),
+            RitualMode.supportSkillsOwnedBy(owned),
+        )
+        // A character with none of them is offered nothing rather than all
+        // five -- the book means the skills the caster brings.
+        assertTrue(RitualMode.supportSkillsOwnedBy(listOf("Brawling")).isEmpty())
+    }
+
+    @Test
     fun `the support bonus applies in both modes`() {
         // Section II sits above the mode split and says nothing about either,
         // so it is not scoped to one -- unlike the link, which each mode

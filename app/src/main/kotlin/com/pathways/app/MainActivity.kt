@@ -620,13 +620,15 @@ fun SheetScreen(
             // Section II's five, narrowed to the ones this character bought.
             // Offering all five would let a GM claim an Occultism the sheet
             // does not print; the book means skills the caster brings.
+            // The matching lives in RitualMode, not here: a screen with its
+            // own comparison can offer a chip `supportBonus` then refuses, or
+            // withhold one it would accept. It did -- one of the five rows is
+            // printed "Hidden Lore (relevant domain)" and no sheet spells it
+            // that way, so the caster's +1 was dropped in silence.
             ownedSupportSkills = remember(sheet, session.edits) {
-                val owned = session.characterFor(sheet).skills
-                    .map { it.key.name.lowercase() }
-                    .toSet()
-                RitualMode.supportSkills()
-                    .map { it.skill }
-                    .filter { it.lowercase() in owned }
+                RitualMode.supportSkillsOwnedBy(
+                    session.characterFor(sheet).skills.map { it.key.name },
+                )
             },
             // cor = 0 here on purpose: RitualResolution applies the CoR
             // ladder itself, so including it would charge the caster twice

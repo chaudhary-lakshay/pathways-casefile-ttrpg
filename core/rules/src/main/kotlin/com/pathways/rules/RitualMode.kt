@@ -118,10 +118,28 @@ enum class RitualMode(
          * caller passing "Occultsm" would otherwise lose a point in silence.
          * Naming one twice pays once -- a character has one Occultism.
          */
+        /**
+         * A supporting skill's name with the book's instruction stripped.
+         *
+         * One of the five rows is printed "Hidden Lore (relevant domain)".
+         * The bracket is the book telling the caster to pick a domain -- the
+         * same shape as "Duty (specify)" in the disadvantage list -- not part
+         * of a skill's name, and no character sheet spells it that way. Keyed
+         * on the printed string, that row was unreachable and its +1 was lost
+         * in silence for anyone carrying Hidden Lore, which four premades do.
+         *
+         * Only the row's own bracket is stripped, so a SPECIALIZED skill
+         * still matches on its bare name -- which is what the book asks for,
+         * since it is the domain's relevance and not its spelling that earns
+         * the point, and relevance is the GM's call.
+         */
+        fun bareSupportName(skill: String): String =
+            skill.substringBefore(" (").trim().lowercase()
+
         fun supportBonus(skills: List<String>): Int {
-            val printed = supportSkills().associateBy { it.skill.lowercase() }
-            val bonus = skills.distinctBy { it.lowercase() }.sumOf { name ->
-                val row = printed[name.lowercase()]
+            val printed = supportSkills().associateBy { bareSupportName(it.skill) }
+            val bonus = skills.distinctBy { bareSupportName(it) }.sumOf { name ->
+                val row = printed[bareSupportName(name)]
                     ?: throw IllegalArgumentException(
                         "'$name' is not a supporting skill for rituals; the book prints " +
                             supportSkills().joinToString { it.skill },
@@ -129,6 +147,20 @@ enum class RitualMode(
                 row.bonus
             }
             return minOf(bonus, SUPPORT_CAP)
+        }
+
+        /**
+         * Which of the book's five supporting skills [owned] covers.
+         *
+         * Lives here rather than in the screen so the matching is decided
+         * once: a caller that filtered with its own comparison could offer a
+         * chip [supportBonus] then refuses, or withhold one it would accept.
+         * Returns the BOOK's spelling, because that is what the chip should
+         * read and what [supportBonus] is documented against.
+         */
+        fun supportSkillsOwnedBy(owned: List<String>): List<String> {
+            val bare = owned.map { bareSupportName(it) }.toSet()
+            return supportSkills().map { it.skill }.filter { bareSupportName(it) in bare }
         }
     }
 }
