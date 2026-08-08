@@ -3,7 +3,7 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `8e6a1e1` (slice 6ap).
+sections below are current as of `71eaee7` (slice 6aq).
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -42,7 +42,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **861 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
+| Tests | **865 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
 | Open issues | **Zero.** `docs/KNOWN_ISSUES.md` is now an audit trail, not a backlog |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
@@ -3163,6 +3163,76 @@ Chapter 5's remaining unclaimed lines are the Wrestling grappling ST bonus
 ("+1 ST at DX+1, +2 at DX+2, grappling only"), which needs the Quick Contest
 this app does not model (6o, 6ah), and the round-order and unconsciousness
 prose.
+
+## 6aq. The app was selling three skills the book says cannot be bought
+
+`SkillLadder.isBuyableWithPoints` applies Ch. 9 p. 85, and the builder's skill
+picker honours it. This is not a rule printed and unapplied — it is a rule
+printed and **contradicted**, which is a worse shape and the first of its kind
+in this repo.
+
+> *"Exception — SPI-based skills (Spiritual Intuition, Spiritual Perception,
+> Divination Arts) cannot be raised with character points. They improve only
+> through Sequence progression and pathway bonuses."*
+
+The builder offered all three, and **6p's entire divination feature was built
+on buying one of them** — "no premade prints Divination Arts, so it is bought
+in the builder before a question can be asked". 6aj bought both spiritual
+senses the same way. Three slices rest on an action the book forbids, and the
+page saying so sits in chapter 9's preamble, four lines above the potion
+blocks those slices read.
+
+- **The warrant is an exact match, not a resemblance.** The sentence names
+  three skills; `skills.json` prints exactly three rows with `attr: "SPI"`,
+  3 of 158, and they are the same three. That is what licenses reading the
+  rule as a property of the CONTROLLING ATTRIBUTE rather than as a list of
+  three special names — the standard 6ad set, and 6v is why it has to be
+  per-table. A test fails if a fourth ever appears or one of these stops
+  being SPI-based, because the reading would then have to be made again.
+- **It is the reading `Attr` already encodes.** SPI "starts at 0 and cannot be
+  raised by points", which is precisely why it is not an `Attr` (4.4). The
+  skills hanging off it inherit that, and chapter 9 says so out loud. 6p had
+  already noticed the effect and mis-read its cause: *"the skill reads −2,
+  because it is SPI/Hard and a non-Beyonder has SPI 0 — the book gating
+  divination on spirituality, arithmetically."* The gate is not arithmetic.
+  It is printed, and it is absolute.
+- **The rule GATES rather than forbids, which is what makes the fix safe.**
+  Fifteen Sequence blocks grant one of the three. Refusing the purchase would
+  be a defect if nothing else could supply them; instead a Beyonder gets them
+  and a mortal does not, which is the book's design. Checked by value before
+  the filter was written, not after.
+- **Withheld from the picker, not offered and then refused** — the lesson the
+  two Aim rows taught (6t): a chip that throws on tap is not a choice.
+- **And dropped on LOAD as well**, because a session saved before the fix
+  would otherwise keep billing points for a purchase the book does not allow.
+  Same path a skill the book no longer prints already takes (6e).
+- **Ritualistic Magic is IQ/Very Hard and stays buyable**, which is what keeps
+  the ritual screen reachable. Confirming that is what stops this fix quietly
+  removing rituals along with divination, so it is pinned by its own test.
+
+**Also read on the same page and already correct:** the two-branch rule for a
+potion's `+N`. A NEW skill reads "Attribute + N" and explicitly not "N rungs
+up from default"; a skill the character already has at the same name AND
+difficulty reads "level + N" and stacks; a different difficulty is treated as
+new. `PotionDigestion` implements all three branches and its KDoc quotes the
+page. Checked because the two sentences look contradictory in a line dump and
+are not — they are the two branches, stated one paragraph apart.
+
+Device-verified on `Medium_Phone_API_36.1`, both directions:
+
+- **Academic Researcher seeded as a Fool Sequence 9**, nothing bought: SPI
+  **9/9** from the potion, and the action bar reads "Fright · **Ritual** ·
+  **Divine** · Detect · Boon" — both screens reachable purely through the
+  potion, which is the book's own route.
+- **The same mortal with a PRE-FIX save** carrying Divination Arts at 4 points,
+  Spiritual Intuition at 2 and Ritualistic Magic at 4: the bar reads "Fright ·
+  **Ritual** · Detect · Boon · Artifacts" — **Divine is gone**, the two
+  forbidden purchases dropped on load, and the legal IQ-based one kept.
+
+Chapter 9's remaining unclaimed lines are the two upgrade examples (a Seer
+paying 16 pts for Occultism at IQ+3, a Sailor paying 40 for ST 12), which are
+`SkillLadder` and `AttributeCosts` restated from chapter 3 and now marked
+there by 6ao and 6an.
 
 ### A note on Codex
 
