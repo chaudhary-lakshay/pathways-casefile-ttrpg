@@ -91,6 +91,29 @@ object Attacks {
     const val HEROIC_CHARGE = "Heroic Charge"
 
     /**
+     * [plan] moved between reach and range, dropping what cannot come along.
+     *
+     * Rapid Strike and Deceptive Attack both say "melee", and [modifiers]
+     * REFUSES a ranged plan carrying either -- correctly, because silently
+     * applying them would invent a penalty the book does not give. That
+     * refusal is a `require`, so a screen that changed only `isRanged` handed
+     * the next composition an exception instead of an attack: picking up a
+     * second firearm after setting a Rapid Strike in reach took the dialog
+     * down before Roll could be tapped.
+     *
+     * Heroic Charge is kept, because it is scoped to its MANEUVER rather than
+     * to reach, and the maneuver is not what changed here.
+     *
+     * Lives beside the two requires it exists to satisfy. A caller doing its
+     * own reset is a second copy of the rule -- and there were already two,
+     * disagreeing: the range toggle rebuilt the plan from scratch while the
+     * weapon swap copied it.
+     */
+    fun atRange(plan: AttackPlan, isRanged: Boolean): AttackPlan =
+        if (!isRanged) plan.copy(isRanged = false)
+        else plan.copy(isRanged = true, rapidStrikes = 0, deceptive = 0)
+
+    /**
      * The most -1 steps of defence penalty [skillLevel] may buy.
      *
      * Two of the book's rules compose here: the price is -2 per step, and
@@ -188,6 +211,7 @@ object Attacks {
         // give -- the UI offers neither once a ranged attack is chosen.
         require(!plan.isRanged || plan.rapidStrikes == 0) { "Rapid Strike is a melee option" }
         require(!plan.isRanged || plan.deceptive == 0) { "Deceptive Attack is a melee option" }
+        // ^ [atRange] is the supported way to move a plan past these two.
         // "Ignore Charge Attack penalties" buys off nothing on any other
         // maneuver, and it costs 2 FP; spending them for no effect is a bug.
         require(!plan.heroicCharge || plan.maneuver == AttackManeuver.CHARGE) {

@@ -196,7 +196,7 @@ fun AttackDialog(
                         }
                         // A firearm is fired at range and a sword is not
                         // thrown; the toggle still overrides either way.
-                        plan = plan.copy(isRanged = held.isFired)
+                        plan = Attacks.atRange(plan, held.isFired)
                         // Aim is worth the WEAPON's Acc, and distance belongs
                         // to a shot. Carrying either into reach asks
                         // Ranged.modifiers for a number nothing can supply --
@@ -328,7 +328,7 @@ private fun AttackOptions(
             selected = plan.isRanged,
             // Both attack options are melee-only, so switching to range drops
             // them rather than offering a choice the book does not allow.
-            onClick = { onPlan(AttackPlan(maneuver = plan.maneuver, isRanged = !plan.isRanged)) },
+            onClick = { onPlan(Attacks.atRange(plan, !plan.isRanged)) },
             label = { Text(if (plan.isRanged) "At range" else "In reach") },
             modifier = Modifier.padding(vertical = 8.dp),
         )

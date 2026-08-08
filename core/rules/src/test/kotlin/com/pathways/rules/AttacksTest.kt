@@ -207,6 +207,37 @@ class AttacksTest {
     }
 
     @Test
+    fun `arming a firearm drops the melee-only options rather than throwing`() {
+        // The taps that took the dialog down: toggle a gun attack into reach,
+        // set a Rapid Strike and two Deceptive steps, then pick up a different
+        // firearm. The swap copied the plan and changed only isRanged, so the
+        // very next composition called modifiers() on a ranged plan carrying
+        // both -- and modifiers refuses that with a require, correctly.
+        val inReach = AttackPlan(isRanged = false, rapidStrikes = 1, deceptive = 2)
+        val armed = Attacks.atRange(inReach, isRanged = true)
+        assertEquals(0, armed.rapidStrikes)
+        assertEquals(0, armed.deceptive)
+        assertTrue(armed.isRanged)
+        // The proof is that the composition which used to crash now resolves.
+        Attacks.modifiers(armed, skillLevel = 12)
+    }
+
+    @Test
+    fun `going back into reach keeps the maneuver and its charge`() {
+        // Heroic Charge is scoped to its MANEUVER, not to reach, and the
+        // maneuver is not what changed -- so dropping it would refund nothing
+        // and silently undo a choice that costs 2 FP.
+        val charging = AttackPlan(
+            maneuver = AttackManeuver.CHARGE,
+            isRanged = false,
+            heroicCharge = true,
+        )
+        val back = Attacks.atRange(charging, isRanged = false)
+        assertEquals(AttackManeuver.CHARGE, back.maneuver)
+        assertTrue(back.heroicCharge)
+    }
+
+    @Test
     fun `Heroic Charge still names an extra effort option`() {
         assertTrue(ContentLoader.extraEffort().any { it.option == Attacks.HEROIC_CHARGE })
     }
