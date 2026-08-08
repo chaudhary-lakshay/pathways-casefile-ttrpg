@@ -60,10 +60,52 @@ object EffortBurn {
      */
     fun kindFor(key: SkillKey): BurnKind? = when (val ca = key.attr) {
         is ControllingAttribute.Buyable ->
-            if (ca.attr in PHYSICAL_ATTRS) BurnKind.PHYSICAL else null
+            if (ca.attr in PHYSICAL_ATTRS) BurnKind.PHYSICAL
+            else if (key.name in SUPERNATURAL_SKILLS) BurnKind.MYSTICAL
+            else null
         ControllingAttribute.Spi -> BurnKind.MYSTICAL
         else -> null
     }
+
+    /**
+     * Skills the SPI row names outright, whose controlling attribute is not
+     * SPI.
+     *
+     * The row reads "any **SPI-based or supernatural** skill roll (Ritualistic
+     * Magic, Spiritual Perception, Occultism vs. Beyonder phenomena, etc.)".
+     * Reading only the first half made "supernatural" do no work: Ritualistic
+     * Magic is IQ/Very Hard, so the book's own FIRST example of a mystical
+     * push could not be pushed. Spiritual Perception is already SPI-based and
+     * needs no naming.
+     *
+     * **Occultism is deliberately absent.** Its entry is qualified by what is
+     * being rolled AGAINST -- "vs. Beyonder phenomena" -- and a `SkillKey`
+     * carries no subject matter, so the app cannot tell that roll from an
+     * ordinary one about mundane history. Granting it always would push a
+     * roll the book does not; refusing it silently would hide a rule. It is
+     * reported instead, through [conditionalScope] -- the call the wealth
+     * table's reaction modifier and a called shot's multiplier already take.
+     *
+     * The "etc." is likewise the GM's and is not guessed at. This set holds
+     * only what the book prints without a qualifier.
+     */
+    val SUPERNATURAL_SKILLS = setOf(Conditions.RITUAL_SKILL)
+
+    /**
+     * The scope the book prints but this app cannot test, for [key], or null.
+     *
+     * Shown beside the roll so a GM can apply what the engine declines to.
+     */
+    fun conditionalScope(key: SkillKey): String? =
+        if (key.name.equals(CONDITIONAL_SKILL, ignoreCase = true)) {
+            "The book also allows a 1 SPI push on $CONDITIONAL_SKILL " +
+                "vs. Beyonder phenomena. Whether this roll is that is yours to say."
+        } else {
+            null
+        }
+
+    /** Named in the SPI row, but only for part of what the skill covers. */
+    const val CONDITIONAL_SKILL = "Occultism"
 
     /** The most points [kind] may buy, or null where the book prints no cap. */
     fun maxFor(kind: BurnKind): Int? = pool(kind).max

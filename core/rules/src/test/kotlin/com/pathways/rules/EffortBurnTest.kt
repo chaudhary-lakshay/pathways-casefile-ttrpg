@@ -220,6 +220,69 @@ class EffortBurnTest {
     }
 
     @Test
+    fun `the book's own first example of a mystical push can be pushed`() {
+        // "any SPI-based or supernatural skill roll (Ritualistic Magic, ...)".
+        // Ritualistic Magic is IQ/Very Hard, so reading only the SPI-based
+        // half left the row's FIRST example unable to use the rule it names.
+        val ritual = SkillKey(
+            Conditions.RITUAL_SKILL,
+            null,
+            ControllingAttribute.Buyable(Attr.IQ),
+            Difficulty.VERY_HARD,
+        )
+        // Mystical, not physical: the FP row lists ST, DX and HT only.
+        assertEquals(BurnKind.MYSTICAL, EffortBurn.kindFor(ritual))
+    }
+
+    @Test
+    fun `an ordinary IQ skill still gets no push`() {
+        // The gap the refusal exists for: neither row mentions the mental
+        // attributes, so Research is pushed by nothing.
+        val research = SkillKey(
+            "Research",
+            null,
+            ControllingAttribute.Buyable(Attr.IQ),
+            Difficulty.AVERAGE,
+        )
+        assertNull(EffortBurn.kindFor(research))
+    }
+
+    @Test
+    fun `Occultism is reported rather than pushed`() {
+        // Its entry is qualified by what is rolled AGAINST -- "vs. Beyonder
+        // phenomena" -- and a SkillKey carries no subject matter. Granting it
+        // always pushes rolls the book does not; refusing it in silence hides
+        // a printed rule. So it is named to the GM instead.
+        val occultism = SkillKey(
+            EffortBurn.CONDITIONAL_SKILL,
+            null,
+            ControllingAttribute.Buyable(Attr.IQ),
+            Difficulty.HARD,
+        )
+        assertNull(EffortBurn.kindFor(occultism))
+        assertTrue(EffortBurn.conditionalScope(occultism)!!.contains("Beyonder phenomena"))
+        assertNull(EffortBurn.conditionalScope(SkillKey(
+            "Research",
+            null,
+            ControllingAttribute.Buyable(Attr.IQ),
+            Difficulty.AVERAGE,
+        )))
+    }
+
+    @Test
+    fun `the named skills are read from the row's own sentence`() {
+        // The set lives in Kotlin because the names are inside prose; this
+        // pins the cell they came from, so a re-extraction that dropped an
+        // example fails here rather than leaving the set floating.
+        val scope = EffortBurn.pool(BurnKind.MYSTICAL).scope
+        EffortBurn.SUPERNATURAL_SKILLS.forEach {
+            assertTrue(scope.contains(it), "the SPI row no longer names $it: $scope")
+        }
+        assertTrue(scope.contains(EffortBurn.CONDITIONAL_SKILL))
+        assertTrue(scope.contains("supernatural"))
+    }
+
+    @Test
     fun `a drained Beyonder cannot buy a mystical push`() {
         // The fifth SPI spend, and the one 6ar missed: the burn is not a
         // dialog of its own, so a sweep of the dialogs never reached it. The

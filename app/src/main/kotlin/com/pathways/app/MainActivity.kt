@@ -497,6 +497,7 @@ fun SheetScreen(
             // mortal, who never had SPI; this excludes a Beyonder who has
             // spent it, which the gate above cannot see.
             spiAvailable = vitals.maxSpi - session.spiSpent,
+            conditionalBurnNote = EffortBurn.conditionalScope(skill.key),
             onRoll = { circumstances ->
                 // The trackers reach the dice here: a reeling, fatigued or
                 // corrupted character no longer rolls at full skill. The GM's
@@ -1060,6 +1061,9 @@ private fun RollDialog(
     // passing a pool where a rule wants a different quantity is a defect no
     // test catches.
     spiAvailable: Int = 0,
+    // A push the book allows on part of what this skill covers, which the
+    // engine cannot test for itself. Shown, never applied.
+    conditionalBurnNote: String? = null,
     onBurn: (BurnKind, Int) -> Unit = { _, _ -> },
     onRoll: (List<com.pathways.model.Modifier>) -> SkillRollOutcome,
     onDismiss: () -> Unit,
@@ -1147,6 +1151,19 @@ private fun RollDialog(
                         onBurn(burnKind, points)
                         burned += points
                     }
+                }
+                // Occultism's push is scoped to "vs. Beyonder phenomena", and
+                // a SkillKey carries no subject matter. Naming it beats both
+                // alternatives: granting it would push rolls the book does
+                // not, and withholding it in silence would hide a printed
+                // rule -- the shape a wealth level's reaction modifier and a
+                // called shot's multiplier already take.
+                if (conditionalBurnNote != null && EffortBurn.canPush(shownOut)) {
+                    Text(
+                        conditionalBurnNote,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 12.dp),
+                    )
                 }
             }
         },
