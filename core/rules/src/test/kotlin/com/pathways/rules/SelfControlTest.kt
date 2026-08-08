@@ -173,7 +173,13 @@ class SelfControlTest {
         // names match nothing, and that is the finding, not a bug to fix by
         // fuzzy-matching -- which would guess, and guessing is repair.
         val printed = ContentLoader.disadvantages().map { it.name }.toSet()
-        listOf("Absent-Minded", "Paranoia: Bodies of water").forEach {
+        // "Wierdness Magnet" (Journalist) was found on the DEVICE, rendering
+        // with no effect line, after this test already pinned the other two.
+        // Pinned here for the same reason: an unpinned recorded disagreement
+        // is the one a later session repairs by fuzzy-matching. It differs
+        // from the two below in that the row it reaches for prints no
+        // self-control roll, so only the no-match half is asserted.
+        listOf("Wierdness Magnet", "Absent-Minded", "Paranoia: Bodies of water").forEach {
             assertFalse(it in printed, "the book's list now prints '$it'")
             assertTrue(SelfControl.checksFor(listOf(dis(it))).isEmpty())
         }
