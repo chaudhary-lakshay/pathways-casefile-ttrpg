@@ -2974,10 +2974,13 @@ disadvantage rows use the digested character, because that is who is rolling.
 Two correct numbers from two different characters on one screen. Anyone
 tempted to make them agree should read 6e first.
 
-**Still NOT verified on device:** the ritual dialog's "This character has none
-of the book's 5 supporting skills" branch (`RitualDialog.kt:572`) — guarded by
-`isEmpty()` and needing a caster carrying none of the five, which is another
-emulator round. Recorded rather than left to read as verified by omission.
+**And the empty branch, on the character that makes it reachable.** Fifteen of
+the twenty-three premades carry none of the five, so seeding Ritualistic Magic
+onto **Barmaid Brawler** reads *"This character has none of the book's 5
+supporting skills (Occultism, Thaumatology, Hidden Lore (relevant domain),
+Research, Professional Skill (Astrology etc))"* with no chip row at all and
+the target unmoved at **3d6 ≤ 8**. Naming the five it does not have is the
+point: a bare absence would read as a screen that forgot to render.
 
 Still unread in chapter 3: the study/training system on p. 32 — tutors, study
 points, and "a skill cannot exceed Attribute+1 through study alone" — a real
