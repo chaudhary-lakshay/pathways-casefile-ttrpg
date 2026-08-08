@@ -1,0 +1,69 @@
+{
+ "sourceLines": {
+  "3": [
+   [
+    2185,
+    2205
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "difficulty": "Easy",
+   "tutor": {
+    "printed": "6 hrs + 4s",
+    "hours": 6,
+    "amount": 4,
+    "unit": "s"
+   },
+   "selfStudy": {
+    "printed": "12 hrs + 1s",
+    "hours": 12,
+    "amount": 1,
+    "unit": "s"
+   }
+  },
+  {
+   "difficulty": "Average",
+   "tutor": {
+    "printed": "12 hrs + 8s",
+    "hours": 12,
+    "amount": 8,
+    "unit": "s"
+   },
+   "selfStudy": {
+    "printed": "24 hrs + 2s",
+    "hours": 24,
+    "amount": 2,
+    "unit": "s"
+   }
+  },
+  {
+   "difficulty": "Hard",
+   "tutor": {
+    "printed": "24 hrs + £1",
+    "hours": 24,
+    "amount": 1,
+    "unit": "£"
+   },
+   "selfStudy": {
+    "printed": "48 hrs + 4s",
+    "hours": 48,
+    "amount": 4,
+    "unit": "s"
+   }
+  },
+  {
+   "difficulty": "Very Hard",
+   "tutor": {
+    "printed": "48 hrs + £2",
+    "hours": 48,
+    "amount": 2,
+    "unit": "£"
+   },
+   "selfStudy": {
+    "printed": "Not possible"
+   }
+  }
+ ]
+}

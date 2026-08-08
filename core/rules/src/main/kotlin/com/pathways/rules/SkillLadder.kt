@@ -27,6 +27,20 @@ object SkillLadder {
         difficulty.defaultPenalty?.let { attributeLevel + it }
 
     /**
+     * The cumulative points the next rung up costs, or null past the printed
+     * grid's last rung.
+     *
+     * The ladder's own knowledge, exposed so [Study] can plan against it
+     * rather than keeping a second copy of [RUNGS] -- the duplication 6at
+     * removed from the divination clarity table. Points BELOW a rung still sit
+     * on the rung under them, so 3 points has 4 as its next rung, not 8.
+     */
+    fun nextRungPoints(points: Int): Int? {
+        require(points >= 0) { "points spent cannot be negative; was $points" }
+        return RUNGS.firstOrNull { it > points }
+    }
+
+    /**
      * Whether a skill controlled by [attr] may be bought with character points.
      *
      * Ch. 9, p. 85: *"Exception — SPI-based skills (Spiritual Intuition,

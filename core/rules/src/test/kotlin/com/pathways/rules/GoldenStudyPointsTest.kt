@@ -1,6 +1,7 @@
 package com.pathways.rules
 
 import com.pathways.model.Attr
+import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
 import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -138,6 +139,55 @@ class GoldenStudyPointsTest {
         // The rung ABOVE it exists and is reachable by ordinary purchase,
         // which is exactly why the limit has to say "through study alone".
         assertEquals(dx + 2, SkillLadder.levelFor(8, Difficulty.AVERAGE, dx))
+    }
+
+    /**
+     * **The half of the example that was unassertable until the table was
+     * extracted.** 6an marked the CP arithmetic above and left the time and
+     * money unread, because nothing could consume them; [Study] can, so the
+     * book's own homework is now marked end to end.
+     *
+     * The example is the only proof the cost is LINEAR per point. A printed
+     * cell buys one CP, and Tomas pays "another 24 hours (16s)" for two --
+     * exactly twice the printed "12 hrs + 8s". Nothing else on the page says
+     * how a multi-point rung is priced.
+     */
+    @Test
+    fun `the example's hours and money reproduce, and prove the cost is linear`() {
+        val dx = 10
+        fun step(points: Int) =
+            Study.plan(points, Difficulty.AVERAGE, dx, StudyMethod.TUTOR, ControllingAttribute.Buyable(Attr.DX)).getOrThrow()
+
+        // "12 hrs + 8s earns 1 study CP -> Guns-9"
+        val first = step(0)
+        assertEquals(1, first.pointsNeeded)
+        assertEquals(9, first.toLevel)
+        assertEquals("12 hrs + 8s", first.printed)
+
+        // "He studies 12 more hours (8s) for 1 more CP -> Guns-10"
+        val second = step(1)
+        assertEquals(1, second.pointsNeeded)
+        assertEquals(10, second.toLevel)
+        assertEquals("12 hrs + 8s", second.printed)
+
+        // "Another 24 hours (16s) for 2 more CP -> Guns-11" -- the linearity.
+        val third = step(2)
+        assertEquals(2, third.pointsNeeded)
+        assertEquals(11, third.toLevel)
+        assertEquals(24, third.hours)
+        assertEquals(16, third.amount)
+        assertEquals("12 hrs + 8s", third.perPoint.printed, "per point, doubled by the plan")
+    }
+
+    @Test
+    fun `the example stops where it says it does, and study offers nothing past it`() {
+        // "-> Guns-11 (Attr+1) -- the cap." The book calls it the cap in the
+        // example and prints it again in the Limits, so a planner offering a
+        // fourth step would contradict the page twice.
+        val refused = Study.plan(4, Difficulty.AVERAGE, 10, StudyMethod.TUTOR, ControllingAttribute.Buyable(Attr.DX))
+        assertTrue(refused.isFailure)
+        val reason = (refused.exceptionOrNull() as StudyRefusedException).reason
+        assertTrue(reason.contains("11"), reason)
     }
 
     @Test

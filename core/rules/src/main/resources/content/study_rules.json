@@ -1,0 +1,31 @@
+{
+ "sourceLines": {
+  "3": [
+   [
+    2185,
+    2205
+   ],
+   [
+    2231,
+    2237
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "rule": "Tutor: Must have the skill at Attribute+2 or higher. Max 3 students at a time."
+  },
+  {
+   "rule": "Self-study: Requires a book, manual, or practice space (included in the cost)."
+  },
+  {
+   "rule": "A skill cannot exceed Attribute+1 through study alone."
+  },
+  {
+   "rule": "Beyonder potion-granted skills (Chapters 9–11) cannot be studied."
+  },
+  {
+   "rule": "No more than two skills may be studied per downtime period."
+  }
+ ]
+}

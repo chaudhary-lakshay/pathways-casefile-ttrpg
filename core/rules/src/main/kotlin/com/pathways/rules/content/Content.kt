@@ -1045,6 +1045,44 @@ data class DamageAbbreviation(
 )
 
 /**
+ * One row of the Study & Training time-and-money table (Ch. 3, p. 32).
+ *
+ * A study session earns "1 character point locked to that skill", so the CP
+ * half of a plan is [com.pathways.rules.SkillLadder]'s job and this table only
+ * prices the point. See [com.pathways.rules.Study].
+ */
+@Serializable
+data class StudyCost(
+    val difficulty: String,
+    val tutor: StudyPrice,
+    val selfStudy: StudyPrice,
+)
+
+/**
+ * What one study point costs, or the cell that refuses to price it.
+ *
+ * Very Hard self-study prints "Not possible", so it carries [printed] and
+ * NOTHING ELSE -- no hours, no money. Printing no cost is not printing zero,
+ * the distinction [RitualCritical.corGained] draws for corruption, and here it
+ * has teeth: read as free it would make the hardest road the cheapest.
+ *
+ * [amount] and [unit] are the money exactly as printed, in the two currencies
+ * the column mixes ("4s" and "£1"). Nothing in this repo converts between
+ * them -- the same call the wealth ladder made (6u).
+ */
+@Serializable
+data class StudyPrice(
+    val printed: String,
+    val hours: Int? = null,
+    val amount: Int? = null,
+    val unit: String? = null,
+)
+
+/** One sentence of the Study & Training prose: a requirement or a Limit. */
+@Serializable
+data class StudyRule(val rule: String)
+
+/**
  * One row of Starting Wealth by Economic Status (Ch. 8, p. 80).
  *
  * [points] is SIGNED, exactly as the table prints it ("Dead Broke (-25 pts)"),
