@@ -3,7 +3,12 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `882ffe1` (slice 6aw).
+sections below are current as of `4031b56` (slice 6ay).
+
+**Read the slice log from the END.** 6ax is a handover header; 6ay is the
+slice after it, and it found a roll modifier 6ax's own "nothing is
+outstanding" table could not see. Treat 6ax the way 6ax says to treat its
+predecessors: verify it, do not inherit it.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -42,7 +47,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **914 Kotlin** (JUnit 5 — 831 `core:rules`, 63 `app`, 20 `core:model`) + **239 Python** (pytest), all green |
+| Tests | **919 Kotlin** (JUnit 5 — 836 `core:rules`, 63 `app`, 20 `core:model`) + **243 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -3972,8 +3977,12 @@ start by asking the same question rather than by picking a chapter.
    because the code is present, reachable, and confidently wrong.
 4. **A number invented in code** (6at) — code → book, the only direction that
    can see a constant no source sentence backs.
+5. **A gap between two claimed spans** (6ay) — starts at neither end. Two
+   extractors walked one section for its tables and left a +1 in the seam
+   between them, in a chapter reading 81%. Print the lines either side of
+   every claimed span.
 
-### Three habits this session earned, in priority order
+### Three habits this session earned, in priority order (and see 6ay)
 
 - **Re-read the source before inheriting a deferral or a count.** 6au
   overturned one, 6av confirmed one, 6aw checked a claim made three messages
@@ -3987,6 +3996,124 @@ start by asking the same question rather than by picking a chapter.
   multipliers counting as no mechanical line (6v), a table on the next
   appendix's page (6ae), a table straddling a chapter boundary (6af), and
   ~70 rows of shop inventory inflating chapter 8 (6av).
+
+## 6ay. The Flourish Bonus, and the fifth blind spot 6ax asked for
+
+`RitualMode.FLOURISH_BONUS` applies Ch. 7 Phase II's +1, and the ritual
+dialog grew a Delivery row. The book prints it, then prints what it is FOR,
+one line apart:
+
+    The GM may award a Flourish Bonus
+    (+1) for good in-character delivery.
+    Effective skill = Ritualistic Magic + Preparation Mod + Flourish Bonus
+
+**"Flourish" appeared nowhere in this codebase.** Not in `core`, not in
+`app`, not in `tools`. The class 6h, 6m, 6ai and 6ap each found in turn —
+printed and not applied — with the book's own formula naming it.
+
+### The fifth blind spot: a gap BETWEEN two claimed spans
+
+6ax listed four sweep directions and asked what the fifth is. This is it, and
+it is the first that starts from neither the book nor the code:
+
+`ritual_quick_preparation.json` claims lines **4055-4064**.
+`ritual_preparation.json` claimed lines **4120-4139**.
+The Flourish sits at **4140-4143** — one line past the end of the second.
+
+Two extractors walked this section for its TABLES and neither looked at the
+prose between them, so a modifier printed as a sentence fell in the seam. And
+no existing instrument points there: `coverage.py` reports a per-chapter
+PERCENTAGE, and chapter 7 read **81.0%**, which is what a chapter looks like
+when it is nearly done — not what it looks like when a roll modifier is
+missing. 6ab's own list of what remained in the chapter named the 12-step
+canon procedure, Section VII, and rituals 8-10, and simply did not contain
+Phase II, because 6y had claimed to read Section III.
+
+**The sweep is cheap and mechanical**: for each content file, print the lines
+immediately either side of every claimed span. A modifier hiding in a seam is
+adjacent to a table by construction — that is why it was missed.
+
+### What the slice settles
+
+- **It is the FULL ritual's alone, and it is the target link's exact mirror.**
+  "Flourish" occurs exactly twice in this book, both inside Phase II; Quick's
+  Step 3 says "Sum the following two modifiers" and names Preparation Quality
+  and Target Link. So each mode prints one modifier the other does not, and
+  `modifierTotal` refuses the wrong one in either direction. A test asserts
+  `usesTargetLink != usesFlourish` for every mode, because if one mode ever
+  became a superset of the other the scoping would need re-reading rather
+  than inheriting.
+- **The formula is EVIDENCE, not an inventory.** It names Ritualistic Magic,
+  preparation and the flourish, and omits weight, CoR, supporting skills and
+  language — all of which reach the same target. Read as exhaustive it would
+  delete four rules; read as Phase II's summary of Phase II it establishes the
+  one thing needed, that the +1 lands on the ROLL rather than on the fuel.
+- **The number and its name are on different lines**, and neither line alone
+  states the rule: one has a bonus with no value, the other a value with no
+  name. Worse, the line above ends "(4-part Hermes structure — see reference
+  below)", so a rule taking the paragraph's first bracketed number reads the
+  structure. The regex anchors to the NAME and the lines are joined first —
+  the page-break join `extract_languages.py` needed for "costs / half."
+- **A flag, not a stepper.** The book prints one value, unlike the ranges the
+  darkness row, the preparation cells and the ritual fuel all print. And it
+  defaults to FALSE, because the book has the GM AWARD it: a bonus that
+  started ticked would be one nobody granted.
+- **The canon procedure's timing penalty is refused, not applied.** Section C
+  prints "Wrong timing for the entity gives -1 to -2", and Phase I already
+  declares "Timing: Does it match the entity's domain?" among the choices
+  feeding the single Preparation Modifier — Excellent's own cell names
+  "celestial timing". Charging both prices one mistimed ritual twice, the
+  scoping that keeps Appendix A's adverse conditions off a shot already priced
+  by chapter 5's darkness row (6ae). The book also labels Section C "a
+  reference ... when you want the full texture", and `verify()` pins BOTH —
+  because "it is reference prose" is a reason that has to survive the page
+  printing a number, which is 6t's lesson about a chapter at 0.0%.
+- **The +1 lives in Kotlin and the sentence is claimed**, the split the
+  maneuver table's +4/-4 (6i), the +3 support cap (6y) and the orthodox -2
+  (6z) all take. A test asserts `"flourish"` is absent from the JSON, and
+  another asserts `[4140, 4143]` IS in its `sourceLines` — an assertion whose
+  source sentence is unclaimed is a rule nobody can find again (6af).
+- **Ch. 13's boons take no flourish**, the same way they take no language, no
+  Phase I preparation and no power sources: chapter 13 prices the whole
+  performance through its own Ritual quality row. Documented in
+  `Boons.targetFor`'s KDoc so the omission stays a decision.
+
+**My own arithmetic was the one thing that failed.** The composition test was
+written expecting 8 CoR to be -2 and it is -1, so the suite went red on a
+number I had asserted from memory rather than from `Corruption.ritualPenalty`.
+Exactly the "count in prose is a finding" habit (6as) turned on my own test.
+
+**Codex reviewed it and returned clean** — "No discrete correctness issues
+found in the changed files. The new flourish modifier is scoped consistently
+through rules, UI, extractor checks, and tests." Both readings were RED-proved
+by neutering them together (QUICK given `usesFlourish = true` and the bonus
+set to 0): **5 tests failed**, and were restored.
+
+Device-verified on `Medium_Phone_API_36.1` (1080x2400), Academic Researcher
+seeded with Ritualistic Magic at 4 points (level 9), a MORTAL with SPI 0:
+
+- **Full** mode shows **Delivery (Phase II)** with a **Flourish +1** chip and
+  the book's own sentence quoted. Untouched, the panel reads **"3d6 ≤ 9 —
+  Ritualistic Magic 9, Light 0, preparation +0."**
+- Ticking it reads **"3d6 ≤ 10 — ... preparation +0, +1 flourish"**, which
+  sums to the number above it.
+- Switching to **Quick** with it still ticked **did not crash** — the
+  `remember(mode)` reset, which matters more here than for the link because a
+  stale flourish makes `modifierTotal` THROW. The Delivery row is **gone**,
+  **Link to target** appears in its place, and the target is back to **9** with
+  the flourish absent from the breakdown: the two modes swapping exactly one
+  modifier each, on screen.
+- Switching back to **Full** cleared it again, so it had to be re-ticked —
+  verified in both directions.
+- Paying **4 HP** (2 HP = 1 SPI) covered the fuel, restoring the Roll button on
+  a caster with no SPI pool (6ar's route). The panel read **"3d6 ≤ 10 ... Costs
+  0 SPI and 4 HP"** and rolled **13 vs 10** — against the target the flourish
+  moved, so `attempt` takes it and not only `targetFor` — landing on "Failure
+  by 1-4 — No effect". HP went **9 → 5** and the session saved `hpLost: 4`,
+  `spiSpent: 0`.
+
+Chapter 7 is now at **81.6%**, from 81.0%. The four lines claimed are the
+seam itself; nothing else in the chapter moved.
 
 ---
 
