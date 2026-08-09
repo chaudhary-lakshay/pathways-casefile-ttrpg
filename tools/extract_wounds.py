@@ -42,7 +42,7 @@ OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "5"
 LOCATION_RANGE = (2743, 2784)
-MULTIPLIER_RANGE = (2790, 2816)
+MULTIPLIER_RANGE = (2789, 2816)
 STACKING_RANGE = (2817, 2818)
 MAJOR_RANGE = (2819, 2832)
 
@@ -90,6 +90,16 @@ EXPECTED_TYPES = [
     "Large Piercing", "Burning", "Toxic",
 ]
 STACKING = "stack with damage-type multipliers"
+# The table's own introductory sentence (2789), one line above the rows and
+# unclaimed until now. It states the ORDER -- subtract DR, then multiply --
+# which is the only place this book says how the two interact. Nothing applies
+# it, because nothing in this app holds DR: an attack's damage is an
+# expression rather than a total, and the one dialog that DOES take a total is
+# spirit damage, which p. 41 explicitly exempts from physical DR. Claimed and
+# pinned so the rule stays findable the day something can hold armour -- an
+# assertion whose source sentence is unclaimed is a rule nobody can find again
+# (6af).
+DR_ORDER = "applied to damage that gets through DR"
 
 
 def load_lines():
@@ -215,7 +225,7 @@ def parse_major_wounds(lines):
     return out
 
 
-def verify(locations, types, stacking, major, major_lines):
+def verify(locations, types, stacking, major, major_lines, intro):
     got = [l["target"] for l in locations]
     if got != EXPECTED_LOCATIONS:
         raise ValueError(f"hit locations changed: {got} != {EXPECTED_LOCATIONS}")
@@ -245,6 +255,8 @@ def verify(locations, types, stacking, major, major_lines):
 
     if STACKING not in " ".join(stacking):
         raise ValueError(f"the stacking sentence is gone: {stacking}")
+    if DR_ORDER not in " ".join(intro):
+        raise ValueError(f"the DR ordering sentence is gone: {intro}")
 
     got = [m["result"] for m in major]
     if got != RESULTS:
@@ -275,7 +287,10 @@ def main():
     stacking = stream(byn, *STACKING_RANGE)
     major_lines = stream(byn, *MAJOR_RANGE)
     major = parse_major_wounds(major_lines)
-    verify(locations, types, stacking, major, major_lines)
+    # The ordering sentence sits on the table's first line, so it is read
+    # from the same stream the rows are and pinned rather than parsed.
+    intro = stream(byn, MULTIPLIER_RANGE[0], MULTIPLIER_RANGE[0])
+    verify(locations, types, stacking, major, major_lines, intro)
 
     write("hit_locations", locations, [list(LOCATION_RANGE)])
     write("wounding_multipliers", types, [list(MULTIPLIER_RANGE), list(STACKING_RANGE)])

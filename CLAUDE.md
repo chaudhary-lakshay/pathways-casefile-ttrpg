@@ -3837,6 +3837,57 @@ study cap is 11):
 Chapter 3's remaining unclaimed lines are the CP grid above (a second printing,
 left on purpose) and the mundane advantage and disadvantage effect tables.
 
+## 6av. Armour — a deferral re-read, and this time it holds
+
+Chapter 8 is the largest unclaimed block left (**21.2%, 82 lines**) and its
+armour table is the part with a rule attached: three rows of DR, and chapter 5
+printing how DR interacts with the wounding multipliers. 6t deferred it with a
+specific blocker — *"nothing applies DR — damage here is an expression, never
+a total."* 6au had just shown that a deferral is only as good as its reading,
+so this one was re-read rather than inherited.
+
+**It holds, and the re-read is what establishes that rather than the original
+note.** Two things could have lifted the blocker and neither does:
+
+- **The attack path still produces an expression.** `Damage.forAttack` returns
+  `1d-3 cr`, not a number, so there is nothing for DR to subtract from. This
+  is 6t's own reason, still true.
+- **`DamageDialog` DOES take a total — and it is the one place the book
+  forbids DR.** That looked like the opening: 6n turned it into "one hit, one
+  amount, one pool", which is exactly the shape DR reduces. But p. 41 prints
+  *"Spirit body damage bypasses physical Damage Resistance (DR) entirely"* and
+  *"Physical DR does not protect against spirit body damage"*, and that dialog
+  is the spirit-damage one — it renders `spirit_damage.json`. Wiring DR in
+  would contradict the very section the dialog exists to implement.
+
+So armour stays unextracted, with a **sharper reason than 6t had**: not merely
+that nothing consumes DR, but that the only consumer-shaped thing in the app
+is explicitly exempted from it. Building it would need a physical/spirit
+declaration on that dialog first, which is a UI decision the book does not
+force and no premade needs — every one of the 23 is unarmoured.
+
+**What the re-read did produce is a rule nobody could find.** Line 2789, the
+wounding table's own introductory sentence, is *"Damage type determines the
+multiplier applied to **damage that gets through DR**"* — the only place this
+book states the ORDER, subtract then multiply. `wounding_multipliers.json`
+claimed 2790 onward, so the sentence sat one line above the table it governs,
+unclaimed and unfindable. It is claimed and pinned now, the same bookkeeping
+6af did for the PCR formula: an assertion whose source sentence is unclaimed
+is a rule nobody can find again. The rows are untouched — the JSON diff is one
+line, the span, not the data.
+
+Also worth recording for whoever does build it: the **Mail Shirt prints
+"3/1*"**, a DR that varies by damage type ("DR 3 vs cutting, DR 1 vs other"),
+which is the Neck row's shape (6l) in a different table — a naive parse reads
+3 and silently doubles a bullet's protection.
+
+**The lesson is the symmetric half of 6au.** That slice re-read a deferral and
+overturned it; this one re-read a deferral and confirmed it. Both took one
+pass over the source. A deferral that survives is worth as much as one that
+falls, because the reason gets sharper and the next reader inherits evidence
+instead of a conclusion — and **coverage is still not a receipt**: chapter 8's
+82 lines are mostly ~70 rows of shop inventory, which no rule reads.
+
 ---
 
 ## 7. Global rules the owner has set
