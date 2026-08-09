@@ -3888,6 +3888,56 @@ falls, because the reason gets sharper and the next reader inherits evidence
 instead of a conclusion — and **coverage is still not a receipt**: chapter 8's
 82 lines are mostly ~70 rows of shop inventory, which no rule reads.
 
+## 6aw. A summary table, and the default nobody can reach yet
+
+`GoldenMeleeSummaryTest` replays Ch. 5's "Summary: Melee Skill Comparison"
+(p. 39) against `ParryBlock`, `Damage` and `skills.json`. Four columns, every
+one of them a second printing of something implemented since M0, and nothing
+had ever compared them. Not extracted, for that reason — a content file read
+by nothing is the defect 6ai, 6al and 6am each found.
+
+**The finding is in the Special Notes column: the summary prints a default PER
+SKILL, and two of the three disagree with the difficulty-derived one.**
+
+| Skill | Difficulty | `SkillLadder.defaultFor` | The summary prints |
+|---|---|---|---|
+| Brawling | DX/**E** | DX−4 | **DX−2** |
+| Boxing | DX/A | DX−5 | DX−5 |
+| Wrestling | DX/A | DX−5 | **no default** |
+
+- **Boxing agreeing is the warrant.** One row matching exactly is what shows
+  the other two are real per-skill overrides rather than a column being
+  misread — the standard 6ad set, and 6v is why it must be per-table. Specific
+  beats general, so a Brawling default is DX−2 whatever the ladder says.
+- **Nothing is wrong today, and the reason is worth stating plainly**:
+  `SkillLadder.defaultFor` has **no production caller at all**. This app never
+  shows an untrained level. It takes a `Difficulty` and structurally cannot
+  express a per-skill override, so the day something wires it up — "what would
+  an untrained character roll?" — it answers DX−4 for Brawling and hands
+  Wrestling a default the book withholds. 6l's shape exactly: nothing can
+  reach the wrong answer yet, and naming it is what stops the next caller
+  finding it.
+- **Deliberately not fixed by adding a `default` field to `skills.json`.**
+  Three rows of 158 print one and nothing would read it — 6ai's defect, which
+  this session has now twice declined to reintroduce.
+- **Wrestling's "No default" and Very Hard's are different refusals** and are
+  recorded side by side, not merged: one is a skill this chapter singles out,
+  the other a difficulty nobody can attempt untaught (6an).
+
+Also marked here: Wrestling's parry puts its −3 **inside** the halving
+(`(Wrestling−3)/2 + 3`), which differs from subtracting 3 afterwards at every
+odd level — the kind of gap that looks like a rounding preference and is not.
+Both RED-proved by moving the −3 outside and by removing Boxing's printed +2
+cap; each failed, each restored.
+
+**What this closes for chapter 5.** Its remaining unclaimed lines are prose
+restating implemented rules, plus the one genuinely unbuilt piece: line 2599's
+*"All grappling rolls are Quick Contests of DX or Wrestling"* and the
+grappling ST bonus above it. That needs both sides' attributes, which this app
+does not hold — the same reason Feint (6o) and Ch. 6.5's six contests (6ah)
+are unmodelled. **Verified by reading the line, not by inheriting 6ap's
+note** — the discipline 6au and 6av each turned on.
+
 ---
 
 ## 7. Global rules the owner has set
