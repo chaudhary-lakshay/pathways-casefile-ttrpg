@@ -3585,6 +3585,17 @@ None needs a decision: `RitualMode` lets an API caller mix Full-mode
 preparation into a Quick ritual (unreachable from the dialog), plus two UI
 notes with no behavioural consequence.
 
+**Correction: the `RitualMode` one was worth taking, and was closed in
+`f107e97`.** "Unreachable from the dialog" describes today's callers, not the
+defect — and what it let through was 6y's own finding, a Full ritual's
+Excellent (+3) applied to a Quick one that prints +2. `modifierTotal` already
+refused a cross-mode target LINK and simply did not refuse a cross-mode
+preparation ROW; the guard is the same shape, one line up. Filing something as
+"no decision needed" because nothing reaches it is the reasoning 6l warns
+against — nothing could reach the permissive path there either, and removing
+it is what stopped the next caller finding it. The other two really are
+cosmetic.
+
 **Two fixes shipped unit-verified and were device-verified in a later
 session** — the divination payment order and the printed-range chips, each
 recorded in its own section above. The emulator's `system_server` died twice
