@@ -4033,6 +4033,33 @@ Phase II, because 6y had claimed to read Section III.
 immediately either side of every claimed span. A modifier hiding in a seam is
 adjacent to a table by construction — that is why it was missed.
 
+**It was run, because naming a sweep and not running it is what 6at's
+precedent forbids.** 136 spans across 71 content files, three lines either
+side, keeping only unclaimed lines carrying a die roll, a signed number or a
+point cost: **29 seam lines**. Twenty-five are restatements of rules already
+implemented and mostly already recorded as unclaimed — the skill ladder's
+prose (6ac), the Character Creation Summary's attribute grid (6an/6ao), the
+cumulative parry penalty (6ap), the death thresholds (6b), the Fright Check
+(6c), the suspension -2 and the catalyst range (6aa), Appendix A's
+Retreat/Side/Rear, which `defense_modifiers.json` has carried from chapter 5
+since 6g. Two more are headings, and two are deferrals already recorded with
+evidence: chapter 8's armour (6av) and Wrestling's grappling Quick Contest
+(6aw). **The Flourish was the only seam holding a rule nothing applies.**
+
+Two lines came out as CANDIDATES rather than findings, and are left for a
+later slice on purpose — finding is this slice's scope:
+
+- **3559-3560**, wrapping mid-sentence: "Divination Arts defaults to
+  Ritualistic Magic-2 and vice versa. A character with one skill at 12+ can
+  attempt the other at -2." A cross-skill default, in the same family as
+  6aw's per-skill melee defaults — printed, and unreachable because
+  `SkillLadder.defaultFor` still has no production caller.
+- **3558**: complex divination "Requires Ritualistic Magic or a very high
+  Divination Arts roll (-4 penalty)". Whether that -4 is a modifier or a
+  restatement of `divination_difficulty.json`'s own hardest rows needs the
+  page read, not a grep — and reading it as a modifier beside that table
+  would be the double-count this repo has scoped out of five times.
+
 ### What the slice settles
 
 - **It is the FULL ritual's alone, and it is the target link's exact mirror.**
