@@ -75,6 +75,66 @@ class RitualModeTest {
         assertTrue(ex.message!!.contains("already"))
     }
 
+    /**
+     * **The two tables are not interchangeable, and this is 6y's own defect
+     * reachable through the API.** Excellent is +3 in a Full ritual and +2 in
+     * a Quick one; the app applied +3 to both for a whole milestone. A row
+     * borrowed across modes puts that number back, and it looks perfectly
+     * ordinary on screen -- nothing about "+3" says which table it came from.
+     *
+     * Unreachable from the dialog, which holds `preparation` in a
+     * `remember(mode)` cleared on every switch. That is the reason to refuse
+     * it here rather than there (6l): nothing can reach it yet, which is what
+     * stops the next caller finding it.
+     */
+    @Test
+    fun `a preparation row from the other mode's table is refused`() {
+        val full = RitualMode.FULL.preparationNamed("Excellent")
+        val quick = RitualMode.QUICK.preparationNamed("Excellent")
+        assertEquals(3, full.modifier)
+        assertEquals(2, quick.modifier, "the same word, a different number")
+
+        val ex = assertThrows<IllegalArgumentException> {
+            RitualMode.QUICK.modifierTotal(preparation = full)
+        }
+        assertTrue(ex.message!!.contains("not a row"), ex.message)
+
+        // And the other way round, so neither table is privileged.
+        assertThrows<IllegalArgumentException> {
+            RitualMode.FULL.modifierTotal(preparation = quick)
+        }
+        // Each mode still accepts its own.
+        assertEquals(3, RitualMode.FULL.modifierTotal(preparation = full))
+        assertEquals(2, RitualMode.QUICK.modifierTotal(preparation = quick))
+    }
+
+    /**
+     * Containment is exact only because the two tables share no row. Adequate
+     * is +0 in both and is the one place a borrowed row could slip through --
+     * it does not, because the printed `looksLike` cells differ. If they ever
+     * stop differing, this guard needs a test other than equality, so the
+     * difference is pinned rather than assumed.
+     */
+    @Test
+    fun `the two tables share no row, which is what makes the guard exact`() {
+        val full = RitualMode.FULL.preparations()
+        val quick = RitualMode.QUICK.preparations()
+        assertTrue(full.intersect(quick.toSet()).isEmpty())
+
+        val bothAdequate = listOf(full, quick).map { rows ->
+            rows.single { it.quality.equals("Adequate", ignoreCase = true) }
+        }
+        assertEquals(
+            bothAdequate[0].modifier,
+            bothAdequate[1].modifier,
+            "the two tables agree that Adequate is +0 -- 6y's own warrant",
+        )
+        assertTrue(
+            bothAdequate[0] != bothAdequate[1],
+            "and still differ elsewhere in the row, which is what equality catches",
+        )
+    }
+
     @Test
     fun `quick mode sums preparation and link`() {
         assertEquals(

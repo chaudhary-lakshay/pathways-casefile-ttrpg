@@ -86,6 +86,23 @@ enum class RitualMode(
             "a $name ritual's preparation modifier already includes the target " +
                 "link (its rows name one); adding '${link?.link}' would pay it twice"
         }
+        // A row borrowed from the OTHER mode's table is refused, and it is the
+        // sharper of the two guards. The whole of 6y was that Excellent is +2
+        // in a Quick ritual and +3 in a Full one, and that the app applied +3
+        // to both -- so a cross-mode row reintroduces exactly that defect
+        // through the API, with a number that looks ordinary on screen. The
+        // dialog cannot reach it (`preparation` is a `remember(mode)`, cleared
+        // on every switch), which is why the guard lives here rather than
+        // there: nothing can reach it yet, and that is what stops the next
+        // caller finding it (6l).
+        //
+        // Containment is an exact test because the two tables share no row --
+        // even Adequate, +0 in both, prints a different `looksLike` cell.
+        require(preparation == null || preparation in preparations()) {
+            "'${preparation?.quality}' at ${preparation?.printed} is not a row in " +
+                "the $name ritual's preparation table, which prints " +
+                preparations().joinToString { "${it.quality} ${it.printed}" }
+        }
         return (preparation?.modifier ?: 0) + (link?.modifier ?: 0)
     }
 
