@@ -3,7 +3,7 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `a8323a4` (slice 6ar).
+sections below are current as of `882ffe1` (slice 6aw).
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -42,8 +42,9 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **870 Kotlin** (JUnit 5, incl. 61 in `app/`) + **239 Python** (pytest), all green |
-| Open issues | **Zero.** OPEN-1 was found and fixed in slice 6ar; `docs/KNOWN_ISSUES.md` is an audit trail again |
+| Tests | **914 Kotlin** (JUnit 5 — 831 `core:rules`, 63 `app`, 20 `core:model`) + **239 Python** (pytest), all green |
+| Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
+| Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
@@ -3937,6 +3938,55 @@ grappling ST bonus above it. That needs both sides' attributes, which this app
 does not hold — the same reason Feint (6o) and Ch. 6.5's six contests (6ah)
 are unmodelled. **Verified by reading the line, not by inheriting 6ap's
 note** — the discipline 6au and 6av each turned on.
+
+## 6ax. Where this stands, for whoever picks it up next
+
+Written at `882ffe1`, end of the session that ran the Codex sweep. **Read this
+before choosing work**, and then verify it — the three slices above it (6au,
+6av, 6aw) each turned on re-reading a predecessor's note instead of inheriting
+it, and this note is a predecessor's note.
+
+**Nothing is outstanding.** No open findings, no unverified fixes, no failing
+tests, no known defect. Both suites green, working tree clean.
+
+### What is genuinely left, and why each is where it is
+
+| Candidate | State |
+|---|---|
+| Ch. 8 armour / DR | Deferred with evidence in **6av**. The blocker was re-read and holds: the attack path yields an expression, and the one dialog taking a total is spirit damage, which p. 41 exempts from physical DR. |
+| Ch. 8's ~70 equipment rows, licences, allies | Real content, no rule attached. This is most of the chapter's 82 unclaimed lines. |
+| Quick Contests (grappling, Feint, ch. 6.5's six) | Needs both sides' attributes; this app holds one sheet. Unmodelled on purpose since 6o. |
+| Per-skill defaults (Brawling DX−2, Wrestling none) | Named in **6aw**, unreachable — `SkillLadder.defaultFor` has no production caller. Fix it *when* something shows an untrained level, not before. |
+| SPI recovery, technique durations, downtime periods | All need a clock. This app holds none, and 6au's planner is the shape that avoids needing one. |
+| Appendices B / C / Glossary | Setting prose. `coverage.py` counts a handful of lines there; none is mechanical. |
+
+### The four sweeps, and what each could not see
+
+Each found what its predecessor was structurally blind to. A fifth should
+start by asking the same question rather than by picking a chapter.
+
+1. **A rule printed and not applied** (6h, 6m, 6ai, 6ap) — book → code.
+2. **An extracted field with no consumer** (6ai's grep of all 345 fields) —
+   data → code.
+3. **A rule printed and CONTRADICTED** (6aq, 6ar, 6as) — invisible to both,
+   because the code is present, reachable, and confidently wrong.
+4. **A number invented in code** (6at) — code → book, the only direction that
+   can see a constant no source sentence backs.
+
+### Three habits this session earned, in priority order
+
+- **Re-read the source before inheriting a deferral or a count.** 6au
+  overturned one, 6av confirmed one, 6aw checked a claim made three messages
+  earlier. All three cost a single pass. A confident earlier note is the
+  cheapest thing to trust and the most expensive thing to trust wrongly.
+- **A count in prose is a finding** (6as). "All five dialogs" when only four
+  had the guard; "six worked rituals" when the book prints ten. Grep the
+  number.
+- **Coverage is a floor and an argument, never a receipt.** Five distinct ways
+  it has misled here: a chapter at 0.0% disproving nothing (6t), bare
+  multipliers counting as no mechanical line (6v), a table on the next
+  appendix's page (6ae), a table straddling a chapter boundary (6af), and
+  ~70 rows of shop inventory inflating chapter 8 (6av).
 
 ---
 
