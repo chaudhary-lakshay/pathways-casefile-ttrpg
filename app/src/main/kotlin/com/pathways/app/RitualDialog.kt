@@ -131,6 +131,12 @@ fun RitualDialog(
     // a link in full mode, so a link left over from a quick ritual would throw
     // rather than merely mislead.
     var link by remember(mode) { mutableStateOf<TargetLink?>(null) }
+    // Phase II's Flourish Bonus, and the mirror of the link in every respect
+    // including this one: keyed on the mode because modifierTotal REFUSES it
+    // in quick mode, so an award left over from a full ritual would throw
+    // rather than merely mislead. False by default because the book has the GM
+    // award it -- a bonus that started ticked would be one nobody granted.
+    var flourish by remember(mode) { mutableStateOf(false) }
     // Section IV.A's axis, and the one the fuel comes off. NOT the weight:
     // the weight gives the base modifier above, this gives the cost, and the
     // book's own worked rituals charge outside the weight column three times
@@ -205,7 +211,7 @@ fun RitualDialog(
     val target = if (canSpeak && !rejected) {
         RitualResolution.targetFor(
             effectiveSkill + (answer?.ritualModifier ?: 0),
-            weight, cor, preparation, language, mode, link, support,
+            weight, cor, preparation, language, mode, link, flourish, support,
             complexity = complexity, powerSources = declaration,
         )
     } else {
@@ -523,6 +529,36 @@ fun RitualDialog(
                         link?.let { Text(it.looksLike, style = MaterialTheme.typography.bodySmall) }
                     }
 
+                    // Full mode only, and the exact mirror of the row above:
+                    // Phase II prints the Flourish Bonus and the Quick
+                    // Ritual's Step 3 sums exactly the two modifiers it names.
+                    // Withheld rather than offered-and-refused -- a chip that
+                    // throws on Roll is not a choice (the two Aim rows, 6t).
+                    if (mode.usesFlourish) {
+                        Text(
+                            "Delivery (Phase II)",
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        FlowRow {
+                            FilterChip(
+                                selected = flourish,
+                                onClick = { flourish = !flourish },
+                                label = {
+                                    Text("Flourish ${signed(RitualMode.FLOURISH_BONUS)}")
+                                },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                        Text(
+                            "\"The GM may award a Flourish Bonus " +
+                                "(${signed(RitualMode.FLOURISH_BONUS)}) for good " +
+                                "in-character delivery.\" Awarded, not earned — the " +
+                                "app does not judge the performance.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+
                     // Ch. 7 IV.F. Invoking is optional -- praying to oneself
                     // needs no entity and no table.
                     Text(
@@ -665,6 +701,14 @@ fun RitualDialog(
                             "$RITUAL_SKILL $skillLevel, ${weight.weight} ${weight.modifier}" +
                                 ", preparation ${signed(preparation.modifier)}" +
                                 (link?.let { ", ${signed(it.modifier)} ${it.link.lowercase()} link" } ?: "") +
+                                // Named, because the breakdown and the target
+                                // above it must reconcile -- the invariant
+                                // 6ag added 300 cases for and 6ak broke once.
+                                (if (flourish) {
+                                    ", ${signed(RitualMode.FLOURISH_BONUS)} flourish"
+                                } else {
+                                    ""
+                                }) +
                                 (answer?.ritualModifier?.takeIf { it != 0 }
                                     ?.let { ", ${signed(it)} from the entity" } ?: "") +
                                 (language?.ritualModifier?.takeIf { it != 0 }
@@ -758,6 +802,7 @@ fun RitualDialog(
                                     language,
                                     mode,
                                     link,
+                                    flourish,
                                     support,
                                     complexity = complexity,
                                     powerSources = declaration,

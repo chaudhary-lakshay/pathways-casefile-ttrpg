@@ -61,6 +61,65 @@ class RitualModeTest {
         assertEquals(4, RitualMode.linkNamed("Perfect").modifier)
     }
 
+    /**
+     * The link's mirror image. Each mode prints one modifier the other does
+     * not, and the evidence has the same shape in both directions: Phase II
+     * names the Flourish Bonus, and Quick's Step 3 says it "sums the following
+     * two modifiers" and then names two that are not it.
+     */
+    @Test
+    fun `the flourish bonus is a full ritual's alone`() {
+        assertTrue(RitualMode.FULL.usesFlourish)
+        assertTrue(!RitualMode.QUICK.usesFlourish)
+        // And the two flags cross: neither mode takes both, neither neither.
+        // If that stopped holding, one mode would have become a superset of
+        // the other and the scoping would need re-reading rather than reusing.
+        RitualMode.entries.forEach { mode ->
+            assertNotEquals(
+                mode.usesTargetLink,
+                mode.usesFlourish,
+                "$mode should print exactly one of the link and the flourish",
+            )
+        }
+    }
+
+    @Test
+    fun `the flourish is worth exactly the printed plus one`() {
+        val adequate = RitualMode.FULL.preparationNamed("Adequate")
+        assertEquals(0, adequate.modifier)
+        assertEquals(1, RitualMode.FLOURISH_BONUS)
+        assertEquals(
+            RitualMode.FLOURISH_BONUS,
+            RitualMode.FULL.modifierTotal(preparation = adequate, flourish = true),
+        )
+        // It composes with preparation rather than replacing it.
+        val excellent = RitualMode.FULL.preparationNamed("Excellent")
+        assertEquals(
+            4,
+            RitualMode.FULL.modifierTotal(preparation = excellent, flourish = true),
+            "+3 preparation and the +1 flourish",
+        )
+        // And an unawarded flourish moves nothing, which is what lets every
+        // caller written before Phase II was read keep its old answer.
+        assertEquals(3, RitualMode.FULL.modifierTotal(preparation = excellent))
+    }
+
+    @Test
+    fun `a quick ritual refuses a flourish rather than inventing a step`() {
+        val ex = assertThrows<IllegalArgumentException> {
+            RitualMode.QUICK.modifierTotal(
+                preparation = RitualMode.QUICK.preparationNamed("Adequate"),
+                flourish = true,
+            )
+        }
+        assertTrue(ex.message!!.contains("Flourish"), ex.message)
+        // Refused, not dropped: a GM who described a performance and watched
+        // the target stay put has no way to tell which of the two happened.
+        assertThrows<IllegalArgumentException> {
+            RitualMode.QUICK.modifierTotal(preparation = null, flourish = true)
+        }
+    }
+
     @Test
     fun `a full ritual refuses a link rather than paying it twice`() {
         // The whole reason the flag exists. A perfect link is +4, and the Full

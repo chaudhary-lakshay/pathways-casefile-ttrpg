@@ -129,6 +129,10 @@ object Boons {
      * is IV.C's assistants, which chapter 13 neither offers nor forbids -- so
      * it is left off rather than assumed, and this sentence exists so the
      * omission stays a decision instead of becoming an oversight.
+     *
+     * And no Flourish Bonus, for the same reason as the preparation it sits
+     * beside: Phase II awards it for narrating the incantation, and chapter 13
+     * prices that whole performance through its own Ritual quality row.
      */
     fun targetFor(
         skillLevel: Int,

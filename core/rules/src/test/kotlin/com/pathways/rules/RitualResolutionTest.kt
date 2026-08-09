@@ -264,6 +264,69 @@ class RitualResolutionTest {
         }
     }
 
+    /**
+     * The mirror of the test above, and the reason this slice exists: the +1
+     * was printed on p. 63 and reached the target through nothing. The book
+     * prints its own formula for what it lands on -- "Effective skill =
+     * Ritualistic Magic + Preparation Mod + Flourish Bonus" -- which is why
+     * this is the roll it moves and not, say, the fuel.
+     */
+    @Test
+    fun `a full ritual adds the flourish bonus and a quick one refuses it`() {
+        assertEquals(
+            16,
+            RitualResolution.targetFor(
+                skillLevel = 12,
+                weight = weight("Light"),
+                cor = 0,
+                preparation = RitualMode.FULL.preparationNamed("Excellent"),
+                mode = RitualMode.FULL,
+                flourish = true,
+            ),
+            "12 + 3 preparation + 1 flourish",
+        )
+        assertThrows<IllegalArgumentException> {
+            RitualResolution.targetFor(
+                skillLevel = 12,
+                weight = weight("Light"),
+                cor = 0,
+                preparation = RitualMode.QUICK.preparationNamed("Excellent"),
+                mode = RitualMode.QUICK,
+                flourish = true,
+            )
+        }
+    }
+
+    @Test
+    fun `the flourish composes with weight and corruption rather than replacing them`() {
+        // A GM's award does not buy off the ritual's own difficulty. Heavy is
+        // -4 and 8 CoR is -1, so a well-delivered heavy ritual by a corrupt
+        // caster is still worse off than a plain light one.
+        assertEquals(
+            8,
+            RitualResolution.targetFor(
+                skillLevel = 12,
+                weight = weight("Heavy"),
+                cor = 8,
+                preparation = RitualMode.FULL.preparationNamed("Adequate"),
+                mode = RitualMode.FULL,
+                flourish = true,
+            ),
+            "12 - 4 heavy - 1 for 8 CoR + 0 preparation + 1 flourish",
+        )
+        // And every caller that does not award one is where it was before.
+        assertEquals(
+            7,
+            RitualResolution.targetFor(
+                skillLevel = 12,
+                weight = weight("Heavy"),
+                cor = 8,
+                preparation = RitualMode.FULL.preparationNamed("Adequate"),
+                mode = RitualMode.FULL,
+            ),
+        )
+    }
+
     @Test
     fun `supporting skills help both modes and stop at three`() {
         // Five skills grant five points; the book allows three.

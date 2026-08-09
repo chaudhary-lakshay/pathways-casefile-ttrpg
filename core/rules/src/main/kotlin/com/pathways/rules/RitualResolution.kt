@@ -127,6 +127,13 @@ object RitualResolution {
      * -- a Full ritual's preparation row already priced one, so passing both
      * is refused rather than summed. See [RitualMode].
      *
+     * [flourish] is Phase II's mirror of it: "The GM may award a Flourish
+     * Bonus (+1) for good in-character delivery", printed for the Full ritual
+     * alone and refused for a Quick one. It defaults to false, which leaves
+     * the target exactly where it was before Phase II was read -- and false is
+     * the honest default, because the bonus is something a GM AWARDS rather
+     * than something a caster has.
+     *
      * [complexity] and [powerSources] are Section IV's declaration (p. 65-66):
      * how long the caster took, who helped, what was sacrificed, what was
      * burned as a catalyst, and whether the work was suspended part-way. They
@@ -157,11 +164,12 @@ object RitualResolution {
         language: LanguageProficiency? = null,
         mode: RitualMode = RitualMode.FULL,
         link: TargetLink? = null,
+        flourish: Boolean = false,
         support: List<String> = emptyList(),
         complexity: RitualComplexity? = null,
         powerSources: PowerSourceDeclaration = PowerSourceDeclaration(),
     ): Int = skillLevel + weight.modifier + Corruption.ritualPenalty(cor) +
-        mode.modifierTotal(preparation, link) +
+        mode.modifierTotal(preparation, link, flourish) +
         RitualMode.supportBonus(support) +
         Languages.ritualModifier(language) +
         PowerSources.modifierTotal(complexity, powerSources)
@@ -181,6 +189,7 @@ object RitualResolution {
         language: LanguageProficiency? = null,
         mode: RitualMode = RitualMode.FULL,
         link: TargetLink? = null,
+        flourish: Boolean = false,
         support: List<String> = emptyList(),
         complexity: RitualComplexity? = null,
         powerSources: PowerSourceDeclaration = PowerSourceDeclaration(),
@@ -188,8 +197,8 @@ object RitualResolution {
         criticals: List<RitualCritical> = ContentLoader.ritualCriticals(),
     ): RitualOutcome {
         val target = targetFor(
-            skillLevel, weight, cor, preparation, language, mode, link, support,
-            complexity, powerSources,
+            skillLevel, weight, cor, preparation, language, mode, link, flourish,
+            support, complexity, powerSources,
         )
         val roll = SuccessRoll.against(target, source)
         // By outcome, not by margin. A 17 or 18 fails whatever the target, and

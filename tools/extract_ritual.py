@@ -22,6 +22,52 @@ outcomes are NOT ordered by severity: 3-4 is Backlash and 18 is Catastrophe,
 but 13-14 (1 CoR) sits above 11-12 (Wrong Arrival). That matters because the
 book shifts this roll by -2 for a severe misfire, and a caller that assumed
 monotonic severity would read the shift backwards.
+
+THE FLOURISH BONUS (global lines 4140-4143), Phase II's +1
+-----------------------------------------------------------
+"The GM may award a Flourish Bonus (+1) for good in-character delivery",
+followed immediately by the book stating what it is FOR:
+
+    Effective skill = Ritualistic Magic + Preparation Mod + Flourish Bonus
+
+That formula line is the evidence the bonus reaches the roll. It is NOT read
+as exhaustive -- weight, CoR, support and language all reach the same target
+and it names none of them. It is Phase II's summary of Phase II.
+
+The number and the words naming it are on DIFFERENT LINES: the sentence wraps
+between "Flourish Bonus" and "(+1) for good in-character delivery", so neither
+line alone says what the rule is. The lines are joined before the bonus is
+read -- the same rule the "Spoken-only ... costs / half." page break needed in
+extract_languages.py.
+
+It belongs to the FULL ritual alone. "Flourish" appears exactly twice in this
+book, both inside Phase II, and the Quick Ritual's Step 3 says "Sum the
+following two modifiers" and then names Preparation Quality and Target Link.
+That is the mirror image of the target link, which is Quick's alone because
+Full's preparation rows name their links (see extract_ritual_modes.py), and
+verify() pins both halves: the two occurrences, and the absence from Step 3.
+
+The +1 itself lives in Kotlin (`RitualMode.FLOURISH_BONUS`) because it is a
+number inside a sentence rather than a table -- the split the maneuver table's
++4/-4, the +3 support cap and the orthodox -2 all take. This file claims the
+sentence it was read from, so the rule stays findable.
+
+AND THE CANON PROCEDURE'S TIMING PENALTY IS DELIBERATELY NOT APPLIED
+---------------------------------------------------------------------
+Section C, step 1 prints "Wrong timing for the entity gives -1 to -2" (line
+4161). It is refused on two printed facts, both pinned:
+
+  * Phase I already declares "Timing: Does it match the entity's domain?"
+    among the choices that "feed into a single Preparation Modifier", and
+    Excellent's own cell names "celestial timing". Offering the canon penalty
+    beside it charges one mistimed ritual twice -- the scoping that keeps
+    Appendix A's adverse conditions off a shot already priced by chapter 5's
+    darkness row.
+  * The book labels Section C itself: "The novel's full procedure is preserved
+    here as a reference ... when you want the full texture of the ritual."
+
+Both are recorded rather than assumed, because "it is reference prose" is a
+reason that has to survive the page printing a number.
 """
 import json, pathlib, re, sys
 
@@ -37,8 +83,16 @@ WEIGHT_RANGE = (4337, 4345)
 # the app lets a caster spam.
 WEIGHT_COST_RANGE = (4318, 4335)
 PREPARATION_RANGE = (4120, 4139)
+# Phase II. Four lines: the heading, the wrapped Flourish sentence, and the
+# formula that says what the bonus is added to.
+FLOURISH_RANGE = (4140, 4143)
 FAILURE_RANGE = (4349, 4359)
 CRITICAL_RANGE = (4361, 4384)
+
+# Section A, the whole Quick Ritual. Read only to prove what is NOT in it.
+QUICK_RITUAL_RANGE = (4036, 4105)
+# Section C, the canon procedure, whose timing penalty is refused.
+CANON_RANGE = (4155, 4165)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 HEADER = {
@@ -64,6 +118,23 @@ CRITICAL_LABEL = re.compile(r"^Critical Failure \(roll [\d–—-]+\)$")
 BAND = re.compile(rf"^(\d+)(?:[{MINUS}–—](\d+))?$")
 # "Corruption. Gain 1 CoR." / "... Gain 2 CoR. Nightmares for 1d weeks."
 CRITICAL_COR = re.compile(r"\bGain (\d+) CoR\b", re.IGNORECASE)
+
+# "... may award a Flourish Bonus (+1) for good in-character delivery."
+# Anchored on the NAME, not on the first bracketed number in the paragraph:
+# the line above it ends "(4-part Hermes structure - see reference below)",
+# which a bare bracket rule would read instead.
+FLOURISH = re.compile(r"Flourish Bonus\s*\(([+\-−]\d+)\)", re.IGNORECASE)
+FLOURISH_NAME = "Flourish Bonus"
+# The book's own statement of what the bonus is added to. Evidence, not a
+# complete list of the target's terms.
+FLOURISH_FORMULA = "Effective skill = Ritualistic Magic + Preparation Mod + Flourish Bonus"
+# Quick's Step 3, which names its modifiers and stops at two.
+QUICK_SUMS_TWO = "Sum the following two modifiers"
+# The Phase I preparation cell that already prices timing.
+PREPARATION_PRICES_TIMING = "celestial timing"
+# Section C's own label, and the penalty it prints that is not applied.
+CANON_IS_REFERENCE = "preserved here as a reference"
+CANON_TIMING_PENALTY = "Wrong timing for the entity gives"
 
 EXPECTED_CRITICAL_BANDS = [(3, 4), (5, 6), (7, 8), (9, 10), (11, 12),
                            (13, 14), (15, 16), (17, 17), (18, 18)]
@@ -218,6 +289,73 @@ def parse_critical(lines):
     return out
 
 
+def parse_flourish(cells):
+    """The Flourish Bonus's value, read from the joined Phase II paragraph.
+
+    The cells are joined before the search because the sentence WRAPS between
+    the words naming the bonus and the number itself -- "... may award a
+    Flourish Bonus" ends one line and "(+1) for good in-character delivery."
+    begins the next. Scanning line by line finds a name with no number, or a
+    number with no name, and either reads as the rule being absent.
+    """
+    joined = " ".join(cells)
+    found = FLOURISH.search(joined)
+    if not found:
+        raise ValueError(
+            f"no '{FLOURISH_NAME} (+N)' in Phase II; the paragraph reads {joined!r}"
+        )
+    return int(found.group(1).replace("−", "-")), joined
+
+
+def verify_flourish(bonus, phase_two, quick, canon, preparation):
+    """The bonus, and the two scoping decisions that rest on the same pages."""
+    if bonus != 1:
+        raise ValueError(f"the Flourish Bonus used to be +1; the page now prints {bonus:+d}")
+    # The book's own statement that this bonus reaches the roll. Without it the
+    # +1 would be a number in a paragraph with nothing saying where it lands.
+    if FLOURISH_FORMULA not in phase_two:
+        raise ValueError(
+            "Phase II no longer prints its effective-skill formula. That line "
+            "is the only evidence the Flourish Bonus is added to the ritual "
+            f"roll at all; expected {FLOURISH_FORMULA!r}"
+        )
+
+    # FULL-only, and the evidence is an absence, so both halves are checked.
+    # This is the mirror of the target link, which is QUICK's alone.
+    if FLOURISH_NAME.lower() not in phase_two.lower():
+        raise ValueError("Phase II no longer names the Flourish Bonus")
+    if QUICK_SUMS_TWO not in quick:
+        raise ValueError(
+            "the Quick Ritual's Step 3 no longer says it sums exactly two "
+            f"modifiers ({QUICK_SUMS_TWO!r}). That sentence is the whole reason "
+            "the Flourish Bonus is scoped to the Full ritual"
+        )
+    if FLOURISH_NAME.lower() in quick.lower():
+        raise ValueError(
+            "the Quick Ritual now names the Flourish Bonus too, so it is no "
+            "longer Full-mode only and RitualMode's guard is wrong"
+        )
+
+    # And the canon timing penalty, refused because Phase I already prices it.
+    if CANON_TIMING_PENALTY not in canon:
+        raise ValueError(
+            f"Section C no longer prints {CANON_TIMING_PENALTY!r}. The refusal to "
+            "apply it is only a decision while the number is still there"
+        )
+    if CANON_IS_REFERENCE not in canon:
+        raise ValueError(
+            "Section C no longer labels itself a reference; the second half of "
+            "the reason for not applying its timing penalty is gone"
+        )
+    priced = " ".join(p["looksLike"] for p in preparation).lower()
+    if PREPARATION_PRICES_TIMING not in priced:
+        raise ValueError(
+            "the Phase I preparation rows no longer mention timing "
+            f"({PREPARATION_PRICES_TIMING!r}), so nothing shows that the canon "
+            "procedure's -1 to -2 would be charging one mistimed ritual twice"
+        )
+
+
 def verify(weights, failures, critical, preparation):
     if [w["weight"] for w in weights] != ["Light", "Moderate", "Heavy"]:
         raise ValueError(f"weights changed: {weights}")
@@ -288,8 +426,21 @@ def main():
     critical = parse_critical(stream(byn, *CRITICAL_RANGE))
     verify(weights, failures, critical, preparation)
 
+    # Phase II's +1. Nothing is written for it -- the number lives in Kotlin --
+    # but the sentence it was read from is claimed below, so an assertion whose
+    # source is unfindable does not happen again (the PCR formula, 6af).
+    bonus, phase_two = parse_flourish(stream(byn, *FLOURISH_RANGE))
+    verify_flourish(
+        bonus,
+        phase_two,
+        " ".join(stream(byn, *QUICK_RITUAL_RANGE)),
+        " ".join(stream(byn, *CANON_RANGE)),
+        preparation,
+    )
+
     write("ritual_weights", weights, [list(WEIGHT_RANGE), list(WEIGHT_COST_RANGE)])
-    write("ritual_preparation", preparation, [list(PREPARATION_RANGE)])
+    write("ritual_preparation", preparation,
+          [list(PREPARATION_RANGE), list(FLOURISH_RANGE)])
     write("ritual_failures", failures, [list(FAILURE_RANGE)])
     write("ritual_critical", critical, [list(CRITICAL_RANGE)])
 
@@ -297,6 +448,7 @@ def main():
     print(f"ritual_preparation: {[(p['quality'], p['printed']) for p in preparation]}")
     print(f"ritual_failures: {len(failures)} rows")
     print(f"ritual_critical: {len(critical)} bands")
+    print(f"flourish bonus: {bonus:+d} (Full ritual only; lives in RitualMode)")
     return 0
 
 

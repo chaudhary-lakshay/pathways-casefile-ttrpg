@@ -611,6 +611,73 @@ def test_a_wrapped_preparation_description_stays_with_its_row():
     assert rows[1]["quality"] == "Adequate"
 
 
+def test_the_flourish_bonus_is_read_across_the_line_it_wraps_on():
+    """The words naming the bonus and the number are on different lines.
+
+    Neither line alone states the rule -- one has a name with no value, the
+    other a value with no name -- so a line-at-a-time scan reads it as absent.
+    """
+    bonus, joined = extract_ritual.parse_flourish([
+        "Phase II — Conduct",
+        "The player narrates the incantation (4-part Hermes structure — see "
+        "reference below). The GM may award a Flourish Bonus",
+        "(+1) for good in-character delivery.",
+        extract_ritual.FLOURISH_FORMULA,
+    ])
+    assert bonus == 1
+    assert extract_ritual.FLOURISH_FORMULA in joined
+
+
+def test_the_flourish_is_not_read_off_the_first_bracket_in_the_paragraph():
+    """The line above it ends "(4-part Hermes structure ...)". A rule that took
+    the first bracketed number would read the structure, not the bonus."""
+    with pytest.raises(ValueError, match="Flourish Bonus"):
+        extract_ritual.parse_flourish([
+            "The player narrates the incantation (4-part Hermes structure).",
+            "The GM may award a bonus for good in-character delivery.",
+        ])
+
+
+def test_the_flourish_scoping_rests_on_the_quick_ritual_not_naming_it():
+    """FULL-only is an argument from absence, so both halves are asserted."""
+    phase_two = (
+        "The GM may award a Flourish Bonus (+1) for good in-character delivery. "
+        + extract_ritual.FLOURISH_FORMULA
+    )
+    quick = ("Step 3 — Apply Modifiers Sum the following two modifiers: "
+             "1. Preparation Quality 2. Target Link")
+    canon = ("The novel's full procedure is preserved here as a reference. "
+             "Wrong timing for the entity gives -1 to -2.")
+    preparation = [{"looksLike": "Sanctified space, celestial timing, perfect link"}]
+    extract_ritual.verify_flourish(1, phase_two, quick, canon, preparation)
+
+    # A Quick ritual that named it would make RitualMode's guard wrong.
+    with pytest.raises(ValueError, match="Full-mode only"):
+        extract_ritual.verify_flourish(
+            1, phase_two, quick + " Flourish Bonus", canon, preparation)
+    # The formula is the only evidence the bonus reaches the ROLL.
+    with pytest.raises(ValueError, match="effective-skill formula"):
+        extract_ritual.verify_flourish(
+            1, "The GM may award a Flourish Bonus (+1).", quick, canon, preparation)
+    # And the canon timing penalty is refused only while it is still printed.
+    with pytest.raises(ValueError, match="Wrong timing"):
+        extract_ritual.verify_flourish(
+            1, phase_two, quick, "preserved here as a reference", preparation)
+    with pytest.raises(ValueError, match="celestial timing"):
+        extract_ritual.verify_flourish(
+            1, phase_two, quick, canon, [{"looksLike": "Sanctified space"}])
+
+
+def test_committed_ritual_content_claims_the_flourish_sentence():
+    """An assertion whose source sentence is unclaimed is a rule nobody can
+    find again -- the bookkeeping the PCR formula needed in 6af."""
+    body = (CONTENT / "ritual_preparation.json").read_text(encoding="utf-8")
+    assert [4140, 4143] in json.loads(body)["sourceLines"]["7"]
+    # The +1 is a number inside a sentence, so it lives in Kotlin. A column
+    # here would make the book look like it printed a table it never did.
+    assert "flourish" not in body.lower()
+
+
 def test_committed_ritual_content_carries_cost_and_preparation():
     weights = json.loads((CONTENT / "ritual_weights.json").read_text(encoding="utf-8"))["entries"]
     assert {w["weight"]: w["spi"] for w in weights} == {"Light": 2, "Moderate": 4, "Heavy": 8}

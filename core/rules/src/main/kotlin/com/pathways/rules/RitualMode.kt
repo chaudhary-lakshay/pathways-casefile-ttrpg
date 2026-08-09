@@ -32,6 +32,31 @@ import com.pathways.rules.content.TargetLink
  * would pay a perfect one twice, +8 on a 3d6 roll. [modifierTotal] refuses it
  * rather than quietly summing.
  *
+ * **And the Flourish Bonus is the mirror image of the link: FULL's alone.**
+ * Phase II says "The GM may award a Flourish Bonus (+1) for good in-character
+ * delivery" and then prints the book's own formula for what it lands on --
+ * "Effective skill = Ritualistic Magic + Preparation Mod + Flourish Bonus".
+ * The Quick Ritual's Step 3 instead says "Sum the following two modifiers"
+ * and names Preparation Quality and Target Link; "Flourish" appears exactly
+ * twice in this book, both inside Phase II. So each mode has one modifier the
+ * other does not, and [modifierTotal] refuses the wrong one either way.
+ *
+ * That formula is read as EVIDENCE that the bonus reaches the roll, not as a
+ * complete list of the target's terms: weight, corruption, supporting skills
+ * and language all reach the same number and it names none of them. It is
+ * Phase II's summary of Phase II.
+ *
+ * **Section C's timing penalty is deliberately not applied.** The canon
+ * procedure prints "Wrong timing for the entity gives -1 to -2", and Phase I
+ * already declares "Timing: Does it match the entity's domain?" among the
+ * choices feeding the single Preparation Modifier -- Excellent's own cell
+ * names "celestial timing". Charging both prices one mistimed ritual twice,
+ * the scoping that keeps Appendix A's adverse conditions off a shot already
+ * priced by chapter 5's darkness row. The book also labels Section C "a
+ * reference ... when you want the full texture". Both facts are pinned by
+ * `extract_ritual.py`, because "it is reference prose" is a reason that has to
+ * survive the page printing a number.
+ *
  * **The supporting skills are not scoped to a mode.** Section II sits above
  * the split and says nothing about either, so both modes take it -- unlike the
  * link, which each mode handles its own way. The +3 cap lives here rather than
@@ -42,12 +67,14 @@ import com.pathways.rules.content.TargetLink
 enum class RitualMode(
     /** Whether this mode adds the Target Link table as a separate modifier. */
     val usesTargetLink: Boolean,
+    /** Whether this mode's procedure prints a Flourish Bonus to award. */
+    val usesFlourish: Boolean,
 ) {
     /** Four steps, routine work. Preparation caps at +2 and the link is its own. */
-    QUICK(usesTargetLink = true),
+    QUICK(usesTargetLink = true, usesFlourish = false),
 
     /** Three phases, consequential magic. Preparation reaches +3 and includes the link. */
-    FULL(usesTargetLink = false),
+    FULL(usesTargetLink = false, usesFlourish = true),
     ;
 
     /** The cap on supporting skills, which both modes share. */
@@ -74,17 +101,31 @@ enum class RitualMode(
             )
 
     /**
-     * What preparation and link together do to the roll in this mode.
+     * What preparation, link and flourish together do to the roll in this mode.
      *
      * A [link] given to [FULL] is refused, not ignored: its preparation row
      * already priced one, and a caller passing both has misread which table it
      * is in. Silently dropping it would leave a GM believing a perfect link
      * was counted.
+     *
+     * A [flourish] given to [QUICK] is refused for the mirror reason: that
+     * mode sums exactly the two modifiers its Step 3 names, and awarding a
+     * bonus it never prints would invent a step. Refused rather than dropped,
+     * so a GM who described a performance is not left believing it counted.
      */
-    fun modifierTotal(preparation: RitualPreparation?, link: TargetLink? = null): Int {
+    fun modifierTotal(
+        preparation: RitualPreparation?,
+        link: TargetLink? = null,
+        flourish: Boolean = false,
+    ): Int {
         require(link == null || usesTargetLink) {
             "a $name ritual's preparation modifier already includes the target " +
                 "link (its rows name one); adding '${link?.link}' would pay it twice"
+        }
+        require(!flourish || usesFlourish) {
+            "a $name ritual prints no Flourish Bonus; its Step 3 sums exactly " +
+                "the two modifiers it names, and only Phase II of a full " +
+                "ritual awards +$FLOURISH_BONUS for delivery"
         }
         // A row borrowed from the OTHER mode's table is refused, and it is the
         // sharper of the two guards. The whole of 6y was that Excellent is +2
@@ -103,7 +144,8 @@ enum class RitualMode(
                 "the $name ritual's preparation table, which prints " +
                 preparations().joinToString { "${it.quality} ${it.printed}" }
         }
-        return (preparation?.modifier ?: 0) + (link?.modifier ?: 0)
+        return (preparation?.modifier ?: 0) + (link?.modifier ?: 0) +
+            (if (flourish) FLOURISH_BONUS else 0)
     }
 
     companion object {
@@ -113,6 +155,17 @@ enum class RitualMode(
          * reason the table is not just addition.
          */
         const val SUPPORT_CAP = 3
+
+        /**
+         * "The GM may award a Flourish Bonus (+1) for good in-character
+         * delivery" (p. 63, Phase II).
+         *
+         * One value, so it is a flag rather than a stepper -- unlike the
+         * ranges the darkness row and the preparation cells print, where the
+         * GM picks inside a printed span. Awarded, never earned by a roll:
+         * the book gives it to the GM and this app does not judge acting.
+         */
+        const val FLOURISH_BONUS = 1
 
         /** Section II's five supporting skills, in printed order. */
         fun supportSkills(): List<RitualSupportSkill> = ContentLoader.ritualSupport()
