@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.Pools
 import com.pathways.rules.Corruption
+import com.pathways.rules.Divination
 import com.pathways.rules.EntityAnswer
 import com.pathways.rules.Invocation
 import com.pathways.rules.Languages
@@ -92,6 +93,11 @@ private fun signed(n: Int) = if (n >= 0) "+$n" else "$n"
 @Composable
 fun RitualDialog(
     skillLevel: Int,
+    // Where [skillLevel] came from, when it is not simply this caster's own
+    // Ritualistic Magic -- p. 54's "and vice versa" half. Authored by
+    // Divination.sourceLine, for the reason recorded in the divination
+    // dialog: two screens writing one sentence is two copies of a decision.
+    sourceLine: String? = null,
     conditionPenalty: Int,
     cor: Int,
     spiAvailable: Int,
@@ -253,6 +259,7 @@ fun RitualDialog(
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 val result = outcome
                 if (result == null) {
+                    sourceLine?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
                     // The mode comes first, because it decides which
                     // preparation table the chips below are drawn from.
                     Text("Mode", style = MaterialTheme.typography.titleSmall)

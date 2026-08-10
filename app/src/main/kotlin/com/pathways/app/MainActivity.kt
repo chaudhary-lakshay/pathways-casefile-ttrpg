@@ -272,12 +272,28 @@ fun SheetScreen(
             ?.skillLevels
             ?: Derive.of(played).skillLevels
     }
-    // Only a caster can cast. No premade prints Ritualistic Magic, so this is
-    // null until someone buys it in the builder.
-    val ritualLevel = skillLevelOf(RITUAL_SKILL, skillLevels)
-    // Same gate, same reason: no premade prints Divination Arts either, so it
-    // is bought in the builder before a question can be asked.
-    val divinationLevel = skillLevelOf(Divination.SKILL, skillLevels)
+    // Only a caster can cast. No premade prints either skill, so both are
+    // null until a potion grants one -- ch. 9 p. 85 forbids buying Divination
+    // Arts with points, so a potion is its only route (6aq).
+    val ownedRitual = skillLevelOf(RITUAL_SKILL, skillLevels)
+    val ownedDivination = skillLevelOf(Divination.SKILL, skillLevels)
+    // p. 54: "Divination Arts defaults to Ritualistic Magic-2 and vice versa.
+    // A character with one skill at 12+ can attempt the other at -2."
+    //
+    // This matters because the two are granted very unevenly -- 25 potion
+    // blocks grant Ritualistic Magic against 5 that grant Divination Arts --
+    // so a gate on ownership alone hid the Divine button from most casters
+    // the book lets ask a question. Below 12 the default is null and the
+    // button stays hidden, which is the book withholding it, not this app.
+    //
+    // Which of the two numbers wins lives in Divination.levelFor, NOT here: a
+    // screen picking for itself is the two-copies-of-one-decision failure
+    // 6ag and 6ai each produced once, and the answer is not simply "the one
+    // you own" (Codex). Symmetric, by the sentence's own "and vice versa".
+    val divination = Divination.levelFor(own = ownedDivination, sibling = ownedRitual)
+    val ritual = Divination.levelFor(own = ownedRitual, sibling = ownedDivination)
+    val divinationLevel = divination?.level
+    val ritualLevel = ritual?.level
 
     // What the trackers are costing a roll of [key]. [cor] is a parameter
     // because RitualResolution applies the corruption ladder itself, and
@@ -601,6 +617,9 @@ fun SheetScreen(
     if (divining && divinationLevel != null) {
         DivinationDialog(
             skillLevel = divinationLevel,
+            sourceLine = divination?.let {
+                Divination.sourceLine(it, Divination.SKILL, RITUAL_SKILL)
+            },
             // Null for a mortal, who has no Sequence for Sec. 6 to compare.
             divinerSequence = drunk?.sequence,
             // Divination Arts is SPI/Hard, so Spiritual Attrition reaches it.
@@ -657,6 +676,9 @@ fun SheetScreen(
     if (casting && ritualLevel != null) {
         RitualDialog(
             skillLevel = ritualLevel,
+            sourceLine = ritual?.let {
+                Divination.sourceLine(it, RITUAL_SKILL, Divination.SKILL)
+            },
             // Section II's five, narrowed to the ones this character bought.
             // Offering all five would let a GM claim an Occultism the sheet
             // does not print; the book means skills the caster brings.

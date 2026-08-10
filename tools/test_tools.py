@@ -1154,6 +1154,57 @@ def test_committed_clarity_table_has_one_row_named_by_outcome():
     assert "Critical Failure Table" in critical[0]["effect"]
 
 
+def test_the_cross_skill_default_is_read_across_the_page_break_it_wraps_on():
+    """"...can attempt the other" ends one line and "at -2." begins the next.
+
+    Neither line alone states the rule -- the same wrap that hid the Flourish
+    Bonus one chapter over (6ay).
+    """
+    penalty, threshold, gated, joined = extract_divination.parse_cross_default([
+        "Default: Divination Arts defaults to Ritualistic Magic-2 and vice "
+        "versa. A character with one skill at 12+ can attempt the other",
+        "at -2.",
+    ])
+    assert (penalty, threshold, gated) == (-2, 12, -2)
+    assert "Default:" in joined
+
+    # A seam with the name and no number reads exactly like no rule at all.
+    with pytest.raises(ValueError, match="threshold clause is gone"):
+        extract_divination.parse_cross_default([
+            "Default: Divination Arts defaults to Ritualistic Magic-2 and vice versa."
+        ])
+
+
+def test_the_complex_bullet_is_the_difficulty_table_restated():
+    """Its -4 equals the Hard row. Applying both charges one hard question
+    twice, so that agreement is what makes the refusal a decision."""
+    overlap = ["Complex divination (long-range, multiple questions, resisting "
+               "countermeasures): Requires Ritualistic Magic or a",
+               "very high Divination Arts roll (-4 penalty). Cost: 2 SPI."]
+    seam = ("Default: Divination Arts defaults to Ritualistic Magic-2 and vice "
+            "versa. A character with one skill at 12+ can attempt the other at -2.")
+    hard = [{"modifier": 2}, {"modifier": 0}, {"modifier": -2},
+            {"modifier": -4}, {"modifier": -6}]
+    extract_divination.verify_cross_default(-2, 12, -2, seam, overlap, hard)
+
+    # If the table stopped printing a -4, the bullet would be a rule of its own.
+    with pytest.raises(ValueError, match="restates the table"):
+        extract_divination.verify_cross_default(
+            -2, 12, -2, seam, overlap, [{"modifier": -3}])
+    # And the refusal only holds while the bullet still prints its number.
+    with pytest.raises(ValueError, match="no longer prints its penalty"):
+        extract_divination.verify_cross_default(
+            -2, 12, -2, seam, ["Complex divination: Requires Ritualistic Magic."], hard)
+
+
+def test_committed_divination_content_claims_the_cross_default_sentence():
+    """The -2 and the 12 live in Kotlin; the span is claimed so the rule
+    stays findable (6af)."""
+    body = (CONTENT / "divination_support.json").read_text(encoding="utf-8")
+    assert [3559, 3560] in json.loads(body)["sourceLines"]["6.5"]
+    assert "default" not in body.lower()
+
+
 # --- Shields (Ch. 5, p. 37) -------------------------------------------------
 
 import extract_shields

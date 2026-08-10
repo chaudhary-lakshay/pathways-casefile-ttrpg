@@ -40,6 +40,128 @@ object Divination {
     /** "1 SPI = +1, no cap", spent after seeing the roll (p. 55). */
     const val BURN_PER_SPI = 1
 
+    /** The skill this one defaults from and to (p. 54). */
+    const val SIBLING_SKILL = Conditions.RITUAL_SKILL
+
+    /**
+     * "Divination Arts defaults to Ritualistic Magic-2 and vice versa"
+     * (p. 54).
+     *
+     * A SPECIFIC default, and it beats the general one:
+     * [Difficulty.defaultPenalty] answers -6 for an SPI/Hard skill, which is
+     * what a character with NEITHER skill would roll at. This is what one who
+     * has the sibling rolls at, and the book prices that at -2.
+     */
+    const val CROSS_DEFAULT_PENALTY = -2
+
+    /**
+     * "A character with one skill at 12+ can attempt the other at -2."
+     *
+     * A GATE on the source skill, not a rounding: at 11 there is no default
+     * at all, and reading the clause as advisory would hand every apprentice
+     * the cheap default the sentence conditions.
+     */
+    const val CROSS_DEFAULT_THRESHOLD = 12
+
+    /**
+     * What a caster holding only [siblingLevel] in the other skill rolls this
+     * one at -- or null where the book grants no default.
+     *
+     * Null is a REFUSAL, not a fallback to the general SPI/Hard -6. A caster
+     * with Ritualistic Magic at 11 is not a caster with no skill: what the
+     * book declines to say is whether they may attempt it at all, and
+     * answering -6 would settle a question it left open. The same distinction
+     * [Wounds.multiplierFor] draws between a silent cell and a key that is
+     * not a damage type.
+     *
+     * Symmetric, by the sentence's own "and vice versa", so it equally
+     * answers what a diviner attempts a ritual at. The direction is the
+     * caller's to name; the arithmetic does not care.
+     */
+    fun crossDefaultFor(siblingLevel: Int): Int? =
+        if (siblingLevel >= CROSS_DEFAULT_THRESHOLD) {
+            siblingLevel + CROSS_DEFAULT_PENALTY
+        } else {
+            null
+        }
+
+    /**
+     * A level to roll one of the pair at, and whether it is the sibling's.
+     *
+     * [isDefault] is what the screen says out loud, so a caster is never
+     * shown a number they do not own without being told where it came from.
+     */
+    data class SkillOrDefault(
+        val level: Int,
+        val isDefault: Boolean,
+        /**
+         * What the caster's OWN skill stands at, or null if they have none.
+         *
+         * Carried because [isDefault] alone cannot tell the two defaulting
+         * cases apart, and they read very differently to a GM: a caster with
+         * no divination skill at all, and a Hermit who has one and whose
+         * ritual skill simply lends a better number (Codex). A screen given
+         * only the flag printed "this character has no Divination Arts of
+         * their own" at a character who has it.
+         */
+        val own: Int? = null,
+    )
+
+    /**
+     * One sentence saying where [chosen]'s number came from, or null when it
+     * is simply the caster's own skill.
+     *
+     * Authored HERE rather than in the dialog, the call [Detection] already
+     * had to make for its attribute line (6ai): a screen writing its own
+     * version is a second copy of a decision, and this repo's numbers have
+     * twice stopped reconciling that way.
+     */
+    fun sourceLine(chosen: SkillOrDefault, skill: String, sibling: String): String? {
+        if (!chosen.isDefault) return null
+        val from = chosen.level - CROSS_DEFAULT_PENALTY
+        val quote = "\"Divination Arts defaults to $SIBLING_SKILL" +
+            "$CROSS_DEFAULT_PENALTY and vice versa.\""
+        return if (chosen.own == null) {
+            "Defaulted from $sibling $from. $quote This character has no $skill of their own."
+        } else {
+            "Defaulted from $sibling $from. $quote Better than their own " +
+                "$skill ${chosen.own}, and the book conditions the default on " +
+                "the other skill's level, not on lacking this one."
+        }
+    }
+
+    /**
+     * The level a caster rolls one of the pair at, given what they [own] of
+     * it and what they own of the [sibling] -- or null if they have neither.
+     *
+     * **The better of the two wins, and owning the skill is not enough to
+     * settle it** (Codex). The sentence conditions on the SOURCE skill's
+     * level and says nothing about lacking the target: "A character with one
+     * skill at 12+ can attempt the other at -2." A Sequence 9 Hermit is
+     * granted Ritualistic Magic at IQ+4 and Divination Arts at SPI+2, so on
+     * IQ 10 / SPI 9 they own Divination Arts 11 while their Ritualistic Magic
+     * 14 lends 12. Preferring what they own rolls the worse of two numbers
+     * the book allows.
+     *
+     * This is NOT GURPS's "always use the best of skill or default" imported
+     * as a convention -- those are GURPS's and this book's own rules win
+     * (4.1). It is the printed permission read literally: the caster may
+     * attempt it that way, and which of two permitted numbers to use is not
+     * a question the book leaves open.
+     *
+     * A tie keeps the owned skill, because the default adds nothing there and
+     * a caster who has the skill should be shown as having it.
+     */
+    fun levelFor(own: Int?, sibling: Int?): SkillOrDefault? {
+        val defaulted = sibling?.let(::crossDefaultFor)
+        return when {
+            own != null && (defaulted == null || defaulted <= own) ->
+                SkillOrDefault(own, isDefault = false, own = own)
+            defaulted != null -> SkillOrDefault(defaulted, isDefault = true, own = own)
+            else -> null
+        }
+    }
+
     fun difficulties(): List<DivinationDifficulty> = ContentLoader.divinationDifficulty()
     fun methods(): List<DivinationMethod> = ContentLoader.divinationMethods()
     fun modifiers(): List<DivinationModifier> = ContentLoader.divinationModifiers()

@@ -52,6 +52,13 @@ import com.pathways.rules.content.DivinationMethod
 @Composable
 fun DivinationDialog(
     skillLevel: Int,
+    // Where [skillLevel] came from, when it is not simply this character's
+    // own Divination Arts -- p. 54's default, lent by their Ritualistic
+    // Magic. Authored by Divination.sourceLine rather than assembled here:
+    // the flag alone cannot tell "has no divination skill" apart from "has
+    // one, and the sibling lends a better number", and a screen writing its
+    // own version printed the first at a character in the second (Codex).
+    sourceLine: String? = null,
     // What the trackers cost this roll, GIVEN the SPI this divination is
     // about to spend. A function rather than a number because the book pays
     // BEFORE it rolls -- Step 2 "Choose Method & Pay SPI", Step 3 "Roll &
@@ -172,6 +179,7 @@ fun DivinationDialog(
                     Result(answer, backlash)
                     return@Column
                 }
+                sourceLine?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
                 Text("Question", style = MaterialTheme.typography.titleSmall)
                 FlowRow {
                     difficulties.forEach { option ->

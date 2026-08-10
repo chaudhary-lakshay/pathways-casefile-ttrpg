@@ -25,6 +25,43 @@ closed column:
 
 The sentences the Kotlin side turns into numbers are pinned by verify(): the
 supporting-skill cap, the specialisation bonus, and the burn-SPI rule.
+
+THE CROSS-SKILL DEFAULT (3559-3560), IN THE SEAM ABOVE THE FIRST TABLE
+-----------------------------------------------------------------------
+    Default: Divination Arts defaults to Ritualistic Magic-2 and vice versa.
+    A character with one skill at 12+ can attempt the other at -2.
+
+Two lines directly above SUPPORT_RANGE's 3563, wrapping across a page break
+("...attempt the other" / "at -2."), and unclaimed until this slice -- the
+seam sweep from CLAUDE.md 6ay found it. It is a DEFAULT, not a modifier: it
+says what a caster who lacks one skill rolls AGAINST, which is why nothing in
+the modifier table covers it and why a per-roll chip is the wrong home.
+
+It is a SPECIFIC default and it beats the general one. Divination Arts is
+SPI/Hard, so Difficulty.defaultPenalty answers -6 for a character who has
+neither; this sentence prints -2 for one who has the sibling skill. Same
+shape as 6aw's melee summary, where Brawling prints DX-2 against the ladder's
+DX-4 -- except that there SkillLadder.defaultFor has no production caller and
+nothing could reach the wrong answer. Here it is REACHABLE: the app gates its
+Divine button on having the skill at all, and 25 potion blocks grant
+Ritualistic Magic against 5 that grant Divination Arts.
+
+"12+" is a threshold on the SOURCE skill, not on the result, and it is read
+as a gate rather than a rounding: a caster at 11 gets no default at all. Read
+as advisory it would hand every apprentice the cheap default the sentence
+conditions.
+
+WHY THE -4 ONE LINE ABOVE IT IS NOT A MODIFIER
+------------------------------------------------
+3557-3558: "Complex divination ... Requires Ritualistic Magic or a very high
+Divination Arts roll (-4 penalty)." It reads like a sixth modifier row and it
+is not: it is prose for the SAME axis the Question Difficulty table already
+prices, whose "Hard -- well-guarded, future, abstract" row is exactly -4 and
+whose Extreme row is "-6 or worse". Offering it beside that table charges one
+hard question twice -- the scoping that keeps Appendix A's adverse conditions
+off a shot already priced by chapter 5's darkness row (6ae). verify() pins
+that the difficulty table still prints a -4 row, because that agreement is
+the whole reason this line is read as a restatement rather than a rule.
 """
 import json, pathlib, re, sys
 
@@ -33,6 +70,12 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "6.5"
+# The cross-skill default, in the seam above the first table. Two lines,
+# because the sentence wraps across a page break.
+CROSS_DEFAULT_RANGE = (3559, 3560)
+# The overlap bullets above it, read only to prove the -4 is the difficulty
+# table restated rather than a modifier of its own.
+OVERLAP_RANGE = (3553, 3558)
 SUPPORT_RANGE = (3563, 3580)
 METHOD_RANGE = (3583, 3654)
 DIFFICULTY_RANGE = (3662, 3684)
@@ -78,6 +121,20 @@ EXPECTED_CLARITY_BANDS = [(False, 5), (False, 3), (False, 0), (True, 1), (True, 
 
 EXPECTED_SUPPORT = ["Occultism", "Hidden Lore (relevant)", "Psychology", "Cogitation"]
 EXPECTED_DIFFICULTY = 5
+
+# "Divination Arts defaults to Ritualistic Magic-2 and vice versa." The
+# penalty is captured, never assumed from the "-2" one clause later: the
+# sentence prints two -2s and they are the same number by coincidence of
+# drafting, not by a rule saying so.
+CROSS_DEFAULT = re.compile(
+    r"Divination Arts defaults to Ritualistic Magic\s*([+-]\d+)\s*and vice versa",
+    re.IGNORECASE,
+)
+# "A character with one skill at 12+ can attempt the other at -2."
+CROSS_THRESHOLD = re.compile(
+    r"one skill at\s*(\d+)\+\s*can attempt the other at\s*([+-]\d+)", re.IGNORECASE)
+# The complex-divination bullet, whose -4 is the difficulty table restated.
+COMPLEX_PENALTY = re.compile(r"very high Divination Arts roll\s*\(([+-]\d+) penalty\)")
 PINNED = [
     "cumulative but cap at +2 total from supporting skills",
     "gaining +1 when using it",
@@ -255,6 +312,64 @@ def parse_clarity(lines):
     return out
 
 
+def parse_cross_default(cells):
+    """The cross-skill default's penalty and its source-skill threshold.
+
+    The cells are joined first because the sentence WRAPS across a page break
+    -- "can attempt the other" ends one line and "at -2." begins the next --
+    so a line-at-a-time scan finds a rule with no number, which reads exactly
+    like the rule being absent. The same shape as the Flourish Bonus (6ay).
+    """
+    joined = " ".join(cells)
+    default = CROSS_DEFAULT.search(joined)
+    if not default:
+        raise ValueError(f"no cross-skill default sentence; the seam reads {joined!r}")
+    gated = CROSS_THRESHOLD.search(joined)
+    if not gated:
+        raise ValueError(f"the '12+' threshold clause is gone; the seam reads {joined!r}")
+    return int(default.group(1)), int(gated.group(1)), int(gated.group(2)), joined
+
+
+def verify_cross_default(penalty, threshold, gated_penalty, seam, overlap, difficulty):
+    """The default, its gate, and why the -4 beside it is not a modifier."""
+    if penalty != -2:
+        raise ValueError(f"the cross-skill default used to be -2; the page prints {penalty:+d}")
+    # The sentence states the penalty twice. They agree today, and if they
+    # ever stop the reading has to be made again rather than inherited --
+    # the standard the appendix's matching "Pi" had to meet (6v).
+    if gated_penalty != penalty:
+        raise ValueError(
+            f"the sentence's two printings of the default disagree ({penalty:+d} "
+            f"defaulting, {gated_penalty:+d} gated). They used to agree, which is "
+            "the only evidence they are one rule"
+        )
+    if threshold != 12:
+        raise ValueError(f"the source-skill threshold used to be 12+; it prints {threshold}")
+
+    # The whole reason this is a DEFAULT and not a per-roll modifier: it is
+    # printed above the tables, not in the modifier list.
+    if "Default:" not in seam:
+        raise ValueError(f"the seam no longer labels itself a default: {seam!r}")
+
+    # And the -4 one line above, which is the difficulty table restated. If
+    # that table ever stops printing a -4 row, this line becomes a rule of its
+    # own and the refusal to apply it has to be re-argued.
+    complex_penalty = COMPLEX_PENALTY.search(" ".join(overlap))
+    if not complex_penalty:
+        raise ValueError(
+            "the complex-divination bullet no longer prints its penalty. The "
+            "refusal to apply it is only a decision while the number is there"
+        )
+    printed = [d["modifier"] for d in difficulty]
+    if int(complex_penalty.group(1)) not in printed:
+        raise ValueError(
+            f"the complex-divination bullet prints {complex_penalty.group(1)} and the "
+            f"Question Difficulty table prints {printed}. They used to agree, which is "
+            "the only evidence that bullet restates the table rather than adding a "
+            "sixth modifier -- applying both would charge one hard question twice"
+        )
+
+
 def verify(support, methods, difficulty, modifiers, clarity, prose):
     got = [s["skill"] for s in support]
     if got != EXPECTED_SUPPORT:
@@ -315,7 +430,15 @@ def main():
     verify(support, methods, difficulty, modifiers, clarity,
            support_lines + method_lines + modifier_lines)
 
-    write("divination_support", support, [list(SUPPORT_RANGE)])
+    # The seam above the first table. Nothing is written for it -- the -2 and
+    # the 12 live in Kotlin, the split every number-inside-a-sentence takes --
+    # but the span is claimed below, so the rule stays findable (6af).
+    penalty, threshold, gated, seam = parse_cross_default(
+        stream(byn, *CROSS_DEFAULT_RANGE))
+    verify_cross_default(penalty, threshold, gated, seam,
+                         stream(byn, *OVERLAP_RANGE), difficulty)
+
+    write("divination_support", support, [list(CROSS_DEFAULT_RANGE), list(SUPPORT_RANGE)])
     write("divination_methods", methods, [list(METHOD_RANGE)])
     write("divination_difficulty", difficulty, [list(DIFFICULTY_RANGE)])
     write("divination_modifiers", modifiers, [list(MODIFIER_RANGE)])
@@ -331,6 +454,8 @@ def main():
     print(f"divination_modifiers: {len(modifiers)} rows")
     print(f"divination_clarity: {len(clarity)} rows")
     print(f"divination_support: {len(support)} skills")
+    print(f"cross-skill default: {penalty:+d} from the sibling skill at {threshold}+ "
+          "(lives in Divination)")
     return 0
 
 
