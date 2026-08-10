@@ -3,12 +3,13 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `4031b56` (slice 6ay).
+sections below are current as of `3376a31` (slice 6az).
 
-**Read the slice log from the END.** 6ax is a handover header; 6ay is the
-slice after it, and it found a roll modifier 6ax's own "nothing is
-outstanding" table could not see. Treat 6ax the way 6ax says to treat its
-predecessors: verify it, do not inherit it.
+**Read the slice log from the END.** 6ax is a handover header; 6ay and 6az
+are the slices after it, and between them they found a roll modifier and a
+gate that hid an entire screen — neither visible in 6ax's own "nothing is
+outstanding" table. Treat 6ax the way 6ax says to treat its predecessors:
+verify it, do not inherit it.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -47,7 +48,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **919 Kotlin** (JUnit 5 — 836 `core:rules`, 63 `app`, 20 `core:model`) + **243 Python** (pytest), all green |
+| Tests | **928 Kotlin** (JUnit 5 — 845 `core:rules`, 63 `app`, 20 `core:model`) + **246 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -3977,10 +3978,11 @@ start by asking the same question rather than by picking a chapter.
    because the code is present, reachable, and confidently wrong.
 4. **A number invented in code** (6at) — code → book, the only direction that
    can see a constant no source sentence backs.
-5. **A gap between two claimed spans** (6ay) — starts at neither end. Two
-   extractors walked one section for its tables and left a +1 in the seam
+5. **A gap between two claimed spans** (6ay, 6az) — starts at neither end.
+   Two extractors walked one section for its tables and left a +1 in the seam
    between them, in a chapter reading 81%. Print the lines either side of
-   every claimed span.
+   every claimed span. It found two rules, not one: the Flourish Bonus and
+   the cross-skill default that was hiding the whole Divine screen.
 
 ### Three habits this session earned, in priority order (and see 6ay)
 
@@ -4046,8 +4048,11 @@ since 6g. Two more are headings, and two are deferrals already recorded with
 evidence: chapter 8's armour (6av) and Wrestling's grappling Quick Contest
 (6aw). **The Flourish was the only seam holding a rule nothing applies.**
 
-Two lines came out as CANDIDATES rather than findings, and are left for a
-later slice on purpose — finding is this slice's scope:
+Two lines came out as CANDIDATES rather than findings, and were left for a
+later slice on purpose — finding was this slice's scope. **Both were settled
+in 6az, and the first was a live gate defect**: the cross-skill default is
+real and was hiding the whole Divine screen from most casters; the -4 beside
+it is the difficulty table restated, as suspected. The candidates:
 
 - **3559-3560**, wrapping mid-sentence: "Divination Arts defaults to
   Ritualistic Magic-2 and vice versa. A character with one skill at 12+ can
@@ -4141,6 +4146,99 @@ seeded with Ritualistic Magic at 4 points (level 9), a MORTAL with SPI 0:
 
 Chapter 7 is now at **81.6%**, from 81.0%. The four lines claimed are the
 seam itself; nothing else in the chapter moved.
+
+## 6az. The seam sweep's second finding, and a gate that hid a whole screen
+
+`Divination.crossDefaultFor` / `.levelFor` apply Ch. 6.5 p. 54's cross-skill
+default, and the Divine and Ritual buttons now honour it. 6ay named this line
+as a CANDIDATE and left it for a later slice; this is that slice, and the
+candidate turned out to be the more expensive of the two findings.
+
+    Default: Divination Arts defaults to Ritualistic Magic-2 and vice versa.
+    A character with one skill at 12+ can attempt the other at -2.
+
+Lines 3559-3560, two lines above `divination_support.json`'s span at 3563 --
+the seam sweep's shape exactly (6ay), and wrapping across a page break so
+neither line alone states the rule.
+
+**The gate was the defect, and the data says how big.** `MainActivity` showed
+the Divine button only to a character who OWNED Divination Arts. **25 potion
+blocks grant Ritualistic Magic; 5 grant Divination Arts.** Door, White Tower,
+Hanged Man, Darkness, Sun, Death, Paragon, Mother, Moon and Abyss all make
+casters the book lets ask a question and the app did not -- an entire screen,
+unreachable, for most of the casters this app can produce.
+
+- **A DEFAULT, not a modifier**, which is why nothing in the Step 3 table
+  covers it and why a per-roll chip would have been the wrong home. It says
+  what a caster ROLLS AGAINST.
+- **Specific beats general, and the gap is four points.**
+  `Difficulty.defaultPenalty` answers -6 for SPI/Hard; this prints -2. Same
+  shape as 6aw's Brawling DX-2 against the ladder's DX-4 -- except that there
+  `SkillLadder.defaultFor` has no production caller and nothing could reach
+  the wrong answer. Here it was reachable, and the wrong answer was "no
+  screen at all".
+- **"12+" is a gate, and below it the answer is null rather than the general
+  default.** A caster with the sibling at 11 is not a caster with no skill:
+  what the book declines to say is whether they may try at all, and answering
+  -6 for them would settle a question it left open. The refusal
+  `Wounds.multiplierFor` draws between a silent cell and a key that is not a
+  damage type.
+- **The -4 one line above is NOT a sixth modifier.** "Complex divination ...
+  Requires Ritualistic Magic or a very high Divination Arts roll (-4
+  penalty)" restates the Question Difficulty table, whose Hard row is exactly
+  -4 and whose Extreme row is "-6 or worse". Applying both charges one hard
+  question twice -- the scoping that keeps Appendix A's adverse conditions off
+  a shot already priced by chapter 5's darkness row (6ae). `verify()` fails
+  if the table stops printing a -4, because that agreement is the whole
+  evidence.
+
+### Codex found two P2s, and the first overturned my reading
+
+- **Owning the skill does not settle which number to roll.** I gated on
+  ownership: own it, roll it; lack it, default. The sentence conditions on
+  the SOURCE skill's level and says nothing about lacking the target. A
+  **Sequence 9 Hermit** is granted Ritualistic Magic at IQ+4 and Divination
+  Arts at SPI+2, so at IQ 10 / SPI 9 they own Divination Arts **11** while
+  their Ritualistic Magic 14 lends **12**. Ownership-first rolls the worse of
+  two numbers the book permits. Not GURPS's "best of skill or default"
+  imported as a convention -- GURPS's conventions are GURPS's (6l) -- but the
+  printed permission read literally.
+- **A better default is not the same as having no skill.** The fix above made
+  `isDefault` true for the Hermit, and the dialog printed *"This character has
+  no Divination Arts of their own"* at a character who has it. The sentence is
+  authored by `Divination.sourceLine` now, not assembled in each dialog -- the
+  two-copies-of-one-decision failure 6ag and 6ai each produced once, and
+  `SkillOrDefault.own` is what lets one flag tell two cases apart.
+
+Both were RED-proved by restoring the old behaviour: ownership-first failed
+1 test, one-sentence-for-both failed 1 test. A third Codex pass came back
+clean.
+
+**A machine note.** `:app:testDebugUnitTest` died with "Test process
+encountered an unexpected problem" and no compile error -- commit charge was
+**37.2 GB of 40.2 GB**. Reaping the Kotlin daemons freed 7 GB and the same
+suite passed untouched. 6ah's pagefile exhaustion presenting as a test
+failure rather than as an emulator death; `--stop` still does not reap them
+(6am).
+
+Device-verified on `Medium_Phone_API_36.1`, both branches, seeded through
+`sessions.json`:
+
+- **Academic Researcher as a Hermit Seq 9** (owns Divination Arts 11): the
+  dialog reads **"Divination Arts 12"** over *"Defaulted from Ritualistic
+  Magic 14. ... **Better than their own Divination Arts 11**, and the book
+  conditions the default on the other skill's level, not on lacking this
+  one."* -- Codex's finding and its fix in one line.
+- **Journalist as a Darkness Seq 9** (owns none): **Divine renders at all**,
+  which it did not before this slice, and reads **"Divination Arts 10"** over
+  *"... This character has no Divination Arts of their own."*
+- That caster's panel read **"Roll 3d6 <= 12 -- Skill 10, question +2. Costs 1
+  SPI"** and rolled **17 vs 12**, taking Critical Failure -> Backlash ->
+  ch. 7's table ("Wrong Arrival"), with `spiSpent: 1` saved. So the defaulted
+  level reaches `attempt`, not only the target line.
+
+Chapter 6.5 is now at **89.3%**, from 85.7%. The six lines left there are
+Sec. 5-6's spill onto page 60 (6ag).
 
 ---
 
