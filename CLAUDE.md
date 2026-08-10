@@ -3,13 +3,19 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `3376a31` (slice 6az).
+sections below are current as of `0a56f6e` (slice 6ba).
 
-**Read the slice log from the END.** 6ax is a handover header; 6ay and 6az
-are the slices after it, and between them they found a roll modifier and a
-gate that hid an entire screen — neither visible in 6ax's own "nothing is
-outstanding" table. Treat 6ax the way 6ax says to treat its predecessors:
-verify it, do not inherit it.
+**Read the slice log from the END.** 6ax is a handover header; 6ay, 6az and
+6ba are the slices after it, and between them they found a roll modifier, a
+gate that hid an entire screen, and a rule the app itself broke — none
+visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way 6ax
+says to treat its predecessors: verify it, do not inherit it.
+
+**And 6ba corrects 6ay's METHOD, not only its output.** The seam sweep ran a
+3-line window and a numeric-only filter; both are too narrow, and a rule that
+wraps across the line where a claimed span ends is invisible to them. Every
+sweep in this file is also a claim about what it cannot see — audit the
+method before trusting the verdicts.
 
 **Legal:** GURPS is Steve Jackson Games' property; Lord of the Mysteries is
 Cuttlefish That Loves Diving's. This is a personal/portfolio project. Not for
@@ -48,7 +54,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **928 Kotlin** (JUnit 5 — 845 `core:rules`, 63 `app`, 20 `core:model`) + **246 Python** (pytest), all green |
+| Tests | **931 Kotlin** (JUnit 5 — 848 `core:rules`, 63 `app`, 20 `core:model`) + **250 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -3978,11 +3984,20 @@ start by asking the same question rather than by picking a chapter.
    because the code is present, reachable, and confidently wrong.
 4. **A number invented in code** (6at) — code → book, the only direction that
    can see a constant no source sentence backs.
-5. **A gap between two claimed spans** (6ay, 6az) — starts at neither end.
-   Two extractors walked one section for its tables and left a +1 in the seam
-   between them, in a chapter reading 81%. Print the lines either side of
-   every claimed span. It found two rules, not one: the Flourish Bonus and
-   the cross-skill default that was hiding the whole Divine screen.
+5. **A gap between two claimed spans** (6ay, 6az, 6ba) — starts at neither
+   end. Two extractors walked one section for its tables and left a +1 in the
+   seam between them, in a chapter reading 81%. Print the lines either side
+   of every claimed span — **window 8, and filter on worded mechanics as well
+   as numbers** (6ay's 3-line numeric run missed two rules and one of them
+   was a live defect). It found three: the Flourish Bonus, the cross-skill
+   default that was hiding the whole Divine screen, and ch. 7's prohibition
+   that the second of those broke.
+
+Every one of the five is a claim about what the OTHER four cannot see, so a
+sixth starts by asking that question rather than by picking a chapter. And
+note 6ba's twist: a sweep's clean verdict is valid only as of its date. 6ar
+swept line 4007 correctly and found nothing, because the code that
+contradicts it was not written for another two slices.
 
 ### Three habits this session earned, in priority order (and see 6ay)
 
@@ -4239,6 +4254,140 @@ Device-verified on `Medium_Phone_API_36.1`, both branches, seeded through
 
 Chapter 6.5 is now at **89.3%**, from 85.7%. The six lines left there are
 Sec. 5-6's spill onto page 60 (6ag).
+
+## 6ba. The rule the app broke two commits after the sweep that cleared it
+
+`Divination.levelsFor` refuses the cross-skill default in the ritual
+direction, applying Ch. 7 II p. 61. This is the defect class 6aq and 6ar
+named — **a rule printed and CONTRADICTED** — and for the first time the
+contradiction was not inherited from an earlier milestone. **6az created it,
+two commits before this one.**
+
+    Ritualistic Magic (IQ/Very Hard) - your core skill. It has no default and
+    cannot be substituted. It covers your ability to design, prepare, and
+    execute rituals correctly. Supporting skills provide complementary
+    bonuses but never replace this skill.
+
+6az read ch. 6.5's "Divination Arts defaults to Ritualistic Magic-2 **and
+vice versa**" as symmetric and wired both directions. Ch. 7 forbids exactly
+the second one.
+
+### The warrant, which is not "ch. 7 defines the skill"
+
+That reasoning would be the per-source generalisation 6v disproves. Three
+things settle it, and the first two were greps that cost a minute each:
+
+- **"cannot be substituted" is printed EXACTLY ONCE in this book.** Had it
+  turned up under other Very Hard blurbs it would be boilerplate and the
+  sentence would say nothing about this pair. A test asserts the uniqueness
+  rather than recalling it, because the day it stops being unique the reading
+  has to be made again.
+- **Ch. 2 p. 10 agrees independently**: "Very Hard skills ... have no default
+  at all" — which is why `Difficulty.VERY_HARD` has carried a null default
+  since M0. So two places say Ritualistic Magic has no default against one
+  trailing clause that says it has. The clause loses (4.1), the way ch. 3's
+  own "+9" ceiling lost to chapter 9's data (6ao).
+- **The asymmetry falls out of the difficulty grid.** The direction that
+  survives is exactly the one whose difficulty permits a default at all:
+  Divination Arts is SPI/Hard and defaults at -6 generally, which p. 54
+  improves to -2. An asymmetry that has to be asserted is a smell; this one
+  is derivable.
+- **Ch. 7 is not speaking past Divination Arts.** Its own category table
+  sends divination away to the other chapter — "Divination (1-2 SPI via
+  Divination Arts, see Ch 6.5)" (p. 67) — so the prohibition was written with
+  that skill in view.
+
+### One function, because the asymmetry is the rule
+
+The first fix was two functions and a call site choosing between them, which
+is the shape that cannot be tested: a screen making the second call itself is
+checkable only by reading it, and reading it is what failed in 6az.
+`levelsFor(ownDivination, ownRitual)` returns both rolls, so a symmetric
+implementation fails a test instead of shipping. **All three new tests fail
+against the symmetric body** and the other 45 in the file pass — the general
+one walks a 20x20 grid and asserts a ritual level is a function of the
+caster's own skill alone, while also asserting the sibling still moves the
+divination level, so an engine that refused BOTH directions cannot pass it
+vacuously.
+
+`RitualDialog` lost its `sourceLine` parameter entirely rather than being
+passed a permanent null: a nullable parameter implies there is another number
+the level could have come from, and ch. 7 says there is not.
+
+### The lesson: a prohibition sweep expires
+
+6ar swept the source for prohibition language (`cannot|may not|never|not
+allowed`), found 165 lines, 89 with a mechanical hook, and triaged them.
+**Line 4007 was in that set and correctly produced no finding** — nothing
+contradicted it in 2026-08-08's tree. 6az then wrote the code that does.
+
+So a sweep's clean verdict is valid **only as of its date**, and the cheap
+guard is not to re-run the whole sweep but to check a new slice's own subject
+against the prohibition line-set before shipping it. Neither of the two
+sweeps this repo runs on new code — the field-consumer grep (6ai) and the
+printed-but-not-applied pass — can see this, because both start from
+something extracted, and a rule the code contradicts is a rule nothing
+extracted.
+
+### The seam sweep's method was wrong, and Codex audited it
+
+6ay's sweep was submitted for a reasoning audit rather than a code review —
+27 verdicts, each with its claimed implementation site. It came back with
+**four wrong or unproven, and two method flaws**, and the flaws are what
+found this slice:
+
+- **The 3-line window misses a rule that wraps.** Line 2599 ENDS mid-sentence
+  at "Grappling ST Bonus: For"; the payload is on 2600-2601, one line outside
+  the window, and nothing implements it.
+- **The numeric filter is blind to worded mechanics.** "once per round", "no
+  cap", "cannot", "halve", "double" carry rules with no signed number.
+
+Re-run at **window 8 with a worded-mechanics filter: 76 seam lines, 15 found
+only by the worded filter** — where the narrow run found 29. Of my original
+27 verdicts 25 held; both failures were the same shape, a rule wrapped across
+the line where a claimed span ends, which is the shape the sweep exists to
+find. **The window was the bug, exactly as it was for the two findings the
+sweep did produce.**
+
+Confirmed unimplemented and deliberately left for their own slices, each
+recorded here so the next reader inherits evidence rather than a to-do:
+
+| Line | Rule | Why not here |
+|---|---|---|
+| 2600-2601 | Grappling ST: +1 at DX+1, +2 at DX+2 | Its own sentence sends it to a Quick Contest, unmodelled since 6o |
+| 2457 | Retreat / Acrobatic Dodge / Dive "once per round" | Governs `defense_modifiers.json`'s rows from ~25 lines above them; needs a round tracker this app does not hold |
+| 2687 | Unaware of a shot: "you cannot defend at all" | A refusal with no roll to refuse yet |
+
+And one found while checking reachability, which is a **parse** finding
+rather than a rules one: Demoness Sequence 7 grants
+`Ritualistic Magic (Mirror, Dowsing)`, which `skillLevelOf(RITUAL_SKILL)`
+never matches, so a caster the book grants the skill at IQ+4 gets no Ritual
+button at all. Read the block before assuming it is a spelling — the bracket
+may be a printed restriction, the shape "Hidden Lore (relevant domain)" has
+one section over (6am). Its own slice.
+
+**Codex reviewed the fix and returned clean.**
+
+Device-verified on the physical tablet (1920x1200), Academic Researcher
+seeded through `sessions.json`, both directions on one pathway:
+
+- **Darkness Sequence 6** — the book's own worst case, and reachable with no
+  bought skill at all. Ritualistic Magic is granted three times (IQ+2, then
+  +2, then +2 = **16**) and Divination Arts once at Sequence 6, as a NEW
+  skill on the cumulative SPI 17, giving **19**. So the sibling lends 17,
+  which is higher than the caster's own 16. The dialog reads **"3d6 ≤ 16 —
+  Ritualistic Magic 16, Light 0, preparation +0. Costs 2 SPI."** and no
+  source line at all. Before this commit it read 17.
+- **Darkness Sequence 8**, one rung up, where the same character owns
+  Ritualistic Magic 14 and no Divination Arts: **"Divination Arts 12"** over
+  *"Defaulted from Ritualistic Magic 14. ... This character has no Divination
+  Arts of their own."* The surviving direction, intact.
+
+Both spans are claimed now — `ritual_support.json` carries `[[4007, 4008],
+[4009, 4028]]`, the prohibition sitting one line above the supporting-skill
+table its own extractor walked — and each chapter's `verify()` pins the
+OTHER's sentence, because the limit lives in a chapter `extract_divination`
+never reads and that is precisely how it went unread.
 
 ---
 
