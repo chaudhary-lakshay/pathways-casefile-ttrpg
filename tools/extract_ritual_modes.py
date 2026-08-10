@@ -53,6 +53,11 @@ LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "7"
+# Section II's opening two lines, one above the supporting-skill table this
+# module already walked. They sat unclaimed until the seam sweep found them,
+# and they are the whole warrant for Divination.ritualLevelFor refusing the
+# "and vice versa" half of ch. 6.5's cross-skill default (CLAUDE.md 6ba).
+NO_DEFAULT_RANGE = (4007, 4008)
 SUPPORT_RANGE = (4009, 4028)
 QUICK_PREPARATION_RANGE = (4055, 4064)
 TARGET_LINK_RANGE = (4065, 4075)
@@ -71,6 +76,20 @@ QUALITY_CELL = re.compile(r"^(.+?)\s+[—-]\s+(.+)$")
 
 CAP_SENTENCE = "cumulative but cap at +3 total"
 SUPPORT_CAP = 3
+
+# Ch. 7 II's two prohibitions. The first is what makes the cross-skill default
+# one-directional; the second scopes what "substituted" was written about, and
+# it names the supporting skills rather than excluding anything else -- ch. 7
+# knows Divination Arts exists and sends divination away to the other chapter
+# ("Divination (1-2 SPI via Divination Arts, see Ch 6.5)", p. 67).
+#
+# "cannot be substituted" appears NOWHERE else in this book, which is what
+# makes it emphasis about this skill rather than boilerplate under every Very
+# Hard blurb. Ch. 2 p. 10 agrees independently ("Very Hard skills ... have no
+# default at all"), so two places say this against one trailing clause in
+# ch. 6.5 that says the opposite. The clause loses (CLAUDE.md 4.1).
+NO_DEFAULT_SENTENCE = "It has no default and cannot be substituted"
+NEVER_REPLACE_SENTENCE = "never replace this skill"
 
 EXPECTED_SUPPORT = [
     "Occultism", "Thaumatology", "Hidden Lore (relevant domain)",
@@ -178,7 +197,17 @@ def full_preparation():
     return json.loads(FULL_PREPARATION.read_text(encoding="utf-8"))["entries"]
 
 
-def verify(support, cap, quick, links):
+def verify(support, cap, quick, links, no_default=None):
+    if no_default is not None:
+        for sentence in (NO_DEFAULT_SENTENCE, NEVER_REPLACE_SENTENCE):
+            if sentence not in no_default:
+                raise ValueError(
+                    f"ch. 7 II no longer prints {sentence!r}. That sentence is "
+                    "the only thing stopping ch. 6.5's 'and vice versa' from "
+                    "letting Divination Arts stand in for Ritualistic Magic; "
+                    "re-read p. 61 before changing Divination.ritualLevelFor"
+                )
+
     got = [r["skill"] for r in support]
     if got != EXPECTED_SUPPORT:
         raise ValueError(f"the supporting skill list changed: {got}")
@@ -228,17 +257,18 @@ def verify(support, cap, quick, links):
 
 def main():
     byn = load_lines()
+    no_default = " ".join(stream(byn, *NO_DEFAULT_RANGE))
     support, cap = parse_support(stream(byn, *SUPPORT_RANGE))
     quick = parse_modifier_rows(
         stream(byn, *QUICK_PREPARATION_RANGE), "quality", EXPECTED_QUICK)
     links = parse_modifier_rows(
         stream(byn, *TARGET_LINK_RANGE), "link", EXPECTED_LINKS)
-    verify(support, cap, quick, links)
+    verify(support, cap, quick, links, no_default)
 
     OUT.mkdir(parents=True, exist_ok=True)
 
-    def write(name, rows, lines):
-        payload = {"sourceLines": {CHAPTER: [list(lines)]}, "entries": rows}
+    def write(name, rows, *spans):
+        payload = {"sourceLines": {CHAPTER: [list(s) for s in spans]}, "entries": rows}
         (OUT / name).write_text(
             json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
@@ -246,7 +276,9 @@ def main():
     # verify() pins the sentence it was read from -- the same split the
     # maneuver table's +4/-4/-6/-2 already take (CLAUDE.md 6i). Committing it
     # as a column would make it look like the book printed one.
-    write("ritual_support.json", support, SUPPORT_RANGE)
+    # Two spans, with the prohibition first: an assertion whose source
+    # sentence is unclaimed is a rule nobody can find again (CLAUDE.md 6af).
+    write("ritual_support.json", support, NO_DEFAULT_RANGE, SUPPORT_RANGE)
     write("ritual_quick_preparation.json", quick, QUICK_PREPARATION_RANGE)
     write("ritual_target_link.json", links, TARGET_LINK_RANGE)
 

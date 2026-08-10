@@ -74,9 +74,23 @@ object Divination {
      * [Wounds.multiplierFor] draws between a silent cell and a key that is
      * not a damage type.
      *
-     * Symmetric, by the sentence's own "and vice versa", so it equally
-     * answers what a diviner attempts a ritual at. The direction is the
-     * caller's to name; the arithmetic does not care.
+     * ONE-DIRECTIONAL, despite the sentence's own "and vice versa": this
+     * answers what a caster holding Ritualistic Magic attempts DIVINATION at,
+     * and nothing else. Ch. 7 II p. 61 says of Ritualistic Magic, "It has no
+     * default and cannot be substituted" -- and "cannot be substituted"
+     * appears nowhere else in this book, so it is emphasis about this skill
+     * rather than boilerplate under every Very Hard blurb. Ch. 2 p. 10 agrees
+     * independently: "Very Hard skills ... have no default at all", which is
+     * why [Difficulty.VERY_HARD] has carried a null default since M0.
+     *
+     * Two places say Ritualistic Magic has no default against one trailing
+     * clause that says it has; the clause loses (4.1). The asymmetry is not
+     * arbitrary either -- it falls out of the difficulty grid, because the
+     * direction that survives is exactly the one whose difficulty permits a
+     * default at all: Divination Arts is SPI/Hard and defaults at -6
+     * generally, which p. 54 improves to -2.
+     *
+     * [levelsFor] is where the other direction is refused.
      */
     fun crossDefaultFor(siblingLevel: Int): Int? =
         if (siblingLevel >= CROSS_DEFAULT_THRESHOLD) {
@@ -131,8 +145,14 @@ object Divination {
     }
 
     /**
-     * The level a caster rolls one of the pair at, given what they [own] of
-     * it and what they own of the [sibling] -- or null if they have neither.
+     * The level a caster rolls DIVINATION at, given what they [own] of
+     * Divination Arts and what they own of Ritualistic Magic ([sibling]) --
+     * or null if they have neither.
+     *
+     * There is deliberately no general "either direction" form of this: see
+     * [crossDefaultFor] for why [levelsFor] refuses the other one, and note
+     * that a single symmetric function is exactly what let ch. 6.5's trailing
+     * clause override ch. 7's prohibition without anyone reading ch. 7.
      *
      * **The better of the two wins, and owning the skill is not enough to
      * settle it** (Codex). The sentence conditions on the SOURCE skill's
@@ -152,7 +172,7 @@ object Divination {
      * A tie keeps the owned skill, because the default adds nothing there and
      * a caster who has the skill should be shown as having it.
      */
-    fun levelFor(own: Int?, sibling: Int?): SkillOrDefault? {
+    fun divinationLevelFor(own: Int?, sibling: Int?): SkillOrDefault? {
         val defaulted = sibling?.let(::crossDefaultFor)
         return when {
             own != null && (defaulted == null || defaulted <= own) ->
@@ -161,6 +181,32 @@ object Divination {
             else -> null
         }
     }
+
+    /** What a caster may roll each of the pair at; null where they may not. */
+    data class CasterLevels(
+        val divination: SkillOrDefault?,
+        val ritual: SkillOrDefault?,
+    )
+
+    /**
+     * Both of a caster's rolls, from the two skills they own.
+     *
+     * ONE function rather than two calls, because the asymmetry IS the rule
+     * and a screen making the second call itself can only be checked by
+     * reading it. Here a symmetric implementation fails a test.
+     *
+     * The ritual half never defaults, from anything. Ch. 7 II p. 61:
+     * "Ritualistic Magic (IQ/Very Hard) -- your core skill. It has no default
+     * and cannot be substituted. ... Supporting skills provide complementary
+     * bonuses but never replace this skill." And ch. 7 is not speaking past
+     * Divination Arts when it forbids this -- its own category table sends
+     * divination away to the other chapter, "Divination (1-2 SPI via
+     * Divination Arts, see Ch 6.5)" (p. 67).
+     */
+    fun levelsFor(ownDivination: Int?, ownRitual: Int?) = CasterLevels(
+        divination = divinationLevelFor(own = ownDivination, sibling = ownRitual),
+        ritual = ownRitual?.let { SkillOrDefault(it, isDefault = false, own = it) },
+    )
 
     fun difficulties(): List<DivinationDifficulty> = ContentLoader.divinationDifficulty()
     fun methods(): List<DivinationMethod> = ContentLoader.divinationMethods()

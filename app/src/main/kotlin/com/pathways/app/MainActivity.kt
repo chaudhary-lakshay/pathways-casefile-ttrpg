@@ -286,12 +286,20 @@ fun SheetScreen(
     // the book lets ask a question. Below 12 the default is null and the
     // button stays hidden, which is the book withholding it, not this app.
     //
-    // Which of the two numbers wins lives in Divination.levelFor, NOT here: a
-    // screen picking for itself is the two-copies-of-one-decision failure
-    // 6ag and 6ai each produced once, and the answer is not simply "the one
-    // you own" (Codex). Symmetric, by the sentence's own "and vice versa".
-    val divination = Divination.levelFor(own = ownedDivination, sibling = ownedRitual)
-    val ritual = Divination.levelFor(own = ownedRitual, sibling = ownedDivination)
+    // Which of the two numbers wins lives in Divination.divinationLevelFor,
+    // NOT here: a screen picking for itself is the two-copies-of-one-decision
+    // failure 6ag and 6ai each produced once, and the answer is not simply
+    // "the one you own" (Codex).
+    //
+    // It runs ONE WAY. The "vice versa" clause loses to ch. 7 II p. 61 --
+    // "Ritualistic Magic ... has no default and cannot be substituted" -- so
+    // a ritual is rolled at the caster's own skill or not at all.
+    val levels = Divination.levelsFor(
+        ownDivination = ownedDivination,
+        ownRitual = ownedRitual,
+    )
+    val divination = levels.divination
+    val ritual = levels.ritual
     val divinationLevel = divination?.level
     val ritualLevel = ritual?.level
 
@@ -676,9 +684,6 @@ fun SheetScreen(
     if (casting && ritualLevel != null) {
         RitualDialog(
             skillLevel = ritualLevel,
-            sourceLine = ritual?.let {
-                Divination.sourceLine(it, RITUAL_SKILL, Divination.SKILL)
-            },
             // Section II's five, narrowed to the ones this character bought.
             // Offering all five would let a GM claim an Occultism the sheet
             // does not print; the book means skills the caster brings.

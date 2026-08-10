@@ -1197,6 +1197,32 @@ def test_the_complex_bullet_is_the_difficulty_table_restated():
             -2, 12, -2, seam, ["Complex divination: Requires Ritualistic Magic."], hard)
 
 
+def test_the_vice_versa_half_is_refused_from_the_other_chapter():
+    """This sentence says the default runs both ways; ch. 7 II p. 61 says
+    Ritualistic Magic "has no default and cannot be substituted".
+
+    Pinned from BOTH sides on purpose. The limit lives in a chapter this
+    extractor never reads, which is exactly how it stayed unread while 6az
+    wired the default symmetrically -- and a reader who re-symmetrises
+    Divination.divinationLevelFor will be looking at this file, not that one.
+    """
+    seam = ("Default: Divination Arts defaults to Ritualistic Magic-2 and vice "
+            "versa. A character with one skill at 12+ can attempt the other at -2.")
+    overlap = ["Complex divination: Requires Ritualistic Magic or a "
+               "very high Divination Arts roll (-4 penalty). Cost: 2 SPI."]
+    hard = [{"modifier": -4}]
+    extract_divination.verify_cross_default(
+        -2, 12, -2, seam, overlap, hard,
+        "Ritualistic Magic (IQ/Very Hard) - your core skill. "
+        "It has no default and cannot be substituted.",
+    )
+    with pytest.raises(ValueError, match="no longer prints its prohibition"):
+        extract_divination.verify_cross_default(
+            -2, 12, -2, seam, overlap, hard,
+            "Ritualistic Magic (IQ/Very Hard) - your core skill.",
+        )
+
+
 def test_committed_divination_content_claims_the_cross_default_sentence():
     """The -2 and the 12 live in Kotlin; the span is claimed so the rule
     stays findable (6af)."""
@@ -1996,6 +2022,50 @@ def test_the_cap_is_a_sentence_not_a_column():
     # And the cap is deliberately not committed as data.
     raw = json.loads((CONTENT / "ritual_support.json").read_text(encoding="utf-8"))
     assert "cap" not in raw
+
+
+@needs_pdf
+def test_ritualistic_magic_prints_its_own_prohibition():
+    """Ch. 7 II p. 61, one line above the supporting-skill table this module
+    already walked -- the seam the sweep found (6ba).
+
+    It is the only thing limiting ch. 6.5's "and vice versa" to one
+    direction, and the reason it is adopted is that "cannot be substituted"
+    appears NOWHERE else in the book. If it ever turned up under other Very
+    Hard blurbs it would be boilerplate and the refusal would need re-arguing,
+    so the uniqueness is asserted rather than recalled.
+    """
+    byn = extract_ritual_modes.load_lines()
+    seam = " ".join(
+        extract_ritual_modes.stream(byn, *extract_ritual_modes.NO_DEFAULT_RANGE))
+    assert extract_ritual_modes.NO_DEFAULT_SENTENCE in seam
+    assert extract_ritual_modes.NEVER_REPLACE_SENTENCE in seam
+
+    printed = [n for n, t in byn.items() if "cannot be substituted" in t]
+    assert printed == [extract_ritual_modes.NO_DEFAULT_RANGE[0]], (
+        f"'cannot be substituted' is printed on lines {printed}. It used to "
+        "appear once, which is what made it emphasis about this skill rather "
+        "than boilerplate; re-read p. 61 before trusting the refusal"
+    )
+
+
+@needs_pdf
+def test_losing_the_prohibition_would_fail_verification():
+    with pytest.raises(ValueError, match="ch. 7 II no longer prints"):
+        extract_ritual_modes.verify(
+            support_entries(), ritual_cap_sentence(),
+            quick_preparation_entries(), target_link_entries(),
+            no_default="Ritualistic Magic (IQ/Very Hard) -- your core skill.",
+        )
+
+
+def test_committed_content_claims_the_prohibition():
+    """An assertion whose source sentence is unclaimed is a rule nobody can
+    find again (6af). Two spans, and the prose is deliberately not stored."""
+    raw = json.loads((CONTENT / "ritual_support.json").read_text(encoding="utf-8"))
+    spans = raw["sourceLines"]["7"]
+    assert [4007, 4008] in spans and [4009, 4028] in spans
+    assert "substituted" not in json.dumps(raw)
 
 
 import extract_entity_response

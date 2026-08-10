@@ -135,6 +135,14 @@ CROSS_THRESHOLD = re.compile(
     r"one skill at\s*(\d+)\+\s*can attempt the other at\s*([+-]\d+)", re.IGNORECASE)
 # The complex-divination bullet, whose -4 is the difficulty table restated.
 COMPLEX_PENALTY = re.compile(r"very high Divination Arts roll\s*\(([+-]\d+) penalty\)")
+# Ch. 7 II p. 61, in a chapter this module does not otherwise read. It is the
+# ONLY thing limiting the sentence above to one direction, and that limit is
+# invisible from here -- which is exactly how it went unread until the seam
+# sweep (CLAUDE.md 6ba). Pinned on this side too, because a reader who
+# re-symmetrises Divination.divinationLevelFor will be looking at this file.
+# Claimed by ritual_support.json under chapter 7, not re-claimed here.
+RITUAL_NO_DEFAULT_RANGE = (4007, 4008)
+RITUAL_NO_DEFAULT = "It has no default and cannot be substituted"
 PINNED = [
     "cumulative but cap at +2 total from supporting skills",
     "gaining +1 when using it",
@@ -330,8 +338,18 @@ def parse_cross_default(cells):
     return int(default.group(1)), int(gated.group(1)), int(gated.group(2)), joined
 
 
-def verify_cross_default(penalty, threshold, gated_penalty, seam, overlap, difficulty):
-    """The default, its gate, and why the -4 beside it is not a modifier."""
+def verify_cross_default(penalty, threshold, gated_penalty, seam, overlap,
+                         difficulty, ritual_section=None):
+    """The default, its gate, why the -4 beside it is not a modifier, and
+    which of the sentence's two directions the other chapter forbids."""
+    if ritual_section is not None and RITUAL_NO_DEFAULT not in ritual_section:
+        raise ValueError(
+            "ch. 7 II no longer prints its prohibition. This sentence's 'and "
+            "vice versa' half is refused ONLY because p. 61 says Ritualistic "
+            "Magic 'has no default and cannot be substituted'; without it the "
+            "default is symmetric again and Divination.ritualLevelFor is wrong"
+        )
+
     if penalty != -2:
         raise ValueError(f"the cross-skill default used to be -2; the page prints {penalty:+d}")
     # The sentence states the penalty twice. They agree today, and if they
@@ -436,7 +454,8 @@ def main():
     penalty, threshold, gated, seam = parse_cross_default(
         stream(byn, *CROSS_DEFAULT_RANGE))
     verify_cross_default(penalty, threshold, gated, seam,
-                         stream(byn, *OVERLAP_RANGE), difficulty)
+                         stream(byn, *OVERLAP_RANGE), difficulty,
+                         " ".join(stream(byn, *RITUAL_NO_DEFAULT_RANGE)))
 
     write("divination_support", support, [list(CROSS_DEFAULT_RANGE), list(SUPPORT_RANGE)])
     write("divination_methods", methods, [list(METHOD_RANGE)])
