@@ -3,6 +3,7 @@ package com.pathways.app
 import com.pathways.model.Attr
 import com.pathways.model.Attributes
 import com.pathways.model.Character
+import com.pathways.model.Difficulty
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
 import com.pathways.rules.Appearance
@@ -12,6 +13,7 @@ import com.pathways.rules.Premades
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -325,6 +327,70 @@ class EditedCharacterTest {
 
         assertTrue("Ritualistic Magic" !in grantedSkills(researcher, edits, fool).map { it.first.name })
         assertTrue("Ritualistic Magic" in grantedSkills(researcher, SavedEdits(), fool).map { it.first.name })
+    }
+
+    @Test
+    fun `a grant at another difficulty is a second skill, not the same one`() {
+        // The five recorded difficulty disagreements are real on screen. A
+        // Barmaid Brawler prints Knife/DX [Easy]; the Abyss potion grants
+        // Knife/DX [Average] at Sequence 6, and p. 85 stacks a grant only when
+        // the name AND difficulty match -- so she ends up holding both.
+        //
+        // Keyed on the name alone, the published row answered with the
+        // potion's level and the granted skill was suppressed as a duplicate
+        // (Codex). Neither is repaired: 4.1 keeps the disagreement.
+        val brawler = Premades.all().single { it.name == "Barmaid Brawler" }
+        val abyss = PotionDigestion
+            .digestThrough(brawler.toCharacter(), "Abyss", 6, ContentLoader.pathways())
+            .skillLevels
+        val printed = brawler.skills.single { it.label.startsWith("Knife") }
+
+        val easy = printed.key()
+        val average = easy.copy(difficulty = Difficulty.AVERAGE)
+        assertEquals(Difficulty.EASY, easy.difficulty, "the sheet's own row")
+
+        // Two entries, one label, two levels -- and each row reads its own.
+        val liveEasy = liveLevelOf(easy, abyss, brawler.levelFor(printed))
+        val liveAverage = liveLevelOf(average, abyss, fallback = 0)
+        assertNotEquals(liveEasy, liveAverage, "the two Knives are not one skill")
+        assertEquals(liveEasy, abyss.entries.single { it.key.difficulty == Difficulty.EASY && it.key.name == "Knife" }.value)
+
+        // and the potion's Knife gets a row of its own rather than vanishing
+        val granted = grantedSkills(brawler, SavedEdits(), abyss)
+        assertTrue(granted.any { it.first.name == "Knife" && it.first.difficulty == Difficulty.AVERAGE })
+        assertTrue(granted.none { it.first.name == "Knife" && it.first.difficulty == Difficulty.EASY })
+    }
+
+    @Test
+    fun `the fallback is unreachable, and this is what says so`() {
+        // liveLevelOf falls back to the sheet's printed level, which Codex
+        // rightly called a silent stale roll if a published skill ever went
+        // missing from the digested map. It cannot today: all 23 premades,
+        // down all 20 pathways to Sequence 6, keep every published skill.
+        //
+        // Asserted rather than recalled, because the fallback's whole defence
+        // is that nothing reaches it -- and a defence nobody rechecks is how a
+        // deferral goes stale (6au, 6av). If this fails, the fallback has
+        // become load-bearing and needs deciding, not extending.
+        val blocks = ContentLoader.pathways()
+        Premades.all().forEach { premade ->
+            blocks.map { it.pathway }.distinct().forEach { pathway ->
+                val levels = PotionDigestion
+                    .digestThrough(premade.toCharacter(), pathway, 6, blocks)
+                    .skillLevels
+                premade.skills.forEach { skill ->
+                    val key = skill.key()
+                    assertTrue(
+                        levels.keys.any {
+                            it.name.equals(key.name, ignoreCase = true) &&
+                                it.specialization == key.specialization &&
+                                it.difficulty == key.difficulty
+                        },
+                        "${premade.name} down $pathway lost ${skill.label}",
+                    )
+                }
+            }
+        }
     }
 
     @Test

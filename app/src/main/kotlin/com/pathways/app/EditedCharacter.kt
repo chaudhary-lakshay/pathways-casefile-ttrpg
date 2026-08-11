@@ -116,19 +116,37 @@ fun skillLevelOf(name: String, levels: Map<SkillKey, Int>): Int? =
  * A potion that raises IQ re-levels every bought IQ skill (M3), so the sheet's
  * own figure is the level of a character who no longer exists.
  *
- * Matched on name AND specialization, never on name alone: five skills carry
- * several rows, and a name-only lookup is what made a bought Guns (Rifle) roll
- * the pistol's level (6e, 6as).
+ * Matched on the BOOK's own identity for a skill: name, specialization and
+ * difficulty. Name alone is what made a bought Guns (Rifle) roll the pistol's
+ * level (6e, 6as), and name plus specialization is not enough either --
+ * p. 85 stacks a grant onto an existing skill only when the name AND the
+ * difficulty match, and treats a different difficulty as a different skill.
+ * Five skills carry a different difficulty in the potion tables than in
+ * chapter 3's list, which is a recorded book disagreement this repo refuses to
+ * repair (4.1), so a digested Barmaid Brawler really does hold Knife/E from
+ * the sheet and Knife/A from the Abyss potion at once. Two entries, one label,
+ * different levels -- and a lookup that stops at the first would answer the
+ * published row with the potion's skill (Codex).
  *
- * [fallback] is the sheet's printed level, and no premade needs it -- all 23
- * keep every published skill in the digested map, through every pathway to
- * Sequence 6. It is there so a future block that supersedes a purchase under
- * some other specialization loses the row's currency rather than the row.
+ * [fallback] is the sheet's printed level, which is also the number the row
+ * DISPLAYS, so falling back is never a figure from nowhere. No premade needs
+ * it: a test walks all 23 down every pathway to Sequence 6 and finds no
+ * published skill missing from the digested map.
  */
 fun liveLevelOf(key: SkillKey, levels: Map<SkillKey, Int>, fallback: Int): Int =
-    levels.entries.firstOrNull {
-        it.key.name.equals(key.name, ignoreCase = true) && it.key.specialization == key.specialization
-    }?.value ?: fallback
+    levels.entries.firstOrNull { it.key.sameSkillAs(key) }?.value ?: fallback
+
+/**
+ * Whether these name the same skill, by the book's rule (p. 85).
+ *
+ * The difficulty is part of the identity, not decoration: a grant of the same
+ * name at another difficulty is a NEW skill, which is exactly how the five
+ * recorded difficulty disagreements come to sit beside their sheet rows.
+ */
+private fun SkillKey.sameSkillAs(other: SkillKey): Boolean =
+    name.equals(other.name, ignoreCase = true) &&
+        specialization == other.specialization &&
+        difficulty == other.difficulty
 
 /**
  * The skills a potion granted that no row on the sheet screen would show.
@@ -144,17 +162,31 @@ fun liveLevelOf(key: SkillKey, levels: Map<SkillKey, Int>, fallback: Int): Int =
  * A skill already on the sheet is absent from this list rather than doubled:
  * the potion raises the published row (M3's re-levelling), so it is the same
  * row, not a second one.
+ *
+ * Suppressed by the book's identity for a skill -- name, specialization AND
+ * difficulty (see [sameSkillAs]) -- because the five recorded difficulty
+ * disagreements make that distinction real. A Barmaid Brawler who walks the
+ * Abyss to Sequence 6 is granted Knife/Average beside the Knife/Easy her sheet
+ * prints, and p. 85 makes those two different skills at two different levels.
+ * Suppressing on the name alone hid the granted one entirely (Codex).
  */
 fun grantedSkills(
     sheet: PremadeSheet,
     edits: SavedEdits,
     levels: Map<SkillKey, Int>,
 ): List<Pair<SkillKey, Int>> {
-    val published = sheet.skills.map { it.key().name.lowercase() to it.key().specialization }
-    val bought = edits.skills.map { it.name.lowercase() to it.specialization }
-    val shown: Set<Pair<String, String?>> = (published + bought).toSet()
+    val published = sheet.skills.map { it.key() }
+    // A purchase stores a name and points only; its difficulty is the book's,
+    // resolved the same way [purchases] resolves it, so that a bought row and
+    // the row it would otherwise duplicate agree on which skill they are.
+    val bought = edits.skills.mapNotNull { saved ->
+        definitionOf(saved.name, saved.specialization)?.let { definition ->
+            SkillKey(definition.name, saved.specialization, definition.attr, definition.difficulty)
+        }
+    }
+    val shown = published + bought
     return levels.entries
-        .filterNot { entry -> (entry.key.name.lowercase() to entry.key.specialization) in shown }
+        .filterNot { entry -> shown.any { entry.key.sameSkillAs(it) } }
         .map { entry -> entry.key to entry.value }
 }
 

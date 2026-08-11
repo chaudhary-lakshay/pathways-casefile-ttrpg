@@ -539,8 +539,22 @@ fun SheetScreen(
             // their own buttons, deliberately: those buttons cast and divine,
             // and a GM may still call for a plain roll of the skill.
             items(grantedSkills(sheet, session.edits, skillLevels)) { (key, level) ->
-                AddedSkillRow(key.label(), level, "potion") {
-                    rolling = RollableSkill(key.label(), level, key)
+                // Two rows can share a label and mean different skills: the
+                // Abyss grants Knife/Average to a sheet that prints
+                // Knife/Easy, and the book makes those two skills at two
+                // levels (4.1 keeps the disagreement). Naming the difficulty
+                // only where it disambiguates keeps every other row plain --
+                // two rows reading "Knife" with different numbers is the
+                // unreconcilable screen this repo has been bitten by twice.
+                val label = key.label().let {
+                    if (sheet.skills.any { printed -> printed.key().label() == it }) {
+                        "$it [${key.difficulty.code}]"
+                    } else {
+                        it
+                    }
+                }
+                AddedSkillRow(label, level, "potion") {
+                    rolling = RollableSkill(label, level, key)
                 }
             }
         }
