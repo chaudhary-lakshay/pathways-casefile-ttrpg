@@ -3,14 +3,17 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `dcaf59f` (slice 6bb).
+sections below are current as of `5ab008f` (slice 6bc).
 
 **Read the slice log from the END.** 6ax is a handover header; 6ay through
-6bb are the slices after it, and between them they found a roll modifier, a
-gate that hid an entire screen, a rule the app itself broke, and the only
-place the book grades a ritual that worked — none visible in 6ax's own
-"nothing is outstanding" table. Treat 6ax the way 6ax says to treat its
-predecessors: verify it, do not inherit it.
+6bc are the slices after it, and between them they found a roll modifier, a
+gate that hid an entire screen, a rule the app itself broke, the only place
+the book grades a ritual that worked, and a whole 75-point advantage table —
+none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
+6ax says to treat its predecessors: verify it, do not inherit it.
+
+**Where to start next: section 6bd.** Content work is essentially done; what
+is left are three feature decisions, and 6bd names them with the evidence.
 
 **6bb also retracts a finding of its own, mid-slice.** It read one table as
 contradicting another, had the fix half-written, and two lines of the book
@@ -4558,6 +4561,59 @@ and the disadvantage cap, which `PointBudget.MAX_DISADVANTAGES` has enforced
 since M0 (6ac). The one genuine oddity among them is ch. 3's own "+9" SPI
 ceiling at 505-506, which chapter 9's data exceeds — recorded and
 deliberately not repaired in 6ao.
+
+## 6bd. Handover — the content is done; what is left are three decisions
+
+Written at `5ab008f`. **Verify this the way 6ax asks you to verify 6ax** —
+it is a predecessor's note, and 6ay/6az/6ba each overturned one.
+
+Working tree clean, both suites green: **935 Kotlin, 253 Python**. No open
+findings, no unverified fixes. Every slice from 6ay onward was Codex-reviewed
+before commit and device-verified after.
+
+### Coverage, and what it does and does not mean
+
+100%: ch. 4, 7.6, 10, 11, 12, 13, 14, 15. High-80s: ch. 6 (85.4), 6.5 (89.3),
+ch. 3 (86.2), ch. 7 (84.2). **Chapter 7's remaining 25 lines were enumerated
+one by one in 6bc's session and NONE is actionable** — burning SPI, the
+refused canon timing penalty, assistants, catalysts, a table heading,
+descriptive SPI-by-Sequence prose, and rituals 8-10's range templates.
+
+Remember coverage has now misled six distinct ways (6t, 6v, 6ae, 6af, 6av,
+and 6aj's blindness to bare margin bands). **A percentage is a floor and an
+argument, never a receipt.**
+
+### The three decisions, ranked by rules unblocked per unit of work
+
+| # | Decision | Unblocks | Where the evidence is |
+|---|---|---|---|
+| 1 | **A round tracker** | Five printed rules at once: grappling ST (2600-2601), free actions "once per round" (2457), surprise (2377), unaware "cannot defend at all" (2687), reload rate (2690) | 6ba's table |
+| 2 | **Purchasable traits** | The Seven Orthodox Gods Blessings (75 pts each) and the 198-row trait catalogue generally | 6bc |
+| 3 | **Quick Contests** | Feint (6o), grappling, and ch. 6.5's six contests (6ah) | refused since 6o |
+
+**#1 is the best value and the clearest call.** All five rules are already
+located and confirmed unimplemented; the only blocker is that this app holds
+no notion of a round. Note that every clock-shaped feature has been refused
+here on principle — SPI recovery (6ad), technique durations (6ah), downtime
+periods (6an) — so a round tracker is a genuine change of policy and should
+be decided deliberately, not slid in. 6au is the precedent for how to avoid
+one: it built a *stateless* planner where a downtime tracker had been ruled
+out, by finding the sentence that made state unnecessary.
+
+**#3 is the one to be most careful about.** It needs both sides' attributes
+and this app holds one sheet. That is not a gap to close casually; it is a
+change to what the app IS.
+
+### The sweep to run before starting any of them
+
+6ba's lesson, which is the newest and least tested: **a prohibition sweep's
+clean verdict expires.** 6ar swept line 4007 correctly and found nothing,
+because the code contradicting it was written two slices later. Before
+shipping a slice, check its own subject against the prohibition line-set
+(`cannot|may not|must not|never|not allowed|not possible`) — not the whole
+sweep, just whether any printed rule forbids what you have just made
+possible. A round tracker in particular will make several "cannot" lines
+reachable for the first time.
 
 ---
 
