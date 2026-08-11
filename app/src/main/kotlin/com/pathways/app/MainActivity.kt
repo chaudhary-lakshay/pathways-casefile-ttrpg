@@ -482,9 +482,16 @@ fun SheetScreen(
                     ComparisonRow(
                         row,
                         Modifier.clickable {
+                            // The row SHOWS the sheet's own number, because
+                            // that comparison is the engine against the book
+                            // and a potion is neither (6e). What it ROLLS is
+                            // the character in front of the player: a Paragon
+                            // Seq 9 potion takes this sheet's Research from 13
+                            // to 17, and rolling the printed figure rolls a
+                            // character who no longer exists.
                             rolling = RollableSkill(
                                 skill.label,
-                                sheet.levelFor(skill),
+                                liveLevelOf(skill.key(), skillLevels, sheet.levelFor(skill)),
                                 skill.key(),
                             )
                         },
@@ -515,9 +522,25 @@ fun SheetScreen(
                 }
                 val level = key?.let { skillLevels[it] }
                 if (level != null && key != null) {
-                    BoughtSkillRow(key.label(), level) {
+                    AddedSkillRow(key.label(), level, "bought") {
                         rolling = RollableSkill(key.label(), level, key)
                     }
+                }
+            }
+
+            // Skills a POTION granted. The two lists above are one row per
+            // published skill and one per purchase, so between them they
+            // cannot show a skill the book handed over -- and ch. 9 p. 85
+            // forbids buying the three SPI-based ones, making a grant their
+            // only route (6aq). Chapter 4 prints a result table for two of
+            // them; 6aj wired those up and this is what could reach them.
+            //
+            // Ritualistic Magic and Divination Arts appear here as well as on
+            // their own buttons, deliberately: those buttons cast and divine,
+            // and a GM may still call for a plain roll of the skill.
+            items(grantedSkills(sheet, session.edits, skillLevels)) { (key, level) ->
+                AddedSkillRow(key.label(), level, "potion") {
+                    rolling = RollableSkill(key.label(), level, key)
                 }
             }
         }
@@ -1054,14 +1077,18 @@ private fun PoolRow(status: PoolStatus, onSpend: (Int) -> Unit) {
 private data class RollableSkill(val label: String, val base: Int, val key: SkillKey)
 
 /**
- * A skill bought in the builder, shown so it can be rolled.
+ * A skill the published sheet does not print, shown so it can be rolled.
  *
  * Deliberately not a [ComparisonRow]: there is nothing to compare it to. The
  * published sheet never printed it, and saying "sheet: -" would invent a
  * disagreement where there is only an addition.
+ *
+ * [provenance] says where it came from, because the two are not the same
+ * offer: a bought skill can be re-pointed in the builder and a granted one
+ * cannot -- it has no points behind it, only the potion (M3).
  */
 @Composable
-private fun BoughtSkillRow(label: String, level: Int, onClick: () -> Unit) {
+private fun AddedSkillRow(label: String, level: Int, provenance: String, onClick: () -> Unit) {
     Row(
         Modifier.fillMaxWidth().clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 10.dp),
@@ -1070,7 +1097,7 @@ private fun BoughtSkillRow(label: String, level: Int, onClick: () -> Unit) {
         Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
         Text("$level", style = MaterialTheme.typography.bodyMedium)
         Text(
-            " (bought)",
+            " ($provenance)",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.primary,
         )

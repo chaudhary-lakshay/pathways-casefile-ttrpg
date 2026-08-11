@@ -6,6 +6,7 @@ import com.pathways.model.PurchasedSkill
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.rules.Appearance
+import com.pathways.rules.PremadeSheet
 import com.pathways.rules.SkillLadder
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.AppearanceLevel
@@ -103,6 +104,59 @@ fun SavedEdits.wealthShownFor(character: Character): WealthLevel? =
  */
 fun skillLevelOf(name: String, levels: Map<SkillKey, Int>): Int? =
     levels.entries.firstOrNull { it.key.name.equals(name, ignoreCase = true) }?.value
+
+/**
+ * What [key] is rolled at NOW, falling back to [fallback].
+ *
+ * The published rows are comparison rows, and their displayed numbers come
+ * from the unedited sheet on purpose -- that diff is the engine against the
+ * book (6e). The number ROLLED is a different question, and until now it was
+ * answered from the same place: a Paragon Sequence 9 Academic Researcher
+ * rolled Research at the printed 13 while the digested character stood at 17.
+ * A potion that raises IQ re-levels every bought IQ skill (M3), so the sheet's
+ * own figure is the level of a character who no longer exists.
+ *
+ * Matched on name AND specialization, never on name alone: five skills carry
+ * several rows, and a name-only lookup is what made a bought Guns (Rifle) roll
+ * the pistol's level (6e, 6as).
+ *
+ * [fallback] is the sheet's printed level, and no premade needs it -- all 23
+ * keep every published skill in the digested map, through every pathway to
+ * Sequence 6. It is there so a future block that supersedes a purchase under
+ * some other specialization loses the row's currency rather than the row.
+ */
+fun liveLevelOf(key: SkillKey, levels: Map<SkillKey, Int>, fallback: Int): Int =
+    levels.entries.firstOrNull {
+        it.key.name.equals(key.name, ignoreCase = true) && it.key.specialization == key.specialization
+    }?.value ?: fallback
+
+/**
+ * The skills a potion granted that no row on the sheet screen would show.
+ *
+ * The screen lists one row per PUBLISHED skill and one per skill BOUGHT in
+ * play, and between them they cannot show a skill a potion handed over. That
+ * was survivable while a player could buy anything; ch. 9 p. 85 forbids buying
+ * the three SPI-based skills (6aq), so for exactly the skills chapter 4 prints
+ * result tables for, a grant is the ONLY route and there was no row to tap.
+ * 6aj found this hole for bought skills and closing the purchase route
+ * re-opened it one list over.
+ *
+ * A skill already on the sheet is absent from this list rather than doubled:
+ * the potion raises the published row (M3's re-levelling), so it is the same
+ * row, not a second one.
+ */
+fun grantedSkills(
+    sheet: PremadeSheet,
+    edits: SavedEdits,
+    levels: Map<SkillKey, Int>,
+): List<Pair<SkillKey, Int>> {
+    val published = sheet.skills.map { it.key().name.lowercase() to it.key().specialization }
+    val bought = edits.skills.map { it.name.lowercase() to it.specialization }
+    val shown: Set<Pair<String, String?>> = (published + bought).toSet()
+    return levels.entries
+        .filterNot { entry -> (entry.key.name.lowercase() to entry.key.specialization) in shown }
+        .map { entry -> entry.key to entry.value }
+}
 
 /**
  * The book's definition of [name], or null when it prints no such skill.

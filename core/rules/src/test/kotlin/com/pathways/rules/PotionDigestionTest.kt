@@ -225,6 +225,27 @@ class PotionDigestionTest {
     }
 
     @Test
+    fun `a bracketed grant is still the skill it names`() {
+        // Demoness Sequence 7 is the one block in the book that grants the
+        // ritual skill with a bracket: "Ritualistic Magic (Mirror, Dowsing)".
+        // 6ba read that as unreachable by `skillLevelOf(RITUAL_SKILL)` and
+        // left it as a slice; it is not, because [skillKey] splits the
+        // bracket into a specialization, exactly as it does for "Guns
+        // (Pistol)". The name a caller keys on is the bare one.
+        val witch = PotionDigestion.digestThrough(
+            mortal,
+            pathway = "Demoness",
+            sequence = 7,
+            blocks = ContentLoader.pathways(),
+        )
+
+        val ritual = witch.skillLevels.entries.single { it.key.name == Conditions.RITUAL_SKILL }
+        assertEquals("Mirror, Dowsing", ritual.key.specialization)
+        // IQ+4 on the mortal's IQ 11 (no Demoness block raises IQ).
+        assertEquals(15, ritual.value)
+    }
+
+    @Test
     fun `every committed block digests without error`() {
         // The 88 blocks are the real input; a stat row this engine cannot
         // apply must fail here rather than in front of a player.

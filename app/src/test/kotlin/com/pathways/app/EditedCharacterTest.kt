@@ -7,7 +7,10 @@ import com.pathways.model.Trait
 import com.pathways.model.TraitKind
 import com.pathways.rules.Appearance
 import com.pathways.rules.Derive
+import com.pathways.rules.PotionDigestion
+import com.pathways.rules.Premades
 import com.pathways.rules.Wealth
+import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -247,5 +250,86 @@ class EditedCharacterTest {
         assertTrue(SavedEdits(appearance = "Radiant").applyTo(mortal).traits.isEmpty())
         assertNull(SavedEdits(appearance = "Radiant").appearanceLevel())
         assertTrue(!SavedEdits(appearance = "Ugly").isEmpty)
+    }
+
+    // ---- what a sheet row actually rolls -------------------------------
+
+    private val researcher = Premades.all().single { it.name == "Academic Researcher" }
+    private val paragon = PotionDigestion
+        .digestThrough(researcher.toCharacter(), "Paragon", 9, ContentLoader.pathways())
+        .skillLevels
+
+    @Test
+    fun `a published row rolls the level the character has now`() {
+        // A Paragon Sequence 9 potion raises IQ, and every bought IQ skill
+        // re-levels with it (M3). The sheet's own printed number is the level
+        // before the potion, so rolling it is rolling a character who no
+        // longer exists: Research is 13 as printed and 17 once digested.
+        val research = researcher.skills.single { it.label.startsWith("Research") }
+
+        assertEquals(13, researcher.levelFor(research), "what the book prints")
+        assertEquals(17, liveLevelOf(research.key(), paragon, researcher.levelFor(research)))
+    }
+
+    @Test
+    fun `a mortal's published row is unchanged`() {
+        // No potion, no difference -- the fallback and the live map agree, so
+        // this fix moves nothing for the 23 premades as printed.
+        val levels = Derive.of(researcher.toCharacter()).skillLevels
+        researcher.skills.forEach { skill ->
+            val printed = researcher.levelFor(skill)
+            assertEquals(printed, liveLevelOf(skill.key(), levels, printed), skill.label)
+        }
+    }
+
+    @Test
+    fun `a specialization is matched, never guessed`() {
+        // The Guns bug, one row over: asking by NAME returns whichever
+        // specialization the map happens to hold first (6e, 6as). Hidden Lore
+        // (Fae) is on this sheet, so a stray sibling must not answer for it.
+        val fae = researcher.skills.single { it.label.startsWith("Hidden Lore") }.key()
+        val impostor = fae.copy(specialization = "Spirits")
+
+        assertEquals(13, liveLevelOf(fae, paragon, fallback = 0))
+        assertEquals(0, liveLevelOf(impostor, paragon, fallback = 0), "no sibling answers")
+    }
+
+    @Test
+    fun `a potion-granted skill is a row of its own`() {
+        // Ch. 9 p. 85 forbids buying the SPI skills, so a potion is their only
+        // route -- and the sheet listed one row per PUBLISHED skill and one
+        // per BOUGHT skill, which between them cannot show a granted one.
+        // 6aj opened this hole for bought skills and 6aq closed the purchase
+        // route, which re-opened it for exactly the skills chapter 4 prints
+        // result tables for.
+        val fool = PotionDigestion
+            .digestThrough(researcher.toCharacter(), "Fool", 9, ContentLoader.pathways())
+            .skillLevels
+        val granted = grantedSkills(researcher, SavedEdits(), fool).map { it.first.name }
+
+        assertTrue("Spiritual Intuition" in granted, "the Seer's sense, granted: $granted")
+        assertTrue("Divination Arts" in granted)
+        // Occultism is on the sheet already, so the potion raises the
+        // published row rather than adding a second one beside it.
+        assertTrue("Occultism" !in granted)
+    }
+
+    @Test
+    fun `a bought skill is not also listed as granted`() {
+        // The bought rows are rendered from `edits.skills` and already roll
+        // the digested level. Listing one here as well would show it twice.
+        val fool = PotionDigestion
+            .digestThrough(researcher.toCharacter(), "Fool", 9, ContentLoader.pathways())
+            .skillLevels
+        val edits = SavedEdits(skills = listOf(SavedSkill("Ritualistic Magic", points = 1)))
+
+        assertTrue("Ritualistic Magic" !in grantedSkills(researcher, edits, fool).map { it.first.name })
+        assertTrue("Ritualistic Magic" in grantedSkills(researcher, SavedEdits(), fool).map { it.first.name })
+    }
+
+    @Test
+    fun `a mortal is granted nothing`() {
+        val levels = Derive.of(researcher.toCharacter()).skillLevels
+        assertTrue(grantedSkills(researcher, SavedEdits(), levels).isEmpty())
     }
 }
