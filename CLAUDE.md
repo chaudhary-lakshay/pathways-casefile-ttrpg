@@ -4358,6 +4358,43 @@ recorded here so the next reader inherits evidence rather than a to-do:
 | 2457 | Retreat / Acrobatic Dodge / Dive "once per round" | Governs `defense_modifiers.json`'s rows from ~25 lines above them; needs a round tracker this app does not hold |
 | 2687 | Unaware of a shot: "you cannot defend at all" | A refusal with no roll to refuse yet |
 
+### The largest thing the widened sweep found, left as the next slice
+
+Triaging all 76 turned up one block worth its own slice, and it is 6y's
+finding one table over. **Lines 4076-4105 are entirely unclaimed** — thirty
+lines holding two complete tables, inside the Quick Ritual's Step 4 (p. 62):
+
+- **A third printing of the weight table** (Light +0 / 2 SPI, Moderate -2 /
+  4-6, Heavy -4 / 8+). It agrees exactly with Section V, which
+  `ritual_weights.json` claims at 4318-4345. Not a defect — a warrant, and
+  the evidence that weight is shared across both modes, which the app assumes
+  and nothing had checked.
+- **An outcome table the app does not use.** `ritual_failures.json` claims
+  4349-4359, which is Section VI — the FULL ritual's bands. `attempt` takes a
+  `mode` and then reads `ContentLoader.ritualFailures()` regardless, so a
+  Quick ritual is graded against the other mode's table. The two differ:
+
+| | Quick, p. 62 (unclaimed) | Full, Section VI (in the app) |
+|---|---|---|
+| Success by 3+ | "Effect surpasses intent. Entity pleased (if invoked)." | — |
+| Success by 0-2 | "Effect works as intended." | — |
+| Failure by 1-4 | No effect, SPI and materials spent | No effect, faint disturbance |
+| Failure by 5+ | Partial wrong activation | 5-9 only |
+| Failure by 10+ | **not printed** | Severe misfire, -2 to the result roll |
+
+So a Quick ritual failing by 10+ currently takes a severe misfire and a -2
+shift from a table its own mode never prints, and the two SUCCESS bands the
+Quick table does print are reachable nowhere — `RitualOutcome` reports a
+success with no band at all. Note this is also the one place ch. 7 grades a
+ritual's success, which is why 6ad's general ladder was correctly kept off
+rituals (each chapter grades against its own table) and why that reasoning
+now has a table to point at.
+
+The slice is mode-scoping the bands the way 6y scoped preparation, and
+deciding whether the Quick success rows are shown. Not started here: finding
+was this pass's scope, and a table claimed by nobody is exactly what the
+sweep exists to surface.
+
 And one found while checking reachability, which is a **parse** finding
 rather than a rules one: Demoness Sequence 7 grants
 `Ritualistic Magic (Mirror, Dowsing)`, which `skillLevelOf(RITUAL_SKILL)`
