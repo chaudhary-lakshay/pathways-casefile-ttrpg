@@ -3,7 +3,7 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `5ab008f` (slice 6bc).
+sections below are current as of `086ad7d` (slice 6be).
 
 **Read the slice log from the END.** 6ax is a handover header; 6ay through
 6bc are the slices after it, and between them they found a roll modifier, a
@@ -66,7 +66,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **935 Kotlin** (JUnit 5 — 852 `core:rules`, 63 `app`, 20 `core:model`) + **253 Python** (pytest), all green |
+| Tests | **946 Kotlin** (JUnit 5 — 853 `core:rules`, 73 `app`, 20 `core:model`) + **253 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -4659,7 +4659,7 @@ shipped.
   beside Stubborn 8, which is two correct numbers from two characters and
   must NOT be reconciled.
 - **The fallback is unreachable and a test says so**, rather than a comment.
-  All 23 premades, down all 20 pathways to Sequence 6, keep every published
+  All 23 premades, down all 22 pathways to Sequence 6, keep every published
   skill in the digested map. Codex called the silent fallback a stale roll
   waiting to happen; the answer was to pin its premise, because a defence
   nobody rechecks is exactly how a deferral goes stale (6au, 6av).
@@ -4713,7 +4713,14 @@ MEDIUM was refused with the test described above rather than a signature
 change. Note that its first `review --wait` reported an empty diff because
 HEAD was the commit under review; `task` with an explicit parent works.
 
-**Not device-verified.** 944 Kotlin and 253 Python tests are green and every
+**A count in my own prose was wrong, which is the habit turning on its
+author.** Both this section and the test's comment said "all 20 pathways";
+`pathways.json` holds **22**. The test iterates `distinct()`, so the code was
+right and only the sentence was wrong — which is exactly how "all five
+dialogs" and "six worked rituals" got in (6as, 6ab). Grep the number,
+including your own.
+
+**Not device-verified.** 946 Kotlin and 253 Python tests are green and every
 new test was proved failing against the pre-fix code, but nothing here has
 been seen on a screen. The observable is sharp when someone runs it: seed a
 Paragon Sequence 9 Academic Researcher and tap **Research** — it should roll

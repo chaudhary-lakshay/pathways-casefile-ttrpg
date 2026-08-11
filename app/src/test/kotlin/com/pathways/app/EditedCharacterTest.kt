@@ -395,7 +395,7 @@ class EditedCharacterTest {
         // liveLevelOf falls back to the sheet's printed level, which Codex
         // rightly called a silent stale roll if a published skill ever went
         // missing from the digested map. It cannot today: all 23 premades,
-        // down all 20 pathways to Sequence 6, keep every published skill.
+        // down all 22 pathways to Sequence 6, keep every published skill.
         //
         // Asserted rather than recalled, because the fallback's whole defence
         // is that nothing reaches it -- and a defence nobody rechecks is how a
