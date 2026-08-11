@@ -3,13 +3,19 @@
 Handover for a fresh agent (written for Claude; Claude auto-loads this file).
 Everything below is verified against the tree, not recalled. Section 1-5 were
 written against commit `cf14e7c`; the counts in section 2 and the slice
-sections below are current as of `0a56f6e` (slice 6ba).
+sections below are current as of `dcaf59f` (slice 6bb).
 
-**Read the slice log from the END.** 6ax is a handover header; 6ay, 6az and
-6ba are the slices after it, and between them they found a roll modifier, a
-gate that hid an entire screen, and a rule the app itself broke — none
-visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way 6ax
-says to treat its predecessors: verify it, do not inherit it.
+**Read the slice log from the END.** 6ax is a handover header; 6ay through
+6bb are the slices after it, and between them they found a roll modifier, a
+gate that hid an entire screen, a rule the app itself broke, and the only
+place the book grades a ritual that worked — none visible in 6ax's own
+"nothing is outstanding" table. Treat 6ax the way 6ax says to treat its
+predecessors: verify it, do not inherit it.
+
+**6bb also retracts a finding of its own, mid-slice.** It read one table as
+contradicting another, had the fix half-written, and two lines of the book
+killed it. 4.1 cuts both ways: a rule the book does not print must not be
+applied, and code the book does not contradict must not be "fixed".
 
 **And 6ba corrects 6ay's METHOD, not only its output.** The seam sweep ran a
 3-line window and a numeric-only filter; both are too narrow, and a rule that
@@ -54,7 +60,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **931 Kotlin** (JUnit 5 — 848 `core:rules`, 63 `app`, 20 `core:model`) + **250 Python** (pytest), all green |
+| Tests | **935 Kotlin** (JUnit 5 — 852 `core:rules`, 63 `app`, 20 `core:model`) + **253 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -4369,31 +4375,14 @@ lines holding two complete tables, inside the Quick Ritual's Step 4 (p. 62):
   `ritual_weights.json` claims at 4318-4345. Not a defect — a warrant, and
   the evidence that weight is shared across both modes, which the app assumes
   and nothing had checked.
-- **An outcome table the app does not use.** `ritual_failures.json` claims
-  4349-4359, which is Section VI — the FULL ritual's bands. `attempt` takes a
-  `mode` and then reads `ContentLoader.ritualFailures()` regardless, so a
-  Quick ritual is graded against the other mode's table. The two differ:
+- **An outcome table the app does not use**, holding the only success grading
+  ch. 7 prints.
 
-| | Quick, p. 62 (unclaimed) | Full, Section VI (in the app) |
-|---|---|---|
-| Success by 3+ | "Effect surpasses intent. Entity pleased (if invoked)." | — |
-| Success by 0-2 | "Effect works as intended." | — |
-| Failure by 1-4 | No effect, SPI and materials spent | No effect, faint disturbance |
-| Failure by 5+ | Partial wrong activation | 5-9 only |
-| Failure by 10+ | **not printed** | Severe misfire, -2 to the result roll |
-
-So a Quick ritual failing by 10+ currently takes a severe misfire and a -2
-shift from a table its own mode never prints, and the two SUCCESS bands the
-Quick table does print are reachable nowhere — `RitualOutcome` reports a
-success with no band at all. Note this is also the one place ch. 7 grades a
-ritual's success, which is why 6ad's general ladder was correctly kept off
-rituals (each chapter grades against its own table) and why that reasoning
-now has a table to point at.
-
-The slice is mode-scoping the bands the way 6y scoped preparation, and
-deciding whether the Quick success rows are shown. Not started here: finding
-was this pass's scope, and a table claimed by nobody is exactly what the
-sweep exists to surface.
+**This section first read that second half as a MODE SPLIT — the app applying
+the full ritual's failure bands to quick rituals, 6y's finding one table
+over. That was wrong, and 6bb retracts it before it was built.** The failure
+half is Section VI COARSENED, not a rival to it. The slice that survived is
+the success half alone; see 6bb.
 
 And one found while checking reachability, which is a **parse** finding
 rather than a rules one: Demoness Sequence 7 grants
@@ -4425,6 +4414,111 @@ Both spans are claimed now — `ritual_support.json` carries `[[4007, 4008],
 table its own extractor walked — and each chapter's `verify()` pins the
 OTHER's sentence, because the limit lives in a chapter `extract_divination`
 never reads and that is precisely how it went unread.
+
+## 6bb. Grading a ritual that worked — and a finding I retracted mid-slice
+
+`RitualResolution.successFor` reads Ch. 7 Step 4's outcome table (p. 62), and
+the ritual dialog now says how well a ritual went rather than only that it
+held. The class 6h, 6m, 6ai and 6ap each found — printed and not applied —
+found this time in a table claimed by nobody.
+
+**Section VI is "Failure & Consequences" and means it.** It prints no success
+row at all, so until this table was read a ritual that surpassed its intent
+and one that scraped in were the same event. Step 4 is the one place the
+chapter grades a success, and it prints two bands:
+
+| Margin | Outcome |
+|---|---|
+| Success by 3+ | "Effect surpasses intent. Entity pleased (if invoked)." |
+| Success by 0-2 | "Effect works as intended." |
+
+### The retraction, which is the more useful half
+
+The sweep first read the SAME table's failure rows as a rival to Section
+VI's — a mode split, 6y's two preparation tables one table over, with the app
+wrongly applying the full ritual's bands to quick rituals. **Two lines of the
+book killed it, and both were one grep away:**
+
+- **p. 61**: the two modes "use the same underlying canon procedure — they
+  just expose different levels of granularity."
+- **p. 63, Phase III**: "Then resolve using the **same outcome table as Quick
+  Ritual (Step 4)**."
+
+So there is one outcome table, under the Quick heading, serving both modes —
+and its failure rows are Section VI's COARSENED, not contradicted. Every band
+here is a union of bands there (`5+` is `5-9` ∪ `10+`) with the same sentences
+abbreviated. That is exactly what "different levels of granularity" describes,
+and it is why the app's existing failure handling was correct all along.
+
+**The discriminator is worth keeping, because the two shapes look identical
+at a glance.** 6y's preparation tables print *different numbers for the same
+named row* — Excellent +2 against +3 — which granularity cannot explain. This
+table prints *fewer, wider bands with the same text*. A conflict is a rival
+table; a coarsening is a summary. `verify()` now asserts the coarsening in
+both directions: Step 4's band edges must be a SUBSET of Section VI's, and
+must not equal them.
+
+Near-miss worth recording plainly: I had the fix half-written before reading
+p. 63. Nothing shipped, because 4.1 cuts both ways — a rule the book does not
+print must not be applied, and code the book does not contradict must not be
+"fixed" (section 7: never fix correct code to satisfy a review).
+
+### What made the success rows adoptable
+
+- **The same table's failure rows agree with Section VI.** That agreement,
+  off the SAME table, is the entire warrant for trusting the two rows it
+  alone prints — the per-table standard 6ad set, and 6v is why it can never
+  be a per-source one. Both halves are pinned.
+- **Printed exactly once each.** "Effect surpasses intent" and "Entity
+  pleased" occur at line 4095 and nowhere else; the only other "works as
+  intended" is a Sequence ability's own ladder in ch. 12, a different context.
+- **A critical success is graded by MARGIN like any other.** The table prints
+  no critical row, and a rolled 3 succeeds against any target however
+  hopeless — so the margin can be NEGATIVE and land on no printed band. That
+  takes the mildest row rather than crashing or inventing a "surpasses
+  intent" the book never granted: `FrightCheck`'s call for a roll that
+  overshoots its table by nothing (6c).
+- **The milder band starts at 0, not 1**, and that is load-bearing: a ritual
+  that exactly hits its target succeeded and must land on a row. Pinned in
+  both languages, and it is the case the device happened to roll first.
+- **`RitualOutcome.success` is a separate field from `consequence`**, so a
+  caller cannot read a success band off a failed ritual — the slip
+  `SkillRollOutcome.degree` avoids one object over (6ad). A test asserts it.
+- **`DegreeOfSuccess` is still not layered on top.** Each chapter grades
+  against the table it prints, which is exactly why 6ad scoped its general
+  ladder to plain skill rolls — and that reasoning now has ch. 7's own table
+  to point at rather than an absence.
+
+**The block is claimed whole (4076-4105) and only its success rows are
+stored.** The other two things in it are a THIRD printing of the weight table,
+agreeing with Section V, and the quick ritual's burning clause, which ch. 2
+already covers. Neither is stored and both are asserted — storing them would
+be the silent merge 4.1 forbids, and an assertion whose source sentence is
+unclaimed is a rule nobody can find again (6af).
+
+Two parsing notes, both of which failed first. `collect` needs EVERY label of
+the table as a boundary, not only the two being kept: the success rows come
+first and the failure rows follow, so a success-only predicate made the last
+success cell swallow the entire failure half — the trailing-paragraph trap
+`extract_core` and `extract_rituals` were each caught by. The rows are dropped
+after the boundaries are drawn, never before. And Step 4 writes "Success by
+0–2" with an EN DASH where Section VI uses a hyphen, so the bands are compared
+parsed rather than as printed strings — the two-kinds-of-minus trap the wealth
+ladder set first (6u).
+
+**Codex reviewed it and returned clean.** Two of the four new Kotlin tests
+fail against ungraded success; the other two guard different properties (the
+bands not overlapping, and a failure never carrying a success row) and
+correctly stay green.
+
+Device-verified on the physical tablet, Academic Researcher seeded as a
+Darkness Sequence 6 (Ritualistic Magic 16, SPI 17):
+
+- **"3d6: 16 vs 16 — Success by 0–2 — Effect works as intended."** The exact
+  hit, margin 0, which is the boundary the milder band exists to cover.
+- **"3d6: 10 vs 16 — Success by 3+ — Effect surpasses intent. Entity pleased
+  (if invoked)."** Margin 6, the deeper band.
+- SPI ran 17 → 15 → 13, the fuel charged per attempt as before.
 
 ---
 
