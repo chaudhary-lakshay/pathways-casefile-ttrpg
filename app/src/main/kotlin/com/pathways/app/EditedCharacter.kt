@@ -134,7 +134,32 @@ fun skillLevelOf(name: String, levels: Map<SkillKey, Int>): Int? =
  * published skill missing from the digested map.
  */
 fun liveLevelOf(key: SkillKey, levels: Map<SkillKey, Int>, fallback: Int): Int =
-    levels.entries.firstOrNull { it.key.sameSkillAs(key) }?.value ?: fallback
+    liveLevelOrNull(key, levels) ?: fallback
+
+/** [liveLevelOf] without a fallback, for a row that has no printed level. */
+fun liveLevelOrNull(key: SkillKey, levels: Map<SkillKey, Int>): Int? =
+    levels.entries.firstOrNull { it.key.sameSkillAs(key) }?.value
+
+/**
+ * The saved purchases as keys the book recognises, in saved order.
+ *
+ * A purchase stores a name and points only, so its difficulty is the book's
+ * and has to be resolved -- and it must be resolved ONCE, because the bought
+ * rows and [grantedSkills] have to agree on which skill a purchase is. When
+ * they did not, a saved skill the catalogue no longer prints failed to
+ * suppress its own row and a potion-granted skill of the same name appeared
+ * twice, as bought and as granted (Codex).
+ *
+ * A purchase the book does not print today is absent: `purchases` already
+ * declines to bill it, so no such row is billed, levelled, or rollable. The
+ * saved entry itself is kept, because the book may print that skill again
+ * after a content fix (6as).
+ */
+fun SavedEdits.purchasedKeys(): List<SkillKey> = skills.mapNotNull { saved ->
+    definitionOf(saved.name, saved.specialization)?.let { definition ->
+        SkillKey(definition.name, saved.specialization, definition.attr, definition.difficulty)
+    }
+}
 
 /**
  * Whether these name the same skill, by the book's rule (p. 85).
@@ -175,16 +200,7 @@ fun grantedSkills(
     edits: SavedEdits,
     levels: Map<SkillKey, Int>,
 ): List<Pair<SkillKey, Int>> {
-    val published = sheet.skills.map { it.key() }
-    // A purchase stores a name and points only; its difficulty is the book's,
-    // resolved the same way [purchases] resolves it, so that a bought row and
-    // the row it would otherwise duplicate agree on which skill they are.
-    val bought = edits.skills.mapNotNull { saved ->
-        definitionOf(saved.name, saved.specialization)?.let { definition ->
-            SkillKey(definition.name, saved.specialization, definition.attr, definition.difficulty)
-        }
-    }
-    val shown = published + bought
+    val shown = sheet.skills.map { it.key() } + edits.purchasedKeys()
     return levels.entries
         .filterNot { entry -> shown.any { entry.key.sameSkillAs(it) } }
         .map { entry -> entry.key to entry.value }

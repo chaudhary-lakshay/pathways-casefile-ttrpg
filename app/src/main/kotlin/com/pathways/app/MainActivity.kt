@@ -499,6 +499,15 @@ fun SheetScreen(
                 }
             }
 
+            // Every row on the screen, so a label can be checked against the
+            // others before it is shown. Only the rows BELOW the comparison
+            // table are ever suffixed: the published rows render the sheet's
+            // own label and the sheet's own number, and rewriting either would
+            // edit the diff that is the engine against the book (6e).
+            val granted = grantedSkills(sheet, session.edits, skillLevels)
+            val addedKeys = sheet.skills.map { it.key() } +
+                session.edits.purchasedKeys() + granted.map { it.first }
+
             // Skills bought in play. NOT comparison rows: `SheetComparison`
             // keeps using the unedited sheet, because that diff is the engine
             // against the book (6e), so a bought skill has no published
@@ -508,22 +517,17 @@ fun SheetScreen(
             // chapter's result table could be wired up and still be
             // unreachable. The level comes from [skillLevels], the same
             // digested map the ritual and attack dialogs read.
-            items(session.edits.skills) { bought ->
-                // The KEY first, then its level. Asking for a level by NAME
-                // returns whichever specialization the map happens to hold
-                // first, so a character with Guns (Pistol) who bought Guns
-                // (Rifle) displayed and rolled the pistol's level under the
-                // rifle's label. 6e settled that specialization travels with
-                // the pick; it was applied to the purchase and not to the row
-                // that rolls it.
-                val key = skillLevels.keys.firstOrNull {
-                    it.name.equals(bought.name, ignoreCase = true) &&
-                        it.specialization == bought.specialization
-                }
-                val level = key?.let { skillLevels[it] }
-                if (level != null && key != null) {
-                    AddedSkillRow(key.label(), level, "bought") {
-                        rolling = RollableSkill(key.label(), level, key)
+            // Resolved through the book, exactly as `grantedSkills` resolves
+            // them, so the two lists agree on which skill a purchase IS. When
+            // they disagreed, a saved skill the catalogue no longer prints
+            // failed to suppress itself and a potion's skill of the same name
+            // appeared twice, once as bought and once as granted (Codex).
+            items(session.edits.purchasedKeys()) { key ->
+                val level = liveLevelOrNull(key, skillLevels)
+                if (level != null) {
+                    val label = disambiguated(key, addedKeys)
+                    AddedSkillRow(label, level, "bought") {
+                        rolling = RollableSkill(label, level, key)
                     }
                 }
             }
@@ -538,21 +542,8 @@ fun SheetScreen(
             // Ritualistic Magic and Divination Arts appear here as well as on
             // their own buttons, deliberately: those buttons cast and divine,
             // and a GM may still call for a plain roll of the skill.
-            items(grantedSkills(sheet, session.edits, skillLevels)) { (key, level) ->
-                // Two rows can share a label and mean different skills: the
-                // Abyss grants Knife/Average to a sheet that prints
-                // Knife/Easy, and the book makes those two skills at two
-                // levels (4.1 keeps the disagreement). Naming the difficulty
-                // only where it disambiguates keeps every other row plain --
-                // two rows reading "Knife" with different numbers is the
-                // unreconcilable screen this repo has been bitten by twice.
-                val label = key.label().let {
-                    if (sheet.skills.any { printed -> printed.key().label() == it }) {
-                        "$it [${key.difficulty.code}]"
-                    } else {
-                        it
-                    }
-                }
+            items(granted) { (key, level) ->
+                val label = disambiguated(key, addedKeys)
                 AddedSkillRow(label, level, "potion") {
                     rolling = RollableSkill(label, level, key)
                 }
@@ -1089,6 +1080,27 @@ private fun PoolRow(status: PoolStatus, onSpend: (Int) -> Unit) {
  * dialog's parameter list.
  */
 private data class RollableSkill(val label: String, val base: Int, val key: SkillKey)
+
+/**
+ * [key]'s label, with its difficulty named only where that is what tells it
+ * apart from another row.
+ *
+ * Two rows can share a label and mean different skills: the Abyss grants
+ * Knife/Average to a sheet that prints Knife/Easy, and p. 85 makes those two
+ * skills at two levels (4.1 keeps the disagreement rather than repairing it).
+ * Two rows reading "Knife" with different numbers is the unreconcilable screen
+ * 6ag and 6ai were each fixed for -- and a suffix on every row instead would
+ * be noise on the ~40 that need none.
+ *
+ * Checked against the whole added set rather than against the sheet, because a
+ * bought Knife collides with a granted one exactly as a printed Knife does
+ * (Codex).
+ */
+private fun disambiguated(key: SkillKey, visible: List<SkillKey>): String {
+    val label = key.label()
+    val collides = visible.any { it != key && it.label() == label }
+    return if (collides) "$label [${key.difficulty.code}]" else label
+}
 
 /**
  * A skill the published sheet does not print, shown so it can be rolled.

@@ -362,6 +362,35 @@ class EditedCharacterTest {
     }
 
     @Test
+    fun `a bought skill suppresses its granted twin by the book's key`() {
+        // A purchase stores a name and points; its difficulty is the book's.
+        // The bought rows and grantedSkills have to resolve that the SAME way
+        // or a skill shows up twice, once as bought and once as granted
+        // (Codex). Occultism is IQ/Average in the catalogue and the Seer
+        // potion grants Occultism at the same difficulty, so buying it must
+        // leave exactly one row.
+        val fool = PotionDigestion
+            .digestThrough(researcher.toCharacter(), "Fool", 9, ContentLoader.pathways())
+            .skillLevels
+        val bought = SavedEdits(skills = listOf(SavedSkill("Divination Arts", points = 1)))
+
+        val keys = bought.purchasedKeys()
+        assertEquals(listOf("Divination Arts"), keys.map { it.name })
+        assertTrue(grantedSkills(researcher, bought, fool).none { it.first.name == "Divination Arts" })
+    }
+
+    @Test
+    fun `a purchase the book no longer prints is not a row`() {
+        // It stays in the save file -- the book may print it again after a
+        // content fix (6as) -- but it resolves to no key, so it is neither
+        // billed nor rendered. Rendering it was what let a potion's skill of
+        // the same name appear as bought AND as granted.
+        val unknown = SavedEdits(skills = listOf(SavedSkill("Chronomancy", points = 1)))
+        assertTrue(unknown.purchasedKeys().isEmpty())
+        assertEquals(1, unknown.skills.size, "the saved entry itself is kept")
+    }
+
+    @Test
     fun `the fallback is unreachable, and this is what says so`() {
         // liveLevelOf falls back to the sheet's printed level, which Codex
         // rightly called a silent stale roll if a published skill ever went
