@@ -12,8 +12,11 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: section 6bd.** Content work is essentially done; what
-is left are three feature decisions, and 6bd names them with the evidence.
+**Where to start next: section 6be, then 6bd.** 6bd names the three feature
+decisions left. 6be is newer and matters more to read first: it RETRACTS
+6ba's parse finding with a test, and the two defects it found instead were
+both on the sheet screen, where every roll a Beyonder makes had been using
+the level printed before the potion.
 
 **6bb also retracts a finding of its own, mid-slice.** It read one table as
 contradicting another, had the fix half-written, and two lines of the book
@@ -4614,6 +4617,108 @@ shipping a slice, check its own subject against the prohibition line-set
 sweep, just whether any printed rule forbids what you have just made
 possible. A round tracker in particular will make several "cannot" lines
 reachable for the first time.
+
+## 6be. The sheet screen was rolling a character who no longer exists
+
+`liveLevelOf` and `grantedSkills` (app) put the digested character behind the
+rows that roll. The slice began by chasing 6ba's parse finding, **retracted
+it in the first ten minutes**, and the two defects it found instead were both
+larger than the thing it set out to fix.
+
+### 6ba's finding is retracted, and the retraction is a test
+
+6ba recorded that Demoness Sequence 7 grants
+`Ritualistic Magic (Mirror, Dowsing)`, which `skillLevelOf(RITUAL_SKILL)`
+"never matches, so a caster the book grants the skill at IQ+4 gets no Ritual
+button at all", and filed it as its own slice. **It matches.**
+`PotionDigestion.skillKey` has split a bracket into a specialization since
+M3 — the same line that turns `Guns (Pistol)` into name + specialization — so
+the key's NAME is plain `Ritualistic Magic` and every exact-name gate finds
+it. The retraction test digests that Witch and asserts the level (15) and the
+specialization; it passed on the first run, against untouched code.
+
+The lesson is 6ax's own rule, applied to 6ax's successor: **a predecessor's
+finding is a claim, and the cheapest thing to trust wrongly.** 6ba reasoned
+from the JSON's spelling and never digested the block. One test settled it.
+Note also what 6ba got right — its "read the block before assuming it is a
+spelling" warning was correct advice attached to a wrong conclusion.
+
+### Hole A: the row displayed one number and rolled another
+
+The published rows took their roll base from `sheet.levelFor(skill)` — the
+level printed on the sheet, before any potion. A **Paragon Sequence 9**
+Academic Researcher rolled Research at **13** with the digested character
+standing at **17**, and ten of that one sheet's rows moved. Every Beyonder
+this app can make has been rolling stale numbers since the edit layer
+shipped.
+
+- **The display is right and was left alone.** A comparison row shows the
+  sheet's own figure because that diff is the engine against the book (6e).
+  What it ROLLS is a different question, and answering both from one place is
+  what made a potion invisible to the dice — the same shape as 6am's Will 10
+  beside Stubborn 8, which is two correct numbers from two characters and
+  must NOT be reconciled.
+- **The fallback is unreachable and a test says so**, rather than a comment.
+  All 23 premades, down all 20 pathways to Sequence 6, keep every published
+  skill in the digested map. Codex called the silent fallback a stale roll
+  waiting to happen; the answer was to pin its premise, because a defence
+  nobody rechecks is exactly how a deferral goes stale (6au, 6av).
+
+### Hole B: a potion-granted skill had no row at all
+
+The screen listed one row per PUBLISHED skill and one per BOUGHT skill, which
+between them cannot show a skill a potion handed over. **6aj opened this hole
+and 6aq widened it**: 6aj gave bought skills their own rows precisely so
+chapter 4's two spiritual-sense tables could be reached, then 6aq established
+that ch. 9 p. 85 forbids buying the three SPI-based skills — closing the only
+route to the rows 6aj had just built. A Fool Seq 9 character was granted
+Spiritual Intuition, Divination Arts and Ritualistic Magic and could tap none
+of them.
+
+- **Ritualistic Magic and Divination Arts get a row as well as a button**, on
+  purpose: the buttons cast and divine, and a GM may still call for a plain
+  roll of the skill. Recorded rather than left silent.
+
+### And the identity of a skill is not its name (Codex, two HIGH)
+
+Both fixes first keyed a skill by name + specialization. **The book's identity
+is name + DIFFICULTY** — p. 85 stacks a grant onto an existing skill only when
+both match and treats a different difficulty as a new skill — and this repo
+deliberately preserves five difficulty disagreements between the potion tables
+and chapter 3 (4.1, recorded since M3). So the disagreement is not a footnote:
+**a Barmaid Brawler who walks the Abyss to Sequence 6 holds Knife/Easy from
+her sheet and Knife/Average from the potion, at different levels.** Six such
+collisions exist in committed content.
+
+Under the name key the published row answered with the potion's level, and
+the granted skill was suppressed as a duplicate of a skill it is not. Verified
+against the real content before being believed, then fixed and RED-proved.
+
+- **Where two rows do share a label, the added row names its difficulty** —
+  `Knife [A]`. Only added rows are ever suffixed; the published table keeps
+  the book's own spelling. Two rows reading "Knife" with different numbers is
+  the unreconcilable screen 6ag and 6ai were each fixed for.
+- **One resolution, shared** (Codex's re-review). The label check first read
+  only the sheet's rows, so a BOUGHT Knife still collided invisibly with a
+  granted one; and the bought rows resolved a purchase by raw saved name while
+  `grantedSkills` resolved it through the book, so a purchase the catalogue no
+  longer prints failed to suppress itself and a potion's skill of the same
+  name could render as bought AND as granted. `purchasedKeys()` is the single
+  resolution both use now. Two copies of one decision, for the third time in
+  this file (6ag, 6ai).
+
+**Codex answered on every pass and found something on the first two** — two
+HIGH plus a MEDIUM, then a HIGH plus a LOW on its own fixes, then clean. The
+MEDIUM was refused with the test described above rather than a signature
+change. Note that its first `review --wait` reported an empty diff because
+HEAD was the commit under review; `task` with an explicit parent works.
+
+**Not device-verified.** 944 Kotlin and 253 Python tests are green and every
+new test was proved failing against the pre-fix code, but nothing here has
+been seen on a screen. The observable is sharp when someone runs it: seed a
+Paragon Sequence 9 Academic Researcher and tap **Research** — it should roll
+against **17** under a row that still reads 13 — and a Fool Seq 9 should show
+three new rows marked `(potion)`.
 
 ---
 
