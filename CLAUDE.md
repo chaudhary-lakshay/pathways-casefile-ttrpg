@@ -4520,6 +4520,45 @@ Darkness Sequence 6 (Ritualistic Magic 16, SPI 17):
   (if invoked)."** Margin 6, the deeper band.
 - SPI ran 17 → 15 → 13, the fuel charged per attempt as before.
 
+## 6bc. The Seven Orthodox Gods Blessings — read, marked, not extracted
+
+Ch. 3 p. 19, lines 1098-1118. A complete table nothing had read: seven
+deities, **75 points each**, Deity / Blessing Effect, plus a printed
+requirement ("Character must be a confirmed believer... Losing faith
+temporarily suspends blessings"). `advantages.json` claims to 1097 and
+resumes at 1120, so the whole table falls in the gap — found by running the
+seam sweep over chapter 3 rather than by reading the page.
+
+Four of the seven carry numbers the engine could apply: `+3 HT vs pressure`,
+`+3 ST, +3 DX, +3 HT`, `+5 to all occult/knowledge skills`, `1d6/round`.
+
+**Not extracted, and the reason is the one this repo has now enforced three
+times.** No premade prints a blessing — checked, not assumed: zero
+75-point traits across all 23 fixtures, and no sheet names any of the seven
+deities — and traits are still not editable (section 6's standing gap,
+`SavedEdits` covers attributes and bought skills only). So a
+`blessings.json` would be read by nothing, which is exactly the defect 6ai
+found by grep, 6al found in the trait catalogue, and 6am found in the
+disadvantage list. Three consecutive slices whose lesson was *do not do
+this*.
+
+**What would unblock it, recorded as the shape rather than started:** making
+traits purchasable. That is a real feature, not a content pass, and it drags
+in a design question this table poses sharply — the God of Combat's blessing
+grants `+3 ST, +3 DX, +3 HT`, and M3's rule is that granted attributes are
+never written into the billable fields but re-derived from a stored CHOICE
+(section 6). A blessing is *bought* for 75 points AND grants attributes, so
+it is the first thing in the book that would have to do both at once.
+
+Also confirmed while looking, so the next reader inherits evidence: chapter
+3's other 60 unclaimed lines are all already-marked restatements — the
+attribute cost grid and its two worked examples (6ao), the Character
+Creation Summary (6an), the skill ladder prose (6ac), the study grid (6an),
+and the disadvantage cap, which `PointBudget.MAX_DISADVANTAGES` has enforced
+since M0 (6ac). The one genuine oddity among them is ch. 3's own "+9" SPI
+ceiling at 505-506, which chapter 9's data exceeds — recorded and
+deliberately not repaired in 6ao.
+
 ---
 
 ## 7. Global rules the owner has set
