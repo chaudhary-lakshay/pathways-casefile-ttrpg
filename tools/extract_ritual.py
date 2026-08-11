@@ -91,6 +91,28 @@ CRITICAL_RANGE = (4361, 4384)
 
 # Section A, the whole Quick Ritual. Read only to prove what is NOT in it.
 QUICK_RITUAL_RANGE = (4036, 4105)
+# Step 4 -- "Roll & Resolve". Thirty lines claimed by nobody until the seam
+# sweep (6bb), holding two tables and one rule:
+#
+#   * a THIRD printing of the weight table, agreeing with Section V's
+#   * the chapter's only ritual OUTCOME table, whose two success rows are
+#     printed nowhere else in the book
+#   * the quick ritual's burning clause, which ch. 2's rule already covers
+#
+# It is not the quick mode's private table. Phase III of the full ritual says
+# "Then resolve using the same outcome table as Quick Ritual (Step 4)", so
+# this one table serves both modes -- and its failure rows are a COARSENING
+# of Section VI's, not a rival to them: every band here is a union of bands
+# there, with the same sentences abbreviated, which is what p. 61's "the same
+# underlying canon procedure ... different levels of granularity" describes.
+STEP_FOUR_RANGE = (4076, 4105)
+# The outcome table inside it, from its first label to its last prose line.
+OUTCOME_RANGE = (4094, 4103)
+# Phase III -- Close, whose last line is what makes Step 4's table general.
+FULL_CLOSE_RANGE = (4147, 4154)
+FULL_DEFERS_TO_STEP_FOUR = "the same outcome table as Quick Ritual"
+GRANULARITY_SENTENCE = "different levels of granularity"
+QUICK_BURN = "1 SPI = +1"
 # Section C, the canon procedure, whose timing penalty is refused.
 CANON_RANGE = (4155, 4165)
 
@@ -114,6 +136,13 @@ MINUS = "-−"
 WEIGHT = re.compile(rf"^(Light|Moderate|Heavy)\s*\(([+{MINUS}]?\d+)\)$")
 # "Failure by 1-4", "Failure by 10+", "Critical Failure (roll 17-18)"
 FAILURE = re.compile(rf"^Failure by (\d+)(?:[{MINUS}–—](\d+)|(\+))$")
+# "Success by 3+", "Success by 0-2" -- the same shape one word over, and the
+# only place this book grades a ritual that WORKED.
+SUCCESS = re.compile(rf"^Success by (\d+)(?:[{MINUS}–—](\d+)|(\+))$")
+# Step 4 writes "Critical Failure (17-18)" where Section VI writes "Critical
+# Failure (roll 17-18)", so CRITICAL_LABEL does not match it. It is needed
+# only as a row BOUNDARY, never stored.
+STEP_FOUR_CRITICAL = re.compile(rf"^Critical Failure \([{MINUS}–—\d]+\)$")
 CRITICAL_LABEL = re.compile(r"^Critical Failure \(roll [\d–—-]+\)$")
 BAND = re.compile(rf"^(\d+)(?:[{MINUS}–—](\d+))?$")
 # "Corruption. Gain 1 CoR." / "... Gain 2 CoR. Nightmares for 1d weeks."
@@ -268,6 +297,109 @@ def parse_failures(lines):
 
     rows = collect(lines, is_label, start)
     return [without_text(r, "consequence") for r in rows]
+
+
+def parse_step_four(lines):
+    """The two SUCCESS rows of Step 4's outcome table.
+
+    Only the success half is returned. The failure half of the same table is
+    Section VI's, coarsened -- verify_step_four checks that -- and storing a
+    second copy of rows this repo already commits is the silent merge 4.1
+    forbids, the call 6ac made for the study page's truncated CP grid.
+
+    EVERY label of the table is a boundary, not only the two being kept. The
+    success rows come first and the failure rows follow them, so a predicate
+    matching successes alone makes the last success cell swallow the whole
+    failure half -- the trailing-paragraph trap extract_core and
+    extract_rituals were each caught by. The rows are dropped after the
+    boundaries are drawn, never before.
+    """
+    def is_label(line):
+        return (
+            SUCCESS.match(line) is not None
+            or FAILURE.match(line) is not None
+            or STEP_FOUR_CRITICAL.match(line) is not None
+        )
+
+    def start(line):
+        match = SUCCESS.match(line)
+        if not match:
+            return {"printed": line, "graded": False}
+        low, high, plus = match.groups()
+        return {
+            "printed": line,
+            "from": int(low),
+            "to": None if plus else int(high),
+            "graded": True,
+        }
+
+    rows = collect(lines, is_label, start)
+    kept = [without_text(r, "outcome") for r in rows if r["graded"]]
+    if len(kept) == len(rows):
+        raise ValueError(
+            "Step 4's outcome table now prints successes only. Its failure "
+            "rows are what prove it is Section VI coarsened rather than a "
+            "rival table, so their absence needs the page re-read"
+        )
+    return [{k: v for k, v in row.items() if k != "graded"} for row in kept]
+
+
+def verify_step_four(success, cells, failures, weights, full_close):
+    """Why the success rows are adopted and the failure rows are not.
+
+    Both halves come off the SAME table, so its failure rows agreeing with
+    Section VI is the entire warrant for trusting its unrepeated success
+    rows -- the per-table standard 6ad set, and 6v is why it cannot be a
+    per-source one.
+    """
+    # Compared on the PARSED bands, never on the printed label: this page
+    # prints "0-2" with an en dash where Section VI uses a hyphen, and a
+    # string match would fail on the glyph while the rule was intact -- the
+    # two-kinds-of-minus trap the wealth ladder set first (6u).
+    bands = [(r["from"], r["to"]) for r in success]
+    if bands != [(3, None), (0, 2)]:
+        raise ValueError(f"the ritual success bands changed: {success}")
+    if not all(r["printed"].startswith("Success by") for r in success):
+        raise ValueError(f"a success row is no longer labelled by margin: {success}")
+    # Best-first, and they must not overlap: a margin of 3 belongs to one row.
+    if success[0]["from"] <= success[1]["to"]:
+        raise ValueError(f"the two success bands now overlap: {success}")
+    if success[1]["from"] != 0:
+        raise ValueError("the milder success band no longer starts at 0, so a "
+                         "ritual that just scraped in would land on no row")
+
+    # The failure half COARSENS Section VI rather than contradicting it: every
+    # band printed here must be a union of bands printed there. If that ever
+    # stops being true they are two tables, the shape 6y found for the two
+    # preparation ladders, and the app has to pick per mode.
+    bands = [m.groups() for m in (FAILURE.match(c) for c in cells) if m]
+    edges = {int(low) for low, _, _ in bands}
+    theirs = {row["from"] for row in failures if not row["critical"]}
+    if not edges <= theirs:
+        raise ValueError(
+            f"Step 4's failure bands start at {sorted(edges)} and Section VI's "
+            f"at {sorted(theirs)}. Step 4's used to be a subset -- a coarser "
+            "view of the same rule. They are now two tables and the app must "
+            "choose one per mode; see CLAUDE.md 6y for that shape"
+        )
+
+    # And the full ritual is not off using some other table.
+    if FULL_DEFERS_TO_STEP_FOUR not in " ".join(full_close):
+        raise ValueError(
+            "Phase III no longer sends the full ritual to Step 4's outcome "
+            "table. These success bands are applied to BOTH modes only "
+            "because it does"
+        )
+
+    # The third printing of the weight table, which is why this block can be
+    # claimed without storing it twice.
+    joined = " ".join(cells)
+    for row in weights:
+        if f"{row['weight']} (" not in joined and row["weight"] not in joined:
+            raise ValueError(f"Step 4 no longer prints the {row['weight']} weight")
+    if QUICK_BURN not in joined:
+        raise ValueError("Step 4 no longer prints the burning clause ch. 2 covers")
+    return success
 
 
 def parse_critical(lines):
@@ -437,6 +569,21 @@ def main():
         " ".join(stream(byn, *CANON_RANGE)),
         preparation,
     )
+
+    # Step 4's outcome table. Only its success half is written; its failure
+    # half is Section VI coarsened, and its weight table is Section V's a
+    # third time. The whole block is claimed all the same, because every part
+    # of it is either stored or asserted, and an assertion whose source is
+    # unclaimed is a rule nobody can find again (6af).
+    step_four = stream(byn, *STEP_FOUR_RANGE)
+    success = verify_step_four(
+        parse_step_four(stream(byn, *OUTCOME_RANGE)),
+        step_four,
+        failures,
+        weights,
+        stream(byn, *FULL_CLOSE_RANGE),
+    )
+    write("ritual_success", success, [list(STEP_FOUR_RANGE)])
 
     write("ritual_weights", weights, [list(WEIGHT_RANGE), list(WEIGHT_COST_RANGE)])
     write("ritual_preparation", preparation,

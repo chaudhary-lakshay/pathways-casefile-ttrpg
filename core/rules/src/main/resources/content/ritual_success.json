@@ -1,0 +1,24 @@
+{
+ "sourceLines": {
+  "7": [
+   [
+    4076,
+    4105
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "printed": "Success by 3+",
+   "from": 3,
+   "to": null,
+   "outcome": "Effect surpasses intent. Entity pleased (if invoked)."
+  },
+  {
+   "printed": "Success by 0–2",
+   "from": 0,
+   "to": 2,
+   "outcome": "Effect works as intended."
+  }
+ ]
+}

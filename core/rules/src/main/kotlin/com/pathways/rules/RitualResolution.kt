@@ -8,6 +8,7 @@ import com.pathways.rules.content.RitualComplexity
 import com.pathways.rules.content.RitualCritical
 import com.pathways.rules.content.RitualFailure
 import com.pathways.rules.content.RitualPreparation
+import com.pathways.rules.content.RitualSuccess
 import com.pathways.rules.content.RitualWeight
 import com.pathways.rules.content.TargetLink
 
@@ -25,6 +26,15 @@ data class RitualOutcome(
     val consequence: RitualFailure? = null,
     val criticalRoll: Int? = null,
     val critical: RitualCritical? = null,
+    /**
+     * How WELL it worked, filled only on a success -- Step 4's grade (p. 62).
+     *
+     * The mirror of [consequence], and the reason the two are separate
+     * fields rather than one graded band: a caller asking what happened must
+     * not be able to read a success row off a failed ritual, the slip
+     * `SkillRollOutcome.degree` avoids one object over (6ad).
+     */
+    val success: RitualSuccess? = null,
 ) {
     val succeeded: Boolean get() = consequence == null
 }
@@ -195,6 +205,7 @@ object RitualResolution {
         powerSources: PowerSourceDeclaration = PowerSourceDeclaration(),
         failures: List<RitualFailure> = ContentLoader.ritualFailures(),
         criticals: List<RitualCritical> = ContentLoader.ritualCriticals(),
+        successBands: List<RitualSuccess> = ContentLoader.ritualSuccess(),
     ): RitualOutcome {
         val target = targetFor(
             skillLevel, weight, cor, preparation, language, mode, link, flourish,
@@ -206,7 +217,12 @@ object RitualResolution {
         // the margin alone would report the book's own critical-failure row as
         // a success.
         if (roll.outcome == Outcome.SUCCESS || roll.outcome == Outcome.CRITICAL_SUCCESS) {
-            return RitualOutcome(roll = roll, target = target, marginOfFailure = 0)
+            return RitualOutcome(
+                roll = roll,
+                target = target,
+                marginOfFailure = 0,
+                success = successFor(target - roll.total, successBands),
+            )
         }
 
         // A rolled 17-18 against a generous target overshoots by nothing; the
@@ -240,6 +256,25 @@ object RitualResolution {
             critical = criticalFor(criticalRoll, criticals),
         )
     }
+
+    /**
+     * The grade a success by [margin] earns (Ch. 7 Step 4, p. 62).
+     *
+     * **A critical success is graded by its margin, like any other.** The
+     * table prints no critical row, and a rolled 3 or 4 succeeds against any
+     * target however hopeless -- so against a target of 2 the margin is
+     * NEGATIVE and no printed band covers it. That takes the mildest row
+     * rather than crashing or inventing a "surpasses intent" the book never
+     * granted: the same call `FrightCheck` makes for a roll that overshoots
+     * its table by nothing, and the reason the milder band is pinned as
+     * starting at 0 rather than at 1.
+     */
+    fun successFor(
+        margin: Int,
+        bands: List<RitualSuccess> = ContentLoader.ritualSuccess(),
+    ): RitualSuccess = bands.firstOrNull {
+        margin >= it.from && (it.to == null || margin <= it.to)
+    } ?: bands.minByOrNull { it.from } ?: error("the book prints no ritual success band")
 
     /** The consequence row a failure by [margin] lands on. */
     fun failureFor(

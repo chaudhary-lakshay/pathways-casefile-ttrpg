@@ -2024,6 +2024,70 @@ def test_the_cap_is_a_sentence_not_a_column():
     assert "cap" not in raw
 
 
+def test_the_chapter_grades_a_ritual_that_worked():
+    """Ch. 7 Step 4 (p. 62). Section VI is "Failure & Consequences" and prints
+    no success row, so this is the only place the chapter says how WELL a
+    ritual went."""
+    rows = json.loads(
+        (CONTENT / "ritual_success.json").read_text(encoding="utf-8"))["entries"]
+    assert [(r["from"], r["to"]) for r in rows] == [(3, None), (0, 2)]
+    assert "surpasses intent" in rows[0]["outcome"]
+    assert "as intended" in rows[1]["outcome"]
+    # The milder band starts at 0, not 1: a ritual that exactly hits its
+    # target succeeded, and must land on a row.
+    assert rows[1]["from"] == 0
+
+
+@needs_pdf
+def test_step_fours_failure_rows_coarsen_section_six():
+    """Why only the SUCCESS half of that table is stored.
+
+    Both halves come off one table, so its failure rows agreeing with Section
+    VI is the entire warrant for trusting its unrepeated success rows -- the
+    per-table standard 6ad set. And they agree by COARSENING: Step 4's
+    "Failure by 5+" is Section VI's "5-9" and "10+" merged, with the same
+    sentences abbreviated, which is what p. 61's "the same underlying canon
+    procedure ... different levels of granularity" describes. Two rival
+    tables would be 6y's shape and the app would have to pick per mode.
+    """
+    byn = extract_ritual.load_lines()
+    cells = extract_ritual.stream(byn, *extract_ritual.STEP_FOUR_RANGE)
+    failures = json.loads(
+        (CONTENT / "ritual_failures.json").read_text(encoding="utf-8"))["entries"]
+
+    here = {int(m.group(1)) for m in
+            (extract_ritual.FAILURE.match(c) for c in cells) if m}
+    there = {r["from"] for r in failures if not r["critical"]}
+    assert here <= there, f"Step 4 starts bands at {sorted(here)}, VI at {sorted(there)}"
+    # And the coarsening is real rather than the two being identical.
+    assert here != there, (
+        "Step 4 now prints the same bands as Section VI. It used to print "
+        "fewer, which is what made it a summary rather than a rival table"
+    )
+
+    # The full ritual is not off using some other table.
+    close = " ".join(extract_ritual.stream(byn, *extract_ritual.FULL_CLOSE_RANGE))
+    assert extract_ritual.FULL_DEFERS_TO_STEP_FOUR in close
+
+
+@needs_pdf
+def test_the_step_four_block_is_claimed_whole():
+    """It holds a third printing of the weight table and the burning clause
+    besides the outcome rows. Neither is stored -- both are asserted -- and an
+    assertion whose source sentence is unclaimed is a rule nobody can find
+    again (6af)."""
+    raw = json.loads((CONTENT / "ritual_success.json").read_text(encoding="utf-8"))
+    assert raw["sourceLines"]["7"] == [list(extract_ritual.STEP_FOUR_RANGE)]
+    joined = " ".join(
+        extract_ritual.stream(extract_ritual.load_lines(),
+                              *extract_ritual.STEP_FOUR_RANGE))
+    for weight in ("Light", "Moderate", "Heavy"):
+        assert weight in joined
+    assert extract_ritual.QUICK_BURN in joined
+    # The weights are stored once, by ritual_weights.json, not twice.
+    assert "SPI" not in json.dumps(raw["entries"])
+
+
 @needs_pdf
 def test_ritualistic_magic_prints_its_own_prohibition():
     """Ch. 7 II p. 61, one line above the supporting-skill table this module

@@ -1,5 +1,6 @@
 package com.pathways.rules
 
+import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
@@ -41,6 +42,70 @@ class RitualResolutionTest {
         assertNull(outcome.consequence)
         assertNull(outcome.critical)
         assertEquals(0, outcome.marginOfFailure)
+    }
+
+    /**
+     * Ch. 7 Step 4 (p. 62) is the only place this book grades a ritual that
+     * worked. Section VI is "Failure & Consequences" and prints no success
+     * row, so before this table was read a ritual that surpassed its intent
+     * and one that scraped in were the same event.
+     *
+     * It governs BOTH modes: Phase III of the full ritual says "Then resolve
+     * using the same outcome table as Quick Ritual (Step 4)".
+     */
+    @Test
+    fun `a success is graded, and by how far it beat the target`() {
+        // 2+2+2 = 6 against 14: made it by 8, the deeper band.
+        val wide = RitualResolution.attempt(14, light, cor = 0, source = fixed(2))
+        assertTrue(wide.succeeded)
+        assertEquals("Effect surpasses intent. Entity pleased (if invoked).", wide.success?.outcome)
+
+        // 4+4+4 = 12 against 14: made it by 2, the milder band.
+        val narrow = RitualResolution.attempt(14, light, cor = 0, source = fixed(4))
+        assertTrue(narrow.succeeded)
+        assertEquals("Effect works as intended.", narrow.success?.outcome)
+
+        // Both modes, because Phase III sends the full ritual here too.
+        val full = RitualResolution.attempt(
+            14, light, cor = 0, source = fixed(4), mode = RitualMode.FULL,
+        )
+        val quick = RitualResolution.attempt(
+            14, light, cor = 0, source = fixed(4), mode = RitualMode.QUICK,
+        )
+        assertEquals(full.success, quick.success)
+    }
+
+    @Test
+    fun `a failed ritual is graded by its consequence and never by a success band`() {
+        val outcome = RitualResolution.attempt(8, light, cor = 0, source = fixed(3))
+        assertFalse(outcome.succeeded)
+        assertNull(
+            outcome.success,
+            "a success row on a failed ritual is the slip SkillRollOutcome.degree avoids",
+        )
+    }
+
+    /**
+     * The table prints no critical row, and a rolled 3 succeeds against any
+     * target however hopeless -- so its margin can be NEGATIVE and no printed
+     * band covers it. The mildest row, rather than a crash or an invented
+     * "surpasses intent" the book never granted.
+     */
+    @Test
+    fun `a hopeless target still grades, because a rolled 3 always succeeds`() {
+        val outcome = RitualResolution.attempt(2, light, cor = 0, source = fixed(1))
+        assertTrue(outcome.succeeded)
+        assertEquals("Effect works as intended.", outcome.success?.outcome)
+    }
+
+    @Test
+    fun `every margin a success can have lands on exactly one printed band`() {
+        val bands = ContentLoader.ritualSuccess()
+        for (margin in 0..40) {
+            val matched = bands.filter { margin >= it.from && (it.to == null || margin <= it.to) }
+            assertEquals(1, matched.size, "margin $margin matched $matched")
+            assertEquals(matched.single(), RitualResolution.successFor(margin))
+        }
     }
 
     @Test

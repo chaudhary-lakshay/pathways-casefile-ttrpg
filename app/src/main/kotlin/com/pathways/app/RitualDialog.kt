@@ -830,6 +830,14 @@ fun RitualDialog(
                         "3d6: ${result.roll.total} vs ${result.target}",
                         style = MaterialTheme.typography.titleLarge,
                     )
+                    // Step 4's grade, and the counterpart of the failure row
+                    // below it. Not coloured as an error -- the ritual worked.
+                    result.success?.let { success ->
+                        Text(
+                            "${success.printed} — ${success.outcome}",
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                    }
                     result.consequence?.let { consequence ->
                         Text(
                             "${consequence.printed} — ${consequence.consequence}",

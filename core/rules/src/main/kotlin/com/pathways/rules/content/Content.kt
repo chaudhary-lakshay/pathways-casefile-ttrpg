@@ -587,6 +587,31 @@ data class RitualFailure(
 }
 
 /**
+ * One band of Step 4's outcome table (Ch. 7, p. 62) for a ritual that WORKED.
+ *
+ * The chapter grades a successful ritual in exactly one place. "VI. Failure &
+ * Consequences" is what its name says and prints no success row at all, so
+ * without this table a ritual that surpassed its intent and one that scraped
+ * in are the same event.
+ *
+ * It governs BOTH modes despite sitting under the Quick Ritual, because Phase
+ * III of the full ritual says so: "Then resolve using the same outcome table
+ * as Quick Ritual (Step 4)" (p. 63).
+ *
+ * Read by margin, best-first, and the bands do not overlap -- unlike
+ * [DegreeBand], where a margin of 5 satisfies three rows at once. That
+ * general ladder is deliberately NOT layered on top of this one: each chapter
+ * grades against the table it prints (6ad), and this is ch. 7's.
+ */
+@Serializable
+data class RitualSuccess(
+    val printed: String,
+    val outcome: String,
+    val from: Int,
+    val to: Int? = null,
+)
+
+/**
  * One band of the Critical Failure Table (Ch. 7, p. 67-68), rolled on 3d6.
  *
  * The outcomes are NOT ordered by severity -- 3-4 is Backlash, 13-14 costs a
