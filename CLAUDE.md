@@ -4720,12 +4720,45 @@ right and only the sentence was wrong — which is exactly how "all five
 dialogs" and "six worked rituals" got in (6as, 6ab). Grep the number,
 including your own.
 
-**Not device-verified.** 946 Kotlin and 253 Python tests are green and every
-new test was proved failing against the pre-fix code, but nothing here has
-been seen on a screen. The observable is sharp when someone runs it: seed a
-Paragon Sequence 9 Academic Researcher and tap **Research** — it should roll
-against **17** under a row that still reads 13 — and a Fool Seq 9 should show
-three new rows marked `(potion)`.
+Device-verified on the physical tablet (1920x1200), seeded through
+`sessions.json`, all three findings on screen:
+
+- **Academic Researcher as a Paragon Seq 9.** The Research row still reads
+  **13** — the sheet's own number, because that diff is the engine against the
+  book (6e) — and tapping it opens **"Skill 17"**. Rolling gave **"3d6: 13 vs
+  17 — Good success, margin 4"**, which is the fix twice over: the level
+  reaches the dice, and the degree ladder reads the corrected margin. Under
+  the old code the same dice are a bare success at margin 0.
+- **The same sheet as a Fool Seq 9**, the second observable exactly:
+  **Ritualistic Magic 13**, **Divination Arts 12**, **Spiritual Intuition 12**,
+  each marked `(potion)` — IQ 10+3 and SPI 9+3. These are the three skills
+  6aq established cannot be bought, so before this slice no route reached
+  them at all.
+- **Barmaid Brawler down the Abyss to Seq 6**, which is the Codex finding and
+  the sharpest of the three. Two Knife rows: the published one reads **10**
+  and rolls **Skill 12** (DX/Easy, re-levelled on the risen DX), and the
+  potion's is a row of its own reading **Knife [A] — 11 (potion)**. One name,
+  two difficulties, two levels, and only the added row is suffixed. Under the
+  name-only key the published row answered with the potion's level and the
+  granted skill was suppressed as a duplicate of a skill it is not.
+
+**A machine note, because it inverted the usual order.** The APK on disk
+predated every fix, so a build was unavoidable at 39.85 GB of a 40.17 GB
+commit limit — 324 MB free, which is 6ah's pagefile exhaustion. What made it
+fit was building in ONE short-lived JVM rather than two daemons:
+`--no-daemon :app:assembleDebug -Dorg.gradle.jvmargs=-Xmx1280m
+-Pkotlin.compiler.execution.strategy=in-process`. It exits when done, so
+there is nothing to reap afterwards. And the tablet made the emulator's
+~3 GB moot entirely — **check `adb devices` before assuming an emulator is
+needed**, then `adb shell service check window` to confirm it is not a zombie
+(6as).
+
+Two seeding notes that each cost a cycle: `files/` does not exist until the
+app has run once on that device, so `run-as ... cat >` fails with "No such
+file or directory"; and PowerShell's `-Encoding utf8` writes a **BOM**, which
+`SessionStore` discards through its own `runCatching` — the app then shows a
+mortal and the test silently passes as a false negative. Write it with
+`UTF8Encoding($false)` and check the first bytes are `7b 22`.
 
 ---
 
