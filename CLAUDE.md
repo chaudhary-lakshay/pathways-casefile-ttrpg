@@ -12,11 +12,10 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: section 6bf, then 6be.** 6bf names the next slice
-outright — three defence withdrawals, with the design already Codex-reviewed
-— and **corrects 6bd**, whose "round tracker unblocks five rules" ranking
-survives reading only one of the five. Read 6bd after 6bf, not before, or you
-will inherit the ranking it corrects. 6be RETRACTS 6ba's parse finding with a
+**Where to start next: section 6bg, then 6bf.** 6bg is the newest slice and
+built what 6bf named; between them they **correct 6bd**, whose "round tracker
+unblocks five rules" ranking survives reading only one of the five. Read 6bd
+after those two, not before, or you will inherit the ranking they correct. 6be RETRACTS 6ba's parse finding with a
 test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
@@ -69,7 +68,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **949 Kotlin** (JUnit 5 — 856 `core:rules`, 73 `app`, 20 `core:model`) + **253 Python** (pytest), all green |
+| Tests | **956 Kotlin** (JUnit 5 — 863 `core:rules`, 73 `app`, 20 `core:model`) + **256 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -4867,6 +4866,100 @@ verified number, unmoved.
 **Next slice, with its design already reviewed:** the three defence
 withdrawals. It is dialog wiring, which is the class only a device catches
 here, so budget the tablet pass.
+
+## 6bg. The defences the book refuses, and a fourth maneuver nobody counted
+
+`ActiveDefenses` (core/rules) applies Ch. 5's three refusals of an active
+defence, and `DefenseDialog` withdraws the rows. This is 6bf's named next
+slice, built on the design Codex reviewed there.
+
+**All three were in seams, which is why they were never applied.** Checked
+before a line was written: lines 2377, 2453 and 2686-2688 fell in NO content
+file's claimed span. Three printed rules, in three sections, none in a table
+— the shape 6ay opened and 6ba widened, and the reason a chapter can read
+"done" while a rule of it has never been read. They are claimed now, in
+`defense_refusals.json`, because a rule nobody can find again is a rule that
+goes unapplied (6af).
+
+- **A refusal is a DECLARATION, and that is the whole reason this ships
+  without a round tracker.** Whether a character was surprised, went all-out
+  last turn, or never saw the shot is something the GM knows and the app
+  cannot compute — it holds no turn, no initiative and no line of sight.
+  What a tracker would add is EXPIRY, and expiry of a fact the GM restates
+  each time they resolve an attack is not worth global state. 6au's move a
+  third time.
+- **Three causes, not one boolean.** They print different sentences, and
+  Combat Reflexes cancels exactly one. A single flag would have to answer
+  "why" with a guess — and a screen showing the wrong sentence beside a
+  withdrawn defence is worse than showing none.
+- **Combat Reflexes cancels SURPRISE alone.** Ch. 3 prints "never freeze in
+  surprise" and the prose beside it says "prevents freezing on surprise", so
+  the surprise rule is the freeze it names. The unaware shot is not a freeze
+  — the bullet arrives before reaction — and an All-Out Attack is a choice
+  the fighter made. Extending the clause to those would author a rule from a
+  resemblance, which is what 6aj refused when ch. 4 printed none of Appendix
+  A's words. A reading, pinned by a named test, and RED-proved: cancelling
+  every cause fails two tests.
+- **A cancelled cause is SAID, not silently dropped.** A GM who ticks
+  "surprised" on a Combat Reflexes character and sees nothing move would
+  fairly conclude the tick failed. And when another cause survives alongside
+  it, the surviving one answers — naming the surprise would credit a trait
+  that did not save them.
+- **The maneuver table names FOUR forfeiting rows where p. 37 names three.**
+  The sentence granting the defence excepts "an All-Out Attack maneuver";
+  `maneuvers.json` has carried **"Cannot defend next turn."** on the three
+  All-Out Attacks *and on Charge Attack* since 6i — extracted, committed,
+  displayed, and applied by nothing, the class 6as found inside our own
+  content. Specific beats general, so the table wins. The list is READ from
+  that file rather than restated, because a second copy of a set the book
+  prints is what 4.1 forbids; RED-proved by hardcoding the parenthetical's
+  three.
+- **Only the "cannot defend" half is enforced.** The surprise rule also says
+  the character "skips their first turn entirely", and this app has no turn
+  to skip. Enforcing half a sentence and saying which half is the honest
+  version of a rule that is partly outside the model.
+- **`verify()` refuses a refusal that prints a modifier.** None of the three
+  offers a number to apply instead — they withdraw the defence outright — so
+  a signed number appearing in one means the span caught a neighbouring rule,
+  and for two of them the neighbour IS a defence modifier a few lines away.
+- **The dialog takes the traits, not the +1.** Combat Reflexes now has two
+  consequences here, and deriving one at the call site while the other is
+  computed in the dialog is the two-copies failure this repo produced three
+  times (6ag, 6ai, 6be).
+
+**Codex reviewed the diff and returned clean.** 956 Kotlin (+7) and 256
+Python (+3), all green.
+
+Device-verified on the physical tablet, **Military Police** (Combat
+Reflexes), all four states:
+
+- Nothing declared: three chips render, **Dodge 9 / Parry (Brawling) 9**.
+- **Surprised**: defences stand, with *"Combat Reflexes — "never freeze in
+  surprise", so the defences stand."*
+- **Surprised + Never saw the shot**: every defence row **gone**, the book's
+  unaware sentence in red, and the Combat Reflexes note still shown beneath
+  it — the surviving cause outranking the cancelled one, on screen.
+- **All-out last turn**: *"Forfeits the next turn's defence: All-Out Attack
+  (Determined), All-Out Attack (Strong), All-Out Attack (Double), **Charge
+  Attack**."* directly above p. 37's own sentence, which excepts only "an
+  All-Out Attack maneuver". The table's fourth row and the parenthetical that
+  omits it, visible together.
+
+**Left open, with evidence.** The free actions' "once per round" (2456-2457)
+is also unclaimed and is a LIMIT to record rather than enforce, exactly as
+Block's own "once per round" already is (6ap) — 6bf's table says so and this
+slice deliberately did not widen to it. Reload (2689-2690) stays
+double-blocked: rounds AND ammunition state, with weapons not editable.
+
+**A self-inflicted lesson worth more than the slice.** Refreshing the test
+totals with PowerShell's `Get-Content -Raw | Set-Content -Encoding utf8`
+rewrote this entire file with a **BOM and double-encoded em dashes** — 901
+lines changed — because `Get-Content` decoded UTF-8 as the ANSI codepage
+first. The same trap recorded one slice earlier for `sessions.json` (6be),
+walked into two hours later on a bigger target. **Never round-trip a UTF-8
+file through PowerShell text cmdlets**; use the editing tool, which preserves
+the encoding. `git checkout` cost nothing here only because the change was
+uncommitted and the section could be re-applied verbatim.
 
 ---
 
