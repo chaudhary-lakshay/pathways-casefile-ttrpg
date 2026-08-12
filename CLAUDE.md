@@ -12,11 +12,14 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: section 6be, then 6bd.** 6bd names the three feature
-decisions left. 6be is newer and matters more to read first: it RETRACTS
-6ba's parse finding with a test, and the two defects it found instead were
-both on the sheet screen, where every roll a Beyonder makes had been using
-the level printed before the potion.
+**Where to start next: section 6bf, then 6be.** 6bf names the next slice
+outright — three defence withdrawals, with the design already Codex-reviewed
+— and **corrects 6bd**, whose "round tracker unblocks five rules" ranking
+survives reading only one of the five. Read 6bd after 6bf, not before, or you
+will inherit the ranking it corrects. 6be RETRACTS 6ba's parse finding with a
+test, and the two defects it found instead were both on the sheet screen,
+where every roll a Beyonder makes had been using the level printed before the
+potion.
 
 **6bb also retracts a finding of its own, mid-slice.** It read one table as
 contradicting another, had the fix half-written, and two lines of the book
@@ -66,7 +69,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **946 Kotlin** (JUnit 5 — 853 `core:rules`, 73 `app`, 20 `core:model`) + **253 Python** (pytest), all green |
+| Tests | **949 Kotlin** (JUnit 5 — 856 `core:rules`, 73 `app`, 20 `core:model`) + **253 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -4759,6 +4762,111 @@ file or directory"; and PowerShell's `-Encoding utf8` writes a **BOM**, which
 `SessionStore` discards through its own `runCatching` — the app then shows a
 mortal and the test silently passes as a false negative. Write it with
 `UTF8Encoding($false)` and check the first bytes are `7b 22`.
+
+## 6bf. A notes cell holds three rules, and the app applied one
+
+`TraitEffects.PARTLY_APPLIED` reports the clauses an APPLIED trait does not
+use. The slice began by reading 6bd's #1 decision at source, and produced a
+correction to 6bd, a sweep class none of the five could see, and one fix.
+
+### Correction to 6bd: four of its five rules need no clock
+
+6bd ranks a round tracker first because it "unblocks five printed rules at
+once". Read at source, only one of the five is about rounds:
+
+| Line | Rule | What it actually needs |
+|---|---|---|
+| 2377 | "Surprised characters ... cannot defend on it" | a DECLARATION — the GM ticks it |
+| 2687 | "you cannot defend at all" (unaware of the shot) | the same, ranged-scoped |
+| 2453 | "one active defense **(unless you took an All-Out Attack)**" | the same again — a third, and 6bd does not list it |
+| 2457 | free actions "once per round" | nothing numeric — a LIMIT recorded, as Block's own "once per round" already is (6ap) |
+| 2689 | reload rate | rounds AND ammunition state — **double-blocked**, since weapons are not editable (section 6) |
+
+So the enforceable surface is three defence WITHDRAWALS, all stateless, and
+the one rule that genuinely wants a clock is also blocked by something else.
+6bd's ranking would have spent a slice building global combat state for a
+payoff of one rule. **This is 6au's move, not a new one**: that slice found
+the sentence that made a downtime tracker unnecessary, and this one finds
+that "surprised" is something the GM says rather than something the app
+counts. Ranking a blocker without reading what it blocks is what produced
+the error.
+
+### The sweep class: clause-level drift inside a field that has a reader
+
+`advantages.json`'s Combat Reflexes cell reads **"+1 to all active defenses,
++6 to recover from stun, never freeze in surprise"**. `defenseBonus` applies
+the first. The other two reached nothing — and, worse, were **invisible**:
+`reported()` keyed on the trait NAME and Combat Reflexes is an applied trait,
+so it returned nothing at all. A GM saw no note, and "one who sees nothing
+assumes it was counted" is that function's own KDoc.
+
+- **This is not 6ai restated, and the distinction is what makes it a fifth
+  direction.** 6ai grepped all 345 extracted fields for a consumer; `notes`
+  HAS one. This is drift inside a field with a production reader, which
+  every sweep in this repo starts too coarse to see — they ask about fields,
+  and a prose cell holds rules.
+- **6al's triage was correct when it ran** and went stale the moment one
+  clause of a multi-rule cell was implemented. The general lesson is 6ba's:
+  **a verdict expires**, and here the expiring event was this repo's own fix.
+- **Naming a sweep obliges running it** (6ay). Cheap here — only three traits
+  are applied at all: **Alertness** prints one rule and is clean; **Fit**
+  prints two and "recover FP at twice the normal rate" is clock-shaped, so it
+  joins SPI recovery (6ad), technique durations (6ah) and downtime (6an);
+  **Combat Reflexes** as above. Three traits, six clauses, three applied.
+- **The reported clause is quoted, and a test pins it against
+  `ContentLoader`** — a clause the catalogue does not print would be this
+  object inventing a rule in order to disclaim it.
+- **The two maps must stay disjoint.** A trait in both would be reported
+  twice under two explanations, the two-copies-of-one-decision failure this
+  repo produced three times (6ag, 6ai, 6be). Pinned by a test rather than by
+  care.
+- **`never freeze in surprise` is one declaration away from applying**, which
+  is the point: the report is not a permanent disclaimer but a statement of
+  what is true today, and it should disappear when the surprise withdrawal
+  ships.
+
+### The design was reviewed BEFORE it was written
+
+Overturning a recorded framing is exactly what section 7 routes to Codex
+`adversarial-review`, so it ran first, on the decomposition rather than on a
+diff. It returned **needs-attention with three findings**, and the HIGH is
+the one above — that `reported()` suppresses the whole trait — which I had
+not seen: I had found the unapplied clauses and assumed they were merely
+unenforced, not hidden. It also confirmed the clause class is genuinely
+distinct from 6ai, and independently reached the same verdict on 6bd's
+ranking. **That inverted the slice**: the reporting fix is a prerequisite to
+the withdrawals, is rules-only, and shipped alone.
+
+Two readings it asked to have pinned when the withdrawals are built, recorded
+here so they are not re-derived: model the refusal with an explicit CAUSE
+(`SURPRISE`, `UNAWARE_RANGED`, `ALL_OUT_ATTACK`) rather than one boolean,
+and let Combat Reflexes negate **SURPRISE only** — 2687's shot is a different
+cause and the trait's clause says "in surprise". The withdrawal decision
+belongs in one `core/rules` function; a dialog computing its own copy is the
+failure named above.
+
+Also found while checking: **"Wrestling Master" is named by the grappling ST
+cap (2600) and appears in no catalogue this book prints** — the shape
+`Dead Language Fluency` naming "Ancient Loen" already has (6x). Recorded, not
+repaired.
+
+**Codex reviewed the diff and returned clean.** RED was verified as a compile
+failure on the new API, then the four tests were run green; the suite is
+**949 Kotlin** (946 + 4 added − 1 replaced) and 253 Python.
+
+Device-verified on the physical tablet, **Military Police** (the one premade
+carrying Combat Reflexes): two rows now render where the trait previously
+rendered nothing — **"Combat Reflexes — +6 to recover from stun / Not applied
+here: this app models no stun recovery roll to make."** and **"Combat
+Reflexes — never freeze in surprise / Not applied here: this app models no
+surprise, so there is no freeze to prevent."** The applied clause is absent
+from that list and still lands: the Defend dialog reads **Dodge 9** and
+**Parry (Brawling) 9** against a sheet printing Dodge 8, which is 6al's own
+verified number, unmoved.
+
+**Next slice, with its design already reviewed:** the three defence
+withdrawals. It is dialog wiring, which is the class only a device catches
+here, so budget the tablet pass.
 
 ---
 
