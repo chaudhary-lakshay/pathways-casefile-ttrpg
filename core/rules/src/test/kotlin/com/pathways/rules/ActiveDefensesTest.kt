@@ -91,16 +91,59 @@ class ActiveDefensesTest {
      * has carried the sentence since the combat slice.
      */
     @Test
-    fun `the forfeiting maneuvers come from the book's own table`() {
+    fun `the forfeiting actions come from the book's own tables`() {
         assertEquals(
             listOf(
                 "All-Out Attack (Determined)",
                 "All-Out Attack (Strong)",
                 "All-Out Attack (Double)",
                 "Charge Attack",
+                "Feverish Defense — Variant Rule",
             ),
-            ActiveDefenses.forfeitingManeuvers(),
+            ActiveDefenses.forfeitingActions(),
         )
+    }
+
+    /**
+     * **The forfeit is identified by its SENTENCE, not by its table.**
+     *
+     * `extra_effort.json` prints "Cannot defend next turn." on Feverish
+     * Defense, word for word what the maneuver table prints on four of its
+     * rows. Reading only the maneuvers -- which is what this object did when
+     * it shipped -- leaves a fighter who spent 1 FP on a feverish defence
+     * being offered a defence the book took away, and the omission is
+     * invisible because the list it comes from looks complete.
+     *
+     * Found by the clause sweep 6bf opened: two mechanical clauses in one
+     * cell, where the first ("+2 to one defense roll") is what the eye reads.
+     */
+    @Test
+    fun `an extra effort option forfeits exactly as a maneuver does`() {
+        val effort = ContentLoader.extraEffort().filter { ActiveDefenses.FORFEIT_PHRASE in it.effect }
+        assertEquals(listOf("Feverish Defense — Variant Rule"), effort.map { it.option })
+        assertTrue(effort.single().option in ActiveDefenses.forfeitingActions())
+    }
+
+    /**
+     * **The forfeit cites the sentence that covers all five rows, not p. 37's.**
+     *
+     * Broadening the chip to "Forfeited last turn" left it quoting "unless you
+     * took an All-Out Attack maneuver" at a GM whose fighter spent 1 FP on a
+     * Feverish Defense -- a citation that does not cover their case (Codex).
+     * The tables' own phrase governs; p. 37's narrower printing is shown
+     * beside it with its scope stated, because 4.1 records a disagreement
+     * rather than smoothing it.
+     */
+    @Test
+    fun `the forfeit cites the rule that covers every forfeiting row`() {
+        val state = ActiveDefenses.state(setOf(DefenseRefusal.ALL_OUT_ATTACK), none)
+        assertEquals(ActiveDefenses.FORFEIT_PHRASE, state.printed)
+        assertTrue(state.narrower!!.contains("unless you took an All-Out Attack maneuver"))
+
+        // The other two print one rule each, so they carry no narrower version.
+        for (cause in DefenseRefusal.entries - DefenseRefusal.ALL_OUT_ATTACK) {
+            assertNull(ActiveDefenses.state(setOf(cause), none).narrower, "$cause")
+        }
     }
 
     /** Every cause the enum names is a rule the book prints, and the reverse. */

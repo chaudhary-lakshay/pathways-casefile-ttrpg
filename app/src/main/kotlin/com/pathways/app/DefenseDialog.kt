@@ -136,7 +136,7 @@ fun DefenseDialog(
     // initiative and no line of sight. See ActiveDefenses.
     var declared by remember { mutableStateOf(emptySet<DefenseRefusal>()) }
     val refusal = ActiveDefenses.state(declared, traits)
-    val forfeiting = remember { ActiveDefenses.forfeitingManeuvers() }
+    val forfeiting = remember { ActiveDefenses.forfeitingActions() }
     val printed = remember { ContentLoader.defenses() }
     val modifiers = remember { ContentLoader.defenseModifiers() }
     val parries = remember(skillLevels) {
@@ -191,6 +191,11 @@ fun DefenseDialog(
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(vertical = 4.dp),
                         )
+                    }
+                    // The book's narrower printing of the same rule, with its
+                    // scope said out loud rather than quoted as if general.
+                    refusal.narrower?.let {
+                        Note("Page 37 prints it narrowly — \"$it\" — and names only the All-Out Attacks.")
                     }
                     // A cancelled cause is SAID, not silently dropped: a GM who
                     // ticks "surprised" and sees nothing change would fairly
@@ -280,7 +285,10 @@ fun DefenseDialog(
 /** What the GM declares about this character's ability to defend at all. */
 private val REFUSAL_LABELS = mapOf(
     DefenseRefusal.SURPRISE to "Surprised",
-    DefenseRefusal.ALL_OUT_ATTACK to "All-out last turn",
+    // Not "All-out last turn": the book forfeits the defence for a Charge and
+    // for Feverish Defense too, and a label naming one table would make the
+    // other two look like a different rule.
+    DefenseRefusal.ALL_OUT_ATTACK to "Forfeited last turn",
     DefenseRefusal.UNAWARE_RANGED to "Never saw the shot",
 )
 
@@ -291,9 +299,9 @@ private val REFUSAL_LABELS = mapOf(
  * it cannot know that a Charge happened last turn any more than it can know a
  * shot came from concealment. The GM does.
  *
- * [forfeiting] names the maneuvers whose own rows forfeit the defence, read
- * from the book's table rather than restated -- four, where p. 37's
- * parenthetical names three.
+ * [forfeiting] names everything whose own row forfeits the defence, read from
+ * the book's tables rather than restated -- five, where p. 37's parenthetical
+ * names three.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

@@ -33,7 +33,16 @@ enum class DefenseRefusal {
  */
 data class DefenseState(
     val refused: DefenseRefusal? = null,
+    /** The sentence that governs the refusal in force. */
     val printed: String? = null,
+    /**
+     * A narrower printing of the same rule, where the book has one.
+     *
+     * Only the forfeit does: p. 37 excepts "an All-Out Attack maneuver" while
+     * five rows forfeit. Shown beside [printed] rather than instead of it, so
+     * the disagreement is recorded rather than smoothed (4.1).
+     */
+    val narrower: String? = null,
     val negated: DefenseRefusal? = null,
     val negatedBy: String? = null,
 ) {
@@ -68,7 +77,11 @@ object ActiveDefenses {
     /** Ch. 3's Combat Reflexes: "never freeze in surprise". */
     const val NEVER_FREEZES = TraitEffects.COMBAT_REFLEXES
 
-    /** maneuvers.json's own sentence, the one that names the forfeiting rows. */
+    /**
+     * The book's own sentence for forfeiting a defence, printed verbatim in
+     * TWO tables -- the maneuvers and the extra-effort options. The phrase is
+     * the identity; the table it sits in is not.
+     */
     const val FORFEIT_PHRASE = "Cannot defend next turn."
 
     /**
@@ -85,23 +98,52 @@ object ActiveDefenses {
         val surviving = DefenseRefusal.entries.firstOrNull { it in declared && it !in cancelled }
         return DefenseState(
             refused = surviving,
-            printed = surviving?.let { printedFor(it.name) },
+            printed = surviving?.let { operativeFor(it) },
+            narrower = surviving?.let { narrowerFor(it) },
             negated = cancelled.firstOrNull(),
             negatedBy = cancelled.firstOrNull()?.let { NEVER_FREEZES },
         )
     }
 
     /**
-     * The maneuvers whose own row forfeits the next turn's defence.
+     * Everything whose own row forfeits the next turn's defence.
      *
-     * **Four, where p. 37's parenthetical names three.** That sentence
+     * **Five, where p. 37's parenthetical names three.** That sentence
      * excepts "an All-Out Attack maneuver"; the maneuver table also prints
-     * the phrase on Charge Attack. Specific beats general, so the table wins
-     * -- and it is read from committed content rather than listed here,
-     * because a second copy of a set the book prints is what 4.1 forbids.
+     * the phrase on Charge Attack, and the extra-effort table prints it on
+     * Feverish Defense. Specific beats general, so the tables win.
+     *
+     * **The SENTENCE is the identity, not the table it sits in.** This first
+     * shipped reading only the maneuvers, which left the one option that
+     * forfeits its defence out of the list the defence dialog shows -- and
+     * invisibly, because a list of four All-Out rows plus a Charge looks
+     * complete. Both tables are read for the same phrase, so a third table
+     * printing it is included the day it does.
+     *
+     * Read from committed content rather than listed here, because a second
+     * copy of a set the book prints is what 4.1 forbids.
      */
-    fun forfeitingManeuvers(): List<String> =
-        ContentLoader.maneuvers().filter { FORFEIT_PHRASE in it.description }.map { it.maneuver }
+    fun forfeitingActions(): List<String> =
+        ContentLoader.maneuvers().filter { FORFEIT_PHRASE in it.description }.map { it.maneuver } +
+            ContentLoader.extraEffort().filter { FORFEIT_PHRASE in it.effect }.map { it.option }
+
+    /**
+     * The sentence that actually governs this refusal.
+     *
+     * For two causes that is their own extracted row. For [DefenseRefusal
+     * .ALL_OUT_ATTACK] it is the TABLES' phrase, because p. 37's parenthetical
+     * excepts only "an All-Out Attack maneuver" and five rows forfeit --
+     * quoting it at a GM whose fighter spent 1 FP on a Feverish Defense cites
+     * a rule that does not cover them (Codex). The narrower printing is still
+     * shown, by [narrowerFor], with its scope said out loud: 4.1 records a
+     * disagreement rather than blurring it.
+     */
+    private fun operativeFor(cause: DefenseRefusal): String =
+        if (cause == DefenseRefusal.ALL_OUT_ATTACK) FORFEIT_PHRASE else printedFor(cause.name)
+
+    /** The book's narrower printing of the same rule, where there is one. */
+    private fun narrowerFor(cause: DefenseRefusal): String? =
+        if (cause == DefenseRefusal.ALL_OUT_ATTACK) printedFor(cause.name) else null
 
     /** The book's own sentence for a cause, refused when the content prints none. */
     fun printedFor(cause: String): String {

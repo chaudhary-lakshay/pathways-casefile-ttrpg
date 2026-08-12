@@ -96,7 +96,10 @@ def parse(byn):
     ]
 
 
-def verify(entries, maneuvers):
+FORFEIT_EFFORT = {"Feverish Defense — Variant Rule"}
+
+
+def verify(entries, maneuvers, effort=None):
     got = [e["cause"] for e in entries]
     if got != CAUSES:
         raise ValueError(f"causes changed: {got} != {CAUSES}")
@@ -119,6 +122,15 @@ def verify(entries, maneuvers):
     if forfeit != FORFEIT_ROWS:
         raise ValueError(f"maneuvers that forfeit a defence changed: {sorted(forfeit)}")
 
+    # The SAME sentence appears in the extra-effort table, on Feverish Defense.
+    # Production reads both for the phrase rather than one table, because the
+    # phrase is the rule -- so this half needs pinning too, and it is the half
+    # that was missed: a list of four All-Out rows plus a Charge looks whole.
+    if effort is not None:
+        got = {e["option"] for e in effort if FORFEIT_PHRASE in e["effect"]}
+        if got != FORFEIT_EFFORT:
+            raise ValueError(f"extra-effort options that forfeit changed: {sorted(got)}")
+
 
 def write(entries):
     OUT.mkdir(parents=True, exist_ok=True)
@@ -132,7 +144,8 @@ def main():
     byn = load_lines()
     entries = parse(byn)
     maneuvers = json.loads((OUT / "maneuvers.json").read_text(encoding="utf-8"))["entries"]
-    verify(entries, maneuvers)
+    effort = json.loads((OUT / "extra_effort.json").read_text(encoding="utf-8"))["entries"]
+    verify(entries, maneuvers, effort)
     write(entries)
     print(f"defense_refusals.json: {len(entries)} rules")
     return 0
