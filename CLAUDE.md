@@ -12,10 +12,12 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: section 6bg, then 6bf.** 6bg is the newest slice and
-built what 6bf named; between them they **correct 6bd**, whose "round tracker
-unblocks five rules" ranking survives reading only one of the five. Read 6bd
-after those two, not before, or you will inherit the ranking they correct. 6be RETRACTS 6ba's parse finding with a
+**Where to start next: section 6bh, then 6bg and 6bf.** 6bh runs the clause
+sweep 6bf named and finds a hole in 6bg, committed an hour earlier — the
+newest evidence that a slice's own verdict expires fastest. Together the
+three **correct 6bd**, whose "round tracker unblocks five rules" ranking
+survives reading only one of the five. Read 6bd after them, not before, or
+you will inherit the ranking they correct. 6be RETRACTS 6ba's parse finding with a
 test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
@@ -68,7 +70,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **956 Kotlin** (JUnit 5 — 863 `core:rules`, 73 `app`, 20 `core:model`) + **256 Python** (pytest), all green |
+| Tests | **958 Kotlin** (JUnit 5 — 865 `core:rules`, 73 `app`, 20 `core:model`) + **256 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -4960,6 +4962,86 @@ walked into two hours later on a bigger target. **Never round-trip a UTF-8
 file through PowerShell text cmdlets**; use the editing tool, which preserves
 the encoding. `git checkout` cost nothing here only because the change was
 uncommitted and the section could be re-applied verbatim.
+
+## 6bh. Running the clause sweep, and finding a hole in 6bg
+
+6bf named a sweep class — clause-level drift inside a field that has a
+reader — and ran it over the three applied TRAITS only, which is where it was
+found. 6bg then found another instance **by accident** while reading a
+different table. Two of two by accident is not a method, so the sweep was
+run properly: every prose cell in committed content, split into clauses,
+keeping cells with **two or more** mechanical clauses. One clause per cell is
+ordinary; two is the shape that hides one, because the field looks handled
+when the first is applied.
+
+**49 cells across 11 files.** Most are decisions already recorded — the trait
+reports (6bf), the language-dependent clause 6x deliberately refuses, cover's
+"+2 DR" 6k leaves on the damage side. One was a hole in the slice committed
+an hour earlier.
+
+### `extra_effort.json` prints the same forfeit sentence, on Feverish Defense
+
+    Feverish Defense — Variant Rule: +2 to one defense roll.
+                                     Cannot defend next turn.
+
+Word for word what `maneuvers.json` prints on four rows, and what 6bg's
+`FORFEIT_PHRASE` matches — but `forfeitingManeuvers()` read the maneuver
+table alone. So the one extra-effort option that forfeits its defence was
+missing from the list the defence dialog shows, and **invisibly**: four
+All-Out rows plus a Charge looks complete.
+
+- **The SENTENCE is the identity, not the table.** Both tables are read for
+  the phrase now, so a third printing it is included the day it appears.
+  `forfeitingManeuvers` became `forfeitingActions` for the same reason the
+  chip stopped saying "All-out last turn": a name that describes one table
+  makes the other rows look like a different rule.
+- **RED-proved twice**, and the second is the one that matters: reverting to
+  the maneuvers-only reading fails both new tests, which is the exact code
+  that shipped in 6bg.
+- **Codex caught what the fix broke** (P2). Broadening the chip left it
+  quoting p. 37's "unless you took an All-Out Attack maneuver" at a GM whose
+  fighter spent 1 FP on a Feverish Defense — a citation that does not cover
+  their case. The operative sentence is now the tables' own, which covers all
+  five, and p. 37's narrower printing is shown beside it with its scope said
+  out loud. 4.1 records a disagreement rather than smoothing it, and that
+  cuts both ways: the narrow printing is not deleted either.
+
+### What else the sweep found, and what was left
+
+**Three of the four extra-effort options are offered nowhere.** Only Heroic
+Charge is wired (6j). Of the rest: **Giant Step** is movement, which this app
+does not model; **Strong Blow** is "+2 damage. Regular melee attacks only",
+and `Attacks.damageBonus` already composes exactly that kind of bonus — a
+real gap, in the ATTACK dialog, and its own slice; **Feverish Defense**'s
+"+2 to one defense roll" half is likewise unoffered. Named here rather than
+built, because widening this slice into the attack dialog is how a fix
+becomes a feature.
+
+**The sweep's own limit, stated so the next one is not trusted too far.** It
+keys on cells with 2+ mechanical clauses, so a cell with exactly ONE
+unapplied rule is invisible to it — which is most of the trait catalogue and
+every single-sentence effect cell. It finds the shape where an applied clause
+HIDES an unapplied one. That is the class; it is not "every unapplied rule".
+
+**A note on the instrument, not the app.** The tablet rotated to portrait
+mid-run and three taps landed on the wrong premade. Worth checking before
+concluding anything about layout — and the action row DOES scroll
+horizontally in portrait, so Attack/Defend/Damage are reachable there; that
+was checked rather than assumed, because an unreachable control is exactly
+the defect 6j found.
+
+**Codex reviewed the fix and, after the P2, returned clean.** 958 Kotlin and
+256 Python, all green.
+
+Device-verified on the tablet, **Military Police**: the chip reads
+**"Forfeited last turn"**, and selecting it lists *"Forfeits the next turn's
+defence: All-Out Attack (Determined), All-Out Attack (Strong), All-Out Attack
+(Double), Charge Attack, **Feverish Defense — Variant Rule**."* above
+**"Cannot defend next turn."** in red, above *"Page 37 prints it narrowly —
+… — and names only the All-Out Attacks."* Five rows, the operative rule, and
+the narrower printing, in that order. Also confirmed there: 6bf's other
+clause, on a Fit character — *"Fit — recover FP at twice the normal rate /
+Not applied here: this app holds no clock to recover against."*
 
 ---
 
