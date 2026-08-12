@@ -150,15 +150,83 @@ class TraitEffectsTest {
         assertTrue(notes[1].printed.contains("HT rolls to avoid death"), notes[1].printed)
     }
 
-    /** An applied trait is not also reported: it would read as unhandled. */
+    /**
+     * A WHOLLY applied trait is not also reported: it would read as unhandled.
+     *
+     * Alertness is the only one of the three. Its cell prints one rule and
+     * that rule has a join, so there is nothing left over to say.
+     */
     @Test
-    fun `the applied traits are absent from the reported list`() {
-        val applied = listOf(
-            advantage("Alertness 1"),
-            advantage("Fit"),
-            advantage("Combat Reflexes"),
+    fun `a wholly applied trait is absent from the reported list`() {
+        assertEquals(emptyList<TraitNote>(), TraitEffects.reported(listOf(advantage("Alertness 1"))))
+    }
+
+    /**
+     * **A notes cell can hold several rules, and this app applies one of
+     * them.** Combat Reflexes prints three -- "+1 to all active defenses,
+     * +6 to recover from stun, never freeze in surprise" -- and only the
+     * first has a roll here to land on. Fit prints two and only the first
+     * does.
+     *
+     * `reported` keyed on the trait NAME, and both traits are applied, so it
+     * returned nothing for either: the remaining clauses were not merely
+     * unenforced but INVISIBLE. That is the whole point of reporting -- "a GM
+     * who sees nothing assumes it was counted" -- and it failed exactly where
+     * the trait looked handled.
+     *
+     * **Not 6ai restated.** That sweep asked whether a FIELD has a consumer;
+     * `notes` has one. This is clause-level drift inside a field that already
+     * has a production reader, which no sweep in this repo could see.
+     */
+    @Test
+    fun `a partly applied trait reports the clauses that reach nothing`() {
+        val notes = TraitEffects.reported(listOf(advantage("Combat Reflexes"), advantage("Fit")))
+        assertEquals(
+            listOf("Combat Reflexes", "Combat Reflexes", "Fit"),
+            notes.map { it.trait },
         )
-        assertEquals(emptyList<TraitNote>(), TraitEffects.reported(applied))
+        assertEquals(
+            listOf(
+                "+6 to recover from stun",
+                "never freeze in surprise",
+                "recover FP at twice the normal rate",
+            ),
+            notes.map { it.printed },
+        )
+        // The applied clause is never reported -- it is not left over.
+        assertTrue(notes.none { it.printed.contains("active defenses") }, notes.toString())
+        assertTrue(notes.none { it.printed.contains("HT rolls") }, notes.toString())
+    }
+
+    /**
+     * The clauses are quoted, so they have to be the book's own words.
+     *
+     * A reported clause the catalogue does not print would be this object
+     * inventing a rule to disclaim. Pinned against `ContentLoader`, which is
+     * the copy production reads.
+     */
+    @Test
+    fun `every reported clause is one the book actually prints`() {
+        val catalogue = ContentLoader.advantages().associateBy { it.name }
+        for (trait in listOf("Combat Reflexes", "Fit")) {
+            val printed = catalogue.getValue(trait).notes
+            for (note in TraitEffects.reported(listOf(advantage(trait)))) {
+                assertTrue(printed.contains(note.printed), "${note.printed} not in: $printed")
+            }
+        }
+    }
+
+    /**
+     * A trait is wholly unapplied or partly applied, never recorded as both.
+     *
+     * Both maps feed one list, so an overlap would report the same trait
+     * twice under two different explanations -- the two-copies-of-one-decision
+     * failure this repo's screens produced three times (6ag, 6ai, 6be).
+     */
+    @Test
+    fun `a trait is either wholly unapplied or partly, never both`() {
+        val both = TraitEffects.unappliedNames() intersect TraitEffects.partlyAppliedNames()
+        assertEquals(emptySet<String>(), both)
     }
 
     /**

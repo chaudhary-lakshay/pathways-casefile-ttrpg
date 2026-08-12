@@ -119,16 +119,63 @@ object TraitEffects {
      */
     fun reported(traits: List<Trait>): List<TraitNote> {
         val catalogue = ContentLoader.advantages().associateBy { it.name.lowercase() }
-        return traits.mapNotNull { owned ->
+        return traits.flatMap { owned ->
             val bare = bareName(owned.name)
-            val reason = UNAPPLIED[bare] ?: return@mapNotNull null
-            val printed = catalogue[bare.lowercase()]?.notes ?: return@mapNotNull null
-            TraitNote(owned.name, printed, reason)
+            val printed = catalogue[bare.lowercase()]?.notes ?: return@flatMap emptyList()
+            val whole = UNAPPLIED[bare]?.let { listOf(TraitNote(owned.name, printed, it)) }.orEmpty()
+            // A trait can be applied and still have rules left over, so the
+            // clauses are reported even though the trait itself is not.
+            val clauses = PARTLY_APPLIED[bare].orEmpty().map { (clause, reason) ->
+                TraitNote(owned.name, clause, reason)
+            }
+            whole + clauses
         }
     }
 
     /** Every trait this object knows about, applied or not. */
     fun known(): Set<String> = UNAPPLIED.keys + setOf(ALERTNESS, FIT, COMBAT_REFLEXES)
+
+    /** The traits reported whole, for the disjointness test. */
+    fun unappliedNames(): Set<String> = UNAPPLIED.keys
+
+    /** The traits reported clause by clause, for the disjointness test. */
+    fun partlyAppliedNames(): Set<String> = PARTLY_APPLIED.keys
+
+    /**
+     * Clauses of an APPLIED trait that reach nothing here, and why.
+     *
+     * **A notes cell can hold several rules.** Combat Reflexes prints three
+     * and exactly one of them names a roll this app makes; Fit prints two and
+     * one. [reported] keyed on the trait NAME, and both traits are applied,
+     * so it answered with nothing for either -- the remaining clauses were
+     * not merely unenforced but invisible, on the one screen whose whole job
+     * is to say what was not counted.
+     *
+     * **This is not the field sweep (6ai) restated.** That asked whether a
+     * field has a consumer, and `notes` has one. This is clause-level drift
+     * INSIDE a field with a production reader, which is a gap no sweep in
+     * this repo could see -- 6al's own triage was correct when it ran, and
+     * went stale the moment one clause of a multi-rule cell was implemented.
+     * The general lesson is 6ba's: a verdict expires.
+     *
+     * Both reasons here are the familiar refusals, not new ones. The FP rate
+     * needs a clock, which this app deliberately does not hold (6ad, 6ah,
+     * 6an); the stun and surprise clauses name events it does not model.
+     * Each will stop being reported when something makes it reachable, and
+     * `never freeze in surprise` is one declaration away.
+     */
+    private val PARTLY_APPLIED: Map<String, List<Pair<String, String>>> = mapOf(
+        FIT to listOf(
+            "recover FP at twice the normal rate" to
+                "this app holds no clock to recover against",
+        ),
+        COMBAT_REFLEXES to listOf(
+            "+6 to recover from stun" to
+                "this app models no stun recovery roll to make",
+            "never freeze in surprise" to
+                "this app models no surprise, so there is no freeze to prevent",
+        ),
+    )
 
     /**
      * Printed, real, and reaching no roll here -- with the reason, so the
