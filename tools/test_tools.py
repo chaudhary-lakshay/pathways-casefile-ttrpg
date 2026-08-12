@@ -790,6 +790,48 @@ def test_defense_modifiers_survive_their_pdf_bullets():
     assert all(not e["modifier"].startswith("") for e in entries)
 
 
+# --- Refusals of an active defence (Ch. 5, p. 36-40) -----------------------
+
+import extract_defense_refusals as edr
+
+
+def test_a_refusal_wrapping_across_lines_is_joined_into_one_sentence():
+    """UNAWARE_RANGED wraps across three lines and a page break. Read line by
+    line the rule is three fragments, none of which states it."""
+    byn = {
+        10: "Dodging ranged attacks: You may Dodge normally. If you did not",
+        11: "Page 40",
+        12: "know the shot was coming, you cannot defend at all — the bullet",
+        13: "arrives before you can react.",
+    }
+    got = edr.sentence(byn, 10, 13)
+    assert "Page 40" not in got
+    assert "you cannot defend at all" in got
+
+
+def test_a_refusal_that_prints_a_modifier_is_a_mis_cut_sentence():
+    """None of the three prints a number to apply instead -- they withdraw the
+    defence outright. A signed number means the span caught a neighbouring
+    rule, which for two of these is a defence MODIFIER sitting lines away."""
+    bad = [{"cause": c, "printed": edr.PINNED[c]} for c in edr.CAUSES]
+    bad[0]["printed"] = "Surprised characters defend at -4 and cannot defend on it."
+    with pytest.raises(ValueError, match="prints a modifier"):
+        edr.verify(bad, [])
+
+
+def test_charge_attack_forfeits_its_defence_too():
+    """p. 37 excepts "an All-Out Attack maneuver"; the maneuver table prints
+    "Cannot defend next turn." on Charge Attack as well. Dropping it would
+    hand a charging fighter a defence the table denies."""
+    entries = [{"cause": c, "printed": edr.PINNED[c]} for c in edr.CAUSES]
+    three = [
+        {"maneuver": n, "description": edr.FORFEIT_PHRASE}
+        for n in sorted(edr.FORFEIT_ROWS - {"Charge Attack"})
+    ]
+    with pytest.raises(ValueError, match="forfeit a defence changed"):
+        edr.verify(entries, three)
+
+
 # --- Maneuvers and attack options (Ch. 5, p. 36-37) ------------------------
 
 import extract_combat

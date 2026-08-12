@@ -1,0 +1,32 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2377,
+    2377
+   ],
+   [
+    2453,
+    2453
+   ],
+   [
+    2686,
+    2688
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "cause": "SURPRISE",
+   "printed": "Surprised characters skip their first turn entirely and cannot defend on it."
+  },
+  {
+   "cause": "ALL_OUT_ATTACK",
+   "printed": "When you know you are being attacked, you may attempt one active defense (unless you took an All-Out Attack maneuver)."
+  },
+  {
+   "cause": "UNAWARE_RANGED",
+   "printed": "Dodging ranged attacks: You may Dodge normally. If you did not know the shot was coming (no visible wind-up, fired from concealment), you cannot defend at all — the bullet arrives before you can react. This is why Danger Sense and Spiritual Intuition are valuable."
+  }
+ ]
+}

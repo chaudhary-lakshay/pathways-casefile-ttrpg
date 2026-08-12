@@ -632,9 +632,10 @@ fun SheetScreen(
             dodge = vitals.dodge,
             skillLevels = skillLevels,
             weapons = session.characterFor(sheet).weapons,
-            // "+1 to all active defenses" -- ALL of them, so it is added
-            // once here and every row picks it up.
-            reflexes = TraitEffects.defenseBonus(traits),
+            // The traits themselves: Combat Reflexes both adds +1 to every
+            // defence and cancels the surprise refusal, and one trait's two
+            // consequences belong in one place (ActiveDefenses).
+            traits = traits,
         ) { defending = false }
     }
     if (attacking) {

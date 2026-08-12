@@ -855,6 +855,16 @@ data class Shield(
 data class ShieldRule(val rule: String)
 
 /**
+ * One printed reason a character gets NO active defence (Ch. 5).
+ *
+ * [cause] is ours -- the book prints three sentences in three sections and
+ * names no key for any of them -- and [printed] is the book's, quoted so the
+ * GM reads the rule rather than our paraphrase of it.
+ */
+@Serializable
+data class DefenseRefusalRule(val cause: String, val printed: String)
+
+/**
  * One row of the Optional Major Wound Threshold table (Ch. 5, p. 41-42).
  *
  * [failBy] is present on the third row only ("Fail by 5+"): the first two are

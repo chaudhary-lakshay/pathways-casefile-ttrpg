@@ -23,8 +23,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.SkillKey
+import com.pathways.model.Trait
 import com.pathways.model.Weapon
+import com.pathways.rules.ActiveDefenses
+import com.pathways.rules.DefenseRefusal
 import com.pathways.rules.ParryBlock
+import com.pathways.rules.TraitEffects
 import com.pathways.rules.Shields
 import com.pathways.rules.UnarmedStyle
 import com.pathways.rules.content.ContentLoader
@@ -115,10 +119,24 @@ fun DefenseDialog(
     dodge: Int,
     skillLevels: Map<SkillKey, Int>,
     weapons: List<Weapon> = emptyList(),
-    /** Ch. 3's Combat Reflexes, +1 to every active defence. See TraitEffects. */
-    reflexes: Int = 0,
+    /**
+     * The character's own traits.
+     *
+     * The TRAITS rather than the +1 they produce, because two different rules
+     * read them here: Combat Reflexes adds to every defence AND cancels the
+     * surprise refusal. Deriving the bonus at the call site and the refusal
+     * here would put one trait's consequences in two places.
+     */
+    traits: List<Trait> = emptyList(),
     onDismiss: () -> Unit,
 ) {
+    val reflexes = remember(traits) { TraitEffects.defenseBonus(traits) }
+    // What the GM says is true of this character right now. All three are
+    // declarations because none is computable: the app holds no turn, no
+    // initiative and no line of sight. See ActiveDefenses.
+    var declared by remember { mutableStateOf(emptySet<DefenseRefusal>()) }
+    val refusal = ActiveDefenses.state(declared, traits)
+    val forfeiting = remember { ActiveDefenses.forfeitingManeuvers() }
     val printed = remember { ContentLoader.defenses() }
     val modifiers = remember { ContentLoader.defenseModifiers() }
     val parries = remember(skillLevels) {
@@ -158,6 +176,31 @@ fun DefenseDialog(
         title = { Text("Active defenses") },
         text = {
             LazyColumn {
+                item {
+                    // At the TOP, and unlike the parry stepper that is not a
+                    // placement quibble: a refusal withdraws EVERY defence, so
+                    // a control tucked under the parry rows would read as
+                    // scoped to them.
+                    RefusalPicker(declared, forfeiting) { cause ->
+                        declared = if (cause in declared) declared - cause else declared + cause
+                    }
+                    refusal.printed?.let {
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(vertical = 4.dp),
+                        )
+                    }
+                    // A cancelled cause is SAID, not silently dropped: a GM who
+                    // ticks "surprised" and sees nothing change would fairly
+                    // conclude the tick failed.
+                    refusal.negated?.let {
+                        Note("${refusal.negatedBy} — \"never freeze in surprise\", so the defences stand.")
+                    }
+                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                }
+                if (!refusal.defends) return@LazyColumn
                 item {
                     ShieldPicker(shields, carried) { carried = if (it == carried) null else it }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
@@ -232,6 +275,47 @@ fun DefenseDialog(
             }
         },
     )
+}
+
+/** What the GM declares about this character's ability to defend at all. */
+private val REFUSAL_LABELS = mapOf(
+    DefenseRefusal.SURPRISE to "Surprised",
+    DefenseRefusal.ALL_OUT_ATTACK to "All-out last turn",
+    DefenseRefusal.UNAWARE_RANGED to "Never saw the shot",
+)
+
+/**
+ * The three declarations that withdraw every active defence.
+ *
+ * Offered as chips rather than enforced from state: the app holds no turn, so
+ * it cannot know that a Charge happened last turn any more than it can know a
+ * shot came from concealment. The GM does.
+ *
+ * [forfeiting] names the maneuvers whose own rows forfeit the defence, read
+ * from the book's table rather than restated -- four, where p. 37's
+ * parenthetical names three.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RefusalPicker(
+    declared: Set<DefenseRefusal>,
+    forfeiting: List<String>,
+    onToggle: (DefenseRefusal) -> Unit,
+) {
+    Text("Can this character defend?", style = MaterialTheme.typography.titleSmall)
+    FlowRow {
+        REFUSAL_LABELS.forEach { (cause, label) ->
+            FilterChip(
+                selected = cause in declared,
+                onClick = { onToggle(cause) },
+                label = { Text(label) },
+                modifier = Modifier.padding(end = 4.dp),
+            )
+        }
+    }
+    if (DefenseRefusal.ALL_OUT_ATTACK in declared) {
+        Note("Forfeits the next turn's defence: ${forfeiting.joinToString(", ")}.")
+    }
 }
 
 /**

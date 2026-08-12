@@ -166,6 +166,9 @@ object ContentLoader {
     private val attackOptionsLazy: List<AttackOption> by lazy { load("attack_options.json") }
     private val defensesLazy: List<Defense> by lazy { load("defenses.json") }
     private val defenseModifiersLazy: List<DefenseModifier> by lazy { load("defense_modifiers.json") }
+    private val defenseRefusalsLazy: List<DefenseRefusalRule> by lazy {
+        load("defense_refusals.json")
+    }
     private val frightTriggersLazy: List<FrightTrigger> by lazy { load("fright_triggers.json") }
     private val frightEffectsLazy: List<FrightEffect> by lazy {
         // Sorted so a band lookup can walk the table in the order the book
@@ -288,6 +291,9 @@ object ContentLoader {
 
     /** The bullets under that table: breaking, cover, and the shield bash. */
     fun shieldRules(): List<ShieldRule> = shieldRulesLazy
+
+    /** Ch. 5's three printed refusals of an active defence. */
+    fun defenseRefusals(): List<DefenseRefusalRule> = defenseRefusalsLazy
 
     /** The Major Wound Threshold table (Ch. 5, p. 41-42), in printed order. */
     fun majorWound(): List<MajorWound> = majorWoundLazy
