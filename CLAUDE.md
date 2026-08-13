@@ -12,7 +12,16 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: section 6bk, then 6bj, 6bi, 6bh, 6bg and 6bf.** 6bk
+**Where to start next: section 6bl, then 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.**
+6bl found a rule THIS APP hands out and never charged for — three of its own
+tables leave a character stunned and the -4 that costs reached nothing — and
+then the device found the sharper half: a "not applied here" disclaimer that
+had been false since the slice before it, with the test quoting the
+disclaimer's own words and therefore unable to notice. **Commentary about what
+is unapplied expires exactly the way a sweep verdict does (6ba)**; only a test
+that reads both objects can see it. It also writes down every verdict of its
+clause sweep, including the ones that found nothing, which is 6bj's lesson
+applied on purpose rather than after the fact. 6bk
 turned one named next-slice into two rules by reading the page it lived on,
 and its three review findings were all in the UI state machine rather than
 the rules — a picker that charged twice, one that locked up, and one that
@@ -82,7 +91,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **976 Kotlin** (JUnit 5 — 881 `core:rules`, 75 `app`, 20 `core:model`) + **257 Python** (pytest), all green |
+| Tests | **980 Kotlin** (JUnit 5 — 885 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -5296,6 +5305,131 @@ Wrestling 10, FP 10/10, no shield):
 **The extra-effort table is now fully offered** — Heroic Charge (6j), Strong
 Blow (6bi), Feverish Defense (here). The fourth, **Giant Step**, is movement
 and stays unmodelled: this app has no position to step from.
+
+## 6bl. Stunned — a state this app hands out and never charged for
+
+`ActiveDefenses.everyDefence` applies Ch. 5's "-4 to Active Defense", and the
+defence dialog has a Stunned chip. The rule was printed on one cell, produced
+by three of this app's own tables, and priced by nothing.
+
+**The app is where the state comes from, which is what makes it a defect
+rather than a gap.** `fright_effects.json` prints "Stunned 1 sec" on six rows,
+`major_wound.json` "Stunned for 1d6 seconds", and two ritual Critical Failure
+rows "Stunned 1d minutes" — all rolled by dialogs that already exist. The word
+**"stunned" appeared nowhere in Kotlin.** So a GM could roll a fright check on
+this screen, be told the character is stunned, open the defence dialog two
+taps later and see every number unmoved.
+
+- **The -4 belongs to the STATE, not to the maneuver whose row prints it.**
+  It is printed on Do Nothing — "If Stunned: -4 to Active Defense. Otherwise
+  rest to recover FP." — and read as scoped to that maneuver a stunned fighter
+  would dodge at full value right up until they chose to do nothing, which is
+  the reverse of what the state is for. **Ch. 11 settles it**: an ability that
+  leaves its target "mentally Stunned for 1 turn (see GURPS stun rules, p.
+  B420: -4 to active defenses...)" names no maneuver at all.
+- **That second printing is load-bearing twice**, which is why `verify()` pins
+  it across chapters (6ba's precedent): it also writes "active defenseS", and
+  the plural is the whole basis for taking the penalty to every row rather
+  than to Dodge alone. Two printings agreeing is the per-table standard 6ad
+  set, and 6v is why it can never be per-source.
+- **One function for everything that moves EVERY row.** Combat Reflexes' "+1
+  to all active defenses" already had to be folded in once because the screen
+  renders a defence in seven places, two of them by hand (6o's Block branch).
+  A second such rule applied at six of the seven is the drift this codebase
+  produced three times (6ag, 6ai, 6be), so `everyDefence(traits, stunned)`
+  answers for both and the dialog holds no arithmetic. Deliberately the
+  opposite call to a bought [DefenseBoost], which the book scopes to ONE
+  defence (6bk) — same screen, two sentences, two scopes.
+- **Combat Reflexes does NOT cancel it.** Its stun clause is "+6 to recover
+  from stun" — the recovery roll, which needs a clock — not an exemption from
+  the penalty. Extending it would author a rule from a resemblance, the
+  reasoning 6bg refused for the unaware shot. A stunned fighter with the trait
+  is at **-3**, which is the number that would be wrong if either rule were
+  applied alone.
+- **The cell is quoted WHOLE**, second clause and all. Cutting it at render
+  time to hide the FP rest would be a parser nobody tests (6f); leaving it
+  visible is the clause-reporting 6bf asks for, and the pin is exact rather
+  than a substring, because the screen shows this sentence (6bi).
+- **The chip lives below the refusals and inside the block they guard**, so a
+  character whose defences are withdrawn is not offered a -4 on nothing.
+
+### The device found a stale disclaimer, and the test agreed with the bug
+
+The sheet screen read **"Combat Reflexes — never freeze in surprise / Not
+applied here: this app models no surprise, so there is no freeze to
+prevent."** — two taps from a dialog that has cancelled the surprise refusal
+with that exact trait since 6bg. 6bf wrote the disclaimer when it was true and
+named the expiry in its own KDoc ("one declaration away"); the declaration
+shipped one slice later and the sentence stayed.
+
+- **A report of what is NOT applied expires exactly when the code changes**,
+  which is 6ba's lesson pointed at this repo's own commentary rather than at
+  the book. Every other instrument here starts from the book or from a field;
+  a disclaimer is neither.
+- **`TraitEffectsTest` pinned the disclaimer's own words**, so it could not
+  notice — a test that quotes a claim cannot audit it. The new test reads BOTH
+  objects: if `ActiveDefenses.state` cancels the surprise, no reported clause
+  may mention surprise. That is the only shape that fails when the two drift.
+- The stun clause is still reported, and correctly: recovering is not the
+  penalty.
+
+### The maneuvers.json clause sweep, with every verdict written down
+
+6bj's lesson was that the sweep survived and the triage did not, so the whole
+triage is here rather than only its finding:
+
+| Row | Clause | Verdict |
+|---|---|---|
+| Do Nothing | "-4 to Active Defense" | **This slice.** |
+| Do Nothing | "rest to recover FP" | Clock. Quoted, not applied (6ad, 6ah, 6an). |
+| Aim (Ranged) | "Canceled by any Active Defense or injury" | **Candidate** — a declaration, like these three, with the Acc it cancels already modelled (6t). Its own slice. |
+| Concentrate | "Roll Will-3 if injured or defending" | **Candidate** — a roll this app could make. |
+| All-Out Defense (Double) | "Use two different defenses vs. one attack" | Recorded, not built — see below. |
+| All-Out Defense (Increased) | "+2 to one active defense" | Applied (6bk). |
+| Feint | Quick Contest | Both sides' attributes; unmodelled since 6o. |
+| Aim / Charge / Rapid Strike / Deceptive | their numbers | Applied (6t, 6i, 6j). |
+
+**All-Out Defense (Double) is a permission with nothing to permit.** Line 2453
+prints the rule it lifts — "you may attempt one active defense" — and this
+dialog does not allocate defences: it is a reference sheet saying what each
+one WOULD be, which is the right shape for a screen that cannot know what is
+coming. Enforcing the general rule would need a round and a chosen defence;
+paying 2 FP to lift a limit the app never imposed would charge for nothing,
+the exact defect 6bk's picker was fixed for. Recorded here, with its blocker
+named, so the next reader inherits evidence rather than a to-do (6au, 6av).
+
+Also confirmed rather than assumed: the prohibition line-set over 2370-2500
+forbids nothing about a stun penalty (6ba — a sweep's verdict expires, so it
+is re-run against each slice's own subject), and lines 2454-2455 are a second,
+agreeing printing of the cumulative parry rule 6bj already applies.
+
+**Codex reviewed both commits.** The disclaimer fix came back clean. On the
+stun commit it raised one P2 — that the new `pytest.raises` cases would pass
+vacuously because `verify` fails earlier on `Wait`'s movement cell — and it is
+**refused with evidence**: `verify` on the committed content passes clean, and
+with `PINNED_MANEUVERS_EXACT` emptied the drifted input raises nothing at all,
+which is the definition of failing for the intended reason. Its premise was
+that the em dash in `MOVEMENTS` did not match the JSON's; both are U+2014. The
+PowerShell UTF-8 mis-decode again (6ar, 6bk) — **check the interpreter before
+acting on an encoding complaint.**
+
+**980 Kotlin** (885 core:rules, 75 app, 20 core:model) and **258 Python**, all
+green. The stun composition was RED-proved by neutering the penalty to zero:
+two assertions failed, -4 and -3, and were restored.
+
+Device-verified on the physical tablet (1200x1920), **Military Police**
+(Combat Reflexes, Brawling 11, Basic Speed 5.00 — sheet prints Dodge 8):
+
+- Untouched, the dialog reads **Dodge 9 / Parry (Brawling) 9**, the trait's +1.
+- **Stunned** takes both to **5** and prints the book's own cell verbatim:
+  *Do Nothing (p. 37): "If Stunned: -4 to Active Defense. Otherwise rest to
+  recover FP."*
+- **Surprised AND Stunned together** is the discriminating screen: the rows
+  stand at **5** under *"Combat Reflexes — "never freeze in surprise", so the
+  defences stand."* One trait, two clauses, one cancelling a refusal and the
+  other not touching the penalty.
+- After the second commit the sheet's trait rows show **one** Combat Reflexes
+  note — the stun recovery — where there were two.
 
 ---
 
