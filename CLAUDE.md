@@ -12,7 +12,13 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6bn, then 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.**
+**Where to start next: 6bo, then 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and
+6bf.** 6bo is the one to read first: its design was reviewed BEFORE any code
+and came back **no-ship**, which is what turned a declaration into a latch and
+an accidental scope into an enum tested per roll class. It also caught itself
+one commit from shipping a fresh excuse in place of the one it removed, and it
+refuses a reviewer's central recommendation with a test rather than an
+argument.
 6bn is the FOURTH rule running to become buildable as a declaration rather
 than through the round tracker 6bd ranked first, and it takes the opposite
 shape to 6bg deliberately — one chip where the defences needed three, because
@@ -101,7 +107,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **989 Kotlin** (JUnit 5 — 894 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
+| Tests | **997 Kotlin** (JUnit 5 — 902 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -5587,6 +5593,105 @@ in the app, and the only single join is `MainActivity.conditionsFor`, which
 feeds six dialogs and is built from TRACKERS rather than declarations. The
 defence rows are not on that path at all. Design it first (6bf's precedent:
 `adversarial-review` on the decomposition, before a line is written).
+
+## 6bo. Shock — the state the app hands out, and a design review that ran first
+
+`Shock` (core/rules) applies the Major Wound table's success row, *"-4 to all
+rolls for 1 turn from shock and pain"*. `DamageDialog` has rolled that table
+since 6n and printed the cell as text; nothing applied it. 6bl's shape exactly,
+on the OTHER half of the same roll — a failure stuns, a success shocks, and
+until now neither reached a number.
+
+**It also disproves a recorded excuse, which is why it was worth doing now.**
+`TraitEffects.UNAPPLIED` said High Pain Threshold reached nothing because *"this
+app models no shock penalty to ignore"*, and 6al reasoned that applying it would
+mean "inventing a rule to justify reading another: a 'shock penalty' so High
+Pain Threshold could ignore it". The book prints one, on a table this app
+already rolls. **6bf's lesson — a sweep's excuse is the thing to check — turned
+on 6al for the second time.**
+
+### The design was reviewed before a line was written, and came back no-ship
+
+6bf's precedent, and it earned its keep: `adversarial-review` on the
+decomposition returned **needs-attention with three findings**, two of which
+changed the build.
+
+- **`conditionsFor` is not the only ledger.** It feeds six dialogs, and the
+  Major Wound HT, Fright, self-control, concentration and detection rolls each
+  compute their own target. Wiring only the ledger would have applied "all
+  rolls" to skills and silently missed five roll types — and the gap would look
+  like an oversight in a UI adapter rather than a reading. So the scope is an
+  enum, `RollKind`, decided in rules and tested per class.
+- **The declaration needed one owner.** A chip per dialog lets the same
+  one-turn fact disagree with itself across surfaces; kept in `DamageDialog` it
+  dies when that dialog closes.
+
+That second finding is what produced the better reading: **shock is LATCHED,
+not declared.** The app rolled the table, so it knows — the reasoning
+`SavedSession.corrupted` already uses (6a) — and the GM clears it when the turn
+passes. Not persisted: a one-turn fact that survives a force-stop has outlived
+its turn by construction.
+
+### The scope, decided rather than discovered
+
+| Roll | Shock |
+|---|---|
+| Skill, attack, ritual, divination, boon | **applies**, through the ledger |
+| Fright, self-control, concentration, detection | **applies**, each passed the same number |
+| Active defences | **applies**, through `everyDefence` (6bl's function) |
+| The Major Wound's own HT roll | **refused** |
+
+- **"All rolls" is taken at its word, and that is a reading.** GURPS 4e exempts
+  active defences from shock; this book prints no exception, and GURPS's
+  conventions are GURPS's (6l).
+- **The one refusal is about WHEN, not what.** That HT roll creates the shock,
+  so applying it there would let a state penalise the roll that produced it —
+  invisibly, since one dialog rolls and displays both.
+
+### The Cancel a review asked for, refused with a test
+
+Codex asked for `ModEffect.Cancel` from the trait so the cancellation would
+show in the resolved contributions. **`Cancel` is keyed by `SourceKind`, and
+every state penalty in this app shares `SourceKind.STATE`** — `Conditions`
+emits reeling, fatigue, Spiritual Attrition and the CoR ladder through the same
+source — so a budget of 4 aimed at STATE would also offset a dying character's
+reeling. High Pain Threshold ignores shock, not fatigue. It is the first slice
+that wanted `Cancel` and could not use it; the trait suppresses the modifier at
+source and `TraitEffects` reports it, and a named test carries the disproof so
+the decision cannot be reversed by argument alone (section 7: Codex output is
+evidence, not orders).
+
+### Three more findings, and the last one was the sharpest
+
+- **The latch fired on the ROLL, not the hit.** Roll the table, then cancel,
+  change the pool, or drop the damage below the threshold, and a -4 followed
+  the character for a wound nobody took. It latches on Apply now.
+- **A shocked target moved without the breakdown saying why.** Three dialogs
+  collapse the ledger with `sumOf` into one number labelled "hurt or tired" or
+  "circumstances"; shock is neither. They take it as its own argument and name
+  it — the invariant 6ag added a 300-case test for.
+- **The knockdown clause had a roll after all.** I was one commit from shipping
+  *"+3 on HT rolls to avoid knockdown — this app rolls no knockdown roll to
+  modify"*, a **fresh excuse in the same commit that removed an old one**. The
+  Major Wound's own HT roll decides knockdown on its fail-by-5 row ("Knocked
+  down and unconscious"). It applies now, so High Pain Threshold has no
+  disclaimed clause left at all.
+
+**997 Kotlin** (902 core:rules, 75 app, 20 core:model) and 258 Python, green.
+The `MAJOR_WOUND_HT` refusal was RED-proved by dropping it from `penaltyFor`:
+one test failed, and was restored. Four Codex passes; the fourth returned clean.
+
+Device-verified on the physical tablet, both branches:
+
+- **Barmaid Brawler** (High Pain Threshold, HT 10): the panel reads **"Roll HT
+  13"** with *"includes +3 from High Pain Threshold — this roll's fail-by-5 row
+  is a knockdown."* A success then **Cancel** left the sheet with no shock row
+  at all; a success then **Apply 6 to HP** took HP to **4/10** and printed
+  *Shock — "-4 to all rolls…" — **ignored by High Pain Threshold***.
+- **Military Police** (no such trait, Combat Reflexes): the same hit prints the
+  row **without** the ignored clause; the defence dialog reads **Dodge 5** and
+  **Parry (Brawling) 5** where it read 9 and 9; and Brawling rolled **"3d6: 11
+  vs 7 — base 11, modified to 7, `state:shock: -4`"**.
 
 ---
 
