@@ -47,6 +47,8 @@ import com.pathways.rules.Conditions
 import com.pathways.rules.Corruption
 import com.pathways.rules.Derive
 import com.pathways.rules.Divination
+import com.pathways.rules.Concentration
+import com.pathways.rules.ConcentrationOutcome
 import com.pathways.rules.FrightCheck
 import com.pathways.rules.RitualMode
 import com.pathways.rules.FrightKind
@@ -200,6 +202,7 @@ fun SheetScreen(
     // the GM has stated the circumstances.
     var rolling by remember(sheet) { mutableStateOf<RollableSkill?>(null) }
     var frightening by remember(sheet) { mutableStateOf(false) }
+    var focusing by remember(sheet) { mutableStateOf(false) }
     var casting by remember(sheet) { mutableStateOf(false) }
     var defending by remember(sheet) { mutableStateOf(false) }
     var attacking by remember(sheet) { mutableStateOf(false) }
@@ -338,6 +341,11 @@ fun SheetScreen(
                         }
                         TextButton(onClick = onBuild) { Text("Spend points") }
                         TextButton(onClick = { frightening = true }) { Text("Fright") }
+                        // Ungated, like Fright and Detect: the maneuver is
+                        // "powers or skills requiring focus", and which of
+                        // them counts is the GM's call, not a skill list this
+                        // book never prints (6i).
+                        TextButton(onClick = { focusing = true }) { Text("Concentrate") }
                         if (ritualLevel != null) {
                             TextButton(onClick = { casting = true }) { Text("Ritual") }
                         }
@@ -606,6 +614,9 @@ fun SheetScreen(
 
     if (frightening) {
         FrightDialog(vitals.will) { frightening = false }
+    }
+    if (focusing) {
+        ConcentrateDialog(vitals.will) { focusing = false }
     }
     if (damaging) {
         DamageDialog(
@@ -975,6 +986,83 @@ private fun SelfControlDialog(
                         "3d6: ${result.roll.total} vs ${result.target}",
                         style = MaterialTheme.typography.titleLarge,
                     )
+                }
+            }
+        },
+    )
+}
+
+/**
+ * The Concentrate maneuver's own roll (Ch. 5, p. 36).
+ *
+ * **The roll is conditional, so the button is withdrawn until it is asked
+ * for.** "Roll Will-3 if injured or defending" -- a caster concentrating in
+ * peace rolls nothing, and offering the roll anyway would tax every act of
+ * focus in the book. [Concentration.attempt] refuses that call outright, so a
+ * Roll button here would be one that throws (6t).
+ *
+ * One chip, because the book prints one sentence, one number and one effect
+ * for both circumstances -- unlike the three defence refusals, which print
+ * three sentences and where a trait cancels exactly one (6bg).
+ */
+@Composable
+private fun ConcentrateDialog(will: Int, onDismiss: () -> Unit) {
+    var disturbed by remember { mutableStateOf(false) }
+    // Cleared with the declaration, because an outcome belongs to the
+    // circumstance it was rolled under -- the rule the Major Wound's HT roll
+    // (6n) and the entity's answer (6z) both follow.
+    var outcome by remember(disturbed) { mutableStateOf<ConcentrationOutcome?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        title = { Text(outcome?.let { if (it.held) "Held the focus" else "Lost the focus" } ?: "Concentrate") },
+        text = {
+            Column {
+                Text(Concentration.printed(), style = MaterialTheme.typography.bodySmall)
+                FilterChip(
+                    selected = disturbed,
+                    onClick = { disturbed = !disturbed },
+                    label = { Text("Injured or defending") },
+                    modifier = Modifier.padding(vertical = 8.dp),
+                )
+                val result = outcome
+                when {
+                    !disturbed -> Text(
+                        "No roll: the book asks for one only when the character " +
+                            "is injured or defending.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    result == null -> {
+                        Text(
+                            "3d6 ≤ ${Concentration.targetFor(will)} — Will $will${Concentration.PENALTY}",
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                        // Guarded inline as well as by the tree: two taps can
+                        // both reach the handler before it leaves (6p).
+                        TextButton(
+                            onClick = {
+                                if (outcome != null) return@TextButton
+                                outcome = Concentration.attempt(will, disturbed, appDice)
+                            },
+                        ) { Text("Roll") }
+                    }
+                    else -> {
+                        Text(
+                            "3d6: ${result.roll.total} vs ${result.target}",
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                        // The book prints the roll and stops. Saying so beats
+                        // inventing the only consequence in the rule (6aj).
+                        if (!result.held) {
+                            Text(
+                                "The book prints no consequence for a lost focus — " +
+                                    "what it costs is the GM's.",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
                 }
             }
         },

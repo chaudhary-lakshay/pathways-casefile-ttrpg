@@ -98,6 +98,12 @@ PINNED_MANEUVERS_EXACT = {
     # "max ACC+2" is the half that has to keep agreeing with that table.
     "Aim (Ranged)": "Add weapon's ACC to your next ranged Attack. "
     "+1 per additional Aim (max ACC+2). Canceled by any Active Defense or injury.",
+    # com.pathways.rules.Concentration reads the -3 from here and the screen
+    # quotes the cell. Exact, because the CONDITION is the rule: drop "if
+    # injured or defending" and an unconditional Will-3 taxes every act of
+    # focus the book gates behind this maneuver.
+    "Concentrate": "Channel powers or skills requiring focus. "
+    "Roll Will-3 if injured or defending.",
 }
 # Ch. 11 prints the same -4 where no maneuver is in sight, on an ability that
 # leaves its target "mentally Stunned for 1 turn". That corroboration is the
