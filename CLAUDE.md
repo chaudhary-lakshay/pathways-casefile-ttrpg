@@ -12,7 +12,10 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: section 6bl, then 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.**
+**Where to start next: 6bm, then 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6bm
+is the third slice running to reach a printed rule with a DECLARATION rather
+than the round tracker 6bd ranked first — an aim the shooter defended through,
+with the cancelling sentence printed one table away from the rows it governs.
 6bl found a rule THIS APP hands out and never charged for — three of its own
 tables leave a character stunned and the -4 that costs reached nothing — and
 then the device found the sharper half: a "not applied here" disclaimer that
@@ -91,7 +94,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **980 Kotlin** (JUnit 5 — 885 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
+| Tests | **983 Kotlin** (JUnit 5 — 888 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -5430,6 +5433,79 @@ Device-verified on the physical tablet (1200x1920), **Military Police**
   other not touching the penalty.
 - After the second commit the sheet's trait rows show **one** Combat Reflexes
   note — the stun recovery — where there were two.
+
+## 6bm. The aim that survived a parry and a bullet
+
+`Ranged.offeredConditions` applies Ch. 5's "Canceled by any Active Defense or
+injury", and the attack dialog asks what happened since the shooter took aim.
+This was 6bl's own named candidate, taken in order.
+
+**The sentence is one table away from the rows it governs.** The two Acc rows
+live in `ranged_modifiers.json` — "Shooter used Aim last turn / + weapon's
+Acc" — and the clause that takes them away is printed on the Aim MANEUVER, in
+`maneuvers.json`, extracted since the combat slice and read by nothing. So a
+rifleman who parried between taking aim and firing still collected the full
+Acc, which on a Bolt-Action Rifle is **+4, or +6 for a long aim**.
+
+- **A refusal, not a penalty.** The book removes the aim rather than pricing
+  it, so the rows are withdrawn and the sentence shown in their place — the
+  call a Broken mystical tongue (6x) and an unarmed parry against a shot (6bj)
+  each needed. Rows that simply vanish read as a screen that lost them.
+- **The warrant is that the two printings agree where they overlap.** The
+  maneuver says "max ACC+2" and the modifiers table "max Acc +2 total": one
+  printed ceiling, said twice, which is what licenses reading a maneuver's
+  sentence as governing another table's rows at all. The per-table standard
+  6ad set, pinned in both languages, and the cell is pinned EXACT because the
+  screen quotes it (6bi).
+- **A declaration, so no clock is needed.** Whether the shooter defended or
+  was hurt since aiming is something the GM knows and this app cannot compute
+  — the same reading that made the three defence refusals buildable without a
+  round tracker (6bg), and the third slice running to reach a rule that way.
+- **The withdrawal lives in rules and the screen calls it.** A dialog
+  filtering its own list is a second copy of a printed refusal, which is how
+  these numbers stopped reconciling three times (6ag, 6ai, 6be).
+- **`modifiers` refuses a plan that still carries the aim**, rather than
+  stripping it quietly: a turn was spent taking it, and a caller told nothing
+  would believe the Acc was counted. Nothing reachable can build that plan —
+  which is precisely why the guard exists, since the permissive path is what
+  the next caller finds (6l).
+- **Declaring it drops a selected aim row**, because the guard would otherwise
+  turn a stale chip into a throw rather than a mislead — the stale-state trap
+  6k, 6y and 6af each found. It clears on "Another turn" with the distance and
+  the cover, for the same reason they do.
+
+**983 Kotlin** (888 core:rules, 75 app, 20 core:model) and 258 Python, green.
+Both readings were RED-proved by neutering them together — the withdrawal made
+a no-op and the guard made unconditional — which failed one test each, and
+were restored. **Codex reviewed it and returned clean.**
+
+Device-verified on the physical tablet, **Hunter-Tracker** with the
+Bolt-Action Rifle (Guns (Rifle) 10, Acc 4):
+
+- A fresh dialog offers **Shooter used Aim last turn +4** and **for 3+ turns
+  +6** under a new **"Since taking aim"** row.
+- Selecting the +4 aim and then **Defended or was hurt** removes **both** rows
+  and prints *Aim (Ranged): "Add weapon's ACC to your next ranged Attack. +1
+  per additional Aim (max ACC+2). Canceled by any Active Defense or injury."*
+  The selected aim goes with them: the summary reads **"Range and cover: -5"**
+  at 51-100m, where it would have read -1 with the Acc still in.
+- Rolling gave **"3d6: 18 vs 5 — base 10, modified to 5"**: the band alone.
+- Reopening restores both chips with the declaration cleared — verified in
+  both directions (6bk).
+
+**A note on the instruments, which cost three taps each.** `uiautomator dump`
+reports this dialog in a 900x1440 space against a 1200x1920 screen, and
+scaling by the root frame's ratio still landed two rows low — 6ae's finding,
+unchanged: **a dialog's bounds do not take the activity window's scale.** A
+`screencap` read as an image gives physical pixels directly and got it right
+first time. Also live again: the tablet's unrelated health app throws an ANR
+dialog that holds window focus, so check `mCurrentFocus` before concluding the
+app ignored a tap (6ah).
+
+**Left where 6bl put it**, unchanged by this slice: Concentrate's "Roll Will-3
+if injured or defending" is the last unapplied clause in that table with a
+mechanical hook, and All-Out Defense (Double) stays recorded rather than built
+— it lifts a limit this app never imposes.
 
 ---
 
