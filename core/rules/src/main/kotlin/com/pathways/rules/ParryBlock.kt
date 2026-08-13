@@ -37,6 +37,52 @@ object ParryBlock {
         UnarmedStyle.WRESTLING -> Math.floorDiv(skillLevel - 3, 2) + 3
     }
 
+    /**
+     * "Brawling parries weapons at -3." (p. 37)
+     *
+     * The Parry (Unarmed) row prints THREE rules and this codebase applied
+     * one of them -- the cumulative penalty (6ap). This is the second: a bare
+     * hand turning a knife is three points worse than turning a fist, and the
+     * app showed one number for both.
+     *
+     * **Boxing is exempt and Wrestling is not.** The row says "Boxing uses
+     * Boxing / 2 + 3 and ignores that penalty", and the skill section agrees
+     * independently -- "Unlike Brawling, Boxing parries weapons without
+     * penalty" (p. 38). Wrestling is named by neither exemption, and its own
+     * -3 is a different rule in a different place (inside the halving,
+     * always, weapon or not). Two printings agreeing is what licenses reading
+     * the exemption as Boxing's alone.
+     *
+     * A SEPARATE penalty from [parryPenalty], because they compose: a second
+     * parry, of a weapon, bare-handed, is -4 and -3.
+     */
+    const val VS_WEAPON_PENALTY = -3
+
+    /** What [style] loses for parrying a weapon rather than a bare hand. */
+    fun versusWeaponPenalty(style: UnarmedStyle): Int =
+        if (style == UnarmedStyle.BOXING) 0 else VS_WEAPON_PENALTY
+
+    /**
+     * "Cannot parry ranged attacks." (p. 37)
+     *
+     * The third clause of the same cell, and a REFUSAL rather than a penalty
+     * -- the distinction `Languages.ritualModifier` draws for a Broken
+     * mystical tongue (6x). A number here would imply a parry exists to
+     * modify.
+     *
+     * Scoped to the unarmed row that prints it. An armed parry is NOT
+     * covered: chapter 8 gives no melee weapon a ranged defence rule, and
+     * extending this sentence to weapons would author one. Wrestling's own
+     * section corroborates the scope from the other side -- "Wrestlers can
+     * parry MELEE attacks with their hands" (p. 38) -- which is what makes
+     * this a rule about hands rather than about one row.
+     *
+     * A function taking the style rather than a constant, because the book
+     * refuses all three unarmed styles and a bare `false` would have to be
+     * re-read the day it prints an exception.
+     */
+    fun canParryRanged(style: UnarmedStyle): Boolean = false
+
     fun blockFor(shieldSkillLevel: Int, shieldDb: Int): Int = Math.floorDiv(shieldSkillLevel, 2) + 3 + shieldDb
 
     /** "Once per round. Add shield's DB to your Block score." (p. 37) */

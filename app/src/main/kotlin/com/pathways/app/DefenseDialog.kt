@@ -139,10 +139,15 @@ fun DefenseDialog(
     val forfeiting = remember { ActiveDefenses.forfeitingActions() }
     val printed = remember { ContentLoader.defenses() }
     val modifiers = remember { ContentLoader.defenseModifiers() }
+    // The STYLE travels with the row, because two of the three rules on the
+    // Parry (Unarmed) line are per-style: Boxing alone ignores the weapon
+    // penalty, and Wrestling's own -3 is already inside the number.
     val parries = remember(skillLevels) {
         skillLevels.entries
             .mapNotNull { (key, level) ->
-                UNARMED[key.name]?.let { style -> key.name to ParryBlock.unarmedParry(style, level) }
+                UNARMED[key.name]?.let { style ->
+                    Triple(key.name, style, ParryBlock.unarmedParry(style, level))
+                }
             }
             .sortedBy { it.first }
     }
@@ -160,6 +165,12 @@ fun DefenseDialog(
     // the GM, and applied by nothing -- the class 6h, 6m and 6ai each found.
     // Zero is the honest default: a round starts with the free parry.
     var priorParries by remember { mutableIntStateOf(0) }
+    // What is coming AT the character. A declaration for the same reason the
+    // three refusals are: this dialog holds the defender's sheet and the
+    // attacker is a party with no numbers here. It changes two of the Parry
+    // (Unarmed) row's three rules -- the -3 for a weapon, and the refusal
+    // against a shot -- both printed since 6g and applied by nothing.
+    var incoming by remember { mutableStateOf(Incoming.BARE_HAND) }
     // ORDINARY for every row, and that is not a flattening: chapter 8's nine
     // weapons are five firearms, a knife, a truncheon, a hand axe and a
     // broadsword, and none of them is a fencing weapon or a rapier. `Weapon`
@@ -207,6 +218,11 @@ fun DefenseDialog(
                 }
                 if (!refusal.defends) return@LazyColumn
                 item {
+                    // Above the rows it changes, unlike the parry stepper: it
+                    // moves the unarmed parries AND withdraws them, so a
+                    // control below them would be read after its effect.
+                    IncomingPicker(incoming) { incoming = it }
+                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     ShieldPicker(shields, carried) { carried = if (it == carried) null else it }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     DefenseRow("Dodge", shielded(dodge, carried, reflexes))
@@ -222,12 +238,33 @@ fun DefenseDialog(
                         HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     }
                 }
-                items(parries) { (name, value) ->
-                    DefenseRow("Parry ($name)", shielded(value + parryPenalty, carried, reflexes))
+                // ParryBlock decides whether a shot can be parried, not this
+                // screen: a dialog holding its own opinion about a printed
+                // refusal is the two-copies failure (6ag, 6ai, 6be), and a
+                // predicate nothing calls is decoration (6ai).
+                val standing = parries.filter {
+                    incoming != Incoming.SHOT || ParryBlock.canParryRanged(it.second)
+                }
+                items(standing) { (name, style, value) ->
+                    // "Brawling parries weapons at -3", and Boxing alone is
+                    // exempt. Composed with the cumulative penalty rather than
+                    // replacing it: a second parry, of a weapon, is both.
+                    val vsWeapon =
+                        if (incoming == Incoming.WEAPON) ParryBlock.versusWeaponPenalty(style) else 0
+                    DefenseRow(
+                        "Parry ($name)",
+                        shielded(value + parryPenalty + vsWeapon, carried, reflexes),
+                    )
                 }
                 item {
                     if (parries.isEmpty() && armed.isEmpty()) {
                         Note("No unarmed combat skill on this sheet; an untrained parry is the GM's call.")
+                    }
+                    // A refusal, not a penalty, so the rows are withdrawn and
+                    // the reason is SAID -- a GM who picks "a shot" and sees
+                    // the parries simply vanish would think the app lost them.
+                    if (standing.isEmpty() && parries.isNotEmpty()) {
+                        Note("No unarmed parry against a shot: \"Cannot parry ranged attacks.\"")
                     }
                     printed.firstOrNull { it.defense.startsWith("Parry (Unarmed)") }
                         ?.let { Note(it.notes) }
@@ -235,7 +272,11 @@ fun DefenseDialog(
                     // them and a control above them would read as applying to
                     // Dodge too -- which takes no such penalty ("May be used
                     // repeatedly").
-                    if (parries.isNotEmpty() || armed.isNotEmpty()) {
+                    // Withdrawn against a shot along with the rows it moves:
+                    // an armed parry is not covered by that sentence, so it
+                    // survives, and a stepper over nothing would be a control
+                    // that does nothing.
+                    if (armed.isNotEmpty() || standing.isNotEmpty()) {
                         ParriesThisRound(priorParries, parryPenalty) { priorParries = it }
                     }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
@@ -280,6 +321,37 @@ fun DefenseDialog(
             }
         },
     )
+}
+
+/**
+ * What is coming at the defender.
+ *
+ * Three values because the Parry (Unarmed) row draws exactly these lines:
+ * a bare hand is the plain formula, a weapon costs -3 unless you box, and a
+ * shot cannot be parried at all. A declaration rather than something derived,
+ * because this dialog holds one sheet and the attacker is not on it — the
+ * same reason the three refusals are chips (6bg).
+ */
+private enum class Incoming(val label: String) {
+    BARE_HAND("A bare hand"),
+    WEAPON("A weapon"),
+    SHOT("A shot"),
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun IncomingPicker(chosen: Incoming, onPick: (Incoming) -> Unit) {
+    Text("The attack coming in", style = MaterialTheme.typography.titleSmall)
+    FlowRow {
+        Incoming.entries.forEach { option ->
+            FilterChip(
+                selected = option == chosen,
+                onClick = { onPick(option) },
+                label = { Text(option.label) },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
+    }
 }
 
 /** What the GM declares about this character's ability to defend at all. */

@@ -39,6 +39,66 @@ class ParryBlockTest {
         assertEquals(10, ParryBlock.unarmedParry(UnarmedStyle.BOXING, 14))
     }
 
+    /**
+     * **A bare hand turning a knife is three points worse, and Boxing is the
+     * one exemption.**
+     *
+     * "Brawling parries weapons at -3. Boxing uses Boxing / 2 + 3 and ignores
+     * that penalty." (p. 37). The skill section agrees independently --
+     * "Unlike Brawling, Boxing parries weapons without penalty" (p. 38) --
+     * and that second printing is what licenses reading the exemption as
+     * Boxing's alone rather than as loose phrasing.
+     *
+     * Wrestling is named by NEITHER exemption. Its own -3 is a different rule
+     * in a different place: inside the halving, always, weapon or not. So a
+     * wrestler parrying a knife takes both, which is what makes the two
+     * penalties separate functions.
+     */
+    @Test
+    fun `only Boxing ignores the penalty for parrying a weapon`() {
+        assertEquals(0, ParryBlock.versusWeaponPenalty(UnarmedStyle.BOXING))
+        assertEquals(-3, ParryBlock.versusWeaponPenalty(UnarmedStyle.BRAWLING))
+        assertEquals(-3, ParryBlock.versusWeaponPenalty(UnarmedStyle.WRESTLING))
+    }
+
+    @Test
+    fun `the two parry penalties compose rather than replacing each other`() {
+        // A SECOND parry, of a weapon, bare-handed: -4 and -3, not -4 or -3.
+        val second = ParryBlock.parryPenalty(priorParries = 1)
+        val weapon = ParryBlock.versusWeaponPenalty(UnarmedStyle.BRAWLING)
+        assertEquals(-7, second + weapon)
+        // Wrestling's own -3 is inside the halving and is NOT one of these:
+        // at skill 14 the base is 8, so the same pair leaves 1, not 4.
+        assertEquals(1, ParryBlock.unarmedParry(UnarmedStyle.WRESTLING, 14) + second + weapon)
+    }
+
+    /**
+     * "Cannot parry ranged attacks." -- a refusal, not a penalty.
+     *
+     * All three unarmed styles, because the row scopes itself to the hands
+     * and Wrestling's section says the same from the other side ("parry MELEE
+     * attacks with their hands", p. 38). An armed parry is deliberately not
+     * covered: chapter 8 gives no melee weapon a ranged defence rule and
+     * extending this sentence to weapons would author one.
+     */
+    @Test
+    fun `no unarmed style parries a ranged attack`() {
+        for (style in UnarmedStyle.entries) {
+            assertTrue(!ParryBlock.canParryRanged(style), "$style must not parry a shot")
+        }
+    }
+
+    @Test
+    fun `the three rules the unarmed row prints are still printed`() {
+        // Numbers inside prose live in Kotlin (6i, 6y, 6z); this pins the
+        // cell they were read from, and the second printing that licensed the
+        // Boxing exemption.
+        val notes = ContentLoader.defenses().single { it.defense == "Parry (Unarmed)" }.notes
+        assertTrue(notes.contains("Brawling parries weapons at -3"), notes)
+        assertTrue(notes.contains("ignores that penalty"), notes)
+        assertTrue(notes.contains("Cannot parry ranged attacks"), notes)
+    }
+
     @Test
     fun `block halves the shield skill and adds the shield's DB`() {
         assertEquals(11, ParryBlock.blockFor(shieldSkillLevel = 14, shieldDb = 1))
