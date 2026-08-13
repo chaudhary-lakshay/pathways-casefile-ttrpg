@@ -12,8 +12,13 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6bo, then 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and
-6bf.** 6bo is the one to read first: its design was reviewed BEFORE any code
+**Where to start next: 6bp, then 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg
+and 6bf.** 6bp is the one to read first: its design review came back **no-ship
+on both builds it proposed**, so the slice that shipped is a third the size of
+the one that was planned — and it names its own successor with evidence. It
+also declines to record a defect in 6bo that would have been real under a
+different reading, and refuses a reviewer's API for being an abstraction with
+one implementation. 6bo is next: its design was also reviewed BEFORE any code
 and came back **no-ship**, which is what turned a declaration into a latch and
 an accidental scope into an enum tested per roll class. It also caught itself
 one commit from shipping a fresh excuse in place of the one it removed, and it
@@ -107,7 +112,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **997 Kotlin** (JUnit 5 — 902 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
+| Tests | **1002 Kotlin** (JUnit 5 — 907 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -5692,6 +5697,116 @@ Device-verified on the physical tablet, both branches:
   row **without** the ignored clause; the defence dialog reads **Dodge 5** and
   **Parry (Brawling) 5** where it read 9 and 9; and Brawling rolled **"3d6: 11
   vs 7 — base 11, modified to 7, `state:shock: -4`"**.
+
+## 6bp. Two clauses, one cell, and a design review that killed both builds
+
+`TraitEffects` applies the second clause both Balance rows print — "+6 to
+avoid knockdown; **+2 to Acrobatics, Climbing, Piloting**" — and reports the
+first. The slice set out to build the knockdown roll and came back with
+something a third the size, which is the review earning its keep.
+
+- **A skill NAME is the strongest join there is.** Alertness has to be scoped
+  by controlling attribute because "all Per rolls" names no skill (6al); this
+  cell names three. `modifiers` already takes the `SkillKey`, so the join was
+  there all along. **Pickpocket carries Perfect Balance beside Climbing** and
+  rolled it flat.
+- **The clause sweep FOUND these two cells and the triage lost them.** Both
+  carry exactly two mechanical clauses, which is 6bh's own filter — re-running
+  it prints them. They were filed under "trait reports (6bf)", a bucket that
+  never contained Balance. **6bj's lesson, a second time**, and verified by
+  re-running the sweep rather than recalled: 17 advantages match that filter.
+- **The knockdown clause is refused, not defaulted.** Five rows print one and
+  only High Pain Threshold names an attribute ("+3 on **HT rolls**"), which is
+  what joined it to the Major Wound roll in 6bo. The book prints two OTHER
+  knockdown mechanics that are DX-based — Shove's "target rolls DX or fall",
+  Takedown's opposed DX — and three hit-location rolls (Neck -5, Face -5,
+  Skull -10) with no attribute at all. Which of them an unscoped "+6 to avoid
+  knockdown" covers is settled by nothing printed.
+- **Piloting is in no skill list this book prints.** The "Wrestling Master"
+  shape (6bf) and `Dead Language Fluency` naming "Ancient Loen" before it
+  (6x). Recorded, not repaired — and because the join is by NAME, the day a
+  Piloting row appears the bonus reaches it with no second decision.
+- **Iron Jaw and Rapid Recovery are reported whole**, the way `Danger Sense`
+  already is — which is the precedent that made listing traits no premade
+  carries a consistent call rather than a new policy. Glass Jaw needs no entry:
+  it is a disadvantage, and 6am's path prints those whole.
+
+### The review returned no-ship on BOTH builds, before any code
+
+Run on the decomposition, 6bf's precedent. Two HIGHs, each fatal to a
+different half:
+
+- **The location knockdown roll would invent an attribute.** The penalty is
+  printed and the attribute never is; this repo refuses rather than defaulting
+  (6ah, 6ar). Two data points — HPT's cell and the Major Wound roll — argue HT
+  and do not print it. So the three cells stay displayed and unrolled, with a
+  sharper reason than "nothing consumes them" (6av's standard).
+- **A location declaration on `DamageDialog` would be a second hit-location
+  concept**, beside `AttackDialog`'s called shot, which already owns the
+  to-hit penalty and the effect cell. Legibility, not a broken invariant — the
+  two never co-occur, since one is the played character attacking and the
+  other is them being hit — so the decisive blocker is the attribute alone.
+  Recorded that way rather than as the review phrased it: **evidence, not
+  orders** (section 7), the same rule used on its mojibake findings.
+- **The MEDIUM's typed API was refused and its caption half taken.**
+  `Knockdown.effectsFor(traits, cause, location, attribute?)` would have one
+  caller and one applied trait — an abstraction with one implementation, which
+  section 7 bans outright. Build it the day a second knockdown roll exists.
+  The caption moved: `DamageDialog` spelt "includes +3 from High Pain
+  Threshold" itself, so widening the bonus would have named the wrong trait —
+  the two-copies-of-one-decision failure (6ag, 6ai, 6be). `knockdownLine`
+  authors it now.
+
+### A finding I nearly recorded, and 6bo stands
+
+The first framing was "6bo shipped a live defect: Perfect Balance's +6 never
+reaches the knockdown roll." That is only a defect **if** Balance attaches to
+the Major Wound HT roll, which is precisely the reading nothing settles. Under
+the reading taken it is correct as shipped. A predecessor's code is a claim
+like its prose (6ax) — and the check is the same one that overturned 6ba's
+parse finding in 6be: read the source, do not reason from the shape.
+
+**What 6bo's +3 does buy is worth recording.** That one roll decides three
+outcomes — shock, stun, and knockdown on its fail-by-5 row — so a bonus "to
+avoid knockdown" also makes the stun row less likely. The alternative is to
+move only the fail-by-5 boundary, which is arithmetic the book prints nowhere;
+the literal reading applied to an HT roll that avoids knockdown is the smaller
+claim. Recorded, not smoothed (4.1).
+
+**1002 Kotlin** (907 core:rules, 75 app, 20 core:model) and 258 Python, green.
+RED was a compile failure on the new API, then both readings were neutered
+together — Balance joining the Major Wound roll, and the skill clause dropped
+— which failed **3** tests, and were restored. The prohibition sweep was
+re-run over this slice's own ranges (6ba) and forbids nothing about a skill
+bonus or stacking. Codex reviewed the diff and returned clean.
+
+Device-verified on the physical tablet, **Pickpocket**, all three states:
+
+- The sheet prints **"Perfect Balance — +6 to avoid knockdown"** above *"Not
+  applied here: the book's knockdown rolls for a hit location print no
+  attribute to roll against…"*. Before this slice that trait rendered
+  **nothing at all** — `reported()` keys on the two maps, and it was in
+  neither.
+- **Climbing** opens at "Skill 11" and rolls **"3d6: 4 vs 13 — base 11,
+  modified to 13, `trait:perfect balance: 2`"**, while the sheet row still
+  reads 11 — the published diff left alone (6e).
+- **Escape**, the same character and the same 11, rolls **"3d6: 8 vs 11"** with
+  no contribution line at all. The bonus does not leak to a skill the row does
+  not name.
+
+**An instrument lesson, and it is 6af's with a new cause.** Git Bash's MSYS
+path conversion rewrites a device path: `adb shell screencap -p /sdcard/s.png`
+silently wrote to `/Files/Git/sdcard/s.png`, so `adb pull /sdcard/s.png`
+returned **a screenshot from an earlier session** — a different premade
+entirely, which I read as a live screen. The tell was the clock in the status
+bar (10:55 against a build stamped 23:42). Prefix every `adb` command that
+names a device path with `MSYS_NO_PATHCONV=1`, and **check the status-bar
+clock on any screenshot that surprises you.**
+
+**The next candidate, named with evidence and not taken:** Night Eyes prints
+"Reduce all darkness penalties by 2" and the ranged dialog has carried a
+darkness row since 6k — an applicable-looking clause in a trait cell, one
+`UNAPPLIED` entry away from the same shape as this slice.
 
 ---
 
