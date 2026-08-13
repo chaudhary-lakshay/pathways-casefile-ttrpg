@@ -215,6 +215,10 @@ fun AttackDialog(
                     onAttack = {
                         unarmed = it
                         armed = null
+                        // Shove rolls no damage, so a Strong Blow ticked on
+                        // the fist cannot come along -- Attacks refuses the
+                        // pair rather than charging 1 FP for nothing (Codex).
+                        plan = Attacks.withAttack(plan, it)
                         circumstances = circumstances - AIM_ROWS
                     },
                     onArmed = { held ->
@@ -384,6 +388,20 @@ private fun AttackOptions(
             }
         }
         CalledShot(location, onLocation)
+        // "Regular melee attacks only", and an attack that rolls damage for
+        // the +2 to land on. Withheld rather than offered and refused: a chip
+        // that takes the dialog down on Roll is not a choice (6t). The whole
+        // scope lives in Attacks, because half of it -- the firearm, and
+        // whether anything is being rolled at all -- is a fact about what is
+        // held, which modifiers() never sees.
+        if (Attacks.offersStrongBlow(plan, damage != null, armed?.isFired == true)) {
+            FilterChip(
+                selected = plan.strongBlow,
+                onClick = { onPlan(plan.copy(strongBlow = !plan.strongBlow)) },
+                label = { Text("Strong Blow (1 FP, +2 damage)") },
+                modifier = Modifier.padding(vertical = 4.dp),
+            )
+        }
         if (plan.maneuver == AttackManeuver.CHARGE) {
             FilterChip(
                 selected = plan.heroicCharge,

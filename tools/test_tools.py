@@ -891,6 +891,25 @@ def test_committed_maneuvers_are_the_fourteen_the_book_prints():
     assert charged == {n for n in extract_combat.EXPECTED_MANEUVERS if n.startswith("All-Out")}
 
 
+def test_strong_blows_scope_sentence_is_pinned_whole():
+    """Both halves of "Regular melee attacks only" are a reading, and the +2
+    is a Kotlin constant. Either drifting has to fail here."""
+    entries = json.loads((CONTENT / "extra_effort.json").read_text(encoding="utf-8"))["entries"]
+    by_option = {e["option"]: e["effect"] for e in entries}
+    assert by_option["Strong Blow"] == extract_combat.PINNED_EFFORT["Strong Blow"]
+    # The maneuver row the word "Regular" points at is still printed.
+    maneuvers = json.loads((CONTENT / "maneuvers.json").read_text(encoding="utf-8"))["entries"]
+    assert "Regular Attack" in [e["maneuver"] for e in maneuvers]
+    options = json.loads((CONTENT / "attack_options.json").read_text(encoding="utf-8"))["entries"]
+    # Dropping half the scope, and ADDING a clause to it, both have to fail:
+    # an appended sentence leaves the old one intact while making the Kotlin
+    # scope stale, so a substring check would wave it through (Codex).
+    for effect in ("+2 damage.", by_option["Strong Blow"] + " Cannot combine with Rapid Strike."):
+        drifted = [dict(e, effect=effect) if e["option"] == "Strong Blow" else e for e in entries]
+        with pytest.raises(ValueError):
+            extract_combat.verify(maneuvers, drifted, options)
+
+
 def test_the_numbers_Attacks_kt_implements_are_still_printed():
     """com.pathways.rules.Attacks is the only copy of these; if the book stops
     printing them, that is a finding, not a silent drift."""

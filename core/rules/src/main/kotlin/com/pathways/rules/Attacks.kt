@@ -55,6 +55,11 @@ enum class AttackManeuver(
  * stack the penalty" means one split gives two attacks at -6, two splits give
  * three at -12. [deceptive] is the penalty imposed on the defender, in -1
  * steps, which costs -2 each.
+ *
+ * [strongBlow] and [heroicCharge] are the two extra-effort options that reach
+ * an attack. Both are scoped to a MANEUVER by their own printed cells, and
+ * [Attacks.modifiers] refuses a plan carrying one out of scope rather than
+ * dropping it silently -- 1 FP bought for nothing is a bug, not a rounding.
  */
 data class AttackPlan(
     val maneuver: AttackManeuver = AttackManeuver.REGULAR,
@@ -62,6 +67,7 @@ data class AttackPlan(
     val rapidStrikes: Int = 0,
     val deceptive: Int = 0,
     val heroicCharge: Boolean = false,
+    val strongBlow: Boolean = false,
 )
 
 /**
@@ -90,6 +96,19 @@ object Attacks {
     /** The extra-effort option that buys off [AttackManeuver.CHARGE]'s -4. */
     const val HEROIC_CHARGE = "Heroic Charge"
 
+    /** The extra-effort option that adds to damage: "+2 damage." */
+    const val STRONG_BLOW = "Strong Blow"
+
+    /**
+     * What [STRONG_BLOW] adds to damage.
+     *
+     * A number inside a prose cell, so it lives here and the extractor pins
+     * the sentence it was read from -- the split the maneuver table's
+     * +4/-4/-6/-2 already take. Reading it out of the effect string at render
+     * time would be a parser nobody tests (6f).
+     */
+    const val STRONG_BLOW_DAMAGE = 2
+
     /**
      * [plan] moved between reach and range, dropping what cannot come along.
      *
@@ -101,6 +120,10 @@ object Attacks {
      * second firearm after setting a Rapid Strike in reach took the dialog
      * down before Roll could be tapped.
      *
+     * Strong Blow travels with them, for the same reason and by a different
+     * clause: its cell says "Regular MELEE attacks only", so reach is exactly
+     * what scopes it and moving to range is what puts it out of scope.
+     *
      * Heroic Charge is kept, because it is scoped to its MANEUVER rather than
      * to reach, and the maneuver is not what changed here.
      *
@@ -111,7 +134,45 @@ object Attacks {
      */
     fun atRange(plan: AttackPlan, isRanged: Boolean): AttackPlan =
         if (!isRanged) plan.copy(isRanged = false)
-        else plan.copy(isRanged = true, rapidStrikes = 0, deceptive = 0)
+        else plan.copy(isRanged = true, rapidStrikes = 0, deceptive = 0, strongBlow = false)
+
+    /**
+     * [plan] moved onto a different unarmed attack, dropping what cannot come
+     * along.
+     *
+     * Only Strong Blow can be stranded here: its "+2 damage" needs a damage
+     * roll to land on, and Shove has none -- its cell reads "Special", it
+     * knocks the target down, and [Damage.forAttack] answers null for it (6j).
+     * Ticking the option and then tapping Shove would spend 1 FP on nothing,
+     * which is the same wasted spend [modifiers] refuses at range.
+     *
+     * A transition function rather than a reset in the screen, for the reason
+     * [atRange] exists: a caller doing its own is a second copy of the rule,
+     * and this codebase's numbers stopped reconciling three times that way
+     * (6ag, 6ai, 6be).
+     *
+     * [unarmed] is null when a weapon is held or none is chosen, and every
+     * weapon in the book rolls damage, so nothing is dropped there.
+     */
+    fun withAttack(plan: AttackPlan, unarmed: UnarmedAttack?): AttackPlan =
+        if (unarmed == null || unarmed.wounds) plan else plan.copy(strongBlow = false)
+
+    /**
+     * Whether [STRONG_BLOW] may be offered at all.
+     *
+     * Its cell scopes it three ways and [modifiers] can only see two of them:
+     * the maneuver and the plan's reach are on the plan, but whether the
+     * attack rolls damage and whether the weapon is a FIREARM are facts about
+     * what is held. [plan.isRanged] is positioning, not a weapon -- a rifle
+     * toggled "in reach" is still a gun, and "melee attacks only" excludes it
+     * however the fighter is standing (Codex).
+     *
+     * A predicate here rather than a condition in the screen, so the offer and
+     * the refusal cannot drift apart: a screen computing its own is the
+     * two-copies failure this codebase produced three times (6ag, 6ai, 6be).
+     */
+    fun offersStrongBlow(plan: AttackPlan, dealsDamage: Boolean, isFired: Boolean): Boolean =
+        plan.maneuver == AttackManeuver.REGULAR && !plan.isRanged && dealsDamage && !isFired
 
     /**
      * The most -1 steps of defence penalty [skillLevel] may buy.
@@ -137,10 +198,16 @@ object Attacks {
      * maneuver's, Boxing's is the character's skill above DX -- and a caller
      * reading only one of them under-reports the other. That is exactly what
      * the first version of the attack screen did with Strong (Codex).
+     *
+     * There are three of them now: the extra-effort option Strong Blow adds
+     * its own +2 for 1 FP. It is scoped to the Regular Attack maneuver, so it
+     * never composes with All-Out Attack (Strong)'s -- [modifiers] refuses
+     * that pair, and this stays arithmetic rather than a second guard.
      */
     fun damageBonus(plan: AttackPlan, fromSkill: Int = 0): Int {
         require(fromSkill >= 0) { "a skill damage bonus cannot be negative: $fromSkill" }
-        return plan.maneuver.damageBonus + fromSkill
+        val effort = if (plan.strongBlow) STRONG_BLOW_DAMAGE else 0
+        return plan.maneuver.damageBonus + effort + fromSkill
     }
 
     /**
@@ -166,17 +233,22 @@ object Attacks {
 
     /**
      * The FP [plan] costs before it is rolled: the maneuver's own cost plus
-     * Heroic Charge's, both read from the content rather than repeated here.
+     * the extra-effort options', all read from the content rather than
+     * repeated here.
      *
      * Charged once per maneuver, not per attack in [attackCount] -- the book
      * prices All-Out Attack (Double) at "Pay 2 FP" for the maneuver that makes
-     * both attacks, and Rapid Strike costs no FP at all.
+     * both attacks, and Rapid Strike costs no FP at all. Strong Blow follows
+     * that reading: a Regular Attack split by a Rapid Strike is still one
+     * maneuver, so its +2 rides the damage expression both attacks share and
+     * is paid for once. The book composes the two nowhere.
      */
     fun fpCost(plan: AttackPlan): Int {
         val maneuver = ContentLoader.maneuvers().firstOrNull { it.maneuver == plan.maneuver.printed }
             ?: error("maneuvers.json has no row named '${plan.maneuver.printed}'")
         val charge = if (plan.heroicCharge) effortCost(HEROIC_CHARGE) else 0
-        return (maneuver.fp ?: 0) + charge
+        val blow = if (plan.strongBlow) effortCost(STRONG_BLOW) else 0
+        return (maneuver.fp ?: 0) + charge + blow
     }
 
     private fun effortCost(option: String): Int =
@@ -216,6 +288,21 @@ object Attacks {
         // maneuver, and it costs 2 FP; spending them for no effect is a bug.
         require(!plan.heroicCharge || plan.maneuver == AttackManeuver.CHARGE) {
             "$HEROIC_CHARGE only applies to ${AttackManeuver.CHARGE.printed}"
+        }
+        // "Regular melee attacks only" -- both halves of that cell, and the
+        // first names the maneuver row printed two lines above the bullet.
+        // See AttacksTest for the reading and the one it rejects. Refused
+        // rather than ignored: 1 FP is spent either way.
+        require(!plan.strongBlow || plan.maneuver == AttackManeuver.REGULAR) {
+            "$STRONG_BLOW only applies to ${AttackManeuver.REGULAR.printed}"
+        }
+        require(!plan.strongBlow || !plan.isRanged) { "$STRONG_BLOW is a melee option" }
+        // "+2 damage" needs damage to add to. Shove's cell reads "Special":
+        // it knocks the target down and rolls nothing (6j), so the option
+        // would cost 1 FP and buy nothing. [withAttack] is the supported way
+        // to move a plan onto an attack that does not wound.
+        require(!plan.strongBlow || unarmed == null || unarmed.wounds) {
+            "$STRONG_BLOW needs an attack that rolls damage, and ${unarmed?.attack} does not"
         }
 
         return buildList {

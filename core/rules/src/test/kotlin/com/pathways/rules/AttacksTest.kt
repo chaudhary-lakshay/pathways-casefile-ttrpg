@@ -66,6 +66,145 @@ class AttacksTest {
         }
     }
 
+    /**
+     * **"Regular melee attacks only" names the Regular Attack MANEUVER.**
+     *
+     * The rejected reading is that "regular" means "ordinary", scoping the
+     * option to melee and nothing more. Three things settle it:
+     *
+     *  - "Regular Attack" is a printed maneuver row (line 2411), two lines
+     *    above this bullet list.
+     *  - The sibling bullet keys to a row by its printed name the same way --
+     *    Heroic Charge is "Ignore **Charge Attack** penalties". This list
+     *    references maneuvers, which is per-table evidence rather than a
+     *    resemblance.
+     *  - Read loosely the word does no work: the sentence already says
+     *    "melee ... only".
+     *
+     * "Regular" is printed as an adjective for an attack exactly once in the
+     * whole book, which is what makes the maneuver row the only thing it can
+     * be pointing at. Under the loose reading All-Out Attack (Strong) is
+     * strictly dominated -- 2 FP for the +2 that this option buys for 1 --
+     * and the two would stack to +4 for 3 FP.
+     *
+     * A reading, so it is pinned here rather than left to be rediscovered.
+     */
+    @Test
+    fun `strong blow is refused on every maneuver but the regular attack`() {
+        for (maneuver in AttackManeuver.entries - AttackManeuver.REGULAR) {
+            assertThrows<IllegalArgumentException>("$maneuver should refuse Strong Blow") {
+                Attacks.modifiers(AttackPlan(maneuver, strongBlow = true), 12)
+            }
+        }
+        // The one it is printed for resolves, and adds nothing to the roll.
+        assertTrue(Attacks.modifiers(AttackPlan(strongBlow = true), 12).isEmpty())
+    }
+
+    @Test
+    fun `strong blow is refused at range`() {
+        // "melee attacks only" -- a shot is not a melee attack, and paying
+        // 1 FP for damage the book does not grant is a bug, not a rounding.
+        assertThrows<IllegalArgumentException> {
+            Attacks.modifiers(AttackPlan(isRanged = true, strongBlow = true), 12)
+        }
+    }
+
+    @Test
+    fun `going to range drops the strong blow with the melee options`() {
+        // Same reason Rapid Strike and Deceptive are dropped: modifiers()
+        // REFUSES the pair, so a screen that changed only isRanged would hand
+        // the next composition an exception instead of an attack (6as).
+        val melee = AttackPlan(strongBlow = true, rapidStrikes = 1)
+        val shot = Attacks.atRange(melee, isRanged = true)
+        assertTrue(!shot.strongBlow)
+        Attacks.modifiers(shot, skillLevel = 12)
+    }
+
+    /**
+     * **A +2 to damage needs damage, and one printed attack has none.**
+     *
+     * Shove's damage cell reads "Special" -- it knocks the target down and
+     * rolls nothing, which is why `Damage.forAttack` answers null for it
+     * (6j). Offering Strong Blow there charges 1 FP for a bonus with nothing
+     * to land on (Codex). Refused in rules rather than only hidden by the
+     * screen, so a caller that forgets to ask still cannot charge for it --
+     * the call `EffortBurn.canPush` already needed (6ak).
+     */
+    @Test
+    fun `strong blow is refused on an attack that rolls no damage`() {
+        val shove = Damage.attacksFor("Brawling").single { it.attack == "Shove" }
+        assertThrows<IllegalArgumentException> {
+            Attacks.modifiers(AttackPlan(strongBlow = true), 12, shove)
+        }
+        val punch = Damage.attacksFor("Brawling").single { it.attack == "Punch" }
+        assertTrue(Attacks.modifiers(AttackPlan(strongBlow = true), 12, punch).isEmpty())
+    }
+
+    @Test
+    fun `moving onto a shove drops the strong blow and moving off it does not`() {
+        val shove = Damage.attacksFor("Brawling").single { it.attack == "Shove" }
+        val punch = Damage.attacksFor("Brawling").single { it.attack == "Punch" }
+        val plan = AttackPlan(strongBlow = true)
+        assertTrue(!Attacks.withAttack(plan, shove).strongBlow)
+        assertTrue(Attacks.withAttack(plan, punch).strongBlow)
+        // A weapon is held, or no attack is chosen: every catalogued weapon
+        // rolls damage, so there is nothing to drop.
+        assertTrue(Attacks.withAttack(plan, null).strongBlow)
+        // The composition that used to throw now resolves.
+        Attacks.modifiers(Attacks.withAttack(plan, shove), 12, shove)
+    }
+
+    /**
+     * **A firearm held in reach is still a firearm.**
+     *
+     * `isRanged` is where the fighter is standing, not what they are holding:
+     * a Guns skill opens at range and the toggle can put it back in reach,
+     * where the rifle still rolls damage and `modifiers` -- which never sees
+     * the weapon -- would accept the melee-only +2 (Codex). So the offer is a
+     * rules predicate rather than a screen's condition.
+     */
+    @Test
+    fun `strong blow is not offered for a firearm however the fighter stands`() {
+        val melee = AttackPlan()
+        assertTrue(Attacks.offersStrongBlow(melee, dealsDamage = true, isFired = false))
+        assertTrue(!Attacks.offersStrongBlow(melee, dealsDamage = true, isFired = true))
+        // Shove, and any skill with no attack and no catalogued weapon.
+        assertTrue(!Attacks.offersStrongBlow(melee, dealsDamage = false, isFired = false))
+        // The two scopes modifiers() can see, so the predicate agrees with it.
+        assertTrue(
+            !Attacks.offersStrongBlow(
+                AttackPlan(isRanged = true),
+                dealsDamage = true,
+                isFired = false,
+            ),
+        )
+        for (maneuver in AttackManeuver.entries - AttackManeuver.REGULAR) {
+            assertTrue(
+                !Attacks.offersStrongBlow(AttackPlan(maneuver), dealsDamage = true, isFired = false),
+                "$maneuver should not offer Strong Blow",
+            )
+        }
+    }
+
+    @Test
+    fun `strong blow adds its two to damage and never to the roll`() {
+        // "+2 damage" is the same shape as All-Out (Strong)'s, from a
+        // different place -- and damageBonus exists so a caller reading one
+        // cannot miss the other (6j).
+        assertEquals(2, Attacks.damageBonus(AttackPlan(strongBlow = true)))
+        assertEquals(4, Attacks.damageBonus(AttackPlan(strongBlow = true), fromSkill = 2))
+    }
+
+    @Test
+    fun `strong blow costs the FP the content prints`() {
+        assertEquals(1, Attacks.fpCost(AttackPlan(strongBlow = true)))
+    }
+
+    @Test
+    fun `Strong Blow still names an extra effort option`() {
+        assertTrue(ContentLoader.extraEffort().any { it.option == Attacks.STRONG_BLOW })
+    }
+
     @Test
     fun `a charge costs four and heroic charge buys it back`() {
         assertEquals(listOf(-4), flats(AttackPlan(AttackManeuver.CHARGE)))

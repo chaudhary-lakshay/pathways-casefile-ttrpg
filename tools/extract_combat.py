@@ -78,6 +78,14 @@ PINNED_OPTIONS = {
     "Rapid Strike": "-6 to skill",
     "Deceptive Attack": "-2 penalty to your melee attack roll for every -1",
 }
+# Strong Blow's +2 is a com.pathways.rules.Attacks constant, and both halves
+# of its scope are a reading argued from this exact sentence: "Regular" names
+# the maneuver row printed two lines above the bullet list, and "melee" keeps
+# it out of reach of a shot. Pinned whole, so the book restating either half
+# differently fails here rather than leaving the Kotlin quietly wrong.
+PINNED_EFFORT = {
+    "Strong Blow": "+2 damage. Regular melee attacks only.",
+}
 
 
 def load_lines():
@@ -221,6 +229,15 @@ def verify(maneuvers, effort, options):
     got = [e["option"] for e in effort]
     if got != EXPECTED_EFFORT:
         raise ValueError(f"extra effort options changed: {got} != {EXPECTED_EFFORT}")
+    # EXACT, where PINNED and PINNED_OPTIONS are substring checks: those cells
+    # are several sentences of prose around one number, while an extra-effort
+    # effect cell IS the whole rule. A sentence APPENDED to it -- "Cannot
+    # combine with Rapid Strike" -- would leave the substring intact and the
+    # Kotlin scope stale, which is the drift this pin exists to catch (Codex).
+    by_effort = {e["option"]: e["effect"] for e in effort}
+    for name, phrase in PINNED_EFFORT.items():
+        if by_effort[name] != phrase:
+            raise ValueError(f"{name} no longer reads {phrase!r}: {by_effort[name]!r}")
 
     got = [o["option"] for o in options]
     if got != EXPECTED_OPTIONS:
