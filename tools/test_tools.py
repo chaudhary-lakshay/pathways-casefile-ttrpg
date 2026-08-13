@@ -910,6 +910,31 @@ def test_strong_blows_scope_sentence_is_pinned_whole():
             extract_combat.verify(maneuvers, drifted, options)
 
 
+def test_the_stun_penalty_is_pinned_whole_and_corroborated():
+    """The -4 is a Kotlin constant and the cell is quoted verbatim on screen.
+
+    Its warrant is a SECOND printing outside chapter 5, which is what makes the
+    penalty a property of being stunned rather than of the Do Nothing row it is
+    printed on -- and which says "active defenses" plural."""
+    maneuvers = json.loads((CONTENT / "maneuvers.json").read_text(encoding="utf-8"))["entries"]
+    by_name = {e["maneuver"]: e["description"] for e in maneuvers}
+    assert by_name["Do Nothing"] == extract_combat.PINNED_MANEUVERS_EXACT["Do Nothing"]
+
+    effort = json.loads((CONTENT / "extra_effort.json").read_text(encoding="utf-8"))["entries"]
+    options = json.loads((CONTENT / "attack_options.json").read_text(encoding="utf-8"))["entries"]
+    # Dropping the second clause and appending a third both have to fail: the
+    # screen quotes this cell, so either changes what a GM is shown.
+    for text in ("If Stunned: -4 to Active Defense.", by_name["Do Nothing"] + " Roll HT to recover."):
+        drifted = [dict(e, description=text) if e["maneuver"] == "Do Nothing" else e for e in maneuvers]
+        with pytest.raises(ValueError):
+            extract_combat.verify(drifted, effort, options)
+
+    byn = extract_combat.load_lines()
+    assert extract_combat.stun_corroboration(byn), "nothing outside ch. 5 prints the -4"
+    with pytest.raises(ValueError):
+        extract_combat.verify(maneuvers, effort, options, {1: "no such rule here"})
+
+
 def test_the_numbers_Attacks_kt_implements_are_still_printed():
     """com.pathways.rules.Attacks is the only copy of these; if the book stops
     printing them, that is a finding, not a silent drift."""

@@ -86,6 +86,24 @@ PINNED_OPTIONS = {
 PINNED_EFFORT = {
     "Strong Blow": "+2 damage. Regular melee attacks only.",
 }
+# The stun penalty com.pathways.rules.ActiveDefenses reads, and the screen
+# quotes this cell verbatim. EXACT for the same reason as PINNED_EFFORT: the
+# cell holds two rules -- the -4, and an FP recovery this app has no clock for
+# -- so a clause dropped or appended changes what a GM is shown.
+PINNED_MANEUVERS_EXACT = {
+    "Do Nothing": "If Stunned: -4 to Active Defense. Otherwise rest to recover FP.",
+}
+# Ch. 11 prints the same -4 where no maneuver is in sight, on an ability that
+# leaves its target "mentally Stunned for 1 turn". That corroboration is the
+# entire warrant for two readings: the penalty belongs to the STATE rather
+# than to the Do Nothing row it is printed on, and it is plural -- "active
+# defenses" -- so it reaches every row rather than Dodge alone.
+STUN_CORROBORATION = "-4 to active defenses"
+
+
+def stun_corroboration(byn):
+    """The lines outside chapter 5 that print the same penalty."""
+    return [n for n, t in byn.items() if STUN_CORROBORATION in t and n > MANEUVER_RANGE[1]]
 
 
 def load_lines():
@@ -207,7 +225,7 @@ def parse_attack_options(lines):
     return out
 
 
-def verify(maneuvers, effort, options):
+def verify(maneuvers, effort, options, byn=None):
     names = [m["maneuver"] for m in maneuvers]
     if names != EXPECTED_MANEUVERS:
         raise ValueError(f"maneuver rows changed: {names} != {EXPECTED_MANEUVERS}")
@@ -225,6 +243,14 @@ def verify(maneuvers, effort, options):
     for name, phrase in PINNED.items():
         if phrase not in by_name[name]:
             raise ValueError(f"{name} no longer reads {phrase!r}: {by_name[name]!r}")
+    for name, phrase in PINNED_MANEUVERS_EXACT.items():
+        if by_name[name] != phrase:
+            raise ValueError(f"{name} no longer reads {phrase!r}: {by_name[name]!r}")
+    # Checked against the whole book, not this chapter: the corroboration is
+    # in Ch. 11 and it is what licenses reading the -4 as a property of the
+    # state rather than of the Do Nothing row.
+    if byn is not None and not stun_corroboration(byn):
+        raise ValueError(f"nothing outside ch. 5 still prints {STUN_CORROBORATION!r}")
 
     got = [e["option"] for e in effort]
     if got != EXPECTED_EFFORT:
@@ -261,7 +287,7 @@ def main():
     maneuvers = parse_maneuvers(texts(stream(byn, *MANEUVER_RANGE)))
     effort = parse_extra_effort(stream(byn, *EXTRA_EFFORT_RANGE))
     options = parse_attack_options(stream(byn, *ATTACK_OPTION_RANGE))
-    verify(maneuvers, effort, options)
+    verify(maneuvers, effort, options, byn)
 
     write("maneuvers", maneuvers, [list(MANEUVER_RANGE)])
     write("extra_effort", effort, [list(EXTRA_EFFORT_RANGE)])

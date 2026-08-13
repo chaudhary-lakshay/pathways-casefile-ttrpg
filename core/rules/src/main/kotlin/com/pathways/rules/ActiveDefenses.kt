@@ -219,6 +219,56 @@ object ActiveDefenses {
             ContentLoader.maneuvers().first { it.maneuver == boost.printed }.description
         }
 
+    /**
+     * What being stunned costs every active defence (Ch. 5, p. 37).
+     *
+     * **The app hands this state out and never charged for it.** Three of its
+     * own tables produce it -- the fright effects ("Stunned 1 sec"), the Major
+     * Wound's HT roll ("Stunned for 1d6 seconds") and two rows of the ritual
+     * Critical Failure table ("Stunned 1d minutes") -- and the only place the
+     * book prices it is the Do Nothing maneuver's cell.
+     *
+     * **It is attached to the STATE, not to the maneuver whose row prints it.**
+     * Read the other way a stunned fighter would dodge at full value until
+     * they chose Do Nothing, which is the reverse of what being stunned is
+     * for. Ch. 11 settles it: an ability that leaves a target "mentally
+     * Stunned for 1 turn (see GURPS stun rules, p. B420: -4 to active
+     * defenses...)" names no maneuver at all. That second printing is
+     * load-bearing twice, because it also says "active defenseS" -- which is
+     * the whole basis for taking it to every row rather than to Dodge alone.
+     * `extract_combat.verify()` pins it.
+     *
+     * A number inside a prose cell, so it lives here with the sentence pinned
+     * -- the split the maneuver table's +4/-4 (6i) and the orthodox -2 (6z)
+     * already take.
+     */
+    const val STUNNED_PENALTY = -4
+
+    /** The maneuver row the stun penalty is printed on. */
+    private const val STUN_ROW = "Do Nothing"
+
+    /** That row, quoted whole rather than cut at render time (6f). */
+    fun printedStun(): String =
+        ContentLoader.maneuvers().first { it.maneuver == STUN_ROW }.description
+
+    /**
+     * Everything that moves EVERY active defence, composed once.
+     *
+     * Combat Reflexes is "+1 to all active defenses" and the stun penalty is
+     * "-4 to Active Defense", so both land on every row -- deliberately unlike
+     * a bought [DefenseBoost], which the book scopes to one. Composed here
+     * rather than at the seven places the screen renders a defence: two of
+     * them add the figure by hand, and a rule applied at six sites out of
+     * seven is the drift this codebase has produced three times (6ag, 6ai,
+     * 6be).
+     *
+     * Combat Reflexes deliberately does NOT cancel the stun: its own clause is
+     * "+6 to recover from stun", which is the recovery roll this app does not
+     * model (6bf), not the penalty while stunned.
+     */
+    fun everyDefence(traits: List<Trait>, stunned: Boolean): Int =
+        TraitEffects.defenseBonus(traits) + if (stunned) STUNNED_PENALTY else 0
+
     /** The book's own sentence for a cause, refused when the content prints none. */
     fun printedFor(cause: String): String {
         val row = ContentLoader.defenseRefusals().firstOrNull { it.cause == cause }

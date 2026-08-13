@@ -29,7 +29,6 @@ import com.pathways.rules.ActiveDefenses
 import com.pathways.rules.DefenseBoost
 import com.pathways.rules.DefenseRefusal
 import com.pathways.rules.ParryBlock
-import com.pathways.rules.TraitEffects
 import com.pathways.rules.Shields
 import com.pathways.rules.UnarmedStyle
 import com.pathways.rules.content.ContentLoader
@@ -61,12 +60,13 @@ private const val SHIELD_SKILL = "Shield"
  * explained once above. Cheaper than a facing selector, and it cannot be read
  * as an unconditional total.
  */
-private fun shielded(base: Int, shield: Shield?, reflexes: Int = 0): String {
-    // Combat Reflexes is unconditional -- "+1 to all active defenses" -- so it
-    // is folded into the base, where the shield's conditional DB cannot be.
-    // Every row goes through this one function for exactly that reason: two
-    // places adding the same +1 is how these numbers stop reconciling (6ai).
-    val own = base + reflexes
+private fun shielded(base: Int, shield: Shield?, everyDefence: Int = 0): String {
+    // What lands on EVERY row is unconditional -- Combat Reflexes' "+1 to all
+    // active defenses" and the stun's "-4 to Active Defense" -- so it is
+    // folded into the base, where the shield's conditional DB cannot be. Every
+    // row goes through this one function for exactly that reason: two places
+    // adding the same figure is how these numbers stop reconciling (6ai).
+    val own = base + everyDefence
     return if (shield == null) "$own" else "$own → ${Shields.withBonus(own, shield)}"
 }
 
@@ -139,11 +139,16 @@ fun DefenseDialog(
     onSpendFp: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val reflexes = remember(traits) { TraitEffects.defenseBonus(traits) }
-    // What the GM says is true of this character right now. All three are
+    // What the GM says is true of this character right now. All four are
     // declarations because none is computable: the app holds no turn, no
     // initiative and no line of sight. See ActiveDefenses.
     var declared by remember { mutableStateOf(emptySet<DefenseRefusal>()) }
+    // Stunned is a DECLARATION for the same reason, and this app is where the
+    // state comes from: its own fright, major-wound and ritual-critical tables
+    // all hand it out. It is not a DefenseRefusal -- it prices the defences
+    // rather than withdrawing them.
+    var stunned by remember { mutableStateOf(false) }
+    val everyDefence = remember(traits, stunned) { ActiveDefenses.everyDefence(traits, stunned) }
     val refusal = ActiveDefenses.state(declared, traits)
     val forfeiting = remember { ActiveDefenses.forfeitingActions() }
     val printed = remember { ContentLoader.defenses() }
@@ -232,6 +237,12 @@ fun DefenseDialog(
                 }
                 if (!refusal.defends) return@LazyColumn
                 item {
+                    // Under the refusal chips and above every row, because it
+                    // moves all of them -- and inside this block rather than
+                    // the one above, so a withdrawn set of defences does not
+                    // offer a -4 on nothing.
+                    StunPicker(stunned) { stunned = !stunned }
+                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     // Above the rows it changes, unlike the parry stepper: it
                     // moves the unarmed parries AND withdraws them, so a
                     // control below them would be read after its effect.
@@ -239,7 +250,7 @@ fun DefenseDialog(
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     ShieldPicker(shields, carried) { carried = if (it == carried) null else it }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                    DefenseRow("Dodge", shielded(dodge + boostOn("Dodge", boost), carried, reflexes))
+                    DefenseRow("Dodge", shielded(dodge + boostOn("Dodge", boost), carried, everyDefence))
                     printed.firstOrNull { it.defense == "Dodge" }?.let { Note(it.notes) }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 }
@@ -247,7 +258,7 @@ fun DefenseDialog(
                     val label = "Parry ($name)"
                     DefenseRow(
                         label,
-                        shielded(value + parryPenalty + boostOn(label, boost), carried, reflexes),
+                        shielded(value + parryPenalty + boostOn(label, boost), carried, everyDefence),
                     )
                 }
                 item {
@@ -275,7 +286,7 @@ fun DefenseDialog(
                         shielded(
                             value + parryPenalty + vsWeapon + boostOn(label, boost),
                             carried,
-                            reflexes,
+                            everyDefence,
                         ),
                     )
                 }
@@ -309,7 +320,7 @@ fun DefenseDialog(
                         val bare = ParryBlock.blockFor(shieldSkill, shieldDb = 0)
                         val boosted = boostOn("Block", boost)
                         if (held == null) {
-                            DefenseRow("Block", shielded(bare + boosted, null, reflexes))
+                            DefenseRow("Block", shielded(bare + boosted, null, everyDefence))
                             Note("Pick a shield above; Block needs one Readied.")
                         } else {
                             // Shields.blockFor already folds the DB in, so the
@@ -317,14 +328,14 @@ fun DefenseDialog(
                             // shielded() -- but the trait bonus is added to
                             // one bare figure and carried across, so the two
                             // ends of the arrow cannot drift apart.
-                            val own = bare + reflexes + boosted
-                            val melee = Shields.blockFor(held, shieldSkill) + reflexes + boosted
+                            val own = bare + everyDefence + boosted
+                            val melee = Shields.blockFor(held, shieldSkill) + everyDefence + boosted
                             DefenseRow("Block", "$own → $melee")
                             // The ranged figure is shown beside it rather than
                             // replacing it: a light shield is "-1 to Block vs.
                             // ranged" and one number cannot say both.
                             val shot =
-                                Shields.blockFor(held, shieldSkill, isRanged = true) + reflexes + boosted
+                                Shields.blockFor(held, shieldSkill, isRanged = true) + everyDefence + boosted
                             if (shot != melee) Note("Against ranged attacks: $shot")
                         }
                         printed.firstOrNull { it.defense == "Block" }?.let { Note(it.notes) }
@@ -509,6 +520,35 @@ private fun IncomingPicker(chosen: Incoming, onPick: (Incoming) -> Unit) {
                 modifier = Modifier.padding(end = 8.dp),
             )
         }
+    }
+}
+
+/**
+ * Whether the character is stunned, and the book's own cell for what it costs.
+ *
+ * The cell is quoted WHOLE. Its second clause is a rest that recovers FP,
+ * which needs a clock this app does not hold (6bf) -- cutting the sentence at
+ * render time to hide it would be a parser nobody tests (6f), and a GM reading
+ * the row can see for themselves which half the screen applied.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun StunPicker(stunned: Boolean, onToggle: () -> Unit) {
+    Text("Stunned", style = MaterialTheme.typography.titleSmall)
+    FlowRow {
+        FilterChip(
+            selected = stunned,
+            onClick = { onToggle() },
+            label = { Text("Stunned") },
+            modifier = Modifier.padding(end = 8.dp),
+        )
+    }
+    if (stunned) {
+        Note("Do Nothing (p. 37): \"${ActiveDefenses.printedStun()}\"")
+        Note(
+            "Every defence below already includes it. Recovering is the GM's " +
+                "roll — this app holds no clock to run the duration against.",
+        )
     }
 }
 

@@ -214,6 +214,54 @@ class ActiveDefensesTest {
         assertTrue(DefenseBoost.ALL_OUT_INCREASED.printed !in ActiveDefenses.forfeitingActions())
     }
 
+    /**
+     * The stun penalty reaches every defence, and composes with the trait.
+     *
+     * "-4 to Active Defense" and "+1 to all active defenses" are both
+     * unconditional, so one function answers for all seven places the screen
+     * renders a defence -- and the two compose rather than one replacing the
+     * other. A stunned fighter with Combat Reflexes is at -3, which is the
+     * number that would be wrong if either rule were applied alone.
+     */
+    @Test
+    fun `being stunned costs every defence four, trait or no trait`() {
+        assertEquals(0, ActiveDefenses.everyDefence(emptyList(), stunned = false))
+        assertEquals(-4, ActiveDefenses.everyDefence(emptyList(), stunned = true))
+        assertEquals(1, ActiveDefenses.everyDefence(reflexes, stunned = false))
+        assertEquals(-3, ActiveDefenses.everyDefence(reflexes, stunned = true))
+    }
+
+    /**
+     * Combat Reflexes does NOT cancel the stun, and its own clause says why.
+     *
+     * It prints "+6 to recover from stun" -- the RECOVERY roll, which needs a
+     * clock this app does not hold (6bf) -- not an exemption from the penalty
+     * while stunned. It cancels [DefenseRefusal.SURPRISE] and nothing else, so
+     * extending it here would author a rule from a resemblance (6bg).
+     */
+    @Test
+    fun `combat reflexes cancels the surprise and not the stun`() {
+        assertTrue(ActiveDefenses.state(setOf(DefenseRefusal.SURPRISE), reflexes).defends)
+        assertEquals(-3, ActiveDefenses.everyDefence(reflexes, stunned = true))
+        val printed = ContentLoader.advantages()
+            .first { it.name == TraitEffects.COMBAT_REFLEXES }.notes
+        assertTrue(printed.contains("recover from stun"), printed)
+    }
+
+    /**
+     * The cell is quoted whole, and it still prints the number Kotlin holds.
+     *
+     * Its second clause is an FP rest with no clock to run it against, so the
+     * screen shows both and applies one. Cutting the sentence at render time
+     * would be a parser nobody tests (6f).
+     */
+    @Test
+    fun `the stun sentence is the book's own cell`() {
+        val printed = ActiveDefenses.printedStun()
+        assertEquals("If Stunned: -4 to Active Defense. Otherwise rest to recover FP.", printed)
+        assertTrue(printed.contains("${ActiveDefenses.STUNNED_PENALTY} to Active Defense"), printed)
+    }
+
     /** Every cause the enum names is a rule the book prints, and the reverse. */
     @Test
     fun `every cause is backed by an extracted sentence`() {
