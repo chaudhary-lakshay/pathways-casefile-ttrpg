@@ -73,9 +73,12 @@ fun DamageDialog(
      *
      * This roll is one: its fail-by-5 row is "Knocked down and unconscious"
      * (Codex). Passed in rather than derived here, so the trait's two clauses
-     * are decided in one place.
+     * are decided in one place -- and the sentence beside it is authored by
+     * [TraitEffects.knockdownLine], because a screen naming the paying trait
+     * itself is a second copy of which trait pays.
      */
     knockdownBonus: Int = 0,
+    knockdownLine: String? = null,
     onDismiss: () -> Unit,
 ) {
     val rules = remember { ContentLoader.spiritDamage() }
@@ -151,7 +154,7 @@ fun DamageDialog(
                     isMajor = isMajor,
                     threshold = Wounds.majorWoundThreshold(maxHp),
                     ht = ht + knockdownBonus,
-                    knockdownBonus = knockdownBonus,
+                    knockdownLine = knockdownLine,
                     shock = shock,
                     // Rolled WITHOUT any shock of its own: this is the roll
                     // that creates the state, and Shock refuses to reach
@@ -182,7 +185,7 @@ private fun MajorWoundPanel(
     isMajor: Boolean,
     threshold: Int,
     ht: Int,
-    knockdownBonus: Int = 0,
+    knockdownLine: String? = null,
     shock: RollResult?,
     onRoll: () -> Unit,
 ) {
@@ -194,12 +197,8 @@ private fun MajorWoundPanel(
     if (!isMajor) return
     if (shock == null) {
         TextButton(onClick = onRoll) { Text("Roll HT $ht") }
-        if (knockdownBonus > 0) {
-            Text(
-                "includes +$knockdownBonus from ${TraitEffects.HIGH_PAIN_THRESHOLD} — " +
-                    "this roll's fail-by-5 row is a knockdown.",
-                style = MaterialTheme.typography.bodySmall,
-            )
+        if (knockdownLine != null) {
+            Text(knockdownLine, style = MaterialTheme.typography.bodySmall)
         }
         return
     }

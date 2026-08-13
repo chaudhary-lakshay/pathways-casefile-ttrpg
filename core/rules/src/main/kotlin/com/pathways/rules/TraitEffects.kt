@@ -51,6 +51,10 @@ object TraitEffects {
     const val ALERTNESS = "Alertness"
     const val FIT = "Fit"
     const val COMBAT_REFLEXES = "Combat Reflexes"
+    const val PERFECT_BALANCE = "Perfect Balance"
+    const val GREAT_BALANCE = "Great Balance"
+    const val IRON_JAW = "Iron Jaw"
+    const val RAPID_RECOVERY = "Rapid Recovery"
 
     /** Ch. 3's High Pain Threshold, whose first clause [Shock] applies. */
     const val HIGH_PAIN_THRESHOLD = Shock.IGNORED_BY
@@ -68,6 +72,21 @@ object TraitEffects {
     const val KNOCKDOWN_BONUS = 3
 
     /**
+     * The three skills both Balance rows name: "+2 to Acrobatics, Climbing,
+     * Piloting".
+     *
+     * **This book prints no Piloting skill.** The shape "Wrestling Master"
+     * already has (6bf) and `Dead Language Fluency` naming "Ancient Loen"
+     * before it (6x). Recorded, never repaired -- and because the join is by
+     * NAME, the day a Piloting row appears the bonus reaches it with no second
+     * decision to make.
+     */
+    val BALANCE_SKILLS = setOf("Acrobatics", "Climbing", "Piloting")
+
+    /** "+2 to ..." / "+1 to ...", the second clause of each Balance row. */
+    private val BALANCE_SKILL_BONUS = mapOf(PERFECT_BALANCE to 2, GREAT_BALANCE to 1)
+
+    /**
      * What [traits] add to an HT roll that can knock the character down.
      *
      * **The Major Wound's HT roll is one**, which is what a review caught
@@ -77,12 +96,47 @@ object TraitEffects {
      * roll to modify" -- a fresh excuse of exactly the kind this slice exists
      * to remove, in the same commit that disproved the old one.
      *
+     * **This is High Pain Threshold's alone, and the scope is a decision.**
+     * Five rows print a knockdown clause and only this one names an attribute
+     * ("+3 on **HT rolls**"), which is what joins it to the Major Wound roll.
+     * The Balance rows say "+6 / +2 to avoid knockdown" with no attribute, and
+     * this book prints two OTHER knockdown mechanics that are DX-based --
+     * Shove's "target rolls DX or fall", Takedown's opposed DX -- plus three
+     * hit-location rolls whose attribute it never states at all. Which of them
+     * an unscoped clause covers is not settled by anything printed, so it is
+     * refused rather than defaulted, and [reported] says so on the sheet.
+     *
+     * **The +3 buys more than the clause names, and that is the reading.**
+     * This one roll decides three outcomes -- shock, stun, and knockdown on its
+     * fail-by-5 row -- so a bonus "to avoid knockdown" also makes the stun row
+     * less likely. The alternative is to move only the fail-by-5 boundary,
+     * which is arithmetic the book prints nowhere; the literal reading of "+3
+     * on HT rolls to avoid knockdown", applied to an HT roll that avoids
+     * knockdown, is the smaller claim. Recorded rather than smoothed (4.1).
+     *
      * The book's other knockdown rolls are in the hit-location effects
-     * ("Knockdown roll at -5") and this app shows those cells rather than
-     * rolling them, so nothing else reaches this yet.
+     * ("Knockdown roll at -5", Neck and Face; "-10", Skull) and print no
+     * attribute to roll against, so this app shows those cells rather than
+     * rolling them. [RollKind.MAJOR_WOUND_HT] is this bonus's only roll.
      */
     fun knockdownBonus(traits: List<Trait>): Int =
         if (levelOf(traits, HIGH_PAIN_THRESHOLD) != null) KNOCKDOWN_BONUS else 0
+
+    /**
+     * The sentence a screen prints beside [knockdownBonus], or null when
+     * nothing was added.
+     *
+     * Authored here because `DamageDialog` spelt "includes +3 from High Pain
+     * Threshold" itself, which is a second copy of WHICH trait pays -- the
+     * failure this codebase produced three times (6ag, 6ai, 6be). A caller
+     * cannot now name the wrong trait.
+     */
+    fun knockdownLine(traits: List<Trait>): String? {
+        val bonus = knockdownBonus(traits)
+        if (bonus == 0) return null
+        return "includes +$bonus from $HIGH_PAIN_THRESHOLD — " +
+            "this roll's fail-by-5 row is a knockdown."
+    }
 
     /**
      * The level a character owns [name] at, or null when they do not own it.
@@ -118,6 +172,17 @@ object TraitEffects {
         }
         if (skill.attr == ControllingAttribute.Buyable(Attr.HT)) {
             levelOf(traits, FIT)?.let { add(bonus(FIT, FIT_BONUS)) }
+        }
+        // The Balance rows name their three skills outright, which is a
+        // stronger join than an attribute: Alertness has to be scoped by
+        // controlling attribute because "all Per rolls" names no skill, and
+        // this cell does. Nothing in the book makes the two rows exclusive, so
+        // a character printing both would take both -- the literal reading,
+        // and no premade prints either beside the other.
+        if (skill.name in BALANCE_SKILLS) {
+            for ((trait, value) in BALANCE_SKILL_BONUS) {
+                levelOf(traits, trait)?.let { add(bonus(trait, value)) }
+            }
         }
     }
 
@@ -204,7 +269,31 @@ object TraitEffects {
             "+6 to recover from stun" to
                 "this app models no stun recovery roll to make",
         ),
+        // Both Balance rows are the Fit shape: one clause reaches a roll and
+        // one does not. The clause sweep (6bh) DID flag these two cells --
+        // they carry two mechanical clauses each, which is exactly its filter
+        // -- and the triage filed them under "trait reports", a bucket that
+        // never contained them. 6bj's lesson, a second time: the sweep found
+        // it and the pass over its shortlist lost it.
+        PERFECT_BALANCE to listOf(
+            "+6 to avoid knockdown" to KNOCKDOWN_UNREACHED,
+        ),
+        GREAT_BALANCE to listOf(
+            "+2 to avoid knockdown" to KNOCKDOWN_UNREACHED,
+        ),
     )
+
+    /**
+     * Why an unscoped knockdown clause reaches nothing, said once.
+     *
+     * The three hit-location rolls print a modifier and no attribute, and this
+     * repo refuses rather than defaulting one (a design review's blocking
+     * finding). See [knockdownBonus] for why these rows do not join the one
+     * knockdown roll the app does make.
+     */
+    private const val KNOCKDOWN_UNREACHED =
+        "the book's knockdown rolls for a hit location print no attribute to " +
+            "roll against, so this app shows those cells rather than rolling them"
 
     /**
      * Printed, real, and reaching no roll here -- with the reason, so the
@@ -218,6 +307,13 @@ object TraitEffects {
         "Single-Minded" to "which tasks count as extended concentration is the GM's call",
         "Lightning Calculator" to "this app models no numerical-puzzle roll",
         "Versatile" to "every skill on a sheet is bought, so no default is rolled here",
+        // Scoped to "the head", which only a hit-location roll could supply --
+        // and those print no attribute (see KNOCKDOWN_UNREACHED). Its second
+        // clause is a bite nothing here rolls. Glass Jaw is the disadvantage
+        // with the same scope; the sheet prints drawbacks whole, so it needs
+        // no entry to be visible.
+        IRON_JAW to "this app rolls no knockdown for a hit location, and no bite",
+        RAPID_RECOVERY to "both halves are durations, and this app holds no clock",
     )
 
     /** "Alertness 1" -> "Alertness"; an unlevelled name is returned as-is. */

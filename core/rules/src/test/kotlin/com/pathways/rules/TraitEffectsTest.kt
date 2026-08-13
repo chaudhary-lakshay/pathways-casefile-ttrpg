@@ -184,6 +184,107 @@ class TraitEffectsTest {
         )
     }
 
+    // ---- the balance rows -------------------------------------------------
+
+    /**
+     * **A skill NAME is the strongest join there is, and both Balance rows
+     * print one.** "+6 to avoid knockdown; **+2 to Acrobatics, Climbing,
+     * Piloting**" -- the second clause names three skills outright, where
+     * Alertness only names an attribute. It reached nothing, on a trait one
+     * premade carries beside a skill it names.
+     */
+    @Test
+    fun `the Balance rows lift the skills they name`() {
+        val dx = ControllingAttribute.Buyable(Attr.DX)
+        val climbing = SkillKey("Climbing", null, dx, Difficulty.AVERAGE)
+        val acrobatics = SkillKey("Acrobatics", null, dx, Difficulty.HARD)
+        val perfect = listOf(advantage(TraitEffects.PERFECT_BALANCE))
+        val great = listOf(advantage(TraitEffects.GREAT_BALANCE))
+        assertEquals(ModEffect.Flat(2), TraitEffects.modifiers(perfect, climbing).single().effect)
+        assertEquals(ModEffect.Flat(2), TraitEffects.modifiers(perfect, acrobatics).single().effect)
+        assertEquals(ModEffect.Flat(1), TraitEffects.modifiers(great, climbing).single().effect)
+        // ...and a skill neither row names gets nothing, whatever its attribute.
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(perfect, per))
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(perfect, ht))
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(great, iq))
+    }
+
+    /**
+     * **Both rows name Piloting and this book prints no such skill.** The
+     * shape "Wrestling Master" already has (6bf) and `Dead Language Fluency`
+     * naming "Ancient Loen" before it (6x): a trait naming something no list
+     * prints. Recorded, never repaired -- and matching by name means the day
+     * the skill appears the bonus reaches it without a second decision.
+     */
+    @Test
+    fun `Piloting is named by both rows and printed by no skill list`() {
+        val printed = ContentLoader.skills().map { it.name }.toSet()
+        assertTrue("Acrobatics" in printed)
+        assertTrue("Climbing" in printed)
+        assertTrue("Piloting" !in printed, "the book now prints Piloting; the record is stale")
+        assertTrue("Piloting" in TraitEffects.BALANCE_SKILLS)
+        for (name in listOf(TraitEffects.PERFECT_BALANCE, TraitEffects.GREAT_BALANCE)) {
+            val cell = ContentLoader.advantages().first { it.name == name }.notes
+            assertTrue(cell.contains("Acrobatics, Climbing, Piloting"), cell)
+        }
+    }
+
+    /**
+     * **The knockdown half is reported while the skill half is applied**, which
+     * is the shape `Fit` already has: a cell can hold one rule this app can
+     * reach and one it cannot.
+     *
+     * The refusal is deliberate. High Pain Threshold says "+3 on **HT rolls**
+     * to avoid knockdown" and the Major Wound roll is one; the Balance rows
+     * name no attribute at all, and this book prints two OTHER knockdown
+     * mechanics that are DX-based (Shove's "target rolls DX or fall",
+     * Takedown's opposed DX) plus three hit-location rolls whose attribute it
+     * never states. Applying an unscoped bonus to the Major Wound roll would
+     * also buy better shock and stun rows, which that clause never paid for.
+     */
+    @Test
+    fun `the Balance knockdown clause is reported and reaches no roll`() {
+        val perfect = listOf(advantage(TraitEffects.PERFECT_BALANCE))
+        val notes = TraitEffects.reported(perfect)
+        assertEquals(1, notes.size, "$notes")
+        assertTrue(notes.single().printed.contains("+6 to avoid knockdown"), "$notes")
+        // The applied half is NOT disclaimed, or the report would be false.
+        assertTrue(notes.none { it.printed.contains("Acrobatics") }, "$notes")
+        // And it reaches the one knockdown roll this app makes: nothing.
+        assertEquals(0, TraitEffects.knockdownBonus(perfect))
+        assertEquals(0, TraitEffects.knockdownBonus(listOf(advantage(TraitEffects.GREAT_BALANCE))))
+    }
+
+    /**
+     * The two knockdown traits no premade carries are reported whole, the way
+     * `Danger Sense` already is. Iron Jaw is scoped to "the head", which only a
+     * hit-location roll could supply, and Rapid Recovery is a clock (6ad, 6ah,
+     * 6an).
+     */
+    @Test
+    fun `the head and recovery traits are reported whole`() {
+        for (name in listOf(TraitEffects.IRON_JAW, TraitEffects.RAPID_RECOVERY)) {
+            val notes = TraitEffects.reported(listOf(advantage(name)))
+            assertEquals(1, notes.size, "$name: $notes")
+            assertEquals(name, notes.single().trait)
+        }
+    }
+
+    /**
+     * **The caption is authored here, not by the screen.** `DamageDialog` spelt
+     * "includes +3 from High Pain Threshold" itself, so widening the bonus to
+     * another trait would have named the wrong one -- the two-copies-of-one-
+     * decision failure this codebase produced three times (6ag, 6ai, 6be).
+     */
+    @Test
+    fun `the knockdown line names the trait that paid for it`() {
+        val line = TraitEffects.knockdownLine(listOf(advantage("High Pain Threshold")))
+        assertTrue(line!!.contains(TraitEffects.HIGH_PAIN_THRESHOLD), line)
+        assertTrue(line.contains("+3"), line)
+        assertNull(TraitEffects.knockdownLine(listOf(advantage(TraitEffects.PERFECT_BALANCE))))
+        assertNull(TraitEffects.knockdownLine(emptyList()))
+    }
+
     /**
      * A WHOLLY applied trait is not also reported: it would read as unhandled.
      *

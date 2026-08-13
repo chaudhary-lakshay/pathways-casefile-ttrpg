@@ -685,6 +685,7 @@ fun SheetScreen(
             },
             onShocked = { shocked = true },
             knockdownBonus = TraitEffects.knockdownBonus(traits),
+            knockdownLine = TraitEffects.knockdownLine(traits),
             onDismiss = { damaging = false },
         )
     }
