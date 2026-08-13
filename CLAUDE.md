@@ -12,7 +12,12 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: section 6bj, then 6bi, 6bh, 6bg and 6bf.** 6bj found
+**Where to start next: section 6bk, then 6bj, 6bi, 6bh, 6bg and 6bf.** 6bk
+turned one named next-slice into two rules by reading the page it lived on,
+and its three review findings were all in the UI state machine rather than
+the rules — a picker that charged twice, one that locked up, and one that
+sold a defence the same screen calls unavailable. **The rules were right and
+the affordance was not**, which is the half no unit test reaches. 6bj found
 three rules on one printed line with one applied — and the sweep from 6bh had
 ALREADY flagged that cell, so what failed was the triage, not the
 instrument. Re-running a sweep you have run is cheap. 6bi is the other half
@@ -77,7 +82,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **971 Kotlin** (JUnit 5 — 878 `core:rules`, 73 `app`, 20 `core:model`) + **257 Python** (pytest), all green |
+| Tests | **976 Kotlin** (JUnit 5 — 881 `core:rules`, 75 `app`, 20 `core:model`) + **257 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -5210,6 +5215,87 @@ Giant Step (movement, unmodelled) and Feverish Defense's "+2 to one defense
 roll" half. That one was this slice's intended subject and was displaced by
 reading the page it lives on — the deferral is now evidence rather than a
 to-do (6au, 6av).
+
+## 6bk. Two rules, one bonus, and a picker that had to be paid for once
+
+`DefenseBoost` (core/rules) applies the two printed ways to buy +2 on a
+defence, and the defence dialog charges the FP. This was 6bh's named next
+slice — Feverish Defense's "+2 to one defense roll" half — and reading the
+page it lives on turned one rule into two:
+
+| Row | Table | FP | Scope | Drawback |
+|---|---|---|---|---|
+| Feverish Defense — Variant Rule | extra effort | 1 | one defense **roll** | Cannot defend next turn |
+| All-Out Defense (Increased) | maneuvers | 2 | one active defense **until next turn** | Cannot attack |
+
+Neither reached anything. `AttackManeuver` deliberately carries only the five
+maneuvers that move an ATTACK roll, so the two defence maneuvers had never
+been modelled anywhere at all — a gap no sweep had named, because the enum's
+own KDoc explains the omission and reads as a decision.
+
+- **Found by the SENTENCE, not the table** — 6bh's lesson, applied on purpose
+  this time rather than by accident. Searching for "+2 to one" turns up both;
+  searching the extra-effort table turns up one.
+- **NOT merged**, because the book prices them in opposite directions: the
+  cheaper one costs the next turn's defence, the dearer one costs this turn's
+  attack. Which was paid is a real choice, so both ship and `verify()`-style
+  tests pin that the two drawbacks still differ.
+- **"+2 to ONE defence" is the whole reading.** Combat Reflexes says "+1 to
+  ALL active defenses" and a shield's DB "adds to all active defenses", and
+  both go through the one function every row calls. Routing this the same way
+  would buy Dodge, every Parry and Block for 1 FP. So the bonus is keyed on
+  the row the GM names, and the row is part of the purchase.
+- **Only the rows actually rendered can be bought.** A parry withdrawn
+  against a shot (6bj) is not purchasable either, or FP would buy a defence
+  the book already refused.
+
+**Codex found three P2s, and all three were mine.**
+
+- **Swapping one paid chip for another charged twice** and showed one +2.
+  Neither alternative works: refunding invents a rule, and keeping both
+  applies two bonuses the GM sees as one. The picker DISABLES the others
+  while one is held, so changing your mind means clearing first — and the FP
+  stays spent, which is what the book says and what the label now says.
+- **The paid row can VANISH under the payment.** Buy +2 on a bare-handed
+  parry, then declare a shot: that row is withdrawn, every chip was disabled,
+  and the bonus applied to nothing with no way out. The stale-state trap 6k,
+  6y and 6af each found, one dialog on. The clear control is now outside the
+  chip rows and always reachable, and the screen says the +2 landed on
+  nothing.
+- **Block was purchasable with no shield readied**, two lines above the row
+  that says "Block needs one Readied" — the app contradicting its own screen.
+  Both halves gate it now: the skill AND a shield.
+
+**One P1 was refused with evidence.** Codex reported the enum's
+`"Feverish Defense — Variant Rule"` as an em dash against a hyphen in
+`extra_effort.json`, "throws during normal rendering". Both strings are
+**U+2014**, checked by codepoint, and `fpCostOf(FEVERISH)` returns 1 in a
+green test that would throw if the lookup failed. It reads files through
+PowerShell and mis-decodes UTF-8 — the same mojibake 6ar recorded. **Check
+`./gradlew` before acting on an encoding complaint.**
+
+Both readings were RED-proved (the per-table cost hardcoded to 1; the bonus
+applied to every row); each failed, each was restored. **976 Kotlin** (+5)
+and 257 Python, all green.
+
+Device-verified on the physical tablet, Barmaid Brawler (Brawling 13,
+Wrestling 10, FP 10/10, no shield):
+
+- Both rules render with their own sentence and price, three rows each, and
+  **no Block row** — the third finding, visible.
+- Buying **Feverish on Parry (Brawling)** took **FP 10/10 → 9/10**, printed
+  "Paid 1 FP: +2 on Parry (Brawling) this turn", and **disabled every other
+  chip**.
+- The rows above read **Parry (Brawling) 9 → 11**, with **Wrestling 6** and
+  **Dodge 7** unmoved — "+2 to one defence" on screen.
+- Declaring **a shot** withdrew the parries and read *"The defence you paid
+  for is not available against this attack, so the +2 lands on nothing. The
+  FP stays spent."*, with only Dodge offered and the clear button still
+  reachable. FP stayed at 9/10 throughout: no refund anywhere.
+
+**The extra-effort table is now fully offered** — Heroic Charge (6j), Strong
+Blow (6bi), Feverish Defense (here). The fourth, **Giant Step**, is movement
+and stays unmodelled: this app has no position to step from.
 
 ---
 
