@@ -12,7 +12,14 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6bm, then 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6bm
+**Where to start next: 6bn, then 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.**
+6bn is the FOURTH rule running to become buildable as a declaration rather
+than through the round tracker 6bd ranked first, and it takes the opposite
+shape to 6bg deliberately — one chip where the defences needed three, because
+the book prints one sentence rather than three. It also names the next slice
+with evidence: the Major Wound's success row prints a shock penalty nothing
+applies, which disproves the excuse `TraitEffects` records for High Pain
+Threshold. 6bm
 is the third slice running to reach a printed rule with a DECLARATION rather
 than the round tracker 6bd ranked first — an aim the shooter defended through,
 with the cancelling sentence printed one table away from the rows it governs.
@@ -94,7 +101,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **983 Kotlin** (JUnit 5 — 888 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
+| Tests | **989 Kotlin** (JUnit 5 — 894 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -5506,6 +5513,80 @@ app ignored a tap (6ah).
 if injured or defending" is the last unapplied clause in that table with a
 mechanical hook, and All-Out Defense (Double) stays recorded rather than built
 — it lifts a limit this app never imposes.
+
+## 6bn. A roll the book asks for only sometimes
+
+`Concentration` (core/rules) rolls Ch. 5's Concentrate maneuver, and the sheet
+screen grew a **Concentrate** button. Named as a candidate by 6bl's own sweep
+table and taken in order: *"Channel powers or skills requiring focus. **Roll
+Will-3 if injured or defending.**"* — in `maneuvers.json` since the combat
+slice, read by nothing, so every ability this book gates behind a Concentrate
+maneuver went unopposed however badly the caster's turn was going.
+
+- **The roll is CONDITIONAL, and that is the whole reading.** Undisturbed, the
+  book asks for no roll at all — so `attempt` REFUSES rather than answering,
+  and the dialog withdraws the Roll button and says why. Applied
+  unconditionally it would tax every act of focus in the book (a ritual's
+  channelling, the gauntlet's aura, the Astral projection) with a penalty that
+  names a circumstance none of them is in. The refusal-over-a-plausible-number
+  call `Detection.attributeFor` (6ah) and `Pools.canAffordSpi` (6ar) needed.
+- **One declaration, where the defences needed three.** 6bg split its refusals
+  into three causes because they print three sentences and Combat Reflexes
+  cancels exactly one. "Injured" and "defending" share a clause, a target and
+  an effect, and nothing in the book tells them apart — so splitting them here
+  would be inventing a distinction in order to display it. **The shape of the
+  rule decides the shape of the control**, not the precedent.
+- **The fourth rule running to become buildable as a DECLARATION** (6bg, 6bl,
+  6bm), against a handover that ranked a round tracker first (6bd). Whether
+  the character was hurt or parried while concentrating is the GM's to say.
+- **No consequence is generated, because none is printed.** The book prints
+  the roll and stops. `ConcentrationOutcome` carries the target, the roll and
+  nothing else — a test asserts those are its only fields, so the day a
+  consequence row turns up the decision has to be made again rather than
+  inherited. The call ch. 4's two sense tables needed (6aj), and the screen
+  says it out loud: *"The book prints no consequence for a lost focus."*
+- **No GM stepper**, unlike the fright triggers and the darkness row: those
+  exist because the BOOK declines to pick a value there. This cell prints one
+  number and no range, and a circumstance beyond it is Appendix A's business.
+- **Ungated, like Fright and Detect.** The maneuver is "powers or skills
+  requiring focus" and this book tags no skill as one, so which of them counts
+  is the GM's call — curating a list here would be inventing content (6i).
+- **No printed critical override, so `SuccessRoll`'s stand** — a rolled 3
+  holds against any target. The `FrightCheck` reading (6c), not the PCR's.
+
+**989 Kotlin** (894 core:rules, 75 app, 20 core:model) and 258 Python, green.
+The conditional refusal was RED-proved by making the `require` unconditional:
+one test failed, and was restored. **Codex reviewed it and returned clean.**
+
+Device-verified on the physical tablet, **Antiquarian Dealer** (Will 10), all
+four states: the dialog opens quoting the cell with **no Roll button** and
+*"No roll: the book asks for one only when the character is injured or
+defending."*; ticking **Injured or defending** reads **"3d6 ≤ 7 — Will 10-3"**
+and reveals Roll; a rolled **8 vs 7** titles **"Lost the focus"** above the
+no-consequence sentence; and unticking the chip clears the result back to the
+no-roll line — an outcome belongs to the circumstance it was rolled under
+(6n, 6z).
+
+### The next slice, found while reading this one and NOT taken
+
+The Major Wound table's **success** row prints *"-4 to all rolls for 1 turn
+from shock and pain"* (line 2824) and nothing applies it — the app rolls that
+table itself (6n), so this is 6bl's shape exactly: a state the app hands out
+and never charges for.
+
+**It also disproves a recorded excuse.** `TraitEffects.UNAPPLIED` says High
+Pain Threshold is unapplied because *"this app models no shock penalty to
+ignore"*, and 6al argued that applying it would mean "inventing a rule to
+justify reading another: a 'shock penalty' so High Pain Threshold could ignore
+it". **The book prints one**, on a table this app already rolls. 6bf's lesson
+— a sweep's excuse is the thing to check — turned on 6al a second time.
+
+Left for its own slice because it needs a decision this one does not: "-4 to
+**all rolls**" is the first declared state that would have to reach every roll
+in the app, and the only single join is `MainActivity.conditionsFor`, which
+feeds six dialogs and is built from TRACKERS rather than declarations. The
+defence rows are not on that path at all. Design it first (6bf's precedent:
+`adversarial-review` on the decomposition, before a line is written).
 
 ---
 
