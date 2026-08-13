@@ -133,21 +133,55 @@ class TraitEffectsTest {
     // ---- printed, real, and reaching nothing -------------------------------
 
     /**
-     * **Shown with the reason, never silently dropped.** A GM who reads "this
-     * app models no shock penalty to ignore" can apply the trait themselves;
-     * one who sees nothing assumes it was counted. The call the Sealed
-     * Artifact grade table (6af) and a technique's availability (6ai) needed.
+     * **Shown with the reason, never silently dropped.** A GM who reads why a
+     * printed effect reached nothing can apply it themselves; one who sees
+     * nothing assumes it was counted. The call the Sealed Artifact grade table
+     * (6af) and a technique's availability (6ai) needed.
      */
     @Test
     fun `an unapplied trait is reported with the book's own words`() {
-        val notes = TraitEffects.reported(
-            listOf(advantage("High Pain Threshold"), advantage("Hard to Kill 2")),
-        )
-        assertEquals(listOf("High Pain Threshold", "Hard to Kill 2"), notes.map { it.trait })
-        assertTrue(notes[0].printed.contains("shock penalties"), notes[0].printed)
-        assertTrue(notes[0].reason.contains("no shock penalty"), notes[0].reason)
+        val notes = TraitEffects.reported(listOf(advantage("Hard to Kill 2")))
+        assertEquals(listOf("Hard to Kill 2"), notes.map { it.trait })
         // The levelled one still finds its catalogue row through the level.
-        assertTrue(notes[1].printed.contains("HT rolls to avoid death"), notes[1].printed)
+        assertTrue(notes[0].printed.contains("HT rolls to avoid death"), notes[0].printed)
+    }
+
+    /**
+     * **High Pain Threshold's shock clause is APPLIED, so it is not disclaimed.**
+     *
+     * It sat in the unapplied map reading "this app models no shock penalty to
+     * ignore" -- an excuse rather than a reading, since the Major Wound's own
+     * success row prints one and this app rolls that table. 6al reasoned that
+     * applying the trait would mean inventing a rule to justify reading
+     * another; the book printed the rule all along.
+     *
+     * The guard reads BOTH objects, because a disclaimer expires exactly when
+     * the code changes and a test that quotes it cannot notice (6bl).
+     */
+    @Test
+    fun `the shock clause is not reported while Shock applies it`() {
+        val tough = listOf(advantage("High Pain Threshold"))
+        val notes = TraitEffects.reported(tough)
+        if (Shock.penaltyFor(RollKind.SKILL, shocked = true, traits = tough) == 0) {
+            assertTrue(notes.none { it.printed.contains("Ignore shock penalties") }, "$notes")
+            assertTrue(notes.none { it.reason.contains("no shock penalty") }, "$notes")
+        }
+        // And the second clause is applied too, so NOTHING is disclaimed: the
+        // Major Wound's HT roll decides knockdown on its fail-by-5 row, which
+        // is the roll "+3 on HT rolls to avoid knockdown" names (Codex). This
+        // slice was one commit from shipping a fresh excuse in place of the
+        // one it removed.
+        assertEquals(emptyList<TraitNote>(), notes)
+        assertEquals(3, TraitEffects.knockdownBonus(tough))
+        assertEquals(0, TraitEffects.knockdownBonus(emptyList()))
+        val cell = ContentLoader.advantages()
+            .first { it.name == TraitEffects.HIGH_PAIN_THRESHOLD }.notes
+        assertTrue(cell.contains("+3 on HT rolls to avoid knockdown"), cell)
+        // The row that makes it a knockdown roll is still printed.
+        assertTrue(
+            ContentLoader.majorWound().any { it.effect.contains("Knocked down") },
+            "the major wound table no longer knocks anyone down",
+        )
     }
 
     /**

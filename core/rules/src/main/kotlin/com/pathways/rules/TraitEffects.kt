@@ -52,6 +52,9 @@ object TraitEffects {
     const val FIT = "Fit"
     const val COMBAT_REFLEXES = "Combat Reflexes"
 
+    /** Ch. 3's High Pain Threshold, whose first clause [Shock] applies. */
+    const val HIGH_PAIN_THRESHOLD = Shock.IGNORED_BY
+
     /** "+1 per level to all Per rolls." */
     const val ALERTNESS_PER_LEVEL = 1
 
@@ -60,6 +63,26 @@ object TraitEffects {
 
     /** "+1 to all active defenses, +6 to recover from stun, never freeze." */
     const val COMBAT_REFLEXES_BONUS = 1
+
+    /** "+3 on HT rolls to avoid knockdown." */
+    const val KNOCKDOWN_BONUS = 3
+
+    /**
+     * What [traits] add to an HT roll that can knock the character down.
+     *
+     * **The Major Wound's HT roll is one**, which is what a review caught
+     * (Codex): its fail-by-5 row is "Knocked down and unconscious for 1d
+     * hours", so the roll decides knockdown among its three outcomes. This
+     * clause was about to ship disclaimed as "this app rolls no knockdown
+     * roll to modify" -- a fresh excuse of exactly the kind this slice exists
+     * to remove, in the same commit that disproved the old one.
+     *
+     * The book's other knockdown rolls are in the hit-location effects
+     * ("Knockdown roll at -5") and this app shows those cells rather than
+     * rolling them, so nothing else reaches this yet.
+     */
+    fun knockdownBonus(traits: List<Trait>): Int =
+        if (levelOf(traits, HIGH_PAIN_THRESHOLD) != null) KNOCKDOWN_BONUS else 0
 
     /**
      * The level a character owns [name] at, or null when they do not own it.
@@ -133,7 +156,8 @@ object TraitEffects {
     }
 
     /** Every trait this object knows about, applied or not. */
-    fun known(): Set<String> = UNAPPLIED.keys + setOf(ALERTNESS, FIT, COMBAT_REFLEXES)
+    fun known(): Set<String> =
+        UNAPPLIED.keys + PARTLY_APPLIED.keys + setOf(ALERTNESS, FIT, COMBAT_REFLEXES)
 
     /** The traits reported whole, for the disjointness test. */
     fun unappliedNames(): Set<String> = UNAPPLIED.keys
@@ -189,7 +213,6 @@ object TraitEffects {
      */
     private val UNAPPLIED = mapOf(
         "Hard to Kill" to "this app models no death roll to avoid",
-        "High Pain Threshold" to "this app models no shock penalty to ignore",
         "Danger Sense" to "the book hands this to the GM, not to a roll",
         "Eidetic Memory" to "this app models no recall roll",
         "Single-Minded" to "which tasks count as extended concentration is the GM's call",

@@ -251,7 +251,15 @@ object Detection {
         modifier: Int = 0,
         freeRoll: String? = null,
         alertness: Int = 0,
-    ): Int = attributeFor(spi, per, freeRoll, alertness) + modifier
+        /**
+         * The Major Wound's shock, which is "-4 to all rolls" and names no
+         * exception -- so it reaches this one too. Passed in rather than
+         * folded into [modifier] so [attempt] can NAME it: a target that
+         * moves without the breakdown saying why is how these numbers stopped
+         * reconciling in 6ag and 6ai.
+         */
+        shock: Int = 0,
+    ): Int = attributeFor(spi, per, freeRoll, alertness) + modifier + shock
 
     /**
      * The row [roll] landed on.
@@ -285,12 +293,15 @@ object Detection {
         awarenessLabel: String? = null,
         freeRoll: String? = null,
         alertness: Int = 0,
+        shock: Int = 0,
         source: RandomSource,
     ): DetectionResult {
         val total = modifierTotal(situations, techniques, items, awarenessBonus)
-        val roll = SuccessRoll.against(targetFor(spi, per, total, freeRoll, alertness), source)
+        val roll =
+            SuccessRoll.against(targetFor(spi, per, total, freeRoll, alertness, shock), source)
         val parts = buildList {
             add(attributeLine(spi, per, freeRoll, alertness))
+            if (shock != 0) add("shock ${signed(shock)}")
             situations.filter { it.modifier != 0 }
                 .forEach { add("${it.situation} ${signed(it.modifier)}") }
             techniques.filter { (it.detectionBonus ?: 0) != 0 }

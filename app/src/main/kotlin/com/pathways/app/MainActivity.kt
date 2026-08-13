@@ -64,6 +64,8 @@ import com.pathways.rules.Premades
 import com.pathways.rules.RandomSource
 import com.pathways.rules.SheetComparison
 import com.pathways.rules.SheetRow
+import com.pathways.rules.RollKind
+import com.pathways.rules.Shock
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SelfControl
 import com.pathways.rules.SelfControlCheck
@@ -202,6 +204,13 @@ fun SheetScreen(
     // the GM has stated the circumstances.
     var rolling by remember(sheet) { mutableStateOf<RollableSkill?>(null) }
     var frightening by remember(sheet) { mutableStateOf(false) }
+    // The Major Wound's shock, latched by the damage dialog that rolls for it
+    // and cleared by the GM when the turn passes. ONE owner, above every
+    // screen that reads it: a chip per dialog would let the same one-turn fact
+    // disagree with itself across surfaces (Codex, at design time). In memory
+    // rather than in the session file, because a one-turn fact that survives a
+    // force-stop has outlived its turn by construction.
+    var shocked by remember(sheet) { mutableStateOf(false) }
     var focusing by remember(sheet) { mutableStateOf(false) }
     var casting by remember(sheet) { mutableStateOf(false) }
     var defending by remember(sheet) { mutableStateOf(false) }
@@ -316,6 +325,13 @@ fun SheetScreen(
         key: SkillKey,
         cor: Int = session.cor,
         spiAboutToSpend: Int = 0,
+        /**
+         * Three callers collapse this list with `sumOf` into one number they
+         * label "hurt or tired" or "circumstances". Shock is neither, so they
+         * take it as its own argument and name it; folding it into a bucket
+         * would move a target by 4 under the wrong reason (Codex).
+         */
+        withShock: Boolean = true,
     ) = Conditions.forSkill(
         skill = key,
         hp = Pools.hp(vitals.maxHp - session.hpLost, vitals.maxHp),
@@ -326,7 +342,17 @@ fun SheetScreen(
             null
         },
         cor = cor,
-    )
+    ) + if (withShock) Shock.modifiers(shocked, traits) else emptyList()
+
+    // The four rolls that do NOT go through the ledger above: a Fright Check,
+    // a self-control roll, a concentration check and a detection roll each
+    // build their own target. Shock decides once, here, that all four take it
+    // -- the exclusion Codex warned would otherwise look like an oversight in
+    // whichever adapter went unwired.
+    val shockOnAttribute = Shock.penaltyFor(RollKind.ATTRIBUTE, shocked, traits)
+    // The same number the ledger would have carried, for the three dialogs
+    // that reduce it to an Int and print their own breakdown.
+    val shockOnSkill = Shock.penaltyFor(RollKind.SKILL, shocked, traits)
 
     Scaffold { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
@@ -407,6 +433,28 @@ fun SheetScreen(
             }
 
             item { PoolTrackers(session, vitals, maxCor) }
+            if (shocked) {
+                item {
+                    // Only while it is in force: a control that is always
+                    // there would read as a state the GM must maintain, and
+                    // this one is latched by the roll that caused it.
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            "Shock — \"${Shock.printed()}\"" +
+                                if (Shock.ignoredBy(traits)) {
+                                    " — ignored by ${Shock.IGNORED_BY}"
+                                } else {
+                                    ""
+                                },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.weight(1f),
+                        )
+                        // Cleared by hand, because nothing here counts turns.
+                        TextButton(onClick = { shocked = false }) { Text("Clear") }
+                    }
+                }
+            }
 
             // Traits whose printed effect is real and lands on nothing this
             // app rolls. Shown with the reason rather than silently dropped:
@@ -609,14 +657,14 @@ fun SheetScreen(
         )
     }
     controlling?.let { check ->
-        SelfControlDialog(check, vitals.will, attributes.iq) { controlling = null }
+        SelfControlDialog(check, vitals.will, attributes.iq, shockOnAttribute) { controlling = null }
     }
 
     if (frightening) {
-        FrightDialog(vitals.will) { frightening = false }
+        FrightDialog(vitals.will, shockOnAttribute) { frightening = false }
     }
     if (focusing) {
-        ConcentrateDialog(vitals.will) { focusing = false }
+        ConcentrateDialog(vitals.will, shockOnAttribute) { focusing = false }
     }
     if (damaging) {
         DamageDialog(
@@ -635,6 +683,8 @@ fun SheetScreen(
                 }
                 session.spend(pool, amount, max, maxCor)
             },
+            onShocked = { shocked = true },
+            knockdownBonus = TraitEffects.knockdownBonus(traits),
             onDismiss = { damaging = false },
         )
     }
@@ -647,6 +697,7 @@ fun SheetScreen(
             // defence and cancels the surprise refusal, and one trait's two
             // consequences belong in one place (ActiveDefenses).
             traits = traits,
+            shocked = shocked,
             onSpendFp = { session.spend(Pool.FP, it, vitals.maxFp, maxCor) },
         ) { defending = false }
     }
@@ -686,8 +737,10 @@ fun SheetScreen(
                     ),
                     cor = 0,
                     spiAboutToSpend = cost,
+                    withShock = false,
                 ).sumOf { (it.effect as ModEffect.Flat).n }
             },
+            shock = shockOnSkill,
             spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = appDice,
             // Through the tracker, so a question asked at 0 SPI buys the Soul
@@ -705,6 +758,7 @@ fun SheetScreen(
         // book calls this "a free action (once per divination attempt)" that
         // "does not cost SPI".
         DetectionDialog(
+            shock = shockOnAttribute,
             // Ch. 3's Alertness. This is a Per roll made outside SkillKey, so
             // TraitEffects.modifiers cannot reach it; passed explicitly rather
             // than left a silent gap (found in review).
@@ -753,7 +807,9 @@ fun SheetScreen(
                     Difficulty.VERY_HARD,
                 ),
                 cor = 0,
+                withShock = false,
             ).sumOf { (it.effect as ModEffect.Flat).n },
+            shock = shockOnSkill,
             cor = session.cor,
             spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = appDice,
@@ -791,7 +847,9 @@ fun SheetScreen(
                     Difficulty.VERY_HARD,
                 ),
                 cor = 0,
+                withShock = false,
             ).sumOf { (it.effect as ModEffect.Flat).n },
+            shock = shockOnSkill,
             cor = session.cor,
             spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = appDice,
@@ -811,7 +869,7 @@ fun SheetScreen(
  * the GM's call, exactly like the acting-quality ranges on the pathway screen.
  */
 @Composable
-private fun FrightDialog(will: Int, onDismiss: () -> Unit) {
+private fun FrightDialog(will: Int, shock: Int = 0, onDismiss: () -> Unit) {
     var kind by remember { mutableStateOf(FrightKind.FRIGHT) }
     var outcome by remember { mutableStateOf<FrightOutcome?>(null) }
     var picked by remember { mutableStateOf<FrightTrigger?>(null) }
@@ -846,8 +904,18 @@ private fun FrightDialog(will: Int, onDismiss: () -> Unit) {
                         )
                         TextButton(onClick = { modifier += 1 }) { Text("+1") }
                     }
-                    Text("3d6 vs ${will + modifier}", style = MaterialTheme.typography.bodySmall)
-                    TextButton(onClick = { outcome = FrightCheck.against(will, modifier, appDice) }) {
+                    // ONE value, displayed and rolled: computing the caption
+                    // from one expression and the roll from another is how
+                    // these numbers stopped reconciling (6ag, 6ai).
+                    val effective = modifier + shock
+                    Text("3d6 vs ${will + effective}", style = MaterialTheme.typography.bodySmall)
+                    if (shock != 0) {
+                        Text(
+                            "includes $shock from shock — \"${Shock.printed()}\"",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    TextButton(onClick = { outcome = FrightCheck.against(will, effective, appDice) }) {
                         Text("Roll")
                     }
                 } else if (result == null) {
@@ -916,6 +984,7 @@ private fun SelfControlDialog(
     check: SelfControlCheck,
     will: Int,
     iq: Int,
+    shock: Int = 0,
     onDismiss: () -> Unit,
 ) {
     // Keyed on the check: a modifier left over from another disadvantage
@@ -925,7 +994,9 @@ private fun SelfControlDialog(
     var outcome by remember(check) { mutableStateOf<SelfControlOutcome?>(null) }
     // The ONE place the number is computed. A caption that re-derived the
     // will/iq choice beside it is 6ai's defect exactly.
-    val target = SelfControl.targetFor(check.spec, will, iq, modifier)
+    // The GM's stepper and the shock are one number by the time the roll is
+    // made, so the caption and the dice cannot disagree.
+    val target = SelfControl.targetFor(check.spec, will, iq, modifier + shock)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -978,7 +1049,7 @@ private fun SelfControlDialog(
                     TextButton(
                         onClick = {
                             if (outcome != null) return@TextButton
-                            outcome = SelfControl.attempt(check, will, iq, appDice, modifier)
+                            outcome = SelfControl.attempt(check, will, iq, appDice, modifier + shock)
                         },
                     ) { Text("Roll") }
                 } else {
@@ -1006,7 +1077,7 @@ private fun SelfControlDialog(
  * three sentences and where a trait cancels exactly one (6bg).
  */
 @Composable
-private fun ConcentrateDialog(will: Int, onDismiss: () -> Unit) {
+private fun ConcentrateDialog(will: Int, shock: Int = 0, onDismiss: () -> Unit) {
     var disturbed by remember { mutableStateOf(false) }
     // Cleared with the declaration, because an outcome belongs to the
     // circumstance it was rolled under -- the rule the Major Wound's HT roll
@@ -1036,7 +1107,9 @@ private fun ConcentrateDialog(will: Int, onDismiss: () -> Unit) {
                     )
                     result == null -> {
                         Text(
-                            "3d6 ≤ ${Concentration.targetFor(will)} — Will $will${Concentration.PENALTY}",
+                            "3d6 ≤ ${Concentration.targetFor(will, shock)} — Will " +
+                                "$will${Concentration.PENALTY}" +
+                                if (shock != 0) ", $shock shock" else "",
                             style = MaterialTheme.typography.titleLarge,
                         )
                         // Guarded inline as well as by the tree: two taps can
@@ -1044,7 +1117,7 @@ private fun ConcentrateDialog(will: Int, onDismiss: () -> Unit) {
                         TextButton(
                             onClick = {
                                 if (outcome != null) return@TextButton
-                                outcome = Concentration.attempt(will, disturbed, appDice)
+                                outcome = Concentration.attempt(will, disturbed, appDice, shock)
                             },
                         ) { Text("Roll") }
                     }

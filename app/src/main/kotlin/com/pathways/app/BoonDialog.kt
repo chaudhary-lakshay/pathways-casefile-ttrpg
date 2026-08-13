@@ -113,6 +113,8 @@ private fun endsOf(row: BoonModifier): List<Int> {
 fun BoonDialog(
     skillLevel: Int,
     conditionPenalty: Int,
+    /** The Major Wound's shock, named separately so the breakdown reconciles. */
+    shock: Int = 0,
     cor: Int,
     spiAvailable: Int,
     dice: RandomSource,
@@ -150,7 +152,7 @@ fun BoonDialog(
     // to modify a later roll -- the defect the attack dialog's "Another turn"
     // shipped with.
     val overrides = picks.mapNotNull { row -> picked[row.key]?.let { row.key to it } }.toMap()
-    val effectiveSkill = skillLevel + conditionPenalty
+    val effectiveSkill = skillLevel + conditionPenalty + shock
     val target = Boons.targetFor(effectiveSkill, cor, sequence, picks, overrides)
     val cost = Boons.spiFor(spiChoice)
 
@@ -288,6 +290,7 @@ fun BoonDialog(
                             ", Sequence $sequence ${signed(Boons.penaltyForSequence(sequence))}" +
                             ", circumstances ${signed(Boons.modifierTotal(picks, overrides))}" +
                             (if (conditionPenalty != 0) ", $conditionPenalty hurt or tired" else "") +
+                                (if (shock != 0) ", $shock shock" else "") +
                             (if (cor >= 3) ", -1 for $cor CoR" else "") +
                             ". Costs $cost SPI, takes ${granting.complexityTime}.",
                         style = MaterialTheme.typography.bodySmall,

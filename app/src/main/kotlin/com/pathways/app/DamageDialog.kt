@@ -23,7 +23,9 @@ import androidx.compose.ui.unit.dp
 import com.pathways.model.RollResult
 import com.pathways.rules.Pool
 import com.pathways.rules.RandomSource
+import com.pathways.rules.Shock
 import com.pathways.rules.SuccessRoll
+import com.pathways.rules.TraitEffects
 import com.pathways.rules.Wounds
 import com.pathways.rules.content.ContentLoader
 
@@ -59,6 +61,21 @@ fun DamageDialog(
     ht: Int,
     dice: RandomSource,
     onApply: (Pool, Int) -> Unit,
+    /**
+     * Latches the Major Wound's shock, which this dialog is where it comes
+     * from: the app rolled the table, so it knows -- the reasoning
+     * `SavedSession.corrupted` already uses (6a) rather than asking the GM to
+     * re-declare a fact the screen just produced.
+     */
+    onShocked: () -> Unit,
+    /**
+     * High Pain Threshold's "+3 on HT rolls to avoid knockdown".
+     *
+     * This roll is one: its fail-by-5 row is "Knocked down and unconscious"
+     * (Codex). Passed in rather than derived here, so the trait's two clauses
+     * are decided in one place.
+     */
+    knockdownBonus: Int = 0,
     onDismiss: () -> Unit,
 ) {
     val rules = remember { ContentLoader.spiritDamage() }
@@ -78,6 +95,16 @@ fun DamageDialog(
         confirmButton = {
             TextButton(
                 onClick = {
+                    // Latched with the hit, never with the roll (Codex): a GM
+                    // who rolls the table and then cancels, changes the pool
+                    // or drops the damage below the threshold has applied no
+                    // wound, and a -4 for a wound nobody took would follow
+                    // them into every later roll. The stepper and the pool
+                    // chips already clear the roll, so reaching here means
+                    // this roll belongs to this hit.
+                    if (isMajor && shock?.let { Shock.causedBy(Wounds.majorWoundFor(it)) } == true) {
+                        onShocked()
+                    }
                     onApply(pool, amount)
                     onDismiss()
                 },
@@ -123,9 +150,13 @@ fun DamageDialog(
                 MajorWoundPanel(
                     isMajor = isMajor,
                     threshold = Wounds.majorWoundThreshold(maxHp),
-                    ht = ht,
+                    ht = ht + knockdownBonus,
+                    knockdownBonus = knockdownBonus,
                     shock = shock,
-                    onRoll = { shock = SuccessRoll.against(ht, dice) },
+                    // Rolled WITHOUT any shock of its own: this is the roll
+                    // that creates the state, and Shock refuses to reach
+                    // RollKind.MAJOR_WOUND_HT for that reason.
+                    onRoll = { shock = SuccessRoll.against(ht + knockdownBonus, dice) },
                 )
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 var section = ""
@@ -151,6 +182,7 @@ private fun MajorWoundPanel(
     isMajor: Boolean,
     threshold: Int,
     ht: Int,
+    knockdownBonus: Int = 0,
     shock: RollResult?,
     onRoll: () -> Unit,
 ) {
@@ -162,6 +194,13 @@ private fun MajorWoundPanel(
     if (!isMajor) return
     if (shock == null) {
         TextButton(onClick = onRoll) { Text("Roll HT $ht") }
+        if (knockdownBonus > 0) {
+            Text(
+                "includes +$knockdownBonus from ${TraitEffects.HIGH_PAIN_THRESHOLD} — " +
+                    "this roll's fail-by-5 row is a knockdown.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
         return
     }
     Text("3d6: ${shock.total} vs $ht", style = MaterialTheme.typography.titleMedium)

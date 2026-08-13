@@ -137,6 +137,12 @@ fun DefenseDialog(
      * than defaulted: no value is safe when it is wrong.
      */
     onSpendFp: (Int) -> Unit,
+    /**
+     * The Major Wound's shock, latched by the damage dialog. Not a chip here:
+     * it is the same one-turn fact every other screen reads, and a second
+     * control for it could disagree with them (Codex, at design time).
+     */
+    shocked: Boolean = false,
     onDismiss: () -> Unit,
 ) {
     // What the GM says is true of this character right now. All four are
@@ -148,7 +154,9 @@ fun DefenseDialog(
     // all hand it out. It is not a DefenseRefusal -- it prices the defences
     // rather than withdrawing them.
     var stunned by remember { mutableStateOf(false) }
-    val everyDefence = remember(traits, stunned) { ActiveDefenses.everyDefence(traits, stunned) }
+    val everyDefence = remember(traits, stunned, shocked) {
+        ActiveDefenses.everyDefence(traits, stunned, shocked)
+    }
     val refusal = ActiveDefenses.state(declared, traits)
     val forfeiting = remember { ActiveDefenses.forfeitingActions() }
     val printed = remember { ContentLoader.defenses() }

@@ -57,6 +57,13 @@ fun DetectionDialog(
      * is not a Per roll.
      */
     alertness: Int = 0,
+    /**
+     * The Major Wound's shock. "All rolls" names no exception, so it reaches
+     * this one; [Detection] takes it separately from the situation modifiers
+     * so the breakdown can name it (6ag's rule that the parts must sum to the
+     * target above them).
+     */
+    shock: Int = 0,
     dice: RandomSource,
     onDismiss: () -> Unit,
 ) {
@@ -101,7 +108,7 @@ fun DetectionDialog(
     // it is not always the higher of the two, so the roll a Fool is granted is
     // a Per roll even when their SPI is better. See Detection.attributeFor.
     val freeRoll = awareness?.freeRoll
-    val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness)
+    val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness, shock)
     // The row grants automatic awareness only against a WEAKER diviner, and
     // this screen holds the target's sheet alone -- so the comparison is the
     // GM's to state. Reset with the row, or a declaration about one pathway's
@@ -311,6 +318,10 @@ fun DetectionDialog(
                         // own attribute.
                         Detection.attributeLine(spi, per, freeRoll, alertness) +
                             (if (modifier != 0) ", ${signedInt(modifier)}" else "") +
+                            // Named BEFORE the roll as well as after it: the
+                            // breakdown and the target above it must reconcile
+                            // (6ag, 6ai), and shock moves the target (Codex).
+                            (if (shock != 0) ", ${signedInt(shock)} shock" else "") +
                             ". Free action, costs no SPI.",
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -321,6 +332,7 @@ fun DetectionDialog(
                             if (result != null) return@TextButton
                             result = Detection.attempt(
                                 alertness = alertness,
+                                shock = shock,
                                 spi = spi,
                                 per = per,
                                 situations = pickedSituations,

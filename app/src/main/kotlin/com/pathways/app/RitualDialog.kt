@@ -99,6 +99,8 @@ fun RitualDialog(
     // there were.
     skillLevel: Int,
     conditionPenalty: Int,
+    /** The Major Wound's shock, named separately so the breakdown reconciles. */
+    shock: Int = 0,
     cor: Int,
     spiAvailable: Int,
     /**
@@ -198,7 +200,7 @@ fun RitualDialog(
     // is NOT included in [conditionPenalty] because RitualResolution applies
     // it itself, and counting it twice would penalise a corrupted caster
     // once for the ladder and once again for the same ladder.
-    val effectiveSkill = skillLevel + conditionPenalty
+    val effectiveSkill = skillLevel + conditionPenalty + shock
     // Not computed at all when the book forbids the attempt: Broken prints
     // "Cannot perform rituals in the language", and targetFor refuses it
     // rather than inventing a penalty to roll at.
@@ -720,6 +722,7 @@ fun RitualDialog(
                                 (language?.ritualModifier?.takeIf { it != 0 }
                                     ?.let { ", $it for an accented tongue" } ?: "") +
                                 (if (conditionPenalty != 0) ", $conditionPenalty hurt or tired" else "") +
+                                    (if (shock != 0) ", $shock shock" else "") +
                                 // Read from the same function targetFor calls.
                                 // A literal here was a second copy of one
                                 // rule -- correct today, and exactly how the

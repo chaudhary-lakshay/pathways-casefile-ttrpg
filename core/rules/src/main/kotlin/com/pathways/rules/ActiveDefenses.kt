@@ -265,9 +265,17 @@ object ActiveDefenses {
      * Combat Reflexes deliberately does NOT cancel the stun: its own clause is
      * "+6 to recover from stun", which is the recovery roll this app does not
      * model (6bf), not the penalty while stunned.
+     *
+     * [Shock] is the third thing that moves every row, and it comes from the
+     * OTHER half of the same table: a Major Wound's HT roll stuns on a failure
+     * and shocks on a success. It composes here rather than anywhere else for
+     * the same reason the stun does -- the screen renders a defence in seven
+     * places, two of them by hand.
      */
-    fun everyDefence(traits: List<Trait>, stunned: Boolean): Int =
-        TraitEffects.defenseBonus(traits) + if (stunned) STUNNED_PENALTY else 0
+    fun everyDefence(traits: List<Trait>, stunned: Boolean, shocked: Boolean = false): Int =
+        TraitEffects.defenseBonus(traits) +
+            (if (stunned) STUNNED_PENALTY else 0) +
+            Shock.penaltyFor(RollKind.ACTIVE_DEFENSE, shocked, traits)
 
     /** The book's own sentence for a cause, refused when the content prints none. */
     fun printedFor(cause: String): String {

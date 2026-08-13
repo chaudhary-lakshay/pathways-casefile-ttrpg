@@ -67,6 +67,8 @@ fun DivinationDialog(
     // was computed before the payment and could only ever describe the
     // caster who had not paid yet.
     conditionPenaltyAfterSpending: (Int) -> Int,
+    /** The Major Wound's shock: not a circumstance, so it is named on its own. */
+    shock: Int = 0,
     spiAvailable: Int,
     // The diviner's own Sequence, or null for a mortal. Sec. 6's Sequence
     // Advantage compares the two parties, so withholding this silently picked
@@ -152,7 +154,7 @@ fun DivinationDialog(
     val cost = Divination.spiFor(method, spiChoice)
     val circumstances = Divination.modifierTotal(rows.filter { it.source in chosen }) +
         conditionPenaltyAfterSpending(cost)
-    val extras = circumstances + protection.penalty
+    val extras = circumstances + protection.penalty + shock
     val target = Divination.targetFor(skillLevel, difficulty, extras)
 
     AlertDialog(
@@ -374,6 +376,7 @@ fun DivinationDialog(
                 }
                 Text(
                     "Skill $skillLevel, question ${signed(difficulty.modifier)}" +
+                        (if (shock != 0) ", shock ${signed(shock)}" else "") +
                         (
                             if (circumstances != 0) ", circumstances ${signed(circumstances)}"
                             else ""

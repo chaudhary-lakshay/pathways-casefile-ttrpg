@@ -225,6 +225,10 @@ def parse_major_wounds(lines):
     return out
 
 
+# The Major Wound success row, which is the only place this book prices shock.
+SHOCK_EFFECT = "-4 to all rolls for 1 turn from shock and pain"
+
+
 def verify(locations, types, stacking, major, major_lines, intro):
     got = [l["target"] for l in locations]
     if got != EXPECTED_LOCATIONS:
@@ -261,6 +265,13 @@ def verify(locations, types, stacking, major, major_lines, intro):
     got = [m["result"] for m in major]
     if got != RESULTS:
         raise ValueError(f"major wound rows changed: {got} != {RESULTS}")
+    # com.pathways.rules.Shock reads the -4 from the success row and the screen
+    # quotes this cell. EXACT: "all rolls" is the whole scope, and the app
+    # applies it to skill, attribute and active-defence rolls on the strength
+    # of those two words.
+    success = next(m for m in major if m["result"] == "Success")
+    if success["effect"] != SHOCK_EFFECT:
+        raise ValueError(f"the shock row no longer reads {SHOCK_EFFECT!r}: {success['effect']!r}")
     if [m for m in major if "failBy" in m] != [major[2]]:
         raise ValueError("exactly one major wound row prints a margin; that changed")
     # Both halves of the threshold rule. The sentence says "more than half ...
