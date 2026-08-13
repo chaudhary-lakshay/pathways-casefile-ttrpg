@@ -12,7 +12,11 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: section 6bh, then 6bg and 6bf.** 6bh runs the clause
+**Where to start next: section 6bi, then 6bh, 6bg and 6bf.** 6bi is the
+newest and the shortest lesson: one word ("Regular") decided a rule's whole
+scope, and Codex still found three states the reading did not cover — a
+scope argued from the text is not the same as a scope that covers every
+state the screen can reach. 6bh runs the clause
 sweep 6bf named and finds a hole in 6bg, committed an hour earlier — the
 newest evidence that a slice's own verdict expires fastest. Together the
 three **correct 6bd**, whose "round tracker unblocks five rules" ranking
@@ -70,7 +74,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **958 Kotlin** (JUnit 5 — 865 `core:rules`, 73 `app`, 20 `core:model`) + **256 Python** (pytest), all green |
+| Tests | **966 Kotlin** (JUnit 5 — 873 `core:rules`, 73 `app`, 20 `core:model`) + **257 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -5042,6 +5046,87 @@ defence: All-Out Attack (Determined), All-Out Attack (Strong), All-Out Attack
 the narrower printing, in that order. Also confirmed there: 6bf's other
 clause, on a Fit character — *"Fit — recover FP at twice the normal rate /
 Not applied here: this app holds no clock to recover against."*
+
+## 6bi. Strong Blow — one word, and what it points at
+
+`Attacks.strongBlow` applies Ch. 5's second extra-effort option, and the
+attack dialog offers it. 6bh named this as its own slice: **"+2 damage.
+Regular melee attacks only."**, 1 FP, extracted since the combat slice and
+offered nowhere. `Attacks.damageBonus` already composed exactly this kind of
+bonus — the class 6h, 6m, 6ai and 6ap each found, with the consumer already
+built.
+
+- **"Regular" names the Regular Attack MANEUVER, not "ordinary".** Three
+  things settle it: that row is printed two lines above the bullet list; the
+  sibling bullet keys to a row the same way ("Ignore **Charge Attack**
+  penalties"), so this list references maneuvers; and read loosely the word
+  does no work, because the sentence already says melee only. "Regular" is
+  printed as an adjective for an attack **exactly once** in the book, which
+  is what makes the maneuver row the only thing it can point at — the
+  uniqueness grep 6bg used for "cannot be substituted". Under the loose
+  reading All-Out Attack (Strong) is strictly dominated, 2 FP for the +2 this
+  buys for 1, and the two stack to +4 for 3.
+- **Refused on each of its scopes, never dropped**, because 1 FP is spent
+  either way — the reason Heroic Charge outside a Charge throws (6j) and the
+  reason a mistimed ritual is refused rather than ignored (6ay).
+- **Codex found three states the reading did not cover, in three passes**,
+  and each is a different kind of "nothing to add +2 to": **Shove**, whose
+  cell reads "Special" and rolls no damage (6j); a skill with **neither an
+  unarmed row nor a weapon**, which is most of them, since this book tags no
+  skill as a combat skill and every skill is offered (6i); and a **firearm
+  held in reach**, where `isRanged` is false but the rifle is still a gun.
+- **That third one is why the offer is a rules predicate.** `isRanged` is
+  where the fighter stands; whether the weapon is fired is what is held, and
+  `modifiers` never sees the weapon. A screen computing its own condition
+  would have been the two-copies failure this file records three times (6ag,
+  6ai, 6be), so `offersStrongBlow` answers and the dialog calls it.
+- **`withAttack` is `atRange`'s sibling.** Ticking the option and then
+  tapping Shove has to drop it, the same way going to range drops the two
+  melee-only attack options — and for the same reason: the guard is a
+  `require`, so a screen that changed only the attack would hand the next
+  composition an exception (6as).
+- **A drift pin has to be EXACT here** (Codex, first pass). `PINNED` and
+  `PINNED_OPTIONS` are substring checks because those cells are paragraphs
+  around one number; an extra-effort effect cell IS the whole rule, so a
+  sentence APPENDED to it ("Cannot combine with Rapid Strike") would leave
+  the substring intact and the Kotlin scope stale. My own comment said
+  "pinned whole" while the check was a substring — the count-in-prose habit
+  (6as) applied to an assertion rather than a number.
+- **Charged once per maneuver, not per attack.** A Regular Attack split by a
+  Rapid Strike is still one maneuver, so the +2 rides the damage expression
+  both attacks share. The book composes them nowhere; same reading as
+  All-Out Double's single 2 FP (6i).
+
+**Also confirmed, not assumed:** the prohibition line-set over lines
+2380-2460 turns up nothing forbidding this — the sweep 6ba established
+expires and has to be re-run against a new slice's own subject.
+
+Every reading was RED-proved by neutering it in turn (the maneuver scope, the
+melee scope, the `atRange` drop, the wounds guard); each failed, each was
+restored. **966 Kotlin** (+8) and **257 Python** (+1), all green. Codex
+reviewed four times and returned clean on the fourth.
+
+Device-verified on the physical tablet (1920x1200), all four states:
+
+- **Barmaid Brawler**, Brawling 13, Punch + Regular Attack: the chip renders,
+  and ticking it takes the damage line **`1d-3 cr` → `1d-1 cr`** with
+  "Attack options: no modifier, **costs 1 FP**" — the +2 landing on damage,
+  the roll unmoved.
+- **Tapping Shove with it still ticked**: the chip is **gone**, the line
+  reads **"Rolls no damage; see the note above"**, and the cost line shows
+  "-2" with **no FP** — the ticked option dropped rather than charged.
+- **Streetwise 10** on the same character: no unarmed row, no weapon, **no
+  chip and no damage line at all**.
+- **Hunter-Tracker**, Bolt-Action Rifle toggled to **In reach**: damage reads
+  **`5d pi+, ×1.5 there`** and Regular Attack is selected, and the chip is
+  **still absent** — the one state where only the firearm fact excludes it.
+
+**Still unoffered from the same table**, named in 6bh and unchanged here:
+**Giant Step** (movement, unmodelled) and **Feverish Defense**'s "+2 to one
+defense roll" half — its forfeit half already reaches the defence dialog
+(6bh). Chapter 5 is at **80.8%** before and after: this was a rule printed
+and unapplied, not an unclaimed line, and `coverage.py` cannot see the
+difference.
 
 ---
 
