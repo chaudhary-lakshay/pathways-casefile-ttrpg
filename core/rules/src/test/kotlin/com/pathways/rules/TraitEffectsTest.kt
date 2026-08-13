@@ -182,13 +182,15 @@ class TraitEffectsTest {
     fun `a partly applied trait reports the clauses that reach nothing`() {
         val notes = TraitEffects.reported(listOf(advantage("Combat Reflexes"), advantage("Fit")))
         assertEquals(
-            listOf("Combat Reflexes", "Combat Reflexes", "Fit"),
+            listOf("Combat Reflexes", "Fit"),
             notes.map { it.trait },
         )
         assertEquals(
             listOf(
+                // "never freeze in surprise" was here until the surprise
+                // refusal shipped (6bg) and the stun penalty followed it. What
+                // is left is the RECOVERY roll, which needs a clock.
                 "+6 to recover from stun",
-                "never freeze in surprise",
                 "recover FP at twice the normal rate",
             ),
             notes.map { it.printed },

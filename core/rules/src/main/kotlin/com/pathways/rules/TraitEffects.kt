@@ -160,9 +160,16 @@ object TraitEffects {
      *
      * Both reasons here are the familiar refusals, not new ones. The FP rate
      * needs a clock, which this app deliberately does not hold (6ad, 6ah,
-     * 6an); the stun and surprise clauses name events it does not model.
-     * Each will stop being reported when something makes it reachable, and
-     * `never freeze in surprise` is one declaration away.
+     * 6an); the stun clause names a RECOVERY roll, which is not the penalty
+     * while stunned -- that one is applied, by [ActiveDefenses.everyDefence].
+     *
+     * **`never freeze in surprise` was here and is not any more**, which is
+     * the point of the sentence this KDoc used to end on: it said the clause
+     * was "one declaration away", the surprise refusal shipped one slice
+     * later, and the disclaimer stayed. A GM was told the trait did nothing
+     * on the same screen whose dialog was using it. A report of what is NOT
+     * applied expires exactly when the code changes (6ba), so the seam is
+     * pinned by a test in `ActiveDefensesTest` rather than by this comment.
      */
     private val PARTLY_APPLIED: Map<String, List<Pair<String, String>>> = mapOf(
         FIT to listOf(
@@ -172,8 +179,6 @@ object TraitEffects {
         COMBAT_REFLEXES to listOf(
             "+6 to recover from stun" to
                 "this app models no stun recovery roll to make",
-            "never freeze in surprise" to
-                "this app models no surprise, so there is no freeze to prevent",
         ),
     )
 

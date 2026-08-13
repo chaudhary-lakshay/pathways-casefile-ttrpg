@@ -262,6 +262,29 @@ class ActiveDefensesTest {
         assertTrue(printed.contains("${ActiveDefenses.STUNNED_PENALTY} to Active Defense"), printed)
     }
 
+    /**
+     * Nothing is REPORTED as unapplied that the engine actually applies.
+     *
+     * Found on device: the sheet read "Combat Reflexes — never freeze in
+     * surprise / Not applied here: this app models no surprise", two taps
+     * from a dialog that was cancelling the surprise refusal with that exact
+     * trait. 6bf wrote the disclaimer when it was true and 6bg shipped the
+     * declaration a slice later; a report of what is not applied expires the
+     * moment the code changes (6ba), and only a test that reads BOTH objects
+     * can notice.
+     */
+    @Test
+    fun `a clause the engine applies is not reported as unapplied`() {
+        val notes = TraitEffects.reported(reflexes).map { it.printed }
+        if (ActiveDefenses.state(setOf(DefenseRefusal.SURPRISE), reflexes).defends) {
+            assertTrue(notes.none { it.contains("surprise", ignoreCase = true) }, "$notes")
+        }
+        // The stun clause is still reported, and correctly: the trait's own
+        // words are "+6 to RECOVER from stun", which is the roll this app has
+        // no clock for -- not the -4 it now applies while stunned.
+        assertTrue(notes.any { it.contains("recover from stun") }, "$notes")
+    }
+
     /** Every cause the enum names is a rule the book prints, and the reverse. */
     @Test
     fun `every cause is backed by an extracted sentence`() {
