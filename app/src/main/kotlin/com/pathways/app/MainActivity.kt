@@ -636,6 +636,7 @@ fun SheetScreen(
             // defence and cancels the surprise refusal, and one trait's two
             // consequences belong in one place (ActiveDefenses).
             traits = traits,
+            onSpendFp = { session.spend(Pool.FP, it, vitals.maxFp, maxCor) },
         ) { defending = false }
     }
     if (attacking) {

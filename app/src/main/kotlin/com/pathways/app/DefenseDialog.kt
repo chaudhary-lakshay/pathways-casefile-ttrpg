@@ -26,6 +26,7 @@ import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.model.Weapon
 import com.pathways.rules.ActiveDefenses
+import com.pathways.rules.DefenseBoost
 import com.pathways.rules.DefenseRefusal
 import com.pathways.rules.ParryBlock
 import com.pathways.rules.TraitEffects
@@ -128,6 +129,14 @@ fun DefenseDialog(
      * here would put one trait's consequences in two places.
      */
     traits: List<Trait> = emptyList(),
+    /**
+     * Charges the FP a defence boost costs.
+     *
+     * A cost that is only printed is a tracker that lies -- the FP-to-HP rule
+     * (6b) and the Soul Debt (6m) were both found that way. Required rather
+     * than defaulted: no value is safe when it is wrong.
+     */
+    onSpendFp: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val reflexes = remember(traits) { TraitEffects.defenseBonus(traits) }
@@ -171,6 +180,11 @@ fun DefenseDialog(
     // (Unarmed) row's three rules -- the -3 for a weapon, and the refusal
     // against a shot -- both printed since 6g and applied by nothing.
     var incoming by remember { mutableStateOf(Incoming.BARE_HAND) }
+    // Which boost was paid for, and WHICH ROW it was spent on. Both sentences
+    // say "+2 to ONE defence", so the row is part of the choice -- folding it
+    // into every row would buy Dodge, each Parry and Block for one payment.
+    // Null is the ordinary case: nothing bought.
+    var boost by remember { mutableStateOf<Pair<DefenseBoost, String>?>(null) }
     // ORDINARY for every row, and that is not a flattening: chapter 8's nine
     // weapons are five firearms, a knife, a truncheon, a hand axe and a
     // broadsword, and none of them is a fencing weapon or a rapier. `Weapon`
@@ -225,12 +239,16 @@ fun DefenseDialog(
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     ShieldPicker(shields, carried) { carried = if (it == carried) null else it }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                    DefenseRow("Dodge", shielded(dodge, carried, reflexes))
+                    DefenseRow("Dodge", shielded(dodge + boostOn("Dodge", boost), carried, reflexes))
                     printed.firstOrNull { it.defense == "Dodge" }?.let { Note(it.notes) }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 }
                 items(armed) { (name, value) ->
-                    DefenseRow("Parry ($name)", shielded(value + parryPenalty, carried, reflexes))
+                    val label = "Parry ($name)"
+                    DefenseRow(
+                        label,
+                        shielded(value + parryPenalty + boostOn(label, boost), carried, reflexes),
+                    )
                 }
                 item {
                     if (armed.isNotEmpty()) {
@@ -251,9 +269,14 @@ fun DefenseDialog(
                     // replacing it: a second parry, of a weapon, is both.
                     val vsWeapon =
                         if (incoming == Incoming.WEAPON) ParryBlock.versusWeaponPenalty(style) else 0
+                    val label = "Parry ($name)"
                     DefenseRow(
-                        "Parry ($name)",
-                        shielded(value + parryPenalty + vsWeapon, carried, reflexes),
+                        label,
+                        shielded(
+                            value + parryPenalty + vsWeapon + boostOn(label, boost),
+                            carried,
+                            reflexes,
+                        ),
                     )
                 }
                 item {
@@ -284,8 +307,9 @@ fun DefenseDialog(
                     if (shieldSkill != null) {
                         val held = carried
                         val bare = ParryBlock.blockFor(shieldSkill, shieldDb = 0)
+                        val boosted = boostOn("Block", boost)
                         if (held == null) {
-                            DefenseRow("Block", shielded(bare, null, reflexes))
+                            DefenseRow("Block", shielded(bare + boosted, null, reflexes))
                             Note("Pick a shield above; Block needs one Readied.")
                         } else {
                             // Shields.blockFor already folds the DB in, so the
@@ -293,13 +317,14 @@ fun DefenseDialog(
                             // shielded() -- but the trait bonus is added to
                             // one bare figure and carried across, so the two
                             // ends of the arrow cannot drift apart.
-                            val own = bare + reflexes
-                            val melee = Shields.blockFor(held, shieldSkill) + reflexes
+                            val own = bare + reflexes + boosted
+                            val melee = Shields.blockFor(held, shieldSkill) + reflexes + boosted
                             DefenseRow("Block", "$own → $melee")
                             // The ranged figure is shown beside it rather than
                             // replacing it: a light shield is "-1 to Block vs.
                             // ranged" and one number cannot say both.
-                            val shot = Shields.blockFor(held, shieldSkill, isRanged = true) + reflexes
+                            val shot =
+                                Shields.blockFor(held, shieldSkill, isRanged = true) + reflexes + boosted
                             if (shot != melee) Note("Against ranged attacks: $shot")
                         }
                         printed.firstOrNull { it.defense == "Block" }?.let { Note(it.notes) }
@@ -309,6 +334,50 @@ fun DefenseDialog(
                         Note("${it.type}: DB +${it.db}, Cover DR ${it.coverDr}, HP ${it.hp} — ${it.notes}")
                     }
                     Shields.rules().forEach { Note(it.rule) }
+                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
+
+                    // UNDER the rows, because it names one of them: a picker
+                    // above would have to be read before the labels it offers
+                    // exist on screen. The rows it can name are exactly the
+                    // ones rendered above -- withdrawing a parry against a
+                    // shot withdraws it from here too, so no payment can buy
+                    // a defence the book already refused.
+                    // Block needs a shield READIED, which is what the row
+                    // itself says two lines up -- so offering to buy +2 on it
+                    // bare-handed contradicts our own screen (Codex). Having
+                    // the SKILL is not having the shield.
+                    // ...and no Shield skill means no Block row at all, so
+                    // both halves gate it, exactly as the row itself does.
+                    val payable = defenceLabels(
+                        dodge = true,
+                        armed,
+                        standing,
+                        block = shieldSkill != null && carried != null,
+                    )
+                    if (boost != null && boost?.second !in payable) {
+                        Note(
+                            "The defence you paid for is not available against this attack, " +
+                                "so the +2 lands on nothing. The FP stays spent.",
+                        )
+                    }
+                    BoostPicker(
+                        rows = payable,
+                        chosen = boost,
+                        onPick = { next ->
+                            // Charged ONLY on the transition from nothing to
+                            // something. Swapping one paid chip for another
+                            // charged twice while showing one +2 (Codex), and
+                            // the alternatives are both wrong: refunding the
+                            // first invents a rule the book does not print,
+                            // and keeping both would apply two bonuses the GM
+                            // sees as one. The picker clears first instead --
+                            // one payment, one +2, no refunds.
+                            if (boost == null && next != null) {
+                                onSpendFp(ActiveDefenses.fpCostOf(next.first))
+                            }
+                            boost = next
+                        },
+                    )
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
 
                     Text(
@@ -321,6 +390,95 @@ fun DefenseDialog(
             }
         },
     )
+}
+
+/**
+ * What a paid boost adds to the row named [label], and nothing to the rest.
+ *
+ * Both printed sentences say "+2 to ONE defence", so the bonus is keyed on
+ * the row the GM named rather than folded into [shielded] with Combat
+ * Reflexes -- which really does say "all active defenses" (6al).
+ */
+internal fun boostOn(label: String, boost: Pair<DefenseBoost, String>?): Int =
+    if (boost?.second == label) ActiveDefenses.BOOST_BONUS else 0
+
+/**
+ * The rows a boost may be spent on: exactly the ones rendered above it.
+ *
+ * A parry withdrawn against a shot is not offered here either, so no payment
+ * can buy a defence the book has already refused.
+ */
+internal fun defenceLabels(
+    dodge: Boolean,
+    armed: List<Pair<String, Int>>,
+    unarmed: List<Triple<String, UnarmedStyle, Int>>,
+    block: Boolean,
+): List<String> = buildList {
+    if (dodge) add("Dodge")
+    armed.forEach { add("Parry (${it.first})") }
+    unarmed.forEach { add("Parry (${it.first})") }
+    if (block) add("Block")
+}
+
+/**
+ * Which +2 was paid for, and on which row.
+ *
+ * Two chips rather than one, because the book prints two rules at different
+ * prices with different drawbacks, and a GM has to say which they paid. The
+ * ROW is part of the same choice for the same reason the option is: "+2 to
+ * one defence" is meaningless without naming the one.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun BoostPicker(
+    rows: List<String>,
+    chosen: Pair<DefenseBoost, String>?,
+    onPick: (Pair<DefenseBoost, String>?) -> Unit,
+) {
+    // Nothing to buy when no defence stands -- but a boost already paid for
+    // still needs its clear button, so an empty row list is not an early exit
+    // when one is held.
+    if (rows.isEmpty() && chosen == null) return
+    Text("Buy +2 on one defence", style = MaterialTheme.typography.titleSmall)
+    DefenseBoost.entries.forEach { boost ->
+        val fp = ActiveDefenses.fpCostOf(boost)
+        Text(
+            "${boost.printed} — $fp FP: ${ActiveDefenses.printedBoost(boost)}",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        FlowRow {
+            rows.forEach { row ->
+                val isChosen = chosen == boost to row
+                FilterChip(
+                    selected = isChosen,
+                    // Tapping the chosen chip clears it, which is the only way
+                    // back -- a choice with no way out is the defect the
+                    // wealth picker was fixed for (6u).
+                    onClick = { onPick(if (isChosen) null else boost to row) },
+                    // While one is paid for, the others are DISABLED rather
+                    // than swapping: swapping charged twice and showed one +2
+                    // (Codex), and nothing here can refund the first payment,
+                    // because the book spends the FP on the declaration.
+                    // Clearing first is the honest way to change your mind.
+                    enabled = chosen == null || isChosen,
+                    label = { Text(row) },
+                    modifier = Modifier.padding(end = 8.dp),
+                )
+            }
+        }
+    }
+    chosen?.let { (boost, row) ->
+        Note("Paid ${ActiveDefenses.fpCostOf(boost)} FP: +2 on $row this turn.")
+        // Always reachable, even when the paid row is not on screen: declaring
+        // a shot withdraws an unarmed parry, and with only the chips to clear
+        // with, a boost bought on that row left every control disabled
+        // (Codex). The FP stays spent -- clearing is a correction, not a
+        // refund, and the label says so.
+        TextButton(onClick = { onPick(null) }) {
+            Text("Clear the +2 (the FP stays spent)")
+        }
+    }
 }
 
 /**

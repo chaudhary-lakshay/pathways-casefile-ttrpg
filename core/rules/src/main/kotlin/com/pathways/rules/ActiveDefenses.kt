@@ -24,6 +24,34 @@ enum class DefenseRefusal {
 }
 
 /**
+ * A printed way to buy +2 on a defence (Ch. 5, p. 36-37).
+ *
+ * **Two rules, one bonus, and neither was applied.** The extra-effort table
+ * prints "Pay 1 FP: +2 to one defense roll. Cannot defend next turn." and the
+ * maneuver table prints "Pay 2 FP. +2 to one active defense until next turn.
+ * Cannot attack." Identified by the SENTENCE rather than by the table it sits
+ * in -- the lesson the forfeit taught one row over (6bh), where reading only
+ * the maneuvers left the extra-effort option out of a list that looked
+ * complete.
+ *
+ * They are NOT merged, because the book prices them differently in both
+ * directions: the cheaper one costs a turn's defence afterwards, the dearer
+ * one costs this turn's attack. Which was paid is the GM's to say.
+ */
+enum class DefenseBoost(
+    /** The row's own name, exactly as its table prints it. */
+    val printed: String,
+    /** Where the row lives, which is what decides where its cost is read. */
+    val extraEffort: Boolean,
+) {
+    /** "[Free Action] [Feverish Defense - Variant Rule] Pay 1 FP: ..." */
+    FEVERISH("Feverish Defense — Variant Rule", extraEffort = true),
+
+    /** "All-Out Defense (Increased) ... Pay 2 FP. +2 to one active defense" */
+    ALL_OUT_INCREASED("All-Out Defense (Increased)", extraEffort = false),
+}
+
+/**
  * Whether the defences stand, and why not.
  *
  * [negated] is a cause that WAS declared and a trait cancelled, kept because
@@ -144,6 +172,52 @@ object ActiveDefenses {
     /** The book's narrower printing of the same rule, where there is one. */
     private fun narrowerFor(cause: DefenseRefusal): String? =
         if (cause == DefenseRefusal.ALL_OUT_ATTACK) printedFor(cause.name) else null
+
+    /**
+     * What a [DefenseBoost] adds, and it is ONE defence rather than all of
+     * them.
+     *
+     * Both sentences say "one" -- "one defense roll", "one active defense" --
+     * where Combat Reflexes says "+1 to all active defenses" and a shield's
+     * DB "adds to all active defenses". So this deliberately does NOT go
+     * through the function every row already uses: adding it there would give
+     * a fighter +2 on Dodge, every Parry and Block at once for 1 FP. The
+     * screen applies it to the row the GM names.
+     *
+     * A number inside a prose cell, so it lives here with the sentence pinned
+     * by a test -- the split the maneuver table's +4/-4 (6i), the +3 support
+     * cap (6y) and the orthodox -2 (6z) all take.
+     */
+    const val BOOST_BONUS = 2
+
+    /**
+     * The FP [boost] costs, read from the table it is printed in.
+     *
+     * Never a constant here: 1 and 2 are already committed content, and a
+     * second copy is what 4.1 forbids. Which table to read is the enum's own
+     * [DefenseBoost.extraEffort], because the two rows live in different
+     * files and are priced differently on purpose.
+     */
+    fun fpCostOf(boost: DefenseBoost): Int {
+        if (boost.extraEffort) {
+            val row = ContentLoader.extraEffort().firstOrNull { it.option == boost.printed }
+            require(row != null) { "extra_effort.json has no option named '${boost.printed}'" }
+            return row.fp
+        }
+        val row = ContentLoader.maneuvers().firstOrNull { it.maneuver == boost.printed }
+        require(row != null) { "maneuvers.json has no row named '${boost.printed}'" }
+        val fp = row.fp
+        require(fp != null) { "'${boost.printed}' no longer prints an FP cost" }
+        return fp
+    }
+
+    /** The book's own sentence for [boost], quoted rather than paraphrased. */
+    fun printedBoost(boost: DefenseBoost): String =
+        if (boost.extraEffort) {
+            ContentLoader.extraEffort().first { it.option == boost.printed }.effect
+        } else {
+            ContentLoader.maneuvers().first { it.maneuver == boost.printed }.description
+        }
 
     /** The book's own sentence for a cause, refused when the content prints none. */
     fun printedFor(cause: String): String {

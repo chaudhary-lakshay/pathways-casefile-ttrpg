@@ -146,6 +146,74 @@ class ActiveDefensesTest {
         }
     }
 
+    /**
+     * **Two rules print "+2 to one defence" and neither was applied.**
+     *
+     * The extra-effort table: "Pay 1 FP: +2 to one defense roll. Cannot
+     * defend next turn." The maneuver table: "Pay 2 FP. +2 to one active
+     * defense until next turn. Cannot attack." Found by the sentence rather
+     * than the table -- the forfeit's lesson one row over (6bh).
+     *
+     * NOT merged: the book prices them differently in both directions, so
+     * which one was paid is a real choice. The costs come from the committed
+     * content, never from constants here.
+     */
+    @Test
+    fun `both boosts are printed rows and each costs what its own table says`() {
+        assertEquals(1, ActiveDefenses.fpCostOf(DefenseBoost.FEVERISH))
+        assertEquals(2, ActiveDefenses.fpCostOf(DefenseBoost.ALL_OUT_INCREASED))
+        // Each is read from the table it lives in, and both still exist.
+        assertTrue(
+            ContentLoader.extraEffort().any { it.option == DefenseBoost.FEVERISH.printed },
+        )
+        assertTrue(
+            ContentLoader.maneuvers().any { it.maneuver == DefenseBoost.ALL_OUT_INCREASED.printed },
+        )
+    }
+
+    /**
+     * **"One" defence, not all of them.**
+     *
+     * Both sentences say "one" where Combat Reflexes says "+1 to ALL active
+     * defenses" and a shield's DB "adds to all active defenses". Applying
+     * this like those would buy +2 on Dodge, every Parry and Block at once
+     * for 1 FP. A reading, so the sentences are pinned rather than recalled.
+     */
+    @Test
+    fun `each boost is worth two on ONE defence and says so`() {
+        assertEquals(2, ActiveDefenses.BOOST_BONUS)
+        for (boost in DefenseBoost.entries) {
+            val printed = ActiveDefenses.printedBoost(boost)
+            assertTrue(printed.contains("+2 to one"), "$boost no longer says '+2 to one': $printed")
+        }
+        // ...and the contrast that makes "one" load-bearing is still printed.
+        assertTrue(
+            ContentLoader.advantages()
+                .first { it.name == TraitEffects.COMBAT_REFLEXES }
+                .notes.contains("all active defenses"),
+        )
+    }
+
+    /**
+     * Each boost's own drawback is still printed, and they differ.
+     *
+     * Feverish costs the NEXT turn's defence -- which is why it is one of the
+     * five rows [ActiveDefenses.forfeitingActions] returns -- and All-Out
+     * Defense costs this turn's attack instead. If the two ever printed the
+     * same drawback, the reason for keeping them apart would have to be made
+     * again rather than inherited.
+     */
+    @Test
+    fun `the two boosts are priced differently in both directions`() {
+        val feverish = ActiveDefenses.printedBoost(DefenseBoost.FEVERISH)
+        val allOut = ActiveDefenses.printedBoost(DefenseBoost.ALL_OUT_INCREASED)
+        assertTrue(feverish.contains(ActiveDefenses.FORFEIT_PHRASE), feverish)
+        assertTrue(allOut.contains("Cannot attack"), allOut)
+        assertTrue(!allOut.contains(ActiveDefenses.FORFEIT_PHRASE), allOut)
+        assertTrue(DefenseBoost.FEVERISH.printed in ActiveDefenses.forfeitingActions())
+        assertTrue(DefenseBoost.ALL_OUT_INCREASED.printed !in ActiveDefenses.forfeitingActions())
+    }
+
     /** Every cause the enum names is a rule the book prints, and the reverse. */
     @Test
     fun `every cause is backed by an extracted sentence`() {
