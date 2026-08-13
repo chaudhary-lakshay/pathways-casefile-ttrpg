@@ -92,6 +92,12 @@ PINNED_EFFORT = {
 # -- so a clause dropped or appended changes what a GM is shown.
 PINNED_MANEUVERS_EXACT = {
     "Do Nothing": "If Stunned: -4 to Active Defense. Otherwise rest to recover FP.",
+    # The Acc rows are in ranged_modifiers.json; the sentence that CANCELS
+    # them is only here, on the maneuver. Exact, because com.pathways.rules
+    # .Ranged quotes this cell as the reason it withdraws them, and because
+    # "max ACC+2" is the half that has to keep agreeing with that table.
+    "Aim (Ranged)": "Add weapon's ACC to your next ranged Attack. "
+    "+1 per additional Aim (max ACC+2). Canceled by any Active Defense or injury.",
 }
 # Ch. 11 prints the same -4 where no maneuver is in sight, on an ability that
 # leaves its target "mentally Stunned for 1 turn". That corroboration is the

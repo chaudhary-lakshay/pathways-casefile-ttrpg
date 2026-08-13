@@ -29,6 +29,43 @@ object Ranged {
     /** The nine Other Ranged Modifiers rows, as printed. */
     fun conditions(): List<RangedModifier> = ContentLoader.rangedModifiers()
 
+    /** The maneuver row that grants the aim, and says what takes it away. */
+    private const val AIM_ROW = "Aim (Ranged)"
+
+    /**
+     * The Aim maneuver's own cell, quoted whole (Ch. 5, p. 37).
+     *
+     * The two Acc rows live in the ranged modifiers table; the sentence that
+     * CANCELS them is printed one table away, on the maneuver itself --
+     * "Canceled by any Active Defense or injury." Nothing read it, so an aim
+     * survived a parry and a bullet, and a rifleman who defended between
+     * taking aim and firing still collected the full Acc.
+     *
+     * The two printings agree where they overlap ("max ACC+2" here, "max Acc
+     * +2 total" there), which is what licenses reading this cell as the same
+     * aim rather than a rule about a different one -- the per-table standard
+     * 6ad set, pinned in both languages.
+     */
+    fun printedAim(): String =
+        ContentLoader.maneuvers().first { it.maneuver == AIM_ROW }.description
+
+    /**
+     * The condition rows offered when the GM says the aim was [cancelled].
+     *
+     * A REFUSAL, not a penalty: the book takes the aim away rather than
+     * pricing it, so the rows go and the sentence is shown in their place --
+     * the call a Broken mystical tongue (6x) and an unarmed parry against a
+     * shot (6bj) each needed. The decision lives here rather than in the
+     * screen's filter, because a dialog holding its own opinion about a
+     * printed refusal is the two-copies failure (6ag, 6ai, 6be).
+     *
+     * Whether the shooter defended or was hurt since aiming is a DECLARATION:
+     * this app holds no turn to remember an aim across, and the GM does. Same
+     * reading as the three defence refusals (6bg).
+     */
+    fun offeredConditions(cancelled: Boolean): List<RangedModifier> =
+        if (cancelled) conditions().filterNot { it.weaponAcc } else conditions()
+
     /**
      * The band [meters] falls in.
      *
@@ -76,7 +113,16 @@ object Ranged {
         conditions: List<RangedModifier> = emptyList(),
         gmValue: Map<String, Int> = emptyMap(),
         weaponAcc: Int? = null,
+        aimCancelled: Boolean = false,
     ): List<Modifier> = buildList {
+        // The aim is GONE, not reduced, so a plan still carrying it is refused
+        // rather than quietly stripped: 1 FP or a turn was spent on it, and a
+        // caller told nothing would believe the Acc was counted. The screen
+        // withdraws the rows through [offeredConditions], so nothing reachable
+        // can build this plan -- which is why the guard is here (6l).
+        require(!aimCancelled || conditions.none { it.weaponAcc }) {
+            "the aim was cancelled: " + printedAim()
+        }
         // "Aim last turn" and "Aim for 3+ turns" are the same aim, held for
         // different lengths. Both at once would pay the Acc twice and break
         // the second row's own printed ceiling ("max Acc +2 total").

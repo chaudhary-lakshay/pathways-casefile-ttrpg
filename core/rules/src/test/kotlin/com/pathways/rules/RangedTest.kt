@@ -199,4 +199,69 @@ class RangedTest {
         val mods = Ranged.modifiers(band = Ranged.bandFor(30))
         assertEquals(listOf(SourceKind.SITUATIONAL), mods.map { it.source.kind })
     }
+
+    /**
+     * **"Canceled by any Active Defense or injury" reached nothing.**
+     *
+     * The two Acc rows are in the ranged modifiers table and the sentence that
+     * takes them away is printed one table over, on the Aim maneuver itself --
+     * so an aim survived a parry and a bullet, and a rifleman who defended
+     * between taking aim and firing still collected the full Acc.
+     *
+     * A refusal rather than a penalty: the rows are withdrawn and the book's
+     * sentence shown in their place, the call a Broken mystical tongue (6x)
+     * and an unarmed parry against a shot (6bj) each needed.
+     */
+    @Test
+    fun `a cancelled aim withdraws both Acc rows and nothing else`() {
+        val all = Ranged.offeredConditions(cancelled = false)
+        assertEquals(Ranged.conditions(), all)
+        val left = Ranged.offeredConditions(cancelled = true)
+        assertEquals(all.filterNot { it.weaponAcc }, left)
+        // Exactly the two aim rows go; the other seven are untouched by it.
+        assertEquals(2, all.size - left.size)
+        assertTrue(left.none { it.weaponAcc })
+    }
+
+    /**
+     * A plan still carrying the aim is refused, not quietly stripped.
+     *
+     * A turn was spent taking it, so a caller told nothing would believe the
+     * Acc had been counted. Nothing reachable can build this plan -- the
+     * screen withdraws the rows -- which is exactly why the guard exists: the
+     * permissive path is what the next caller finds (6l).
+     */
+    @Test
+    fun `the rules refuse an aim the GM has cancelled`() {
+        val aim = row("Shooter used Aim last turn")
+        val ex = assertThrows<IllegalArgumentException> {
+            Ranged.modifiers(conditions = listOf(aim), weaponAcc = 4, aimCancelled = true)
+        }
+        assertTrue(ex.message!!.contains("Canceled by any Active Defense or injury"), ex.message)
+        // The other rows still apply while the aim is gone: being hurt does
+        // not move the target or lift the fog.
+        val prone = row("Target is prone")
+        assertEquals(
+            listOf(-2),
+            flats(Ranged.modifiers(conditions = listOf(prone), weaponAcc = 4, aimCancelled = true)),
+        )
+    }
+
+    /**
+     * The cancelling cell and the Acc rows are the same aim, and agree.
+     *
+     * The maneuver prints "max ACC+2" and the modifiers table "max Acc +2
+     * total" -- one printed ceiling, said twice. That agreement is the whole
+     * warrant for reading a maneuver's sentence as governing another table's
+     * rows (6ad, and 6v is why it can never be per-source).
+     */
+    @Test
+    fun `the aim maneuver's cell agrees with the rows it cancels`() {
+        val printed = Ranged.printedAim()
+        assertTrue(printed.contains("Canceled by any Active Defense or injury"), printed)
+        assertTrue(printed.contains("max ACC+2"), printed)
+        val longAim = row("Shooter used Aim for 3+ turns")
+        assertEquals(2, longAim.accBonus)
+        assertTrue(longAim.printed.contains("max Acc +2 total"), longAim.printed)
+    }
 }

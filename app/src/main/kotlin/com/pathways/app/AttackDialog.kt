@@ -87,6 +87,10 @@ fun AttackDialog(
     // ranged attack reads them.
     var band by remember { mutableStateOf<RangePenalty?>(null) }
     var circumstances by remember { mutableStateOf<Set<String>>(emptySet()) }
+    // "Canceled by any Active Defense or injury" -- a declaration, because this
+    // app holds no turn to remember an aim across and the GM does. See
+    // [Ranged.offeredConditions].
+    var aimCancelled by remember { mutableStateOf(false) }
     // Null is the Torso: the book's own default, and the row it prints at +0.
     // A called shot survives the reach/range toggle -- unlike distance and
     // cover, "aiming at the skull" means the same thing with a fist or a gun.
@@ -124,6 +128,9 @@ fun AttackDialog(
                         armed = null
                         band = null
                         circumstances = emptySet()
+                        // A cancelled aim belongs to the turn that cancelled
+                        // it, like the distance and the cover above.
+                        aimCancelled = false
                         location = null
                     },
                 ) { Text("Another turn") }
@@ -211,6 +218,7 @@ fun AttackDialog(
                     weapons = Weapons.forSkill(chosen.key),
                     band = band,
                     circumstances = circumstances,
+                    aimCancelled = aimCancelled,
                     location = location,
                     onAttack = {
                         unarmed = it
@@ -249,6 +257,14 @@ fun AttackDialog(
                     // Tapping the chosen location again goes back to the torso
                     // rather than leaving the player stuck with a -9 eye shot.
                     onLocation = { location = if (it == location) null else it },
+                    onAimCancelled = {
+                        aimCancelled = !aimCancelled
+                        // The rows go with the declaration. Left selected they
+                        // would still be summed on Roll -- and Ranged.modifiers
+                        // now refuses that pairing, so the stale chip would
+                        // throw rather than merely mislead (6k, 6y, 6af).
+                        if (aimCancelled) circumstances = circumstances - AIM_ROWS
+                    },
                     onCircumstance = { name ->
                         circumstances = when {
                             name in circumstances -> circumstances - name
@@ -277,7 +293,7 @@ fun AttackDialog(
                         // lands, so the NEXT turn feels it.
                         val mods = conditions(chosen.key) +
                             Attacks.modifiers(plan, chosen.value, unarmed) +
-                            rangedModifiers(plan, band, circumstances, armed.aimAcc) +
+                            rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled) +
                             listOfNotNull(location?.let(Wounds::modifier))
                         // A fresh roll starts with a fresh +5 budget per roll.
                         burned = emptyMap()
@@ -310,11 +326,13 @@ private fun AttackOptions(
     weapons: List<CataloguedWeapon>,
     band: RangePenalty?,
     circumstances: Set<String>,
+    aimCancelled: Boolean,
     location: HitLocation?,
     onAttack: (UnarmedAttack) -> Unit,
     onArmed: (Armed?) -> Unit,
     onBand: (RangePenalty) -> Unit,
     onCircumstance: (String) -> Unit,
+    onAimCancelled: () -> Unit,
     onLocation: (HitLocation) -> Unit,
     onPlan: (AttackPlan) -> Unit,
     onRoll: () -> Unit,
@@ -374,7 +392,15 @@ private fun AttackOptions(
         )
 
         if (plan.isRanged) {
-            RangedOptions(band, circumstances, armed, onBand, onCircumstance)
+            RangedOptions(
+                band,
+                circumstances,
+                armed,
+                aimCancelled,
+                onBand,
+                onCircumstance,
+                onAimCancelled,
+            )
         } else {
             Stepper("Rapid Strike", plan.rapidStrikes, "${Attacks.RAPID_STRIKE_PENALTY} each") {
                 onPlan(plan.copy(rapidStrikes = (plan.rapidStrikes + it).coerceAtLeast(0)))
@@ -416,7 +442,7 @@ private fun AttackOptions(
         val total = Attacks.modifiers(plan, skillLevel, unarmed)
             .sumOf { (it.effect as ModEffect.Flat).n }
         val count = Attacks.attackCount(plan)
-        val fromRange = rangedModifiers(plan, band, circumstances, armed.aimAcc)
+        val fromRange = rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled)
             .sumOf { (it.effect as ModEffect.Flat).n }
         Text(
             "Attack options: ${if (total == 0) "no modifier" else signed(total)}" +
@@ -569,11 +595,15 @@ private fun RangedOptions(
     band: RangePenalty?,
     circumstances: Set<String>,
     armed: Armed?,
+    aimCancelled: Boolean,
     onBand: (RangePenalty) -> Unit,
     onCircumstance: (String) -> Unit,
+    onAimCancelled: () -> Unit,
 ) {
     val bands = remember { Ranged.bands() }
-    val conditions = remember { Ranged.conditions() }
+    // What the book still allows, decided in rules: a screen filtering its own
+    // list is a second copy of the refusal (6ag, 6ai, 6be).
+    val conditions = remember(aimCancelled) { Ranged.offeredConditions(aimCancelled) }
     Text("Distance", style = MaterialTheme.typography.titleSmall)
     FlowRow {
         bands.forEach { option ->
@@ -599,6 +629,23 @@ private fun RangedOptions(
                 modifier = Modifier.padding(end = 8.dp),
             )
         }
+    }
+    Text("Since taking aim", style = MaterialTheme.typography.titleSmall)
+    FlowRow {
+        FilterChip(
+            selected = aimCancelled,
+            onClick = { onAimCancelled() },
+            label = { Text("Defended or was hurt") },
+            modifier = Modifier.padding(end = 8.dp),
+        )
+    }
+    if (aimCancelled) {
+        // Withdrawn with the reason SAID: rows that simply vanish read as a
+        // screen that lost them (6bj), and the aim cost a turn to take.
+        Text(
+            "Aim (Ranged): \"${Ranged.printedAim()}\"",
+            style = MaterialTheme.typography.bodySmall,
+        )
     }
     val acc = armed.aimAcc
     conditions.filter { it.weaponAcc }.forEach { option ->
@@ -670,6 +717,7 @@ private fun rangedModifiers(
     band: RangePenalty?,
     circumstances: Set<String>,
     weaponAcc: Int?,
+    aimCancelled: Boolean,
 ): List<com.pathways.model.Modifier> {
     if (!plan.isRanged) return emptyList()
     // The chosen band is passed whole, never re-looked-up by its lower bound:
@@ -678,6 +726,7 @@ private fun rangedModifiers(
         band = band,
         conditions = Ranged.conditions().filter { it.condition in circumstances },
         weaponAcc = weaponAcc,
+        aimCancelled = aimCancelled,
     )
 }
 
