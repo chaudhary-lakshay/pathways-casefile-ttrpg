@@ -12,11 +12,14 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: section 6bi, then 6bh, 6bg and 6bf.** 6bi is the
-newest and the shortest lesson: one word ("Regular") decided a rule's whole
-scope, and Codex still found three states the reading did not cover — a
-scope argued from the text is not the same as a scope that covers every
-state the screen can reach. 6bh runs the clause
+**Where to start next: section 6bj, then 6bi, 6bh, 6bg and 6bf.** 6bj found
+three rules on one printed line with one applied — and the sweep from 6bh had
+ALREADY flagged that cell, so what failed was the triage, not the
+instrument. Re-running a sweep you have run is cheap. 6bi is the other half
+of the same lesson: one word ("Regular") decided a rule's whole scope, and
+Codex still found three states the reading did not cover — a scope argued
+from the text is not the same as a scope that covers every state the screen
+can reach. 6bh runs the clause
 sweep 6bf named and finds a hole in 6bg, committed an hour earlier — the
 newest evidence that a slice's own verdict expires fastest. Together the
 three **correct 6bd**, whose "round tracker unblocks five rules" ranking
@@ -74,7 +77,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **966 Kotlin** (JUnit 5 — 873 `core:rules`, 73 `app`, 20 `core:model`) + **257 Python** (pytest), all green |
+| Tests | **971 Kotlin** (JUnit 5 — 878 `core:rules`, 73 `app`, 20 `core:model`) + **257 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -5127,6 +5130,86 @@ defense roll" half — its forfeit half already reaches the defence dialog
 (6bh). Chapter 5 is at **80.8%** before and after: this was a rule printed
 and unapplied, not an unclaimed line, and `coverage.py` cannot see the
 difference.
+
+## 6bj. Three rules on one line, and the sweep that had already flagged it
+
+`ParryBlock.versusWeaponPenalty` and `.canParryRanged` apply the other two
+rules on the Parry (Unarmed) row, and the defence dialog asks what is coming
+in. The row prints **three** and this codebase applied one:
+
+    Brawling parries weapons at -3. Boxing uses Boxing / 2 + 3 and ignores
+    that penalty. Cannot parry ranged attacks.
+
+6ap applied the cumulative penalty from the line above. These two were
+committed in `defenses.json` from 6g onward, shown to the GM on that screen
+ever since, and reached nothing — so one number stood for three situations,
+and a bare hand turning a knife read the same as turning a fist.
+
+- **The sweep had already found it and my triage lost it.** 6bh's clause
+  sweep flags this exact cell with all three clauses; re-running it here
+  showed the row plainly. What went wrong in 6bh was reading the shortlist,
+  not building it. So the lesson is NOT "the instrument was too narrow" (6ba)
+  — it is that a sweep's output is only as good as the pass over it, and 49
+  cells is enough to skim. **Re-running a sweep you already ran is cheap;
+  trusting its triage is not.** I also nearly recorded the opposite finding:
+  a `grep -A3` truncated the sweep's own output at three lines and made the
+  cell look absent. Check the instrument before blaming it.
+- **Boxing's exemption is printed twice, and that is the warrant.** p. 37
+  says "Boxing uses Boxing / 2 + 3 and ignores that penalty"; p. 38 says
+  "Unlike Brawling, Boxing parries weapons without penalty". Two printings
+  agreeing is what licenses reading the exemption as Boxing's alone rather
+  than as loose phrasing — the per-table standard 6ad set, and 6v is why it
+  can never be per-source.
+- **Wrestling is named by NEITHER exemption**, and its own -3 is a different
+  rule in a different place: inside the halving (6aw), always, weapon or not.
+  So a wrestler parrying a knife takes both, which is why the two penalties
+  are separate functions rather than one number. A second parry, of a weapon,
+  bare-handed, is -4 AND -3.
+- **The refusal withdraws the rows and says why.** "Cannot parry ranged
+  attacks" is a refusal, not a penalty — the distinction
+  `Languages.ritualModifier` draws for a Broken mystical tongue (6x), and a
+  number there would imply a parry exists to modify. Withdrawn silently it
+  would read as a screen that lost them, so the sentence is printed where the
+  rows were. **Dodge is untouched**, which is the scoping visible on screen.
+- **Scoped to the unarmed row that prints it.** An armed parry is not
+  covered: chapter 8 gives no melee weapon a ranged defence rule, and
+  extending the sentence to weapons would author one. Wrestling's section
+  corroborates the scope from the other side — "Wrestlers can parry MELEE
+  attacks with their hands" — which is what makes this a rule about hands
+  rather than about one row.
+- **What is coming in is a DECLARATION**, like the three refusals (6bg): this
+  dialog holds the defender's sheet and the attacker is a party with no
+  numbers on it. Three values because the row draws exactly those lines.
+- **`canParryRanged` is called by the screen rather than duplicated in it.**
+  The first version filtered on the enum directly, which left the predicate
+  read by nothing — 6ai's defect, in the same commit that fixed 6ai's class
+  one row over.
+
+**Also checked, not assumed:** the prohibition line-set over 2380-2460 turns
+up nothing forbidding any of this, and lines 2474-2475 were already claimed
+by `defenses.json`, so this was a rule printed and unapplied rather than a
+seam.
+
+Both readings were RED-proved (the exemption widened to "not Brawling", the
+refusal narrowed to Wrestling); each failed, each was restored. **971
+Kotlin** (+5) and 257 Python, all green. Codex reviewed twice and returned
+clean both times.
+
+Device-verified on the physical tablet, **Barmaid Brawler** — the one premade
+carrying two unarmed styles, then seeded as an **Abyss Sequence 9**, whose
+potion grants Boxing, to get all three on one screen:
+
+- Bare hand: Boxing **8**, Brawling **10**, Wrestling **7**.
+- **A weapon**: Boxing stays **8**, Brawling **10 → 7**, Wrestling **7 → 4**
+  — the exemption and the two that take it, side by side.
+- **A shot**: every parry row **gone**, the stepper with them, *"No unarmed
+  parry against a shot"* in their place, and **Dodge still 7**.
+
+**Still unoffered from the extra-effort table**, unchanged from 6bh and 6bi:
+Giant Step (movement, unmodelled) and Feverish Defense's "+2 to one defense
+roll" half. That one was this slice's intended subject and was displaced by
+reading the page it lives on — the deferral is now evidence rather than a
+to-do (6au, 6av).
 
 ---
 
