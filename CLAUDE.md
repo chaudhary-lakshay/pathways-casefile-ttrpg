@@ -12,8 +12,18 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6bs, then 6br, 6bq, 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj,
-6bi, 6bh, 6bg and 6bf.** 6bs is the one to read first: it was handed two named
+**Where to start next: 6bt, then 6bs, 6br, 6bq, 6bp, 6bo, 6bn, 6bm, 6bl, 6bk,
+6bj, 6bi, 6bh, 6bg and 6bf.** 6bt is the one to read first: it builds the slice
+6bs named and finds 6bs wrong about it three times over — the banner count (five
+in that section's prose, fifteen in the book), the reachability (both
+unconditional rows reach nothing on any carrier, and every carrier that CAN roll
+a social skill carries a conditional row instead), and the shape of the census
+itself. **My own census regex hid two carried traits**, because it required the
+word "skill" after the category word and their cells say "social rolls" — which
+the book distinguishes from "social skill rolls" in one bracket of its own.
+Read it for that: an instrument's false negatives are invisible by
+construction, so the filter is the thing to attack. Its design review ran twice
+and came back no-ship twice. 6bs is next: it was handed two named
 successors by 6br and built neither, because a census of the traits the 23
 fixtures ACTUALLY carry disqualified one outright — no premade owns it — and
 turned up three better candidates. Its design review then caught the census
@@ -133,7 +143,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1023 Kotlin** (JUnit 5 — 928 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
+| Tests | **1030 Kotlin** (JUnit 5 — 935 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -6217,6 +6227,187 @@ its own design review.
 Also recorded, not built: **Acute Hearing** ("+2 to Hearing rolls") and
 **Acute Vision** ("+2 to Vision rolls") — "Hearing" and "Vision" are not
 skills this book prints, checked against `skills.json`, so both are reported.
+
+## 6bt. The fifteen banners a normaliser threw away
+
+`skills.json` carries a `category` now, and `TraitEffects` applies the two
+unconditional cells that name one. This is 6bs's named next slice, and 6bs was
+wrong about it three times over — which is the slice.
+
+**The rule.** `tools/extract_content.py` walked the Complete Skill List and did
+`i += 1  # category banner only` on every banner, so the book's own grouping
+was read and discarded. A trait cell saying "+3 to social skill rolls" named a
+group the book prints in fifteen places and nothing in this app could identify
+it. The `strip_self_control_number` shape (6am): **a normaliser can delete a
+rule**, and it did so for four milestones.
+
+- **Fifteen banners, not the five 6bs's prose claims.** It named the first five
+  and stopped: COMBAT, SOCIAL, KNOWLEDGE, THIEF, PHYSICAL — then CRAFT &
+  TECHNICAL, SPIRITUAL (SPI-based), SURVIVAL & OTHER, INVESTIGATION &
+  DETECTION, PERFORMANCE & ARTS, ACADEMIC, TRADE & CRAFT, ANIMALS & OUTDOORS,
+  UNDERWORLD & COVERT, MILITARY & NAVAL. A count in prose is a finding (6as),
+  and this one is my own from one slice ago.
+- **The banners PARTITION the list**, so `category` is required with no
+  default: 159 skills under banners against `skills.json`'s 158, the one
+  difference being `Inventor!` and its Wildcard difficulty. A row with no
+  banner means the extractor's bounds moved, and defaulting it would withdraw
+  every category-scoped rule from that skill in silence.
+- **The membership is read from the content, never restated in Kotlin.** That
+  is the opposite call to `BALANCE_SKILLS` and Charisma's six, and the
+  difference is which thing names the skills: those CELLS enumerate theirs, so
+  there is no printed table to read, while this cell names a category the book
+  tabulates. A second copy of a set the book prints is what 4.1 forbids —
+  6bg's precedent for reading the forfeit list out of `maneuvers.json`.
+- **Streetwise is under KNOWLEDGE, and that is load-bearing.** It is the
+  evidence for 6bs's separate reading that Charisma's bracket ("... Sex Appeal,
+  Streetwise") is its own enumeration rather than a reference to this banner.
+  Pinned by `verify_skills` now, so the day the book moves it that reading has
+  to be made again rather than inherited.
+
+### The census inverts 6bs's plan, and my own regex hid half of it
+
+6bs said "only **Empathy** is both unconditional and name-matched", so Empathy
+is the row to build. Checked against the fixtures AND against what each carrier
+can roll:
+
+| Trait | Cell | Carriers | Own a SOCIAL skill? |
+|---|---|---|---|
+| **Empathy** | "+3 to social skill rolls" | Apothecary | **no** |
+| **Clueless** | "-3 to **all** social skill rolls" | Church Healer, Monastery Scholar | **no, both** |
+| Callous | "-3 ... **when warmth or empathy is required**" | Barmaid Brawler, Docks Bouncer | yes |
+| Shyness | "-1 to -2 ... **depending on severity and audience**" | Academic Researcher | yes |
+| **Workaholic** | "-2 to **social rolls** in leisure settings" | Factory Foreman, Private Investigator | yes |
+| **Loner** | "-1 to **social rolls** in crowds" | Hunter-Tracker | no |
+
+So the two UNCONDITIONAL rows reach nothing on any carrier, and every carrier
+that owns a social skill carries a CONDITIONAL row. **The last two rows were
+invisible to my first census** because its regex required the word "skill"
+after the category word, and those cells say "social rolls" — the reviewer
+found Workaholic and re-running on the category word alone found Loner and
+eight uncarried siblings. 6ba's lesson in a new instrument: **the filter was
+the bug**, and a sweep's false negatives are invisible by construction.
+
+**Empathy and Clueless still ship, and the distinction from 6bs's Unfit is
+real.** There, the carrier's eleven skills were all IQ-based and no potion
+could change the attribute a roll is controlled by. Here a potion grants social
+skills on many rungs (Observation ×7, Intimidation ×6, Acting ×5, Detect Lies
+×5, Psychology ×5, Fast-Talk ×3, Diplomacy ×2, Holdout ×1), which is the book's
+own route (6aq) and one the app already rolls (6be).
+
+### "social rolls" and "social skill rolls" are two things, and the book says so
+
+Global line 6522: **"(-1 to all emotional reaction rolls and social skill
+rolls)"** — both phrases, one bracket. So the bare form is not shorthand for
+the other.
+
+- "social skill rolls" appears in five trait cells, a worked ritual's intent and
+  a potion drawback table. The only places this book groups skills as social are
+  that phrase and the banner; the two other hits are descriptive prose about
+  what IQ covers and a language clause. So the phrase names the banner.
+- "social rolls" appears seven times, is never defined, is never a banner, and
+  the rows using it read like REACTIONS — "+2 to social rolls there; people
+  look out for you", "-2 to **first-impression** social rolls with strangers".
+  This book prints no reaction roll procedure or result table anywhere (6w), so
+  the phrase may name rolls this app cannot make or skills it can, and nothing
+  printed settles which. Refused and reported, the call
+  `Languages.ritualModifier` makes about a common tongue's silence (6x).
+
+Conditional rows are refused for a different reason and get their own sentence:
+Callous, Shyness and Social Anxiety name a circumstance the GM declares, and
+two of the three are carried beside a social skill, so applying them flat would
+charge a penalty nobody declared.
+
+### The design was reviewed twice before any code, and Workaholic came out
+
+Fifth slice running to be reviewed as a decomposition (6bf's precedent), and
+the first to be reviewed **twice** — rev 1 came back no-ship with the census
+gap above and a second finding I had not seen, that widening the resolver
+without widening `displayName` would reintroduce 6br's device-only defect.
+Rev 2 came back no-ship again, on Workaholic:
+
+**its cell also prints "rolls to take a day off at Will-3"**, a self-control
+roll `parse_self_control` cannot see, because its anchors are "roll vs." and a
+bare 3d6 target (6am). So reporting Workaholic's social clause as unapplied
+would add an explanation while hiding a roll the existing machinery could make.
+It is **split out entirely** rather than half-reported — widening those anchors
+touches a five-row agreement warrant and two deliberate refusals, which is its
+own slice. Loner needs no such split: its "roll vs. Will" already parses, so
+its social clause is a clause beside an applied one, which is what
+`PARTLY_APPLIED` is for.
+
+### The glue, in a second commit
+
+Church Healer and Monastery Scholar print **"Clueless -3 to all social skill
+rolls; ..."** as one string with a bare space and no separator, so
+`catalogueName` — which split on `" - "` — resolved it to no catalogue row at
+all. No effect line on the sheet, no report path, and no way for the -3 to
+reach the skills it names. The trait is the most common social row in the cast
+after Callous.
+
+- **The join stays exact, which is what keeps it out of 4.1's territory.** The
+  tail must reproduce the row's own notes, so the sheet is provably quoting the
+  book rather than resembling it — unlike "Absent-Minded" against
+  "Absent-Mindedness" (6am), where a name is similar and nothing else agrees.
+  Four sheet spellings still fail the test and stay unmatched, including
+  "Sense of Duty (Flock) - Must help/protect ...", which is on the same
+  character.
+- **Only the sheet's typography is normalised away**: its line wrapping, the
+  U+2212 it writes where the catalogue writes an ASCII hyphen (6u's
+  two-kinds-of-minus, here between two files rather than inside one table), and
+  a trailing full stop that Church Healer drops and Monastery Scholar keeps on
+  the same trait. None of the three can make a quotation a different sentence.
+  RED-proved: without that normalisation, three tests fail.
+- **The glue is stripped exactly, never trimmed greedily.** `trimStart(' ', '-')`
+  would eat the first character of any cell that opens with its own "-3" — which
+  is precisely the cell being matched here.
+- **`displayName` shares the one resolution** instead of splitting on the
+  separator itself. That was the reviewer's finding and it is 6br's defect
+  restated: a spelling that resolved for MATCHING while failing to resolve for
+  DISPLAY would apply the trait and render its whole 130-character effect cell
+  as the trait's name. Two matchers is how this file's numbers have stopped
+  reconciling five times (6ag, 6ai, 6be, 6bp, and 6bs's caption).
+
+**1030 Kotlin** (935 `core:rules`, 75 `app`, 20 `core:model`) and **261
+Python**, all green. Every reading RED-proved by neutering it — the category
+join removed (2 failures), the conditional and bare-phrase rows applied (2),
+the typography normalisation dropped (3), the exact-tail rule relaxed (3, one
+of them 6br's own guard). Both commits Codex-reviewed clean. The prohibition
+sweep was re-run over the skill list and both trait sections (6ba) and turns up
+nothing forbidding a category-scoped bonus; the one adjacent line is Alcohol
+Tolerance's "Never suffer social penalties from moderate drinking", which no
+premade carries and which is scoped to drinking this app does not model.
+
+Device-verified on the physical tablet (1200×1920), both signs on one pathway —
+Church Healer and Apothecary each seeded as a **Visionary Sequence 9**, whose
+potion grants Psychology, Body Language, Observation and Detect Lies:
+
+- Church Healer's sheet reads **"Clueless — -10 pts"** with the book's cell
+  underneath, where before the commit the NAME was the whole sentence — and two
+  rows above it **"Sense of Duty (Flock) - Must help/protect certain groups even
+  at personal risk — -5 pts"** still renders glued, which is the discriminator
+  visible on screen.
+- Its **Psychology** rolled **"3d6: 3 vs 12 — base 15, modified to 12,
+  `trait:clueless: -3`"**. Before this slice that roll was 15 flat.
+- Its **Body Language** — same character, same IQ attribute, same potion, same
+  level 15, INVESTIGATION & DETECTION rather than SOCIAL — rolled **"9 vs 15"**
+  with **no contribution line at all**. The scope, on screen.
+- **Apothecary's** Psychology rolled **"3d6: 6 vs 17 — base 14, modified to 17,
+  `trait:empathy: 3`"**: the same pathway, the opposite sign.
+
+Not observed live and resting on their tests: the conditional refusals, which
+are absences (a Callous carrier's Intimidation roll moving by nothing looks
+identical to a screen that forgot the trait), and the potion-drawback printing
+of Callous at line 6859.
+
+**The next slice, named with evidence: Workaholic.** Two rules on one cell, and
+the reason it was split out here. `parse_self_control` recognises "roll vs. X"
+and a bare 3d6 target; this cell writes "rolls to take a day off at **Will-3**",
+which matches neither, so the trait carries no `selfControl` while Factory
+Foreman and Private Investigator both own it. Widening the anchor has to keep
+the five-row agreement that warrants reading a bare number (6am) and both
+deliberate refusals (Duty's frequency roll, Phobia's Fright Check), so it wants
+its own design review. Its social clause then joins the same slice, refused as
+Loner's is.
 
 ---
 
