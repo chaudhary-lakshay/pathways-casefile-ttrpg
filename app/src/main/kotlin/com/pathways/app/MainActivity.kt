@@ -50,7 +50,7 @@ import com.pathways.rules.Divination
 import com.pathways.rules.Concentration
 import com.pathways.rules.ConcentrationOutcome
 import com.pathways.rules.FrightCheck
-import com.pathways.rules.FrightClause
+import com.pathways.rules.TraitClause
 import com.pathways.rules.RitualMode
 import com.pathways.rules.FrightKind
 import com.pathways.rules.FrightOutcome
@@ -635,7 +635,19 @@ fun SheetScreen(
             // spent it, which the gate above cannot see.
             spiAvailable = vitals.maxSpi - session.spiSpent,
             conditionalBurnNote = EffortBurn.conditionalScope(skill.key),
-            onRoll = { circumstances ->
+            // Offered only where the book's own cells apply: a social skill,
+            // on a character carrying a row that names a circumstance. Rules
+            // decides both, so the chips cannot disagree with the modifiers.
+            socialClauses = if (
+                ContentLoader.skills()
+                    .firstOrNull { it.name == skill.key.name }?.category ==
+                TraitEffects.SOCIAL_SKILLS
+            ) {
+                TraitEffects.socialClauses(traits)
+            } else {
+                emptyList()
+            },
+            onRoll = { circumstances, declaredSocial ->
                 // The trackers reach the dice here: a reeling, fatigued or
                 // corrupted character no longer rolls at full skill. The GM's
                 // circumstances are a separate source and simply join the list.
@@ -649,7 +661,7 @@ fun SheetScreen(
                     // Per roll, Fit on an HT one), and what the GM says the
                     // situation is.
                     mods = conditionsFor(skill.key) +
-                        TraitEffects.modifiers(traits, skill.key) +
+                        TraitEffects.modifiers(traits, skill.key, declaredSocial) +
                         circumstances,
                 )
             },
@@ -890,7 +902,7 @@ fun SheetScreen(
 @Composable
 private fun FrightDialog(
     will: Int,
-    clauses: List<FrightClause> = emptyList(),
+    clauses: List<TraitClause> = emptyList(),
     shock: Int = 0,
     onDismiss: () -> Unit,
 ) {
@@ -1411,8 +1423,14 @@ private fun RollDialog(
     // A push the book allows on part of what this skill covers, which the
     // engine cannot test for itself. Shown, never applied.
     conditionalBurnNote: String? = null,
+    // The character's own conditional social rows, offered only on a skill
+    // whose category the book's cells name. The screen asks which hold and
+    // hands the keys back; it never turns one into a modifier, because a
+    // rules-authored list is the only thing that keeps one decision in one
+    // place (6ag, 6ai, 6be, 6bp, 6bs, 6bv).
+    socialClauses: List<TraitClause> = emptyList(),
     onBurn: (BurnKind, Int) -> Unit = { _, _ -> },
-    onRoll: (List<com.pathways.model.Modifier>) -> SkillRollOutcome,
+    onRoll: (List<com.pathways.model.Modifier>, Set<String>) -> SkillRollOutcome,
     onDismiss: () -> Unit,
 ) {
     var out by remember { mutableStateOf<SkillRollOutcome?>(null) }
@@ -1423,6 +1441,9 @@ private fun RollDialog(
     val chosen = remember { mutableStateListOf<CommonModifier>() }
     // Chapter 4's own circumstances, for the two skills that print them.
     val senseChosen = remember { mutableStateListOf<SenseModifier>() }
+    // Which of this character's social circumstances the GM says hold. Keyed
+    // on the clause, because Social Anxiety prints two that can both hold.
+    val declaredSocial = remember { mutableStateListOf<String>() }
     // Appendix A rows this sense's own price supersedes. Recomputed rather
     // than stored, so a chip turned back off cannot leave a withheld row
     // hidden -- the stale-state defect the boon dialog was fixed for.
@@ -1462,6 +1483,7 @@ private fun RollDialog(
                                     chosen = senseChosen.toList(),
                                     common = chosen.toList(),
                                 ),
+                            declaredSocial.toSet(),
                         )
                     }
                 },
@@ -1474,6 +1496,33 @@ private fun RollDialog(
                 if (shownOut == null) {
                     Text("Skill $base", style = MaterialTheme.typography.titleLarge)
                     if (sense != null) SenseRow(sense, senseChosen, chosen, gmValue)
+                    if (socialClauses.isNotEmpty()) {
+                        Text(
+                            "Does any of this hold?",
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        FlowRow {
+                            socialClauses.forEach { clause ->
+                                TextButton(onClick = {
+                                    if (clause.key in declaredSocial) {
+                                        declaredSocial.remove(clause.key)
+                                    } else {
+                                        declaredSocial.add(clause.key)
+                                    }
+                                }) {
+                                    Text(
+                                        "${clause.shown}: ${clause.printed}",
+                                        color = if (clause.key in declaredSocial) {
+                                            MaterialTheme.colorScheme.primary
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    }
                     CircumstanceRow(chosen, gmValue, withheld)
                     return@Column
                 }

@@ -4,6 +4,7 @@ import com.pathways.model.Attr
 import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
 import com.pathways.model.ModEffect
+import com.pathways.model.ModifierSource
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
@@ -949,19 +950,20 @@ class TraitEffectsTest {
     }
 
     /**
-     * **A conditional social row is refused, not applied at its printed
-     * value.** Callous is "-3 to social skill rolls **when warmth or empathy
-     * is required**" and Shyness "-1 to -2 ... depending on severity and
-     * audience" -- circumstances the GM declares, which this app has no
-     * control for yet. Barmaid Brawler and Docks Bouncer own Callous beside
-     * Intimidation, and Academic Researcher owns Shyness beside Public
-     * Speaking, so all three would silently take a penalty nobody declared.
+     * **A conditional social row still reaches nothing UNDECLARED**, which is
+     * the half of the old refusal that survives. Callous is "-3 to social
+     * skill rolls **when warmth or empathy is required**" and Social Anxiety
+     * "-2 ... in groups of 6+"; Barmaid Brawler and Docks Bouncer own Callous
+     * beside Intimidation, so a flat penalty charges them for warmth nobody
+     * asked for.
      *
-     * Reported instead, so a GM can apply it themselves; one who sees nothing
-     * assumes it was counted.
+     * What changed is that there is a control now, so the trait is no longer
+     * [TraitEffects.reported] as unreachable — a disclaimer expires exactly
+     * when the code changes (6ba). The rest of that reading is unmoved and is
+     * pinned by `a social penalty needs its circumstance declared`.
      */
     @Test
-    fun `a conditional social penalty is reported rather than applied`() {
+    fun `an undeclared social penalty still reaches no roll`() {
         val iq = ControllingAttribute.Buyable(Attr.IQ)
         val intimidation = SkillKey("Intimidation", null, iq, Difficulty.AVERAGE)
         for (name in listOf("Callous", "Shyness", "Social Anxiety")) {
@@ -969,11 +971,13 @@ class TraitEffectsTest {
             assertEquals(
                 emptyList<Any>(),
                 TraitEffects.modifiers(owned, intimidation),
-                "$name is conditional and must not reach a roll",
+                "$name is conditional and must not reach a roll undeclared",
             )
+            // ...and it is no longer disclaimed as unreachable, because it is
+            // not: the declaration control shipped with this test.
             assertTrue(
-                TraitEffects.reported(owned).any { it.trait == name },
-                "$name reaches no roll and must say so",
+                TraitEffects.reported(owned).none { it.trait == name },
+                "$name has a control now and must not still say it has none",
             )
         }
     }
@@ -1452,6 +1456,124 @@ class TraitEffectsTest {
         assertTrue(phobia.all { it.trait == "Phobia (Cities)" })
         val fearless = TraitEffects.reported(listOf(advantage("Fearlessness")))
         assertTrue(fearless.any { "intimidation" in it.printed }, fearless.toString())
+    }
+
+    // ---- the social rows whose penalty needs a circumstance ----------------
+
+    private val intimidation = SkillKey(
+        "Intimidation", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.AVERAGE,
+    )
+
+    private fun social(name: String, cost: Int = 10) =
+        listOf(Trait(name, cost, TraitKind.DISADVANTAGE))
+
+    /** Every value is still the one its row prints, against the live copy. */
+    @Test
+    fun `every social number is still the one its row prints`() {
+        val byName = ContentLoader.disadvantages().associateBy { it.name }
+        for (clause in TraitEffects.socialClauseRows()) {
+            val notes = byName.getValue(clause.trait).notes
+            assertTrue(clause.printed in notes, "${clause.trait}: ${clause.printed}")
+            assertTrue("-${-clause.value}" in clause.printed, clause.printed)
+        }
+        // All three rows are conditional; none may ever be counted unasked.
+        assertTrue(TraitEffects.socialClauseRows().all { it.conditional })
+    }
+
+    /**
+     * **Nothing reaches the roll until the GM says the circumstance holds.**
+     * Barmaid Brawler and Docks Bouncer both own Callous BESIDE Intimidation,
+     * so a flat penalty would charge them for warmth nobody asked for.
+     */
+    @Test
+    fun `a social penalty needs its circumstance declared`() {
+        val callous = social("Callous")
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(callous, intimidation))
+        val clause = TraitEffects.socialClauses(callous).single()
+        val applied = TraitEffects.modifiers(callous, intimidation, setOf(clause.key))
+        assertEquals(ModEffect.Flat(-3), applied.single().effect)
+        // ...and only on a SOCIAL skill: the cell says "social skill rolls".
+        val climbing = SkillKey(
+            "Climbing", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE,
+        )
+        assertEquals(
+            emptyList<Any>(),
+            TraitEffects.modifiers(callous, climbing, setOf(clause.key)),
+        )
+    }
+
+    /**
+     * **Shyness's value comes from the SHEET, not from the GM.** Its cell
+     * prices two severities and a character bought one; only the variant join
+     * can tell which, so a Mild shyness must never offer Severe's -2.
+     */
+    @Test
+    fun `a priced variant decides which clause is on offer`() {
+        val mild = TraitEffects.socialClauses(social("Shyness (Mild)", 5)).single()
+        assertEquals(-1, mild.value)
+        assertTrue("Mild" in mild.printed)
+        val severe = TraitEffects.socialClauses(social("Shyness (Severe)", 10)).single()
+        assertEquals(-2, severe.value)
+        // The sheet's own spelling is what the GM sees.
+        assertEquals("Shyness (Mild)", mild.shown)
+        // **A bare "Shyness" names no severity, so it offers NEITHER.** An
+        // empty qualifier prefixes every option, which would put Mild and
+        // Severe on screen together and let a GM declare both -- and severity
+        // is the sheet's to state, not a choice (Codex, on the diff).
+        assertEquals(emptyList<Any>(), TraitEffects.socialClauses(social("Shyness", 5)))
+    }
+
+    /**
+     * Social Anxiety prints two circumstances that can both hold — a large
+     * gathering of strangers who outrank you — and the book prints no
+     * exclusion, so they are separate declarations that SUM. Two modifiers,
+     * two distinct ids: sharing one would be a collision the resolver should
+     * never be handed.
+     */
+    @Test
+    fun `two circumstances on one social cell sum and stay distinct`() {
+        val anxious = social("Social Anxiety")
+        val keys = TraitEffects.socialClauses(anxious).map { it.key }.toSet()
+        assertEquals(2, keys.size)
+        val mods = TraitEffects.modifiers(anxious, intimidation, keys)
+        assertEquals(2, mods.map { it.id }.toSet().size, "two clauses shared one id")
+        assertEquals(-5, mods.sumOf { (it.effect as ModEffect.Flat).n })
+    }
+
+    /**
+     * A trait modifier is `FromTrait`, never `Situational`: a cancel budget is
+     * measured by `SourceKind`, and a drawback the character permanently has
+     * is not something a GM said about this turn. Nothing can reach the
+     * difference today, which is why it is pinned now rather than found the
+     * day something does (6al's precedent).
+     */
+    @Test
+    fun `a declared social penalty is sourced from the trait`() {
+        val callous = social("Callous")
+        val key = TraitEffects.socialClauses(callous).single().key
+        val mod = TraitEffects.modifiers(callous, intimidation, setOf(key)).single()
+        val source = mod.source
+        assertTrue(source is ModifierSource.FromTrait, source.toString())
+        assertEquals(false, (source as ModifierSource.FromTrait).advantage)
+    }
+
+    /**
+     * **The rows are reachable on the premades that carry them**, which is
+     * what a census is for (6bv). Academic Researcher's is reachable only
+     * through the priced-variant join in this same slice.
+     */
+    @Test
+    fun `the premades carrying a social row reach it`() {
+        val carriers = Premades.all()
+            .filter { TraitEffects.socialClauses(it.toCharacter().traits).isNotEmpty() }
+            .map { it.name }
+        assertEquals(
+            listOf("Academic Researcher", "Barmaid Brawler", "Docks Bouncer"),
+            carriers.sorted(),
+        )
+        // Social Anxiety is on no sheet and ships anyway: the list is every
+        // conditional social clause the book prints, not a premade census.
+        assertTrue("Social Anxiety" in TraitEffects.socialClauseNames())
     }
 
     @Test

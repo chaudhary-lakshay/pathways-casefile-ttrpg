@@ -26,7 +26,14 @@ data class TraitNote(val trait: String, val printed: String, val reason: String)
 data class MajorWoundHt(val bonus: Int, val line: String?)
 
 /**
- * One clause of one trait that moves a Fright Check (Ch. 5, p. 43).
+ * One clause of one trait that moves a roll, and the circumstance it needs.
+ *
+ * ONE type for the Fright Check rows (Ch. 5) and the social-skill rows
+ * (Ch. 3), because they are the same thing said twice: a printed clause, a
+ * value, and a circumstance the GM declares. Only the destination differs --
+ * a Fright Check takes a single Int, a skill roll takes a [Modifier] through
+ * the ledger. Two data classes carrying identical fields would be the
+ * duplicate this file already has to guard against.
  *
  * [trait] is the catalogue row and [shown] the sheet's own spelling, which
  * differ for an instance of a placeholder row -- "Phobia (specify)" against
@@ -38,7 +45,7 @@ data class MajorWoundHt(val bonus: Int, val line: String?)
  * scene, so those are the GM's to declare and only the fifth may be counted
  * unasked.
  */
-data class FrightClause(
+data class TraitClause(
     val trait: String,
     val shown: String,
     val printed: String,
@@ -680,7 +687,11 @@ object TraitEffects {
      * printed scope this app cannot identify contributes nothing here and is
      * named by [reported] instead.
      */
-    fun modifiers(traits: List<Trait>, skill: SkillKey): List<Modifier> = buildList {
+    fun modifiers(
+        traits: List<Trait>,
+        skill: SkillKey,
+        declared: Set<String> = emptySet(),
+    ): List<Modifier> = buildList {
         if (skill.attr == ControllingAttribute.Per) {
             levelOf(traits, ALERTNESS)?.let {
                 add(bonus(ALERTNESS, it * ALERTNESS_PER_LEVEL))
@@ -714,6 +725,22 @@ object TraitEffects {
                 if (named != category) continue
                 if (levelOf(traits, trait) == null) continue
                 add(bonus(trait, value))
+            }
+        }
+        // The conditional social rows, which reach the roll only where the GM
+        // says the circumstance holds. Emitted as FromTrait like every other
+        // trait modifier and NOT as Situational: a cancel budget is measured
+        // by SourceKind, and a drawback the character permanently has is not
+        // something a GM said about this turn.
+        if (category == SOCIAL_SKILLS) {
+            for (clause in socialClauses(traits)) {
+                if (clause.key !in declared) continue
+                // Keyed by CLAUSE, not by trait: Social Anxiety prints two
+                // circumstances that can both hold, and two modifiers sharing
+                // a ModifierId is a collision the resolver should never be
+                // handed -- the same reason the declaration key is trait
+                // plus clause (6r).
+                add(bonus(clause.trait, clause.value, suffix = clause.printed))
             }
         }
     }
@@ -772,7 +799,7 @@ object TraitEffects {
      * only structural fact a screen needs: Fearlessness is what the character
      * always is, and the other four are what the scene happens to be.
      */
-    private val FRIGHT_CLAUSES: List<FrightClause> = listOf(
+    private val FRIGHT_CLAUSES: List<TraitClause> = listOf(
         frightClause("Fearlessness", "+1 per level to Fright Checks", 1, conditional = false),
         frightClause(
             "Faithful Grounding",
@@ -790,7 +817,7 @@ object TraitEffects {
     )
 
     /** The printed rows, for the pin tests. [shown] is the row's own name. */
-    fun frightClauseRows(): List<FrightClause> = FRIGHT_CLAUSES
+    fun frightClauseRows(): List<TraitClause> = FRIGHT_CLAUSES
 
     /** The traits whose cell modifies a Fright Check, for the guard tests. */
     fun frightClauseNames(): Set<String> = FRIGHT_CLAUSES.map { it.trait }.toSet()
@@ -804,7 +831,7 @@ object TraitEffects {
      * not even being handed the traits until this slice (Codex, on the
      * design).
      */
-    fun frightClauses(traits: List<Trait>): List<FrightClause> = traits.flatMap { owned ->
+    fun frightClauses(traits: List<Trait>): List<TraitClause> = traits.flatMap { owned ->
         val bare = catalogueName(owned.name)
         val levels = levelOf(traits, bare) ?: 1
         FRIGHT_CLAUSES
@@ -829,7 +856,7 @@ object TraitEffects {
      * the two sentences of Sacred Symbols' cell name two circumstances that
      * can hold at once.
      */
-    fun frightBonus(clauses: List<FrightClause>, declared: Set<String>): FrightBonus {
+    fun frightBonus(clauses: List<TraitClause>, declared: Set<String>): FrightBonus {
         val applied = clauses.filter { !it.conditional || it.key in declared }
         if (applied.isEmpty()) return FrightBonus(0, null)
         val parts = applied.joinToString(", ") {
@@ -844,7 +871,90 @@ object TraitEffects {
         printed: String,
         value: Int,
         conditional: Boolean = true,
-    ) = FrightClause(trait, trait, printed, value, conditional)
+    ) = TraitClause(trait, trait, printed, value, conditional)
+
+    // ---- the social rows whose penalty needs a circumstance ----------------
+
+    /**
+     * Every clause that penalises a social skill roll only when a printed
+     * circumstance holds, before a character is considered.
+     *
+     * All three rows name the GROUP identifiably -- [SOCIAL_SKILLS], read from
+     * the content since 6bt -- and none of them names the CIRCUMSTANCE in
+     * anything this app can compute: whether warmth is required, how many
+     * people are in the room, whether the listener outranks you. So they are
+     * declarations, exactly as the four conditional Fright Check rows are, and
+     * four of the five carriers own a social skill, which is why applying them
+     * flat would charge a penalty nobody declared.
+     *
+     * **Shyness's value is decided by the sheet, not by the GM.** Its cell
+     * prices two severities and a character bought one of them; the app can
+     * tell which only because the sheet spells it and the price agrees
+     * (`variantRow`). The circumstance stays the GM's, but which clause is on
+     * offer is not a choice — Academic Researcher is Mild.
+     */
+    private val SOCIAL_CLAUSES: List<Pair<String?, TraitClause>> = listOf(
+        null to socialClause(
+            "Callous",
+            "-3 to social skill rolls when warmth or empathy is required",
+            -3,
+        ),
+        "Mild" to socialClause("Shyness", "Mild (-5): -1 in groups of 6+", -1),
+        "Severe" to socialClause("Shyness", "Severe (-10): -2 in groups of 3+", -2),
+        // One cell, two circumstances that can both hold -- a large gathering
+        // of strangers who outrank you -- and the book prints no exclusion, so
+        // they are separate declarations that sum. The reading 6aa made of two
+        // consecutive sentences, and 6bv of Sacred Symbols' two.
+        null to socialClause(
+            "Social Anxiety",
+            "-2 to social skill rolls in groups of 6+",
+            -2,
+        ),
+        null to socialClause(
+            "Social Anxiety",
+            "-3 when addressing strangers of higher status",
+            -3,
+        ),
+    )
+
+    /** The printed rows, for the pin tests. */
+    fun socialClauseRows(): List<TraitClause> = SOCIAL_CLAUSES.map { it.second }
+
+    /** The traits whose cell penalises a social roll conditionally. */
+    fun socialClauseNames(): Set<String> = SOCIAL_CLAUSES.map { it.second.trait }.toSet()
+
+    /**
+     * The clauses [traits] bring to a social skill roll, under the sheet's own
+     * spellings.
+     *
+     * A row whose clause is keyed to a variant is offered only to the
+     * character who bought that variant, so a Mild shyness never produces
+     * Severe's -2.
+     */
+    fun socialClauses(traits: List<Trait>): List<TraitClause> = traits.flatMap { owned ->
+        val bare = catalogueName(owned.name)
+        val variant = owned.name.substringAfterLast('(', "").removeSuffix(")")
+        SOCIAL_CLAUSES
+            .filter { (needs, row) ->
+                row.trait.equals(bare, ignoreCase = true) &&
+                    // A row keyed to a variant needs one NAMED. An empty
+                    // qualifier prefixes every option, so a bare "Shyness"
+                    // would offer Mild and Severe at once and let a GM declare
+                    // both -- and the severity is the sheet's to state, not a
+                    // choice (Codex). Refused rather than guessed, the call
+                    // `Detection.attributeFor` makes for an attribute the
+                    // table never names (6ah).
+                    (
+                        needs == null ||
+                            (variant.isNotEmpty() && needs.startsWith(variant, ignoreCase = true))
+                        )
+            }
+            .map { (_, row) -> row.copy(shown = displayName(owned.name)) }
+    }
+
+    /** A row of [SOCIAL_CLAUSES]: always conditional, never counted unasked. */
+    private fun socialClause(trait: String, printed: String, value: Int) =
+        TraitClause(trait, trait, printed, value, conditional = true)
 
     /** The traits whose cell names the skills it lifts, for the coverage test. */
     fun skillBonusNames(): Set<String> = SKILL_BONUSES.keys
@@ -867,7 +977,7 @@ object TraitEffects {
      */
     fun known(): Set<String> =
         UNAPPLIED.keys + PARTLY_APPLIED.keys + SKILL_BONUSES.keys +
-            CATEGORY_BONUSES.keys + frightClauseNames() +
+            CATEGORY_BONUSES.keys + frightClauseNames() + socialClauseNames() +
             setOf(ALERTNESS, FIT, COMBAT_REFLEXES)
 
     /** The traits reported whole, for the disjointness test. */
@@ -1119,29 +1229,14 @@ object TraitEffects {
         // 6bl found one of these that had outlived its own truth by a slice).
         // Three of the five are wholly applied now; the other two keep the
         // sibling clause their cell prints, in [PARTLY_APPLIED].
-        // The three social-skill rows whose penalty is CONDITIONAL. The group
-        // they name is identifiable now [SOCIAL_SKILLS], so what stops them is
-        // the circumstance and nothing else -- and two of the three are
-        // carried beside a social skill (Barmaid Brawler and Docks Bouncer own
-        // Callous with Intimidation, Academic Researcher owns Shyness with
-        // Public Speaking), so applying them flat would charge a penalty the
-        // GM never declared. A declaration control is the next slice.
-        "Callous" to CONDITIONAL_SOCIAL,
-        "Shyness" to
-            "the penalty depends on severity and audience, and this app has no " +
-            "control for either yet",
-        "Social Anxiety" to
-            "both values depend on the size and status of the group, and this " +
-            "app has no control for either yet",
+        // The three conditional social rows were HERE, each saying "this app
+        // has no control to declare it yet". [SOCIAL_CLAUSES] is that control,
+        // so the disclaimers went with it rather than outliving their own
+        // truth (6ba, and 6bl found one that had by a slice).
     )
 
-    /** Why a social penalty the GM must first declare reaches no roll. */
-    private const val CONDITIONAL_SOCIAL =
-        "the book charges this only when the circumstance it names applies, " +
-            "and this app has no control to declare it yet"
-
-    private fun bonus(trait: String, value: Int) = Modifier(
-        id = ModifierId("trait:${trait.lowercase()}"),
+    private fun bonus(trait: String, value: Int, suffix: String? = null) = Modifier(
+        id = ModifierId("trait:${trait.lowercase()}" + (suffix?.let { ":$it" } ?: "")),
         // FromTrait, NOT Situational. Both existed from M0 and this is the
         // first production caller of either; `Situational` is what a GM says
         // about this turn, and an advantage is what the character permanently
