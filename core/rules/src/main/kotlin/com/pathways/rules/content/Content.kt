@@ -69,6 +69,18 @@ data class SkillDefinition(
     @Serializable(with = DifficultyCodeSerializer::class)
     val difficulty: Difficulty,
     val specializable: Boolean = false,
+    /**
+     * The banner this skill is printed under -- "SOCIAL SKILLS", "COMBAT
+     * SKILLS", "SPIRITUAL SKILLS (SPI-based)" and twelve more, verbatim.
+     *
+     * **Required, with no default.** The banners partition the Complete Skill
+     * List, so a row without one means the extractor's bounds moved rather
+     * than that the book left a skill uncategorised -- and a default would
+     * withdraw every category-scoped rule from that skill in silence. The
+     * extractor discarded these for four milestones, which is why a cell
+     * reading "+3 to social skill rolls" named a group nothing could identify.
+     */
+    val category: String,
     val notes: String = "",
 )
 

@@ -90,6 +90,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Derringers, semi-automatic pistols"
   },
   {
@@ -98,6 +99,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Revolvers of all calibres"
   },
   {
@@ -106,6 +108,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Rifles, muskets, carbines"
   },
   {
@@ -114,6 +117,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Scatter weapons"
   },
   {
@@ -122,6 +126,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Quick weapon draw from holster"
   },
   {
@@ -130,6 +135,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Untrained street fighting"
   },
   {
@@ -138,6 +144,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Trained fisticuffs with technique"
   },
   {
@@ -146,6 +153,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Combat knife use"
   },
   {
@@ -154,6 +162,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Heavy blunt/edged weapons"
   },
   {
@@ -162,6 +171,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Rifle-mounted blade"
   },
   {
@@ -170,6 +180,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Grappling and takedowns"
   },
   {
@@ -178,6 +189,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Thrown weapons in general"
   },
   {
@@ -186,6 +198,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Throwing knives specifically"
   },
   {
@@ -194,6 +207,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Vehicle-mounted machine guns, heavy weapon emplacements"
   },
   {
@@ -202,6 +216,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Artillery pieces, ship cannons, field guns"
   },
   {
@@ -210,6 +225,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Light one-handed blades; includes sabre, cutlass"
   },
   {
@@ -218,6 +234,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Heavy one-handed blades; includes longsword"
   },
   {
@@ -226,6 +243,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Long hafted weapons; spears, halberds, pikes"
   },
   {
@@ -234,6 +252,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "COMBAT SKILLS",
    "notes": "Block and parry with any shield type"
   },
   {
@@ -242,6 +261,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Con, deceive, talk your way out"
   },
   {
@@ -250,6 +270,7 @@
    "attr": "Will",
    "difficulty": "A",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Threaten and coerce others"
   },
   {
@@ -258,6 +279,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Negotiate peacefully; reach compromise"
   },
   {
@@ -266,6 +288,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Address crowds effectively"
   },
   {
@@ -274,6 +297,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Disguise emotions; theatrical performance"
   },
   {
@@ -282,6 +306,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Command and inspire others"
   },
   {
@@ -290,6 +315,7 @@
    "attr": "Per",
    "difficulty": "H",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Spot deception and falsehood"
   },
   {
@@ -298,6 +324,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Extract information under pressure"
   },
   {
@@ -306,6 +333,7 @@
    "attr": "Per",
    "difficulty": "A",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Notice and remember details"
   },
   {
@@ -314,6 +342,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Understand and predict people"
   },
   {
@@ -322,6 +351,7 @@
    "attr": "IQ",
    "difficulty": "E",
    "specializable": true,
+   "category": "SOCIAL SKILLS",
    "notes": "Social graces (specify class)"
   },
   {
@@ -330,6 +360,7 @@
    "attr": "HT",
    "difficulty": "A",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Attract, seduce, or distract through charisma"
   },
   {
@@ -338,6 +369,7 @@
    "attr": "IQ",
    "difficulty": "E",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Beg for money or favours on the street"
   },
   {
@@ -346,6 +378,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Change appearance convincingly"
   },
   {
@@ -354,6 +387,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Create fake documents"
   },
   {
@@ -362,6 +396,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "SOCIAL SKILLS",
    "notes": "Conceal objects on your person"
   },
   {
@@ -370,6 +405,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Find information in libraries"
   },
   {
@@ -378,6 +414,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Compose documents, reports"
   },
   {
@@ -386,6 +423,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Historical knowledge"
   },
   {
@@ -394,6 +432,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Literary and cultural knowledge"
   },
   {
@@ -402,6 +441,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "General supernatural lore"
   },
   {
@@ -410,6 +450,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": true,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Specific secret knowledge (specify type)"
   },
   {
@@ -418,6 +459,7 @@
    "attr": "IQ",
    "difficulty": "VH",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Deep magic theory"
   },
   {
@@ -426,6 +468,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Religious doctrine and practice"
   },
   {
@@ -434,6 +477,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Conduct religious ceremonies"
   },
   {
@@ -442,6 +486,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Value items and artifacts"
   },
   {
@@ -450,6 +495,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Trade, negotiation, market knowledge"
   },
   {
@@ -458,6 +504,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Crime investigation methods"
   },
   {
@@ -466,6 +513,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Prepare and set explosives to destroy targets"
   },
   {
@@ -474,6 +522,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Identify ailments and conditions"
   },
   {
@@ -482,6 +531,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Medical treatment and surgery"
   },
   {
@@ -490,6 +540,7 @@
    "attr": "IQ",
    "difficulty": "VH",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Invasive medical procedures; requires Physician"
   },
   {
@@ -498,6 +549,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Drug and remedy preparation"
   },
   {
@@ -506,6 +558,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": true,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Legal knowledge; specializations include Military, Criminal, Civil"
   },
   {
@@ -514,6 +567,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": true,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Expert knowledge of quality/value in a specific field (antiques, art, wine, etc.)"
   },
   {
@@ -522,6 +576,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Urban underworld knowledge"
   },
   {
@@ -530,6 +585,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Games of chance"
   },
   {
@@ -538,6 +594,7 @@
    "attr": "IQ",
    "difficulty": "E",
    "specializable": true,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Specific region (specify)"
   },
   {
@@ -546,6 +603,7 @@
    "attr": "IQ",
    "difficulty": "E",
    "specializable": true,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Recent events (specify topic)"
   },
   {
@@ -554,6 +612,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Create and break codes, ciphers, and hidden messages"
   },
   {
@@ -562,6 +621,7 @@
    "attr": "IQ",
    "difficulty": "VH",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Transform substances; prepare elixirs, alchemical potions, and magical compounds"
   },
   {
@@ -570,6 +630,7 @@
    "attr": "IQ",
    "difficulty": "VH",
    "specializable": false,
+   "category": "KNOWLEDGE SKILLS",
    "notes": "Perform supernatural rituals: divination, summoning, binding, enchanting; the core Beyonder skill"
   },
   {
@@ -578,6 +639,7 @@
    "attr": "DX",
    "difficulty": "H",
    "specializable": false,
+   "category": "THIEF SKILLS",
    "notes": "Steal from people's person"
   },
   {
@@ -586,6 +648,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "THIEF SKILLS",
    "notes": "Open locks without key"
   },
   {
@@ -594,6 +657,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "THIEF SKILLS",
    "notes": "Move silently, avoid detection"
   },
   {
@@ -602,6 +666,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "THIEF SKILLS",
    "notes": "Follow without being noticed"
   },
   {
@@ -610,6 +675,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "THIEF SKILLS",
    "notes": "Detect, disarm, set traps"
   },
   {
@@ -618,6 +684,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "PHYSICAL SKILLS",
    "notes": "Scale surfaces and walls"
   },
   {
@@ -626,6 +693,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "PHYSICAL SKILLS",
    "notes": "Bind, secure, and rig ropes; escape bonds at -2"
   },
   {
@@ -634,6 +702,7 @@
    "attr": "DX",
    "difficulty": "H",
    "specializable": false,
+   "category": "PHYSICAL SKILLS",
    "notes": "Tumbling, balance, gymnastics"
   },
   {
@@ -642,6 +711,7 @@
    "attr": "DX",
    "difficulty": "H",
    "specializable": false,
+   "category": "PHYSICAL SKILLS",
    "notes": "Aerial maneuvers, stunts, and diving"
   },
   {
@@ -650,6 +720,7 @@
    "attr": "HT",
    "difficulty": "A",
    "specializable": false,
+   "category": "PHYSICAL SKILLS",
    "notes": "Sprint and long-distance endurance"
   },
   {
@@ -658,6 +729,7 @@
    "attr": "HT",
    "difficulty": "E",
    "specializable": false,
+   "category": "PHYSICAL SKILLS",
    "notes": "Move through water"
   },
   {
@@ -666,6 +738,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "PHYSICAL SKILLS",
    "notes": "Leap distances"
   },
   {
@@ -674,6 +747,7 @@
    "attr": "HT",
    "difficulty": "A",
    "specializable": false,
+   "category": "PHYSICAL SKILLS",
    "notes": "Hoist heavy loads"
   },
   {
@@ -682,6 +756,7 @@
    "attr": "HT",
    "difficulty": "A",
    "specializable": false,
+   "category": "PHYSICAL SKILLS",
    "notes": "Long-distance foot travel; pace and endurance overland"
   },
   {
@@ -690,6 +765,7 @@
    "attr": "IQ",
    "difficulty": "E",
    "specializable": false,
+   "category": "PHYSICAL SKILLS",
    "notes": "Emergency medical care"
   },
   {
@@ -698,6 +774,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": true,
+   "category": "CRAFT & TECHNICAL",
    "notes": "Repair machines (specify type)"
   },
   {
@@ -706,6 +783,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "CRAFT & TECHNICAL",
    "notes": "Design and analyse mechanical systems, structures, and blueprints"
   },
   {
@@ -714,6 +792,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": true,
+   "category": "CRAFT & TECHNICAL",
    "notes": "Repair and maintain weapons"
   },
   {
@@ -722,6 +801,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "CRAFT & TECHNICAL",
    "notes": "Work with electrical systems"
   },
   {
@@ -730,6 +810,7 @@
    "attr": "SPI",
    "difficulty": "H",
    "specializable": false,
+   "category": "SPIRITUAL SKILLS (SPI-based)",
    "notes": "Sense fate-changes and danger through spirit"
   },
   {
@@ -738,6 +819,7 @@
    "attr": "SPI",
    "difficulty": "A",
    "specializable": false,
+   "category": "SPIRITUAL SKILLS (SPI-based)",
    "notes": "Detect hidden spirits and supernatural phenomena"
   },
   {
@@ -746,6 +828,7 @@
    "attr": "SPI",
    "difficulty": "H",
    "specializable": false,
+   "category": "SPIRITUAL SKILLS (SPI-based)",
    "notes": "Perform focused divination: pendulum, coin, dowsing, dream interpretation, scrying, tarot"
   },
   {
@@ -754,6 +837,7 @@
    "attr": "Per",
    "difficulty": "A",
    "specializable": true,
+   "category": "SURVIVAL & OTHER",
    "notes": "Live off land (specify terrain)"
   },
   {
@@ -762,6 +846,7 @@
    "attr": "Per",
    "difficulty": "A",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "Survive in urban environments"
   },
   {
@@ -770,6 +855,7 @@
    "attr": "Per",
    "difficulty": "E",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "Find useful items in unlikely places"
   },
   {
@@ -778,6 +864,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "Find your way; chart courses"
   },
   {
@@ -786,6 +873,7 @@
    "attr": "Per",
    "difficulty": "A",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "Follow trails and quarry"
   },
   {
@@ -794,6 +882,7 @@
    "attr": "IQ",
    "difficulty": "E",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "Work aboard ships"
   },
   {
@@ -802,6 +891,7 @@
    "attr": "IQ",
    "difficulty": "E",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "Hide yourself or objects"
   },
   {
@@ -810,6 +900,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "Military and combat planning"
   },
   {
@@ -818,6 +909,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "Read cards, palms; mundane methods"
   },
   {
@@ -826,6 +918,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "Interpret celestial patterns for divination, navigation, and fate-reading"
   },
   {
@@ -834,6 +927,7 @@
    "attr": "Will",
    "difficulty": "H",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "A focused mental state that allows Beyonders to stabilise their spirituality, resist mental interference, and prepare for divination or spirit-related abilities. Replaces Meditation for Beyonder purposes."
   },
   {
@@ -842,6 +936,7 @@
    "attr": "HT",
    "difficulty": "E",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "Drink and socialize effectively"
   },
   {
@@ -850,6 +945,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "Predict weather from natural observation"
   },
   {
@@ -858,6 +954,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "Sail and maneuver sailing vessels"
   },
   {
@@ -866,6 +963,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "SURVIVAL & OTHER",
    "notes": "Row and handle small unpowered boats"
   },
   {
@@ -874,6 +972,7 @@
    "attr": "Per",
    "difficulty": "A",
    "specializable": false,
+   "category": "INVESTIGATION & DETECTION",
    "notes": "Read physical cues; posture, expression, tells"
   },
   {
@@ -882,6 +981,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "INVESTIGATION & DETECTION",
    "notes": "Scientific crime scene investigation"
   },
   {
@@ -890,6 +990,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "INVESTIGATION & DETECTION",
    "notes": "Evaluate and interpret gathered information"
   },
   {
@@ -898,6 +999,7 @@
    "attr": "Per",
    "difficulty": "A",
    "specializable": false,
+   "category": "INVESTIGATION & DETECTION",
    "notes": "Systematically locate hidden objects or people"
   },
   {
@@ -906,6 +1008,7 @@
    "attr": "Per",
    "difficulty": "A",
    "specializable": false,
+   "category": "INVESTIGATION & DETECTION",
    "notes": "Understand speech without hearing it"
   },
   {
@@ -914,6 +1017,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "INVESTIGATION & DETECTION",
    "notes": "Read, draw, and interpret maps"
   },
   {
@@ -922,6 +1026,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "PERFORMANCE & ARTS",
    "notes": "General stage and platform performance"
   },
   {
@@ -930,6 +1035,7 @@
    "attr": "HT",
    "difficulty": "E",
    "specializable": false,
+   "category": "PERFORMANCE & ARTS",
    "notes": "Vocal performance; also used by Bards for Beyonder abilities"
   },
   {
@@ -938,6 +1044,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": true,
+   "category": "PERFORMANCE & ARTS",
    "notes": "Play a specific instrument (specify)"
   },
   {
@@ -946,6 +1053,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "PERFORMANCE & ARTS",
    "notes": "Formal and social dance"
   },
   {
@@ -954,6 +1062,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "PERFORMANCE & ARTS",
    "notes": "Illustration and portraiture"
   },
   {
@@ -962,6 +1071,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "PERFORMANCE & ARTS",
    "notes": "Painted works on canvas or paper"
   },
   {
@@ -970,6 +1080,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "PERFORMANCE & ARTS",
    "notes": "Project voice to deceive listeners"
   },
   {
@@ -978,6 +1089,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "PERFORMANCE & ARTS",
    "notes": "Write verse; also aids public speaking"
   },
   {
@@ -986,6 +1098,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Financial records and business maths"
   },
   {
@@ -994,6 +1107,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Bureaucratic management and procedure"
   },
   {
@@ -1002,6 +1116,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Markets, trade, and financial systems"
   },
   {
@@ -1010,6 +1125,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Formal logic and ethical reasoning"
   },
   {
@@ -1018,6 +1134,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Study of language structure; accelerates language learning"
   },
   {
@@ -1026,6 +1143,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Cultures, customs, and social structures"
   },
   {
@@ -1034,6 +1152,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Excavation and analysis of ancient sites"
   },
   {
@@ -1042,6 +1161,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Broad study of human society and groups"
   },
   {
@@ -1050,6 +1170,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Celestial bodies and their movements"
   },
   {
@@ -1058,6 +1179,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Practical maths for engineering and science"
   },
   {
@@ -1066,6 +1188,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Compounds, reactions, and substances"
   },
   {
@@ -1074,6 +1197,7 @@
    "attr": "IQ",
    "difficulty": "VH",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Natural laws governing matter and energy; requires Mathematics"
   },
   {
@@ -1082,6 +1206,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Instruct and educate others effectively"
   },
   {
@@ -1090,6 +1215,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "ACADEMIC",
    "notes": "Read and comprehend text at high speed"
   },
   {
@@ -1098,6 +1224,7 @@
    "attr": "IQ",
    "difficulty": "E",
    "specializable": false,
+   "category": "TRADE & CRAFT",
    "notes": "Work with wood; build and repair structures"
   },
   {
@@ -1106,6 +1233,7 @@
    "attr": "IQ",
    "difficulty": "E",
    "specializable": false,
+   "category": "TRADE & CRAFT",
    "notes": "Stonework and brick construction"
   },
   {
@@ -1114,6 +1242,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "TRADE & CRAFT",
    "notes": "Stitch, repair, and make garments"
   },
   {
@@ -1122,6 +1251,7 @@
    "attr": "DX",
    "difficulty": "E",
    "specializable": false,
+   "category": "TRADE & CRAFT",
    "notes": "Craft and repair leather goods and harnesses"
   },
   {
@@ -1130,6 +1260,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "TRADE & CRAFT",
    "notes": "Forge and work iron tools and parts"
   },
   {
@@ -1138,6 +1269,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "TRADE & CRAFT",
    "notes": "Prepare food; basic herbalism uses this as default"
   },
   {
@@ -1146,6 +1278,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "TRADE & CRAFT",
    "notes": "Work with precious metals and gems"
   },
   {
@@ -1154,6 +1287,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "TRADE & CRAFT",
    "notes": "Operate and maintain machine tools"
   },
   {
@@ -1162,6 +1296,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "TRADE & CRAFT",
    "notes": "Operate cameras; develop images in darkroom"
   },
   {
@@ -1170,6 +1305,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "TRADE & CRAFT",
    "notes": "Dock and warehouse logistics"
   },
   {
@@ -1178,6 +1314,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": true,
+   "category": "ANIMALS & OUTDOORS",
    "notes": "Control and care for animals (specify type)"
   },
   {
@@ -1186,6 +1323,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "ANIMALS & OUTDOORS",
    "notes": "Ride and direct a mounted animal at speed"
   },
   {
@@ -1194,6 +1332,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "ANIMALS & OUTDOORS",
    "notes": "Train and hunt with birds of prey"
   },
   {
@@ -1202,6 +1341,7 @@
    "attr": "Per",
    "difficulty": "E",
    "specializable": false,
+   "category": "ANIMALS & OUTDOORS",
    "notes": "Catch fish; read water conditions"
   },
   {
@@ -1210,6 +1350,7 @@
    "attr": "IQ",
    "difficulty": "E",
    "specializable": false,
+   "category": "ANIMALS & OUTDOORS",
    "notes": "Cultivate plants in managed spaces"
   },
   {
@@ -1218,6 +1359,7 @@
    "attr": "IQ",
    "difficulty": "E",
    "specializable": false,
+   "category": "ANIMALS & OUTDOORS",
    "notes": "Cultivate crops and manage farmland"
   },
   {
@@ -1226,6 +1368,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "ANIMALS & OUTDOORS",
    "notes": "Broad knowledge of plants, animals, and ecology"
   },
   {
@@ -1234,6 +1377,7 @@
    "attr": "IQ",
    "difficulty": "VH",
    "specializable": false,
+   "category": "ANIMALS & OUTDOORS",
    "notes": "Natural therapeutic use of plants; requires Naturalist"
   },
   {
@@ -1242,6 +1386,7 @@
    "attr": "IQ",
    "difficulty": "VH",
    "specializable": false,
+   "category": "ANIMALS & OUTDOORS",
    "notes": "Magical/occult plant knowledge; preparation of mystical herbal remedies and poisons"
   },
   {
@@ -1250,6 +1395,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "ANIMALS & OUTDOORS",
    "notes": "Medical diagnosis and treatment for animals"
   },
   {
@@ -1258,6 +1404,7 @@
    "attr": "DX",
    "difficulty": "A",
    "specializable": false,
+   "category": "UNDERWORLD & COVERT",
    "notes": "Swipe items from surfaces without notice"
   },
   {
@@ -1266,6 +1413,7 @@
    "attr": "DX",
    "difficulty": "H",
    "specializable": false,
+   "category": "UNDERWORLD & COVERT",
    "notes": "Conceal and manipulate objects in plain sight"
   },
   {
@@ -1274,6 +1422,7 @@
    "attr": "DX",
    "difficulty": "H",
    "specializable": false,
+   "category": "UNDERWORLD & COVERT",
    "notes": "Free oneself from bonds and confinement"
   },
   {
@@ -1282,6 +1431,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "UNDERWORLD & COVERT",
    "notes": "Replicate currency or official seals"
   },
   {
@@ -1290,6 +1440,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "UNDERWORLD & COVERT",
    "notes": "Move contraband past inspections"
   },
   {
@@ -1298,6 +1449,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "UNDERWORLD & COVERT",
    "notes": "Know, prepare, and apply toxins; also detect them"
   },
   {
@@ -1306,6 +1458,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "MILITARY & NAVAL",
    "notes": "General military knowledge, drill, and doctrine"
   },
   {
@@ -1314,6 +1467,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "MILITARY & NAVAL",
    "notes": "Large-scale military and operational planning"
   },
   {
@@ -1322,6 +1476,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "MILITARY & NAVAL",
    "notes": "Direct artillery or ranged fire from a distant position"
   },
   {
@@ -1330,6 +1485,7 @@
    "attr": "IQ",
    "difficulty": "H",
    "specializable": false,
+   "category": "MILITARY & NAVAL",
    "notes": "Command and navigate a large sailing or steam vessel"
   },
   {
@@ -1338,6 +1494,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "MILITARY & NAVAL",
    "notes": "Determine course by stars and charts at sea"
   },
   {
@@ -1346,6 +1503,7 @@
    "attr": "IQ",
    "difficulty": "A",
    "specializable": false,
+   "category": "MILITARY & NAVAL",
    "notes": "Orienteer and chart routes overland"
   }
  ]

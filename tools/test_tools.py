@@ -426,6 +426,74 @@ def test_recorded_skill_disagreements_between_chapter_3_and_the_potion_tables():
     assert disagreements == extract_pathways.DIFFICULTY_DISAGREEMENTS
 
 
+# --- Skill categories (Ch. 3's Complete Skill List banners) ----------------
+
+import extract_content
+
+
+def test_every_skill_carries_the_category_banner_it_was_printed_under():
+    """The Complete Skill List is printed under fifteen category banners, and
+    the extractor discarded them for four milestones -- so a trait cell saying
+    "+3 to social skill rolls" named a group the book prints and the app could
+    not identify. The "a normaliser can delete a rule" shape that
+    strip_self_control_number already had once.
+
+    The banners PARTITION the list: every skill sits under exactly one, so a
+    missing category is a parse failure rather than a row to default."""
+    skills = json.loads((CONTENT / "skills.json").read_text(encoding="utf-8"))["entries"]
+    assert len(skills) == 158
+    missing = [e["name"] for e in skills if not e.get("category")]
+    assert missing == [], f"skills with no category banner: {missing}"
+    assert {e["category"] for e in skills} == extract_content.SKILL_CATEGORIES
+
+
+def test_the_social_banner_holds_its_sixteen_printed_members():
+    """The membership is the whole join: "social skill rolls" is applied to
+    exactly the skills under this banner, so a row leaving the set silently
+    withdraws a printed bonus and a row joining it silently invents one.
+
+    **Streetwise is under KNOWLEDGE**, which is not incidental -- it is the
+    evidence that Charisma's bracketed list ("... Sex Appeal, Streetwise") is
+    its own enumeration and NOT a reference to this banner (6bs). If the book
+    ever moved it here, that reading would have to be made again."""
+    skills = json.loads((CONTENT / "skills.json").read_text(encoding="utf-8"))["entries"]
+    by_category = {}
+    for e in skills:
+        by_category.setdefault(e["category"], set()).add(e["name"])
+    assert by_category[extract_content.SOCIAL_SKILLS] == {
+        "Fast-Talk", "Intimidation", "Diplomacy", "Public Speaking", "Acting",
+        "Leadership", "Detect Lies", "Interrogation", "Observation", "Psychology",
+        "Savoir-Faire", "Sex Appeal", "Panhandling", "Disguise", "Forgery", "Holdout",
+    }
+    assert "Streetwise" in by_category["KNOWLEDGE SKILLS"]
+
+
+def test_the_book_distinguishes_a_social_skill_roll_from_a_reaction_roll():
+    """The warrant for applying "social skill rolls" to the SOCIAL banner, and
+    for refusing the bare phrase "social rolls".
+
+    Line 6522 prints both in ONE bracket -- "(-1 to all emotional reaction
+    rolls and social skill rolls)" -- so they are two different things in the
+    book's own sentence. "social rolls" is never defined, never a banner, and
+    the rows using it read like reactions ("first-impression", "people look out
+    for you"), while this book prints no reaction roll procedure at all. So
+    those rows are refused rather than read as this banner.
+
+    If that bracket ever loses one of its two phrases, the split has to be
+    argued again rather than inherited."""
+    lines = json.loads((OUT / "lines.json").read_text(encoding="utf-8"))
+    text = [(l["text"] if isinstance(l, dict) else l) for l in lines]
+    bracket = text[6521]
+    assert "reaction rolls" in bracket and "social skill rolls" in bracket, bracket
+    # And the banner is the only place the book GROUPS skills as social. The
+    # phrase occurs three times in all: line 155 is descriptive prose about
+    # what IQ covers, 787 is a language clause, and 1728 is the banner -- so
+    # nothing else could be the referent of "social skill rolls".
+    grouped = [i + 1 for i, t in enumerate(text) if "social skills" in t.lower()]
+    assert grouped == [155, 787, 1728], grouped
+    assert text[1727].strip() == "— SOCIAL SKILLS —"
+
+
 # --- CoR tables (Ch. 6 p. 45, Ch. 7 p. 68) ---------------------------------
 
 import extract_corruption

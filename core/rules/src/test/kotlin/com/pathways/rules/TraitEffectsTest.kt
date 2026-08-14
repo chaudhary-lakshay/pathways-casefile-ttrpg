@@ -866,4 +866,101 @@ class TraitEffectsTest {
             .map { it.name }.toSet()
         assertEquals(emptySet<String>(), TraitEffects.known() - printed)
     }
+
+    /**
+     * **Empathy's "+3 to social skill rolls" reaches the banner the book
+     * prints.** The join is the CATEGORY, which is a weaker key than a skill
+     * name and a much stronger one than a controlling attribute: Fast-Talk is
+     * IQ-based and so are Research and Alchemy, so an attribute scope would
+     * lift a chemistry roll.
+     *
+     * The category is read out of the content, never restated here: a second
+     * copy of a set the book prints is what 4.1 forbids, and 6bg's forfeit
+     * list is the precedent for reading one out of its own file.
+     */
+    @Test
+    fun `Empathy lifts a social skill and nothing else`() {
+        val iq = ControllingAttribute.Buyable(Attr.IQ)
+        val empathy = listOf(advantage(TraitEffects.EMPATHY))
+        val fastTalk = SkillKey("Fast-Talk", null, iq, Difficulty.AVERAGE)
+        assertEquals(
+            ModEffect.Flat(3),
+            TraitEffects.modifiers(empathy, fastTalk).single().effect,
+        )
+        // Same controlling attribute, a different banner: KNOWLEDGE.
+        val research = SkillKey("Research", null, iq, Difficulty.AVERAGE)
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(empathy, research))
+    }
+
+    /**
+     * **The whole SOCIAL banner, not a sample of it.** A membership test that
+     * checks one skill passes for any join that happens to agree there; this
+     * one walks all sixteen and asserts every other skill in the book is
+     * untouched, which is what fails if the category lookup goes wrong in
+     * either direction.
+     */
+    @Test
+    fun `every social skill and no other takes the social bonus`() {
+        val empathy = listOf(advantage(TraitEffects.EMPATHY))
+        val social = ContentLoader.skills().filter { it.category == TraitEffects.SOCIAL_SKILLS }
+        assertEquals(16, social.size, social.map { it.name }.toString())
+        for (skill in ContentLoader.skills()) {
+            val key = SkillKey(skill.name, null, skill.attr, skill.difficulty)
+            val flats = TraitEffects.modifiers(empathy, key)
+            val expected = if (skill.category == TraitEffects.SOCIAL_SKILLS) 1 else 0
+            assertEquals(expected, flats.size, "${skill.name} (${skill.category}): $flats")
+        }
+    }
+
+    /**
+     * **A conditional social row is refused, not applied at its printed
+     * value.** Callous is "-3 to social skill rolls **when warmth or empathy
+     * is required**" and Shyness "-1 to -2 ... depending on severity and
+     * audience" -- circumstances the GM declares, which this app has no
+     * control for yet. Barmaid Brawler and Docks Bouncer own Callous beside
+     * Intimidation, and Academic Researcher owns Shyness beside Public
+     * Speaking, so all three would silently take a penalty nobody declared.
+     *
+     * Reported instead, so a GM can apply it themselves; one who sees nothing
+     * assumes it was counted.
+     */
+    @Test
+    fun `a conditional social penalty is reported rather than applied`() {
+        val iq = ControllingAttribute.Buyable(Attr.IQ)
+        val intimidation = SkillKey("Intimidation", null, iq, Difficulty.AVERAGE)
+        for (name in listOf("Callous", "Shyness", "Social Anxiety")) {
+            val owned = listOf(Trait(name, 5, TraitKind.DISADVANTAGE))
+            assertEquals(
+                emptyList<Any>(),
+                TraitEffects.modifiers(owned, intimidation),
+                "$name is conditional and must not reach a roll",
+            )
+            assertTrue(
+                TraitEffects.reported(owned).any { it.trait == name },
+                "$name reaches no roll and must say so",
+            )
+        }
+    }
+
+    /**
+     * **"social rolls" and "social skill rolls" are two different things, in
+     * the book's own sentence.** Line 6522 prints "(-1 to all emotional
+     * reaction rolls and social skill rolls)", so the bare phrase is not an
+     * abbreviation of the other -- and it is never defined, never a banner,
+     * and used by rows that read like reactions ("first-impression", "people
+     * look out for you"). This book prints no reaction roll procedure at all
+     * (6w), so which rolls it touches is settled by nothing.
+     *
+     * Loner is the carried case: Hunter-Tracker owns it, its Will roll is
+     * already made by [SelfControl], and this clause is refused beside it.
+     */
+    @Test
+    fun `a bare social rolls clause reaches no skill`() {
+        val loner = listOf(Trait("Loner", 5, TraitKind.DISADVANTAGE))
+        val diplomacy = SkillKey(
+            "Diplomacy", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.HARD,
+        )
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(loner, diplomacy))
+        assertTrue(TraitEffects.reported(loner).any { "social rolls" in it.printed })
+    }
 }

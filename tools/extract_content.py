@@ -404,6 +404,44 @@ SKILL_HEADER_WORD = "Skill"
 SKILL_SECTION_END = 2181  # "Study Points (Optional Rule)" appendix begins here;
                            # different table shape, no fixture references it.
 
+# The fifteen banners the Complete Skill List is printed under. They were
+# DISCARDED for four milestones -- the loop below used to do `i += 1` on a
+# banner and move on -- so a trait cell reading "+3 to social skill rolls"
+# named a group this book prints and nothing could identify it. The same
+# "a normaliser can delete a rule" shape as strip_self_control_number.
+#
+# Stored VERBATIM rather than slugged: "SPIRITUAL SKILLS (SPI-based)" carries
+# the book's own parenthetical, and normalising these into tidy keys is how the
+# next reader loses the ability to grep the page they came from.
+SOCIAL_SKILLS = "SOCIAL SKILLS"
+SKILL_CATEGORIES = {
+    "COMBAT SKILLS",
+    SOCIAL_SKILLS,
+    "KNOWLEDGE SKILLS",
+    "THIEF SKILLS",
+    "PHYSICAL SKILLS",
+    "CRAFT & TECHNICAL",
+    "SPIRITUAL SKILLS (SPI-based)",
+    "SURVIVAL & OTHER",
+    "INVESTIGATION & DETECTION",
+    "PERFORMANCE & ARTS",
+    "ACADEMIC",
+    "TRADE & CRAFT",
+    "ANIMALS & OUTDOORS",
+    "UNDERWORLD & COVERT",
+    "MILITARY & NAVAL",
+}
+
+# The sixteen skills under SOCIAL_SKILLS. This membership IS the join that
+# applies "social skill rolls", so it is pinned rather than trusted: a row
+# leaving the set silently withdraws a printed bonus, and a row joining it
+# silently invents one.
+SOCIAL_SKILL_NAMES = {
+    "Fast-Talk", "Intimidation", "Diplomacy", "Public Speaking", "Acting",
+    "Leadership", "Detect Lies", "Interrogation", "Observation", "Psychology",
+    "Savoir-Faire", "Sex Appeal", "Panhandling", "Disguise", "Forgery", "Holdout",
+}
+
 
 def clean_skill_stream(byn, start, end):
     out = []
@@ -418,7 +456,16 @@ def clean_skill_stream(byn, start, end):
 
 
 def strip_skill_structure(stream):
+    """Drop the table's furniture, and return which banner each line sits under.
+
+    The category comes back as a separate line -> banner map rather than as a
+    third element of every tuple: the record-boundary walk below indexes these
+    tuples in four places, and widening them there would be a bigger change
+    than the rule warrants.
+    """
     result = []
+    category_by_line = {}
+    category = None
     i = 0
     n_items = len(stream)
     while i < n_items:
@@ -428,11 +475,13 @@ def strip_skill_structure(stream):
             i += 4  # title + " Skill" / " Attr / Difficulty" / " Notes"
             continue
         if SKILL_BANNER.match(tstrip):
+            category = tstrip.strip("—").strip()
             i += 1  # category banner only; no per-category header repeats
             continue
+        category_by_line[n] = category
         result.append((n, t))
         i += 1
-    return result
+    return result, category_by_line
 
 
 SPECIFY_PAREN = re.compile(r"\s*\((specify[^)]*|any)\)$", re.IGNORECASE)
@@ -462,7 +511,7 @@ def is_specializable(raw_name: str, notes: str) -> bool:
 
 def extract_skills(byn):
     stream = clean_skill_stream(byn, 1664, SKILL_SECTION_END - 1)
-    stream = strip_skill_structure(stream)
+    stream, category_by_line = strip_skill_structure(stream)
     cost_idx = [i for i, (n, t) in enumerate(stream) if SKILL_ATTR_DIFF.match(t.strip())]
 
     # Same record-boundary fix as extract_traits: build one block per
@@ -507,12 +556,20 @@ def extract_skills(byn):
         notes = " ".join(t.strip() for _, t in notes_lines)
         first_line = b["name_lines"][0][0]
         last_line = notes_lines[-1][0] if notes_lines else cost_n
+        # The banners partition the list, so a record with none means the walk
+        # started above the first banner and the section bounds have moved.
+        # Refused rather than defaulted: a skill silently filed under no
+        # category withdraws every category-scoped rule from it in silence.
+        category = category_by_line.get(first_line)
+        if category is None:
+            raise ValueError(f"line {first_line}: {name!r} sits under no category banner")
         entries.append({
             "name": name,
             "specialization": spec,
             "attr": attr_code,
             "difficulty": DIFFICULTY_WORDS[diff_word],
             "specializable": is_specializable(raw_name, notes),
+            "category": category,
             "notes": notes,
         })
         spans.append([first_line, last_line])
@@ -657,6 +714,38 @@ def verify(dis_entries):
         raise ValueError("Phobia's Fright Check was read as a self-control roll")
 
 
+def verify_skills(skill_entries):
+    """Fail the extract if the category banners stop being what they were read as.
+
+    Two claims, and the second is the load-bearing one. The banners PARTITION
+    the list, so every row has exactly one; and the SOCIAL banner's membership
+    is the entire join that applies a cell saying "social skill rolls", so a
+    row leaving or joining that set changes a rule rather than a label.
+    """
+    found = {e["category"] for e in skill_entries}
+    if found != SKILL_CATEGORIES:
+        raise ValueError(
+            f"skill category banners changed: missing {SKILL_CATEGORIES - found}, "
+            f"unexpected {found - SKILL_CATEGORIES}"
+        )
+    social = {e["name"] for e in skill_entries if e["category"] == SOCIAL_SKILLS}
+    if social != SOCIAL_SKILL_NAMES:
+        raise ValueError(
+            f"the SOCIAL banner's membership changed: left {SOCIAL_SKILL_NAMES - social}, "
+            f"joined {social - SOCIAL_SKILL_NAMES}. That set is what applies every "
+            f'"social skill rolls" cell, so the reading must be made again'
+        )
+    # Streetwise is the evidence that Charisma's bracketed list is its own
+    # enumeration and not a reference to the SOCIAL banner. If the book ever
+    # moved it, that reading would have to be re-made rather than inherited.
+    streetwise = next(e for e in skill_entries if e["name"] == "Streetwise")
+    if streetwise["category"] != "KNOWLEDGE SKILLS":
+        raise ValueError(
+            f"Streetwise is now {streetwise['category']!r}; Charisma's bracket "
+            f"was read as its own list BECAUSE Streetwise sat outside SOCIAL"
+        )
+
+
 def main():
     byn = load_lines()
 
@@ -670,6 +759,7 @@ def main():
     )
     verify(dis_entries)
     skill_entries, skill_spans, skipped_skills = extract_skills(byn)
+    verify_skills(skill_entries)
     thrust_swing_rows = extract_thrust_swing()
 
     write_content_file("advantages", adv_entries, adv_spans)

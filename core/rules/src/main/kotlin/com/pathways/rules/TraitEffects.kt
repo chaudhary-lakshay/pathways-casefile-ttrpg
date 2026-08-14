@@ -68,6 +68,20 @@ object TraitEffects {
     const val NIGHT_EYES = "Night Eyes"
     const val CHARISMA = "Charisma"
     const val OUTDOORSMAN = "Outdoorsman"
+    const val EMPATHY = "Empathy"
+
+    /**
+     * The banner Ch. 3 prints sixteen skills under, and the group every
+     * "social skill rolls" cell names.
+     *
+     * The membership is NOT restated here. `skills.json` carries each skill's
+     * banner, so the set is read from the content -- a second copy of a set
+     * the book prints is what 4.1 forbids, and 6bg's forfeit list is the
+     * precedent for reading one out of its own file. That is the difference
+     * from [BALANCE_SKILLS] and Charisma's six, whose CELLS name their skills
+     * outright and so have no printed table to read.
+     */
+    const val SOCIAL_SKILLS = "SOCIAL SKILLS"
 
     /**
      * The ceiling both levelled skill rows print for themselves -- Charisma's
@@ -186,6 +200,51 @@ object TraitEffects {
             ),
         ),
     )
+
+    /**
+     * Every trait whose cell names a skill CATEGORY, and by how much.
+     *
+     * **A third join, weaker than a skill name and much stronger than a
+     * controlling attribute.** Empathy's "+3 to social skill rolls" names no
+     * skill, so [SKILL_BONUSES] cannot reach it; and scoping by attribute
+     * would be wrong rather than merely loose, because Fast-Talk, Research
+     * and Alchemy are all IQ-based and only the first is social.
+     *
+     * **Only unconditional rows are here.** Five cells say "social skill
+     * rolls" and three of them qualify it -- Callous "when warmth or empathy
+     * is required", Shyness "depending on severity and audience", Social
+     * Anxiety "in groups of 6+" -- which are circumstances a GM declares and
+     * this app has no control for. Applying them at their printed value would
+     * charge a penalty nobody declared, on three premades that own a social
+     * skill; they are [UNAPPLIED] with the reason instead.
+     *
+     * **The bare phrase "social rolls" is a different thing and reaches
+     * nothing.** Line 6522 prints "(-1 to all emotional reaction rolls and
+     * social skill rolls)", so the book distinguishes the two in one bracket;
+     * the bare phrase is never defined, is never a banner, and the rows using
+     * it read like reactions ("first-impression", "people look out for you").
+     * This book prints no reaction roll procedure at all (6w), so which rolls
+     * it touches is settled by nothing printed -- the refusal [Languages]
+     * makes about a common tongue's silence (6x). Workaholic and Loner are
+     * the carried cases.
+     */
+    private val CATEGORY_BONUSES: Map<String, Pair<Int, String>> = mapOf(
+        EMPATHY to (3 to SOCIAL_SKILLS),
+    )
+
+    /** The traits whose cell names a category, for the guard tests. */
+    fun categoryBonusNames(): Set<String> = CATEGORY_BONUSES.keys
+
+    /**
+     * The banner [skill] is printed under, read from the content.
+     *
+     * A skill the book does not print has no banner and takes no
+     * category-scoped rule -- which is the honest answer for a bought skill
+     * whose name a content fix removed, and for the three grants that name no
+     * real skill (6be, M3's recorded placeholders).
+     */
+    private fun categoryOf(skill: SkillKey): String? =
+        ContentLoader.skills().firstOrNull { it.name == skill.name }?.category
 
     /**
      * One row of [SKILL_BONUSES]: what a cell adds, and to which skills.
@@ -446,6 +505,16 @@ object TraitEffects {
             val levels = if (row.perLevel) minOf(owned, row.maxLevels ?: owned) else 1
             add(bonus(trait, row.value * levels))
         }
+        // The category join, resolved once for the skill rather than per trait.
+        val category = categoryOf(skill)
+        if (category != null) {
+            for ((trait, row) in CATEGORY_BONUSES) {
+                val (value, named) = row
+                if (named != category) continue
+                if (levelOf(traits, trait) == null) continue
+                add(bonus(trait, value))
+            }
+        }
     }
 
     /**
@@ -508,7 +577,7 @@ object TraitEffects {
      */
     fun known(): Set<String> =
         UNAPPLIED.keys + PARTLY_APPLIED.keys + SKILL_BONUSES.keys +
-            setOf(ALERTNESS, FIT, COMBAT_REFLEXES)
+            CATEGORY_BONUSES.keys + setOf(ALERTNESS, FIT, COMBAT_REFLEXES)
 
     /** The traits reported whole, for the disjointness test. */
     fun unappliedNames(): Set<String> = UNAPPLIED.keys
@@ -619,7 +688,35 @@ object TraitEffects {
             "recover FP at half normal rate" to
                 "this app holds no clock to recover against",
         ),
+        // Loner's Will roll is already made -- SelfControl reads it off the
+        // cell's "roll vs. Will" -- so this is the clause beside an applied
+        // one, which is what this map is for. It says "social ROLLS", not
+        // "social SKILL rolls", and the book prints both phrases in one
+        // bracket at line 6522, so the bare one is not an abbreviation of the
+        // other and names no group this app can identify.
+        "Loner" to listOf(
+            "-1 to social rolls in crowds" to BARE_SOCIAL_ROLLS,
+        ),
     )
+
+    /**
+     * Why a cell saying "social rolls" reaches nothing, where one saying
+     * "social skill rolls" reaches [SOCIAL_SKILLS].
+     *
+     * **The book distinguishes them itself.** Line 6522 prints "(-1 to all
+     * emotional reaction rolls and social skill rolls)" -- two phrases, one
+     * bracket -- so the bare form is not shorthand for the other. It is never
+     * defined and never a banner, and the rows using it read like reactions:
+     * "+2 to social rolls there; people look out for you", "-2 to
+     * **first-impression** social rolls with strangers". This book prints no
+     * reaction roll procedure or result table anywhere (6w), so the phrase may
+     * name rolls this app cannot make or skills it can, and nothing printed
+     * settles which.
+     */
+    private const val BARE_SOCIAL_ROLLS =
+        "the book prints \"social rolls\" here and \"social skill rolls\" " +
+            "elsewhere, and distinguishes the two in one sentence, so which " +
+            "rolls this names is the GM's call"
 
     /**
      * Why both jointedness rows' second clause reaches nothing.
@@ -665,7 +762,26 @@ object TraitEffects {
         // no entry to be visible.
         IRON_JAW to "this app rolls no knockdown for a hit location, and no bite",
         RAPID_RECOVERY to "both halves are durations, and this app holds no clock",
+        // The three social-skill rows whose penalty is CONDITIONAL. The group
+        // they name is identifiable now [SOCIAL_SKILLS], so what stops them is
+        // the circumstance and nothing else -- and two of the three are
+        // carried beside a social skill (Barmaid Brawler and Docks Bouncer own
+        // Callous with Intimidation, Academic Researcher owns Shyness with
+        // Public Speaking), so applying them flat would charge a penalty the
+        // GM never declared. A declaration control is the next slice.
+        "Callous" to CONDITIONAL_SOCIAL,
+        "Shyness" to
+            "the penalty depends on severity and audience, and this app has no " +
+            "control for either yet",
+        "Social Anxiety" to
+            "both values depend on the size and status of the group, and this " +
+            "app has no control for either yet",
     )
+
+    /** Why a social penalty the GM must first declare reaches no roll. */
+    private const val CONDITIONAL_SOCIAL =
+        "the book charges this only when the circumstance it names applies, " +
+            "and this app has no control to declare it yet"
 
     private fun bonus(trait: String, value: Int) = Modifier(
         id = ModifierId("trait:${trait.lowercase()}"),
