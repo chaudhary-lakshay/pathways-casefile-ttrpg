@@ -12,8 +12,18 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6by, then 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq, 6bp, 6bo,
-6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6by is the census 6bx's own
+**Where to start next: 6bz, then 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq, 6bp,
+6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6bz runs the sweep 6bx and
+6by both stumbled into and neither ran: **what does the TEST suite know that
+production does not?** Both of those slices found their defect that way by
+accident, so running it deliberately was an obligation (6ay). It found one more
+— a test-side exclusion that had outlived its own reason by several slices,
+skipping two rows whose costs then went unreconciled — and, more usefully, it
+names why the two resolvers are ALLOWED to differ and pins the direction. Read
+it for the shape of that answer: an audit must be a strict **superset** of
+production, free to reach further (it must, to report a conflict on a
+near-match) and never permitted to reach less. Two questions, two matchers, one
+direction. 6by is next, the census 6bx's own
 closing paragraph asked for, and it corrects that paragraph twice: the set is
 **sixteen** spellings, not the nine I wrote, and it is not one list but three
 shapes that look identical — a disagreement the book settles, a paraphrase
@@ -201,7 +211,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1065 Kotlin** (JUnit 5 — 970 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
+| Tests | **1066 Kotlin** (JUnit 5 — 971 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -7000,6 +7010,76 @@ Industry org or church` is the same colon shape as the row fixed here and
 paraphrases its own catalogue notes rather than quoting them, so 6br's
 exact-tail rule refuses it — correctly, on today's evidence, and that is a
 verdict rather than a proof.
+
+## 6bz. What does the test suite know that the code does not?
+
+`ContentLoaderTest`'s fixture audit resolves a trait name through
+`TraitEffects.catalogueName` before trying anything of its own, and the names
+it reaches beyond production are pinned with a reason each. This is the sweep
+6bx and 6by both found their defect through, run on purpose.
+
+**Both of the last two slices stumbled into the same class by accident.** 6bx's
+live double count was sitting behind a hardcoded alias this test had carried
+since M0; 6by's seven-trait gap was a second reading this test had implemented
+and production had not. Two accidents make a class, and naming a sweep obliges
+running it (6ay) — so it was run over every domain constant in the test tree:
+the golden exclusion sets, the untabulated ritual rows, the absent-skill and
+absent-trait lists, the alias map, the name-artifact list.
+
+### The one finding: an exclusion that outlived its own reason
+
+`KNOWN_FIXTURE_NAME_ARTIFACTS` skipped two premades' `Clueless <the book's
+whole effect cell>` rows, saying: *"no general normalization rule can recover
+the true name."* **6bt wrote that rule** — the sheets glue the name to the
+book's own notes with a bare space, and a tail reproducing the catalogue's
+words exactly is what proves the head. So the reason had been false for several
+slices while the skip stayed, and those two rows' costs were never reconciled
+against the book in all that time. They agree (10 against 10), so nothing was
+wrong; nothing was CHECKED either, which is the finding.
+
+**6ba's lesson, pointed at a test's own exclusion.** A verdict expires — and an
+exclusion is the one construct that cannot notice when it stops being needed,
+because it removes the very case that would tell it. `reported()`'s stale
+disclaimer (6bl) is the same shape in production.
+
+### Why the two resolvers are ALLOWED to differ, which nothing had said
+
+The tempting fix was to make production and the audit share one matcher. That
+is wrong, and it is observation-10's shape: **two questions that share a
+matcher still need two matchers.** This audit reconciles the fixture corpus
+against the book, so it must REACH a near-match in order to report a cost
+conflict on it — `Absent-Minded` is a conflict only if you first admit it is
+that row. Production decides what a player is shown, and must refuse the same
+name (4.1). Collapsing them loses the conflict report.
+
+**So the relationship is not equality, it is a direction:** the audit must be a
+strict superset. Knowing more is its job; knowing less is a bug, and it had
+one. Delegating to production FIRST is what makes the bug impossible rather
+than merely unlikely — a spelling production learns to read stops being skipped
+here on the same commit, instead of some later one.
+
+- **Thirteen names only the audit reaches**, each with its reason, and the
+  reverse direction asserted EMPTY. That empty assertion is the guard: it is
+  what fires the day production out-reaches the audit again.
+- **RED-proved in the strongest available way.** Removing the delegation fails
+  BOTH tests, and the failure names the two `Clueless` rows as not-found —
+  which is the defect itself, printed by the test that now prevents it.
+  Dropping one entry from the pinned set fails too.
+- Nothing else in the sweep was actionable: the golden sheets' HP/FP and
+  subtotal exclusions are the book-versus-sheet disagreements 4.1 exists for
+  and are visible on the sheet screen's own diff; `GoldenRitualTest`'s
+  `untabulated` rows come from no printed table, so there is nothing for
+  production to read; the absent-skill and absent-trait lists were re-verified
+  against the extracted text and are still absent.
+
+**1066 Kotlin** (971 `core:rules`, 75 `app`, 20 `core:model`) and 261 Python,
+green. Test-only: nothing to device-verify and no behaviour changed, stated
+rather than skipped. Codex reviewed the diff and returned clean, and its own
+Gradle run failed on a sandbox lock again, so the green suite is mine.
+
+**The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
+traits** — and note that this sweep is now a standing check rather than a
+one-off: the empty-set assertion runs on every build.
 
 ## 6by. Sixteen spellings, three shapes, and a fix worth refusing
 
