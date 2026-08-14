@@ -1445,6 +1445,60 @@ class TraitEffectsTest {
     }
 
     /**
+     * **A scale with worked points is not a set of variants**, and this is the
+     * condition the filter above does NOT explain.
+     *
+     * `pricedVariants` is safe because of two things, and its KDoc credits one.
+     * The "at least two members" rule keeps Stubborn's "Will-3" out, as the
+     * test above pins. What keeps a PROSE SCALE out is that a variant is a
+     * NAME and a scale point is not:
+     *
+     *  - Mystical Item: "Cost scales with power: a minor charm (5 pts), a
+     *    useful tool (10 pts), or a significant piece of equipment (15 pts)."
+     *  - Duty (specify): "Value reflects frequency and danger: -5 for light
+     *    duty, -10 for hazardous duty, -15 for extremely hazardous."
+     *
+     * Both print three priced options spanning their own cost range, so the
+     * member count cannot separate them -- only the capital letter does.
+     * Mystical Item is the near-miss that shows it: read as an enumeration it
+     * offers a variant literally called "or a significant piece of equipment",
+     * and its own sentence says the cost SCALES, so the row admits 7 as
+     * readily as 5.
+     *
+     * Pinned because widening the parse is the obvious next move on this
+     * object and the two rows look identical to a member count. Nothing can
+     * reach the wrong answer today -- no premade owns either row -- which is
+     * exactly when this repo pins a permissive path rather than after the next
+     * caller finds it (6l).
+     */
+    @Test
+    fun `a prose scale that prices its own examples is not a choice of variants`() {
+        val catalogue = ContentLoader.advantages() + ContentLoader.disadvantages()
+        val scales = listOf("Mystical Item", "Duty (specify)", "Blood Feud", "Contact")
+        for (name in scales) {
+            val row = catalogue.single { it.name == name }
+            assertTrue(
+                TraitEffects.pricedVariants(row.notes).isEmpty(),
+                "$name prints a scale, not a set of named variants",
+            )
+        }
+        // The evidence, quoted: each says the cost MOVES with something, and
+        // names its points in lower case where a variant is capitalised.
+        val mystical = catalogue.single { it.name == "Mystical Item" }
+        assertTrue(mystical.notes.contains("Cost scales with power"))
+        assertTrue(mystical.notes.contains("a minor charm (5 pts)"))
+        val duty = catalogue.single { it.name == "Duty (specify)" }
+        assertTrue(duty.notes.contains("Value reflects frequency and danger"))
+        // ...against a real enumeration, whose members are names.
+        assertEquals(
+            listOf("Mild" to 5, "Severe" to 10),
+            TraitEffects.pricedVariants(
+                ContentLoader.disadvantages().single { it.name == "Shyness" }.notes,
+            ),
+        )
+    }
+
+    /**
      * The qualifier must select EXACTLY ONE priced variant, and the cost must
      * agree. Social Stigma prices both its variants at 5, so the cost alone
      * cannot say which was bought -- the qualifier does, and the cost only

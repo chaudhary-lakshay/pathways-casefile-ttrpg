@@ -545,12 +545,28 @@ object TraitEffects {
      * Shyness prints "Mild (-5): ... Severe (-10): ..." and Social Stigma
      * "Criminal Record -5, Servant Class -5".
      *
-     * **An enumeration has at least two members**, which is the whole of the
-     * filter and is what makes it safe. Allow one and the same pattern reads
-     * "Must roll vs. Will-3" as a variant called "Will" priced at 3 -- eleven
-     * rows print a number in prose that way, including four self-control
-     * targets. A cell offering a choice prints more than one option, and that
-     * single condition takes 198 rows down to the two this reads.
+     * **Two conditions make this safe, and they exclude different rows.**
+     *
+     * **An enumeration has at least two members.** Allow one and the same
+     * pattern reads "Must roll vs. Will-3" as a variant called "Will" priced
+     * at 3 -- eleven rows print a number in prose that way, including four
+     * self-control targets.
+     *
+     * **A variant is a NAME, so it is capitalised.** This is the condition
+     * that keeps out a SCALE with worked points, and the member count cannot:
+     * Mystical Item prints "Cost scales with power: a minor charm (5 pts), a
+     * useful tool (10 pts), or a significant piece of equipment (15 pts)" and
+     * Duty (specify) prints "-5 for light duty, -10 for hazardous duty, -15
+     * for extremely hazardous" -- three priced options each, spanning their
+     * own cost range, and neither is a closed set. Their own sentences say the
+     * value MOVES ("scales with power", "reflects frequency and danger"), so
+     * the rows admit a price between the points they work. Read as
+     * enumerations they offer a variant called "or a significant piece of
+     * equipment".
+     *
+     * Together the two take 198 rows down to the two this reads. Both are
+     * pinned by tests, because widening the parse is the obvious next move
+     * here and the near-misses do not look alike.
      */
     fun pricedVariants(notes: String): List<Pair<String, Int>> {
         val found = PRICED_VARIANT.findAll(notes)
