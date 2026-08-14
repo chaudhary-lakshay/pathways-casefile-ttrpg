@@ -12,8 +12,15 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6bq, then 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh,
-6bg and 6bf.** 6bq is the one to read first: it is the THIRD slice running
+**Where to start next: 6br, then 6bq, 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi,
+6bh, 6bg and 6bf.** 6br is the one to read first: it corrects 6bp with 6bp's
+own instrument — the clause sweep listed seventeen rows and that slice's triage
+read one, leaving an identical unapplied trait on the same character's same
+roll it had just device-verified. Its design review then blocked the obvious
+fix and, in checking why, turned up seven fixture traits storing the name and
+the book's effect cell as one string — which had made a self-control roll
+unreachable on the character whose defining drawback it is, five slices after
+that roll shipped. 6bq is next: it is the THIRD slice running
 whose design review ran before any code, and the second to come back no-ship —
 one finding caught a sentence in my own decomposition whose destructive reading
 would have deleted a book rule for every character who lacks the trait, and the
@@ -118,7 +125,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1007 Kotlin** (JUnit 5 — 912 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
+| Tests | **1016 Kotlin** (JUnit 5 — 921 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -5913,6 +5920,111 @@ pixels; and every `adb` command naming a device path needs `MSYS_NO_PATHCONV=1`
 table prints Skull, Face and Neck each with a knockdown roll — but no attribute
 to roll it against, which is exactly what 6bp's review blocked. That one needs
 the book to name an attribute, not another slice.
+
+## 6br. The other five, and a sheet that printed the effect inside the name
+
+`TraitEffects.SKILL_BONUSES` applies every trait whose cell names the skills
+it lifts, and `catalogueName` gives all four matchers one resolution. 6bp did
+this for the Balance rows; **its own sweep listed seventeen advantages and its
+triage read one of them.**
+
+- **Flexibility says "+3 to Climbing and Escape" and Pickpocket carries it
+  beside Perfect Balance** — the character 6bp was device-verified on, whose
+  Climbing roll was reported there as *"modified to 13, trait:perfect balance:
+  2"* when three more were owed. **6bj's lesson for the third time**: the sweep
+  survived, the pass over its shortlist did not. Re-running it is what found
+  this; the query was right both times.
+- **Healer's +3 is its whole First Aid bonus.** The cell also prints "+2 to all
+  rolls to diagnose, treat, and heal", and a First Aid roll *is* a roll to
+  treat — so stacking would charge +5 on the one roll the cell singles out with
+  the word "specifically". The general clause names a PURPOSE and this book
+  tags no skill as a healing skill, the refusal `Languages` makes for
+  "language-dependent skill rolls" (6x), so it is reported.
+- **Two traits naming one skill both apply.** Nothing makes independently
+  purchased advantages exclusive; taking the better of the two is arithmetic
+  the book never asks for.
+- **The close-quarters clause was CHECKED, not excused.** 6bo found a
+  near-identical excuse for High Pain Threshold was false — the book printed a
+  shock penalty all along. So "close-quarters" was grepped: it occurs exactly
+  twice, both inside these two trait cells. There is nothing to ignore.
+- **"Body Sense" is printed by no skill list**, occurring once in Absolute
+  Direction's own cell. The Piloting shape (6bp), "Wrestling Master" (6bf) and
+  "Ancient Loen" (6x). Kept in the set, so the name join reaches it the day the
+  skill appears.
+
+### The review blocked it, and the cause was bigger than the finding
+
+`adversarial-review` on the decomposition — third slice running, third
+no-ship. Its HIGH: adding Healer would give **Church Healer** a First Aid bonus
+while its clauses stayed invisible, because `levelOf` prefix-matched and
+`reported` did not. Checking that turned up the real defect:
+
+**Seven fixture traits store the name and the book's effect cell as ONE
+string**, because the published sheet ran them together on one line —
+`"Healer - +2 to all rolls to diagnose, treat, and heal; ..."`. Nothing
+resolved those, so **Charity's self-control roll could not be made on the one
+character whose defining drawback it is**, five slices after 6am shipped those
+rolls.
+
+- **The tail must equal the catalogue row's own notes**, ignoring the sheet's
+  wrapping. That is an EXACT join: the sheet is quoting the book verbatim, so
+  the two are provably the same trait — unlike 6am's "Absent-Minded" against
+  "Absent-Mindedness", where the only evidence is resemblance and 4.1 says the
+  disagreement is recorded. **Three of the seven match and four do not**, which
+  is the discriminator working rather than a rule that happens to fire.
+- **One resolution, four consumers** — the applied bonuses, `reported`,
+  `SelfControl.checksFor` and the sheet's disadvantage rows. Two matchers is
+  how a bonus keeps its own explanation off the screen (6ag, 6ai, 6be, 6bp).
+- The MEDIUM was accepted and **Ether Body Damage left out**: "All SPI-based
+  rolls at -1" is a controlling-attribute join like Alertness, but `bonus()`
+  hardcodes `advantage = true` and the coverage test reads the advantage
+  catalogue only. The first disadvantage-driven modifier is its own slice.
+
+**A second review pass caught two clauses that were neither applied nor
+reported** — Absolute Direction's "Always know which way is north" and
+Double-Jointed's "any body part bends any way". That is worse than an untouched
+trait, because the sheet then shows the cell as understood. The guard is
+general: a test walks each handled cell's own segmentation and fails on a
+clause that is neither, with the one descriptive lead-in named so the exemption
+cannot widen.
+
+**1016 Kotlin** (921 core:rules, 75 app, 20 core:model) and 258 Python, green.
+Three readings were RED-proved by neutering them — Healer stacking to +5, two
+traits taking the better rather than both, and the exact-tail rule relaxed to
+any tail — failing 3, 3 and 1 test respectively. The prohibition sweep over
+this slice's ranges turns up only Absolute Direction's own "never become lost",
+which is reported rather than applied.
+
+**A self-inflicted loss worth recording.** RED-proving the coverage guard, I
+restored the file with `git checkout` instead of the backup I had taken — which
+discarded the whole implementation, since it was uncommitted. The tests
+survived, so rebuilding it was mechanical, but **`git checkout <file>` is not
+an undo for a neutering experiment**: keep the `cp` backup and restore from it.
+
+Device-verified on `Medium_Phone_API_36.1`, both halves:
+
+- **Pickpocket**, Climbing: **"3d6: 7 vs 16 — base 11, modified to 16,
+  `trait:perfect balance, trait:flexibility: 5`"**. 6bp's own device run
+  reported 13 on this roll.
+- **Church Healer**: **"Charity — −10 pts — 3d6 ≤ 11"** with the book's effect
+  cell, a roll that did not exist before this slice, and Healer's two unapplied
+  clauses each with their reason. **"Sense of Duty (Flock) - Must help/protect
+  certain groups even at personal risk"** still renders glued — its tail is not
+  the book's words, so it stays unmatched and recorded, which is the
+  discriminator visible on screen.
+
+**The device found the one defect nothing else could**, and it is 6bl's shape:
+the glued name rendered in full, so each row printed the same sentence twice —
+once as the name, once as the clause below it. Every test was green, because
+each asserted the right lookup and the right clause; a 150-character name reads
+as a broken row rather than a wrong one. The collapse fires only where the tail
+was verified, so an unmatched name keeps every character the sheet printed.
+
+**Left with evidence, not taken:** the 36 `(specify)` instantiations —
+"Sense of Duty (Patients)" against the catalogue's "Sense of Duty (specify)",
+"Duty (PMC)", "Phobia (Cities)", "Vow (Poverty)" — which are a real matching
+question of their own and are NOT the glued shape. And `Ether Body Damage`,
+above.
 
 ---
 
