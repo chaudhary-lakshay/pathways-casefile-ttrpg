@@ -12,8 +12,19 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6bu, then 6bt, 6bs, 6br, 6bq, 6bp, 6bo, 6bn, 6bm, 6bl,
-6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6bu is the one to read first, for one thing
+**Where to start next: 6bv, then 6bu, 6bt, 6bs, 6br, 6bq, 6bp, 6bo, 6bn, 6bm,
+6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6bv is the one to read first, and its
+lesson is about **deferrals rather than sweeps**: it was handed two named
+successors, ran a census of what the 23 fixtures ACTUALLY carry, and found one
+unbuildable (no premade owns the trait, and no potion can grant one) and the
+other unreachable on its own — the rows it wanted to apply were matchable only
+after a separate name-resolution fix nobody had named. So two named next-slices
+were one slice with a hidden prerequisite. **An unreachable feature and a
+missing one look identical in the source**; only the data tells them apart. Its
+design review then ran before any code and came back no-ship on two structural
+findings, neither visible in a diff — the dialog boundary silently discarded
+the input the whole feature needed, so it would have shipped looking correct
+and reaching nothing. 6bu is next, for one thing
 above all: **five successive censuses were each too narrow**, and the third
 failed for a reason no regex fixes — a Fright Check is a roll the book NAMES
 rather than describes, so no filter drawn from the word "roll" can see one.
@@ -151,7 +162,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1034 Kotlin** (JUnit 5 — 939 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
+| Tests | **1045 Kotlin** (JUnit 5 — 950 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -6554,6 +6565,147 @@ a modifier since 6c. Only Fearlessness is unconditional; the rest need the
 declaration control the conditional social rows (Callous, Shyness, Social
 Anxiety) are also waiting on, so the two groups are one slice. No premade
 carries any of them, so nothing is lost by its being next rather than now.
+
+## 6bv. The placeholder the book tells a sheet to fill, and the roll it unlocks
+
+`TraitEffects.placeholderRow` resolves an instance of a `(specify)` row, and
+`frightClauses` / `frightBonus` apply the five rows that modify a Fright
+Check. **6bu named the second as the next slice and 6br named a different one
+before it; a census of what the 23 fixtures ACTUALLY carry disqualified one
+and merged the other two into this.**
+
+### The census, which changed the slice twice
+
+- **6br's named successor is unbuildable and 6br did not check.** `Ether Body
+  Damage` would be "the first disadvantage-driven modifier" — true, and
+  irrelevant: **no premade carries it**, and a potion in this codebase grants
+  attributes, SPI, secondaries and skill levels, never a trait (6al). A rule
+  nothing can reach is the `blessings.json` refusal 6bc already made.
+- **6bu's fright rows could not be reached alone.** The only premade carrying
+  any of the five is Hunter-Tracker, through **"Phobia (Cities)"** — which
+  resolved to no catalogue row at all, because the book prints
+  `"Phobia (specify)"`. So the join had to ship first, and the two named
+  deferrals were one slice with a hidden prerequisite.
+- **Eight fixture traits across eight premades fill a placeholder in**: one
+  Phobia, three Duties, three Vows, and Church Healer's
+  `"Resistant (Disease +3)"`. Every one resolved to nothing, so every clause
+  they carry was invisible.
+
+**A deferral is a claim about the DATA, not only about the code** (6au, 6av,
+and 6be retracting 6ba). An unreachable feature and a missing one look
+identical in the source.
+
+### The join turns on the book printing a word, never on the sheet printing a bracket
+
+- **"(specify)" is an INSTRUCTION.** Duty's own cell says it out loud —
+  "Specify organization and nature at creation" — and seven other cells print
+  the word inside their prose. The same reading matched
+  `"Hidden Lore (relevant domain)"` for a ritual's supporting skills (6am).
+- **That is exactly what keeps 6am's refusals refused.** "Paranoia: Bodies of
+  water", "Shyness (Mild)", "Social Stigma (Criminal)", "Sense of Duty
+  (Patients)" hang off rows whose names print **no placeholder**, so the sheet
+  added a qualifier the book never asked for and the only evidence is
+  resemblance. 4.1: recorded, never guessed away. A test pins the five
+  placeholder rows and seven still-unmatched spellings, so the boundary cannot
+  widen by accident.
+- **Resolving is not applying.** `Resistant (specify)` prints "+3 (3 pts) or
+  +8 (5 pts)" scoped to "a specific category", and the one bare HT roll this
+  app makes — a Major Wound's — resists neither disease nor poison nor
+  temperature. It is reported beside Duty's frequency roll (the refusal 6am
+  already made for that cell) rather than joining the map Fit and Unfit move.
+- **`displayName` keeps the sheet's spelling.** Which fear a character has is
+  content; "Phobia" alone would drop it.
+
+### The fright join, and a disclaimer that expired on schedule
+
+`FrightCheck.against` has taken a modifier since 6c, so the reason those five
+rows carried was a GAP stated as one — "what is missing is the join". The join
+shipped and the disclaimer went with it, which is 6ba's lesson applied
+deliberately rather than after the fact (6bl found one of these that had
+outlived its truth by a slice).
+
+- **Four of the five name a circumstance and one does not**, and that is the
+  whole of the interface. Fearlessness is what the character permanently IS,
+  so it is counted unasked and scales with its level; being in a church or
+  facing the feared thing is what the scene happens to be, and this app holds
+  one sheet and no scene. The fifth rule running to become buildable as a
+  DECLARATION (6bg, 6bl, 6bm, 6bn, 6bq), against a handover that ranked a
+  round tracker first (6bd).
+- **Fearlessness prints no ceiling**, unlike Charisma's and Outdoorsman's
+  "[max 4 levels]" — a property of those two cells, so a general cap would
+  invent one here (6bs's reading, held).
+- **Sacred Symbols prints TWO circumstances and both are offered.** "-2 on
+  direct exposure" is a relic in view; "-1 in consecrated buildings" is
+  standing inside one; a cathedral holding a relic is both. The book prints no
+  exclusion, and 6aa already read two consecutive sentences of one cell as
+  adding. They sum to -3, and the key is trait AND clause so one declaration
+  cannot move both — the collision `BoonModifier.key` was widened for (6r).
+- **Phobia's "-1 to all rolls" half is reported**, because it is a declared
+  all-rolls state and this app models exactly one (shock, through an enum
+  tested per roll class, 6bo). A second is its own slice.
+- **`known()` had to gain the fright names.** Three of the five are wholly
+  applied and appear in neither report map, so a typo in one would make the
+  modifier unreachable in silence — 6bs's finding about Outdoorsman, one map
+  over, and the guard exists for exactly this.
+
+### The design review ran first and came back no-ship, for the sixth slice running
+
+Both findings were structural and neither is visible in a diff:
+
+- **The dialog was the one roll-building boundary that discarded the
+  character's traits.** `SheetScreen` holds them and passed only Will and
+  shock, so the join would have shipped looking correct and reaching nothing —
+  the sheet would report the clause while the roll ignored it, which is
+  precisely the screen-disagrees-with-itself shape 6ai was fixed for.
+- **Its Roll relied on tree removal alone**, where the divination dialog was
+  hardened in 6p and every sibling guards. Adding chips increases the window
+  in which two taps roll twice and keep the second.
+
+Both accepted. The number and its breakdown now come from ONE call in rules,
+because a screen that sums its own chips is the second copy of a decision —
+the failure this file records five times (6ag, 6ai, 6be, 6bp, 6bs).
+
+**1045 Kotlin** (950 `core:rules`, 75 `app`, 20 `core:model`) and 261 Python,
+green. Every reading RED-proved by neutering it: the placeholder join removed
+(2 failures), conditional clauses applied unasked (1), Fearlessness's level
+ignored (1). **The boundary test correctly stays GREEN under all of them** —
+it guards against widening, so it must pass before and after, which is worth
+saying rather than reading as a gap. Restored from a `cp` backup each time,
+never `git checkout`, which is what cost 6br its implementation. The
+prohibition sweep was re-run over both catalogues (6ba) and forbids nothing
+about either half. Codex reviewed both commits and returned clean.
+
+Device-verified on the physical tablet (1920x1200), both halves and both
+boundaries:
+
+- **Hunter-Tracker** — the only carrier. The sheet prints **"Phobia (Cities) —
+  −10 pts"** with the book's effect cell underneath and **"Phobia (Cities) —
+  -1 to all rolls…"** with its reason; before commit A that trait resolved to
+  no row and rendered neither. Its Fright dialog, on the **+0** trigger, shows
+  **"Does any of this hold? — Phobia (Cities): Fright Check at -2 when
+  exposed"** at **3d6 vs 9**; ticking it reads **3d6 vs 7** with *"includes
+  Phobia (Cities) -2"*. Rolling gave **"3d6: 11 vs 7 — failed by 4"** — an 11
+  would have PASSED against 9, so the trait is what failed it, and the number
+  reached the dice rather than only the caption. **Two rapid taps produced one
+  outcome.**
+- **Church Healer**, the other half on one screen: **"Resistant (Disease +3)"**
+  now prints its cell and its refusal, **"Vow (Poverty)"** prints the book's
+  own, and **"Sense of Duty (Flock) - Must help/protect certain groups even at
+  personal risk"** still renders GLUED with no effect line — the boundary
+  holding on the same character. Its Damage dialog at 6 reads **"Roll HT 9"**
+  with no caption and no bonus: the category-scoped +3 does not leak onto the
+  one bare HT roll, which is the reading the design review blocked.
+
+**The next slice, named with evidence: the conditional social rows.** Callous
+(-3 "when warmth or empathy is required"), Shyness (-1 to -2 "depending on
+severity and audience") and Social Anxiety are the three rows whose GROUP is
+identifiable since 6bt and whose CIRCUMSTANCE is not, and four of the five
+carriers own a social skill — so applying them flat would charge a penalty
+nobody declared. The declaration control now exists in one shape
+(`FrightClause`, conditional + key + a chip row), so what is left is deciding
+whether a skill roll's LEDGER can carry one, which the fright dialog sidesteps
+by taking a single Int. That is a real design question and wants its own
+review.
 
 ---
 
