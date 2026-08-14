@@ -12,8 +12,24 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6ca, then 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
-6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6ca is the slice THREE
+**Where to start next: 6cb, then 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
+did NOT build what it set out to, and the reason is the most reusable thing in
+it: a design review, **re-asked with two questions and two files, answered in 34
+seconds where the broad four-question version stalled for 38 minutes** (6af's
+scoping lesson, measured). Its verdict then collapsed two roadmap items into
+one — a printed cost RANGE and a printed `(specify)` are the book asking for an
+instance in two notations, so the nineteen withheld trait rows are one feature
+and not two. Read it also for a retraction: `pricedVariants` looked like it had
+a blind spot (its regex needs a minus sign, so an ADVANTAGE enumerating three
+priced options is invisible), and reading the whole cell killed the fix — the
+sentence above those options says **"Cost scales with power"**, which makes it a
+SCALE with worked points rather than a closed set, exactly like `Duty
+(specify)`'s "-5 for light duty, -10 for hazardous". What actually keeps both
+out is capitalisation, and the KDoc credited the other condition: **a safety
+rationale is a hypothesis about which condition does the work.** And its census
+caught its own author's number — 19 instances hand-counted as 18, quoted to a
+reviewer before a test said otherwise. 6ca is next, the slice THREE
 predecessors deferred, and it opens by disproving the reason all three gave.
 "Purchasable traits collide with M3, because a 75-point blessing grants
 attributes" — but the blessings were deliberately not extracted, and **not one
@@ -225,7 +241,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1084 Kotlin** (JUnit 5 — 985 `core:rules`, 79 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
+| Tests | **1086 Kotlin** (JUnit 5 — 987 `core:rules`, 79 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -7292,6 +7308,129 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6cb. The census that had to become a test, and a design that survived one question
+
+Two test-only commits, and the slice they were meant to precede is NOT built —
+because the design review answered in a way that collapses it into a different
+feature. 6ca named the work: **the nineteen rows the trait picker withholds.**
+This is the census and the reading it produced.
+
+### The census, which corrected me three times
+
+Nineteen rows print no single cost. Fourteen print a range, five print
+`(specify)` in the name. Against the fixtures:
+
+| | |
+|---|---|
+| Withheld rows the 23 sheets instantiate | **9** |
+| Instances across those sheets | **19** |
+| Instances paying INSIDE the row's printed range | **19** |
+
+- **It is not a dropped placeholder.** `Sense of Duty` and `Secret` print bare
+  at book lines 1167 and 1173 — no `(specify)` — so this is not
+  `strip_self_control_number`'s shape (6am), where a normaliser deleted a
+  printed rule. Checked before anything was written, because that class is the
+  one this repo keeps finding.
+- **The prohibition sweep over the trait lists forbids nothing** about buying a
+  ranged row at a chosen price; its fourteen hits are effect prose inside the
+  cells (6ba — a sweep's verdict expires, so it is re-run per slice).
+- **I counted 19 instances as 18, by eye**, and wrote 18 into a doc comment AND
+  into the design brief a reviewer was reading. The test said 19. **A count in
+  prose is a finding (6as), and the cure is not to recount — it is to make the
+  census executable and keep it**, which is what shipped. Third slice running
+  to catch its own author's number.
+
+### The retraction: a priced scale is not a set of variants
+
+Mid-census I found what looked like a real defect. `pricedVariants` matches
+`([A-Z]...)\s*\(?[-−](\d+)\)?` — it requires a MINUS SIGN, which only
+disadvantages print. `Mystical Item` is an advantage and enumerates three
+priced options spanning its own 5..15 range exactly: *"a minor charm (5 pts), a
+useful tool (10 pts), or a significant piece of equipment (15 pts)"*. So a
+third enumerating row, invisible to an instrument by construction — 6ba's
+lesson for the third time, after 6bt's own too-narrow filter.
+
+**It is not a defect, and reading the whole cell is what showed it.** The
+sentence above those three options is **"Cost scales with power"**, and
+`Duty (specify)` prints the same shape in the other sign — "Value reflects
+frequency and danger: -5 for light duty, -10 for hazardous duty, -15 for
+extremely hazardous". Both are a SCALE with worked points, not a closed set,
+and both say the value moves. Read as enumerations they offer a variant
+literally called *"or a significant piece of equipment"*. 6bb's shape exactly:
+the fix was half-written and two lines of the book killed it.
+
+- **What actually excludes them is capitalisation, and the KDoc credited the
+  other condition.** `pricedVariants` is safe for two reasons: the "at least
+  two members" rule keeps Stubborn's `"Will-3"` out, and the leading `[A-Z]`
+  keeps a prose scale out, because a variant is a NAME (`Mild`, `Criminal
+  Record`) and a scale point is not (`a minor charm`, `light duty`). The member
+  count cannot separate them — both scales print three. **A rationale is a
+  hypothesis about which condition does the work, and this one was half right.**
+  Pinned by its own test now, RED-proved by relaxing the capital (3 tests fail,
+  two of them 6bw's own guards).
+- Nothing reaches the wrong answer today: no premade owns either row. That is
+  when this repo closes a permissive path rather than after the next caller
+  finds it (6l) — and the next caller was me, five minutes later.
+
+### And a correction to where 6by filed one spelling
+
+6by grouped Church Healer's `"Sense of Duty (Flock) - Must help/protect certain
+groups even at personal risk"` under **paraphrase**, "an instantiation that
+paraphrases a cell rather than quoting it". Its tail reproduces the catalogue's
+notes **verbatim** — the only row in the corpus that quotes exactly behind an
+instantiated head. What refuses it is the HEAD, never the quotation, and 6by's
+own reason string said so while its group heading did not. `Blacklisted:
+Specific Industry org or church` really is a paraphrase and stays refused.
+
+### The design review answered in 34 seconds, and moved the goalposts
+
+The first attempt — four questions, five files — **stalled for 38 minutes** and
+was abandoned. Re-asked with two questions and two named files it came back in
+**34 seconds**. 6af recorded that scoping a reviewer is what gets an answer;
+this is the sharpest measurement of it yet, and the broad prompt produced
+nothing at all.
+
+Both verdicts corrected the plan:
+
+- **"Your distinction is too clean."** I argued that 6by refused a rule about
+  NAME RESOLUTION while offering a priced purchase is about PRICING, so the
+  refusal does not apply. Codex accepts the paths differ and rejects that they
+  are different rule questions: **a printed range means the row needs an
+  instance to settle its cost.** The sheet evidence proves a cost inside the
+  range is valid; it does not prove every integer in the range is a valid
+  *unnamed* purchase. So a bare row at an arbitrary price is under-specified.
+- **Do not store `"Shyness (Mild)"`.** That is a spelling only the SHEETS use —
+  the book prints `Shyness` and prices `Mild` inside the cell — so storing it
+  makes a sheet convention into app-authored canonical data. The record should
+  be row + variant + cost, and rendering composes the display name.
+  `Social Stigma` is why it matters: both its variants cost 5, so a price
+  cannot say which was picked, and its two options do not span its 5..20 range
+  the way Shyness's 5 and 10 span 5..10.
+
+**That collapses two roadmap items into one.** 6ca said the `(specify)` rows
+need a save shape while the ranged rows need the reading 6by refused. Under
+this verdict the ranged rows need **no** new reading — they need the same save
+shape, because a range and a placeholder are the book asking for an instance in
+two notations. So all nineteen are one feature, and it is a schema change plus
+real UI rather than a widening of the picker's filter. Left unbuilt on purpose;
+scaling a slice down is not the same as shipping half of one.
+
+**1086 Kotlin** (987 `core:rules`, 79 `app`, 20 `core:model`) and **261
+Python**, all green. Both readings RED-proved: the capitalisation relaxed (3
+failures), and one printed range narrowed so its instances fall outside (1).
+Both commits Codex-reviewed clean. Test-only, so there is nothing to
+device-verify and no behaviour changed — stated rather than skipped.
+
+**The next slice, with its design already half-reviewed:** one record shape for
+an instantiated trait — book row, optional variant, optional instance note,
+chosen cost — which offers all nineteen withheld rows at once. It needs
+`SavedEdits` widening additively (`traits: List<String>` cannot become a list
+of objects: `SessionStore.load` discards the WHOLE file on a decode failure, so
+every existing save would be dropped). `Compulsion: Collection (pathway)`
+carries a **Will-2 self-control roll**, so this is not a cosmetic feature.
+Behind it, unchanged: resolving the six `Sense of Duty` instances on the
+verbatim-quotation warrant, and then `Secret`, which has none.
 
 ---
 
