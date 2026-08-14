@@ -12,10 +12,22 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6bx, then 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq, 6bp, 6bo, 6bn,
-6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6bx is the one to read first,
-because it is the first slice whose finding was already written down **in this
-repo's own test suite** — `ContentLoaderTest` has carried the alias
+**Where to start next: 6by, then 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq, 6bp, 6bo,
+6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6by is the census 6bx's own
+closing paragraph asked for, and it corrects that paragraph twice: the set is
+**sixteen** spellings, not the nine I wrote, and it is not one list but three
+shapes that look identical — a disagreement the book settles, a paraphrase
+that leaves only resemblance, and a **gap** where the data marks something this
+app cannot read. Read it for the discipline that separates them, because
+calling a gap a refusal is how this file shipped four milestones of unreachable
+rules. Its own gap is seven traits: the book marks a row instantiable two ways,
+by putting "(specify)" in the NAME and by printing a cost RANGE the instance
+settles, and only the first is read. **The obvious fix was refused and the
+refusal is the more useful half** — nineteen rows print a range, and two of them
+are the exact pair 6bw resolved through a separately argued warrant, so a
+range-means-template rule would have retroactively made that warrant pointless.
+6bx is next, and is the first slice whose finding was already written down **in
+this repo's own test suite** — `ContentLoaderTest` has carried the alias
 `"Poverty: Struggling" -> "Wealth: Struggling"` since M0, and production matched
 on a prefix that answered null for the nine sheets using it. The test knew and
 the code did not (6as's cheapest kind of miss), and the consequence was not a
@@ -189,7 +201,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1063 Kotlin** (JUnit 5 — 968 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
+| Tests | **1065 Kotlin** (JUnit 5 — 970 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -6988,6 +7000,98 @@ Industry org or church` is the same colon shape as the row fixed here and
 paraphrases its own catalogue notes rather than quoting them, so 6br's
 exact-tail rule refuses it — correctly, on today's evidence, and that is a
 verdict rather than a proof.
+
+## 6by. Sixteen spellings, three shapes, and a fix worth refusing
+
+`TraitEffectsTest` names every sheet spelling this app cannot resolve, with a
+reason each. 6bx closed by asking for exactly this — *"nine unresolved trait
+spellings remain, and this one hid a live defect, so they are worth a pass each
+before they are inherited as recorded disagreements"* — and the census corrects
+that sentence twice before it does anything else.
+
+**There were sixteen, not nine.** The count-in-prose habit (6as) turning on its
+author for the third time in three slices. Seven were a group I had not seen at
+all: five `Sense of Duty (…)` instances and two `Secret (…)`.
+
+**And there was no census to be wrong against.** The only pin on unresolved
+spellings filtered `it.length >= 40`, so the long glued names were watched and
+every short one — including all sixteen minus two — was watched by nothing. A
+list of exclusions with no test behind it is a comment.
+
+### The three shapes, which is the whole point of writing reasons down
+
+A flat list of "unmatched" hides the distinction that decides what to do:
+
+| Shape | Members | What it means |
+|---|---|---|
+| **Not printed** | No Sense of Humour, both Pacifisms | the book prints no such row under any spelling — verified by text search, not assumed |
+| **Price disagrees** | Absent-Minded (5 vs 15), Paranoia: Bodies of water (5 vs 10) | resembles a row and nothing else agrees. 4.1's own case, recorded forever |
+| **Paraphrase** | Blacklisted: …, the glued Sense of Duty (Flock) | an instantiation that paraphrases a cell rather than quoting it, which 6br's exact-tail rule refuses |
+| **Deliberate scope** | Poverty: Struggling | resolved in `Wealth`, by 6bx's design review — that resolution reads cost and kind, and this API takes a name |
+| **GAP** | 5 × Sense of Duty, 2 × Secret | the data plainly marks something and this app cannot read it |
+
+**A gap is work; a refusal is a decision. Calling the first the second is how
+this file shipped four milestones of unreachable rules** (6h, 6m, 6ai, 6ap) —
+and 6bu already had to state one reason as a gap rather than let it read as a
+refusal. The map is the assertion, so a spelling appearing without an entry
+FAILS rather than joining the list in silence. RED-proved by deleting one
+entry.
+
+### `Wierdness Magnet` is the sharpest refusal, because everything agrees
+
+Journalist prints it at **15**; the book prints "Weirdness Magnet" exactly once,
+at **15**. Price agrees, the row is unique, nothing competes — the two
+agreements 6bx and 6bw both took as sufficient. It is still refused, because
+what differs is not a head word or a qualifier but the SPELLING, and closing
+that needs typo tolerance, which is the guessing 4.1 forbids. Checked rather
+than assumed that nothing is lost: the row prints no number, no roll and no
+mechanical clause, so refusing costs one effect line and no rule. **A standard
+that only ever admits is not a standard.**
+
+### The gap's obvious fix was refused, and the refusal is the more useful half
+
+The book asks for an instance two ways: explicitly, by putting `(specify)` in
+the row's NAME — which this app reads — and implicitly, by printing a cost
+RANGE the instance settles: `Sense of Duty` 2-15, `Secret` 5-30. Teaching the
+resolver the second form resolves all seven, and **`ContentLoaderTest`'s own
+resolver has read both since M0** (`costMin != null || variableCost`). The same
+test-knows-and-code-does-not divergence 6bx found, surfacing again in the same
+session, which is what made it look obvious.
+
+It is refused, and a design review's High is why — verified here rather than
+taken on trust (section 7: evidence, not orders):
+
+- **Nineteen rows print a range, and two of them are `Shyness` and
+  `Social Stigma`** — the exact pair 6bw resolved through a separately argued
+  warrant, because those cells ENUMERATE their variants with prices. If a range
+  by itself marked a template, that warrant was never needed and 6bw's
+  two-member enumeration filter was pointless. A reading that retroactively
+  deletes the previous slice's evidence is wrong.
+- `Reputation` is variable-cost, and 6bx's review used **"Reputation: Wealthy"**
+  as its own over-match example. The two would have collided.
+- A range is **variable pricing**; a placeholder is **name substitution**. The
+  book states the link only for the rows that print `(specify)` — `Duty`'s cell
+  says "Value reflects frequency and danger" in as many words. Inferring it for
+  rows that do not say so is inference, not reading.
+
+**What real evidence exists is narrower and belongs to one row**, recorded so
+the next reader inherits it rather than the conclusion: Church Healer prints
+`"Sense of Duty (Flock) - "` followed by that row's own notes **verbatim**,
+which is the sheet asserting the instantiated name IS that row — the standard
+6br set for glued spellings. A slice built on that rather than on the range
+would resolve the five Sense of Duty instances and leave `Secret` alone,
+because no sheet quotes Secret's cell. That is the shape of the next attempt,
+not a to-do.
+
+**1065 Kotlin** (970 `core:rules`, 75 `app`, 20 `core:model`) and 261 Python,
+green. Test-only, so there is nothing to device-verify and no behaviour changed
+— stated rather than skipped. Codex reviewed the diff and returned clean; note
+that its own Gradle run was blocked by a sandbox lock on the wrapper, so the
+green suite is mine.
+
+**The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
+traits.** Behind it, in order of evidence rather than size: the Sense of Duty
+resolution above, and then `Secret`, which has none.
 
 ---
 
