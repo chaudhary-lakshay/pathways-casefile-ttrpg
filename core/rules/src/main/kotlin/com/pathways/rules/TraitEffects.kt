@@ -254,6 +254,30 @@ object TraitEffects {
         return if (squashed(tail) == squashed(row.notes)) head else printed
     }
 
+    /**
+     * What a screen prints as an owned trait's NAME.
+     *
+     * The sheet's own spelling, minus the book's effect cell where the sheet
+     * ran the two together -- because the row displays that cell underneath
+     * anyway, so leaving it in the name prints the same sentence twice. **The
+     * device is the only thing that could show this**: every test asserted the
+     * right lookup and the right clause, and a 150-character name reads as a
+     * broken row rather than a wrong one.
+     *
+     * It collapses ONLY where [catalogueName] verified the tail against the
+     * book's own words, so an unmatched glued name keeps every character the
+     * sheet printed -- "Sense of Duty (Flock) - Must help/protect certain
+     * groups" is a `(specify)` instantiation this book never prints, and 4.1
+     * says that disagreement is recorded rather than tidied away. A LEVEL is
+     * never stripped either: "Alertness 2" is what the sheet says and what the
+     * GM needs to see.
+     */
+    fun displayName(printed: String): String {
+        val head = printed.substringBefore(SHEET_SEPARATOR)
+        if (head == printed) return printed
+        return if (catalogueName(printed) == head) head else printed
+    }
+
     /** How a published sheet separates a trait's name from its effect cell. */
     private const val SHEET_SEPARATOR = " - "
 
@@ -321,11 +345,12 @@ object TraitEffects {
         return traits.flatMap { owned ->
             val bare = catalogueName(owned.name)
             val printed = catalogue[bare.lowercase()]?.notes ?: return@flatMap emptyList()
-            val whole = UNAPPLIED[bare]?.let { listOf(TraitNote(owned.name, printed, it)) }.orEmpty()
+            val shown = displayName(owned.name)
+            val whole = UNAPPLIED[bare]?.let { listOf(TraitNote(shown, printed, it)) }.orEmpty()
             // A trait can be applied and still have rules left over, so the
             // clauses are reported even though the trait itself is not.
             val clauses = PARTLY_APPLIED[bare].orEmpty().map { (clause, reason) ->
-                TraitNote(owned.name, clause, reason)
+                TraitNote(shown, clause, reason)
             }
             whole + clauses
         }

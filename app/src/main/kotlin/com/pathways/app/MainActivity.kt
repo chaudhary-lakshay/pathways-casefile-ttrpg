@@ -489,7 +489,12 @@ fun SheetScreen(
             // (6c) and a Major Wound's HT roll (6n) are, and both of those
             // ship as a button the GM presses.
             items(drawbacks) { (trait, printed) ->
-                val check = selfControl[trait.name]
+                // The sheet's own name minus the effect cell shown below it,
+                // where the two were printed as one string. Keyed the same way
+                // `SelfControlCheck.trait` is, so the row and its roll cannot
+                // disagree about what the trait is called.
+                val shown = TraitEffects.displayName(trait.name)
+                val check = selfControl[shown]
                 Column(
                     Modifier
                         .fillMaxWidth()
@@ -506,7 +511,7 @@ fun SheetScreen(
                         // `Trait.cost` is a MAGNITUDE and the sign lives in
                         // the kind (6u). Printed back with the minus the book
                         // gives a disadvantage, never negated in the data.
-                        "${trait.name} — −${trait.cost} pts" +
+                        "$shown — −${trait.cost} pts" +
                             (
                                 check?.let {
                                     " — 3d6 ≤ " +

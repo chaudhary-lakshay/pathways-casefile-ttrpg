@@ -243,8 +243,12 @@ class TraitEffectsTest {
         val glued = Trait("${TraitEffects.RAPID_RECOVERY} - ${row.notes}", 5, TraitKind.ADVANTAGE)
         val notes = TraitEffects.reported(listOf(glued))
         assertEquals(1, notes.size, "the glued trait reported nothing: $notes")
-        // The sheet's own spelling is what the GM sees; only the LOOKUP moved.
-        assertEquals(glued.name, notes.single().trait)
+        // The row prints the effect cell underneath, so leaving it inside the
+        // NAME printed the same sentence twice -- which only the device could
+        // show, since every assertion about lookup and clause was already
+        // green. The sheet's own name survives; its effect does not.
+        assertEquals(TraitEffects.RAPID_RECOVERY, notes.single().trait)
+        assertEquals(glued.name, TraitEffects.displayName(glued.name) + " - " + row.notes)
         assertEquals(row.notes, notes.single().printed)
     }
 

@@ -33,8 +33,9 @@ class SelfControlTest {
         val glued = dis("Charity - ${charity.notes}")
         val checks = SelfControl.checksFor(listOf(glued))
         assertEquals(1, checks.size, "$checks")
-        // The sheet's own spelling is what the screen shows, not the book's.
-        assertEquals(glued.name, checks.single().trait)
+        // The name the screen prints drops the effect cell the row shows
+        // underneath it, and keeps everything else the sheet said.
+        assertEquals("Charity", checks.single().trait)
         assertEquals(charity.notes, checks.single().printed)
     }
     /** [RandomSource] yields one FACE per call; 3d6 asks three times. */

@@ -110,7 +110,7 @@ object SelfControl {
             val row = byName[TraitEffects.catalogueName(owned.name).lowercase()]
                 ?: return@mapNotNull null
             val spec = row.selfControl ?: return@mapNotNull null
-            SelfControlCheck(owned.name, spec, row.notes)
+            SelfControlCheck(TraitEffects.displayName(owned.name), spec, row.notes)
         }
     }
 
