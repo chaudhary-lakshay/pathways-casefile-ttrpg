@@ -28,6 +28,7 @@ import com.pathways.rules.Divination
 import com.pathways.rules.DivinationOutcome
 import com.pathways.rules.RandomSource
 import com.pathways.rules.RitualResolution
+import com.pathways.rules.TraitEffects
 import com.pathways.rules.content.DivinationMethod
 
 /**
@@ -69,6 +70,15 @@ fun DivinationDialog(
     conditionPenaltyAfterSpending: (Int) -> Int,
     /** The Major Wound's shock: not a circumstance, so it is named on its own. */
     shock: Int = 0,
+    /**
+     * Ether Body Damage's "-1 to all SPI-based rolls". Divination Arts is
+     * SPI/Hard, so this roll is one -- and it reaches its target through
+     * [Divination.targetFor] rather than a [com.pathways.model.SkillKey], so
+     * the attribute-scoped join in `TraitEffects.modifiers` cannot see it.
+     * Named on its own for the same reason shock is: a target that moves
+     * without the breakdown saying why is how these stopped reconciling (6ag).
+     */
+    spiTrait: Int = 0,
     spiAvailable: Int,
     // The diviner's own Sequence, or null for a mortal. Sec. 6's Sequence
     // Advantage compares the two parties, so withholding this silently picked
@@ -154,7 +164,7 @@ fun DivinationDialog(
     val cost = Divination.spiFor(method, spiChoice)
     val circumstances = Divination.modifierTotal(rows.filter { it.source in chosen }) +
         conditionPenaltyAfterSpending(cost)
-    val extras = circumstances + protection.penalty + shock
+    val extras = circumstances + protection.penalty + shock + spiTrait
     val target = Divination.targetFor(skillLevel, difficulty, extras)
 
     AlertDialog(
@@ -377,6 +387,11 @@ fun DivinationDialog(
                 Text(
                     "Skill $skillLevel, question ${signed(difficulty.modifier)}" +
                         (if (shock != 0) ", shock ${signed(shock)}" else "") +
+                        (
+                            if (spiTrait != 0) {
+                                ", ${signed(spiTrait)} ${TraitEffects.ETHER_BODY_DAMAGE}"
+                            } else ""
+                            ) +
                         (
                             if (circumstances != 0) ", circumstances ${signed(circumstances)}"
                             else ""

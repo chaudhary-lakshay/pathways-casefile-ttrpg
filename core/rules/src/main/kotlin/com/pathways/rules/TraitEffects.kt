@@ -202,6 +202,58 @@ object TraitEffects {
     /** The traits whose cell says "to all HT rolls", for the guard tests. */
     fun htRollNames(): Set<String> = HT_ROLL_TRAITS.keys
 
+    /** "Prior spirit body damage ... All SPI-based rolls at -1." */
+    const val ETHER_BODY_DAMAGE = "Ether Body Damage"
+
+    /**
+     * Every trait whose cell says "SPI-based rolls", and by how much.
+     *
+     * The third controlling-attribute join, beside Alertness on Per and
+     * Fit/Unfit on HT -- and the attribute this app already scopes a condition
+     * to, since [Conditions] keeps Spiritual Attrition on SPI rolls by the same
+     * test (6h). Signed, exactly as [HT_ROLL_TRAITS] is: the direction belongs
+     * to the value, not to the map's name, so a row granting a BONUS to SPI
+     * rolls would join it without a second accessor.
+     *
+     * One map, two paths -- [modifiers] for an SPI-controlled skill and
+     * [spiRollBonus] for the bare attribute roll -- because a trait reaching
+     * one and not the other is the gap Alertness fell into (6al) and Fit fell
+     * into after it (6bs).
+     *
+     * **And the book itself draws that distinction, on this attribute.** Line
+     * 2351 prints Spiritual Attrition as "-3 to all SPI-based SKILL rolls"
+     * where this cell says "All SPI-based rolls" -- the same one-word
+     * difference the book makes between "social skill rolls" and "social
+     * rolls" and settles in one bracket of its own (6bt). So the wider phrase
+     * really is wider, and the bare rolls are not an assumption: a condition
+     * scoped to skills stops at [modifiers], and this does not.
+     */
+    private val SPI_ROLL_TRAITS: Map<String, Int> = mapOf(
+        ETHER_BODY_DAMAGE to -1,
+    )
+
+    /** The traits whose cell says "SPI-based rolls", for the guard tests. */
+    fun spiRollNames(): Set<String> = SPI_ROLL_TRAITS.keys
+
+    /**
+     * What [traits] add to a bare SPI roll, signed.
+     *
+     * The one this app makes is a detection roll, which takes the higher of
+     * SPI or Per and so is SPI-based only some of the time -- see
+     * [Detection.attributeFor], which decides WHICH attribute is rolled before
+     * applying this. A divination is the other SPI path and reaches its target
+     * through [Divination.targetFor] rather than a [SkillKey], so it asks here
+     * too.
+     *
+     * Deliberately NOT a general attribute-roll accessor, the same call
+     * [htRollBonus] makes: the app's other bare rolls are Will, IQ and Per,
+     * and nothing here names those.
+     */
+    fun spiRollBonus(traits: List<Trait>): Int =
+        SPI_ROLL_TRAITS.entries.sumOf { (trait, value) ->
+            if (levelOf(traits, trait) != null) value else 0
+        }
+
     /**
      * Every trait whose cell names the skills it lifts, and by how much.
      *
@@ -702,6 +754,11 @@ object TraitEffects {
                 levelOf(traits, trait)?.let { add(bonus(trait, value)) }
             }
         }
+        if (skill.attr == ControllingAttribute.Spi) {
+            for ((trait, value) in SPI_ROLL_TRAITS) {
+                levelOf(traits, trait)?.let { add(bonus(trait, value)) }
+            }
+        }
         // The Balance rows name their three skills outright, which is a
         // stronger join than an attribute: Alertness has to be scoped by
         // controlling attribute because "all Per rolls" names no skill, and
@@ -978,7 +1035,7 @@ object TraitEffects {
     fun known(): Set<String> =
         UNAPPLIED.keys + PARTLY_APPLIED.keys + SKILL_BONUSES.keys +
             CATEGORY_BONUSES.keys + frightClauseNames() + socialClauseNames() +
-            setOf(ALERTNESS, FIT, COMBAT_REFLEXES)
+            setOf(ALERTNESS, FIT, COMBAT_REFLEXES) + SPI_ROLL_TRAITS.keys
 
     /** The traits reported whole, for the disjointness test. */
     fun unappliedNames(): Set<String> = UNAPPLIED.keys
@@ -1104,6 +1161,15 @@ object TraitEffects {
         UNFIT to listOf(
             "recover FP at half normal rate" to
                 "this app holds no clock to recover against",
+        ),
+        // The first SPI-scoped trait, and its sibling clause is about what
+        // SOMEONE ELSE sees when they look at this character. This app holds
+        // one sheet, which is the same reason the chapter's Quick Contests are
+        // unmodelled (6ah, and Feint before it in 6o).
+        ETHER_BODY_DAMAGE to listOf(
+            "Spirit Vision on you reveals the damage immediately" to
+                "that is what another character's Spirit Vision sees, and this " +
+                "app holds one sheet",
         ),
         // Loner's Will roll is already made -- SelfControl reads it off the
         // cell's "roll vs. Will" -- so this is the clause beside an applied

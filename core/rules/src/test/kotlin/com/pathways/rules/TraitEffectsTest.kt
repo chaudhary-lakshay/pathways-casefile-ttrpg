@@ -24,6 +24,78 @@ class TraitEffectsTest {
     private val per = skill(ControllingAttribute.Per)
     private val ht = skill(ControllingAttribute.Buyable(Attr.HT))
     private val iq = skill(ControllingAttribute.Buyable(Attr.IQ))
+    private val spi = skill(ControllingAttribute.Spi)
+
+    // ---- Ether Body Damage: the third controlling-attribute join ----------
+
+    private fun etherBodyDamage() = Trait("Ether Body Damage", 10, TraitKind.DISADVANTAGE)
+
+    /**
+     * **"All SPI-based rolls at -1"** is the controlling-attribute join
+     * Alertness makes for Per and Fit for HT, on the one attribute this app
+     * scopes a condition to already: [Conditions] keeps Spiritual Attrition on
+     * SPI rolls by the same test.
+     */
+    @Test
+    fun `Ether Body Damage lowers an SPI roll and no other`() {
+        val traits = listOf(etherBodyDamage())
+        assertEquals(ModEffect.Flat(-1), TraitEffects.modifiers(traits, spi).single().effect)
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(traits, per))
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(traits, ht))
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(traits, iq))
+    }
+
+    /**
+     * **It is a DISADVANTAGE, and the source kind has to say so.**
+     * `ModifierSource.FromTrait` maps the flag to a `SourceKind`, which is
+     * what a `Cancel` budget is measured against -- so a penalty tagged as an
+     * advantage would let a cancel aimed at one bucket eat the other. Nothing
+     * reaches that today, which is why it is pinned now rather than found the
+     * day something does (6bs's reading, on the first trait to use it).
+     */
+    @Test
+    fun `its penalty is sourced from a disadvantage, not an advantage`() {
+        val source = TraitEffects.modifiers(listOf(etherBodyDamage()), spi).single().source
+        assertEquals(ModifierSource.FromTrait("Ether Body Damage", advantage = false), source)
+    }
+
+    /**
+     * **The bare SPI rolls a `SkillKey` cannot reach.** Alertness had to be
+     * threaded explicitly into the detection roll because "all Per rolls" is
+     * not "all Per-controlled SKILL rolls" (6al); this cell says "all
+     * SPI-based rolls" and has the same gap. [spiRollBonus] is what a caller
+     * holding an attribute rather than a skill asks.
+     */
+    @Test
+    fun `the bare SPI rolls take it through their own accessor`() {
+        assertEquals(-1, TraitEffects.spiRollBonus(listOf(etherBodyDamage())))
+        assertEquals(0, TraitEffects.spiRollBonus(listOf(advantage("Fit"))))
+    }
+
+    /**
+     * **The book draws the skill/no-skill distinction on this very attribute,
+     * which is why the bare rolls are evidence rather than assumption.**
+     * Chapter 5 prints Spiritual Attrition as "-3 to all SPI-based SKILL
+     * rolls" and this cell says "All SPI-based rolls" -- the same one-word
+     * difference the book makes between "social skill rolls" and "social
+     * rolls", and settles in a bracket of its own (6bt). Pinned because the
+     * threading into the detection and divination targets rests on it: the day
+     * this cell gains the word "skill", that threading has to be argued again
+     * rather than inherited.
+     */
+    @Test
+    fun `the cell says SPI-based rolls, not SPI-based skill rolls`() {
+        val cell = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .first { it.name == TraitEffects.ETHER_BODY_DAMAGE }.notes
+        assertTrue(
+            cell.contains("All SPI-based rolls at -1"),
+            "Ether Body Damage's printed scope changed: $cell",
+        )
+        assertTrue(
+            !cell.contains("SPI-based skill rolls"),
+            "the cell narrowed to skill rolls, so the bare-roll threading needs re-reading",
+        )
+    }
 
     /**
      * **The sentences these numbers were read from, against the copy
@@ -653,9 +725,17 @@ class TraitEffectsTest {
         val prose = setOf(
             "Your connection to the divine is unusually clear",
             "Unfit for sustained physical exertion",
+            // Ether Body Damage's lead-in is backstory pointing at Chapter 5,
+            // not a rule: it says where the damage came FROM.
+            "Prior spirit body damage (see Spirit Body Damage, Chapter 5) that never fully healed",
         )
         val catalogue = ContentLoader.advantages() + ContentLoader.disadvantages()
-        val applied = TraitEffects.skillBonusNames() + TraitEffects.htRollNames()
+        // Every applied map, not a list of the ones that existed when this was
+        // written: the guard was blind to SKILL_BONUSES once already (6bs),
+        // and a map missing from here is a cell nothing checks.
+        val applied = TraitEffects.skillBonusNames() +
+            TraitEffects.htRollNames() +
+            TraitEffects.spiRollNames()
         for (trait in applied) {
             val cell = catalogue.first { it.name == trait }.notes
             val reported = TraitEffects.reported(listOf(advantage(trait))).map { it.printed }
@@ -668,6 +748,12 @@ class TraitEffectsTest {
                     // ...or, for Fit and Unfit, names the roll class instead:
                     // "to all HT rolls" is the clause htRollBonus applies.
                     (trait in TraitEffects.htRollNames() && segment.contains("HT rolls")) ||
+                    // ...and the same for the SPI map, whose applied clause
+                    // names its roll class rather than a skill.
+                    (
+                        trait in TraitEffects.spiRollNames() &&
+                            segment.contains("SPI-based rolls")
+                        ) ||
                     // ...and a levelled row's own ceiling, which is applied
                     // rather than reported, so it is not a dropped clause.
                     (cap != null && segment.contains("$cap levels")) ||

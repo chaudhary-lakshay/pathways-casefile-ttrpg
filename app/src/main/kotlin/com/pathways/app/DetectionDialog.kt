@@ -64,6 +64,17 @@ fun DetectionDialog(
      * target above them).
      */
     shock: Int = 0,
+    /**
+     * Ether Body Damage's "-1 to all SPI-based rolls" -- Alertness's mirror,
+     * one attribute over, and the same structural gap: this roll is made
+     * outside `SkillKey`, so the attribute-scoped join cannot reach it.
+     *
+     * It lands on the SPI branch only, because a Per roll is not an SPI-based
+     * roll, and it deliberately cannot decide WHICH attribute is rolled --
+     * [Detection.attributeFor] chooses on the raw values first, or a -1 could
+     * tip a tie into a Per roll and so cancel itself.
+     */
+    spiTrait: Int = 0,
     dice: RandomSource,
     onDismiss: () -> Unit,
 ) {
@@ -108,7 +119,7 @@ fun DetectionDialog(
     // it is not always the higher of the two, so the roll a Fool is granted is
     // a Per roll even when their SPI is better. See Detection.attributeFor.
     val freeRoll = awareness?.freeRoll
-    val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness, shock)
+    val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness, shock, spiTrait)
     // The row grants automatic awareness only against a WEAKER diviner, and
     // this screen holds the target's sheet alone -- so the comparison is the
     // GM's to state. Reset with the row, or a declaration about one pathway's
@@ -316,7 +327,7 @@ fun DetectionDialog(
                         // copy here is how the caption came to say "the higher
                         // of SPI and Per" over a target taken from the row's
                         // own attribute.
-                        Detection.attributeLine(spi, per, freeRoll, alertness) +
+                        Detection.attributeLine(spi, per, freeRoll, alertness, spiTrait) +
                             (if (modifier != 0) ", ${signedInt(modifier)}" else "") +
                             // Named BEFORE the roll as well as after it: the
                             // breakdown and the target above it must reconcile
@@ -332,6 +343,7 @@ fun DetectionDialog(
                             if (result != null) return@TextButton
                             result = Detection.attempt(
                                 alertness = alertness,
+                                spiModifier = spiTrait,
                                 shock = shock,
                                 spi = spi,
                                 per = per,

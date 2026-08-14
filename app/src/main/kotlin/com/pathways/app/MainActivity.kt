@@ -357,6 +357,13 @@ fun SheetScreen(
     // The same number the ledger would have carried, for the three dialogs
     // that reduce it to an Int and print their own breakdown.
     val shockOnSkill = Shock.penaltyFor(RollKind.SKILL, shocked, traits)
+    // Ether Body Damage's "-1 to all SPI-based rolls". The ledger carries it
+    // for an SPI-controlled SKILL, but two rolls reach their target another
+    // way -- a detection roll takes a bare attribute, and a divination builds
+    // its target through Divination.targetFor -- so they are handed the number
+    // here. Decided ONCE, for the same reason shock is: an adapter left
+    // unwired looks like an oversight rather than a decision (Codex, 6bo).
+    val spiTrait = TraitEffects.spiRollBonus(traits)
 
     Scaffold { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
@@ -748,6 +755,9 @@ fun SheetScreen(
     if (divining && divinationLevel != null) {
         DivinationDialog(
             skillLevel = divinationLevel,
+            // Divination Arts is SPI/Hard, and this dialog builds its target
+            // through Divination.targetFor rather than the ledger.
+            spiTrait = spiTrait,
             sourceLine = divination?.let {
                 Divination.sourceLine(it, Divination.SKILL, RITUAL_SKILL)
             },
@@ -790,6 +800,9 @@ fun SheetScreen(
         // "does not cost SPI".
         DetectionDialog(
             shock = shockOnAttribute,
+            // The SPI branch's mirror of alertness below, and equally unable
+            // to be reached by SkillKey scoping.
+            spiTrait = spiTrait,
             // Ch. 3's Alertness. This is a Per roll made outside SkillKey, so
             // TraitEffects.modifiers cannot reach it; passed explicitly rather
             // than left a silent gap (found in review).

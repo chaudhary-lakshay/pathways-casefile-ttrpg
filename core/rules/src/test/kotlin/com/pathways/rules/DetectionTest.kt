@@ -94,6 +94,36 @@ class DetectionTest {
     }
 
     /**
+     * **Ether Body Damage lowers a SPI roll and leaves a Per one alone**, the
+     * mirror of Alertness one attribute over: the trait says "all SPI-based
+     * rolls at -1", and this roll is SPI-based only when SPI is the attribute
+     * taken.
+     *
+     * **And it must not decide WHICH attribute is rolled.** Choosing on the
+     * modified values would let a -1 tip a tie into a Per roll and so cancel
+     * itself -- the reading `takesPer` already refuses for Alertness, because
+     * "the higher of SPI or Per" is a comparison the book makes between two
+     * attributes. Choose first, then apply. SPI 11 against Per 11 is the case
+     * that tells the two readings apart: SPI wins the tie and takes the
+     * penalty, landing on 10, where deciding afterwards would give Per 11.
+     */
+    @Test
+    fun `Ether Body Damage lowers the SPI roll without choosing which is rolled`() {
+        assertEquals(10, Detection.attributeFor(spi = 11, per = 9, spiModifier = -1))
+        assertEquals(11, Detection.attributeFor(spi = 9, per = 11, spiModifier = -1))
+        assertEquals(10, Detection.attributeFor(spi = 11, per = 11, spiModifier = -1))
+        // A row that NAMES Per is untouched; one that names SPI takes it.
+        assertEquals(
+            12,
+            Detection.attributeFor(spi = 9, per = 12, freeRoll = "PER", spiModifier = -1),
+        )
+        assertEquals(
+            8,
+            Detection.attributeFor(spi = 9, per = 12, freeRoll = "SPI", spiModifier = -1),
+        )
+    }
+
+    /**
      * **The sentence and the number must have one author.** The screen prints
      * [Detection.attributeLine] directly above a target built from
      * [Detection.attributeFor], and while the dialog hand-wrote its own copy of
@@ -107,6 +137,14 @@ class DetectionTest {
         for (spi in 0..12) {
             for (per in 0..12) {
                 for (free in listOf(null, "PER", "SPI")) {
+                    for (ether in listOf(0, -1)) {
+                        val used = Detection.attributeFor(spi, per, free, spiModifier = ether)
+                        val said = Detection.attributeLine(spi, per, free, spiModifier = ether)
+                        assertTrue(
+                            said.startsWith("SPI $used ") || said.startsWith("Per $used "),
+                            "spi=$spi per=$per free=$free ether=$ether used=$used said '$said'",
+                        )
+                    }
                     val used = Detection.attributeFor(spi, per, free)
                     val line = Detection.attributeLine(spi, per, free)
                     assertTrue(
