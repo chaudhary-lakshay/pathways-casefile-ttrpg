@@ -12,8 +12,22 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6bz, then 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq, 6bp,
-6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6bz runs the sweep 6bx and
+**Where to start next: 6ca, then 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6ca is the slice THREE
+predecessors deferred, and it opens by disproving the reason all three gave.
+"Purchasable traits collide with M3, because a 75-point blessing grants
+attributes" — but the blessings were deliberately not extracted, and **not one
+of the 198 catalogue rows grants an attribute at all**. A deferral is a claim
+about the DATA and expires like any other verdict (6au, 6av, 6bv). Read it
+also for the shape of the join it makes reachable: a trait cell saying "all
+SPI-based rolls" is not "all SPI-controlled SKILL rolls", and **the book draws
+that one-word distinction on this very attribute** — Spiritual Attrition is
+"-3 to all SPI-based SKILL rolls" one chapter over, so the two bare rolls
+(detection, divination) are evidence rather than an assumption. Its design
+review then set seven conditions before any code, and the sharpest is that
+economic status must stay ONE choice: the picker excludes wealth **below the
+UI**, because a hand-edited save would otherwise hold two statuses and bill
+both — the live double count 6bx had just fixed. 6bz runs the sweep 6bx and
 6by both stumbled into and neither ran: **what does the TEST suite know that
 production does not?** Both of those slices found their defect that way by
 accident, so running it deliberately was an obligation (6ay). It found one more
@@ -211,7 +225,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1066 Kotlin** (JUnit 5 — 971 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
+| Tests | **1084 Kotlin** (JUnit 5 — 985 `core:rules`, 79 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -7010,6 +7024,112 @@ Industry org or church` is the same colon shape as the row fixed here and
 paraphrases its own catalogue notes rather than quoting them, so 6br's
 exact-tail rule refuses it — correctly, on today's evidence, and that is a
 verdict rather than a proof.
+
+## 6ca. The trait nothing could reach, and the blocker three slices inherited
+
+`TraitEffects` applies Ether Body Damage's "All SPI-based rolls at -1", and
+`PurchasableTraits` lets a player buy a trait at all. 6bs, 6bv and 6bw each
+named this as the next slice and each deferred it for the same stated reason.
+
+**That reason is false, and checking it took one script.** The deferral said
+purchasable traits collide with M3's rule that a granted attribute is never
+written into a billable field, *because* a Seven Orthodox Gods Blessing costs
+75 points AND grants "+3 ST, +3 DX, +3 HT". But 6bc read that table and
+deliberately did not extract it — so the blessings are not in the catalogue —
+and a regex over all 198 rows finds **not one that grants an attribute or a
+secondary**. The collision belongs to a table that stays deferred, not to this
+feature. **A deferral is a claim about the DATA, and it expires like any other
+verdict** (6au overturned one, 6av confirmed one, 6bv found one unbuildable).
+
+### The join, and why the bare rolls are evidence rather than assumption
+
+The trait is the third controlling-attribute join, beside Alertness on Per and
+Fit/Unfit on HT — and the first to use `SourceKind.DISADVANTAGE`, pinned now
+because nothing can reach the difference yet (6bs's call, on the first row
+that needs it).
+
+- **"All SPI-based rolls" is not "all SPI-controlled SKILL rolls."** Two rolls
+  reach a target outside `SkillKey`: a detection roll takes a bare attribute,
+  and a divination builds its target through `Divination.targetFor`. That is
+  the gap Alertness fell into (6al) and Fit fell into after it (6bs), so both
+  are threaded explicitly and `MainActivity` decides the number ONCE.
+- **The book draws that one-word distinction on this attribute.** The
+  prohibition sweep turned up line 2351: Spiritual Attrition is "-3 to all
+  SPI-based **skill** rolls" where this cell omits the word — exactly the
+  difference the book settles for "social rolls" in a bracket of its own
+  (6bt). So the wider phrase really is wider. Pinned, because the threading
+  rests on it.
+- **It cannot decide WHICH attribute a detection roll takes.** Choosing on the
+  modified values would let a -1 tip a tie into a Per roll and so cancel
+  itself. Choose on the raw values, then apply — the reading Alertness already
+  needed, and SPI 11 against Per 11 is the case that tells them apart.
+- Its sibling clause, "Spirit Vision on you reveals the damage immediately",
+  is reported: that is what ANOTHER character's Spirit Vision sees, and this
+  app holds one sheet (6ah's refusal, and Feint's before it).
+- **The clause-coverage guard was blind to the new map**, exactly as it was
+  when `SKILL_BONUSES` was added (6bs). It reads every applied map now rather
+  than a list of the ones that existed when it was written.
+
+### The design review set seven conditions before any code
+
+- **Economic status stays ONE choice, enforced below the UI.** A general
+  picker offering "Wealth: Poor" would let a character hold two statuses or
+  fight the wealth picker for the same points — the live double count 6bx had
+  just fixed. The exclusion is in `PurchasableTraits`, so a hand-edited save
+  cannot get round it either.
+- **A duplicate is refused rather than allowed twice.** `PointBudget` bills
+  every row it is handed while `TraitEffects` reads one canonical match, so a
+  second Fit costs 5 points and lifts no roll. Both the picker and the
+  composition ask the same predicate, and it resolves through
+  `catalogueName` — so a premade's glued "Clueless" counts as holding it.
+- **Only rows printing a single cost are offered, and the rest are NAMED.** A
+  cost range is settled by the instance (6by's gap) and a "(specify)" row
+  needs a description this app cannot store. Silently omitting nineteen rows a
+  player can read in the book is the quiet gap this project records instead
+  (6af, 6ai). A test asserts every printed row is offered or explained.
+- **A save stores the NAME**, so cost and kind are re-read every load — the
+  rule a bought skill's difficulty already follows. A name the book no longer
+  prints is skipped and NOT deleted, because the book may print it again
+  (6as); that is the opposite call to the three SPI skills, barred permanently.
+- **Removal ships with the picker**, because a choice needs a way back (6u's
+  finding). Only a bought trait can go: removing one the sheet printed needs a
+  suppression the save has no shape for, and the sheet is read-only by design.
+- Advantages and drawbacks are two headed sections, since they move the budget
+  in opposite directions.
+
+**Codex found one P3 on the diff** — the picker took `BuilderScreen.kt` past
+the documented 800-line limit — and it was taken rather than argued: both
+composables live in `TraitPicker.kt` now.
+
+**1084 Kotlin** (985 `core:rules`, 79 `app`, 20 `core:model`) and 261 Python,
+green. Four readings RED-proved by neutering each and restoring from a `cp`
+backup (6br): the wealth exclusion (2 failures across both modules), the
+duplicate guard (1), the name resolution (2), and the unoffered explanation
+(2). The prohibition sweep over ch. 3's trait lists finds nothing forbidding a
+purchase — its 14 hits are all effect prose inside the cells themselves.
+
+Device-verified on `Medium_Phone_API_36.1` (1080x2400), Academic Researcher:
+
+- The builder's new **Traits** row reads *"None bought in play — the sheet's
+  own are on the sheet screen."*; the picker opens on **Advantages / "Cost
+  points."** and reaches **Drawbacks / "Refund points, up to 40."**
+- **Ether Body Damage — −10 pts** with the book's cell; buying it saves
+  `"traits":["Ether Body Damage"]`, adds a row reading **−10 pts** with **Give
+  back**, and takes the budget from **91 of 100** to **91 of 110**.
+- Seeded as a **Fool Seq 9** (SPI 9, Per 10), the sheet prints the drawback AND
+  reports its unapplied sibling clause. **Detect** reads *"Roll 3d6 ≤ 10 — Per
+  10 (the higher of SPI 9 and Per 10)"* with the trait ABSENT, because a Per
+  roll is not an SPI-based roll — and selecting the Fool row, which grants a
+  Per roll, keeps it absent.
+- **Divine** reads **"Roll 3d6 ≤ 13 — Skill 12, question +2, −1 Ether Body
+  Damage."** — the penalty reaching a target built outside `SkillKey`, named
+  in a breakdown that sums.
+
+**Next, with evidence:** the nineteen rows this picker withholds. The five
+`(specify)` rows need somewhere to write the instance down, which is a save
+shape rather than a rules question; the fourteen ranged rows need the reading
+6by refused, and the narrower warrant it recorded (a sheet quoting a cell's own
+notes verbatim) is where that should start.
 
 ## 6bz. What does the test suite know that the code does not?
 
