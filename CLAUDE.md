@@ -12,8 +12,16 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6br, then 6bq, 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi,
-6bh, 6bg and 6bf.** 6br is the one to read first: it corrects 6bp with 6bp's
+**Where to start next: 6bs, then 6br, 6bq, 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj,
+6bi, 6bh, 6bg and 6bf.** 6bs is the one to read first: it was handed two named
+successors by 6br and built neither, because a census of the traits the 23
+fixtures ACTUALLY carry disqualified one outright — no premade owns it — and
+turned up three better candidates. Its design review then caught the census
+naming the wrong carrier, and a reachability check on the approved build
+exposed something larger than the slice: **"+1 to all HT rolls" had never
+reached the one bare HT roll this app makes**, on six premades, since 6n. Read
+it as the argument for checking a deferral against the fixtures before
+inheriting it. 6br is next: it corrects 6bp with 6bp's
 own instrument — the clause sweep listed seventeen rows and that slice's triage
 read one, leaving an identical unapplied trait on the same character's same
 roll it had just device-verified. Its design review then blocked the obvious
@@ -125,7 +133,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1016 Kotlin** (JUnit 5 — 921 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
+| Tests | **1023 Kotlin** (JUnit 5 — 928 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -6025,6 +6033,190 @@ was verified, so an unmatched name keeps every character the sheet printed.
 "Duty (PMC)", "Phobia (Cities)", "Vow (Poverty)" — which are a real matching
 question of their own and are NOT the glued shape. And `Ether Body Damage`,
 above.
+
+## 6bs. Two rows that name their skills in a bracket, and one bare HT roll
+
+`TraitEffects` applies Charisma and Outdoorsman, and Fit and Unfit reach the
+Major Wound's HT roll. The slice set out to build one of 6br's two named
+deferrals and built neither, because a **census of every trait the 23 fixtures
+actually carry** found three better candidates and disqualified both
+deferrals on the spot.
+
+**Ether Body Damage is unbuildable and 6br did not say why.** It named it as
+the next slice — "the first disadvantage-driven modifier" — which is true and
+irrelevant: **no premade carries it**, and a potion in this codebase grants
+attributes, SPI, secondaries and skill levels, never a trait (6al). So it
+would be a rule nothing can reach, which is the `blessings.json` refusal 6bc
+already made. A deferral is only as good as its reading (6au, 6av), and this
+one had never been checked against the fixtures.
+
+### The census, and what a reachability filter is for
+
+Every trait string on the 23 sheets, resolved through `catalogueName`, split
+into clauses, keeping the mechanical ones. 70 distinct strings. It is 6bh's
+clause sweep with the filter that matters most here: **owned by somebody**.
+Three findings, all of them printed, all of them reaching nothing:
+
+| Trait | Carried by | Clause |
+|---|---|---|
+| Charisma 2 | Fortune Teller | +1/level to six named Influence skills |
+| Outdoorsman 1 | Hunter-Tracker | +1 per level to seven named Outdoor skills |
+| Unfit | Occult Scholar | −1 to all HT rolls |
+
+### The bracket is the list, and the evidence is one skill
+
+Both cells name their skills **in a parenthetical**, which is the only reason
+6br's set missed them: same join, one printing shape away. "Influence skills"
+reads like a category, and this book really does print five skill banners —
+COMBAT, SOCIAL, KNOWLEDGE, THIEF, PHYSICAL, at lines 1668/1728/1777/1861/1877.
+Influence is not one of them, and the decisive fact is smaller than that:
+**Streetwise, inside Charisma's own bracket, is not under the SOCIAL banner.**
+A category reading would widen the trait onto every social skill and narrow
+it off Streetwise in the same change.
+
+- **The same phrase encloses a DIFFERENT list one content file over.** A Witch
+  ability in `pathways.json` reads "+2 to all Influence skill rolls
+  (Diplomacy, Fast-Talk, Sex Appeal)". Two enumerations, one phrase, so each
+  cell's bracket is its own. Pinned by a test that reads both.
+- **All thirteen names are skills this book prints**, checked by value before
+  the map was written — unlike Piloting and "Body Sense" (6bp), which are in
+  the map precisely because the name join will reach them the day they appear.
+- **Per level, capped at 4**, which each cell prints for itself ("[max 4
+  levels]", "Max 4 levels."). The cap is a property of those two rows, not of
+  levelled traits: Alertness is "+1 per level" and prints no ceiling, so a
+  general cap would invent one for it. `SkillBonus` spells `perLevel` out
+  rather than inferring it from a nullable ceiling, and the two constructors
+  make the wrong default impossible to reach.
+- **Charisma's other half is a reaction modifier**, so it is reported: this
+  book prints no reaction roll and at least five sources hand one out, which
+  is why 6w established each is shown beside its source and never summed.
+  Its cell joins the two halves with "and" in ONE sentence, so the clause
+  guard cannot see the reaction half on its own — the skill names inside the
+  same segment satisfy the check. Reported explicitly for that reason.
+
+### The design review caught my census claiming the wrong carrier
+
+Fourth slice running to be reviewed before any code. **My decomposition said
+Journalist carries Charisma and that both rows were level 1.** Journalist
+carries neither; **Fortune Teller prints `Charisma 2`**. A count in prose is a
+finding (6as), here about a carrier's identity rather than a number — and it
+made the slice better, because the multiplier is now observable on a real
+premade rather than only in a test.
+
+Its second finding was structural: **`known()` did not include
+`SKILL_BONUSES`.** Every earlier row happened to appear in `PARTLY_APPLIED`
+too, so the "every trait named here is one the book prints" guard covered them
+by accident. Outdoorsman is the first row that is wholly applied with no
+clause left to report, so a typo in its name would have made the modifier
+unreachable in silence.
+
+### Unfit was not buildable as reviewed, and what that exposed is bigger
+
+`TraitEffects.modifiers` is scoped by a `SkillKey`'s controlling attribute.
+**Occult Scholar owns eleven skills and every one is IQ-based**, so Unfit as
+approved would have shipped a rule that reaches nothing on its only carrier.
+Checking that turned up the real defect:
+
+**This app makes exactly one bare HT roll — the Major Wound's — and Fit never
+reached it.** Its target was `ht + knockdownBonus`, High Pain Threshold's +3
+(6bo) and nothing else. **Fit is on six of the 23 premades**, and all six have
+been rolling it a point low since 6n shipped that roll. "+1 to all HT rolls",
+not "all HT-controlled SKILL rolls" — the same structural gap 6al had to
+thread for Alertness, whose "all Per rolls" could not reach the detection
+roll.
+
+So the slice split in two, which the review recommended: Fit first, Unfit
+second.
+
+- **`knockdownBonus` and `knockdownLine` collapsed into one `MajorWoundHt`.**
+  6bp moved that sentence into rules because the screen was spelling out which
+  trait paid; it stayed named after the knockdown alone until a second trait
+  reached the same roll, at which point a caller adding one bonus and printing
+  the other shows a breakdown that does not sum — the invariant 6ag added a
+  300-case test for. The number and its explanation now arrive together, and a
+  test walks every combination summing the signed numbers in the sentence.
+- **`Shock`'s KDoc still said High Pain Threshold's knockdown clause reached
+  nothing.** That stopped being true in 6bo, one slice after it was written.
+  A disclaimer expires exactly when the code changes (6ba, 6bl) — the second
+  time this file has found one of its own.
+- **Unfit carries `advantage = false`, read from the CATALOGUE.**
+  `ModifierSource.FromTrait` maps it to `SourceKind.DISADVANTAGE`, which is
+  what a `ModEffect.Cancel` budget is measured against, so a penalty tagged as
+  an advantage would let a cancel aimed at one bucket eat the other. Nothing
+  reaches that today, which is the 6al precedent for pinning it now. Deriving
+  it from the catalogue rather than passing it in is the point: it is a fact
+  about the trait, and a second place deciding the sign is how these
+  decisions have drifted four times (6ag, 6ai, 6be, 6bp). `Layer` stays
+  `ADVANTAGE` — that enum is the resolution stage and prints no drawback
+  member.
+- **`reported()` and three guard tests read the advantage catalogue only**, so
+  a drawback was invisible to the guards that exist to see it. The shape 6am
+  found one list over, when every character's disadvantages rendered nowhere.
+  All four read both now.
+- **Unfit's FP clause is reported with the same words Fit's mirror clause
+  already carries**, and its third sentence — "Unfit for sustained physical
+  exertion." — is named in the guard's prose exemption one sentence at a time,
+  so that exemption cannot widen into "anything I did not handle".
+
+**1023 Kotlin** (928 core:rules, 75 app, 20 core:model) and **258 Python**,
+green. Five readings RED-proved by neutering each in turn — the level
+multiplier (3 failures), the cap (1), flat rows scaling (1), Fit reaching the
+bare roll (2), and the disadvantage sign (1) — each restored from a `cp`
+backup rather than `git checkout`, which is what cost 6br its implementation.
+Codex reviewed both commits; the second returned clean, and the first raised
+Unfit's absence, which is the split its own design review had recommended.
+
+**My own test regex was the one thing that failed.** The caption-sums test
+matched `[+−-]\d+`, so the trailing sentence "fail-by-5 row" counted as a −5
+contribution. Every contribution is explicitly signed, so the hyphen is gone
+from the class.
+
+Device-verified on the physical tablet (1200x1920), five screens:
+
+- **Fortune Teller** (Charisma 2): Savoir-Faire rolled **"3d6: 8 vs 14 —
+  Excellent success, margin 6, base 12, modified to 14, `trait:charisma: 2`"**.
+  Its reported half renders above: *"Charisma 2 — +1/level to reaction rolls /
+  Not applied here: this book prints no reaction roll to make…"*
+- **Diplomacy on the same character** rolled **8 vs 11 with no contribution
+  line at all** — it is in the Witch's bracket, not Charisma's, and the bonus
+  does not leak. The discriminating screen.
+- **Hunter-Tracker** (Outdoorsman 1): Tracking read **"base 11, modified to
+  12, `trait:outdoorsman: 1`"**.
+- **Occult Scholar** (Unfit, HT 9): the Damage dialog at 6 reads **"Roll HT
+  8"** over **"includes −1 from Unfit."**, and the sheet shows *"Unfit —
+  recover FP at half normal rate / Not applied here: this app holds no clock
+  to recover against."* — a clause on a DISADVANTAGE, which `reported()` was
+  structurally blind to.
+- **Beat Cop** (Fit, HT 9): the same dialog reads **"Roll HT 10"** over
+  **"includes +1 from Fit."** It read 9 before this slice.
+
+**Not observed live**, and resting on its tests the way the ritual CoR charge
+rests on `RitualResolutionTest` (6f): the two traits composing on one roll.
+**No premade carries both Fit and High Pain Threshold** — checked across all
+23, not assumed.
+
+**Two instrument notes.** A stray tap during the Damage sequence switched the
+tablet to a completely different app, and the screenshot showed a Flutter demo
+page; `mCurrentFocus` named it immediately (6ah). And `MSYS_NO_PATHCONV=1`
+disables path conversion for **both** arguments, so an `adb pull` with it set
+writes the LOCAL file to a Windows-relative path — pull to an absolute
+`C:/...` path, not to `$TMPDIR`.
+
+**The next slice, named with evidence and not taken: skill categories.** The
+book prints those five banners and `extract_content.py` discards them —
+`skills.json` carries no category field. So "-3 to social skill rolls" names a
+group the book prints, and the app cannot identify it *only because the
+extractor dropped it*: the "a normaliser can delete a rule" shape, which
+`strip_self_control_number` already had once (6am). Six traits key off it —
+Empathy +3, Callous −3, Clueless −3, Shyness, Loner, Workaholic — but the
+census says only **Empathy** is both unconditional and name-matched; the rest
+are conditional declarations or unmatched spellings. An extractor change plus
+a 158-row content regen for one applied trait, so it wants its own slice and
+its own design review.
+
+Also recorded, not built: **Acute Hearing** ("+2 to Hearing rolls") and
+**Acute Vision** ("+2 to Vision rolls") — "Hearing" and "Vision" are not
+skills this book prints, checked against `skills.json`, so both are reported.
 
 ---
 
