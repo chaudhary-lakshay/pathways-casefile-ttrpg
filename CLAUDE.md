@@ -12,8 +12,16 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6bt, then 6bs, 6br, 6bq, 6bp, 6bo, 6bn, 6bm, 6bl, 6bk,
-6bj, 6bi, 6bh, 6bg and 6bf.** 6bt is the one to read first: it builds the slice
+**Where to start next: 6bu, then 6bt, 6bs, 6br, 6bq, 6bp, 6bo, 6bn, 6bm, 6bl,
+6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6bu is the one to read first, for one thing
+above all: **five successive censuses were each too narrow**, and the third
+failed for a reason no regex fixes — a Fright Check is a roll the book NAMES
+rather than describes, so no filter drawn from the word "roll" can see one.
+Three such rows were invisible to every sweep this repo has ever run. Its answer
+is to make the enumeration a TEST rather than a paragraph, and that test found
+four more rows the moment it ran. It also records a field I proposed on a false
+premise that my own KDoc had disproved since 6am, and a RED-proof that found a
+hole in the guard I had just written. 6bt is next: it builds the slice
 6bs named and finds 6bs wrong about it three times over — the banner count (five
 in that section's prose, fifteen in the book), the reachability (both
 unconditional rows reach nothing on any carrier, and every carrier that CAN roll
@@ -143,7 +151,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1030 Kotlin** (JUnit 5 — 935 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
+| Tests | **1034 Kotlin** (JUnit 5 — 939 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -6408,6 +6416,144 @@ the five-row agreement that warrants reading a bare number (6am) and both
 deliberate refusals (Duty's frequency roll, Phobia's Fright Check), so it wants
 its own design review. Its social clause then joins the same slice, refused as
 Loner's is.
+
+## 6bu. A roll the book requires without saying "roll vs."
+
+`parse_self_control` reads a fourth printed spelling, and Workaholic's roll is
+reachable on the two premades that carry it. 6bt named this slice and split it
+out; its design review ran **four times and returned no-ship three times**, and
+every finding was mine to fix.
+
+**The rule.** Five rows call for a self-control roll in five word orders and
+none uses the phrase the anchor was keyed on:
+
+| Row | Cell | Target |
+|---|---|---|
+| **Workaholic** | "rolls to take a day off **at Will-3**" | Will−3 |
+| Compulsive Gambling | "requires **Will roll at -2** to leave a game while ahead" | Will−2 |
+| Bloodlust | "**IQ roll** necessary to accept a surrender" | IQ+0 |
+| Coldblooded | "**Roll Will** when suppressing evil desires" | Will+0 |
+| Reluctant Killer | "**Will rolls required** to use violence again" | Will+0 |
+
+Workaholic is on **Factory Foreman and Private Investigator**, which printed the
+cell and offered no roll. The consumer needed no change at all — `checksFor`
+reads `selfControl` off the catalogue, so widening the extractor made five rows
+rollable on their own.
+
+- **The warrant is NOT 6am's A/B agreement**, which is unavailable: no row
+  prints two of these spellings, so there is nothing to reconcile. What
+  licenses it is that they add no new mechanic — the same two target shapes (a
+  flat number, or an attribute with a signed offset) and the same direction.
+  Stated plainly rather than borrowed, because 6ad's per-table standard means a
+  warrant has to be produced for each reading, not inherited from a neighbour.
+- **The offset must belong to the TARGET, never to the roll.** That is the whole
+  discriminator against ~80 modifier cells of near-identical shape — Fit's "+1
+  to all HT rolls", Hard to Kill's "+1/level to HT rolls to avoid death",
+  Incorruptible Will's "+3 to all Will rolls **to resist**", which is the most
+  self-control-shaped phrase in the catalogue. **Grief-Stricken is refused on
+  exactly that reading**: "Will rolls to act clearly **are at -2**" attaches its
+  offset to the roll, which is Ether Body Damage's shape, not Workaholic's.
+- **D is tried last**, so a row printing "roll vs." is never read by the looser
+  anchor and B stays the narrow reading it was built to be.
+- **The provenance stays `"effect"`.** A review caught that the `source:
+  "requires"` I proposed would have failed content loading outright —
+  `Content.kt` REQUIRES source in {both, name, effect} — and these ARE
+  effect-cell spellings, so no new value was needed in the first place.
+
+### The polarity field I proposed, and my own KDoc disproving it
+
+Rev 1 argued that "rolls to take a day off" INVERTS the direction every existing
+row uses, and proposed a second field for which outcome is the failure. **Five
+existing rows already make success perform the resisting action** — Stubborn "to
+reverse your stated position", Laziness "to undertake any sustained effort",
+Charity "to avoid helping", Reckless "to back down", Bad Temper "to avoid angry
+outbursts" — so Workaholic is that shape and not a new one.
+
+Worse: `SelfControlOutcome.held`'s KDoc has said so **since 6am**, in this
+sentence — *"Every one of the book's phrasings runs the same direction once read
+carefully"*. So the field would have been a sixth copy of a decision this file
+already documents, proposed in a decomposition that quotes the rule against it.
+Read the KDoc of the thing you are about to extend.
+
+### Five filters, five too narrow — and the sixth found by a test
+
+Every census this slice and 6bt ran was too narrow, each in a new way:
+
+| Filter | Missed |
+|---|---|
+| category word + "skill" (6bt) | Workaholic, Loner — cells saying "social rolls" |
+| "at Will-N" / "Will roll" | Coldblooded, Reluctant Killer, Grief-Stricken |
+| the bare word **"roll"** | three of the four Fright Check rows |
+| the reviewer's own widening | Reluctant Killer, Grief-Stricken |
+| my named-mechanic list | Fearlessness, Faithful Grounding, Glass Jaw, Soul Scar |
+
+**The third is the one that is not a regex mistake.** A Fright Check is a roll
+the book NAMES rather than describes, so no filter drawn from the word "roll"
+can see one — `Phobia: Sacred Symbols`, `Chronophobia (Temporal)` and `Soul
+Scar` were invisible to every sweep this repo has ever run, and only
+`Phobia (specify)` was pinned, because its cell happens to also say "-1 to all
+rolls".
+
+So the enumeration is a **test** now rather than a paragraph in a design
+document: `every named mechanic is applied, reported, or rolled` walks both
+catalogues for Fright Check, morale roll, death roll and knockdown roll, and
+fails on any row that is none of the three. It found four more the moment it
+ran, which is the point — a paragraph cannot do that.
+
+**And the RED-proof found a hole in that guard.** Widening the anchor to accept
+"SPI-based rolls at -1" produced a wrongly-parsed row and `verify()` passed
+anyway, because it was pinning only the rows I had thought of. The modifier rows
+closest in shape to a target — Ether Body Damage, Fit, Hard to Kill, High Pain
+Threshold, Alertness, Incorruptible Will — are pinned now. **A guard that does
+not cover the false positive it was written for is not a guard**, and the only
+thing that showed it was neutering the code it guards.
+
+### What is reported rather than applied
+
+Ten rows name a mechanic the book has its own name for and **none is carried by
+a premade** (`Phobia (Cities)` on Hunter-Tracker is an instantiated spelling the
+book never prints, 6am). Each gets its real reason:
+
+- **Glass Jaw** — the knockdown refusal Iron Jaw already carries, sign flipped
+  (no attribute is printed to roll against, 6bp).
+- **Soul Scar** — names a Fright Check FAILURE as a trigger, not a roll to make.
+- **Fearlessness, Faithful Grounding, Chronophobia, both Phobias** — a GAP
+  stated as a gap. This app DOES roll a Fright Check, so "no such roll exists"
+  would be the fresh excuse 6bo caught one commit from shipping; what is missing
+  is the join to its modifier, and four of the five are conditional anyway.
+- **Workaholic's own social clause** is refused as Loner's is (6bt): "social
+  rolls" names no printed group.
+
+**1034 Kotlin** (939 `core:rules`, 75 `app`, 20 `core:model`) and **261
+Python**, green. RED-proved by neutering: the fourth anchor removed (verify
+fails on Workaholic), the discriminator widened to accept a bonus (verify fails
+on Ether Body Damage — after the guard was fixed), and the named-mechanic test
+observed failing with seven rows before its entries existed. Codex reviewed the
+diff and returned clean.
+
+Device-verified on the physical tablet, **Factory Foreman** (Will 9) — all three
+printed spellings of one mechanic on one character, which is the warrant on
+screen:
+
+- **"Bad Temper — -10 pts — 3d6 ≤ 12"** (a flat target, spelling A/B).
+- **"Stubborn — -5 pts — 3d6 ≤ 6"** (attribute + offset via "roll vs.").
+- **"Workaholic — -5 pts — 3d6 ≤ 6"** — the new anchor, landing on the same
+  number as Stubborn because both are Will−3 on Will 9. Before this commit the
+  row printed its cell and no roll at all.
+- Its dialog reads *"keyed on Will-3, after any potion"* over **"3d6 ≤ 6"** with
+  the stepper and Roll.
+- Above them, the refused clause: *"Workaholic — -2 to social rolls in leisure
+  settings / Not applied here: the book prints "social rolls" here and "social
+  skill rolls" elsewhere, and distinguishes the two in one sentence …"*
+
+**The next slice, named with evidence: the Fright Check modifiers.** Five rows
+adjust a roll this app already makes — Fearlessness "+1 per level to Fright
+Checks", Faithful Grounding "+3 … in church buildings", Chronophobia "-3",
+both Phobias "-2" — and `FrightCheck.against(will, modifier, source)` has taken
+a modifier since 6c. Only Fearlessness is unconditional; the rest need the
+declaration control the conditional social rows (Callous, Shyness, Social
+Anxiety) are also waiting on, so the two groups are one slice. No premade
+carries any of them, so nothing is lost by its being next rather than now.
 
 ---
 

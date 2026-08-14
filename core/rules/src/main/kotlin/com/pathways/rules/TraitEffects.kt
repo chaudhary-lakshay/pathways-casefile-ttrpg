@@ -779,7 +779,7 @@ object TraitEffects {
     private const val BARE_SOCIAL_ROLLS =
         "the book prints \"social rolls\" here and \"social skill rolls\" " +
             "elsewhere, and distinguishes the two in one sentence, so which " +
-            "rolls this names is the GM's call"
+            "rolls it names is the GM's call"
 
     /**
      * Why both jointedness rows' second clause reaches nothing.
