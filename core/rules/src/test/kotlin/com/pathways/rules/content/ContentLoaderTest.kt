@@ -4,6 +4,7 @@ import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
 import com.pathways.rules.Premades
 import com.pathways.rules.SkillLadder
+import com.pathways.rules.TraitEffects
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.jsonObject
@@ -222,6 +223,21 @@ class ContentLoaderTest {
     // Genuine disagreements are reported below rather than bent to match.
     // ---------------------------------------------------------------
 
+    /**
+     * The one asymmetry that is a GAP rather than a decision (6by).
+     *
+     * The book marks a row instantiable two ways: by putting "(specify)" in
+     * its NAME, which production reads, and by printing a cost RANGE the
+     * instance settles ("Sense of Duty" 2-15, "Secret" 5-30), which this audit
+     * reads and production does not. Reading the range alone was refused for
+     * production because nineteen rows print one -- including the pair 6bw
+     * resolved through a separately argued warrant -- so it would over-match
+     * there. Here it cannot: reaching a row only ever adds a cost check.
+     */
+    private val RANGED_TEMPLATE =
+        "the book marks the row instantiable with a printed cost RANGE, which " +
+            "this audit reads and production deliberately does not (6by)"
+
     private val SPECIFY = Regex("""^(.*?)\s*\((specify[^)]*|any)\)\s*$""", RegexOption.IGNORE_CASE)
     private val PAREN = Regex("""^(.*?)\s*\(.*\)\s*$""")
     private val TRAILING_LEVEL_NUMBER = Regex("""^(.*?)\s+\d+$""")
@@ -242,23 +258,21 @@ class ContentLoaderTest {
         "Poverty: Struggling" to "Wealth: Struggling",
     )
 
-    /**
-     * Fixture trait names that are fixture-extraction artifacts: the
-     * spreadsheet-reading tool (tools/extract_sheets.py) concatenated the
-     * trait's own flavour notes directly onto its name with no separator
-     * at all, so no general normalization rule can recover the true name
-     * ("Clueless" -- book cost 10, matching the fixture's own cost --
-     * confirms this is simply a mangled "Clueless"). Fixing the fixture
-     * extractor is out of scope for this phase (only tools/extract_content.py
-     * and tools/coverage.py); named here so they don't silently vanish from
-     * either the "resolves" or the "conflict" bucket.
+    /*
+     * There was a KNOWN_FIXTURE_NAME_ARTIFACTS set here, holding two premades'
+     * "Clueless <the book's whole effect cell>" and skipping them, on the
+     * stated ground that "no general normalization rule can recover the true
+     * name". Slice 6bt wrote that rule -- the sheets glue the name to the
+     * book's own notes with a bare space, and a tail reproducing the
+     * catalogue's words EXACTLY is what proves the head. So the reason had
+     * been false for several slices while the skip stayed, and these two rows'
+     * costs went unreconciled the whole time.
+     *
+     * That is 6ba's lesson pointed at a TEST's own exclusion: a verdict
+     * expires, and an exclusion cannot notice when it stops being needed. It
+     * is gone now, and delegating to [TraitEffects.catalogueName] first is
+     * what stops the next one outliving its reason.
      */
-    private val KNOWN_FIXTURE_NAME_ARTIFACTS = setOf(
-        "Clueless −3 to all social skill rolls; generally miss social cues and subtlety. " +
-            "You do\nnot understand subtext, sarcasm, or implication",
-        "Clueless −3 to all social skill rolls; generally miss social cues and subtlety. " +
-            "You do\nnot understand subtext, sarcasm, or implication.",
-    )
 
     /** Genuinely absent from the book under any spelling -- verified by name search. */
     private val KNOWN_ABSENT_TRAITS = setOf(
@@ -269,13 +283,31 @@ class ContentLoaderTest {
 
     private data class TraitConflict(val name: String, val fixtureCost: Int, val bookDescription: String)
 
+    /**
+     * Every spelling of [name] this audit will try, production's FIRST.
+     *
+     * **This resolver must never know less than production does.** It knew
+     * more twice, and both cost real time: it has aliased
+     * "Poverty: Struggling" to "Wealth: Struggling" since M0 while `Wealth`
+     * matched a prefix that could not see it -- a live double count, found in
+     * 6bx -- and it reads a printed cost RANGE as an instantiation marker,
+     * which `TraitEffects` still does not (6by, deliberately). Knowing MORE is
+     * this object's job: it audits fixture data, so it must reach a near-match
+     * to report a cost conflict on it, where production must refuse one
+     * (4.1). Knowing LESS is a bug, and delegating first is what makes that
+     * impossible rather than merely unlikely.
+     *
+     * The asymmetry is pinned by `the audit resolves everything production
+     * does, and these besides`, so a spelling production learns to read stops
+     * being skipped here on the same commit.
+     */
     private fun candidateNames(name: String): List<String> {
         val aliased = TRAIT_NAME_ALIASES[name] ?: name
-        val out = mutableListOf(aliased)
+        val out = mutableListOf(TraitEffects.catalogueName(name), aliased)
         for (pattern in listOf(PAREN, TRAILING_LEVEL_NUMBER, DASH_DESCRIPTION, COLON_DESCRIPTION)) {
             pattern.matchEntire(aliased)?.let { out += it.groupValues[1].trim() }
         }
-        return out
+        return out.distinct()
     }
 
     private fun findBookTrait(entries: List<TraitDefinition>, fixtureName: String): TraitDefinition? {
@@ -304,7 +336,6 @@ class ContentLoaderTest {
         conflicts: MutableSet<TraitConflict>,
     ) {
         fixtureTraitsByName.forEach { (name, costs) ->
-            if (name in KNOWN_FIXTURE_NAME_ARTIFACTS) return@forEach
             val book = findBookTrait(entries, name)
             if (book == null) {
                 notFound += name
@@ -378,6 +409,91 @@ class ContentLoaderTest {
         assertEquals(expectedAdvConflicts, advConflicts, "advantage cost-conflict set changed")
         assertEquals(expectedDisConflicts, disConflicts, "disadvantage cost-conflict set changed")
     }
+
+    /**
+     * **The audit resolves everything production does, and these besides.**
+     *
+     * The two resolvers are supposed to differ, and nothing said so until now.
+     * They answer different questions: this one audits the fixture corpus, so
+     * it must REACH a near-match in order to report a cost conflict on it,
+     * while `TraitEffects` decides what a player is shown and must refuse one
+     * (4.1). Two questions, two matchers -- but only in one direction.
+     *
+     * This test states the direction. Every name here is one the audit reaches
+     * and production will not, with the reason; a name in neither is genuinely
+     * absent from the book and lives in [KNOWN_ABSENT_TRAITS]. What the test
+     * forbids is the reverse: production resolving something this audit
+     * cannot, which is how a row's cost silently stops being checked -- it had
+     * happened, for the two glued "Clueless" spellings, from the slice that
+     * taught production to read them until this one.
+     */
+    @Test
+    fun `the audit resolves everything production does, and these besides`() {
+        val entries = ContentLoader.advantages() + ContentLoader.disadvantages()
+        val printed = entries.map { it.name }.toSet()
+        val fixtureNames = Premades.all()
+            .flatMap { it.advantages + it.disadvantages }
+            .map { it.name }
+            .distinct()
+
+        val auditCannot = fixtureNames.filter { findBookTrait(entries, it) == null }.toSortedSet()
+        assertEquals(
+            KNOWN_ABSENT_TRAITS.toSortedSet(),
+            auditCannot,
+            "the audit stopped reaching a name the book does print",
+        )
+
+        // The reverse must never happen: production reaching what the audit
+        // cannot would leave that row's cost unreconciled and say nothing.
+        assertEquals(
+            emptyList<String>(),
+            fixtureNames.filter {
+                TraitEffects.catalogueName(it) in printed && findBookTrait(entries, it) == null
+            },
+            "production resolves a name this audit skips, so its cost goes unchecked",
+        )
+
+        val onlyTheAudit = fixtureNames
+            .filter { TraitEffects.catalogueName(it) !in printed && findBookTrait(entries, it) != null }
+            .toSortedSet()
+        assertEquals(
+            AUDIT_ONLY.keys,
+            onlyTheAudit,
+            "the set of names only the audit reaches changed",
+        )
+    }
+
+    /**
+     * Why this audit reaches a name `TraitEffects` refuses. Each is a real
+     * asymmetry, not an oversight -- and each reason is a claim with an expiry
+     * date, so check it before inheriting it.
+     */
+    private val AUDIT_ONLY = sortedMapOf(
+        "Absent-Minded" to
+            "an alias here; production refuses it because the price disagrees " +
+            "too (5 against the book's 15), leaving only resemblance",
+        "Wierdness Magnet" to
+            "an alias here; production refuses it because closing a " +
+            "transposition needs typo tolerance, which 4.1 calls guessing",
+        "Poverty: Struggling" to
+            "an alias here; production resolves it in [com.pathways.rules.Wealth] " +
+            "instead, on the cost and kind this name-only API cannot read",
+        "Paranoia: Bodies of water" to
+            "a colon instantiation of a fixed-cost row, and the price disagrees " +
+            "as well (5 against 10)",
+        "Blacklisted: Specific Industry org or church" to
+            "a colon instantiation of a fixed-cost row whose qualifier " +
+            "paraphrases the row's own notes rather than quoting them",
+        "Sense of Duty (Coworkers)" to RANGED_TEMPLATE,
+        "Sense of Duty (Friends)" to RANGED_TEMPLATE,
+        "Sense of Duty (Patients)" to RANGED_TEMPLATE,
+        "Sense of Duty (Public)" to RANGED_TEMPLATE,
+        "Sense of Duty (Workers)" to RANGED_TEMPLATE,
+        "Sense of Duty (Flock) - Must help/protect certain groups even at personal risk" to
+            RANGED_TEMPLATE,
+        "Secret (Courier network)" to RANGED_TEMPLATE,
+        "Secret (Racist Sympathizer)" to RANGED_TEMPLATE,
+    )
 
     // ---------------------------------------------------------------
     // Thrust/swing damage table.
