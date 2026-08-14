@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.RollResult
+import com.pathways.rules.MajorWoundHt
 import com.pathways.rules.Pool
 import com.pathways.rules.RandomSource
 import com.pathways.rules.Shock
@@ -69,16 +70,18 @@ fun DamageDialog(
      */
     onShocked: () -> Unit,
     /**
-     * High Pain Threshold's "+3 on HT rolls to avoid knockdown".
+     * What the character's traits do to this roll, and the sentence saying so.
      *
-     * This roll is one: its fail-by-5 row is "Knocked down and unconscious"
-     * (Codex). Passed in rather than derived here, so the trait's two clauses
-     * are decided in one place -- and the sentence beside it is authored by
-     * [TraitEffects.knockdownLine], because a screen naming the paying trait
-     * itself is a second copy of which trait pays.
+     * Two rules reach it. High Pain Threshold's "+3 on HT rolls to avoid
+     * knockdown" applies because the fail-by-5 row is "Knocked down and
+     * unconscious" (Codex, 6bo); Fit's "+1 to all HT rolls" applies because
+     * this is an HT roll, and it is the only bare one in the app.
+     *
+     * The number and the sentence arrive together on purpose: a screen that
+     * added one and printed the other would show a breakdown that does not
+     * sum, which this codebase has produced three times (6ag, 6ai, 6bp).
      */
-    knockdownBonus: Int = 0,
-    knockdownLine: String? = null,
+    majorWoundHt: MajorWoundHt = MajorWoundHt(0, null),
     onDismiss: () -> Unit,
 ) {
     val rules = remember { ContentLoader.spiritDamage() }
@@ -153,13 +156,13 @@ fun DamageDialog(
                 MajorWoundPanel(
                     isMajor = isMajor,
                     threshold = Wounds.majorWoundThreshold(maxHp),
-                    ht = ht + knockdownBonus,
-                    knockdownLine = knockdownLine,
+                    ht = ht + majorWoundHt.bonus,
+                    traitLine = majorWoundHt.line,
                     shock = shock,
                     // Rolled WITHOUT any shock of its own: this is the roll
                     // that creates the state, and Shock refuses to reach
                     // RollKind.MAJOR_WOUND_HT for that reason.
-                    onRoll = { shock = SuccessRoll.against(ht + knockdownBonus, dice) },
+                    onRoll = { shock = SuccessRoll.against(ht + majorWoundHt.bonus, dice) },
                 )
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 var section = ""
@@ -185,7 +188,7 @@ private fun MajorWoundPanel(
     isMajor: Boolean,
     threshold: Int,
     ht: Int,
-    knockdownLine: String? = null,
+    traitLine: String? = null,
     shock: RollResult?,
     onRoll: () -> Unit,
 ) {
@@ -197,8 +200,8 @@ private fun MajorWoundPanel(
     if (!isMajor) return
     if (shock == null) {
         TextButton(onClick = onRoll) { Text("Roll HT $ht") }
-        if (knockdownLine != null) {
-            Text(knockdownLine, style = MaterialTheme.typography.bodySmall)
+        if (traitLine != null) {
+            Text(traitLine, style = MaterialTheme.typography.bodySmall)
         }
         return
     }

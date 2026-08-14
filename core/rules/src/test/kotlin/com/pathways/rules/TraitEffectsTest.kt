@@ -351,6 +351,64 @@ class TraitEffectsTest {
     }
 
     /**
+     * **"All HT rolls", not "all HT-controlled SKILL rolls."** [modifiers] is
+     * scoped by a [SkillKey]'s controlling attribute, so Fit reached only
+     * skills -- and this app makes exactly one bare HT roll that is not a
+     * skill roll, the Major Wound's. The book asks for it by name ("make an
+     * immediate HT roll", p. 41-42) and Fit is on six of the 23 premades, so
+     * six characters have been rolling it a point low since 6n shipped it.
+     *
+     * The same gap 6al had to thread for Alertness, whose "all Per rolls"
+     * could not reach the detection roll for the same structural reason.
+     * Found while checking whether Unfit was reachable at all -- its only
+     * carrier owns no HT skill, so the mirror rule would have landed on
+     * nothing without this.
+     */
+    @Test
+    fun `Fit lifts the one bare HT roll this app makes`() {
+        val fit = listOf(advantage(TraitEffects.FIT))
+        assertEquals(TraitEffects.FIT_BONUS, TraitEffects.majorWoundHt(fit).bonus)
+        assertEquals(0, TraitEffects.majorWoundHt(emptyList()).bonus)
+        // ...and it composes with the knockdown bonus rather than replacing
+        // it: one roll, two traits, and a breakdown that has to sum.
+        val both = fit + advantage(TraitEffects.HIGH_PAIN_THRESHOLD)
+        val effect = TraitEffects.majorWoundHt(both)
+        assertEquals(TraitEffects.FIT_BONUS + TraitEffects.KNOCKDOWN_BONUS, effect.bonus)
+        assertTrue(effect.line!!.contains(TraitEffects.FIT), effect.line!!)
+        assertTrue(effect.line!!.contains(TraitEffects.HIGH_PAIN_THRESHOLD), effect.line!!)
+    }
+
+    /**
+     * **The caption names every trait that moved the target.** A screen
+     * showing "Roll HT 14" over a sentence crediting one of the two traits
+     * that got it there is a breakdown that does not sum -- the invariant 6ag
+     * added a 300-case test for, and that 6ai and 6bp each reproduced once.
+     * 6bp authored this sentence in rules for that reason; it stayed named
+     * after the knockdown alone until a second trait reached the roll.
+     */
+    @Test
+    fun `the major wound caption sums to the target it sits under`() {
+        val cases = listOf(
+            listOf(advantage(TraitEffects.FIT)),
+            listOf(advantage(TraitEffects.HIGH_PAIN_THRESHOLD)),
+            listOf(advantage(TraitEffects.FIT), advantage(TraitEffects.HIGH_PAIN_THRESHOLD)),
+        )
+        for (traits in cases) {
+            val effect = TraitEffects.majorWoundHt(traits)
+            val named = traits.count { effect.line!!.contains(it.name) }
+            assertEquals(traits.size, named, "${effect.line} for $traits")
+            // Every contribution is explicitly signed "+n" or "−n", so an
+            // ASCII hyphen is never one -- the trailing sentence says
+            // "fail-by-5", which a looser pattern reads as a −5 contribution.
+            val signed = Regex("[+−]\\d+").findAll(effect.line!!)
+                .map { it.value.replace('−', '-').replace("+", "").toInt() }
+                .sum()
+            assertEquals(effect.bonus, signed, effect.line)
+        }
+        assertNull(TraitEffects.majorWoundHt(emptyList()).line)
+    }
+
+    /**
      * **The two levelled rows, on the premades that carry them.** Fortune
      * Teller prints `Charisma 2` and Hunter-Tracker `Outdoorsman 1`, so the
      * multiplier is not a test-only path: the Fortune Teller's own Public
@@ -633,11 +691,13 @@ class TraitEffectsTest {
      */
     @Test
     fun `the knockdown line names the trait that paid for it`() {
-        val line = TraitEffects.knockdownLine(listOf(advantage("High Pain Threshold")))
-        assertTrue(line!!.contains(TraitEffects.HIGH_PAIN_THRESHOLD), line)
-        assertTrue(line.contains("+3"), line)
-        assertNull(TraitEffects.knockdownLine(listOf(advantage(TraitEffects.PERFECT_BALANCE))))
-        assertNull(TraitEffects.knockdownLine(emptyList()))
+        val effect = TraitEffects.majorWoundHt(listOf(advantage("High Pain Threshold")))
+        assertTrue(effect.line!!.contains(TraitEffects.HIGH_PAIN_THRESHOLD), effect.line!!)
+        assertTrue(effect.line!!.contains("+3"), effect.line!!)
+        // The Balance rows print their own knockdown clause and reach this
+        // roll with nothing, because it names no attribute (6bp).
+        assertNull(TraitEffects.majorWoundHt(listOf(advantage(TraitEffects.PERFECT_BALANCE))).line)
+        assertNull(TraitEffects.majorWoundHt(emptyList()).line)
     }
 
     /**

@@ -692,8 +692,7 @@ fun SheetScreen(
                 session.spend(pool, amount, max, maxCor)
             },
             onShocked = { shocked = true },
-            knockdownBonus = TraitEffects.knockdownBonus(traits),
-            knockdownLine = TraitEffects.knockdownLine(traits),
+            majorWoundHt = TraitEffects.majorWoundHt(traits),
             onDismiss = { damaging = false },
         )
     }

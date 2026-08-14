@@ -96,11 +96,16 @@ object Shock {
      * Whether [traits] carry the advantage that ignores it.
      *
      * Its cell reads "Ignore shock penalties from injury; +3 on HT rolls to
-     * avoid knockdown". The first clause is this; the second reaches nothing,
-     * because no roll in this app is a knockdown roll -- the book prints them
-     * in the hit-location effects ("Knockdown roll at -5") and this app shows
-     * those cells rather than rolling them. Reported by [TraitEffects], not
-     * silently dropped.
+     * avoid knockdown". The first clause is this; the second is applied by
+     * [TraitEffects.majorWoundHt], because the Major Wound's own HT roll
+     * decides knockdown on its fail-by-5 row. **This sentence used to say
+     * that clause reached nothing**, which stopped being true in the commit
+     * that made it reach something -- a report of what is not applied expires
+     * exactly when the code changes (6ba, 6bl).
+     *
+     * The book's OTHER knockdown rolls, in the hit-location effects
+     * ("Knockdown roll at -5"), print no attribute to roll against, so this
+     * app shows those cells rather than rolling them.
      */
     fun ignoredBy(traits: List<Trait>): Boolean = TraitEffects.levelOf(traits, IGNORED_BY) != null
 

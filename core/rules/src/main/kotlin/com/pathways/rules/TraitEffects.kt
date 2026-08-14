@@ -17,6 +17,15 @@ import com.pathways.rules.content.TraitDefinition
 data class TraitNote(val trait: String, val printed: String, val reason: String)
 
 /**
+ * What a character's traits do to the Major Wound's HT roll: the number, and
+ * the sentence naming every trait that produced it.
+ *
+ * [line] is null exactly when [bonus] is zero, so a screen cannot print a
+ * credit for a roll nothing moved.
+ */
+data class MajorWoundHt(val bonus: Int, val line: String?)
+
+/**
  * Ch. 3's advantages, where their printed effects reach a roll.
  *
  * The 198-row trait catalogue has had no production reader since M0. The
@@ -99,6 +108,16 @@ object TraitEffects {
      * decision to make.
      */
     val BALANCE_SKILLS = setOf("Acrobatics", "Climbing", "Piloting")
+
+    /**
+     * Every trait whose cell says "to all HT rolls", and by how much.
+     *
+     * One map, read by both paths -- [modifiers] for an HT-controlled skill
+     * and [htRollBonus] for the bare Major Wound roll -- because a trait that
+     * reached one and not the other is exactly the gap this map was made to
+     * close.
+     */
+    private val HT_ROLL_TRAITS: Map<String, Int> = mapOf(FIT to FIT_BONUS)
 
     /**
      * Every trait whose cell names the skills it lifts, and by how much.
@@ -233,20 +252,55 @@ object TraitEffects {
         ContentLoader.advantages().first { it.name == NIGHT_EYES }.notes
 
     /**
-     * The sentence a screen prints beside [knockdownBonus], or null when
-     * nothing was added.
+     * What [traits] do to the Major Wound's HT roll, and the sentence that
+     * says so.
      *
-     * Authored here because `DamageDialog` spelt "includes +3 from High Pain
-     * Threshold" itself, which is a second copy of WHICH trait pays -- the
-     * failure this codebase produced three times (6ag, 6ai, 6be). A caller
-     * cannot now name the wrong trait.
+     * **One object rather than two functions, because the number and its
+     * explanation must agree.** `DamageDialog` once spelt "includes +3 from
+     * High Pain Threshold" itself, which is a second copy of WHICH trait pays
+     * -- the failure this codebase produced three times (6ag, 6ai, 6be) --
+     * and 6bp moved the sentence here for that reason. It stayed named after
+     * the knockdown alone until a second trait reached the same roll, at
+     * which point a caller adding one bonus and printing the other would be
+     * showing a breakdown that does not sum.
+     *
+     * Two rules reach it and they are different rules. [knockdownBonus] is
+     * High Pain Threshold's, scoped by the clause that names an attribute;
+     * [htRollBonus] is "all HT rolls", which this roll is.
      */
-    fun knockdownLine(traits: List<Trait>): String? {
-        val bonus = knockdownBonus(traits)
-        if (bonus == 0) return null
-        return "includes +$bonus from $HIGH_PAIN_THRESHOLD — " +
-            "this roll's fail-by-5 row is a knockdown."
+    fun majorWoundHt(traits: List<Trait>): MajorWoundHt {
+        val parts = mutableListOf<String>()
+        val knockdown = knockdownBonus(traits)
+        if (knockdown != 0) parts += "+$knockdown from $HIGH_PAIN_THRESHOLD"
+        for ((trait, value) in HT_ROLL_TRAITS) {
+            if (levelOf(traits, trait) == null) continue
+            parts += "${if (value < 0) "−${-value}" else "+$value"} from $trait"
+        }
+        if (parts.isEmpty()) return MajorWoundHt(0, null)
+        val tail = if (knockdown != 0) " — this roll's fail-by-5 row is a knockdown." else "."
+        return MajorWoundHt(
+            knockdown + htRollBonus(traits),
+            "includes ${parts.joinToString(", ")}$tail",
+        )
     }
+
+    /**
+     * What [traits] add to any roll of HT itself.
+     *
+     * **"+1 to all HT rolls" means all of them, and [modifiers] can only
+     * reach the ones a [SkillKey] carries.** This app makes exactly one bare
+     * HT roll -- the Major Wound's -- so Fit missed it for six premades from
+     * 6n until now. The same structural gap 6al had to thread explicitly for
+     * Alertness, whose "all Per rolls" could not reach the detection roll.
+     *
+     * Deliberately NOT a general attribute-roll bonus: the app's other bare
+     * rolls are Will, IQ, Per and SPI (fright, self-control, concentration,
+     * detection), and no trait here names those.
+     */
+    fun htRollBonus(traits: List<Trait>): Int =
+        HT_ROLL_TRAITS.entries.sumOf { (trait, value) ->
+            if (levelOf(traits, trait) != null) value else 0
+        }
 
     /**
      * The level a character owns [name] at, or null when they do not own it.
@@ -354,7 +408,9 @@ object TraitEffects {
             }
         }
         if (skill.attr == ControllingAttribute.Buyable(Attr.HT)) {
-            levelOf(traits, FIT)?.let { add(bonus(FIT, FIT_BONUS)) }
+            for ((trait, value) in HT_ROLL_TRAITS) {
+                levelOf(traits, trait)?.let { add(bonus(trait, value)) }
+            }
         }
         // The Balance rows name their three skills outright, which is a
         // stronger join than an attribute: Alertness has to be scoped by
