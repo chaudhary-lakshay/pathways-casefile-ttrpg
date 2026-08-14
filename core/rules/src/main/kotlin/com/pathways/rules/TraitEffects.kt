@@ -753,6 +753,13 @@ object TraitEffects {
         "Loner" to listOf(
             "-1 to social rolls in crowds" to BARE_SOCIAL_ROLLS,
         ),
+        // Workaholic's roll became reachable in 6bu -- the book prints its
+        // target as "at Will-3", a phrasing the self-control anchor could not
+        // see -- so this is now the clause beside an applied one, exactly as
+        // Loner's is, and for the same reason.
+        "Workaholic" to listOf(
+            "-2 to social rolls in leisure settings" to BARE_SOCIAL_ROLLS,
+        ),
     )
 
     /**
@@ -795,6 +802,21 @@ object TraitEffects {
      * finding). See [knockdownBonus] for why these rows do not join the one
      * knockdown roll the app does make.
      */
+    /**
+     * Why a trait's Fright Check modifier reaches nothing YET, said once.
+     *
+     * **A gap stated as a gap.** [FrightCheck] rolls 3d6 against Will plus a
+     * modifier the GM supplies, so this app does make the roll these five rows
+     * adjust — writing "this app models no Fright Check" would be exactly the
+     * fresh excuse 6bo caught one commit from shipping. What is missing is the
+     * join, and four of the five are conditional anyway (in a church, on
+     * exposure to the phobic stimulus), so the slice that builds it needs the
+     * declaration control the conditional social rows are waiting on too.
+     */
+    private const val FRIGHT_MODIFIER_UNJOINED =
+        "this app rolls a Fright Check against Will plus the GM's own modifier, " +
+            "and a trait's modifier is not added to it yet"
+
     private const val KNOCKDOWN_UNREACHED =
         "the book's knockdown rolls for a hit location print no attribute to " +
             "roll against, so this app shows those cells rather than rolling them"
@@ -818,6 +840,35 @@ object TraitEffects {
         // no entry to be visible.
         IRON_JAW to "this app rolls no knockdown for a hit location, and no bite",
         RAPID_RECOVERY to "both halves are durations, and this app holds no clock",
+        // Two more mechanics the book has its OWN names for, found by a review
+        // asking what a census keyed on the word "roll" still cannot see (6bu).
+        // Neither is carried by a premade, and both would otherwise be dropped
+        // in silence, because `reported` only emits what these maps name.
+        "Natural Leader" to
+            "this app models no morale roll, and the reroll it grants belongs " +
+            "to an ally's Fright Check rather than to this character's",
+        "Uncanny Survivor" to
+            "this app models no death roll to succeed at — the same refusal " +
+            "Hard to Kill already carries",
+        "Glass Jaw" to
+            "the book's knockdown rolls for a hit location print no attribute " +
+            "to roll against, so this app shows those cells rather than rolling " +
+            "them — the refusal Iron Jaw carries, with the sign flipped",
+        "Soul Scar" to
+            "it names a Fright Check FAILURE as its trigger rather than a roll " +
+            "to make, so there is nothing here to roll or to modify",
+        // The four rows that modify a Fright Check. The reason is a GAP, not a
+        // refusal, and it is stated as one: this app DOES roll a Fright Check
+        // (Ch. 5, `FrightCheck.against`), so "no such roll exists" would be a
+        // fresh excuse of the kind 6bo caught one commit from shipping. What is
+        // missing is the join between a trait and that roll's modifier. Named
+        // as the next slice, and nothing is lost meanwhile: no premade carries
+        // any of the four.
+        "Fearlessness" to FRIGHT_MODIFIER_UNJOINED,
+        "Faithful Grounding" to FRIGHT_MODIFIER_UNJOINED,
+        "Chronophobia (Temporal)" to FRIGHT_MODIFIER_UNJOINED,
+        "Phobia (specify)" to FRIGHT_MODIFIER_UNJOINED,
+        "Phobia: Sacred Symbols" to FRIGHT_MODIFIER_UNJOINED,
         // The three social-skill rows whose penalty is CONDITIONAL. The group
         // they name is identifiable now [SOCIAL_SKILLS], so what stops them is
         // the circumstance and nothing else -- and two of the three are

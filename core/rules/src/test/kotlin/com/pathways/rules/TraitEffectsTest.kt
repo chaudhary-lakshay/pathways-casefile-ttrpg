@@ -868,6 +868,42 @@ class TraitEffectsTest {
     }
 
     /**
+     * **Every mechanic this book has its own NAME for is either applied or
+     * said out loud.**
+     *
+     * Five censuses were run across two slices and each was too narrow in a
+     * new way: a category word plus "skill" missed the cells saying "social
+     * rolls"; "at Will-N" missed three self-control spellings; and the bare
+     * word **"roll"** missed three of the four Fright Check rows — not through
+     * a regex slip, but because **a Fright Check is a roll the book names
+     * rather than describes**. A morale roll and a death roll are the same
+     * shape, on the advantage side, and a review found them by asking that
+     * question rather than by grepping.
+     *
+     * So the enumeration is a test rather than a paragraph in a design
+     * document: every catalogue row naming one of these mechanics must be
+     * applied here, reported here, or parsed as a roll elsewhere. A row that
+     * is none of the three is a mechanic dropped in silence — and the ones
+     * this test would have caught were dropped for four milestones.
+     */
+    @Test
+    fun `every named mechanic is applied, reported, or rolled`() {
+        val named = listOf("Fright Check", "morale roll", "death roll", "knockdown roll")
+        val handled = TraitEffects.known()
+        val rows = ContentLoader.advantages() + ContentLoader.disadvantages()
+        val dropped = rows.filter { row ->
+            named.any { it.lowercase() in row.notes.lowercase() } &&
+                row.name !in handled &&
+                row.selfControl == null
+        }
+        assertEquals(
+            emptyList<String>(),
+            dropped.map { it.name },
+            "these name a mechanic the book has a name for and reach nothing, silently",
+        )
+    }
+
+    /**
      * **Empathy's "+3 to social skill rolls" reaches the banner the book
      * prints.** The join is the CATEGORY, which is a weaker key than a skill
      * name and a much stronger one than a controlling attribute: Fast-Talk is

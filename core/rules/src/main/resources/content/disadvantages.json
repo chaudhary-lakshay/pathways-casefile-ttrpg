@@ -256,7 +256,12 @@
   {
    "name": "Compulsive Gambling",
    "cost": 10,
-   "notes": "Regular income loss; prone to debt; requires Will roll at -2 to leave a game while ahead."
+   "notes": "Regular income loss; prone to debt; requires Will roll at -2 to leave a game while ahead.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": -2,
+    "source": "effect"
+   }
   },
   {
    "name": "Duty-Bound",
@@ -337,7 +342,12 @@
   {
    "name": "Reluctant Killer",
    "cost": 5,
-   "notes": "-4 to hit recognizable people with deadly force (-2 if face hidden); cannot Aim. If you kill a recognizable person, become morose for 3d days — Will rolls required to use violence again."
+   "notes": "-4 to hit recognizable people with deadly force (-2 if face hidden); cannot Aim. If you kill a recognizable person, become morose for 3d days — Will rolls required to use violence again.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": 0,
+    "source": "effect"
+   }
   },
   {
    "name": "Cannot Harm Innocents",
@@ -362,7 +372,12 @@
   {
    "name": "Workaholic",
    "cost": 5,
-   "notes": "Cannot relax; always finds something productive to do. -2 to social rolls in leisure settings; rolls to take a day off at Will-3."
+   "notes": "Cannot relax; always finds something productive to do. -2 to social rolls in leisure settings; rolls to take a day off at Will-3.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": -3,
+    "source": "effect"
+   }
   },
   {
    "name": "Callous",
@@ -439,7 +454,12 @@
   {
    "name": "Bloodlust",
    "cost": 10,
-   "notes": "Must go for killing blows in combat. IQ roll necessary to accept a surrender or take a prisoner. Downed foes get an extra shot to make sure."
+   "notes": "Must go for killing blows in combat. IQ roll necessary to accept a surrender or take a prisoner. Downed foes get an extra shot to make sure.",
+   "selfControl": {
+    "attribute": "IQ",
+    "offset": 0,
+    "source": "effect"
+   }
   },
   {
    "name": "Weirdness Magnet",
@@ -478,7 +498,12 @@
   {
    "name": "Coldblooded",
    "cost": 10,
-   "notes": "Morality erodes upon advancement. Roll Will when suppressing evil desires (murder, lust, theft, etc.). Define with the GM which desires apply to your character."
+   "notes": "Morality erodes upon advancement. Roll Will when suppressing evil desires (murder, lust, theft, etc.). Define with the GM which desires apply to your character.",
+   "selfControl": {
+    "attribute": "Will",
+    "offset": 0,
+    "source": "effect"
+   }
   },
   {
    "name": "Compulsive Behavior (Indulge Evil Desires) SC 6",

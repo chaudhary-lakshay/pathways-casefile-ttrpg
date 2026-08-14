@@ -185,6 +185,95 @@ class SelfControlTest {
         assertTrue(SelfControl.checksFor(listOf(dis("Phobia (specify)"))).isEmpty())
     }
 
+    /**
+     * **A fourth printed spelling, and Workaholic is on two premades.** The
+     * book calls for the same roll in five word orders and none of them uses
+     * "roll vs.", so the anchor that reads sixteen rows could not see any of
+     * them — Factory Foreman and Private Investigator printed the cell and
+     * offered no roll. Found by 6bt's design review while blocking Workaholic
+     * out of that slice.
+     *
+     * The consumer needed no change at all: `checksFor` reads `selfControl`
+     * off the catalogue, so widening the extractor's anchor made five rows
+     * rollable on their own.
+     */
+    @Test
+    fun `a roll required without the words roll vs is still a self-control roll`() {
+        val expected = mapOf(
+            "Workaholic" to (-3 to "Will"),          // "rolls to take a day off at Will-3"
+            "Compulsive Gambling" to (-2 to "Will"), // "requires Will roll at -2 to leave a game"
+            "Bloodlust" to (0 to "IQ"),              // "IQ roll necessary to accept a surrender"
+            "Coldblooded" to (0 to "Will"),          // "Roll Will when suppressing evil desires"
+            "Reluctant Killer" to (0 to "Will"),     // "Will rolls required to use violence again"
+        )
+        for ((name, pair) in expected) {
+            val (offset, attr) = pair
+            val check = SelfControl.checksFor(listOf(dis(name))).single()
+            assertEquals(offset, check.spec.offset, name)
+            assertNull(check.spec.target, "$name is an attribute roll, not a flat target")
+            assertTrue(attr in check.spec.toString(), "$name: ${check.spec}")
+            // ...and none of them prints B's phrasing, which is why a fourth
+            // anchor had to exist rather than the third being loosened.
+            val cell = ContentLoader.disadvantages().single { it.name == name }.notes
+            assertTrue("roll vs." !in cell.lowercase(), "$name now prints 'roll vs.': $cell")
+        }
+    }
+
+    /**
+     * **Success is the character holding out, exactly as it is for the sixteen
+     * rows that say "roll vs."** — so there is no second outcome model.
+     *
+     * A design review's blocking finding, and it was right: I read Workaholic's
+     * "rolls to take a day off" as inverting the direction and proposed a
+     * polarity field for it. Five existing rows already make success perform
+     * the action that resists the trait — Stubborn "to reverse your stated
+     * position", Laziness "to undertake any sustained effort", Charity "to
+     * avoid helping", Reckless "to back down", Bad Temper "to avoid angry
+     * outbursts" — and [SelfControlOutcome.held]'s own KDoc has said so since
+     * 6am. A second field would have duplicated a decision this file already
+     * documents, which is the failure the design proposing it was quoting.
+     */
+    @Test
+    fun `a required roll grades like the rows that print roll vs`() {
+        for (name in listOf("Workaholic", "Stubborn", "Laziness")) {
+            val check = SelfControl.checksFor(listOf(dis(name))).single()
+            val held = SelfControl.attempt(check, will = 10, iq = 10, source = rolling(4))
+            val gaveIn = SelfControl.attempt(check, will = 10, iq = 10, source = rolling(18))
+            assertTrue(held.held, name)
+            assertTrue(!gaveIn.held, name)
+        }
+    }
+
+    /**
+     * **Three of these were invisible to every sweep this repo has run**, and
+     * not through a regex slip: a Fright Check is a roll the book NAMES rather
+     * than describes, so no filter keyed on the word "roll" can see it. Only
+     * `Phobia (specify)` was ever pinned, and only because its cell happens to
+     * also say "-1 to all rolls".
+     *
+     * Grief-Stricken is the discriminating case for the fourth anchor: its
+     * offset is attached TO a roll ("Will rolls to act clearly **are at -2**"),
+     * where every parsed row binds the offset to the roll's TARGET ("at
+     * Will-3"). That is Ether Body Damage's shape, so it is a modifier and
+     * `TraitEffects`' business.
+     */
+    @Test
+    fun `a mechanic the book names separately is not a self-control roll`() {
+        val refused = listOf(
+            "Phobia: Sacred Symbols",   // "Fright Check at -2 on direct exposure"
+            "Chronophobia (Temporal)",  // "immediate Fright Check"
+            "Soul Scar",                // "Fright Check failure by 5+" -- an outcome, not a roll
+            "Grief-Stricken",           // "Will rolls to act clearly are at -2" -- a modifier
+        )
+        for (name in refused) {
+            assertNull(
+                ContentLoader.disadvantages().single { it.name == name }.selfControl,
+                name,
+            )
+            assertTrue(SelfControl.checksFor(listOf(dis(name))).isEmpty(), name)
+        }
+    }
+
     @Test
     fun `an advantage sharing a name is not a self-control roll`() {
         assertTrue(SelfControl.checksFor(listOf(Trait("Curious", 5, TraitKind.ADVANTAGE))).isEmpty())

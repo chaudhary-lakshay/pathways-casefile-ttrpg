@@ -223,11 +223,120 @@ NOTES_SELF_CONTROL = re.compile(
 # The one row that prints the roll outright instead of naming a target.
 NOTES_BARE_3D6 = re.compile(r"\broll\s+3d6\s*[≤<]=?\s*(\d+)")
 
-# Printed near a self-control number and deliberately NOT one of them.
-NOT_SELF_CONTROL = (
-    "roll 9 or less",      # Duty -- frequency of appearance
-    "Fright Check at -2",  # Phobia -- a join to chapter 5
+# ---------------------------------------------------------------------------
+# Spelling D -- a roll REQUIRED without the words "roll vs." (6bu)
+#
+# Five rows call for the same roll in five different word orders, and none
+# uses B's phrasing:
+#
+#   Workaholic          "rolls to take a day off at Will-3"
+#   Compulsive Gambling "requires Will roll at -2 to leave a game while ahead"
+#   Bloodlust           "IQ roll necessary to accept a surrender"
+#   Coldblooded         "Roll Will when suppressing evil desires"
+#   Reluctant Killer    "Will rolls required to use violence again"
+#
+# **Workaholic is on two premades** (Factory Foreman, Private Investigator), so
+# until this anchor existed the app printed the cell and offered no roll --
+# 6bt's review found it while blocking Workaholic out of that slice.
+#
+# The warrant is NOT 6am's A/B agreement, which is unavailable: no row prints
+# two of these spellings, so there is nothing to reconcile. What licenses it is
+# that these cells add no new mechanic -- the same two target shapes (a flat
+# number, or an attribute with a signed offset) and the same direction, where
+# success is the character holding out. Five existing B rows already make
+# success perform the resisting action (Stubborn "to reverse your stated
+# position", Laziness "to undertake any sustained effort", Charity "to avoid
+# helping", Reckless "to back down", Bad Temper "to avoid angry outbursts"), so
+# no second outcome model is needed and `SelfControlOutcome.held` is unchanged.
+# A design review's blocking finding: I had proposed a polarity field on the
+# false premise that these rows inverted the direction.
+#
+# The provenance stays "effect" rather than gaining a value of its own.
+# `Content.kt` REQUIRES source in {both, name, effect}, so a new value would
+# fail content loading at construction -- and these are effect-cell spellings,
+# which is exactly what "effect" already means.
+#
+# **The offset must belong to the TARGET, never to the roll.** That is the whole
+# discriminator against ~80 modifier cells of near-identical shape:
+#
+#   Fit                 "+1 to all HT rolls"                   -- bonus TO the roll
+#   Hard to Kill        "+1/level to HT rolls to avoid death"   -- bonus, plus an
+#                                                                  infinitive clause
+#   High Pain Threshold "+3 on HT rolls to avoid knockdown"     -- bonus
+#   Incorruptible Will  "+3 to all Will rolls to resist ..."    -- bonus, and the
+#                                       most self-control-shaped phrase in the book
+#   Ether Body Damage   "All SPI-based rolls at -1"             -- penalty TO the roll
+#   Grief-Stricken      "Will rolls to act clearly are at -2"   -- penalty TO the roll
+#   Medical Training    "Use Physician at IQ-2"                 -- a skill DEFAULT
+#   Marked by Ritual    "+2 to one type of SPI roll"            -- a bonus
+#
+# So a signed number introduced by "to"/"on"/"are at" is a modifier and a signed
+# number bound to the attribute ("at Will-3", "Will roll at -2") is a target.
+# Grief-Stricken is refused on exactly that reading -- its offset is presented
+# as applying to a roll the GM already called for.
+# ---------------------------------------------------------------------------
+
+# "rolls to take a day off at Will-3", "requires Will roll at -2", "IQ roll
+# necessary", "Roll Will when ...", "Will rolls required to ...". The attribute
+# and its offset are adjacent; nothing here matches a bonus introduced by
+# "to"/"on"/"are at".
+NOTES_REQUIRED_ROLL = re.compile(
+    r"(?:\broll\s+(?P<a1>Will|IQ|HT|Per|ST|DX|SPI)\b"
+    r"|\b(?P<a2>Will|IQ|HT|Per|ST|DX|SPI)\s+rolls?\s+(?:at\s*(?P<o2>[+-]\s*\d+)\s*)?"
+    r"(?:required|necessary)"
+    r"|\brolls?\b[^.;]{0,40}?\bat\s+(?P<a3>Will|IQ|HT|Per|ST|DX|SPI)\s*(?P<o3>[+-]\s*\d+)?"
+    r"|\b(?P<a4>Will|IQ|HT|Per|ST|DX|SPI)\s+roll\s+at\s*(?P<o4>[+-]\s*\d+))",
+    re.IGNORECASE,
 )
+
+# Printed near a self-control number and deliberately NOT one of them. Each is
+# pinned by verify(), so a narrow reading stays a decision rather than becoming
+# an accident.
+#
+# **Three of these were invisible to every sweep this repo has run**, and the
+# reason is not a regex slip: a Fright Check is a roll the book NAMES rather
+# than describes, so no filter keyed on the word "roll" can see it. Only
+# `Phobia (specify)` was ever pinned, and only because its cell happens to also
+# say "-1 to all rolls". A census has to enumerate the mechanics the book has
+# names for, which is what NAMED_MECHANICS below does.
+NOT_SELF_CONTROL = (
+    "roll 9 or less",       # Duty -- frequency of appearance
+    "Fright Check at -2",   # Phobia (specify) -- a join to chapter 5
+)
+
+# Every row naming a mechanic the book has its OWN name for, and what must be
+# true of it. None is a self-control roll, and each would have been a plausible
+# wrong parse.
+SELF_CONTROL_REQUIRED = {
+    "Workaholic": {"attribute": "Will", "offset": -3},
+    "Compulsive Gambling": {"attribute": "Will", "offset": -2},
+    "Bloodlust": {"attribute": "IQ", "offset": 0},
+    "Coldblooded": {"attribute": "Will", "offset": 0},
+    "Reluctant Killer": {"attribute": "Will", "offset": 0},
+}
+
+NAMED_MECHANIC_REFUSALS = {
+    "Phobia: Sacred Symbols": "Fright Check at -2",
+    "Chronophobia (Temporal)": "Fright Check",
+    "Soul Scar": "Fright Check failure",
+    "Grief-Stricken": "Will rolls to act clearly are at -2",
+    "Medical Training (Informal)": "at IQ-2",
+    "Marked by Ritual": "SPI roll",
+    "Natural Leader": "morale roll",
+    "Uncanny Survivor": "death roll",
+    # The modifier rows whose shape is closest to a target, and therefore the
+    # ones the discriminator exists to exclude. **They were missing from this
+    # set until a RED-proof exposed it**: widening the anchor to accept
+    # "SPI-based rolls at -1" produced no failure, because verify() was only
+    # pinning the rows I had thought of. A guard that does not cover the false
+    # positive it was written for is not a guard.
+    "Ether Body Damage": "All SPI-based rolls at -1",
+    "Fit": "+1 to all HT rolls",
+    "Hard to Kill": "HT rolls to avoid death",
+    "High Pain Threshold": "HT rolls to avoid knockdown",
+    "Alertness": "to all Per rolls",
+    "Incorruptible Will": "Will rolls to resist",
+}
 
 ATTRIBUTE_SPELLING = {"will": "Will", "iq": "IQ", "ht": "HT",
                       "per": "Per", "st": "ST", "dx": "DX", "spi": "SPI"}
@@ -263,6 +372,18 @@ def parse_self_control(name_with_number: str, notes: str):
         bare = NOTES_BARE_3D6.search(notes)
         if bare:
             from_effect = {"target": int(bare.group(1))}
+        else:
+            # Spelling D. Tried last, so a row printing "roll vs." is never
+            # read by the looser anchor -- B stays the narrow reading it was
+            # built to be, and D only ever answers where B found nothing.
+            req = NOTES_REQUIRED_ROLL.search(notes)
+            if req:
+                attr = req.group("a1") or req.group("a2") or req.group("a3") or req.group("a4")
+                raw = req.group("o2") or req.group("o3") or req.group("o4")
+                from_effect = {
+                    "attribute": ATTRIBUTE_SPELLING[attr.lower()],
+                    "offset": int(raw.replace(" ", "")) if raw else 0,
+                }
 
     if from_name is not None and from_effect is not None:
         # The five rows that print it twice. They agree today; if a later
@@ -648,9 +769,14 @@ SELF_CONTROL_IN_NAME_ONLY = {"Overconfidence": 12, "Obsession": 12,
 SELF_CONTROL_BARE_3D6 = "Compulsive Behavior (Indulge Evil Desires) SC 6"
 
 
-def verify(dis_entries):
-    """Fail the extract if the self-control reading loses its evidence."""
-    byname = {e["name"]: e for e in dis_entries}
+def verify(dis_entries, adv_entries=()):
+    """Fail the extract if the self-control reading loses its evidence.
+
+    Both catalogues, because NAMED_MECHANIC_REFUSALS spans them: a morale roll
+    and a death roll are printed on ADVANTAGES, and a guard that could not see
+    them is a guard that misses the mechanics it exists to enumerate.
+    """
+    byname = {e["name"]: e for e in list(dis_entries) + list(adv_entries)}
 
     for name, target in SELF_CONTROL_IN_BOTH.items():
         sc = byname[name].get("selfControl")
@@ -713,6 +839,37 @@ def verify(dis_entries):
     if "selfControl" in phobia:
         raise ValueError("Phobia's Fright Check was read as a self-control roll")
 
+    # Spelling D's five rows, each in a different word order (6bu).
+    for name, expected in SELF_CONTROL_REQUIRED.items():
+        sc = byname[name].get("selfControl")
+        if sc != {**expected, "source": "effect"}:
+            raise ValueError(f"{name}: expected required-roll {expected}, got {sc!r}")
+        # ...and none of them prints B's phrasing, which is the whole reason a
+        # fourth anchor exists. If one ever does it becomes a "both"-style
+        # agreement row and the warrant gets stronger -- but it must be noticed.
+        if "roll vs." in byname[name]["notes"].lower():
+            raise ValueError(
+                f"{name} now prints 'roll vs.'; it is no longer a spelling-D row "
+                f"and SELF_CONTROL_REQUIRED must be re-read"
+            )
+
+    # Every row naming a mechanic this book has its own name for. None is a
+    # self-control roll, and three of them were invisible to every sweep this
+    # repo has run, because a Fright Check is a roll the book NAMES rather than
+    # describes -- no filter keyed on the word "roll" can see it.
+    for name, phrase in NAMED_MECHANIC_REFUSALS.items():
+        row = byname.get(name) or {}
+        if not row:
+            raise ValueError(f"{name} is no longer printed; re-read the refusal set")
+        if phrase not in row["notes"]:
+            raise ValueError(f"{name} no longer prints {phrase!r}; re-read the refusal")
+        if "selfControl" in row:
+            raise ValueError(
+                f"{name}: {phrase!r} was read as a self-control roll. It is a "
+                f"mechanic the book names separately, or a modifier to a roll "
+                f"that already exists"
+            )
+
 
 def verify_skills(skill_entries):
     """Fail the extract if the category banners stop being what they were read as.
@@ -757,7 +914,7 @@ def main():
         byn, 1119, 1569, "Disadvantage", cost_line_dis, parse_dis_cost,
         DIS_NAME_OVERRIDES,
     )
-    verify(dis_entries)
+    verify(dis_entries, adv_entries)
     skill_entries, skill_spans, skipped_skills = extract_skills(byn)
     verify_skills(skill_entries)
     thrust_swing_rows = extract_thrust_swing()
