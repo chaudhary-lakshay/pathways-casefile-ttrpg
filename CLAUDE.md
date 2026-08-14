@@ -12,9 +12,15 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6bp, then 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg
-and 6bf.** 6bp is the one to read first: its design review came back **no-ship
-on both builds it proposed**, so the slice that shipped is a third the size of
+**Where to start next: 6bq, then 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh,
+6bg and 6bf.** 6bq is the one to read first: it is the THIRD slice running
+whose design review ran before any code, and the second to come back no-ship —
+one finding caught a sentence in my own decomposition whose destructive reading
+would have deleted a book rule for every character who lacks the trait, and the
+other caught a value that would have thrown on the Roll button, which an
+existing test had been pinning since 6k without anyone noticing what it proved.
+6bp is next: its design review came back **no-ship on both builds it
+proposed**, so the slice that shipped is a third the size of
 the one that was planned — and it names its own successor with evidence. It
 also declines to record a defect in 6bo that would have been real under a
 different reading, and refuses a reviewer's API for being an abstraction with
@@ -112,7 +118,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1002 Kotlin** (JUnit 5 — 907 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
+| Tests | **1007 Kotlin** (JUnit 5 — 912 `core:rules`, 75 `app`, 20 `core:model`) + **258 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -5807,6 +5813,106 @@ clock on any screenshot that surprises you.**
 "Reduce all darkness penalties by 2" and the ranged dialog has carried a
 darkness row since 6k — an applicable-looking clause in a trait cell, one
 `UNAPPLIED` entry away from the same shape as this slice.
+
+## 6bq. Night Eyes, and a relief that must land after the bounds check
+
+`DarknessCause` (core/rules) applies Ch. 3's Night Eyes to the one darkness
+penalty this app prices. 6bp named it with evidence and it held: *"Reduce all
+darkness penalties by 2; in dim gaslight or moonlight suffer no penalty at
+all."* — extracted since M0, reaching nothing, while ch. 5's "Darkness or heavy
+fog" row has been a chip on the attack dialog since 6k. **Night Watchman
+carries the trait and Guns**, so its owner could always reach the row.
+
+- **One row, two causes, and the trait covers one.** "Darkness **or heavy
+  fog**" charges both with one number; the trait says "all **darkness**
+  penalties" and names only light levels. Eyes that see in the dark do not see
+  through fog. Extending it would author a rule from a resemblance — the
+  reasoning 6aj refused when ch. 4 printed none of Appendix A's words.
+- **The second clause cannot be derived from the first**, which is what makes
+  it a state rather than a special case: subtracting 2 from the gentlest
+  printed severity gives -1 and the book says **0**. Specific beats general.
+- **Three states because the source produces three outcomes** — fog untouched,
+  darkness relieved by 2, dim light cancelled — which is the only warrant for
+  drawing a line the combat table does not (6bn's lesson, applied the other
+  way: there one chip, here three, because the source distinguishes three).
+- **A DECLARATION, so no clock and no second sheet.** The fifth rule running to
+  become buildable that way (6bg, 6bl, 6bm, 6bn), against a handover that
+  ranked a round tracker first (6bd).
+- **It defaults to Darkness rather than to nothing.** The trait's general
+  clause is unconditional and the row's own first-named cause is darkness; the
+  two departures are what the GM declares. Starting unset would take the trait
+  away from its owner unless they thought to say what the weather was — the
+  printed-and-not-applied defect in miniature, reintroduced by the fix for it.
+- **The row is found by the RANGE it prints, not by its name**, so a
+  re-extraction that reworded the condition cannot silently withdraw the
+  chips. The idiom `AIM_ROWS` already uses one table over.
+- **Appendix A's "Adverse conditions (dark, noisy, dangerous) -4" is
+  deliberately not touched.** It prices three causes as one, so taking 2 off
+  would claim the whole -4 was the dark. 6ae already withholds that row
+  entirely on a ranged shot, where chapter 5 prices the same circumstance
+  specifically.
+
+### The design review returned no-ship again, and the second finding was sharp
+
+Run on the decomposition before a line was written — 6bf's precedent, third
+slice running. Both findings were accepted; neither was refusable.
+
+- **HIGH: gating the darkness chip on the trait would delete the base rule for
+  everyone else.** My own decomposition said "the chip row is offered ONLY to
+  a character who owns the trait" — I meant the cause control, and the harmful
+  reading is the one a reviewer sees. An ordinary shooter would have been
+  unable to take a penalty the book charges them. **Write the sentence so the
+  destructive reading is impossible**, not so the intended one is available.
+- **HIGH: the relieved value would fail the row's own `require` and throw on
+  Roll.** `gmValue` is validated against the printed -9..-3, and `RangedTest`
+  has pinned since 6k that **-1 is refused there** as gentler than the book's
+  best end. So relieving through that door crashes on the button — the lock-up
+  6bk's picker was fixed for, and "a chip that throws is not a choice" (6t).
+  The GM's severity stays raw and inside the printed range; the trait moves the
+  result afterwards. That existing test is now load-bearing evidence for the
+  separation rather than a rule about validation.
+
+**The relieved row says which trait relieved it.** The chip reads "-3 to -9"
+and the contribution would read -1 with nothing joining them — the breakdown
+that does not add up, which 6ag added a 300-case test for and 6ai repeated. The
+description is authored in rules, not by the screen (6bp's `knockdownLine`, one
+slice on).
+
+**1007 Kotlin** (912 core:rules, 75 app, 20 core:model) and 258 Python, green.
+RED was a compile failure on the new API; then fog and dim light were neutered
+together into the general clause, which failed **2** tests, and were restored.
+The prohibition sweep was re-run over this slice's own ranges (6ba) and forbids
+nothing about reducing a darkness penalty. Codex reviewed the diff and returned
+clean.
+
+**One test failed on my own arithmetic**, which is the count-in-prose habit
+(6as) turned on an assertion: I wrote that a reduction of 3 against -3 leaves
+-1. It cancels. The floor test now uses a severity the relief cannot reach.
+
+Device-verified on the physical tablet, **Night Watchman**, all three states on
+one screen, plus the regression the review named:
+
+- Selecting the darkness row reveals **"What is it?"** with three chips,
+  **Darkness** pre-selected, and the trait's own cell quoted underneath.
+- **Darkness** reads **"Range and cover: -1"** — the -3 with 2 off.
+- **Heavy fog** reads **"Range and cover: -3"** — the book's full penalty.
+- **Dim gaslight or moonlight** reads **"Range and cover: no modifier"**, and
+  rolling gave **"3d6: 12 vs 10"** against Intimidation 10: the penalty gone
+  from the dice, not merely from the summary.
+- **Apothecary**, who has no Night Eyes, still gets the darkness row and gets
+  **no "What is it?" row at all** — the base rule intact for everyone else.
+
+**Two instrument notes, both already recorded and both re-earned.** A dialog's
+uiautomator bounds do not take the activity window's scale (6ae), so three taps
+in a row landed on the wrong control until I switched to reading screenshot
+pixels; and every `adb` command naming a device path needs `MSYS_NO_PATHCONV=1`
+(6bp), which was used throughout this time.
+
+**The next candidate, named with evidence and not taken:** `Iron Jaw` (+2) and
+`Glass Jaw` (-2) both scope themselves to "the head", and the hit-location
+table prints Skull, Face and Neck each with a knockdown roll — but no attribute
+to roll it against, which is exactly what 6bp's review blocked. That one needs
+the book to name an attribute, not another slice.
 
 ---
 
