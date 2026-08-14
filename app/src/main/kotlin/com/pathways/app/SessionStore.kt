@@ -61,10 +61,26 @@ data class SavedEdits(
      * on all 23 premades -- none of them prints an appearance level at all.
      */
     val appearance: String? = null,
+    /**
+     * Traits bought in play, by NAME (Ch. 3's advantage and disadvantage
+     * lists).
+     *
+     * The name alone, for the reason [SavedSkill] stores one: the cost and
+     * whether it is an advantage belong to the book, and a save carrying its
+     * own copy could contradict the catalogue after a content fix. Resolved
+     * through [com.pathways.rules.PurchasableTraits] on the way back in.
+     *
+     * A name the book no longer prints is not billed and not applied, and is
+     * NOT deleted from the file -- the book may print it again after a content
+     * fix, which is exactly how a saved skill is treated (6as). That is the
+     * opposite call to the three SPI skills, which are barred permanently and
+     * so are dropped on load.
+     */
+    val traits: List<String> = emptyList(),
 ) {
     val isEmpty: Boolean
         get() = st == null && dx == null && iq == null && ht == null &&
-            skills.isEmpty() && wealth == null && appearance == null
+            skills.isEmpty() && wealth == null && appearance == null && traits.isEmpty()
 }
 
 /**

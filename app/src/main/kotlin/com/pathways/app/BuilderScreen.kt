@@ -30,6 +30,7 @@ import com.pathways.model.MAX_ATTRIBUTE
 import com.pathways.rules.AttributeCosts
 import com.pathways.rules.Derive
 import com.pathways.rules.PremadeSheet
+import com.pathways.rules.PurchasableTraits
 import com.pathways.rules.SkillLadder
 import com.pathways.rules.Study
 import com.pathways.rules.StudyMethod
@@ -67,6 +68,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     var adding by remember { mutableStateOf(false) }
     var picking by remember { mutableStateOf(false) }
     var pickingLooks by remember { mutableStateOf(false) }
+    var pickingTrait by remember { mutableStateOf(false) }
     // Which road the study lines are priced for. The book prints two
     // and they differ by more than money -- Very Hard self-study is
     // "Not possible" at any price.
@@ -122,6 +124,15 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     level = Appearance.levelOf(character.traits),
                     printed = Appearance.levelOf(start.traits),
                     onPick = { pickingLooks = true },
+                )
+                HorizontalDivider()
+            }
+
+            item {
+                TraitsRow(
+                    bought = session.edits.traits,
+                    onAdd = { pickingTrait = true },
+                    onRemove = { session.sellTrait(it) },
                 )
                 HorizontalDivider()
             }
@@ -199,6 +210,15 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                 picking = false
             },
             onDismiss = { picking = false },
+        )
+    }
+
+    if (pickingTrait) {
+        TraitPicker(
+            held = character.traits,
+            bought = session.edits.traits,
+            onBuy = { session.buyTrait(it.name); pickingTrait = false },
+            onDismiss = { pickingTrait = false },
         )
     }
 
@@ -595,7 +615,7 @@ private fun WealthLevel.pointsLabel(): String = points.pointsLabel()
  * Attractive is one point and the book prints "+1 pt", so a flat "pts" made
  * the app quote the table wrongly (found on device).
  */
-private fun Int.pointsLabel(): String =
+internal fun Int.pointsLabel(): String =
     "${signed()} " + if (this == 1 || this == -1) "pt" else "pts"
 
 /** Zero is unsigned: "+0 pts" and "reaction +0" read as typos, not as nothing. */

@@ -1,0 +1,163 @@
+package com.pathways.app
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.pathways.model.Trait
+import com.pathways.rules.PurchasableTrait
+import com.pathways.rules.PurchasableTraits
+
+/**
+ * Traits bought in play, with the way back beside each one.
+ *
+ * The published sheet's own traits are NOT listed here: they are read-only and
+ * already shown on the sheet screen, and giving one back needs a suppression
+ * the save has no shape for. This row is what the player added.
+ */
+@Composable
+internal fun TraitsRow(
+    bought: List<String>,
+    onAdd: () -> Unit,
+    onRemove: (String) -> Unit,
+) {
+    Column {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                "Traits",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f),
+            )
+            TextButton(onClick = onAdd) { Text("Add a trait") }
+        }
+        if (bought.isEmpty()) {
+            Text(
+                "None bought in play — the sheet's own are on the sheet screen.",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
+        bought.forEach { name ->
+            val row = PurchasableTraits.named(name)
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(name, style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        // A saved name the book no longer prints is kept in
+                        // the file and billed by nothing, so the row says so
+                        // rather than showing a price it cannot justify.
+                        row?.let {
+                            (if (it.advantage) it.cost else -it.cost).pointsLabel()
+                        } ?: "The book no longer prints this trait, so it costs nothing.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                TextButton(onClick = { onRemove(name) }) { Text("Give back") }
+            }
+        }
+    }
+}
+
+/**
+ * Ch. 3's advantage and disadvantage lists, priced.
+ *
+ * Advantages and drawbacks are two headed sections rather than one list: they
+ * move the budget in opposite directions, and a player scrolling one list of
+ * signed numbers has to read every price to tell which is which.
+ *
+ * The rows this app cannot price are named at the bottom with the book's own
+ * reason. Silently omitting rows a player can read in the book is the quiet
+ * gap this project records instead.
+ */
+@Composable
+internal fun TraitPicker(
+    held: List<Trait>,
+    bought: List<String>,
+    onBuy: (PurchasableTrait) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val offered = remember { PurchasableTraits.offered() }
+    val withheld = remember { PurchasableTraits.unoffered() }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        title = { Text("Buy a trait") },
+        text = {
+            LazyColumn {
+                listOf(true to "Advantages", false to "Drawbacks").forEach { (advantage, heading) ->
+                    item {
+                        Text(
+                            heading,
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        Text(
+                            if (advantage) "Cost points." else "Refund points, up to 40.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        HorizontalDivider()
+                    }
+                    items(offered.filter { it.advantage == advantage }) { row ->
+                        // Refused rather than offered and then rejected: a
+                        // second copy bills its points and changes nothing,
+                        // and a chip that cannot be taken is not a choice.
+                        val already = !PurchasableTraits.canBuy(row, held) || row.name in bought
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable(enabled = !already) { onBuy(row) }
+                                .padding(vertical = 8.dp),
+                        ) {
+                            Text(
+                                row.name +
+                                    if (already) " — already held" else "",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = if (already) {
+                                    MaterialTheme.colorScheme.outline
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                },
+                            )
+                            Text(
+                                (if (row.advantage) row.cost else -row.cost).pointsLabel(),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            Text(row.notes, style = MaterialTheme.typography.bodySmall)
+                        }
+                        HorizontalDivider()
+                    }
+                }
+                items(withheld) { group ->
+                    Text(
+                        "Not offered — ${group.reason}",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    Text(
+                        group.names.joinToString(", "),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        },
+    )
+}

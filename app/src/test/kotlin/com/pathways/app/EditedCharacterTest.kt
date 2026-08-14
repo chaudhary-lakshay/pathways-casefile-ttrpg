@@ -10,6 +10,7 @@ import com.pathways.rules.Appearance
 import com.pathways.rules.Derive
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.Premades
+import com.pathways.rules.TraitEffects
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -426,5 +427,62 @@ class EditedCharacterTest {
     fun `a mortal is granted nothing`() {
         val levels = Derive.of(researcher.toCharacter()).skillLevels
         assertTrue(grantedSkills(researcher, SavedEdits(), levels).isEmpty())
+    }
+
+    // ---- traits bought in play -------------------------------------------
+
+    /**
+     * **The trait this feature exists for, reaching a roll.** No premade
+     * carries Ether Body Damage and no potion grants a trait, so buying it is
+     * the only route -- and the point of the route is that the -1 arrives.
+     */
+    @Test
+    fun `a bought trait is composed onto the character and bills its points`() {
+        val edited = SavedEdits(traits = listOf(TraitEffects.ETHER_BODY_DAMAGE))
+            .applyTo(mortal)
+        assertTrue(edited.traits.any { it.name == TraitEffects.ETHER_BODY_DAMAGE })
+        assertEquals(TraitKind.DISADVANTAGE, edited.traits.first().kind)
+        assertEquals(-1, TraitEffects.spiRollBonus(edited.traits))
+    }
+
+    /**
+     * **A save stores the NAME, so the price is the book's every load.** The
+     * rule a bought skill's difficulty already follows: a file carrying its
+     * own copy could contradict the catalogue after a content fix.
+     */
+    @Test
+    fun `a name the book no longer prints is skipped, not billed`() {
+        val edited = SavedEdits(traits = listOf("Gumption")).applyTo(mortal)
+        assertEquals(mortal.traits, edited.traits)
+    }
+
+    /**
+     * **A duplicate charges points and changes nothing**, so the composition
+     * refuses it as well as the picker. Both ask the same rules predicate --
+     * two places deciding this is the drift this project keeps finding.
+     */
+    @Test
+    fun `buying a trait the character already has adds nothing`() {
+        val withFit = mortal.copy(traits = listOf(Trait("Fit", 5, TraitKind.ADVANTAGE)))
+        val edited = SavedEdits(traits = listOf("Fit")).applyTo(withFit)
+        assertEquals(1, edited.traits.count { it.name == "Fit" })
+        // ...and the same name twice in one save is one trait.
+        assertEquals(
+            1,
+            SavedEdits(traits = listOf("Fit", "Fit")).applyTo(mortal)
+                .traits.count { it.name == "Fit" },
+        )
+    }
+
+    /**
+     * **Economic status stays [Wealth]'s.** The picker excludes it, and so
+     * does the composition, because a save can be hand-edited and a second
+     * status would bill twice -- which was a live defect one slice ago.
+     */
+    @Test
+    fun `a wealth row cannot be bought as an ordinary trait`() {
+        val edited = SavedEdits(traits = listOf("Wealth: Poor")).applyTo(mortal)
+        assertNull(Wealth.levelOf(edited.traits))
+        assertTrue(edited.traits.none { it.name.startsWith(Wealth.TRAIT_PREFIX) })
     }
 }

@@ -7,6 +7,7 @@ import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.rules.Appearance
 import com.pathways.rules.PremadeSheet
+import com.pathways.rules.PurchasableTraits
 import com.pathways.rules.SkillLadder
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.AppearanceLevel
@@ -49,7 +50,35 @@ fun SavedEdits.applyTo(base: Character): Character {
  */
 private fun SavedEdits.chosenTraits(printed: List<Trait>): List<Trait> {
     val withWealth = wealthLevel()?.let { Wealth.applied(printed, it) } ?: printed
-    return appearanceLevel()?.let { Appearance.applied(withWealth, it) } ?: withWealth
+    val withLooks = appearanceLevel()?.let { Appearance.applied(withWealth, it) } ?: withWealth
+    return withLooks + boughtTraits(withLooks)
+}
+
+/**
+ * The traits bought in play, resolved against the book.
+ *
+ * A save stores a NAME, so the cost and kind are re-read every load exactly as
+ * a bought skill's difficulty is: a save file must never be able to contradict
+ * the catalogue after a content fix. A name the book no longer prints resolves
+ * to null and is skipped -- not billed, not applied, and not deleted from the
+ * file, because the book may print it again (6as).
+ *
+ * Duplicates are dropped here as well as refused at the picker, and against
+ * the traits ALREADY composed rather than the printed sheet alone: a chosen
+ * wealth level or appearance row is in that list by now, and a second copy of
+ * something the character has would charge its points and change nothing,
+ * since [com.pathways.rules.TraitEffects] reads one canonical match. Two
+ * places deciding this is the drift six slices of this project each produced
+ * once, so both ask [PurchasableTraits.canBuy].
+ */
+private fun SavedEdits.boughtTraits(held: List<Trait>): List<Trait> {
+    val chosen = mutableListOf<Trait>()
+    for (name in traits) {
+        val row = PurchasableTraits.named(name) ?: continue
+        if (!PurchasableTraits.canBuy(row, held + chosen)) continue
+        chosen += row.toTrait()
+    }
+    return chosen
 }
 
 /**

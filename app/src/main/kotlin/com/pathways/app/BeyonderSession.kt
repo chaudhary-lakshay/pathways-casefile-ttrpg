@@ -113,6 +113,34 @@ class BeyonderSession(
     }
 
     /**
+     * Buy the trait called [name] (Ch. 3's advantage and disadvantage lists).
+     *
+     * Nothing is stored but the name -- see [SavedEdits.traits]. Buying one
+     * already saved is a no-op rather than a second entry: a double tap on a
+     * list is not a rules violation, the same call [buySkill] makes.
+     */
+    fun buyTrait(name: String) {
+        if (name in edits.traits) return
+        edits = edits.copy(traits = edits.traits + name)
+        persist()
+    }
+
+    /**
+     * Give back a trait bought in play.
+     *
+     * **A choice needs a way back** -- a setter that is tested and unreachable
+     * from the screen is a defect a review already caught here once (6u). Only
+     * a BOUGHT trait can go: removing one the sheet printed is a different
+     * feature needing a suppression the save has no shape for, and the
+     * published sheet is read-only by design.
+     */
+    fun sellTrait(name: String) {
+        if (name !in edits.traits) return
+        edits = edits.copy(traits = edits.traits - name)
+        persist()
+    }
+
+    /**
      * Buy [name] at one point, the cheapest a skill can be owned at.
      *
      * A skill already bought is left exactly as it is rather than reset: a
