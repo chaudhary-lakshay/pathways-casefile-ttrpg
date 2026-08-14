@@ -26,6 +26,48 @@ data class TraitNote(val trait: String, val printed: String, val reason: String)
 data class MajorWoundHt(val bonus: Int, val line: String?)
 
 /**
+ * One clause of one trait that moves a Fright Check (Ch. 5, p. 43).
+ *
+ * [trait] is the catalogue row and [shown] the sheet's own spelling, which
+ * differ for an instance of a placeholder row -- "Phobia (specify)" against
+ * "Phobia (Cities)". A screen prints [shown], because which fear a character
+ * has is content the GM needs; the row is what the number was read from.
+ *
+ * [conditional] is the whole of the interface: the book attaches a
+ * circumstance to four of the five rows, this app holds one sheet and no
+ * scene, so those are the GM's to declare and only the fifth may be counted
+ * unasked.
+ */
+data class FrightClause(
+    val trait: String,
+    val shown: String,
+    val printed: String,
+    val value: Int,
+    val conditional: Boolean,
+) {
+    /**
+     * What a declaration names.
+     *
+     * Trait AND clause, because one cell prints two circumstances ("Fright
+     * Check at -2 on direct exposure; -1 in consecrated buildings") and a key
+     * that could not tell them apart would let one declaration move both --
+     * the collision `BoonModifier.key` was widened for (6r).
+     */
+    val key: String get() = "$shown / $printed"
+}
+
+/**
+ * What a character's traits do to a Fright Check: the number, and the sentence
+ * naming every clause that produced it.
+ *
+ * One call answers both, because a screen that computes the number from one
+ * expression and prints the breakdown from another is how these stopped
+ * reconciling five times over (6ag, 6ai, 6be, 6bp, 6bs). [line] is null
+ * exactly when nothing applied.
+ */
+data class FrightBonus(val total: Int, val line: String?)
+
+/**
  * Ch. 3's advantages, where their printed effects reach a roll.
  *
  * The 198-row trait catalogue has had no production reader since M0. The
@@ -650,6 +692,95 @@ object TraitEffects {
         }
     }
 
+    // ---- the five rows that modify a Fright Check --------------------------
+
+    /**
+     * Every clause the book prints against a Fright Check, before a character
+     * is considered.
+     *
+     * The numbers live here rather than in the JSON, the split the maneuver
+     * table's +4/-4 (6i) and the orthodox -2 (6z) take; the sentence each was
+     * read from is the clause itself, and a test pins every one against
+     * [ContentLoader].
+     *
+     * **Four of the five name a circumstance and one does not**, which is the
+     * only structural fact a screen needs: Fearlessness is what the character
+     * always is, and the other four are what the scene happens to be.
+     */
+    private val FRIGHT_CLAUSES: List<FrightClause> = listOf(
+        frightClause("Fearlessness", "+1 per level to Fright Checks", 1, conditional = false),
+        frightClause(
+            "Faithful Grounding",
+            "Fright Checks in church buildings, shrines, or during prayer are at +3",
+            3,
+        ),
+        frightClause("Chronophobia (Temporal)", "immediate Fright Check at -3", -3),
+        frightClause("Phobia (specify)", "Fright Check at -2 when exposed", -2),
+        // ONE cell, TWO circumstances, and both are offered. A cathedral
+        // holding a relic is both at once; the book prints no exclusion, and
+        // two consecutive sentences of one cell were already read as adding
+        // (6aa's Precious altar beside its sentient offering).
+        frightClause("Phobia: Sacred Symbols", "Fright Check at -2 on direct exposure", -2),
+        frightClause("Phobia: Sacred Symbols", "-1 in consecrated buildings", -1),
+    )
+
+    /** The printed rows, for the pin tests. [shown] is the row's own name. */
+    fun frightClauseRows(): List<FrightClause> = FRIGHT_CLAUSES
+
+    /** The traits whose cell modifies a Fright Check, for the guard tests. */
+    fun frightClauseNames(): Set<String> = FRIGHT_CLAUSES.map { it.trait }.toSet()
+
+    /**
+     * The clauses [traits] bring to a Fright Check, under the sheet's own
+     * spellings.
+     *
+     * Authored here rather than assembled by the screen: two copies of one
+     * decision is what this file records five times over, and the dialog was
+     * not even being handed the traits until this slice (Codex, on the
+     * design).
+     */
+    fun frightClauses(traits: List<Trait>): List<FrightClause> = traits.flatMap { owned ->
+        val bare = catalogueName(owned.name)
+        val levels = levelOf(traits, bare) ?: 1
+        FRIGHT_CLAUSES
+            .filter { it.trait.equals(bare, ignoreCase = true) }
+            .map { row ->
+                // Only Fearlessness prints "per level", and it prints no
+                // ceiling of its own -- unlike Charisma and Outdoorsman, whose
+                // cells name one, so a general cap would invent one here.
+                val value = if (row.conditional) row.value else row.value * levels
+                row.copy(shown = displayName(owned.name), value = value)
+            }
+    }
+
+    /**
+     * What [clauses] add to a Fright Check once the GM has [declared] which
+     * circumstances hold, and the sentence saying so.
+     *
+     * An unconditional clause counts whether or not it was declared: the book
+     * attaches no circumstance to it, so withdrawing it because a caller
+     * forgot to pass it would silently take away a bonus the character always
+     * has. Declared clauses SUM -- the book prints no composition rule, and
+     * the two sentences of Sacred Symbols' cell name two circumstances that
+     * can hold at once.
+     */
+    fun frightBonus(clauses: List<FrightClause>, declared: Set<String>): FrightBonus {
+        val applied = clauses.filter { !it.conditional || it.key in declared }
+        if (applied.isEmpty()) return FrightBonus(0, null)
+        val parts = applied.joinToString(", ") {
+            "${it.shown} ${if (it.value > 0) "+" else ""}${it.value}"
+        }
+        return FrightBonus(applied.sumOf { it.value }, parts)
+    }
+
+    /** A row of [FRIGHT_CLAUSES]: [shown] is filled in per character. */
+    private fun frightClause(
+        trait: String,
+        printed: String,
+        value: Int,
+        conditional: Boolean = true,
+    ) = FrightClause(trait, trait, printed, value, conditional)
+
     /** The traits whose cell names the skills it lifts, for the coverage test. */
     fun skillBonusNames(): Set<String> = SKILL_BONUSES.keys
 
@@ -671,7 +802,8 @@ object TraitEffects {
      */
     fun known(): Set<String> =
         UNAPPLIED.keys + PARTLY_APPLIED.keys + SKILL_BONUSES.keys +
-            CATEGORY_BONUSES.keys + setOf(ALERTNESS, FIT, COMBAT_REFLEXES)
+            CATEGORY_BONUSES.keys + frightClauseNames() +
+            setOf(ALERTNESS, FIT, COMBAT_REFLEXES)
 
     /** The traits reported whole, for the disjointness test. */
     fun unappliedNames(): Set<String> = UNAPPLIED.keys
@@ -734,6 +866,22 @@ object TraitEffects {
         // its cell prints beside the one [SKILL_BONUSES] applies. A reviewer
         // caught two of these missing entirely -- worse than an untouched
         // trait, because the sheet then shows the cell as understood.
+        // The two Fright Check rows that print a rule beside their modifier.
+        // Phobia's second half is a declared ALL-ROLLS state, which this app
+        // models for exactly one thing -- shock, through an enum tested per
+        // roll class (6bo) -- and a second is its own slice. Fearlessness's
+        // needs a contest between two characters' levels, and this app holds
+        // one sheet (the refusal Feint has carried since 6o).
+        "Phobia (specify)" to listOf(
+            "-1 to all rolls while the phobic stimulus is present and unavoidable" to
+                "this app models one declared all-rolls state (shock) and has no " +
+                "control for a second yet",
+        ),
+        "Fearlessness" to listOf(
+            "immunity to intimidation from beings with fewer levels of Fearlessness" to
+                "that is a contest between two characters' levels, and this app " +
+                "holds one sheet",
+        ),
         "Flexibility" to listOf(
             "ignore up to -3 close-quarters penalties" to CLOSE_QUARTERS_UNPRINTED,
         ),
@@ -840,21 +988,6 @@ object TraitEffects {
      * finding). See [knockdownBonus] for why these rows do not join the one
      * knockdown roll the app does make.
      */
-    /**
-     * Why a trait's Fright Check modifier reaches nothing YET, said once.
-     *
-     * **A gap stated as a gap.** [FrightCheck] rolls 3d6 against Will plus a
-     * modifier the GM supplies, so this app does make the roll these five rows
-     * adjust — writing "this app models no Fright Check" would be exactly the
-     * fresh excuse 6bo caught one commit from shipping. What is missing is the
-     * join, and four of the five are conditional anyway (in a church, on
-     * exposure to the phobic stimulus), so the slice that builds it needs the
-     * declaration control the conditional social rows are waiting on too.
-     */
-    private const val FRIGHT_MODIFIER_UNJOINED =
-        "this app rolls a Fright Check against Will plus the GM's own modifier, " +
-            "and a trait's modifier is not added to it yet"
-
     private const val KNOCKDOWN_UNREACHED =
         "the book's knockdown rolls for a hit location print no attribute to " +
             "roll against, so this app shows those cells rather than rolling them"
@@ -914,11 +1047,13 @@ object TraitEffects {
             "its \"roll 9 or less\" is how often the duty comes up rather than " +
             "a roll this character makes, the same refusal Phobia's Fright " +
             "Check line carries in SelfControl (6am)",
-        "Fearlessness" to FRIGHT_MODIFIER_UNJOINED,
-        "Faithful Grounding" to FRIGHT_MODIFIER_UNJOINED,
-        "Chronophobia (Temporal)" to FRIGHT_MODIFIER_UNJOINED,
-        "Phobia (specify)" to FRIGHT_MODIFIER_UNJOINED,
-        "Phobia: Sacred Symbols" to FRIGHT_MODIFIER_UNJOINED,
+        // The five rows that modify a Fright Check were HERE, and the reason
+        // they carried was a GAP stated as one -- "what is missing is the
+        // join". The join shipped, so the disclaimer went with it: a report of
+        // what is NOT applied expires exactly when the code changes (6ba, and
+        // 6bl found one of these that had outlived its own truth by a slice).
+        // Three of the five are wholly applied now; the other two keep the
+        // sibling clause their cell prints, in [PARTLY_APPLIED].
         // The three social-skill rows whose penalty is CONDITIONAL. The group
         // they name is identifiable now [SOCIAL_SKILLS], so what stops them is
         // the circumstance and nothing else -- and two of the three are

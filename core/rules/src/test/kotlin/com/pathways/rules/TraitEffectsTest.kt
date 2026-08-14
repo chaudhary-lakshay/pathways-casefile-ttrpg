@@ -1182,6 +1182,158 @@ class TraitEffectsTest {
         assertTrue(TraitEffects.reported(resistant).any { "+3 (3 pts)" in it.printed })
     }
 
+    // ---- the five rows that modify a Fright Check --------------------------
+
+    private fun frightOf(vararg names: String) =
+        TraitEffects.frightClauses(names.map { Trait(it, 5, TraitKind.ADVANTAGE) })
+
+    /**
+     * **Five catalogue rows modify a roll this app has made since 6c**, and
+     * `FrightCheck.against` has taken a modifier the whole time. What was
+     * missing was the join, which is why the reason those rows carried was a
+     * GAP rather than a refusal.
+     *
+     * Every value is pinned against the copy production reads, so a re-extract
+     * that reworded a cell fails here rather than moving a number in silence.
+     */
+    @Test
+    fun `every fright number is still the one its row prints`() {
+        val byName =
+            (ContentLoader.advantages() + ContentLoader.disadvantages()).associateBy { it.name }
+        for (clause in TraitEffects.frightClauseRows()) {
+            val notes = byName.getValue(clause.trait).notes
+            assertTrue(clause.printed in notes, "${clause.trait}: ${clause.printed}")
+            // The clause names its own number, so the two cannot drift apart.
+            val sign = if (clause.value < 0) "-" else "+"
+            assertTrue(
+                "$sign${kotlin.math.abs(clause.value)}" in clause.printed,
+                "${clause.trait} prints no ${sign}${kotlin.math.abs(clause.value)}",
+            )
+        }
+    }
+
+    /**
+     * **Fearlessness is the only unconditional row**, so it is the only one a
+     * screen may add without asking. The other four name a circumstance the GM
+     * declares -- being in a church, being exposed to the phobic thing -- and
+     * this app holds one sheet and no scene, so it cannot know.
+     */
+    @Test
+    fun `only the row that names no circumstance is unconditional`() {
+        val unconditional = TraitEffects.frightClauseRows()
+            .filter { !it.conditional }
+            .map { it.trait }
+        assertEquals(listOf("Fearlessness"), unconditional)
+    }
+
+    /** "+1 per level to Fright Checks", and the cell prints no ceiling. */
+    @Test
+    fun `fearlessness scales with its level`() {
+        assertEquals(1, frightOf("Fearlessness").single().value)
+        assertEquals(3, TraitEffects.frightClauses(
+            listOf(Trait("Fearlessness 3", 6, TraitKind.ADVANTAGE)),
+        ).single().value)
+        assertNull(TraitEffects.maxLevelsFor("Fearlessness"))
+    }
+
+    /**
+     * **Sacred Symbols prints TWO circumstances and both are offered.** "-2 on
+     * direct exposure" is a relic in view and "-1 in consecrated buildings" is
+     * standing inside one; a cathedral holding a relic is both at once, the
+     * book prints no exclusion, and two consecutive sentences of one cell were
+     * read as adding once already (6aa's Precious altar and its sentient
+     * offering). So they sum to -3 when both are declared.
+     */
+    @Test
+    fun `two circumstances on one cell are two clauses`() {
+        val clauses = frightOf("Phobia: Sacred Symbols")
+        assertEquals(2, clauses.size)
+        assertEquals(listOf(-2, -1), clauses.map { it.value })
+        // Each is separately declarable, so the key has to tell them apart.
+        assertEquals(2, clauses.map { it.key }.toSet().size)
+        assertEquals(
+            -3,
+            TraitEffects.frightBonus(clauses, clauses.map { it.key }.toSet()).total,
+        )
+    }
+
+    /**
+     * The number and the sentence come from one call, because a screen that
+     * computes one and prints the other is how these breakdowns stopped
+     * reconciling (6ag, 6ai, 6be, 6bp, 6bs). The parts must sum to the total
+     * across every combination a GM can declare.
+     */
+    @Test
+    fun `the breakdown always sums to the bonus it explains`() {
+        val clauses = frightOf("Fearlessness", "Faithful Grounding", "Phobia: Sacred Symbols")
+        val keys = clauses.map { it.key }
+        // Every subset of the declarable clauses.
+        for (mask in 0 until (1 shl keys.size)) {
+            val declared = keys.filterIndexed { i, _ -> (mask shr i) and 1 == 1 }.toSet()
+            val bonus = TraitEffects.frightBonus(clauses, declared)
+            val line = bonus.line
+            if (bonus.total == 0 && line == null) continue
+            val summed = Regex("[+−-]\\d+").findAll(line.orEmpty())
+                .sumOf { it.value.replace('−', '-').toInt() }
+            assertEquals(bonus.total, summed, line)
+        }
+    }
+
+    /**
+     * An unconditional clause is counted whether or not it was declared: the
+     * book attaches no circumstance to it, so a screen that forgot to pass it
+     * must not silently withdraw a bonus the character always has.
+     */
+    @Test
+    fun `an unconditional clause needs no declaration`() {
+        val clauses = frightOf("Fearlessness")
+        assertEquals(1, TraitEffects.frightBonus(clauses, emptySet()).total)
+        // ...and a conditional one is worth nothing until it is declared.
+        val phobia = frightOf("Phobia (Cities)")
+        assertEquals(0, TraitEffects.frightBonus(phobia, emptySet()).total)
+        assertEquals(-2, TraitEffects.frightBonus(phobia, setOf(phobia.single().key)).total)
+    }
+
+    /**
+     * **Hunter-Tracker is the only premade that reaches any of this**, through
+     * the placeholder join above -- "Phobia (Cities)" against the catalogue's
+     * "Phobia (specify)". Before that join the trait resolved to no row at
+     * all, so the two halves really are one slice.
+     */
+    @Test
+    fun `the one premade carrying a fright row reaches it`() {
+        val carriers = Premades.all().filter {
+            TraitEffects.frightClauses(it.toCharacter().traits).isNotEmpty()
+        }
+        assertEquals(listOf("Hunter-Tracker"), carriers.map { it.name })
+        val clause = TraitEffects.frightClauses(carriers.single().toCharacter().traits).single()
+        assertEquals("Phobia (specify)", clause.trait)
+        // The screen names the sheet's own spelling, not the placeholder row:
+        // which fear this character has is content the GM needs.
+        assertEquals("Phobia (Cities)", clause.shown)
+        assertEquals(-2, clause.value)
+        assertTrue(clause.conditional)
+    }
+
+    /**
+     * Phobia's "-1 to all rolls" half is REPORTED, not applied. It is a
+     * declared all-rolls state, which this app models for exactly one thing --
+     * shock, through an enum tested per roll class (6bo) -- and a second is its
+     * own slice. Fearlessness's intimidation half needs a contest between two
+     * characters' levels, which this app cannot hold.
+     */
+    @Test
+    fun `the clauses a fright row prints beside its modifier are reported`() {
+        val phobia = TraitEffects.reported(
+            listOf(Trait("Phobia (Cities)", 10, TraitKind.DISADVANTAGE)),
+        )
+        assertTrue(phobia.any { "-1 to all rolls" in it.printed }, phobia.toString())
+        // ...under the sheet's own spelling.
+        assertTrue(phobia.all { it.trait == "Phobia (Cities)" })
+        val fearless = TraitEffects.reported(listOf(advantage("Fearlessness")))
+        assertTrue(fearless.any { "intimidation" in it.printed }, fearless.toString())
+    }
+
     @Test
     fun `a bare social rolls clause reaches no skill`() {
         val loner = listOf(Trait("Loner", 5, TraitKind.DISADVANTAGE))

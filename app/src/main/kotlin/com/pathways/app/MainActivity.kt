@@ -50,6 +50,7 @@ import com.pathways.rules.Divination
 import com.pathways.rules.Concentration
 import com.pathways.rules.ConcentrationOutcome
 import com.pathways.rules.FrightCheck
+import com.pathways.rules.FrightClause
 import com.pathways.rules.RitualMode
 import com.pathways.rules.FrightKind
 import com.pathways.rules.FrightOutcome
@@ -669,7 +670,16 @@ fun SheetScreen(
     }
 
     if (frightening) {
-        FrightDialog(vitals.will, shockOnAttribute) { frightening = false }
+        // The traits, not a number: this dialog was the one roll-building
+        // boundary that discarded them, so five catalogue rows that modify a
+        // Fright Check could not reach the roll they name (Codex, on the
+        // design). [TraitEffects] decides which apply and by how much; the
+        // screen only asks which circumstances hold.
+        FrightDialog(
+            will = vitals.will,
+            clauses = remember(traits) { TraitEffects.frightClauses(traits) },
+            shock = shockOnAttribute,
+        ) { frightening = false }
     }
     if (focusing) {
         ConcentrateDialog(vitals.will, shockOnAttribute) { focusing = false }
@@ -878,11 +888,20 @@ fun SheetScreen(
  * the GM's call, exactly like the acting-quality ranges on the pathway screen.
  */
 @Composable
-private fun FrightDialog(will: Int, shock: Int = 0, onDismiss: () -> Unit) {
+private fun FrightDialog(
+    will: Int,
+    clauses: List<FrightClause> = emptyList(),
+    shock: Int = 0,
+    onDismiss: () -> Unit,
+) {
     var kind by remember { mutableStateOf(FrightKind.FRIGHT) }
     var outcome by remember { mutableStateOf<FrightOutcome?>(null) }
     var picked by remember { mutableStateOf<FrightTrigger?>(null) }
     var modifier by remember { mutableIntStateOf(0) }
+    // Which circumstances the GM says hold. Keyed on the clause, because one
+    // cell prints two ("-2 on direct exposure; -1 in consecrated buildings")
+    // and a key that could not tell them apart would move both at once (6r).
+    var declared by remember(clauses) { mutableStateOf(emptySet<String>()) }
     val triggers = remember { FrightCheck.triggers() }
 
     AlertDialog(
@@ -913,10 +932,46 @@ private fun FrightDialog(will: Int, shock: Int = 0, onDismiss: () -> Unit) {
                         )
                         TextButton(onClick = { modifier += 1 }) { Text("+1") }
                     }
+                    // The character's own traits. Unconditional clauses are
+                    // counted without asking; each conditional one is a chip,
+                    // because whether this character is in a church or facing
+                    // the thing they fear is the GM's to say and this app
+                    // holds no scene.
+                    val conditional = clauses.filter { it.conditional }
+                    if (conditional.isNotEmpty()) {
+                        Text(
+                            "Does any of this hold?",
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        FlowRow {
+                            conditional.forEach { clause ->
+                                TextButton(onClick = {
+                                    declared = if (clause.key in declared) {
+                                        declared - clause.key
+                                    } else {
+                                        declared + clause.key
+                                    }
+                                }) {
+                                    Text(
+                                        "${clause.shown}: ${clause.printed}",
+                                        color = if (clause.key in declared) {
+                                            MaterialTheme.colorScheme.primary
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    }
                     // ONE value, displayed and rolled: computing the caption
                     // from one expression and the roll from another is how
-                    // these numbers stopped reconciling (6ag, 6ai).
-                    val effective = modifier + shock
+                    // these numbers stopped reconciling (6ag, 6ai). The trait
+                    // total comes from rules for the same reason -- a screen
+                    // that summed its own chips would be the second copy.
+                    val fromTraits = TraitEffects.frightBonus(clauses, declared)
+                    val effective = modifier + shock + fromTraits.total
                     Text("3d6 vs ${will + effective}", style = MaterialTheme.typography.bodySmall)
                     if (shock != 0) {
                         Text(
@@ -924,7 +979,21 @@ private fun FrightDialog(will: Int, shock: Int = 0, onDismiss: () -> Unit) {
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
-                    TextButton(onClick = { outcome = FrightCheck.against(will, effective, appDice) }) {
+                    fromTraits.line?.let {
+                        Text("includes $it", style = MaterialTheme.typography.bodySmall)
+                    }
+                    TextButton(
+                        // Guarded rather than relying on the button leaving the
+                        // tree: two taps before a recomposition would otherwise
+                        // roll twice and keep the second, the re-entrancy the
+                        // divination dialog was hardened for (6p).
+                        enabled = outcome == null,
+                        onClick = {
+                            if (outcome == null) {
+                                outcome = FrightCheck.against(will, effective, appDice)
+                            }
+                        },
+                    ) {
                         Text("Roll")
                     }
                 } else if (result == null) {
