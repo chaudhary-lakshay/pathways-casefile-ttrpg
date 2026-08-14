@@ -12,8 +12,20 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6bv, then 6bu, 6bt, 6bs, 6br, 6bq, 6bp, 6bo, 6bn, 6bm,
-6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6bv is the one to read first, and its
+**Where to start next: 6bw, then 6bv, 6bu, 6bt, 6bs, 6br, 6bq, 6bp, 6bo, 6bn,
+6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6bw is the one to read first,
+because it is the first slice to **overturn its immediate predecessor's own
+refusal** — and to be right to. 6bv pinned nine sheet spellings as permanently
+unmatched, giving the reason "the sheet added a qualifier the book never asked
+for, so the only evidence is resemblance". For two of the nine that sentence is
+simply false: the cell ENUMERATES its own variants with their prices, and the
+sheet bought one at exactly the price printed for it. **Correcting a stated
+reason is not repairing a disagreement (4.1)** — and the seven whose reason
+still holds are pinned unmatched in the same commit, which is what makes the
+difference checkable rather than argued. Read it with 6bv, which it corrects,
+and note that its design review had to go through `task`: `review --wait`
+refuses a decomposition outright, because it injects a branch diff and finds
+none. 6bv is next, and its
 lesson is about **deferrals rather than sweeps**: it was handed two named
 successors, ran a census of what the 23 fixtures ACTUALLY carry, and found one
 unbuildable (no premade owns the trait, and no potion can grant one) and the
@@ -162,7 +174,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1045 Kotlin** (JUnit 5 — 950 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
+| Tests | **1055 Kotlin** (JUnit 5 — 960 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -6706,6 +6718,128 @@ nobody declared. The declaration control now exists in one shape
 whether a skill roll's LEDGER can carry one, which the fright dialog sidesteps
 by taking a single Int. That is a real design question and wants its own
 review.
+
+## 6bw. A variant the book prices itself, and the circumstance that charges it
+
+`TraitEffects.variantRow` resolves a sheet spelling the book's own cell
+enumerates, and `socialClauses` / `modifiers(..., declared)` charge the three
+rows that penalise a social skill roll only when a printed circumstance holds.
+6bv named the second as its next slice; a census made it two commits again,
+and this time the prerequisite **overturns one of 6bv's own refusals**.
+
+### The census, for the second slice running
+
+- Callous is on **Barmaid Brawler and Docks Bouncer, both beside
+  Intimidation**; Shyness on **Academic Researcher, beside Public Speaking**;
+  Social Anxiety on nobody. So a flat penalty would charge three of the four
+  carriers for a circumstance nobody declared.
+- **Shyness was unreachable.** Academic Researcher's sheet spells it
+  `"Shyness (Mild)"` and the book prints a bare `"Shyness"` — one of the nine
+  spellings 6bv had just pinned as permanently unmatched.
+
+### Correcting a stated reason is not repairing a disagreement
+
+6bv refused those nine because *"the sheet added a qualifier the book never
+asked for, so the only evidence is resemblance."* **That sentence is false for
+exactly two of them**, and checking a sweep's own excuse is 6bf's lesson:
+
+| Row | What the cell prints | What the sheet bought |
+|---|---|---|
+| Shyness | "Mild (**-5**): -1 in groups of 6+; Severe (**-10**): -2 in groups of 3+" | "Shyness (Mild)", **5 pts** |
+| Social Stigma | "Criminal Record **-5**, Servant Class -5" | "Social Stigma (Criminal)", **5 pts** |
+
+The qualifier is named by the book AND the price agrees — two independent
+agreements, which is the standard 6ad set and which resemblance can never
+meet. The other nine hang off cells that enumerate nothing, and a test pins
+them still unmatched. **"Absent-Minded" against "Absent-Mindedness" is still
+refused**, because there a name is similar and nothing else agrees at all.
+
+- **An enumeration has at least two members, and that is the whole filter.**
+  Allow one and the same pattern reads Stubborn's "Must roll vs. Will-3" as a
+  variant called "Will" priced at 3 — eleven rows print a number in prose that
+  way, four of them self-control targets. A cell offering a CHOICE prints more
+  than one option, and that single condition takes 198 rows down to two.
+- **The qualifier must select exactly one option** (Codex, on the design). The
+  sheet writes "Criminal" where the book writes "Criminal Record", so it is a
+  prefix that names one option, never a substring search over the cell.
+- **The cost is not read at the join.** `catalogueName` takes a name, and
+  threading a cost through it would give one decision a second matcher — the
+  failure this file records six times. It is the WARRANT, proven across all 23
+  fixtures by a test, so the day a sheet pays a price the cell does not print
+  for its variant that test fails rather than this resolving on the name alone.
+
+### The declaration, and where it goes instead
+
+- **The group was identifiable since 6bt; only the circumstance was missing.**
+  Whether warmth is required, how many people are in the room, whether the
+  listener outranks you — none is computable from one sheet. So they are
+  declarations, exactly as the four conditional Fright Check rows are, and the
+  sixth rule running to reach a roll that way rather than through the round
+  tracker 6bd ranked first.
+- **`FrightClause` became `TraitClause`, one type for both.** A fright row and
+  a social row are the same thing said twice — a printed clause, a value, a
+  circumstance — and only the DESTINATION differs: a Fright Check takes a
+  single Int, a skill roll takes a `Modifier` through the ledger. Two data
+  classes carrying identical fields would be the duplicate this file guards
+  against everywhere else.
+- **`modifiers` gained `declared: Set<String> = emptySet()`**, one production
+  call site, and emits `FromTrait` — never `Situational`. A `Cancel` budget is
+  measured by `SourceKind`, and a drawback the character permanently has is not
+  something a GM said about this turn (6al's reading, pinned again).
+- **Shyness's value comes from the SHEET, not the GM.** Its cell prices two
+  severities and a character bought one; only the variant join makes that
+  legible. The circumstance stays the GM's; which clause is on offer is not a
+  choice.
+- **Social Anxiety's two circumstances sum**, with distinct `ModifierId`s —
+  two modifiers sharing one id is a collision the resolver should never be
+  handed, the same reason the declaration key is trait plus clause (6r). It
+  ships although no premade carries it: the list is every conditional social
+  clause the book prints, not a premade census.
+
+### Codex found the defect an empty string makes
+
+A bare `Trait("Shyness", …)` has an empty qualifier, and **`"".startsWith(x)`
+is true for everything** — so it offered Mild AND Severe at once and would let
+a GM declare both, on a value that is not a choice. Refused now, and pinned:
+a row keyed to a variant needs one NAMED. The refusal-over-a-plausible-answer
+call `Detection.attributeFor` makes (6ah).
+
+Its design review, run on the decomposition before any code (**seventh slice
+running**), returned ship-conditional and named the "selects exactly one"
+wording, the guard tests to rewrite rather than delete, and the `FromTrait`
+requirement. Worth recording that `review --wait` **refused the prose outright**
+— it injects a branch diff and found none — so a decomposition review has to
+go through `task`, which section 7 already lists for exactly this.
+
+**1055 Kotlin** (960 `core:rules`, 75 `app`, 20 `core:model`) and 261 Python,
+green. RED-proved by neutering each reading: one-member enumerations allowed
+(2 failures), the declaration gate removed and the category scope widened
+together (2). Restored from a `cp` backup each time.
+
+Device-verified on the physical tablet (1920x1200):
+
+- **Barmaid Brawler**: the sheet prints Callous with its cell and **no "Not
+  applied here" line** — the disclaimer expired with the control that replaced
+  it (6ba). Intimidation opens with **"Does any of this hold? — Callous: -3 to
+  social skill rolls when warmth or empathy is required"**; declaring it rolled
+  **"3d6: 4 vs 8 — base 11, modified to 8"** with `trait:callous: -3` named in
+  the breakdown. **Brawling on the same character offers no such row at all**,
+  which is the category scope on screen.
+- **Academic Researcher**: Public Speaking offers **"Shyness (Mild): Mild (-5):
+  -1 in groups of 6+"** and nothing else — Severe absent, because the sheet
+  bought Mild. That chip is reachable only through the variant join in the
+  first commit, so the two really are one slice.
+
+**The next slice, named with evidence: `Ether Body Damage`, and it needs the
+builder rather than the rules.** It prints "All SPI-based rolls at -1", which
+is a controlling-attribute join `modifiers` already makes for Alertness and
+Fit — but 6bs deferred it and 6bv disqualified it, because **no premade carries
+it and no potion can grant a trait** (6al). It becomes reachable the day traits
+are purchasable, which is also what unblocks the Seven Orthodox Gods Blessings
+(6bc) and the 198-row catalogue generally. That is a real feature with a design
+question inside it — a blessing costs 75 points AND grants attributes, and M3's
+rule is that granted attributes are never written into the billable fields —
+so it wants its own review, not a content pass.
 
 ---
 
