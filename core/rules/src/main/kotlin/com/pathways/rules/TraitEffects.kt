@@ -91,6 +91,19 @@ object TraitEffects {
     /** "+1 to all HT rolls; recover FP at twice the normal rate." */
     const val FIT_BONUS = 1
 
+    /** Ch. 3's disadvantage that prints Fit's sentence with the sign flipped. */
+    const val UNFIT = "Unfit"
+
+    /**
+     * "-1 to all HT rolls; recover FP at half normal rate."
+     *
+     * Stored as a MAGNITUDE, like every other number here, and negated where
+     * it is applied. [Trait] carries costs the same way, with [TraitKind]
+     * giving the direction -- the convention `Wealth.traitFor` is the one
+     * place that meets the other (6u).
+     */
+    const val UNFIT_PENALTY = 1
+
     /** "+1 to all active defenses, +6 to recover from stun, never freeze." */
     const val COMBAT_REFLEXES_BONUS = 1
 
@@ -117,7 +130,13 @@ object TraitEffects {
      * reached one and not the other is exactly the gap this map was made to
      * close.
      */
-    private val HT_ROLL_TRAITS: Map<String, Int> = mapOf(FIT to FIT_BONUS)
+    private val HT_ROLL_TRAITS: Map<String, Int> = mapOf(
+        FIT to FIT_BONUS,
+        UNFIT to -UNFIT_PENALTY,
+    )
+
+    /** The traits whose cell says "to all HT rolls", for the guard tests. */
+    fun htRollNames(): Set<String> = HT_ROLL_TRAITS.keys
 
     /**
      * Every trait whose cell names the skills it lifts, and by how much.
@@ -449,7 +468,11 @@ object TraitEffects {
      * themselves; one who sees nothing assumes it was counted.
      */
     fun reported(traits: List<Trait>): List<TraitNote> {
-        val catalogue = ContentLoader.advantages().associateBy { it.name.lowercase() }
+        // Both catalogues, because Unfit is a DRAWBACK with a clause to
+        // report -- and reading advantages alone made this function blind to
+        // exactly the trait it was widened for, which is the shape 6am found
+        // one list over when a character's disadvantages rendered nowhere.
+        val catalogue = catalogue()
         return traits.flatMap { owned ->
             val bare = catalogueName(owned.name)
             val printed = catalogue[bare.lowercase()]?.notes ?: return@flatMap emptyList()
@@ -587,6 +610,15 @@ object TraitEffects {
                 "sources hand one out, so each is shown beside its source " +
                 "rather than summed",
         ),
+        // The first DISADVANTAGE to reach this map, and its second clause is
+        // word for word the refusal Fit's own mirror clause already carries.
+        // The third sentence its cell prints, "Unfit for sustained physical
+        // exertion.", names no roll at all and is visible on the sheet's
+        // drawback row, which prints a disadvantage whole (6am).
+        UNFIT to listOf(
+            "recover FP at half normal rate" to
+                "this app holds no clock to recover against",
+        ),
     )
 
     /**
@@ -644,11 +676,25 @@ object TraitEffects {
         // `Cancel` budget is measured against -- so mislabelling one as the
         // other would only surface the day some situational rule tried to
         // cancel a circumstance and silently ate a trait instead.
-        source = ModifierSource.FromTrait(trait, advantage = true),
+        //
+        // The advantage flag is read from the CATALOGUE rather than passed
+        // in, because it is a fact about the trait and not about the caller:
+        // Unfit is the first disadvantage here, and a second place deciding
+        // the sign is how these decisions have drifted before (6ag, 6ai,
+        // 6be, 6bp). It picks the `SourceKind` a `Cancel` budget is measured
+        // against, so it is not cosmetic.
+        source = ModifierSource.FromTrait(trait, advantage = isAdvantage(trait)),
         // Retargeted onto the skill being rolled by SkillRoll, exactly as
         // Conditions' and CommonModifiers' rows are.
         target = ModTarget.AllRolls,
         effect = ModEffect.Flat(value),
+        // Layer is the resolution STAGE, not the sign: the enum prints no
+        // DISADVANTAGE member because a drawback resolves where an advantage
+        // does. Only the source's kind separates them.
         layer = Layer.ADVANTAGE,
     )
+
+    /** Whether the book prints [trait] as an advantage rather than a drawback. */
+    private fun isAdvantage(trait: String): Boolean =
+        ContentLoader.advantages().any { it.name.equals(trait, ignoreCase = true) }
 }

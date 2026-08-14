@@ -33,7 +33,11 @@ class TraitEffectsTest {
      */
     @Test
     fun `every applied number is still the one its row prints`() {
-        val byName = ContentLoader.advantages().associateBy { it.name }
+        // Both catalogues: Unfit is a drawback, and a pin that could not see
+        // it would leave the one number this object reads from that list
+        // unguarded.
+        val byName =
+            (ContentLoader.advantages() + ContentLoader.disadvantages()).associateBy { it.name }
         assertTrue(
             byName.getValue(TraitEffects.ALERTNESS).notes
                 .startsWith("+${TraitEffects.ALERTNESS_PER_LEVEL} per level to all Per rolls"),
@@ -48,6 +52,11 @@ class TraitEffectsTest {
             byName.getValue(TraitEffects.COMBAT_REFLEXES).notes
                 .startsWith("+${TraitEffects.COMBAT_REFLEXES_BONUS} to all active defenses"),
             byName.getValue(TraitEffects.COMBAT_REFLEXES).notes,
+        )
+        assertTrue(
+            byName.getValue(TraitEffects.UNFIT).notes
+                .startsWith("-${TraitEffects.UNFIT_PENALTY} to all HT rolls"),
+            byName.getValue(TraitEffects.UNFIT).notes,
         )
         // Alertness is the levelled one; the other two are not.
         assertTrue(byName.getValue(TraitEffects.ALERTNESS).perLevel)
@@ -379,6 +388,42 @@ class TraitEffectsTest {
     }
 
     /**
+     * **Unfit is Fit's sentence with the sign flipped**, and it took the HT
+     * join above to be reachable at all: Occult Scholar is its only carrier
+     * and owns eleven skills, every one IQ-based, so the skill path could
+     * never have shown it.
+     *
+     * It is a DISADVANTAGE, so the modifier carries `advantage = false`.
+     * `ModifierSource.FromTrait` maps that to `SourceKind.DISADVANTAGE`, and
+     * a `ModEffect.Cancel` budget is measured against `SourceKind` -- so
+     * tagging a penalty as an advantage would let a cancel aimed at one bucket
+     * eat the other. Nothing reaches that today, which is the 6al precedent
+     * for pinning it now rather than finding it later.
+     */
+    @Test
+    fun `Unfit lowers an HT roll the way Fit raises it`() {
+        val unfit = listOf(Trait(TraitEffects.UNFIT, 5, TraitKind.DISADVANTAGE))
+        assertEquals(-TraitEffects.UNFIT_PENALTY, TraitEffects.majorWoundHt(unfit).bonus)
+        assertTrue(TraitEffects.majorWoundHt(unfit).line!!.contains(TraitEffects.UNFIT))
+        // The HT-skill path takes it too, so the two rolls cannot disagree.
+        val mod = TraitEffects.modifiers(unfit, ht).single()
+        assertEquals(ModEffect.Flat(-TraitEffects.UNFIT_PENALTY), mod.effect)
+        assertEquals(
+            com.pathways.model.ModifierSource.FromTrait(TraitEffects.UNFIT, advantage = false),
+            mod.source,
+        )
+        assertEquals(com.pathways.model.SourceKind.DISADVANTAGE, mod.source.kind)
+        // ...and it reaches no roll its cell does not name.
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(unfit, per))
+        // Fit's own source is unchanged, which is what makes the flag a real
+        // distinction rather than a field nobody sets differently.
+        assertEquals(
+            com.pathways.model.SourceKind.ADVANTAGE,
+            TraitEffects.modifiers(listOf(advantage(TraitEffects.FIT)), ht).single().source.kind,
+        )
+    }
+
+    /**
      * **The caption names every trait that moved the target.** A screen
      * showing "Roll HT 14" over a sentence crediting one of the two traits
      * that got it there is a breakdown that does not sum -- the invariant 6ag
@@ -602,17 +647,26 @@ class TraitEffectsTest {
      */
     @Test
     fun `no clause of a handled trait goes unmentioned`() {
-        val leadIn = setOf("Your connection to the divine is unusually clear")
-        val applied = TraitEffects.skillBonusNames()
+        // Prose that grants nothing, named one sentence at a time so the
+        // exemption cannot quietly widen into "anything I did not handle".
+        val prose = setOf(
+            "Your connection to the divine is unusually clear",
+            "Unfit for sustained physical exertion",
+        )
+        val catalogue = ContentLoader.advantages() + ContentLoader.disadvantages()
+        val applied = TraitEffects.skillBonusNames() + TraitEffects.htRollNames()
         for (trait in applied) {
-            val cell = ContentLoader.advantages().first { it.name == trait }.notes
+            val cell = catalogue.first { it.name == trait }.notes
             val reported = TraitEffects.reported(listOf(advantage(trait))).map { it.printed }
             val segments = cell.split(';', '.').map { it.trim() }.filter { it.isNotEmpty() }
             for (segment in segments) {
                 val cap = TraitEffects.maxLevelsFor(trait)
-                val handled = segment in leadIn ||
+                val handled = segment in prose ||
                     // the applied clause names the skills it lifts
                     TraitEffects.skillsFor(trait).any { segment.contains(it) } ||
+                    // ...or, for Fit and Unfit, names the roll class instead:
+                    // "to all HT rolls" is the clause htRollBonus applies.
+                    (trait in TraitEffects.htRollNames() && segment.contains("HT rolls")) ||
                     // ...and a levelled row's own ceiling, which is applied
                     // rather than reported, so it is not a dropped clause.
                     (cap != null && segment.contains("$cap levels")) ||
@@ -759,7 +813,8 @@ class TraitEffectsTest {
      */
     @Test
     fun `every reported clause is one the book actually prints`() {
-        val catalogue = ContentLoader.advantages().associateBy { it.name }
+        val catalogue =
+            (ContentLoader.advantages() + ContentLoader.disadvantages()).associateBy { it.name }
         for (trait in listOf("Combat Reflexes", "Fit")) {
             val printed = catalogue.getValue(trait).notes
             for (note in TraitEffects.reported(listOf(advantage(trait)))) {
@@ -807,7 +862,8 @@ class TraitEffectsTest {
      */
     @Test
     fun `every trait named here is one the book prints`() {
-        val printed = ContentLoader.advantages().map { it.name }.toSet()
+        val printed = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .map { it.name }.toSet()
         assertEquals(emptySet<String>(), TraitEffects.known() - printed)
     }
 }
