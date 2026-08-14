@@ -954,6 +954,94 @@ class TraitEffectsTest {
      * Loner is the carried case: Hunter-Tracker owns it, its Will roll is
      * already made by [SelfControl], and this clause is refused beside it.
      */
+    /**
+     * **Two premades glue Clueless's name to the book's effect cell with a
+     * bare space, and resolving only a " - " separator left them unmatched.**
+     * Church Healer and Monastery Scholar print
+     * "Clueless -3 to all social skill rolls; ..." as one string, so the trait
+     * resolved to no catalogue row at all -- no effect line on the sheet, and
+     * no way for this slice's -3 to reach the social skills it names.
+     *
+     * **The join is still exact, which is what keeps it inside 4.1.** The tail
+     * is 130 characters of the book's own sentence reproduced verbatim; what
+     * differs is the sheet's typography -- its line wrapping, U+2212 where the
+     * catalogue writes an ASCII hyphen (the two-kinds-of-minus trap 6u set
+     * first), and a trailing full stop that one of the two carriers drops.
+     * None of those can make it a different trait. That is what separates it
+     * from the resemblances 6am refused, where a NAME was similar and nothing
+     * else agreed.
+     *
+     * Read off the real sheets rather than a copy of their strings, because
+     * the claim is about the fixtures and not about this test's spelling.
+     */
+    @Test
+    fun `a bare-space glued name resolves when the tail is the book's own cell`() {
+        val carriers = Premades.all().filter { sheet ->
+            sheet.disadvantages.any { it.name.startsWith("Clueless") }
+        }
+        assertEquals(2, carriers.size, carriers.map { it.name }.toString())
+        for (sheet in carriers) {
+            val printed = sheet.disadvantages.first { it.name.startsWith("Clueless") }.name
+            assertTrue(printed.length > 40, "not the glued spelling: $printed")
+            assertEquals("Clueless", TraitEffects.catalogueName(printed), printed)
+            // ...and the sheet shows the name alone, because the row prints
+            // the cell underneath anyway (6br's device-only defect).
+            assertEquals("Clueless", TraitEffects.displayName(printed), printed)
+        }
+    }
+
+    /**
+     * **Clueless is unconditional, and that is why it applies where Callous
+     * does not.** Its cell says "-3 to **all** social skill rolls" -- the word
+     * "all" is the book strengthening it, where the other three social rows
+     * name a circumstance. Neither carrier owns a social skill today, so it
+     * reaches a roll once a potion grants one, which is the book's own route
+     * (6aq) and a path the app already rolls (6be).
+     */
+    @Test
+    fun `Clueless lowers a social skill roll by three`() {
+        val printed = Premades.all()
+            .flatMap { it.disadvantages }
+            .first { it.name.startsWith("Clueless") }
+            .name
+        val owned = listOf(Trait(printed, 10, TraitKind.DISADVANTAGE))
+        val diplomacy = SkillKey(
+            "Diplomacy", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.HARD,
+        )
+        assertEquals(ModEffect.Flat(-3), TraitEffects.modifiers(owned, diplomacy).single().effect)
+    }
+
+    /**
+     * **A name the book never prints stays unmatched, glue or no glue.**
+     * Church Healer's "Sense of Duty (Flock) - Must help/protect ..." is a
+     * `(specify)` instantiation and University Librarian's "Blacklisted:
+     * Specific Industry org or church" is another, so the tail does not
+     * reproduce any catalogue cell and the resolution must refuse both. 4.1:
+     * the disagreement is recorded, never guessed away -- and the sheet keeps
+     * every character it printed so the record stays visible.
+     */
+    @Test
+    fun `an instantiated name the book never prints stays unmatched`() {
+        val printed = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .map { it.name }.toSet()
+        val glued = Premades.all()
+            .flatMap { it.advantages + it.disadvantages }
+            .map { it.name }
+            .filter { it.length >= 40 }
+        val unmatched = glued.filter { TraitEffects.catalogueName(it) !in printed }
+        assertEquals(
+            listOf(
+                "Sense of Duty (Flock) - Must help/protect certain groups even at personal risk",
+                "Blacklisted: Specific Industry org or church",
+            ),
+            unmatched,
+            "the set of unmatched sheet spellings changed",
+        )
+        // An unmatched name is shown whole: collapsing it would hide the
+        // disagreement, and there is no verified cell to collapse it to.
+        for (name in unmatched) assertEquals(name, TraitEffects.displayName(name))
+    }
+
     @Test
     fun `a bare social rolls clause reaches no skill`() {
         val loner = listOf(Trait("Loner", 5, TraitKind.DISADVANTAGE))

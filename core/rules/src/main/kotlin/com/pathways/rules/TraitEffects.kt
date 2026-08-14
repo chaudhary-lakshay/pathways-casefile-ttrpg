@@ -69,6 +69,7 @@ object TraitEffects {
     const val CHARISMA = "Charisma"
     const val OUTDOORSMAN = "Outdoorsman"
     const val EMPATHY = "Empathy"
+    const val CLUELESS = "Clueless"
 
     /**
      * The banner Ch. 3 prints sixteen skills under, and the group every
@@ -230,6 +231,11 @@ object TraitEffects {
      */
     private val CATEGORY_BONUSES: Map<String, Pair<Int, String>> = mapOf(
         EMPATHY to (3 to SOCIAL_SKILLS),
+        // "-3 to ALL social skill rolls" -- the book's own "all" is what puts
+        // this row on the unconditional side of the same page's other three.
+        // Two premades carry it, both with the name and the cell glued into one
+        // string, which is why it resolved to no catalogue row until now.
+        CLUELESS to (-3 to SOCIAL_SKILLS),
     )
 
     /** The traits whose cell names a category, for the guard tests. */
@@ -428,12 +434,66 @@ object TraitEffects {
         if (printed.substringAfterLast(' ').toIntOrNull() != null) {
             return printed.substringBeforeLast(' ')
         }
-        val head = printed.substringBefore(SHEET_SEPARATOR)
-        if (head == printed) return printed
-        val row = catalogue()[head.lowercase()] ?: return printed
-        val tail = printed.substringAfter(SHEET_SEPARATOR)
-        return if (squashed(tail) == squashed(row.notes)) head else printed
+        return gluedHead(printed) ?: printed
     }
+
+    /**
+     * The catalogue row whose name AND effect cell a glued sheet spelling
+     * reproduces, or null when no row's does.
+     *
+     * **One resolution for both callers**, because [displayName] used to split
+     * on [SHEET_SEPARATOR] itself: a spelling that resolved for MATCHING while
+     * failing to resolve for DISPLAY would apply the trait and render its whole
+     * effect cell as the name -- 6br's device-only defect, and a review caught
+     * the plan to reintroduce it.
+     *
+     * **Two glue shapes, one standard of proof.** Three sheets write
+     * "Healer - +2 to all rolls to ..." and two write "Clueless -3 to all
+     * social skill rolls; ..." with a bare space and no separator at all. The
+     * tail must reproduce the row's own notes either way, so the sheet is
+     * provably quoting the book rather than resembling it -- which is what
+     * separates this from the spellings 6am refused, where a name was similar
+     * and nothing else agreed. Four sheet spellings still fail this test and
+     * stay unmatched.
+     *
+     * The longest matching name wins, so a row whose name prefixes another's
+     * cannot answer for it.
+     */
+    private fun gluedHead(printed: String): String? {
+        val rows = catalogue()
+        // A name that IS a catalogue row carries no glue, and this is the
+        // common case: skip the scan rather than searching for a prefix of it.
+        if (printed.lowercase() in rows) return null
+        return rows.values
+            .filter { printed.length > it.name.length && printed.startsWith(it.name) }
+            .sortedByDescending { it.name.length }
+            .firstOrNull { row ->
+                val rest = printed.substring(row.name.length)
+                // Exactly the glue, never a greedy trim: a cell that opens
+                // with its own "-3" would lose that character to one.
+                val tail = when {
+                    rest.startsWith(SHEET_SEPARATOR) -> rest.removePrefix(SHEET_SEPARATOR)
+                    rest.startsWith(" ") -> rest.removePrefix(" ")
+                    else -> return@firstOrNull false
+                }
+                quoted(tail) == quoted(row.notes)
+            }
+            ?.name
+    }
+
+    /**
+     * Two quotations of one sentence, compared as sentences.
+     *
+     * Only the sheet's typography is normalised away: its line wrapping, the
+     * U+2212 it writes where the catalogue writes an ASCII hyphen (the
+     * two-kinds-of-minus trap 6u set first, here between two files rather than
+     * inside one table), and a trailing full stop that Church Healer drops and
+     * Monastery Scholar keeps on the same trait. None of the three can make a
+     * quotation a different sentence. Nothing else is touched -- a word that
+     * differs is a row that does not match.
+     */
+    private fun quoted(text: String): String =
+        squashed(text).replace('−', '-').trimEnd('.')
 
     /**
      * What a screen prints as an owned trait's NAME.
@@ -453,11 +513,7 @@ object TraitEffects {
      * never stripped either: "Alertness 2" is what the sheet says and what the
      * GM needs to see.
      */
-    fun displayName(printed: String): String {
-        val head = printed.substringBefore(SHEET_SEPARATOR)
-        if (head == printed) return printed
-        return if (catalogueName(printed) == head) head else printed
-    }
+    fun displayName(printed: String): String = gluedHead(printed) ?: printed
 
     /** How a published sheet separates a trait's name from its effect cell. */
     private const val SHEET_SEPARATOR = " - "
