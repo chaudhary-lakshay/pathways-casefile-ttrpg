@@ -1153,15 +1153,135 @@ class TraitEffectsTest {
         )
         for (name in listOf(
             "Paranoia: Bodies of water",     // the row is a bare "Paranoia"
-            "Shyness (Mild)",                // a bare "Shyness"
-            "Social Stigma (Criminal)",      // a bare "Social Stigma"
             "Secret (Courier network)",
             "Sense of Duty (Patients)",
+            "Blacklisted: Specific Industry org or church",
             "Absent-Minded",                 // "Absent-Mindedness" in the book
             "Pacifism (Cannot Kill)",        // no such row at all
         )) {
             assertEquals(name, TraitEffects.catalogueName(name), name)
         }
+    }
+
+    /**
+     * **A cell that ENUMERATES its own variants, with their prices, names them
+     * as surely as a placeholder invites one.** Two rows do:
+     *
+     *  - Shyness: "Mild (-5): -1 in groups of 6+; Severe (-10): -2 in groups
+     *    of 3+."
+     *  - Social Stigma: "Society discriminates: Criminal Record -5, Servant
+     *    Class -5"
+     *
+     * and two sheets buy exactly one of the priced options -- Academic
+     * Researcher's "Shyness (Mild)" at 5 pts, Pickpocket's "Social Stigma
+     * (Criminal)" at 5 pts. The qualifier is named by the cell AND the cost
+     * agrees with the price the cell prints for it: two independent
+     * agreements, which is what separates this from resemblance.
+     *
+     * **This corrects a stated reason, which is not the same as repairing a
+     * disagreement (4.1).** 6bv refused these two because "the sheet added a
+     * qualifier the book never asked for, so the only evidence is
+     * resemblance". That sentence is false for exactly these two, and 6bf's
+     * lesson is that a sweep's excuse is the thing to check. The nine
+     * spellings whose reason still holds are pinned unmatched above.
+     */
+    @Test
+    fun `a qualifier the cell itself prices resolves to that row`() {
+        assertEquals("Shyness", TraitEffects.catalogueName("Shyness (Mild)"))
+        assertEquals("Social Stigma", TraitEffects.catalogueName("Social Stigma (Criminal)"))
+        // The sheet's own spelling is what a screen prints: which variant was
+        // bought is content, and it is also what decides Shyness's value.
+        assertEquals("Shyness (Mild)", TraitEffects.displayName("Shyness (Mild)"))
+    }
+
+    /**
+     * **An enumeration has at least two members.** Restricted to one, the
+     * parse reads "Must roll vs. Will-3" as a variant called "Will" priced at
+     * 3, and eleven rows print a number in prose that way. A cell that
+     * enumerates variants is offering a CHOICE, so the book prints more than
+     * one -- and that alone reduces 198 rows to the two this join reads.
+     *
+     * Pinned by value: the day a third row starts enumerating, this fails and
+     * the reading is made again rather than inherited (6ba).
+     */
+    @Test
+    fun `only the rows that print a choice enumerate variants`() {
+        val enumerating = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .filter { TraitEffects.pricedVariants(it.notes).isNotEmpty() }
+            .map { it.name }
+        assertEquals(listOf("Social Stigma", "Shyness"), enumerating)
+        assertEquals(
+            listOf("Mild" to 5, "Severe" to 10),
+            TraitEffects.pricedVariants(
+                ContentLoader.disadvantages().single { it.name == "Shyness" }.notes,
+            ),
+        )
+        // A lone number in prose is not a choice: Stubborn's "Will-3" would
+        // otherwise read as a variant named "Will" costing 3.
+        assertTrue(
+            TraitEffects.pricedVariants(
+                ContentLoader.disadvantages().single { it.name == "Stubborn" }.notes,
+            ).isEmpty(),
+        )
+    }
+
+    /**
+     * The qualifier must select EXACTLY ONE priced variant, and the cost must
+     * agree. Social Stigma prices both its variants at 5, so the cost alone
+     * cannot say which was bought -- the qualifier does, and the cost only
+     * corroborates (Codex, on the design). A qualifier matching two, or one
+     * whose price the sheet did not pay, is refused rather than guessed.
+     */
+    /**
+     * A qualifier naming no printed option, or naming two, is refused rather
+     * than guessed. The sheet prints "Criminal" where the book prints
+     * "Criminal Record", so a qualifier that PREFIXES exactly one option is
+     * the join -- never a substring search over the cell (Codex, on the
+     * design: "selects exactly one priced variant named by the row").
+     */
+    @Test
+    fun `a qualifier naming no option or several is refused`() {
+        assertEquals("Shyness (Crippling)", TraitEffects.catalogueName("Shyness (Crippling)"))
+        // "S" prefixes both "Servant Class" and nothing else here, but on
+        // Shyness it would prefix "Severe" alone; the guard is the count, so
+        // a cell whose options shared a prefix could not answer at all.
+        assertEquals(
+            listOf("Criminal Record" to 5, "Servant Class" to 5),
+            TraitEffects.pricedVariants(
+                ContentLoader.disadvantages().single { it.name == "Social Stigma" }.notes,
+            ),
+        )
+    }
+
+    /**
+     * **The WARRANT, checked over every sheet rather than asserted.** The join
+     * itself runs on the qualifier alone, because [TraitEffects.catalogueName]
+     * is handed a name and threading a cost through it would give this
+     * decision a second matcher -- the failure this file records six times
+     * (6ag, 6ai, 6be, 6bp, 6bs, 6bv). What licenses reading the qualifier at
+     * all is that the price agrees too, and that is a fact about the fixtures,
+     * so it is proven here across all 23.
+     *
+     * The day a sheet buys a variant at a price the cell does not print for
+     * it, this fails and the disagreement is recorded (4.1) rather than
+     * silently resolved on the name alone.
+     */
+    @Test
+    fun `every variant a sheet bought is priced as the cell prints it`() {
+        val catalogue = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .associateBy { it.name }
+        val checked = Premades.all()
+            .flatMap { it.advantages + it.disadvantages }
+            .mapNotNull { owned ->
+                val row = catalogue[TraitEffects.catalogueName(owned.name)] ?: return@mapNotNull null
+                val variants = TraitEffects.pricedVariants(row.notes)
+                if (variants.isEmpty() || owned.name == row.name) return@mapNotNull null
+                val qualifier = owned.name.substringAfterLast('(').removeSuffix(")")
+                val named = variants.single { it.first.startsWith(qualifier, ignoreCase = true) }
+                assertEquals(named.second, owned.cost, "${owned.name} pays ${owned.cost}")
+                owned.name
+            }
+        assertEquals(listOf("Shyness (Mild)", "Social Stigma (Criminal)"), checked.sorted())
     }
 
     /**

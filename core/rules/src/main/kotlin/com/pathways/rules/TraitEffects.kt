@@ -476,7 +476,72 @@ object TraitEffects {
         if (printed.substringAfterLast(' ').toIntOrNull() != null) {
             return printed.substringBeforeLast(' ')
         }
-        return placeholderRow(printed) ?: gluedHead(printed) ?: printed
+        return placeholderRow(printed) ?: variantRow(printed) ?: gluedHead(printed) ?: printed
+    }
+
+    /**
+     * A priced option a cell enumerates for itself, as (name, points).
+     *
+     * Two rows in 198 print one of these, and both are offering a CHOICE:
+     * Shyness prints "Mild (-5): ... Severe (-10): ..." and Social Stigma
+     * "Criminal Record -5, Servant Class -5".
+     *
+     * **An enumeration has at least two members**, which is the whole of the
+     * filter and is what makes it safe. Allow one and the same pattern reads
+     * "Must roll vs. Will-3" as a variant called "Will" priced at 3 -- eleven
+     * rows print a number in prose that way, including four self-control
+     * targets. A cell offering a choice prints more than one option, and that
+     * single condition takes 198 rows down to the two this reads.
+     */
+    fun pricedVariants(notes: String): List<Pair<String, Int>> {
+        val found = PRICED_VARIANT.findAll(notes)
+            .map { it.groupValues[1].trim() to it.groupValues[2].toInt() }
+            .toList()
+        return if (found.size >= 2) found else emptyList()
+    }
+
+    /** "Mild (-5)" and "Criminal Record -5": a name, then what it costs. */
+    private val PRICED_VARIANT =
+        Regex("""([A-Z][A-Za-z]*(?: [A-Za-z]+)*?)\s*\(?[-−](\d+)\)?""")
+
+    /**
+     * The row whose cell PRICES the variant a sheet spelling names, or null.
+     *
+     * **A cell that enumerates its own options names them as surely as a
+     * placeholder invites one** (see [placeholderRow]). Academic Researcher
+     * buys "Shyness (Mild)" for 5 points and the Shyness row prints
+     * "Mild (-5)"; Pickpocket buys "Social Stigma (Criminal)" for 5 and the
+     * row prints "Criminal Record -5". The qualifier is named by the book and
+     * the price agrees -- two independent agreements, which is what separates
+     * this from the resemblance 4.1 refuses.
+     *
+     * **This corrects a stated reason rather than repairing a disagreement.**
+     * 6bv refused both on the grounds that "the sheet added a qualifier the
+     * book never asked for, so the only evidence is resemblance". That
+     * sentence is simply false for these two, and checking a sweep's own
+     * excuse is 6bf's lesson. The nine spellings whose reason still holds --
+     * five Sense of Duty, two Secret, Paranoia, Blacklisted -- hang off cells
+     * that enumerate nothing, and a test pins them still unmatched.
+     *
+     * The qualifier must PREFIX exactly one option, because the sheet writes
+     * "Criminal" where the book writes "Criminal Record". Naming none, or
+     * several, refuses rather than guesses (Codex, on the design).
+     *
+     * The COST is deliberately not read here: this takes a name, and
+     * threading a cost through [catalogueName] would give one decision a
+     * second matcher. It is the warrant, proven across all 23 fixtures by a
+     * test, and the day a sheet pays a price the cell does not print for its
+     * variant that test fails rather than this resolving on the name alone.
+     */
+    private fun variantRow(printed: String): String? {
+        val open = printed.lastIndexOf(" (")
+        if (open <= 0 || !printed.endsWith(")")) return null
+        val qualifier = printed.substring(open + 2, printed.length - 1)
+        if (qualifier.isBlank()) return null
+        val row = catalogue()[printed.substring(0, open).lowercase()] ?: return null
+        val named = pricedVariants(row.notes)
+            .filter { it.first.startsWith(qualifier, ignoreCase = true) }
+        return if (named.size == 1) row.name else null
     }
 
     /** How the book asks a sheet to name an instance: "Phobia (specify)". */
