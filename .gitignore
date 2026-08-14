@@ -8,3 +8,6 @@ gradle/gradle-daemon-jvm.properties
 hs_err_pid*.log
 replay_pid*.log
 *.stackdump
+
+# Kotlin daemon crash logs: build noise, carries local paths (6as)
+.kotlin/
