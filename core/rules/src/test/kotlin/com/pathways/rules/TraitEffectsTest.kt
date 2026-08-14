@@ -1082,6 +1082,135 @@ class TraitEffectsTest {
         for (name in unmatched) assertEquals(name, TraitEffects.displayName(name))
     }
 
+    /**
+     * **Every sheet spelling this app cannot resolve, with why.**
+     *
+     * There was no such census until a spelling turned out to hide a live
+     * defect: nine sheets print "Poverty: Struggling" for the level the book
+     * calls "Wealth: Struggling", and the miss was not a blank line but a
+     * double-counted point total. The only pin that existed covered names of
+     * 40 characters or more, so every short spelling was unwatched.
+     *
+     * The reasons are not decoration. Three shapes hide in one list:
+     *
+     * - a **disagreement** the book settles against the sheet, which stays
+     *   recorded forever (4.1);
+     * - a **paraphrase**, where the sheet instantiates a row without quoting
+     *   it, so only resemblance is left;
+     * - a **gap**, where the data plainly marks something and this app cannot
+     *   see it. A gap is work, not a decision, and calling one a refusal is
+     *   how [TraitEffects] shipped four milestones of unreachable rules.
+     *
+     * The map is the assertion: a spelling that appears without an entry
+     * FAILS, so a new one is a finding rather than a silent addition.
+     */
+    @Test
+    fun `every sheet spelling this app cannot resolve is named here`() {
+        val printed = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .map { it.name }.toSet()
+        val unmatched = Premades.all()
+            .flatMap { it.advantages + it.disadvantages }
+            .map { it.name }
+            .filter { TraitEffects.catalogueName(it) !in printed }
+            .distinct()
+        assertEquals(
+            UNRESOLVED_SHEET_SPELLINGS.keys,
+            unmatched.toSortedSet(),
+            "the set of sheet spellings this app cannot resolve changed",
+        )
+        // Every one of them is shown whole. Collapsing an unresolved name to
+        // the row it resembles is the repair 4.1 forbids, and there is no
+        // verified cell to collapse it to.
+        for (name in unmatched) assertEquals(name, TraitEffects.displayName(name))
+    }
+
+    /**
+     * Sixteen spellings, and the reason each is here. Keep the wording of the
+     * REASON honest: it is the thing a later slice will check first, and a
+     * false one has already cost this project two slices (a shock penalty the
+     * book did print, and a knockdown roll that was never unreachable).
+     */
+    private val UNRESOLVED_SHEET_SPELLINGS = sortedMapOf(
+        // --- the book prints no such row, under any spelling -------------
+        "No Sense of Humour" to
+            "the book prints no such trait; a text search finds the phrase nowhere",
+        "Pacifism (Cannot Harm Innocents)" to
+            "the book prints no Pacifism row; \"Pacifis\" occurs nowhere in it",
+        "Pacifism (Cannot Kill)" to
+            "the book prints no Pacifism row; \"Pacifis\" occurs nowhere in it",
+
+        // --- resembles a printed row, and the price disagrees -------------
+        "Absent-Minded" to
+            "the book prints \"Absent-Mindedness\" at 15 and these sheets pay 5, " +
+            "so only the name resembles -- the refusal 6am recorded",
+        "Paranoia: Bodies of water" to
+            "the book prints a bare \"Paranoia\" at 10 and this sheet pays 5, so " +
+            "the qualifier is unprinted AND the price disagrees",
+        "Wierdness Magnet" to
+            "the book prints \"Weirdness Magnet\" once, at this sheet's own 15 -- " +
+            "so the price agrees and the spelling is a transposition. Resolving " +
+            "it needs typo tolerance, which is the guessing 4.1 forbids, and the " +
+            "row prints no mechanical clause so nothing is lost by refusing",
+
+        // --- an instantiation that paraphrases rather than quotes ---------
+        "Blacklisted: Specific Industry org or church" to
+            "\"Blacklisted\" prints a FIXED 10 and no placeholder, so nothing " +
+            "marks it instantiable -- and the qualifier paraphrases the row's own " +
+            "notes rather than quoting them, which is what 6br's exact-tail rule " +
+            "refuses",
+        "Sense of Duty (Flock) - Must help/protect certain groups even at personal risk" to
+            "the tail IS the catalogue's own words, but the head " +
+            "\"Sense of Duty (Flock)\" is not a printed name, so the glue rule " +
+            "cannot complete -- see the gap below, which is what would unblock it",
+
+        // --- resolved elsewhere, by design --------------------------------
+        "Poverty: Struggling" to
+            "resolved by [Wealth], not here: that resolution reads the trait's " +
+            "cost and kind, and this API takes a name alone (a design review's " +
+            "call in 6bx). The builder's wealth row shows the level",
+
+        // --- a GAP: the data marks an instantiation and this app cannot see it
+        "Secret (Courier network)" to SEE_RANGED_TEMPLATE_GAP,
+        "Secret (Racist Sympathizer)" to SEE_RANGED_TEMPLATE_GAP,
+        "Sense of Duty (Coworkers)" to SEE_RANGED_TEMPLATE_GAP,
+        "Sense of Duty (Friends)" to SEE_RANGED_TEMPLATE_GAP,
+        "Sense of Duty (Patients)" to SEE_RANGED_TEMPLATE_GAP,
+        "Sense of Duty (Public)" to SEE_RANGED_TEMPLATE_GAP,
+        "Sense of Duty (Workers)" to SEE_RANGED_TEMPLATE_GAP,
+    )
+
+    /**
+     * Why seven instantiations of two rows are a GAP and not a refusal.
+     *
+     * The book asks for an instance two ways: explicitly, by putting
+     * "(specify)" in the row's NAME, which this app resolves; and implicitly,
+     * by printing a cost RANGE that the instance settles -- "Sense of Duty"
+     * 2-15, "Secret" 5-30. Nothing here reads the second.
+     *
+     * **Reading the range alone would be inference, and it over-matches.**
+     * Nineteen rows print a range, and two of them are "Shyness" and
+     * "Social Stigma" -- the exact pair 6bw resolved through a separate,
+     * carefully argued warrant, because their cells ENUMERATE their variants
+     * with prices. If a range by itself marked a template, that warrant was
+     * never needed. "Reputation" is variable-cost too, and 6bx's review used
+     * "Reputation: Wealthy" as its over-match example.
+     *
+     * What real evidence exists is narrower and belongs to one row: Church
+     * Healer prints "Sense of Duty (Flock) - " followed by that row's own
+     * notes VERBATIM, which is the sheet asserting the instantiated name IS
+     * that row -- the standard 6br set for the glued spellings. A slice built
+     * on that, rather than on the range, would resolve the five Sense of Duty
+     * instances and leave Secret alone, because no sheet quotes Secret's cell.
+     * Recorded here so the next reader inherits the evidence rather than the
+     * conclusion.
+     */
+    private companion object {
+        const val SEE_RANGED_TEMPLATE_GAP =
+            "the book marks this row instantiable by printing a cost RANGE the " +
+                "instance settles, and this app reads only an explicit " +
+                "\"(specify)\" -- a gap, not a refusal"
+    }
+
     // ---- the placeholder the book tells the sheet to fill ------------------
 
     /**
