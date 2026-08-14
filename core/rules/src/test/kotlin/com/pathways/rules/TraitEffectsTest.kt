@@ -274,6 +274,149 @@ class TraitEffectsTest {
     }
 
     /**
+     * **Six cells name a skill, and 6bp took one.** The clause sweep that
+     * found Perfect Balance listed seventeen advantages; my triage read one of
+     * them. Flexibility says "+3 to Climbing and Escape" and **Pickpocket
+     * carries it beside Perfect Balance**, which is the character 6bp was
+     * device-verified on -- its Climbing roll was reported there as
+     * "modified to 13, trait:perfect balance: 2" when three more were owed.
+     * 6bj's lesson for the third time: the sweep survived, the triage did not.
+     */
+    @Test
+    fun `every trait that names a skill lifts it`() {
+        val dx = ControllingAttribute.Buyable(Attr.DX)
+        val iq = ControllingAttribute.Buyable(Attr.IQ)
+        fun key(name: String, attr: ControllingAttribute = dx) =
+            SkillKey(name, null, attr, Difficulty.AVERAGE)
+        val cases = listOf(
+            Triple("Flexibility", key("Climbing"), 3),
+            Triple("Flexibility", key("Escape"), 3),
+            Triple("Double-Jointed", key("Climbing"), 5),
+            Triple("Healer", key("First Aid", iq), 3),
+            Triple("Medical Training (Informal)", key("First Aid", iq), 1),
+            Triple("Sanctity", key("Theology", iq), 2),
+            Triple("Sanctity", key("Religious Ritual", iq), 2),
+            Triple("Absolute Direction", key("Navigation", iq), 3),
+        )
+        for ((trait, skill, bonus) in cases) {
+            val mods = TraitEffects.modifiers(listOf(advantage(trait)), skill)
+            assertEquals(ModEffect.Flat(bonus), mods.single().effect, "$trait on ${skill.name}")
+        }
+        // ...and none of them reaches a skill its cell does not name.
+        for ((trait, _, _) in cases) {
+            assertEquals(
+                emptyList<Any>(),
+                TraitEffects.modifiers(listOf(advantage(trait)), key("Stealth")),
+                trait,
+            )
+        }
+    }
+
+    /**
+     * **Two named-skill bonuses ADD.** Pickpocket owns Perfect Balance and
+     * Flexibility and buys Climbing; nothing in the book makes two
+     * independently purchased advantages exclusive, so a Climbing roll takes
+     * both. The literal reading, pinned because the tidy alternative -- taking
+     * the better of the two -- is arithmetic the book never asks for.
+     */
+    @Test
+    fun `two traits that name the same skill both apply`() {
+        val climbing =
+            SkillKey("Climbing", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)
+        val both = listOf(advantage(TraitEffects.PERFECT_BALANCE), advantage("Flexibility"))
+        val flats = TraitEffects.modifiers(both, climbing).map { (it.effect as ModEffect.Flat).n }
+        assertEquals(5, flats.sum(), "$flats")
+        assertEquals(2, flats.size, "each trait contributes its own row: $flats")
+    }
+
+    /**
+     * **Healer prints two bonuses and only the specific one is applied.**
+     * "+2 to all rolls to diagnose, treat, and heal; **+3 to First Aid
+     * specifically**" -- a First Aid roll IS a roll to treat, so reading them
+     * as stacking would charge +5 on the one roll the cell singles out. The
+     * word "specifically" is what settles it: the +3 is First Aid's whole
+     * bonus.
+     *
+     * The +2 reaches nothing, because "rolls to diagnose, treat, and heal"
+     * names a PURPOSE and this book tags no skill as a healing skill --
+     * Physician, Diagnosis, Surgery, Herbal Medicine and Pharmacy are all
+     * plausibly among them and the book never says which count. The refusal
+     * `Languages` makes for "language-dependent skill rolls" (6x), and it is
+     * reported rather than dropped.
+     */
+    @Test
+    fun `Healer's general bonus is reported and its specific one applied`() {
+        val iq = ControllingAttribute.Buyable(Attr.IQ)
+        val healer = listOf(advantage("Healer"))
+        val firstAid = SkillKey("First Aid", null, iq, Difficulty.EASY)
+        assertEquals(ModEffect.Flat(3), TraitEffects.modifiers(healer, firstAid).single().effect)
+        // Not +5: the specific bonus is not laid on top of the general one.
+        val physician = SkillKey("Physician", null, iq, Difficulty.HARD)
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(healer, physician))
+        val notes = TraitEffects.reported(healer)
+        assertTrue(
+            notes.any { it.printed.contains("diagnose, treat, and heal") },
+            "the unapplied clause is not reported: $notes",
+        )
+        assertTrue(
+            notes.none { it.printed.contains("First Aid") },
+            "the applied clause must not be disclaimed: $notes",
+        )
+    }
+
+    /**
+     * **The close-quarters clause reaches nothing, and that was checked rather
+     * than assumed.** 6bo found that a near-identical excuse for High Pain
+     * Threshold was FALSE -- the book did print a shock penalty, on a table
+     * this app already rolls. So this one was grepped: "close-quarters" occurs
+     * exactly twice in the book, both inside these two trait cells. There is
+     * no such penalty to ignore.
+     */
+    @Test
+    fun `the close-quarters clause names a penalty this book never prints`() {
+        for (name in listOf("Flexibility", "Double-Jointed")) {
+            val cell = ContentLoader.advantages().first { it.name == name }.notes
+            assertTrue(cell.contains("close-quarters penalties"), cell)
+            val notes = TraitEffects.reported(listOf(advantage(name)))
+            assertTrue(
+                notes.any { it.printed.contains("close-quarters") },
+                "$name's unapplied clause is not reported: $notes",
+            )
+        }
+    }
+
+    /**
+     * **Every clause of a trait this object touches is either applied or
+     * reported.** A reviewer caught two that were neither: Absolute
+     * Direction's "Always know which way is north" and Double-Jointed's "any
+     * body part bends any way" -- both real, both printed, both silently gone
+     * while their siblings on the same cell were handled. That is worse than
+     * an untouched trait, because the sheet then shows the cell as understood.
+     *
+     * The guard is general rather than two patches: it walks the catalogue's
+     * own segmentation for every mapped trait. Only lead-in prose that grants
+     * nothing is allowed to be absent, and it is named here so the exemption
+     * cannot quietly widen.
+     */
+    @Test
+    fun `no clause of a handled trait goes unmentioned`() {
+        val leadIn = setOf("Your connection to the divine is unusually clear")
+        val applied = TraitEffects.skillBonusNames()
+        for (trait in applied) {
+            val cell = ContentLoader.advantages().first { it.name == trait }.notes
+            val reported = TraitEffects.reported(listOf(advantage(trait))).map { it.printed }
+            val segments = cell.split(';', '.').map { it.trim() }.filter { it.isNotEmpty() }
+            for (segment in segments) {
+                val handled = segment in leadIn ||
+                    // the applied clause names the skills it lifts
+                    TraitEffects.skillsFor(trait).any { segment.contains(it) } ||
+                    reported.any { it.contains(segment) || segment.contains(it) }
+                assertTrue(handled, "$trait drops the clause \"$segment\"")
+            }
+        }
+    }
+
+    /**
      * **Both rows name Piloting and this book prints no such skill.** The
      * shape "Wrestling Master" already has (6bf) and `Dead Language Fluency`
      * naming "Ancient Loen" before it (6x): a trait naming something no list

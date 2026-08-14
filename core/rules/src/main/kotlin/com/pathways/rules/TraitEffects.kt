@@ -88,8 +88,40 @@ object TraitEffects {
      */
     val BALANCE_SKILLS = setOf("Acrobatics", "Climbing", "Piloting")
 
-    /** "+2 to ..." / "+1 to ...", the second clause of each Balance row. */
-    private val BALANCE_SKILL_BONUS = mapOf(PERFECT_BALANCE to 2, GREAT_BALANCE to 1)
+    /**
+     * Every trait whose cell names the skills it lifts, and by how much.
+     *
+     * **A skill NAME is the strongest join there is.** Alertness has to be
+     * scoped by controlling attribute because "all Per rolls" names no skill
+     * (6al); these cells name theirs outright, and [modifiers] already takes
+     * the [SkillKey]. Two traits naming one skill both apply -- nothing in the
+     * book makes independently purchased advantages exclusive, and Pickpocket
+     * owns Perfect Balance and Flexibility beside a bought Climbing.
+     *
+     * **Healer's +3 is its whole First Aid bonus.** Its cell also prints "+2
+     * to all rolls to diagnose, treat, and heal", and a First Aid roll is a
+     * roll to treat -- so stacking them would charge +5 on the one roll the
+     * cell singles out with the word "specifically". The general clause
+     * reaches nothing and is [reported]: it names a PURPOSE, and this book
+     * tags no skill as a healing skill, the refusal [Languages] makes for
+     * "language-dependent skill rolls" (6x).
+     *
+     * Two of the names are printed by no skill list this book has -- Piloting
+     * (see [BALANCE_SKILLS]) and Absolute Direction's "Body Sense", which
+     * occurs exactly once in the whole book, inside that trait's own cell.
+     * Recorded, never repaired, and the name join reaches them the day either
+     * appears (6bf's "Wrestling Master", 6x's "Ancient Loen").
+     */
+    private val SKILL_BONUSES: Map<String, Pair<Int, Set<String>>> = mapOf(
+        PERFECT_BALANCE to (2 to BALANCE_SKILLS),
+        GREAT_BALANCE to (1 to BALANCE_SKILLS),
+        "Flexibility" to (3 to setOf("Climbing", "Escape")),
+        "Double-Jointed" to (5 to setOf("Climbing", "Escape")),
+        "Healer" to (3 to setOf("First Aid")),
+        "Medical Training (Informal)" to (1 to setOf("First Aid")),
+        "Sanctity" to (2 to setOf("Theology", "Religious Ritual")),
+        "Absolute Direction" to (3 to setOf("Navigation", "Body Sense")),
+    )
 
     /**
      * What [traits] add to an HT roll that can knock the character down.
@@ -257,8 +289,9 @@ object TraitEffects {
         // this cell does. Nothing in the book makes the two rows exclusive, so
         // a character printing both would take both -- the literal reading,
         // and no premade prints either beside the other.
-        if (skill.name in BALANCE_SKILLS) {
-            for ((trait, value) in BALANCE_SKILL_BONUS) {
+        for ((trait, effect) in SKILL_BONUSES) {
+            val (value, skills) = effect
+            if (skill.name in skills) {
                 levelOf(traits, trait)?.let { add(bonus(trait, value)) }
             }
         }
@@ -297,6 +330,12 @@ object TraitEffects {
             whole + clauses
         }
     }
+
+    /** The traits whose cell names the skills it lifts, for the coverage test. */
+    fun skillBonusNames(): Set<String> = SKILL_BONUSES.keys
+
+    /** The skills [trait] names, empty for a trait that names none. */
+    fun skillsFor(trait: String): Set<String> = SKILL_BONUSES[trait]?.second.orEmpty()
 
     /** Every trait this object knows about, applied or not. */
     fun known(): Set<String> =
@@ -359,7 +398,52 @@ object TraitEffects {
         GREAT_BALANCE to listOf(
             "+2 to avoid knockdown" to KNOCKDOWN_UNREACHED,
         ),
+        // The other five rows that name a skill, each with the sibling clause
+        // its cell prints beside the one [SKILL_BONUSES] applies. A reviewer
+        // caught two of these missing entirely -- worse than an untouched
+        // trait, because the sheet then shows the cell as understood.
+        "Flexibility" to listOf(
+            "ignore up to -3 close-quarters penalties" to CLOSE_QUARTERS_UNPRINTED,
+        ),
+        "Double-Jointed" to listOf(
+            "ignore up to -5 close-quarters penalties" to CLOSE_QUARTERS_UNPRINTED,
+            "any body part bends any way" to
+                "a capability rather than a roll, so the GM adjudicates it",
+        ),
+        "Healer" to listOf(
+            "+2 to all rolls to diagnose, treat, and heal" to
+                "this book tags no skill as a healing skill, so which rolls " +
+                "count is the GM's call",
+            "HT rolls to avoid or recover from disease at +2" to
+                "this app models no disease roll",
+        ),
+        "Medical Training (Informal)" to listOf(
+            "Use Physician at IQ-2 without purchasing the skill" to
+                "this app never shows an untrained level, so no default is rolled",
+        ),
+        "Absolute Direction" to listOf(
+            "Always know which way is north; never become lost in natural terrain" to
+                "the book hands both to the GM, not to a roll",
+        ),
+        "Sanctity" to listOf(
+            "once per session, the GM must answer one factual question about " +
+                "Church doctrine or history honestly" to
+                "this app holds no session to count, and the answer is the GM's",
+        ),
     )
+
+    /**
+     * Why both jointedness rows' second clause reaches nothing.
+     *
+     * **Checked, not assumed.** 6bo found that a near-identical excuse for
+     * High Pain Threshold was false -- the book printed a shock penalty all
+     * along, on a table this app already rolls -- so "close-quarters" was
+     * grepped across the whole book before this sentence was written. It
+     * occurs exactly twice, both inside these two trait cells. There is no
+     * such penalty to ignore.
+     */
+    private const val CLOSE_QUARTERS_UNPRINTED =
+        "this book prints no close-quarters penalty for it to ignore"
 
     /**
      * Why an unscoped knockdown clause reaches nothing, said once.
