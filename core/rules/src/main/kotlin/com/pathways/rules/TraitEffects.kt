@@ -55,6 +55,10 @@ object TraitEffects {
     const val GREAT_BALANCE = "Great Balance"
     const val IRON_JAW = "Iron Jaw"
     const val RAPID_RECOVERY = "Rapid Recovery"
+    const val NIGHT_EYES = "Night Eyes"
+
+    /** "Reduce all darkness penalties by 2". */
+    const val NIGHT_EYES_REDUCTION = 2
 
     /** Ch. 3's High Pain Threshold, whose first clause [Shock] applies. */
     const val HIGH_PAIN_THRESHOLD = Shock.IGNORED_BY
@@ -121,6 +125,30 @@ object TraitEffects {
      */
     fun knockdownBonus(traits: List<Trait>): Int =
         if (levelOf(traits, HIGH_PAIN_THRESHOLD) != null) KNOCKDOWN_BONUS else 0
+
+    /**
+     * What [traits] take off a darkness penalty: Night Eyes' "reduce all
+     * darkness penalties by 2".
+     *
+     * **Where it lands is [DarknessCause]'s business, not this object's.** The
+     * one darkness penalty this app prices is chapter 5's "Darkness or heavy
+     * fog", which charges two causes with one number while the trait covers
+     * only one -- so how much comes off is here and whether any comes off at
+     * all is declared at the roll. Two objects, because a trait cannot know
+     * what the GM says the weather is.
+     *
+     * Appendix A's "Adverse conditions (dark, noisy, dangerous) -4" is
+     * deliberately NOT a darkness penalty for this purpose: it prices three
+     * causes as one, so taking 2 off would claim the whole -4 was the dark.
+     * Nothing here can tell, and 6ae already withholds that row entirely on a
+     * ranged shot, where chapter 5 prices the same circumstance specifically.
+     */
+    fun darknessReduction(traits: List<Trait>): Int =
+        if (levelOf(traits, NIGHT_EYES) != null) NIGHT_EYES_REDUCTION else 0
+
+    /** Night Eyes' cell, quoted rather than paraphrased. */
+    fun printedNightEyes(): String =
+        ContentLoader.advantages().first { it.name == NIGHT_EYES }.notes
 
     /**
      * The sentence a screen prints beside [knockdownBonus], or null when

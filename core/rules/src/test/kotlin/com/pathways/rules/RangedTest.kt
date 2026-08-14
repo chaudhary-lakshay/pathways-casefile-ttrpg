@@ -1,6 +1,7 @@
 package com.pathways.rules
 
 import com.pathways.model.ModEffect
+import com.pathways.model.ModifierSource
 import com.pathways.model.SourceKind
 import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -128,6 +129,171 @@ class RangedTest {
         assertThrows<IllegalArgumentException> {
             Ranged.modifiers(conditions = listOf(fog), gmValue = mapOf(fog.condition to -1))
         }
+    }
+
+    // ---- Night Eyes ------------------------------------------------------
+
+    /**
+     * **The relief lands AFTER the book's own bounds check, never through it.**
+     *
+     * A design review caught this before a line was written: `gmValue` is
+     * validated against the printed -9..-3, and the test above pins that -1 is
+     * REFUSED there. So feeding a relieved value in through that door would
+     * throw on Roll -- a chip that throws is not a choice (6t), and it is the
+     * lock-up 6bk's picker was fixed for. The GM's severity stays raw and the
+     * trait moves the result.
+     */
+    @Test
+    fun `Night Eyes reduces the darkness penalty after the GM's severity`() {
+        val fog = row("Darkness or heavy fog")
+        val at = { value: Int ->
+            flats(
+                Ranged.modifiers(
+                    conditions = listOf(fog),
+                    gmValue = mapOf(fog.condition to value),
+                    darknessCause = DarknessCause.DARKNESS,
+                    darknessReduction = TraitEffects.NIGHT_EYES_REDUCTION,
+                ),
+            )
+        }
+        assertEquals(listOf(-1), at(-3))
+        assertEquals(listOf(-4), at(-6))
+        assertEquals(listOf(-7), at(-9))
+        // The GM's own number is still checked against the printed range.
+        assertThrows<IllegalArgumentException> {
+            Ranged.modifiers(
+                conditions = listOf(fog),
+                gmValue = mapOf(fog.condition to -10),
+                darknessCause = DarknessCause.DARKNESS,
+                darknessReduction = TraitEffects.NIGHT_EYES_REDUCTION,
+            )
+        }
+    }
+
+    /**
+     * **Fog is not darkness, and the trait never writes the word.**
+     *
+     * The row prices two causes with one number -- "Darkness **or heavy fog**"
+     * -- while the trait says "all **darkness** penalties" and names only
+     * light levels (gaslight, moonlight). Eyes that see in the dark do not see
+     * through fog. Extending it would author a rule from a resemblance, the
+     * reasoning 6aj refused when ch. 4 printed none of Appendix A's words.
+     */
+    @Test
+    fun `Night Eyes does nothing against fog`() {
+        val fog = row("Darkness or heavy fog")
+        assertEquals(
+            listOf(-3),
+            flats(
+                Ranged.modifiers(
+                    conditions = listOf(fog),
+                    darknessCause = DarknessCause.HEAVY_FOG,
+                    darknessReduction = TraitEffects.NIGHT_EYES_REDUCTION,
+                ),
+            ),
+        )
+        // ...and the row is untouched for anyone who lacks the trait, whatever
+        // they declare the cause to be.
+        assertEquals(
+            listOf(-3),
+            flats(
+                Ranged.modifiers(
+                    conditions = listOf(fog),
+                    darknessCause = DarknessCause.DARKNESS,
+                    darknessReduction = 0,
+                ),
+            ),
+        )
+    }
+
+    /**
+     * **The second clause cannot be derived from the first**, which is why it
+     * is a state of its own. "in dim gaslight or moonlight suffer no penalty
+     * at all" -- subtracting 2 from the gentlest printed severity gives -1,
+     * and the book says 0. Specific beats general.
+     *
+     * The row then produces NO modifier at all, which is the existing
+     * behaviour for a value of zero rather than anything new.
+     */
+    @Test
+    fun `dim gaslight or moonlight cancels the penalty outright`() {
+        val fog = row("Darkness or heavy fog")
+        for (severity in -9..-3) {
+            assertTrue(
+                Ranged.modifiers(
+                    conditions = listOf(fog),
+                    gmValue = mapOf(fog.condition to severity),
+                    darknessCause = DarknessCause.DIM_LIGHT,
+                    darknessReduction = TraitEffects.NIGHT_EYES_REDUCTION,
+                ).isEmpty(),
+                "a severity of $severity should still cancel under dim light",
+            )
+        }
+        // The general clause would leave -1 at the gentlest end, so the two
+        // clauses really do differ and neither is the other restated.
+        assertEquals(
+            listOf(-1),
+            flats(
+                Ranged.modifiers(
+                    conditions = listOf(fog),
+                    darknessCause = DarknessCause.DARKNESS,
+                    darknessReduction = TraitEffects.NIGHT_EYES_REDUCTION,
+                ),
+            ),
+        )
+    }
+
+    /**
+     * A relief can reach zero and must never overshoot into a bonus. -9 + 2 is
+     * -7 today, so nothing printed can reach the floor -- it is the sign-flip
+     * class 4.3 exists for, guarded before a caller finds it (6l).
+     */
+    @Test
+    fun `the relief floors at zero rather than becoming a bonus`() {
+        val fog = row("Darkness or heavy fog")
+        assertEquals(
+            listOf(-3),
+            flats(
+                Ranged.modifiers(
+                    conditions = listOf(fog),
+                    gmValue = mapOf(fog.condition to -6),
+                    darknessCause = DarknessCause.DARKNESS,
+                    darknessReduction = 3,
+                ),
+            ),
+        )
+        // A relief larger than the penalty cancels it and stops there. Nothing
+        // printed can reach this -- the book's reduction is 2 against a worst
+        // case of -9 -- which is why it is guarded now rather than found.
+        assertTrue(
+            Ranged.modifiers(
+                conditions = listOf(fog),
+                gmValue = mapOf(fog.condition to -9),
+                darknessCause = DarknessCause.DARKNESS,
+                darknessReduction = 99,
+            ).isEmpty(),
+        )
+    }
+
+    /**
+     * **The breakdown has to reconcile with the chip that produced it.** The
+     * chip reads "-3 to -9" and the contribution would read -1 with nothing
+     * saying why -- the numbers-that-do-not-add-up defect 6ag added a 300-case
+     * test for and 6ai repeated. The rules author the description.
+     */
+    @Test
+    fun `a relieved row says which trait relieved it`() {
+        val fog = row("Darkness or heavy fog")
+        val relieved = Ranged.modifiers(
+            conditions = listOf(fog),
+            darknessCause = DarknessCause.DARKNESS,
+            darknessReduction = TraitEffects.NIGHT_EYES_REDUCTION,
+        ).single()
+        val said = (relieved.source as ModifierSource.Situational).description
+        assertTrue(said.contains(TraitEffects.NIGHT_EYES), said)
+        // Untouched, it is still the book's own row and nothing else.
+        val plain = Ranged.modifiers(conditions = listOf(fog)).single()
+        assertEquals(fog.condition, (plain.source as ModifierSource.Situational).description)
     }
 
     @Test

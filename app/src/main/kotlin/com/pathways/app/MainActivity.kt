@@ -712,6 +712,7 @@ fun SheetScreen(
             // An All-Out maneuver's own FP is spent like any other: through
             // the tracker, so the next roll is made by a tireder character.
             onSpendFp = { session.spend(Pool.FP, it, vitals.maxFp, maxCor) },
+            darknessReduction = TraitEffects.darknessReduction(traits),
             onDismiss = { attacking = false },
         )
     }

@@ -11,6 +11,37 @@ import com.pathways.rules.content.RangePenalty
 import com.pathways.rules.content.RangedModifier
 
 /**
+ * What the GM says is behind "Darkness or heavy fog" (Ch. 5, p. 39).
+ *
+ * The book prices two causes with ONE number, and Ch. 3's Night Eyes covers
+ * only one of them: "Reduce all **darkness** penalties by 2; in dim gaslight
+ * or moonlight suffer no penalty at all." Its examples are light levels and it
+ * never writes fog -- eyes that see in the dark do not see through it.
+ *
+ * **Three states because the source produces three outcomes**, which is the
+ * only reason to draw a distinction the combat table does not: fog is
+ * untouched, darkness is relieved by 2, and the two named lightings are
+ * cancelled outright. It is a DECLARATION, like the surprise refusals (6bg)
+ * and a cancelled aim (6bm) -- the GM knows what the scene is lit by and this
+ * app cannot compute it.
+ *
+ * Nothing is offered to a character without the trait, and nothing is refused
+ * to one: the row itself stays universal, so an ordinary shooter still takes
+ * the book's penalty in fog and dark alike (a design review's blocking
+ * finding, before any of this was written).
+ */
+enum class DarknessCause {
+    /** The row's second cause, which Night Eyes does not cover. */
+    HEAVY_FOG,
+
+    /** The trait's general clause: 2 comes off. */
+    DARKNESS,
+
+    /** "in dim gaslight or moonlight suffer no penalty at all." */
+    DIM_LIGHT,
+}
+
+/**
  * What distance and conditions do to a shot (Ch. 5, p. 39-40).
  *
  * The third of the three modifier sources, beside [Conditions] (what the
@@ -114,6 +145,8 @@ object Ranged {
         gmValue: Map<String, Int> = emptyMap(),
         weaponAcc: Int? = null,
         aimCancelled: Boolean = false,
+        darknessCause: DarknessCause? = null,
+        darknessReduction: Int = 0,
     ): List<Modifier> = buildList {
         // The aim is GONE, not reduced, so a plan still carrying it is refused
         // rather than quietly stripped: 1 FP or a turn was spent on it, and a
@@ -150,7 +183,54 @@ object Ranged {
                     "'${row.condition}' prints ${row.printed}; $value is outside it"
                 }
             }
-            situational(row.condition.lowercase(), value, row.condition)?.let(::add)
+            // AFTER the bounds check, never through it: the GM's severity is
+            // the book's and stays inside the printed range, while the trait
+            // moves the result outside it. Relieving first and validating
+            // second would refuse -1 as "gentler than the book's best" and
+            // throw on Roll -- a chip that throws is not a choice (6t).
+            val relief = reliefFor(row, value, darknessCause, darknessReduction)
+            situational(
+                row.condition.lowercase(),
+                value + relief,
+                // The chip reads "-3 to -9" and the contribution would read -1
+                // with nothing joining them, which is the breakdown that does
+                // not add up (6ag, 6ai). The rules author the sentence.
+                if (relief != 0) {
+                    "${row.condition} — ${TraitEffects.NIGHT_EYES} takes off $relief"
+                } else {
+                    row.condition
+                },
+            )?.let(::add)
+        }
+    }
+
+    /**
+     * How much of [value] Night Eyes takes off, given what the GM says the
+     * scene is.
+     *
+     * Only the one row that prices darkness can be relieved, found by its own
+     * `worstCase` range rather than by its name -- a re-extraction that
+     * reworded the condition would otherwise leave this holding a string
+     * nothing matches, silently withdrawing the trait.
+     *
+     * The two clauses are NOT one rule stated twice. Subtracting 2 from the
+     * gentlest printed severity gives -1 and the second clause says 0, so it
+     * is a state of its own and specific beats general. And the relief floors
+     * at zero: -9 + 2 is -7, so nothing printed can reach it today, but a
+     * "reduction" that overshot into a bonus is the sign class 4.3 exists for,
+     * guarded before a caller finds it (6l).
+     */
+    private fun reliefFor(
+        row: RangedModifier,
+        value: Int,
+        cause: DarknessCause?,
+        reduction: Int,
+    ): Int {
+        if (row.worstCase == null || reduction == 0) return 0
+        return when (cause) {
+            null, DarknessCause.HEAVY_FOG -> 0
+            DarknessCause.DARKNESS -> minOf(reduction, -value)
+            DarknessCause.DIM_LIGHT -> -value
         }
     }
 

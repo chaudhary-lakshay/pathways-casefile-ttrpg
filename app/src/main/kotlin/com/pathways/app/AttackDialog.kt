@@ -33,6 +33,8 @@ import com.pathways.rules.BurnKind
 import com.pathways.rules.EffortBurn
 import com.pathways.rules.Damage
 import com.pathways.rules.DamageRoll
+import com.pathways.rules.DarknessCause
+import com.pathways.rules.TraitEffects
 import com.pathways.rules.RandomSource
 import com.pathways.rules.Ranged
 import com.pathways.rules.SkillRoll
@@ -69,6 +71,15 @@ fun AttackDialog(
     dx: Int,
     dice: RandomSource,
     onSpendFp: (Int) -> Unit,
+    /**
+     * Night Eyes' "reduce all darkness penalties by 2", or 0 without it.
+     *
+     * Passed in rather than derived here, and it decides only whether the
+     * cause chips are OFFERED -- the book's darkness row itself stays
+     * available to every shooter, or an ordinary one could not take a penalty
+     * the book charges them (a design review's blocking finding).
+     */
+    darknessReduction: Int = 0,
     onDismiss: () -> Unit,
 ) {
     val skills = remember(skillLevels) { skillLevels.entries.sortedBy { it.key.name } }
@@ -91,6 +102,14 @@ fun AttackDialog(
     // app holds no turn to remember an aim across and the GM does. See
     // [Ranged.offeredConditions].
     var aimCancelled by remember { mutableStateOf(false) }
+    // What is behind "Darkness or heavy fog", which only Night Eyes can care
+    // about. It starts on DARKNESS because that is the trait's general clause
+    // ("reduce ALL darkness penalties by 2") and the row's own first-named
+    // cause; fog and dim light are the departures the GM declares. Starting
+    // unset would take the trait away from its owner unless they thought to
+    // say what the weather is, which is the printed-and-not-applied defect in
+    // miniature.
+    var darknessCause by remember { mutableStateOf(DarknessCause.DARKNESS) }
     // Null is the Torso: the book's own default, and the row it prints at +0.
     // A called shot survives the reach/range toggle -- unlike distance and
     // cover, "aiming at the skull" means the same thing with a fist or a gun.
@@ -131,6 +150,8 @@ fun AttackDialog(
                         // A cancelled aim belongs to the turn that cancelled
                         // it, like the distance and the cover above.
                         aimCancelled = false
+                        // So does what the scene was lit by.
+                        darknessCause = DarknessCause.DARKNESS
                         location = null
                     },
                 ) { Text("Another turn") }
@@ -219,6 +240,9 @@ fun AttackDialog(
                     band = band,
                     circumstances = circumstances,
                     aimCancelled = aimCancelled,
+                    darknessCause = darknessCause,
+                    darknessReduction = darknessReduction,
+                    onDarknessCause = { darknessCause = it },
                     location = location,
                     onAttack = {
                         unarmed = it
@@ -293,7 +317,7 @@ fun AttackDialog(
                         // lands, so the NEXT turn feels it.
                         val mods = conditions(chosen.key) +
                             Attacks.modifiers(plan, chosen.value, unarmed) +
-                            rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled) +
+                            rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled, darknessCause, darknessReduction) +
                             listOfNotNull(location?.let(Wounds::modifier))
                         // A fresh roll starts with a fresh +5 budget per roll.
                         burned = emptyMap()
@@ -327,6 +351,9 @@ private fun AttackOptions(
     band: RangePenalty?,
     circumstances: Set<String>,
     aimCancelled: Boolean,
+    darknessCause: DarknessCause,
+    darknessReduction: Int,
+    onDarknessCause: (DarknessCause) -> Unit,
     location: HitLocation?,
     onAttack: (UnarmedAttack) -> Unit,
     onArmed: (Armed?) -> Unit,
@@ -397,9 +424,12 @@ private fun AttackOptions(
                 circumstances,
                 armed,
                 aimCancelled,
+                darknessCause,
+                darknessReduction,
                 onBand,
                 onCircumstance,
                 onAimCancelled,
+                onDarknessCause,
             )
         } else {
             Stepper("Rapid Strike", plan.rapidStrikes, "${Attacks.RAPID_STRIKE_PENALTY} each") {
@@ -442,7 +472,7 @@ private fun AttackOptions(
         val total = Attacks.modifiers(plan, skillLevel, unarmed)
             .sumOf { (it.effect as ModEffect.Flat).n }
         val count = Attacks.attackCount(plan)
-        val fromRange = rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled)
+        val fromRange = rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled, darknessCause, darknessReduction)
             .sumOf { (it.effect as ModEffect.Flat).n }
         Text(
             "Attack options: ${if (total == 0) "no modifier" else signed(total)}" +
@@ -596,9 +626,12 @@ private fun RangedOptions(
     circumstances: Set<String>,
     armed: Armed?,
     aimCancelled: Boolean,
+    darknessCause: DarknessCause,
+    darknessReduction: Int,
     onBand: (RangePenalty) -> Unit,
     onCircumstance: (String) -> Unit,
     onAimCancelled: () -> Unit,
+    onDarknessCause: (DarknessCause) -> Unit,
 ) {
     val bands = remember { Ranged.bands() }
     // What the book still allows, decided in rules: a screen filtering its own
@@ -629,6 +662,30 @@ private fun RangedOptions(
                 modifier = Modifier.padding(end = 8.dp),
             )
         }
+    }
+    // Offered only to a character the trait can help, and only once the row
+    // it modifies is actually selected: nobody else has anything to declare,
+    // and the row itself is never withdrawn from them.
+    if (darknessReduction > 0 && DARKNESS_ROW in circumstances) {
+        Text(
+            "What is it?",
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+        FlowRow {
+            DarknessCause.entries.forEach { option ->
+                FilterChip(
+                    selected = option == darknessCause,
+                    onClick = { onDarknessCause(option) },
+                    label = { Text(causeLabel(option)) },
+                    modifier = Modifier.padding(end = 8.dp),
+                )
+            }
+        }
+        Text(
+            "${TraitEffects.NIGHT_EYES}: \"${TraitEffects.printedNightEyes()}\"",
+            style = MaterialTheme.typography.bodySmall,
+        )
     }
     Text("Since taking aim", style = MaterialTheme.typography.titleSmall)
     FlowRow {
@@ -718,6 +775,8 @@ private fun rangedModifiers(
     circumstances: Set<String>,
     weaponAcc: Int?,
     aimCancelled: Boolean,
+    darknessCause: DarknessCause,
+    darknessReduction: Int,
 ): List<com.pathways.model.Modifier> {
     if (!plan.isRanged) return emptyList()
     // The chosen band is passed whole, never re-looked-up by its lower bound:
@@ -727,6 +786,8 @@ private fun rangedModifiers(
         conditions = Ranged.conditions().filter { it.condition in circumstances },
         weaponAcc = weaponAcc,
         aimCancelled = aimCancelled,
+        darknessCause = darknessCause,
+        darknessReduction = darknessReduction,
     )
 }
 
@@ -739,6 +800,23 @@ private fun rangedModifiers(
  */
 private val AIM_ROWS: Set<String> by lazy {
     Ranged.conditions().filter { it.weaponAcc }.map { it.condition }.toSet()
+}
+
+/**
+ * The one row a [DarknessCause] can change, found by the range it prints
+ * rather than by its name -- a re-extraction that reworded the condition would
+ * otherwise leave this holding a string nothing matches, silently withdrawing
+ * the chips from the character who owns the trait.
+ */
+private val DARKNESS_ROW: String by lazy {
+    Ranged.conditions().single { it.worstCase != null }.condition
+}
+
+/** The GM's three answers, in the trait's own words. */
+private fun causeLabel(cause: DarknessCause) = when (cause) {
+    DarknessCause.HEAVY_FOG -> "Heavy fog"
+    DarknessCause.DARKNESS -> "Darkness"
+    DarknessCause.DIM_LIGHT -> "Dim gaslight or moonlight"
 }
 
 /**
