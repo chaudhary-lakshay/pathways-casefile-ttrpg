@@ -52,6 +52,40 @@ class TraitEffectsTest {
         // Alertness is the levelled one; the other two are not.
         assertTrue(byName.getValue(TraitEffects.ALERTNESS).perLevel)
         assertTrue(!byName.getValue(TraitEffects.FIT).perLevel)
+        // The two levelled skill rows, each with its own printed ceiling. The
+        // catalogue agrees they scale, which is what stops a flat reading.
+        for (name in listOf(TraitEffects.CHARISMA, TraitEffects.OUTDOORSMAN)) {
+            val cell = byName.getValue(name)
+            assertTrue(cell.perLevel, name)
+            assertTrue(
+                cell.notes.contains("${TraitEffects.CAPPED_LEVELS} levels"),
+                "$name no longer prints its ceiling: ${cell.notes}",
+            )
+        }
+    }
+
+    /**
+     * **Charisma prints two clauses and one of them is a reaction
+     * modifier.** This book prints no reaction roll procedure and at least
+     * five sources hand one out -- this trait, a wealth level's Status
+     * column, Reputation, Appearance and Unsettling Appearance -- so with no
+     * printed rule for combining them, 6w established that each is shown
+     * beside its source and never summed. It is reported for that reason and
+     * not because nothing could be done with it.
+     */
+    @Test
+    fun `Charisma's reaction half is reported and its skill half applied`() {
+        val owned = listOf(advantage("${TraitEffects.CHARISMA} 2"))
+        val reported = TraitEffects.reported(owned)
+        assertEquals(1, reported.size, reported.toString())
+        assertTrue(reported.single().printed.contains("reaction rolls"), reported.toString())
+        val cell = ContentLoader.advantages().first { it.name == TraitEffects.CHARISMA }.notes
+        assertTrue(cell.contains(reported.single().printed), cell)
+        // ...while the named skills still take the bonus.
+        val key = SkillKey(
+            "Leadership", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.AVERAGE,
+        )
+        assertEquals(ModEffect.Flat(2), TraitEffects.modifiers(owned, key).single().effect)
     }
 
     // ---- the level in the name -------------------------------------------
@@ -317,6 +351,112 @@ class TraitEffectsTest {
     }
 
     /**
+     * **The two levelled rows, on the premades that carry them.** Fortune
+     * Teller prints `Charisma 2` and Hunter-Tracker `Outdoorsman 1`, so the
+     * multiplier is not a test-only path: the Fortune Teller's own Public
+     * Speaking is owed +2, not +1.
+     *
+     * My census claimed Journalist carried Charisma and that both rows were
+     * level 1. The fixtures say otherwise, and a design review caught it
+     * (Codex) -- **a count in prose is a finding** (6as), here about a
+     * carrier's identity rather than a number.
+     */
+    @Test
+    fun `the levelled rows multiply their bonus by the level owned`() {
+        val iq = ControllingAttribute.Buyable(Attr.IQ)
+        fun key(name: String, attr: ControllingAttribute = iq) =
+            SkillKey(name, null, attr, Difficulty.AVERAGE)
+        val charisma2 = listOf(advantage("${TraitEffects.CHARISMA} 2"))
+        assertEquals(
+            ModEffect.Flat(2),
+            TraitEffects.modifiers(charisma2, key("Public Speaking")).single().effect,
+        )
+        assertEquals(
+            ModEffect.Flat(1),
+            TraitEffects.modifiers(listOf(advantage(TraitEffects.CHARISMA)), key("Savoir-Faire"))
+                .single().effect,
+        )
+        val outdoorsman = listOf(advantage("${TraitEffects.OUTDOORSMAN} 1"))
+        assertEquals(
+            ModEffect.Flat(1),
+            TraitEffects.modifiers(outdoorsman, key("Tracking", ControllingAttribute.Per))
+                .single().effect,
+        )
+        assertEquals(
+            ModEffect.Flat(3),
+            TraitEffects.modifiers(listOf(advantage("${TraitEffects.OUTDOORSMAN} 3")), key("Fishing"))
+                .single().effect,
+        )
+        // A flat row is untouched by a level printed beside it: the Balance
+        // rows print no "per level" and must not start scaling.
+        assertEquals(
+            ModEffect.Flat(2),
+            TraitEffects.modifiers(
+                listOf(advantage("${TraitEffects.PERFECT_BALANCE} 3")),
+                key("Climbing", ControllingAttribute.Buyable(Attr.DX)),
+            ).single().effect,
+        )
+    }
+
+    /**
+     * **Both cells print their own ceiling** -- "[max 4 levels]" and "Max 4
+     * levels." -- so a fifth level buys nothing. Unreachable from the 23
+     * fixtures, whose highest is 2, which is exactly why it is pinned: the
+     * permissive path is what the next caller finds (6l).
+     */
+    @Test
+    fun `a levelled row stops at the ceiling its own cell prints`() {
+        val iq = ControllingAttribute.Buyable(Attr.IQ)
+        fun key(name: String) = SkillKey(name, null, iq, Difficulty.AVERAGE)
+        val cap = TraitEffects.CAPPED_LEVELS
+        assertEquals(
+            ModEffect.Flat(cap),
+            TraitEffects.modifiers(listOf(advantage("${TraitEffects.CHARISMA} 9")), key("Streetwise"))
+                .single().effect,
+        )
+        assertEquals(
+            ModEffect.Flat(cap),
+            TraitEffects.modifiers(
+                listOf(advantage("${TraitEffects.OUTDOORSMAN} 9")),
+                key("Naturalist"),
+            ).single().effect,
+        )
+    }
+
+    /**
+     * **The join is to the BRACKET, not to the phrase above it.** "Influence
+     * skills" reads like a category, and this book does print five skill
+     * categories as banners -- but Influence is not one of them, and
+     * **Streetwise, inside Charisma's own bracket, is not under the SOCIAL
+     * banner**. Decisive on its own; and the same phrase encloses a DIFFERENT
+     * list one content file over, in a Witch ability that names Diplomacy,
+     * Fast-Talk and Sex Appeal. Two enumerations, one phrase, so each cell's
+     * bracket is its own list.
+     *
+     * Pinned here because a later reading that modelled "Influence skills" as
+     * a group would quietly widen Charisma onto every social skill and narrow
+     * it off Streetwise in the same change.
+     */
+    @Test
+    fun `the same phrase encloses a different list elsewhere in the book`() {
+        val elsewhere = ContentLoader.pathways()
+            .mapNotNull { Regex("Influence skill rolls \\(([^)]*)\\)").find(it.reinforcedAbilities) }
+            .map { it.groupValues[1].split(", ").toSet() }
+            .firstOrNull()
+        assertTrue(elsewhere != null, "the Witch's Influence bracket is no longer in pathways.json")
+        assertTrue(
+            elsewhere != TraitEffects.skillsFor(TraitEffects.CHARISMA),
+            "one phrase, one list -- the per-cell reading would lose its evidence",
+        )
+        // Every name either bracket prints is a skill this book prints, which
+        // is what makes the name join reach anything at all.
+        val printed = ContentLoader.skills().map { it.name }.toSet()
+        for (name in TraitEffects.skillsFor(TraitEffects.CHARISMA) + elsewhere!!) {
+            assertTrue(name in printed, "$name is named by a bracket and printed by no skill list")
+        }
+    }
+
+    /**
      * **Two named-skill bonuses ADD.** Pickpocket owns Perfect Balance and
      * Flexibility and buys Climbing; nothing in the book makes two
      * independently purchased advantages exclusive, so a Climbing roll takes
@@ -411,9 +551,13 @@ class TraitEffectsTest {
             val reported = TraitEffects.reported(listOf(advantage(trait))).map { it.printed }
             val segments = cell.split(';', '.').map { it.trim() }.filter { it.isNotEmpty() }
             for (segment in segments) {
+                val cap = TraitEffects.maxLevelsFor(trait)
                 val handled = segment in leadIn ||
                     // the applied clause names the skills it lifts
                     TraitEffects.skillsFor(trait).any { segment.contains(it) } ||
+                    // ...and a levelled row's own ceiling, which is applied
+                    // rather than reported, so it is not a dropped clause.
+                    (cap != null && segment.contains("$cap levels")) ||
                     reported.any { it.contains(segment) || segment.contains(it) }
                 assertTrue(handled, "$trait drops the clause \"$segment\"")
             }

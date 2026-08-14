@@ -57,6 +57,18 @@ object TraitEffects {
     const val IRON_JAW = "Iron Jaw"
     const val RAPID_RECOVERY = "Rapid Recovery"
     const val NIGHT_EYES = "Night Eyes"
+    const val CHARISMA = "Charisma"
+    const val OUTDOORSMAN = "Outdoorsman"
+
+    /**
+     * The ceiling both levelled skill rows print for themselves -- Charisma's
+     * "[max 4 levels]" and Outdoorsman's "Max 4 levels."
+     *
+     * A property of those two cells, not of levelled traits generally:
+     * Alertness is "+1 per level" and prints no ceiling at all, so a general
+     * cap would invent one for it.
+     */
+    const val CAPPED_LEVELS = 4
 
     /** "Reduce all darkness penalties by 2". */
     const val NIGHT_EYES_REDUCTION = 2
@@ -112,16 +124,53 @@ object TraitEffects {
      * Recorded, never repaired, and the name join reaches them the day either
      * appears (6bf's "Wrestling Master", 6x's "Ancient Loen").
      */
-    private val SKILL_BONUSES: Map<String, Pair<Int, Set<String>>> = mapOf(
-        PERFECT_BALANCE to (2 to BALANCE_SKILLS),
-        GREAT_BALANCE to (1 to BALANCE_SKILLS),
-        "Flexibility" to (3 to setOf("Climbing", "Escape")),
-        "Double-Jointed" to (5 to setOf("Climbing", "Escape")),
-        "Healer" to (3 to setOf("First Aid")),
-        "Medical Training (Informal)" to (1 to setOf("First Aid")),
-        "Sanctity" to (2 to setOf("Theology", "Religious Ritual")),
-        "Absolute Direction" to (3 to setOf("Navigation", "Body Sense")),
+    private val SKILL_BONUSES: Map<String, SkillBonus> = mapOf(
+        PERFECT_BALANCE to flat(2, BALANCE_SKILLS),
+        GREAT_BALANCE to flat(1, BALANCE_SKILLS),
+        "Flexibility" to flat(3, setOf("Climbing", "Escape")),
+        "Double-Jointed" to flat(5, setOf("Climbing", "Escape")),
+        "Healer" to flat(3, setOf("First Aid")),
+        "Medical Training (Informal)" to flat(1, setOf("First Aid")),
+        "Sanctity" to flat(2, setOf("Theology", "Religious Ritual")),
+        "Absolute Direction" to flat(3, setOf("Navigation", "Body Sense")),
+        CHARISMA to perLevel(
+            1,
+            setOf(
+                "Leadership", "Panhandling", "Public Speaking",
+                "Savoir-Faire", "Sex Appeal", "Streetwise",
+            ),
+        ),
+        OUTDOORSMAN to perLevel(
+            1,
+            setOf(
+                "Camouflage", "Fishing", "Naturalist", "Navigation",
+                "Survival", "Tracking", "Weather Sense",
+            ),
+        ),
     )
+
+    /**
+     * One row of [SKILL_BONUSES]: what a cell adds, and to which skills.
+     *
+     * [perLevel] is spelt out rather than inferred from a nullable ceiling,
+     * because a row that scales and a row that does not are two readings of a
+     * cell and the wrong default loses a bonus in silence. The two
+     * constructors below are what make it impossible to get by accident.
+     */
+    private data class SkillBonus(
+        val value: Int,
+        val skills: Set<String>,
+        val perLevel: Boolean,
+        val maxLevels: Int?,
+    )
+
+    /** A cell that prints one number however many levels are owned. */
+    private fun flat(value: Int, skills: Set<String>) =
+        SkillBonus(value, skills, perLevel = false, maxLevels = null)
+
+    /** A cell that prints "+n per level" and its own ceiling. */
+    private fun perLevel(value: Int, skills: Set<String>) =
+        SkillBonus(value, skills, perLevel = true, maxLevels = CAPPED_LEVELS)
 
     /**
      * What [traits] add to an HT roll that can knock the character down.
@@ -313,11 +362,14 @@ object TraitEffects {
         // this cell does. Nothing in the book makes the two rows exclusive, so
         // a character printing both would take both -- the literal reading,
         // and no premade prints either beside the other.
-        for ((trait, effect) in SKILL_BONUSES) {
-            val (value, skills) = effect
-            if (skill.name in skills) {
-                levelOf(traits, trait)?.let { add(bonus(trait, value)) }
-            }
+        for ((trait, row) in SKILL_BONUSES) {
+            if (skill.name !in row.skills) continue
+            val owned = levelOf(traits, trait) ?: continue
+            // A flat row is flat whatever level the sheet prints beside it:
+            // only a cell that says "per level" scales, and only as far as
+            // its own printed ceiling.
+            val levels = if (row.perLevel) minOf(owned, row.maxLevels ?: owned) else 1
+            add(bonus(trait, row.value * levels))
         }
     }
 
@@ -360,11 +412,24 @@ object TraitEffects {
     fun skillBonusNames(): Set<String> = SKILL_BONUSES.keys
 
     /** The skills [trait] names, empty for a trait that names none. */
-    fun skillsFor(trait: String): Set<String> = SKILL_BONUSES[trait]?.second.orEmpty()
+    fun skillsFor(trait: String): Set<String> = SKILL_BONUSES[trait]?.skills.orEmpty()
 
-    /** Every trait this object knows about, applied or not. */
+    /** The ceiling [trait]'s own cell prints, null for a row that prints none. */
+    fun maxLevelsFor(trait: String): Int? = SKILL_BONUSES[trait]?.maxLevels
+
+    /**
+     * Every trait this object knows about, applied or not.
+     *
+     * [skillBonusNames] is in here because Outdoorsman is the first row that
+     * is wholly applied and has no clause left to report -- every earlier one
+     * happened to appear in [PARTLY_APPLIED] as well, so the catalogue guard
+     * covered them by accident (Codex, on the design). A typo in a name that
+     * appears nowhere else makes the modifier unreachable in silence, which
+     * is exactly what that guard exists to catch.
+     */
     fun known(): Set<String> =
-        UNAPPLIED.keys + PARTLY_APPLIED.keys + setOf(ALERTNESS, FIT, COMBAT_REFLEXES)
+        UNAPPLIED.keys + PARTLY_APPLIED.keys + SKILL_BONUSES.keys +
+            setOf(ALERTNESS, FIT, COMBAT_REFLEXES)
 
     /** The traits reported whole, for the disjointness test. */
     fun unappliedNames(): Set<String> = UNAPPLIED.keys
@@ -454,6 +519,17 @@ object TraitEffects {
             "once per session, the GM must answer one factual question about " +
                 "Church doctrine or history honestly" to
                 "this app holds no session to count, and the answer is the GM's",
+        ),
+        // Charisma's cell prints its two halves in ONE sentence joined by
+        // "and", which is why the clause guard cannot see the reaction half
+        // on its own -- the whole cell is a single segment and the skill
+        // names inside it satisfy the check. Reported explicitly for that
+        // reason. Outdoorsman's cell has no second clause at all.
+        CHARISMA to listOf(
+            "+1/level to reaction rolls" to
+                "this book prints no reaction roll to make, and at least five " +
+                "sources hand one out, so each is shown beside its source " +
+                "rather than summed",
         ),
     )
 
