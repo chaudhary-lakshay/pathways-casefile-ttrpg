@@ -184,6 +184,70 @@ class TraitEffectsTest {
         )
     }
 
+    // ---- a sheet that prints the effect beside the name --------------------
+
+    /**
+     * **Three premades store a trait's name and the book's own effect cell as
+     * ONE string**, because the published sheet printed them on one line:
+     * `"Healer - +2 to all rolls to diagnose, treat, and heal; ..."`. Nothing
+     * resolved those to a catalogue row, so every clause they carry was
+     * invisible -- and `Charity` prints a self-control number, which means the
+     * roll 6am shipped could not be made on the character that owns it.
+     *
+     * **The tail is not a guess: it must equal the catalogue row's own
+     * notes.** That is what separates this from the unmatched spellings 6am
+     * recorded ("Absent-Minded" against "Absent-Mindedness"), where the only
+     * evidence is resemblance. Here the sheet quotes the book verbatim.
+     */
+    @Test
+    fun `a name printed beside the book's own effect resolves to that row`() {
+        val healer = ContentLoader.advantages().first { it.name == "Healer" }
+        val glued = Trait("Healer - ${healer.notes}", 15, TraitKind.ADVANTAGE)
+        assertEquals("Healer", TraitEffects.catalogueName(glued.name))
+        assertEquals(1, TraitEffects.levelOf(listOf(glued), "Healer"))
+        // ...and the whitespace the sheet wrapped it with does not matter.
+        val wrapped = Trait("Healer - ${healer.notes.replace(" ", "\n")}", 15, TraitKind.ADVANTAGE)
+        assertEquals("Healer", TraitEffects.catalogueName(wrapped.name))
+    }
+
+    /**
+     * A tail that is NOT the catalogue's own words stays unmatched, so the
+     * fixtures' other glued names are still recorded rather than guessed at:
+     * "Sense of Duty (Flock)" is a `(specify)` instantiation and "Blacklisted:
+     * Specific Industry org or church" is a spelling this book never prints.
+     */
+    @Test
+    fun `a tail that is not the book's own words is left unmatched`() {
+        for (name in listOf(
+            "Healer - something the book never says",
+            "Sense of Duty (Flock) - Must help/protect certain groups",
+            "Blacklisted: Specific Industry org or church",
+        )) {
+            assertEquals(name, TraitEffects.catalogueName(name), name)
+        }
+        // A level in the name is still a level, not a glued effect.
+        assertEquals("Alertness", TraitEffects.catalogueName("Alertness 2"))
+        // And a colon-suffixed name is part of the name (6al).
+        assertEquals("Poverty: Struggling", TraitEffects.catalogueName("Poverty: Struggling"))
+    }
+
+    /**
+     * The resolution is SHARED, which is the whole point: a trait that is
+     * applied must also be reported, or a screen shows a bonus with no
+     * explanation beside a cell that vanished. Two matchers is the
+     * two-copies-of-one-decision failure (6ag, 6ai, 6be, 6bp).
+     */
+    @Test
+    fun `a glued name is reported as well as resolved`() {
+        val row = ContentLoader.advantages().first { it.name == TraitEffects.RAPID_RECOVERY }
+        val glued = Trait("${TraitEffects.RAPID_RECOVERY} - ${row.notes}", 5, TraitKind.ADVANTAGE)
+        val notes = TraitEffects.reported(listOf(glued))
+        assertEquals(1, notes.size, "the glued trait reported nothing: $notes")
+        // The sheet's own spelling is what the GM sees; only the LOOKUP moved.
+        assertEquals(glued.name, notes.single().trait)
+        assertEquals(row.notes, notes.single().printed)
+    }
+
     // ---- the balance rows -------------------------------------------------
 
     /**

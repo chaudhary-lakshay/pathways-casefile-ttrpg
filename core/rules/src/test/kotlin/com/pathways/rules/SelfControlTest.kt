@@ -5,6 +5,7 @@ import com.pathways.model.TraitKind
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SelfControlRoll
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -15,6 +16,27 @@ import org.junit.jupiter.api.assertThrows
 class SelfControlTest {
 
     private fun dis(name: String) = Trait(name, 5, TraitKind.DISADVANTAGE)
+
+    /**
+     * **A roll this app shipped and one premade could not make.** Church
+     * Healer's sheet stores `Charity` with the book's own effect cell glued to
+     * the name, and `checksFor` matched the raw string against the catalogue --
+     * so the character whose defining drawback is a Will roll had no Will roll.
+     *
+     * The resolution is [TraitEffects.catalogueName], shared with the applied
+     * and reported paths rather than repeated here (6ag, 6ai, 6be, 6bp).
+     */
+    @Test
+    fun `a name printed beside the book's own effect still finds its roll`() {
+        val charity = ContentLoader.disadvantages().first { it.name == "Charity" }
+        assertNotNull(charity.selfControl, "Charity no longer prints a self-control roll")
+        val glued = dis("Charity - ${charity.notes}")
+        val checks = SelfControl.checksFor(listOf(glued))
+        assertEquals(1, checks.size, "$checks")
+        // The sheet's own spelling is what the screen shows, not the book's.
+        assertEquals(glued.name, checks.single().trait)
+        assertEquals(charity.notes, checks.single().printed)
+    }
     /** [RandomSource] yields one FACE per call; 3d6 asks three times. */
     private fun scripted(vararg faces: Int): RandomSource {
         var next = 0

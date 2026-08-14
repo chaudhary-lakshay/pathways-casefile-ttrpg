@@ -264,7 +264,10 @@ fun SheetScreen(
     val drawbacks = remember(traits) {
         val printed = ContentLoader.disadvantages().associateBy { it.name.lowercase() }
         traits.filter { it.kind == TraitKind.DISADVANTAGE }
-            .map { it to printed[it.name.lowercase()]?.notes }
+            // Through the one resolution, so a sheet that printed the effect
+            // beside the name still finds its row: Church Healer stores
+            // "Charity - <the book's own cell>" and got no effect line at all.
+            .map { it to printed[TraitEffects.catalogueName(it.name).lowercase()]?.notes }
     }
     // Damage rolls off ST, Boxing's bonus off DX and a Major Wound off HT, all
     // AFTER any potion that raised them -- the same digested character the

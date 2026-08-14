@@ -11,6 +11,7 @@ import com.pathways.model.ModifierSource
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.rules.content.ContentLoader
+import com.pathways.rules.content.TraitDefinition
 
 /** A trait whose printed effect is real and reaches nothing here, and why. */
 data class TraitNote(val trait: String, val printed: String, val reason: String)
@@ -176,13 +177,62 @@ object TraitEffects {
      */
     fun levelOf(traits: List<Trait>, name: String): Int? {
         val owned = traits.firstOrNull {
-            it.name.equals(name, ignoreCase = true) ||
-                it.name.startsWith("$name ", ignoreCase = true)
+            catalogueName(it.name).equals(name, ignoreCase = true)
         } ?: return null
         // A trailing integer is a level; anything else is part of the name
         // ("Poverty: Struggling"), so it does not become one.
         return owned.name.substringAfterLast(' ').toIntOrNull() ?: 1
     }
+
+    /**
+     * The catalogue row an owned trait's printed name resolves to, or that
+     * name unchanged when it resolves to none.
+     *
+     * **One resolution, shared by everything that matches a trait**: this
+     * object's applied bonuses and [reported], [SelfControl.checksFor], and
+     * the sheet's disadvantage rows. Two matchers is how a character ends up
+     * with a bonus whose explanation vanished -- the
+     * two-copies-of-one-decision failure this file records three times over
+     * (6ag, 6ai, 6be) and 6bp repeated in a caption.
+     *
+     * Two shapes resolve. A trailing integer is a LEVEL, so "Alertness 2" is
+     * Alertness (6al). And **three premades print the trait's name and the
+     * book's own effect cell as one string** -- "Healer - +2 to all rolls to
+     * diagnose, treat, and heal; ..." -- because the published sheet ran them
+     * together on one line.
+     *
+     * **The second shape is an exact join, not a fuzzy one.** The tail must
+     * equal the catalogue row's own notes, ignoring the whitespace the sheet
+     * wrapped it with; the sheet is quoting the book verbatim, so the two are
+     * provably the same trait. That is what makes it different from the
+     * unmatched spellings 6am recorded -- "Absent-Minded" against
+     * "Absent-Mindedness", "Paranoia: Bodies of water" against a bare
+     * "Paranoia" -- where the only evidence is resemblance and 4.1 says the
+     * disagreement is recorded rather than guessed away. Four other glued
+     * names in the fixtures fail this test and stay unmatched.
+     */
+    fun catalogueName(printed: String): String {
+        if (printed.substringAfterLast(' ').toIntOrNull() != null) {
+            return printed.substringBeforeLast(' ')
+        }
+        val head = printed.substringBefore(SHEET_SEPARATOR)
+        if (head == printed) return printed
+        val row = catalogue()[head.lowercase()] ?: return printed
+        val tail = printed.substringAfter(SHEET_SEPARATOR)
+        return if (squashed(tail) == squashed(row.notes)) head else printed
+    }
+
+    /** How a published sheet separates a trait's name from its effect cell. */
+    private const val SHEET_SEPARATOR = " - "
+
+    /** Both catalogues by lowercase name: a trait may be either kind. */
+    private fun catalogue(): Map<String, TraitDefinition> =
+        (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .associateBy { it.name.lowercase() }
+
+    /** Wrapping is the sheet's, so it cannot decide whether two cells agree. */
+    private fun squashed(text: String): String =
+        text.split(Regex("\\s+")).filter { it.isNotEmpty() }.joinToString(" ").trim()
 
     /**
      * What [traits] add to a roll of [skill].
@@ -236,7 +286,7 @@ object TraitEffects {
     fun reported(traits: List<Trait>): List<TraitNote> {
         val catalogue = ContentLoader.advantages().associateBy { it.name.lowercase() }
         return traits.flatMap { owned ->
-            val bare = bareName(owned.name)
+            val bare = catalogueName(owned.name)
             val printed = catalogue[bare.lowercase()]?.notes ?: return@flatMap emptyList()
             val whole = UNAPPLIED[bare]?.let { listOf(TraitNote(owned.name, printed, it)) }.orEmpty()
             // A trait can be applied and still have rules left over, so the
@@ -343,14 +393,6 @@ object TraitEffects {
         IRON_JAW to "this app rolls no knockdown for a hit location, and no bite",
         RAPID_RECOVERY to "both halves are durations, and this app holds no clock",
     )
-
-    /** "Alertness 1" -> "Alertness"; an unlevelled name is returned as-is. */
-    private fun bareName(name: String): String =
-        if (name.substringAfterLast(' ').toIntOrNull() != null) {
-            name.substringBeforeLast(' ')
-        } else {
-            name
-        }
 
     private fun bonus(trait: String, value: Int) = Modifier(
         id = ModifierId("trait:${trait.lowercase()}"),
