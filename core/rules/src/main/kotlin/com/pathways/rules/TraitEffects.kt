@@ -434,7 +434,45 @@ object TraitEffects {
         if (printed.substringAfterLast(' ').toIntOrNull() != null) {
             return printed.substringBeforeLast(' ')
         }
-        return gluedHead(printed) ?: printed
+        return placeholderRow(printed) ?: gluedHead(printed) ?: printed
+    }
+
+    /** How the book asks a sheet to name an instance: "Phobia (specify)". */
+    const val PLACEHOLDER = " (specify)"
+
+    /**
+     * The placeholder row a printed name is an INSTANCE of, or null.
+     *
+     * Five rows print [PLACEHOLDER] in their name and eight fixture traits
+     * fill it in -- "Phobia (Cities)", three Duties, three Vows, "Resistant
+     * (Disease +3)". None resolved before, so every clause they carry was
+     * invisible, including the only Fright Check modifier a premade owns.
+     *
+     * **The warrant is an instruction, not a resemblance.** "(specify)" is the
+     * book telling the reader to substitute, and Duty's cell says it in words:
+     * "Specify organization and nature at creation." The same reading matched
+     * `"Hidden Lore (relevant domain)"` for a ritual's supporting skills
+     * (6am), and seven other cells print "(specify)" inside their own prose.
+     *
+     * **So the join turns on the BOOK printing the word, never on the sheet
+     * printing a bracket.** That is what keeps it out of 4.1's territory: the
+     * qualifiers 6am refused -- "Paranoia: Bodies of water", "Shyness (Mild)",
+     * "Social Stigma (Criminal)", "Sense of Duty (Patients)" -- hang off rows
+     * whose names print no placeholder at all, and they stay unmatched.
+     *
+     * The trailing bracket is the instance, so a row name that carries its own
+     * ("Pathway Resonance (Hostile)") cannot be mistaken for a head.
+     */
+    private fun placeholderRow(printed: String): String? {
+        if (!printed.endsWith(")")) return null
+        val open = printed.lastIndexOf(" (")
+        if (open <= 0) return null
+        val inside = printed.substring(open + 2, printed.length - 1)
+        // An empty bracket names nothing, and the row is not an instance of
+        // itself.
+        if (inside.isBlank() || " ($inside)" == PLACEHOLDER) return null
+        val head = printed.substring(0, open)
+        return catalogue()["${head.lowercase()}$PLACEHOLDER"]?.name
     }
 
     /**
@@ -864,6 +902,18 @@ object TraitEffects {
         // missing is the join between a trait and that roll's modifier. Named
         // as the next slice, and nothing is lost meanwhile: no premade carries
         // any of the four.
+        // Two rows that became visible with [placeholderRow], because eight
+        // sheet spellings fill their placeholder in. Both print a number that
+        // reaches nothing, and both would otherwise go quiet on the character
+        // who owns them -- Church Healer's Resistant, and three premades' Duty.
+        "Resistant (specify)" to
+            "the bonus is scoped to a category the GM names (Disease, Poison, " +
+            "Temperature Extremes), and the one bare HT roll this app makes — " +
+            "a Major Wound's — resists none of them",
+        "Duty (specify)" to
+            "its \"roll 9 or less\" is how often the duty comes up rather than " +
+            "a roll this character makes, the same refusal Phobia's Fright " +
+            "Check line carries in SelfControl (6am)",
         "Fearlessness" to FRIGHT_MODIFIER_UNJOINED,
         "Faithful Grounding" to FRIGHT_MODIFIER_UNJOINED,
         "Chronophobia (Temporal)" to FRIGHT_MODIFIER_UNJOINED,

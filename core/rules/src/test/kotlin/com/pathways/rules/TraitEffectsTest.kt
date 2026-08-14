@@ -1078,6 +1078,110 @@ class TraitEffectsTest {
         for (name in unmatched) assertEquals(name, TraitEffects.displayName(name))
     }
 
+    // ---- the placeholder the book tells the sheet to fill ------------------
+
+    /**
+     * **Five catalogue rows print a placeholder in their NAME**, and eight
+     * fixture traits across eight premades are instances of four of them:
+     * "Phobia (Cities)", three Duties, three Vows, "Resistant (Disease +3)".
+     * None resolved before this join, so every clause they carry was
+     * invisible -- and one of them is the only Fright Check modifier any
+     * premade owns.
+     *
+     * **The warrant is an INSTRUCTION, not a resemblance.** The book writes
+     * "(specify)" where the reader is to substitute, and Duty's own cell says
+     * so in words: "Specify organization and nature at creation." A sheet
+     * writing "Duty (Regiment)" is obeying that, exactly as
+     * `"Hidden Lore (relevant domain)"` was read as an instruction and matched
+     * one section over (6am).
+     */
+    @Test
+    fun `an instance of a placeholder row resolves to that row`() {
+        val expected = mapOf(
+            "Phobia (Cities)" to "Phobia (specify)",
+            "Duty (Nighthawks)" to "Duty (specify)",
+            "Duty (PMC)" to "Duty (specify)",
+            "Duty (Regiment)" to "Duty (specify)",
+            "Vow (Poverty)" to "Vow (specify)",
+            "Vow (Partial Silence)" to "Vow (specify)",
+            "Vow (Vegetarian)" to "Vow (specify)",
+            "Resistant (Disease +3)" to "Resistant (specify)",
+        )
+        // Every one is really on a sheet: a join no premade exercises is a
+        // rule nothing can reach (6bc, 6bs).
+        val owned = Premades.all()
+            .flatMap { it.advantages + it.disadvantages }
+            .map { it.name }
+            .toSet()
+        for ((printed, row) in expected) {
+            assertTrue(printed in owned, "$printed is on no sheet any more")
+            assertEquals(row, TraitEffects.catalogueName(printed), printed)
+        }
+        // The row itself is not an instance of itself.
+        assertEquals("Phobia (specify)", TraitEffects.catalogueName("Phobia (specify)"))
+        // The instantiation is CONTENT, so the name a screen prints keeps it:
+        // "Phobia" alone would drop which fear this character has.
+        assertEquals("Phobia (Cities)", TraitEffects.displayName("Phobia (Cities)"))
+    }
+
+    /**
+     * **A qualifier the book never asked for stays unmatched.** These sheets
+     * add a bracket or a colon to a catalogue name that prints NO placeholder,
+     * so the only evidence is resemblance -- and 4.1 says the disagreement is
+     * recorded, never guessed away (6am refused these first).
+     *
+     * That boundary is the whole reason the join above is legitimate: it turns
+     * on the book printing the word, not on the sheet printing a bracket.
+     */
+    @Test
+    fun `a qualifier the book never asked for stays unmatched`() {
+        val placeholders = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .map { it.name }
+            .filter { it.endsWith(TraitEffects.PLACEHOLDER) }
+        assertEquals(
+            listOf(
+                "Language (specify)", "Resistant (specify)",
+                "Duty (specify)", "Vow (specify)", "Phobia (specify)",
+            ),
+            placeholders,
+            "the set of rows printing a placeholder changed",
+        )
+        // Duty says the instruction out loud; the others print the word alone.
+        assertTrue(
+            ContentLoader.disadvantages().single { it.name == "Duty (specify)" }
+                .notes.contains("Specify organization and nature at creation"),
+        )
+        for (name in listOf(
+            "Paranoia: Bodies of water",     // the row is a bare "Paranoia"
+            "Shyness (Mild)",                // a bare "Shyness"
+            "Social Stigma (Criminal)",      // a bare "Social Stigma"
+            "Secret (Courier network)",
+            "Sense of Duty (Patients)",
+            "Absent-Minded",                 // "Absent-Mindedness" in the book
+            "Pacifism (Cannot Kill)",        // no such row at all
+        )) {
+            assertEquals(name, TraitEffects.catalogueName(name), name)
+        }
+    }
+
+    /**
+     * Resolving a row is not applying it. "Resistant (specify)" reads "HT
+     * rolls to resist a specific category at +3 (3 pts) or +8 (5 pts)", and
+     * the one bare HT roll this app makes -- a Major Wound's -- resists
+     * neither disease nor poison nor temperature, so it must NOT pick this
+     * bonus up beside Fit's and Unfit's. Church Healer owns it, so the day it
+     * leaked the number would be on a real character's screen.
+     */
+    @Test
+    fun `a category-scoped HT bonus does not reach the major wound roll`() {
+        val resistant = listOf(Trait("Resistant (Disease +3)", 3, TraitKind.ADVANTAGE))
+        assertEquals(0, TraitEffects.majorWoundHt(resistant).bonus)
+        assertNull(TraitEffects.majorWoundHt(resistant).line)
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(resistant, ht))
+        // ...and it says so on the sheet rather than going quiet.
+        assertTrue(TraitEffects.reported(resistant).any { "+3 (3 pts)" in it.printed })
+    }
+
     @Test
     fun `a bare social rolls clause reaches no skill`() {
         val loner = listOf(Trait("Loner", 5, TraitKind.DISADVANTAGE))
