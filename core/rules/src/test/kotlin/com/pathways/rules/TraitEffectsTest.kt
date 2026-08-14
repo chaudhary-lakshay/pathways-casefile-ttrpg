@@ -1244,6 +1244,13 @@ class TraitEffectsTest {
             "marks it instantiable -- and the qualifier paraphrases the row's own " +
             "notes rather than quoting them, which is what 6br's exact-tail rule " +
             "refuses",
+
+        // --- an instantiation that QUOTES, on a head that is not a row -----
+        // Filed above with the paraphrase in 6by; it is not one. Its tail
+        // reproduces the catalogue's notes exactly -- the only row in the
+        // corpus that quotes verbatim behind an instantiated head -- so what
+        // refuses it is the HEAD, never the quality of the quotation. The
+        // distinction is the whole warrant for the gap below.
         "Sense of Duty (Flock) - Must help/protect certain groups even at personal risk" to
             "the tail IS the catalogue's own words, but the head " +
             "\"Sense of Duty (Flock)\" is not a printed name, so the glue rule " +
@@ -1289,7 +1296,66 @@ class TraitEffectsTest {
      * instances and leave Secret alone, because no sheet quotes Secret's cell.
      * Recorded here so the next reader inherits the evidence rather than the
      * conclusion.
+     *
+     * **A census of the fixtures, for whoever builds it** (facts, not
+     * recollection -- and the thing 6by did not have):
+     *
+     *  - Nine of the nineteen withheld rows are instantiated by the 23
+     *    published sheets, across 19 instances. (I counted 18 by hand and the
+     *    test said 19 -- which is why it is a test.)
+     *  - EVERY one of the 19 pays a cost INSIDE its row's printed range. None
+     *    outside. That is the book's own cast doing what a bare range implies,
+     *    and it is a claim about PRICING, which is a different question from
+     *    the NAME RESOLUTION refused above.
+     *  - The ranged rows are three shapes, not one: two enumerate named
+     *    variants (Shyness, Social Stigma); two print a SCALE with worked
+     *    points (Mystical Item, Duty) and say the value moves; the rest print
+     *    a bare interval. "Reputation" alone prints no bounds at all, so it
+     *    has no interval to pick inside and is not the same case as the other
+     *    thirteen.
+     *  - "Compulsion: Collection (pathway)" carries a Will-2 self-control
+     *    roll, so offering these rows is not a cosmetic change.
      */
+    /**
+     * **The pricing warrant, checked over every sheet rather than asserted.**
+     *
+     * A row printing "-2 to -15" instead of a price is withheld from the trait
+     * picker today, and the question the next slice has to answer is whether a
+     * player may buy one at a cost they choose. The book's own cast already
+     * does: nine withheld rows are instantiated across the 23 sheets, and all
+     * 18 instances pay INSIDE their row's printed interval.
+     *
+     * That is why this is a test and not a sentence (6bu). The day a sheet
+     * pays outside its row's range, the warrant is gone and the reading has to
+     * be made again rather than inherited (6ba). It also fails if a row stops
+     * printing bounds, which is the other half of the same claim.
+     *
+     * This reaches names production deliberately refuses -- an audit is a
+     * strict SUPERSET of the resolver, free to reach further so it can report
+     * on a near-match, never permitted to reach less (6bz).
+     */
+    @Test
+    fun `every instance of a ranged row pays inside the range the book prints`() {
+        val ranged = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .filter { it.cost == null && it.costMin != null && it.costMax != null }
+            .associateBy { it.name }
+        val checked = Premades.all()
+            .flatMap { sheet -> (sheet.advantages + sheet.disadvantages).map { sheet.name to it } }
+            .mapNotNull { (sheet, owned) ->
+                val head = owned.name.substringBefore(" (").substringBefore(" - ")
+                val row = ranged[head] ?: ranged["$head${TraitEffects.PLACEHOLDER}"]
+                    ?: return@mapNotNull null
+                assertTrue(
+                    owned.cost >= row.costMin!! && owned.cost <= row.costMax!!,
+                    "$sheet pays ${owned.cost} for ${owned.name}, outside " +
+                        "${row.name}'s printed ${row.costMin}..${row.costMax}",
+                )
+                owned.name
+            }
+        assertEquals(19, checked.size, "the fixtures instantiate 19 ranged rows")
+        assertEquals(9, checked.map { it.substringBefore(" (") }.distinct().size)
+    }
+
     private companion object {
         const val SEE_RANGED_TEMPLATE_GAP =
             "the book marks this row instantiable by printing a cost RANGE the " +
