@@ -12,10 +12,25 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6bw, then 6bv, 6bu, 6bt, 6bs, 6br, 6bq, 6bp, 6bo, 6bn,
-6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6bw is the one to read first,
-because it is the first slice to **overturn its immediate predecessor's own
-refusal** — and to be right to. 6bv pinned nine sheet spellings as permanently
+**Where to start next: 6bx, then 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq, 6bp, 6bo, 6bn,
+6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6bx is the one to read first,
+because it is the first slice whose finding was already written down **in this
+repo's own test suite** — `ContentLoaderTest` has carried the alias
+`"Poverty: Struggling" -> "Wealth: Struggling"` since M0, and production matched
+on a prefix that answered null for the nine sheets using it. The test knew and
+the code did not (6as's cheapest kind of miss), and the consequence was not a
+missing display but a **live double count**: `applied()` filtered on the same
+prefix, so picking a level left the sheet's poverty row standing beside the
+chosen one — precisely what that function's own KDoc says it prevents. Read it
+for two things. First, **a hardcoded alias in a test is a finding, not a
+warrant**: the same map pairs "Absent-Minded" with "Absent-Mindedness", which
+production deliberately refuses (6am), so the evidence had to come from the book
+instead. Second, its design review caught a **regression the decomposition would
+have shipped** — a uniform price-agreement rule stops resolving Fortune Teller's
+canonical row, which has always worked — and split the design in two: *deriving
+a level* and *being replaced by the picker* are different questions, and the
+tenth sheet answers them differently. 6bw is next, because it is the first slice
+to **overturn its immediate predecessor's own refusal** — and to be right to. 6bv pinned nine sheet spellings as permanently
 unmatched, giving the reason "the sheet added a qualifier the book never asked
 for, so the only evidence is resemblance". For two of the nine that sentence is
 simply false: the cell ENUMERATES its own variants with their prices, and the
@@ -174,7 +189,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1055 Kotlin** (JUnit 5 — 960 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
+| Tests | **1063 Kotlin** (JUnit 5 — 968 `core:rules`, 75 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -6840,6 +6855,139 @@ are purchasable, which is also what unblocks the Seven Orthodox Gods Blessings
 question inside it — a blessing costs 75 points AND grants attributes, and M3's
 rule is that granted attributes are never written into the billable fields —
 so it wants its own review, not a content pass.
+
+## 6bx. The economic status nine sheets spell their own way
+
+`Wealth.levelOf` reads the level a sheet names under either printed head word,
+and `Wealth.namesEconomicStatus` decides what the picker must replace. 6bw
+named `Ether Body Damage` as the next slice; a census of what the 23 fixtures
+ACTUALLY carry found something bigger on the way past, and the deferral stands
+untouched.
+
+**Nine of the 23 premades print `Poverty: Struggling`.** The book prints
+`Wealth: Struggling`. `levelOf` matched `startsWith("Wealth: ")`, so nine
+characters' economic status was invisible to the builder's wealth row, which
+read "the sheet prints no wealth level" for a sheet that prints one. 6u shipped
+that row and device-verified it on Academic Researcher — which prints
+`Wealth: Poor`, and therefore worked.
+
+**The display was the smaller half.** `applied()` filtered on the SAME prefix,
+so choosing any level ADDED it and LEFT the sheet's poverty row. That is
+verbatim what its own KDoc says it prevents: *"a sheet's printed 'Wealth: Poor'
+left beside a bought 'Wealth: Wealthy' would raise the budget by 15 and spend
+15 in the same breath, and the totals would still look plausible."* Picking
+Dead Broke on such a character gave 10 + 25 = 35 points of poverty refunds
+under a 40-point cap — plausible, and wrong. Printed-and-CONTRADICTED (6aq,
+6ar), with the app contradicting its own written rule rather than the book's.
+
+### The finding was already in this repo's test suite
+
+`ContentLoaderTest` has carried this since M0:
+
+```kotlin
+"Poverty: Struggling" to "Wealth: Struggling",
+```
+
+So a test has known these are one trait for as long as the fixtures have been
+wired up, and reconciles their COSTS through it — while production matched on a
+prefix that could not see it. **The test knew and the code did not**, which is
+what 6as said about `DetectionTest`'s scope: the cheapest kind of finding to
+have missed.
+
+- **The alias is a finding, not a warrant.** The same map pairs
+  `"Absent-Minded"` with `"Absent-Mindedness"` — a pairing production
+  deliberately REFUSES and pins as unmatched (6am). So it is a test-side
+  cost-reconciliation aid, not a 4.1 ruling, and adopting it wholesale would
+  have imported the refusal along with the resolution.
+- **The evidence therefore came from the book.** "Poverty" as an economic
+  status appears NOWHERE: its only two occurrences in the whole extracted text
+  are line 1370, inside `Vow (specify)`'s example list where it is priced as a
+  promise, and line 9762, setting prose about Loen. "Struggling" appears three
+  times and every one is a wealth level — ch. 3's trait list, ch. 8's table at
+  **-10 pts**, and the Feysac currency restatement.
+- **Two independent agreements, which is what 6bw's standard requires.** The
+  qualifier names exactly one thing, and nine sheets pay the printed 10. A
+  resemblance offers one; 6am's "Absent-Minded" is why one is not enough.
+
+### The design review caught a regression the decomposition would have shipped
+
+Eighth slice running to be reviewed as prose before any code, through `task`
+because `review --wait` refuses a diff-free decomposition (6bw). It came back
+**ship-conditional on four findings**, and the first was mine to have missed:
+
+**Fortune Teller prints `Wealth: Comfortable` at 10 where the book prints 5.**
+My proposed rule required price agreement of every colon trait, which would
+have stopped resolving a canonical row that has always resolved — a cost
+conflict already recorded in `ContentLoaderTest`, and still an unambiguous
+statement of which level the character is. So the two doors are asymmetric on
+purpose: **the book's own head resolves on the status alone; any other head has
+to earn it with the price.**
+
+- **Deriving a level and being replaced are different questions** (its fifth
+  finding, and the one that shaped the API). University Librarian pays **5**
+  for the same words. Its disadvantage column is already a recorded arithmetic
+  error (`disadvantagesExclusions`), so the only evidence left is resemblance
+  and the level stays unresolved — while the row plainly NAMES a status and
+  must still be replaced, or the character holds two. `levelOf` claims only
+  what it can prove; `applied` removes whatever names a status.
+- **That split makes the whole reading checkable rather than argued.** Nine
+  sheets resolve and the tenth does not, on the identical spelling, decided by
+  the price — the property 6bw was praised for, and the reason no exception
+  list is needed.
+- **The kind is checked as well as the magnitude.** `Trait` carries a magnitude
+  and puts the direction in its kind, so a row of the wrong sign could resolve
+  to a level that happens to cost the same the other way.
+
+**Codex then found the over-match, and 6l is why it was closed rather than
+noted.** A head-free rule reads `Trait("Reputation: Wealthy", 15, ADVANTAGE)`
+as an economic status the moment its qualifier and price line up — and
+`applied` would then DELETE it. No fixture can reach that, which is exactly the
+call 6l made about a permissive damage-type lookup: *"nothing could reach the
+permissive path yet; removing it is what stops the next caller finding it."*
+The heads are named now, which also makes an eleventh sheet inventing a third
+word for the same idea **fail a test instead of resolving in silence**.
+
+**A count in my own test was the one thing that failed.** The general guard
+asserted exactly one wealth row survives every pick; Average is 0 pts and
+correctly leaves none (6u). The invariant is "never two", not "always one" —
+the count-in-prose habit (6as) turned on an assertion rather than a number.
+
+**1063 Kotlin** (968 `core:rules`, 75 `app`, 20 `core:model`) and 261 Python,
+green. Five readings RED-proved by neutering each in turn and restoring from a
+`cp` backup rather than `git checkout` (6br): the canonical door removed (1
+failure — exactly the Fortune Teller regression the review named), price and
+kind together (3), the kind alone (1), `applied` back to the prefix filter (2),
+and the head allow-list widened to admit "Reputation: " (1). The prohibition
+sweep was re-run over ch. 3's trait list and ch. 8's wealth table (6ba) and
+forbids nothing about naming or replacing a status.
+
+Device-verified on `Medium_Phone_API_36.1` (1080x2400), both branches:
+
+- **Barmaid Brawler** — the sheet still prints **"Poverty: Struggling — −10
+  pts"**, because a published row shows the sheet's own spelling (6e), while
+  the builder's Wealth row now reads **"Struggling — −10 pts, 15 soli to
+  start"** where it used to read the "no wealth level" line the Appearance row
+  below it still shows. The picker's first entry reads **"As printed ✓ — The
+  sheet prints Struggling"**, a sentence the old code could not produce.
+- Choosing **Wealthy** takes the budget from **82 of 95** to **97 of 85 — over
+  budget**. The 85 is the finding: the poverty row's 10-point refund is GONE.
+  Under the old code the same tap reads **97 of 95**, keeping a poverty
+  drawback on a character who just became wealthy.
+- **University Librarian** — the discriminator. Its row reads **"The sheet
+  prints no wealth level"**, the disagreement staying visible, and choosing
+  **Poor** gives **91 of 105** — 95 − 5 + 15, so the unresolved row was removed
+  anyway. Had it survived it would read 110.
+
+**The next slice is unchanged and still 6bw's: `Ether Body Damage`, which needs
+purchasable traits rather than rules work** — the same unlock as the Seven
+Orthodox Gods Blessings (6bc) and the 198-row catalogue generally. Worth adding
+from this slice: the fixtures carry **ten unresolved trait spellings** and this
+one turned out to hide a live defect, so the other nine are worth a pass each
+before they are inherited as recorded disagreements. `Blacklisted: Specific
+Industry org or church` is the same colon shape as the row fixed here and
+paraphrases its own catalogue notes rather than quoting them, so 6br's
+exact-tail rule refuses it — correctly, on today's evidence, and that is a
+verdict rather than a proof.
 
 ---
 
