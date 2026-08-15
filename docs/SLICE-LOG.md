@@ -6721,6 +6721,141 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ci. Nine priced rows, seven charged
+
+Both slices before this one closed by naming the same next step — "6ca's
+`Ether Body Damage`, which wants purchasable traits, is the largest thing
+outstanding". **Both were false when written.** 6cc shipped purchasable
+traits three slices earlier and device-verified an `Ether Body Damage`
+purchase surviving a reload; `TraitEffects.spiRollBonus` has production
+callers at `MainActivity.kt:366`, `DivinationDialog.kt:455` and
+`Detection.kt:160`. The second item behind it — "the Sense of Duty
+resolution" — is `TraitEffects.QUOTED_INSTANCE_ROWS`, also already shipped.
+
+Two closing paragraphs copied forward instead of re-derived, and the queue
+they described had been empty for four slices. **A handover's own "what is
+left" is a claim about the tree and expires exactly like a sweep verdict**
+(6au, 6av, 6ba, 6bv). Two greps settled both.
+
+### The sweep this repo had never run
+
+Every audit here has iterated one of two units. 6ai swept extracted FIELDS
+for a reader. 6cf swept public FUNCTIONS for a caller. Neither can see a
+table that is loaded, whose fields are all read, and one of whose **rows**
+reaches nothing — a row is not a field and not a function.
+
+So: every content JSON, every row's identifier, grepped against all Kotlin.
+The raw output is mostly noise, and **the noise is the instrument working
+correctly**: `appearance.json` names 2 rows of 8 in source and `skills.json`
+52 of 158, because those tables are consumed by loop, which is the right
+design. The signal is the SIBLING RATIO inside one table — where the code
+models rows individually and skipped some:
+
+| Table | Modelled | Named nowhere |
+|---|---|---|
+| `maneuvers.json` | 13 of 14 | **All-Out Defense (Double)** |
+| `extra_effort.json` | 3 of 4 | **Giant Step** |
+
+Neither has code, a test, a comment, or a recorded reason. This repo's own
+standard (`TraitEffects.UNAPPLIED`) is that a printed rule reaching nothing
+says so with its reason, "so the omission stays a decision rather than
+becoming an accident".
+
+### The design review was right to refuse, and wrong about why
+
+Reviewed as a decomposition, no diff. Verdict **NO-SHIP**, and its first
+finding was a correction to me: my hazard argument named
+`ActiveDefenses.boostFor`, **which does not exist** — line 191 is
+`const val BOOST_BONUS` and I had read its KDoc as a function's.
+`boostOn` is real but lives in `DefenseDialog.kt:421`, outside the rules.
+A design document is an argument made of claims about code, and one grep
+per symbol is what those claims cost.
+
+Its substantive counter-case: `(Increased)` already ships with its own
+"Cannot attack" clause unenforced, so Double's unmodelled middle clause is
+not categorically different. That argument is inconclusive from inside
+itself — either side could be argued from the same evidence. **A census
+settled it in one command.** Take the attribute both rows share, and count
+how the corpus treats it:
+
+```
+YES  maneuvers     2 FP  All-Out Attack (Determined) / (Strong) / (Double)
+YES  maneuvers     2 FP  All-Out Defense (Increased)
+NO   maneuvers     2 FP  All-Out Defense (Double)
+NO   extra_effort  1 FP  Giant Step
+YES  extra_effort  1 FP  Strong Blow / 2 FP Heroic Charge / 1 FP Feverish
+```
+
+Nine priced rows, seven charged. **The price is the half this app does
+model** — it holds no map, no opponent and no round, but it holds the FP
+pool. So neither row is out of scope: they are *unpayable*, which is a gap.
+That inverts my own proposal, which was to record both as unapplied with a
+reason. Recording a reason for something the app can in fact do is how a
+disclaimer starts lying (6bl).
+
+### What shipped, and what is pinned instead
+
+`Attacks.GIANT_STEP`, `AttackPlan.giantStep`, one addend in `fpCost`, one
+chip. **No `require` guards it**, and that absence is pinned by a test:
+its two neighbours in the same bullet list each print a scope ("Regular
+melee attacks only", "Ignore **Charge Attack** penalties") and this cell
+prints none, so refusing it anywhere would be this app inventing a limit
+(4.1). "No require" is invisible in a diff, so it is a test.
+
+The census is now the guard, anchored to `AttackManeuver.printed`,
+`DefenseBoost.printed` and the option constants — **never to a text search
+of the source**, which the reviewer showed would call `Move` and `Wait`
+covered because this file's own prose contains those words (6cg's
+sign-blind guard, one class over). It asserts the remaining gap by NAME:
+All-Out Defense (Double). That line fails the day it ships, which makes it
+a pin rather than a comment (4.2).
+
+### The diff review found the transition I did not know existed
+
+**SHIP with one MEDIUM.** `atRange` and `withAttack` centralise what
+survives a plan transition, and both KDocs say why: a caller doing its own
+is a second copy of the rule, which stopped this codebase's numbers
+reconciling three times (6ag, 6ai, 6be). There was a **third** transition —
+the maneuver chip rebuilt `AttackPlan` inline — and it went unnoticed
+because everything it dropped deserved dropping. Giant Step is what exposed
+it: no maneuver scopes it, and the rebuild dropped it anyway, so a player
+comparing to-hit numbers across maneuvers silently lost a paid option.
+`Attacks.withManeuver` now owns it, RED-proved.
+
+One LOW taken: `.filter { it.fp != null }` on the extra-effort side is
+vacuous — `ExtraEffort.fp` is a non-nullable `Int`, so it read as the
+maneuver side's condition while testing nothing.
+
+**One LOW refused, with evidence.** The reviewer notes the census cannot
+see an `fp` VALUE drifting on an already-payable row. There is no second
+copy to drift: `fpCost` reads `maneuver.fp` and `effortCost(...)` reads
+`row.fp`, both from the JSON at call time. Every FP number this app charges
+already comes from the row it is printed in.
+
+### Verified
+
+**1121 Kotlin** (1015 `core:rules`, 86 `app`, 20 `core:model`) and **267
+Python**, all green. Three readings RED-proved by neutering one at a time
+and restoring from a copy (6bu): dropping `GIANT_STEP` from the payable set
+fails the census naming the row; dropping `+ step` from `fpCost` fails both
+cost tests; dropping `giantStep` from `withManeuver` fails the transition
+test. Not device-verified — the chip is one `FilterChip` beside two written
+the same way, and this repo tests no composables.
+
+**Codex still refuses** (resets 2026-08-20 14:23; today is 2026-08-15). Two
+`ecc:kotlin-reviewer` passes, decomposition then diff, each scoped to three
+questions and the files needed to answer them.
+
+**Next, with evidence.** `All-Out Defense (Double)`: 2 FP, printed,
+unpayable, and now named by a test that fails the day it ships. It is
+**not** a third `DefenseBoost` — that type's KDoc makes the +2 the point and
+`BOOST_BONUS` an inseparable feature of it — so it needs a declaration
+shaped like `DefenseRefusal`: a cause and a printed sentence, no number.
+Behind it, the row sweep's other single-miss tables are untriaged:
+`hit_locations.json` ('Leg'), `divination_support.json` ('Cogitation'),
+`ritual_support.json` ('Professional Skill (Astrology etc)'). Each is one
+grep to classify, and the ratio says only these are worth the look.
+
 ## 6ch. The literal nobody argued for
 
 6cf's API sweep left two survivors. `EffortBurn.scopeOf` was the smaller, and

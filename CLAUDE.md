@@ -6,7 +6,7 @@ written against commit `cf14e7c`; the counts in section 2 and the slice
 sections below are current as of `086ad7d` (slice 6be).
 
 **The slice log lives in [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — sections
-6a-6ch, moved out of this file because it was 497 KB against a 150 k-char
+6a-6ci, moved out of this file because it was 497 KB against a 150 k-char
 limit. Every reference below to a slice by number points there.
 
 **Read the slice log from the END.** 6ax is a handover header; 6ay through
@@ -16,8 +16,12 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Nothing is outstanding.** Both suites green, working tree clean. Verify that
-claim the way 6ax asks you to verify 6ax.
+**One thing is outstanding, and a test names it**: `All-Out Defense (Double)`
+is a priced row (2 FP) this app cannot pay for, asserted by name in
+`AttacksTest`'s priced-row census so the pin fails the day it ships. Both
+suites green, working tree clean. Verify that claim the way 6ax asks you to
+verify 6ax — and note that 6ci found the two claims in this file's own newest
+paragraphs had been false for four slices.
 
 **Codex is refusing again** — usage limit, resets **2026-08-20 14:23** from its
 own error text. Every pass since 6cd has been the documented
@@ -26,7 +30,29 @@ to answer them — 6cg's returned a HIGH in under two minutes, and 6ch ran two
 (decomposition, then diff). The scoping budget keeps paying (6af, 6cb). Check
 the CLOCK and not just the date (6am, 6as).
 
-**6ch is newest**: `AttackDialog` passed `spiAvailable = 0` as a LITERAL, and
+**6ci is newest**, and it starts by disproving the paragraph directly below
+this one. 6cg and 6ch both closed by naming `Ether Body Damage` / purchasable
+traits as "the largest thing outstanding"; **6cc had shipped them four slices
+earlier**, and the item behind it was shipped too — two closing paragraphs
+copied forward instead of re-derived. Read 6ci for three things. Its **sweep
+iterates a third unit this repo never had** — 6ai swept extracted FIELDS for a
+reader, 6cf swept public FUNCTIONS for a caller, and neither can see a **row**
+nothing consumes; the signal is the sibling ratio inside one table, never the
+raw miss count, because a table consumed by loop correctly names none of its
+rows. Its **design review was right to say NO-SHIP and wrong about why**, and
+what settled the question was not a better argument but a census over the
+attribute the disputed rows share: the book prices nine rows across its two FP
+tables and this app charged **seven**, so those rows were never out of scope —
+they were *unpayable*, which inverted my own proposal to record them as
+unapplied. That review's first finding was also a **correction to me**: my
+decomposition's central argument named `ActiveDefenses.boostFor`, which does
+not exist. A design document is an argument made of claims about code, and one
+grep per symbol is what those claims cost. The diff review then found a
+**third** plan transition living inline in the dialog, which `atRange` and
+`withAttack` were both written to prevent — invisible until an unscoped option
+existed for it to drop.
+
+**6ch after it**: `AttackDialog` passed `spiAvailable = 0` as a LITERAL, and
 **no slice in the 7400-line log ever argued for it** — so the dialog told a
 Beyonder at full SPI they had "no spirituality left", one line under the rule
 granting the push. Reachable on a character's FIRST potion (Ritualistic Magic
@@ -75,7 +101,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6ch, then 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6ci, then 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -304,7 +330,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1117 Kotlin** (JUnit 5 — 1011 `core:rules`, 86 `app`, 20 `core:model`) + **267 Python** (pytest), all green |
+| Tests | **1121 Kotlin** (JUnit 5 — 1015 `core:rules`, 86 `app`, 20 `core:model`) + **267 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -664,10 +690,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6ch. The slice log
+## 6a-6ci. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6ch is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6ci is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
