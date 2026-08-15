@@ -92,6 +92,20 @@ key was (it fires after the pass commits), three comment blocks left orphaned
 above the wrong declarations, and a clearing control parked beside "Close"
 where a mis-tap drops FP already spent.
 
+**6cp's own closing paragraph was wrong for an hour, and the correction is in
+it.** It named 6cb's successor — the nineteen withheld trait rows, one record
+shape — which **6cc had already built** (`InstancedTraitDialog.kt`,
+`InstantiableTrait`, `PurchasableTraits.instantiableIn`), along with both items
+filed behind it (`QUOTED_INSTANCE_ROWS` resolves the six `Sense of Duty`
+instances; `Secret` stays unmatched with its reason recorded). **A closing
+paragraph is the one part of a slice log nothing verifies** — every other claim
+has a test or a book line behind it, and "what to do next" has only the last
+author's memory. One grep per named artefact is what checking it costs. So
+there is **no named successor outstanding**; the next slice needs a fresh sweep,
+and the directions already run (fields with no reader, functions with no caller,
+rows with no consumer, seams between claimed spans, rules the app contradicts,
+what the tests know that production does not) each expire rather than standing.
+
 **6co is next**, and its most reusable finding is that **a condition can
 outlive the question it was standing in for**. The Block row's "Against ranged
 attacks" note fired on `shot != melee`, a correct proxy only while every other

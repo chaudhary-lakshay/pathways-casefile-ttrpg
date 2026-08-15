@@ -6804,11 +6804,33 @@ green, counted from the JUnit XML rather than from a silent console. Not
 device-verified: the state and its boundary are unit-covered, the control is
 Compose, which this repo does not test.
 
-**The next slice is unchanged from 6cb and 6ca:** one record shape for an
-instantiated trait -- book row, optional variant, optional instance note,
-chosen cost -- which offers all nineteen withheld rows at once, and needs
-`SavedEdits` widened additively because `SessionStore.load` discards the whole
-file on a decode failure.
+### The closing paragraph this slice got wrong, and caught the same hour
+
+This section first ended by naming 6cb's successor -- "one record shape for an
+instantiated trait, which offers all nineteen withheld rows at once" -- copied
+forward rather than re-derived. **6cc built it**, five review passes deep, and
+the tree says so in four places: `InstancedTraitDialog.kt`, `InstantiableTrait`,
+`PurchasableTraits.instantiableIn`, and the picker's own "The book prints a
+range, or asks you to name the instance." The two items filed *behind* it are
+closed too -- `TraitEffects.QUOTED_INSTANCE_ROWS` resolves the six
+`Sense of Duty` instances on the verbatim-quotation warrant, and `Secret` stays
+unmatched with its reason written down.
+
+That is 6ci's finding reproduced by the slice that cites 6ci, which is the
+useful part: **a closing paragraph is the one piece of a slice log nothing
+verifies.** Every other claim here has a test or a book line behind it; the
+"next slice" line has only the last author's memory, and it survives being
+copied because it reads like a conclusion rather than a claim. One grep per
+named artefact is what it costs to check, and the check is what turned this
+paragraph over.
+
+**So the honest state is: no named successor is outstanding, and this slice
+does not invent one.** What the next slice needs is a fresh sweep rather than
+an inherited name -- the directions this repo has already run are fields with
+no reader (6ai), functions with no caller (6cf), rows with no consumer (6ci),
+seams between claimed spans (6ay, 6ba), rules the app contradicts, and what the
+TEST suite knows that production does not (6bz). Each expires; none is a
+standing answer.
 
 ## 6co. Three numbers on three rows, and a disclaimer whose trigger had drifted
 
