@@ -1,5 +1,8 @@
 package com.pathways.app
 
+import com.pathways.model.ModEffect
+import com.pathways.rules.AttackPlan
+import com.pathways.rules.Ranged
 import com.pathways.rules.Weapons
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -8,6 +11,9 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class AttackDialogTest {
+
+    private fun flats(mods: List<com.pathways.model.Modifier>) =
+        mods.map { (it.effect as ModEffect.Flat).n }
 
     @Test
     fun `a firearm is fired at range and a melee weapon is not`() {
@@ -47,6 +53,33 @@ class AttackDialogTest {
         // If it were 0 the defect would have been invisible: Ranged.modifiers
         // drops a zero rather than adding one.
         assertEquals(1, Weapons.named("Hand Axe").acc)
+    }
+
+    @Test
+    fun `a prone target is priced once, on whichever side of the toggle the plan is`() {
+        // REGRESSION GUARD, and the whole safety property of this slice. The
+        // row prints two numbers -- "-2 ranged (but -4 in melee)" -- and the
+        // two helpers read the SAME plan, so exactly one of them may speak.
+        //
+        // Reachable in two taps: select the chip in reach, then tap "At range".
+        // onPlan (AttackDialog.kt:337) clears the set only when going the other
+        // way, so the selection survives; without the guard both helpers fire
+        // and the roll takes -6, which is nowhere in the book.
+        val prone = setOf("Target is prone")
+        assertEquals(listOf(-4), flats(meleeModifiers(AttackPlan(isRanged = false), prone)))
+        assertTrue(meleeModifiers(AttackPlan(isRanged = true), prone).isEmpty())
+    }
+
+    @Test
+    fun `nothing else in that table reaches a melee attack`() {
+        // The other eight rows are distance, cover, movement and light: priced
+        // for a shot and for nothing else. Offering one in reach would be the
+        // sign-right-rule-wrong defect the melee value exists to prevent.
+        val everything = Ranged.conditions().map { it.condition }.toSet()
+        assertEquals(
+            listOf(-4),
+            flats(meleeModifiers(AttackPlan(isRanged = false), everything)),
+        )
     }
 
     @Test

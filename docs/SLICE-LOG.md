@@ -6721,6 +6721,96 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6cn. The number the test suite knew and production did not
+
+6cm named this one with evidence and it held: `ranged_modifiers.json` stores the
+prone row as `{"condition": "Target is prone", "printed": "-2 ranged (but -4 in
+melee)", "modifier": -2, "melee": -4}`, and `RangedModifier.melee` had exactly
+**one reader in the tree** — `RangedTest.kt:112`, asserting it is -4. No
+production caller. `Ranged.meleeConditions()` and `Ranged.meleeModifiers()` now
+apply it, and the attack dialog's in-reach branch offers the chip that selects
+it.
+
+**The finding is 6bz's sweep shape, and this is the second time it has paid.**
+What does the TEST suite know that production does not? Here the test knew the
+melee value existed and was -4, had known since the row was extracted, and
+nothing on any screen could reach it. A melee attack on a prone target was
+modified by nothing — on a state **the app itself hands out**, since 6cm's Dive!
+chip puts a character down. That pairing is 6bl's shape exactly: a rule this app
+creates the conditions for and then does not charge.
+
+**The scope was checked before it was chosen, and the check is one grep.** The
+filter is `melee != null` — drawn from the data's own definition rather than
+from a list of row names, the shape `AIM_ROWS` and the darkness row already
+take. But that predicate encodes a claim: *in reach, this table has exactly one
+row*. The table is global lines 2665-2685; grepping all 10252 lines of
+`build/extract/lines.json` for "melee" returns exactly one hit inside that span,
+line 2681. The other eight rows are distance, cover, movement and light — priced
+for a shot and for nothing else — and no other page prices them in reach. So one
+row is the whole scope, recorded in the KDoc, and `RangedTest` pins the list
+**whole** rather than asserting prone is in it: a re-extraction that gave a
+second row a melee value would then be a finding rather than a silent widening.
+
+**The guard is the whole slice, and it is the one thing that was RED-proved.**
+`rangedModifiers` opens `if (!plan.isRanged) return emptyList()`; the new
+`meleeModifiers` opens with its mirror. Both are called from one expression
+against one `plan`, so exactly one can speak. Without the mirror the two-tap path
+— tick the chip in reach, tap "At range" — sums them: `onPlan` clears
+`circumstances` only when going the OTHER way, so the selection survives, and the
+roll would take **-6**, a number the book prints nowhere. That is 6bx's live
+double count, and deleting the guard turns `a prone target is priced once, on
+whichever side of the toggle the plan is` red. The helper is `internal` for
+exactly that reason: a content-only test would have added a second reader of the
+melee value and left the slice's actual finding — no production caller —
+standing.
+
+**A tidy-up was refused, and the refusal is checkable rather than argued.** The
+obvious next move is a `surviving(circumstances, isRanged)` filter deciding which
+rows outlive the toggle. Refused: the chips offered in reach come only from
+`meleeConditions()`, a strict subset, so nothing selectable in reach is ever a
+ranged-only row and there is nothing to strip; the other direction already clears
+explicitly. The predicate would have one member and two call sites, and adding it
+at one and not the other is the third-copy divergence the comment at
+`AttackDialog.kt:436` already warns about — the one that shipped an unscoped
+option.
+
+**The design review's finding was about a LABEL, and it was right.** It cleared
+the guard and the refusal, then caught what the decomposition had left
+unspecified: step 4 never said what the melee chip's text was. The ranged side
+renders `"${option.condition} ${option.printed}"` — the whole clause, both
+numbers, whichever one currently applies — and a melee chip labelled with the
+bare condition would have shown no magnitude at all in reach. Reusing the ranged
+pattern also answers the one thing the refusal above leaves open: crossing the
+toggle silently changes the applied number from -4 to -2, and the chip says both,
+so the change is visible rather than silent. **A spec that omits the label is not
+a spec that has no label** — the implementer picks one, and the default is the
+worse one.
+
+**A comment expired in this slice's own diff.** `AttackDialog.kt:120-122` read
+"they describe the TARGET and the scene ... and only a ranged attack reads them".
+True when written, false the moment the melee helper existed. That is 6bl's
+disclaimer class, caught here only because the sentence sat three lines above the
+declaration being changed — no test reads it, and none can.
+
+**1134 Kotlin** (1025 `core:rules`, 89 `app`, 20 `core:model`) and 268 Python,
+green — counted from the JUnit XML. Codex is still refusing (its own error text
+says 2026-08-20 14:23). `pi-qa` was tried first, as the free widener it is meant
+to be, and **produced zero bytes in ten minutes**, so it was abandoned under the
+scoping budget's own rule rather than waited out; both gates were then the
+documented `ecc:kotlin-reviewer` fallback, scoped to three questions and the
+files needed to answer them. The decomposition review returned SHIP with one
+MEDIUM (the label above); the diff review returned SHIP with no findings, and
+independently traced the fifth test to confirm it is not vacuous. Not
+device-verified: the arithmetic and the guard are unit-covered, the chip and the
+breakdown line are Compose, which this repo does not test.
+
+**The next slice is Retreat**, the last `defense_modifiers.json` bullet, whose
+three numbers are scoped per defence row (+3 Dodge / +1 Block / +1 Parry vs. 1
+melee attack per round) — the shape 6cl ranked second and 6ck's shield-arc half
+already has a precedent for. Book lines 2456-2457 ("Each can be used once per
+round") stay unclaimed on purpose: that sentence governs all three free actions,
+so the slice that enforces it enforces all three.
+
 ## 6cm. A scope the sentence names itself, and a cost the book charges the other side
 
 6cl closed the Acrobatic Dodge and ranked the two remaining

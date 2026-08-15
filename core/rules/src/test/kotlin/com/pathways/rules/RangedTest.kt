@@ -112,6 +112,34 @@ class RangedTest {
         assertEquals(-4, prone.melee)
     }
 
+    /**
+     * The melee scope is the rows that print one, and today there is one.
+     *
+     * Asserted as the WHOLE list rather than as "prone is in it": the claim
+     * being pinned is that this table prices exactly one condition for reach.
+     * A re-extraction that gave a second row a melee value would be a finding,
+     * not a silent widening -- the book's own table (global lines 2665-2685)
+     * writes "melee" on one line only.
+     */
+    @Test
+    fun `the melee scope is exactly the rows that print a melee value`() {
+        assertEquals(listOf("Target is prone"), Ranged.meleeConditions().map { it.condition })
+    }
+
+    @Test
+    fun `a prone target in reach is worth the melee number, not the ranged one`() {
+        assertEquals(listOf(-4), flats(Ranged.meleeModifiers(Ranged.meleeConditions())))
+    }
+
+    @Test
+    fun `a row that prints no melee value cannot be applied in reach`() {
+        // -3 is its RANGED number. Falling back to it would put a shooting
+        // penalty on a punch, which is the defect this scope exists to stop.
+        assertThrows<IllegalArgumentException> {
+            Ranged.meleeModifiers(listOf(row("Darkness or heavy fog")))
+        }
+    }
+
     @Test
     fun `darkness takes the GM's number, inside the range the book prints`() {
         val fog = row("Darkness or heavy fog")

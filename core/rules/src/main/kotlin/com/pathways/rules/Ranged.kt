@@ -60,6 +60,51 @@ object Ranged {
     /** The nine Other Ranged Modifiers rows, as printed. */
     fun conditions(): List<RangedModifier> = ContentLoader.rangedModifiers()
 
+    /**
+     * The rows of this table that also print a number for REACH.
+     *
+     * Exactly one today: *"Target is prone: -2 ranged (but -4 in melee)"*. The
+     * scope is the data's own -- a row is in reach exactly when it carries a
+     * melee value -- rather than a list of names, so a re-extraction cannot
+     * leave this holding a string nothing matches (the shape the aim rows and
+     * the darkness row already take).
+     *
+     * **Checked, not assumed.** The table is global lines 2665-2685 and the
+     * word "melee" appears on exactly one of them, 2681. The other eight rows
+     * are distance, cover, movement and light: priced for a shot and for
+     * nothing else. No other page prices these conditions in reach either, so
+     * one row is the whole scope, and a second one appearing here would be a
+     * finding rather than a widening ([RangedTest] pins the list whole).
+     *
+     * This is the ATTACKER's to-hit roll against a target who is down. It is
+     * not the same state as the defender's own prone, which the Dive! chip
+     * hands out on the defence screen: no page in this book prices a prone
+     * character's own defences, which is why that chip lowers nothing.
+     */
+    fun meleeConditions(): List<RangedModifier> = conditions().filter { it.melee != null }
+
+    /**
+     * Each chosen row of [conditions] as a modifier on a MELEE attack.
+     *
+     * Separate from [modifiers] rather than a flag on it, because everything
+     * else that function takes belongs to a shot -- a band, a weapon's Acc, an
+     * aim that was cancelled, what the scene is lit by. A melee attack has one
+     * question to answer and this is it.
+     *
+     * A row printing no melee value is REFUSED, never quietly given its ranged
+     * number: -2 on a kick would have the sign right and the rule wrong, which
+     * is the exact defect keeping the two values apart prevents. Nothing
+     * reachable can build that call -- the screen offers only
+     * [meleeConditions] -- which is why the guard is here (6l).
+     */
+    fun meleeModifiers(conditions: List<RangedModifier>): List<Modifier> =
+        conditions.mapNotNull { row ->
+            val value = requireNotNull(row.melee) {
+                "'${row.condition}' prints ${row.printed}, which is a ranged number only"
+            }
+            situational(row.condition.lowercase(), value, row.condition)
+        }
+
     /** The maneuver row that grants the aim, and says what takes it away. */
     private const val AIM_ROW = "Aim (Ranged)"
 

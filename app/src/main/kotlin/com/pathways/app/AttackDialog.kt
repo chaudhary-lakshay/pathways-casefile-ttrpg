@@ -118,8 +118,10 @@ fun AttackDialog(
     // and showing both damage lines at once would claim one turn does both.
     var armed by remember { mutableStateOf<Armed?>(null) }
     // Distance and circumstances, kept out of AttackPlan: they describe the
-    // TARGET and the scene, not the attacker's choice of maneuver, and only a
-    // ranged attack reads them.
+    // TARGET and the scene, not the attacker's choice of maneuver. The
+    // distance is a shot's alone; the circumstances are read on BOTH sides of
+    // the toggle now, because one row of that table -- the prone target --
+    // prints a number for reach as well ([Ranged.meleeConditions]).
     var band by remember { mutableStateOf<RangePenalty?>(null) }
     var circumstances by remember { mutableStateOf<Set<String>>(emptySet()) }
     // "Canceled by any Active Defense or injury" -- a declaration, because this
@@ -348,6 +350,7 @@ fun AttackDialog(
                         val mods = conditions(chosen.key) +
                             Attacks.modifiers(plan, chosen.value, unarmed) +
                             rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled, darknessCause, darknessReduction) +
+                            meleeModifiers(plan, circumstances) +
                             listOfNotNull(location?.let(Wounds::modifier))
                         // A fresh roll starts with a fresh +5 budget per roll.
                         burned = emptyMap()
@@ -475,6 +478,22 @@ private fun AttackOptions(
             ) {
                 onPlan(plan.copy(deceptive = (plan.deceptive + it).coerceIn(0, maxDeceptive)))
             }
+            // The one row of the ranged table the book also prices in reach.
+            // Which rows those are is [Ranged.meleeConditions]' call, not this
+            // screen's: a dialog holding its own list is the second copy of a
+            // scope (6ag, 6ai, 6be). Same chip label as the ranged side, whole
+            // printed clause included, so both numbers are on screen wherever
+            // the plan is and the breakdown always adds up.
+            FlowRow {
+                Ranged.meleeConditions().forEach { option ->
+                    FilterChip(
+                        selected = option.condition in circumstances,
+                        onClick = { onCircumstance(option.condition) },
+                        label = { Text("${option.condition} ${option.printed}") },
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+                }
+            }
         }
         CalledShot(location, onLocation)
         // "Regular melee attacks only", and an attack that rolls damage for
@@ -523,9 +542,20 @@ private fun AttackOptions(
                 if (fp > 0) ", costs $fp FP" else "",
             style = MaterialTheme.typography.bodySmall,
         )
+        val fromMelee = meleeModifiers(plan, circumstances)
+            .sumOf { (it.effect as ModEffect.Flat).n }
         if (plan.isRanged) {
             Text(
                 "Range and cover: ${if (fromRange == 0) "no modifier" else signed(fromRange)}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        } else if (fromMelee != 0) {
+            // Its own label, never "Range and cover": nothing about distance
+            // is being priced here, and a total that does not match the line
+            // above it is the breakdown defect this repo has shipped twice
+            // (6ag, 6ai).
+            Text(
+                "Target: ${signed(fromMelee)}",
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -812,6 +842,28 @@ private fun CalledShot(location: HitLocation?, onLocation: (HitLocation) -> Unit
  * for exactly that, and the screen does not yet offer one.
  * ponytail: a stepper here when a GM asks for it.
  */
+/**
+ * The condition modifiers for a MELEE [plan], or none for a shot.
+ *
+ * The mirror of [rangedModifiers]' opening guard, and the whole safety
+ * property of the pair. Both are called from one expression against ONE
+ * `plan`, so exactly one of them can speak -- and the row they share prints
+ * two numbers, "-2 ranged (but -4 in melee)". Without this line the two-tap
+ * path (tick the chip in reach, tap "At range") would sum them to -6, which
+ * the book prints nowhere: the live double count of 6bx's class.
+ *
+ * `internal` so [AttackDialogTest] can assert that, the way it already reaches
+ * [isFired]. A content-only test would add a second reader of the melee value
+ * and leave this slice's actual finding -- no production caller -- standing.
+ */
+internal fun meleeModifiers(
+    plan: AttackPlan,
+    circumstances: Set<String>,
+): List<com.pathways.model.Modifier> {
+    if (plan.isRanged) return emptyList()
+    return Ranged.meleeModifiers(Ranged.meleeConditions().filter { it.condition in circumstances })
+}
+
 private fun rangedModifiers(
     plan: AttackPlan,
     band: RangePenalty?,
