@@ -304,6 +304,15 @@ fun AttackDialog(
                         // Ranged.modifiers for a number nothing can supply --
                         // the same shape as the distance and cover that
                         // "Another turn" used to leave behind.
+                        //
+                        // Now OVER-BROAD by one row, and recorded rather than
+                        // narrowed: picking up a sword while already in reach
+                        // also drops a ticked prone chip, which the reason
+                        // above does not cover -- the plan was melee and stays
+                        // melee. Narrowing it would put meleeConditions' own
+                        // predicate at a second call site, which is the third
+                        // copy the maneuver chip's comment warns about. The
+                        // cost is a lost declaration the player can see go.
                         if (!held.isFired) {
                             band = null
                             circumstances = emptySet()

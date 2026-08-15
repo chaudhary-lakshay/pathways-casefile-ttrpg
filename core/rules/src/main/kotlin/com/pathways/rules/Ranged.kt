@@ -76,6 +76,13 @@ object Ranged {
      * one row is the whole scope, and a second one appearing here would be a
      * finding rather than a widening ([RangedTest] pins the list whole).
      *
+     * **The direction, because one file had it backwards.** Every row of this
+     * table modifies the attacker's to-hit roll, so -4 in reach is the HARDER
+     * case and -2 at distance the gentler one -- a prone target is no easier
+     * to hit with a fist than with a rifle. `tools/extract_ranged.py` said the
+     * opposite in prose until 6cn, and nothing could contradict it while the
+     * melee value had no reader.
+     *
      * This is the ATTACKER's to-hit roll against a target who is down. It is
      * not the same state as the defender's own prone, which the Dive! chip
      * hands out on the defence screen: no page in this book prices a prone

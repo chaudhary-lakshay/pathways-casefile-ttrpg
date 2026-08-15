@@ -18,9 +18,13 @@ of this file:
     weapon table)" was right all along -- extract_weapons.py reads that table
     out of chapter 8, which nothing had claimed until now.
   * "-2 ranged (but -4 in melee)" -- one row, two scopes. The melee value is
-    kept separately rather than dropped, because a prone target is easier to
-    hit in reach and harder at distance, and an app applying -2 to a kick
-    would have the sign right and the rule wrong.
+    kept separately rather than dropped, and an app applying -2 to a kick
+    would have the sign right and the rule wrong. The DIRECTION was stated
+    backwards here until 6cn -- this said "easier to hit in reach", which the
+    numbers contradict. Every row of this table modifies the ATTACKER's to-hit
+    roll ("Target running: -2", "Shooter moved this turn: -2"), so -4 in reach
+    is the HARDER case and -2 at distance the gentler one. Nothing read the
+    melee value at the time, so no code could disagree with the sentence.
   * "-3 to -9 depending on severity" -- a range the GM picks inside, like the
     fright triggers. The gentler end is the modifier and the harsher end is
     the worst case; picking one silently would make the GM's call for them.

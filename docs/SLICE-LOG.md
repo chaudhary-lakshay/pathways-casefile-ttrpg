@@ -6774,6 +6774,31 @@ at one and not the other is the third-copy divergence the comment at
 `AttackDialog.kt:436` already warns about — the one that shipped an unscoped
 option.
 
+**That refusal needed one qualification, found after the commit.** "The other
+direction already clears explicitly" is true and now slightly too broad:
+`onArmed`'s clear fires on `!held.isFired`, so picking up a sword **while already
+in reach** drops a ticked prone chip too, and the stated reason for that clear
+("carrying either into reach asks for a number nothing can supply") does not
+cover that path — the plan was melee and stays melee. Recorded rather than
+narrowed, for the same reason the filter was refused: narrowing it puts
+`meleeConditions`' predicate at a second call site. The cost is a lost
+declaration the player watches deselect, not a wrong number. **A justification
+written one paragraph after fixing an expired comment can expire in the same
+diff.**
+
+**A sign direction was stated backwards in prose, and nothing could contradict
+it.** `tools/extract_ranged.py`'s docstring explained the two-scope row by saying
+"a prone target is easier to hit in reach and harder at distance" — which the
+numbers reverse. Every row of that table modifies the ATTACKER's to-hit roll
+("Target running: -2", "Shooter moved this turn: -2"), and 6cm had already
+recorded this line as the attacker's rather than the defender's, so -4 in reach
+is the HARDER case. The sentence survived since the row was extracted **because
+the melee value had no reader**: no code could disagree with it. That is the
+other half of this slice's own finding — an unread field does not merely leave a
+rule unapplied, it leaves the prose about that rule unfalsifiable. Corrected in
+the extractor and stated in `meleeConditions`' KDoc, where the direction is now
+load-bearing.
+
 **The design review's finding was about a LABEL, and it was right.** It cleared
 the guard and the refusal, then caught what the decomposition had left
 unspecified: step 4 never said what the melee chip's text was. The ranged side
