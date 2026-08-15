@@ -3,6 +3,7 @@ package com.pathways.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -18,13 +19,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -111,7 +118,10 @@ class MainActivity : ComponentActivity() {
         // classpath; move behind a ViewModel when the sheet screen needs state
         // that survives rotation, not before.
         val store = SessionStore(File(filesDir, "sessions.json"))
-        setContent { MaterialTheme { App(Premades.all(), store) } }
+        // Draw behind the system bars. Every screen already pads from
+        // Scaffold's inset parameter, so this needs no per-screen change.
+        enableEdgeToEdge()
+        setContent { PathwaysTheme { App(Premades.all(), store) } }
     }
 }
 
@@ -159,24 +169,73 @@ fun App(sheets: List<PremadeSheet>, store: SessionStore) {
     }
 }
 
+/**
+ * The launch screen, and until now the only one with no heading of any kind:
+ * 23 undifferentiated rows starting under the status bar, which is what an
+ * unstyled list looks like rather than a designed one.
+ *
+ * Cards instead of divider-separated rows because the rows are *targets*, not
+ * a table -- a card carries its own tap boundary, where a divider only draws a
+ * line near one. The count moves onto a tonal container so it reads as
+ * metadata rather than as a second line of the name.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PremadeList(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit) {
-    Scaffold { insets ->
-        LazyColumn(Modifier.padding(insets).fillMaxSize()) {
-            items(sheets) { sheet ->
-                Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable { onSelect(sheet) }
-                        .padding(16.dp),
+    Scaffold(
+        topBar = {
+            // A small bar, not a large one: 23 rows want the vertical space
+            // more than the title wants the drama.
+            TopAppBar(
+                title = { Text("Pathways", style = MaterialTheme.typography.titleLarge) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                ),
+            )
+        },
+    ) { insets ->
+        LazyColumn(
+            modifier = Modifier.padding(insets).fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            items(sheets, key = { it.name }) { sheet ->
+                ElevatedCard(
+                    onClick = { onSelect(sheet) },
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text(sheet.name, style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        "${sheet.skills.size} skills",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            sheet.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                        // A quiet tonal chip. The accent colours are spent on
+                        // things that carry meaning -- a roll, a pathway, a
+                        // failure -- and a skill count is none of those.
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ) {
+                            Text(
+                                "${sheet.skills.size} skills",
+                                style = MaterialTheme.typography.labelMedium,
+                                modifier = Modifier.padding(
+                                    horizontal = 10.dp,
+                                    vertical = 4.dp,
+                                ),
+                            )
+                        }
+                    }
                 }
-                HorizontalDivider()
             }
         }
     }

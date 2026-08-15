@@ -3,7 +3,7 @@
 
     <application
         android:label="Pathways"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        android:theme="@style/Theme.Pathways">
         <activity
             android:name=".MainActivity"
             android:exported="true">
