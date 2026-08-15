@@ -375,6 +375,12 @@ class ActiveDefensesTest {
         assertTrue("Roll vs. ${ActiveDefenses.ACROBATIC_SKILL}" in bullet, bullet)
         assertTrue("success gives +${ActiveDefenses.ACROBATIC_SWING} Dodge" in bullet, bullet)
         assertTrue("failure gives -${ActiveDefenses.ACROBATIC_SWING} Dodge" in bullet, bullet)
+        // The Dodge row adds this bullet's swing to the Retreat's +3, and the
+        // warrant for doing so is printed in this cell rather than argued from
+        // p. 36's general "alongside any active defense": the sentence names
+        // the other bullet. If it stops being printed, that composition is back
+        // to resting on the general line, and that is the finding.
+        assertTrue("Stacks with Retreat." in bullet, bullet)
     }
 
     /**
@@ -416,7 +422,11 @@ class ActiveDefensesTest {
     fun `the applied bullets are not also reported as unapplied`() {
         val all = ContentLoader.defenseModifiers().map { it.modifier }
         val unapplied = ActiveDefenses.unappliedModifiers()
-        val applied = listOf(ActiveDefenses.printedAcrobaticDodge(), ActiveDefenses.printedDive())
+        val applied = listOf(
+            ActiveDefenses.printedAcrobaticDodge(),
+            ActiveDefenses.printedDive(),
+            ActiveDefenses.printedRetreat(),
+        )
         applied.forEach {
             assertTrue(it in all, "an applied bullet left the content: $it")
             assertTrue(it !in unapplied, "applied and reported unapplied: $it")
@@ -462,5 +472,59 @@ class ActiveDefensesTest {
         assertTrue("+${ActiveDefenses.DIVE_BONUS} Dodge" in bullet, bullet)
         assertTrue("vs. ranged only" in bullet, bullet)
         assertTrue("Spend 1 turn getting back up" in bullet, bullet)
+    }
+
+    /**
+     * The Retreat is worth its own number on each row it names, and nothing at
+     * all against a shot.
+     *
+     * Every row is enumerated against all four states rather than sampled, for
+     * the reason the Dive!'s four combinations are: `taken` and `isMelee` are
+     * independent, and an implementation answering off either one alone still
+     * passes any two of the four. Running the loop over `entries` is what makes
+     * a fourth row added later fail here rather than ship untested.
+     *
+     * The three figures are NOT asserted as literals -- they are pinned to the
+     * printed sentence by the test below, which is the only oracle for them.
+     * Restating 3 / 1 / 1 here would pin Kotlin to Kotlin and pass a build that
+     * had drifted from the book (6cg's missing direction).
+     */
+    @Test
+    fun `the retreat is worth its row's number in reach, and nothing against a shot`() {
+        ActiveDefenses.Retreat.entries.forEach { row ->
+            assertEquals(row.bonus, ActiveDefenses.retreat(taken = true, isMelee = true, row = row))
+            assertEquals(0, ActiveDefenses.retreat(taken = true, isMelee = false, row = row))
+            assertEquals(0, ActiveDefenses.retreat(taken = false, isMelee = true, row = row))
+            assertEquals(0, ActiveDefenses.retreat(taken = false, isMelee = false, row = row))
+        }
+        // The rows carry three figures and not one repeated: a build folding
+        // them into a single number passes every assertion above, since each
+        // row is only ever compared against its own.
+        assertTrue(
+            ActiveDefenses.Retreat.DODGE.bonus != ActiveDefenses.Retreat.PARRY.bonus,
+            "the Dodge and Parry figures collapsed into one",
+        )
+    }
+
+    /**
+     * The phrases the rule above depends on, still printed.
+     *
+     * SIGN-ANCHORED for the reason 6cg measured: "1 Parry" is a substring of
+     * "-1 Parry", so a guard omitting the plus passes a flipped sign -- the
+     * cheaper mutation, and the one this repo has already shipped once.
+     *
+     * Each row's phrase is built from the enum member that carries its number,
+     * so the pin runs JSON -> Kotlin. Three separate assertions rather than one
+     * over the whole bullet, because a build that gave every row the same
+     * figure would still satisfy a check that only looked for "+3 Dodge".
+     */
+    @Test
+    fun `the retreat bullet still prints all three rows and its melee scope`() {
+        val bullet = ActiveDefenses.printedRetreat()
+        assertTrue("+${ActiveDefenses.Retreat.DODGE.bonus} Dodge" in bullet, bullet)
+        assertTrue("+${ActiveDefenses.Retreat.BLOCK.bonus} Block" in bullet, bullet)
+        assertTrue("+${ActiveDefenses.Retreat.PARRY.bonus} Parry" in bullet, bullet)
+        // The scope the rule composes, and the limit it deliberately does not.
+        assertTrue("vs. 1 melee attack per round" in bullet, bullet)
     }
 }

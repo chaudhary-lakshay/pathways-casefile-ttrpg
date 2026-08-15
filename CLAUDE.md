@@ -6,7 +6,7 @@ written against commit `cf14e7c`; the counts in section 2 and the slice
 sections below are current as of `086ad7d` (slice 6be).
 
 **The slice log lives in [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — sections
-6a-6cn, moved out of this file because it was 497 KB against a 150 k-char
+6a-6co, moved out of this file because it was 497 KB against a 150 k-char
 limit. Every reference below to a slice by number points there.
 
 **Read the slice log from the END.** 6ax is a handover header; 6ay through
@@ -16,14 +16,16 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Retreat is the last `defense_modifiers.json` bullet outstanding.** 6cm applied
-Dive! and 6cn cleared the prone -4 that was ranked ahead of it, so **Retreat** is
-now next: three numbers, scoped per defence row (+3 Dodge / +1 Block / +1 Parry
-vs. 1 melee attack per round), which is why 6cl ranked it second. The two facing
-bullets are not outstanding: 6ck refused them with a reason and a test. Book
-lines 2456-2457 ("Each can be used once per round") stay unclaimed on purpose —
-that sentence governs all three free actions, so the slice that enforces it
-enforces all three.
+**`defense_modifiers.json` is finished.** 6co applied Retreat — three numbers
+scoped per defence row (+3 Dodge / +1 Block / +1 Parry vs. 1 melee attack per
+round) — after 6cm's Dive! and 6cn's prone -4. The two facing bullets are not
+outstanding: 6ck refused them with a reason and a test. Book lines 2456-2457
+("Each can be used once per round") stay unclaimed, but the reason has changed
+shape: that sentence governs all three free actions, and as of 6co all three
+exist as controls. What still blocks it is the round boundary itself, and
+**6bf's ruling that a round tracker is not worth global state was taken when one
+free action existed, not three** — a claim about the data, so re-run it as a
+query before inheriting it (6au, 6av, 6bv).
 
 **Nothing in the two FP tables is outstanding.** 6cj closed the last one:
 `All-Out Defense (Double)` is a priced row this app deliberately does not
@@ -57,18 +59,35 @@ node ~/.claude/qa/qa.mjs ask "<question>"       # read+bash, no edits
 node ~/.claude/qa/qa.mjs sync --key <KEY>       # re-read the gateway catalogue
 ```
 
-**Probe before you trust the catalogue.** The gateway advertises 20 models and
-**4 answered** on 2026-08-15 (`nvidia/z-ai/glm-5.2`,
-`nvidia/minimaxai/minimax-m3`, `ollama/gpt-oss:120b`, `ollama/minimax-m3`); the
-rest returned 401 (grok-cli login expired), 410 (model EOL) or 404 (never
-pulled). A model id in `pi --list-models` is a claim about the past. `review`
+**Probe before you trust the catalogue, and a probe expires within the day.**
+The gateway advertises 20 models. **4 answered** on 2026-08-15
+(`nvidia/z-ai/glm-5.2`, `nvidia/minimaxai/minimax-m3`, `ollama/gpt-oss:120b`,
+`ollama/minimax-m3`); the rest returned 401 (grok-cli login expired), 410 (model
+EOL) or 404 (never pulled). **Later the SAME day (6co) only 1 of 20 answered** —
+the other three had moved to 429, and the survivor then 429'd through the whole
+failover chain, so the review fell back to `ecc:kotlin-reviewer`. A model id in
+`pi --list-models` is a claim about the past, and so is this paragraph. `review`
 fails over down the panel on 429 and waits out the printed reset window, so a
 single rate limit is not a refusal — but **every one of these is a small free
 model, so it is a widener, not a replacement for Codex**: treat a finding as a
 lead to verify, never as a verdict, and keep the scoping budget (≤3 questions,
 only the files needed).
 
-**6cn is newest**, and its most reusable finding is that **a spec which omits a
+**6co is newest**, and its most reusable finding is that **a condition can
+outlive the question it was standing in for**. The Block row's "Against ranged
+attacks" note fired on `shot != melee`, a correct proxy only while every other
+term on the two sides was identical; a melee-only bonus on one side would have
+had it announce a shield penalty the shield does not have. It now asks the
+shield's own rule instead. That is 6bl's defect one step earlier than usual — a
+trigger drifting from its stated reason, rather than a disclaimer outliving its
+rule. Read it also for a refusal that needed its OWN warrant rather than its
+siblings' (the two Dodge-only bullets stay out of `everyDefence` because they
+name one row; Retreat stays out because its three numbers DIFFER), and for two
+warrants found already printed instead of argued: the Acrobatic Dodge's cell ends
+"Stacks with Retreat.", and `ActiveDefenses.UNPAYABLE`'s own text answers why a
+one-attack bonus may show on five rows at once.
+
+**6cn is next**, and its most reusable finding is that **a spec which omits a
 label is not a spec that has no label** — the implementer picks one, and the
 default is the worse one. It wires up the prone -4 that `RangedTest.kt:112` was
 the only reader of, and its design review cleared both the mechanism and a
@@ -216,7 +235,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6cn, then 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6co, then 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -445,7 +464,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1134 Kotlin** (JUnit 5 — 1025 `core:rules`, 89 `app`, 20 `core:model`) + **268 Python** (pytest), all green — counted at 6cn from the JUnit XML, not from memory |
+| Tests | **1136 Kotlin** (JUnit 5 — 1027 `core:rules`, 89 `app`, 20 `core:model`) + **268 Python** (pytest), all green — counted at 6co from the JUnit XML, not from memory |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -806,10 +825,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6cn. The slice log
+## 6a-6co. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6cn is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6co is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

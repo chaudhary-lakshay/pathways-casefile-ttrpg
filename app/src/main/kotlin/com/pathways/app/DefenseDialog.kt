@@ -294,12 +294,24 @@ fun DefenseDialog(
     // extract, and honouring it for one would claim a round boundary the
     // screen cannot keep for the other two.
     var dived by remember { mutableStateOf(false) }
-    // The rule answers with both of its own scopes applied -- the bullet says
-    // "+3 Dodge vs. ranged only", so a Dive! against a sword is worth nothing.
-    // Asked ONCE and the answer reused below, including by the control's own
-    // note: re-testing `incoming` there would be the same predicate at two
-    // sites, which is the defect rather than the drift it produces.
-    val diveBonus = ActiveDefenses.dive(dived, isRanged = incoming == Incoming.SHOT)
+    // Whether the character gave ground. The third free action, declared for
+    // the same reason as the other two and ungated for the same reason -- see
+    // ActiveDefenses.retreat, which carries both.
+    var retreated by remember { mutableStateOf(false) }
+    // Whether this is a shot, derived ONCE from the one control that says so.
+    // Two free actions read it and they read it in opposite directions -- the
+    // Dive! is "vs. ranged only" and the Retreat is "vs. 1 melee attack" --
+    // which is one fact in two spellings. Spelling it twice is the defect
+    // rather than the drift it eventually produces (6cn).
+    val isRanged = incoming == Incoming.SHOT
+    // Each rule answers with its own scopes already applied, and each answer is
+    // reused below, including by the controls' own notes: re-testing `incoming`
+    // there would be the same predicate at two sites.
+    val diveBonus = ActiveDefenses.dive(dived, isRanged)
+    // Three figures because the bullet prints three, against three named rows.
+    val retreatDodge = ActiveDefenses.retreat(retreated, !isRanged, ActiveDefenses.Retreat.DODGE)
+    val retreatParry = ActiveDefenses.retreat(retreated, !isRanged, ActiveDefenses.Retreat.PARRY)
+    val retreatBlock = ActiveDefenses.retreat(retreated, !isRanged, ActiveDefenses.Retreat.BLOCK)
     // Which boost was paid for, and WHICH ROW it was spent on. Both sentences
     // say "+2 to ONE defence", so the row is part of the choice -- folding it
     // into every row would buy Dodge, each Parry and Block for one payment.
@@ -368,6 +380,15 @@ fun DefenseDialog(
                     // because it decides what that picker's note can say.
                     FacingPicker(facing) { facing = it }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                    // ABOVE every row, because unlike its two neighbouring
+                    // bullets this one moves all of them -- the placement rule
+                    // StunPicker follows. BELOW IncomingPicker, because its
+                    // number depends on that declaration and its refusal note
+                    // points back up at it. Between the two, it sits with the
+                    // defender's own kit rather than splitting the pair of
+                    // pickers that describe the attack.
+                    RetreatControl(taken = retreated, bonus = retreatDodge) { retreated = !retreated }
+                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     ShieldPicker(shields, carried, coverage) { carried = if (it == carried) null else it }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     DefenseRow(
@@ -381,8 +402,12 @@ fun DefenseDialog(
                         // any active defense", and refusing to stack two of
                         // them while the same paragraph's "once per round" goes
                         // unenforced would author the narrower rule of the two.
+                        // The Retreat's +3 joins them on the strength of a
+                        // sentence printed in the acrobatic bullet's own cell:
+                        // "Stacks with Retreat." -- corroboration for this row
+                        // rather than the general line, and pinned by a test.
                         shielded(
-                            dodge + boostOn("Dodge", boost) + acrobaticSwing + diveBonus,
+                            dodge + boostOn("Dodge", boost) + acrobaticSwing + diveBonus + retreatDodge,
                             shieldForDb,
                             everyDefence,
                         ),
@@ -419,7 +444,11 @@ fun DefenseDialog(
                     val label = "Parry ($name)"
                     DefenseRow(
                         label,
-                        shielded(value + parryPenalty + boostOn(label, boost), shieldForDb, everyDefence),
+                        shielded(
+                            value + parryPenalty + boostOn(label, boost) + retreatParry,
+                            shieldForDb,
+                            everyDefence,
+                        ),
                     )
                 }
                 item {
@@ -445,7 +474,7 @@ fun DefenseDialog(
                     DefenseRow(
                         label,
                         shielded(
-                            value + parryPenalty + vsWeapon + boostOn(label, boost),
+                            value + parryPenalty + vsWeapon + boostOn(label, boost) + retreatParry,
                             shieldForDb,
                             everyDefence,
                         ),
@@ -485,7 +514,7 @@ fun DefenseDialog(
                         val bare = ParryBlock.blockFor(shieldSkill, shieldDb = 0)
                         val boosted = boostOn("Block", boost)
                         if (held == null) {
-                            DefenseRow("Block", shielded(bare + boosted, null, everyDefence))
+                            DefenseRow("Block", shielded(bare + boosted + retreatBlock, null, everyDefence))
                             // Two ways to have no DB, and they are different
                             // facts: nothing Readied, or something Readied
                             // that the book withholds from behind.
@@ -502,15 +531,28 @@ fun DefenseDialog(
                             // shielded() -- but the trait bonus is added to
                             // one bare figure and carried across, so the two
                             // ends of the arrow cannot drift apart.
-                            val own = bare + everyDefence + boosted
-                            val melee = Shields.blockFor(held, shieldSkill) + everyDefence + boosted
+                            val own = bare + everyDefence + boosted + retreatBlock
+                            val melee =
+                                Shields.blockFor(held, shieldSkill) + everyDefence + boosted + retreatBlock
                             DefenseRow("Block", "$own → $melee")
                             // The ranged figure is shown beside it rather than
                             // replacing it: a light shield is "-1 to Block vs.
-                            // ranged" and one number cannot say both.
+                            // ranged" and one number cannot say both. It takes
+                            // no Retreat: that bullet is "vs. 1 melee attack",
+                            // so a figure for a shot must not carry it.
                             val shot =
                                 Shields.blockFor(held, shieldSkill, isRanged = true) + everyDefence + boosted
-                            if (shot != melee) Note("Against ranged attacks: $shot")
+                            // Asked of the SHIELD's own penalty rather than by
+                            // comparing the two totals. This note exists to
+                            // disclose the -1 a light shield takes against a
+                            // shot, and `shot != melee` stopped being that
+                            // question the moment a melee-only bonus could
+                            // separate them -- a disclaimer whose trigger has
+                            // drifted from its stated reason is 6bl's defect
+                            // on this same screen.
+                            val differsVsShot = Shields.blockPenalty(held, isRanged = true) !=
+                                Shields.blockPenalty(held, isRanged = false)
+                            if (differsVsShot) Note("Against ranged attacks: $shot")
                         }
                         printed.firstOrNull { it.defense == "Block" }?.let { Note(it.notes) }
                         HorizontalDivider(Modifier.padding(vertical = 4.dp))
@@ -742,6 +784,57 @@ private fun DiveControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
         "Getting back up costs a turn (Change Posture) — the GM's to spend; " +
             "this app holds no clock to run it against.",
     )
+}
+
+/**
+ * The Retreat: the third Defense Modifiers bullet with a number, and the first
+ * that moves more than the Dodge row (Ch. 5, p. 37).
+ *
+ * "[Free Action] [Retreat] Step back 1 hex: +3 Dodge / +1 Block / +1 Parry vs.
+ * 1 melee attack per round." Extracted since 6g and applied by nothing until
+ * now.
+ *
+ * A chip rather than a roll, like [DiveControl]: the bullet asks for no die,
+ * only for the GM to say the character gave ground. Its scope is decided in
+ * [ActiveDefenses.retreat], and what arrives here is [bonus] -- the answer on
+ * the Dodge row, which answers for all three, because one melee test allows or
+ * refuses every one of them.
+ *
+ * **[bonus] is read rather than the attack re-tested here**, for the reason
+ * [DiveControl] states: a zero while the chip is on is exactly the sentence the
+ * note needs, and asking `incoming` a second time is how one rule becomes two
+ * disagreeing copies (6ag, 6ai, 6be).
+ *
+ * The "1 melee attack per round" limit is SAID and not enforced, the split
+ * [DiveControl] takes on the turn spent standing up: this screen keeps no
+ * round, and the parry stepper below is the GM's for the same reason.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RetreatControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
+    Note(ActiveDefenses.printedRetreat())
+    FlowRow {
+        FilterChip(
+            selected = taken,
+            onClick = { onToggle() },
+            // Named from the bullet's own verb, not from the rule's effect: the
+            // GM ticks what the character DID, and every other chip on this
+            // screen is worded that way.
+            label = { Text("Stepped back") },
+            modifier = Modifier.padding(end = 8.dp),
+        )
+    }
+    if (!taken) return
+    // A chip that is on while no row has moved would read as a tick that failed
+    // -- the reason a cancelled refusal is SAID rather than silently dropped.
+    if (bonus == 0) {
+        Note(
+            "Not against this attack: the bullet is \"vs. 1 melee attack\", so " +
+                "nothing lands. Pick a bare hand or a weapon above.",
+        )
+        return
+    }
+    Note("One melee attack this round — the GM's to count; this screen keeps no round.")
 }
 
 /**

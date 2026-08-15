@@ -376,6 +376,61 @@ object ActiveDefenses {
     fun dive(taken: Boolean, isRanged: Boolean): Int =
         if (taken && isRanged) DIVE_BONUS else 0
 
+    /** The bullet's own tag, which is how its row is found rather than by index. */
+    private const val RETREAT_ROW = "[Retreat]"
+
+    /**
+     * The three rows a Retreat is worth something on, each with its own number.
+     *
+     * "+3 Dodge / +1 Block / +1 Parry" -- one bullet, three figures, and this
+     * enum is where they live: the split [BOOST_BONUS], [ACROBATIC_SWING],
+     * [DIVE_BONUS] and [STUNNED_PENALTY] already take for a number printed
+     * inside a prose cell, with a test pinning the sentence it came from. Held
+     * once here rather than as three constants an enum then repeats, because
+     * the same value at two sites is the defect and not the drift it produces.
+     */
+    enum class Retreat(val bonus: Int) {
+        DODGE(3),
+        PARRY(1),
+        BLOCK(1),
+    }
+
+    /** The Retreat bullet, quoted whole. */
+    fun printedRetreat(): String = printedModifier(RETREAT_ROW)
+
+    /**
+     * What stepping back a hex is worth on [row], given the attack declared.
+     *
+     * **Deliberately not routed through [everyDefence], and NOT for the reason
+     * [dive] and [acrobaticDodge] are.** Those two name Dodge and no other row.
+     * This one names all three -- and its three numbers DIFFER, so no single
+     * all-rows value can carry it at all. Same conclusion, a different warrant:
+     * a sibling's sentence copied onto a row it was never measured against is
+     * how one excuse ended up in three files (6ck).
+     *
+     * **"vs. 1 melee attack" is the bullet's own scope**, so it is composed
+     * here rather than left to the screen to remember, exactly as [dive]'s "vs.
+     * ranged only" is. [isMelee] arrives reduced because `Incoming` is the
+     * dialog's private enum -- and the dialog derives it from the SAME value it
+     * hands [dive], since "melee" and "not ranged" are one fact, and two
+     * spellings of one fact at two sites is the defect (6cn).
+     *
+     * **The "per round" half is not enforced, and here that is a decision
+     * rather than an omission.** p. 36's "Each can be used once per round"
+     * governs all three free actions from a paragraph this app does not
+     * extract, and this screen keeps no round: the parry stepper is a number
+     * the GM sets and a paid boost never clears either. A latch on this one
+     * control would claim a boundary the other two cannot honour.
+     *
+     * **One attack, five rows, and that is the dialog's own shape.** The bonus
+     * is spent against a single attack, while this screen "reports what every
+     * row WOULD be and never asks the GM to pick one" ([UNPAYABLE]) -- so
+     * showing it on Dodge, on each Parry and on Block is the same answer that
+     * dialog gives for every other modifier, not five uses of one Retreat.
+     */
+    fun retreat(taken: Boolean, isMelee: Boolean, row: Retreat): Int =
+        if (taken && isMelee) row.bonus else 0
+
     /**
      * The bullets this app applies, which is the half [unappliedModifiers] is
      * defined against.
@@ -384,7 +439,7 @@ object ActiveDefenses {
      * decision, and writing the applied set once is what keeps a bullet from
      * landing in both (or in neither) as a third one is wired up.
      */
-    private val APPLIED_ROWS = listOf(ACROBATIC_ROW, DIVE_ROW)
+    private val APPLIED_ROWS = listOf(ACROBATIC_ROW, DIVE_ROW, RETREAT_ROW)
 
     /**
      * The Defense Modifiers bullets this app does NOT apply.

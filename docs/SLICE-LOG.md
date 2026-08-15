@@ -1,7 +1,9 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6cm, in the order they were written. **Read from the END.**
+Sections 6a-6co. **Read from the END** — but note the order is not uniform:
+6a onward run oldest-first, while everything from 6cb is newest-first, so the
+most recent slice sits at the head of that block rather than at the file's end.
 The handover header, repo map, non-negotiable rules and process notes stay in
 `CLAUDE.md`.
 
@@ -6720,6 +6722,120 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6co. Three numbers on three rows, and a disclaimer whose trigger had drifted
+
+The last `defense_modifiers.json` bullet with a number is applied: "[Free
+Action] [Retreat] Step back 1 hex: +3 Dodge / +1 Block / +1 Parry vs. 1 melee
+attack per round". `ActiveDefenses.Retreat` is an enum of the three rows, each
+carrying its own figure, and `retreat(taken, isMelee, row)` is the one predicate
+that allows or refuses all of them. With this the file is closed: three bullets
+applied, and the two facing bullets refused by 6ck with a test that pins their
+"to defense" singular.
+
+**The refusal to route it through `everyDefence` needed its OWN warrant, and
+that is the most reusable thing here.** `dive` and `acrobaticDodge` stay out of
+that helper because each *names Dodge and no other row* — the bar the stun
+clears only by a second printing that says "active defenseS". The obvious move
+was to write that sentence a third time. It would have been false: this bullet
+names all three rows. What keeps it out is a different fact entirely — **its
+three numbers differ**, so no single all-rows value can carry it. Same
+conclusion, different reason, and copying the sibling's is exactly 6ck's
+one-excuse-in-three-files, where the copies read as corroboration and were
+evidence of nothing.
+
+**A disclaimer's trigger had quietly stopped being its stated reason.** The
+Block row prints "Against ranged attacks: N" under `if (shot != melee)`, and the
+comment above it says why that note exists: a light shield is "-1 to Block vs.
+ranged" and one number cannot say both. That condition was a correct proxy while
+every term on the two sides was identical. The moment a **melee-only** bonus
+landed on `melee` and not on `shot`, the two could differ for a reason the
+comment does not cover, and the note would fire announcing the shield's penalty
+when the shield had none. The trigger now asks the shield's own rule —
+`Shields.blockPenalty(held, isRanged = true) != blockPenalty(held, isRanged =
+false)` — which is a pure refactor today (verified row by row against
+`shields.json`: Light differs, Improvised's -2 names no scope and so does not,
+Medium and Heavy carry none) and is no longer perturbable by any term a later
+slice adds to either side. **6bl's defect class reached one step earlier than
+usual**: not a disclaimer that outlived its rule, but a *condition* that outlived
+the question it was standing in for.
+
+**One fact, one spelling.** The Dive! is "vs. ranged only" and the Retreat is
+"vs. 1 melee attack" — one declaration read in opposite directions. The dialog
+derives `val isRanged` once and hands `dive` that and `retreat` its negation, so
+the two free actions cannot disagree about what a shot is. Writing
+`incoming == Incoming.SHOT` at one site and `incoming != Incoming.SHOT` at
+another is 6cn's defect, not the drift it would eventually produce.
+
+**Two printed warrants were used instead of two arguments.** The Dodge row now
+carries the acrobatic swing, the Dive!'s +3 and the Retreat's +3 at once, and the
+justification is no longer p. 36's general "alongside any active defense": the
+Acrobatic Dodge's own cell ends **"Stacks with Retreat."**, which names the other
+bullet. That sentence is now pinned by an assertion in the acrobatic bullet's
+test, so losing it is a finding rather than a silent return to the general line.
+And the fair objection to showing a one-attack bonus on five rows at once is
+answered by text this repo already wrote down: `ActiveDefenses.UNPAYABLE` says
+this dialog "reports what every row WOULD be and never asks the GM to pick one".
+A screen that allocates no defence cannot be spending one Retreat five times.
+
+**"Each can be used once per round" is still not enforced, and here that stops
+being an omission.** All three free actions now exist as controls, so the
+sentence finally governs three things this app has. It stays the GM's for the
+reason the parry stepper does: this screen keeps no round, `priorParries` is a
+number the GM sets and a paid boost never clears either, so a latch on one chip
+would claim a boundary the other two cannot honour. Written into
+`ActiveDefenses.retreat`'s KDoc rather than left in a transcript — the split 6cj
+made when it moved a refusal out of the journal and into production source, where
+a sweep can find it.
+
+**Placement was a design finding, not a layout preference.** The first plan put
+the control beside `StunPicker` at the top, reasoning correctly that it is the
+first free action to move Dodge *and* Parry *and* Block and so belongs above all
+of them. But its number depends on `IncomingPicker`, and its refusal note has to
+say where to go and fix it — above that picker the note would point at a control
+further down. It sits between the two: after the attack pickers, before the
+shield picker and every row.
+
+**1136 Kotlin** (1027 `core:rules`, 89 `app`, 20 `core:model`) and 268 Python,
+green — counted from the JUnit XML, because an empty console on success cannot
+tell a pass from a suite that never ran. Three RED proofs, one reading each,
+restored from a copy rather than by `git checkout`: dropping `isMelee` reddens
+the value test; collapsing the three figures into one reddens the value test AND
+the bullet test (the enumeration compares each row only against its own number,
+so the second assertion is what catches it); leaving the bullet out of
+`APPLIED_ROWS` reddens the applied/unapplied census.
+
+**Both free reviewers were unavailable and the fallback chain ran to its end.**
+Codex still refuses until 2026-08-20 14:23. `pi-qa probe` reported **1 of 20
+live** where the same day's earlier record says four — three of the four are now
+429 rather than dead, so the catalogue moved *within a single day*, which is
+sharper than 6cd's "a catalogue is a claim about the past". The one live model
+then 429'd through the whole failover chain, so the gate was the documented
+single `ecc:kotlin-reviewer`, scoped to three questions and four files. It
+returned no findings and independently derived the algebra behind the Block
+trigger (`shot - melee` reduces to the penalty difference, every other term being
+common), which is the half worth keeping: a clean review is worth what its
+questions were worth, and this one confirmed a rewrite rather than clearing a
+diff it was never asked about.
+
+Not device-verified: the arithmetic and the scope are unit-covered, the chip, the
+note and the row totals are Compose, which this repo does not test.
+
+**A tidy-up was refused.** The obvious follow-up is to extract the Block note's
+new predicate into an `internal` helper so `DefenseDialogTest` can pin it, the
+shape `shieldForDb` and `boostOn` already take. Refused: those two exist because
+the same predicate had **two** call sites and this one has one, and the reason
+the old trigger was fragile — a comparison of totals that later terms can
+perturb — is structurally gone rather than guarded. A guard against a failure
+mode the rewrite removed is scaffolding.
+
+**The next slice is not in this file, because this file is finished.** The
+honest candidate with evidence behind it is the round boundary itself: three free
+actions, a parry stepper and a boost that lasts "until next turn" now all sit on
+one screen with no clock, and 6bf's decision that a round tracker is not worth
+global state was taken when only ONE of them existed. That is a claim about the
+data and it has changed — re-run it as a query before inheriting it (6au, 6av,
+6bv). Behind it, unchanged: the nineteen withheld trait rows, one record shape.
 
 ## 6cn. The number the test suite knew and production did not
 
