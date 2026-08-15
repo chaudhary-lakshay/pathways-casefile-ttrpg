@@ -19,7 +19,14 @@ claim the way 6ax asks you to verify 6ax.
 own error text. 6cd's last pass was the documented `ecc:kotlin-reviewer`
 fallback. Check the CLOCK and not just the date (6am, 6as).
 
-**6ce is newest**: it builds the table 6bc read and left, and that THREE
+**6cf is newest**: it wires up a +2 the divination screen has never asked
+for — extracted in 6p, tested, documented, and called by NOTHING. Read it
+for the sweep that found it, which is a sixth direction this repo had never
+run deliberately: **every public rules function checked for a UI caller**.
+323 functions, 46 uncalled, 3 real. 6aj and 6be each hit that class by
+accident; two of two by accident is not a method.
+
+**6ce is next**: it builds the table 6bc read and left, and that THREE
 slices deferred — 6bc, 6ca and 6cb — each on a reason that had already
 stopped being true. Read it for the shape of the check that costs a minute
 and settles it: **"occult skill" is printed nowhere in this book**, so the
@@ -34,7 +41,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6ce, then 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6cf, then 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -263,7 +270,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1113 Kotlin** (JUnit 5 — 1007 `core:rules`, 86 `app`, 20 `core:model`) + **267 Python** (pytest), all green |
+| Tests | **1115 Kotlin** (JUnit 5 — 1009 `core:rules`, 86 `app`, 20 `core:model`) + **267 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -4202,8 +4209,14 @@ start by asking the same question rather than by picking a chapter.
    default that was hiding the whole Divine screen, and ch. 7's prohibition
    that the second of those broke.
 
-Every one of the five is a claim about what the OTHER four cannot see, so a
-sixth starts by asking that question rather than by picking a chapter. And
+6. **A public function with no caller** (6cf) — code → UI, the mirror of #2
+   one level up. The field sweep asks whether DATA has a reader; this asks
+   whether implemented BEHAVIOUR has a caller, and `supportBonus` read its
+   data perfectly while nothing read IT. 6aj and 6be found this class by
+   accident before it was ever run on purpose.
+
+Every one of the six is a claim about what the OTHERS cannot see, so a
+seventh starts by asking that question rather than by picking a chapter. And
 note 6ba's twist: a sweep's clean verdict is valid only as of its date. 6ar
 swept line 4007 correctly and found nothing, because the code that
 contradicts it was not written for another two slices.
@@ -7330,6 +7343,117 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6cf. A sixth sweep direction, and the +2 divination never asked for
+
+`Divination.supportSkillsOwnedBy` offers Ch. 6.5 p. 55's four supporting
+skills, and the divination dialog has a chip row. The rule was extracted in
+6p, tested, documented — and **`Divination.supportBonus` had no production
+caller at all**, so a diviner with Occultism and Psychology rolled flat where
+the book gives +2. Five premades carry at least one of the four; Fortune
+Teller carries three, which is the cap case.
+
+**This is 6am's finding one chapter over, and 6am fixed only the half it was
+looking at.** That slice found ch. 7's five supporting skills keyed on their
+printed string, so `Hidden Lore (relevant domain)` matched nothing and its +1
+vanished for the four premades carrying Hidden Lore. Ch. 6.5 prints its own
+list with its own bracket — `Hidden Lore (relevant)` — and its own cap, and
+nothing had ever looked at it. **A fix is a claim about one route**; the
+sibling route is not covered by having understood the rule.
+
+### The sixth sweep direction: a public function with no caller
+
+6ax listed four directions and 6ay/6ba added the seam, making five. This is a
+sixth, and it starts where none of the others can: **every public function of
+`core/rules`, checked for a caller in `app/`.**
+
+- The field sweep (6ai) asks whether extracted DATA has a reader. This one
+  asks whether implemented BEHAVIOUR has a caller, which is a different set:
+  `supportBonus` reads its data perfectly and is itself read by nobody.
+- **6aj and 6be each found this exact class by accident** — chapter 4's two
+  sense tables were unreachable because the sheet listed only published
+  skills, and potion-granted skills had no row at all. Two of two by accident
+  is not a method (6bh), so it was run deliberately: **323 public functions,
+  46 with no caller, 3 real after triage.**
+- **Two of the five candidates were false positives, both from the same
+  regex flaw**: a `name(` search cannot see a PROPERTY of the same name
+  (`AntiDivinationTechniques.detectionBonus`) or a `::method` reference
+  (`Wealth::namesEconomicStatus`). Check the shape of a miss before believing
+  it — the instrument's false positives are as informative as its hits.
+- Most of the 46 are legitimate and the sweep's value is saying which: guard
+  accessors that exist for the coverage tests (`known`, `skillBonusNames`,
+  `unappliedNames`), content loaders consumed by the golden tests, and
+  `EffortBurn.requireOnePool`, an API-level guard 6ak documented as
+  deliberately unreachable.
+
+### What the wiring had to get right
+
+- **The bracket rule is `RitualMode.bareSupportName`, not a second copy.** It
+  is ONE rule — the book naming a domain the GM judges relevant, not part of
+  a skill's name — and two copies of one decision is the failure this
+  codebase has produced seven times (6ag, 6ai, 6be, 6bp, 6bs, 6cd, 6ce).
+  Only the ROW's bracket is stripped, so a sheet's `Hidden Lore (Fae)` still
+  matches: relevance is the GM's call, not a spelling.
+- **The cap stays +2 and is NOT ch. 7's +3.** Two printed rules — ch. 6.5
+  line 3580 prints "cumulative but cap at +2 total from supporting skills"
+  and ch. 7 prints +3 for its own five. 6at named this pair while sweeping
+  code back to the book, and straightening them is the 4.1 sin. The screen
+  says which cap it is using and why, because the two dialogs sit two taps
+  apart.
+- **The matching lives in rules, not the screen**, for 6am's own reason: a
+  dialog comparing names itself can offer a chip `supportBonus` then refuses,
+  or withhold one it would accept.
+- **A choice, not an automatic bonus.** The row is "Hidden Lore (relevant)",
+  and whether the domain is relevant to THIS question is the GM's; granting
+  it unasked answers that question for them.
+- **Named twice pays once** — a character has one Occultism (6y's rule for
+  the ritual list).
+- **The bonus is named on its own line, never folded into "circumstances"**,
+  because the signed numbers must sum to the target above them — and with
+  the cap biting they do not sum to the chips the GM ticked, which is exactly
+  why it needs its own name.
+- The empty branch names all four skills rather than rendering nothing, the
+  call 6am made for the ritual dialog's own empty case: a bare absence reads
+  as a screen that forgot.
+
+**Codex refused** (usage limit, resets 2026-08-20 14:23). One
+`ecc:kotlin-reviewer` fallback pass scoped to six named files with six probes
+returned **no findings at any severity**, tracing every probe to a file:line
+— including the two worth having: the bare-name match cannot over-match a
+longer skill, and a stale entry in the chosen set is self-correcting because
+the filter iterates the CURRENT owned list.
+
+**1115 Kotlin** (1009 `core:rules`, 86 `app`, 20 `core:model`) and **267
+Python**, all green. Both readings RED-proved by neutering each and restoring
+from a `cp` backup: the bracket rule replaced by a printed-string match (1
+failure), and the dedup removed (1).
+
+Device-verified on `Medium_Phone_API_36.1`, **Fortune Teller** seeded as a
+Fool Sequence 9 — the one premade carrying three of the four, and a pathway
+that grants Divination Arts so the screen is reachable at all (6aq):
+
+- The dialog shows **Supporting skills — "+1 each, capped at +2 — the book's
+  own cap for divination, which is not ch. 7's +3"** over exactly three
+  chips: **Occultism +1, Hidden Lore (relevant) +1, Psychology +1**.
+  **Cogitation is absent**, which is the ownership filter; and Hidden Lore is
+  there at all only through the bracket rule, since her sheet spells it with
+  a specialization.
+- Untouched, the panel reads **"Roll 3d6 ≤ 14 — Skill 12, question +2"**.
+- Ticking **all three** reads **"Roll 3d6 ≤ 16 — Skill 12, question +2, +2
+  from supporting skills"** — **+2 and not +3**, and 12+2+2 sums to the 16
+  printed above it.
+- Asking rolled **"3d6: 11 vs 16 — Success by 5+ — Crystal clear"** and saved
+  `spiSpent: 1`. That 11 is the observable that matters: against the old
+  target of 14 its margin is 3, which is the "Clear" band. The bonus reaches
+  the dice and moves the answer, not just the caption.
+
+**Next, with evidence.** The API sweep's other two survivors are recorded
+rather than built: `ContentLoader.attackOptions` is read by nothing at all —
+not app, not rules, not tests — which is 6ai's own defect class in a loader
+rather than a field, and wants its own slice to decide whether the two rows
+are a pinned-sentence file or a gap. `EffortBurn.scopeOf` is untested and
+uncalled. Neither is a rule going unapplied today, which is why neither
+displaced this one.
 
 ## 6ce. The table three slices deferred, and the word that names no group
 
