@@ -1,9 +1,12 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6co. **Read from the END** — but note the order is not uniform:
-6a onward run oldest-first, while everything from 6cb is newest-first, so the
-most recent slice sits at the head of that block rather than at the file's end.
+Sections 6a-6co. **Position in this file does not tell you a slice's age** —
+the order is not uniform (6a onward run oldest-first, one cluster near 6ca is
+scrambled, and the most recent block runs newest-first, so the newest slice is
+neither at the top nor at the bottom). Locate one by name with
+`grep -n '^## 6' docs/SLICE-LOG.md`, and read in the order the "Where to start
+next" list in `CLAUDE.md` gives, which is newest-first by number.
 The handover header, repo map, non-negotiable rules and process notes stay in
 `CLAUDE.md`.
 
