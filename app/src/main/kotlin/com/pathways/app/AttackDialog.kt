@@ -432,8 +432,11 @@ private fun AttackOptions(
                     selected = plan.maneuver == option,
                     // Changing maneuver drops the options the old one allowed:
                     // Heroic Charge outside a charge is refused by Attacks, and
-                    // carrying it over silently would throw on Roll.
-                    onClick = { onPlan(AttackPlan(maneuver = option, isRanged = plan.isRanged)) },
+                    // carrying it over silently would throw on Roll. Through
+                    // Attacks rather than rebuilt here, because deciding what
+                    // survives a transition is a rule and this was its third
+                    // copy -- the one that dropped an unscoped option.
+                    onClick = { onPlan(Attacks.withManeuver(plan, option)) },
                     label = { Text(option.printed) },
                     modifier = Modifier.padding(end = 8.dp),
                 )
@@ -496,6 +499,16 @@ private fun AttackOptions(
                 modifier = Modifier.padding(vertical = 4.dp),
             )
         }
+        // Offered on every maneuver and at any reach, because its cell prints
+        // no scope where both neighbours print one. The step itself is the
+        // GM's -- this app holds no map -- so what the chip delivers is the FP
+        // charge, which is the half of the row this app does model.
+        FilterChip(
+            selected = plan.giantStep,
+            onClick = { onPlan(plan.copy(giantStep = !plan.giantStep)) },
+            label = { Text("Giant Step (1 FP)") },
+            modifier = Modifier.padding(vertical = 4.dp),
+        )
 
         HorizontalDivider(Modifier.padding(vertical = 8.dp))
         val fp = Attacks.fpCost(plan)

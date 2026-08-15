@@ -9,6 +9,7 @@ import com.pathways.model.SourceKind
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.UnarmedAttack
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -439,5 +440,117 @@ class AttacksTest {
             "a ${Attacks.DECEPTIVE_STEP_PENALTY} penalty" in rule,
             "DECEPTIVE_STEP_PENALTY no longer matches its row: $rule",
         )
+    }
+
+    /**
+     * **Every row the book PRICES is one this app can pay for**, except the
+     * one named here.
+     *
+     * The two FP tables print nine priced rows between them, and paying is
+     * the one thing this app can do with all nine: it holds no map, no
+     * opponent and no round, but it does hold the FP pool and it charges
+     * every other priced option. So an unpayable priced row is a gap rather
+     * than a rule out of scope -- which is why this is an equality against a
+     * NAMED set rather than a count. `Giant Step` sat in that set unnoticed
+     * because the row sweep this repo had never run is the only sweep that
+     * could see it: a FIELD audit sees a table whose fields are all read, and
+     * an API audit sees a function with callers.
+     *
+     * **Anchored to the enums' own [AttackManeuver.printed] values and the
+     * option constants, never to a text search of the source.** A substring
+     * sweep over Kotlin says "Move" and "Wait" are covered because this file's
+     * own prose contains those words (a review's finding, and the same class
+     * as 6cg's sign-blind guard).
+     *
+     * **The exclusion is a pinned gap, not a refusal.** All-Out Defense
+     * (Double) prints "Pay 2 FP" and this app cannot spend it. Its sibling
+     * All-Out Defense (Increased) is a [DefenseBoost] because it adds +2 to
+     * one defence; Double adds no number, so it needs a declaration of its own
+     * rather than a third member of a type whose KDoc makes the bonus the
+     * point. That is the next slice; this line fails the day it ships, which
+     * is what makes it a pin rather than a comment (4.2).
+     */
+    @Test
+    fun `every priced row is payable, and the only one that is not is named`() {
+        // No filter on the extra-effort side: `ExtraEffort.fp` is a
+        // non-nullable Int, so every row in that table is priced by schema.
+        // A `!= null` there would read as the maneuver side's condition while
+        // testing nothing, which is worse than no filter at all (a review's
+        // finding).
+        val priced = ContentLoader.maneuvers().filter { it.fp != null }.map { it.maneuver } +
+            ContentLoader.extraEffort().map { it.option }
+        val payable = AttackManeuver.entries.map { it.printed } +
+            DefenseBoost.entries.map { it.printed } +
+            listOf(Attacks.HEROIC_CHARGE, Attacks.STRONG_BLOW, Attacks.GIANT_STEP)
+        assertEquals(
+            setOf("All-Out Defense (Double)"),
+            priced.toSet() - payable.toSet(),
+            "a priced row this app cannot pay for",
+        )
+    }
+
+    /**
+     * Giant Step costs what its own row prints, and moves no number.
+     *
+     * The cell is "Take an extra step before or after attack" for 1 FP: a
+     * price with no roll behind it. Read from the row rather than asserted as
+     * 1, for the reason [Attacks.fpCost] reads the others that way.
+     */
+    @Test
+    fun `giant step costs the FP its row prints and changes no roll`() {
+        val row = ContentLoader.extraEffort().first { it.option == Attacks.GIANT_STEP }
+        assertEquals(row.fp, Attacks.fpCost(AttackPlan(giantStep = true)))
+        assertTrue(Attacks.modifiers(AttackPlan(giantStep = true), 12).isEmpty())
+    }
+
+    /**
+     * Giant Step is scoped to nothing, and the absence is deliberate.
+     *
+     * Its two neighbours in the same bullet list both carry a scope in their
+     * own cells -- "Regular melee attacks only", "Ignore **Charge Attack**
+     * penalties" -- and [Attacks.modifiers] refuses a plan carrying either out
+     * of scope. Giant Step's cell names no maneuver and no reach, so refusing
+     * it anywhere would be this app inventing a limit (4.1). Pinned, because
+     * "no require" is invisible in a diff.
+     */
+    @Test
+    fun `giant step is refused on no maneuver and survives a move to range`() {
+        for (maneuver in AttackManeuver.entries) {
+            assertTrue(
+                Attacks.fpCost(AttackPlan(maneuver, giantStep = true)) > 0,
+                "$maneuver should still let Giant Step be paid for",
+            )
+            Attacks.modifiers(AttackPlan(maneuver, giantStep = true), 20)
+        }
+        assertTrue(Attacks.atRange(AttackPlan(giantStep = true), isRanged = true).giantStep)
+    }
+
+    /**
+     * A maneuver change drops what the old maneuver allowed, and keeps what
+     * was never its to allow.
+     *
+     * The screen used to rebuild the plan inline, which dropped Giant Step
+     * along with the two options that genuinely cannot travel. Pinned on all
+     * five maneuvers rather than one, because the transition is reachable from
+     * every chip on the row.
+     */
+    @Test
+    fun `changing maneuver keeps the unscoped option and drops the scoped ones`() {
+        val paid = AttackPlan(
+            maneuver = AttackManeuver.CHARGE,
+            heroicCharge = true,
+            giantStep = true,
+            rapidStrikes = 1,
+        )
+        for (maneuver in AttackManeuver.entries) {
+            val moved = Attacks.withManeuver(paid, maneuver)
+            assertEquals(maneuver, moved.maneuver)
+            assertTrue(moved.giantStep, "$maneuver dropped an option its cell does not scope")
+            assertFalse(moved.heroicCharge, "$maneuver carried a maneuver-scoped option across")
+            assertEquals(0, moved.rapidStrikes)
+        }
+        // Reach is a property of the attack, not of the maneuver, so it rides
+        // across -- and [atRange] stays the only thing that changes it.
+        assertTrue(Attacks.withManeuver(AttackPlan(isRanged = true), AttackManeuver.REGULAR).isRanged)
     }
 }

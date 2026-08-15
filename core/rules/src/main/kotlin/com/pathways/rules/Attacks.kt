@@ -60,6 +60,13 @@ enum class AttackManeuver(
  * an attack. Both are scoped to a MANEUVER by their own printed cells, and
  * [Attacks.modifiers] refuses a plan carrying one out of scope rather than
  * dropping it silently -- 1 FP bought for nothing is a bug, not a rounding.
+ *
+ * [giantStep] is the third, and the one that reaches no number at all: its
+ * cell buys "an extra step before or after attack" for 1 FP, and this app
+ * holds no map for a step to be taken on. It is here because **the price is
+ * the part this app does model** -- it charges every other priced row the two
+ * FP tables print, and an option a GM cannot pay for is a tracker drifting
+ * from the table it claims to implement.
  */
 data class AttackPlan(
     val maneuver: AttackManeuver = AttackManeuver.REGULAR,
@@ -68,6 +75,7 @@ data class AttackPlan(
     val deceptive: Int = 0,
     val heroicCharge: Boolean = false,
     val strongBlow: Boolean = false,
+    val giantStep: Boolean = false,
 )
 
 /**
@@ -98,6 +106,21 @@ object Attacks {
 
     /** The extra-effort option that adds to damage: "+2 damage." */
     const val STRONG_BLOW = "Strong Blow"
+
+    /**
+     * The extra-effort option that costs 1 FP and moves no number.
+     *
+     * "Take an extra step before or after attack." There is no map here for
+     * the step, so nothing joins a roll -- but the FP is real, and this object
+     * already charges the other two options in the same bullet list. Named as
+     * a constant rather than left out, because the alternative is the state it
+     * was found in: a priced row with no code, no test and no recorded reason,
+     * which reads identically to an oversight.
+     *
+     * ponytail: no `require` guards it, because its cell prints no scope --
+     * neither a maneuver nor a reach, where both neighbours print one.
+     */
+    const val GIANT_STEP = "Giant Step"
 
     /**
      * What [STRONG_BLOW] adds to damage.
@@ -156,6 +179,34 @@ object Attacks {
      */
     fun withAttack(plan: AttackPlan, unarmed: UnarmedAttack?): AttackPlan =
         if (unarmed == null || unarmed.wounds) plan else plan.copy(strongBlow = false)
+
+    /**
+     * [plan] moved onto a different maneuver, dropping what cannot come along.
+     *
+     * The third transition, and the one that was NOT here: the screen rebuilt
+     * the plan from scratch inline, which is the second-copy failure [atRange]
+     * and [withAttack] both exist to prevent (6ag, 6ai, 6be). It went unnoticed
+     * while every option it dropped deserved dropping -- Heroic Charge and
+     * Strong Blow each name a maneuver in their own cell, and carrying one
+     * across would throw on Roll rather than merely mislead.
+     *
+     * [AttackPlan.giantStep] is what exposed it. Its cell names no maneuver, so
+     * a maneuver change is not a reason to drop it, and a wholesale rebuild
+     * dropped it anyway -- a player comparing to-hit numbers across maneuvers
+     * lost a paid option with nothing on screen to say so.
+     *
+     * The rapid strikes and deceptive steps are reset with the scoped options,
+     * which is what the screen already did. That is stricter than the book:
+     * both are scoped to REACH rather than to a maneuver, and only [atRange]
+     * enforces that. Kept as it was, because loosening it is a different
+     * question from centralising it, and one slice should not answer both.
+     */
+    fun withManeuver(plan: AttackPlan, maneuver: AttackManeuver): AttackPlan =
+        AttackPlan(
+            maneuver = maneuver,
+            isRanged = plan.isRanged,
+            giantStep = plan.giantStep,
+        )
 
     /**
      * Whether [STRONG_BLOW] may be offered at all.
@@ -248,7 +299,8 @@ object Attacks {
             ?: error("maneuvers.json has no row named '${plan.maneuver.printed}'")
         val charge = if (plan.heroicCharge) effortCost(HEROIC_CHARGE) else 0
         val blow = if (plan.strongBlow) effortCost(STRONG_BLOW) else 0
-        return (maneuver.fp ?: 0) + charge + blow
+        val step = if (plan.giantStep) effortCost(GIANT_STEP) else 0
+        return (maneuver.fp ?: 0) + charge + blow + step
     }
 
     private fun effortCost(option: String): Int =
