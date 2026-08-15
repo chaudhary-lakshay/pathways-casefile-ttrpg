@@ -19,13 +19,22 @@ claim the way 6ax asks you to verify 6ax.
 own error text. 6cd's last pass was the documented `ecc:kotlin-reviewer`
 fallback. Check the CLOCK and not just the date (6am, 6as).
 
-**6cd is the one to read first**, for a sentence that settles a question this
+**6ce is newest**: it builds the table 6bc read and left, and that THREE
+slices deferred — 6bc, 6ca and 6cb — each on a reason that had already
+stopped being true. Read it for the shape of the check that costs a minute
+and settles it: **"occult skill" is printed nowhere in this book**, so the
+slash in "+5 to all occult/knowledge skills" cannot be joining two groups,
+and one grep decides a reading two other readings would have authored. Read
+it also for a guard that had been blind to an entire map since the slice
+that added it — under a comment warning about exactly that failure.
+
+**6cd is the one to read after it**, for a sentence that settles a question this
 file has circled four times: **"cost-inside-bounds corroborates pricing
 validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6cd, then 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6ce, then 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -254,7 +263,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1106 Kotlin** (JUnit 5 — 1000 `core:rules`, 86 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
+| Tests | **1113 Kotlin** (JUnit 5 — 1007 `core:rules`, 86 `app`, 20 `core:model`) + **267 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -7321,6 +7330,155 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6ce. The table three slices deferred, and the word that names no group
+
+`blessings.json` carries Ch. 3 p. 19's Seven Orthodox Gods Blessings, the
+picker sells them, and one of the seven reaches a roll. **6bc read this page
+and deliberately left it; 6ca and 6cb both restated the deferral. All three
+gave a reason that had stopped being true.**
+
+- **The blocker expired and nobody had re-checked it.** 6bc's reason was that
+  no premade prints a blessing and traits were not editable, so the file
+  would be read by nothing — the defect 6ai, 6al and 6am each found. 6ca
+  shipped `PurchasableTraits` and 6cc widened it to instantiated rows, which
+  is the consumer. 6ca's own KDoc then said the blessings "stay deferred",
+  citing the M3 collision — true of ONE row, and the reason it gave for the
+  other six was the absence of a purchase path it had just built. **A
+  deferral is a claim about the data and expires like any other verdict**
+  (6au, 6av, 6ca, and 6be retracting 6ba).
+- **It is a seam, and that is why no sweep found it.** `advantages.json`
+  claims to 1097 and `disadvantages.json` resumes at 1131; these 21 lines
+  were claimed by nobody. `extract_content.py` has excluded them since M0 for
+  a purely mechanical reason its own docstring records: **the table prints no
+  cost column at all**, because the price is stated once in prose for all
+  seven rows, and that parser finds records by their cost line. So the
+  exclusion was never a decision about the content — it was a parser that
+  structurally could not see it, and the docstring saying so is what kept it
+  looking deliberate for four milestones.
+- **The price is stored once, as `costEach`.** Repeating 75 on seven rows
+  would make the file claim a column the book does not print (6v). It is the
+  same split every "number inside a sentence" takes, with the difference that
+  this one is load-bearing: without that sentence the price has no source,
+  so `verify()` fails if it goes.
+
+### "occult/knowledge skills" names ONE banner, and one grep is the warrant
+
+The God of Knowledge's cell reads *"Expert in mysticism. +5 to all
+occult/knowledge skills."* Chapter 3 prints fifteen skill banners and
+`skills.json` has carried each skill's banner since 6bt, so a cell naming a
+category is a join this app can already make (Empathy and Clueless are the
+other two). The question is which group the slash names.
+
+- **"occult skill" is printed NOWHERE in this book.** "occult" occurs 28
+  times — the skill Occultism, "occult powers", "Magical/occult plant
+  knowledge" — and never as a group of skills. "knowledge skill" occurs
+  three times and **one of them is the banner itself**. So the slash cannot
+  be joining two groups: one half of it names nothing.
+- **Both rejected readings author content, in opposite directions.** WIDER
+  would add Astrology, the one occult-flavoured skill outside the banner —
+  but the book files it under SURVIVAL & OTHER, so calling it occult is my
+  judgement and not the book's. NARROWER would mean curating which of the
+  banner's twenty-six rows are occult, which is the list-building 6i refused
+  when no skill is tagged as a combat skill. Every occult skill the book
+  prints — Occultism, Hidden Lore, Thaumatology, Theology, Alchemy — is
+  already inside it, so the printed-only reading loses nothing.
+- **The evidence is split across the two languages that can check it.**
+  `extract_blessings.verify()` owns the grep, because only it can read the
+  book; `BlessingsTest` owns the consequence, that every occult skill the
+  book prints is a KNOWLEDGE skill and Astrology is not. Same standard 6ad
+  set, and 6v is why it can never be per-source.
+- "Expert in mysticism." grants nothing and is named in the clause guard's
+  prose exemption rather than reported.
+
+### The six that reach nothing, and the one refusal that is about this app
+
+Five are the familiar refusals — no number ("Rapid ID; curses negated"), the
+other party's roll ("most divination fails against you", the 1d6/round burn),
+a clock (ten hours underwater, regeneration), a roll this app does not make
+(pressure, revival). **God of Combat is the only one whose reason is about
+this codebase rather than the book's silence, and it says so.** Its "+3 ST,
++3 DX, +3 HT" is real and unambiguous; what is missing is that M3 forbids
+writing a granted attribute into a billable field, and **a potion is the only
+thing in this codebase that grants an attribute** (6al). A reason claiming
+the book prints nothing would be the fresh excuse 6bo caught one commit from
+shipping.
+
+**Nothing forbids holding two blessings, so nothing refuses two.** The
+requirement is "a confirmed believer in the corresponding Church", which is
+per blessing, and the prohibition sweep over the table's own lines finds no
+exclusion at all — re-run against this slice's subject, because a sweep's
+verdict expires (6ba). Refusing would author a rule, which is the opposite
+call to `Wealth`'s exclusion, where the book DOES say a character has one
+economic status (6bx). The same blessing twice is still refused, for the
+reason every trait is. And the requirement itself is shown and gates
+nothing: this app models no faith and no reconciliation (6af).
+
+### A guard that had been blind to a whole map since the slice that added it
+
+`no clause of a handled trait goes unmentioned` builds its set from three
+registries by name, under a comment reading *"every applied map, not a list
+of the ones that existed when this was written: the guard was blind to
+SKILL_BONUSES once already (6bs)"*. **`CATEGORY_BONUSES` was not in that
+list**, so Empathy's and Clueless's cells were unchecked from 6bt until now
+— and the proof is that correcting one line forced **four** lead-in
+sentences to be named at once, none of which had ever been triaged. 6bs's
+finding, one map over, with its own warning printed above it. The general
+shape is worth more than the fix: **a completeness guard whose scope is a
+hand-written list is only as complete as the day it was written**, and a
+comment warning about exactly that does not prevent it.
+
+**Codex refused** (usage limit, resets 2026-08-20 14:23 — probed, not
+assumed; today is the 15th). One `ecc:kotlin-reviewer` fallback pass scoped
+to eight named files with seven probes returned **no CRITICAL and no HIGH**,
+traced every probe to a file:line, and found one LOW worth taking: the
+picker's Drawbacks filter excluded blessings by `!advantage` where the
+Advantages filter excluded them by NAME, so a blessing that ever billed the
+other way would render in two sections. Unreachable today, which is when this
+repo closes a permissive path rather than after the next caller finds it
+(6l). Its second LOW is recorded and not fixed — a malformed `blessings.json`
+would throw during the sheet screen's composition, which is true of
+`advantages.json` already and so is not a surface this diff adds.
+
+**1113 Kotlin** (1007 `core:rules`, 86 `app`, 20 `core:model`) and **267
+Python**, all green — and the first draft of this paragraph said 1006/87,
+which is the count-in-prose habit (6as) turning on its author for the third
+time in four slices. Four readings RED-proved by neutering each and restoring
+from a `cp` backup (6br): the applied join removed (2 failures), the banner
+pointed at Astrology's category (3), God of Combat's report removed (2), and
+the clause guard's new prose exemption removed (1) — that last one proving
+the widened guard is live rather than merely wider.
+
+Device-verified on `Medium_Phone_API_36.1` (1080x2400), Academic Researcher,
+whose ten skills happen to contain the perfect discriminator — Research is a
+KNOWLEDGE skill and Mathematics is ACADEMIC, and **both are IQ-based**, so
+only the banner differs:
+
+- The picker renders **"The Seven Orthodox Gods Blessings"** with the book's
+  own requirement as its subtitle, all seven at **+75 pts**, and **Drawbacks
+  starts cleanly after them** — the partition holding on screen.
+- Buying the God of Knowledge saved `"traits":["Ether Body Damage","God of
+  Knowledge and Wisdom"]` — the NAME alone — and took the budget from **91 of
+  110** to **166 of 110 — over budget**, which is exactly +75 billed.
+- **Research** rolled **"3d6: 10 vs 18 — Excellent success, margin 8, base
+  13, modified to 18, `trait:god of knowledge and wisdom: 5`"**, a breakdown
+  that sums.
+- **Mathematics**, same character, same attribute, rolled **"3d6: 13 vs 9 —
+  Failure, margin -4"** with **no contribution line at all**. The scope, on
+  one screen.
+- Seeded with **God of Combat** and **Lord of Storms**, the sheet prints both
+  cells with their reasons — and **HP stayed 9/9**, so the +3 HT really is
+  inert rather than quietly applied.
+
+Chapter 3 is now at **87.1%**, from 86.2%.
+
+**Next, with evidence.** `Secret` still needs a sheet to quote its cell and
+none does (6cd), so it is not a slice until the data changes. What this slice
+NAMES is the one thing that would make the God of Combat row reachable: a
+trait that re-derives an attribute the way a potion does. That is the M3
+question 6bc predicted, now isolated to a single row with the other six
+shipped around it — and it is a real feature with a design review of its own,
+not a content pass.
 
 ## 6cd. A quotation is evidence; a filter is not
 
