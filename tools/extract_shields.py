@@ -48,6 +48,12 @@ EXPECTED_TYPES = [
 PINNED = [
     "its DB (Defense Bonus) adds to all",
     "active defenses (Dodge, Parry, and Block)",
+    # The arc the DB is conditional on. Pinned by the slice that started
+    # WITHHOLDING the bonus at the rear: the two phrases above pin what the DB
+    # reaches, and this pins when it reaches nothing. A rule the app applies
+    # needs its own guard, and this one had none while three KDocs called
+    # facing unmodelled.
+    "against attacks from the front or shield side",
     "-1 to Block vs. ranged",
     "-2 to Block",
 ]

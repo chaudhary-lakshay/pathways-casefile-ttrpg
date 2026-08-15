@@ -6,7 +6,7 @@ written against commit `cf14e7c`; the counts in section 2 and the slice
 sections below are current as of `086ad7d` (slice 6be).
 
 **The slice log lives in [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — sections
-6a-6cj, moved out of this file because it was 497 KB against a 150 k-char
+6a-6ck, moved out of this file because it was 497 KB against a 150 k-char
 limit. Every reference below to a slice by number points there.
 
 **Read the slice log from the END.** 6ax is a handover header; 6ay through
@@ -15,6 +15,12 @@ gate that hid an entire screen, a rule the app itself broke, the only place
 the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
+
+**Three `defense_modifiers.json` bullets are outstanding, and 6ck says why
+they are three slices rather than one**: Retreat prints three numbers scoped per
+defence row, Dive! one scoped to Dodge and to ranged, and Acrobatic Dodge is not
+a modifier but a ROLL against Acrobatics (+2 on a success, -2 on a failure) this
+app could make. Take the roll first.
 
 **Nothing in the two FP tables is outstanding.** 6cj closed the last one:
 `All-Out Defense (Double)` is a priced row this app deliberately does not
@@ -32,7 +38,24 @@ to answer them — 6cg's returned a HIGH in under two minutes, and 6ch ran two
 (decomposition, then diff). The scoping budget keeps paying (6af, 6cb). Check
 the CLOCK and not just the date (6am, 6as).
 
-**6cj is newest, and it is the slice that did NOT build what it set out to.**
+**6ck is newest**, and it found the same false sentence in THREE files: "the
+book prints no arc to test against", explaining why facing is unmodelled. The
+book prints the arc — "Attacked from side: -2 to defense" / "-4 to rear" — in
+the list the defence dialog itself renders, and the model's version of the
+excuse was drawn from ONE row (Acrobatic Dodge's ±2) and generalised to the
+table. Read it for what the design review did with it: it returned **NO-SHIP**
+because my warrant for composing the penalty into `everyDefence` was the stun's
+*insufficient-alone* reading — that rule reaches every row only because a SECOND
+printing says "active defenseS", and facing has no second printing anywhere
+(checked across the book and re-checked by the diff reviewer across all 59
+content files). So the penalty is refused, pinned by a test asserting the
+bullets still read "to defense" singular — and the same check found the half
+that ships, the shield DB's arc, printed plural and enumerated. Read it also for
+the reviewer's other HIGH: the Block row builds its arrow by hand, so gating
+only the shared helper would have left the bonus on exactly the row the change
+exists for.
+
+**6cj is next, and it is the slice that did NOT build what it set out to.**
 6ci named `All-Out Defense (Double)` as next on the grounds that it had "no
 code, a test, a comment, or a recorded reason" — but **6bl had refused that row
 four slices earlier, in the slice log**, with a mechanism reason. 6ci's sweep
@@ -122,7 +145,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6cj, then 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6ck, then 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -711,10 +734,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6cj. The slice log
+## 6a-6ck. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6cj is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6ck is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

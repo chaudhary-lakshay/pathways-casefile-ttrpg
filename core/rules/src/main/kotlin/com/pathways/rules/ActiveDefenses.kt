@@ -314,6 +314,25 @@ object ActiveDefenses {
      * and shocks on a success. It composes here rather than anywhere else for
      * the same reason the stun does -- the screen renders a defence in seven
      * places, two of them by hand.
+     *
+     * **The facing penalty is deliberately NOT a fourth term here, and the bar
+     * it fails is the one the stun had to clear.** `defense_modifiers.json`
+     * prints "Attacked from side: -2 to defense" and "Attacked from rear: -4 to
+     * defense". Both are bare and SINGULAR, and the stun's own note above says
+     * why that is not enough on its own: taking a penalty to every row rather
+     * than to Dodge alone rests on ch. 11's second printing saying "active
+     * defenseS". The facing rule has no second printing anywhere in the book --
+     * checked, not assumed -- and this book demonstrably distinguishes the two
+     * scopes when it means them ("+1 to ALL active defenses" for Combat
+     * Reflexes, "+2 to ONE active defense" for All-Out Defense). So the rows
+     * stay on screen as the book prints them and reach no number, which is the
+     * honest state until a printing settles the scope. `ActiveDefensesTest`
+     * pins the singular, so this reason expires the day the wording changes.
+     *
+     * [Facing] is still modelled, for the rule that IS printed in the required
+     * form: the shield's DB is conditional on the same arc, in a sentence that
+     * says "all active defenses (Dodge, Parry, and Block)" and enumerates them.
+     * See [Shields.coverageAt].
      */
     fun everyDefence(traits: List<Trait>, stunned: Boolean, shocked: Boolean = false): Int =
         TraitEffects.defenseBonus(traits) +

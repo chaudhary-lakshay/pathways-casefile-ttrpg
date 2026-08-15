@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6cj, in the order they were written. **Read from the END.**
+Sections 6a-6ck, in the order they were written. **Read from the END.**
 The handover header, repo map, non-negotiable rules and process notes stay in
 `CLAUDE.md`.
 
@@ -6720,6 +6720,129 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6ck. One excuse in three files, and the arc the book does print
+
+6cj closed by naming chapter 5's lines 2456-2457 as "unclaimed and unread".
+**Unread was false** — 6ba's widened seam sweep had triaged line 2457 at
+`docs/SLICE-LOG.md:3957`, with a reason. I made 6ci's mistake one slice after
+writing the lesson about it and shipping a memory file for it, which is the more
+useful half of this entry: **a lesson learned at the end of one slice is applied
+at the start of the next, when it is least available.** Bind it to the artifact
+that must satisfy it — the closing paragraph itself — or it gets documented and
+skipped in the same session.
+
+Checking that reason ("needs a round tracker this app does not hold") turned up
+something bigger than the clause it defends. The tracker excuse had already
+expired: `ParriesThisRound` is a per-round counter the GM steps, and four rules
+(6bm, 6bn, 6bo, 6bh) became buildable as declarations rather than through the
+tracker 6bd ranked first.
+
+### The same false sentence, in three files
+
+`defense_modifiers.json`'s five bullets are rendered as bare Notes at the bottom
+of the defence dialog and applied by nothing. Three separate KDocs explained
+why, and all three said a version of the same thing:
+
+| Where | The claim |
+|---|---|
+| `Content.kt:753` | "Prose, not signed numbers: 'Acrobatic Dodge' grants +2 on a success and -2 on a failure, so there is no single figure to extract" |
+| `Shields.kt:20` | "facing is the GM's to adjudicate and **the book prints no arc to test against**" |
+| `DefenseDialog.kt:56` | "this app does not model facing — **the book prints no arc to test against**" |
+
+The book prints the arc. Two hundred lines above the shield table, in the very
+list that dialog renders: "Attacked from side: -2 to defense", "Attacked from
+rear: -4 to defense". And the model's excuse is drawn from **one row** — true of
+Acrobatic Dodge's ±2, generalised to a table whose first two bullets each print
+exactly one number (6cb's lesson: a safety rationale is a hypothesis about which
+condition does the work).
+
+### The design review inverted the slice, and was right to
+
+**NO-SHIP, two HIGH and two MEDIUM.** The plan was to apply the -2/-4 through
+`everyDefence`, the function every rendered defence already calls, on the
+grounds that "-2 to defense" is unscoped exactly as the stun's "-4 to Active
+Defense" is.
+
+The review answered with this repo's own history: that warrant is the stun's
+*insufficient-alone* reading. `ActiveDefenses.everyDefence`'s KDoc says the stun
+reaches every row because a **second** printing says "active defenseS" — "that
+second printing is load-bearing twice". Facing was being handed the first kind
+of evidence and none of the second.
+
+**So it was checked rather than argued.** Every occurrence of "active defense"
+in the book, and every printing of the facing rule: `-2 to defense` and `-4 to
+defense` appear **once each, singular, with no companion anywhere**. The diff
+reviewer independently re-ran that grep across all 59 content files and
+confirmed it, and also located the stun's second printing (`pathways.json`, an
+ability text reading "-4 to active defenses"). The bar is the same bar. The
+penalty is refused.
+
+**And the same check found the half that ships.** The shield's Defense Bonus is
+conditional on that identical arc, in a sentence printed in exactly the form
+this repo requires — plural and enumerated: *"its DB (Defense Bonus) adds to all
+active defenses (Dodge, Parry, and Block) **against attacks from the front or
+shield side**."* No inference needed. That inverted the slice: not "apply the
+penalty and incidentally handle the shield", but "the only facing rule printed
+in an acceptable form is the shield's own, so apply that and record the penalty
+with the bar it fails".
+
+### What shipped
+
+`Facing` (FRONT/SIDE/REAR) and `ShieldCoverage` (COUNTS/GM_DECIDES/WITHHELD),
+with `Shields.coverageAt`. **Three states rather than two**, because the clause
+draws two lines and this app can see one: the front and the rear are decided by
+the sentence, and the side is not — "shield side" names a hand this book never
+assigns to a character. A Boolean would have to answer it, and both answers are
+wrong half the time.
+
+The review's second HIGH was the implementation risk, and it was real: **the
+Block row builds its arrow by hand** rather than through `shielded()`, so gating
+the shared helper alone would have left the DB standing on exactly the row the
+change exists for — reachable by any character with the Shield skill and a
+shield Readied. Both sites now consume one `shieldForDb(carried, facing)`, which
+is also what made the rule testable at all, since this repo tests no composables.
+
+`extract_shields.PINNED` gains the clause. It already pinned what the DB
+*reaches* ("adds to all active defenses (Dodge, Parry, and Block)") and did not
+pin what it is *conditional on* — so the sentence the app now withholds on had
+no guard.
+
+The penalty's refusal is recorded on `everyDefence`, where someone would add it,
+and **pinned by its own wording**: a test asserts the two bullets still end "to
+defense". The reason expires the day the book reads plural, which is the only
+way a recorded "not applied" can expire on its own rather than quietly outliving
+its reason (6bl).
+
+One MEDIUM from the diff review, taken: the FRONT and SIDE notes opened with the
+same sentence ("Arrow shows the DB applied"), so a GM who stops after the first
+clause reads the app as having decided the side. The verb now carries the
+difference where a skimmer reaches it.
+
+### Verified
+
+**1124 Kotlin** (1017 `core:rules`, 87 `app`, 20 `core:model`) and **267
+Python**, green. Three readings RED-proved by neutering one at a time and
+restoring from copies (6bu): `coverageAt(REAR) -> COUNTS` fails the rules test
+AND the app test; `shieldForDb` ignoring facing fails the app test; flipping the
+singular pin to "defenses" fails the wording test. `extract_shields.py` re-run
+against the PDF with the new pin and the committed JSON came back byte-identical
+— the phrase is really there.
+
+**Codex still refuses** (resets 2026-08-20 14:23). Two `ecc:kotlin-reviewer`
+passes, decomposition then diff. The design pass returned NO-SHIP and rewrote
+the slice; the diff pass returned SHIP with one MEDIUM.
+
+**Next, with evidence.** The three remaining `defense_modifiers.json` bullets —
+Retreat, Acrobatic Dodge, Dive! — are still display-only, and each fails a
+different test, which is why they are three slices and not one: Retreat prints
+three numbers scoped per defence row (+3 Dodge / +1 Block / +1 Parry), Dive!
+prints one scoped to Dodge and to ranged attacks, and Acrobatic Dodge is not a
+modifier at all but **a roll against Acrobatics** this app could make, with +2
+on a success and -2 on a failure. Line 2457's "once per round" governs all three
+from twenty-five lines above them. The Acrobatic Dodge roll is the one with a
+die behind it; take that first, and note that the "needs a round tracker" excuse
+above it has now expired twice.
 
 ## 6cj. The slice that did not ship, and the journal no grep can read
 

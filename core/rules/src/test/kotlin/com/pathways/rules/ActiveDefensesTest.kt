@@ -232,6 +232,49 @@ class ActiveDefensesTest {
     }
 
     /**
+     * The facing penalty stays out of [ActiveDefenses.everyDefence], and this
+     * pins the WORDING that keeps it out rather than the decision.
+     *
+     * The stun reaches every row because a second printing says "active
+     * defenseS"; the facing bullets say "to defense", singular, once each. This
+     * repo has one bar for that composition point and it is not lowered here.
+     * If the book is ever re-read as plural this fails, and the refusal is
+     * re-argued rather than quietly outliving its reason (6bl) -- the only way
+     * a recorded "not applied" can expire on its own.
+     */
+    @Test
+    fun `the facing bullets still print a singular defence, which is why they reach nothing`() {
+        val facing = ContentLoader.defenseModifiers()
+            .map { it.modifier }
+            .filter { it.startsWith("Attacked from") }
+        assertEquals(2, facing.size, "the facing bullets changed: $facing")
+        for (bullet in facing) {
+            assertTrue(bullet.endsWith("to defense"), "no longer singular: $bullet")
+        }
+    }
+
+    /**
+     * A shield's DB is withheld from behind and offered elsewhere.
+     *
+     * The three states are the book's, not a design: it grants the bonus "from
+     * the front or shield side", which decides the front and the rear and
+     * leaves the side open -- "shield side" names a hand this book never gives
+     * a character. Answering the side either way would invent an arc (4.1).
+     */
+    @Test
+    fun `the shield bonus follows the printed arc, and the side stays the GM's`() {
+        assertEquals(ShieldCoverage.COUNTS, Shields.coverageAt(Facing.FRONT))
+        assertEquals(ShieldCoverage.GM_DECIDES, Shields.coverageAt(Facing.SIDE))
+        assertEquals(ShieldCoverage.WITHHELD, Shields.coverageAt(Facing.REAR))
+        // The clause the withholding rests on is the book's own, not a
+        // paraphrase -- and extract_shields.PINNED fails if the page loses it.
+        assertEquals(
+            "against attacks from the front or shield side",
+            Shields.PRINTED_ARC,
+        )
+    }
+
+    /**
      * Combat Reflexes does NOT cancel the stun, and its own clause says why.
      *
      * It prints "+6 to recover from stun" -- the RECOVERY roll, which needs a

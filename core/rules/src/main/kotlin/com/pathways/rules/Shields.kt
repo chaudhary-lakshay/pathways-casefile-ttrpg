@@ -5,6 +5,40 @@ import com.pathways.rules.content.Shield
 import com.pathways.rules.content.ShieldRule
 
 /**
+ * Where an attack is coming from, relative to the defender (Ch. 5, p. 37).
+ *
+ * The book's own three positions: the modifier list prints a penalty for the
+ * side and for the rear, and the front is the unpenalised case it names by
+ * printing nothing. A DECLARATION, like every other fact this app cannot
+ * compute -- it holds no map and no facing, and the GM does (6bf).
+ *
+ * **The -2 and -4 are deliberately NOT applied**, and the reason is in
+ * [ActiveDefenses.everyDefence]. This enum exists for the rule that IS printed
+ * in the form this repo requires: [Shields.coverageAt].
+ */
+enum class Facing {
+    FRONT,
+    SIDE,
+    REAR,
+}
+
+/** Whether a Readied shield's DB reaches the attack. See [Shields.coverageAt]. */
+enum class ShieldCoverage {
+    /** The book grants it: the attack comes from the front. */
+    COUNTS,
+
+    /**
+     * The book neither grants nor withholds it. "Shield side" names a hand
+     * this book never assigns to a character, so which flank a shield covers
+     * is unprintable here -- the number is offered and the call is the GM's.
+     */
+    GM_DECIDES,
+
+    /** The book withholds it: the rear is neither front nor shield side. */
+    WITHHELD,
+}
+
+/**
  * Carrying a shield (Ch. 5, p. 37).
  *
  * [ParryBlock.blockFor] has taken a `shieldDb` since M0 with nothing able to
@@ -17,11 +51,29 @@ import com.pathways.rules.content.ShieldRule
  * mentions a shield, which makes applying the DB there alone the easy wrong
  * reading -- and it would understate a shielded character's Dodge by up to 3.
  *
- * "From the front or shield side" is not modelled: facing is the GM's to
- * adjudicate and the book prints no arc to test against. The bonus is offered,
- * and the note travels with it.
+ * **"From the front or shield side" IS modelled, and only as far as the book
+ * prints it.** This KDoc used to say "the book prints no arc to test against",
+ * and so did `DefenseModifier`'s and `DefenseDialog.shielded`'s -- one excuse
+ * in three places, all false. The book prints the arc two hundred lines above
+ * this table ("Attacked from side: -2 to defense", "Attacked from rear: -4 to
+ * defense"), in a list the defence dialog already renders.
+ *
+ * What is genuinely unprinted is narrower: WHICH side the shield covers. So
+ * [coverageAt] answers in three states rather than two -- granted at the front,
+ * withheld at the rear, and the GM's call from the side, where "shield side"
+ * names a hand this book never assigns.
  */
 object Shields {
+
+    /**
+     * The clause the Defense Bonus is conditional on, quoted not paraphrased.
+     *
+     * `extract_shields.PINNED` guards it. The two phrases beside it there pin
+     * what the DB REACHES ("adds to all active defenses (Dodge, Parry, and
+     * Block)"); this pins when it reaches nothing, and it had no guard at all
+     * until the app began to withhold on it.
+     */
+    const val PRINTED_ARC = "against attacks from the front or shield side"
 
     /**
      * The Block penalties printed in the Notes column, keyed by the first word
@@ -40,6 +92,21 @@ object Shields {
 
     /** The four printed shields, in the book's order. */
     fun all(): List<Shield> = ContentLoader.shields()
+
+    /**
+     * Whether a Readied shield's DB reaches an attack from [facing].
+     *
+     * Three states, because the clause draws two lines and this app can only
+     * see one of them. Front and rear are decided by the sentence itself; the
+     * side is not, and [ShieldCoverage.GM_DECIDES] says so rather than guessing
+     * in either direction. Answering it as a plain Boolean would have to pick
+     * one, and both picks are wrong half the time.
+     */
+    fun coverageAt(facing: Facing): ShieldCoverage = when (facing) {
+        Facing.FRONT -> ShieldCoverage.COUNTS
+        Facing.SIDE -> ShieldCoverage.GM_DECIDES
+        Facing.REAR -> ShieldCoverage.WITHHELD
+    }
 
     /** The bullets under the table: breaking, cover, and the shield bash. */
     fun rules(): List<ShieldRule> = ContentLoader.shieldRules()

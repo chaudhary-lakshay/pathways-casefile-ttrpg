@@ -28,7 +28,9 @@ import com.pathways.model.Weapon
 import com.pathways.rules.ActiveDefenses
 import com.pathways.rules.DefenseBoost
 import com.pathways.rules.DefenseRefusal
+import com.pathways.rules.Facing
 import com.pathways.rules.ParryBlock
+import com.pathways.rules.ShieldCoverage
 import com.pathways.rules.Shields
 import com.pathways.rules.UnarmedStyle
 import com.pathways.rules.content.ContentLoader
@@ -53,12 +55,17 @@ private const val SHIELD_SKILL = "Shield"
 /**
  * A defence with the shield's DB shown as the conditional it is: "7 → 10".
  *
- * The bonus applies only "against attacks from the front or shield side", and
- * this app does not model facing -- the book prints no arc to test against.
- * Baking the total into one number would let a GM roll a shielded Dodge
- * against a backstab (Codex), so BOTH numbers are shown and the arrow is
- * explained once above. Cheaper than a facing selector, and it cannot be read
- * as an unconditional total.
+ * The bonus applies only "against attacks from the front or shield side". This
+ * KDoc used to add "and this app does not model facing -- the book prints no
+ * arc to test against", which was false: the arc is printed in the modifier
+ * list this same dialog renders. Facing is now declared and
+ * [Shields.coverageAt] decides -- [shield] arrives null when the DB is
+ * withheld, so no caller adds it by hand.
+ *
+ * Both numbers are still shown wherever it is not withheld, because at the
+ * SIDE the book settles nothing: baking the total into one number would let a
+ * GM roll a shielded Dodge against a backstab (Codex), and hiding it would
+ * withhold a bonus the book may well grant.
  */
 private fun shielded(base: Int, shield: Shield?, everyDefence: Int = 0): String {
     // What lands on EVERY row is unconditional -- Combat Reflexes' "+1 to all
@@ -79,12 +86,35 @@ private fun shielded(base: Int, shield: Shield?, everyDefence: Int = 0): String 
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ShieldPicker(shields: List<Shield>, carried: Shield?, onPick: (Shield) -> Unit) {
+private fun ShieldPicker(
+    shields: List<Shield>,
+    carried: Shield?,
+    coverage: ShieldCoverage,
+    onPick: (Shield) -> Unit,
+) {
     Text("Shield Readied", style = MaterialTheme.typography.titleSmall)
+    // One note per coverage state, because the old single note told the GM to
+    // hand-check the rear -- which the app now does -- while saying nothing
+    // about the side, which it still cannot decide. A disclaimer that outlives
+    // the thing it disclaims is the defect 6bl found on this very screen.
     if (carried != null) {
         Note(
-            "Arrow shows the DB applied. It only counts against attacks from " +
-                "the front or shield side — from behind, use the first number.",
+            when (coverage) {
+                ShieldCoverage.COUNTS ->
+                    "Arrow shows the DB applied: the book grants it from the front."
+                // Deliberately NOT the COUNTS lead-in. Both states began
+                // "Arrow shows the DB applied", and a GM who stops after the
+                // first sentence reads the app as having decided a side the
+                // book leaves open (a review's finding). The verb carries the
+                // difference, in the clause a skimmer actually reaches.
+                ShieldCoverage.GM_DECIDES ->
+                    "Arrow OFFERS the DB — it is not applied. From the side it " +
+                        "counts only if that is your shield side, and the book " +
+                        "names no hand, so the call is yours."
+                ShieldCoverage.WITHHELD ->
+                    "No DB from behind: \"${Shields.PRINTED_ARC}\". The rows below " +
+                        "are the unshielded numbers."
+            },
         )
     }
     FlowRow {
@@ -182,6 +212,18 @@ fun DefenseDialog(
     // a turn before it does anything, so assuming one is carried would hand
     // out a bonus the character has not paid a turn for.
     var carried by remember { mutableStateOf<Shield?>(null) }
+    // Where the attack comes from. A declaration for the same reason the three
+    // refusals and the stun are: this app holds no map and no facing.
+    // FRONT is the default -- the book's unpenalised case, named by printing
+    // nothing for it.
+    var facing by remember { mutableStateOf(Facing.FRONT) }
+    val coverage = Shields.coverageAt(facing)
+    // The shield the DB is read from, which is NOT the shield that is Readied:
+    // at the rear the book withholds the bonus. Derived ONCE and passed to
+    // every row, because the Block row builds its arrow by hand and a rule
+    // applied at six sites out of seven is this codebase's oldest defect
+    // (6ag, 6ai, 6be) -- a design review named this exact row.
+    val shieldForDb = shieldForDb(carried, facing)
     // Parries already made THIS ROUND. The book's cumulative penalty was
     // committed in defenses.json's own notes cell from 6g onward, shown to
     // the GM, and applied by nothing -- the class 6h, 6m and 6ai each found.
@@ -256,9 +298,14 @@ fun DefenseDialog(
                     // control below them would be read after its effect.
                     IncomingPicker(incoming) { incoming = it }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                    ShieldPicker(shields, carried) { carried = if (it == carried) null else it }
+                    // Beside IncomingPicker because both describe the attack
+                    // rather than the defender, and above the shield picker
+                    // because it decides what that picker's note can say.
+                    FacingPicker(facing) { facing = it }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                    DefenseRow("Dodge", shielded(dodge + boostOn("Dodge", boost), carried, everyDefence))
+                    ShieldPicker(shields, carried, coverage) { carried = if (it == carried) null else it }
+                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                    DefenseRow("Dodge", shielded(dodge + boostOn("Dodge", boost), shieldForDb, everyDefence))
                     printed.firstOrNull { it.defense == "Dodge" }?.let { Note(it.notes) }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 }
@@ -266,7 +313,7 @@ fun DefenseDialog(
                     val label = "Parry ($name)"
                     DefenseRow(
                         label,
-                        shielded(value + parryPenalty + boostOn(label, boost), carried, everyDefence),
+                        shielded(value + parryPenalty + boostOn(label, boost), shieldForDb, everyDefence),
                     )
                 }
                 item {
@@ -293,7 +340,7 @@ fun DefenseDialog(
                         label,
                         shielded(
                             value + parryPenalty + vsWeapon + boostOn(label, boost),
-                            carried,
+                            shieldForDb,
                             everyDefence,
                         ),
                     )
@@ -324,12 +371,25 @@ fun DefenseDialog(
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
 
                     if (shieldSkill != null) {
-                        val held = carried
+                        // shieldForDb, NOT carried: this row builds its arrow
+                        // by hand rather than through shielded(), so gating
+                        // only there would leave the DB standing on exactly
+                        // the row the change is for (a design review's find).
+                        val held = shieldForDb
                         val bare = ParryBlock.blockFor(shieldSkill, shieldDb = 0)
                         val boosted = boostOn("Block", boost)
                         if (held == null) {
                             DefenseRow("Block", shielded(bare + boosted, null, everyDefence))
-                            Note("Pick a shield above; Block needs one Readied.")
+                            // Two ways to have no DB, and they are different
+                            // facts: nothing Readied, or something Readied
+                            // that the book withholds from behind.
+                            Note(
+                                if (carried == null) {
+                                    "Pick a shield above; Block needs one Readied."
+                                } else {
+                                    "No DB from behind: \"${Shields.PRINTED_ARC}\"."
+                                },
+                            )
                         } else {
                             // Shields.blockFor already folds the DB in, so the
                             // arrow is built by hand here rather than through
@@ -410,6 +470,22 @@ fun DefenseDialog(
         },
     )
 }
+
+/**
+ * The shield whose DB the rows may add, which is not always the one Readied.
+ *
+ * One function rather than the predicate written at each site: the Dodge and
+ * Parry rows go through `shielded()` and the Block row builds its arrow by
+ * hand, so the same test written twice is how this codebase's numbers stopped
+ * reconciling three times (6ag, 6ai, 6be). A design review named the Block row
+ * specifically -- gating only `shielded()` would have left the bonus standing
+ * on the row the change exists for.
+ *
+ * Null means "add no DB", which the caller must not read as "no shield
+ * Readied": at the rear both are null and only [carried] tells them apart.
+ */
+internal fun shieldForDb(carried: Shield?, facing: Facing): Shield? =
+    carried?.takeIf { Shields.coverageAt(facing) != ShieldCoverage.WITHHELD }
 
 /**
  * What a paid boost adds to the row named [label], and nothing to the rest.
@@ -514,6 +590,53 @@ private enum class Incoming(val label: String) {
     WEAPON("A weapon"),
     SHOT("A shot"),
 }
+
+/**
+ * Where the attack is coming from.
+ *
+ * A declaration, like [Incoming] and the three refusals: this app holds no map
+ * and no facing, and the GM does (6bf).
+ *
+ * **The -2 and -4 the book prints beside these positions are NOT applied**, and
+ * [com.pathways.rules.ActiveDefenses.everyDefence] carries the reason. What
+ * this control reaches is the shield's DB, whose own sentence is conditional on
+ * the same arc and says "all active defenses (Dodge, Parry, and Block)" in as
+ * many words. The rows below therefore change on REAR only because the shield
+ * bonus does.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FacingPicker(chosen: Facing, onPick: (Facing) -> Unit) {
+    Text("Where the attack comes from", style = MaterialTheme.typography.titleSmall)
+    FlowRow {
+        Facing.entries.forEach { option ->
+            FilterChip(
+                selected = option == chosen,
+                onClick = { onPick(option) },
+                label = { Text(FACING_LABELS.getValue(option)) },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
+    }
+    // The penalty is SHOWN and not applied, so the GM can still use it. Saying
+    // which half the screen did is the honest version of a rule that is partly
+    // outside the model -- the same split ActiveDefenses takes on surprise.
+    if (chosen != Facing.FRONT) {
+        Note(
+            "The book also prints a defence penalty for this position. It is " +
+                "listed under Modifiers below and is NOT in the numbers above: " +
+                "it prints \"to defense\" in the singular, and this app only " +
+                "takes a penalty to every row when a second printing says so.",
+        )
+    }
+}
+
+/** What the GM says out loud, per printed position. */
+private val FACING_LABELS = mapOf(
+    Facing.FRONT to "Front",
+    Facing.SIDE to "Side",
+    Facing.REAR to "Rear",
+)
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

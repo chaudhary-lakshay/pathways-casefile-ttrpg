@@ -6,8 +6,11 @@ import com.pathways.model.Difficulty
 import com.pathways.model.SkillKey
 import com.pathways.model.Weapon
 import com.pathways.rules.DefenseBoost
+import com.pathways.rules.Facing
+import com.pathways.rules.Shields
 import com.pathways.rules.UnarmedStyle
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -94,6 +97,33 @@ class DefenseDialogTest {
         // Nothing bought is the ordinary case and moves no row at all.
         for (row in listOf("Dodge", "Parry (Brawling)", "Block")) {
             assertEquals(0, boostOn(row, null))
+        }
+    }
+
+    /**
+     * The shield's DB is withheld from behind, on every row that shows one.
+     *
+     * The Dodge and Parry rows read it through `shielded()` and the Block row
+     * builds its arrow by hand, so this is the one answer both consume. A
+     * design review caught that gating only the shared helper would have left
+     * the bonus standing on Block — reachable by any character with the Shield
+     * skill and a shield Readied, not an edge case.
+     *
+     * **Null here is not "no shield Readied."** At the rear a carried shield
+     * also answers null, and only the carried value tells the two apart, which
+     * is why the Block row's own note branches on `carried` rather than on
+     * this.
+     */
+    @Test
+    fun `the shield's DB is withheld from behind and offered from the front and side`() {
+        val shield = Shields.named("Medium")
+        assertEquals(shield, shieldForDb(shield, Facing.FRONT))
+        assertEquals(shield, shieldForDb(shield, Facing.SIDE))
+        assertNull(shieldForDb(shield, Facing.REAR))
+        // Nothing Readied answers null from every direction, which is the
+        // other way to reach the same branch.
+        for (facing in Facing.entries) {
+            assertNull(shieldForDb(null, facing))
         }
     }
 
