@@ -230,7 +230,39 @@ object Divination {
      * which is two thirds of the hardest question's penalty.
      */
     fun supportBonus(skills: List<DivinationSupport>): Int =
-        skills.sumOf { it.bonus }.coerceAtMost(MAX_SUPPORT_BONUS)
+        // Named twice pays once. A character has one Occultism, and a screen
+        // that let a row be chosen twice would buy the cap outright -- the
+        // guard [RitualMode.supportBonus] already carries for its own five.
+        skills.distinctBy { it.skill }.sumOf { it.bonus }.coerceAtMost(MAX_SUPPORT_BONUS)
+
+    /**
+     * Which of the book's four supporting skills [owned] covers.
+     *
+     * **This is 6am's finding one chapter over.** That slice found ch. 7's
+     * five supporting skills keyed on their printed string, so
+     * "Hidden Lore (relevant domain)" matched nothing and its +1 vanished for
+     * the four premades carrying Hidden Lore -- and it fixed the RITUAL half
+     * only. Ch. 6.5 prints "Hidden Lore (relevant)" in its own list, which
+     * this object has loaded since 6p and offered to nobody: [supportBonus]
+     * had no production caller at all, so a diviner with Occultism and
+     * Psychology rolled flat where the book gives +2. Five premades carry at
+     * least one of the four.
+     *
+     * The bracket rule is [RitualMode.bareSupportName] rather than a second
+     * copy: it is ONE rule -- the book naming a domain the GM judges relevant,
+     * not part of a skill's name -- and two copies of one decision is the
+     * failure this codebase has produced seven times. Only the ROW's bracket
+     * is stripped, so a character's `Hidden Lore (Fae)` still matches, which
+     * is what the book asks for: relevance is the GM's call, not a spelling.
+     *
+     * Lives here rather than in the screen for the reason 6am gives: a caller
+     * filtering with its own comparison could offer a chip [supportBonus] then
+     * refuses, or withhold one it would accept.
+     */
+    fun supportSkillsOwnedBy(owned: List<String>): List<DivinationSupport> {
+        val bare = owned.map(RitualMode::bareSupportName).toSet()
+        return supportingSkills().filter { RitualMode.bareSupportName(it.skill) in bare }
+    }
 
     /**
      * The chosen [rows] as one modifier, with [gmValue] overriding any row

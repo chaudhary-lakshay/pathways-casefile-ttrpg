@@ -763,6 +763,18 @@ fun SheetScreen(
             },
             // Null for a mortal, who has no Sequence for Sec. 6 to compare.
             divinerSequence = drunk?.sequence,
+            // Ch. 6.5 p. 55's four supporting skills, which this app has
+            // loaded since 6p and offered to nobody: Divination.supportBonus
+            // had no production caller at all, so a diviner with Occultism and
+            // Psychology rolled flat where the book gives +2. 6am's finding
+            // one chapter over, and that slice fixed the ritual half only.
+            // Read from the DIGESTED map for the same reason the ritual row
+            // is (6as): a potion grants Occultism and six spellings of Hidden
+            // Lore, and a Beyonder granted one would otherwise be denied the
+            // bonus in silence.
+            ownedSupportSkills = remember(skillLevels) {
+                Divination.supportSkillsOwnedBy(skillLevels.keys.map { it.name })
+            },
             // Divination Arts is SPI/Hard, so Spiritual Attrition reaches it.
             // The CoR ladder does not: it is scoped to ritual rolls (p. 68).
             // Asked per method cost, not computed once: paying for the
