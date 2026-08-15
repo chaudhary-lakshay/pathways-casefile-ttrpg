@@ -6726,6 +6726,90 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6cp. The refusal that was about reach, not about global state
+
+The round boundary p. 36 names exists on the defence screen: one `New round`
+control clears the three free actions, the parry count, the paid boost and the
+three refusals, and `RoundState` is the unit it operates on. 6co named this as
+the honest next candidate and said to run it as a query rather than inherit it.
+Run as a query, the recorded ruling expired -- and the interesting part is
+*which half* of it expired.
+
+**6bf refused a round tracker on the grounds that it would be global state for
+a payoff of one rule.** That reading survives: four of the five rules 6bd
+ranked behind a tracker still need a declaration rather than a clock, and the
+fifth (reload rate) is still double-blocked by weapons not being editable.
+Nothing here is global. What shipped is a `data class` inside one composable.
+
+**6co refused it on a different ground, and that is the one that expired: a
+latch on ONE control would claim a boundary the others could not honour.** That
+is a claim about REACH, and reach is what changed while nobody re-read the
+sentence. When it was written, one free action existed. Today `declared`,
+`acrobatic`, `dived`, `retreated`, `priorParries` and `boost` are all `remember`
+vars in `DefenseDialog`, so a single assignment honours the paragraph for every
+control it governs. **A refusal can survive its own author's reason and die of
+a fact none of its words mention** -- the count of things it had to reach.
+
+### Membership is the rule, and the guard is a reflection test
+
+A field on `RoundState` IS a value a new round clears, so the test asserts the
+field set exactly:
+
+- `stunned` must never join it. The book gives stun its own clock -- "Stunned
+  for 1d6 seconds (roll HT each turn to recover early)" (line 2826) -- so a
+  round boundary is not what ends it, and a later "tidy-up" folding it in is
+  precisely what the assertion exists to redden.
+- The shield carried, the facing and the incoming attack are excluded for a
+  SECOND reason rather than the same one: they are not per-round facts at all.
+  6co's own lesson about a borrowed warrant, applied to an exclusion.
+
+Every refusal's printed scope was checked at its own line before it was
+included, because they are three rules and not one clock: surprise is "their
+first turn" (2377), the All-Out Attack is the turn it was taken (2453), and an
+unaware shot is one ATTACK (2686-2687) -- shorter than a round, so clearing it
+at the boundary can never leave it stale.
+
+### Two RED proofs, one reading each
+
+`newRound()` returning `this` reddens the value test alone; adding `stunned` to
+the class reddens the membership test alone. The second is the one worth
+having: an assertion that only checks "these six became defaults" is vacuous
+about the values that must NOT reset (6bu's hole, on this screen).
+
+### What the design review changed before any of it shipped
+
+Codex still refuses (2026-08-20 14:23) and `pi-qa`'s gateway was saturated by
+this session's own long-running job, so the gate was the stronger-model advisor
+on the decomposition and again on the diff. Three findings, all taken:
+
+- **`LaunchedEffect(acrobatics)` is not the guard `remember(acrobatics)` was.**
+  The remember key re-initialises DURING composition; a LaunchedEffect fires
+  after the pass commits, so the row would render one frame carrying a roll
+  made against a level that had already moved. Restored as a composition-time
+  compare. And the obvious alternative is worse: keying the whole holder would
+  discard the boost `onSpendFp` has already charged for.
+- **Three comment blocks were left orphaned above the wrong declarations** --
+  "Parries already made THIS ROUND" sitting over `var incoming`, and so on. In
+  a file whose entire style is "the comment names the control below it", that
+  is 6bl's defect in its documentation form. Each is now the matching field's
+  own KDoc.
+- **The control was in the button bar beside "Close"**, where it reads as
+  Cancel and a mis-tap drops FP already spent. Moved into the content above the
+  rows it clears -- this screen's own placement rule, the one `StunPicker`
+  follows -- and hidden entirely while `isSpent()` is false, so a control that
+  clears nothing never invites the tap that later clears something.
+
+**1139 Kotlin** (1027 `core:rules`, 92 `app`, 20 `core:model`) and 268 Python,
+green, counted from the JUnit XML rather than from a silent console. Not
+device-verified: the state and its boundary are unit-covered, the control is
+Compose, which this repo does not test.
+
+**The next slice is unchanged from 6cb and 6ca:** one record shape for an
+instantiated trait -- book row, optional variant, optional instance note,
+chosen cost -- which offers all nineteen withheld rows at once, and needs
+`SavedEdits` widened additively because `SessionStore.load` discards the whole
+file on a decode failure.
+
 ## 6co. Three numbers on three rows, and a disclaimer whose trigger had drifted
 
 The last `defense_modifiers.json` bullet with a number is applied: "[Free

@@ -10,6 +10,7 @@ import com.pathways.rules.Facing
 import com.pathways.rules.Shields
 import com.pathways.rules.UnarmedStyle
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -25,6 +26,54 @@ class DefenseDialogTest {
 
     private val swordKey = SkillKey("Shortsword", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)
     private val knifeKey = SkillKey("Knife", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
+
+    /**
+     * p. 36: "Each can be used once per round unless stated otherwise", and
+     * the line above it: "Each type may be used multiple times per round, but
+     * Parry accumulates a -4 cumulative penalty after the first". Both name a
+     * round, and every value they govern is now local to this one screen --
+     * which is why the boundary needs no global state, and why the reason
+     * recorded in 6bf/6co (a latch on one control would claim a boundary the
+     * other controls cannot honour) has stopped being true.
+     *
+     * The membership assertion is the guard: a value added to [RoundState] is
+     * a value a round boundary CLEARS, so `stunned` must never appear here.
+     * The book gives stun its own clock -- "Stunned for 1d6 seconds (roll HT
+     * each turn to recover early)" (line 2826) -- so a round boundary is not
+     * what ends it. The shield carried, the facing and what is coming in are
+     * not per-round facts at all, which is a different reason again.
+     */
+    @Test
+    fun `a round boundary clears these values and no others`() {
+        val cleared = RoundState::class.java.declaredFields
+            .map { it.name }
+            .filterNot { it.contains("$") }
+            .toSet()
+        assertEquals(
+            setOf("declared", "acrobatic", "dived", "retreated", "priorParries", "boost"),
+            cleared,
+        )
+    }
+
+    @Test
+    fun `a new round restores every per-round value to its default`() {
+        val spent = RoundState(
+            declared = setOf(com.pathways.rules.DefenseRefusal.SURPRISE),
+            dived = true,
+            retreated = true,
+            priorParries = 3,
+            boost = DefenseBoost.entries.first() to "All-Out Defense (Increased)",
+        )
+        assertEquals(RoundState(), spent.newRound())
+    }
+
+    @Test
+    fun `a fresh round has nothing to end, and any one value ends that`() {
+        assertFalse(RoundState().isSpent())
+        assertTrue(RoundState(dived = true).isSpent())
+        assertTrue(RoundState(priorParries = 1).isSpent())
+        assertTrue(RoundState(declared = setOf(com.pathways.rules.DefenseRefusal.SURPRISE)).isSpent())
+    }
 
     @Test
     fun `a weapon parries at half its skill plus three`() {

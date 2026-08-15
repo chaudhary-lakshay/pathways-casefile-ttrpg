@@ -6,7 +6,7 @@ written against commit `cf14e7c`; the counts in section 2 and the slice
 sections below are current as of `086ad7d` (slice 6be).
 
 **The slice log lives in [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — sections
-6a-6co, moved out of this file because it was 497 KB against a 150 k-char
+6a-6cp, moved out of this file because it was 497 KB against a 150 k-char
 limit. Every reference below to a slice by number points there.
 
 **Read the slice log from the END.** 6ax is a handover header; 6ay through
@@ -16,16 +16,20 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**`defense_modifiers.json` is finished.** 6co applied Retreat — three numbers
-scoped per defence row (+3 Dodge / +1 Block / +1 Parry vs. 1 melee attack per
-round) — after 6cm's Dive! and 6cn's prone -4. The two facing bullets are not
-outstanding: 6ck refused them with a reason and a test. Book lines 2456-2457
-("Each can be used once per round") stay unclaimed, but the reason has changed
-shape: that sentence governs all three free actions, and as of 6co all three
-exist as controls. What still blocks it is the round boundary itself, and
-**6bf's ruling that a round tracker is not worth global state was taken when one
-free action existed, not three** — a claim about the data, so re-run it as a
-query before inheriting it (6au, 6av, 6bv).
+**`defense_modifiers.json` is finished, and so is the round boundary behind
+it.** 6co applied Retreat — three numbers scoped per defence row (+3 Dodge / +1
+Block / +1 Parry vs. 1 melee attack per round) — after 6cm's Dive! and 6cn's
+prone -4. The two facing bullets are not outstanding: 6ck refused them with a
+reason and a test. **6cp then ran 6co's own named query and the refusal
+expired**: "Each can be used once per round" is honoured by a `New round`
+control over `RoundState`, with no global state at all. Read 6cp for WHICH half
+of the recorded reason died — 6bf's "a round tracker is not worth global state"
+survives untouched, and 6co's "a latch on one control claims a boundary the
+others cannot honour" is the half that expired, because it was a claim about
+REACH and all six per-round values now sit in one composable. **A refusal can
+survive its author's stated reason and die of a fact none of its words
+mention.** Book lines 2456-2457 stay unclaimed by any content file, and that is
+now a deliberate nothing: the sentence has no field a consumer would read.
 
 **Nothing in the two FP tables is outstanding.** 6cj closed the last one:
 `All-Out Defense (Double)` is a priced row this app deliberately does not
@@ -73,7 +77,22 @@ model, so it is a widener, not a replacement for Codex**: treat a finding as a
 lead to verify, never as a verdict, and keep the scoping budget (≤3 questions,
 only the files needed).
 
-**6co is newest**, and its most reusable finding is that **a condition can
+**6cp is newest**, and its most reusable finding is that **a refusal can
+survive its author's stated reason and die of a fact none of its words
+mention.** 6co refused the round boundary because a latch on one control would
+claim a round the others could not honour — a claim about REACH, which had
+already changed: three free actions, a parry stepper and a paid boost all sit
+in one composable, so one assignment honours the paragraph for all of them.
+6bf's separate "not worth global state" survives untouched, and nothing here is
+global. Read it also for a guard that is a MEMBERSHIP assertion — a field on
+`RoundState` is a value a new round clears, so `stunned` (its own 1d6-second
+clock, line 2826) reddening the test is the point — and for three design-review
+findings taken before commit: a `LaunchedEffect` is not the guard a `remember`
+key was (it fires after the pass commits), three comment blocks left orphaned
+above the wrong declarations, and a clearing control parked beside "Close"
+where a mis-tap drops FP already spent.
+
+**6co is next**, and its most reusable finding is that **a condition can
 outlive the question it was standing in for**. The Block row's "Against ranged
 attacks" note fired on `shot != melee`, a correct proxy only while every other
 term on the two sides was identical; a melee-only bonus on one side would have
@@ -235,7 +254,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6co, then 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6cp, then 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -464,7 +483,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1136 Kotlin** (JUnit 5 — 1027 `core:rules`, 89 `app`, 20 `core:model`) + **268 Python** (pytest), all green — counted at 6co from the JUnit XML, not from memory |
+| Tests | **1139 Kotlin** (JUnit 5 — 1027 `core:rules`, 92 `app`, 20 `core:model`) + **268 Python** (pytest), all green — counted at 6cp from the JUnit XML, not from memory |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -825,10 +844,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6co. The slice log
+## 6a-6cp. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6co is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6cp is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

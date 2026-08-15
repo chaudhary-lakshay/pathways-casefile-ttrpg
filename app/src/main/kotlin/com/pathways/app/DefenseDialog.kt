@@ -14,8 +14,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -135,6 +135,26 @@ private fun ShieldPicker(
 }
 
 /**
+ * The round boundary p. 36 names, offered only once there is something to end.
+ *
+ * Hidden while nothing is spent, because a control that clears nothing invites
+ * the tap that later clears something -- and what it clears includes a boost
+ * the GM has already paid FP for, which no refund rule in this book undoes.
+ */
+@Composable
+private fun NewRoundControl(round: RoundState, onNewRound: () -> Unit) {
+    if (!round.isSpent()) return
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        Text(
+            "Free actions, parries and any paid +2 are spent for this round.",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(end = 8.dp),
+        )
+        TextButton(onClick = onNewRound) { Text("New round") }
+    }
+}
+
+/**
  * Active defenses for the character as they stand (Ch. 5, p. 36-37).
  *
  * Every number comes from [ParryBlock] or [com.pathways.rules.Derive] --
@@ -193,10 +213,11 @@ fun DefenseDialog(
     shocked: Boolean = false,
     onDismiss: () -> Unit,
 ) {
-    // What the GM says is true of this character right now. All four are
-    // declarations because none is computable: the app holds no turn, no
-    // initiative and no line of sight. See ActiveDefenses.
-    var declared by remember { mutableStateOf(emptySet<DefenseRefusal>()) }
+    // Everything p. 36 scopes to a round, held together so the boundary can
+    // move all of it at once: the refusals the GM declares (none is computable
+    // -- the app holds no turn, no initiative and no line of sight), the three
+    // free actions, the parry count and the paid boost. See [RoundState].
+    var round by remember { mutableStateOf(RoundState()) }
     // Stunned is a DECLARATION for the same reason, and this app is where the
     // state comes from: its own fright, major-wound and ritual-critical tables
     // all hand it out. It is not a DefenseRefusal -- it prices the defences
@@ -205,7 +226,7 @@ fun DefenseDialog(
     val everyDefence = remember(traits, stunned, shocked) {
         ActiveDefenses.everyDefence(traits, stunned, shocked)
     }
-    val refusal = ActiveDefenses.state(declared, traits)
+    val refusal = ActiveDefenses.state(round.declared, traits)
     val forfeiting = remember { ActiveDefenses.forfeitingActions() }
     val printed = remember { ContentLoader.defenses() }
     // Only the bullets this app does NOT apply. The Acrobatic Dodge row is
@@ -251,14 +272,25 @@ fun DefenseDialog(
     // a target the row's ±2 would no longer match, and if the skill left the
     // sheet the control would vanish while its bonus stayed on Dodge (a review's
     // finding, latent today because the sheet is behind this dialog).
-    var acrobatic by remember(acrobatics) { mutableStateOf<SkillRollOutcome?>(null) }
-    // Deliberately NOT latched behind a "new round" gate. The book's limit
-    // ("Each can be used once per round") governs all three free actions from a
-    // paragraph this app does not extract, and a control that cleared only this
-    // one while `priorParries` and a paid boost stayed put would claim a round
-    // boundary the screen cannot honour (a design review's finding). The limit
-    // is the GM's, exactly as the parry count above it is.
-    val acrobaticSwing = ActiveDefenses.acrobaticDodge(acrobatic?.effectiveOutcome)
+    // The roll lives in [RoundState] with the other two free actions, so the
+    // guard that `remember(acrobatics)` used to give it is written out here.
+    // It stays a COMPOSITION-time clear, exactly as the remember key was: a
+    // LaunchedEffect fires after the pass commits, so the row would render one
+    // frame carrying a roll made against a level that has already moved. And
+    // keying the whole holder would discard the paid boost with it, which
+    // `onSpendFp` has already charged for.
+    val rolledAgainst = remember { mutableStateOf(acrobatics) }
+    if (rolledAgainst.value != acrobatics) {
+        rolledAgainst.value = acrobatics
+        round = round.copy(acrobatic = null)
+    }
+    // Latched behind the round boundary now, with the other two free actions.
+    // p. 36's "Each can be used once per round" governs all three, and 6bf/6co
+    // refused to honour it on the grounds that clearing one while `priorParries`
+    // and a paid boost stayed put would claim a round the screen could not keep.
+    // Every one of those values is local to this composable, so one assignment
+    // keeps the round for all of them -- see [RoundState].
+    val acrobaticSwing = ActiveDefenses.acrobaticDodge(round.acrobatic?.effectiveOutcome)
     val shields = remember { Shields.all() }
     // Null is bare-handed, and it is the default: a shield must be Readied for
     // a turn before it does anything, so assuming one is carried would hand
@@ -276,28 +308,12 @@ fun DefenseDialog(
     // applied at six sites out of seven is this codebase's oldest defect
     // (6ag, 6ai, 6be) -- a design review named this exact row.
     val shieldForDb = shieldForDb(carried, facing)
-    // Parries already made THIS ROUND. The book's cumulative penalty was
-    // committed in defenses.json's own notes cell from 6g onward, shown to
-    // the GM, and applied by nothing -- the class 6h, 6m and 6ai each found.
-    // Zero is the honest default: a round starts with the free parry.
-    var priorParries by remember { mutableIntStateOf(0) }
     // What is coming AT the character. A declaration for the same reason the
     // three refusals are: this dialog holds the defender's sheet and the
     // attacker is a party with no numbers here. It changes two of the Parry
     // (Unarmed) row's three rules -- the -3 for a weapon, and the refusal
     // against a shot -- both printed since 6g and applied by nothing.
     var incoming by remember { mutableStateOf(Incoming.BARE_HAND) }
-    // Whether the character threw themselves flat. A declaration like every
-    // other free action here, and NOT latched behind a round gate for the same
-    // reason the acrobatic roll is not: "Each can be used once per round"
-    // governs all three free actions from a paragraph this app does not
-    // extract, and honouring it for one would claim a round boundary the
-    // screen cannot keep for the other two.
-    var dived by remember { mutableStateOf(false) }
-    // Whether the character gave ground. The third free action, declared for
-    // the same reason as the other two and ungated for the same reason -- see
-    // ActiveDefenses.retreat, which carries both.
-    var retreated by remember { mutableStateOf(false) }
     // Whether this is a shot, derived ONCE from the one control that says so.
     // Two free actions read it and they read it in opposite directions -- the
     // Dive! is "vs. ranged only" and the Retreat is "vs. 1 melee attack" --
@@ -307,16 +323,11 @@ fun DefenseDialog(
     // Each rule answers with its own scopes already applied, and each answer is
     // reused below, including by the controls' own notes: re-testing `incoming`
     // there would be the same predicate at two sites.
-    val diveBonus = ActiveDefenses.dive(dived, isRanged)
+    val diveBonus = ActiveDefenses.dive(round.dived, isRanged)
     // Three figures because the bullet prints three, against three named rows.
-    val retreatDodge = ActiveDefenses.retreat(retreated, !isRanged, ActiveDefenses.Retreat.DODGE)
-    val retreatParry = ActiveDefenses.retreat(retreated, !isRanged, ActiveDefenses.Retreat.PARRY)
-    val retreatBlock = ActiveDefenses.retreat(retreated, !isRanged, ActiveDefenses.Retreat.BLOCK)
-    // Which boost was paid for, and WHICH ROW it was spent on. Both sentences
-    // say "+2 to ONE defence", so the row is part of the choice -- folding it
-    // into every row would buy Dodge, each Parry and Block for one payment.
-    // Null is the ordinary case: nothing bought.
-    var boost by remember { mutableStateOf<Pair<DefenseBoost, String>?>(null) }
+    val retreatDodge = ActiveDefenses.retreat(round.retreated, !isRanged, ActiveDefenses.Retreat.DODGE)
+    val retreatParry = ActiveDefenses.retreat(round.retreated, !isRanged, ActiveDefenses.Retreat.PARRY)
+    val retreatBlock = ActiveDefenses.retreat(round.retreated, !isRanged, ActiveDefenses.Retreat.BLOCK)
     // ORDINARY for every row, and that is not a flattening: chapter 8's nine
     // weapons are five firearms, a knife, a truncheon, a hand axe and a
     // broadsword, and none of them is a fencing weapon or a rapier. `Weapon`
@@ -325,7 +336,7 @@ fun DefenseDialog(
     // weapons can parry at all. The two other tiers stay modelled in
     // [ParryClass] for the GM's own smallsword, and the note under these rows
     // says on screen that they exist and that nothing here reaches them.
-    val parryPenalty = ParryBlock.parryPenalty(priorParries)
+    val parryPenalty = ParryBlock.parryPenalty(round.priorParries)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -338,8 +349,22 @@ fun DefenseDialog(
                     // placement quibble: a refusal withdraws EVERY defence, so
                     // a control tucked under the parry rows would read as
                     // scoped to them.
-                    RefusalPicker(declared, forfeiting) { cause ->
-                        declared = if (cause in declared) declared - cause else declared + cause
+                    // In the content and at the TOP, not in the button bar: it
+                    // moves every value below it, which is this screen's own
+                    // placement rule (StunPicker sits above the rows "because
+                    // it moves all of them"), and a chip beside "Close" reads
+                    // as Cancel while a mis-tap would drop a boost the GM has
+                    // already paid FP for. It does NOT clear the stun -- that
+                    // has its own clock and its own recovery roll.
+                    NewRoundControl(round) { round = round.newRound() }
+                    RefusalPicker(round.declared, forfeiting) { cause ->
+                        round = round.copy(
+                            declared = if (cause in round.declared) {
+                                round.declared - cause
+                            } else {
+                                round.declared + cause
+                            },
+                        )
                     }
                     refusal.printed?.let {
                         Text(
@@ -387,7 +412,9 @@ fun DefenseDialog(
                     // points back up at it. Between the two, it sits with the
                     // defender's own kit rather than splitting the pair of
                     // pickers that describe the attack.
-                    RetreatControl(taken = retreated, bonus = retreatDodge) { retreated = !retreated }
+                    RetreatControl(taken = round.retreated, bonus = retreatDodge) {
+                        round = round.copy(retreated = !round.retreated)
+                    }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     ShieldPicker(shields, carried, coverage) { carried = if (it == carried) null else it }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
@@ -407,7 +434,7 @@ fun DefenseDialog(
                         // "Stacks with Retreat." -- corroboration for this row
                         // rather than the general line, and pinned by a test.
                         shielded(
-                            dodge + boostOn("Dodge", boost) + acrobaticSwing + diveBonus + retreatDodge,
+                            dodge + boostOn("Dodge", round.boost) + acrobaticSwing + diveBonus + retreatDodge,
                             shieldForDb,
                             everyDefence,
                         ),
@@ -420,24 +447,28 @@ fun DefenseDialog(
                     // neither marked, is 6bl's defect on this same screen.
                     AcrobaticDodge(
                         skill = acrobatics,
-                        rolled = acrobatic,
+                        rolled = round.acrobatic,
                         onRoll = {
                             acrobatics?.let { (key, level) ->
-                                acrobatic = SkillRoll.at(
-                                    label = key.name,
-                                    base = level,
-                                    key = key,
-                                    source = dice,
-                                    mods = conditions(key),
+                                round = round.copy(
+                                    acrobatic = SkillRoll.at(
+                                        label = key.name,
+                                        base = level,
+                                        key = key,
+                                        source = dice,
+                                        mods = conditions(key),
+                                    ),
                                 )
                             }
                         },
-                        onClear = { acrobatic = null },
+                        onClear = { round = round.copy(acrobatic = null) },
                     )
                     // Beside the acrobatic roll, because the two bullets move
                     // the same row and a GM comparing them should not have to
                     // scroll between them.
-                    DiveControl(taken = dived, bonus = diveBonus) { dived = !dived }
+                    DiveControl(taken = round.dived, bonus = diveBonus) {
+                        round = round.copy(dived = !round.dived)
+                    }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 }
                 items(armed) { (name, value) ->
@@ -445,7 +476,7 @@ fun DefenseDialog(
                     DefenseRow(
                         label,
                         shielded(
-                            value + parryPenalty + boostOn(label, boost) + retreatParry,
+                            value + parryPenalty + boostOn(label, round.boost) + retreatParry,
                             shieldForDb,
                             everyDefence,
                         ),
@@ -474,7 +505,7 @@ fun DefenseDialog(
                     DefenseRow(
                         label,
                         shielded(
-                            value + parryPenalty + vsWeapon + boostOn(label, boost) + retreatParry,
+                            value + parryPenalty + vsWeapon + boostOn(label, round.boost) + retreatParry,
                             shieldForDb,
                             everyDefence,
                         ),
@@ -501,7 +532,9 @@ fun DefenseDialog(
                     // survives, and a stepper over nothing would be a control
                     // that does nothing.
                     if (armed.isNotEmpty() || standing.isNotEmpty()) {
-                        ParriesThisRound(priorParries, parryPenalty) { priorParries = it }
+                        ParriesThisRound(round.priorParries, parryPenalty) {
+                            round = round.copy(priorParries = it)
+                        }
                     }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
 
@@ -512,7 +545,7 @@ fun DefenseDialog(
                         // the row the change is for (a design review's find).
                         val held = shieldForDb
                         val bare = ParryBlock.blockFor(shieldSkill, shieldDb = 0)
-                        val boosted = boostOn("Block", boost)
+                        val boosted = boostOn("Block", round.boost)
                         if (held == null) {
                             DefenseRow("Block", shielded(bare + boosted + retreatBlock, null, everyDefence))
                             // Two ways to have no DB, and they are different
@@ -581,7 +614,7 @@ fun DefenseDialog(
                         standing,
                         block = shieldSkill != null && carried != null,
                     )
-                    if (boost != null && boost?.second !in payable) {
+                    if (round.boost != null && round.boost?.second !in payable) {
                         Note(
                             "The defence you paid for is not available against this attack, " +
                                 "so the +2 lands on nothing. The FP stays spent.",
@@ -589,7 +622,7 @@ fun DefenseDialog(
                     }
                     BoostPicker(
                         rows = payable,
-                        chosen = boost,
+                        chosen = round.boost,
                         onPick = { next ->
                             // Charged ONLY on the transition from nothing to
                             // something. Swapping one paid chip for another
@@ -599,10 +632,10 @@ fun DefenseDialog(
                             // and keeping both would apply two bonuses the GM
                             // sees as one. The picker clears first instead --
                             // one payment, one +2, no refunds.
-                            if (boost == null && next != null) {
+                            if (round.boost == null && next != null) {
                                 onSpendFp(ActiveDefenses.fpCostOf(next.first))
                             }
-                            boost = next
+                            round = round.copy(boost = next)
                         },
                     )
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
@@ -617,6 +650,79 @@ fun DefenseDialog(
             }
         },
     )
+}
+
+/**
+ * The values a round boundary clears, held together because the boundary has
+ * to move all of them at once.
+ *
+ * p. 36 scopes two rules to a round over this screen: "Each type may be used
+ * multiple times per round, but Parry accumulates a -4 cumulative penalty after
+ * the first" (line 2454), and "Free Actions: Retreat, Acrobatic Dodge, and
+ * Dive! ... Each can be used once per round unless stated otherwise" (2456-
+ * 2457). The paid boost is priced "until next turn" by its own maneuver row,
+ * and the three refusals each print a scope of one turn or less -- surprise is
+ * the "first turn", the All-Out Attack is the turn it was taken, and an unaware
+ * shot is one attack.
+ *
+ * **6bf and 6co both refused this boundary, and the reason was about REACH.**
+ * Latching one control while `priorParries` and a paid boost stayed put would
+ * claim a round the screen could not keep for the rest. Reach is what changed:
+ * every value the paragraph governs is local to one composable, so a single
+ * assignment honours it for all of them -- with no global combat state, which
+ * is what 6bf actually refused.
+ *
+ * **Membership is the rule: a field here is a value a new round CLEARS.**
+ * `stunned` is deliberately not one -- the book gives it its own clock,
+ * "Stunned for 1d6 seconds (roll HT each turn to recover early)" (2826) -- and
+ * the shield carried, the facing and the incoming attack are not per-round
+ * facts at all, which is a second reason rather than the same one.
+ */
+internal data class RoundState(
+    /**
+     * What the GM says is true of this character right now: none of the three
+     * is computable, because the app holds no turn, no initiative and no line
+     * of sight. See ActiveDefenses.
+     */
+    val declared: Set<DefenseRefusal> = emptySet(),
+    /**
+     * The Acrobatic Dodge as it came out, or null for "not taken". The whole
+     * outcome rather than the ±2 it produces, because the note under the button
+     * reports the target the trackers left and the total rolled against it --
+     * a number on screen with no way to reconcile it is what 6be found.
+     */
+    val acrobatic: SkillRollOutcome? = null,
+    /** Whether the character threw themselves flat: the second free action. */
+    val dived: Boolean = false,
+    /** Whether the character gave ground: the third. */
+    val retreated: Boolean = false,
+    /**
+     * Parries already made THIS ROUND. The book's cumulative penalty was
+     * committed in defenses.json's own notes cell from 6g onward, shown to the
+     * GM, and applied by nothing -- the class 6h, 6m and 6ai each found. Zero
+     * is the honest default: a round starts with the free parry.
+     */
+    val priorParries: Int = 0,
+    /**
+     * Which boost was paid for, and WHICH ROW it was spent on. Both printed
+     * sentences say "+2 to ONE defence", so the row is part of the choice --
+     * folding it into every row would buy Dodge, each Parry and Block for one
+     * payment. Null is the ordinary case: nothing bought. Both price it "until
+     * next turn", which is why the boundary clears it.
+     */
+    val boost: Pair<DefenseBoost, String>? = null,
+) {
+    /** A fresh round: every value the two sentences govern, back to default. */
+    fun newRound(): RoundState = RoundState()
+
+    /**
+     * Whether anything the boundary would clear has actually been set.
+     *
+     * Compared against a fresh instance rather than field by field, so a value
+     * added to this class is covered the day it is added -- the same reason
+     * [newRound] is not six assignments.
+     */
+    fun isSpent(): Boolean = this != RoundState()
 }
 
 /**
