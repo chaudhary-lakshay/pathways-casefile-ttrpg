@@ -1,5 +1,6 @@
 package com.pathways.rules
 
+import com.pathways.model.Outcome
 import com.pathways.model.Trait
 import com.pathways.rules.content.ContentLoader
 
@@ -261,6 +262,81 @@ object ActiveDefenses {
             "commit that charges for lifting it would be a mechanic authored to " +
             "justify a price, not a rule applied",
     )
+
+    /**
+     * The skill the Acrobatic Dodge bullet rolls against (Ch. 5, p. 37).
+     *
+     * `skills.json` prints it as DX/Hard. Pinned against that list by
+     * `ActiveDefensesTest`, which is the direction 6cg found missing: the
+     * extractor pins the book into the JSON, and nothing pinned the JSON to the
+     * constant Kotlin names it by.
+     */
+    const val ACROBATIC_SKILL = "Acrobatics"
+
+    /**
+     * What the roll is worth, in either direction: "success gives +2 Dodge;
+     * failure gives -2 Dodge".
+     *
+     * ONE constant rather than a +2 and a -2, because the bullet prints one
+     * magnitude twice and a pair could drift apart. A number inside a prose
+     * cell, so it lives here with the sentence pinned -- the split
+     * [BOOST_BONUS] and [STUNNED_PENALTY] already take.
+     */
+    const val ACROBATIC_SWING = 2
+
+    /** The bullet's own tag, which is how its row is found rather than by index. */
+    private const val ACROBATIC_ROW = "[Acrobatic Dodge]"
+
+    /**
+     * The bullet, quoted whole rather than restated (4.1).
+     *
+     * It THROWS on a content drop rather than degrading, which a review noted
+     * is the one throw on this render path. Kept: [printedStun] already refuses
+     * the same way on the same screen, `ActiveDefensesTest` turns a lost bullet
+     * into a red build before any render reaches it, and a rule the app applies
+     * must not be able to render as an empty note (`Detection.attributeFor`,
+     * 6ah -- a refusal beats a plausible answer).
+     */
+    fun printedAcrobaticDodge(): String {
+        val row = ContentLoader.defenseModifiers().firstOrNull { ACROBATIC_ROW in it.modifier }
+        require(row != null) { "defense_modifiers.json no longer prints $ACROBATIC_ROW" }
+        return row.modifier
+    }
+
+    /**
+     * What an Acrobatic Dodge did to the Dodge row, given how the roll came out.
+     *
+     * Null is "not rolled", which is the ordinary case and moves nothing: the
+     * bullet is a free action the defender chooses to take, not a modifier that
+     * applies itself. A critical counts as its plain sibling -- the book prints
+     * two outcomes for this roll and only two, so grading it further would
+     * invent a rule (4.1).
+     *
+     * **Scoped to Dodge alone, deliberately not through [everyDefence].** The
+     * bullet names Dodge twice and no other row, where the stun's second
+     * printing says "active defenseS". Same bar, different answer.
+     */
+    fun acrobaticDodge(outcome: Outcome?): Int = when (outcome) {
+        null -> 0
+        Outcome.SUCCESS, Outcome.CRITICAL_SUCCESS -> ACROBATIC_SWING
+        Outcome.FAILURE, Outcome.CRITICAL_FAILURE -> -ACROBATIC_SWING
+    }
+
+    /**
+     * The Defense Modifiers bullets this app does NOT apply.
+     *
+     * The list was rendered whole while every bullet was display-only. One of
+     * the five now reaches a number, and a screen that goes on printing it
+     * beside the four it does not apply says the same sentence twice and marks
+     * neither -- the disclaimer-outlives-its-rule defect 6bl found on this very
+     * screen. The applied bullet is quoted at the control that applies it.
+     *
+     * A partition rather than a filter written in the dialog: `ActiveDefenses`
+     * decides what is applied, so the two halves cannot disagree, and a test
+     * can read both (6bl again -- only a test that reads both objects notices).
+     */
+    fun unappliedModifiers(): List<String> =
+        ContentLoader.defenseModifiers().map { it.modifier }.filterNot { ACROBATIC_ROW in it }
 
     /**
      * What being stunned costs every active defence (Ch. 5, p. 37).

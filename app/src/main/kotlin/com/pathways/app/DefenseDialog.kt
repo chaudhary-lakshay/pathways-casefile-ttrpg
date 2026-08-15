@@ -30,8 +30,11 @@ import com.pathways.rules.DefenseBoost
 import com.pathways.rules.DefenseRefusal
 import com.pathways.rules.Facing
 import com.pathways.rules.ParryBlock
+import com.pathways.rules.RandomSource
 import com.pathways.rules.ShieldCoverage
 import com.pathways.rules.Shields
+import com.pathways.rules.SkillRoll
+import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.UnarmedStyle
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.Shield
@@ -150,6 +153,21 @@ fun DefenseDialog(
     dodge: Int,
     skillLevels: Map<SkillKey, Int>,
     weapons: List<Weapon> = emptyList(),
+    /** The dice an Acrobatic Dodge is rolled with. */
+    dice: RandomSource,
+    /**
+     * What the trackers cost a roll of a given skill.
+     *
+     * The same ledger the attack dialog takes, and for the same reason: an
+     * Acrobatic Dodge is an ordinary skill roll, so rolling it against a bare
+     * level would answer differently from the sheet screen for one character at
+     * one moment -- the one-rule-two-sites class (6ag, 6ai, 6be). Passed as the
+     * function rather than a resolved list because the modifiers are scoped per
+     * skill ([com.pathways.rules.Conditions]).
+     */
+    // Qualified rather than imported: `Modifier` is Compose's here, and the
+    // attack dialog's own ledger parameter is written the same way.
+    conditions: (SkillKey) -> List<com.pathways.model.Modifier>,
     /**
      * The character's own traits.
      *
@@ -190,7 +208,10 @@ fun DefenseDialog(
     val refusal = ActiveDefenses.state(declared, traits)
     val forfeiting = remember { ActiveDefenses.forfeitingActions() }
     val printed = remember { ContentLoader.defenses() }
-    val modifiers = remember { ContentLoader.defenseModifiers() }
+    // Only the bullets this app does NOT apply. The Acrobatic Dodge row is
+    // quoted at the control that applies it, and ActiveDefenses decides which
+    // half a bullet is in, so the two cannot disagree.
+    val modifiers = remember { ActiveDefenses.unappliedModifiers() }
     // The STYLE travels with the row, because two of the three rules on the
     // Parry (Unarmed) line are per-style: Boxing alone ignores the weapon
     // penalty, and Wrestling's own -3 is already inside the number.
@@ -207,6 +228,37 @@ fun DefenseDialog(
     val shieldSkill = remember(skillLevels) {
         skillLevels.entries.firstOrNull { it.key.name == SHIELD_SKILL }?.value
     }
+    // The character's own Acrobatics, key and level together: the key is what
+    // the modifier ledger is asked about, and the level is what is rolled
+    // against. Null is a sheet without the skill, which is NOT offered an
+    // untrained roll -- see AcrobaticDodge.
+    val acrobatics = remember(skillLevels) {
+        skillLevels.entries
+            .firstOrNull { it.key.name == ActiveDefenses.ACROBATIC_SKILL }
+            // A Pair, not the Map.Entry: an entry is a live view of the map and
+            // compares unstably, which both keeps the control from ever
+            // skipping recomposition and makes it useless as a remember key --
+            // and it is needed as one, immediately below.
+            ?.let { it.key to it.value }
+    }
+    // The roll as it came out, or null for "not taken this attack". Kept as the
+    // whole outcome rather than the ±2 it produces, because the note under the
+    // button reports the target the trackers left and the total rolled against
+    // it -- a number on screen with no way to reconcile it is what 6be found.
+    // Keyed on the skill it was rolled against. A roll survives every other
+    // control on this screen on purpose -- the GM took it against this attack --
+    // but it must not survive the LEVEL changing underneath it: the note reports
+    // a target the row's ±2 would no longer match, and if the skill left the
+    // sheet the control would vanish while its bonus stayed on Dodge (a review's
+    // finding, latent today because the sheet is behind this dialog).
+    var acrobatic by remember(acrobatics) { mutableStateOf<SkillRollOutcome?>(null) }
+    // Deliberately NOT latched behind a "new round" gate. The book's limit
+    // ("Each can be used once per round") governs all three free actions from a
+    // paragraph this app does not extract, and a control that cleared only this
+    // one while `priorParries` and a paid boost stayed put would claim a round
+    // boundary the screen cannot honour (a design review's finding). The limit
+    // is the GM's, exactly as the parry count above it is.
+    val acrobaticSwing = ActiveDefenses.acrobaticDodge(acrobatic?.effectiveOutcome)
     val shields = remember { Shields.all() }
     // Null is bare-handed, and it is the default: a shield must be Readied for
     // a turn before it does anything, so assuming one is carried would hand
@@ -305,8 +357,40 @@ fun DefenseDialog(
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     ShieldPicker(shields, carried, coverage) { carried = if (it == carried) null else it }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                    DefenseRow("Dodge", shielded(dodge + boostOn("Dodge", boost), shieldForDb, everyDefence))
+                    DefenseRow(
+                        "Dodge",
+                        // The acrobatic ±2 joins the bought +2 on this row and
+                        // nowhere else: the bullet names Dodge twice and no
+                        // other defence, so it stays out of `everyDefence`,
+                        // which is reserved for rules printed plural.
+                        shielded(
+                            dodge + boostOn("Dodge", boost) + acrobaticSwing,
+                            shieldForDb,
+                            everyDefence,
+                        ),
+                    )
                     printed.firstOrNull { it.defense == "Dodge" }?.let { Note(it.notes) }
+                    // Directly under the only row it moves. The bullet itself
+                    // is quoted here rather than left in the Modifiers list at
+                    // the bottom, which now shows only what this app does NOT
+                    // apply -- one sentence printed in both places, with
+                    // neither marked, is 6bl's defect on this same screen.
+                    AcrobaticDodge(
+                        skill = acrobatics,
+                        rolled = acrobatic,
+                        onRoll = {
+                            acrobatics?.let { (key, level) ->
+                                acrobatic = SkillRoll.at(
+                                    label = key.name,
+                                    base = level,
+                                    key = key,
+                                    source = dice,
+                                    mods = conditions(key),
+                                )
+                            }
+                        },
+                        onClear = { acrobatic = null },
+                    )
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 }
                 items(armed) { (name, value) ->
@@ -465,7 +549,7 @@ fun DefenseDialog(
                         modifier = Modifier.padding(top = 8.dp),
                     )
                 }
-                items(modifiers) { Note(it.modifier) }
+                items(modifiers) { Note(it) }
             }
         },
     )
@@ -513,6 +597,82 @@ internal fun defenceLabels(
     armed.forEach { add("Parry (${it.first})") }
     unarmed.forEach { add("Parry (${it.first})") }
     if (block) add("Block")
+}
+
+/**
+ * The Acrobatic Dodge: a roll this app can actually make (Ch. 5, p. 37).
+ *
+ * "[Free Action] [Acrobatic Dodge] Roll vs. Acrobatics: success gives +2 Dodge;
+ * failure gives -2 Dodge." Extracted since 6g and applied by nothing -- the
+ * only one of the five Defense Modifiers bullets with a die behind it.
+ *
+ * **Rolled through [SkillRoll], not [com.pathways.rules.SuccessRoll].** Every
+ * other skill roll in this app carries what the trackers cost
+ * ([com.pathways.rules.Conditions]); a bare 3d6 against the printed level would
+ * have a reeling character roll Acrobatics at one number here and another on
+ * the sheet screen.
+ *
+ * **No untrained roll, and the reason is not the one it first looked like.**
+ * The book prints the untrained default as a RANGE -- `common_modifiers.json`'s
+ * "Using untrained skill (default): Attribute -4 to -6", stored with no
+ * number -- and settling it needs `SkillLadder.defaultFor`, which has had no
+ * production caller since M0 and cannot express the per-skill overrides p. 39
+ * prints for two of the three skills it can be checked against (6aw). That is a
+ * policy for 158 skills, not a branch for this one, so the roll is offered to
+ * the sheets that carry the skill and the rest is said out loud.
+ *
+ * **Re-rollable on purpose.** See the state's own comment: the "once per round"
+ * limit lives in a paragraph governing all three free actions, which this app
+ * neither extracts nor enforces for the other two.
+ */
+@Composable
+private fun AcrobaticDodge(
+    skill: Pair<SkillKey, Int>?,
+    rolled: SkillRollOutcome?,
+    onRoll: () -> Unit,
+    onClear: () -> Unit,
+) {
+    Note(ActiveDefenses.printedAcrobaticDodge())
+    if (skill == null) {
+        Note("No ${ActiveDefenses.ACROBATIC_SKILL} on this sheet; an untrained roll is the GM's call.")
+        return
+    }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        TextButton(onClick = onRoll) {
+            Text(if (rolled == null) "Roll vs. ${ActiveDefenses.ACROBATIC_SKILL}" else "Roll again")
+        }
+        // The way back, which a latched roll needs as much as a paid boost does
+        // (6u): the GM who rolled for the wrong attack has to be able to say so.
+        if (rolled != null) {
+            TextButton(onClick = onClear) { Text("Clear") }
+        }
+    }
+    rolled?.let { outcome ->
+        val roll = outcome.roll
+        if (roll == null) {
+            // A forbidden roll is not rolled at all, and the Dodge row above
+            // is unmoved -- ActiveDefenses.acrobaticDodge answers 0 for it.
+            Note("Something forbids this roll, so the Dodge row above is unchanged.")
+            return@let
+        }
+        // Both targets, whenever they differ: the printed level and what the
+        // trackers left of it. One number the GM cannot reconcile against the
+        // sheet is the defect 6be found on this screen's neighbour.
+        val target = if (outcome.target == outcome.baseTarget) {
+            "${outcome.baseTarget}"
+        } else {
+            "${outcome.baseTarget} → ${outcome.target}"
+        }
+        // Non-null wherever the roll is: `effectiveOutcome` is null exactly when
+        // nothing was rolled, which the branch above has already answered.
+        val effective = outcome.effectiveOutcome ?: return@let
+        val swing = ActiveDefenses.acrobaticDodge(effective)
+        Note(
+            "${ActiveDefenses.ACROBATIC_SKILL} $target: rolled ${roll.total} — " +
+                "${label(effective, outcome.degree)}, " +
+                "${if (swing > 0) "+" else ""}$swing on Dodge above.",
+        )
+    }
 }
 
 /**

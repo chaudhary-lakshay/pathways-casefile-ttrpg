@@ -737,6 +737,13 @@ fun SheetScreen(
             dodge = vitals.dodge,
             skillLevels = skillLevels,
             weapons = session.characterFor(sheet).weapons,
+            dice = appDice,
+            // The same ledger the attack dialog and the sheet's own skill rolls
+            // use. An Acrobatic Dodge is a skill roll like any other, and
+            // rolling it bare would have a reeling character roll Acrobatics at
+            // two different targets depending on which screen asked (a design
+            // review's finding, and reachable today).
+            conditions = { conditionsFor(it) },
             // The traits themselves: Combat Reflexes both adds +1 to every
             // defence and cancels the surprise refusal, and one trait's two
             // consequences belong in one place (ActiveDefenses).
@@ -1875,7 +1882,7 @@ private fun RollResult(out: SkillRollOutcome, sense: SpiritualSense? = null) {
  * a critical is already the best result the table prints and re-labelling it
  * by margin would demote it.
  */
-private fun label(outcome: Outcome, degree: SuccessDegree? = null) = when (outcome) {
+internal fun label(outcome: Outcome, degree: SuccessDegree? = null) = when (outcome) {
     Outcome.CRITICAL_SUCCESS -> "Critical success"
     Outcome.SUCCESS -> when (degree) {
         SuccessDegree.EXCELLENT -> "Excellent success"

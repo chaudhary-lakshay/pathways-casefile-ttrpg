@@ -753,8 +753,17 @@ data class Defense(val defense: String, val formula: String, val notes: String)
 /**
  * One bullet of the Defense Modifiers list (Ch. 5, p. 37).
  *
- * Prose, not signed numbers: "Acrobatic Dodge" grants +2 on a success and -2
- * on a failure, so there is no single figure to extract.
+ * Prose, not signed numbers. This KDoc used to give the reason as "'Acrobatic
+ * Dodge' grants +2 on a success and -2 on a failure, so there is no single
+ * figure to extract" -- an excuse drawn from ONE row and generalised to the
+ * table, exactly like the "no arc to test against" sentence 6ck found in three
+ * files. Two of the five bullets print exactly one number each, and the
+ * Acrobatic Dodge row's two are now applied by
+ * [com.pathways.rules.ActiveDefenses.acrobaticDodge], keyed off a real roll.
+ *
+ * What is true is narrower: the bullets are a LIST, and which of them the app
+ * applies is a per-bullet decision. [com.pathways.rules.ActiveDefenses
+ * .unappliedModifiers] is the half that is still only printed.
  */
 @Serializable
 data class DefenseModifier(val modifier: String)

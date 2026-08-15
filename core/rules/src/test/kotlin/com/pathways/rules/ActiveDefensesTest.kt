@@ -1,5 +1,6 @@
 package com.pathways.rules
 
+import com.pathways.model.Outcome
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
 import com.pathways.rules.content.ContentLoader
@@ -345,5 +346,79 @@ class ActiveDefensesTest {
     @Test
     fun `a cause the content does not print is refused`() {
         assertThrows<IllegalArgumentException> { ActiveDefenses.printedFor("NOT_A_CAUSE") }
+    }
+
+    /**
+     * The Acrobatic Dodge swings the same magnitude either way, and neither
+     * way until it is rolled.
+     *
+     * A critical counts as its plain sibling: the bullet prints a success and
+     * a failure and nothing else, so grading it further would invent a rule
+     * the book does not print (4.1).
+     *
+     * The phrases asserted here are SIGN-ANCHORED. 6cg measured that a guard
+     * reading `"$n Dodge"` is satisfied by a sign flip -- "2 Dodge" is a
+     * substring of "-2 Dodge" -- so a check on the magnitude alone would pass
+     * the cheaper mutation, which is the one this repo has already shipped
+     * once (section 5, base -4 landing on +2).
+     */
+    @Test
+    fun `the acrobatic dodge is worth two either way, and nothing unrolled`() {
+        assertEquals(0, ActiveDefenses.acrobaticDodge(null))
+        for (win in listOf(Outcome.SUCCESS, Outcome.CRITICAL_SUCCESS)) {
+            assertEquals(ActiveDefenses.ACROBATIC_SWING, ActiveDefenses.acrobaticDodge(win))
+        }
+        for (loss in listOf(Outcome.FAILURE, Outcome.CRITICAL_FAILURE)) {
+            assertEquals(-ActiveDefenses.ACROBATIC_SWING, ActiveDefenses.acrobaticDodge(loss))
+        }
+        val bullet = ActiveDefenses.printedAcrobaticDodge()
+        assertTrue("Roll vs. ${ActiveDefenses.ACROBATIC_SKILL}" in bullet, bullet)
+        assertTrue("success gives +${ActiveDefenses.ACROBATIC_SWING} Dodge" in bullet, bullet)
+        assertTrue("failure gives -${ActiveDefenses.ACROBATIC_SWING} Dodge" in bullet, bullet)
+    }
+
+    /**
+     * The skill the bullet rolls against is a skill the book prints.
+     *
+     * The pin 6cg found missing runs JSON -> Kotlin: `extract_defenses.py`
+     * pins the book's sentence into the content, and nothing pinned the
+     * content to the constant the app looks the character's level up by. A
+     * renamed row would otherwise leave the roll silently unofferable to every
+     * character who has the skill.
+     */
+    @Test
+    fun `the skill the bullet names is one the book prints`() {
+        val printed = ContentLoader.skills().firstOrNull { it.name == ActiveDefenses.ACROBATIC_SKILL }
+        assertTrue(printed != null, "skills.json no longer prints ${ActiveDefenses.ACROBATIC_SKILL}")
+        assertTrue(ActiveDefenses.ACROBATIC_SKILL in ActiveDefenses.printedAcrobaticDodge())
+    }
+
+    /**
+     * A bullet the app applies is not also listed as one it does not.
+     *
+     * The dialog printed all five as bare notes while all five were
+     * display-only. One now reaches a number, and going on printing it beside
+     * the four that do not is the disclaimer-outlives-its-rule defect 6bl
+     * found on this same screen -- which only a test reading BOTH halves can
+     * notice.
+     *
+     * The partition is asserted rather than the count: an added bullet must
+     * land in exactly one half, and a test on "four" alone would pass a sixth
+     * bullet quietly joining the wrong one.
+     *
+     * The last assertion is deliberately ASYMMETRIC and that is what gives it
+     * teeth: `List.minus` drops the first match while `filterNot` drops every
+     * one, so a second bullet carrying the same tag fails here -- and it would
+     * otherwise vanish from the screen entirely, since the control quotes only
+     * the first (a review's observation).
+     */
+    @Test
+    fun `the applied bullet is not also reported as unapplied`() {
+        val all = ContentLoader.defenseModifiers().map { it.modifier }
+        val unapplied = ActiveDefenses.unappliedModifiers()
+        val applied = ActiveDefenses.printedAcrobaticDodge()
+        assertTrue(applied in all, "the applied bullet left the content: $applied")
+        assertTrue(applied !in unapplied, "applied and reported unapplied: $applied")
+        assertEquals(all - applied, unapplied)
     }
 }

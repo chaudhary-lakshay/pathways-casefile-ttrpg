@@ -18,10 +18,16 @@ drifted would be worse than none. What ships here is what the GM reads: the
 printed formula and the notes beside it ("Cumulative -4 per additional
 parry", "Once per round").
 
-MODIFIERS (global lines 2480-2485) are the bullet list under the table. Two
-of them wrap, and one ("Acrobatic Dodge") carries both a bonus and a penalty,
-so they ship as prose rather than as signed numbers -- there is no single
-figure to extract from "success gives +2 Dodge; failure gives -2 Dodge".
+MODIFIERS (global lines 2480-2485) are the bullet list under the table. Two of
+them wrap, so they ship as whole sentences rather than as parsed numbers.
+
+This docstring used to justify that with "one ('Acrobatic Dodge') carries both
+a bonus and a penalty, so there is no single figure to extract" -- an excuse
+drawn from one row and generalised to the table, the same shape 6ck found in
+three KDocs. Two of the five bullets print exactly one number each, and the
+Acrobatic Dodge row's pair is applied by ActiveDefenses.acrobaticDodge, keyed
+off a real roll against the skill it names. PINNED below guards the phrases
+that rule now depends on.
 """
 import json, pathlib, re, sys
 
@@ -43,6 +49,19 @@ LABELS = ("Dodge", "Parry (Armed)", "Parry", "Block")
 CONTINUATION = "(Unarmed)"
 
 EXPECTED = ["Dodge", "Parry (Armed)", "Parry (Unarmed)", "Block"]
+
+# The phrases com.pathways.rules.ActiveDefenses now APPLIES, rather than merely
+# prints. If one goes, the app is rolling for a rule the book stopped printing.
+#
+# SIGN-ANCHORED on purpose: "+2 Dodge" and "-2 Dodge" rather than "2 Dodge",
+# because a magnitude guard is satisfied by a sign flip -- "2 Dodge" is a
+# substring of "-2 Dodge" -- which is the cheaper mutation and the one this
+# repo has already shipped once (6cg).
+PINNED = [
+    "Roll vs. Acrobatics",
+    "success gives +2 Dodge",
+    "failure gives -2 Dodge",
+]
 
 
 def load_lines():
@@ -136,6 +155,11 @@ def verify(defenses, modifiers):
             raise ValueError(f"{name} no longer reads as skill/2 + 3: {row['formula']!r}")
     if len(modifiers) != 5:
         raise ValueError(f"expected 5 defense modifiers, got {len(modifiers)}")
+
+    body = " ".join(m["modifier"] for m in modifiers)
+    for phrase in PINNED:
+        if phrase not in body:
+            raise ValueError(f"the rule the app applies is gone: {phrase!r}")
 
 
 def write(name, entries, spans):

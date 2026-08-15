@@ -854,8 +854,22 @@ def test_defense_modifiers_survive_their_pdf_bullets():
     entries = json.loads((CONTENT / "defense_modifiers.json").read_text(encoding="utf-8"))["entries"]
     assert len(entries) == 5
     assert any("Retreat" in e["modifier"] for e in entries)
+    for phrase in extract_defenses.PINNED:
+        # The rule ActiveDefenses.acrobaticDodge now applies, both signs of it.
+        assert phrase in " ".join(e["modifier"] for e in entries), phrase
     # The bullet glyph itself must not reach the app.
     assert all(not e["modifier"].startswith("") for e in entries)
+
+
+def test_a_bullet_that_loses_its_sign_fails_verify():
+    """The guard must fail on the mutation it exists for: a sign flip inside
+    the cell, not merely a bullet going missing. A check on "2 Dodge" would
+    pass this flipped text, because it is a substring of "-2 Dodge"."""
+    flipped = [{"modifier": "[Free Action] [Acrobatic Dodge] Roll vs. Acrobatics: "
+                            "success gives -2 Dodge; failure gives +2 Dodge."}] * 5
+    defenses = json.loads((CONTENT / "defenses.json").read_text(encoding="utf-8"))["entries"]
+    with pytest.raises(ValueError, match="the rule the app applies is gone"):
+        extract_defenses.verify(defenses, flipped)
 
 
 # --- Refusals of an active defence (Ch. 5, p. 36-40) -----------------------
