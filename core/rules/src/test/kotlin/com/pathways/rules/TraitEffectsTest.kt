@@ -733,14 +733,27 @@ class TraitEffectsTest {
             // Ether Body Damage's lead-in is backstory pointing at Chapter 5,
             // not a rule: it says where the damage came FROM.
             "Prior spirit body damage (see Spirit Body Damage, Chapter 5) that never fully healed",
+            // The four the CATEGORY_BONUSES rows carry. Each is a description
+            // of what the trait FEELS like and grants nothing on its own; the
+            // clause beside it names the banner and is applied.
+            "Sense emotions",
+            "generally miss social cues and subtlety",
+            "You do not understand subtext, sarcasm, or implication",
+            "Expert in mysticism",
         )
-        val catalogue = ContentLoader.advantages() + ContentLoader.disadvantages()
+        val catalogue = ContentLoader.advantages() + ContentLoader.disadvantages() +
+            ContentLoader.blessings().map { it.asTrait(ContentLoader.blessingCost()) }
         // Every applied map, not a list of the ones that existed when this was
         // written: the guard was blind to SKILL_BONUSES once already (6bs),
-        // and a map missing from here is a cell nothing checks.
+        // and a map missing from here is a cell nothing checks. It was blind
+        // to CATEGORY_BONUSES in exactly the same way from the slice that
+        // added it until the one that added a third row to it -- so Empathy's
+        // and Clueless's cells went unchecked, which is why four lead-ins had
+        // to be named above the moment this line was corrected.
         val applied = TraitEffects.skillBonusNames() +
             TraitEffects.htRollNames() +
-            TraitEffects.spiRollNames()
+            TraitEffects.spiRollNames() +
+            TraitEffects.categoryBonusNames()
         for (trait in applied) {
             val cell = catalogue.first { it.name == trait }.notes
             val reported = TraitEffects.reported(listOf(advantage(trait))).map { it.printed }
@@ -762,6 +775,12 @@ class TraitEffectsTest {
                     // ...and a levelled row's own ceiling, which is applied
                     // rather than reported, so it is not a dropped clause.
                     (cap != null && segment.contains("$cap levels")) ||
+                    // ...and a category row's applied clause names the banner
+                    // rather than a skill: "social skill rolls",
+                    // "occult/knowledge skills".
+                    TraitEffects.categoryFor(trait)?.let { banner ->
+                        segment.lowercase().contains(banner.substringBefore(' ').lowercase())
+                    } == true ||
                     reported.any { it.contains(segment) || segment.contains(it) }
                 assertTrue(handled, "$trait drops the clause \"$segment\"")
             }
@@ -954,8 +973,10 @@ class TraitEffectsTest {
      */
     @Test
     fun `every trait named here is one the book prints`() {
+        // The blessings are a third printed list, in their own file because
+        // the book prints their price once in prose rather than as a column.
         val printed = (ContentLoader.advantages() + ContentLoader.disadvantages())
-            .map { it.name }.toSet()
+            .map { it.name }.toSet() + ContentLoader.blessings().map { it.deity }
         assertEquals(emptySet<String>(), TraitEffects.known() - printed)
     }
 

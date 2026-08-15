@@ -135,26 +135,57 @@ internal fun TraitPicker(
     val offered = remember { PurchasableTraits.offered() }
     val instantiable = remember { PurchasableTraits.instantiable() }
     val withheld = remember { PurchasableTraits.unoffered() }
+    val sections = remember {
+        val blessings = PurchasableTraits.blessingNames()
+        listOf(
+            Triple(
+                "Advantages",
+                "Cost points.",
+                offered.filter { it.advantage && it.name !in blessings },
+            ),
+            Triple(
+                "The Seven Orthodox Gods Blessings",
+                PurchasableTraits.blessingRequirement(),
+                offered.filter { it.name in blessings },
+            ),
+            // Excluded by name here too, though every blessing costs points
+            // and so bills as an advantage today. The asymmetry was the
+            // reviewer's finding: a blessing that ever billed the other way
+            // would render in its own section AND in this one. Nothing can
+            // reach that, which is when this repo closes a permissive path
+            // rather than after the next caller finds it (6l).
+            Triple(
+                "Drawbacks",
+                "Refund points, up to 40.",
+                offered.filter { !it.advantage && it.name !in blessings },
+            ),
+        )
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
         title = { Text("Buy a trait") },
         text = {
             LazyColumn {
-                listOf(true to "Advantages", false to "Drawbacks").forEach { (advantage, heading) ->
+                // The blessings get their own head rather than sitting inside
+                // Advantages. Seven rows at 75 points each, unlabelled among
+                // rows costing 1 to 5, read as a pricing error -- and the
+                // table's printed requirement would have nowhere to live,
+                // which is how a field ends up extracted and never rendered
+                // (6ai). It is SHOWN and gates nothing: this app models no
+                // faith and no reconciliation, so whether a character is a
+                // confirmed believer is the GM's to say (6af).
+                sections.forEach { (heading, subtitle, rows) ->
                     item {
                         Text(
                             heading,
                             style = MaterialTheme.typography.titleSmall,
                             modifier = Modifier.padding(top = 8.dp),
                         )
-                        Text(
-                            if (advantage) "Cost points." else "Refund points, up to 40.",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
+                        Text(subtitle, style = MaterialTheme.typography.bodySmall)
                         HorizontalDivider()
                     }
-                    items(offered.filter { it.advantage == advantage }) { row ->
+                    items(rows) { row ->
                         // Refused rather than offered and then rejected: a
                         // second copy bills its points and changes nothing,
                         // and a chip that cannot be taken is not a choice.

@@ -182,6 +182,47 @@ data class TraitDefinition(
 }
 
 /**
+ * One row of the Seven Orthodox Gods Blessings table (Ch. 3, p. 19).
+ *
+ * Its own columns, not a trait's: the book prints Deity and Blessing Effect
+ * and no third. There is no cost column at all -- the price is stated once in
+ * prose for all seven rows, so it lives on [BlessingsFile.costEach] rather
+ * than being repeated here, which is also the mechanism by which
+ * `extract_content.py`'s cost-line parser has always been unable to see this
+ * table.
+ *
+ * A blessing reaches every trait consumer as a [TraitDefinition] via
+ * [asTrait]; the separate file and the separate type are what keep the
+ * provenance visible, the call 6v made for the appendix's damage labels.
+ */
+@Serializable
+data class Blessing(val deity: String, val effect: String) {
+    /** This row as the trait a player buys, priced from the shared sentence. */
+    fun asTrait(cost: Int): TraitDefinition =
+        TraitDefinition(name = deity, cost = cost, notes = effect)
+}
+
+/**
+ * The blessings table as printed: seven rows, one price, one requirement.
+ *
+ * [requirement] is a rule the GM applies and this app cannot -- it models no
+ * faith and no reconciliation -- so it is committed and shown beside the rows
+ * rather than gating them, the call the Sealed Artifact grade table needed
+ * (6af).
+ */
+@Serializable
+data class BlessingsFile(
+    val costEach: Int,
+    val requirement: String,
+    val entries: List<Blessing>,
+) {
+    init {
+        require(costEach > 0) { "a blessing costs points; costEach was $costEach" }
+        require(requirement.isNotBlank()) { "the blessings table prints a requirement" }
+    }
+}
+
+/**
  * One attribute row of a potion's "Stat / Advantage" table (Ch. 9-12).
  *
  * [attr] is a plain code rather than a typed attribute because the rows span

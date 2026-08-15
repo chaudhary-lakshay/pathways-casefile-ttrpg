@@ -5,6 +5,7 @@ import com.pathways.model.SecondaryDelta
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
 import com.pathways.rules.content.ContentLoader
+import com.pathways.rules.content.TraitDefinition
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -38,8 +39,7 @@ class PurchasableTraitsTest {
      */
     @Test
     fun `every printed row is either offered, instantiable, or explained`() {
-        val printed = (ContentLoader.advantages() + ContentLoader.disadvantages())
-            .map { it.name }.toSortedSet()
+        val printed = printedRows().map { it.name }.toSortedSet()
         val groups = listOf(
             PurchasableTraits.offered().map { it.name },
             PurchasableTraits.instantiable().map { it.name },
@@ -53,10 +53,21 @@ class PurchasableTraitsTest {
         )
     }
 
+    /**
+     * Every trait row the book prints, blessings included.
+     *
+     * The blessings are a third list because the book prices them once in
+     * prose for all seven rather than in a cost column, so a guard reading the
+     * two catalogues alone reports them as unaccounted for -- which is exactly
+     * what both of these tests did the moment they became buyable.
+     */
+    private fun printedRows(): List<TraitDefinition> =
+        ContentLoader.advantages() + ContentLoader.disadvantages() +
+            ContentLoader.blessings().map { it.asTrait(ContentLoader.blessingCost()) }
+
     @Test
     fun `only a row printing a single cost is offered`() {
-        val byName = (ContentLoader.advantages() + ContentLoader.disadvantages())
-            .associateBy { it.name }
+        val byName = printedRows().associateBy { it.name }
         for (row in PurchasableTraits.offered()) {
             assertEquals(
                 byName.getValue(row.name).cost,

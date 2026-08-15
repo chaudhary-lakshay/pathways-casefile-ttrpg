@@ -120,6 +120,40 @@ object TraitEffects {
     const val EMPATHY = "Empathy"
     const val CLUELESS = "Clueless"
 
+    // The two blessings whose cell prints a number the engine could reach.
+    // The other five are [UNAPPLIED], each with its own reason.
+    const val GOD_OF_KNOWLEDGE = "God of Knowledge and Wisdom"
+    const val GOD_OF_COMBAT = "God of Combat"
+
+    /**
+     * The banner "+5 to all occult/knowledge skills" names.
+     *
+     * **"occult" names no printed group and "knowledge skills" does**, which
+     * is the whole reading and is checked rather than argued: the phrase
+     * "occult skill" appears NOWHERE in this book, while "knowledge skill"
+     * appears twice and one of those IS chapter 3's banner. So the slash
+     * cannot be joining two groups -- one half of it is not a group.
+     * `extract_blessings.verify()` fails on either half changing, because
+     * that grep is the warrant (the per-table standard 6ad set, 6v is why it
+     * can never be per-source).
+     *
+     * The two rejected readings are rejected for opposite reasons, and both
+     * would author content. WIDER would add Astrology, the one occult-flavoured
+     * skill outside this banner -- but the book files it under SURVIVAL &
+     * OTHER, so calling it occult is my judgement and not the book's.
+     * NARROWER would mean curating which of the banner's twenty-six rows are
+     * occult, which is the list-building 6i refused when no skill is tagged as
+     * a combat skill. Every occult skill this book prints -- Occultism, Hidden
+     * Lore, Thaumatology, Theology, Alchemy -- is already inside it.
+     *
+     * "Expert in mysticism." is the cell's lead-in and grants nothing, so it
+     * is named in the clause guard's prose exemption rather than reported.
+     */
+    const val KNOWLEDGE_SKILLS = "KNOWLEDGE SKILLS"
+
+    /** What the God of Knowledge's blessing adds to a KNOWLEDGE skill roll. */
+    private const val KNOWLEDGE_BLESSING_BONUS = 5
+
     /**
      * The banner Ch. 3 prints sixteen skills under, and the group every
      * "social skill rolls" cell names.
@@ -337,10 +371,18 @@ object TraitEffects {
         // Two premades carry it, both with the name and the cell glued into one
         // string, which is why it resolved to no catalogue row until now.
         CLUELESS to (-3 to SOCIAL_SKILLS),
+        // The one Orthodox blessing whose cell names a group the book prints.
+        // See [KNOWLEDGE_SKILLS] for why the slash resolves to one banner and
+        // not to two groups, and why both the wider and the narrower readings
+        // would author content rather than read it.
+        GOD_OF_KNOWLEDGE to (KNOWLEDGE_BLESSING_BONUS to KNOWLEDGE_SKILLS),
     )
 
     /** The traits whose cell names a category, for the guard tests. */
     fun categoryBonusNames(): Set<String> = CATEGORY_BONUSES.keys
+
+    /** The banner [trait]'s cell names, null for a trait that names none. */
+    fun categoryFor(trait: String): String? = CATEGORY_BONUSES[trait]?.second
 
     /**
      * The banner [skill] is printed under, read from the content.
@@ -807,9 +849,31 @@ object TraitEffects {
     private const val SHEET_SEPARATOR = " - "
 
     /** Both catalogues by lowercase name: a trait may be either kind. */
-    private fun catalogue(): Map<String, TraitDefinition> =
-        (ContentLoader.advantages() + ContentLoader.disadvantages())
-            .associateBy { it.name.lowercase() }
+    /**
+     * Every trait row the book prints, keyed for resolution.
+     *
+     * **The blessings are in here, and that is deliberately the ONLY place
+     * they are added.** `reported`, `catalogueName`, `displayName` and
+     * `PurchasableTraits.canBuy` all resolve through this one map, so a
+     * blessing became a trait for every consumer at once. Widening them one
+     * consumer at a time is the two-matchers failure this file has produced
+     * six times (6ag, 6ai, 6be, 6bp, 6bs, 6cd) -- a row that resolves for
+     * MATCHING while failing to resolve for DISPLAY renders its whole effect
+     * cell as the trait's own name.
+     *
+     * They are a third list rather than a third column in an existing file:
+     * the price is stated once in prose for all seven and the table prints no
+     * cost column, so writing them into `advantages.json` would make that file
+     * claim the book printed one (6v).
+     */
+    private fun catalogue(): Map<String, TraitDefinition> {
+        val cost = ContentLoader.blessingCost()
+        return (
+            ContentLoader.advantages() +
+                ContentLoader.disadvantages() +
+                ContentLoader.blessings().map { it.asTrait(cost) }
+            ).associateBy { it.name.lowercase() }
+    }
 
     /** Wrapping is the sheet's, so it cannot decide whether two cells agree. */
     private fun squashed(text: String): String =
@@ -1335,6 +1399,37 @@ object TraitEffects {
         // with the same scope; the sheet prints drawbacks whole, so it needs
         // no entry to be visible.
         IRON_JAW to "this app rolls no knockdown for a hit location, and no bite",
+        // The six Orthodox blessings that reach nothing. The seventh, the God
+        // of Knowledge, is applied by CATEGORY_BONUSES.
+        //
+        // God of Combat is the only one refused for a reason that is about
+        // THIS APP's shape rather than the book's silence, so it says so
+        // exactly. M3's rule is that a granted attribute is never written into
+        // attributes/secondaryDelta/skills, because PointBudget bills those --
+        // only the CHOICE is stored and every gain re-derives from it. A
+        // blessing is a stored choice, so the same route would work; what does
+        // not exist is a trait ever taking it, since a potion is the only
+        // thing in this codebase that grants an attribute (6al). Naming that
+        // is the honest version: the number is real and the plumbing is
+        // missing, which is not the same as the book printing nothing.
+        GOD_OF_COMBAT to
+            "a potion is the only thing here that grants an attribute — a " +
+            "granted attribute is never written into a billable field, and no " +
+            "trait re-derives one yet",
+        "Goddess of Evernight" to
+            "\"most divination\" prints no number, and being divined against " +
+            "is the other party's roll — this app holds one sheet",
+        "Lord of Storms" to
+            "the +3 is scoped to pressure, and this app rolls no pressure " +
+            "roll; the ten hours are a duration it holds no clock for",
+        "Earth Mother" to
+            "this app models no death roll to revive from — the same refusal " +
+            "Hard to Kill already carries — and healing over time needs a clock",
+        "Eternal Blazing Sun" to
+            "the 1d6 falls on someone else each round, and this app holds " +
+            "neither a second sheet nor a round",
+        "God of Steam & Machinery" to
+            "identification and negated curses print no number to apply",
         RAPID_RECOVERY to "both halves are durations, and this app holds no clock",
         // Two more mechanics the book has its OWN names for, found by a review
         // asking what a census keyed on the word "roll" still cannot see (6bu).

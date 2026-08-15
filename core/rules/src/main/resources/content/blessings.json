@@ -1,0 +1,42 @@
+{
+ "sourceLines": {
+  "3": [
+   [
+    1098,
+    1118
+   ]
+  ]
+ },
+ "costEach": 75,
+ "requirement": "Requirement: Character must be a confirmed believer in the corresponding Church. Losing faith (GM discretion) temporarily suspends blessings until reconciliation.",
+ "entries": [
+  {
+   "deity": "Goddess of Evernight",
+   "effect": "Dream Lucidity, Concealment. Most divination fails against you."
+  },
+  {
+   "deity": "Lord of Storms",
+   "effect": "Underwater Breathing. Stay underwater 10 hrs; +3 HT vs pressure."
+  },
+  {
+   "deity": "Earth Mother",
+   "effect": "Bury in soil to regenerate. Fatal wounds heal; revive from death."
+  },
+  {
+   "deity": "God of Combat",
+   "effect": "Herculean strength & catlike reflexes. +3 ST, +3 DX, +3 HT."
+  },
+  {
+   "deity": "God of Knowledge and Wisdom",
+   "effect": "Expert in mysticism. +5 to all occult/knowledge skills."
+  },
+  {
+   "deity": "Eternal Blazing Sun",
+   "effect": "Possession impossible. Burn evil near you (1d6/round)."
+  },
+  {
+   "deity": "God of Steam & Machinery",
+   "effect": "Beyonder item affinity. Rapid ID; curses negated."
+  }
+ ]
+}

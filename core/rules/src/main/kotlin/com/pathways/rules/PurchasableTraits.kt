@@ -128,7 +128,39 @@ object PurchasableTraits {
      */
     fun offered(): List<PurchasableTrait> =
         rows(ContentLoader.advantages(), advantage = true) +
+            blessingRows() +
             rows(ContentLoader.disadvantages(), advantage = false)
+
+    /**
+     * The seven Orthodox blessings, priced from their own shared sentence.
+     *
+     * **Nothing forbids holding two, so nothing here refuses two.** The
+     * requirement is "a confirmed believer in the corresponding Church",
+     * which is per blessing, and the prohibition sweep over the table's own
+     * lines finds no exclusion at all (6ba -- a sweep's verdict expires, so it
+     * is re-run against each slice's subject). Refusing a second would author
+     * a rule, which is the opposite call to [Wealth]'s exclusion above: there
+     * the book says a character has one economic status. [canBuy] still
+     * refuses a second copy of the SAME blessing, because [PointBudget] would
+     * bill it and [TraitEffects] reads one canonical match.
+     */
+    private fun blessingRows(): List<PurchasableTrait> {
+        val cost = ContentLoader.blessingCost()
+        return rows(ContentLoader.blessings().map { it.asTrait(cost) }, advantage = true)
+    }
+
+    /**
+     * The condition the blessings table prints, for a screen to show.
+     *
+     * Shown, never enforced: this app models no faith and no reconciliation,
+     * so whether a character is a confirmed believer is the GM's to say -- the
+     * call the Sealed Artifact grade table's Power Equivalent column needed
+     * (6af), and a check that would be wrong is worse than a sentence.
+     */
+    fun blessingRequirement(): String = ContentLoader.blessingRequirement()
+
+    /** The blessing rows, for a screen that groups them under their own head. */
+    fun blessingNames(): Set<String> = ContentLoader.blessings().map { it.deity }.toSet()
 
     /**
      * The printed rows nothing can buy, grouped by why.

@@ -16,6 +16,7 @@ object ContentLoader {
     private val skillsLazy: List<SkillDefinition> by lazy { load("skills.json") }
     private val advantagesLazy: List<TraitDefinition> by lazy { load("advantages.json") }
     private val disadvantagesLazy: List<TraitDefinition> by lazy { load("disadvantages.json") }
+    private val blessingsLazy: BlessingsFile by lazy { loadWhole("blessings.json") }
     private val pathwaysLazy: List<SequenceBlock> by lazy { load("pathways.json") }
     private val actingMethodLazy: List<ActingQuality> by lazy { load("acting_method.json") }
     private val potionConsumptionLazy: List<PcrRow> by lazy { load("potion_consumption.json") }
@@ -199,6 +200,15 @@ object ContentLoader {
     fun skills(): List<SkillDefinition> = skillsLazy
     fun advantages(): List<TraitDefinition> = advantagesLazy
     fun disadvantages(): List<TraitDefinition> = disadvantagesLazy
+
+    /** Ch. 3's seven Orthodox blessings, as the book's own two columns. */
+    fun blessings(): List<Blessing> = blessingsLazy.entries
+
+    /** What each blessing costs -- one sentence, seven rows, no cost column. */
+    fun blessingCost(): Int = blessingsLazy.costEach
+
+    /** The requirement printed under the table, shown rather than enforced. */
+    fun blessingRequirement(): String = blessingsLazy.requirement
     fun thrustSwing(): Map<Int, DamageRow> = thrustSwingLazy
 
     /** The 88 Sequence stat blocks (22 pathways x Sequences 9/8/7/6). */
@@ -496,10 +506,19 @@ object ContentLoader {
      */
     fun spiAffinity(): List<SpiAffinity> = spiAffinityLazy
 
-    private inline fun <reified T> load(resource: String): List<T> {
+    private inline fun <reified T> load(resource: String): List<T> =
+        loadWhole<ContentFile<T>>(resource).entries
+
+    /**
+     * A content file decoded whole, for the few that carry more than [entries].
+     *
+     * `blessings.json` states one price and one requirement for all seven of
+     * its rows, because the book does; [load] would drop both.
+     */
+    private inline fun <reified T> loadWhole(resource: String): T {
         val stream = ContentLoader::class.java.getResourceAsStream("/content/$resource")
             ?: error("content file not found on classpath: $resource")
         val text = stream.bufferedReader().use { it.readText() }
-        return json.decodeFromString<ContentFile<T>>(text).entries
+        return json.decodeFromString<T>(text)
     }
 }

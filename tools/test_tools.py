@@ -3545,3 +3545,91 @@ def test_a_capped_spi_burn_is_refused():
     with pytest.raises(AssertionError):
         extract_core_rules.verify(
             bands, pools, rows, defs, extract_core_rules.load_lines())
+
+
+# --- The Seven Orthodox Gods Blessings (Ch. 3, p. 19) ----------------------
+
+import extract_blessings as ebl
+
+
+def _blessing_lines():
+    """The table's row range, as the book prints it."""
+    return {
+        1103: "Goddess of Evernight",
+        1104: "Dream Lucidity, Concealment. Most divination fails against you.",
+        1105: "God of Combat",
+        1106: "Herculean strength & catlike reflexes. +3 ST, +3 DX, +3 HT.",
+    }
+
+
+def test_a_wrapped_effect_cell_stays_with_its_deity():
+    """A deity name carries no full stop and an effect cell ends with one, so
+    a continuation line joins the row above rather than opening a new one.
+    Counting two lines per row works today and breaks on the first wrap."""
+    byn = dict(_blessing_lines())
+    byn[1106] = "Herculean strength & catlike reflexes."
+    byn[1107] = "+3 ST, +3 DX, +3 HT."
+    rows = ebl.parse(byn)
+    assert [r["deity"] for r in rows] == ["Goddess of Evernight", "God of Combat"]
+    assert rows[1]["effect"].endswith("+3 ST, +3 DX, +3 HT.")
+
+
+def test_an_effect_that_lost_its_full_stop_fails_rather_than_shifting_the_table():
+    """The loud failure the shape rule buys: an effect read as an eighth deity
+    changes the row count, which verify() refuses -- rather than shipping a
+    table whose cells have all moved up one."""
+    byn = dict(_blessing_lines())
+    byn[1106] = "Herculean strength & catlike reflexes, +3 ST, +3 DX, +3 HT"
+    rows = ebl.parse(byn)
+    assert len(rows) == 3  # the effect became a deity of its own
+
+
+def test_the_price_has_no_source_if_its_one_sentence_goes():
+    """The table prints no cost column at all -- the price is stated once, in
+    prose, for all seven rows. That sentence is the only place it exists."""
+    byn = ebl.load_lines()
+    payload = ebl.build(byn)
+    broken = dict(byn)
+    broken[1099] = "The Seven Orthodox Churches bless their faithful."
+    with pytest.raises(ValueError, match="75-point sentence"):
+        ebl.verify(broken, payload, [], [], _knowledge_skills())
+
+
+def _knowledge_skills():
+    return [{"name": "Occultism", "category": ebl.KNOWLEDGE_BANNER}]
+
+
+def test_the_slash_reading_fails_the_day_the_book_prints_occult_skills():
+    """THE WARRANT. "occult/knowledge skills" is read as chapter 3's KNOWLEDGE
+    banner because "occult skill" is printed nowhere -- one half of the slash
+    names no group at all. If the book ever prints it, the slash may be
+    joining two groups and the reading has to be made again."""
+    byn = ebl.load_lines()
+    payload = ebl.build(byn)
+    ebl.verify(byn, payload, [], [], _knowledge_skills())  # green as committed
+    widened = dict(byn)
+    widened[max(byn) + 1] = "Add +1 to all occult skills."
+    with pytest.raises(ValueError, match="occult skill"):
+        ebl.verify(widened, payload, [], [], _knowledge_skills())
+
+
+def test_a_deity_that_is_also_a_catalogue_trait_is_a_second_printing():
+    """Disjointness, the check extract_appearance.py already makes: a name in
+    both lists would make matching a bare name ambiguous, and would mean this
+    table restates rows another file already carries."""
+    byn = ebl.load_lines()
+    payload = ebl.build(byn)
+    clash = [{"name": "Earth Mother"}]
+    with pytest.raises(ValueError, match="also a catalogue trait"):
+        ebl.verify(byn, payload, clash, [], _knowledge_skills())
+
+
+def test_the_two_mechanical_cells_are_pinned_exactly():
+    """The screen quotes these, and a re-cut cell still reads plausibly."""
+    byn = ebl.load_lines()
+    payload = ebl.build(byn)
+    payload["entries"] = [dict(e) for e in payload["entries"]]
+    row = next(e for e in payload["entries"] if e["deity"] == "God of Combat")
+    row["effect"] = "Herculean strength & catlike reflexes. +2 ST, +2 DX, +2 HT."
+    with pytest.raises(ValueError, match="God of Combat no longer reads"):
+        ebl.verify(byn, payload, [], [], _knowledge_skills())
