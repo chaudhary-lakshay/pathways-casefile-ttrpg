@@ -485,4 +485,74 @@ class EditedCharacterTest {
         assertNull(Wealth.levelOf(edited.traits))
         assertTrue(edited.traits.none { it.name.startsWith(Wealth.TRAIT_PREFIX) })
     }
+
+    /**
+     * A trait whose price the book leaves to the instance reaches the composed
+     * character with its name built from the stored parts.
+     */
+    @Test
+    fun `an instanced purchase reaches the composed character`() {
+        val edited = SavedEdits(
+            instanced = listOf(
+                SavedInstancedTrait("Phobia (specify)", instance = "Cities", cost = 10),
+            ),
+        ).applyTo(mortal)
+        assertTrue(edited.traits.any { it.name == "Phobia (Cities)" })
+    }
+
+    /**
+     * **Two purchases of one row are legal**, because a published sheet holds
+     * two -- Monastery Scholar carries "Vow (Partial Silence)" and "Vow
+     * (Vegetarian)". What a repeat means is the same row, variant AND
+     * instance.
+     */
+    @Test
+    fun `two instances of one row both survive composition`() {
+        val edited = SavedEdits(
+            instanced = listOf(
+                SavedInstancedTrait("Vow (specify)", instance = "Silence", cost = 5),
+                SavedInstancedTrait("Vow (specify)", instance = "Vegetarian", cost = 5),
+                SavedInstancedTrait("Vow (specify)", instance = "Silence", cost = 5),
+            ),
+        ).applyTo(mortal)
+        assertEquals(
+            listOf("Vow (Silence)", "Vow (Vegetarian)"),
+            edited.traits.filter { it.name.startsWith("Vow") }.map { it.name },
+        )
+    }
+
+    /**
+     * **A save cannot widen what the book allows.** The cost is stored because
+     * it is the player's choice inside a printed interval, so it is the one
+     * saved number that could contradict the catalogue -- and it is
+     * re-validated on every load rather than trusted. Skipped, not deleted:
+     * the row may be printed differently after a content fix (6as).
+     */
+    /**
+     * **The severity rule sits below the UI**, so a hand-edited save cannot
+     * get round it -- the same call the wealth exclusion needed one slice ago.
+     * A row whose cell enumerates variants admits one, because Mild and Severe
+     * are two readings of one condition (Codex).
+     */
+    @Test
+    fun `a saved variant cannot stand beside one the sheet already prints`() {
+        val shy = mortal.copy(
+            traits = mortal.traits + Trait("Shyness (Mild)", 5, TraitKind.DISADVANTAGE),
+        )
+        val edited = SavedEdits(
+            instanced = listOf(SavedInstancedTrait("Shyness", variant = "Severe", cost = 10)),
+        ).applyTo(shy)
+        assertEquals(
+            listOf("Shyness (Mild)"),
+            edited.traits.filter { it.name.startsWith("Shyness") }.map { it.name },
+        )
+    }
+
+    @Test
+    fun `a hand-edited cost outside the printed range is not applied`() {
+        val edited = SavedEdits(
+            instanced = listOf(SavedInstancedTrait("Secret", instance = "A body", cost = 999)),
+        ).applyTo(mortal)
+        assertTrue(edited.traits.none { it.name == "Secret" })
+    }
 }

@@ -269,6 +269,48 @@ class BeyonderSessionTest {
         assertEquals(60, s.hpLost, "-50 HP is dead, and the tracker must be able to say so")
     }
 
+    /**
+     * **Given back by INDEX, never by name.** Two purchases of one row are
+     * legal, and a bare ranged row composes to the book's own name for both,
+     * so "Sense of Duty" can name two rows on screen and could not say which
+     * to remove. An exact repeat is refused on the way in, the same way a
+     * double tap on any list is.
+     */
+    @Test
+    fun `an instanced purchase is given back by position`() {
+        val (s, saved) = session()
+        val patients = SavedInstancedTrait("Sense of Duty", instance = "Patients", cost = 10)
+        val coworkers = SavedInstancedTrait("Sense of Duty", instance = "Coworkers", cost = 5)
+        s.buyInstancedTrait(patients)
+        s.buyInstancedTrait(coworkers)
+        s.buyInstancedTrait(patients)
+        assertEquals(listOf(patients, coworkers), saved().edits.instanced)
+
+        s.sellInstancedTrait(0)
+        assertEquals(listOf(coworkers), saved().edits.instanced)
+        s.sellInstancedTrait(7)
+        assertEquals(
+            listOf(coworkers),
+            saved().edits.instanced,
+            "an index off the end changes nothing",
+        )
+    }
+
+    /**
+     * **The same trait at two prices is still the same trait.** Composition
+     * keys a purchase on row, variant and instance and NOT on cost, so saving
+     * both would bill the first while the builder listed two -- and giving the
+     * first back would silently change what the survivor costs (Codex).
+     */
+    @Test
+    fun `the same purchase at a different price is refused`() {
+        val (s, saved) = session()
+        s.buyInstancedTrait(SavedInstancedTrait("Secret", instance = "A body", cost = 10))
+        s.buyInstancedTrait(SavedInstancedTrait("Secret", instance = "A body", cost = 30))
+        assertEquals(1, saved().edits.instanced.size)
+        assertEquals(10, saved().edits.instanced.single().cost, "the first price stands")
+    }
+
     @Test
     fun `every mutation is written back`() {
         val (s, saved) = session()

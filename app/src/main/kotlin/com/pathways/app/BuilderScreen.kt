@@ -29,6 +29,7 @@ import com.pathways.model.BASE_ATTRIBUTE
 import com.pathways.model.MAX_ATTRIBUTE
 import com.pathways.rules.AttributeCosts
 import com.pathways.rules.Derive
+import com.pathways.rules.InstantiableTrait
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.PurchasableTraits
 import com.pathways.rules.SkillLadder
@@ -69,6 +70,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     var picking by remember { mutableStateOf(false) }
     var pickingLooks by remember { mutableStateOf(false) }
     var pickingTrait by remember { mutableStateOf(false) }
+    var settling by remember { mutableStateOf<InstantiableTrait?>(null) }
     // Which road the study lines are priced for. The book prints two
     // and they differ by more than money -- Very Hard self-study is
     // "Not possible" at any price.
@@ -131,8 +133,15 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
             item {
                 TraitsRow(
                     bought = session.edits.traits,
+                    // Resolved against the same list the composition asks the
+                    // severity rule about, so a row the character does not
+                    // have cannot be listed here with a price.
+                    instanced = session.edits.instancedRows(
+                        session.edits.traitsBeforeInstanced(start.traits),
+                    ),
                     onAdd = { pickingTrait = true },
                     onRemove = { session.sellTrait(it) },
+                    onRemoveInstanced = { session.sellInstancedTrait(it) },
                 )
                 HorizontalDivider()
             }
@@ -218,7 +227,29 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
             held = character.traits,
             bought = session.edits.traits,
             onBuy = { session.buyTrait(it.name); pickingTrait = false },
+            // The picker closes behind the settle dialog rather than stacking
+            // two: a row priced by its instance is one choice made in two
+            // steps, not two choices.
+            onSettle = { settling = it; pickingTrait = false },
             onDismiss = { pickingTrait = false },
+        )
+    }
+
+    settling?.let { row ->
+        InstancedTraitDialog(
+            row = row,
+            onBuy = { purchase ->
+                session.buyInstancedTrait(
+                    SavedInstancedTrait(
+                        purchase.row,
+                        purchase.variant,
+                        purchase.instance,
+                        purchase.cost,
+                    ),
+                )
+                settling = null
+            },
+            onDismiss = { settling = null },
         )
     }
 

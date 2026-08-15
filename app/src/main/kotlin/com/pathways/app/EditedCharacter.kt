@@ -7,6 +7,7 @@ import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.rules.Appearance
 import com.pathways.rules.PremadeSheet
+import com.pathways.rules.InstancedPurchase
 import com.pathways.rules.PurchasableTraits
 import com.pathways.rules.SkillLadder
 import com.pathways.rules.Wealth
@@ -49,6 +50,55 @@ fun SavedEdits.applyTo(base: Character): Character {
  * a level left unchosen leaves whatever the sheet printed alone.
  */
 private fun SavedEdits.chosenTraits(printed: List<Trait>): List<Trait> {
+    val withBought = traitsBeforeInstanced(printed)
+    return withBought + instancedTraits(withBought)
+}
+
+/**
+ * The traits bought at a price the book leaves to the instance.
+ *
+ * Every decision -- whether the book licenses the purchase, what the composed
+ * name is, and which purchases repeat -- belongs to
+ * [PurchasableTraits.instancedTraits], in one call rather than a predicate
+ * this file loops over. A screen and the composition disagreeing about which
+ * purchases count is the two-copies-of-one-decision failure this project
+ * records six times.
+ *
+ * [held] is passed so the severity rule can be enforced against what the
+ * character already has: a row whose cell enumerates variants admits ONE, so a
+ * sheet printing "Shyness (Mild)" must not gain a hand-edited "Severe" beside
+ * it. Every other row may repeat -- Monastery Scholar carries two Vows -- and
+ * there what a repeat means is the same instance, which that call refuses
+ * among the purchases themselves.
+ */
+private fun SavedEdits.instancedTraits(held: List<Trait>): List<Trait> =
+    instancedRows(held).mapNotNull { it.second }
+
+/**
+ * Each saved instanced purchase beside the trait it became, or null where the
+ * book does not license it.
+ *
+ * The builder lists these, and it lists them through the SAME call the
+ * composition uses: resolving a saved row separately for display let the
+ * screen price a purchase the character does not have.
+ */
+internal fun SavedEdits.instancedRows(
+    held: List<Trait>,
+): List<Pair<SavedInstancedTrait, Trait?>> {
+    val resolved = PurchasableTraits.resolved(
+        instanced.map { InstancedPurchase(it.row, it.variant, it.instance, it.cost) },
+        held,
+    )
+    return instanced.zip(resolved.map { it.second })
+}
+
+/**
+ * The traits a character has before any instanced purchase is considered:
+ * what the sheet printed, with the chosen levels swapped in and the
+ * fixed-price purchases added. Extracted so the composition and the builder
+ * ask the severity rule about the same list.
+ */
+internal fun SavedEdits.traitsBeforeInstanced(printed: List<Trait>): List<Trait> {
     val withWealth = wealthLevel()?.let { Wealth.applied(printed, it) } ?: printed
     val withLooks = appearanceLevel()?.let { Appearance.applied(withWealth, it) } ?: withWealth
     return withLooks + boughtTraits(withLooks)

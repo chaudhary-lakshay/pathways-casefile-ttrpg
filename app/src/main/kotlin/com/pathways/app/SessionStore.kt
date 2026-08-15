@@ -2,6 +2,7 @@ package com.pathways.app
 
 import android.util.Log
 import com.pathways.model.BeyonderState
+import com.pathways.rules.InstancedPurchase
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -77,10 +78,58 @@ data class SavedEdits(
      * so are dropped on load.
      */
     val traits: List<String> = emptyList(),
+    /**
+     * Traits bought at a price the book leaves to the instance (Ch. 3).
+     *
+     * A separate list rather than a widening of [traits], and that is a
+     * compatibility decision rather than a style one: [traits] is a
+     * `List<String>` in every save already written, and turning it into a list
+     * of objects makes those saves fail to decode -- at which point
+     * [SessionStore.load] discards the WHOLE file and every character loses
+     * their walk. Additive and defaulted is the only shape that leaves an old
+     * save readable.
+     */
+    val instanced: List<SavedInstancedTrait> = emptyList(),
 ) {
     val isEmpty: Boolean
         get() = st == null && dx == null && iq == null && ht == null &&
-            skills.isEmpty() && wealth == null && appearance == null && traits.isEmpty()
+            skills.isEmpty() && wealth == null && appearance == null &&
+            traits.isEmpty() && instanced.isEmpty()
+}
+
+/**
+ * A trait whose price the book leaves to the instance, as written to disk.
+ *
+ * The PARTS are stored and the displayed name is composed on the way back in
+ * -- "Shyness (Mild)" is a spelling the published sheets use where the book
+ * prints only "Shyness", so persisting it would make an app-authored string
+ * into canonical data (Codex, on the design). [cost] is stored because it is
+ * the player's choice inside the book's printed interval and cannot be derived
+ * from the name; it is re-validated against that interval on every load, so a
+ * hand-edited save cannot widen what the book allows.
+ *
+ * [variant] and [instance] are exclusive: a row whose cell enumerates priced
+ * options is settled by naming one, and every other row by describing the
+ * instance.
+ */
+@Serializable
+data class SavedInstancedTrait(
+    val row: String,
+    val variant: String? = null,
+    val instance: String? = null,
+    val cost: Int,
+) {
+    /**
+     * What makes two saved purchases the same purchase, deferred to the rules
+     * layer so this file cannot hold a second opinion about it.
+     *
+     * The COST is deliberately not part of it. Two entries differing only in
+     * price are one trait bought twice, and composition would bill the first
+     * while the builder listed both -- a screen disagreeing with the character
+     * it describes.
+     */
+    val key: String
+        get() = InstancedPurchase(row, variant, instance, cost).key
 }
 
 /**

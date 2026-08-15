@@ -103,6 +103,23 @@ class SessionStoreTest {
         assertEquals(listOf("Zzz Not A Skill"), edits.skills.map { it.name })
     }
 
+    /**
+     * **The whole reason instanced purchases are a SEPARATE list.** Every save
+     * already written has `traits` as a list of strings; turning it into a
+     * list of objects would fail to decode, and [SessionStore.load] discards
+     * the WHOLE file on a decode failure -- so one schema change would cost
+     * every character their walk, not just their traits.
+     */
+    @Test
+    fun `a save written before instanced traits existed still loads`() {
+        val file = File(dir, "sessions.json")
+        file.writeText("""{"Beat Cop":{"cor":3,"edits":{"traits":["Fit"],"skills":[]}}}""")
+        val loaded = SessionStore(file).load().getValue("Beat Cop")
+        assertEquals(3, loaded.cor)
+        assertEquals(listOf("Fit"), loaded.edits.traits)
+        assertEquals(emptyList<SavedInstancedTrait>(), loaded.edits.instanced)
+    }
+
     @Test
     fun `a field this build does not know about is ignored`() {
         val file = File(dir, "sessions.json")

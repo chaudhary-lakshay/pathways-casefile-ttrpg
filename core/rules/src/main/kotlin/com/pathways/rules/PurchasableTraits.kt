@@ -68,15 +68,21 @@ data class InstancedPurchase(
     /**
      * What makes two purchases the same purchase.
      *
-     * **Not the row.** Monastery Scholar carries "Vow (Partial Silence)" AND
-     * "Vow (Vegetarian)", so the book's own cast holds one instantiable row
-     * twice and a row-keyed refusal would forbid a published character. The
-     * variant is in the key as well as the instance, because a variant changes
-     * both the cost and the meaning (Codex, on the design).
+     * **Not the row alone.** Monastery Scholar carries "Vow (Partial Silence)"
+     * AND "Vow (Vegetarian)", so the book's own cast holds one instantiable
+     * row twice and a row-keyed refusal would forbid a published character.
+     *
+     * **And not the variant either**, which is the half a review caught. A
+     * variant is a SEVERITY of one condition -- Shyness is Mild or Severe, and
+     * a character cannot be both -- where an instance is a different thing
+     * entirely, a second vow or a second secret. Since the two are exclusive
+     * by construction ([PurchasableTraits.instanced] refuses a purchase
+     * carrying both), leaving the variant out gives each shape the rule it
+     * needs: an enumerating row keys on itself and admits one, and every other
+     * row keys on what the instance is.
      */
     val key: String
-        get() = listOf(row, variant, instance)
-            .joinToString("/") { it?.trim()?.lowercase().orEmpty() }
+        get() = "${row.trim().lowercase()}/${instance?.trim()?.lowercase().orEmpty()}"
 }
 
 /**
@@ -212,6 +218,24 @@ object PurchasableTraits {
         instantiable().firstOrNull { it.name.equals(name, ignoreCase = true) }
 
     /**
+     * Whether [row] may be instantiated by a character already holding [held].
+     *
+     * **A row that enumerates variants admits one**, because those are
+     * SEVERITIES of one condition: Shyness is Mild or Severe and a character
+     * cannot be both, so a premade already printing "Shyness (Mild)" must not
+     * be sold "Shyness (Severe)" beside it (Codex). Every other row may repeat
+     * -- a second vow is a second vow -- and what repeats there is the
+     * instance, which [InstancedPurchase.key] is what refuses.
+     *
+     * Matched through [TraitEffects.catalogueName], so the sheet's own
+     * spelling counts as holding it.
+     */
+    fun canInstantiate(row: InstantiableTrait, held: List<Trait>): Boolean {
+        if (row.variants.isEmpty()) return true
+        return held.none { TraitEffects.catalogueName(it.name).equals(row.name, ignoreCase = true) }
+    }
+
+    /**
      * [purchase] as the budget and the trait engine see it, or null if the
      * book does not license it.
      *
@@ -279,16 +303,44 @@ object PurchasableTraits {
      * An unlicensed purchase is DROPPED and not deleted, exactly as a saved
      * skill the book no longer prints is (6as): the row may come back.
      */
-    fun instancedTraits(purchases: List<InstancedPurchase>): List<Trait> {
+    fun instancedTraits(
+        purchases: List<InstancedPurchase>,
+        held: List<Trait> = emptyList(),
+    ): List<Trait> = resolved(purchases, held).mapNotNull { it.second }
+
+    /**
+     * Each purchase beside what it became, or null where the book does not
+     * license it.
+     *
+     * **One call answers "what does this character have" and "what does the
+     * builder show".** Resolving a saved row separately for display let the
+     * screen price a purchase the composition had dropped -- a builder listing
+     * a trait and a cost the character and the budget do not include, which is
+     * the screen-disagrees-with-itself failure this project records six times
+     * over (Codex).
+     */
+    fun resolved(
+        purchases: List<InstancedPurchase>,
+        held: List<Trait> = emptyList(),
+    ): List<Pair<InstancedPurchase, Trait?>> {
         val seen = mutableSetOf<String>()
-        return purchases.mapNotNull { purchase ->
+        return purchases.map { purchase ->
+            // The severity rule is enforced HERE and not only in the picker,
+            // because a save can be hand-edited: a sheet already printing
+            // "Shyness (Mild)" must not gain a saved "Severe" beside it. Same
+            // call the wealth exclusion needed one slice ago -- below the UI,
+            // where nothing can get round it (Codex).
+            val row = instantiableNamed(purchase.row)
             // Validated BEFORE the key is claimed: an entry the book does not
             // license must not consume the slot, or a stale out-of-range save
             // row would suppress the corrected purchase that follows it and
             // the character would silently lose a trait they had paid for
             // (Codex).
-            val trait = instanced(purchase) ?: return@mapNotNull null
-            if (seen.add(purchase.key)) trait else null
+            val trait = when {
+                row == null || !canInstantiate(row, held) -> null
+                else -> instanced(purchase)
+            }
+            purchase to trait?.takeIf { seen.add(purchase.key) }
         }
     }
 

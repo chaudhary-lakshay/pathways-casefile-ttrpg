@@ -18,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Trait
+import com.pathways.rules.InstancedPurchase
+import com.pathways.rules.InstantiableTrait
 import com.pathways.rules.PurchasableTrait
 import com.pathways.rules.PurchasableTraits
 
@@ -31,8 +33,10 @@ import com.pathways.rules.PurchasableTraits
 @Composable
 internal fun TraitsRow(
     bought: List<String>,
+    instanced: List<Pair<SavedInstancedTrait, Trait?>>,
     onAdd: () -> Unit,
     onRemove: (String) -> Unit,
+    onRemoveInstanced: (Int) -> Unit,
 ) {
     Column {
         Row(
@@ -46,12 +50,44 @@ internal fun TraitsRow(
             )
             TextButton(onClick = onAdd) { Text("Add a trait") }
         }
-        if (bought.isEmpty()) {
+        if (bought.isEmpty() && instanced.isEmpty()) {
             Text(
                 "None bought in play — the sheet's own are on the sheet screen.",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
+        }
+        // Removed by INDEX, never by name: two purchases of one row are legal
+        // and a bare ranged row composes to the book's own name for both, so
+        // "Sense of Duty" can name two rows here and could not say which.
+        instanced.forEachIndexed { index, (purchase, trait) ->
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        // The instance is display, not identity: a bare ranged
+                        // row keeps the book's own name and shows what it is
+                        // beside it, because "Sense of Duty (Patients)"
+                        // resolves to no printed row.
+                        listOfNotNull(
+                            trait?.name ?: purchase.row,
+                            purchase.instance?.takeIf { trait?.name == purchase.row },
+                        ).joinToString(" — "),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Text(
+                        trait?.let {
+                            val row = PurchasableTraits.instantiableNamed(purchase.row)
+                            (if (row?.advantage == true) it.cost else -it.cost).pointsLabel()
+                        } ?: "Not applied — the book does not license this purchase, " +
+                            "so it costs nothing.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                TextButton(onClick = { onRemoveInstanced(index) }) { Text("Give back") }
+            }
         }
         bought.forEach { name ->
             val row = PurchasableTraits.named(name)
@@ -93,9 +129,11 @@ internal fun TraitPicker(
     held: List<Trait>,
     bought: List<String>,
     onBuy: (PurchasableTrait) -> Unit,
+    onSettle: (InstantiableTrait) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val offered = remember { PurchasableTraits.offered() }
+    val instantiable = remember { PurchasableTraits.instantiable() }
     val withheld = remember { PurchasableTraits.unoffered() }
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -145,6 +183,57 @@ internal fun TraitPicker(
                         }
                         HorizontalDivider()
                     }
+                }
+                item {
+                    Text(
+                        "Priced by the instance",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    Text(
+                        "The book prints a range, or asks you to name the instance. " +
+                            "Say which, and the price follows.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    HorizontalDivider()
+                }
+                items(instantiable) { row ->
+                    // Most of these may be taken more than once -- one premade
+                    // carries two Vows -- so what repeats is a purchase and
+                    // not a row. A row that enumerates variants is the
+                    // exception: those are severities of one condition, and a
+                    // character is Mild or Severe, never both.
+                    val already = !PurchasableTraits.canInstantiate(row, held)
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable(enabled = !already) { onSettle(row) }
+                            .padding(vertical = 8.dp),
+                    ) {
+                        Text(
+                            row.name + if (already) " — already held" else "",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (already) {
+                                MaterialTheme.colorScheme.outline
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            },
+                        )
+                        Text(
+                            if (row.variants.isNotEmpty()) {
+                                row.variants.joinToString(" / ") { (name, points) ->
+                                    "$name ${if (row.advantage) points else -points}"
+                                }
+                            } else {
+                                val low = if (row.advantage) row.costMin else -row.costMax
+                                val high = if (row.advantage) row.costMax else -row.costMin
+                                "$low to $high pts"
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Text(row.notes, style = MaterialTheme.typography.bodySmall)
+                    }
+                    HorizontalDivider()
                 }
                 items(withheld) { group ->
                     Text(

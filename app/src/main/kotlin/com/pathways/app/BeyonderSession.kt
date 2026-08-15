@@ -141,6 +141,43 @@ class BeyonderSession(
     }
 
     /**
+     * Buy a trait whose price the book leaves to the instance.
+     *
+     * Nothing here judges the purchase: [com.pathways.rules.PurchasableTraits]
+     * refuses what the book does not license when the character is composed,
+     * so a save may hold an entry that bills nothing rather than this method
+     * carrying a second copy of that rule. What IS refused here is an exact
+     * repeat, the same way [buyTrait] refuses one -- a double tap on a list is
+     * not a rules question.
+     */
+    fun buyInstancedTrait(purchase: SavedInstancedTrait) {
+        // Keyed exactly as the composition keys it, and the COST is not part
+        // of that key. Refusing only an identical row would let the same
+        // trait be saved twice at two prices: composition bills the first and
+        // the builder lists both, so giving back the first would silently
+        // change what the second costs (Codex). One identity, one decision.
+        if (edits.instanced.any { it.key == purchase.key }) return
+        edits = edits.copy(instanced = edits.instanced + purchase)
+        persist()
+    }
+
+    /**
+     * Give one back, by position.
+     *
+     * By INDEX rather than by name, because two purchases of one row are legal
+     * -- Monastery Scholar carries two Vows -- and a bare ranged row composes
+     * to the book's own name for both, so "Sense of Duty" can name two rows on
+     * screen and could not say which to remove.
+     */
+    fun sellInstancedTrait(index: Int) {
+        if (index !in edits.instanced.indices) return
+        edits = edits.copy(
+            instanced = edits.instanced.filterIndexed { at, _ -> at != index },
+        )
+        persist()
+    }
+
+    /**
      * Buy [name] at one point, the cheapest a skill can be owned at.
      *
      * A skill already bought is left exactly as it is rather than reset: a

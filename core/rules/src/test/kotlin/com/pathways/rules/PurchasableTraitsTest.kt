@@ -293,6 +293,34 @@ class PurchasableTraitsTest {
      * the de-dupe and bill twice -- one identity for the engine, another for
      * the key, which is the divergence this shape exists to avoid (Codex).
      */
+    /**
+     * **A variant is a severity, not a second thing.** Shyness is Mild or
+     * Severe and a character cannot be both, so an enumerating row admits ONE
+     * -- including against a spelling the sheet already prints. Every other
+     * row may repeat, because a second vow really is a second vow (Codex).
+     */
+    @Test
+    fun `an enumerating row admits one, and every other row may repeat`() {
+        val shyness = PurchasableTraits.instantiableNamed("Shyness")!!
+        val vow = PurchasableTraits.instantiableNamed("Vow (specify)")!!
+        val mild = listOf(Trait("Shyness (Mild)", 5, TraitKind.DISADVANTAGE))
+        assertTrue(PurchasableTraits.canInstantiate(shyness, emptyList()))
+        assertFalse(PurchasableTraits.canInstantiate(shyness, mild), "Mild and Severe at once")
+        assertTrue(
+            PurchasableTraits.canInstantiate(vow, listOf(Trait("Vow (Poverty)", 10, TraitKind.DISADVANTAGE))),
+            "a second vow is a second vow",
+        )
+        // ...and two severities saved at once collapse to one, because the
+        // variant is deliberately not part of what identifies a purchase.
+        val both = PurchasableTraits.instancedTraits(
+            listOf(
+                InstancedPurchase("Shyness", variant = "Mild", cost = 5),
+                InstancedPurchase("Shyness", variant = "Severe", cost = 10),
+            ),
+        )
+        assertEquals(listOf("Shyness (Mild)"), both.map { it.name })
+    }
+
     @Test
     fun `a variant purchase carrying prose is refused rather than trimmed`() {
         assertNull(
