@@ -535,8 +535,67 @@ object TraitEffects {
         if (printed.substringAfterLast(' ').toIntOrNull() != null) {
             return printed.substringBeforeLast(' ')
         }
-        return placeholderRow(printed) ?: variantRow(printed) ?: gluedHead(printed) ?: printed
+        return placeholderRow(printed) ?: variantRow(printed) ?: gluedHead(printed)
+            ?: quotedInstanceRow(printed) ?: printed
     }
+
+    /**
+     * The row a bracket instantiates where a SHEET has proved it does, or null.
+     *
+     * **One row is in this set and the evidence is a quotation.** Church Healer
+     * prints `"Sense of Duty (Flock) - "` followed by that row's own effect
+     * cell VERBATIM -- the only spelling in the corpus that quotes exactly
+     * behind an instantiated head -- which is the sheet asserting that
+     * `Sense of Duty (X)` IS the bare `Sense of Duty` the book prints. That is
+     * the standard 6br set for glued names, and [gluedHead] cannot reach it
+     * because the head is not itself a row.
+     *
+     * **The five bare instances follow from that one, and no further.** The
+     * row's notes say "certain groups", and Patients, Friends, Public,
+     * Coworkers and Workers are each a group -- so they are the same pattern
+     * applied, not five independent guesses.
+     *
+     * **The obvious generalisation is REFUSED, and the reason is worth the
+     * space.** It is tempting to say that any row printing a cost interval and
+     * enumerating no variants is instantiated by a bracket: that resolves
+     * `Secret (Courier network)` too, and it excludes Shyness, Social Stigma
+     * and Reputation -- exactly the three objections 6by raised. But excluding
+     * the counter-examples is not the same as producing evidence, and the
+     * corroboration on offer is the wrong kind: **every instance paying inside
+     * its printed interval is evidence about PRICING, never about catalogue
+     * IDENTITY** (Codex, on the design). With the filters removed it is the
+     * plausible match 4.1 calls repair. So `Secret` stays unmatched, because
+     * no sheet quotes its cell, and the day one does this set grows by a name.
+     */
+    private fun quotedInstanceRow(printed: String): String? {
+        // The glued spelling carries the quotation AND the bracket, so the
+        // tail comes off first; the bare five carry the bracket alone.
+        val named = printed.substringBefore(SHEET_SEPARATOR)
+        if (!named.endsWith(")")) return null
+        val open = named.lastIndexOf(" (")
+        if (open <= 0 || named.substring(open + 2, named.length - 1).isBlank()) return null
+        val head = named.substring(0, open)
+        val row = QUOTED_INSTANCE_ROWS.firstOrNull { it.equals(head, ignoreCase = true) }
+            ?: return null
+        // **A tail that is present must still be the row's own words.**
+        // Dropping it unconditionally would resolve the bracket on a sheet
+        // whose quotation was a typo, a partial quote or a different note --
+        // silently repairing a disagreement 4.1 says to record, and letting
+        // the glued path round 6br's exact-tail rule (Codex).
+        if (printed == named) return row
+        val tail = printed.substringAfter(SHEET_SEPARATOR)
+        val notes = catalogue()[row.lowercase()]?.notes ?: return null
+        return row.takeIf { quoted(tail) == quoted(notes) }
+    }
+
+    /**
+     * Rows a published sheet has proved are instantiated by a bracket.
+     *
+     * Named rather than derived, because the evidence lives in the FIXTURES
+     * and production cannot read them. A test pins the quotation that puts
+     * each name here, so the warrant fails loudly rather than the set drifting.
+     */
+    private val QUOTED_INSTANCE_ROWS = listOf("Sense of Duty")
 
     /**
      * A priced option a cell enumerates for itself, as (name, points).
@@ -733,7 +792,16 @@ object TraitEffects {
      * never stripped either: "Alertness 2" is what the sheet says and what the
      * GM needs to see.
      */
-    fun displayName(printed: String): String = gluedHead(printed) ?: printed
+    fun displayName(printed: String): String = gluedHead(printed)
+        // A quoted instantiation is glued too, and its head is not a row --
+        // so without this the sheet would print the whole effect cell as the
+        // trait's NAME and then repeat it as the note underneath. That is
+        // 6br's device-only defect, one resolver over (Codex).
+        // `substringBefore` returns the whole string when there is no
+        // separator, so the bare bracket instances pass through untouched and
+        // need no guard of their own.
+        ?: printed.takeIf { quotedInstanceRow(it) != null }?.substringBefore(SHEET_SEPARATOR)
+        ?: printed
 
     /** How a published sheet separates a trait's name from its effect cell. */
     private const val SHEET_SEPARATOR = " - "

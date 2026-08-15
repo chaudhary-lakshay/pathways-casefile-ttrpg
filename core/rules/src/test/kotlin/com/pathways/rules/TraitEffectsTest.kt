@@ -327,17 +327,22 @@ class TraitEffectsTest {
     }
 
     /**
-     * A tail that is NOT the catalogue's own words stays unmatched, so the
-     * fixtures' other glued names are still recorded rather than guessed at:
-     * "Sense of Duty (Flock)" is a `(specify)` instantiation and "Blacklisted:
-     * Specific Industry org or church" is a spelling this book never prints.
+     * A tail that is NOT the catalogue's own words stays unmatched, so
+     * "Blacklisted: Specific Industry org or church" -- a spelling this book
+     * never prints, whose qualifier paraphrases the row rather than quoting
+     * it -- is still recorded rather than guessed at. The truncated Sense of
+     * Duty below is the near-miss: its tail stops short of the row's own
+     * words, and only the COMPLETE quotation licenses that bracket.
      */
     @Test
     fun `a tail that is not the book's own words is left unmatched`() {
         for (name in listOf(
             "Healer - something the book never says",
-            "Sense of Duty (Flock) - Must help/protect certain groups",
             "Blacklisted: Specific Industry org or church",
+            // The near-miss: a bracket this app DOES read, behind a tail that
+            // stops short of the row's own words. Only the complete quotation
+            // licenses it, so a partial one is a disagreement to record.
+            "Sense of Duty (Flock) - Must help/protect certain groups",
         )) {
             assertEquals(name, TraitEffects.catalogueName(name), name)
         }
@@ -1139,12 +1144,16 @@ class TraitEffectsTest {
 
     /**
      * **A name the book never prints stays unmatched, glue or no glue.**
-     * Church Healer's "Sense of Duty (Flock) - Must help/protect ..." is a
-     * `(specify)` instantiation and University Librarian's "Blacklisted:
-     * Specific Industry org or church" is another, so the tail does not
-     * reproduce any catalogue cell and the resolution must refuse both. 4.1:
-     * the disagreement is recorded, never guessed away -- and the sheet keeps
-     * every character it printed so the record stays visible.
+     * University Librarian's "Blacklisted: Specific Industry org or church"
+     * paraphrases the row rather than quoting it, so the tail reproduces no
+     * catalogue cell and the resolution must refuse it. 4.1: the disagreement
+     * is recorded, never guessed away -- and the sheet keeps every character
+     * it printed so the record stays visible.
+     *
+     * Church Healer's "Sense of Duty (Flock) - ..." used to be listed here
+     * beside it. It is NOT the same case and never was: its tail is the row's
+     * own words verbatim, and what refused it was the head. That quotation is
+     * now the warrant for the bracket, so it resolves.
      */
     @Test
     fun `an instantiated name the book never prints stays unmatched`() {
@@ -1156,10 +1165,7 @@ class TraitEffectsTest {
             .filter { it.length >= 40 }
         val unmatched = glued.filter { TraitEffects.catalogueName(it) !in printed }
         assertEquals(
-            listOf(
-                "Sense of Duty (Flock) - Must help/protect certain groups even at personal risk",
-                "Blacklisted: Specific Industry org or church",
-            ),
+            listOf("Blacklisted: Specific Industry org or church"),
             unmatched,
             "the set of unmatched sheet spellings changed",
         )
@@ -1245,17 +1251,6 @@ class TraitEffectsTest {
             "notes rather than quoting them, which is what 6br's exact-tail rule " +
             "refuses",
 
-        // --- an instantiation that QUOTES, on a head that is not a row -----
-        // Filed above with the paraphrase in 6by; it is not one. Its tail
-        // reproduces the catalogue's notes exactly -- the only row in the
-        // corpus that quotes verbatim behind an instantiated head -- so what
-        // refuses it is the HEAD, never the quality of the quotation. The
-        // distinction is the whole warrant for the gap below.
-        "Sense of Duty (Flock) - Must help/protect certain groups even at personal risk" to
-            "the tail IS the catalogue's own words, but the head " +
-            "\"Sense of Duty (Flock)\" is not a printed name, so the glue rule " +
-            "cannot complete -- see the gap below, which is what would unblock it",
-
         // --- resolved elsewhere, by design --------------------------------
         "Poverty: Struggling" to
             "resolved by [Wealth], not here: that resolution reads the trait's " +
@@ -1265,11 +1260,6 @@ class TraitEffectsTest {
         // --- a GAP: the data marks an instantiation and this app cannot see it
         "Secret (Courier network)" to SEE_RANGED_TEMPLATE_GAP,
         "Secret (Racist Sympathizer)" to SEE_RANGED_TEMPLATE_GAP,
-        "Sense of Duty (Coworkers)" to SEE_RANGED_TEMPLATE_GAP,
-        "Sense of Duty (Friends)" to SEE_RANGED_TEMPLATE_GAP,
-        "Sense of Duty (Patients)" to SEE_RANGED_TEMPLATE_GAP,
-        "Sense of Duty (Public)" to SEE_RANGED_TEMPLATE_GAP,
-        "Sense of Duty (Workers)" to SEE_RANGED_TEMPLATE_GAP,
     )
 
     /**
@@ -1288,14 +1278,18 @@ class TraitEffectsTest {
      * never needed. "Reputation" is variable-cost too, and 6bx's review used
      * "Reputation: Wealthy" as its over-match example.
      *
-     * What real evidence exists is narrower and belongs to one row: Church
-     * Healer prints "Sense of Duty (Flock) - " followed by that row's own
-     * notes VERBATIM, which is the sheet asserting the instantiated name IS
-     * that row -- the standard 6br set for the glued spellings. A slice built
-     * on that, rather than on the range, would resolve the five Sense of Duty
-     * instances and leave Secret alone, because no sheet quotes Secret's cell.
-     * Recorded here so the next reader inherits the evidence rather than the
-     * conclusion.
+     * **The narrower warrant was taken instead, and it closed half of this.**
+     * Church Healer prints "Sense of Duty (Flock) - " followed by that row's
+     * own notes VERBATIM -- the sheet asserting the instantiated name IS that
+     * row -- so those six spellings resolve now and are gone from the map
+     * above. `Secret` stays, because no sheet quotes its cell.
+     *
+     * That asymmetry is the whole point, and it is what a design review
+     * insisted on: **a cost inside the printed interval corroborates PRICING,
+     * never catalogue IDENTITY.** Secret prints an interval and enumerates
+     * nothing, exactly as Sense of Duty does, so any rule keyed on that shape
+     * resolves both -- and excluding the counter-examples (Shyness, Social
+     * Stigma, Reputation) is not the same as producing evidence for these.
      *
      * **A census of the fixtures, for whoever builds it** (facts, not
      * recollection -- and the thing 6by did not have):
@@ -1358,9 +1352,9 @@ class TraitEffectsTest {
 
     private companion object {
         const val SEE_RANGED_TEMPLATE_GAP =
-            "the book marks this row instantiable by printing a cost RANGE the " +
-                "instance settles, and this app reads only an explicit " +
-                "\"(specify)\" -- a gap, not a refusal"
+            "the book prints a cost RANGE an instance settles, and no sheet " +
+                "quotes this row's cell -- so nothing proves the bracket names " +
+                "THIS row rather than resembling it"
     }
 
     // ---- the placeholder the book tells the sheet to fill ------------------
@@ -1438,8 +1432,7 @@ class TraitEffectsTest {
         )
         for (name in listOf(
             "Paranoia: Bodies of water",     // the row is a bare "Paranoia"
-            "Secret (Courier network)",
-            "Sense of Duty (Patients)",
+            "Secret (Courier network)",       // no sheet quotes its cell
             "Blacklisted: Specific Industry org or church",
             "Absent-Minded",                 // "Absent-Mindedness" in the book
             "Pacifism (Cannot Kill)",        // no such row at all
@@ -1508,6 +1501,75 @@ class TraitEffectsTest {
                 ContentLoader.disadvantages().single { it.name == "Stubborn" }.notes,
             ).isEmpty(),
         )
+    }
+
+    /**
+     * **The quotation that licenses one row's bracket, checked in the fixtures
+     * rather than recalled.**
+     *
+     * Church Healer prints "Sense of Duty (Flock) - " followed by that row's
+     * own notes VERBATIM. That is the sheet asserting the instantiated name IS
+     * the bare row, and it is the whole warrant for resolving the five other
+     * "Sense of Duty (group)" spellings -- so if the sheet is ever re-extracted
+     * without it, this fails and the reading has to be made again rather than
+     * inherited (6ba).
+     */
+    @Test
+    fun `one sheet quotes the row its bracket instantiates, and that is the warrant`() {
+        val row = ContentLoader.disadvantages().single { it.name == "Sense of Duty" }
+        val glued = Premades.all()
+            .flatMap { it.disadvantages }
+            .map { it.name }
+            .single { it.startsWith("Sense of Duty (") && it.contains(" - ") }
+        val tail = glued.substringAfter(" - ")
+        assertEquals(
+            row.notes.replace(Regex("\\s+"), " ").trim(),
+            tail.replace(Regex("\\s+"), " ").trim(),
+            "the quotation this row's resolution rests on is gone",
+        )
+    }
+
+    /**
+     * The bracket resolves for the row a sheet quoted, and for no other.
+     *
+     * **"Secret" is the discriminating case**, and it stays unmatched on
+     * purpose: it prints a cost interval and enumerates nothing, exactly like
+     * Sense of Duty, so a rule keyed on that shape would resolve it too. No
+     * sheet quotes its cell, and every instance paying inside its printed
+     * interval is evidence about PRICING rather than catalogue IDENTITY
+     * (Codex, on the design) -- which makes the broader rule the plausible
+     * match 4.1 calls repair.
+     */
+    @Test
+    fun `a bracket resolves only on the row a sheet proved it instantiates`() {
+        assertEquals("Sense of Duty", TraitEffects.catalogueName("Sense of Duty (Patients)"))
+        assertEquals("Sense of Duty", TraitEffects.catalogueName("Sense of Duty (Workers)"))
+        assertEquals(
+            "Sense of Duty",
+            TraitEffects.catalogueName(
+                "Sense of Duty (Flock) - Must help/protect certain groups even at personal risk",
+            ),
+            "the glued spelling that carries the quotation",
+        )
+        // The sheet's own spelling still shows, because which group it is is
+        // content (6e) -- and the glued one shows the NAME alone, or the sheet
+        // would print the effect cell as a title and repeat it underneath.
+        assertEquals(
+            "Sense of Duty (Patients)",
+            TraitEffects.displayName("Sense of Duty (Patients)"),
+        )
+        assertEquals(
+            "Sense of Duty (Flock)",
+            TraitEffects.displayName(
+                "Sense of Duty (Flock) - Must help/protect certain groups even at personal risk",
+            ),
+        )
+        // ...and the row nothing quoted keeps its recorded gap.
+        assertEquals(
+            "Secret (Courier network)",
+            TraitEffects.catalogueName("Secret (Courier network)"),
+        )
+        assertEquals("Obsession (A rival)", TraitEffects.catalogueName("Obsession (A rival)"))
     }
 
     /**

@@ -484,13 +484,11 @@ class ContentLoaderTest {
         "Blacklisted: Specific Industry org or church" to
             "a colon instantiation of a fixed-cost row whose qualifier " +
             "paraphrases the row's own notes rather than quoting them",
-        "Sense of Duty (Coworkers)" to RANGED_TEMPLATE,
-        "Sense of Duty (Friends)" to RANGED_TEMPLATE,
-        "Sense of Duty (Patients)" to RANGED_TEMPLATE,
-        "Sense of Duty (Public)" to RANGED_TEMPLATE,
-        "Sense of Duty (Workers)" to RANGED_TEMPLATE,
-        "Sense of Duty (Flock) - Must help/protect certain groups even at personal risk" to
-            RANGED_TEMPLATE,
+        // The six "Sense of Duty (group)" spellings left this list when
+        // production learned to read them: one sheet quotes that row's cell
+        // verbatim behind the bracket, which is the identity evidence Secret
+        // has none of. The audit must never reach LESS than production, so
+        // they belong nowhere here (6bz).
         "Secret (Courier network)" to RANGED_TEMPLATE,
         "Secret (Racist Sympathizer)" to RANGED_TEMPLATE,
     )
