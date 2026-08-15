@@ -220,6 +220,49 @@ object ActiveDefenses {
         }
 
     /**
+     * Priced rows this app charges no FP for, each beside the reason it cannot.
+     *
+     * The standard is [TraitEffects.unappliedNames]': a printed rule reaching
+     * nothing says so with its reason, so the omission stays a decision rather
+     * than becoming an accident. The reason lives in the VALUE and is written
+     * once; this KDoc carries only how the entry got here.
+     *
+     * **The one-defence limit is extracted, and half of it is unread.** The
+     * sentence `defense_refusals.json` stores for [DefenseRefusal.ALL_OUT_ATTACK]
+     * is "When you know you are being attacked, you may attempt one active
+     * defense (unless you took an All-Out Attack maneuver)." Its PARENTHETICAL
+     * is the refusal this app applies; its MAIN CLAUSE is the limit All-Out
+     * Defense (Double) buys out of, and nothing reads it. Both of this repo's
+     * sweeps pass the row -- a field audit (6ai) sees a field with a reader, a
+     * row audit (6ci) sees a row a consumer names -- and no Kotlin constant
+     * restates the "one", because the book prints it and 4.1 forbids the copy.
+     *
+     * **Two predecessors disagreed, and each was half right.** 6bl refused the
+     * row: the dialog allocates no defence, so there is no limit for 2 FP to
+     * raise. 6ci proposed building it from a census -- nine priced rows across
+     * the two FP tables, seven charged -- having found "no code, no test, no
+     * comment, no recorded reason", which was false: 6bl's reason was in the
+     * slice log, where no grep over Kotlin reaches it. That is why the reason
+     * is here now and not only there.
+     *
+     * Re-run as a query, 6bl's PROVENANCE half expired (the sentence it called
+     * unmodelled is extracted, stored, and on screen) and its MECHANISM half
+     * survived, which is what the value below records. A design review named
+     * that split before any code was written.
+     *
+     * The row's third clause, "Cannot attack.", is unenforced here exactly as
+     * its sibling All-Out Defense (Increased)'s already is.
+     */
+    val UNPAYABLE = mapOf(
+        "All-Out Defense (Double)" to
+            "this dialog allocates no defence — it reports what every row WOULD " +
+            "be and never asks the GM to pick one, so the one-defence limit the " +
+            "row buys out of is not imposed here; a cap invented in the same " +
+            "commit that charges for lifting it would be a mechanic authored to " +
+            "justify a price, not a rule applied",
+    )
+
+    /**
      * What being stunned costs every active defence (Ch. 5, p. 37).
      *
      * **The app hands this state out and never charged for it.** Three of its

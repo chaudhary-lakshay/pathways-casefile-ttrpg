@@ -462,13 +462,23 @@ class AttacksTest {
      * own prose contains those words (a review's finding, and the same class
      * as 6cg's sign-blind guard).
      *
-     * **The exclusion is a pinned gap, not a refusal.** All-Out Defense
-     * (Double) prints "Pay 2 FP" and this app cannot spend it. Its sibling
-     * All-Out Defense (Increased) is a [DefenseBoost] because it adds +2 to
-     * one defence; Double adds no number, so it needs a declaration of its own
-     * rather than a third member of a type whose KDoc makes the bonus the
-     * point. That is the next slice; this line fails the day it ships, which
-     * is what makes it a pin rather than a comment (4.2).
+     * **The exclusion is a recorded refusal, and its reason now lives in
+     * production source.** This first shipped saying All-Out Defense (Double)
+     * "needs a declaration of its own", and named that as the next slice. Wrong
+     * obstacle: the problem is not the shape of a declaration but that
+     * `DefenseDialog` allocates no defence, so the limit the row buys out of is
+     * never imposed here and 2 FP would buy nothing. The real reason had been
+     * in the slice log since 6bl and was reported as absent, because a sweep
+     * over Kotlin cannot see a journal.
+     *
+     * So the expected set is read from [ActiveDefenses.UNPAYABLE], where the
+     * next such sweep finds it. **That move buys discoverability and not
+     * strength** -- a review's finding, recorded rather than overclaimed: an
+     * entry added to that map turns this green without touching this file,
+     * exactly as editing the literal here used to. The pin is the same one in
+     * both directions it always was (4.2): shipping the row fails it, and so
+     * does an excuse left standing after the row it explains gains a payer,
+     * which is how a disclaimer outlives its reason (6bl).
      */
     @Test
     fun `every priced row is payable, and the only one that is not is named`() {
@@ -483,10 +493,14 @@ class AttacksTest {
             DefenseBoost.entries.map { it.printed } +
             listOf(Attacks.HEROIC_CHARGE, Attacks.STRONG_BLOW, Attacks.GIANT_STEP)
         assertEquals(
-            setOf("All-Out Defense (Double)"),
+            ActiveDefenses.UNPAYABLE.keys,
             priced.toSet() - payable.toSet(),
             "a priced row this app cannot pay for",
         )
+        // No second assertion that each excuse names a priced row: an equality
+        // against the gap set already proves it, since the gap is a subset of
+        // `priced` by construction. It would read as a guard while testing
+        // nothing -- the vacuous-filter finding one slice over.
     }
 
     /**

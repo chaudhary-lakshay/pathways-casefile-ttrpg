@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6ch, in the order they were written. **Read from the END.**
+Sections 6a-6cj, in the order they were written. **Read from the END.**
 The handover header, repo map, non-negotiable rules and process notes stay in
 `CLAUDE.md`.
 
@@ -6720,6 +6720,130 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6cj. The slice that did not ship, and the journal no grep can read
+
+6ci closed by naming `All-Out Defense (Double)` as the next slice, with what
+looked like decisive evidence: it is priced at 2 FP, this app charges the other
+eight priced rows, and it has "no code, a test, a comment, or a recorded
+reason". **That last clause was false, and finding out why is the slice.**
+
+### 6bl refused this row four slices earlier, in the journal
+
+`docs/SLICE-LOG.md:4954`, from 6bl's maneuver clause sweep:
+
+> **All-Out Defense (Double) is a permission with nothing to permit.** Line
+> 2453 prints the rule it lifts — "you may attempt one active defense" — and
+> this dialog does not allocate defences: it is a reference sheet saying what
+> each one WOULD be... paying 2 FP to lift a limit the app never imposed would
+> charge for nothing.
+
+6ci's sweep iterates content rows against Kotlin source. A rationale recorded in
+a prose journal is not a row, a field, a function or a comment, so **the
+instrument was structurally incapable of seeing it** — and its author read the
+absence of an in-source comment as the absence of a decision. That is a fifth
+distinct unit rationale has hidden in here, and the first outside the compiler's
+reach entirely.
+
+### The reason is a claim about the data, so it was re-run as a query
+
+6bl's sentence has two halves. The PROVENANCE half — that line 2453 is a rule
+the app does not hold — **expired**. `defense_refusals.json` claims `[2453,
+2453]` and stores the whole sentence as the `ALL_OUT_ATTACK` row; `printedFor`
+reads it, `state()` returns it as `narrower`, and `DefenseDialog.kt:236` prints
+it on screen today. One cell, two rules: the PARENTHETICAL ("unless you took an
+All-Out Attack maneuver") is a refusal this app applies, and the MAIN CLAUSE is
+the one-defence limit, read by nothing. Both sweeps pass it — the field has a
+reader (6ai), the row has a consumer (6ci).
+
+The MECHANISM half survived intact, and a design review said so before any code
+existed. **NO-SHIP, three HIGH findings**, each worth more than the build:
+
+1. **Provenance is not mechanism.** That the sentence is extracted, stored and
+   displayed says nothing about whether the dialog gates the GM to one defence.
+   It does not: every row renders its own value at once and nobody is ever asked
+   to pick. So the cap this row buys would have to be **invented in the same
+   commit that charges for lifting it** — authoring a mechanic to justify a
+   price, which is the inverse of 4.1.
+2. **The FP trigger I copied was wrong.** I took `BoostPicker`'s charge-on-first-
+   selection, itself a rule fixed after a review found double-charging. It is
+   correct there because +2-on-one-row is delivered by the FIRST pick; Double's
+   effect is delivered at the SECOND, so charging at the first bills the GM for
+   the ordinary free case. **A pattern transfers by meaning, not by shape.**
+3. **A standing limit Note would contradict the screen.** `narrowerFor` exists
+   precisely to stop that sentence being cited as general, and `DefenseDialog`
+   frames it as narrow. A permanent second printing of the same string, beside
+   the first, overturns the codebase's own documented reading through a UI
+   addition nobody re-decided.
+
+### What shipped instead
+
+`ActiveDefenses.UNPAYABLE` — one entry, name beside reason, in this repo's own
+`TraitEffects.UNAPPLIED` shape — and the census test reads its expected set from
+there instead of a literal. The reason moves out of the journal into the file a
+reader of the defence rules will open.
+
+**That move buys discoverability, not strength** — the diff review's finding,
+recorded rather than smoothed. An entry added to that map turns the census green
+without touching `AttacksTest`, exactly as editing the literal used to. Claiming
+it was a stronger pin would have been a disclaimer that lies (6bl, again).
+
+Three more findings from the same review. `ORDINARY_DEFENCES = 1` was deleted:
+no caller, and the "one" is a number the book prints, so restating it in Kotlin
+is the copy 4.1 forbids — a constant wearing a KDoc as justification. The
+mechanism reason was written twice, in the value and in the KDoc above it; it is
+now written once, in the value, with the KDoc carrying only how the entry got
+there. And I removed **my own vacuous assertion** before the review saw it: a
+second check that every excuse names a priced row cannot fail, because the
+equality above it forces the sets identical and the gap is a subset of `priced`
+by construction. It is 6ci's vacuous-filter finding in a new disguise, and what
+caught it was trying to write its RED case.
+
+### 6ci's other three deferrals are artefacts of its own instrument
+
+6ci left `hit_locations.json` ('Leg'), `divination_support.json` ('Cogitation')
+and `ritual_support.json` ('Professional Skill (Astrology etc)') as untriaged
+single-miss tables, "one grep to classify". All three are closed here, none real:
+
+| Table | Consumer | Verdict |
+|---|---|---|
+| `hit_locations` | `Wounds.locationNamed` matches any target by name | Loop-consumed. 4 of 9 rows appear in Kotlin, not 8 — and Neck/Vitals/Skull/Torso appear because they carry multipliers, not because the table is enumerated. |
+| `divination_support` | `Divination.supportBonus` sums whatever rows are passed | Loop-consumed. `Occultism` reads as "modelled" because the string occurs 25 times as a skill elsewhere. |
+| `ritual_support` | `RitualMode.supportBonus` matches by bare name | Loop-consumed, same reason. |
+
+**The sweep's "modelled" predicate is a substring search over Kotlin**, so its
+sibling ratio is only trustworthy for a table the code models row-by-row. 6ci
+hardened its own *test* against that predicate after a reviewer showed `Move`
+and `Wait` were "covered" by this file's prose — and then left its *shortlist*
+built on the unhardened one. An instrument fixed in one place is not an
+instrument fixed.
+
+### Verified
+
+**1121 Kotlin** (1015 `core:rules`, 86 `app`, 20 `core:model`) and **267
+Python**, green. RED-proved by neutering the one reading and restoring from a
+copy (6bu): emptying `UNPAYABLE` fails the census at `AttacksTest.kt:492` and
+only it — 39 tests run, 1 failed. No behaviour changed, so there is nothing to
+device-verify; stated rather than skipped.
+
+**Codex still refuses**, confirmed by calling rather than by reading the date
+(resets 2026-08-20 14:23; today is 2026-08-15). Two `ecc:kotlin-reviewer`
+passes, decomposition then diff, each scoped to three questions and the files
+needed to answer them. Both came back NO-SHIP; the design one cancelled the
+build, the diff one reshaped what replaced it.
+
+**Next, with evidence.** Nothing in the two FP tables is outstanding — the
+census is an equality and its only exclusion now carries a mechanism reason in
+production source. The nearest real work is the thing this slice proved is not a
+documentation gap: **`DefenseDialog` reports defences rather than allocating
+one**, which is what makes All-Out Defense (Double), the Feint's Quick Contest
+and the round-scoped rules unreachable together. That is a screen-shaped
+decision, not a rule-shaped one, and it must be argued before it is built — 6bl
+chose the reference-sheet shape deliberately, for a screen that cannot know what
+is coming. Also unclaimed and unread: chapter 5's lines 2456-2457, "Free
+Actions: Retreat, Acrobatic Dodge, and Dive! ... Each can be used once per
+round" — a governing sentence for three rows of `defense_modifiers.json` that
+the table itself does not carry.
 
 ## 6ci. Nine priced rows, seven charged
 
