@@ -12,11 +12,8 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**6cc is DEVICE-UNVERIFIED — it is the one outstanding thing in this repo.**
-It ships a picker, a settle dialog and a save-schema change, and every one of
-its nine review findings was an identity bug in the UI state machine, which is
-the half no unit test reaches (6bk). Run the device pass named at the end of
-6cc before building anything else.
+**Nothing is outstanding.** 6cc is device-verified; both suites green, working
+tree clean. Verify that claim the way 6ax asks you to verify 6ax.
 
 **Where to start next: 6cc, then 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
@@ -7417,13 +7414,51 @@ from a `cp` backup (6br): the bare-name composition (3 failures), the duplicate
 key (2), the printed interval (1); the two rules-half review fixes were
 RED-proved together (2).
 
-**DEVICE-UNVERIFIED, and that is a real gap rather than a formality.** No
-device was attached and none was started. Every finding this slice produced was
-in the UI state machine, which is precisely the half no unit test reaches
-(6bk) — so the next action is a device pass over: buying a ranged row and a
-`(specify)` row, the variant chips, the cost stepper's bounds, two Vows side by
-side, Give back on the right one of two identical names, and a Shyness row
-greyed out on a character who already has one.
+Device-verified on `Medium_Phone_API_36.1` (1080x2400), **Academic Researcher —
+the one premade that prints `Shyness (Mild)`**, which is what makes the
+severity rule observable rather than argued:
+
+- **The picker's three groups, on one screen.** `Sense of Duty −15 to −2 pts`
+  and `Secret −30 to −5 pts` under "Priced by the instance";
+  **`Shyness — already held`** greyed out, and tapping it does nothing;
+  `Social Stigma` offering `Criminal Record -5 / Servant Class -5`; and
+  *"Not offered — the book prints no cost bounds for this row at all …
+  **Language (specify), Reputation**"*.
+- **The ranged shape.** `Sense of Duty` opens with a text field reading *"What
+  is it? The book prices this row by the instance"*, the stepper at **−2 pts**
+  with `−` greyed at the floor, *"The book prints 2 to 15 for this row."*, and
+  **Buy disabled** under the red *"…so name the instance before buying it."*
+  Typing `Patients` enabled Buy and cleared the warning; eight taps of `+` took
+  it to **−10 pts** and un-greyed `−`.
+- **The save holds PARTS, not a name**:
+  `{"row": "Sense of Duty", "variant": null, "instance": "Patients", "cost": 10}`.
+  The builder row reads **"Sense of Duty — Patients / −10 pts"** — the book's
+  own bare name with the instance beside it, which is composition rule 3 on
+  screen.
+- **The `(specify)` shape differs, and says so.** `Vow (specify)`'s field reads
+  *"Name it — the book asks you to"*, and the dialog **title updates live to
+  "Vow (Silence)"** as it is typed — the composed name previewed from the parts.
+- **Two Vows stood side by side** — `Vow (Silence)` and `Vow (Vegetarian)`,
+  Monastery Scholar's case on a different character — and **Give back on the
+  middle row removed the right one**, leaving `Vow (Vegetarian)` in the save.
+- **The enumerating shape has no field and no stepper at all**: `Social Stigma`
+  showed two chips over *"The book prices each of these itself."*, and choosing
+  Servant Class saved
+  `{"row": "Social Stigma", "variant": "Servant Class", "instance": null, "cost": 5}`.
+- **Then `Social Stigma — already held` greyed out too** — the severity rule
+  firing against a BOUGHT trait where Shyness fires against a PRINTED one,
+  while `Vow` and `Sense of Duty` stayed offered beside them. The whole
+  duplicate rule, both halves, on one screen.
+- Incidentally confirmed: a save written before this slice still loads (its
+  `Ether Body Damage` purchase survived untouched), and the drawback cap fired
+  correctly at *"Disadvantages total 60, capped at 40"*.
+
+**Two instrument notes.** A *"Try out your stylus"* system overlay opened over
+the keyboard and ate a tap plus half a `input text`, leaving `PatiPatients` in
+the field — SystemUI, not the app, and `mCurrentFocus` named it (6ah). And
+every `adb` command naming a device path was prefixed `MSYS_NO_PATHCONV=1`
+(6bp); the emulator was launched at `-memory 2048` after reaping the Kotlin
+compile daemons, with the APK built first in one short-lived JVM (6am, 6be).
 
 ## 6cb. The census that had to become a test, and a design that survived one question
 
