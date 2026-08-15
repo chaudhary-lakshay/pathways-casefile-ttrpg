@@ -413,12 +413,54 @@ class ActiveDefensesTest {
      * the first (a review's observation).
      */
     @Test
-    fun `the applied bullet is not also reported as unapplied`() {
+    fun `the applied bullets are not also reported as unapplied`() {
         val all = ContentLoader.defenseModifiers().map { it.modifier }
         val unapplied = ActiveDefenses.unappliedModifiers()
-        val applied = ActiveDefenses.printedAcrobaticDodge()
-        assertTrue(applied in all, "the applied bullet left the content: $applied")
-        assertTrue(applied !in unapplied, "applied and reported unapplied: $applied")
-        assertEquals(all - applied, unapplied)
+        val applied = listOf(ActiveDefenses.printedAcrobaticDodge(), ActiveDefenses.printedDive())
+        applied.forEach {
+            assertTrue(it in all, "an applied bullet left the content: $it")
+            assertTrue(it !in unapplied, "applied and reported unapplied: $it")
+        }
+        assertEquals(all - applied.toSet(), unapplied)
+    }
+
+    /**
+     * The Dive! is worth three, and ONLY against a shot.
+     *
+     * Both scopes are asserted because the bullet prints both -- "+3 Dodge"
+     * names the row and "vs. ranged only" names the attack -- and a build that
+     * kept the number while losing the second condition would hand a fighter +3
+     * against a sword, which is the whole content of the word "only".
+     *
+     * The four combinations are enumerated rather than sampled: `taken` and
+     * `isRanged` are independent, and a `dive` that answered off either one
+     * alone still passes any two of the four.
+     */
+    @Test
+    fun `the dive is worth three against a shot and nothing against anything else`() {
+        assertEquals(ActiveDefenses.DIVE_BONUS, ActiveDefenses.dive(taken = true, isRanged = true))
+        assertEquals(0, ActiveDefenses.dive(taken = true, isRanged = false))
+        assertEquals(0, ActiveDefenses.dive(taken = false, isRanged = true))
+        assertEquals(0, ActiveDefenses.dive(taken = false, isRanged = false))
+    }
+
+    /**
+     * The phrases the rule above depends on, still printed.
+     *
+     * SIGN-ANCHORED like the Acrobatic Dodge's, for the reason 6cg measured: a
+     * guard reading `"$n Dodge"` is satisfied by a sign flip, because "3 Dodge"
+     * is a substring of "-3 Dodge".
+     *
+     * The third clause is pinned too, and it is the one the app does NOT apply.
+     * A cost that stops being printed while the bonus stays is exactly the
+     * disagreement 4.1 exists to surface, and the note under the control quotes
+     * the whole bullet on the strength of this assertion.
+     */
+    @Test
+    fun `the dive bullet still prints both scopes and the turn it costs`() {
+        val bullet = ActiveDefenses.printedDive()
+        assertTrue("+${ActiveDefenses.DIVE_BONUS} Dodge" in bullet, bullet)
+        assertTrue("vs. ranged only" in bullet, bullet)
+        assertTrue("Spend 1 turn getting back up" in bullet, bullet)
     }
 }

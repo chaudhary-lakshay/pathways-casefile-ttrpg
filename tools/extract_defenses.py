@@ -26,8 +26,9 @@ a bonus and a penalty, so there is no single figure to extract" -- an excuse
 drawn from one row and generalised to the table, the same shape 6ck found in
 three KDocs. Two of the five bullets print exactly one number each, and the
 Acrobatic Dodge row's pair is applied by ActiveDefenses.acrobaticDodge, keyed
-off a real roll against the skill it names. PINNED below guards the phrases
-that rule now depends on.
+off a real roll against the skill it names. The Dive! row's +3 is applied too,
+by ActiveDefenses.dive, scoped by the same declaration the unarmed parries
+already read. PINNED below guards the phrases both rules depend on.
 """
 import json, pathlib, re, sys
 
@@ -61,6 +62,14 @@ PINNED = [
     "Roll vs. Acrobatics",
     "success gives +2 Dodge",
     "failure gives -2 Dodge",
+    # The Dive!'s two scopes. "vs. ranged only" is guarded as carefully as the
+    # number is: it is the whole content of the word "only", and a bullet that
+    # kept "+3 Dodge" while losing it would have the app hand the bonus out
+    # against a sword. The third clause -- the turn spent getting back up -- is
+    # pinned by ActiveDefensesTest instead, because it is the half the app does
+    # NOT apply and its guard belongs beside the code that declines to.
+    "+3 Dodge",
+    "vs. ranged only",
 ]
 
 

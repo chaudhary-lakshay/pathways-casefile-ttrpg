@@ -288,7 +288,7 @@ object ActiveDefenses {
     private const val ACROBATIC_ROW = "[Acrobatic Dodge]"
 
     /**
-     * The bullet, quoted whole rather than restated (4.1).
+     * The bullet carrying [tag], quoted whole rather than restated (4.1).
      *
      * It THROWS on a content drop rather than degrading, which a review noted
      * is the one throw on this render path. Kept: [printedStun] already refuses
@@ -296,12 +296,19 @@ object ActiveDefenses {
      * into a red build before any render reaches it, and a rule the app applies
      * must not be able to render as an empty note (`Detection.attributeFor`,
      * 6ah -- a refusal beats a plausible answer).
+     *
+     * One lookup for both applied bullets rather than the same four lines
+     * written twice: the same predicate at two call sites is the defect, not
+     * the drift it eventually produces.
      */
-    fun printedAcrobaticDodge(): String {
-        val row = ContentLoader.defenseModifiers().firstOrNull { ACROBATIC_ROW in it.modifier }
-        require(row != null) { "defense_modifiers.json no longer prints $ACROBATIC_ROW" }
+    private fun printedModifier(tag: String): String {
+        val row = ContentLoader.defenseModifiers().firstOrNull { tag in it.modifier }
+        require(row != null) { "defense_modifiers.json no longer prints $tag" }
         return row.modifier
     }
+
+    /** The Acrobatic Dodge bullet, quoted whole. */
+    fun printedAcrobaticDodge(): String = printedModifier(ACROBATIC_ROW)
 
     /**
      * What an Acrobatic Dodge did to the Dodge row, given how the roll came out.
@@ -322,21 +329,79 @@ object ActiveDefenses {
         Outcome.FAILURE, Outcome.CRITICAL_FAILURE -> -ACROBATIC_SWING
     }
 
+    /** The bullet's own tag, which is how its row is found rather than by index. */
+    private const val DIVE_ROW = "[Dive!]"
+
+    /**
+     * What throwing yourself flat is worth on the Dodge row (Ch. 5, p. 37).
+     *
+     * A number inside a prose cell, so it lives here with the sentence pinned
+     * -- the split [BOOST_BONUS], [ACROBATIC_SWING] and [STUNNED_PENALTY]
+     * already take.
+     */
+    const val DIVE_BONUS = 3
+
+    /** The Dive! bullet, quoted whole. */
+    fun printedDive(): String = printedModifier(DIVE_ROW)
+
+    /**
+     * What a Dive! adds, given the two facts the GM declared.
+     *
+     * **Both scopes are the bullet's own, and neither is inferred.** "+3 Dodge
+     * vs. ranged only" names the row and names the attack, so this composes the
+     * AND here rather than leaving the dialog to remember the second half --
+     * the same division [everyDefence] and [acrobaticDodge] already take, where
+     * the screen supplies declared facts and the rules module returns the
+     * number. `Incoming` is the dialog's own private enum and cannot cross the
+     * module boundary, so [isRanged] arrives reduced.
+     *
+     * **Deliberately not routed through [everyDefence]**, for the reason
+     * [acrobaticDodge] is not: the bullet names Dodge and no other row, where
+     * the stun's second printing says "active defenseS". Same bar, same answer.
+     *
+     * **The third clause is not enforced and this is not an oversight.** "Spend
+     * 1 turn getting back up (Change Posture)" is a turn cost, and this app
+     * holds no clock to spend one against (6bf) -- the split [printedStun]
+     * already takes on the stun's own recovery. The bullet is quoted whole at
+     * the control so the GM can see the half the screen did not do.
+     *
+     * **Being prone costs the defender nothing the book prints.** Checked
+     * rather than assumed, the way 6ck's excuse should have been: the only
+     * printed consequence of a prone target is on the ATTACKER's roll -- p. 39
+     * prints "Target is prone: -2 ranged (but -4 in melee)" in the ranged
+     * modifiers, which is a to-hit figure and belongs to the attack screen. No
+     * page prices a prone character's own defences, so a Dive! that also
+     * lowered the Dodge row would be a rule authored from a resemblance (4.1).
+     */
+    fun dive(taken: Boolean, isRanged: Boolean): Int =
+        if (taken && isRanged) DIVE_BONUS else 0
+
+    /**
+     * The bullets this app applies, which is the half [unappliedModifiers] is
+     * defined against.
+     *
+     * A list rather than a second `filterNot` clause: the two halves are one
+     * decision, and writing the applied set once is what keeps a bullet from
+     * landing in both (or in neither) as a third one is wired up.
+     */
+    private val APPLIED_ROWS = listOf(ACROBATIC_ROW, DIVE_ROW)
+
     /**
      * The Defense Modifiers bullets this app does NOT apply.
      *
-     * The list was rendered whole while every bullet was display-only. One of
-     * the five now reaches a number, and a screen that goes on printing it
-     * beside the four it does not apply says the same sentence twice and marks
+     * The list was rendered whole while every bullet was display-only. Two of
+     * the five now reach a number, and a screen that goes on printing one
+     * beside the three it does not apply says the same sentence twice and marks
      * neither -- the disclaimer-outlives-its-rule defect 6bl found on this very
-     * screen. The applied bullet is quoted at the control that applies it.
+     * screen. Each applied bullet is quoted at the control that applies it.
      *
      * A partition rather than a filter written in the dialog: `ActiveDefenses`
      * decides what is applied, so the two halves cannot disagree, and a test
      * can read both (6bl again -- only a test that reads both objects notices).
      */
     fun unappliedModifiers(): List<String> =
-        ContentLoader.defenseModifiers().map { it.modifier }.filterNot { ACROBATIC_ROW in it }
+        ContentLoader.defenseModifiers().map { it.modifier }
+            .filterNot { bullet -> APPLIED_ROWS.any { it in bullet } }
 
     /**
      * What being stunned costs every active defence (Ch. 5, p. 37).

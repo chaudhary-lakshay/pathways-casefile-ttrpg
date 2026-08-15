@@ -287,6 +287,19 @@ fun DefenseDialog(
     // (Unarmed) row's three rules -- the -3 for a weapon, and the refusal
     // against a shot -- both printed since 6g and applied by nothing.
     var incoming by remember { mutableStateOf(Incoming.BARE_HAND) }
+    // Whether the character threw themselves flat. A declaration like every
+    // other free action here, and NOT latched behind a round gate for the same
+    // reason the acrobatic roll is not: "Each can be used once per round"
+    // governs all three free actions from a paragraph this app does not
+    // extract, and honouring it for one would claim a round boundary the
+    // screen cannot keep for the other two.
+    var dived by remember { mutableStateOf(false) }
+    // The rule answers with both of its own scopes applied -- the bullet says
+    // "+3 Dodge vs. ranged only", so a Dive! against a sword is worth nothing.
+    // Asked ONCE and the answer reused below, including by the control's own
+    // note: re-testing `incoming` there would be the same predicate at two
+    // sites, which is the defect rather than the drift it produces.
+    val diveBonus = ActiveDefenses.dive(dived, isRanged = incoming == Incoming.SHOT)
     // Which boost was paid for, and WHICH ROW it was spent on. Both sentences
     // say "+2 to ONE defence", so the row is part of the choice -- folding it
     // into every row would buy Dodge, each Parry and Block for one payment.
@@ -359,12 +372,17 @@ fun DefenseDialog(
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     DefenseRow(
                         "Dodge",
-                        // The acrobatic ±2 joins the bought +2 on this row and
-                        // nowhere else: the bullet names Dodge twice and no
-                        // other defence, so it stays out of `everyDefence`,
-                        // which is reserved for rules printed plural.
+                        // The acrobatic ±2 and the Dive!'s +3 join the bought
+                        // +2 on this row and nowhere else: both bullets name
+                        // Dodge and no other defence, so they stay out of
+                        // `everyDefence`, which is reserved for rules printed
+                        // plural. They compose rather than exclude each other
+                        // — p. 36 says the free actions "can be taken alongside
+                        // any active defense", and refusing to stack two of
+                        // them while the same paragraph's "once per round" goes
+                        // unenforced would author the narrower rule of the two.
                         shielded(
-                            dodge + boostOn("Dodge", boost) + acrobaticSwing,
+                            dodge + boostOn("Dodge", boost) + acrobaticSwing + diveBonus,
                             shieldForDb,
                             everyDefence,
                         ),
@@ -391,6 +409,10 @@ fun DefenseDialog(
                         },
                         onClear = { acrobatic = null },
                     )
+                    // Beside the acrobatic roll, because the two bullets move
+                    // the same row and a GM comparing them should not have to
+                    // scroll between them.
+                    DiveControl(taken = dived, bonus = diveBonus) { dived = !dived }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 }
                 items(armed) { (name, value) ->
@@ -673,6 +695,53 @@ private fun AcrobaticDodge(
                 "${if (swing > 0) "+" else ""}$swing on Dodge above.",
         )
     }
+}
+
+/**
+ * The Dive!: the second Defense Modifiers bullet with a number this app can
+ * reach (Ch. 5, p. 37).
+ *
+ * "[Free Action] [Dive!] +3 Dodge vs. ranged only. Spend 1 turn getting back up
+ * (Change Posture)." Extracted since 6g and applied by nothing until now.
+ *
+ * A chip rather than a roll, unlike its neighbour: this bullet asks for no die,
+ * only for the GM to say the character went flat. Both of its scopes are
+ * decided in [ActiveDefenses.dive]; what arrives here is [bonus], the answer.
+ *
+ * **[bonus] is read rather than [taken] re-tested against the attack.** A zero
+ * while the chip is on means the rule refused it, which is exactly the sentence
+ * the note needs — and asking `incoming` a second time here is how one rule
+ * becomes two disagreeing copies (6ag, 6ai, 6be).
+ *
+ * The turn spent getting back up is SAID and not enforced: this app holds no
+ * clock (6bf), the same split [StunPicker] takes on recovering from a stun.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun DiveControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
+    Note(ActiveDefenses.printedDive())
+    FlowRow {
+        FilterChip(
+            selected = taken,
+            onClick = { onToggle() },
+            label = { Text("Dived") },
+            modifier = Modifier.padding(end = 8.dp),
+        )
+    }
+    if (!taken) return
+    // A chip that is on while the row above it has not moved would read as a
+    // tick that failed -- the reason a cancelled refusal is SAID rather than
+    // silently dropped two controls up.
+    if (bonus == 0) {
+        Note(
+            "Not against this attack: the bullet is \"vs. ranged only\", so the " +
+                "+${ActiveDefenses.DIVE_BONUS} lands on nothing. Pick \"A shot\" above.",
+        )
+    }
+    Note(
+        "Getting back up costs a turn (Change Posture) — the GM's to spend; " +
+            "this app holds no clock to run it against.",
+    )
 }
 
 /**

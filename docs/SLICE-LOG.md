@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6ck, in the order they were written. **Read from the END.**
+Sections 6a-6cm, in the order they were written. **Read from the END.**
 The handover header, repo map, non-negotiable rules and process notes stay in
 `CLAUDE.md`.
 
@@ -6720,6 +6720,112 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6cm. A scope the sentence names itself, and a cost the book charges the other side
+
+6cl closed the Acrobatic Dodge and ranked the two remaining
+`defense_modifiers.json` bullets, putting **Dive!** first because both of its
+conditions are already declared on the defence screen. That ranking held, and
+this is the slice that took it:
+
+> "[Free Action] [Dive!] +3 Dodge vs. ranged only. Spend 1 turn getting back up
+> (Change Posture)."
+
+`ActiveDefenses.dive(taken, isRanged)` composes both scopes and the dialog
+supplies the two declared facts — `dived`, a new chip, and `incoming ==
+Incoming.SHOT`, the declaration the unarmed parries have read since 6bg. The +3
+joins the acrobatic ±2 and the bought +2 on the Dodge row and nowhere else.
+
+**The reusable finding is about a BAR rather than a rule.** 6ck refused the
+facing penalty because "Attacked from side: -2 to defense" is bare and SINGULAR,
+and the stun only reaches every row on the strength of a second printing saying
+"active defenseS". Dive! is a bullet in the very same list, so the obvious move
+was to ask whether it too has a second printing — and it does not. A sweep of
+the whole book finds "Dive"/"diving" on twelve lines and only two are this rule:
+the bullet itself (2485) and the free-actions paragraph that names it (2456).
+
+Applying 6ck's bar there would have refused this rule, and it would have been
+wrong. **The bar attaches to the CONDITION that made it necessary, not to the
+category of thing it was first applied to.** What the facing bullets lack is not
+corroboration but a stated scope: "to defense" does not say which row, so a
+second printing is the only thing that can settle it. Dive!'s sentence says
+"+3 **Dodge**" and "vs. **ranged** only" — it names its row and it names its
+condition, so there is nothing left for a corroborating printing to decide. This
+is 6cl's lesson pointed the other way: 6cl found a cited DEFECT whose measured
+scope did not cover the case it was cited for, and here a cited REFUSAL's
+warrant does not cover the case it would have been extended to. **A precedent
+travels with the condition that produced it, not with the shelf it was found
+on.**
+
+**The cost was checked rather than assumed, and the book charges the other
+side.** Diving leaves you prone, and a rule that hands out a bonus while
+silently skipping its own drawback is the class 6bl found. So: what does being
+prone cost? The book prints "prone" on five lines. One is unrelated ("prone to
+debt", a Wealth row), three CREATE the state (a Takedown, a crippling blow, a
+failed ritual), and the only line that PRICES it is p. 39's ranged modifiers —
+*"Target is prone: -2 ranged (but -4 in melee)"*, which is the **attacker's**
+to-hit roll, not the defender's defence. No page prices a prone character's own
+defences. So Dive! costs the defender nothing but the turn, and a slice that had
+lowered the Dodge row to "balance" the +3 would have authored a rule from a
+resemblance (4.1). The check is recorded in `dive`'s KDoc, so the next reader
+inherits the evidence rather than the conclusion — the standard 6ck set after
+finding one excuse copied into three files.
+
+**The sentence that settled the design question lives OUTSIDE the span the table
+claims.** Does Dive! stack with the Acrobatic Dodge? The Acrobatic bullet ends
+"Stacks with Retreat.", naming one sibling and staying silent about the other,
+and silence is exactly the shape that invites an invented rule. The answer is on
+p. 36, lines 2456-2457: *"Free Actions: Retreat, Acrobatic Dodge, and Dive! are
+free actions — they do not cost your maneuver and can be taken alongside any
+active defense. Each can be used once per round unless stated otherwise."*
+`defense_modifiers.json` claims 2480-2485; that paragraph is in neither its span
+nor anyone else's. 6ba's seam lesson has so far been about RULES falling between
+two claimed spans — this is the same seam holding the REASON a design needs,
+which no coverage number can report as missing, because nothing was ever meant
+to be extracted from it. The "once per round" half stays unenforced on purpose,
+as CLAUDE.md says: it governs all three free actions, so the slice that enforces
+it enforces all three.
+
+**Three neuterings, three reds, one per direction.** Dropping `isRanged` from
+`dive` fails the four-cell truth table; dropping `[Dive!]` from `APPLIED_ROWS`
+fails the partition test, which is 6bl's disclaimer guard now reading two
+applied bullets instead of one; and replacing "vs. ranged only" with "vs. any
+attack" in the content fails `extract_defenses.PINNED`, which is 6cg's
+book→JSON direction. The rule, the screen's honesty about it, and the sentence
+underneath it each have their own guard.
+
+**The verification method failed once, and that is worth writing down.** A test
+run piped through `grep -E "FAILED|BUILD"` came back completely empty, which
+reads as "nothing failed". The shell's working directory had been moved by an
+earlier compound command and the build tool was never found — the error text
+matched neither filter term. **A filter tuned to detect failure cannot tell "no
+failures" from "the command never ran"**, and the optimistic reading is the
+default. Any filtered output used as evidence needs a positive token that only a
+completed run can emit.
+
+**1129 Kotlin** (1022 `core:rules`, 87 `app`, 20 `core:model`) and 268 Python,
+green. Codex is still refusing — its own error text now says **2026-08-20
+14:23** — so both gates were the documented `ecc:kotlin-reviewer` fallback,
+scoped to three questions and the three files needed to answer them: the
+decomposition before any code (SHIP, and it corrected a fallback I was
+weighing, that the `taken && isRanged` AND belongs in the dialog rather than in
+the rules module), and the diff before commit (SHIP, no findings). Not
+device-verified: the arithmetic and the partition are unit-covered, and the chip
+with its two notes is Compose, which this repo does not test.
+
+**The next slice is a -4 nobody applies, and this slice is what makes it sharp.**
+Verifying the prone claim above meant reading `ranged_modifiers.json`, which
+stores that row as `{"condition": "Target is prone", "printed": "-2 ranged (but
+-4 in melee)", "modifier": -2, "melee": -4}`. `RangedModifier.melee` has exactly
+one reader in the whole tree — `RangedTest.kt:112`, a test asserting it is -4.
+**No production caller.** The attack dialog offers the row as a circumstance chip
+and `Ranged.modifiers` applies the -2; a melee attack on a prone target gets
+nothing. That is 6bz's sweep shape (what does the TEST suite know that
+production does not), and the row is now not merely printed but *reachable*:
+this slice gives the app a control that puts a character prone, so the state the
+row prices is one the app itself hands out — 6bl's shape exactly. Behind it, the
+last `defense_modifiers.json` bullet: **Retreat**, whose three numbers are
+scoped per defence row.
 
 ## 6cl. The bullet with a die behind it, and a caveat borrowed from the wrong table
 

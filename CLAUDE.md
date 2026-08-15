@@ -16,14 +16,21 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Two `defense_modifiers.json` bullets are outstanding.** 6cl took the roll
-6ck ranked first — Acrobatic Dodge is applied now — and the two that remain each
-fail a different test, which is why they are two slices rather than one: Retreat
-prints three numbers scoped per defence row, Dive! one scoped to Dodge and to
-ranged. **Take Dive! next**: its two conditions are both already declared on the
-defence screen. Book lines 2456-2457 ("Each can be used once per round") stay
-unclaimed on purpose — that sentence governs all three free actions, so the
-slice that enforces it enforces all three.
+**One `defense_modifiers.json` bullet is outstanding.** 6cm applied Dive!, so
+**Retreat** is the last of the five carrying a number nothing reaches — three
+numbers, in fact, scoped per defence row, which is why 6cl ranked it second. The
+two facing bullets are not outstanding: 6ck refused them with a reason and a
+test. Book lines 2456-2457 ("Each can be used once per round") stay unclaimed on
+purpose — that sentence governs all three free actions, so the slice that
+enforces it enforces all three.
+
+**But take the prone -4 before Retreat**, because 6cm found it with evidence and
+this repo has already shipped four milestones of rules that were printed and
+unreachable. `ranged_modifiers.json` stores "Target is prone" as
+`{"modifier": -2, "melee": -4}`; `RangedModifier.melee` has exactly **one reader
+in the tree** — `RangedTest.kt:112` — and no production caller, so a melee attack
+on a prone target is modified by nothing. 6cm is also what makes it reachable:
+the defence screen now has a chip that puts a character prone.
 
 **Nothing in the two FP tables is outstanding.** 6cj closed the last one:
 `All-Out Defense (Double)` is a priced row this app deliberately does not
@@ -41,7 +48,23 @@ to answer them — 6cg's returned a HIGH in under two minutes, and 6ch ran two
 (decomposition, then diff). The scoping budget keeps paying (6af, 6cb). Check
 the CLOCK and not just the date (6am, 6as).
 
-**6cl is newest**, and its most reusable finding is about a REASON rather than
+**6cm is newest**, and its most reusable finding is about a BAR rather than a
+rule. 6ck refused the facing penalty because its bullets print "to defense"
+singular with no second printing to widen them; Dive! sits in that same bullet
+list and has no second printing either, so the obvious move was to refuse it the
+same way — and that would have been wrong. **A precedent travels with the
+condition that produced it, not with the shelf it was found on**: the facing
+bullets need corroboration because they never say WHICH row, while Dive! says
+"+3 Dodge vs. ranged only" and names both its scopes itself. Read it also for a
+cost checked rather than assumed — diving leaves you prone, and the only line in
+the book that prices prone is on the ATTACKER's to-hit roll, so a Dodge penalty
+invented to "balance" the +3 would have been a rule authored from a resemblance.
+And for where the answer to its design question lived: p. 36's free-actions
+paragraph, in the seam **outside** the span `defense_modifiers.json` claims —
+6ba's lesson applied to a REASON rather than to a rule, which no coverage number
+can report as missing.
+
+**6cl is next**, and its most reusable finding is about a REASON rather than
 a rule. It withheld the Acrobatic Dodge roll from an untrained character citing
 6aw's recorded defect in `SkillLadder.defaultFor` — and a design review pointed
 out that 6aw's three overrides are the *unarmed-parry* skills, so the cited
@@ -162,7 +185,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6cl, then 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6cm, then 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -391,7 +414,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1127 Kotlin** (JUnit 5 — 1020 `core:rules`, 87 `app`, 20 `core:model`) + **268 Python** (pytest), all green — counted at 6cl, where this row was found two slices stale |
+| Tests | **1129 Kotlin** (JUnit 5 — 1022 `core:rules`, 87 `app`, 20 `core:model`) + **268 Python** (pytest), all green — counted at 6cm from the JUnit XML, not from memory |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -751,10 +774,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6cl. The slice log
+## 6a-6cm. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6cl is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6cm is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
