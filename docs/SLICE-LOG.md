@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6cg, in the order they were written. **Read from the END.**
+Sections 6a-6ch, in the order they were written. **Read from the END.**
 The handover header, repo map, non-negotiable rules and process notes stay in
 `CLAUDE.md`.
 
@@ -6720,6 +6720,122 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6ch. The literal nobody argued for
+
+6cf's API sweep left two survivors. `EffortBurn.scopeOf` was the smaller, and
+chasing it found the bigger one two lines away.
+
+`AttackDialog` called `BurnRow(kind, burned[index] ?: 0, spiAvailable = 0)`.
+The `0` is a literal, and **no slice in this 7400-line log argues for it** —
+it was written the day `BurnRow` gained the parameter and never revisited.
+`EffortBurn.affordable` reads it, so it drove the row's early return and
+printed, to a Beyonder at full SPI:
+
+> "No push — this character has no spirituality left, and personal SPI cannot
+> be spent below 0."
+
+**Directly beneath the rule granting the push**, which the same row prints
+one line above. The screen named the rule and denied it in the same breath.
+
+Second defect on the same two lines, latent behind the first: the handler was
+`if (kind == BurnKind.PHYSICAL) onSpendFp(points)`. Had a mystical push ever
+been offered, it would have moved the target and charged nothing — "printing
+the rule and not charging it is how a tracker starts lying" (6m).
+
+### Reachability, checked against the data rather than argued
+
+The dialog offers EVERY skill by a documented decision ("this book tags no
+skill as a combat skill, so which of them can attack is the GM's call"), and
+`pathways.json` grants Ritualistic Magic in **27 blocks** — including
+Sequence 9, the FIRST potion, of Fool, Door, White Tower, Hanged Man,
+Darkness and Hermit. No premade owns it unpotioned; 19 of 23 fixtures print
+`spi: 0`. So this is a Beyonder-only path, which is why no golden test has
+ever seen it, and it is reachable on a character's first potion.
+
+**The design review made me check the claim rather than assert it.** It asked
+whether the Roll button needs a weapon or an unarmed attack, since neither
+resolves for Ritualistic Magic — if it did, the skill would be unrollable and
+my reachability evidence false. It does not: `AttackDialog.kt:521` is a bare
+`TextButton(onClick = onRoll)` with no enable condition. The claim survived,
+but it was a claim until it was checked (6bs, 6ca).
+
+### What the design review changed before any code
+
+Reviewed as a DECOMPOSITION, no diff, because it moves a dialog boundary —
+6bv's exact failure mode. Verdict SHIP, with one finding I took:
+
+- I proposed `onSpendSpi` as a sibling to the existing `onSpendFp`. The
+  reviewer pointed out the skill dialog already answers "which pool does this
+  kind spend" once, in a single `onBurn: (BurnKind, Int) -> Unit`, and that a
+  second single-kind callback is **the same predicate at two call sites**.
+  Correct. Better still, both dialogs live in one composable, so the lambda is
+  now hoisted ONCE in `SheetScreen` and passed to both — the change removes a
+  copy rather than adding one.
+- `EffortBurn.requireOnePool` stays deliberately uncalled and now says why in
+  a comment: one skill per maneuver means every outcome shares one `BurnKind`,
+  so "you cannot spend both" is unviolatable from here. The invariant was
+  real and silent; a future multi-skill combo would have broken it quietly.
+
+### The two reviews disagree, and correctness wins
+
+The design review's binding requirement was that `spiAvailable` be a LIVE
+expression, never `remember`ed: two attacks of one maneuver share one pool, and
+a captured snapshot would let each spend it. The diff review's only remaining
+finding is that the non-memoized `spiAvailable` and `burn` churn lambda
+identity and cost recomposition — i.e. **it proposes exactly what the first
+review forbade.** Both are right about their own axis. The correctness
+requirement wins, it is now stated in the KDoc as a requirement on the caller,
+and the performance note is refused: no profiler has said so, and the
+reviewer's own text records that every other handler in the file is written
+the same way. A LOW that would reintroduce a MEDIUM is not a LOW.
+
+### `scopeOf`, and why it was deleted rather than wired
+
+6cf offered two readings — pinned-sentence file, or gap. It is a third: a
+one-line wrapper for `pool(kind).scope`, for "a screen that shows why it is
+offered". The screen **does** show it, from a row it already holds for
+`pool.pool` and `pool.max`, so calling the wrapper would resolve the same row
+twice to deliver one of its three fields. An accessor for one field of three
+is not an abstraction. Deleted, with the reasoning left where it stood.
+
+### Verified
+
+No unit test was added and none can be: the whole defect lives in a composable,
+and this repo tests none (CLAUDE.md section 6). **1117 Kotlin and 267 Python,
+all green and all unchanged** — said plainly, because a green suite proves
+nothing about this slice. The device is the instrument.
+
+`Medium_Phone_API_36.1`, Academic Researcher seeded as a **Fool Sequence 9**
+(SPI 9/9, Ritualistic Magic 13) — the attack dialog does list it, alongside
+Divination Arts 12 and Spiritual Intuition 12:
+
+- **Before**, on the unmodified build: `3d6: 13 vs 13 — success`, then the
+  scope line, then the false sentence. Sheet read SPI 9/9 throughout.
+- **After**: `1 SPI buys +1, and the book prints no cap. Spent so far: 0.`
+  with chips +1..+4.
+- Pushing +2 read `3d6: 10 vs 15 — base 13, modified to 15`, sheet dropped to
+  **SPI 7 / 9**, and `sessions.json` held `"spiSpent":2`. The target moves and
+  the pool is charged — the half the old handler would have dropped.
+- **The shared pool, which is the review's question 2**: a Rapid Strike made
+  two attacks, each with its own "Spent so far: 0" (the cap is per roll).
+  Spending **4** on the first shrank the SECOND row's offer from +1..+4 to
+  **+1..+3 without it being touched**. No stale snapshot.
+- Draining to 0 brought the disclaimer back **on both rows**, which is the
+  point: it was never wrong to print, only wrong to print then.
+- **The route that changed rather than appeared**, on Barmaid Brawler: All-Out
+  Attack (Determined) at 2 FP plus a +2 push left **FP 6 / 10**. Two and two,
+  charged once each — the maneuver's `onSpendFp` and the push's `onBurn` reach
+  the same pool by different events and do not double-charge.
+
+**Codex still refuses** (resets 2026-08-20 14:23). Two `ecc:kotlin-reviewer`
+passes, one on the decomposition and one on the diff, each scoped to three
+questions.
+
+**Next, with evidence.** Nothing from 6cf's sweep is left: `scopeOf` is gone
+and `attackOptions` was 6cg. The largest thing outstanding is still 6ca's
+`Ether Body Damage`, which wants purchasable traits — and 6cb's verdict that a
+printed cost RANGE and a printed `(specify)` are one feature, not two.
 
 ## 6cg. A pin that only runs one way
 

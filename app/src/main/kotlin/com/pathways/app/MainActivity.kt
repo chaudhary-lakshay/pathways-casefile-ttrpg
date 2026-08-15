@@ -623,6 +623,21 @@ fun SheetScreen(
         }
     }
 
+    // Ch. 2's burn, charged the moment it is bought. The book allows it after
+    // the result is seen, so the pool moves when the player pushes -- printing
+    // the rule and not charging it is how a tracker starts lying (6m).
+    //
+    // ONE lambda for both dialogs that offer the push. The attack dialog used
+    // to charge only the physical half, so a mystical push there would have
+    // moved the target for free; two copies of "which pool does this kind
+    // spend" is the same-predicate-at-two-call-sites defect, and the cure is
+    // to answer it once (a design review, on this slice's decomposition).
+    val burn: (BurnKind, Int) -> Unit = { kind, points ->
+        val pool = if (kind == BurnKind.PHYSICAL) Pool.FP else Pool.SPI
+        val max = if (pool == Pool.FP) vitals.maxFp else vitals.maxSpi
+        session.spend(pool, points, max, maxCor)
+    }
+
     rolling?.let { skill ->
         RollDialog(
             label = skill.label,
@@ -672,15 +687,7 @@ fun SheetScreen(
                         circumstances,
                 )
             },
-            // Ch. 2's burn, charged the moment it is bought. The book allows
-            // it after the result is seen, so the pool moves when the player
-            // pushes -- printing the rule and not charging it is how a
-            // tracker starts lying (6m).
-            onBurn = { kind, points ->
-                val pool = if (kind == BurnKind.PHYSICAL) Pool.FP else Pool.SPI
-                val max = if (pool == Pool.FP) vitals.maxFp else vitals.maxSpi
-                session.spend(pool, points, max, maxCor)
-            },
+            onBurn = burn,
             onDismiss = { rolling = null },
         )
     }
@@ -747,7 +754,17 @@ fun SheetScreen(
             dice = appDice,
             // An All-Out maneuver's own FP is spent like any other: through
             // the tracker, so the next roll is made by a tireder character.
+            // Distinct from [burn]: this is the maneuver's printed price, not
+            // Ch. 2's push.
             onSpendFp = { session.spend(Pool.FP, it, vitals.maxFp, maxCor) },
+            // A plain expression, deliberately NOT remembered. `spiSpent` is
+            // observable state, so this recomputes on every recomposition and
+            // the second attack of a Rapid Strike sees what the first one
+            // spent. Captured in a `remember` it would go stale and let one
+            // maneuver spend the same SPI twice (a design review's finding,
+            // and invisible in a diff because the stale version looks right).
+            spiAvailable = vitals.maxSpi - session.spiSpent,
+            onBurn = burn,
             darknessReduction = TraitEffects.darknessReduction(traits),
             onDismiss = { attacking = false },
         )

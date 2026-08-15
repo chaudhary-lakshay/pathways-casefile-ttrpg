@@ -72,6 +72,30 @@ fun AttackDialog(
     dice: RandomSource,
     onSpendFp: (Int) -> Unit,
     /**
+     * What is left of the character's SPI, for Ch. 2's mystical push.
+     *
+     * This was a hardcoded 0 from the day [BurnRow] gained the parameter, and
+     * no slice ever argued for it. `EffortBurn.affordable` reads it, so a 0
+     * drove that row's early return and told a Beyonder at full SPI they had
+     * "no spirituality left" -- on a screen that had just printed the rule
+     * granting the push. Every skill is offered here (see the KDoc above), and
+     * `pathways.json` grants Ritualistic Magic at Sequence 9 of six pathways,
+     * so the false sentence was reachable on a character's first potion.
+     *
+     * Must be passed as a LIVE expression by the caller, never a remembered
+     * one: a maneuver can make two attacks and they share this one pool.
+     */
+    spiAvailable: Int,
+    /**
+     * Ch. 2's push, charged through the tracker.
+     *
+     * Takes the KIND rather than being a second FP-shaped callback: the
+     * kind-to-pool question is answered once, in the caller both dialogs
+     * share. The old handler charged the physical half and silently dropped
+     * the mystical one, which would have moved a target for free.
+     */
+    onBurn: (BurnKind, Int) -> Unit,
+    /**
      * Night Eyes' "reduce all darkness penalties by 2", or 0 without it.
      *
      * Passed in rather than derived here, and it decides only whether the
@@ -174,15 +198,21 @@ fun AttackDialog(
                         // one shared budget would let a fighter push one
                         // attack with the other's allowance. `burned` is
                         // therefore keyed by index and reset with the roll.
+                        // One skill per maneuver, so every outcome here shares
+                        // one kind: "you cannot spend both FP and SPI on the
+                        // same roll" cannot be violated from this dialog, and
+                        // EffortBurn.requireOnePool is deliberately not called.
+                        // Said out loud because a future multi-skill combo
+                        // would break that silently (a design review).
                         val kind = chosen?.key?.let(EffortBurn::kindFor)
                         if (kind != null && EffortBurn.canPush(outcome)) {
-                            BurnRow(kind, burned[index] ?: 0, spiAvailable = 0) { points ->
+                            BurnRow(kind, burned[index] ?: 0, spiAvailable) { points ->
                                 val already = burned[index] ?: 0
                                 outcomes = outcomes.toMutableList().also {
                                     it[index] = EffortBurn.applied(outcome, kind, points, already)
                                 }
                                 burned = burned + (index to already + points)
-                                if (kind == BurnKind.PHYSICAL) onSpendFp(points)
+                                onBurn(kind, points)
                             }
                         }
                     }

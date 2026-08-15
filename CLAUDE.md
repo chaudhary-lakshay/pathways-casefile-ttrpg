@@ -6,7 +6,7 @@ written against commit `cf14e7c`; the counts in section 2 and the slice
 sections below are current as of `086ad7d` (slice 6be).
 
 **The slice log lives in [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — sections
-6a-6cg, moved out of this file because it was 497 KB against a 150 k-char
+6a-6ch, moved out of this file because it was 497 KB against a 150 k-char
 limit. Every reference below to a slice by number points there.
 
 **Read the slice log from the END.** 6ax is a handover header; 6ay through
@@ -20,12 +20,27 @@ none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 claim the way 6ax asks you to verify 6ax.
 
 **Codex is refusing again** — usage limit, resets **2026-08-20 14:23** from its
-own error text. 6cg's last pass was the documented `ecc:kotlin-reviewer`
-fallback, and it returned a HIGH in under two minutes on three questions and
-two files — the scoping budget, again (6af, 6cb). Check the CLOCK and not just
-the date (6am, 6as).
+own error text. Every pass since 6cd has been the documented
+`ecc:kotlin-reviewer` fallback, scoped to three questions and the files needed
+to answer them — 6cg's returned a HIGH in under two minutes, and 6ch ran two
+(decomposition, then diff). The scoping budget keeps paying (6af, 6cb). Check
+the CLOCK and not just the date (6am, 6as).
 
-**6cg is newest**: it takes 6cf's deferred `attackOptions` loader and finds it
+**6ch is newest**: `AttackDialog` passed `spiAvailable = 0` as a LITERAL, and
+**no slice in the 7400-line log ever argued for it** — so the dialog told a
+Beyonder at full SPI they had "no spirituality left", one line under the rule
+granting the push. Reachable on a character's FIRST potion (Ritualistic Magic
+is granted at Sequence 9 of six pathways). Read it for two things. Its design
+review made it CHECK its own reachability claim rather than assert it — the
+Roll button turned out to need no weapon, but that was a claim until
+`AttackDialog.kt:521` said so. And **its two reviews contradict each other**:
+the design review requires `spiAvailable` be live and never `remember`ed
+(two attacks of one maneuver share one pool), and the diff review's only
+finding proposes memoizing it for recomposition cost. The correctness axis
+wins and the refusal is recorded — **a LOW that would reintroduce a MEDIUM is
+not a LOW.**
+
+**6cg is next**: it takes 6cf's deferred `attackOptions` loader and finds it
 is neither of the two things 6cf offered — the rules ARE applied, and what was
 missing is the **direction of the pin**. The Python extractor pins the book's
 sentence INTO the JSON; nothing ran JSON → Kotlin, so the only two constants in
@@ -38,7 +53,7 @@ SIGN, the cheaper mutation and the one this repo has already measured once
 (section 5, base -4 landing on +2). And for a finding refused: the same check on
 the neighbouring row, whose clause `PINNED_OPTIONS` already pins whole.
 
-**6cf is next**: it wires up a +2 the divination screen has never asked
+**6cf after it**: it wires up a +2 the divination screen has never asked
 for — extracted in 6p, tested, documented, and called by NOTHING. Read it
 for the sweep that found it, which is a sixth direction this repo had never
 run deliberately: **every public rules function checked for a UI caller**.
@@ -60,7 +75,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6cg, then 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6ch, then 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -649,10 +664,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6cg. The slice log
+## 6a-6ch. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6cg is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6ch is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

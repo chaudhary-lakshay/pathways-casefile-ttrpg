@@ -234,8 +234,12 @@ object EffortBurn {
         }
     }
 
-    /** The row's own words, for a screen that shows why it is offered. */
-    fun scopeOf(kind: BurnKind): String = pool(kind).scope
+    // scopeOf(kind) lived here, uncalled and untested: a one-line wrapper for
+    // pool(kind).scope, for "a screen that shows why it is offered". The
+    // screen does show it -- from a row it already holds for pool.pool and
+    // pool.max, so the wrapper would have resolved the same row twice to
+    // deliver one of its three fields. An accessor for one field of three is
+    // not an abstraction, and 6cf's API sweep is what surfaced it.
 
     private val PHYSICAL_ATTRS = setOf(Attr.ST, Attr.DX, Attr.HT)
 }
