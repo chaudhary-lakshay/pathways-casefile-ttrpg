@@ -12,10 +12,20 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Nothing is outstanding.** 6cc is device-verified; both suites green, working
-tree clean. Verify that claim the way 6ax asks you to verify 6ax.
+**Nothing is outstanding.** Both suites green, working tree clean. Verify that
+claim the way 6ax asks you to verify 6ax.
 
-**Where to start next: 6cc, then 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Codex is refusing again** — usage limit, resets **2026-08-20 14:23** from its
+own error text. 6cd's last pass was the documented `ecc:kotlin-reviewer`
+fallback. Check the CLOCK and not just the date (6am, 6as).
+
+**6cd is the one to read first**, for a sentence that settles a question this
+file has circled four times: **"cost-inside-bounds corroborates pricing
+validity, not catalogue identity."** It refuses a rule that resolves two more
+sheet spellings and that excludes every objection previously raised against it
+— because excluding counter-examples is not the same as producing evidence.
+
+**Where to start next: 6cd, then 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -244,7 +254,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1104 Kotlin** (JUnit 5 — 998 `core:rules`, 86 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
+| Tests | **1106 Kotlin** (JUnit 5 — 1000 `core:rules`, 86 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -7311,6 +7321,101 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6cd. A quotation is evidence; a filter is not
+
+`TraitEffects.quotedInstanceRow` resolves the six `Sense of Duty (group)`
+spellings the fixtures carry, and **refuses the rule that would also resolve
+`Secret`** — which is the slice.
+
+6by recorded eight sheet spellings as a GAP and named the narrow warrant a
+successor should start from. 6cb then re-read them, and 6cc built a whole
+feature on the premise that **a printed cost RANGE means the row needs an
+instance to settle its cost**. That premise looks like it licenses the rule 6by
+refused, so the question was put to a design review before any code, with both
+candidates written out and the reviewer asked to argue the strongest case
+against the one I was leaning toward.
+
+| | |
+|---|---|
+| **(A)** the verbatim-quotation warrant, resolving Sense of Duty | **accepted** |
+| **(B)** "a bounded interval and no enumerated variants means a bracket instantiates it", resolving Secret too | **refused** |
+
+### Why (B) fails, in one sentence worth keeping
+
+**"Cost-inside-bounds corroborates pricing validity, not catalogue identity."**
+
+(B) is a real narrowing — it excludes Shyness and Social Stigma because they
+enumerate, and Reputation because it prints no bounds, which are exactly the
+three objections 6by raised. But **excluding the counter-examples is not the
+same as producing evidence.** The corroboration on offer — all 19 fixture
+instances paying inside their printed interval, pinned as a test in 6cb — is
+about what a row COSTS, and the question is what a row IS. Strip the filters
+and (B) is the plausible match 4.1 calls repair.
+
+So the app now reads a bracket for exactly one row, and the set is named in
+production with the quotation pinned by a test rather than derived — the
+evidence lives in the FIXTURES and production cannot read them.
+
+### What (A) rests on, and how far it carries
+
+Church Healer prints `"Sense of Duty (Flock) - "` followed by that row's own
+effect cell **verbatim** — the only spelling in the corpus that quotes exactly
+behind an instantiated head, which 6cb had already had to correct 6by about.
+That is the sheet asserting the instantiated name IS the bare row. The five
+bare instances follow because the cell says *"certain groups"* and Patients,
+Friends, Public, Coworkers and Workers are each a group: the same pattern
+applied, not five independent guesses. It carries no further — `Secret` prints
+an interval and enumerates nothing, exactly as Sense of Duty does, and no sheet
+quotes its cell.
+
+### Five guards fired, and one of them was built for this
+
+Every one recorded the old state and had to be moved deliberately:
+`a tail that is not the book's own words`, the unmatched-glued pin, the
+`(specify)`-boundary test, 6by's census map — and **6bz's asymmetry guard**,
+which exists to fail when production out-reaches the test-side audit. It did,
+naming the six spellings. That is the one construct in this repo that cannot
+notice when it stops being needed, so it is worth saying it noticed.
+
+### Two review findings, both mine, both about the same seam
+
+- **The glued path dropped its tail unconditionally**, resolving on the bracket
+  alone — so a sheet whose quotation was a typo, a partial quote or a different
+  note would have resolved anyway. That is the repair 4.1 forbids, and it let
+  the new path round 6br's exact-tail rule. The tail must match now, and the
+  truncated near-miss is pinned. **My own KDoc claimed that near-miss was
+  covered while the test I had just edited no longer covered it** — a
+  count-in-prose error inside a doc comment.
+- **`displayName` did not know about the resolver**, so Church Healer's row
+  would print the 130-character effect cell as its TITLE and repeat it as the
+  note underneath. 6br's device-only defect, one resolver over.
+
+**Codex hit its usage limit** partway through (resets 2026-08-20 14:23), after
+returning both findings above. The third pass was the documented fallback —
+one `ecc:kotlin-reviewer`, scoped to two named files with six explicit probes
+(6af: scoping is what gets an answer). It returned **no CRITICAL or HIGH**,
+traced all six to a file:line rather than asserting, and found one LOW worth
+taking: a `contains(SHEET_SEPARATOR)` guard of mine was a no-op, since
+`substringBefore` returns the receiver when the delimiter is absent — and a
+no-op that reads as load-bearing misleads the next reader.
+
+**1106 Kotlin** (1000 `core:rules`, 86 `app`, 20 `core:model`) and **261
+Python**, all green. RED-proved on the boundary that matters: adding `"Secret"`
+to the set fails **four** guards, which is the refusal made checkable rather
+than argued.
+
+**Display-only, and said rather than implied.** `Sense of Duty` prints no roll
+and no number, so what this buys is the effect cell rendering on the sheet
+where six characters previously showed a bare name. Not device-verified for
+that reason — no number moves, and the one visual risk (the title repeating the
+note) is pinned by a test after the review caught it.
+
+**Next, with evidence:** `Secret` needs a sheet to quote its cell, and none
+does — so it is not a slice until the data changes. The remaining unresolved
+spellings are the recorded disagreements 6by triaged (Absent-Minded, Paranoia,
+two Pacifisms, No Sense of Humour, Wierdness Magnet, Blacklisted), each refused
+for a reason that still holds.
 
 ## 6cc. One record shape, and five review passes to get its identity right
 
