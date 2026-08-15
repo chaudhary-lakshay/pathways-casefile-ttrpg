@@ -12,7 +12,13 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Where to start next: 6cb, then 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**6cc is DEVICE-UNVERIFIED — it is the one outstanding thing in this repo.**
+It ships a picker, a settle dialog and a save-schema change, and every one of
+its nine review findings was an identity bug in the UI state machine, which is
+the half no unit test reaches (6bk). Run the device pass named at the end of
+6cc before building anything else.
+
+**Where to start next: 6cc, then 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -241,7 +247,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1086 Kotlin** (JUnit 5 — 987 `core:rules`, 79 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
+| Tests | **1104 Kotlin** (JUnit 5 — 998 `core:rules`, 86 `app`, 20 `core:model`) + **261 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -7308,6 +7314,116 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6cc. One record shape, and five review passes to get its identity right
+
+`PurchasableTraits.instantiable` / `.instanced` / `.resolved` price the
+seventeen rows the picker withheld, and the builder buys them. This is the
+slice 6cb named after its design review collapsed two roadmap items into one:
+**a printed cost RANGE and a printed `(specify)` are the book asking for an
+instance in two notations**, so they are one feature.
+
+**It is not cosmetic.** `Obsession` prints a flat self-control target in the
+book's own NAME ("Obsession (12)", stripped into the catalogue by the extractor
+in 6am) and `Compulsion: Collection (pathway)` prints Will−2 in its effect
+cell. Both print a RANGE rather than a price, so **neither roll was reachable
+by any route** before this. `Phobia (specify)` likewise carries the only Fright
+Check modifier this app applies (6bv).
+
+### The parts are stored and the name is composed, in three rules
+
+Codex's design verdict was blunt: do not store `"Shyness (Mild)"`, because the
+book prints `Shyness` and prices `Mild` inside the cell — that spelling is the
+SHEETS' convention, and persisting it makes an app-authored string into
+canonical data. So `SavedInstancedTrait(row, variant?, instance?, cost)` holds
+the parts, and the identity is composed at load:
+
+| Row shape | Composed name |
+|---|---|
+| prints `(specify)` | `Phobia (Cities)` — the instance |
+| its cell enumerates priced variants | `Shyness (Mild)` — the variant |
+| anything else | **`Sense of Duty`** — the book's own bare name |
+
+- **The third rule is the load-bearing one.** `"Sense of Duty (Patients)"`
+  resolves to nothing in this app — a recorded gap (6by), not a refusal — so
+  composing it would hand the engine an identity it cannot match and the trait
+  would silently do nothing. The instance is kept for display alone.
+- **Which is exactly why nothing may key on the composed name.** Two
+  `Sense of Duty` purchases differ only in their instance and are identical as
+  `Trait`s. Removal is therefore by INDEX, and a purchase is identified by
+  `InstancedPurchase.key`.
+
+### Monastery Scholar carries two Vows, and that decided the duplicate rule
+
+A census of the fixtures found one published sheet holding one instantiable row
+twice — `Vow (Partial Silence)` and `Vow (Vegetarian)` — so the blanket
+single-copy refusal `canBuy` applies to fixed-price rows would **forbid a
+character the book prints**. Checked against the data rather than reasoned
+about (6bs, 6bv).
+
+**But a variant is not an instance**, which took a review pass to see: Shyness
+is Mild *or* Severe, two readings of one condition, where a second vow is a
+second vow. Since a purchase carries a variant XOR an instance, the fix was to
+drop the variant from the key entirely — an enumerating row then keys on itself
+and admits one, and every other row keys on what the instance is. One line,
+both rules.
+
+### Five review passes on the app half, and every finding was an identity bug
+
+Each one is the same shape — two things that should be one — and none is
+visible in a unit test that checks a value:
+
+1. **Buy refused only an identical row**, cost included, while composition
+   keyed without the cost. The same trait saved at two prices: billed once,
+   listed twice, and giving back the first would silently change what the
+   second cost.
+2. **Enumerated variants counted as separate instances**, so a premade printing
+   `Shyness (Mild)` could be sold `Shyness (Severe)` beside it and the budget
+   billed both.
+3. **That severity rule lived in the picker only**, so a hand-edited save got
+   round it — the fix is below the UI, which is the call 6bx's wealth exclusion
+   already needed for the same reason.
+4. **The builder resolved a saved row without the held traits**, so it could
+   price a purchase the composed character did not have. Fixed by making ONE
+   call answer both questions (`resolved`), not by adding a second check.
+
+Plus four on the rules half: an interval accepted without the instance that
+settles it (which contradicted my own KDoc), an unlicensed entry consuming a
+duplicate key and suppressing the corrected purchase behind it, an unnormalised
+key, and `unoffered()` still reporting rows the same object had just made
+buyable — an API contradicting itself.
+
+- **`Reputation` and `Language (specify)` stay withheld**, with a sharper
+  reason than "prints a range": they print **no bounds at all**, so there is no
+  interval to choose inside. An unbounded row is not a range with no ceiling —
+  it is a pricing procedure this app has not read, and taking whatever number a
+  player typed would make the SAVE authoritative over the book, inverting the
+  rule every other stored choice here follows.
+- **A save cannot widen what the book allows.** The cost is the one stored
+  number that could contradict the catalogue, so it is re-validated against the
+  printed interval on every load — skipped, never deleted (6as).
+- **`SavedEdits` gains a SEPARATE list rather than widening `traits`**, and
+  that is a compatibility decision: `traits` is a `List<String>` in every save
+  already written, and `SessionStore.load` discards the WHOLE file on a decode
+  failure, so one schema change would cost every character their walk. Pinned
+  by a test that loads a save written before this slice existed.
+- **Two Phobias are two declarations**, and it falls out rather than needing a
+  rule: a fright clause is keyed by the DISPLAYED name, so `Phobia (Cities)`
+  and `Phobia (Spiders)` are separately declarable and separately applied.
+
+**1104 Kotlin** (998 `core:rules`, 86 `app`, 20 `core:model`) and **261
+Python**, all green. Three readings RED-proved by neutering each and restoring
+from a `cp` backup (6br): the bare-name composition (3 failures), the duplicate
+key (2), the printed interval (1); the two rules-half review fixes were
+RED-proved together (2).
+
+**DEVICE-UNVERIFIED, and that is a real gap rather than a formality.** No
+device was attached and none was started. Every finding this slice produced was
+in the UI state machine, which is precisely the half no unit test reaches
+(6bk) — so the next action is a device pass over: buying a ranged row and a
+`(specify)` row, the variant chips, the cost stepper's bounds, two Vows side by
+side, Give back on the right one of two identical names, and a Shyness row
+greyed out on a character who already has one.
 
 ## 6cb. The census that had to become a test, and a design that survived one question
 
