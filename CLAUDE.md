@@ -48,6 +48,33 @@ to answer them — 6cg's returned a HIGH in under two minutes, and 6ch ran two
 (decomposition, then diff). The scoping budget keeps paying (6af, 6cb). Check
 the CLOCK and not just the date (6am, 6as).
 
+**There is now a free second reviewer.** `node ~/.claude/qa/qa.mjs` drives the
+`pi` CLI against a local **9router** gateway (`http://127.0.0.1:20128/v1`,
+provider `9router` in `~/.pi/agent/models.json`) — free upstreams, so it costs
+nothing and can run for hours. Read-only by default (`-xt edit,write`), and when
+`--dir` is this repo, pi discovers this file the way Claude does — that is
+cwd-based discovery, not something the script passes, and `-nc` is the flag that
+turns it off — so the section 4 rules apply to its reviews too.
+
+```bash
+node ~/.claude/qa/qa.mjs probe                  # which models actually answer today
+node ~/.claude/qa/qa.mjs review [--base REF] [focus]   # first model that answers
+node ~/.claude/qa/qa.mjs panel  [--base REF] [focus]   # all four, same diff
+node ~/.claude/qa/qa.mjs ask "<question>"       # read+bash, no edits
+node ~/.claude/qa/qa.mjs sync --key <KEY>       # re-read the gateway catalogue
+```
+
+**Probe before you trust the catalogue.** The gateway advertises 20 models and
+**4 answered** on 2026-08-15 (`nvidia/z-ai/glm-5.2`,
+`nvidia/minimaxai/minimax-m3`, `ollama/gpt-oss:120b`, `ollama/minimax-m3`); the
+rest returned 401 (grok-cli login expired), 410 (model EOL) or 404 (never
+pulled). A model id in `pi --list-models` is a claim about the past. `review`
+fails over down the panel on 429 and waits out the printed reset window, so a
+single rate limit is not a refusal — but **every one of these is a small free
+model, so it is a widener, not a replacement for Codex**: treat a finding as a
+lead to verify, never as a verdict, and keep the scoping budget (≤3 questions,
+only the files needed).
+
 **6cm is newest**, and its most reusable finding is about a BAR rather than a
 rule. 6ck refused the facing penalty because its bullets print "to defense"
 singular with no second printing to widen them; Dive! sits in that same bullet
