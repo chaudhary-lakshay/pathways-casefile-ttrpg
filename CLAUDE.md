@@ -6,7 +6,7 @@ written against commit `cf14e7c`; the counts in section 2 and the slice
 sections below are current as of `086ad7d` (slice 6be).
 
 **The slice log lives in [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — sections
-6a-6ck, moved out of this file because it was 497 KB against a 150 k-char
+6a-6cl, moved out of this file because it was 497 KB against a 150 k-char
 limit. Every reference below to a slice by number points there.
 
 **Read the slice log from the END.** 6ax is a handover header; 6ay through
@@ -16,11 +16,14 @@ the book grades a ritual that worked, and a whole 75-point advantage table —
 none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 6ax says to treat its predecessors: verify it, do not inherit it.
 
-**Three `defense_modifiers.json` bullets are outstanding, and 6ck says why
-they are three slices rather than one**: Retreat prints three numbers scoped per
-defence row, Dive! one scoped to Dodge and to ranged, and Acrobatic Dodge is not
-a modifier but a ROLL against Acrobatics (+2 on a success, -2 on a failure) this
-app could make. Take the roll first.
+**Two `defense_modifiers.json` bullets are outstanding.** 6cl took the roll
+6ck ranked first — Acrobatic Dodge is applied now — and the two that remain each
+fail a different test, which is why they are two slices rather than one: Retreat
+prints three numbers scoped per defence row, Dive! one scoped to Dodge and to
+ranged. **Take Dive! next**: its two conditions are both already declared on the
+defence screen. Book lines 2456-2457 ("Each can be used once per round") stay
+unclaimed on purpose — that sentence governs all three free actions, so the
+slice that enforces it enforces all three.
 
 **Nothing in the two FP tables is outstanding.** 6cj closed the last one:
 `All-Out Defense (Double)` is a priced row this app deliberately does not
@@ -38,7 +41,21 @@ to answer them — 6cg's returned a HIGH in under two minutes, and 6ch ran two
 (decomposition, then diff). The scoping budget keeps paying (6af, 6cb). Check
 the CLOCK and not just the date (6am, 6as).
 
-**6ck is newest**, and it found the same false sentence in THREE files: "the
+**6cl is newest**, and its most reusable finding is about a REASON rather than
+a rule. It withheld the Acrobatic Dodge roll from an untrained character citing
+6aw's recorded defect in `SkillLadder.defaultFor` — and a design review pointed
+out that 6aw's three overrides are the *unarmed-parry* skills, so the cited
+defect could not answer wrong for Acrobatics at all. **A recorded defect is
+evidence about the inputs it was measured on**; the refusal survived only
+because reading `common_modifiers.json` produced a real reason (the untrained
+default is stored as a RANGE with no number). Read it also for the finding that
+changed a number: rolling through `SuccessRoll` instead of `SkillRoll` would
+have had a reeling character roll Acrobatics at one target in the defence dialog
+and another on the sheet, because `Conditions`' HP/FP penalties are unscoped.
+And for a latch refused as the mirror of 6ck's own refusal — enforcing a
+sentence printed PLURAL ("Each of the three free actions…") on one member.
+
+**6ck is next**, and it found the same false sentence in THREE files: "the
 book prints no arc to test against", explaining why facing is unmodelled. The
 book prints the arc — "Attacked from side: -2 to defense" / "-4 to rear" — in
 the list the defence dialog itself renders, and the model's version of the
@@ -145,7 +162,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6ck, then 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6cl, then 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -374,7 +391,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1121 Kotlin** (JUnit 5 — 1015 `core:rules`, 86 `app`, 20 `core:model`) + **267 Python** (pytest), all green |
+| Tests | **1127 Kotlin** (JUnit 5 — 1020 `core:rules`, 87 `app`, 20 `core:model`) + **268 Python** (pytest), all green — counted at 6cl, where this row was found two slices stale |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -734,10 +751,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6ck. The slice log
+## 6a-6cl. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6ck is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6cl is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

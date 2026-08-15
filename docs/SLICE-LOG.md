@@ -6721,6 +6721,129 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6cl. The bullet with a die behind it, and a caveat borrowed from the wrong table
+
+6ck named three display-only `defense_modifiers.json` bullets and ranked
+**Acrobatic Dodge** first, on the grounds that it is not a modifier at all but a
+ROLL this app can make: *"[Free Action] [Acrobatic Dodge] Roll vs. Acrobatics:
+success gives +2 Dodge; failure gives -2 Dodge. Stacks with Retreat."*
+Extracted since 6g, applied by nothing. That ranking held, and the slice shipped
+it. Two of the 23 premades carry Acrobatics (Street Acrobat, Underground
+Courier), so the control is reachable rather than merely correct (6bs).
+
+### The design review was right to say NO-SHIP, and its best finding was about a REASON
+
+Four findings before any code existed. The sharpest one did not attack the
+decision — it attacked the argument for it, and the decision survived on a
+different reason.
+
+**I withheld the roll from a character without the skill, citing 6aw**:
+`SkillLadder.defaultFor` has no production caller and cannot express the
+per-skill overrides p. 39 prints (Brawling DX-2, Wrestling **no default**). The
+review's answer: **those three rows are the unarmed-parry skills, and Acrobatics
+is not among them.** The cited defect could not have produced a wrong answer for
+this skill at all. I had imported a caveat from a table this case does not sit
+in and let it stand in for a reason.
+
+The refusal survives on the reason that actually does the work, found by reading
+the content rather than the precedent: `common_modifiers.json` stores the
+untrained row as **"Using untrained skill (default): Attribute -4 to -6" with no
+`modifier` number at all** — the book prints a RANGE, so there is no target to
+roll against without choosing a policy for 158 skills. **A recorded defect is
+evidence about the inputs it was measured on**; reusing it for a different input
+is an unchecked generalisation, and it hides the fact that no reason has been
+given.
+
+### The once-per-round latch, refused for the shape 6ck had just refused
+
+The plan latched the roll and offered a **"New round"** button to clear it. Two
+answers killed it:
+
+- **`ParriesThisRound` is the precedent and it runs the other way.** The GM sets
+  it, the app never increments it. A latch has the app assert "the round has not
+  ended" on a screen whose every other round-scoped fact is a declaration — and
+  a button clearing only this roll while `priorParries` still reads 3 and a paid
+  boost still says "this turn" is **false by omission**.
+- **The warrant is plural and the enforcement was singular.** Lines 2456-2457
+  read "Retreat, Acrobatic Dodge, and Dive! are free actions … **Each** can be
+  used once per round". Enforcing that on one of the three is the mirror image
+  of 6ck's refusal, which turned on a rule being printed *singular*. So the
+  limit is the GM's, the roll is re-rollable, and the paragraph stays unclaimed
+  for the slice that enforces it for all three.
+
+### The finding that changed a number: a roll is not a `SuccessRoll`
+
+The plan rolled `SuccessRoll.against(level, dice)`. Every other skill roll in
+this app goes through `SkillRoll.at` carrying `Conditions.forSkill`, whose HP
+and FP penalties are **unscoped — they reach every skill**. So a reeling
+character would have rolled Acrobatics at one target in this dialog and another
+on the sheet screen: one rule, two sites, the class that has broken this
+codebase's numbers three times (6ag, 6ai, 6be), reachable in the exact state a
+defence dialog is opened in. `DefenseDialog` now takes the same
+`conditions: (SkillKey) -> List<Modifier>` ledger `AttackDialog` does.
+
+### What shipped
+
+`ActiveDefenses.acrobaticDodge(Outcome?)` — null (not rolled) is 0, a success is
+`+ACROBATIC_SWING`, a failure is `-ACROBATIC_SWING`. **One constant, not a +2 and
+a -2**: the bullet prints one magnitude twice and a pair could drift. A critical
+counts as its plain sibling, because the bullet prints two outcomes and only two.
+
+The ±2 joins the bought boost on the **Dodge row alone** and stays out of
+`everyDefence`, which is reserved for rules printed plural — the same bar 6ck
+held the facing penalty to, answered the other way because this bullet names
+Dodge twice.
+
+`ActiveDefenses.unappliedModifiers()` is new and is the 6bl guard in structural
+form. The dialog printed all five bullets as bare notes while all five were
+display-only; one now reaches a number, and printing it beside the four that do
+not — with neither marked — is precisely the disclaimer-outlives-its-rule defect
+6bl found **on this same screen**. The partition lives in rules so a test can
+read both halves, and its last assertion is deliberately asymmetric:
+`all - applied` drops the FIRST match while `filterNot` drops every one, so a
+second bullet carrying the tag fails loudly instead of vanishing from the UI.
+
+`extract_defenses.PINNED` gains the three phrases the app now applies, **sign-
+anchored** — `"success gives +2 Dodge"`, not `"2 Dodge"`, because 6cg measured
+that a magnitude guard is satisfied by a sign flip. A pytest case feeds `verify()`
+a bullet with both signs reversed and asserts it raises.
+
+**Two more files carried the same false excuse**, one slice after 6ck found the
+last set: `Content.kt`'s `DefenseModifier` KDoc and `extract_defenses.py`'s
+docstring both said there is "no single figure to extract" because Acrobatic
+Dodge carries a bonus and a penalty — an excuse drawn from ONE row and
+generalised to a table whose first two bullets print exactly one number each.
+Both now say what is true and narrower.
+
+### Verified
+
+**1127 Kotlin** (1020 `core:rules`, 87 `app`, 20 `core:model`) and **268
+Python**, green. Three RED-proofs: flipping the failure branch's sign fails 5
+rules tests; removing the partition's filter fails 1; and the Python sign-flip
+guard is a live test rather than a manual proof. `extract_defenses.py` re-run
+against the PDF wrote both JSON files byte-identical, so the pinned phrases are
+really there. The Dodge row's composition is not unit-testable (this repo tests
+no composables) and is **unverified on device** — stated, not skipped.
+
+**Codex still refuses** (resets 2026-08-20 14:23). Two `ecc:kotlin-reviewer`
+passes, decomposition then diff. The diff pass returned SHIP with three LOWs:
+two taken (the roll state is now keyed on the skill, so a level change cannot
+leave a stale ±2 on the row, and the skill is carried as a `Pair` rather than a
+live `Map.Entry`, which is unstable and can never skip recomposition), one
+refused with its reason recorded in the KDoc — `printedAcrobaticDodge()` throws
+on a content drop, exactly as `printedStun()` already does on this screen.
+
+**Next, with evidence.** Two `defense_modifiers.json` bullets are still
+display-only and each still fails its own test: **Retreat** prints three numbers
+scoped per defence row (+3 Dodge / +1 Block / +1 Parry) and "vs. 1 melee attack
+per round", so it needs the per-row shape this slice did not; **Dive!** prints
+one number scoped to Dodge AND to ranged attacks, which this screen can express
+(`Incoming.SHOT` is already declared) but which costs a turn getting back up —
+a Change Posture this app has nothing to spend. Take Dive! next: its scope is
+two conditions the dialog already holds. And note that lines 2456-2457 remain
+**unclaimed on purpose** — the slice that enforces "once per round" must enforce
+it for all three bullets, which is what makes it one slice rather than three.
+
 ## 6ck. One excuse in three files, and the arc the book does print
 
 6cj closed by naming chapter 5's lines 2456-2457 as "unclaimed and unread".
