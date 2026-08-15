@@ -6,7 +6,7 @@ written against commit `cf14e7c`; the counts in section 2 and the slice
 sections below are current as of `086ad7d` (slice 6be).
 
 **The slice log lives in [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — sections
-6a-6cf, moved out of this file because it was 497 KB against a 150 k-char
+6a-6cg, moved out of this file because it was 497 KB against a 150 k-char
 limit. Every reference below to a slice by number points there.
 
 **Read the slice log from the END.** 6ax is a handover header; 6ay through
@@ -20,17 +20,32 @@ none visible in 6ax's own "nothing is outstanding" table. Treat 6ax the way
 claim the way 6ax asks you to verify 6ax.
 
 **Codex is refusing again** — usage limit, resets **2026-08-20 14:23** from its
-own error text. 6cd's last pass was the documented `ecc:kotlin-reviewer`
-fallback. Check the CLOCK and not just the date (6am, 6as).
+own error text. 6cg's last pass was the documented `ecc:kotlin-reviewer`
+fallback, and it returned a HIGH in under two minutes on three questions and
+two files — the scoping budget, again (6af, 6cb). Check the CLOCK and not just
+the date (6am, 6as).
 
-**6cf is newest**: it wires up a +2 the divination screen has never asked
+**6cg is newest**: it takes 6cf's deferred `attackOptions` loader and finds it
+is neither of the two things 6cf offered — the rules ARE applied, and what was
+missing is the **direction of the pin**. The Python extractor pins the book's
+sentence INTO the JSON; nothing ran JSON → Kotlin, so the only two constants in
+`Attacks` with no tie back to their row were exactly the two whose row lives in
+the file with no caller. **The absent caller and the absent guard are one fact,
+not two.** Read it also for the review finding: the first guard asserted
+`"$n to skill"`, which **a sign flip satisfies** — `"6 to skill"` is a substring
+of `"-6 to skill"` — so a guard against drift in MAGNITUDE was blind to drift in
+SIGN, the cheaper mutation and the one this repo has already measured once
+(section 5, base -4 landing on +2). And for a finding refused: the same check on
+the neighbouring row, whose clause `PINNED_OPTIONS` already pins whole.
+
+**6cf is next**: it wires up a +2 the divination screen has never asked
 for — extracted in 6p, tested, documented, and called by NOTHING. Read it
 for the sweep that found it, which is a sixth direction this repo had never
 run deliberately: **every public rules function checked for a UI caller**.
 323 functions, 46 uncalled, 3 real. 6aj and 6be each hit that class by
 accident; two of two by accident is not a method.
 
-**6ce is next**: it builds the table 6bc read and left, and that THREE
+**6ce after it**: it builds the table 6bc read and left, and that THREE
 slices deferred — 6bc, 6ca and 6cb — each on a reason that had already
 stopped being true. Read it for the shape of the check that costs a minute
 and settles it: **"occult skill" is printed nowhere in this book**, so the
@@ -45,7 +60,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6cf, then 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6cg, then 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -274,7 +289,7 @@ and the builder (attributes against a live point budget).
 
 | | |
 |---|---|
-| Tests | **1115 Kotlin** (JUnit 5 — 1009 `core:rules`, 86 `app`, 20 `core:model`) + **267 Python** (pytest), all green |
+| Tests | **1117 Kotlin** (JUnit 5 — 1011 `core:rules`, 86 `app`, 20 `core:model`) + **267 Python** (pytest), all green |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -634,10 +649,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6cf. The slice log
+## 6a-6cg. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6cf is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6cg is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

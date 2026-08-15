@@ -380,4 +380,64 @@ class AttacksTest {
     fun `Heroic Charge still names an extra effort option`() {
         assertTrue(ContentLoader.extraEffort().any { it.option == Attacks.HEROIC_CHARGE })
     }
+
+    /**
+     * The row in attack_options.json a constant was read from.
+     *
+     * Nothing in Kotlin called [ContentLoader.attackOptions] at all until
+     * these two tests, which is why the two constants whose row lives in that
+     * file were the only numbers in [Attacks] with no tie back to their
+     * content: the maneuver labels have one, and so do Strong Blow and Heroic
+     * Charge. The Python extractor pins the book's sentence INTO the JSON --
+     * the other direction, and it cannot see a Kotlin constant that walked
+     * away from the sentence it was read from.
+     */
+    private fun optionRule(option: String): String =
+        ContentLoader.attackOptions().firstOrNull { it.option == option }?.rule
+            ?: error("attack_options.json has no row named '$option'")
+
+    @Test
+    fun `the rapid strike penalty is still the one its own row prints`() {
+        // Built FROM the constant rather than from a literal, which is the
+        // whole point: a spelt-out "-6 to skill" passes under a changed
+        // constant, and that is exactly the miss this closes.
+        //
+        // The word BEFORE the number is load-bearing. "$n to skill" alone is
+        // satisfied by a sign flip -- "6 to skill" is a substring of "-6 to
+        // skill" -- and a penalty that turns into a bonus is the defect this
+        // codebase has already measured once, in ModifierResolver (CLAUDE.md
+        // section 5: base -4 landing on +2). Anchoring to "suffer" makes the
+        // minus sign part of the match instead of a prefix it can shed.
+        val rule = optionRule("Rapid Strike")
+        assertTrue(
+            "suffer ${Attacks.RAPID_STRIKE_PENALTY} to skill" in rule,
+            "RAPID_STRIKE_PENALTY no longer matches its row: $rule",
+        )
+        // The clause modifiers() refuses a ranged plan on -- the whole phrase,
+        // not the bare word, so a "melee" appearing anywhere else in a
+        // re-extracted row cannot stand in for the one that scopes the option.
+        // Python pins nothing about melee for THIS row (PINNED_OPTIONS holds
+        // only "-6 to skill"), so the require's stated warrant was unchecked
+        // on both sides.
+        assertTrue(
+            "melee Attack maneuver" in rule,
+            "Rapid Strike is no longer scoped to melee: $rule",
+        )
+    }
+
+    @Test
+    fun `the deceptive step price is still the one its own row prints`() {
+        // "a $n penalty" for the reason above: "2 penalty" alone survives a
+        // sign flip inside "a -2 penalty".
+        //
+        // No melee assertion here, deliberately: PINNED_OPTIONS already pins
+        // "-2 penalty to your melee attack roll for every -1" whole, so this
+        // row's scoping clause has a guard and a second one would be the
+        // belt-and-braces the repo's own token discipline refuses.
+        val rule = optionRule("Deceptive Attack")
+        assertTrue(
+            "a ${Attacks.DECEPTIVE_STEP_PENALTY} penalty" in rule,
+            "DECEPTIVE_STEP_PENALTY no longer matches its row: $rule",
+        )
+    }
 }

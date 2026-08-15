@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6cf, in the order they were written. **Read from the END.**
+Sections 6a-6cg, in the order they were written. **Read from the END.**
 The handover header, repo map, non-negotiable rules and process notes stay in
 `CLAUDE.md`.
 
@@ -6720,6 +6720,103 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6cg. A pin that only runs one way
+
+6cf deferred `ContentLoader.attackOptions` — "read by nothing at all, not app,
+not rules, not tests" — and asked whether `attack_options.json` is a pinned-
+sentence file or a gap. The claim is true as stated: the only Kotlin hits are
+the loader and its data class, and the app's `AttackOptions` composable is a
+name collision, not a caller. **It is neither of the two things 6cf offered.**
+
+The two rows hold Rapid Strike and Deceptive Attack, and both rules ARE
+applied — `Attacks.RAPID_STRIKE_PENALTY`, `DECEPTIVE_STEP_PENALTY`,
+`maxDeceptive`, `attackCount`, and two `require`s that refuse either at range.
+So there is no unapplied rule here. The defect is one layer up: **the pin runs
+in one direction only.**
+
+- `extract_combat.PINNED_OPTIONS` pins the book's sentence INTO the JSON, so
+  the book changing "-6 to skill" fails on the Python side. That is
+  book -> JSON.
+- Nothing ran JSON -> Kotlin. `AttacksTest` ties the enum's labels to
+  maneuvers.json (`every maneuver this enum implements still names a row in
+  the book`) and Strong Blow and Heroic Charge to extra_effort.json — every
+  number in `Attacks` had that tie **except the two whose row lives in the
+  file with no caller.** The absent caller and the absent guard are one fact,
+  not two.
+
+`AttacksTest`'s own class KDoc says "this is what pins it to the book", and
+for these two constants it did not. **Commentary about what is pinned expires
+exactly the way a sweep verdict does (6ba, 6bl)** — and here it expired at
+the moment it was written, because the tie it claims was never built for the
+rows in question.
+
+### What the new tests assert, and what was already covered
+
+Honest accounting, because two existing tests (`each rapid strike stacks
+another six`, `deceptive attack costs the attacker two per one imposed`)
+already fail if a constant moves:
+
+- The substrings are built FROM the constants, never spelt out. A literal
+  would pass under a changed constant, which is the whole shape of the miss.
+- The genuinely new coverage is **the melee clause on Rapid Strike's row**.
+  `modifiers` refuses a ranged plan carrying a rapid strike, and the sole
+  warrant for that `require` is the scoping clause in this row —
+  `PINNED_OPTIONS` pins the melee wording for Deceptive Attack's row and
+  **not** for this one. It was unchecked on both sides.
+- RED-proved by neutering the data rather than the code: dropping "melee"
+  from the Rapid Strike row leaves **all 267 Python tests green** and fails
+  exactly one Kotlin test. That is the direction that had no instrument.
+
+Both constants RED-proved the ordinary way as well — `-6` to `-5` and `-2` to
+`-3`, one at a time, restored from a `cp` backup each time (never
+`git checkout`, which discards uncommitted work).
+
+### The review found the guard passing under a sign flip
+
+The first version asserted `"${RAPID_STRIKE_PENALTY} to skill" in rule`, and
+that is **satisfied by `+6`**: `"6 to skill"` is a substring of
+`"-6 to skill"`, so the minus sign is a prefix the match can shed. Same for
+`"2 penalty"` inside `"a -2 penalty"`. A penalty silently becoming a bonus is
+not a hypothetical here — it is the defect this repo has already measured
+once, in `ModifierResolver` (section 5: base -4 landing on +2). **A guard
+written against drift in MAGNITUDE was blind to drift in SIGN**, which is the
+cheaper mutation and the worse one.
+
+The fix is one word each: anchor to the token before the number — `"suffer
+$n to skill"`, `"a $n penalty"` — so the sign is inside the match rather than
+in front of it. Verified both ways against the row text: the old form matches
+the sign-flipped string and the new form does not, and building with `+6`
+fails the tie test.
+
+Two more findings, one taken and one refused:
+
+- **Taken:** the bare word `"melee"` proves presence, not scope — a
+  re-extracted row mentioning melee anywhere else would satisfy it while the
+  clause that scopes the option disappeared. Now `"melee Attack maneuver"`,
+  the clause itself.
+- **Refused:** the same check on Deceptive Attack's row. `PINNED_OPTIONS`
+  already pins `"-2 penalty to your melee attack roll for every -1"` whole,
+  so that clause has a guard; a second is the belt-and-braces verification
+  this repo's own token discipline refuses. **A finding that is real for one
+  row is not automatically real for its neighbour** — the neighbour's guard
+  lives in the other language.
+
+**1117 Kotlin** and **267 Python**, all green. No production change: the two
+rules were already correct and already reach the dice, so there is nothing to
+device-verify.
+
+**Codex still refuses** (usage limit, resets 2026-08-20 14:23; today is
+2026-08-15). One scoped `ecc:kotlin-reviewer` fallback pass — three
+questions, two files, "do not explore broadly" — returned in under two
+minutes with the HIGH above. **The scoping budget keeps paying** (6af, 6cb):
+the narrow ask is what got a finding that a whole-diff sweep of a 41-line
+test file would have had no reason to look for.
+
+**Next, with evidence.** The remaining API-sweep survivor is
+`EffortBurn.scopeOf`, untested and uncalled — the one candidate 6cf recorded
+that this slice did not touch. Beyond it, 6ca's `Ether Body Damage` still
+wants purchasable traits, which is the largest thing outstanding.
 
 ## 6cf. A sixth sweep direction, and the +2 divination never asked for
 
