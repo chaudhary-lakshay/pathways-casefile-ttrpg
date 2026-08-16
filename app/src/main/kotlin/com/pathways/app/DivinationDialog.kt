@@ -27,6 +27,7 @@ import com.pathways.rules.AntiDivinationTechniques
 import com.pathways.rules.Divination
 import com.pathways.rules.DivinationOutcome
 import com.pathways.rules.RandomSource
+import com.pathways.rules.RitualMode
 import com.pathways.rules.RitualResolution
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.content.DivinationMethod
@@ -307,8 +308,12 @@ fun DivinationDialog(
                     )
                 } else {
                     Text(
-                        "+1 each, capped at +${Divination.MAX_SUPPORT_BONUS} — the " +
-                            "book's own cap for divination, which is not ch. 7's +3.",
+                        // What each skill is worth is on its own chip below, so
+                        // this line states only the cap. "+1 each" was a third
+                        // copy of a number the rows already print.
+                        "Capped at +${Divination.MAX_SUPPORT_BONUS} — the book's own cap " +
+                            "for divination, which is not ch. 7's " +
+                            "+${RitualMode.SUPPORT_CAP}.",
                         style = MaterialTheme.typography.bodySmall,
                     )
                     FlowRow {

@@ -146,7 +146,8 @@ private fun NewRoundControl(round: RoundState, onNewRound: () -> Unit) {
     if (!round.isSpent()) return
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         Text(
-            "Free actions, parries and any paid +2 are spent for this round.",
+            "Free actions, parries and any paid +${ActiveDefenses.BOOST_BONUS} " +
+                "are spent for this round.",
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(end = 8.dp),
         )

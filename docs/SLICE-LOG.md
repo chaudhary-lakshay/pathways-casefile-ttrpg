@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6cq. **Position in this file does not tell you a slice's age** —
+Sections 6a-6cr. **Position in this file does not tell you a slice's age** —
 the order is not uniform (6a onward run oldest-first, one cluster near 6ca is
 scrambled, and the most recent block runs newest-first, so the newest slice is
 neither at the top nor at the bottom). Locate one by name with
@@ -6725,6 +6725,81 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6cr. Three of the four hits were quotations
+
+6cq named its own successor: the ritual screens' HP↔SPI strings, checked for
+which are *quotations of a printed cell* and which are *restatements of a value
+the rules compute*. Running it, **three of the four were quotations and one was
+a duplicate** — and two of the three were not even user-visible.
+`ArtifactDialog`'s `"1 SPI/turn"`, `DivinationDialog`'s `"1-2 SPI"` and
+`RitualDialog`'s KDoc `"every 2 HP spent counts as 1 SPI"` are code comments
+citing the page. Deriving any of them would make the source stop saying what
+the book says.
+
+The one real hit is `RitualDialog`'s user-visible `"Paid in HP (2 HP = 1 SPI,
+no bonus to the roll)"`, which restates `PowerSources.HP_PER_SPI`.
+
+**The discriminator is not the string.** A grep cannot tell the two apart —
+both are literals holding a number the rules also hold. The test is: *would a
+rules value have to move for this sentence to become false?* A quotation stays
+true when the code changes, because it is a claim about the book. A restatement
+does not.
+
+Widening past HP/SPI to any literal carrying a signed number found two more,
+and one of them is a correction to the slice before it:
+
+- **A fifth `+2` in `DefenseDialog`.** 6cq fixed four and this one sat in
+  `NewRoundControl`'s "Free actions, parries and any paid +2 are spent for this
+  round." Two patterns had already searched that file. **A widened query is not
+  a finished query** — the third pattern found what the second missed, in a
+  file the first had cleared (6ba, again).
+- **`DivinationDialog`'s support line was half-derived already**:
+  `"+1 each, capped at +${Divination.MAX_SUPPORT_BONUS} — … not ch. 7's +3."`
+  One number read from the rules, two typed, in one sentence. That is 6cq's
+  `DefenseDialog` shape at the level of a single string.
+
+**`"+1 each"` was deleted rather than derived.** The chips underneath render
+`"${option.skill} ${signed(option.bonus)}"` for every supporting skill, so the
+header was a third copy of a number already on screen — and the per-skill value
+is not a constant at all, it is each row's own `bonus` field. Deriving it would
+have meant inventing a rendering for the case where the rows disagree; deleting
+it costs the player nothing, because the rows already speak. Where a value is
+already visible, deletion beats derivation.
+
+The `"ch. 7's +3"` half is `RitualMode.SUPPORT_CAP`, and it is the more
+interesting one: that sentence exists **to say two chapters disagree**. It is
+the kind of sentence that breaks silently, because it is only true while both
+numbers stay where they were.
+
+**A data check ran before the deletion, and it found nothing wrong** — all four
+rows in `divination_support.json` print `bonus: 1`, so the sentence was true.
+That is the state this whole defect class lives in: **true, on screen, and
+unpinned.** Nothing was wrong; nothing would have gone red.
+
+Full suite green at 1513; no new test, and the reason is 6cq's — no test in
+this repo can reach a Compose label, and all three changes remove a copy rather
+than guard one.
+
+**Next, with evidence.** The reverse direction of this sweep has never been
+run: **a rules constant with no reader.** 6cf swept public functions for a
+caller and 6ai swept extracted fields; a `const val` is neither. One grep says
+`Divination.SPECIALISATION_BONUS` occurs **exactly once in the repository — its
+own declaration.** Its KDoc quotes the book ("A Beyonder may specialise in one
+method, gaining +1 when using it"), and nothing reads it, no test names it, and
+no screen offers the choice. A printed rule that reaches no roll, which is this
+project's oldest defect class.
+
+**The census ran before this slice closed, because one grep hit is not a
+census.** 96 `const val`s in `core/rules`, each counted repo-wide: **exactly
+one — `SPECIALISATION_BONUS` — occurs once.** Every other constant is read
+somewhere, and the 52 that showed no reader *outside their own file* are not
+suspects: that column counts production readers only, so a constant used once
+in its own object and pinned by a test in another module scores zero and is
+perfectly healthy. **The instrument's useful signal was the total, not the
+outside count** — a second column that looks like a finding and is not is worth
+saying out loud, because the next reader of this paragraph will otherwise
+inherit 52 false leads.
 
 ## 6cq. The pins stop at the UI
 

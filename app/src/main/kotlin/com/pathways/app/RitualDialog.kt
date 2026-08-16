@@ -348,7 +348,7 @@ fun RitualDialog(
                     // out loud, because the sentence next to it in the book
                     // is the one that gets misread.
                     Text(
-                        "Paid in HP (2 HP = 1 SPI, no bonus to the roll)",
+                        "Paid in HP (${PowerSources.HP_PER_SPI} HP = 1 SPI, no bonus to the roll)",
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.padding(top = 8.dp),
                     )
