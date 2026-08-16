@@ -90,7 +90,25 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6cx is newest, and it builds the chapter 6cw named.** Chapter 8 goes from
+**6cy is newest, and its finding is that `pts/level` meant two different
+things.** `extract_core_rules.py` had skipped chapter 2's Secondary
+Characteristics table with a recorded reason — "ch 3 prints the costs, which
+are already extracted". Chapter 3 prints no such thing: its `pts/level` lines
+are ADVANTAGE rows (Hard to Kill 2/level, Charisma 5/level), a different table
+wearing the same words, and `"Cost to Modify"` occurs **once in the whole
+book**. So the six constants `PointBudget` bills every character with had no
+tie to any printed line. **The gap was measured, not argued**: move the
+extracted HP price from 2 to 4 and exactly **one test in 1597 fails** — the new
+one. `PointBudgetTest`, `SecondaryCharacteristicsTest` and `GoldenSheetTest`
+stay green while book and engine disagree about what every character paid. Read
+it also for a guard that **could not fire** (the priced-set check ran first, so
+the unbuyable-row check was unreachable — found by writing the RED test for the
+GUARD rather than for the feature), and for the sweep's four cleared clusters,
+which are the deliverable: a table implemented as arithmetic reads 0% forever,
+so ch 3's 40 unclaimed lines are the coverage proxy, not a gap. Chapter 2:
+**30.8% -> 76.9%**.
+
+**6cx is next, and it builds the chapter 6cw named.** Chapter 8 goes from
 **21.2% to 81.7%**, unclaimed mechanical lines from **82 to 19**, and all 19
 sit inside four tables refused in production source (`Equipment.UNMODELLED`,
 to the `ActiveDefenses.UNPAYABLE` standard) rather than overlooked — checked
@@ -406,7 +424,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6cx, then 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6cy, then 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -637,7 +655,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1592 Kotlin** (JUnit 5 — 1106 `core:rules`, 466 `app`, 20 `core:model`) + **278 Python** (pytest), all green — counted from the JUnit XML, not from memory. The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1597 Kotlin** (JUnit 5 — 1111 `core:rules`, 466 `app`, 20 `core:model`) + **285 Python** (pytest), all green — counted from the JUnit XML, not from memory. The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -680,7 +698,7 @@ qa-findings/    free-model QA harness: batches.txt + two round scripts
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading 76 JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading 77 JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -699,7 +717,7 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `divination_support.json` (4), `ritual_preparation.json` (5),
 `boon_granting.json` (1), `boon_modifiers.json` (8),
 `non_standard_pathways.json` (17), `weapons.json` (9), `wealth.json` (7),
-`equipment.json` (77),
+`equipment.json` (77), `secondary_costs.json` (9),
 `damage_abbreviations.json` (8), `appearance.json` (8),
 `languages.json` (12), `language_proficiency.json` (6),
 `language_notes.json` (2), `ritual_support.json` (5),
@@ -1006,10 +1024,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6cx. The slice log
+## 6a-6cy. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6cx is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6cy is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6cx. **Position in this file does not tell you a slice's age** —
+Sections 6a-6cy. **Position in this file does not tell you a slice's age** —
 the order is not uniform (6a onward run oldest-first, one cluster near 6ca is
 scrambled, and the most recent block runs newest-first, so the newest slice is
 neither at the top nor at the bottom). Locate one by name with
@@ -6725,6 +6725,121 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6cy. Two things wearing the same words
+
+6cx closed naming nothing, so this slice began with a sweep and ended by
+overturning a recorded exclusion. Chapter 2 goes from **30.8% to 76.9%**,
+unclaimed mechanical lines from 9 to 3.
+
+### The sweep that mostly found nothing, which is the useful part
+
+`tools/coverage.py` after 6cx leaves four chapters short. Reading their
+unclaimed lines one cluster at a time:
+
+| Cluster | Lines | Verdict |
+|---|---|---|
+| Ch 3 p10-11, p32 | 40 | The attribute-cost doubling and the skill ladder — implemented as RULES in `AttributeCosts` and `SkillLadder`, so no `sourceLines` will ever claim them |
+| Ch 3 p11 Point Budget | 5 | `STARTING_TOTAL = 70` and `MAX_DISADVANTAGES = 40` both exist |
+| Ch 2 p8-9 | 6 | **The finding** |
+| Appendix A | 32 | A summary that restates other chapters (6ae's rule) |
+
+Four of five clusters are the documented coverage-proxy artefact: a table
+implemented as arithmetic reads 0% forever. **Saying which cluster was
+checked and cleared is the deliverable**, because the next agent to run
+coverage will see the same numbers and needs to know they were read.
+
+### The exclusion, and why its reason was believable
+
+`extract_core_rules.py` left the Secondary Characteristics table out with a
+recorded reason: *"`SecondaryCharacteristics` implements every formula and ch
+3 prints the costs, which are already extracted. A second span here would
+double-claim."*
+
+Run as a query — this repo's rule that a recorded reason is a claim with an
+expiry date — **every clause is false**:
+
+- Chapter 3 prints no cost-to-modify for any secondary. Its `pts/level` lines
+  are **advantage rows**: Hard to Kill 2/level, Charisma 5/level, Acute Senses
+  5/level. Two different things wearing the same words, which is exactly the
+  resemblance the exclusion was built on.
+- `"Cost to Modify"` occurs **once in the entire book**, line 357 on page 8.
+  Appendix A names the characteristics in its glossary and prices none.
+- Nothing extracted them, so there was nothing to double-claim. The claimed
+  chapter 2 spans stop at 285 and resume at 387; the table sits at 353-386,
+  in the gap between them.
+
+**The most reusable finding is the first: `pts/level` is not a unit, it is a
+coincidence of phrasing between two unrelated tables.** 6by's spelling seam and
+6ce's slash were the same shape — two printings that look like one thing until
+you ask which table each belongs to. Here the resemblance survived long enough
+to become a written reason and then to justify skipping a page.
+
+### What the gap actually was, measured
+
+The six constants `PointBudget` bills every character with — `COST_HP = 2`,
+`COST_FP = 3`, `COST_WILL = 5`, `COST_PER = 5`, `COST_SPEED_QUARTER = 5`,
+`COST_MOVE = 5` — had no tie to any printed line.
+
+They were not unpinned in every direction, and the distinction matters. Change
+a constant and `SecondaryCharacteristicsTest` reddens, because it asserts
+`assertEquals(10, costOf(basicSpeedQuarters = 2))` against a hand-typed 10.
+What nothing pinned was the **book**: the chain ran book → *nothing* → constant
+→ test literal. A re-extraction that moved a price would have left the engine
+billing the old one.
+
+**Measured rather than argued.** With the extracted HP price moved from 2 to
+4, exactly **one test in 1597 fails**, and it is the new one.
+`PointBudgetTest`, `SecondaryCharacteristicsTest` and `GoldenSheetTest` all
+stay green while the book and the engine disagree about what every character
+paid. That is 6cx's lesson applied deliberately one slice later: know which
+test is the guard, and prove the others cannot see it.
+
+### Three details the table settles by printing them
+
+- **Three of nine rows are unbuyable at any price** — Spirituality "Fixed at
+  0", CoR "Tracked in play; never bought", Digestion "Tracked through acting".
+  They carry `null`, never `0`, because a zero reads as a free purchase. This
+  is section 4.4's rule about SPI printed a second, independent time one
+  chapter over — corroboration nobody had noticed was available.
+- **Basic Speed is the only row priced per 0.25** rather than per level, which
+  is why `SecondaryDelta` counts quarters. A parser that kept the number and
+  dropped the unit would price a whole point of Speed at 5 instead of 20.
+- The printed name → key map is **pinned rather than slugified**: a renamed row
+  stops the run instead of producing a key no consumer joins on.
+
+### A guard that could not fire
+
+The first version checked the priced set before checking the unbuyable rows,
+so `if row["pointsPerStep"] is not None: raise` in the unbuyable loop was
+**unreachable** — pricing Spirituality made the priced-set comparison fail
+first. A Python test written to prove that guard fires is what exposed it,
+by matching on the wrong message.
+
+Reordering the two blocks makes both reachable and gives the specific row in
+the error. This is the "prove the second assertion can fail" class, and the
+thing that caught it was writing the RED test for the guard rather than for
+the feature.
+
+### Notes
+
+- The diff review was attempted twice through the free panel. Both runs
+  **exited 0 with empty response bodies** — sixteen minutes and nine minutes.
+  Two independent no-answers, so the gate is genuinely unavailable rather than
+  slow, and Codex is out until 2026-08-20 14:23. Self-checked, and recorded.
+- 1597 Kotlin tests (was 1592) and 285 Python (was 278), all green.
+- Regenerating `secondary_costs.json` after the mutation produced a
+  byte-identical file, which is the cheap check that the RED-proof left
+  nothing behind.
+
+### What is next
+
+Nothing is named. Chapter 2's three remaining unclaimed lines are prose about
+the play loop. **Appendix A at 8.6% is the largest raw number left and is
+probably correct** — it restates other chapters and 6ae's rule says a summary
+is authoritative only for what it alone prints — but "probably" is the word
+that hid this slice's finding for four milestones, and nobody has read its 32
+lines one at a time.
 
 ## 6cx. A precedent that travels by role, not by shape
 
