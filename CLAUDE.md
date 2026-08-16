@@ -90,7 +90,32 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6cw is newest, and it names the largest thing outstanding in this repo.**
+**6cx is newest, and it builds the chapter 6cw named.** Chapter 8 goes from
+**21.2% to 81.7%**, unclaimed mechanical lines from **82 to 19**, and all 19
+sit inside four tables refused in production source (`Equipment.UNMODELLED`,
+to the `ActiveDefenses.UNPAYABLE` standard) rather than overlooked — checked
+line by line, not inferred from the total. **Its most reusable finding is that
+a precedent travels by ROLE, not by shape.** The design review returned
+NO-SHIP on a decomposition that modelled equipment chips on `AttackDialog`'s
+weapon picker: `Weapons.forSkill` is ungated and offers the same chapter's
+catalogue, but it **re-parameterises** the roll (which attack, which damage,
+melee or ranged) where a bonus chip **adds to** it — and `RollDialog`'s own
+possession control, `socialClauses`, is gated twice, on category AND on a list
+of traits the character carries. Two controls can be pixel-identical and
+mechanically opposite; "the app already does this" was a claim about the
+screen where the warrant needed to be about the semantics. What shipped is
+reference rather than a modifier, on the precedent four lines above it in the
+same function — `conditionalBurnNote`'s "**Shown, never applied**". Read it
+also for a **RED-proof that indicted the tests**: neutering the signed-clause
+predicate makes the extractor refuse to run, and ten of the eleven Kotlin
+tests still pass, because **a failing extractor never rewrites its JSON** and
+they re-read the old good file. Only `verify()` pins the parser. And for
+6cw's census being too narrow in its turn — 47 signed clauses, not 34, in six
+shapes spanning three subjects. **The diff got no independent review**: Codex
+is out and the free-model panel exited 0 with two empty bodies after sixteen
+minutes, which is a silent no-answer and not a clean bill.
+
+**6cw is next, and it named the largest thing outstanding at the time.**
 `tools/coverage.py`, re-run after a long gap, puts **chapter 8 at 21.2% with 82
 unclaimed mechanical lines** — an equipment catalogue this app has never seen:
 armour with DR, a three-tier currency, and items carrying clauses like "-1 to
@@ -381,7 +406,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6cw, then 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6cx, then 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -612,7 +637,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1581 Kotlin** (JUnit 5 — 1095 `core:rules`, 466 `app`, 20 `core:model`) + **268 Python** (pytest), all green — counted from the JUnit XML, not from memory. The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1592 Kotlin** (JUnit 5 — 1106 `core:rules`, 466 `app`, 20 `core:model`) + **278 Python** (pytest), all green — counted from the JUnit XML, not from memory. The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -655,7 +680,7 @@ qa-findings/    free-model QA harness: batches.txt + two round scripts
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading 59 JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading 76 JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -674,6 +699,7 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `divination_support.json` (4), `ritual_preparation.json` (5),
 `boon_granting.json` (1), `boon_modifiers.json` (8),
 `non_standard_pathways.json` (17), `weapons.json` (9), `wealth.json` (7),
+`equipment.json` (77),
 `damage_abbreviations.json` (8), `appearance.json` (8),
 `languages.json` (12), `language_proficiency.json` (6),
 `language_notes.json` (2), `ritual_support.json` (5),
@@ -765,6 +791,9 @@ Wealth.all() / .named(status): WealthLevel        // throws for an unprinted lev
 Wealth.traitFor(level): Trait?                    // null at 0 pts (Average)
 Wealth.levelOf(traits) / .applied(traits, level)  // replaces, never adds
 ContentLoader.wealth()
+Equipment.all() / .forSkill(key) / .referenceFor(key)   // shown, never applied
+Equipment.UNMODELLED                  // ch.8's four unread tables, with reasons
+ContentLoader.equipment()
 Appearance.all() / .named(level): AppearanceLevel  // throws for an unprinted level
 Appearance.traitFor(level): Trait                 // never null; no level is free
 Appearance.levelOf(traits) / .applied(traits, level) / .without(traits)
@@ -977,10 +1006,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6cw. The slice log
+## 6a-6cx. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6cp is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6cx is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
