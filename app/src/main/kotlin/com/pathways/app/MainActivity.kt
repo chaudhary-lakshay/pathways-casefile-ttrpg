@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Radar
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
@@ -447,18 +448,19 @@ fun SheetScreen(
                         style = MaterialTheme.typography.bodySmall,
                     )
 
-                    // The one action the screen recommends. Everything below
-                    // is something a GM calls for; this is the thing a player
-                    // can decide on their own, and for a mortal it is the
-                    // whole premise of the setting.
-                    Button(
-                        onClick = onPathways,
-                        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-                    ) {
-                        Text(if (drunk == null) "Drink a potion" else "Open pathway")
-                    }
-
                     ActionHub(Modifier.padding(top = 12.dp, bottom = 12.dp)) {
+                        // The pathway was a full-width brass Button above this
+                        // grid, which made it a thirteenth action drawn to
+                        // different rules -- and cost a whole row of height to
+                        // say what a tile says. Arcane, because drinking is how
+                        // a mortal stops being one; ungated, because that is
+                        // exactly who needs it.
+                        HubAction(
+                            if (drunk == null) "Drink a potion" else "Pathway",
+                            Icons.Filled.Science,
+                            ActionKind.BEYONDER,
+                            onPathways,
+                        )
                         HubAction("Fright", Icons.Filled.Psychology, ActionKind.ROLL) {
                             frightening = true
                         }
