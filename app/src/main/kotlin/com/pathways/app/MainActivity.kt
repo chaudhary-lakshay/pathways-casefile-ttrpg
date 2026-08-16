@@ -21,10 +21,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -42,6 +43,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attr
 import com.pathways.model.ControllingAttribute
@@ -149,7 +153,7 @@ fun App(sheets: List<PremadeSheet>, store: SessionStore) {
     }
 
     when (val sheet = selected) {
-        null -> PremadeList(sheets) { selected = it }
+        null -> PremadeGallery(sheets) { selected = it }
         else -> {
             BackHandler {
                 if (screen == Screen.SHEET) selected = null else screen = Screen.SHEET
@@ -170,78 +174,6 @@ fun App(sheets: List<PremadeSheet>, store: SessionStore) {
 }
 
 /**
- * The launch screen, and until now the only one with no heading of any kind:
- * 23 undifferentiated rows starting under the status bar, which is what an
- * unstyled list looks like rather than a designed one.
- *
- * Cards instead of divider-separated rows because the rows are *targets*, not
- * a table -- a card carries its own tap boundary, where a divider only draws a
- * line near one. The count moves onto a tonal container so it reads as
- * metadata rather than as a second line of the name.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PremadeList(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit) {
-    Scaffold(
-        topBar = {
-            // A small bar, not a large one: 23 rows want the vertical space
-            // more than the title wants the drama.
-            TopAppBar(
-                title = { Text("Pathways", style = MaterialTheme.typography.titleLarge) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-            )
-        },
-    ) { insets ->
-        LazyColumn(
-            modifier = Modifier.padding(insets).fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            items(sheets, key = { it.name }) { sheet ->
-                ElevatedCard(
-                    onClick = { onSelect(sheet) },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            sheet.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.weight(1f, fill = false),
-                        )
-                        // A quiet tonal chip. The accent colours are spent on
-                        // things that carry meaning -- a roll, a pathway, a
-                        // failure -- and a skill count is none of those.
-                        Surface(
-                            shape = MaterialTheme.shapes.small,
-                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ) {
-                            Text(
-                                "${sheet.skills.size} skills",
-                                style = MaterialTheme.typography.labelMedium,
-                                modifier = Modifier.padding(
-                                    horizontal = 10.dp,
-                                    vertical = 4.dp,
-                                ),
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-/**
  * The `computed vs asPublished` diff (spec section 8). A disagreement is shown,
  * never reconciled: most sheets floor Basic Speed where the book does not, and
  * Docks Bouncer's printed HP contradicts its own ST. Those rows render in the
@@ -249,6 +181,7 @@ fun PremadeList(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit) {
  *
  * Skill rows are tappable and roll 3d6 against the resolved target.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SheetScreen(
     sheet: PremadeSheet,
@@ -424,50 +357,40 @@ fun SheetScreen(
     // unwired looks like an oversight rather than a decision (Codex, 6bo).
     val spiTrait = TraitEffects.spiRollBonus(traits)
 
-    Scaffold { insets ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        sheet.name,
+                        style = MaterialTheme.typography.titleLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
+                navigationIcon = {
+                    // ponytail: a text arrow, not an icon. material-icons is
+                    // not on the classpath and one glyph does not justify
+                    // adding it. The description is what TalkBack reads.
+                    IconButton(
+                        onClick = onBack,
+                        modifier = Modifier.semantics {
+                            contentDescription = "Back to characters"
+                        },
+                    ) {
+                        Text("←", style = MaterialTheme.typography.titleLarge)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                ),
+            )
+        },
+    ) { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
             item {
                 Column(Modifier.padding(horizontal = 16.dp)) {
-                    // Four destinations no longer fit a phone's width; the
-                    // fourth was clipped to a sliver on a 1080px screen.
-                    Row(Modifier.horizontalScroll(rememberScrollState())) {
-                        TextButton(onClick = onBack) { Text("Back to premades") }
-                        TextButton(onClick = onPathways) {
-                            Text(if (drunk == null) "Drink a potion" else "Pathway")
-                        }
-                        TextButton(onClick = onBuild) { Text("Spend points") }
-                        TextButton(onClick = { frightening = true }) { Text("Fright") }
-                        // Ungated, like Fright and Detect: the maneuver is
-                        // "powers or skills requiring focus", and which of
-                        // them counts is the GM's call, not a skill list this
-                        // book never prints (6i).
-                        TextButton(onClick = { focusing = true }) { Text("Concentrate") }
-                        if (ritualLevel != null) {
-                            TextButton(onClick = { casting = true }) { Text("Ritual") }
-                        }
-                        if (divinationLevel != null) {
-                            TextButton(onClick = { divining = true }) { Text("Divine") }
-                        }
-                        // Not gated. Divination Arts is the DIVINER's skill;
-                        // being divined needs no skill at all, and the book's
-                        // detection roll falls back to Per, which a mortal
-                        // has. Who suspects is the GM's call (Detection).
-                        TextButton(onClick = { sensing = true }) { Text("Detect") }
-                        if (ritualLevel != null) {
-                            // Same gate as the ritual: Chapter 13 rolls the
-                            // same skill, because a boon IS a ritual.
-                            TextButton(onClick = { supplicating = true }) { Text("Boon") }
-                        }
-                        // Not gated on anything. A Sealed Artifact is found,
-                        // not bought or awarded by Sequence: the grade table's
-                        // only gate is church rank, which this app does not
-                        // model. See SealedArtifacts.
-                        TextButton(onClick = { handling = true }) { Text("Artifacts") }
-                        TextButton(onClick = { attacking = true }) { Text("Attack") }
-                        TextButton(onClick = { defending = true }) { Text("Defend") }
-                        TextButton(onClick = { damaging = true }) { Text("Damage") }
-                    }
-                    Text(sheet.name, style = MaterialTheme.typography.headlineSmall)
                     if (drunk != null) {
                         // The sheet rows below are still the mortal's: the
                         // diff they carry is against the published sheet, and
@@ -496,7 +419,76 @@ fun SheetScreen(
                             "$differing of ${rows.size} values differ from the published sheet"
                         },
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(bottom = 12.dp),
+                    )
+
+                    // The one action the screen recommends. Everything below
+                    // is something a GM calls for; this is the thing a player
+                    // can decide on their own, and for a mortal it is the
+                    // whole premise of the setting.
+                    Button(
+                        onClick = onPathways,
+                        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                    ) {
+                        Text(if (drunk == null) "Drink a potion" else "Open pathway")
+                    }
+
+                    ActionGroup("Rolls the GM calls for") {
+                        Action("Fright") { frightening = true }
+                        // Ungated, like Fright and Detect: the maneuver is
+                        // "powers or skills requiring focus", and which of
+                        // them counts is the GM's call, not a skill list this
+                        // book never prints (6i).
+                        Action("Concentrate") { focusing = true }
+                        // Not gated. Divination Arts is the DIVINER's skill;
+                        // being divined needs no skill at all, and the book's
+                        // detection roll falls back to Per, which a mortal
+                        // has. Who suspects is the GM's call (Detection).
+                        Action("Detect") { sensing = true }
+                    }
+
+                    ActionGroup("Combat") {
+                        Action("Attack") { attacking = true }
+                        Action("Defend") { defending = true }
+                        Action("Damage") { damaging = true }
+                    }
+
+                    // Gated as a GROUP, not per chip: every member is
+                    // conditional, so without this the heading would render
+                    // above an empty row for the 19 premades that are not
+                    // Beyonders and every mortal who has not drunk yet.
+                    if (ritualLevel != null || divinationLevel != null) {
+                        ActionGroup("Beyonder powers") {
+                            if (ritualLevel != null) {
+                                Action("Ritual") { casting = true }
+                            }
+                            if (divinationLevel != null) {
+                                Action("Divine") { divining = true }
+                            }
+                            if (ritualLevel != null) {
+                                // Same gate as the ritual: Chapter 13 rolls
+                                // the same skill, because a boon IS a ritual.
+                                Action("Boon") { supplicating = true }
+                            }
+                        }
+                    }
+
+                    ActionGroup("Character") {
+                        Action("Spend points") { onBuild() }
+                        // Not gated on anything. A Sealed Artifact is found,
+                        // not bought or awarded by Sequence: the grade table's
+                        // only gate is church rank, which this app does not
+                        // model. See SealedArtifacts.
+                        Action("Artifacts") { handling = true }
+                    }
+
+                    // The screen's only unadvertised interaction. Every roll
+                    // a player makes on this screen is a tap on a row further
+                    // down, and nothing said so.
+                    Text(
+                        "Tap any skill or trait below to roll it.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 14.dp, bottom = 12.dp),
                     )
                 }
                 HorizontalDivider()
