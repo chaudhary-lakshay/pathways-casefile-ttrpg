@@ -3,24 +3,24 @@ package com.pathways.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -28,11 +28,11 @@ import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.CenterFocusStrong
-import androidx.compose.material.icons.filled.Fingerprint
-import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Church
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.Science
@@ -40,10 +40,10 @@ import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -58,6 +58,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -67,9 +68,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attr
@@ -79,44 +80,44 @@ import com.pathways.model.ModEffect
 import com.pathways.model.Outcome
 import com.pathways.model.SkillKey
 import com.pathways.model.TraitKind
+import com.pathways.rules.BurnKind
+import com.pathways.rules.CommonModifiers
+import com.pathways.rules.Concentration
+import com.pathways.rules.ConcentrationOutcome
 import com.pathways.rules.Conditions
 import com.pathways.rules.Corruption
 import com.pathways.rules.Derive
 import com.pathways.rules.Divination
-import com.pathways.rules.Concentration
-import com.pathways.rules.ConcentrationOutcome
+import com.pathways.rules.EffortBurn
 import com.pathways.rules.FrightCheck
-import com.pathways.rules.TraitClause
-import com.pathways.rules.RitualMode
 import com.pathways.rules.FrightKind
 import com.pathways.rules.FrightOutcome
-import com.pathways.rules.content.FrightTrigger
 import com.pathways.rules.PenaltyScope
 import com.pathways.rules.Pool
 import com.pathways.rules.PoolStatus
 import com.pathways.rules.Pools
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PremadeSheet
+import com.pathways.rules.PremadeSkill
 import com.pathways.rules.Premades
 import com.pathways.rules.RandomSource
-import com.pathways.rules.SheetComparison
-import com.pathways.rules.SheetRow
+import com.pathways.rules.RitualMode
 import com.pathways.rules.RollKind
-import com.pathways.rules.Shock
-import com.pathways.rules.SkillRoll
 import com.pathways.rules.SelfControl
 import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.SelfControlOutcome
+import com.pathways.rules.SheetComparison
+import com.pathways.rules.SheetRow
+import com.pathways.rules.Shock
+import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
-import com.pathways.rules.SuccessDegree
-import com.pathways.rules.CommonModifiers
-import com.pathways.rules.PremadeSkill
-import com.pathways.rules.BurnKind
-import com.pathways.rules.EffortBurn
 import com.pathways.rules.SpiritualSenses
+import com.pathways.rules.SuccessDegree
+import com.pathways.rules.TraitClause
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.content.CommonModifier
 import com.pathways.rules.content.ContentLoader
+import com.pathways.rules.content.FrightTrigger
 import com.pathways.rules.content.SenseModifier
 import com.pathways.rules.content.SpiritualSense
 import java.io.File
@@ -150,7 +151,13 @@ class MainActivity : ComponentActivity() {
         // Draw behind the system bars. Every screen already pads from
         // Scaffold's inset parameter, so this needs no per-screen change.
         enableEdgeToEdge()
-        setContent { PathwaysTheme { App(Premades.all(), store) } }
+        setContent {
+            // Read once, here, so the theme wraps the whole tree: changing a
+            // preference in the picker has to repaint every screen, not just
+            // the one holding the picker.
+            val theme = rememberThemePrefs()
+            PathwaysTheme(theme.value) { App(Premades.all(), store, theme) }
+        }
     }
 }
 
@@ -159,7 +166,11 @@ class MainActivity : ComponentActivity() {
  * first deep link or saved back stack.
  */
 @Composable
-fun App(sheets: List<PremadeSheet>, store: SessionStore) {
+fun App(
+    sheets: List<PremadeSheet>,
+    store: SessionStore,
+    themePrefs: MutableState<ThemePrefs>,
+) {
     var selected by remember { mutableStateOf<PremadeSheet?>(null) }
     // Read once; every write goes straight back out, so the file and the
     // screens cannot drift apart.
@@ -178,7 +189,7 @@ fun App(sheets: List<PremadeSheet>, store: SessionStore) {
     }
 
     when (val sheet = selected) {
-        null -> PremadeGallery(sheets) { selected = it }
+        null -> PremadeGallery(sheets, themePrefs) { selected = it }
         else -> {
             BackHandler {
                 if (screen == Screen.SHEET) selected = null else screen = Screen.SHEET

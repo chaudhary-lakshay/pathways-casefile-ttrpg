@@ -5,10 +5,10 @@
   @android:style/Theme.Material.Light.NoActionBar, the 2014 platform theme,
   light in every mode, so a dark-mode launch flashed white.
 
-  windowBackground is kept in step with Theme.kt's scheme background BY HAND.
-  There is no generator between the two; if one changes, change the other.
-    values/       to LightScheme.background  (0xFFF3EAE4)
-    values-night/ to DarkScheme.background   (0xFF120E14)
+  windowBackground can no longer mirror the scheme exactly, because the scheme
+  is now chosen at runtime and this theme is resolved before any preference is
+  read. It approximates the DEFAULT preset. The values and the reasoning live
+  in values/colors.xml; change them there.
 -->
 <resources>
     <style name="Theme.Pathways" parent="@android:style/Theme.Material.Light.NoActionBar">

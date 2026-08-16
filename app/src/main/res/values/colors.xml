@@ -1,13 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Mirrors LightScheme.background in Theme.kt. Kept in step by hand. -->
+<!--
+  The window background shown between process start and Compose's first frame.
+
+  It can no longer be kept exactly in step with the scheme, and that is a real
+  change: the theme is now chosen at runtime, so there are eight possible first
+  frames (four presets, two modes) plus Material You and the pure-black option.
+  A platform theme is resolved before any of that is read.
+
+  So this APPROXIMATES the default preset, ThemeSeed.FOOL, whose background is
+  #F9F9F9 light and #131313 dark. A user on another preset sees at most one
+  frame of the default's neutral before their own scheme paints over it. Both
+  values are near-neutral greys in every preset, which is what makes the
+  approximation cheap; a strongly tinted preset would show a flash.
+-->
 <resources>
-    <color name="launch_background">#FFF3EAE4</color>
+    <color name="launch_background">#FFF9F9F9</color>
     <!-- The launcher icon's background layer, and it is load-bearing rather
          than decorative: the foreground is black ink whose white line-work was
          keyed to transparent, so this colour is what shows through the Fool's
-         eyes and spirals. On the app's aubergine those holes would disappear
-         and the mark would read as a blob, so it is parchment - Theme.kt's
-         light surfaceContainer. Deliberately NOT night-qualified: a launcher
-         icon looks the same whichever mode the phone is in. -->
+         eyes and spirals. On a dark surface those holes would disappear and the
+         mark would read as a blob, so it is parchment. Deliberately NOT
+         night-qualified, and deliberately NOT tied to the theme: a launcher
+         icon looks the same whichever mode the phone is in, and it must not
+         change when the user picks a different palette inside the app. -->
     <color name="ic_launcher_background">#FFE2D3CF</color>
 </resources>
