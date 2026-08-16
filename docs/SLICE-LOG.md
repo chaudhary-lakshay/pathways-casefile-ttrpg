@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6cv. **Position in this file does not tell you a slice's age** —
+Sections 6a-6cw. **Position in this file does not tell you a slice's age** —
 the order is not uniform (6a onward run oldest-first, one cluster near 6ca is
 scrambled, and the most recent block runs newest-first, so the newest slice is
 neither at the top nor at the bottom). Locate one by name with
@@ -6725,6 +6725,59 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6cw. The chapter that is 21% read
+
+With no slice named, the sweep went back to the instrument this repo built for
+exactly this and had not run in a long while: `tools/coverage.py`. Every
+chapter is at or near 100% except four, and one of them is not a rounding
+error.
+
+| Ch | Title | Claimed | Unclaimed mechanical lines |
+|---|---|---|---|
+| 8 | Equipment & Starting Wealth | **21.2%** | **82** |
+| A | Quick Reference Tables | 8.6% | 32 |
+| 2 | Core Rules | 30.8% | 9 |
+| 7.5 | Summoning Spiritual Creatures | 0.0% | 1 |
+
+**Chapter 8 holds an equipment catalogue this app has never seen.** Reading its
+unclaimed lines: armour with DR values, a three-tier currency system with an
+exchange rate, and item after item carrying a mechanical clause — "-1 to
+Lockpicking", "+1 to First Aid; 10 uses before restock", "+2 to First Aid &
+Surgery; 50 doses", "+1 to Ritualistic Magic & Religious Ritual", "DR 1 on
+torso", "-1 to spot at night". `weapons.json` (9 rows) and `wealth.json` (7)
+claim their parts of that chapter; the gear does not exist here at all.
+
+**The join was checked before the slice was named** (6bv's rule). 34 signed
+clauses name 30 distinct skills, and the catalogue already holds nearly all of
+them — `Research`, `Carousing`, `Accounting`, `Administration`, `Engineering`,
+`Connoisseur`, `Savoir-Faire`, `Chemistry`, `Cogitation`, `Diagnosis`,
+`Disguise`, `First Aid`, `Lifting`, `Lockpicking`, `Merchant`, `Photography`,
+`Physician`, `Religious Ritual`, `Ritualistic Magic`, `Streetwise`, `Survival`,
+`Theology`. So this is reachable rather than aspirational: an item's bonus has
+a skill row to land on and a roll that already exists.
+
+Three seams are worth naming now, because they are the parts that will decide
+the shape rather than the size:
+
+- **`Forced Entry` and `Gather Information` are absent from `skills.json`.**
+  Chapter 8 grants bonuses to skills chapter 3 never prints. That is a
+  chapter-versus-chapter disagreement of the kind 4.1 governs, and it must be
+  recorded rather than resolved by inventing rows.
+- **`Fortune-Telling` here, `Fortune Telling` in the catalogue** — a
+  hyphenation seam, the same class 6bx and 6by worked through for trait names,
+  where the answer was evidence per spelling rather than a normaliser.
+- **Most clauses are conditional**: "+1 to Search for fine details", "+1 to
+  Hiking in rain", "Merchant +1 when appraising unknown items". 6bt already
+  found that a conditional row and an unconditional one are different features
+  — a naive extractor that keeps only the number would ship a permanent bonus
+  the book scopes to a circumstance.
+
+Nothing is built here. This slice is the census and the evidence for the next
+one, which is large enough to deserve its own decomposition and design review:
+an extractor for the gear table, a content file, and a decision about where a
+conditional item bonus reaches a roll (the modifier ledger, or a chip on the
+skill dialog beside the circumstance rows that already exist).
 
 ## 6cv. The field with nowhere to go
 
