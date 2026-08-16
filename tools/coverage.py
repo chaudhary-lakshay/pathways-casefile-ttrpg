@@ -40,6 +40,15 @@ them unclaimed. Six chapters moved: 7.6 100.0% -> 0.0%, 4 100.0% -> 66.7%,
 (85.4% -> 89.7%, 94.8% -> 95.1%) because the lines that became visible there
 were already claimed.
 
+The filter was not the only thing hiding 7.6, and the other half is still
+here on purpose. main() sets `failed` only when a chapter HAS claims and
+still has unclaimed mechanical lines, so a wholly unextracted chapter
+contributes nothing to the exit code no matter how low it reads -- 7.6 at
+0.0% does not fail the run any more than it did at 100.0%. That is the
+intended behaviour (a chapter nobody has started is not a regression), but
+it is why nothing ever went red for this one. Read the table, not just the
+exit status.
+
 Percentages recorded in docs before this change were measured under the
 narrower filter and are not comparable with the ones after it.
 

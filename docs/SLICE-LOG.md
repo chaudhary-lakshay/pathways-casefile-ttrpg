@@ -6804,6 +6804,17 @@ unclaimed** (2144 -> 2430 matching lines). Six chapters moved:
 Two chapters going UP is the check that the widening is not simply pessimism:
 where the newly visible lines were already claimed, the ratio improves.
 
+**The 33 newly-unclaimed lines are two different findings, and the next reader
+should not lump them.** 7.6 is an unread chapter: nothing names it in any
+`sourceLines`, so every line it prints was always unclaimed and the filter was
+the only thing hiding that. Chapter 4 is the other shape — it IS extracted
+(`spi_affinity.json`, `spiritual_senses.json`) and went 100.0% -> 66.7%, so
+its two lines are unclaimed lines in a chapter somebody finished and signed
+off. Line 2309, "…their Ether Body (health), Spirit Body (emotions), and
+auras. Cost: 1 SPI", is one of them: an extractor that stopped short of a
+price, not a chapter nobody opened. Same 33, two causes, and they want
+different slices.
+
 **Every percentage recorded in this log before today was measured under the
 narrower filter and is not comparable with one measured after it.** That
 includes this session's own "chapter 8: 21.2% -> 81.7%" and "chapter 2: 30.8%
