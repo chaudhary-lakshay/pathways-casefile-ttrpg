@@ -6800,6 +6800,44 @@ field currently holds; "level" describes what would be wrong.
   serializers — true of every content file and not this diff's.
 - 1599 Kotlin tests (was 1597), 285 Python, all green.
 
+### The Python side, reviewed after the Kotlin
+
+The Kotlin reviewer never saw the two extractors — ~470 lines that had also
+shipped unreviewed. `ecc:python-reviewer` returned **no CRITICAL and no HIGH**:
+it confirmed the slice arithmetic is correct at both edges and that both clause
+regexes fail CLOSED (a mangled capture produces a compound string that matches
+no skill). Its three findings were all **guards that could not fire**:
+
+- **A floor instead of an exact row count.** The failure that matters ADDS a
+  row — a note cell whose text fullmatches a price form becomes a new row's
+  cost, steals the rest of the real note, and fabricates a row named after its
+  last cell. Proved on a MIDDLE cell of a three-line note, where the existing
+  adjacent-cost guard is blind: 78 rows, and `len(rows) < 60` stays false.
+- **A modulo instead of an exact cell count.** Three cells wrapping at once
+  leaves the total a multiple of three. Proved at 30 cells, where `% 3` is
+  silent and the exact check fires.
+- **The `&`/`or` splitter had no bound.** It is the book's two-skill shorthand
+  in three clauses and ordinary prose in a fourth, so splitting is safe only
+  while that holds; a new `"-1 to Lockpicking or Acting"` would hand the player
+  a skill the sentence never meant.
+
+**Two corrections to myself, both worth more than the findings.** The reviewer
+proposed testing the whole trimmed target before splitting. I wrote it — then
+checked whether it could ever fire, and **no skill name in the catalogue
+contains `" or "` or `" & "`**, so it could not. A no-op that reads as
+protection is worse than no guard, because the next reader believes the case is
+handled. It was reverted for the closed set above, which does fire on exactly
+the case the reviewer described. **Take a reviewer's diagnosis over its
+prescription**: the hole was real and the proposed patch did not reach it.
+
+And that closed set was hand-written with three members. **The guard found the
+fourth on its first run** — `"+1 to First Aid on burns & rashes"`, the prose
+case my own docstring uses as its worked example. A census hand-counted while
+writing the thing it describes is still a hand count (6cb).
+
+All three RED-proved, and both extractors regenerate byte-identical content, so
+these are guard-strength changes with no data movement.
+
 ### What is next
 
 Nothing named. But the honest read of this slice is a process finding rather

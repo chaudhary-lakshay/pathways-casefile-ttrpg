@@ -107,7 +107,12 @@ was the one who could not see it** — the false-negation failure 6cx's own desi
 review named in the abstract, shipped in the concrete. Note the reviewer was
 right about the defect and **wrong about its reach** (it called the row
 unreachable in today's fixtures; one parse finds it) — a reviewer's reachability
-claim is a claim about the data and expires like any other. It also found two
+claim is a claim about the data and expires like any other. A `ecc:python-reviewer` pass over the two extractors then returned no HIGH but
+three **guards that could not fire** — a floor where the failure adds a row, a
+`% 3` blind to three cells wrapping at once, and an unbounded `&`/`or`
+splitter. Its prescription for the third could never fire either (no skill name
+contains `" or "`), so **take a reviewer's diagnosis over its prescription**.
+It also found two
 **vacuous assertions inside 6cy's own anti-vacuity test file**: a "derivations"
 test that never called the engine, and a `step == null || step == "level"` that
 all five rows regressing to null would satisfy. Third vacuity in two slices, and
