@@ -1,0 +1,10 @@
+# The scripts are the artefact; everything they produce is model chatter.
+# A round's output is a claim about the models that answered THAT DAY, so it
+# expires rather than accumulating (see CLAUDE.md on probing the catalogue).
+# batches.txt is NOT here: run-round1.sh reads it as input (`done < ...`).
+round1/
+round2/
+probe-*.txt
+*.log
+*.err
+*.status

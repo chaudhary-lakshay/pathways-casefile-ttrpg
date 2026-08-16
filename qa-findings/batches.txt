@@ -1,0 +1,25 @@
+traits|core/rules/src/test/kotlin/com/pathways/rules/TraitEffectsTest.kt
+attacks|core/rules/src/test/kotlin/com/pathways/rules/AttacksTest.kt core/rules/src/test/kotlin/com/pathways/rules/DamageTest.kt
+defenses|core/rules/src/test/kotlin/com/pathways/rules/ActiveDefensesTest.kt core/rules/src/test/kotlin/com/pathways/rules/ParryBlockTest.kt core/rules/src/test/kotlin/com/pathways/rules/ShieldsTest.kt
+ranged|core/rules/src/test/kotlin/com/pathways/rules/RangedTest.kt core/rules/src/test/kotlin/com/pathways/rules/WeaponsTest.kt
+divination|core/rules/src/test/kotlin/com/pathways/rules/DivinationTest.kt core/rules/src/test/kotlin/com/pathways/rules/AntiDivinationTest.kt core/rules/src/test/kotlin/com/pathways/rules/AntiDivinationTechniquesTest.kt
+ritual|core/rules/src/test/kotlin/com/pathways/rules/RitualResolutionTest.kt core/rules/src/test/kotlin/com/pathways/rules/RitualModeTest.kt core/rules/src/test/kotlin/com/pathways/rules/GoldenRitualTest.kt
+purchasable|core/rules/src/test/kotlin/com/pathways/rules/PurchasableTraitsTest.kt core/rules/src/test/kotlin/com/pathways/rules/WealthTest.kt core/rules/src/test/kotlin/com/pathways/rules/AppearanceTest.kt
+detection|core/rules/src/test/kotlin/com/pathways/rules/DetectionTest.kt core/rules/src/test/kotlin/com/pathways/rules/SpiritualSensesTest.kt
+wounds|core/rules/src/test/kotlin/com/pathways/rules/WoundsTest.kt core/rules/src/test/kotlin/com/pathways/rules/ShockTest.kt core/rules/src/test/kotlin/com/pathways/rules/ConditionsTest.kt
+pools|core/rules/src/test/kotlin/com/pathways/rules/PoolsTest.kt core/rules/src/test/kotlin/com/pathways/rules/EffortBurnTest.kt core/rules/src/test/kotlin/com/pathways/rules/CorruptionTest.kt
+selfcontrol|core/rules/src/test/kotlin/com/pathways/rules/SelfControlTest.kt core/rules/src/test/kotlin/com/pathways/rules/FrightCheckTest.kt
+power|core/rules/src/test/kotlin/com/pathways/rules/PowerSourcesTest.kt core/rules/src/test/kotlin/com/pathways/rules/BlessingsTest.kt core/rules/src/test/kotlin/com/pathways/rules/BoonsTest.kt
+golden-sheets|core/rules/src/test/kotlin/com/pathways/rules/GoldenSheetTest.kt core/rules/src/test/kotlin/com/pathways/rules/SheetComparisonTest.kt
+golden-tables|core/rules/src/test/kotlin/com/pathways/rules/GoldenAttributeTableTest.kt core/rules/src/test/kotlin/com/pathways/rules/GoldenSkillLadderTest.kt core/rules/src/test/kotlin/com/pathways/rules/GoldenMeleeSummaryTest.kt
+golden-misc|core/rules/src/test/kotlin/com/pathways/rules/GoldenCoreRulesTest.kt core/rules/src/test/kotlin/com/pathways/rules/GoldenSpiAffinityTest.kt core/rules/src/test/kotlin/com/pathways/rules/GoldenStudyPointsTest.kt
+skills|core/rules/src/test/kotlin/com/pathways/rules/SkillLadderTest.kt core/rules/src/test/kotlin/com/pathways/rules/SkillRollTest.kt core/rules/src/test/kotlin/com/pathways/rules/StudyTest.kt
+rolls|core/rules/src/test/kotlin/com/pathways/rules/SuccessRollTest.kt core/rules/src/test/kotlin/com/pathways/rules/DegreeOfSuccessTest.kt core/rules/src/test/kotlin/com/pathways/rules/ConcentrationTest.kt
+potion|core/rules/src/test/kotlin/com/pathways/rules/PotionDigestionTest.kt core/rules/src/test/kotlin/com/pathways/rules/PotionConsumptionTest.kt core/rules/src/test/kotlin/com/pathways/rules/NonStandardPathwaysTest.kt
+artifacts|core/rules/src/test/kotlin/com/pathways/rules/SealedArtifactsTest.kt core/rules/src/test/kotlin/com/pathways/rules/InvocationTest.kt core/rules/src/test/kotlin/com/pathways/rules/LanguagesTest.kt
+derive|core/rules/src/test/kotlin/com/pathways/rules/DeriveTest.kt core/rules/src/test/kotlin/com/pathways/rules/SecondaryCharacteristicsTest.kt core/rules/src/test/kotlin/com/pathways/rules/AttributeCostsTest.kt core/rules/src/test/kotlin/com/pathways/rules/PointBudgetTest.kt
+content|core/rules/src/test/kotlin/com/pathways/rules/content/ContentLoaderTest.kt core/rules/src/test/kotlin/com/pathways/rules/content/PathwayContentTest.kt core/rules/src/test/kotlin/com/pathways/rules/CommonModifiersTest.kt
+app|app/src/test/kotlin/com/pathways/app/EditedCharacterTest.kt app/src/test/kotlin/com/pathways/app/BeyonderSessionTest.kt app/src/test/kotlin/com/pathways/app/DefenseDialogTest.kt
+app2|app/src/test/kotlin/com/pathways/app/AttackDialogTest.kt app/src/test/kotlin/com/pathways/app/BoonDialogTest.kt app/src/test/kotlin/com/pathways/app/SessionStoreTest.kt
+infra|core/rules/src/test/kotlin/com/pathways/rules/ModifierResolverTest.kt core/rules/src/test/kotlin/com/pathways/rules/DiceTest.kt
+model|core/model/src/test/kotlin/com/pathways/model/ControllingAttributeTest.kt core/model/src/test/kotlin/com/pathways/model/ModifierTest.kt core/model/src/test/kotlin/com/pathways/model/CharacterTest.kt core/model/src/test/kotlin/com/pathways/model/SecondaryDeltaTest.kt core/model/src/test/kotlin/com/pathways/model/AttributesTest.kt core/model/src/test/kotlin/com/pathways/model/SkillKeyTest.kt core/model/src/test/kotlin/com/pathways/model/AttrTest.kt

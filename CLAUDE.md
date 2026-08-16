@@ -77,6 +77,19 @@ model, so it is a widener, not a replacement for Codex**: treat a finding as a
 lead to verify, never as a verdict, and keep the scoping budget (≤3 questions,
 only the files needed).
 
+**The panel's sensitivity is now measured, and it is low.** `qa-findings/`
+holds the harness for a full sweep run 2026-08-15/16: 25 batches of test files
+checked against `build/extract/book.txt`, each required to cite a verbatim book
+line, then a second session cross-verifying findings it did not author
+(`run-round1.sh`, `run-round2.sh`, `batches.txt`; the outputs are gitignored
+because a round is a claim about the models that answered that day). Result:
+**24 batches returned `NO FINDINGS`, 1 produced a citable finding, and round 2
+REFUTED it** — the finding's own "grep returns nothing" claim was false. Four
+batches came back `NOCITE`, so the harness does discriminate; what it does not
+do is find defects. **Read that as a number about the instrument, not a clean
+bill of health on 1513 tests.** Re-running the sweep is cheap and proves
+nothing new unless the batches change.
+
 **6cp is newest**, and its most reusable finding is that **a refusal can
 survive its author's stated reason and die of a fact none of its words
 mention.** 6co refused the round boundary because a latch on one control would
@@ -527,7 +540,8 @@ app/            Compose UI: premade list, sheet, pathway, builder
                 is the bottom sheet, reached from the gallery's top bar
 fixtures/       23 character-sheet JSON fixtures (wired onto core:rules TEST classpath)
 tools/          offline Python extractors (pypdf, openpyxl) + their tests
-docs/           spec, plan, KNOWN_ISSUES
+docs/           spec, plan, KNOWN_ISSUES, SLICE-LOG, HOW-TO-PLAY (table guide)
+qa-findings/    free-model QA harness: batches.txt + two round scripts
 ```
 
 `core/model` — `Attr`, `Attributes`, `BeyonderState`, `Character`,
