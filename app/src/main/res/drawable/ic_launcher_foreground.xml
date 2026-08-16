@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The launcher icon's foreground: an all-seeing eye.
+
+  Drawn here as a vector rather than reusing one of the pathway sigils. A
+  launcher icon is the app's most public surface, and res/drawable's sigils are
+  the publisher's artwork kept under a recorded exception (see PathwayArt) -
+  the home screen is the worst place to spend that. This is original geometry
+  and carries no such caveat.
+
+  A first version put the eye on a rounded-square die, for "the setting plus
+  what the app does". Two problems, one aesthetic and one mechanical: at 48dp a
+  launcher icon has room for ONE mark, not two stacked; and the die's corner
+  arcs rendered malformed on device, bowing the bottom edge outward. The eye
+  drew correctly, so the eye is what survives. Everything here is straight
+  lines and quadratic curves - no elliptical arcs.
+
+  108x108dp with an inner 72x72 safe zone: the artwork stays between 20 and 88
+  on both axes, so no launcher mask can clip it.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- The eye. Filled dark first so the lashes below cannot show through
+         the white of it. -->
+    <path
+        android:pathData="M22,54 Q54,24 86,54 Q54,84 22,54 Z"
+        android:fillColor="#120E14"
+        android:strokeColor="#F9C72F"
+        android:strokeWidth="5"
+        android:strokeLineJoin="round" />
+
+    <!-- Iris, arcane. -->
+    <path
+        android:pathData="M54,54 m-13,0 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0"
+        android:fillColor="#CD88F2" />
+    <!-- Pupil. -->
+    <path
+        android:pathData="M54,54 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"
+        android:fillColor="#120E14" />
+
+    <!-- Three rays above and below: enough to read as occult rather than
+         medical, and they keep the mark from being a bare lens. -->
+    <path
+        android:pathData="M54,30 L54,20 M33,38 L27,30 M75,38 L81,30"
+        android:strokeColor="#F9C72F"
+        android:strokeWidth="4"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M54,78 L54,88 M33,70 L27,78 M75,70 L81,78"
+        android:strokeColor="#F9C72F"
+        android:strokeWidth="4"
+        android:strokeLineCap="round" />
+</vector>

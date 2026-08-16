@@ -169,11 +169,23 @@ fun PremadeGallery(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit)
         topBar = {
             Column {
                 TopAppBar(
-                    title = { Text("Pathways", style = MaterialTheme.typography.titleLarge) },
+                    // "Characters", not "Pathways". A top bar names the SCREEN
+                    // you are on, and this one named the app -- which told a
+                    // reader nothing they did not already know, and clashed
+                    // with the Pathway screen that genuinely is about pathways.
+                    title = { Text("Characters", style = MaterialTheme.typography.titleLarge) },
+                    navigationIcon = {
+                        Icon(
+                            Icons.Filled.Groups,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(start = 16.dp, end = 4.dp),
+                        )
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface,
-                        // The app's own name is the one place brass is being
-                        // used as a brand mark rather than as "you can do this".
+                        // The launch screen's heading is the one place brass is
+                        // a brand mark rather than "you can do this".
                         titleContentColor = MaterialTheme.colorScheme.primary,
                     ),
                 )

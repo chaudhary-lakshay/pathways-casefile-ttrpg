@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive only, with no legacy PNG beside it: minSdk is 26, which is exactly
+  the release adaptive icons arrived in, so every device this app can install
+  on is able to render it.
+
+  The monochrome layer reuses the foreground so themed icons work on Android
+  13+; the launcher tints it and ignores the colours.
+-->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+    <monochrome android:drawable="@drawable/ic_launcher_foreground" />
+</adaptive-icon>
