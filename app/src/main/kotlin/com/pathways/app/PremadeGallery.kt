@@ -100,11 +100,32 @@ private fun initialsOf(name: String): String =
  * the first separator, and anything still long is dropped rather than
  * ellipsised -- a chip reading "Sanctity - Your connection to the div..."
  * informs nobody.
+ *
+ * **Three separators, and one deliberate non-separator.** A hyphen, an em dash
+ * and a MINUS SIGN (U+2212) each introduce effect prose: without the third,
+ * "Clueless -3 to all social skill rolls; generally miss social cues..." never
+ * isolates to "Clueless" and the row loses the trait entirely.
+ *
+ * A COLON does not separate name from effect, and splitting on it would be a
+ * quiet data loss: "Wealth: Comfortable" and "Poverty: Struggling" are whole
+ * two-part names, and cutting them to "Wealth" and "Poverty" drops the level
+ * that distinguishes one row from the other. "Paranoia: Bodies of water" is the
+ * same shape -- a specification, not a description.
+ *
+ * The length cap is 32, not 18. At 18 this silently dropped "High Pain
+ * Threshold", "Lightning Calculator", "Legal Enforcement Powers", "Sense of
+ * Duty (Coworkers)" and "Pacifism (Cannot Harm Innocents)" -- precisely the
+ * characterful names the chip exists to show.
  */
 private fun chipTraits(sheet: PremadeSheet): List<String> =
     (sheet.advantages + sheet.disadvantages)
-        .map { it.name.substringBefore(" - ").substringBefore(" — ").trim() }
-        .filter { it.length in 1..18 }
+        .map {
+            it.name.substringBefore(" - ")
+                .substringBefore(" — ")
+                .substringBefore(" −")
+                .trim()
+        }
+        .filter { it.length in 1..32 }
         .take(2)
 
 @OptIn(ExperimentalMaterial3Api::class)
