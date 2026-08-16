@@ -1,0 +1,84 @@
+{
+ "sourceLines": {
+  "2": [
+   [
+    353,
+    386
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "key": "hp",
+   "characteristic": "HP (Hit Points)",
+   "formula": "= ST (9)",
+   "cost": "±2 pts per level",
+   "pointsPerStep": 2,
+   "step": "level"
+  },
+  {
+   "key": "will",
+   "characteristic": "Will",
+   "formula": "= IQ (9)",
+   "cost": "±5 pts per level",
+   "pointsPerStep": 5,
+   "step": "level"
+  },
+  {
+   "key": "per",
+   "characteristic": "Perception (Per)",
+   "formula": "= IQ (9)",
+   "cost": "±5 pts per level",
+   "pointsPerStep": 5,
+   "step": "level"
+  },
+  {
+   "key": "fp",
+   "characteristic": "FP (Fatigue Points)",
+   "formula": "= HT (9)",
+   "cost": "±3 pts per level",
+   "pointsPerStep": 3,
+   "step": "level"
+  },
+  {
+   "key": "spi",
+   "characteristic": "Spirituality",
+   "formula": "= SPI (0)",
+   "cost": "Fixed at 0; see Chapter 4",
+   "pointsPerStep": null,
+   "step": null
+  },
+  {
+   "key": "cor",
+   "characteristic": "CoR",
+   "formula": "Current: 0 / Max: Will",
+   "cost": "Tracked in play; never bought",
+   "pointsPerStep": null,
+   "step": null
+  },
+  {
+   "key": "basicSpeed",
+   "characteristic": "Basic Speed",
+   "formula": "= (HT + DX) / 4 = 4.50",
+   "cost": "±5 pts per 0.25",
+   "pointsPerStep": 5,
+   "step": "0.25"
+  },
+  {
+   "key": "basicMove",
+   "characteristic": "Basic Move",
+   "formula": "= Basic Speed rounded down = 4",
+   "cost": "±5 pts per level",
+   "pointsPerStep": 5,
+   "step": "level"
+  },
+  {
+   "key": "digestion",
+   "characteristic": "Digestion %",
+   "formula": "0% (mortals N/A)",
+   "cost": "Tracked through acting",
+   "pointsPerStep": null,
+   "step": null
+  }
+ ]
+}

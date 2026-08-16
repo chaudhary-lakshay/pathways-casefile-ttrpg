@@ -117,6 +117,9 @@ object ContentLoader {
     private val weaponsLazy: List<CataloguedWeapon> by lazy { load("weapons.json") }
     private val wealthLazy: List<WealthLevel> by lazy { load("wealth.json") }
     private val equipmentLazy: List<EquipmentItem> by lazy { load("equipment.json") }
+    private val secondaryCostsLazy: List<SecondaryCost> by lazy {
+        load("secondary_costs.json")
+    }
     private val studyCostsLazy: List<StudyCost> by lazy { load("study_costs.json") }
     private val studyRulesLazy: List<StudyRule> by lazy { load("study_rules.json") }
     private val appearanceLazy: List<AppearanceLevel> by lazy { load("appearance.json") }
@@ -259,6 +262,9 @@ object ContentLoader {
 
     /** The Common Equipment table, in printed order (Ch. 8, p. 81-83). */
     fun equipment(): List<EquipmentItem> = equipmentLazy
+
+    /** What it costs to modify each secondary characteristic (Ch. 2, p. 8-9). */
+    fun secondaryCosts(): List<SecondaryCost> = secondaryCostsLazy
 
     /** What one study point costs, by difficulty and method (Ch. 3, p. 32). */
     fun studyCosts(): List<StudyCost> = studyCostsLazy

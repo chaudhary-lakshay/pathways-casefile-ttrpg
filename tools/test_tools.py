@@ -1,4 +1,4 @@
-import json, subprocess, sys, pathlib
+import json, re, subprocess, sys, pathlib
 
 import pytest
 
@@ -3554,19 +3554,20 @@ def test_the_six_quick_contests_survive_their_trailing_paragraph():
 
 @needs_pdf
 def test_the_core_rules_verify_against_the_book():
-    bands, pools, rows, defs = extract_core_rules.extract()
-    extract_core_rules.verify(bands, pools, rows, defs, extract_core_rules.load_lines())
+    bands, pools, rows, defs, secs = extract_core_rules.extract()
+    extract_core_rules.verify(
+        bands, pools, rows, defs, secs, extract_core_rules.load_lines())
 
 
 @needs_pdf
 def test_a_capped_spi_burn_is_refused():
     """The SPI row says "There is no cap"; growing one is a finding."""
-    bands, pools, rows, defs = extract_core_rules.extract()
+    bands, pools, rows, defs, secs = extract_core_rules.extract()
     pools = [dict(p) for p in pools]
     pools[1]["max"] = 5
     with pytest.raises(AssertionError):
         extract_core_rules.verify(
-            bands, pools, rows, defs, extract_core_rules.load_lines())
+            bands, pools, rows, defs, secs, extract_core_rules.load_lines())
 
 
 # --- The Seven Orthodox Gods Blessings (Ch. 3, p. 19) ----------------------
@@ -3795,3 +3796,92 @@ def test_the_fortune_seam_is_the_books_own_and_is_not_normalised():
     for deck in ("Tarot deck (common)", "Tarot deck (quality)"):
         assert "Fortune-Telling" in equipment_named(deck)["notes"]
         assert equipment_named(deck)["skills"] == []
+
+
+# --- The Secondary Characteristics cost column (Ch. 2, p. 8-9) -------------
+
+
+def secondary_rows():
+    return core_entries("secondary_costs")
+
+
+def test_the_book_prices_a_secondary_in_exactly_one_place():
+    """`extract_core_rules` used to skip this table because "ch 3 prints the
+    costs, which are already extracted". Chapter 3 prints no such thing -- its
+    `pts/level` lines are advantage rows -- and "Cost to Modify" occurs once in
+    the whole book, on page 8."""
+    byn = extract_core_rules.load_lines()
+    printing = [n for n, t in byn.items() if "Cost to Modify" in t]
+    assert printing == [357], printing
+    per_level = [
+        n for n, t in byn.items()
+        if re.search(r"(pts?|points?) per (level|0\.25)", t, re.I)
+    ]
+    # All six on pages 8-9, none anywhere else in the book.
+    assert per_level and all(353 <= n <= 386 for n in per_level), sorted(per_level)
+
+
+def test_the_nine_rows_split_six_priced_from_three_refused():
+    rows = secondary_rows()
+    assert [r["key"] for r in rows] == [
+        "hp", "will", "per", "fp", "spi", "cor", "basicSpeed", "basicMove", "digestion",
+    ]
+    priced = {r["key"]: r["pointsPerStep"] for r in rows if r["pointsPerStep"] is not None}
+    assert priced == {
+        "hp": 2, "will": 5, "per": 5, "fp": 3, "basicSpeed": 5, "basicMove": 5,
+    }
+
+
+def test_an_unpriced_row_keeps_the_words_that_refuse_it():
+    """Absent, not zero. "Fixed at 0" and "never bought" are rules, and a 0
+    would read as a free purchase -- the distinction this repo already draws
+    between printing nothing and printing zero."""
+    by_key = {r["key"]: r for r in secondary_rows()}
+    assert by_key["spi"]["cost"] == "Fixed at 0; see Chapter 4"
+    assert by_key["cor"]["cost"] == "Tracked in play; never bought"
+    assert by_key["digestion"]["cost"] == "Tracked through acting"
+    assert all(by_key[k]["pointsPerStep"] is None for k in ("spi", "cor", "digestion"))
+    assert all(by_key[k]["step"] is None for k in ("spi", "cor", "digestion"))
+
+
+def test_basic_speed_is_the_only_row_priced_per_fraction():
+    """A parser that dropped the unit would price a whole point of Basic Speed
+    at 5 instead of 20, and SecondaryDelta counts quarters because of it."""
+    by_key = {r["key"]: r for r in secondary_rows()}
+    assert by_key["basicSpeed"]["step"] == "0.25"
+    assert all(
+        r["step"] in (None, "level")
+        for r in secondary_rows() if r["key"] != "basicSpeed"
+    )
+
+
+@needs_pdf
+def test_a_renamed_characteristic_is_a_finding_not_a_slug():
+    """The printed name -> key map is pinned. A row the book renames must stop
+    the run rather than silently produce a key no consumer joins on."""
+    byn = dict(extract_core_rules.load_lines())
+    byn[358] = "Hit Points"
+    with pytest.raises(ValueError, match="no consumer has a key for"):
+        extract_core_rules.secondaries(byn)
+
+
+@needs_pdf
+def test_a_moved_price_fails_verification():
+    """These six numbers bill every character PointBudget reports on."""
+    bands, pools, rows, defs, secs = extract_core_rules.extract()
+    secs = [dict(s) for s in secs]
+    secs[0]["pointsPerStep"] = 4
+    with pytest.raises(ValueError, match="changed price"):
+        extract_core_rules.verify(
+            bands, pools, rows, defs, secs, extract_core_rules.load_lines())
+
+
+@needs_pdf
+def test_pricing_a_row_the_table_refuses_fails_verification():
+    bands, pools, rows, defs, secs = extract_core_rules.extract()
+    secs = [dict(s) for s in secs]
+    spi = next(s for s in secs if s["key"] == "spi")
+    spi["pointsPerStep"] = 5
+    with pytest.raises(ValueError, match="is now priced"):
+        extract_core_rules.verify(
+            bands, pools, rows, defs, secs, extract_core_rules.load_lines())

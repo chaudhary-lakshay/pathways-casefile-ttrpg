@@ -1707,6 +1707,32 @@ data class EquipmentItem(
     val skills: List<EquipmentSkill> = emptyList(),
 )
 
+/**
+ * One row of the Secondary Characteristics table (Ch. 2, p. 8-9).
+ *
+ * The only place the book prices modifying a secondary -- "Cost to Modify"
+ * occurs once in the whole text, at line 357. [SecondaryCharacteristics]'s
+ * cost constants had no tie to it until this row existed, so a re-extraction
+ * that moved a price would have left the engine billing the old one.
+ *
+ * [pointsPerStep] is null for the three rows the table refuses to price
+ * (Spirituality "Fixed at 0", CoR "never bought", Digestion "Tracked through
+ * acting"), and [cost] then carries the book's own words for the refusal.
+ *
+ * [step] is "level" everywhere except Basic Speed, which the book prices per
+ * 0.25. Dropping that unit would price a whole point of Speed at 5 instead of
+ * 20, which is why [com.pathways.model.SecondaryDelta] counts it in quarters.
+ */
+@Serializable
+data class SecondaryCost(
+    val key: String,
+    val characteristic: String,
+    val formula: String,
+    val cost: String,
+    val pointsPerStep: Int? = null,
+    val step: String? = null,
+)
+
 @Serializable
 data class ContentFile<T>(
     val sourceLines: Map<String, List<List<Int>>> = emptyMap(),

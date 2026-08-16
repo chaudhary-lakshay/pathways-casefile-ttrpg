@@ -67,15 +67,43 @@ WHAT IS DELIBERATELY LEFT
 * **Attribute Scale Reference** and **What the Numbers Mean** (p. 8) -- two
   descriptive tables (a score's descriptor, a target's odds). Flavour and
   probability, with no rule to apply.
-* **The Secondary Characteristics table** (p. 8-9) -- `SecondaryCharacteristics`
-  implements every formula and ch 3 prints the costs, which are already
-  extracted. A second span here would double-claim.
 * **The five-step play loop** (p. 7) -- how to run a session.
 * **"Critical Success in Combat: double damage"** is claimed here as part of
   the success-roll group but NOT applied: damage in this app is an expression,
   never a rolled total, so there is nothing to double. The same reason a called
   shot's wounding multiplier is quoted beside the damage rather than multiplied
   into it (6l).
+
+THE EXCLUSION THAT WAS FALSE IN BOTH HALVES
+--------------------------------------------
+This docstring used to leave the Secondary Characteristics table out, saying
+"`SecondaryCharacteristics` implements every formula and ch 3 prints the
+costs, which are already extracted. A second span here would double-claim."
+
+Re-run as a query, every clause of that is wrong:
+
+* Chapter 3 prints **no** cost-to-modify for a secondary. Its `pts/level`
+  lines are ADVANTAGE rows -- Hard to Kill 2/level, Charisma 5/level, Acute
+  Senses 5/level -- which is a different thing wearing the same words. That
+  resemblance is what the exclusion was built on.
+* "Cost to Modify" occurs **once in the whole book**, at line 357 on page 8.
+  Appendix A names the characteristics in its glossary and prices none.
+* Nothing extracted them, so there was nothing to double-claim. The claimed
+  chapter 2 spans stop at 285 and resume at 387; this table sits at 353-386,
+  in the gap.
+
+The consequence was that `SecondaryCharacteristics`' six cost constants had
+no tie to any printed line. They are pinned against an EDIT -- change one and
+`SecondaryCharacteristicsTest` reddens -- but nothing was pinned against the
+BOOK, so a re-extraction that moved a price would have left the engine
+billing the old one, and every test would have stayed green. That is 6cg's
+direction-of-the-pin with no pin in either direction, and `PointBudget`
+charges these to every character ever built.
+
+The table also settles something by printing it: three of its nine rows are
+NOT buyable at any price -- Spirituality "Fixed at 0", CoR "Tracked in play;
+never bought", Digestion "Tracked through acting". Section 4.4's rule that
+SPI can never be an `Attr` gets a second, independent printing here.
 """
 import json, pathlib, re, sys
 
@@ -85,6 +113,10 @@ OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "2"
 MECHANIC_RANGE = (276, 285)
+# The Secondary Characteristics table, heading to last cell. It ends where
+# BURN_RANGE begins, and begins after MECHANIC_RANGE ends -- the gap the old
+# exclusion said was already claimed.
+SECONDARY_RANGE = (353, 386)
 BURN_RANGE = (387, 395)
 CONTEST_RANGE = (396, 422)
 # The Skill Defaults table straddles a page break: its heading and column
@@ -114,6 +146,33 @@ CONTEST_HEADERS = {"Situation", "Attacker Rolls", "Defender Rolls"}
 TIES_TO_DEFENDER = "Ties always go to the defender."
 LARGER_MARGIN = "The winner is the one who succeeds"
 RESOLUTION_MARKER = "If both succeed"
+
+# The secondary table's three column headers, and the nine rows it prints.
+SECONDARY_HEADING = "Secondary Characteristics"
+SECONDARY_HEADERS = {"Characteristic", "Base Formula", "Cost to Modify"}
+SECONDARY_INTRO = "Derived from primary attributes"
+# The printed name -> the key a consumer joins on. Pinned rather than derived:
+# if the book renames a row, that is a finding and not a slug to regenerate.
+SECONDARY_KEYS = {
+    "HP (Hit Points)": "hp",
+    "Will": "will",
+    "Perception (Per)": "per",
+    "FP (Fatigue Points)": "fp",
+    "Spirituality": "spi",
+    "CoR": "cor",
+    "Basic Speed": "basicSpeed",
+    "Basic Move": "basicMove",
+    "Digestion %": "digestion",
+}
+# "±2 pts per level", "±5 pts per 0.25". The sign is U+00B1: the column prices
+# BUYING and SELLING at one rate, which is why costOf refunds a negative delta.
+SECONDARY_COST = re.compile(r"^±(\d+) pts per (level|0\.25)$")
+# The three rows the table itself declares unbuyable, with the words it uses.
+SECONDARY_UNBUYABLE = {
+    "spi": "Fixed at 0; see Chapter 4",
+    "cor": "Tracked in play; never bought",
+    "digestion": "Tracked through acting",
+}
 
 DEFAULT_ROW = re.compile(r"^(Easy|Average|Hard|Very Hard)$")
 DEFAULT_VALUE = re.compile(r"^Attribute - (\d+)$")
@@ -259,15 +318,92 @@ def defaults(byn):
     return rows
 
 
+def secondaries(byn):
+    """The nine secondary characteristics, priced as the table prices them.
+
+    Three cells per row and no wrapping anywhere in this table, so the rows
+    are taken in threes off the stream once the heading, the intro sentence
+    and the three column headers are dropped.
+    """
+    cells = [
+        text for _, text in stream(byn, SECONDARY_RANGE)
+        if text != SECONDARY_HEADING
+        and text not in SECONDARY_HEADERS
+        and not text.startswith(SECONDARY_INTRO)
+    ]
+    if len(cells) % 3:
+        raise ValueError(
+            f"the secondary table is {len(cells)} cells, not a multiple of "
+            "three; a row wrapped or a column moved"
+        )
+
+    rows = []
+    for name, formula, cost in zip(cells[0::3], cells[1::3], cells[2::3]):
+        key = SECONDARY_KEYS.get(name)
+        if key is None:
+            raise ValueError(
+                f"the table prints a characteristic named {name!r}, which no "
+                "consumer has a key for. A renamed row is a finding"
+            )
+        priced = SECONDARY_COST.fullmatch(cost)
+        rows.append({
+            "key": key,
+            "characteristic": name,
+            "formula": formula,
+            "cost": cost,
+            # None where the table refuses a price rather than printing one.
+            "pointsPerStep": int(priced.group(1)) if priced else None,
+            "step": priced.group(2) if priced else None,
+        })
+    return rows
+
+
 def extract():
     byn = load_lines()
-    return mechanic(byn), burn(byn), contests(byn), defaults(byn)
+    return mechanic(byn), burn(byn), contests(byn), defaults(byn), secondaries(byn)
 
 
-def verify(bands, pools, rows, defs, byn):
+def verify(bands, pools, rows, defs, secs, byn):
     burn_text = " ".join(t for _, t in stream(byn, BURN_RANGE))
     contest_text = " ".join(t for _, t in stream(byn, CONTEST_RANGE))
     default_text = " ".join(t for _, t in stream(byn, *DEFAULT_RANGES))
+
+    # -- the secondaries --------------------------------------------------
+    if [r["key"] for r in secs] != list(SECONDARY_KEYS.values()):
+        raise ValueError(
+            f"the secondary table's rows moved: {[r['key'] for r in secs]}"
+        )
+    for key, words in SECONDARY_UNBUYABLE.items():
+        row = next(r for r in secs if r["key"] == key)
+        if row["pointsPerStep"] is not None:
+            raise ValueError(f"{key} is now priced at {row['pointsPerStep']}, and was not")
+        if row["cost"] != words:
+            raise ValueError(
+                f"{key} used to refuse a price with {words!r} and now says "
+                f"{row['cost']!r}. Whether it can be bought is a rule"
+            )
+    # Six priced, three refused, and the table says which is which itself.
+    priced = {r["key"]: r["pointsPerStep"] for r in secs if r["pointsPerStep"]}
+    if priced != {"hp": 2, "will": 5, "per": 5, "fp": 3, "basicSpeed": 5, "basicMove": 5}:
+        raise ValueError(
+            f"a secondary characteristic changed price: {priced}. "
+            "SecondaryCharacteristics bills every character with these"
+        )
+    # Basic Speed is the one row priced per quarter rather than per level, and
+    # SecondaryDelta.basicSpeedQuarters exists because of it. A parser that
+    # dropped the unit would price a whole point of Speed at 5 instead of 20.
+    speed = next(r for r in secs if r["key"] == "basicSpeed")
+    if speed["step"] != "0.25":
+        raise ValueError(f"Basic Speed is now priced per {speed['step']!r}, not per 0.25")
+    if any(r["step"] not in (None, "level") for r in secs if r["key"] != "basicSpeed"):
+        raise ValueError("a second row is now priced per fraction; only Speed was")
+    # The formulas the engine reproduces, checked as printed rather than as
+    # remembered -- Will and Per both from IQ, HP from ST, FP from HT.
+    formulas = {r["key"]: r["formula"] for r in secs}
+    for key, expected in (("hp", "= ST (9)"), ("fp", "= HT (9)"),
+                          ("will", "= IQ (9)"), ("per", "= IQ (9)")):
+        if formulas[key] != expected:
+            raise ValueError(f"{key} is now derived {formulas[key]!r}, not {expected!r}")
 
     # -- the burn ---------------------------------------------------------
     fp, spi = pools
@@ -333,8 +469,9 @@ def verify(bands, pools, rows, defs, byn):
     ), "chapter 2 now names the bands; 6ad's warrant rested on it not doing so"
 
 
-def write(bands, pools, rows, defs):
+def write(bands, pools, rows, defs, secs):
     files = {
+        "secondary_costs.json": ([list(SECONDARY_RANGE)], secs),
         "core_mechanic.json": ([list(MECHANIC_RANGE)], bands),
         "effort_burn.json": ([list(BURN_RANGE)], pools),
         "quick_contests.json": ([list(CONTEST_RANGE)], rows),
@@ -353,11 +490,11 @@ def write(bands, pools, rows, defs):
 
 
 if __name__ == "__main__":
-    bands, pools, rows, defs = extract()
-    verify(bands, pools, rows, defs, load_lines())
-    write(bands, pools, rows, defs)
+    bands, pools, rows, defs, secs = extract()
+    verify(bands, pools, rows, defs, secs, load_lines())
+    write(bands, pools, rows, defs, secs)
     print(
         f"wrote {len(bands)} bands, {len(pools)} pools, {len(rows)} contests, "
-        f"{len(defs)} defaults",
+        f"{len(defs)} defaults, {len(secs)} secondaries",
         file=sys.stderr,
     )
