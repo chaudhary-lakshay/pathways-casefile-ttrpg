@@ -167,14 +167,14 @@ fun PathwayScreen(
                             // a reading rather than canon.
                             val art = pathwayArt(name)
                             if (art != null) {
+                                // Square and uncropped: a sigil is a whole
+                                // shape, and cropping one to a card's
+                                // proportions cuts its own outline off.
                                 Image(
                                     painter = painterResource(art),
                                     contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .padding(10.dp)
-                                        .size(width = 52.dp, height = 84.dp)
-                                        .clip(MaterialTheme.shapes.extraSmall),
+                                    contentScale = ContentScale.Fit,
+                                    modifier = Modifier.padding(10.dp).size(56.dp),
                                 )
                             }
                             Text(
@@ -200,9 +200,8 @@ fun PathwayScreen(
                             Image(
                                 painter = painterResource(art),
                                 contentDescription = "${block.pathway} Pathway",
-                                modifier = Modifier
-                                    .size(width = 108.dp, height = 178.dp)
-                                    .clip(MaterialTheme.shapes.small),
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.size(112.dp),
                             )
                             Column(Modifier.padding(start = 14.dp)) {
                                 Text(

@@ -3,30 +3,30 @@ package com.pathways.app
 import androidx.annotation.DrawableRes
 
 /**
- * The card art for each of the 22 pathways.
+ * The sigil for each of the 22 pathways.
  *
- * **Where it comes from, and why this deck.** These are the Major Arcana of
- * the Rider-Waite-Smith tarot, published 1909 and drawn by Pamela Colman Smith
- * (d. 1951). The deck is public domain in the United States, having been
- * published before 1929, and in life-plus-70 jurisdictions since 2022. That is
- * the reason for using it rather than the fan art the setting has plenty of:
- * fan art belongs to the artist who drew it, and this repository is a public
- * portfolio project whose own notes forbid redistribution. Shipping someone
- * else's drawing in an APK on a public remote would be exactly that.
+ * **What these are.** The pathway emblems from the Lord of the Mysteries wiki
+ * (`<Pathway> Symbol2.png`), one per pathway, downscaled to 256px WebP with
+ * transparency preserved. They are the setting's OWN symbols -- a first
+ * attempt used the Rider-Waite tarot Major Arcana on the reasoning that the 22
+ * pathways are the 22 arcana, and it was rejected for the obvious reason: a
+ * 1909 tarot card is not Lord of the Mysteries.
  *
- * It also happens to be the right art rather than merely the safe art: this
- * setting's 22 pathways ARE the 22 Major Arcana, so a tarot card is the thing
- * being depicted and not a decorative stand-in.
+ * **The licence, recorded rather than glossed.** These are NOT public domain.
+ * Lord of the Mysteries is Cuttlefish That Loves Diving's, its official art is
+ * the publisher's, and wiki uploads are hosted as fair use rather than under a
+ * licence that permits redistribution. Committing them here is a deliberate
+ * decision by the repository's owner, taken after the position above was put
+ * to them, for a personal non-commercial project. It is recorded here so that
+ * the next reader knows it was a choice and not an oversight -- and so that
+ * anyone packaging this for distribution knows to strip `res/drawable` first.
  *
- * **Half of this mapping is a reading, not canon.** Nine pathways match a card
- * by name -- Fool, Hermit, Wheel of Fortune, Justiciar/Justice, Hanged Man,
- * Death, White Tower/Tower, Moon, Sun -- and the rest are assigned by subject:
- * the Empress is the mother, the Devil's figures are chained, the Hierophant
- * is a priest. `Darkness` gets Temperance because it is the card left over,
- * which is the weakest link here and is written down rather than dressed up
- * (section 4.1 -- record the disagreement, never hide it).
+ * There is no mapping question any more: each pathway has its own symbol, so
+ * nothing here is a reading. That was the other cost of the tarot attempt --
+ * half its assignments were interpretation, and `Darkness` got Temperance
+ * purely because it was the card left over.
  *
- * A missing name returns null and the caller draws its plain card. That is
+ * A missing name returns null and the caller draws no sigil. That is
  * deliberate: `NonStandardPathways` knows of pathways the potion tables do not
  * print, and an art lookup must never be the thing that decides what exists.
  */
