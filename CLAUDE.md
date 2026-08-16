@@ -118,7 +118,12 @@ run"* turns out to be a real refusal with a mechanism reason (it sits under
 recovery and Regeneration RATES stay unapplied for that reason**, and
 "Very Rapid Healing" (line 2861) is in no catalogue while `Rapid Recovery`
 (line 922) and `Rapid Healing` (line 6928) are two other rules wearing similar
-names.
+names. **It also leaves one sentence half-applied, deliberately**: 2852's other
+clause, "-1 to all rolls", still reaches skill rolls only, and whether it
+reaches a defence VALUE on a screen that never rolls one needs the bar 6ck set
+for the stun — a printing that says "active defenseS". That is the named next
+slice, ahead of 2899's Regeneration rule, which needs a reachability check
+first.
 
 **6db is next, and every coverage percentage in this file is now suspect.**
 `tools/coverage.py`'s `MECHANICAL` filter decides which lines COUNT as rules

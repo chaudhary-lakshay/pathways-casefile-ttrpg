@@ -6855,13 +6855,28 @@ wrong-pool guard deleted (1), the below-zero effect branch deleted (1). Not
 device-verified — stated rather than skipped; the emulator run is what would
 show a tired character's dialog reading `Dodge 5` with the sentence under it.
 
-**The next slice is the one this one refused to guess at: chapter 5's 2899,
-"At 0 HP or below, a character with any level of Regeneration still makes HT
-rolls to avoid unconsciousness".** `PoolStatus.rollsToStayConscious` already
-exists and already fires at 0 HP, so this is a rule about a flag the app
-computes rather than a new table — check first whether any premade or potion
-grant can carry Regeneration at all, because 6bv's lesson is that an
-unreachable feature and a missing one look identical in the source.
+**The next slice is the OTHER half of the sentence this one applied.** Line
+2852 reads "-1 to all rolls; Move and Dodge halved", and after this slice the
+two clauses are treated differently on one screen: the halving reaches the
+Dodge row, and the -1 reaches skill rolls only — `Conditions.forSkill` emits
+it, and `DefenseDialog`'s three defence values take nothing from the pool
+(`everyDefence` is built from `traits, stunned, shocked`). `Conditions` even
+tags that modifier `ModTarget.AllRolls`, so the app's own model calls it
+all-rolls and then never applies it to a defence number. **It is not obvious
+that it should**: this app displays defences as target numbers and never rolls
+them, so whether "all rolls" reaches a defence VALUE is exactly the question
+6ck settled for the stun by finding a second printing that said "active
+defenseS". Take it to a design review with that bar, not to an editor — and
+note the asymmetry is live for every character who spends FP, where the
+alternative below needs a reachability check first.
+
+Behind it: chapter 5's 2899, "At 0 HP or below, a character with any level of
+Regeneration still makes HT rolls to avoid unconsciousness".
+`PoolStatus.rollsToStayConscious` already exists and already fires at 0 HP, so
+this is a rule about a flag the app computes rather than a new table — but no
+premade carries Regeneration and `advantages.json` prints only `Rapid
+Recovery`, so check reachability first (6bv: an unreachable feature and a
+missing one look identical in the source).
 
 ## 6db. A chapter reported 100% because the filter could not see it
 
