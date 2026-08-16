@@ -493,4 +493,22 @@ class DivinationTest {
         // can see that, so the extractor joins on the times the book prints.
         assertEquals("Overnight", Divination.methodNamed("Dream Interpretation").time)
     }
+
+    /**
+     * The unapplied rule is named, and the bonus it withholds is the book's.
+     *
+     * A guard on discoverability rather than on behaviour, and the KDoc on
+     * [Divination.UNAPPLIED] says so: nothing here fails if the bonus is later
+     * wired up. What it does catch is the entry drifting from the constant it
+     * explains -- the pairing 6cq found held together by a comment alone.
+     */
+    @Test
+    fun `the specialisation bonus is recorded as unapplied, with its reason`() {
+        assertEquals(setOf("Specialisation"), Divination.UNAPPLIED.keys)
+        assertEquals(1, Divination.SPECIALISATION_BONUS)
+        assertTrue(
+            "technique" in Divination.UNAPPLIED.getValue("Specialisation"),
+            "the reason no longer names what the book prices it as",
+        )
+    }
 }

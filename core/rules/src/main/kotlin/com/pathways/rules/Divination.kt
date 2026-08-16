@@ -34,8 +34,43 @@ object Divination {
     /** "cumulative but cap at +2 total from supporting skills" (p. 54). */
     const val MAX_SUPPORT_BONUS = 2
 
-    /** "A Beyonder may specialise in one method, gaining +1 when using it." */
+    /**
+     * "A Beyonder may specialise in one method, gaining +1 when using it."
+     *
+     * Read, and deliberately not applied: the reason is the value in
+     * [UNAPPLIED], where a sweep over Kotlin finds it. Kept as a constant so
+     * the number is extracted once if the app ever gains a place to record
+     * which method a diviner trained in.
+     */
     const val SPECIALISATION_BONUS = 1
+
+    /**
+     * Printed divination rules this app does not apply, each beside its reason.
+     *
+     * The standard is [ActiveDefenses.UNPAYABLE]'s: a printed rule that reaches
+     * nothing says so with its reason, in production source rather than in a
+     * journal, so the omission stays a decision instead of becoming an
+     * accident. **That buys discoverability in the RULES SOURCE and nothing
+     * more** -- removing an entry here turns no test red, adding one does not
+     * either, and the screen that renders this map could be deleted with the
+     * suite still green, because nothing in this repo tests a composable. The
+     * scope is stated rather than assumed: a review's finding, and the
+     * alternative was an app-side assertion that cannot reach the render.
+     *
+     * The value is shown to the PLAYER, so it is one sentence rather than the
+     * argument behind it. That argument: the pricing sentence puts it under
+     * GURPS Techniques, which this book does not reprint and the builder
+     * cannot buy, and nothing in this repo -- no sheet, no potion grant, no
+     * saved edit -- records which method a Beyonder trained in. Every other
+     * bonus on that screen is gated on something the character demonstrably
+     * owns; a chip here would be gated on nothing.
+     */
+    val UNAPPLIED = mapOf(
+        "Specialisation" to
+            "the book prices it as a technique (GURPS p. B229), which this book " +
+            "does not reprint, and nothing here records which method a diviner " +
+            "trained in",
+    )
 
     /** "1 SPI = +1, no cap", spent after seeing the roll (p. 55). */
     const val BURN_PER_SPI = 1

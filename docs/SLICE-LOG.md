@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6cr. **Position in this file does not tell you a slice's age** —
+Sections 6a-6cs. **Position in this file does not tell you a slice's age** —
 the order is not uniform (6a onward run oldest-first, one cluster near 6ca is
 scrambled, and the most recent block runs newest-first, so the newest slice is
 neither at the top nor at the bottom). Locate one by name with
@@ -6725,6 +6725,81 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6cs. The slice that ships a refusal
+
+6cr's census found one constant in 96 that occurs once in the repository:
+`Divination.SPECIALISATION_BONUS`, whose KDoc quotes book line 3653 — "A
+Beyonder may specialise in one method, gaining +1 when using it." A printed
+rule reaching no roll is this project's oldest defect class, so the obvious
+slice was a declaration chip on the divination screen.
+
+**The design review returned NO-SHIP, and the evidence was already in the
+repo.** The same book sentence prices it: *"This counts as a technique (see
+GURPS Techniques, p. B229)"* — a points purchase under a rule this book does
+not reprint and this app's builder cannot buy. And nothing in the corpus
+records WHICH method a diviner trained in: all 23 premades are mortals and not
+one carries a divination skill, no potion grant records a specialisation, and
+no saved edit has a field for one. Meanwhile every other bonus on that screen
+is gated on ownership — `ownedSupportSkills` is resolved by the CALLER, and its
+KDoc says the screen must not decide membership itself. The GM call those chips
+carry is about **relevance of an owned skill**, never about ownership.
+
+**The sharpest finding was against my own state design.** I proposed the chip
+reset when the method changes, by analogy with `spiChoice by remember(method)`.
+The reviewer took that apart: `spiChoice` resets because it is *re-derived* from
+the new method's printed cost — the reset loads a fresh value. Specialisation
+has nothing to load, so "resetting" it only offers the tick again, and a
+per-method boolean lets a player specialise in a different method every
+question. **One permanent point-bought technique would have become a free +1 on
+whatever method was picked** — the entitlement defect in state form, and
+invisible in a diff. The book says "one method", singular; the honest shape is
+a single nullable method, which is exactly the field this repo has nowhere to
+store.
+
+So what shipped is the refusal. `Divination.UNAPPLIED` holds the rule beside
+its reason, in production source where a sweep over Kotlin reaches it — the
+`ActiveDefenses.UNPAYABLE` standard, with the same honest caveat in its KDoc:
+**discoverability, not strength.** Removing an entry turns nothing red. The
+screen now says it out loud too, reading the reason from the map rather than
+paraphrasing it, so the note and the rule cannot drift the way 6bl's disclaimer
+did.
+
+**Writing that value taught the small lesson of the slice.** The first draft was
+developer prose — "…which is the one thing every other bonus on this screen is
+gated against" — and it rendered verbatim into the dialog. A string with two
+readers must be written for the harsher one: the player got one sentence, and
+the argument moved up into the KDoc, where the maintainer was going to look
+anyway.
+
+**And the note shipped in the wrong branch.** It was first written directly
+under the support-skill cap line, which lives in the `else` of
+`if (ownedSupportSkills.isEmpty())` — so the only diviners who would ever have
+read "Specialisation +1 is not applied here" were the ones who own Occultism,
+Hidden Lore, Psychology or Cogitation. **A refusal that renders beside an
+unrelated condition is a refusal most readers never see**, and the placement is
+invisible to every test in this repo, because none of them reach a composable.
+It sits outside the branch now, with the reason for the placement in a comment
+beside it. Caught by asking the diff review to quote the branch condition the
+block sits in — a question worth asking of any block added next to existing
+code rather than at a boundary.
+
+The test is deliberately weak and says so: it pins the key set, the constant's
+value, and that the reason still names what the book prices it as. RED-proved
+by rewriting "technique" to "trained knack" — 1 of 51 fails, restored from the
+copy. Suite 1514 green (measured per module: 1028 `core:rules`, 466 `app`, 20
+`core:model` — the filtered RED-proof run overwrites one module's XML, so a
+per-module count taken straight after it is wrong).
+
+**Next, with evidence, and it is a correction to 6cr's own instrument.** That
+census counted occurrences repo-wide, tests included, so a constant *pinned by
+a test and applied by nothing* scores the same as one in daily use. Its second
+column ("no reader outside the declaring file") is worse than useless — 52
+constants match it and all 52 are healthy. The query that would find the next
+`SPECIALISATION_BONUS` before it becomes one is **constants whose only
+non-declaration reader is a test**, and neither column answers it. Write that
+one properly, and expect it to be small: this repo tends to test what it
+applies.
 
 ## 6cr. Three of the four hits were quotations
 

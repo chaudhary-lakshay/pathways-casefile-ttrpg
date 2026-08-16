@@ -333,6 +333,19 @@ fun DivinationDialog(
                         }
                     }
                 }
+                // A printed bonus this screen does not offer, said out loud
+                // rather than left silent, with its reason read from the rules
+                // rather than paraphrased here. OUTSIDE the branch above: the
+                // refusal has nothing to do with owning a supporting skill, and
+                // a diviner who owns none is the likelier reader of it.
+                Divination.UNAPPLIED.forEach { (rule, reason) ->
+                    Text(
+                        "$rule ${signed(Divination.SPECIALISATION_BONUS)} is not " +
+                            "applied here — $reason.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
 
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 Text("Target's protection", style = MaterialTheme.typography.titleSmall)

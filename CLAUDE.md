@@ -6,7 +6,7 @@ written against commit `cf14e7c`; the counts in section 2 and the slice
 sections below are current as of `086ad7d` (slice 6be).
 
 **The slice log lives in [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — sections
-6a-6cr, moved out of this file because it was 497 KB against a 150 k-char
+6a-6cs, moved out of this file because it was 497 KB against a 150 k-char
 limit. Every reference below to a slice by number points there.
 
 **Read the slice log from the END.** 6ax is a handover header; 6ay through
@@ -90,7 +90,22 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6cr is newest**, and its most reusable finding is that **a quotation and a
+**6cs is newest, and it ships a refusal rather than a feature.** 6cr's census
+found the one constant in 96 that occurs once in the repo —
+`Divination.SPECIALISATION_BONUS` — and the obvious slice was a chip offering
+its +1. The design review said NO-SHIP: the same book sentence prices it as a
+GURPS technique this book does not reprint, and nothing in the corpus records
+which method a diviner trained in, while every other bonus on that screen is
+gated on an owned list the CALLER resolves. Its sharpest finding was against my
+state design — a `remember(method)` reset would have turned one permanent
+point-bought technique into a free +1 on whatever method was picked, because
+`spiChoice` resets by RE-DERIVING a value and specialisation has nothing to
+load. The refusal is recorded in `Divination.UNAPPLIED` (the
+`ActiveDefenses.UNPAYABLE` standard, discoverability not strength) and shown on
+screen. Read it also for a string with two readers: the reason renders to the
+PLAYER, so the developer's argument moved into the KDoc and the sentence stayed.
+
+**6cr is next**, and its most reusable finding is that **a quotation and a
 restatement look identical in a grep.** It ran 6cq's named successor and found
 three of the four hits were code comments citing the page — deriving them would
 make the source stop saying what the book says — with one real duplicate. The
@@ -304,7 +319,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6cr, then 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6cs, then 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -535,7 +550,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1513 Kotlin** (JUnit 5 — 1027 `core:rules`, 466 `app`, 20 `core:model`) + **268 Python** (pytest), all green — counted from the JUnit XML, not from memory. The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1514 Kotlin** (JUnit 5 — 1028 `core:rules`, 466 `app`, 20 `core:model`) + **268 Python** (pytest), all green — counted from the JUnit XML, not from memory. The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -900,7 +915,7 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6cr. The slice log
+## 6a-6cs. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
 file over the 150 k-char limit. Every slice from 6a to 6cp is there unchanged,
