@@ -20,7 +20,37 @@ summary of what was built.
    wrong without repairing it (section 4.1). No other companion app does that. It
    is the thing worth designing around rather than hiding in a grey line.
 5. **Constraints.** Compose Material 3 1.4.0, minSdk 26, offline, no photography
-   or illustration for any character, `Theme.kt` tokens are the palette.
+   or illustration for any character. **The palette is generated, not authored**
+   — `tools/gen_theme.py` emits every Material role into `ThemeSchemes.kt`, and
+   `Theme.kt` only chooses between the results.
+
+## The palette is a choice, not a decision (2026-08-16)
+
+The first palette was hand-picked and it audited clean: 54 of its 56
+foreground/background pairs cleared WCAG AA in both modes. It was still
+disliked, and nothing measurable said why. **A taste complaint that measurement
+cannot locate is answered by handing over the choice**, which is what the
+popular open-source Material 3 apps do — so there are now four presets, three
+modes and a true-black option, reachable from the gallery's top bar.
+
+Two things the audit *did* find, and both are now closed:
+
+- The hand-written scheme set **33 of Material's ~48 colour roles**. The 15 it
+  missed — `surfaceBright`, `surfaceDim`, the whole `*Fixed` family — fall back
+  to baseline Material tokens, which are the stock purple-tinted neutrals. A
+  scheme that never mentioned purple was serving it anyway. Pinned by
+  `ThemeSchemesTest`, RED-proved by setting one role back to `#3B383E`.
+- **The accents cannot follow the seed.** This app spends them semantically, so
+  a normally-seeded scheme would render combat, Beyonder material and management
+  as three shades of one colour. Each accent family is seeded separately at a
+  fixed hue offset (+227 and +75 — the offsets the old palette already sat at,
+  so the default preset preserves its relationships).
+
+That constraint has a measured consequence worth keeping: with the error red
+fixed, **only hues 65–110 and 195–265 keep all four categories ≥40° apart**.
+The preset list is curated rather than a colour wheel *because of that number*,
+and `gen_theme.py` refuses a seed that breaks it — it rejected its own first
+draft of Abyss (indigo, hue 291) on exactly this rule.
 
 ## Rules this direction implies
 

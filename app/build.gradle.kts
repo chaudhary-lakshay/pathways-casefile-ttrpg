@@ -53,6 +53,9 @@ dependencies {
     // file handling -- where two defects have already reached master.
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
+    // Test scope only: ThemeSchemesTest reflects over ColorScheme's roles.
+    // Never `implementation` -- kotlin-reflect is ~3MB and the app needs none.
+    testImplementation(libs.kotlin.reflect)
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 

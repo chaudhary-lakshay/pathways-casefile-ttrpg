@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,24 +16,27 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -153,8 +157,13 @@ private fun chipTraits(sheet: PremadeSheet): List<String> =
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PremadeGallery(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit) {
+fun PremadeGallery(
+    sheets: List<PremadeSheet>,
+    themePrefs: MutableState<ThemePrefs>,
+    onSelect: (PremadeSheet) -> Unit,
+) {
     var roster by remember { mutableStateOf(Roster.ALL) }
+    var themeOpen by remember { mutableStateOf(false) }
     val people = remember(sheets) { sheets.filterNot(::isTemplate) }
     val templates = remember(sheets) { sheets.filter(::isTemplate) }
     val shown = remember(people, roster) {
@@ -182,10 +191,19 @@ fun PremadeGallery(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit)
                             modifier = Modifier.padding(start = 16.dp, end = 4.dp),
                         )
                     },
+                    actions = {
+                        // The theme picker's only entry point. It lives here
+                        // because this is the one screen every session starts
+                        // on; burying it a tap deeper would make the choice
+                        // exist without being reachable.
+                        IconButton(onClick = { themeOpen = true }) {
+                            Icon(Icons.Filled.Palette, contentDescription = "Theme")
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface,
-                        // The launch screen's heading is the one place brass is
-                        // a brand mark rather than "you can do this".
+                        // The launch screen's heading is the one place the
+                        // accent is a brand mark rather than "you can do this".
                         titleContentColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
@@ -228,6 +246,14 @@ fun PremadeGallery(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit)
             }
         }
     }
+
+    if (themeOpen) {
+        ThemePicker(
+            prefs = themePrefs.value,
+            onChange = { themePrefs.value = it },
+            onDismiss = { themeOpen = false },
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -246,21 +272,31 @@ private fun PremadeRow(sheet: PremadeSheet, onClick: () -> Unit) {
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            // Small, and tinted by what the character IS. Arcane for a
-            // Beyonder, neutral for everyone else: the one thing colour is
-            // spent on here is the one distinction that changes what the app
+            // Small, and marked by what the character IS. The one thing colour
+            // is spent on here is the one distinction that changes what the app
             // can do with the character.
+            //
+            // The mark is a BORDER and the initials, both in bare `secondary`,
+            // rather than a filled `secondaryContainer`. Material spends
+            // `secondaryContainer` on selected chrome -- every FilterChip and
+            // NavigationBarItem in this app, 79 of them -- so a filled swatch
+            // here read as "this row is selected" rather than "this person is a
+            // Beyonder, and under a rotated preset it sat next to an identical
+            // pill in the nav bar. Bare `secondary` is the accent chrome never
+            // touches, which is why the other three Beyonder cues (the label,
+            // the SPI value, ActionGroup's tint) already use it.
             Surface(
                 shape = MaterialTheme.shapes.small,
-                color = if (beyonder) {
-                    MaterialTheme.colorScheme.secondaryContainer
-                } else {
-                    MaterialTheme.colorScheme.surfaceContainerHighest
-                },
+                color = MaterialTheme.colorScheme.surfaceContainerHighest,
                 contentColor = if (beyonder) {
-                    MaterialTheme.colorScheme.onSecondaryContainer
+                    MaterialTheme.colorScheme.secondary
                 } else {
                     MaterialTheme.colorScheme.onSurfaceVariant
+                },
+                border = if (beyonder) {
+                    BorderStroke(1.dp, MaterialTheme.colorScheme.secondary)
+                } else {
+                    null
                 },
                 modifier = Modifier.size(40.dp),
             ) {
