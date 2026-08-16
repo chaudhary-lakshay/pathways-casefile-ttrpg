@@ -503,10 +503,12 @@ than milestone scope, so read the slice log from the END, not from 6a. Section
 6 still describes M4's original shape and is kept for that; the live picture
 of what is left is the closing paragraph of the most recent slice.
 
-There is an Android module (`app/`, Compose) with three screens: premade list
--> sheet (the `computed vs asPublished` diff, tap a skill to roll 3d6), the
-pathway screen (potion grants, digestion tracker, Potion Consumption Roll),
-and the builder (attributes against a live point budget).
+There is an Android module (`app/`, Compose) with four screens: premade list
+(theme picker in its top bar) -> sheet (the `computed vs asPublished` diff, a
+Vitals/Skills/Traits bottom bar, and a twelve-tile action hub), the pathway
+screen (potion grants, digestion tracker, Potion Consumption Roll), and the
+builder (attributes against a live point budget). `docs/HOW-TO-PLAY.md` is the
+player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
