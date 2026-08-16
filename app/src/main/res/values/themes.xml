@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The platform theme sits UNDER Compose and is what the window shows between
+  process start and the first frame. Before this file the manifest pointed at
+  @android:style/Theme.Material.Light.NoActionBar, the 2014 platform theme,
+  light in every mode, so a dark-mode launch flashed white.
+
+  windowBackground is kept in step with Theme.kt's scheme background BY HAND.
+  There is no generator between the two; if one changes, change the other.
+    values/       to LightScheme.background  (0xFFF3EAE4)
+    values-night/ to DarkScheme.background   (0xFF120E14)
+-->
+<resources>
+    <style name="Theme.Pathways" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/launch_background</item>
+    </style>
+</resources>

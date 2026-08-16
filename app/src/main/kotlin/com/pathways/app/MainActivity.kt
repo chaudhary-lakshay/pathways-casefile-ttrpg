@@ -3,6 +3,7 @@ package com.pathways.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -18,13 +19,44 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material.icons.filled.CenterFocusStrong
+import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.material.icons.filled.MonitorHeart
+import androidx.compose.material.icons.filled.Church
+import androidx.compose.material.icons.filled.HeartBroken
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.Radar
+import androidx.compose.material.icons.filled.Science
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -35,6 +67,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attr
 import com.pathways.model.ControllingAttribute
@@ -111,7 +147,10 @@ class MainActivity : ComponentActivity() {
         // classpath; move behind a ViewModel when the sheet screen needs state
         // that survives rotation, not before.
         val store = SessionStore(File(filesDir, "sessions.json"))
-        setContent { MaterialTheme { App(Premades.all(), store) } }
+        // Draw behind the system bars. Every screen already pads from
+        // Scaffold's inset parameter, so this needs no per-screen change.
+        enableEdgeToEdge()
+        setContent { PathwaysTheme { App(Premades.all(), store) } }
     }
 }
 
@@ -139,7 +178,7 @@ fun App(sheets: List<PremadeSheet>, store: SessionStore) {
     }
 
     when (val sheet = selected) {
-        null -> PremadeList(sheets) { selected = it }
+        null -> PremadeGallery(sheets) { selected = it }
         else -> {
             BackHandler {
                 if (screen == Screen.SHEET) selected = null else screen = Screen.SHEET
@@ -159,29 +198,6 @@ fun App(sheets: List<PremadeSheet>, store: SessionStore) {
     }
 }
 
-@Composable
-fun PremadeList(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit) {
-    Scaffold { insets ->
-        LazyColumn(Modifier.padding(insets).fillMaxSize()) {
-            items(sheets) { sheet ->
-                Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable { onSelect(sheet) }
-                        .padding(16.dp),
-                ) {
-                    Text(sheet.name, style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        "${sheet.skills.size} skills",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                HorizontalDivider()
-            }
-        }
-    }
-}
-
 /**
  * The `computed vs asPublished` diff (spec section 8). A disagreement is shown,
  * never reconciled: most sheets floor Basic Speed where the book does not, and
@@ -190,6 +206,7 @@ fun PremadeList(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit) {
  *
  * Skill rows are tappable and roll 3d6 against the resolved target.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SheetScreen(
     sheet: PremadeSheet,
@@ -204,6 +221,11 @@ fun SheetScreen(
     // The SKILL, not the outcome: the roll now happens inside the dialog, after
     // the GM has stated the circumstances.
     var rolling by remember(sheet) { mutableStateOf<RollableSkill?>(null) }
+    // Which third of the sheet is on screen. The screen was one scroll of
+    // roughly six phone-heights -- status, actions, pools, trait prose, then
+    // the skills, which are the reason anyone opened it. Defaulting to SKILLS
+    // puts the primary interaction one tap from the character, not six swipes.
+    var tab by remember(sheet) { mutableStateOf(SheetTab.SKILLS) }
     var frightening by remember(sheet) { mutableStateOf(false) }
     // The Major Wound's shock, latched by the damage dialog that rolls for it
     // and cleared by the GM when the turn passes. ONE owner, above every
@@ -365,50 +387,54 @@ fun SheetScreen(
     // unwired looks like an oversight rather than a decision (Codex, 6bo).
     val spiTrait = TraitEffects.spiRollBonus(traits)
 
-    Scaffold { insets ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        sheet.name,
+                        style = MaterialTheme.typography.titleLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back to characters",
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    // The character's own name, in the reading colour. Brass
+                    // here made the title compete with the primary button two
+                    // rows below it, and a name is not an action.
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
+            )
+        },
+        bottomBar = {
+            // A footer, not a tab row. Three destinations with icons, at the
+            // bottom where a thumb reaches without crossing the screen -- the
+            // tab row sat under the top bar, which is the furthest point from
+            // where the hand holds a phone.
+            NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
+                for (option in SheetTab.entries) {
+                    NavigationBarItem(
+                        selected = tab == option,
+                        onClick = { tab = option },
+                        icon = { Icon(option.icon, contentDescription = null) },
+                        label = { Text(option.label) },
+                    )
+                }
+            }
+        },
+    ) { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
             item {
                 Column(Modifier.padding(horizontal = 16.dp)) {
-                    // Four destinations no longer fit a phone's width; the
-                    // fourth was clipped to a sliver on a 1080px screen.
-                    Row(Modifier.horizontalScroll(rememberScrollState())) {
-                        TextButton(onClick = onBack) { Text("Back to premades") }
-                        TextButton(onClick = onPathways) {
-                            Text(if (drunk == null) "Drink a potion" else "Pathway")
-                        }
-                        TextButton(onClick = onBuild) { Text("Spend points") }
-                        TextButton(onClick = { frightening = true }) { Text("Fright") }
-                        // Ungated, like Fright and Detect: the maneuver is
-                        // "powers or skills requiring focus", and which of
-                        // them counts is the GM's call, not a skill list this
-                        // book never prints (6i).
-                        TextButton(onClick = { focusing = true }) { Text("Concentrate") }
-                        if (ritualLevel != null) {
-                            TextButton(onClick = { casting = true }) { Text("Ritual") }
-                        }
-                        if (divinationLevel != null) {
-                            TextButton(onClick = { divining = true }) { Text("Divine") }
-                        }
-                        // Not gated. Divination Arts is the DIVINER's skill;
-                        // being divined needs no skill at all, and the book's
-                        // detection roll falls back to Per, which a mortal
-                        // has. Who suspects is the GM's call (Detection).
-                        TextButton(onClick = { sensing = true }) { Text("Detect") }
-                        if (ritualLevel != null) {
-                            // Same gate as the ritual: Chapter 13 rolls the
-                            // same skill, because a boon IS a ritual.
-                            TextButton(onClick = { supplicating = true }) { Text("Boon") }
-                        }
-                        // Not gated on anything. A Sealed Artifact is found,
-                        // not bought or awarded by Sequence: the grade table's
-                        // only gate is church rank, which this app does not
-                        // model. See SealedArtifacts.
-                        TextButton(onClick = { handling = true }) { Text("Artifacts") }
-                        TextButton(onClick = { attacking = true }) { Text("Attack") }
-                        TextButton(onClick = { defending = true }) { Text("Defend") }
-                        TextButton(onClick = { damaging = true }) { Text("Damage") }
-                    }
-                    Text(sheet.name, style = MaterialTheme.typography.headlineSmall)
                     if (drunk != null) {
                         // The sheet rows below are still the mortal's: the
                         // diff they carry is against the published sheet, and
@@ -437,14 +463,86 @@ fun SheetScreen(
                             "$differing of ${rows.size} values differ from the published sheet"
                         },
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(bottom = 12.dp),
                     )
+
+                    ActionHub(Modifier.padding(top = 12.dp, bottom = 12.dp)) {
+                        // The pathway was a full-width brass Button above this
+                        // grid, which made it a thirteenth action drawn to
+                        // different rules -- and cost a whole row of height to
+                        // say what a tile says. Arcane, because drinking is how
+                        // a mortal stops being one; ungated, because that is
+                        // exactly who needs it.
+                        HubAction(
+                            if (drunk == null) "Drink a potion" else "Pathway",
+                            Icons.Filled.Science,
+                            ActionKind.BEYONDER,
+                            onPathways,
+                        )
+                        HubAction("Fright", Icons.Filled.Psychology, ActionKind.ROLL) {
+                            frightening = true
+                        }
+                        // Ungated, like Fright and Detect: the maneuver is
+                        // "powers or skills requiring focus", and which of
+                        // them counts is the GM's call, not a skill list this
+                        // book never prints (6i).
+                        HubAction("Concentrate", Icons.Filled.CenterFocusStrong, ActionKind.ROLL) {
+                            focusing = true
+                        }
+                        // Not gated. Divination Arts is the DIVINER's skill;
+                        // being divined needs no skill at all, and the book's
+                        // detection roll falls back to Per, which a mortal
+                        // has. Who suspects is the GM's call (Detection).
+                        HubAction("Detect", Icons.Filled.Radar, ActionKind.ROLL) {
+                            sensing = true
+                        }
+                        HubAction("Attack", Icons.Filled.Bolt, ActionKind.COMBAT) {
+                            attacking = true
+                        }
+                        HubAction("Defend", Icons.Filled.Shield, ActionKind.COMBAT) {
+                            defending = true
+                        }
+                        HubAction("Damage", Icons.Filled.HeartBroken, ActionKind.COMBAT) {
+                            damaging = true
+                        }
+                        // Each gated individually, which the grid allows and a
+                        // labelled group did not: an absent tile leaves no hole,
+                        // where an absent group left a heading over empty space.
+                        if (ritualLevel != null) {
+                            HubAction("Ritual", Icons.Filled.AutoAwesome, ActionKind.BEYONDER) {
+                                casting = true
+                            }
+                        }
+                        if (divinationLevel != null) {
+                            HubAction("Divine", Icons.Filled.Visibility, ActionKind.BEYONDER) {
+                                divining = true
+                            }
+                        }
+                        if (ritualLevel != null) {
+                            // Same gate as the ritual: Chapter 13 rolls the
+                            // same skill, because a boon IS a ritual.
+                            HubAction("Boon", Icons.Filled.Church, ActionKind.BEYONDER) {
+                                supplicating = true
+                            }
+                        }
+                        HubAction("Spend points", Icons.Filled.Calculate, ActionKind.MANAGE) {
+                            onBuild()
+                        }
+                        // Not gated on anything. A Sealed Artifact is found,
+                        // not bought or awarded by Sequence: the grade table's
+                        // only gate is church rank, which this app does not
+                        // model. See SealedArtifacts.
+                        HubAction("Artifacts", Icons.Filled.Lock, ActionKind.MANAGE) {
+                            handling = true
+                        }
+                    }
                 }
                 HorizontalDivider()
             }
 
-            item { PoolTrackers(session, vitals, maxCor) }
-            if (shocked) {
+            if (tab == SheetTab.VITALS) {
+                item { PoolTrackers(session, vitals, maxCor) }
+            }
+            if (shocked && tab == SheetTab.VITALS) {
                 item {
                     // Only while it is in force: a control that is always
                     // there would read as a state the GM must maintain, and
@@ -472,16 +570,20 @@ fun SheetScreen(
             // a GM who can read "no shock penalty to ignore" applies it
             // themselves, one who sees nothing assumes it was counted. The
             // call the artifact grade table (6af) already needed.
-            items(TraitEffects.reported(traits)) { note ->
+            items(if (tab == SheetTab.TRAITS) TraitEffects.reported(traits) else emptyList()) { note ->
                 Column(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
                     Text(
                         "${note.trait} — ${note.printed}",
                         style = MaterialTheme.typography.bodySmall,
                     )
                     Text(
+                        // Muted, not brass. This is a caveat about what the app
+                        // does NOT do; painting it the accent colour made every
+                        // trait row shout in the same voice as the Roll button
+                        // it is not (docs/DESIGN-DIRECTION.md).
                         "Not applied here: ${note.reason}.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -496,7 +598,7 @@ fun SheetScreen(
             // own: WHEN to call for one is the GM's, exactly as a Fright Check
             // (6c) and a Major Wound's HT roll (6n) are, and both of those
             // ship as a button the GM presses.
-            items(drawbacks) { (trait, printed) ->
+            items(if (tab == SheetTab.TRAITS) drawbacks else emptyList()) { (trait, printed) ->
                 // The sheet's own name minus the effect cell shown below it,
                 // where the two were printed as one string. Keyed the same way
                 // `SelfControlCheck.trait` is, so the row and its roll cannot
@@ -543,31 +645,35 @@ fun SheetScreen(
                 }
             }
 
-            items(rows.take(SECONDARY_ROWS)) { ComparisonRow(it) }
+            // The derived secondaries (HP, Will, Per, Basic Speed...) sit with
+            // the pools rather than the skills: they are what the character IS,
+            // and the disagreement with the published sheet is printed here.
+            items(
+                if (tab == SheetTab.VITALS) rows.take(SECONDARY_ROWS) else emptyList(),
+            ) { ComparisonRow(it) }
 
             // Row order past the secondaries is one per purchased skill, in
             // sheet order - pinned by SheetComparisonTest. That is what makes
             // this positional pairing safe.
-            itemsIndexed(sheet.skills) { i, skill ->
+            itemsIndexed(
+                if (tab == SheetTab.SKILLS) sheet.skills else emptyList(),
+            ) { i, skill ->
                 val row = rows.getOrNull(SECONDARY_ROWS + i)
                 if (row != null) {
-                    ComparisonRow(
-                        row,
-                        Modifier.clickable {
-                            // The row SHOWS the sheet's own number, because
-                            // that comparison is the engine against the book
-                            // and a potion is neither (6e). What it ROLLS is
-                            // the character in front of the player: a Paragon
-                            // Seq 9 potion takes this sheet's Research from 13
-                            // to 17, and rolling the printed figure rolls a
-                            // character who no longer exists.
-                            rolling = RollableSkill(
-                                skill.label,
-                                liveLevelOf(skill.key(), skillLevels, sheet.levelFor(skill)),
-                                skill.key(),
-                            )
-                        },
-                    )
+                    // The row SHOWS the sheet's own number, because that
+                    // comparison is the engine against the book and a potion is
+                    // neither (6e). What it ROLLS is the character in front of
+                    // the player: a Paragon Seq 9 potion takes this sheet's
+                    // Research from 13 to 17, and rolling the printed figure
+                    // rolls a character who no longer exists.
+                    val roll = {
+                        rolling = RollableSkill(
+                            skill.label,
+                            liveLevelOf(skill.key(), skillLevels, sheet.levelFor(skill)),
+                            skill.key(),
+                        )
+                    }
+                    ComparisonRow(row, Modifier.clickable(onClick = roll), onRoll = roll)
                 }
             }
 
@@ -594,7 +700,9 @@ fun SheetScreen(
             // they disagreed, a saved skill the catalogue no longer prints
             // failed to suppress itself and a potion's skill of the same name
             // appeared twice, once as bought and once as granted (Codex).
-            items(session.edits.purchasedKeys()) { key ->
+            items(
+                if (tab == SheetTab.SKILLS) session.edits.purchasedKeys() else emptyList(),
+            ) { key ->
                 val level = liveLevelOrNull(key, skillLevels)
                 if (level != null) {
                     val label = disambiguated(key, addedKeys)
@@ -614,7 +722,7 @@ fun SheetScreen(
             // Ritualistic Magic and Divination Arts appear here as well as on
             // their own buttons, deliberately: those buttons cast and divine,
             // and a GM may still call for a plain roll of the skill.
-            items(granted) { (key, level) ->
+            items(if (tab == SheetTab.SKILLS) granted else emptyList()) { (key, level) ->
                 val label = disambiguated(key, addedKeys)
                 AddedSkillRow(label, level, "potion") {
                     rolling = RollableSkill(label, level, key)
@@ -1367,8 +1475,12 @@ private fun PoolRow(status: PoolStatus, onSpend: (Int) -> Unit) {
                 )
             }
         }
-        TextButton(onClick = { onSpend(1) }) { Text("−1") }
-        TextButton(onClick = { onSpend(-1) }) { Text("+1") }
+        // Outlined and neutral, not brass text. Three pools times two steppers
+        // put six accent-coloured controls on screen at once, which is most of
+        // why the sheet read as one yellow note; and an outline says "button"
+        // more plainly than colour does.
+        OutlinedIconButton(onClick = { onSpend(1) }) { Text("−1") }
+        OutlinedIconButton(onClick = { onSpend(-1) }) { Text("+1") }
     }
 }
 
@@ -1382,6 +1494,21 @@ private fun PoolRow(status: PoolStatus, onSpend: (Int) -> Unit) {
  * dialog's parameter list.
  */
 private data class RollableSkill(val label: String, val base: Int, val key: SkillKey)
+
+/**
+ * The three thirds of a character sheet.
+ *
+ * Order is the reading order of a physical sheet -- what you are, what you can
+ * do, what is written against you -- but the DEFAULT is [SKILLS], because a
+ * roll is why the screen gets opened at a table.
+ */
+enum class SheetTab(val label: String, val icon: ImageVector) {
+    VITALS("Vitals", Icons.Filled.MonitorHeart),
+    // The same die that sits on every Roll button in the list behind it, so
+    // the destination and the thing it contains are marked the same way.
+    SKILLS("Skills", Icons.Filled.Casino),
+    TRAITS("Traits", Icons.Filled.Fingerprint),
+}
 
 /**
  * [key]'s label, with its difficulty named only where that is what tells it
@@ -1419,23 +1546,43 @@ private fun disambiguated(key: SkillKey, visible: List<SkillKey>): String {
 private fun AddedSkillRow(label: String, level: Int, provenance: String, onClick: () -> Unit) {
     Row(
         Modifier.fillMaxWidth().clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
         Text("$level", style = MaterialTheme.typography.bodyMedium)
         Text(
+            // Arcane, not brass: a potion grant is a Beyonder fact, and the
+            // gallery already uses this colour for exactly that. Brass is the
+            // colour of a thing you can DO, and provenance is not one.
             " ($provenance)",
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.primary,
+            color = if (provenance == "potion") {
+                MaterialTheme.colorScheme.secondary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
         )
+        // The same button the published rows carry. Without it, a sheet showed
+        // Roll on ten skills and nothing on the three a potion granted, which
+        // reads as "these cannot be rolled" -- an inconsistent affordance is
+        // worse than none, because it makes a false statement about the data.
+        RollButton(onClick)
     }
 }
 
 @Composable
-private fun ComparisonRow(row: SheetRow, modifier: Modifier = Modifier) {
+private fun ComparisonRow(
+    row: SheetRow,
+    modifier: Modifier = Modifier,
+    // Present only on a row that can be rolled. The secondaries above the
+    // skills share this composable and are not rollable, so the button is
+    // absent rather than disabled -- a control that cannot do anything should
+    // not be drawn.
+    onRoll: (() -> Unit)? = null,
+) {
     Row(
-        modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+        modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(row.label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
@@ -1447,6 +1594,31 @@ private fun ComparisonRow(row: SheetRow, modifier: Modifier = Modifier) {
                 color = MaterialTheme.colorScheme.error,
             )
         }
+        if (onRoll != null) {
+            RollButton(onRoll)
+        }
+    }
+}
+
+/**
+ * The affordance that used to be a sentence.
+ *
+ * Rolling a skill is the single most-used interaction in the app and it was
+ * reachable only by tapping a row that gave no sign it was tappable. A line of
+ * help text was added and then removed again: a sentence teaching an
+ * affordance means the affordance is missing (docs/DESIGN-DIRECTION.md).
+ *
+ * The row stays clickable as well, so the larger target still works.
+ */
+@Composable
+private fun RollButton(onClick: () -> Unit) {
+    TextButton(onClick = onClick, modifier = Modifier.padding(start = 4.dp)) {
+        Icon(
+            Icons.Filled.Casino,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+        )
+        Text(" Roll", style = MaterialTheme.typography.labelMedium)
     }
 }
 

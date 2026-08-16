@@ -14,6 +14,9 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+# Twelve action icons on the sheet screen, used every session. R8 strips the
+# rest of the set; a single back arrow would NOT have earned this.
+androidx-compose-material-icons = { module = "androidx.compose.material:material-icons-extended" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

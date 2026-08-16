@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The launcher icon's foreground: the Fool in his chibi form, supplied by the
+  repository's owner.
+
+  Three versions came before this one. Two were hand-drawn and looked like
+  clipart - an eye on a rounded-square die, then the eye alone - and the third
+  was the Fool's formal sigil, which was a real improvement but still a crest
+  among a drawer full of crests. This has a SILHOUETTE: a top hat and two round
+  eyes on a black mass, readable at 48dp with the screen at arm's length, which
+  is the only test a launcher icon has to pass.
+
+  **How the file was made**, because it is not the source image. The supplied
+  art is black ink on white paper, and a launcher foreground needs alpha, not
+  paper. Alpha here is the INVERSE of the source's luminance, so the paper drops
+  out and - the useful part - the artwork's own white line-work becomes holes
+  that the tile's background shows through. The eyes, the spirals and the little
+  speech bubble are not drawn; they are the background seen through the ink.
+  That is why the background is parchment rather than the app's aubergine: on a
+  dark tile the holes would vanish and the whole thing would be a black blob.
+
+  Cropped to the ink's bounding box, padded 12%, squared to 432px.
+
+  Licence: the same position recorded in PathwayArt. This is fan art of a
+  copyrighted setting, used at the owner's decision for a personal
+  non-commercial project, and noted here so the choice stays visible.
+-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_launcher_art"
+    android:insetLeft="14dp"
+    android:insetTop="14dp"
+    android:insetRight="14dp"
+    android:insetBottom="14dp" />

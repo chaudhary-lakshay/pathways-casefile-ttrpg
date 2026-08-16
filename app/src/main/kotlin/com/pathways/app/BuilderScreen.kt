@@ -7,12 +7,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.AlertDialog
@@ -60,6 +70,7 @@ import com.pathways.rules.content.WealthLevel
  * `spent <= budget`, never `spent == budget` -- Hunter-Tracker leaves 26
  * unspent and is not thereby broken.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> Unit) {
     val start = remember(sheet) { sheet.toCharacter() }
@@ -76,23 +87,58 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     // "Not possible" at any price.
     var studyMethod by remember { mutableStateOf(StudyMethod.TUTOR) }
 
-    Scaffold { insets ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text(
+                            sheet.name,
+                            style = MaterialTheme.typography.titleLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            "Spend points",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back to sheet",
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
+            )
+        },
+    ) { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
-            item {
-                Column(Modifier.padding(horizontal = 16.dp)) {
-                    TextButton(onClick = onBack) { Text("Back to sheet") }
-                    Text(sheet.name, style = MaterialTheme.typography.headlineSmall)
+            // Pinned, because this screen exists to spend against it. The
+            // budget used to scroll away with the header, so the number being
+            // spent against was off-screen for every decision after the first.
+            stickyHeader {
+                Surface(color = MaterialTheme.colorScheme.surface) {
+                    Column {
+                        BudgetBar(report.spent, report.budget)
+                        report.violations.forEach { violation ->
+                            Text(
+                                violation,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                            )
+                        }
+                        HorizontalDivider(Modifier.padding(top = 8.dp))
+                    }
                 }
-                BudgetBar(report.spent, report.budget)
-                report.violations.forEach { violation ->
-                    Text(
-                        violation,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                    )
-                }
-                HorizontalDivider(Modifier.padding(top = 12.dp))
             }
 
             items(Attr.entries) { attr ->
@@ -310,14 +356,14 @@ private fun AttributeRow(attr: Attr, level: Int, startingLevel: Int, onChange: (
                 style = MaterialTheme.typography.bodySmall,
             )
         }
-        TextButton(onClick = { onChange(-1) }, enabled = level > BASE_ATTRIBUTE) { Text("−") }
+        OutlinedIconButton(onClick = { onChange(-1) }, enabled = level > BASE_ATTRIBUTE) { Text("−") }
         Text(
             "$level",
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 8.dp),
         )
-        TextButton(onClick = { onChange(1) }, enabled = level < MAX_ATTRIBUTE) { Text("+") }
+        OutlinedIconButton(onClick = { onChange(1) }, enabled = level < MAX_ATTRIBUTE) { Text("+") }
     }
 }
 
@@ -409,8 +455,8 @@ private fun SkillRow(
             }
         }
         if (onSpend != null) {
-            TextButton(onClick = { onSpend(-1) }) { Text("\u2212") }
-            TextButton(onClick = { onSpend(1) }) { Text("+") }
+            OutlinedIconButton(onClick = { onSpend(-1) }) { Text("\u2212") }
+            OutlinedIconButton(onClick = { onSpend(1) }) { Text("+") }
         }
     }
 }

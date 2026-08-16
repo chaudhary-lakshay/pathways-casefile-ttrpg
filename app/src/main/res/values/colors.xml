@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mirrors LightScheme.background in Theme.kt. Kept in step by hand. -->
+<resources>
+    <color name="launch_background">#FFF3EAE4</color>
+    <!-- The launcher icon's background layer, and it is load-bearing rather
+         than decorative: the foreground is black ink whose white line-work was
+         keyed to transparent, so this colour is what shows through the Fool's
+         eyes and spirals. On the app's aubergine those holes would disappear
+         and the mark would read as a blob, so it is parchment - Theme.kt's
+         light surfaceContainer. Deliberately NOT night-qualified: a launcher
+         icon looks the same whichever mode the phone is in. -->
+    <color name="ic_launcher_background">#FFE2D3CF</color>
+</resources>

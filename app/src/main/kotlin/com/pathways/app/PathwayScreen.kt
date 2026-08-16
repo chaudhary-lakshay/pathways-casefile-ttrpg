@@ -1,21 +1,36 @@
 package com.pathways.app
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -24,7 +39,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.BeyonderState
 import com.pathways.model.canDrink
@@ -42,6 +63,26 @@ import com.pathways.rules.content.SequenceBlock
 private val SEQUENCES = listOf(9, 8, 7, 6)
 
 /**
+ * Exchange two entries, leaving the list alone if either is absent.
+ *
+ * The chooser is otherwise alphabetical, and alphabetical puts "Wheel of
+ * Fortune" before "White Tower" -- an 'e' sorting under an 'i' four letters
+ * in. The owner asked for those two exchanged, so this is a DISPLAY order and
+ * carries no rules meaning: nothing downstream reads the position, and the
+ * pathway a potion belongs to is matched by name.
+ *
+ * Returning the list unchanged when a name is missing matters because the
+ * content file, not this screen, decides which pathways exist -- a renamed row
+ * should reorder nothing rather than throw.
+ */
+private fun List<String>.swapping(a: String, b: String): List<String> {
+    val i = indexOf(a)
+    val j = indexOf(b)
+    if (i < 0 || j < 0) return this
+    return toMutableList().also { it[i] = b; it[j] = a }
+}
+
+/**
  * Pick a pathway and Sequence, and see what drinking that potion does to this
  * character (M3).
  *
@@ -50,6 +91,7 @@ private val SEQUENCES = listOf(9, 8, 7, 6)
  * unchanged. That is the rule made visible -- if that line ever moves, the
  * engine has started billing gifts.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PathwayScreen(
     sheet: PremadeSheet,
@@ -60,7 +102,9 @@ fun PathwayScreen(
     val drunk = session.state
     var pcr by remember { mutableStateOf<PcrOutcome?>(null) }
     val blocks = remember { ContentLoader.pathways() }
-    val pathways = remember(blocks) { blocks.map { it.pathway }.distinct().sorted() }
+    val pathways = remember(blocks) {
+        blocks.map { it.pathway }.distinct().sorted().swapping("Wheel of Fortune", "White Tower")
+    }
     // Opening the screen on the potion already drunk, rather than on the
     // pathway list, is the difference between a browser and a character sheet.
     var pathway by remember(drunk) { mutableStateOf(drunk?.pathway) }
@@ -90,34 +134,101 @@ fun PathwayScreen(
     }
     val maxCor = maxCorFor(drunk)
 
-    Scaffold { insets ->
-        LazyColumn(Modifier.padding(insets).fillMaxSize()) {
-            item {
-                Column(Modifier.padding(horizontal = 16.dp)) {
-                    TextButton(onClick = onBack) { Text("Back to sheet") }
-                    Text(sheet.name, style = MaterialTheme.typography.headlineSmall)
-                    Text(
-                        pathway?.let { "$it Pathway" } ?: "choose a pathway",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(bottom = 12.dp),
-                    )
-                }
-                HorizontalDivider()
-            }
-
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text(
+                            sheet.name,
+                            style = MaterialTheme.typography.titleLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            pathway?.let { "$it Pathway" } ?: "Choose a pathway",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        // A real icon. This was a "←" glyph in a Text, from
+                        // before material-icons-extended was on the classpath;
+                        // the reason expired the moment the action hub needed
+                        // twelve icons and the dependency landed.
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back to sheet",
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
+            )
+        },
+    ) { insets ->
+        LazyColumn(
+            Modifier.padding(insets).fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             if (block == null || digested == null) {
-                items(pathways) { name ->
-                    Text(
-                        "$name Pathway",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { pathway = name }
-                            .padding(16.dp),
-                    )
-                    HorizontalDivider()
+                // A GRID, not rows, and the reasoning is the opposite of the
+                // character gallery's on purpose. A character row earns its
+                // full width because it carries five stats and two traits; a
+                // pathway carries a name and a sigil, so a full-width row is
+                // nine-tenths empty. The sigil is also the identifier here --
+                // each pathway has its own colour, so a grid is scannable
+                // before a word is read. Three columns puts all 22 in three
+                // screens instead of eight.
+                item {
+                    FlowRow(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        maxItemsInEachRow = 3,
+                    ) {
+                        for (name in pathways) {
+                            PathwayTile(name, Modifier.weight(1f)) { pathway = name }
+                        }
+                    }
                 }
             } else {
+                // The chosen pathway's card, large, beside its own Sequences.
+                // A player walking a pathway looks at this screen more than any
+                // other, and it had nothing on it to say WHICH pathway except a
+                // line of text.
+                item {
+                    val art = pathwayArt(block.pathway)
+                    if (art != null) {
+                        Row(
+                            Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Image(
+                                painter = painterResource(art),
+                                contentDescription = "${block.pathway} Pathway",
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.size(112.dp),
+                            )
+                            Column(Modifier.padding(start = 14.dp)) {
+                                Text(
+                                    "${block.pathway} Pathway",
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
+                                Text(
+                                    "Sequence ${block.sequence}: ${block.name}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
                 item {
                     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
                         SEQUENCES.forEach { n ->
@@ -129,17 +240,24 @@ fun PathwayScreen(
                             )
                         }
                     }
-                    Row {
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         TextButton(
                             onClick = { pathway = null },
-                            modifier = Modifier.padding(horizontal = 8.dp),
-                        ) { Text("Choose another pathway") }
+                            modifier = Modifier.padding(end = 8.dp),
+                        ) { Text("Another pathway") }
                         val chosen = BeyonderState(block.pathway, block.sequence)
                         when {
                             session.lost -> Note("lost to the Rampager")
                             session.corrupted -> Note("lost to corruption at ${session.cor} CoR")
+                            // Filled, because this is what the screen is FOR.
+                            // It was a text button sitting beside "Choose
+                            // another pathway", weighted identically to the
+                            // control that throws the choice away.
                             drunk.canDrink(chosen) ->
-                                TextButton(onClick = { pcr = session.drink(chosen, dice, maxCorFor) }) {
+                                Button(onClick = { pcr = session.drink(chosen, dice, maxCorFor) }) {
                                     Text(if (drunk == null) "Drink this potion" else "Drink and roll")
                                 }
                             drunk?.pathway == chosen.pathway && drunk.sequence == chosen.sequence ->
@@ -176,6 +294,49 @@ fun PathwayScreen(
 }
 
 /**
+ * One pathway in the chooser: its sigil, then its name.
+ *
+ * The sigil is given the room because it is what tells 22 pathways apart at a
+ * glance -- each carries its own colour, where the names are all one word in
+ * one typeface. The name still shows, because a symbol nobody has learnt yet
+ * identifies nothing on a first visit.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PathwayTile(name: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        ),
+        modifier = modifier,
+    ) {
+        Column(
+            Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            val art = pathwayArt(name)
+            if (art != null) {
+                Image(
+                    painter = painterResource(art),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.size(64.dp),
+                )
+            }
+            Text(
+                name,
+                style = MaterialTheme.typography.labelLarge,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+        }
+    }
+}
+
+/**
  * The Acting Method, as a table plays it: the GM judges the session's acting
  * and moves the percentage.
  *
@@ -189,13 +350,16 @@ private fun DigestionTracker(state: BeyonderState, onDigest: (Int) -> Unit) {
     Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Text("Digesting this potion", style = MaterialTheme.typography.titleSmall)
         Row(verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = { onDigest(-5) }) { Text("-5%") }
+            // Outlined and neutral, matching the sheet's pool steppers. These
+            // were brass text buttons, so the same control looked like two
+            // different controls depending which screen you were on.
+            OutlinedButton(onClick = { onDigest(-5) }) { Text("-5%") }
             Text(
                 "${state.digestion}%",
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(horizontal = 8.dp),
             )
-            TextButton(onClick = { onDigest(5) }) { Text("+5%") }
+            OutlinedButton(onClick = { onDigest(5) }) { Text("+5%") }
         }
         Text(
             "next potion rolls 3d6 ≤ ${PotionConsumption.targetFor(state.digestion)}" +
@@ -230,14 +394,14 @@ private fun CorruptionTracker(session: BeyonderSession, max: Int) {
     Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Text("Corruption", style = MaterialTheme.typography.titleSmall)
         Row(verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = { session.gainCor(-1, max) }, enabled = !session.isLost) { Text("−1") }
+            OutlinedButton(onClick = { session.gainCor(-1, max) }, enabled = !session.isLost) { Text("−1") }
             Text(
                 "$cor / $max",
                 style = MaterialTheme.typography.titleLarge,
                 color = if (atRisk) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(horizontal = 8.dp),
             )
-            TextButton(onClick = { session.gainCor(1, max) }, enabled = !session.isLost) { Text("+1") }
+            OutlinedButton(onClick = { session.gainCor(1, max) }, enabled = !session.isLost) { Text("+1") }
         }
         Text(
             if (session.corrupted) {

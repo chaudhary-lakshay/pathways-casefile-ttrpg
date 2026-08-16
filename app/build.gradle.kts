@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons)
     implementation(libs.kotlinx.serialization.json)
 
     // The screens are still verified on a device; this source set is for the
