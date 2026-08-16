@@ -617,7 +617,8 @@ fun DefenseDialog(
                     if (round.boost != null && round.boost?.second !in payable) {
                         Note(
                             "The defence you paid for is not available against this attack, " +
-                                "so the +2 lands on nothing. The FP stays spent.",
+                                "so the +${ActiveDefenses.BOOST_BONUS} lands on nothing. " +
+                                "The FP stays spent.",
                         )
                     }
                     BoostPicker(
@@ -962,7 +963,7 @@ private fun BoostPicker(
     // still needs its clear button, so an empty row list is not an early exit
     // when one is held.
     if (rows.isEmpty() && chosen == null) return
-    Text("Buy +2 on one defence", style = MaterialTheme.typography.titleSmall)
+    Text("Buy +${ActiveDefenses.BOOST_BONUS} on one defence", style = MaterialTheme.typography.titleSmall)
     DefenseBoost.entries.forEach { boost ->
         val fp = ActiveDefenses.fpCostOf(boost)
         Text(
@@ -992,14 +993,14 @@ private fun BoostPicker(
         }
     }
     chosen?.let { (boost, row) ->
-        Note("Paid ${ActiveDefenses.fpCostOf(boost)} FP: +2 on $row this turn.")
+        Note("Paid ${ActiveDefenses.fpCostOf(boost)} FP: +${ActiveDefenses.BOOST_BONUS} on $row this turn.")
         // Always reachable, even when the paid row is not on screen: declaring
         // a shot withdraws an unarmed parry, and with only the chips to clear
         // with, a boost bought on that row left every control disabled
         // (Codex). The FP stays spent -- clearing is a correction, not a
         // refund, and the label says so.
         TextButton(onClick = { onPick(null) }) {
-            Text("Clear the +2 (the FP stays spent)")
+            Text("Clear the +${ActiveDefenses.BOOST_BONUS} (the FP stays spent)")
         }
     }
 }

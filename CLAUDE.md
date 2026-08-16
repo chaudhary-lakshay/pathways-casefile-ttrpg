@@ -6,7 +6,7 @@ written against commit `cf14e7c`; the counts in section 2 and the slice
 sections below are current as of `086ad7d` (slice 6be).
 
 **The slice log lives in [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — sections
-6a-6cp, moved out of this file because it was 497 KB against a 150 k-char
+6a-6cq, moved out of this file because it was 497 KB against a 150 k-char
 limit. Every reference below to a slice by number points there.
 
 **Read the slice log from the END.** 6ax is a handover header; 6ay through
@@ -90,7 +90,19 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6cp is newest**, and its most reusable finding is that **a refusal can
+**6cq is newest**, and its most reusable finding is that **a comment is not a
+pin.** It runs a seventh sweep direction — numbers a screen types in English
+that production already reads from content — and the six sites it found are
+only half the slice. Chasing one of them (`"advancing now also costs 10+ CoR"`)
+reached `PotionConsumption.attempt`, which charged a Kotlin literal `10` while
+`cor_gained.json` prints `minimum: 10`, and `CorruptionTest` already had a test
+joining them — in its COMMENT. The test pinned the data; nothing pinned the
+charge. Read it also for a query that had to be widened before it was right
+(the first pattern missed a fourth `+2` in a file it had already searched), and
+for a design review that refused to invent a check: **no test in this repo can
+reach a Compose label**, so deriving removes the drift rather than catching it.
+
+**6cp is next**, and its most reusable finding is that **a refusal can
 survive its author's stated reason and die of a fact none of its words
 mention.** 6co refused the round boundary because a latch on one control would
 claim a round the others could not honour — a claim about REACH, which had
@@ -281,7 +293,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6cp, then 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6cq, then 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -877,7 +889,7 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6cp. The slice log
+## 6a-6cq. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
 file over the 150 k-char limit. Every slice from 6a to 6cp is there unchanged,

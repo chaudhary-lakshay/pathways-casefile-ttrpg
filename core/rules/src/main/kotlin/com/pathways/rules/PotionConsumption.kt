@@ -84,8 +84,22 @@ object PotionConsumption {
             roll = SuccessRoll.against(target, source),
             target = target,
             digestion = state.digestion,
-            // p. 45: "Advancing sequence without full digestion: 10+ CoR".
-            minimumCorGained = if (state.isFullyDigested) 0 else 10,
+            minimumCorGained = if (state.isFullyDigested) 0 else earlyAdvancementCor(),
         )
     }
+
+    /**
+     * The CoR floor for advancing before full digestion, read from the row
+     * that prints it rather than restated here.
+     *
+     * p. 45: "Advancing sequence without full digestion: 10+ CoR". The floor
+     * is the row's minimum; the "+" is an open ceiling the row records as a
+     * null maximum, and the GM sets the rest.
+     */
+    fun earlyAdvancementCor(): Int =
+        ContentLoader.corGained().firstOrNull { it.action.startsWith(ADVANCING_EARLY) }?.minimum
+            ?: error("cor_gained.json has no priced row starting '$ADVANCING_EARLY'")
+
+    /** The opening of the row [earlyAdvancementCor] reads. */
+    const val ADVANCING_EARLY = "Advancing sequence"
 }

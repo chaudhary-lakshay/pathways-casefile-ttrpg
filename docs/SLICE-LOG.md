@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6co. **Position in this file does not tell you a slice's age** —
+Sections 6a-6cq. **Position in this file does not tell you a slice's age** —
 the order is not uniform (6a onward run oldest-first, one cluster near 6ca is
 scrambled, and the most recent block runs newest-first, so the newest slice is
 neither at the top nor at the bottom). Locate one by name with
@@ -6725,6 +6725,88 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6cq. The pins stop at the UI
+
+A seventh sweep direction, and one this repo had never run: **numbers a screen
+types in English that production already reads from content.** The six before
+it all iterate declarations — extracted fields with no reader (6ai), public
+functions with no caller (6cf), content rows with no consumer (6ci), seams
+between claimed spans (6ba), rules the app contradicts, what the tests know
+that production does not (6bz). None of them can see a *string literal*, which
+is not a declaration at all.
+
+The query is one grep over `app/src/main`: string literals containing a digit,
+then each one asked "does the rules layer already own this number?". Six sites
+answered yes.
+
+- Three `FilterChip` labels in `AttackDialog` printed the extra-effort prices —
+  `"Strong Blow (1 FP, +2 damage)"`, `"Heroic Charge (2 FP)"`, `"Giant Step
+  (1 FP)"` — while `Attacks.fpCost` charges what `extra_effort.json` prints.
+  Two copies, and only one of them pinned.
+- Three literals in `DefenseDialog` said `+2` beside a line already reading
+  `ActiveDefenses.fpCostOf(boost)`: **one number derived and its sibling typed,
+  inside one composable.** A fourth turned up only after the first pattern was
+  widened past `Text("…digit…")` to any literal mentioning FP/CoR/HP/SPI — the
+  "lands on nothing" note 350 lines up the same file. An instrument's false
+  negatives are invisible by construction (6ba), so the second query is not
+  optional.
+- `PathwayScreen` printed `"advancing now also costs 10+ CoR"`.
+
+**The CoR one is where the slice changed shape.** Chasing that label found
+`PotionConsumption.attempt` charging `if (state.isFullyDigested) 0 else 10` — a
+Kotlin literal — while `cor_gained.json` carries the row `"Advancing sequence
+without full digestion"` with `minimum: 10`. That looked like a third unpinned
+copy, and it was not: `CorruptionTest` has a test named *the advancement floor
+in the content matches what the PCR charges*, which asserts the row says 10.
+Reading it settled the candidate and raised a better one. The test pinned the
+DATA. What joined the data to the charge was its comment — *"PotionConsumption
+.attempt states the same 10; both must come from the same book row"* — and a
+comment is not a pin. Change the JSON to 12 and the test goes red, correctly;
+change the Kotlin to 12 and nothing anywhere notices.
+
+So the fix is the same in all three places and it is not a refactor: **make the
+number unreachable except through the row that prints it.**
+`Attacks.effortFp(option)` is now public (it was `private effortCost`), which
+mirrors `ActiveDefenses.fpCostOf(boost)` — the function the same
+`DefenseDialog` was already calling one line above the literal it typed. And
+`PotionConsumption.earlyAdvancementCor()` reads the CoR floor from
+`cor_gained.json`, so `attempt` states no number of its own.
+
+**The design review ran before any code** (free panel via `qa.mjs`; Codex is
+still refusing until 2026-08-20). It agreed on the seam and refused two
+alternatives with reasons worth keeping: the dialog reading
+`ContentLoader.extraEffort()` itself forks the lookup and re-creates the
+duplication (4.1), and building the label from the row's printed effect string
+is 6f's parser nobody tests — `ActiveDefenses.printedBoost()` survives only
+because its row prints a clean sentence that a test pins, and the extra-effort
+rows are not held to that standard. It also answered the proof question
+honestly rather than inventing a check: **no test in this repo can reach a
+Compose label.** Deriving does not catch the drift, it removes the place drift
+could happen.
+
+That leaves exactly one runnable check, on the CoR half, and it was RED-proved
+the way this file requires: copy the file, mutate the reading to
+`?.minimum?.plus(1)`, run — `CorruptionTest` fails 1 of 11 — restore from the
+copy, never `git checkout` (a file holding uncommitted work). Full suite green
+at 1513.
+
+**The most reusable finding is that a comment is not a pin.** A test that
+asserts the data and a comment that asserts the join look identical in a diff
+and are not the same artefact: only one of them fails. This is 6bl's expiring
+disclaimer one level up — there the prose contradicted the code, here the prose
+was the *only thing holding two correct numbers together*, and it would have
+gone on being true-looking after either side moved.
+
+**Next, with evidence.** The widened query returns rows this slice did not
+touch, and they are a different question rather than more of the same: the
+ritual screens print conversions — `RitualDialog`'s `"every 2 HP spent counts
+as 1 SPI"` and `"Paid in HP (2 HP = 1 SPI, no bonus to the roll)"`,
+`ArtifactDialog`'s `"1 SPI/turn"`, `DivinationDialog`'s `"1-2 SPI"`. Before
+deriving any of them, check which are *quotations of a printed cell* (which
+must stay verbatim, like `printedBoost`) and which are *restatements of a value
+the rules compute*. Only the second kind is this slice's defect, and calling a
+quotation a duplicate is how a screen stops saying what the book says.
 
 ## 6cp. The refusal that was about reach, not about global state
 

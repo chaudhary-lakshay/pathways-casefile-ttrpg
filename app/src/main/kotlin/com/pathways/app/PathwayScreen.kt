@@ -363,7 +363,11 @@ private fun DigestionTracker(state: BeyonderState, onDigest: (Int) -> Unit) {
         }
         Text(
             "next potion rolls 3d6 ≤ ${PotionConsumption.targetFor(state.digestion)}" +
-                if (state.isFullyDigested) "" else " — advancing now also costs 10+ CoR",
+                if (state.isFullyDigested) {
+                    ""
+                } else {
+                    " — advancing now also costs ${PotionConsumption.earlyAdvancementCor()}+ CoR"
+                },
             style = MaterialTheme.typography.bodySmall,
         )
         Text(

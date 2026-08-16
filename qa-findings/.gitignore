@@ -5,6 +5,8 @@
 round1/
 round2/
 probe-*.txt
+design-*.md
+review-*.md
 *.log
 *.err
 *.status

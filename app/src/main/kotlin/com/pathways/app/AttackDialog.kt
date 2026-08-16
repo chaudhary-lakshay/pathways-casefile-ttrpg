@@ -515,7 +515,12 @@ private fun AttackOptions(
             FilterChip(
                 selected = plan.strongBlow,
                 onClick = { onPlan(plan.copy(strongBlow = !plan.strongBlow)) },
-                label = { Text("Strong Blow (1 FP, +2 damage)") },
+                label = {
+                    Text(
+                        "${Attacks.STRONG_BLOW} (${Attacks.effortFp(Attacks.STRONG_BLOW)} FP, " +
+                            "+${Attacks.STRONG_BLOW_DAMAGE} damage)",
+                    )
+                },
                 modifier = Modifier.padding(vertical = 4.dp),
             )
         }
@@ -523,7 +528,9 @@ private fun AttackOptions(
             FilterChip(
                 selected = plan.heroicCharge,
                 onClick = { onPlan(plan.copy(heroicCharge = !plan.heroicCharge)) },
-                label = { Text("Heroic Charge (2 FP)") },
+                label = {
+                    Text("${Attacks.HEROIC_CHARGE} (${Attacks.effortFp(Attacks.HEROIC_CHARGE)} FP)")
+                },
                 modifier = Modifier.padding(vertical = 4.dp),
             )
         }
@@ -534,7 +541,9 @@ private fun AttackOptions(
         FilterChip(
             selected = plan.giantStep,
             onClick = { onPlan(plan.copy(giantStep = !plan.giantStep)) },
-            label = { Text("Giant Step (1 FP)") },
+            label = {
+                Text("${Attacks.GIANT_STEP} (${Attacks.effortFp(Attacks.GIANT_STEP)} FP)")
+            },
             modifier = Modifier.padding(vertical = 4.dp),
         )
 

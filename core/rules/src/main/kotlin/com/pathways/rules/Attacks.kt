@@ -297,13 +297,20 @@ object Attacks {
     fun fpCost(plan: AttackPlan): Int {
         val maneuver = ContentLoader.maneuvers().firstOrNull { it.maneuver == plan.maneuver.printed }
             ?: error("maneuvers.json has no row named '${plan.maneuver.printed}'")
-        val charge = if (plan.heroicCharge) effortCost(HEROIC_CHARGE) else 0
-        val blow = if (plan.strongBlow) effortCost(STRONG_BLOW) else 0
-        val step = if (plan.giantStep) effortCost(GIANT_STEP) else 0
+        val charge = if (plan.heroicCharge) effortFp(HEROIC_CHARGE) else 0
+        val blow = if (plan.strongBlow) effortFp(STRONG_BLOW) else 0
+        val step = if (plan.giantStep) effortFp(GIANT_STEP) else 0
         return (maneuver.fp ?: 0) + charge + blow + step
     }
 
-    private fun effortCost(option: String): Int =
+    /**
+     * What [option] costs in FP, read from the row that prints it.
+     *
+     * Public because the screen that OFFERS an option states its price in the
+     * chip's own label. A number typed there is a second copy of this one, and
+     * the copy nothing pins is the copy that drifts (6cg).
+     */
+    fun effortFp(option: String): Int =
         ContentLoader.extraEffort().firstOrNull { it.option == option }?.fp
             ?: error("extra_effort.json has no option named '$option'")
 

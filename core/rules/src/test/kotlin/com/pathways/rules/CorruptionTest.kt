@@ -103,11 +103,14 @@ class CorruptionTest {
 
     @Test
     fun `the advancement floor in the content matches what the PCR charges`() {
-        // PotionConsumption.attempt states the same 10; both must come from
-        // the same book row, or one of them is quietly out of date.
+        // `PotionConsumption.attempt` no longer states its own 10: it reads
+        // this row through `earlyAdvancementCor`, so what is guarded here is
+        // the DATA (4.2). If the row stops printing 10 this fails, the content
+        // change is the finding, and the charge has already moved with it.
         val row = Corruption.gained().single { it.action.startsWith("Advancing sequence") }
         assertEquals(10, row.minimum)
         assertEquals(null, row.maximum) // "10+" prints no ceiling
+        assertEquals(row.minimum, PotionConsumption.earlyAdvancementCor())
     }
 
     @Test
