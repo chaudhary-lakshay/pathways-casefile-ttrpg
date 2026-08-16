@@ -20,8 +20,23 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material.icons.filled.CenterFocusStrong
+import androidx.compose.material.icons.filled.Church
+import androidx.compose.material.icons.filled.HeartBroken
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.Radar
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -432,64 +447,64 @@ fun SheetScreen(
                         Text(if (drunk == null) "Drink a potion" else "Open pathway")
                     }
 
-                    ActionGroup("Rolls the GM calls for") {
-                        Action("Fright") { frightening = true }
+                    ActionHub(Modifier.padding(top = 12.dp, bottom = 12.dp)) {
+                        HubAction("Fright", Icons.Filled.Psychology, ActionKind.ROLL) {
+                            frightening = true
+                        }
                         // Ungated, like Fright and Detect: the maneuver is
                         // "powers or skills requiring focus", and which of
                         // them counts is the GM's call, not a skill list this
                         // book never prints (6i).
-                        Action("Concentrate") { focusing = true }
+                        HubAction("Concentrate", Icons.Filled.CenterFocusStrong, ActionKind.ROLL) {
+                            focusing = true
+                        }
                         // Not gated. Divination Arts is the DIVINER's skill;
                         // being divined needs no skill at all, and the book's
                         // detection roll falls back to Per, which a mortal
                         // has. Who suspects is the GM's call (Detection).
-                        Action("Detect") { sensing = true }
-                    }
-
-                    ActionGroup("Combat") {
-                        Action("Attack") { attacking = true }
-                        Action("Defend") { defending = true }
-                        Action("Damage") { damaging = true }
-                    }
-
-                    // Gated as a GROUP, not per chip: every member is
-                    // conditional, so without this the heading would render
-                    // above an empty row for the 19 premades that are not
-                    // Beyonders and every mortal who has not drunk yet.
-                    if (ritualLevel != null || divinationLevel != null) {
-                        ActionGroup("Beyonder powers") {
-                            if (ritualLevel != null) {
-                                Action("Ritual") { casting = true }
-                            }
-                            if (divinationLevel != null) {
-                                Action("Divine") { divining = true }
-                            }
-                            if (ritualLevel != null) {
-                                // Same gate as the ritual: Chapter 13 rolls
-                                // the same skill, because a boon IS a ritual.
-                                Action("Boon") { supplicating = true }
+                        HubAction("Detect", Icons.Filled.Radar, ActionKind.ROLL) {
+                            sensing = true
+                        }
+                        HubAction("Attack", Icons.Filled.Bolt, ActionKind.COMBAT) {
+                            attacking = true
+                        }
+                        HubAction("Defend", Icons.Filled.Shield, ActionKind.COMBAT) {
+                            defending = true
+                        }
+                        HubAction("Damage", Icons.Filled.HeartBroken, ActionKind.COMBAT) {
+                            damaging = true
+                        }
+                        // Each gated individually, which the grid allows and a
+                        // labelled group did not: an absent tile leaves no hole,
+                        // where an absent group left a heading over empty space.
+                        if (ritualLevel != null) {
+                            HubAction("Ritual", Icons.Filled.AutoAwesome, ActionKind.BEYONDER) {
+                                casting = true
                             }
                         }
-                    }
-
-                    ActionGroup("Character") {
-                        Action("Spend points") { onBuild() }
+                        if (divinationLevel != null) {
+                            HubAction("Divine", Icons.Filled.Visibility, ActionKind.BEYONDER) {
+                                divining = true
+                            }
+                        }
+                        if (ritualLevel != null) {
+                            // Same gate as the ritual: Chapter 13 rolls the
+                            // same skill, because a boon IS a ritual.
+                            HubAction("Boon", Icons.Filled.Church, ActionKind.BEYONDER) {
+                                supplicating = true
+                            }
+                        }
+                        HubAction("Spend points", Icons.Filled.Calculate, ActionKind.MANAGE) {
+                            onBuild()
+                        }
                         // Not gated on anything. A Sealed Artifact is found,
                         // not bought or awarded by Sequence: the grade table's
                         // only gate is church rank, which this app does not
                         // model. See SealedArtifacts.
-                        Action("Artifacts") { handling = true }
+                        HubAction("Artifacts", Icons.Filled.Lock, ActionKind.MANAGE) {
+                            handling = true
+                        }
                     }
-
-                    // The screen's only unadvertised interaction. Every roll
-                    // a player makes on this screen is a tap on a row further
-                    // down, and nothing said so.
-                    Text(
-                        "Tap any skill or trait below to roll it.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 14.dp, bottom = 12.dp),
-                    )
                 }
                 HorizontalDivider()
             }
@@ -602,23 +617,20 @@ fun SheetScreen(
             itemsIndexed(sheet.skills) { i, skill ->
                 val row = rows.getOrNull(SECONDARY_ROWS + i)
                 if (row != null) {
-                    ComparisonRow(
-                        row,
-                        Modifier.clickable {
-                            // The row SHOWS the sheet's own number, because
-                            // that comparison is the engine against the book
-                            // and a potion is neither (6e). What it ROLLS is
-                            // the character in front of the player: a Paragon
-                            // Seq 9 potion takes this sheet's Research from 13
-                            // to 17, and rolling the printed figure rolls a
-                            // character who no longer exists.
-                            rolling = RollableSkill(
-                                skill.label,
-                                liveLevelOf(skill.key(), skillLevels, sheet.levelFor(skill)),
-                                skill.key(),
-                            )
-                        },
-                    )
+                    // The row SHOWS the sheet's own number, because that
+                    // comparison is the engine against the book and a potion is
+                    // neither (6e). What it ROLLS is the character in front of
+                    // the player: a Paragon Seq 9 potion takes this sheet's
+                    // Research from 13 to 17, and rolling the printed figure
+                    // rolls a character who no longer exists.
+                    val roll = {
+                        rolling = RollableSkill(
+                            skill.label,
+                            liveLevelOf(skill.key(), skillLevels, sheet.levelFor(skill)),
+                            skill.key(),
+                        )
+                    }
+                    ComparisonRow(row, Modifier.clickable(onClick = roll), onRoll = roll)
                 }
             }
 
@@ -1470,7 +1482,7 @@ private fun disambiguated(key: SkillKey, visible: List<SkillKey>): String {
 private fun AddedSkillRow(label: String, level: Int, provenance: String, onClick: () -> Unit) {
     Row(
         Modifier.fillMaxWidth().clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
@@ -1480,13 +1492,26 @@ private fun AddedSkillRow(label: String, level: Int, provenance: String, onClick
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.primary,
         )
+        // The same button the published rows carry. Without it, a sheet showed
+        // Roll on ten skills and nothing on the three a potion granted, which
+        // reads as "these cannot be rolled" -- an inconsistent affordance is
+        // worse than none, because it makes a false statement about the data.
+        RollButton(onClick)
     }
 }
 
 @Composable
-private fun ComparisonRow(row: SheetRow, modifier: Modifier = Modifier) {
+private fun ComparisonRow(
+    row: SheetRow,
+    modifier: Modifier = Modifier,
+    // Present only on a row that can be rolled. The secondaries above the
+    // skills share this composable and are not rollable, so the button is
+    // absent rather than disabled -- a control that cannot do anything should
+    // not be drawn.
+    onRoll: (() -> Unit)? = null,
+) {
     Row(
-        modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+        modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(row.label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
@@ -1498,6 +1523,31 @@ private fun ComparisonRow(row: SheetRow, modifier: Modifier = Modifier) {
                 color = MaterialTheme.colorScheme.error,
             )
         }
+        if (onRoll != null) {
+            RollButton(onRoll)
+        }
+    }
+}
+
+/**
+ * The affordance that used to be a sentence.
+ *
+ * Rolling a skill is the single most-used interaction in the app and it was
+ * reachable only by tapping a row that gave no sign it was tappable. A line of
+ * help text was added and then removed again: a sentence teaching an
+ * affordance means the affordance is missing (docs/DESIGN-DIRECTION.md).
+ *
+ * The row stays clickable as well, so the larger target still works.
+ */
+@Composable
+private fun RollButton(onClick: () -> Unit) {
+    TextButton(onClick = onClick, modifier = Modifier.padding(start = 4.dp)) {
+        Icon(
+            Icons.Filled.Casino,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+        )
+        Text(" Roll", style = MaterialTheme.typography.labelMedium)
     }
 }
 

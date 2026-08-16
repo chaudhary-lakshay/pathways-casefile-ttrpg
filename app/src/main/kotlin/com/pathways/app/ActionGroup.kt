@@ -3,68 +3,100 @@ package com.pathways.app
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 /**
- * A labelled group of actions that wraps instead of scrolling.
+ * The sheet screen's action palette: twelve actions in one wrapping grid.
  *
- * The sheet screen used to put every action -- thirteen of them -- in one
- * `horizontalScroll` row. Nine were off-screen on a 1080px phone with nothing
- * indicating they existed, and the row sat ABOVE the character's name, so the
- * first thing after tapping a character was a strip of unexplained verbs.
+ * Three shapes have now been tried for these twelve. A single
+ * `horizontalScroll` row hid nine of them off-screen. Four labelled chip groups
+ * made all twelve visible but stacked to roughly 340dp and read as four
+ * separate lists rather than one palette. This is the third: a fixed-width
+ * tile per action, icon over label, wrapped -- about 240dp for the same twelve,
+ * scannable by icon on a screen the player has already seen a hundred times.
  *
- * Wrapping is the fix rather than a wider scroller: a `FlowRow` cannot hide a
- * child, so an action that exists is an action that is visible. The label
- * says what the group is FOR, which is the part a bare verb cannot carry --
- * "Detect" means nothing until it sits under "Rolls the GM calls for".
+ * **Colour carries the category**, which is why `Theme.kt` defines three
+ * accents. Brass is reserved for the screen's one primary button, so the hub
+ * spends the other two plus a neutral:
+ * a GM-called roll is neutral, combat is `error`, a Beyonder power is
+ * `secondary` (arcane), management is `tertiary` (verdigris). A player looking
+ * for "Ritual" finds the purple cluster without reading a word.
  *
- * The caller decides whether a group appears at all. A group whose members
- * are all conditional (the Beyonder powers) must be wrapped in the same
- * condition by the caller, or it renders as a heading with nothing under it.
+ * The caller still decides membership: the Beyonder actions are conditional,
+ * and passing none of them simply yields a shorter grid rather than an empty
+ * heading.
  */
+
+/** What an action is FOR, which decides its colour. */
+enum class ActionKind { ROLL, COMBAT, BEYONDER, MANAGE }
+
 @Composable
-fun ActionGroup(
-    label: String,
-    modifier: Modifier = Modifier,
-    content: @Composable RowScope.() -> Unit,
-) {
-    Column(modifier.fillMaxWidth().padding(top = 10.dp)) {
-        Text(
-            label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        FlowRow(
-            Modifier.fillMaxWidth().padding(top = 2.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            content = content,
-        )
+private fun tintOf(kind: ActionKind): Color = when (kind) {
+    ActionKind.ROLL -> MaterialTheme.colorScheme.onSurfaceVariant
+    ActionKind.COMBAT -> MaterialTheme.colorScheme.error
+    ActionKind.BEYONDER -> MaterialTheme.colorScheme.secondary
+    ActionKind.MANAGE -> MaterialTheme.colorScheme.tertiary
+}
+
+@Composable
+fun ActionHub(modifier: Modifier = Modifier, content: @Composable FlowRowScopeMarker.() -> Unit) {
+    FlowRow(
+        modifier.fillMaxWidth().padding(top = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        FlowRowScopeMarker.content()
     }
 }
 
 /**
- * One action inside an [ActionGroup].
- *
- * ponytail: a thin wrapper over [AssistChip], because every call site would
- * otherwise repeat the same colours block twelve times. It exists to stop
- * that repetition, not to abstract the chip.
+ * ponytail: a marker object rather than a receiver-typed scope. `FlowRowScope`
+ * carries `Modifier.weight`, which these fixed-width tiles must not use -- a
+ * weighted tile stretches to fill its row and the grid stops being a grid.
  */
+object FlowRowScopeMarker
+
 @Composable
-fun Action(label: String, onClick: () -> Unit) {
-    AssistChip(
+fun FlowRowScopeMarker.HubAction(
+    label: String,
+    icon: ImageVector,
+    kind: ActionKind,
+    onClick: () -> Unit,
+) {
+    Surface(
         onClick = onClick,
-        label = { Text(label) },
-        colors = AssistChipDefaults.assistChipColors(
-            labelColor = MaterialTheme.colorScheme.onSurface,
-        ),
-    )
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        // A fixed width, so the tiles line up into columns instead of forming
+        // ragged rows that shift whenever a label's length changes.
+        modifier = Modifier.width(104.dp),
+    ) {
+        Column(
+            Modifier.padding(vertical = 10.dp, horizontal = 4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Icon(icon, contentDescription = null, tint = tintOf(kind))
+            Text(
+                label,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+            )
+        }
+    }
 }

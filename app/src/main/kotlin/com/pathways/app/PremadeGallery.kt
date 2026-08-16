@@ -1,31 +1,38 @@
 package com.pathways.app
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attr
@@ -34,51 +41,48 @@ import com.pathways.rules.PremadeSheet
 /**
  * The character gallery: the app's launch screen.
  *
- * It was a single-column list of name-plus-skill-count rows, which made 23
- * characters look like 23 rows of the same thing. A grid of tiles is the
- * shape a reader expects from a library, and it lets each tile carry what
- * actually distinguishes one premade from another.
+ * **This is the second attempt.** The first was a grid of tiles with a 3:4
+ * gradient "cover" and the character's initials over it. It looked designed and
+ * it was wrong: roughly 60% of every tile rendered two letters that carry no
+ * information, the gradients were decorative fills (two of the eight literally
+ * purple, the named generated-AI tell), and the traits that actually separate
+ * one premade from another were not shown at all. Two and a half characters fit
+ * on a screen.
  *
- * **No cover art.** No sheet has a portrait field, and the downloaded asset
- * packs are overworld sprites (walk cycles, tilesets) whose licence terms
- * would need reading before anything shipped. So the "cover" is generated:
- * initials over a gradient chosen deterministically from the name, which
- * gives every character a stable, recognisable tile without inventing a fact
- * about them.
+ * This app is a reference tool used mid-game, so the metric is information per
+ * screenful, not atmosphere (docs/DESIGN-DIRECTION.md). Hence full-width rows:
+ * a small monogram, the name, the two traits that characterise the person, and
+ * all five stats. Four to five characters per screen, and the row carries more
+ * than the tile did.
  *
- * ponytail: gradient picked by name hash from a fixed list. Swap in real art
- * the day someone draws 23 portraits; nothing else here changes.
+ * The filters exist because 23 near-identical ordinary people is the actual
+ * problem this screen has, and "which of these is already supernatural" is the
+ * one question the data can answer instantly.
  */
 
-/**
- * The tile "covers". Drawn from Theme.kt's own palette family rather than
- * being fresh colours, so a gallery of 23 tiles still reads as one app.
- * Each pair is (top, bottom) of a vertical gradient.
- */
-private val COVER_GRADIENTS = listOf(
-    Color(0xFF59288A) to Color(0xFF2E0931), // arcane
-    Color(0xFF7B5122) to Color(0xFF3D1F0C), // brass
-    Color(0xFF186B47) to Color(0xFF0A2B1C), // verdigris
-    Color(0xFF135E71) to Color(0xFF09394F), // teal
-    Color(0xFF65142B) to Color(0xFF3A0C1B), // blood
-    Color(0xFF3C3B66) to Color(0xFF190F29), // indigo
-    Color(0xFF7D3564) to Color(0xFF361031), // plum
-    Color(0xFF5C7759) to Color(0xFF253A2D), // moss
-)
+/** The filter across the top. `TEMPLATE` is not a person; see [isTemplate]. */
+private enum class Roster(val label: String) {
+    ALL("All"),
+    MORTAL("Mortal"),
+    BEYONDER("Beyonders"),
+}
 
 /**
- * Stable per-name gradient. `hashCode` is specified for String, so a
- * character keeps the same cover between runs and across devices.
+ * The blank sheet is a starting point, not a character: it has no attributes
+ * worth scanning and no traits, and offering it among the people is what made
+ * the first gallery show a row with "0 skills" as though someone had rolled it.
+ * Matched on the fixture's own name.
  */
-private fun gradientFor(name: String): Pair<Color, Color> =
-    COVER_GRADIENTS[Math.floorMod(name.hashCode(), COVER_GRADIENTS.size)]
+private fun isTemplate(sheet: PremadeSheet): Boolean =
+    sheet.name.contains("Blank", ignoreCase = true)
+
+private fun isBeyonder(sheet: PremadeSheet): Boolean = (sheet.published.spi ?: 0) > 0
 
 /**
- * One or two letters for the cover.
- *
- * The initial of each of the first two words, so "Barmaid Brawler" gives BB
- * and "Apothecary" gives A. Each word is searched for its first LETTER, so a
- * name beginning with a digit or a bracket still renders letters.
+ * One or two letters for the monogram. The initial of each of the first two
+ * words, so "Barmaid Brawler" gives BB and "Apothecary" gives A. Each word is
+ * searched for its first LETTER, so a name starting with a digit or bracket
+ * still renders letters.
  */
 private fun initialsOf(name: String): String =
     name.split(' ', '-')
@@ -88,9 +92,35 @@ private fun initialsOf(name: String): String =
         .uppercase()
         .ifEmpty { "?" }
 
+/**
+ * The trait names worth showing on a row.
+ *
+ * Seven fixtures store the trait's name and the book's whole effect cell as one
+ * string (6br), which would render a paragraph inside a chip. Those are cut at
+ * the first separator, and anything still long is dropped rather than
+ * ellipsised -- a chip reading "Sanctity - Your connection to the div..."
+ * informs nobody.
+ */
+private fun chipTraits(sheet: PremadeSheet): List<String> =
+    (sheet.advantages + sheet.disadvantages)
+        .map { it.name.substringBefore(" - ").substringBefore(" — ").trim() }
+        .filter { it.length in 1..18 }
+        .take(2)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PremadeGallery(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit) {
+    var roster by remember { mutableStateOf(Roster.ALL) }
+    val people = remember(sheets) { sheets.filterNot(::isTemplate) }
+    val templates = remember(sheets) { sheets.filter(::isTemplate) }
+    val shown = remember(people, roster) {
+        when (roster) {
+            Roster.ALL -> people
+            Roster.MORTAL -> people.filterNot(::isBeyonder)
+            Roster.BEYONDER -> people.filter(::isBeyonder)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -102,17 +132,39 @@ fun PremadeGallery(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit)
             )
         },
     ) { insets ->
-        LazyVerticalGrid(
-            // Adaptive, not a fixed 2: a tablet in landscape should fill its
-            // width with tiles rather than stretch two of them.
-            columns = GridCells.Adaptive(minSize = 156.dp),
+        LazyColumn(
             modifier = Modifier.padding(insets).fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(sheets, key = { it.name }) { sheet ->
-                PremadeTile(sheet) { onSelect(sheet) }
+            item {
+                Row(
+                    Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    for (option in Roster.entries) {
+                        FilterChip(
+                            selected = roster == option,
+                            onClick = { roster = option },
+                            label = { Text(option.label) },
+                        )
+                    }
+                }
+            }
+
+            items(shown, key = { it.name }) { sheet ->
+                PremadeRow(sheet) { onSelect(sheet) }
+            }
+
+            // Below the people, not among them.
+            items(templates, key = { it.name }) { sheet ->
+                OutlinedButton(
+                    onClick = { onSelect(sheet) },
+                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = null, Modifier.size(18.dp))
+                    Text("  Start from a blank sheet")
+                }
             }
         }
     }
@@ -120,67 +172,116 @@ fun PremadeGallery(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PremadeTile(sheet: PremadeSheet, onClick: () -> Unit) {
-    // Four of the 23 sheets print SPI 9; the rest print 0. That is the one
-    // fact on a premade that changes what the app can DO with it, so it is
-    // the one thing badged.
-    val isBeyonder = (sheet.published.spi ?: 0) > 0
-    val (top, bottom) = gradientFor(sheet.name)
-
-    ElevatedCard(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                // Book-cover proportions, so a phone shows whole tiles rather
-                // than a row of letterboxes.
-                .aspectRatio(3f / 4f)
-                .background(Brush.verticalGradient(listOf(top, bottom))),
+private fun PremadeRow(sheet: PremadeSheet, onClick: () -> Unit) {
+    val beyonder = isBeyonder(sheet)
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        ),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(12.dp),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text(
-                initialsOf(sheet.name),
-                style = MaterialTheme.typography.headlineSmall,
-                color = Color.White.copy(alpha = 0.92f),
-                modifier = Modifier.align(Alignment.Center),
-            )
-            if (isBeyonder) {
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.align(Alignment.TopEnd).padding(6.dp),
-                ) {
-                    Text(
-                        "Beyonder",
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                    )
-                }
-            }
-        }
-        Column(Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
-            Text(
-                sheet.name,
-                style = MaterialTheme.typography.titleSmall,
-                // Two lines: the longest fixture name is "LOTM Blank
-                // Character Sheet", which does not fit one at this width.
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            // The four attributes, which are what actually tell two premades
-            // apart at a glance -- a bouncer and a librarian differ here long
-            // before they differ in skill COUNT.
-            Row(
-                Modifier.fillMaxWidth().padding(top = 6.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+            // Small, and tinted by what the character IS. Arcane for a
+            // Beyonder, neutral for everyone else: the one thing colour is
+            // spent on here is the one distinction that changes what the app
+            // can do with the character.
+            Surface(
+                shape = MaterialTheme.shapes.small,
+                color = if (beyonder) {
+                    MaterialTheme.colorScheme.secondaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainerHighest
+                },
+                contentColor = if (beyonder) {
+                    MaterialTheme.colorScheme.onSecondaryContainer
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+                modifier = Modifier.size(40.dp),
             ) {
-                for (attr in listOf(Attr.ST, Attr.DX, Attr.IQ, Attr.HT)) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(initialsOf(sheet.name), style = MaterialTheme.typography.titleSmall)
+                }
+            }
+
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        "${attr.name} ${sheet.attributes[attr] ?: 10}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        sheet.name,
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
                     )
+                    if (beyonder) {
+                        Text(
+                            "  BEYONDER",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+                    }
+                }
+
+                // The five numbers, in one monospaced-feeling row. SPI is
+                // included because it is the stat the whole Beyonder half of
+                // the app turns on, and the first gallery left it out.
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    for (attr in listOf(Attr.ST, Attr.DX, Attr.IQ, Attr.HT)) {
+                        StatCell(attr.name, "${sheet.attributes[attr] ?: 10}")
+                    }
+                    StatCell("SPI", "${sheet.published.spi ?: 0}", accent = beyonder)
+                }
+
+                val traits = chipTraits(sheet)
+                if (traits.isNotEmpty()) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        for (trait in traits) {
+                            Surface(
+                                shape = MaterialTheme.shapes.extraSmall,
+                                color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ) {
+                                Text(
+                                    trait,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                )
+                            }
+                        }
+                        Text(
+                            "${sheet.skills.size} skills",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 2.dp, top = 2.dp),
+                        )
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StatCell(label: String, value: String, accent: Boolean = false) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            " $value",
+            style = MaterialTheme.typography.labelLarge,
+            color = if (accent) {
+                MaterialTheme.colorScheme.secondary
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            },
+        )
     }
 }
