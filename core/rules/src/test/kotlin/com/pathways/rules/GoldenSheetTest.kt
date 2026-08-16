@@ -147,6 +147,29 @@ class GoldenSheetTest {
     }
 
     @Test
+    fun `no sheet prints a starting corruption, which is why nothing carries it`() {
+        // The last published field with no reader at all. Unlike SPI above,
+        // there is nothing to carry: `Character` has no corruption at all,
+        // because CoR is session state (SavedSession.cor) rather than a
+        // property of the character. That is correct while every sheet prints
+        // 0 -- and silently wrong the moment one does not, since the sheet's
+        // value would be dropped and the character would start clean.
+        // The elvis is deliberate, and it was briefly removed for a wrong
+        // reason. `Premades.spiOf` sets this file's convention one field over
+        // -- "Absent means mortal" -- so a null CoR means zero, not a missing
+        // reading, and failing on it would report a state this repo already
+        // calls correct. What this guards is a NONZERO printed value, which is
+        // the only kind that gets dropped (a review's finding, checked against
+        // Premades.kt:80).
+        assertEquals(
+            23,
+            Premades.all().count { (it.published.cor ?: 0) == 0 },
+            "a sheet now prints a starting CoR; toCharacter() has nowhere to put it, " +
+                "so that character would begin uncorrupted",
+        )
+    }
+
+    @Test
     fun `the excluded sheets really do disagree - guard against silent repair`() {
         // If this ever starts matching, someone changed the engine to encode a spreadsheet bug.
         val bouncer = Premades.byName("Docks Bouncer")

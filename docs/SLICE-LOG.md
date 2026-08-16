@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6cu. **Position in this file does not tell you a slice's age** —
+Sections 6a-6cv. **Position in this file does not tell you a slice's age** —
 the order is not uniform (6a onward run oldest-first, one cluster near 6ca is
 scrambled, and the most recent block runs newest-first, so the newest slice is
 neither at the top nor at the bottom). Locate one by name with
@@ -6725,6 +6725,46 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6cv. The field with nowhere to go
+
+One grep closes the `published` block. `cor` is the last of its fields with no
+reader anywhere — and unlike `spi`, which has a test asserting `toCharacter`
+carries it, **there is nothing to carry it into**: `Character` declares no
+corruption at all, because CoR is session state (`SavedSession.cor`). All 23
+sheets print 0, so nothing is wrong today; a sheet that printed 5 would have it
+dropped in silence and start the table clean.
+
+So the artefact is a guard whose failure message says what the silence would
+mean, and the slice is one test.
+
+**Its first draft was tightened for a wrong reason, and the review caught it.**
+I replaced `(cor ?: 0) == 0` with a strict `== 0`, arguing an elvis would
+swallow a null the guard exists to hear. `Premades.kt:80` settles it one field
+over: *"Mortals print 0; four of the 23 sheets print 9. **Absent means
+mortal**"*, and `spiOf()` is `published.spi ?: 0`. Under this file's own
+convention a null CoR IS zero, so the strict version would have failed on a
+state the repo already calls correct — a guard reporting a non-finding. The
+elvis is back with the citation beside it.
+
+**The lesson is 6cl's, one level down.** There the refusal survived because
+reading the content produced a real reason where the cited defect could not.
+Here the tightening did NOT survive, because the convention it needed to
+respect was written eleven lines above the function it was mirroring, on the
+sibling field, and I had not read it. **A predicate is a claim about what a
+null means, and that meaning is usually already decided somewhere in the same
+file.**
+
+**A second finding, and it is about this session rather than the code.**
+Bumping the slice range with a PowerShell `Get-Content -Raw | Set-Content`
+round-trip corrupted both `CLAUDE.md` and `docs/SLICE-LOG.md` — 129 and 1279
+mangled sequences — because PS 5.1's `Get-Content` reads UTF-8 as ANSI and
+writes it back re-encoded. Every em-dash in two of this repo's largest prose
+files became `â€"`. Recovered with `git checkout` of exactly those two files,
+which was safe **only** because their sole uncommitted content was this
+slice's own paragraphs, reproducible verbatim, and the file holding real work
+(`GoldenSheetTest.kt`) was not in the checkout. Use the editing tools for
+prose; a shell round-trip is a re-encode.
 
 ## 6cu. Two errors, six columns, and the sign that carries the finding
 

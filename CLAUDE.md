@@ -6,7 +6,7 @@ written against commit `cf14e7c`; the counts in section 2 and the slice
 sections below are current as of `086ad7d` (slice 6be).
 
 **The slice log lives in [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — sections
-6a-6cu, moved out of this file because it was 497 KB against a 150 k-char
+6a-6cv, moved out of this file because it was 497 KB against a 150 k-char
 limit. Every reference below to a slice by number points there.
 
 **Read the slice log from the END.** 6ax is a handover header; 6ay through
@@ -90,7 +90,22 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6cu is newest**, and its most reusable finding is that **a gap has a
+**6cv is newest**, and it closes the fixtures' `published` block: every field is
+now either reconciled against the engine or recorded with a reason. Its subject
+is `cor`, the last one with no reader — and unlike `spi` there is nothing to
+read it into, because `Character` declares no corruption at all (CoR is session
+state). A sheet printing a nonzero starting CoR would have it dropped in
+silence, so the slice is one guard that says so. **Its most reusable finding is
+that a predicate is a claim about what a null MEANS**: I tightened
+`(cor ?: 0) == 0` to a strict `== 0` and the review pointed at `Premades.kt:80`
+— "Absent means mortal" — which makes null legitimately zero, so the strict
+version would have failed on a state this repo already calls correct. Read it
+also for an editing hazard this session hit: a PowerShell
+`Get-Content -Raw | Set-Content` round-trip **re-encodes UTF-8 as ANSI** and
+mangled every em-dash in this file and the slice log; use the editing tools for
+prose.
+
+**6cu is next**, and its most reusable finding is that **a gap has a
 direction, and the direction is the evidence.** It reconciles the two remaining
 published budget columns and finds five disagreements, all but one being an
 error this file already records, resurfacing where nobody had looked: the
@@ -350,7 +365,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6cu, then 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6cv, then 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -581,7 +596,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1580 Kotlin** (JUnit 5 — 1094 `core:rules`, 466 `app`, 20 `core:model`) + **268 Python** (pytest), all green — counted from the JUnit XML, not from memory. The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1581 Kotlin** (JUnit 5 — 1095 `core:rules`, 466 `app`, 20 `core:model`) + **268 Python** (pytest), all green — counted from the JUnit XML, not from memory. The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -946,7 +961,7 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6cu. The slice log
+## 6a-6cv. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
 file over the 150 k-char limit. Every slice from 6a to 6cp is there unchanged,
