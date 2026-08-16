@@ -187,4 +187,54 @@ class PoolsTest {
     fun `a negative cost is refused, not treated as a refund`() {
         assertThrows<IllegalArgumentException> { Pools.canAffordSpi(-1, current = 5) }
     }
+
+    @Test
+    fun `the fatigue threshold is one predicate, and the printed sentence follows it`() {
+        // The row is "At 1/3 FP or below", and until this slice three sites
+        // re-derived it: fp(), fpLevel() and fpEffect(). A number the sheet
+        // prints and a number the defence screen shows must not be able to
+        // disagree about whether the character is tired.
+        assertTrue(Pools.isFatigued(Pools.fp(4, 12)))
+        assertFalse(Pools.isFatigued(Pools.fp(5, 12)))
+        // 0 FP and below are "1/3 FP or below" too: the row's own words. The
+        // effect line switches to p. 41's harsher rule there, which is why
+        // the predicate cannot be read off the printed text.
+        assertTrue(Pools.isFatigued(Pools.fp(0, 12)))
+        assertTrue(Pools.isFatigued(Pools.fp(-3, 12)))
+    }
+
+    @Test
+    fun `only an FP status can be fatigued`() {
+        // Reeling is 1/3 HP and Spiritual Attrition is 1/3 SPI, and neither
+        // halves anything. Passing the wrong pool in is a caller's mistake
+        // that would silently halve a Dodge for the wrong reason.
+        assertThrows<IllegalArgumentException> { Pools.isFatigued(Pools.hp(3, 10)) }
+        assertThrows<IllegalArgumentException> { Pools.halvedForFatigue(9, Pools.spi(2, 9)) }
+    }
+
+    @Test
+    fun `at one third FP a Dodge is halved, rounded up`() {
+        // p. 42: "At 1/3 FP or below: -1 to all rolls; Move and Dodge halved."
+        // The row prints NO rounding direction -- the book prints "rounded
+        // down" (line 2450) and "round up" (line 6050) where it cares -- so
+        // rounding up is this app's recorded choice, being the reading that
+        // cannot leave a character worse off than the sentence states.
+        assertEquals(5, Pools.halvedForFatigue(9, Pools.fp(4, 12)))
+        assertEquals(4, Pools.halvedForFatigue(8, Pools.fp(4, 12)))
+        assertEquals(9, Pools.halvedForFatigue(9, Pools.fp(5, 12)))
+    }
+
+    @Test
+    fun `the halving does not lift when FP goes below zero`() {
+        // "At 1/3 FP or below ... Until above threshold": a character at -2 FP
+        // is still below it. The p. 41 penalty replaces the -1, not the
+        // halving, and the effect line no longer naming it is a display fact.
+        assertEquals(5, Pools.halvedForFatigue(9, Pools.fp(-2, 12)))
+        // The pairing is the assertion: the rule still applies below zero and
+        // the printed line has stopped naming it, because p. 41's harsher
+        // penalty takes that branch. Asserting only the tired case would pass
+        // even if the -2 line wrongly claimed the halving too.
+        assertTrue("Move and Dodge halved" in Pools.fp(4, 12).effect)
+        assertFalse("Move and Dodge halved" in Pools.fp(-2, 12).effect)
+    }
 }

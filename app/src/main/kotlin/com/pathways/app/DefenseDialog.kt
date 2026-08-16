@@ -207,6 +207,16 @@ fun DefenseDialog(
      */
     onSpendFp: (Int) -> Unit,
     /**
+     * Whether the character stands at p. 42's "1/3 FP or below".
+     *
+     * The FACT, not the number: [dodge] arrives already halved from the one
+     * place that owns the threshold ([com.pathways.rules.Pools]), and this
+     * says so on screen. Re-deriving it here would put one rule at two sites,
+     * which is how the sheet came to print "Move and Dodge halved" beside a
+     * dialog offering the whole thing.
+     */
+    fatigued: Boolean = false,
+    /**
      * The Major Wound's shock, latched by the damage dialog. Not a chip here:
      * it is the same one-turn fact every other screen reads, and a second
      * control for it could disagree with them (Codex, at design time).
@@ -441,6 +451,16 @@ fun DefenseDialog(
                         ),
                     )
                     printed.firstOrNull { it.defense == "Dodge" }?.let { Note(it.notes) }
+                    // Under the row it moved, like the Acrobatic Dodge's own
+                    // bullet: a halved number with no reason beside it reads as
+                    // a bug. The rounding is named because the book does not
+                    // print one for this row.
+                    if (fatigued) {
+                        Note(
+                            "At 1/3 FP or below: \"Move and Dodge halved\" (p. 42). " +
+                                "Halved above, rounded up — the book prints no direction.",
+                        )
+                    }
                     // Directly under the only row it moves. The bullet itself
                     // is quoted here rather than left in the Modifiers list at
                     // the bottom, which now shows only what this app does NOT

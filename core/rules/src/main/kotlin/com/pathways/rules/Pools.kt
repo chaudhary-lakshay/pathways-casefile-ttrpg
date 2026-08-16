@@ -117,7 +117,7 @@ object Pools {
      */
     fun fp(current: Int, max: Int): PoolStatus {
         requireMax(max, Pool.FP)
-        val tired = if (current <= Math.floorDiv(max, THIRD)) TIRED_PENALTY else 0
+        val tired = if (isFatigued(current, max)) TIRED_PENALTY else 0
         // "-1 to all rolls per 1 FP below 0": at -3 FP that is -3.
         val spent = if (current < 0) current else 0
         return PoolStatus(
@@ -130,6 +130,47 @@ object Pools {
             isUnconscious = current < -max,
         )
     }
+
+    /**
+     * Whether [fp] stands at p. 42's fatigue threshold: "At 1/3 FP or below".
+     *
+     * One predicate, four readers -- [fp]'s penalty, the printed level, the
+     * printed effect, and the defence screen's Dodge. Until this existed each
+     * site re-derived the comparison, which is the shape that lets one screen
+     * print a rule while another ignores it.
+     *
+     * True below zero as well: the row says "or below" and "Until above
+     * threshold". The effect line switches to p. 41's harsher penalty there
+     * and stops naming the halving, so the state cannot be read off the text.
+     *
+     * @throws IllegalArgumentException if [fp] is not an FP status. Reeling
+     * (1/3 HP) and Spiritual Attrition (1/3 SPI) share the fraction and halve
+     * nothing.
+     */
+    fun isFatigued(fp: PoolStatus): Boolean {
+        require(fp.pool == Pool.FP) {
+            "fatigue is an FP state; ${fp.pool} has its own 1/3 row and halves nothing (p. 42)"
+        }
+        return isFatigued(fp.current, fp.max)
+    }
+
+    /**
+     * [value] as fatigue leaves it: "Move and Dodge halved" (p. 42).
+     *
+     * **The rounding direction is this app's, not the book's.** That row
+     * prints "halved" bare, where the book prints "rounded down" for a
+     * Deceptive Attack's cap and "round up" for a halved FP maximum -- it has
+     * no house convention to fall back on. Rounding UP is recorded as a
+     * choice, on the one ground that survives: it cannot leave a character
+     * worse off than the printed sentence states.
+     *
+     * Applied to the BASE score only. The bonuses the defence screen adds
+     * afterwards -- a shield's DB, a Retreat, an Acrobatic Dodge -- are
+     * printed as whole numbers by rules of their own, and halving the total
+     * would quietly halve those too.
+     */
+    fun halvedForFatigue(value: Int, fp: PoolStatus): Int =
+        if (isFatigued(fp)) -Math.floorDiv(-value, 2) else value
 
     /**
      * Spirituality (p. 35).
@@ -214,7 +255,7 @@ object Pools {
     private fun fpLevel(current: Int, max: Int): String = when {
         current < -max -> "below -1×Max FP"
         current < 0 -> "below 0 FP"
-        current <= Math.floorDiv(max, THIRD) -> "1/3 FP or below"
+        isFatigued(current, max) -> "1/3 FP or below"
         else -> "FP to 1"
     }
 
@@ -222,9 +263,13 @@ object Pools {
         current < -max -> "Unconscious (p. 41)."
         current < 0 ->
             "-1 to all rolls per 1 FP below 0 (p. 41). Every point spent below 0 also costs 1 HP (p. 42)."
-        current <= Math.floorDiv(max, THIRD) -> "-1 to all rolls; Move and Dodge halved (p. 42)."
+        isFatigued(current, max) -> "-1 to all rolls; Move and Dodge halved (p. 42)."
         else -> "Normal function; no penalties."
     }
+
+    /** The comparison itself, for the three sites that have only the numbers. */
+    private fun isFatigued(current: Int, max: Int): Boolean =
+        current <= Math.floorDiv(max, THIRD)
 
     private fun requireMax(max: Int, pool: Pool) =
         require(max >= 1) { "$pool max must be at least 1; was $max" }

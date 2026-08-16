@@ -4021,3 +4021,30 @@ def test_spirit_vision_chapter_no_longer_reports_itself_complete():
         "chapter 7.6 is claimed by nothing, so it must report 0.0% and not a "
         f"completion it never earned: {row!r}"
     )
+
+
+# --- The fatigue row's silence about rounding (Ch. 5, p. 42) ----------------
+
+
+def test_the_fatigue_row_prints_no_rounding_direction():
+    """`Pools.halvedForFatigue` rounds UP and its KDoc says the direction is
+    this app's choice because the row prints none. That is an argument resting
+    on a sentence, so the sentence is pinned. If line 2852 ever acquires a
+    direction, the choice stops being a choice and the KDoc has expired."""
+    byn = {r["n"]: r["text"] for r in
+           json.loads((ROOT / "build" / "extract" / "lines.json")
+                      .read_text(encoding="utf-8"))}
+    assert byn[2852].strip() == "-1 to all rolls; Move and Dodge halved"
+    assert byn[2851].strip() == "At 1/3 FP or below"
+    assert not re.search(r"round(ed)?\s+(up|down)", byn[2852], re.I), byn[2852]
+
+
+def test_the_book_does_print_a_direction_where_it_cares():
+    """The other half of the argument: the row's silence means something only
+    because this book DOES print directions elsewhere. Two of them, in both
+    directions, so there is no house convention to fall back on."""
+    byn = {r["n"]: r["text"] for r in
+           json.loads((ROOT / "build" / "extract" / "lines.json")
+                      .read_text(encoding="utf-8"))}
+    assert re.search(r"rounded down", byn[2450], re.I), byn[2450]
+    assert re.search(r"round up", byn[6050], re.I), byn[6050]

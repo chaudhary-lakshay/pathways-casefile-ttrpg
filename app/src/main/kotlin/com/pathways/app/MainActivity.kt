@@ -859,8 +859,20 @@ fun SheetScreen(
         )
     }
     if (defending) {
+        // A plain live expression, deliberately NOT remembered: `fpLost` is
+        // observable state and `vitals` is keyed on the sheet, the walk and the
+        // edits, so a remembered halving would freeze at whatever the pool held
+        // when one of THOSE last changed. The same reason `spiAvailable` below
+        // is written out rather than cached.
+        val fatigue = Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp)
         DefenseDialog(
-            dodge = vitals.dodge,
+            // p. 42: "At 1/3 FP or below ... Move and Dodge halved". The sheet
+            // screen has printed that sentence since 6b; until now the dialog
+            // one tap away offered the whole Dodge. Halved here, at the one
+            // reader of the derived score -- the published-vs-computed row in
+            // SheetComparison is an audit of the DERIVATION and stays whole.
+            dodge = Pools.halvedForFatigue(vitals.dodge, fatigue),
+            fatigued = Pools.isFatigued(fatigue),
             skillLevels = skillLevels,
             weapons = session.characterFor(sheet).weapons,
             dice = appDice,
