@@ -3,6 +3,7 @@ package com.pathways.rules
 import com.pathways.model.Attr
 import com.pathways.model.Attributes
 import com.pathways.model.Difficulty
+import com.pathways.model.SecondaryDelta
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.DynamicTest
@@ -42,6 +43,16 @@ class GoldenSheetTest {
         // swapped), and Roll sums to 30, matching "Disadvantages: 30 pts";
         // its ADVANTAGES block (Flexibility, Cost-only) was never affected.
     )
+
+    /**
+     * The sheet's printed TOTAL SPENT, excluded for the one sheet whose item
+     * list already disagrees with its own subtotal.
+     *
+     * Not a second disagreement: the test below proves the two gaps are the
+     * SAME ten points, so this is one spreadsheet error surfacing in two
+     * columns. 4.1 records it and never repairs it.
+     */
+    private val totalSpentExclusions = setOf("Monastery Scholar")
 
     private fun playable() = Premades.all().filter { it.skills.isNotEmpty() }
 
@@ -165,6 +176,77 @@ class GoldenSheetTest {
     fun `every fixture but Beat Cop carries an attribute subtotal`() {
         // Guards the filter above from silently degrading to zero test cases.
         assertEquals(22, Premades.all().count { it.published.attributesSubtotal != null })
+    }
+
+    /**
+     * The sheet's own printed TOTAL SPENT against what the rules compute.
+     *
+     * Every other POINT BREAKDOWN row is reconciled above; this one was
+     * extracted, stored and documented and then read by nothing at all -- the
+     * sweep that found it counted readers of each fixture key.
+     */
+    @TestFactory
+    fun `computed spend matches every sheet's published total spent`(): List<DynamicTest> =
+        Premades.all()
+            .filter { it.published.totalSpent != null && it.name !in totalSpentExclusions }
+            .map { f ->
+                DynamicTest.dynamicTest(f.name) {
+                    assertEquals(
+                        f.published.totalSpent,
+                        Derive.of(f.toCharacter()).budget.spent,
+                        "${f.name}: total spent",
+                    )
+                }
+            }
+
+    @Test
+    fun `no fixture buys a secondary characteristic, which is what lets the totals agree`() {
+        // The condition the reconciliation above rests on, pinned rather than
+        // assumed (a review's finding). `budget.spent` adds
+        // SecondaryCharacteristics.costOf, and the POINT BREAKDOWN the
+        // extractor reads has four rows with no secondary among them -- so a
+        // fixture that bought one would diverge for a reason that is NOT a
+        // sheet error, and this fires before anyone reads that as one.
+        assertTrue(
+            Premades.all().all { it.toCharacter().secondaryDelta == SecondaryDelta() },
+            "a fixture now buys a secondary characteristic; the total-spent reconciliation " +
+                "compares two quantities that no longer measure the same thing",
+        )
+    }
+
+    @Test
+    fun `every fixture but Beat Cop carries a published total spent`() {
+        // Guards the factory above from silently degrading to zero cases, the
+        // way the attribute-subtotal count does. 22, not 23: Beat Cop's whole
+        // POINT BREAKDOWN block is absent, so this field is null there too.
+        // Counting the fixtures whose FILE contains the key says 23 -- the key
+        // is present and its value is null, which is why this asserts the
+        // loaded value rather than the text.
+        assertEquals(22, Premades.all().count { it.published.totalSpent != null })
+    }
+
+    /**
+     * The excluded total is short by exactly the advantages it under-lists.
+     *
+     * A guard against silent repair (4.2) that also proves the exclusion is
+     * ONE error rather than two: the sheet prints "Advantages: 15 pts" and
+     * lists a single 5pt advantage, and its printed TOTAL SPENT is ten points
+     * above what the item lists compute. If either gap moves, the data changed
+     * and that is the finding.
+     */
+    @Test
+    fun `the excluded total spent is short by exactly its advantage gap`() {
+        val scholar = Premades.byName("Monastery Scholar")
+        val advantageGap = scholar.published.advantagesSubtotal!! -
+            scholar.advantages.sumOf { it.cost }
+        val spendGap = scholar.published.totalSpent!! -
+            Derive.of(scholar.toCharacter()).budget.spent
+        assertEquals(10, advantageGap, "the advantages gap moved")
+        assertEquals(
+            advantageGap,
+            spendGap,
+            "the total-spent gap is no longer the advantages gap; these are now two errors, not one",
+        )
     }
 
     // NOTE: despite the historical name, the three TestFactory checks below

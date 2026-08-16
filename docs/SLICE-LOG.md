@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6cs. **Position in this file does not tell you a slice's age** —
+Sections 6a-6ct. **Position in this file does not tell you a slice's age** —
 the order is not uniform (6a onward run oldest-first, one cluster near 6ca is
 scrambled, and the most recent block runs newest-first, so the newest slice is
 neither at the top nor at the bottom). Locate one by name with
@@ -6725,6 +6725,68 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6ct. The corpus nobody swept
+
+6cs closed its direction with no successor, so this one starts from a corpus
+rather than a category: **the 23 fixtures.** Every sweep this repo has run
+iterates the book's content or its Kotlin — 6ai swept extracted content fields
+for a reader, and nothing has ever asked the same question of the *character
+sheets*. One grep gives 32 distinct keys across `fixtures/*.json`; every one of
+them occurs in Kotlin, which is where 6ai's lesson bites, because an occurrence
+can be the data-class declaration itself. Counting readers **outside the model
+declarations** leaves five, and four of those are reconciled by
+`GoldenSheetTest` already.
+
+The fifth is `totalSpent`: **prod=1 (its own declaration), test=0.** The
+sheet's own printed TOTAL SPENT — extracted, stored, documented in
+`Premades.kt`'s KDoc — and never once compared against what the rules compute,
+while every other POINT BREAKDOWN row is.
+
+Wiring it up took one `@TestFactory` and produced exactly one disagreement:
+**Monastery Scholar, published 99 against a computed 89.** Section 4.1 has
+recorded that sheet since M0 for printing "Advantages: 15 pts" over a single
+5-point advantage — the same ten points. So the exclusion is not a second
+disagreement to record, and the slice says so with a test rather than a
+sentence: `the excluded total spent is short by exactly its advantage gap`
+asserts both gaps are ten and equal. **If they ever diverge, one spreadsheet
+error has become two, and that is the finding.** RED-proved by emptying
+`totalSpentExclusions` — 1 of 180 fails — and restored from a copy.
+
+**The count guard is where this slice went wrong, and it is the most useful
+part.** Following the file's own idiom (`every fixture but Beat Cop carries an
+attribute subtotal` exists to stop a filter degrading to zero cases), I added
+one asserting 23 — measured by `grep -l '"totalSpent"' fixtures/*.json`, which
+returns 23. It fails: the answer is 22. Beat Cop's file *contains the key* and
+its value is `null`, which `Premades.kt` has documented all along ("Null on
+every field for Beat Cop, which has no such block at all"). **A grep for a key
+is not a count of a value**, and the comment I wrote around the wrong number
+asserted the opposite of the truth — that this filter and the attribute one
+cover different sets, when they cover the same 22. The guard caught its
+author's own claim within a minute, which is the argument for writing it at
+all.
+
+**The diff review then found the condition the whole reconciliation rests on**,
+which neither the test nor its KDoc had named: `budget.spent` adds
+`SecondaryCharacteristics.costOf(secondaryDelta)`, and the POINT BREAKDOWN the
+extractor reads has four rows with no secondary among them. Today every fixture
+carries a default `SecondaryDelta`, so the two quantities measure the same
+thing; a fixture that bought a secondary would diverge **for a reason that is
+not a sheet error**, and someone would record a disagreement that is really an
+apples-to-oranges comparison. Pinned rather than commented, because a comment
+is not a pin (6cq): a test asserts no fixture buys one, and its failure message
+says what the divergence would mean.
+
+Suite 1538 green: 21 reconciliations (23 fixtures, less Beat Cop's null, less
+the one exclusion) and three guards.
+
+**Next, with evidence.** The same census left `unspent` unexamined — it is
+carried by every fixture and has more than one production reader, so it did not
+surface, but nothing yet checks a sheet's printed unspent points against
+`BudgetReport.surplus`. That is the sibling column of the one this slice wired
+up, and the cheap question to ask first is whether `spent + unspent == bpTotal`
+holds on all 23 as published, because a sheet that fails its OWN arithmetic
+needs no engine to prove it.
 
 ## 6cs. The slice that ships a refusal
 
