@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6cz. **Position in this file does not tell you a slice's age** —
+Sections 6a-6da. **Position in this file does not tell you a slice's age** —
 the order is not uniform (6a onward run oldest-first, one cluster near 6ca is
 scrambled, and the most recent block runs newest-first, so the newest slice is
 neither at the top nor at the bottom). Locate one by name with
@@ -6725,6 +6725,82 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6da. Two careful exclusions, one hidden line
+
+6cz's closing paragraph said Appendix A at 8.6% was "probably correct" and
+nobody had read its 32 unclaimed lines one at a time. Reading them: **31 are
+faithful restatements and one is not.**
+
+| Lines | Content | Verdict |
+|---|---|---|
+| 9632-9633 | Core mechanic, criticals | Restates ch 2, claimed |
+| 9635-9664 | Skill ladder | Agrees with ch 3 on all five overlapping columns |
+| 9666 | Dodge/Parry/Block formulas, "-4 cumulative" | Modelled, incl. `ParryBlock.parryPenalty` |
+| **9667** | **`Direction Penalties: Side -2 \| Rear -4`** | **The finding** |
+| 9668 | Retreat, Aim | Applied by 6co and 6bm |
+| 9669-9672 | Hit locations, wounding, major wound | Agree with ch 5 |
+
+### Why two careful documents hid one line
+
+`ActiveDefenses`' KDoc refused the facing penalty and justified it with **"the
+facing rule has no second printing anywhere in the book -- checked, not
+assumed"**. Line 9667 is a second printing. The claim had been checked by
+sweeping the 59 content files — and `extract_appendix.py` had skipped this page
+because it is "a summary of chapters already claimed", which is true of the
+other 31 lines and **false of the one that summarises a rule nothing claims.**
+
+Neither exclusion was careless. Each was correct about its own corpus, and the
+line fell in the gap between them: invisible to a content-file sweep because
+unextracted, and skipped by the extractor because it looked like a restatement.
+**A sweep's blind spot can be another document's stated reason.**
+
+### The design review said NO-SHIP, and the argument beat mine
+
+I proposed treating 9667 as the second printing 6ck required and composing the
+penalty into `everyDefence`. The review refused, on a sentence worth keeping:
+
+> To widen the ch. 5 sentence, the second printing has to say something the
+> first one didn't. This one says strictly less.
+
+Line 9667 carries **no noun at all** — neither "defense" nor "defenses". The
+stun precedent works because ch. 11 independently writes "active defenseS" in
+its own right; there is nothing in 9667 to read a scope out of. A summary may
+define, but not overrule.
+
+It also killed my supporting argument, correctly. I had pointed out that
+Retreat is applied to all three rows and the appendix prints it one line below
+facing — but **Retreat's scope comes from ch. 5's own bullet**, which
+enumerates "+3 Dodge/+1 Block/+1 Parry" before the appendix ever repeats it. The
+appendix was never load-bearing for Retreat, so its proximity is evidence of
+nothing. **A neighbour that was applied is not proof that the neighbourhood
+grants authority.**
+
+### What shipped
+
+The refusal, on the right reason instead of the absent one — and the reason is
+now falsifiable rather than absolute. `test_tools.py` pins 9667's exact wording
+AND its nounlessness, because the KDoc now cites it: **an argument resting on a
+sentence needs that sentence guarded, or the correction becomes the next stale
+claim.** RED-proved against a pluralised ch. 5 and an appendix line that
+acquires a noun.
+
+`extract_appendix.py`'s exclusion is corrected in the same commit, so the two
+documents no longer disagree about what this page contains.
+
+### Notes
+
+- **The census is the deliverable, not the finding.** Appendix A is 8.6%
+  claimed and that number is right: it restates. Recording WHICH lines were
+  read and cleared is what stops the next agent re-running this.
+- Nothing was extracted. Raising the appendix's coverage would mean claiming
+  lines whose content is already claimed elsewhere, and 6ae's rule stands: a
+  summary is authoritative only for what it alone prints.
+
+### What is next
+
+Nothing named. Appendix A is now read rather than assumed, which was the only
+outstanding item 6cz left.
 
 ## 6cz. What the free panel's silence was hiding
 
