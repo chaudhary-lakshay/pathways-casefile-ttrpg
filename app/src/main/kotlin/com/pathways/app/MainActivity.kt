@@ -42,8 +42,11 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -211,6 +214,11 @@ fun SheetScreen(
     // The SKILL, not the outcome: the roll now happens inside the dialog, after
     // the GM has stated the circumstances.
     var rolling by remember(sheet) { mutableStateOf<RollableSkill?>(null) }
+    // Which third of the sheet is on screen. The screen was one scroll of
+    // roughly six phone-heights -- status, actions, pools, trait prose, then
+    // the skills, which are the reason anyone opened it. Defaulting to SKILLS
+    // puts the primary interaction one tap from the character, not six swipes.
+    var tab by remember(sheet) { mutableStateOf(SheetTab.SKILLS) }
     var frightening by remember(sheet) { mutableStateOf(false) }
     // The Major Wound's shock, latched by the damage dialog that rolls for it
     // and cleared by the GM when the turn passes. ONE owner, above every
@@ -398,7 +406,10 @@ fun SheetScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    // The character's own name, in the reading colour. Brass
+                    // here made the title compete with the primary button two
+                    // rows below it, and a name is not an action.
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
                 ),
             )
         },
@@ -509,8 +520,35 @@ fun SheetScreen(
                 HorizontalDivider()
             }
 
-            item { PoolTrackers(session, vitals, maxCor) }
-            if (shocked) {
+            // The status line, the primary button and the action hub stay ABOVE
+            // this: they are the same whichever third of the sheet is showing,
+            // and a tab that hides the Attack button would trade one scroll for
+            // one hunt.
+            stickyHeader {
+                TabRow(
+                    selectedTabIndex = tab.ordinal,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ) {
+                    for (option in SheetTab.entries) {
+                        Tab(
+                            selected = tab == option,
+                            onClick = { tab = option },
+                            text = { Text(option.label) },
+                            // M3 paints every tab label with the row's content
+                            // colour, which defaults to primary -- so all three
+                            // read as brass and only the underline said which
+                            // was live. The unselected ones are muted now.
+                            selectedContentColor = MaterialTheme.colorScheme.primary,
+                            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+
+            if (tab == SheetTab.VITALS) {
+                item { PoolTrackers(session, vitals, maxCor) }
+            }
+            if (shocked && tab == SheetTab.VITALS) {
                 item {
                     // Only while it is in force: a control that is always
                     // there would read as a state the GM must maintain, and
@@ -538,16 +576,20 @@ fun SheetScreen(
             // a GM who can read "no shock penalty to ignore" applies it
             // themselves, one who sees nothing assumes it was counted. The
             // call the artifact grade table (6af) already needed.
-            items(TraitEffects.reported(traits)) { note ->
+            items(if (tab == SheetTab.TRAITS) TraitEffects.reported(traits) else emptyList()) { note ->
                 Column(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
                     Text(
                         "${note.trait} — ${note.printed}",
                         style = MaterialTheme.typography.bodySmall,
                     )
                     Text(
+                        // Muted, not brass. This is a caveat about what the app
+                        // does NOT do; painting it the accent colour made every
+                        // trait row shout in the same voice as the Roll button
+                        // it is not (docs/DESIGN-DIRECTION.md).
                         "Not applied here: ${note.reason}.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -562,7 +604,7 @@ fun SheetScreen(
             // own: WHEN to call for one is the GM's, exactly as a Fright Check
             // (6c) and a Major Wound's HT roll (6n) are, and both of those
             // ship as a button the GM presses.
-            items(drawbacks) { (trait, printed) ->
+            items(if (tab == SheetTab.TRAITS) drawbacks else emptyList()) { (trait, printed) ->
                 // The sheet's own name minus the effect cell shown below it,
                 // where the two were printed as one string. Keyed the same way
                 // `SelfControlCheck.trait` is, so the row and its roll cannot
@@ -609,12 +651,19 @@ fun SheetScreen(
                 }
             }
 
-            items(rows.take(SECONDARY_ROWS)) { ComparisonRow(it) }
+            // The derived secondaries (HP, Will, Per, Basic Speed...) sit with
+            // the pools rather than the skills: they are what the character IS,
+            // and the disagreement with the published sheet is printed here.
+            items(
+                if (tab == SheetTab.VITALS) rows.take(SECONDARY_ROWS) else emptyList(),
+            ) { ComparisonRow(it) }
 
             // Row order past the secondaries is one per purchased skill, in
             // sheet order - pinned by SheetComparisonTest. That is what makes
             // this positional pairing safe.
-            itemsIndexed(sheet.skills) { i, skill ->
+            itemsIndexed(
+                if (tab == SheetTab.SKILLS) sheet.skills else emptyList(),
+            ) { i, skill ->
                 val row = rows.getOrNull(SECONDARY_ROWS + i)
                 if (row != null) {
                     // The row SHOWS the sheet's own number, because that
@@ -657,7 +706,9 @@ fun SheetScreen(
             // they disagreed, a saved skill the catalogue no longer prints
             // failed to suppress itself and a potion's skill of the same name
             // appeared twice, once as bought and once as granted (Codex).
-            items(session.edits.purchasedKeys()) { key ->
+            items(
+                if (tab == SheetTab.SKILLS) session.edits.purchasedKeys() else emptyList(),
+            ) { key ->
                 val level = liveLevelOrNull(key, skillLevels)
                 if (level != null) {
                     val label = disambiguated(key, addedKeys)
@@ -677,7 +728,7 @@ fun SheetScreen(
             // Ritualistic Magic and Divination Arts appear here as well as on
             // their own buttons, deliberately: those buttons cast and divine,
             // and a GM may still call for a plain roll of the skill.
-            items(granted) { (key, level) ->
+            items(if (tab == SheetTab.SKILLS) granted else emptyList()) { (key, level) ->
                 val label = disambiguated(key, addedKeys)
                 AddedSkillRow(label, level, "potion") {
                     rolling = RollableSkill(label, level, key)
@@ -1430,8 +1481,12 @@ private fun PoolRow(status: PoolStatus, onSpend: (Int) -> Unit) {
                 )
             }
         }
-        TextButton(onClick = { onSpend(1) }) { Text("−1") }
-        TextButton(onClick = { onSpend(-1) }) { Text("+1") }
+        // Outlined and neutral, not brass text. Three pools times two steppers
+        // put six accent-coloured controls on screen at once, which is most of
+        // why the sheet read as one yellow note; and an outline says "button"
+        // more plainly than colour does.
+        OutlinedIconButton(onClick = { onSpend(1) }) { Text("−1") }
+        OutlinedIconButton(onClick = { onSpend(-1) }) { Text("+1") }
     }
 }
 
@@ -1445,6 +1500,19 @@ private fun PoolRow(status: PoolStatus, onSpend: (Int) -> Unit) {
  * dialog's parameter list.
  */
 private data class RollableSkill(val label: String, val base: Int, val key: SkillKey)
+
+/**
+ * The three thirds of a character sheet.
+ *
+ * Order is the reading order of a physical sheet -- what you are, what you can
+ * do, what is written against you -- but the DEFAULT is [SKILLS], because a
+ * roll is why the screen gets opened at a table.
+ */
+enum class SheetTab(val label: String) {
+    VITALS("Vitals"),
+    SKILLS("Skills"),
+    TRAITS("Traits"),
+}
 
 /**
  * [key]'s label, with its difficulty named only where that is what tells it
@@ -1488,9 +1556,16 @@ private fun AddedSkillRow(label: String, level: Int, provenance: String, onClick
         Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
         Text("$level", style = MaterialTheme.typography.bodyMedium)
         Text(
+            // Arcane, not brass: a potion grant is a Beyonder fact, and the
+            // gallery already uses this colour for exactly that. Brass is the
+            // colour of a thing you can DO, and provenance is not one.
             " ($provenance)",
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.primary,
+            color = if (provenance == "potion") {
+                MaterialTheme.colorScheme.secondary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
         )
         // The same button the published rows carry. Without it, a sheet showed
         // Roll on ten skills and nothing on the three a potion granted, which

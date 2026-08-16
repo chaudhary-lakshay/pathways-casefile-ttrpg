@@ -17,7 +17,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -77,6 +78,19 @@ private fun isTemplate(sheet: PremadeSheet): Boolean =
     sheet.name.contains("Blank", ignoreCase = true)
 
 private fun isBeyonder(sheet: PremadeSheet): Boolean = (sheet.published.spi ?: 0) > 0
+
+/**
+ * How many characters a tab holds, printed on the tab itself.
+ *
+ * A tab labelled "Beyonders" is a question; one labelled "Beyonders (4)" is an
+ * answer, and it tells the player how much list is behind it before they spend
+ * a tap finding out.
+ */
+private fun countIn(roster: Roster, people: List<PremadeSheet>): Int = when (roster) {
+    Roster.ALL -> people.size
+    Roster.MORTAL -> people.count { !isBeyonder(it) }
+    Roster.BEYONDER -> people.count(::isBeyonder)
+}
 
 /**
  * One or two letters for the monogram. The initial of each of the first two
@@ -144,13 +158,40 @@ fun PremadeGallery(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit)
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Pathways", style = MaterialTheme.typography.titleLarge) },
-                colors = TopAppBarDefaults.topAppBarColors(
+            Column {
+                TopAppBar(
+                    title = { Text("Pathways", style = MaterialTheme.typography.titleLarge) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        // The app's own name is the one place brass is being
+                        // used as a brand mark rather than as "you can do this".
+                        titleContentColor = MaterialTheme.colorScheme.primary,
+                    ),
+                )
+                // Tabs rather than filter chips: a chip reads as an optional
+                // narrowing of one long list, and a tab says the roster IS
+                // divided. With 19 mortals and 4 Beyonders that is the true
+                // shape, and it cuts the longest list a player scrolls.
+                TabRow(
+                    selectedTabIndex = roster.ordinal,
                     containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-            )
+                ) {
+                    for (option in Roster.entries) {
+                        Tab(
+                            selected = roster == option,
+                            onClick = { roster = option },
+                            text = {
+                                Text("${option.label} (${countIn(option, people)})")
+                            },
+                            // See the sheet screen's TabRow: M3 defaults every
+                            // label to the row's content colour, so all three
+                            // render brass without this.
+                            selectedContentColor = MaterialTheme.colorScheme.primary,
+                            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
         },
     ) { insets ->
         LazyColumn(
@@ -158,21 +199,6 @@ fun PremadeGallery(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit)
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item {
-                Row(
-                    Modifier.fillMaxWidth().padding(bottom = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    for (option in Roster.entries) {
-                        FilterChip(
-                            selected = roster == option,
-                            onClick = { roster = option },
-                            label = { Text(option.label) },
-                        )
-                    }
-                }
-            }
-
             items(shown, key = { it.name }) { sheet ->
                 PremadeRow(sheet) { onSelect(sheet) }
             }
