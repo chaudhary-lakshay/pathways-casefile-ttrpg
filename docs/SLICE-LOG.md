@@ -6726,6 +6726,143 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dc. The sentence one screen printed and the next screen ignored
+
+6db named the recovery cluster and asked a precondition before any build:
+`docs/HOW-TO-PLAY.md`'s *"FP recovery, stun duration and reload rates are yours
+to run"* — is that a refusal with a mechanism reason, or a gap nobody looked
+at? **It is both, and the split is the slice.** The sentence sits under the
+bullet headed *"Track a clock it does not hold"*, so its reason is a mechanism
+one and it covers the RATES. It never reached p. 42's other half — the
+threshold rule, which needs no clock at all.
+
+### The defect
+
+Book line 2851-2852, in the same FP table:
+
+```
+At 1/3 FP or below | -1 to all rolls; Move and Dodge halved | Until above threshold
+```
+
+`Pools.fp` applied the -1 as `TIRED_PENALTY`, and `fpEffect` returned the whole
+sentence verbatim, which `PoolRow` prints on the sheet screen. One tap away,
+`DefenseDialog` was handed `vitals.dodge` — the derived score, never halved,
+never FP-aware. **The screen that prints the rule and the screen that breaks it
+are the same screen**, which is 6bl's class exactly.
+
+### The census, re-run rather than inherited
+
+6db's closing paragraph sized the cluster at "15 of the 33 newly visible
+unclaimed lines". Re-running its own listing over 2842-2899 returns **16**, and
+three of those are not unbuilt at all:
+
+| Lines | State |
+|---|---|
+| 2847-2850 | Applied. `BeyonderSession.spend` charges 1 HP per FP spent below 0 |
+| 2851-2852 | The -1 applied since 6h; **the halving reached nothing** |
+| 2842-2846, 2861-2895 | Genuinely unread: rest, sleep, natural recovery, First Aid, Physician, Healing, five Regeneration rates |
+| 2899 | Unread: Regeneration's interaction with the 0 HP consciousness roll |
+
+The first two rows are unclaimed only because `coverage.py` builds its claimed
+set from JSON `sourceLines`, and these rules live in Kotlin. **A count in a
+handover is a claim about a query's output at a past moment** — re-running it
+costs a minute and corrected both the arithmetic and what the number implied.
+Chapter 5 stays at **73.9%** after this slice, which is the honest report: the
+rule now applied claims no line, exactly as 6cy found for the attribute table.
+
+### What the design review corrected before any code existed
+
+Codex is still refusing (resets 2026-08-20), so the gate was
+`ecc:kotlin-reviewer` on the DECOMPOSITION, scoped to three questions and three
+files — the fallback 6cz cost two slices by walking past. It returned SHIP with
+one required correction, and the correction was to my warrant:
+
+- **CLAUDE.md 4.3 does not decide this.** I had cited it for rounding. Every
+  `floorDiv` in `Pools` is a THRESHOLD COMPARISON, where the book states the
+  fraction itself and the direction only matters for negatives. Halving a score
+  to produce an output number is a different operation with no precedent in the
+  file. **A rule cited from the right file can still be the wrong rule** — 4.3
+  is about how this repo divides, not about what the book says to do here.
+- So the direction is recorded as a CHOICE. The row prints "halved" bare, while
+  the book prints "rounded down" (line 2450, the Deceptive Attack cap) and
+  "round up" (line 6050, a halved FP maximum) where it cares — there is no
+  house convention to fall back on. Rounding up ships on the one ground that
+  survives: it cannot leave a character worse off than the printed sentence
+  states. Both citations are pinned in `test_tools.py`, because an argument
+  resting on a sentence needs the sentence guarded (6da).
+
+The review also confirmed the placement by tracing the `remember` keys rather
+than taking my word: `vitals` is `remember(sheet, drunk, session.edits)` and
+`fpLost` is none of the three, so halving inside it would freeze the Dodge at
+whatever the pool held when a potion or an edit last landed. It is a plain live
+expression at the call site — `spiAvailable`'s precedent, in the same file.
+
+### What shipped
+
+- `Pools.isFatigued(fp)` — **one predicate, four readers.** `fp()`, `fpLevel`
+  and `fpEffect` each re-derived `current <= floorDiv(max, 3)`; the fourth
+  reader is the defence screen. The overload taking a `PoolStatus` refuses a
+  non-FP pool: reeling is 1/3 HP and Spiritual Attrition is 1/3 SPI, the same
+  fraction and neither halves anything.
+- `Pools.halvedForFatigue(value, fp)` — ceiling, applied to the BASE score
+  only. The boost, Acrobatic Dodge, Dive! and Retreat added afterwards print
+  whole numbers by rules of their own, and halving the total would quietly
+  halve a shield's DB too.
+- `DefenseDialog` takes `fatigued` — the FACT, not the number — and prints the
+  book's sentence under the row it moved, naming the rounding because the book
+  does not.
+- **`SheetComparison`'s Dodge row stays whole.** Found while checking for a
+  second reader: that row audits the DERIVATION against the published sheet, so
+  session state has no business in it. Two displays of one number, and only one
+  of them is a table value.
+
+### Not built, with the reason
+
+The recovery and Regeneration rates stay unapplied: they are clocks, and this
+app holds none — 6bf refused global round state and 6cp accepted per-round
+values only because all six live in one composable. A daily or hourly tick is
+further out than that. The player guide already refuses them for that reason,
+which is why this slice leaves that file alone. Also unread and now recorded:
+**"Very Rapid Healing" occurs once in the whole book** (line 2861) and appears
+in no catalogue — `Rapid Recovery` (line 922, 5 pts) is a different rule, and
+`Rapid Healing` (line 6928) is a potion grant that modifies the daily HT roll.
+Three similar names, three different things; anything matching on name breaks
+there. The one real join is line 6052, *"Grants Very Fast Regeneration for 10
+seconds"* — a grant that names a level and prints no rate, where ch. 5's table
+is the only place that rate lives.
+
+### The review of the diff, and a fifth vacuity
+
+The same reviewer on the diff: no CRITICAL or HIGH, and one MEDIUM that was
+mine. My "the halving does not lift below zero" test asserted the effect text
+of `fp(4, 12)` — the tired case, not the below-zero one its name and comment
+were about. A regression that let `fpEffect`'s `current < 0` branch fall
+through to the fatigued line would have passed it. **Fifth vacuity in four
+slices, same cause: the assertion written from the shape of the DATA rather
+than the shape of the FAILURE.** It now asserts both statuses as a pair, and is
+RED-proved by deleting the below-zero branch.
+
+**1604 Kotlin** (1118 `core:rules`, 466 `app`, 20 `core:model`) and **291
+Python**, all green, counted from the JUnit XML and pytest rather than from
+memory — and the count itself caught a miss of mine worth writing down: my
+first glob read `*/build/test-results/test/*.xml` and reported **1138**,
+because the `app` module writes to `testDebugUnitTest/` instead. The suite was
+green either way; the NUMBER was wrong, and a per-module breakdown is what
+showed it. **A total with no denominator per module cannot notice a whole
+module missing.** Three readings RED-proved by mutating one at a
+time and restoring from a `cp` copy: floor instead of ceiling (2 failures), the
+wrong-pool guard deleted (1), the below-zero effect branch deleted (1). Not
+device-verified — stated rather than skipped; the emulator run is what would
+show a tired character's dialog reading `Dodge 5` with the sentence under it.
+
+**The next slice is the one this one refused to guess at: chapter 5's 2899,
+"At 0 HP or below, a character with any level of Regeneration still makes HT
+rolls to avoid unconsciousness".** `PoolStatus.rollsToStayConscious` already
+exists and already fires at 0 HP, so this is a rule about a flag the app
+computes rather than a new table — check first whether any premade or potion
+grant can carry Regeneration at all, because 6bv's lesson is that an
+unreachable feature and a missing one look identical in the source.
+
 ## 6db. A chapter reported 100% because the filter could not see it
 
 The sweep that started this was the cheapest one available: `tools/coverage.py`

@@ -92,7 +92,35 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6db is newest, and every coverage percentage in this file is now suspect.**
+**6dc is newest, and it is the rule one screen printed while the next screen
+ignored it.** p. 42's FP row — *"At 1/3 FP or below: -1 to all rolls; **Move and
+Dodge halved**"* — had its -1 applied since 6h and its whole sentence printed on
+the sheet, while `DefenseDialog` one tap away was handed the full
+`vitals.dodge`. The threshold was re-derived at three sites inside `Pools`,
+which is what let one screen print the rule and another break it; it is now
+`Pools.isFatigued` with four readers, and `Pools.halvedForFatigue` halves the
+BASE score only (the boost, Dive!, Retreat and a shield's DB print whole numbers
+by rules of their own). **The rounding direction is this app's recorded choice,
+not the book's**: that row prints "halved" bare where the book prints "rounded
+down" (line 2450) and "round up" (line 6050), so there is no house convention —
+up ships because it cannot leave a character worse off than the sentence states,
+and both citations are pinned in `test_tools.py`. Read it for three things. Its
+design review **corrected the warrant before any code existed**: I had cited
+CLAUDE.md 4.3 for the rounding, and every `floorDiv` in `Pools` is a THRESHOLD
+COMPARISON — a rule cited from the right file can still be the wrong rule.
+6db's named cluster was **16 lines, not 15**, and three of those were already
+implemented in Kotlin, which `coverage.py` cannot see — so chapter 5 stays at
+**73.9%** and that is the honest number. And the diff review found a **fifth
+vacuity in four slices**, again mine: a test named for the below-zero case
+asserted the tired case's text. `docs/HOW-TO-PLAY.md`'s *"FP recovery … yours to
+run"* turns out to be a real refusal with a mechanism reason (it sits under
+"Track a clock it does not hold") that never covered this rule at all — **the
+recovery and Regeneration RATES stay unapplied for that reason**, and
+"Very Rapid Healing" (line 2861) is in no catalogue while `Rapid Recovery`
+(line 922) and `Rapid Healing` (line 6928) are two other rules wearing similar
+names.
+
+**6db is next, and every coverage percentage in this file is now suspect.**
 `tools/coverage.py`'s `MECHANICAL` filter decides which lines COUNT as rules
 content; what it cannot see is excluded from the numerator **and the
 denominator**, and `main()` reads an empty denominator as "chapter is
@@ -499,7 +527,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6db, then 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dc, then 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -730,7 +758,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1600 Kotlin** (JUnit 5 — 1114 `core:rules`, 466 `app`, 20 `core:model`) + **289 Python** (pytest), all green — counted from the JUnit XML, not from memory. The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1604 Kotlin** (JUnit 5 — 1118 `core:rules`, 466 `app`, 20 `core:model`) + **291 Python** (pytest), all green — counted from the JUnit XML, not from memory. **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1106,10 +1134,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6db. The slice log
+## 6a-6dc. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6db is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6dc is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
