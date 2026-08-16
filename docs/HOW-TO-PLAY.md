@@ -63,6 +63,25 @@ Critical rules are the book's: 3-4 always succeed, 17-18 always fail — except
 where a specific table overrides them, which the app follows over the general
 rule.
 
+**Gear that names this skill (not applied).** Under the roll you may see lines
+from chapter 8's equipment table — "Magnifying glass (3s) — +1 to Search for
+fine details". Those are printed for you to read, and the app does not add
+them. It cannot: nothing here records what your character is carrying, and
+most of the bonuses are scoped to a circumstance ("for fine details", "when
+rested", "in rain") that only you and the GM can judge.
+
+If the item is in your kit and the circumstance holds, tick **Good tools /
+equipment** in the circumstances above. That is Appendix A's own row and it
+prints a range, **+1 to +2**, so you pick the value — which is where the
+item's own line earns its keep: a basic disguise kit says +1 and the advanced
+one says +2, and the range covers both. **Improvised / poor tools** (-2 to -4)
+is the other side of it. Tick the row once; the app never adds the item's
+figure on top of your pick.
+
+Every row the table prints for that skill is shown, conditional ones included
+— so an empty list means the book prices no gear for it, not that your gear
+does nothing.
+
 ---
 
 ## 3. Combat
