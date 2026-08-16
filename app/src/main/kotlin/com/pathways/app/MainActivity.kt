@@ -89,6 +89,7 @@ import com.pathways.rules.Corruption
 import com.pathways.rules.Derive
 import com.pathways.rules.Divination
 import com.pathways.rules.EffortBurn
+import com.pathways.rules.Equipment
 import com.pathways.rules.FrightCheck
 import com.pathways.rules.FrightKind
 import com.pathways.rules.FrightOutcome
@@ -776,6 +777,12 @@ fun SheetScreen(
             // spent it, which the gate above cannot see.
             spiAvailable = vitals.maxSpi - session.spiSpent,
             conditionalBurnNote = EffortBurn.conditionalScope(skill.key),
+            // Chapter 8's gear that names this exact skill, printed as the
+            // book prints it. Not a chip: nothing here records what the
+            // character owns, so the screen cannot assert possession, and
+            // two of these rows would stack into a bonus the book never
+            // grants. Rules decides which rows the sentence names.
+            equipment = Equipment.referenceFor(skill.key),
             // Offered only where the book's own cells apply: a social skill,
             // on a character carrying a row that names a circumstance. Rules
             // decides both, so the chips cannot disagree with the modifiers.
@@ -1655,6 +1662,12 @@ private fun RollDialog(
     // A push the book allows on part of what this skill covers, which the
     // engine cannot test for itself. Shown, never applied.
     conditionalBurnNote: String? = null,
+    // Chapter 8's equipment rows whose printed note names this skill in a
+    // signed clause. Reference, never a modifier: this app records no
+    // possession, the table prices two disguise kits that would stack, and
+    // one of its penalties is aimed at whoever is looking FOR the wearer.
+    // Shown for the same reason the conditional push above is shown.
+    equipment: List<String> = emptyList(),
     // The character's own conditional social rows, offered only on a skill
     // whose category the book's cells name. The screen asks which hold and
     // hands the keys back; it never turns one into a modifier, because a
@@ -1792,6 +1805,20 @@ private fun RollDialog(
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(top = 12.dp),
                     )
+                }
+                // Every row the table prints for this skill, conditions and
+                // all. Showing only the unconditional ones would teach the
+                // player that a skill with no line here has no gear -- false
+                // exactly in the conditional band, which is most of them.
+                if (equipment.isNotEmpty()) {
+                    Text(
+                        "Gear that names this skill (not applied):",
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(top = 12.dp),
+                    )
+                    equipment.forEach {
+                        Text(it, style = MaterialTheme.typography.bodySmall)
+                    }
                 }
             }
         },

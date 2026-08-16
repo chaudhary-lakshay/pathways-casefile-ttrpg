@@ -116,6 +116,7 @@ object ContentLoader {
     }
     private val weaponsLazy: List<CataloguedWeapon> by lazy { load("weapons.json") }
     private val wealthLazy: List<WealthLevel> by lazy { load("wealth.json") }
+    private val equipmentLazy: List<EquipmentItem> by lazy { load("equipment.json") }
     private val studyCostsLazy: List<StudyCost> by lazy { load("study_costs.json") }
     private val studyRulesLazy: List<StudyRule> by lazy { load("study_rules.json") }
     private val appearanceLazy: List<AppearanceLevel> by lazy { load("appearance.json") }
@@ -255,6 +256,9 @@ object ContentLoader {
 
     /** Starting Wealth by Economic Status, poorest first (Ch. 8, p. 80). */
     fun wealth(): List<WealthLevel> = wealthLazy
+
+    /** The Common Equipment table, in printed order (Ch. 8, p. 81-83). */
+    fun equipment(): List<EquipmentItem> = equipmentLazy
 
     /** What one study point costs, by difficulty and method (Ch. 3, p. 32). */
     fun studyCosts(): List<StudyCost> = studyCostsLazy

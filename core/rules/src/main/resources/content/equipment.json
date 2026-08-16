@@ -1,0 +1,719 @@
+{
+ "sourceLines": {
+  "8": [
+   [
+    5062,
+    5310
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "name": "Lantern (oil)",
+   "cost": "3s",
+   "category": "General Tools",
+   "notes": "Illuminates 2 m radius; 2 hrs/pint of oil",
+   "skills": []
+  },
+  {
+   "name": "Rope (50 ft hemp)",
+   "cost": "2s",
+   "category": "General Tools",
+   "notes": "Supports up to 180 kg",
+   "skills": []
+  },
+  {
+   "name": "Rope, 20 ft",
+   "cost": "1s",
+   "category": "General Tools",
+   "notes": "Light duty; climbing or binding",
+   "skills": []
+  },
+  {
+   "name": "Lock picks (set)",
+   "cost": "£1",
+   "category": "General Tools",
+   "notes": "Required for Lockpicking skill; full set",
+   "skills": []
+  },
+  {
+   "name": "Lockpick set (basic)",
+   "cost": "3s",
+   "category": "General Tools",
+   "notes": "Low-quality; -1 to Lockpicking",
+   "skills": [
+    {
+     "name": "Lockpicking",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Notebook and pen",
+   "cost": "1s",
+   "category": "General Tools",
+   "notes": "Record keeping; required for investigative work",
+   "skills": []
+  },
+  {
+   "name": "Pencil case (6 pencils)",
+   "cost": "1d",
+   "category": "General Tools",
+   "notes": "Spare pencils and eraser",
+   "skills": []
+  },
+  {
+   "name": "Ink bottle (small)",
+   "cost": "3d",
+   "category": "General Tools",
+   "notes": "Refill for fountain pens; 50 pages' worth",
+   "skills": []
+  },
+  {
+   "name": "Parchment (5 sheets)",
+   "cost": "2d",
+   "category": "General Tools",
+   "notes": "Formal documents or diagrams",
+   "skills": []
+  },
+  {
+   "name": "Quill & penknife",
+   "cost": "1s",
+   "category": "General Tools",
+   "notes": "Writing set; penknife usable as tiny blade",
+   "skills": []
+  },
+  {
+   "name": "Compass (brass)",
+   "cost": "3s",
+   "category": "General Tools",
+   "notes": "Navigation (Land) +1 when exploring unfamiliar terrain",
+   "skills": [
+    {
+     "name": "Navigation",
+     "specialization": "Land"
+    }
+   ]
+  },
+  {
+   "name": "Magnifying glass",
+   "cost": "3s",
+   "category": "General Tools",
+   "notes": "+1 to Search for fine details",
+   "skills": [
+    {
+     "name": "Search",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Small scale (brass)",
+   "cost": "5s",
+   "category": "General Tools",
+   "notes": "Weighing small goods; Merchant +1 when appraising unknown items",
+   "skills": [
+    {
+     "name": "Merchant",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Map case (leather)",
+   "cost": "2s",
+   "category": "General Tools",
+   "notes": "Protects maps and documents from weather",
+   "skills": []
+  },
+  {
+   "name": "Canteen (tin)",
+   "cost": "1s",
+   "category": "General Tools",
+   "notes": "Holds 1 L of water",
+   "skills": []
+  },
+  {
+   "name": "Chalk bag",
+   "cost": "1d",
+   "category": "General Tools",
+   "notes": "Chalk for marking; 20 pieces",
+   "skills": []
+  },
+  {
+   "name": "Sand timer (1 min)",
+   "cost": "2s",
+   "category": "General Tools",
+   "notes": "Short-duration timer",
+   "skills": []
+  },
+  {
+   "name": "Candles (3x)",
+   "cost": "1d",
+   "category": "General Tools",
+   "notes": "Poor light; 1 m radius dim light each; 2 hrs each",
+   "skills": []
+  },
+  {
+   "name": "Candles (6x, scented)",
+   "cost": "2d",
+   "category": "General Tools",
+   "notes": "As above; used in rituals",
+   "skills": []
+  },
+  {
+   "name": "Incense sticks (10x)",
+   "cost": "1d",
+   "category": "General Tools",
+   "notes": "Masking odors; ritual atmosphere",
+   "skills": []
+  },
+  {
+   "name": "Caffeine pills (tin)",
+   "cost": "1d",
+   "category": "General Tools",
+   "notes": "Stay awake for +2 hrs; fatigue recovery delayed",
+   "skills": []
+  },
+  {
+   "name": "Coffee, ground (bag)",
+   "cost": "1d",
+   "category": "General Tools",
+   "notes": "Enough for 10 cups; morale booster",
+   "skills": []
+  },
+  {
+   "name": "Whistle (signal)",
+   "cost": "2d",
+   "category": "General Tools",
+   "notes": "Audible up to 200 m",
+   "skills": []
+  },
+  {
+   "name": "Pocket watch (tin)",
+   "cost": "5s",
+   "category": "General Tools",
+   "notes": "Keeps time; social status item among commoners",
+   "skills": []
+  },
+  {
+   "name": "Iron lockbox",
+   "cost": "8s",
+   "category": "General Tools",
+   "notes": "Secure storage; DR 5, HP 10",
+   "skills": []
+  },
+  {
+   "name": "Bedroll",
+   "cost": "5s",
+   "category": "General Tools",
+   "notes": "Sleeping outdoors; +1 to Survival when rested",
+   "skills": [
+    {
+     "name": "Survival",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Trap wire (10 m)",
+   "cost": "1s",
+   "category": "General Tools",
+   "notes": "Tripwire or snare; -2 to spot if camouflaged",
+   "skills": []
+  },
+  {
+   "name": "First aid kit",
+   "cost": "5s",
+   "category": "Medical & Herbal",
+   "notes": "+1 to First Aid; 10 uses before restock",
+   "skills": [
+    {
+     "name": "First Aid",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Bandages (roll, 5x)",
+   "cost": "2d",
+   "category": "Medical & Herbal",
+   "notes": "Single-use; stops bleeding at -1 to First Aid",
+   "skills": [
+    {
+     "name": "First Aid",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Antiseptic (bottle)",
+   "cost": "1s",
+   "category": "Medical & Herbal",
+   "notes": "+1 to infection-resistance rolls; 20 doses",
+   "skills": []
+  },
+  {
+   "name": "Herbal salves (3x)",
+   "cost": "1s",
+   "category": "Medical & Herbal",
+   "notes": "+1 to First Aid on burns & rashes",
+   "skills": [
+    {
+     "name": "First Aid",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Scalpel set",
+   "cost": "2s",
+   "category": "Medical & Herbal",
+   "notes": "Surgery +1; also usable as fine knife",
+   "skills": [
+    {
+     "name": "Surgery",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Medicine bag (leather)",
+   "cost": "10s",
+   "category": "Medical & Herbal",
+   "notes": "Organizes medical gear; +1 to Physician when treating from it",
+   "skills": [
+    {
+     "name": "Physician",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Herbs (assorted, pouch)",
+   "cost": "2s",
+   "category": "Medical & Herbal",
+   "notes": "Herbal Medicine component; 10 doses",
+   "skills": []
+  },
+  {
+   "name": "Medical reference (pamphlet)",
+   "cost": "1s",
+   "category": "Medical & Herbal",
+   "notes": "+1 to Diagnosis when consulted",
+   "skills": [
+    {
+     "name": "Diagnosis",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Portable medicine chest",
+   "cost": "10s",
+   "category": "Medical & Herbal",
+   "notes": "Field hospital; +2 to First Aid & Surgery; 50 doses",
+   "skills": [
+    {
+     "name": "First Aid",
+     "specialization": null
+    },
+    {
+     "name": "Surgery",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Mortar & pestle",
+   "cost": "1s",
+   "category": "Medical & Herbal",
+   "notes": "Grinding herbs; needed for Herbal Medicine",
+   "skills": []
+  },
+  {
+   "name": "Prayer book (small)",
+   "cost": "1s",
+   "category": "Medical & Herbal",
+   "notes": "Religious comfort; +1 to Religious Ritual",
+   "skills": [
+    {
+     "name": "Religious Ritual",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Holy book (leather)",
+   "cost": "8s",
+   "category": "Medical & Herbal",
+   "notes": "Full scripture; +1 to Theology; social status with church",
+   "skills": [
+    {
+     "name": "Theology",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Holy symbol (wooden)",
+   "cost": "2s",
+   "category": "Medical & Herbal",
+   "notes": "Simple faith focus; -1 to ritual effects vs. quality symbols",
+   "skills": []
+  },
+  {
+   "name": "Holy symbol (quality)",
+   "cost": "5s–£5",
+   "category": "Medical & Herbal",
+   "notes": "Spiritual focus; +1 to Ritualistic Magic & Religious Ritual",
+   "skills": [
+    {
+     "name": "Ritualistic Magic",
+     "specialization": null
+    },
+    {
+     "name": "Religious Ritual",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Rosary (wooden)",
+   "cost": "1d",
+   "category": "Medical & Herbal",
+   "notes": "Cogitation aid; +1 to Cogitation when used",
+   "skills": [
+    {
+     "name": "Cogitation",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Heavy boots (leather)",
+   "cost": "6s",
+   "category": "Clothing & Protective",
+   "notes": "Sturdy footwear; +1 to Forced Entry when kicking",
+   "skills": []
+  },
+  {
+   "name": "Dockworker's coat",
+   "cost": "8s",
+   "category": "Clothing & Protective",
+   "notes": "Thick canvas; DR 1 on torso; water-resistant",
+   "skills": []
+  },
+  {
+   "name": "Heavy coat (oilskin)",
+   "cost": "10s",
+   "category": "Clothing & Protective",
+   "notes": "Weatherproof; DR 1 on torso; +1 to Hiking in rain",
+   "skills": [
+    {
+     "name": "Hiking",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Apron (thick leather)",
+   "cost": "5s",
+   "category": "Clothing & Protective",
+   "notes": "DR 1 on torso front; soaks spills",
+   "skills": []
+  },
+  {
+   "name": "Work gloves (leather)",
+   "cost": "1s",
+   "category": "Clothing & Protective",
+   "notes": "Protects hands; +1 to Lifting vs sharp objects",
+   "skills": [
+    {
+     "name": "Lifting",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Dark clothing (set)",
+   "cost": "5s",
+   "category": "Clothing & Protective",
+   "notes": "-1 to spot at night; common street wear",
+   "skills": []
+  },
+  {
+   "name": "Dark clothes (quality)",
+   "cost": "8s",
+   "category": "Clothing & Protective",
+   "notes": "As above; blends in at social functions too",
+   "skills": []
+  },
+  {
+   "name": "Spare clothes (servant class)",
+   "cost": "5s",
+   "category": "Clothing & Protective",
+   "notes": "Clean change for social situations",
+   "skills": []
+  },
+  {
+   "name": "Fine clothes (quality)",
+   "cost": "£1 10s",
+   "category": "Clothing & Protective",
+   "notes": "+1 to Savoir-Faire (High Society); status marker",
+   "skills": []
+  },
+  {
+   "name": "Velvet shawl",
+   "cost": "12s",
+   "category": "Clothing & Protective",
+   "notes": "Warmth; +1 to reaction from romantic interests",
+   "skills": []
+  },
+  {
+   "name": "Spectacles (reading)",
+   "cost": "5s",
+   "category": "Clothing & Protective",
+   "notes": "Corrects vision; -3 to Search without them if shortsighted",
+   "skills": [
+    {
+     "name": "Search",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Camera (simple box)",
+   "cost": "5s",
+   "category": "Specialized Equipment",
+   "notes": "Single-shot; documentary evidence; -2 to Photography",
+   "skills": [
+    {
+     "name": "Photography",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Camera (early folding)",
+   "cost": "£2",
+   "category": "Specialized Equipment",
+   "notes": "Better lens; Photography +1; 12 plates",
+   "skills": [
+    {
+     "name": "Photography",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Disguise kit (basic)",
+   "cost": "2s",
+   "category": "Specialized Equipment",
+   "notes": "Makeup and prosthetics; +1 to Disguise; 5 uses",
+   "skills": [
+    {
+     "name": "Disguise",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Disguise kit (advanced)",
+   "cost": "10s",
+   "category": "Specialized Equipment",
+   "notes": "+2 to Disguise; 10 uses; includes wigs",
+   "skills": [
+    {
+     "name": "Disguise",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Chemical testing kit",
+   "cost": "5s",
+   "category": "Specialized Equipment",
+   "notes": "+1 to Chemistry when testing samples; 10 tests",
+   "skills": [
+    {
+     "name": "Chemistry",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Crystal ball (glass)",
+   "cost": "£2",
+   "category": "Specialized Equipment",
+   "notes": "Fortune-telling prop; +1 to Fortune-Telling or Psychology",
+   "skills": [
+    {
+     "name": "Psychology",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Tarot deck (common)",
+   "cost": "2s",
+   "category": "Specialized Equipment",
+   "notes": "Divination tool; +1 to Fortune-Telling",
+   "skills": []
+  },
+  {
+   "name": "Tarot deck (quality)",
+   "cost": "10s",
+   "category": "Specialized Equipment",
+   "notes": "+2 to Fortune-Telling; intricate artwork",
+   "skills": []
+  },
+  {
+   "name": "Ledger book",
+   "cost": "2s",
+   "category": "Specialized Equipment",
+   "notes": "Business records; +1 to Accounting for regular accounts",
+   "skills": [
+    {
+     "name": "Accounting",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Index cards (box, 100)",
+   "cost": "2d",
+   "category": "Specialized Equipment",
+   "notes": "Reference filing; +1 to Research for organized notes",
+   "skills": [
+    {
+     "name": "Research",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Rare book catalogue",
+   "cost": "5s",
+   "category": "Specialized Equipment",
+   "notes": "Reference; +1 to Connoisseur (Books) when appraising tomes",
+   "skills": []
+  },
+  {
+   "name": "Personal lending ledger",
+   "cost": "3s",
+   "category": "Specialized Equipment",
+   "notes": "Tracking loans; +1 to Merchant when collecting debts",
+   "skills": [
+    {
+     "name": "Merchant",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Blueprints (rolled, set)",
+   "cost": "2d",
+   "category": "Specialized Equipment",
+   "notes": "Engineering reference; +1 to Engineering for one structure type",
+   "skills": [
+    {
+     "name": "Engineering",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Timesheet ledger",
+   "cost": "1s",
+   "category": "Specialized Equipment",
+   "notes": "Labour management; +1 to Administration for shift planning",
+   "skills": [
+    {
+     "name": "Administration",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "False badge (tin)",
+   "cost": "2s",
+   "category": "Specialized Equipment",
+   "notes": "May pass casual inspection; -5 to fool officials",
+   "skills": []
+  },
+  {
+   "name": "Simple Identification Card",
+   "cost": "5Gp / 3 pts",
+   "category": "Specialized Equipment",
+   "notes": "A simple forgery of official identification. Works only for basic inspections (e.g. steam locomotive ticket purchase). There is a real chance the inspector notices the forgery.",
+   "skills": []
+  },
+  {
+   "name": "Basic Identification Papers",
+   "cost": "30Gp / 5 pts",
+   "category": "Specialized Equipment",
+   "notes": "Forged selection of multiple identification papers — birth certificate, university degrees, etc. High enough quality to apply for employment. Fails under normal police or official Beyonder scrutiny.",
+   "skills": []
+  },
+  {
+   "name": "Press badge",
+   "cost": "2s",
+   "category": "Specialized Equipment",
+   "notes": "Newspaper credentials; +1 to Gather Information in public",
+   "skills": []
+  },
+  {
+   "name": "Grappling hook & rope 15 ft",
+   "cost": "4s",
+   "category": "Specialized Equipment",
+   "notes": "Climbing +1 on walls; supports 135 kg",
+   "skills": [
+    {
+     "name": "Climbing",
+     "specialization": null
+    }
+   ]
+  },
+  {
+   "name": "Dolly (hand cart)",
+   "cost": "6s",
+   "category": "Specialized Equipment",
+   "notes": "Move up to 90 kg; Move ×½ when pushing",
+   "skills": []
+  },
+  {
+   "name": "Signal mirror",
+   "cost": "2d",
+   "category": "Specialized Equipment",
+   "notes": "Attract attention up to 1 km in sunlight",
+   "skills": []
+  },
+  {
+   "name": "Chemical light sticks (3x)",
+   "cost": "1s",
+   "category": "Specialized Equipment",
+   "notes": "Cold light; 1 m radius; 1 hr each (TL5 alchemical)",
+   "skills": []
+  },
+  {
+   "name": "Drinking flask (tin, hip)",
+   "cost": "2d",
+   "category": "Specialized Equipment",
+   "notes": "Holds 0.5 L; concealable on person",
+   "skills": []
+  },
+  {
+   "name": "Heavy tankard (pewter)",
+   "cost": "1s",
+   "category": "Specialized Equipment",
+   "notes": "Improvised weapon; 1d-2 cr; +1 to Carousing in pubs",
+   "skills": [
+    {
+     "name": "Carousing",
+     "specialization": null
+    }
+   ]
+  }
+ ]
+}

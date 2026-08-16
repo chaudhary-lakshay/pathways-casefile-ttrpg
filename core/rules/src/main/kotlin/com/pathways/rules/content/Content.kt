@@ -1670,6 +1670,43 @@ data class SkillDefault(
     val penalty: Int? = null,
 )
 
+/**
+ * A skill one of chapter 8's equipment rows names in a signed clause.
+ *
+ * [specialization] is part of the identity, not a decoration: the compass
+ * reads "Navigation (Land) +1", and a character rolling the bare Navigation
+ * row is rolling a different skill. Compared against
+ * [com.pathways.model.SkillKey]'s own two fields, never against the name.
+ */
+@Serializable
+data class EquipmentSkill(
+    val name: String,
+    val specialization: String? = null,
+)
+
+/**
+ * One row of the Common Equipment table (Ch. 8, p. 81-83).
+ *
+ * [notes] is the book's cell VERBATIM, and no number is derived from it.
+ * Nothing here records possession -- the 23 fixtures carry no equipment at
+ * all -- so no bonus can be applied to a roll without the screen asserting
+ * the character owns the item. It is shown and left to the GM, the same
+ * standing the roll dialog already gives Occultism's conditional push.
+ *
+ * [skills] is a discovery index answering "which rows should a Search roll
+ * put in front of the player", built only from SIGNED clauses. "Lock picks
+ * (set)" says "Required for Lockpicking skill" and joins nothing, because a
+ * mention is not a bonus.
+ */
+@Serializable
+data class EquipmentItem(
+    val name: String,
+    val cost: String,
+    val category: String,
+    val notes: String,
+    val skills: List<EquipmentSkill> = emptyList(),
+)
+
 @Serializable
 data class ContentFile<T>(
     val sourceLines: Map<String, List<List<Int>>> = emptyMap(),

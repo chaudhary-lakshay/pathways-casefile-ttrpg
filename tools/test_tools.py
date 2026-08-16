@@ -3655,3 +3655,143 @@ def test_the_two_mechanical_cells_are_pinned_exactly():
     row["effect"] = "Herculean strength & catlike reflexes. +2 ST, +2 DX, +2 HT."
     with pytest.raises(ValueError, match="God of Combat no longer reads"):
         ebl.verify(byn, payload, [], [], _knowledge_skills())
+
+
+import extract_equipment
+
+
+def equipment_entries():
+    return json.loads((CONTENT / "equipment.json").read_text(encoding="utf-8"))["entries"]
+
+
+def equipment_named(name):
+    return next(e for e in equipment_entries() if e["name"] == name)
+
+
+def test_the_equipment_table_keeps_its_four_categories_in_order():
+    entries = equipment_entries()
+    assert len(entries) == 77
+    seen = list(dict.fromkeys(e["category"] for e in entries))
+    assert seen == extract_equipment.CATEGORIES
+    assert all(e["name"] and e["cost"] and e["notes"] for e in entries)
+
+
+def test_the_notes_cell_is_verbatim_and_no_modifier_is_derived():
+    """The bonus is never applied, so nothing parses a number out of the cell.
+    A `modifier` field would be a value with no consumer -- and the seed of
+    stacking two disguise kits and inverting a penalty aimed at the observer."""
+    assert all(set(e) == {"name", "cost", "category", "notes", "skills"}
+               for e in equipment_entries())
+    chest = equipment_named("Portable medicine chest")
+    assert chest["notes"] == "Field hospital; +2 to First Aid & Surgery; 50 doses"
+
+
+def test_a_mention_is_not_a_signed_clause():
+    """"Lock picks (set)" says "Required for Lockpicking skill" and grants
+    nothing. A substring matcher would offer it on every Lockpicking roll as
+    though it helped; only a SIGNED clause joins."""
+    picks = equipment_named("Lock picks (set)")
+    assert "Lockpicking" in picks["notes"]
+    assert picks["skills"] == []
+    # And the row one line below it, which does carry a sign.
+    assert equipment_named("Lockpick set (basic)")["skills"] == [
+        {"name": "Lockpicking", "specialization": None}
+    ]
+
+
+@needs_pdf
+def test_loosening_the_predicate_into_a_mention_fails_verification():
+    """The guard is load-bearing: if the matcher ever resolved a mention, the
+    lock picks would join Lockpicking and verify() must refuse the run."""
+    index = extract_equipment.skill_index()
+    tagged = extract_equipment.tag_categories(
+        extract_equipment.stream(extract_equipment.load_lines(),
+                                 *extract_equipment.EQUIPMENT_RANGE)
+    )
+    rows = extract_equipment.parse(tagged, index)
+    patched = [
+        {**r, "skills": [{"name": "Lockpicking", "specialization": None}]}
+        if r["name"] == "Lock picks (set)" else r
+        for r in rows
+    ]
+    with pytest.raises(ValueError, match="Lock picks"):
+        extract_equipment.verify(patched, index)
+
+
+def test_one_bonus_may_name_two_skills_and_another_offers_a_choice():
+    """The book joins with "&" and chooses with "or", on the same page. Both
+    halves of a conjunction join; so does the resolvable half of a choice."""
+    assert equipment_named("Portable medicine chest")["skills"] == [
+        {"name": "First Aid", "specialization": None},
+        {"name": "Surgery", "specialization": None},
+    ]
+    assert equipment_named("Holy symbol (quality)")["skills"] == [
+        {"name": "Ritualistic Magic", "specialization": None},
+        {"name": "Religious Ritual", "specialization": None},
+    ]
+    # "+1 to Fortune-Telling or Psychology" -- only the second half is printed
+    # in chapter 3's list, under that spelling.
+    assert equipment_named("Crystal ball (glass)")["skills"] == [
+        {"name": "Psychology", "specialization": None}
+    ]
+
+
+def test_the_condition_is_trimmed_before_the_target_is_split():
+    """"+1 to First Aid on burns & rashes" is one skill, not two. Splitting on
+    "&" before trimming the condition would claim a skill called "rashes"."""
+    assert equipment_named("Herbal salves (3x)")["skills"] == [
+        {"name": "First Aid", "specialization": None}
+    ]
+    assert extract_equipment.split_targets(
+        extract_equipment.trim_condition("First Aid on burns & rashes")
+    ) == ["First Aid"]
+
+
+def test_a_specialization_is_part_of_the_identity():
+    """The compass reads "Navigation (Land) +1". A character rolling the bare
+    Navigation row is rolling a different skill and must not see it."""
+    assert equipment_named("Compass (brass)")["skills"] == [
+        {"name": "Navigation", "specialization": "Land"}
+    ]
+    index = extract_equipment.skill_index()
+    assert ("Navigation", "Land") in index and ("Navigation", None) in index
+    # The two the book writes the same way and chapter 3 leaves open.
+    assert ("Connoisseur", "Books") not in index
+    assert ("Savoir-Faire", "High Society") not in index
+    assert equipment_named("Rare book catalogue")["skills"] == []
+    assert equipment_named("Fine clothes (quality)")["skills"] == []
+
+
+def test_four_rolls_are_priced_without_ever_being_printed_as_skills():
+    """"spot", "fool officials", "infection-resistance rolls" and "ritual
+    effects" are rolls this book charges for and never lists. Guessing one
+    into Observation or Search would be authoring content."""
+    joined = {s["name"] for e in equipment_entries() for s in e["skills"]}
+    assert not (joined & extract_equipment.UNPRINTED_TARGETS)
+    for name in ("Trap wire (10 m)", "Dark clothing (set)", "False badge (tin)",
+                 "Antiseptic (bottle)", "Holy symbol (wooden)"):
+        assert equipment_named(name)["skills"] == []
+
+
+def test_chapter_8_grants_bonuses_to_two_skills_chapter_3_never_prints():
+    """A 4.1 disagreement between two chapters of one book: recorded here,
+    never repaired by inventing a skill row for either."""
+    index = extract_equipment.skill_index()
+    for absent in extract_equipment.ABSENT_FROM_CHAPTER_3:
+        assert (absent, None) not in index
+    assert "Forced Entry" in equipment_named("Heavy boots (leather)")["notes"]
+    assert equipment_named("Heavy boots (leather)")["skills"] == []
+    assert "Gather Information" in equipment_named("Press badge")["notes"]
+    assert equipment_named("Press badge")["skills"] == []
+
+
+def test_the_fortune_seam_is_the_books_own_and_is_not_normalised():
+    """Chapter 8 spells it "Fortune-Telling"; chapter 3's list prints "Fortune
+    Telling". Matching across the hyphen would decide what the book meant on
+    resemblance alone (6by), so both decks join nothing."""
+    index = extract_equipment.skill_index()
+    assert ("Fortune Telling", None) in index
+    assert ("Fortune-Telling", None) not in index
+    for deck in ("Tarot deck (common)", "Tarot deck (quality)"):
+        assert "Fortune-Telling" in equipment_named(deck)["notes"]
+        assert equipment_named(deck)["skills"] == []

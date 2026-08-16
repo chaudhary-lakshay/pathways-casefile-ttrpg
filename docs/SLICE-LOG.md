@@ -6726,6 +6726,185 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6cx. A precedent that travels by role, not by shape
+
+6cw named chapter 8 and built nothing, asking for its own decomposition and
+design review. This is that slice. Chapter 8 goes from **21.2% to 81.7%** and
+its unclaimed mechanical lines from **82 to 19**, and the 19 that remain are
+four tables refused in production source rather than overlooked.
+
+### 6cw's own census was too narrow, and re-running it found the taxonomy
+
+6cw wrote "34 signed clauses name 30 distinct skills". Run as a query over
+pages 79-84: **47 signed clauses, 29 resolving on a naive head-match and 18
+not** — and the 18 are six shapes, of which 6cw named two.
+
+| Shape | N | Example |
+|---|---|---|
+| Names no skill the book prints | 7 | `-2 to spot`, `-5 to fool officials`, `+1 to infection-resistance rolls` |
+| Conjunction `&`, one bonus two skills | 2 | `+2 to First Aid & Surgery` |
+| Disjunction `or` / `/`, a choice | 2 | `+1 to Fortune-Telling or Psychology` |
+| Specialisation in parentheses | 3 | `Navigation (Land)`, `Connoisseur (Books)` |
+| Hyphenation seam | 2 | `Fortune-Telling` vs `Fortune Telling` |
+| Absent from chapter 3 (4.1) | 2 | `Forced Entry`, `Gather Information` |
+
+The disjunction row settles a question 6ce answered by argument: **the same
+page uses `&` for "both" and `or` for "either"**, so a slash between two skill
+names is disjunction here, on the book's own evidence rather than on a reading.
+
+The census instrument's blind spots, stated because a filter's false negatives
+are invisible by construction (6ba, 6bt): it matches `±N to X` and `X ±N` only.
+It cannot see `DR 1 on torso`, `Move ×½ when pushing`, `1d-2 cr`, or the
+hired-ally skill LEVELS (`Research-13`, `Brawling-12`) — a seventh shape
+carrying no sign at all.
+
+And the 47 span **three subjects**: `+1 to reaction rolls per Status level` is
+page 80's Status paragraph, already `wealth.json`'s; two more are page 84's
+hired allies, a service rented rather than an item owned. Quoting 47 as one
+number reproduces 6cw's error in the other direction.
+
+### Three checks that each changed the shape before any code
+
+- **Specialisation has three answers in one table, not two.** `skills.json`
+  stores specialisations in a separate field, never in the name.
+  `Navigation (Land)` **resolves** as an enumerated row; `Connoisseur (Books)`
+  and `Savoir-Faire (High Society)` are `specializable: true` with open
+  instances, which is 6cc's `InstantiableTrait` shape one domain over. The
+  design question was posed as a yes/no and the data answered it three ways.
+- **The Fortune seam is the BOOK's, not the extractor's.** `book.txt:1963`
+  prints `Fortune Telling` (ch. 3) and `:5252/5255/5258` print
+  `Fortune-Telling` (ch. 8). 6by's rule holds — evidence per spelling, never a
+  normaliser — so both tarot decks join nothing and the crystal ball joins only
+  the `or Psychology` half.
+- **A clause has a DIRECTION, and it is orthogonal to whether the target
+  resolves.** `-1 to spot at night` (dark clothing) penalises whoever is
+  looking FOR the wearer. Stored as `{target, value}` and rendered on the
+  owner's dialog it inverts — section 5's measured class, base -4 landing
+  on +2. Both known instances are already excluded by the resolve condition,
+  which is worth saying rather than leaving implied (6cs, 6co).
+
+### The design review said NO-SHIP, and the warrant it killed was mine
+
+The decomposition proposed nine unconditional single-skill rows as selectable
+chips in `RollDialog`, modelled on `AttackDialog`'s weapon picker. Three
+independent refusals, all verified against source before being accepted:
+
+1. **The precedent does not transfer.** `Weapons.forSkill(skillKey)` is
+   ungated and offers chapter 8's own catalogue — but it **re-parameterises**
+   the roll (which attack, which damage, which parry, melee or ranged). An
+   equipment chip **adds to** it. Same control on screen, opposite role.
+2. **`RollDialog`'s own possession control is double-gated.** `socialClauses`
+   is filtered on the skill's category AND on `TraitEffects.socialClauses(traits)`
+   — a list of what this character actually carries (`MainActivity.kt:782-790`).
+   The ungated precedent lives in a different dialog; the gated one lives in
+   the dialog being edited. 6cs's "gated on an owned list the CALLER resolves"
+   was about *this screen* after all.
+3. **Both stacking pairs sit inside the proposed nine.** Disguise kit (basic)
+   +1 with (advanced) +2 reads +3; Camera (simple) -2 with (folding) +1 reads
+   -1. Mutual exclusion is a property of the ITEM, and no printed field says
+   two rows are alternatives — inventing a `functionalClass` taxonomy would be
+   authoring content to make a feature safe.
+
+**The most reusable finding is the first: a precedent travels with its ROLE,
+not its shape.** 6cm found that a precedent travels with the condition that
+produced it; this is the same lesson one level down. Two controls can be
+pixel-identical and mechanically opposite, and "the app already does this"
+is a claim about the screen when it needs to be a claim about the semantics.
+
+### What shipped instead, and its precedent is in the same function
+
+`conditionalBurnNote` — four lines above where the new block landed — carries
+the principle in its own KDoc: *"A push the book allows on part of what this
+skill covers, which the engine cannot test for itself. **Shown, never
+applied.**"* Its comment argues the case exactly: *"granting it would push
+rolls the book does not, and withholding it in silence would hide a printed
+rule."*
+
+So the whole table ships as reference. `Equipment.referenceFor(key)` returns
+the item, its price and the book's sentence **unedited**, and the dialog
+prints them under "Gear that names this skill (not applied):". Every one of
+the three refusals dissolves: nothing asserts ownership, nothing stacks
+because nothing is a number, and a penalty aimed at an observer is a sentence
+the GM reads rather than a modifier on the wrong roll.
+
+It also dissolves the review's second finding, which was about the BOUNDARY:
+shipping nine of seventy-seven rows as chips would teach a player that a skill
+with no chip has no gear — false exactly in the conditional band, which is most
+of the table. Showing **every** row that names the skill, conditions intact,
+makes no such promise.
+
+### The join is a discovery index, and a mention is not a clause
+
+`skills` on each row exists to answer "which rows should a Search roll put in
+front of the player", and is built only from SIGNED clauses. `Lock picks (set)`
+says "Required for Lockpicking skill" and joins nothing; `Lockpick set (basic)`
+one line below says "-1 to Lockpicking" and joins. A substring matcher would
+have offered the lock picks on every Lockpicking roll as though they helped —
+the unhardened predicate 6cj caught 6ci using.
+
+The target is **trimmed, then split**, in that order: `+1 to First Aid on
+burns & rashes` is one skill, and splitting first would claim a skill called
+"rashes". Splitting is a claim about which rows to SHOW and never about what
+to add, which is what makes it safe to reach both halves of a conjunction.
+
+### The RED-proof found something about the tests, not the code
+
+Neutering the signed-clause predicate into a bare mention makes the extractor
+**refuse to run** — `verify()` raises on the first pinned row it reaches. But
+only ONE of the eleven Kotlin tests and one of the ten Python tests can see it:
+the rest read `equipment.json`, and **a failing extractor never rewrites the
+file**, so they re-read the old good data and pass.
+
+That is this repo's own recorded class (a failure filter cannot see a no-op)
+appearing in test DESIGN rather than in a grep. The data tests pin the data;
+only `verify()` pins the parser. Worth knowing which of your tests is the
+guard, because ten green ones next to it prove nothing about the code you just
+changed.
+
+### Refused in the same commit, in production source
+
+`Equipment.UNMODELLED` carries a reason per table, to the
+`ActiveDefenses.UNPAYABLE` / `Divination.UNAPPLIED` standard — discoverable by
+a sweep over Kotlin, not buried in this journal (6cj). Armour's three DR rows
+(nothing here models DR, and `Damage.kt:20`'s KDoc already says DR sits on the
+target's side); both currency systems and the exchange rate (`startingMoney` is
+a printed STRING and no arithmetic anywhere touches money); Legal Licenses &
+Permits and Hired Allies (different subjects, neither reaching a roll). Each
+would otherwise be 6cf's loader with no caller.
+
+### Notes
+
+- `tools/extract_equipment.py` reads 77 rows, which matches a hand count of the
+  four printed categories (27 + 15 + 11 + 24). 235 cells, 77 cost matches, no
+  two adjacent — so no note line can fullmatch `COST_CELL` and split a row.
+- **The 19 unclaimed lines were checked one by one, not inferred from the
+  total.** All 19 fall in the four refused tables — currency 6, armour 2,
+  licences 2, hired allies 9 — and **nothing inside the claimed span
+  5062-5310 is unclaimed**, so the parser skipped no row of its own table.
+- **Which gate ran:** the DECOMPOSITION got a full design review before any
+  code, and it returned NO-SHIP on three counts, which is what reshaped the
+  slice. The DIFF did not get an independent review: Codex is out until
+  2026-08-20 14:23, and the free-model panel ran for sixteen minutes and
+  **exited 0 with two empty response bodies** — a silent no-answer, not a
+  refusal and not a clean bill. The diff was self-checked instead, and the
+  gap is recorded rather than absorbed (6ck, 6ci). An exit code of 0 from a
+  reviewer that printed nothing is 6ba's lesson about instruments: the run
+  succeeded and the review did not happen.
+- The opencode round-trip produced 13k tokens of (correct) analysis and wrote
+  no file. The built-in editor was the fallback, per the documented rule.
+- 1592 Kotlin tests (was 1581) and 278 Python (was 268), all green, counted
+  from the JUnit XML rather than from a BUILD SUCCESSFUL line — the Android
+  module reports under `testDebugUnitTest` and a naive glob misses its 466.
+  `BUILD SUCCESSFUL` also hid two unused imports, which warn rather than error.
+
+### What is next
+
+Nothing is named. The four refusals above are refusals, not deferrals: each
+would need a consumer to exist first (a DR model, a money model, a
+character-creation surface for licences). The conditional band inside the
+equipment table is the nearest real feature and it needs what the chips
+needed — a record of what a character owns.
+
 ## 6cw. The chapter that is 21% read
 
 With no slice named, the sweep went back to the instrument this repo built for
