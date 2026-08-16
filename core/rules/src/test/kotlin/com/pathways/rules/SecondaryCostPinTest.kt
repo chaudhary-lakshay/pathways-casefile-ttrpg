@@ -1,5 +1,6 @@
 package com.pathways.rules
 
+import com.pathways.model.Attributes
 import com.pathways.model.SecondaryDelta
 import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -64,11 +65,13 @@ class SecondaryCostPinTest {
         // quarters and costs four times the printed number. A parser that
         // dropped "per 0.25" would have made a point of Speed cost 5.
         assertEquals(20, SecondaryCharacteristics.costOf(SecondaryDelta(basicSpeedQuarters = 4)))
-        assertTrue(
-            ContentLoader.secondaryCosts()
-                .filter { it.key != "basicSpeed" }
-                .all { it.step == null || it.step == "level" }
-        )
+        // Every OTHER priced row is per level. Asserted as equality rather
+        // than as "null or level": the OR was satisfied by all five rows
+        // regressing to null, which is the corruption this test exists for.
+        val otherPriced = ContentLoader.secondaryCosts()
+            .filter { it.key != "basicSpeed" && it.pointsPerStep != null }
+        assertEquals(5, otherPriced.size)
+        assertTrue(otherPriced.all { it.step == "level" })
     }
 
     @Test
@@ -96,6 +99,19 @@ class SecondaryCostPinTest {
         assertEquals("= IQ (9)", row("will").formula)
         assertEquals("= IQ (9)", row("per").formula)
         assertTrue(row("basicSpeed").formula.contains("(HT + DX) / 4"))
+
+        // ... and the ENGINE is asked, not just the string. Comparing two
+        // pieces of JSON would pin the file to itself: if `of` derived HP
+        // from DX tomorrow, every assertion above would still pass. Distinct
+        // attribute values, so no two derivations can agree by coincidence.
+        val attrs = Attributes(st = 11, dx = 12, iq = 13, ht = 14)
+        val derived = SecondaryCharacteristics.of(attrs, SecondaryDelta())
+        assertEquals(attrs.st, derived.maxHp, "HP is printed \"= ST (9)\"")
+        assertEquals(attrs.ht, derived.maxFp, "FP is printed \"= HT (9)\"")
+        assertEquals(attrs.iq, derived.will, "Will is printed \"= IQ (9)\"")
+        assertEquals(attrs.iq, derived.per, "Per is printed \"= IQ (9)\"")
+        // "(HT + DX) / 4", counted in quarters, so HT + DX is the quarter count.
+        assertEquals(attrs.ht + attrs.dx, derived.basicSpeedQuarters)
     }
 
     @Test

@@ -55,6 +55,39 @@ class EquipmentTest {
     }
 
     @Test
+    @DisplayName("a bare clause reaches an instance of a skill the book prints once")
+    fun `a template skill's instance still sees its gear`() {
+        // "Survival" is one printed row, specializable, "specify terrain".
+        // Hunter-Tracker's sheet buys Survival (Woodlands), which is an
+        // INSTANCE of that row rather than a rival to it, so the bedroll's
+        // bare "+1 to Survival when rested" reaches it. Strict identity
+        // matching hid the bedroll from the one character who would use it.
+        val template = ContentLoader.skills()
+            .first { it.name == "Survival" && it.specialization == null }
+        assertTrue(template.specializable)
+
+        val woodlands = SkillKey("Survival", "Woodlands", template.attr, template.difficulty)
+        assertTrue(Equipment.forSkill(woodlands).any { it.name == "Bedroll" })
+        // and the bare row still sees it
+        assertTrue(Equipment.forSkill(keyFor("Survival")).any { it.name == "Bedroll" })
+    }
+
+    @Test
+    @DisplayName("an enumerated specialization is still a different skill")
+    fun `a non-template specialization keeps strict matching`() {
+        // Navigation is the opposite case: specializable = false, and the
+        // book prints Sea and Land as their own rows. The compass names Land,
+        // so the bare row and the Sea row must not see it -- otherwise the
+        // fix above would erase the distinction this table draws itself.
+        val bare = ContentLoader.skills()
+            .first { it.name == "Navigation" && it.specialization == null }
+        assertFalse(bare.specializable)
+        assertTrue(Equipment.forSkill(keyFor("Navigation", "Land")).isNotEmpty())
+        assertTrue(Equipment.forSkill(keyFor("Navigation")).isEmpty())
+        assertTrue(Equipment.forSkill(keyFor("Navigation", "Sea")).isEmpty())
+    }
+
+    @Test
     @DisplayName("one bonus may reach two skills, and both of them see the row")
     fun `a conjunction reaches both halves`() {
         val chest = "Portable medicine chest"

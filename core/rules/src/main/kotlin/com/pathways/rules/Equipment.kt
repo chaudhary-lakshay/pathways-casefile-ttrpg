@@ -70,12 +70,41 @@ object Equipment {
     /**
      * The rows whose notes name [key] in a signed clause.
      *
-     * Matched on the skill's full identity. The compass reads "Navigation
-     * (Land) +1", so a character rolling the bare Navigation row is rolling a
-     * different skill and does not see it.
+     * Matched on the skill's full identity, with one exception the CATALOGUE
+     * draws rather than this function:
+     *
+     *  - `Navigation` is `specializable = false` and the book prints three
+     *    separate rows for it (bare, Sea, Land). Those are different skills,
+     *    so the compass's "Navigation (Land) +1" must not reach a character
+     *    rolling the bare row.
+     *  - `Survival` is `specializable = true` with ONE printed row and the
+     *    note "specify terrain". `Survival (Woodlands)` is an INSTANCE of
+     *    that row, not a rival to it, so the bedroll's bare "+1 to Survival"
+     *    reaches it. Hunter-Tracker carries exactly that instance, and
+     *    without this the one character in the corpus who would use the
+     *    bedroll is the one who cannot see it.
+     *
+     * So a bare clause reaches any instance of a template skill, and a
+     * clause that names a specialization still matches only that one.
      */
-    fun forSkill(key: SkillKey): List<EquipmentItem> = all().filter { item ->
-        item.skills.any { it.name == key.name && it.specialization == key.specialization }
+    fun forSkill(key: SkillKey): List<EquipmentItem> {
+        val instanceOfTemplate = key.specialization != null && isTemplate(key.name)
+        return all().filter { item ->
+            item.skills.any {
+                it.name == key.name && (
+                    it.specialization == key.specialization ||
+                        (it.specialization == null && instanceOfTemplate)
+                    )
+            }
+        }
+    }
+
+    /**
+     * Whether the catalogue prints [name] as one row the player specializes,
+     * rather than as several rows it enumerates itself.
+     */
+    private fun isTemplate(name: String): Boolean = ContentLoader.skills().any {
+        it.name == name && it.specialization == null && it.specializable
     }
 
     /**
