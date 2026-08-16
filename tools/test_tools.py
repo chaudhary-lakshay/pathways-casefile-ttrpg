@@ -3885,3 +3885,38 @@ def test_pricing_a_row_the_table_refuses_fails_verification():
     with pytest.raises(ValueError, match="is now priced"):
         extract_core_rules.verify(
             bands, pools, rows, defs, secs, extract_core_rules.load_lines())
+
+
+# --- Appendix A's facing line (Ch. A, p. 159) ------------------------------
+
+
+def test_the_appendix_prints_the_facing_penalty_a_second_time():
+    """`ActiveDefenses`' KDoc used to say the facing rule "has no second
+    printing anywhere in the book -- checked, not assumed". This is that
+    second printing. It is pinned because the KDoc now cites it: an argument
+    resting on a sentence needs the sentence guarded, or the correction
+    becomes the next stale claim."""
+    byn = {r["n"]: r["text"] for r in
+           json.loads((ROOT / "build" / "extract" / "lines.json")
+                      .read_text(encoding="utf-8"))}
+    assert byn[9667].strip() == "Direction Penalties: Side -2 | Rear -4"
+    # Its neighbour enumerates all three defences, which is what made the line
+    # look like it could widen chapter 5's singular.
+    assert byn[9666].strip().startswith("Active Defenses: Dodge =")
+    assert "Parry" in byn[9666] and "Block" in byn[9666]
+
+
+def test_the_appendix_line_names_no_defence_so_it_widens_nothing():
+    """The whole refusal now rests on ONE property of line 9667: it carries no
+    noun. To widen chapter 5's singular "to defense", a second printing has to
+    say something the first did not, and this one says strictly less. If the
+    line ever acquires "defense" or "defenses", that reason has expired."""
+    byn = {r["n"]: r["text"] for r in
+           json.loads((ROOT / "build" / "extract" / "lines.json")
+                      .read_text(encoding="utf-8"))}
+    assert not re.search(r"defen[cs]e", byn[9667], re.I), byn[9667]
+    # And chapter 5's own two bullets still print the singular they are
+    # refused on. Both halves have to hold for the refusal to stand.
+    for n in (2480, 2481):
+        assert re.search(r"to defense\b", byn[n], re.I), byn[n]
+        assert not re.search(r"to defenses\b", byn[n], re.I), byn[n]

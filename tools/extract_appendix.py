@@ -31,13 +31,34 @@ column.
 
 WHAT IS DELIBERATELY NOT EXTRACTED
 ----------------------------------
-The rest of appendix A, which is a summary of chapters already claimed, and
-in one place a summary that DISAGREES with them: its hit-location line reads
+The rest of appendix A, which is a summary of chapters already claimed --
+with ONE exception, below -- and in one place a summary that DISAGREES with
+them: its hit-location line reads
 "Vitals -3 x3" flat, dropping the "(imp/pi only)" scope chapter 5 prints, and
 it lists a "Hand/Foot" location where chapter 5's table has only Hand. A
 summary does not overrule the chapter it summarises, so those are recorded
 here and left unextracted. Its success ladder (Good Success at Target-3,
 Excellent at Target-5) is genuinely new material and a slice of its own.
+
+THE ONE LINE THAT IS NOT A SUMMARY OF A CLAIMED CHAPTER
+--------------------------------------------------------
+Line 9667, `Direction Penalties: Side -2 | Rear -4`, summarises the facing
+rule -- which chapter 5 prints and which NOTHING in this repo extracts,
+because `ActiveDefenses` deliberately refuses it. So "a summary of chapters
+already claimed" is true of the other 31 unclaimed mechanical lines on this
+page and false of this one.
+
+That mattered once. `ActiveDefenses`' KDoc justified the refusal with "the
+facing rule has no second printing anywhere in the book -- checked, not
+assumed", and a sweep over the 59 content files kept agreeing, because the
+second printing is on this page and this file skipped it. Two careful
+exclusions, each correct about its own corpus, between them hid one line.
+
+It is STILL not extracted, and the reason is now the right one rather than
+the absent one: the line carries no noun -- neither "defense" nor "defenses"
+-- so it cannot widen chapter 5's singular, and a summary may define but not
+overrule. `test_tools.py` pins its wording and its nounlessness, because the
+KDoc now cites it as evidence.
 """
 import json, pathlib, re, sys
 

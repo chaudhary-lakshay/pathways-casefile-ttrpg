@@ -517,13 +517,32 @@ object ActiveDefenses {
      * defense". Both are bare and SINGULAR, and the stun's own note above says
      * why that is not enough on its own: taking a penalty to every row rather
      * than to Dodge alone rests on ch. 11's second printing saying "active
-     * defenseS". The facing rule has no second printing anywhere in the book --
-     * checked, not assumed -- and this book demonstrably distinguishes the two
-     * scopes when it means them ("+1 to ALL active defenses" for Combat
-     * Reflexes, "+2 to ONE active defense" for All-Out Defense). So the rows
-     * stay on screen as the book prints them and reach no number, which is the
-     * honest state until a printing settles the scope. `ActiveDefensesTest`
-     * pins the singular, so this reason expires the day the wording changes.
+     * defenseS". The facing rule has **no second printing that names a
+     * scope**, and this book demonstrably distinguishes the two scopes when it
+     * means them ("+1 to ALL active defenses" for Combat Reflexes, "+2 to ONE
+     * active defense" for All-Out Defense). So the rows stay on screen as the
+     * book prints them and reach no number, which is the honest state until a
+     * printing settles the scope. `ActiveDefensesTest` pins the singular, so
+     * this reason expires the day the wording changes.
+     *
+     * **That sentence used to read "no second printing anywhere in the book --
+     * checked, not assumed", and it was false.** Appendix A's Combat Quick
+     * Reference prints `Direction Penalties: Side -2 | Rear -4`
+     * (`build/extract/book.txt:9667`), unextracted and claimed by none of the
+     * content files -- which is why a sweep over those files kept agreeing
+     * with the claim. It changes nothing, and the reason it changes nothing is
+     * the point: **to widen a singular, the second printing has to say
+     * something the first did not, and that line says strictly less.** It
+     * carries no noun at all, neither "defense" nor "defenses", so there is
+     * nothing in it to read a scope out of. A summary may define, but not
+     * overrule.
+     *
+     * Nor does its neighbour help. Retreat IS applied to all three rows and
+     * the appendix prints it one line below the facing penalty -- but
+     * Retreat's scope comes from ch. 5's OWN bullet, which enumerates "+3
+     * Dodge/+1 Block/+1 Parry" before the appendix ever repeats it. The
+     * appendix was never load-bearing for Retreat, so its proximity here is
+     * not evidence that an appendix line can widen anything.
      *
      * [Facing] is still modelled, for the rule that IS printed in the required
      * form: the shield's DB is conditional on the same arc, in a sentence that
