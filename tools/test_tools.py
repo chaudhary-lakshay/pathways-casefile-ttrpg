@@ -3920,3 +3920,104 @@ def test_the_appendix_line_names_no_defence_so_it_widens_nothing():
     for n in (2480, 2481):
         assert re.search(r"to defense\b", byn[n], re.I), byn[n]
         assert not re.search(r"to defenses\b", byn[n], re.I), byn[n]
+
+
+@needs_pdf
+def test_mechanical_filter_sees_a_cost_priced_in_a_bare_pool():
+    """A cost is not always signed, and the filter used to miss the ones
+    that are not.
+
+    coverage.py admitted "5 pts" from the start -- a bare integer followed
+    by the unit a rule reads -- and admitted no other pool. So the book's
+    ability costs were read as flavour. These are real book lines, quoted
+    by number rather than invented, and the assertion that matters is the
+    SECOND one in each pair: the old pattern did not match them. Without
+    that half this test would pass against the narrow filter it exists to
+    replace.
+    """
+    import coverage as coverage_tool
+
+    # "The old filter" is derived by removing the widening alternative from
+    # the pattern that actually ships, never retyped. A hand-copied duplicate
+    # stops representing the old filter the moment anyone edits one of the
+    # four shared alternatives, and then the negative assertions below are
+    # made against a pattern nobody runs.
+    widening = r"|\b\d+\s*(?:SPI|HP|FP|CoR|DR)\b"
+    live = coverage_tool.MECHANICAL.pattern
+    assert live.endswith(widening), (
+        "the pool alternative is no longer the last one in MECHANICAL, so "
+        f"slicing it off no longer yields the pre-change filter: {live!r}"
+    )
+    narrow = re.compile(live[: -len(widening)])
+    byn = {l["n"]: l["text"] for l in json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
+
+    for n, quote in [
+        (4762, "4 HP"),
+        (4763, "1 SPI"),
+        (4840, "1 SPI"),
+    ]:
+        text = byn[n]
+        assert quote in text, f"line {n} no longer prints {quote!r}: {text!r}"
+        assert coverage_tool.MECHANICAL.search(text), f"line {n} is still invisible"
+        assert not narrow.search(text), (
+            f"line {n} was already visible to the narrow filter, so it cannot "
+            "be evidence for widening it"
+        )
+
+    # The condition is the unit, not the digit. A number followed by
+    # anything that is not a pool the rules read stays flavour.
+    assert not coverage_tool.MECHANICAL.search("It is around 5 cm in length.")
+    assert not coverage_tool.MECHANICAL.search("The ritual takes 20 minutes to prepare.")
+
+
+@needs_pdf
+def test_spirit_vision_chapter_no_longer_reports_itself_complete():
+    """The blind spot moved the denominator, not just the miss count.
+
+    A line the filter cannot see is excluded from BOTH sides of the ratio,
+    and main() reads an empty denominator as "no mechanical lines to claim --
+    chapter is complete". So chapter 7.6 reported 100.0% while being claimed
+    by no content file whatsoever.
+
+    This asserts the REPORTED PERCENTAGE, by running coverage.py and reading
+    its output. Checking only that line 4840 matches the filter and is
+    unclaimed would assert the precondition and not the consequence: an
+    off-by-one in the chapter page range, or the empty-denominator branch
+    firing when it should not, would leave the chapter claiming it is
+    finished with every precondition still true.
+    """
+    import coverage as coverage_tool
+
+    byn = {l["n"]: l["text"] for l in json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
+    activation = byn[4840]
+    assert "1 SPI" in activation, f"line 4840 no longer prices Spirit Vision: {activation!r}"
+    assert coverage_tool.MECHANICAL.search(activation)
+
+    claimed = set()
+    content = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
+    for f in content.rglob("*.json"):
+        data = json.loads(f.read_text(encoding="utf-8"))
+        for spans in (data.get("sourceLines") or {}).values():
+            for a, b in spans:
+                claimed.update(range(a, b + 1))
+    assert 4840 not in claimed, (
+        "Spirit Vision's cost is now claimed by a content file -- good, but "
+        "this test's premise is gone and the chapter's percentage moved"
+    )
+
+    subprocess.run(
+        [sys.executable, str(ROOT / "tools" / "coverage.py")],
+        capture_output=True, text=True,
+    )
+    report = (OUT / "coverage.md").read_text(encoding="utf-8")
+    row = next(
+        (l for l in report.splitlines() if l.startswith("| 7.6 |")),
+        None,
+    )
+    assert row, f"chapter 7.6 is missing from the coverage report:\n{report}"
+    pct = re.search(r"\|\s*([\d.]+)%\s*\|", row)
+    assert pct, f"no percentage in chapter 7.6's row: {row!r}"
+    assert float(pct.group(1)) == 0.0, (
+        "chapter 7.6 is claimed by nothing, so it must report 0.0% and not a "
+        f"completion it never earned: {row!r}"
+    )
