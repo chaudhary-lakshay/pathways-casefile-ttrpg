@@ -63,6 +63,26 @@ import com.pathways.rules.content.SequenceBlock
 private val SEQUENCES = listOf(9, 8, 7, 6)
 
 /**
+ * Exchange two entries, leaving the list alone if either is absent.
+ *
+ * The chooser is otherwise alphabetical, and alphabetical puts "Wheel of
+ * Fortune" before "White Tower" -- an 'e' sorting under an 'i' four letters
+ * in. The owner asked for those two exchanged, so this is a DISPLAY order and
+ * carries no rules meaning: nothing downstream reads the position, and the
+ * pathway a potion belongs to is matched by name.
+ *
+ * Returning the list unchanged when a name is missing matters because the
+ * content file, not this screen, decides which pathways exist -- a renamed row
+ * should reorder nothing rather than throw.
+ */
+private fun List<String>.swapping(a: String, b: String): List<String> {
+    val i = indexOf(a)
+    val j = indexOf(b)
+    if (i < 0 || j < 0) return this
+    return toMutableList().also { it[i] = b; it[j] = a }
+}
+
+/**
  * Pick a pathway and Sequence, and see what drinking that potion does to this
  * character (M3).
  *
@@ -82,7 +102,9 @@ fun PathwayScreen(
     val drunk = session.state
     var pcr by remember { mutableStateOf<PcrOutcome?>(null) }
     val blocks = remember { ContentLoader.pathways() }
-    val pathways = remember(blocks) { blocks.map { it.pathway }.distinct().sorted() }
+    val pathways = remember(blocks) {
+        blocks.map { it.pathway }.distinct().sorted().swapping("Wheel of Fortune", "White Tower")
+    }
     // Opening the screen on the potion already drunk, rather than on the
     // pathway list, is the difference between a browser and a character sheet.
     var pathway by remember(drunk) { mutableStateOf(drunk?.pathway) }
