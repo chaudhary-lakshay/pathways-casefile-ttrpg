@@ -120,6 +120,30 @@ UNPRINTED_TARGETS = {
 # A 4.1 disagreement: recorded here, never resolved by inventing a row.
 ABSENT_FROM_CHAPTER_3 = {"Forced Entry", "Gather Information"}
 
+# Counted from the printed table: 27 general tools, 15 medical, 11 clothing,
+# 24 specialized. Exact rather than a floor -- see verify().
+EXPECTED_ROWS = 77
+
+# Every clause in the table that joins two skills to one bonus, or offers a
+# choice between them. Pinned as a CLOSED set, because "&" and "or" are also
+# ordinary English: splitting on them is safe only while every occurrence is
+# the book's two-skill shorthand. A fourth one is a sentence a human must
+# read before the splitter is allowed to have it.
+# Two of them join, one offers a choice, and the fourth is PROSE that the
+# condition-trim disarms before the splitter sees it -- which is the whole
+# reason trimming happens first. This set was hand-written with three
+# members and the guard found the fourth on its first run.
+JOINED_CLAUSES = {
+    # Genuine: one bonus, two skills.
+    "Field hospital; +2 to First Aid & Surgery; 50 doses",
+    "Spiritual focus; +1 to Ritualistic Magic & Religious Ritual",
+    # Genuine: a choice between two.
+    "Fortune-telling prop; +1 to Fortune-Telling or Psychology",
+    # Prose. "burns & rashes" is the condition, cut at " on " before any
+    # split, so this resolves to First Aid alone and must stay that way.
+    "+1 to First Aid on burns & rashes",
+}
+
 # Rows whose join is pinned, because each one is a different way the matcher
 # could go wrong. Values are (name, specialization) pairs.
 PINNED_JOINS = {
@@ -252,8 +276,16 @@ def parse(tagged, index):
 
 
 def verify(rows, index):
-    if len(rows) < 60:
-        raise ValueError(f"only {len(rows)} equipment rows; the table shrank")
+    # EXACT, not a floor. A lower bound cannot see the failure that matters:
+    # a note cell whose text happens to fullmatch a price form would be read
+    # as a new row's cost, stealing the rest of the real row's note and
+    # fabricating a row whose "name" is that note's last cell. That ADDS a
+    # row, so only an exact count catches it.
+    if len(rows) != EXPECTED_ROWS:
+        raise ValueError(
+            f"the equipment table is {len(rows)} rows and was {EXPECTED_ROWS}. "
+            "Either the book changed, or a note cell was read as a price"
+        )
 
     for row in rows:
         for column in ("name", "cost", "notes"):
@@ -275,6 +307,21 @@ def verify(rows, index):
                 f"{name!r} now joins {got} and used to join {expected}. That is "
                 "a change in the book or in the matcher, and either is a finding"
             )
+
+    # The splitter is only safe while every "&"/"or" is the book's two-skill
+    # shorthand rather than prose. If a new clause joins with either word, a
+    # half of it could resolve to a real skill the sentence never meant.
+    joined_clauses = {
+        r["notes"] for r in rows
+        if any(j in r["notes"] for j in TARGET_JOINERS) and r["skills"]
+    }
+    if joined_clauses != JOINED_CLAUSES:
+        raise ValueError(
+            "the set of clauses joining two skills changed; read the new one "
+            "before trusting the split.\n"
+            f"  now: {sorted(joined_clauses)}\n"
+            f"  was: {sorted(JOINED_CLAUSES)}"
+        )
 
     # No target the book prices without printing may be guessed into a skill.
     joined = {s["name"] for r in rows for s in r["skills"]}

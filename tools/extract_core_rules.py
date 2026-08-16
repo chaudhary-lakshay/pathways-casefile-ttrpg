@@ -331,10 +331,13 @@ def secondaries(byn):
         and text not in SECONDARY_HEADERS
         and not text.startswith(SECONDARY_INTRO)
     ]
-    if len(cells) % 3:
+    # EXACT, not a modulo. `% 3` is blind to three cells wrapping at once,
+    # which realigns the stream and shifts every row after it; only the
+    # closed name vocabulary below would catch that, and only by luck.
+    if len(cells) != len(SECONDARY_KEYS) * 3:
         raise ValueError(
-            f"the secondary table is {len(cells)} cells, not a multiple of "
-            "three; a row wrapped or a column moved"
+            f"the secondary table is {len(cells)} cells and should be "
+            f"{len(SECONDARY_KEYS) * 3}; a cell wrapped or a column moved"
         )
 
     rows = []
