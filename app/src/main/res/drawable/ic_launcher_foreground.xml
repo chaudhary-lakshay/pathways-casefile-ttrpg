@@ -1,32 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The launcher icon's foreground: the Fool pathway's sigil.
+  The launcher icon's foreground: the Fool in his chibi form, supplied by the
+  repository's owner.
 
-  Two hand-drawn versions came before this and both looked like clipart. The
-  first stacked an eye on a rounded-square die - too many marks for 48dp, and
-  the die's corner arcs rendered malformed on device. The second dropped the
-  die and kept the eye, which was cleaner and still generic: thin strokes, three
-  nested circles and six rays, all of which turn to mush at launcher size.
+  Three versions came before this one. Two were hand-drawn and looked like
+  clipart - an eye on a rounded-square die, then the eye alone - and the third
+  was the Fool's formal sigil, which was a real improvement but still a crest
+  among a drawer full of crests. This has a SILHOUETTE: a top hat and two round
+  eyes on a black mass, readable at 48dp with the screen at arm's length, which
+  is the only test a launcher icon has to pass.
 
-  The lesson is about ICONS rather than about this icon. A launcher mark is
-  read at 48dp, so it survives on silhouette and contrast, not on detail; and
-  original geometry is only worth drawing when there is nothing better to point
-  at. Here there is. The Fool is the setting's first pathway and its emblem is
-  already in this app, drawn by people who draw for a living.
+  **How the file was made**, because it is not the source image. The supplied
+  art is black ink on white paper, and a launcher foreground needs alpha, not
+  paper. Alpha here is the INVERSE of the source's luminance, so the paper drops
+  out and - the useful part - the artwork's own white line-work becomes holes
+  that the tile's background shows through. The eyes, the spirals and the little
+  speech bubble are not drawn; they are the background seen through the ink.
+  That is why the background is parchment rather than the app's aubergine: on a
+  dark tile the holes would vanish and the whole thing would be a black blob.
 
-  The licence is the one recorded in PathwayArt - the publisher's artwork, kept
-  under an exception the repository's owner took deliberately. This puts it on
-  the home screen, which is a more prominent use than the pathway chooser, and
-  is noted here so that decision stays visible rather than drifting.
+  Cropped to the ink's bounding box, padded 12%, squared to 432px.
 
-  Inset 12dp a side rather than the 18dp that would put the DRAWABLE exactly on
-  the 72dp safe zone. The sigil carries its own transparent margin, so its
-  visible mark sits well inside its bounds; measuring the safe zone against the
-  file rather than against the ink left the crown small in the tile.
+  Licence: the same position recorded in PathwayArt. This is fan art of a
+  copyrighted setting, used at the owner's decision for a personal
+  non-commercial project, and noted here so the choice stays visible.
 -->
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/pathway_fool"
-    android:insetLeft="12dp"
-    android:insetTop="12dp"
-    android:insetRight="12dp"
-    android:insetBottom="12dp" />
+    android:drawable="@drawable/ic_launcher_art"
+    android:insetLeft="14dp"
+    android:insetTop="14dp"
+    android:insetRight="14dp"
+    android:insetBottom="14dp" />
