@@ -8,6 +8,10 @@ activityCompose = "1.13.0"
 
 [libraries]
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+# TEST ONLY. ThemeSchemesTest sweeps every Color property on ColorScheme by
+# reflection rather than listing role names, because the defect it guards is
+# "a role nobody remembered", which a hand-written list cannot see.
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }

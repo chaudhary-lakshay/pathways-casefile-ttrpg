@@ -21,49 +21,97 @@ import org.junit.jupiter.api.TestFactory
 class ThemeSchemesTest {
 
     /**
-     * The roles the previous hand-written palette never set.
+     * Every `Color` role `ColorScheme` exposes, found by reflection.
      *
-     * This is the defect the generator exists to close, so it is pinned by
-     * name. `darkColorScheme()` and `lightColorScheme()` default each of these
-     * to a BASELINE Material token -- the stock purple-tinted neutrals -- and
-     * the old `Theme.kt` accepted every one of those defaults. A preset that
-     * matches the baseline here has stopped generating that role.
+     * Reflection rather than a list of names, because the defect class is not
+     * "these 14 roles". It is "any role missing from the generator's ROLES list
+     * silently falls back to a baseline token" -- so a hand-written list of the
+     * roles that were missing LAST time cannot see the next one. If Material
+     * adds a role, or someone trims ROLES, this sweep notices and a name list
+     * would not.
      */
-    private val previouslyUnset: List<Pair<String, (ColorScheme) -> Color>> = listOf(
-        "surfaceBright" to { s: ColorScheme -> s.surfaceBright },
-        "surfaceDim" to { s: ColorScheme -> s.surfaceDim },
-        "primaryFixed" to { s: ColorScheme -> s.primaryFixed },
-        "primaryFixedDim" to { s: ColorScheme -> s.primaryFixedDim },
-        "onPrimaryFixed" to { s: ColorScheme -> s.onPrimaryFixed },
-        "onPrimaryFixedVariant" to { s: ColorScheme -> s.onPrimaryFixedVariant },
-        "secondaryFixed" to { s: ColorScheme -> s.secondaryFixed },
-        "secondaryFixedDim" to { s: ColorScheme -> s.secondaryFixedDim },
-        "onSecondaryFixed" to { s: ColorScheme -> s.onSecondaryFixed },
-        "onSecondaryFixedVariant" to { s: ColorScheme -> s.onSecondaryFixedVariant },
-        "tertiaryFixed" to { s: ColorScheme -> s.tertiaryFixed },
-        "tertiaryFixedDim" to { s: ColorScheme -> s.tertiaryFixedDim },
-        "onTertiaryFixed" to { s: ColorScheme -> s.onTertiaryFixed },
-        "onTertiaryFixedVariant" to { s: ColorScheme -> s.onTertiaryFixedVariant },
-    )
+    private val roleReaders: List<Pair<String, (ColorScheme) -> Color>> =
+        ColorScheme::class.members
+            .filterIsInstance<kotlin.reflect.KProperty1<ColorScheme, *>>()
+            .filter { it.returnType.classifier == Color::class }
+            .sortedBy { it.name }
+            .map { prop -> prop.name to { s: ColorScheme -> prop.get(s) as Color } }
+
+    /**
+     * A role whose value is an ENDPOINT of the tonal ramp -- pure white or pure
+     * black -- carries no evidence either way.
+     *
+     * Tone 100 is white and tone 0 is black in every Material scheme that has
+     * ever been generated, so a preset agreeing with the baseline there is
+     * agreement, not a fallback. Measured: `onPrimary`, `onSecondary`,
+     * `onTertiary`, `onError` and `surfaceContainerLowest` all come out
+     * #FFFFFF in the light Rainbow presets. The TonalSpot ones do not -- theirs
+     * are tinted (#FFF8EF) -- which is what confirms this is about the ramp and
+     * not about a role going missing.
+     *
+     * **Stated limitation.** This means the sweep cannot tell agreement from
+     * absence at the endpoints: a role dropped from the generator's ROLES list
+     * whose baseline happens to be white would pass. `endpointsStayRare` is the
+     * backstop -- if a generator bug flattened a scheme, the count would jump
+     * and that test fails even though each individual role is excused.
+     */
+    private fun isRampEndpoint(c: Color): Boolean = c == Color.White || c == Color.Black
+
+    /** `scrim` is black by definition in every scheme, in both modes. */
+    private val mayMatchBaseline = setOf("scrim")
+
+    @Test
+    fun `the reflective sweep actually finds the roles`() {
+        // A sweep that silently found nothing would make every assertion below
+        // vacuous, and it would still report green.
+        assertTrue(
+            roleReaders.size >= 45,
+            "only ${roleReaders.size} Color roles found on ColorScheme; the reflection broke",
+        )
+    }
 
     @TestFactory
-    fun `no preset leaves a role at Materials baseline token`(): List<DynamicTest> {
+    fun `no preset leaves any role at Materials baseline token`(): List<DynamicTest> {
         val baselineDark = darkColorScheme()
         val baselineLight = lightColorScheme()
         return ThemeSeed.entries.flatMap { seed ->
             listOf("dark" to (seed.dark to baselineDark), "light" to (seed.light to baselineLight))
                 .flatMap { (mode, pair) ->
                     val (scheme, baseline) = pair
-                    previouslyUnset.map { (role, read) ->
-                        DynamicTest.dynamicTest("${seed.name} $mode $role") {
-                            assertNotEquals(
-                                read(baseline), read(scheme),
-                                "$role still resolves to Material's baseline token, which is " +
-                                    "the purple-tinted neutral this generator exists to replace",
-                            )
+                    roleReaders
+                        .filterNot { (role, _) -> role in mayMatchBaseline }
+                        .filterNot { (_, read) -> isRampEndpoint(read(scheme)) }
+                        .map { (role, read) ->
+                            DynamicTest.dynamicTest("${seed.name} $mode $role") {
+                                assertNotEquals(
+                                    read(baseline), read(scheme),
+                                    "$role resolves to Material's baseline token. Either the " +
+                                        "generator stopped emitting it, or ColorScheme grew a " +
+                                        "role that tools/gen_theme.py's ROLES list does not know",
+                                )
+                            }
                         }
-                    }
                 }
+        }
+    }
+
+    @Test
+    fun `endpointsStayRare`() {
+        // The backstop for the exclusion above. Excusing white and black is
+        // safe only while few roles ARE white or black; a generator bug that
+        // flattened a scheme would excuse itself into a green run otherwise.
+        // Measured at the time of writing: 5 in the light Rainbow presets,
+        // 1 (scrim) elsewhere.
+        for (seed in ThemeSeed.entries) {
+            for ((mode, scheme) in listOf("dark" to seed.dark, "light" to seed.light)) {
+                val endpoints = roleReaders.count { (_, read) -> isRampEndpoint(read(scheme)) }
+                assertTrue(
+                    endpoints <= 8,
+                    "$endpoints roles are pure white or black in ${seed.name} $mode; the " +
+                        "baseline-token sweep excuses all of them, so this scheme is barely " +
+                        "being checked. Expected at most 8.",
+                )
+            }
         }
     }
 

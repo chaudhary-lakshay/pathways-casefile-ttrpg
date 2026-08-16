@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -271,21 +272,31 @@ private fun PremadeRow(sheet: PremadeSheet, onClick: () -> Unit) {
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            // Small, and tinted by what the character IS. Arcane for a
-            // Beyonder, neutral for everyone else: the one thing colour is
-            // spent on here is the one distinction that changes what the app
+            // Small, and marked by what the character IS. The one thing colour
+            // is spent on here is the one distinction that changes what the app
             // can do with the character.
+            //
+            // The mark is a BORDER and the initials, both in bare `secondary`,
+            // rather than a filled `secondaryContainer`. Material spends
+            // `secondaryContainer` on selected chrome -- every FilterChip and
+            // NavigationBarItem in this app, 79 of them -- so a filled swatch
+            // here read as "this row is selected" rather than "this person is a
+            // Beyonder, and under a rotated preset it sat next to an identical
+            // pill in the nav bar. Bare `secondary` is the accent chrome never
+            // touches, which is why the other three Beyonder cues (the label,
+            // the SPI value, ActionGroup's tint) already use it.
             Surface(
                 shape = MaterialTheme.shapes.small,
-                color = if (beyonder) {
-                    MaterialTheme.colorScheme.secondaryContainer
-                } else {
-                    MaterialTheme.colorScheme.surfaceContainerHighest
-                },
+                color = MaterialTheme.colorScheme.surfaceContainerHighest,
                 contentColor = if (beyonder) {
-                    MaterialTheme.colorScheme.onSecondaryContainer
+                    MaterialTheme.colorScheme.secondary
                 } else {
                     MaterialTheme.colorScheme.onSurfaceVariant
+                },
+                border = if (beyonder) {
+                    BorderStroke(1.dp, MaterialTheme.colorScheme.secondary)
+                } else {
+                    null
                 },
                 modifier = Modifier.size(40.dp),
             ) {
