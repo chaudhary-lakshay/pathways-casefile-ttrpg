@@ -14,6 +14,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,6 +24,8 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -34,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attr
@@ -62,10 +68,13 @@ import com.pathways.rules.PremadeSheet
  */
 
 /** The filter across the top. `TEMPLATE` is not a person; see [isTemplate]. */
-private enum class Roster(val label: String) {
-    ALL("All"),
-    MORTAL("Mortal"),
-    BEYONDER("Beyonders"),
+private enum class Roster(val label: String, val icon: ImageVector) {
+    ALL("All", Icons.Filled.Groups),
+    MORTAL("Mortal", Icons.Filled.Person),
+    // An eye: what a Beyonder has that a mortal does not is Spirit Vision, and
+    // the sheet's own Divine action already carries this icon for the same
+    // idea.
+    BEYONDER("Beyonders", Icons.Filled.Visibility),
 }
 
 /**
@@ -168,28 +177,20 @@ fun PremadeGallery(sheets: List<PremadeSheet>, onSelect: (PremadeSheet) -> Unit)
                         titleContentColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
-                // Tabs rather than filter chips: a chip reads as an optional
-                // narrowing of one long list, and a tab says the roster IS
-                // divided. With 19 mortals and 4 Beyonders that is the true
-                // shape, and it cuts the longest list a player scrolls.
-                TabRow(
-                    selectedTabIndex = roster.ordinal,
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ) {
-                    for (option in Roster.entries) {
-                        Tab(
-                            selected = roster == option,
-                            onClick = { roster = option },
-                            text = {
-                                Text("${option.label} (${countIn(option, people)})")
-                            },
-                            // See the sheet screen's TabRow: M3 defaults every
-                            // label to the row's content colour, so all three
-                            // render brass without this.
-                            selectedContentColor = MaterialTheme.colorScheme.primary,
-                            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+            }
+        },
+        bottomBar = {
+            // A footer, matching the sheet screen. The counts stay on the
+            // labels: a destination reading "Beyonders (4)" says how much list
+            // is behind it before a tap finds out.
+            NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
+                for (option in Roster.entries) {
+                    NavigationBarItem(
+                        selected = roster == option,
+                        onClick = { roster = option },
+                        icon = { Icon(option.icon, contentDescription = null) },
+                        label = { Text("${option.label} (${countIn(option, people)})") },
+                    )
                 }
             }
         },

@@ -28,6 +28,8 @@ import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.CenterFocusStrong
+import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Church
 import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material.icons.filled.Lock
@@ -44,6 +46,8 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -65,6 +69,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attr
@@ -410,6 +415,22 @@ fun SheetScreen(
                 ),
             )
         },
+        bottomBar = {
+            // A footer, not a tab row. Three destinations with icons, at the
+            // bottom where a thumb reaches without crossing the screen -- the
+            // tab row sat under the top bar, which is the furthest point from
+            // where the hand holds a phone.
+            NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
+                for (option in SheetTab.entries) {
+                    NavigationBarItem(
+                        selected = tab == option,
+                        onClick = { tab = option },
+                        icon = { Icon(option.icon, contentDescription = null) },
+                        label = { Text(option.label) },
+                    )
+                }
+            }
+        },
     ) { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
             item {
@@ -516,31 +537,6 @@ fun SheetScreen(
                     }
                 }
                 HorizontalDivider()
-            }
-
-            // The status line, the primary button and the action hub stay ABOVE
-            // this: they are the same whichever third of the sheet is showing,
-            // and a tab that hides the Attack button would trade one scroll for
-            // one hunt.
-            stickyHeader {
-                TabRow(
-                    selectedTabIndex = tab.ordinal,
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ) {
-                    for (option in SheetTab.entries) {
-                        Tab(
-                            selected = tab == option,
-                            onClick = { tab = option },
-                            text = { Text(option.label) },
-                            // M3 paints every tab label with the row's content
-                            // colour, which defaults to primary -- so all three
-                            // read as brass and only the underline said which
-                            // was live. The unselected ones are muted now.
-                            selectedContentColor = MaterialTheme.colorScheme.primary,
-                            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
             }
 
             if (tab == SheetTab.VITALS) {
@@ -1506,10 +1502,12 @@ private data class RollableSkill(val label: String, val base: Int, val key: Skil
  * do, what is written against you -- but the DEFAULT is [SKILLS], because a
  * roll is why the screen gets opened at a table.
  */
-enum class SheetTab(val label: String) {
-    VITALS("Vitals"),
-    SKILLS("Skills"),
-    TRAITS("Traits"),
+enum class SheetTab(val label: String, val icon: ImageVector) {
+    VITALS("Vitals", Icons.Filled.MonitorHeart),
+    // The same die that sits on every Roll button in the list behind it, so
+    // the destination and the thing it contains are marked the same way.
+    SKILLS("Skills", Icons.Filled.Casino),
+    TRAITS("Traits", Icons.Filled.Fingerprint),
 }
 
 /**
