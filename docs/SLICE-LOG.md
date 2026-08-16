@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6cy. **Position in this file does not tell you a slice's age** —
+Sections 6a-6cz. **Position in this file does not tell you a slice's age** —
 the order is not uniform (6a onward run oldest-first, one cluster near 6ca is
 scrambled, and the most recent block runs newest-first, so the newest slice is
 neither at the top nor at the bottom). Locate one by name with
@@ -6726,6 +6726,88 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6cz. What the free panel's silence was hiding
+
+6cx and 6cy both shipped recording the same gap: Codex is out, the free panel
+answered with empty bodies, so neither diff got an independent review. The
+owner's instruction was one line — use the ECC reviewer instead of the free one
+— and it is the documented Codex-exhausted fallback that both slices had walked
+straight past. **It returned BLOCK on two HIGHs and a MEDIUM.**
+
+**The lesson is about what a self-check cannot reach.** 6cx's design review was
+thorough and correct, and it argued entirely about whether the feature should
+exist: ownership, stacking, direction. Nobody asked the smaller question of what
+`forSkill` does when the key carries a specialization. A reviewer with no stake
+in the design argument asked it first.
+
+### The defect: strict identity hid gear from the one character who wanted it
+
+`Equipment.forSkill` matched name AND specialization exactly. The catalogue
+draws a distinction the matcher did not:
+
+| Skill | `specializable` | Rows printed | Meaning |
+|---|---|---|---|
+| `Navigation` | false | 3 (bare, Sea, Land) | Different skills. Strict match is right — the compass names Land. |
+| `Survival` | true | 1, "specify terrain" | `Survival (Woodlands)` is an INSTANCE. A bare bonus reaches it. |
+
+`fixtures/hunter_tracker.json:85` buys `Survival (Woodlands)`, and the bedroll
+prints a bare "+1 to Survival when rested". So **the one character in the corpus
+who would use the bedroll was the one who could not see it** — the false-negation
+failure 6cx's own design review had named in the abstract, shipped in the
+concrete.
+
+The fix asks the catalogue rather than hardcoding a list: a bare clause reaches
+any instance of a `specializable` row, and a clause naming a specialization
+still matches only that one. Blast radius measured before writing it —
+`Survival` is the only bare-named gear skill that is `specializable`, and the
+other 23 keep strict matching.
+
+**The reviewer was right about the defect and wrong about its reach**, and the
+difference mattered: it rated the finding latent, "not reachable through today's
+23 fixtures", having grepped and found no specialized Survival. One parse of the
+fixtures finds it. A reviewer's reachability claim is a claim about the data and
+gets checked like any other (6au, 6av, 6bv) — checking it moved the finding from
+latent to live.
+
+### Two vacuous assertions, in a test file written to prevent vacuity
+
+Both in 6cy's own `SecondaryCostPinTest`, which exists to stop a value drifting
+unnoticed:
+
+- **`the derivations agree with the printed column` never called the engine.**
+  It compared a JSON string to a literal in the test. Deriving HP from DX would
+  have left it green. It now asks `SecondaryCharacteristics.of` with four
+  distinct attribute values, so no two derivations can agree by coincidence.
+- **`step == null || step == "level"`** was satisfied by all five rows
+  regressing to `null` — exactly the corruption the comment above it warns
+  about. Now an equality over the five priced rows.
+
+That is the third vacuity in two slices, after 6cy's unreachable guard. The
+pattern across all three: **the assertion was written from the shape of the DATA
+rather than from the shape of the FAILURE.** "null or level" describes what the
+field currently holds; "level" describes what would be wrong.
+
+### Notes
+
+- All three fixes are RED-proved: reverting the matcher fails the new Survival
+  test, deriving HP from DX fails the derivation test, nulling the steps fails
+  the unit test.
+- The reviewer's third question (Android runtime deserialization) found nothing,
+  and its reasoning is worth keeping: `core:rules` is a plain JVM module, the
+  loader is the same `getResourceAsStream` path as 76 other files, and the JVM
+  tests already decode the same bytes. It named one PRE-EXISTING repo-wide risk
+  — no visible R8/ProGuard keep rules for `kotlinx.serialization` generated
+  serializers — true of every content file and not this diff's.
+- 1599 Kotlin tests (was 1597), 285 Python, all green.
+
+### What is next
+
+Nothing named. But the honest read of this slice is a process finding rather
+than a code one: **two slices in a row recorded "no review available" and
+shipped, when a documented fallback existed and took six minutes.** An
+unavailable gate is a reason to reach for the next gate, not a reason to record
+its absence and carry on.
+
 ## 6cy. Two things wearing the same words
 
 6cx closed naming nothing, so this slice began with a sweep and ended by
@@ -6823,10 +6905,10 @@ the feature.
 
 ### Notes
 
-- The diff review was attempted twice through the free panel. Both runs
-  **exited 0 with empty response bodies** — sixteen minutes and nine minutes.
-  Two independent no-answers, so the gate is genuinely unavailable rather than
-  slow, and Codex is out until 2026-08-20 14:23. Self-checked, and recorded.
+- The diff review was attempted twice through the free panel; both runs
+  exited 0 with empty response bodies. **`ecc:kotlin-reviewer` then reviewed
+  this slice together with 6cx and returned BLOCK on two HIGHs** — one of them
+  in this slice's own new test file. Recorded in 6cz.
 - 1597 Kotlin tests (was 1592) and 285 Python (was 278), all green.
 - Regenerating `secondary_costs.json` after the mutation produced a
   byte-identical file, which is the cheap check that the RED-proof left
@@ -6996,15 +7078,16 @@ would otherwise be 6cf's loader with no caller.
   total.** All 19 fall in the four refused tables — currency 6, armour 2,
   licences 2, hired allies 9 — and **nothing inside the claimed span
   5062-5310 is unclaimed**, so the parser skipped no row of its own table.
-- **Which gate ran:** the DECOMPOSITION got a full design review before any
-  code, and it returned NO-SHIP on three counts, which is what reshaped the
-  slice. The DIFF did not get an independent review: Codex is out until
-  2026-08-20 14:23, and the free-model panel ran for sixteen minutes and
-  **exited 0 with two empty response bodies** — a silent no-answer, not a
-  refusal and not a clean bill. The diff was self-checked instead, and the
-  gap is recorded rather than absorbed (6ck, 6ci). An exit code of 0 from a
-  reviewer that printed nothing is 6ba's lesson about instruments: the run
-  succeeded and the review did not happen.
+- **Which gate ran, corrected after the fact:** the DECOMPOSITION got a full
+  design review before any code, and it returned NO-SHIP on three counts,
+  which reshaped the slice. The diff review was attempted through the free
+  panel, which ran sixteen minutes and **exited 0 with two empty response
+  bodies** — a silent no-answer, and 6ba's lesson about instruments: the run
+  succeeded and the review did not happen. This note originally stopped there,
+  recording the diff as self-checked. **The owner then asked for
+  `ecc:kotlin-reviewer`, the documented Codex-exhausted fallback, and it
+  returned BLOCK.** It found a real defect in `forSkill` that neither the
+  design review nor the self-check reached. See 6cz.
 - The opencode round-trip produced 13k tokens of (correct) analysis and wrote
   no file. The built-in editor was the fallback, per the documented rule.
 - 1592 Kotlin tests (was 1581) and 278 Python (was 268), all green, counted
