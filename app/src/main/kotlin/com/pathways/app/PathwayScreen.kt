@@ -1,11 +1,13 @@
 package com.pathways.app
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -33,6 +35,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -156,14 +161,63 @@ fun PathwayScreen(
                         ),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text(
-                            "$name Pathway",
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            // The card this pathway IS. See PathwayArt for the
+                            // provenance and for which half of the mapping is
+                            // a reading rather than canon.
+                            val art = pathwayArt(name)
+                            if (art != null) {
+                                Image(
+                                    painter = painterResource(art),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .padding(10.dp)
+                                        .size(width = 52.dp, height = 84.dp)
+                                        .clip(MaterialTheme.shapes.extraSmall),
+                                )
+                            }
+                            Text(
+                                "$name Pathway",
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 14.dp),
+                            )
+                        }
                     }
                 }
             } else {
+                // The chosen pathway's card, large, beside its own Sequences.
+                // A player walking a pathway looks at this screen more than any
+                // other, and it had nothing on it to say WHICH pathway except a
+                // line of text.
+                item {
+                    val art = pathwayArt(block.pathway)
+                    if (art != null) {
+                        Row(
+                            Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Image(
+                                painter = painterResource(art),
+                                contentDescription = "${block.pathway} Pathway",
+                                modifier = Modifier
+                                    .size(width = 108.dp, height = 178.dp)
+                                    .clip(MaterialTheme.shapes.small),
+                            )
+                            Column(Modifier.padding(start = 14.dp)) {
+                                Text(
+                                    "${block.pathway} Pathway",
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
+                                Text(
+                                    "Sequence ${block.sequence}: ${block.name}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
                 item {
                     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
                         SEQUENCES.forEach { n ->
