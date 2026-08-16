@@ -3,6 +3,7 @@ package com.pathways.app
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -19,6 +22,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -127,13 +131,15 @@ fun PathwayScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier.semantics {
-                            contentDescription = "Back to sheet"
-                        },
-                    ) {
-                        Text("←", style = MaterialTheme.typography.titleLarge)
+                    IconButton(onClick = onBack) {
+                        // A real icon. This was a "←" glyph in a Text, from
+                        // before material-icons-extended was on the classpath;
+                        // the reason expired the moment the action hub needed
+                        // twelve icons and the dependency landed.
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back to sheet",
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -149,39 +155,23 @@ fun PathwayScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             if (block == null || digested == null) {
-                // Cards, matching the gallery. This was the same bare
-                // Text-with-a-divider list the character list used to be, and
-                // 22 pathways have the same "which of these am I picking"
-                // problem that 23 characters had.
-                items(pathways) { name ->
-                    Card(
-                        onClick = { pathway = name },
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                        ),
-                        modifier = Modifier.fillMaxWidth(),
+                // A GRID, not rows, and the reasoning is the opposite of the
+                // character gallery's on purpose. A character row earns its
+                // full width because it carries five stats and two traits; a
+                // pathway carries a name and a sigil, so a full-width row is
+                // nine-tenths empty. The sigil is also the identifier here --
+                // each pathway has its own colour, so a grid is scannable
+                // before a word is read. Three columns puts all 22 in three
+                // screens instead of eight.
+                item {
+                    FlowRow(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        maxItemsInEachRow = 3,
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            // The card this pathway IS. See PathwayArt for the
-                            // provenance and for which half of the mapping is
-                            // a reading rather than canon.
-                            val art = pathwayArt(name)
-                            if (art != null) {
-                                // Square and uncropped: a sigil is a whole
-                                // shape, and cropping one to a card's
-                                // proportions cuts its own outline off.
-                                Image(
-                                    painter = painterResource(art),
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Fit,
-                                    modifier = Modifier.padding(10.dp).size(56.dp),
-                                )
-                            }
-                            Text(
-                                "$name Pathway",
-                                style = MaterialTheme.typography.titleSmall,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 14.dp),
-                            )
+                        for (name in pathways) {
+                            PathwayTile(name, Modifier.weight(1f)) { pathway = name }
                         }
                     }
                 }
@@ -279,6 +269,49 @@ fun PathwayScreen(
     }
 
     pcr?.let { PcrDialog(it, session.corrupted) { pcr = null } }
+}
+
+/**
+ * One pathway in the chooser: its sigil, then its name.
+ *
+ * The sigil is given the room because it is what tells 22 pathways apart at a
+ * glance -- each carries its own colour, where the names are all one word in
+ * one typeface. The name still shows, because a symbol nobody has learnt yet
+ * identifies nothing on a first visit.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PathwayTile(name: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        ),
+        modifier = modifier,
+    ) {
+        Column(
+            Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            val art = pathwayArt(name)
+            if (art != null) {
+                Image(
+                    painter = painterResource(art),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.size(64.dp),
+                )
+            }
+            Text(
+                name,
+                style = MaterialTheme.typography.labelLarge,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+        }
+    }
 }
 
 /**

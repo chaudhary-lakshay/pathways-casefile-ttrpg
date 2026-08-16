@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Calculate
@@ -393,16 +394,11 @@ fun SheetScreen(
                     )
                 },
                 navigationIcon = {
-                    // ponytail: a text arrow, not an icon. material-icons is
-                    // not on the classpath and one glyph does not justify
-                    // adding it. The description is what TalkBack reads.
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier.semantics {
-                            contentDescription = "Back to characters"
-                        },
-                    ) {
-                        Text("←", style = MaterialTheme.typography.titleLarge)
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back to characters",
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
