@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6da. **Position in this file does not tell you a slice's age** —
+Sections 6a-6db. **Position in this file does not tell you a slice's age** —
 the order is not uniform (6a onward run oldest-first, one cluster near 6ca is
 scrambled, and the most recent block runs newest-first, so the newest slice is
 neither at the top nor at the bottom). Locate one by name with
@@ -6725,6 +6725,185 @@ green suite is mine.
 **The next slice is still 6bw's `Ether Body Damage`, which needs purchasable
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
+
+## 6db. A chapter reported 100% because the filter could not see it
+
+The sweep that started this was the cheapest one available: `tools/coverage.py`
+lists **chapter 7.5, Summoning Spiritual Creatures, pages 75-76, at 0.0%** — a
+whole chapter nobody had read. It is two pages, so reading it costs nothing.
+
+**It carried a recorded exclusion, and the exclusion had two halves that age
+differently.** From an M3-era slice:
+
+> Summoning (Ch. 7.5) was read and deliberately left unmodelled. It says "the
+> GM must roll an additional 3d for the creature's response" and prints no
+> response table; the creature's abilities, cost and attributes are a format
+> for the GM to fill in. **Coverage agrees: one mechanical line in two pages.**
+
+Run as a query rather than inherited, the **verdict survives and the evidence
+expired**. The chapter really does print no response table — only a direction
+("the better the response, the higher the chance they will peacefully arrive")
+— and the Bookworm's abilities, contract cost and attributes are explicitly
+"determined by the GM". Nothing to extract, still. But the last sentence is a
+claim about an *instrument*, and the instrument was wrong. It is four
+mechanical lines in two pages, not one.
+
+**What the filter could not see is a cost that is not signed.** `MECHANICAL`
+matched a die expression, a signed modifier, `N pts`, or an attribute offset.
+Chapter 7.5 prices its example creature like this:
+
+```
+ Attributes: 4 HP
+ Ability - Book Reading (1 SPI): The Bookworm can read through a novel-length
+ Ability - Knowledge Transmission (1 SPI): By the contractor's request, ...
+```
+
+A bare integer followed by a pool. The filter **already admitted exactly that
+shape** — `\d+\s*pts?\b` is a bare integer followed by the unit a rule reads —
+and admitted no other unit, so every price this book quotes in SPI, HP, FP,
+CoR or DR read as flavour prose. The widening is that same condition applied to
+the rest of the pools, drawn from the filter's own definition rather than from
+the lines I happened to find. The unit must follow the number, which is what
+still keeps prose out: "around 5 cm in length" names no pool. There are no case
+variants to worry about — the book never writes "Cor" or "hp".
+
+**The important half is that the blind spot moved the DENOMINATOR.** A line the
+filter cannot see is excluded from both sides of the ratio, and `main()` reads
+an empty denominator as `pct = 100.0  # No mechanical lines to claim — chapter
+is "complete"`. So invisibility rendered as completion, which is the worst
+direction for an instrument whose only job is to report absence.
+
+**Chapter 7.6, Spirit Vision Guide, is claimed by NO content file at all and
+was reporting 100.0%.** Not "mostly done" — nothing in
+`core/rules/src/main/resources/content/` names chapter `7.6` in its
+`sourceLines`, and the chapter's mechanics are priced as "Activate by expending
+1 SPI (1 SPI per minute to maintain)", so its mechanical-line count was zero
+and the completion branch fired. It now reads **0.0%**, which is what it always
+was.
+
+**This was not a number nobody consulted.** 6cw's census — the one that found
+chapter 8's equipment catalogue — opens "every chapter is at or near 100%
+except four" and tabulates those four. 7.6 is not among them, and could not
+have been: the instrument reported it complete. **An unread chapter was
+filtered out of the sweep whose whole purpose is finding unread chapters.**
+6cw's table stays as written; it was true of the instrument that produced it.
+
+Census at the change: **286 lines book-wide became visible, 33 of them
+unclaimed** (2144 -> 2430 matching lines). Six chapters moved:
+
+| Ch | Before | After | |
+|---|---|---|---|
+| 7.6 Spirit Vision Guide | 100.0% | **0.0%** | claimed by nothing |
+| 4 Spirituality | 100.0% | 66.7% | |
+| 5 Combat | 80.8% | 73.9% | unclaimed 25 -> 40 |
+| 6.5 Divination Arts | 89.3% | 81.2% | unclaimed 6 -> 13 |
+| 7 Ritualistic Magic | 84.2% | 84.0% | unclaimed 25 -> 29 |
+| 6 The Beyonder System | 85.4% | 89.7% | rose: newly visible, already claimed |
+| 9 Sequence 9 Potion Effects | 94.8% | 95.1% | rose, same reason |
+
+Two chapters going UP is the check that the widening is not simply pessimism:
+where the newly visible lines were already claimed, the ratio improves.
+
+**Every percentage recorded in this log before today was measured under the
+narrower filter and is not comparable with one measured after it.** That
+includes this session's own "chapter 8: 21.2% -> 81.7%" and "chapter 2: 30.8%
+-> 76.9%". They are not retro-edited — they were true of the instrument that
+produced them — but they must not be compared across the change.
+
+**This does not touch what 4.6 pins.** That rule fixes the global line
+numbering and the comparison of line *sets* rather than counts. `MECHANICAL`
+is neither, and the docstring now says so where a reviewer will look.
+
+### Checked rather than assumed
+
+- **`4271` is not a defect.** "The caster burns HP in addition to or instead of
+  SPI. Every 2 HP spent counts as 1 SPI toward the ritual cost" is an unclaimed
+  line, and the obvious reading is a printed conversion nothing implements.
+  `PowerSources.HP_PER_SPI = 2` implements it and quotes that exact sentence.
+  So it is an unclaimed line for an *implemented* rule — an extractor gap, not
+  a missing feature, and the difference decided whether this slice was one
+  commit or two. `burned` elsewhere in the API is a red herring: in
+  `Divination.spiFor` and `RitualResolution.spiFor` it means SPI spent to push
+  a roll, not HP burned.
+
+- **The RED proof failed silently the first time.** My mutation used a
+  `str.replace` whose pattern did not match, so it rewrote nothing, printed
+  `narrowed`, and both tests passed — which reads exactly like a test that
+  cannot fail. The file was unchanged, not the tests vacuous. Deleting the
+  regex line by index instead reddened both, on the real book line
+  (`assert None ... 'Using Spirit Vision: Activate by expending 1 SPI'`).
+  **A mutation that reports success is not a mutation that happened** — the
+  same no-op blindness this log has already recorded once for a test runner,
+  in a new place. Restored from a `cp` copy, never `git checkout`, because
+  `coverage.py` held the uncommitted change under test.
+
+- **`opencode` corrupted a file it was told not to touch.** Appending the two
+  tests, it stripped four spaces from `for n in (2480, 2481):` inside an
+  existing 6da test, moving that body to module scope and breaking collection
+  of the whole suite. The same call reported "No existing line or other file
+  changed". It had applied the `coverage.py` edit correctly minutes earlier, so
+  this is not "opencode is down" — it is that its own report of what it changed
+  is not evidence. Verify with a run, not with the tool's summary.
+
+### The review, which found the test asserting the wrong thing
+
+Codex is still refusing (limit resets 2026-08-20), and per the owner's
+standing correction the fallback is `ecc:python-reviewer`, not the free panel.
+Scoped to three questions and the two files. It returned a HIGH, a MEDIUM and
+a LOW, and the HIGH was right:
+
+- **HIGH — the test was named for a consequence and asserted a precondition.**
+  `test_spirit_vision_chapter_no_longer_reports_itself_complete` checked that
+  line 4840 matches `MECHANICAL` and is unclaimed, and never ran `coverage.py`
+  or computed a percentage. Necessary, not sufficient: an off-by-one in the
+  chapter page range, or the empty-denominator branch firing wrongly, would
+  leave 7.6 claiming completion with every assertion still green. It now runs
+  the tool and asserts the reported figure. **RED-proved with a mutation
+  chosen to leave every precondition true** — `ch_start <= page <= ch_end`
+  narrowed to `<`, which empties 7.6's line set — and the row came back
+  `| 7.6 | Spirit Vision Guide | 77-78 | 100.0% | 0 |`. This is the fourth
+  vacuity in three slices and the pattern has not changed: **the assertion was
+  written from the shape of the DATA rather than the shape of the FAILURE.**
+
+- **MEDIUM — "the old filter" was a hand-typed duplicate.** The negative half
+  of the test compared against a retyped copy of the pre-change pattern, which
+  stops representing the shipped filter the moment anyone edits one of the four
+  shared alternatives. It is now derived by slicing the widening alternative
+  off `coverage_tool.MECHANICAL.pattern`, guarded by an `endswith` assertion so
+  a reordering says so instead of silently yielding a wrong `narrow`. That
+  guard was RED-proved too, by moving the alternative to the front.
+
+- **LOW — case sensitivity**, which the reviewer suggested documenting rather
+  than fixing. Documented, and with a stronger claim than it had: the book
+  contains **zero** occurrences of "5 cor", "5 hp" or any other rendering, so
+  this is measured rather than assumed. A future unclaimed line priced that way
+  is the signal to revisit.
+
+### Left open, with the reason
+
+- **7.5's second summoning method may be governed by chapter 7's table.** The
+  chapter prints two methods: "one is by using one's own spirituality and
+  authority, and the other is by **supplicating a higher being** for their
+  assistance… the second requires a complex religious ritual." Chapter 7's
+  `entity_response.json` (lines 4292-4312) is a 3d table for exactly that —
+  an entity's response to supplication. Whether 7.5's "additional 3d for the
+  creature's response" IS that table is unresolved: the consequences differ
+  (ch 7's bands give a ritual modifier, 7.5's decide arrival and hostility),
+  and mapping one onto the other would be authoring the mapping. Recorded here
+  rather than settled, because an unwritten open question is how this file
+  grows its next false absolute.
+
+**The next slice is chapter 5's recovery cluster — 15 of the 33 newly visible
+unclaimed lines, the largest group.** Lines 2842-2899: "1 HP per 12 hours",
+"1 HP per hour", "Natural Recovery (20-29 HP)", "1 HP (2 HP w/ Very Rapid
+Healing)", "2 HP (costs 1 FP)", FP thresholds at "0 FP" and "1/3 FP or below".
+The evidence that makes it worth a slice rather than a shrug: **the only place
+this repo records a decision about it is `docs/HOW-TO-PLAY.md`** — "FP
+recovery, stun duration and reload rates are yours to run" — which is player
+prose, in a file no sweep reads. That is 6cj's finding in a new location: a
+refusal kept somewhere a sweep cannot iterate is invisible by construction, so
+before building anything, decide whether that sentence is a refusal with a
+mechanism reason or a gap nobody has looked at.
 
 ## 6da. Two careful exclusions, one hidden line
 

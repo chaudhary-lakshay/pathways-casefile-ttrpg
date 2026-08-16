@@ -92,7 +92,33 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6da is newest, and it reads the chapter 6cz called "probably correct".**
+**6db is newest, and every coverage percentage in this file is now suspect.**
+`tools/coverage.py`'s `MECHANICAL` filter decides which lines COUNT as rules
+content; what it cannot see is excluded from the numerator **and the
+denominator**, and `main()` reads an empty denominator as "chapter is
+complete". It matched `N pts` but no other unit, so every price this book
+quotes in SPI, HP, FP, CoR or DR — "Ability - Book Reading (1 SPI)",
+"Attributes: 4 HP" — read as flavour. **Chapter 7.6, Spirit Vision Guide, is
+claimed by NO content file at all and was reporting 100.0%**; it now reads
+0.0%, which is what it always was. That is not a number nobody looked at:
+**6cw's census shortlisted the four chapters below 100% and 7.6 was not one
+of them**, because the instrument said it was finished — an unread chapter
+was filtered out of the very sweep that exists to find unread chapters.
+Widening the
+filter to the other pools (derived from its own `N pts` condition, not from
+the lines that were missed) made **286 lines visible, 33 of them unclaimed**,
+and moved six chapters — 4 100.0%→66.7%, 5 80.8%→73.9%, 6.5 89.3%→81.2%,
+while 6 and 9 ROSE because their newly visible lines were already claimed.
+**Percentages recorded before 6db were measured under the narrower filter and
+must not be compared with ones after it** — including this session's own
+"ch. 8 21.2%→81.7%". Read 6db also for a RED proof that silently did nothing
+(a `str.replace` that matched no text, printed `narrowed`, and left both tests
+green — **a mutation that reports success is not a mutation that happened**),
+and for the review's HIGH: my test was named for the reported percentage and
+asserted only the preconditions, so an off-by-one in the page range would have
+left chapter 7.6 claiming completion with every assertion still true.
+
+**6da is next, and it reads the chapter 6cz called "probably correct".**
 Appendix A's 32 unclaimed lines, one at a time: **31 are faithful restatements
 and one is not.** Line 9667 prints `Direction Penalties: Side -2 | Rear -4` —
 and `ActiveDefenses`' KDoc had refused the facing penalty saying it "has no
@@ -473,7 +499,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6da, then 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6db, then 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -704,7 +730,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1600 Kotlin** (JUnit 5 — 1114 `core:rules`, 466 `app`, 20 `core:model`) + **287 Python** (pytest), all green — counted from the JUnit XML, not from memory. The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1600 Kotlin** (JUnit 5 — 1114 `core:rules`, 466 `app`, 20 `core:model`) + **289 Python** (pytest), all green — counted from the JUnit XML, not from memory. The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1080,10 +1106,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6da. The slice log
+## 6a-6db. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6da is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6db is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
