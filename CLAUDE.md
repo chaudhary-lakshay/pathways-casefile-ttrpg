@@ -679,7 +679,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1599 Kotlin** (JUnit 5 — 1113 `core:rules`, 466 `app`, 20 `core:model`) + **285 Python** (pytest), all green — counted from the JUnit XML, not from memory. The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1600 Kotlin** (JUnit 5 — 1114 `core:rules`, 466 `app`, 20 `core:model`) + **285 Python** (pytest), all green — counted from the JUnit XML, not from memory. The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -870,6 +870,13 @@ ContentLoader.sequenceImmunity() / .antiDivinationCounters()
 
 `RandomSource` is a `fun interface` — inject a deterministic one in tests, a
 real RNG in the app. Never call `Random` directly in rules code.
+
+**Do not enable release minification without adding `kotlinx.serialization`
+keep rules first.** `app/build.gradle.kts` sets no `minifyEnabled` and there are
+no `.pro` files, so R8 is off and every `@Serializable` content class is safe
+today. Turning it on strips the generated serializers and breaks all 77 content
+files at once, at runtime, on the first screen that loads one — a class of
+failure no test in this repo can reach (6cz).
 
 ---
 
