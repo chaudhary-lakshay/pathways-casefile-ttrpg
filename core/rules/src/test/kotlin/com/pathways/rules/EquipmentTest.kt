@@ -73,6 +73,24 @@ class EquipmentTest {
     }
 
     @Test
+    @DisplayName("the fixture that owns the instance reaches its gear through its own key")
+    fun `hunter-tracker's survival roll surfaces the bedroll`() {
+        // Not a hand-built key: this is the SkillKey the sheet screen passes
+        // to Equipment.referenceFor, straight off the published sheet. The
+        // bug this pins was invisible to a test that constructed the key
+        // itself, because the specialization is what the fixture supplies.
+        val tracker = Premades.all().first { it.name == "Hunter-Tracker" }
+        val survival = tracker.skills.first { it.name == "Survival" }
+        assertEquals("Woodlands", survival.specialization)
+
+        val shown = Equipment.referenceFor(survival.key())
+        assertTrue(
+            shown.any { it.startsWith("Bedroll") },
+            "the one sheet that buys Survival saw no gear: $shown",
+        )
+    }
+
+    @Test
     @DisplayName("an enumerated specialization is still a different skill")
     fun `a non-template specialization keeps strict matching`() {
         // Navigation is the opposite case: specializable = false, and the
