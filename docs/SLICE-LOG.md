@@ -1,7 +1,7 @@
 # Pathways — Slice Log
 
 Split out of `CLAUDE.md` (it was 497 KB, over the 150 k-char context limit).
-Sections 6a-6ct. **Position in this file does not tell you a slice's age** —
+Sections 6a-6cu. **Position in this file does not tell you a slice's age** —
 the order is not uniform (6a onward run oldest-first, one cluster near 6ca is
 scrambled, and the most recent block runs newest-first, so the newest slice is
 neither at the top nor at the bottom). Locate one by name with
@@ -6726,7 +6726,74 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
-## 6ct. The corpus nobody swept
+## 6cu. Two errors, six columns, and the sign that carries the finding
+
+6ct named the sibling column, and said to start with the question that needs no
+engine: does `totalSpent + unspent == bpTotal` hold as published? **21 of 23
+do.** Two carry nulls, and one of those is the interesting one — Beat Cop has
+every POINT BREAKDOWN field null *except* `unspent: 0`, and the extractor reads
+that field with a different helper (`value_right_of`) than the two beside it
+(`points_after`). That is the shape of an invented zero.
+
+**It is not one, and the repo could settle it.** The source spreadsheets are on
+this machine, so the question was answerable rather than arguable: `Beat
+Cop.xlsx` prints "Unspent" at row 1 with `0.0` two cells to its right, and
+contains no "Budget (BP)" or "Total spent" label at all. The zero is published
+and the nulls beside it are correct. **A suspicion about extracted data is a
+question for the source, not for the extractor's code** — and the answer here
+inverted the suspicion.
+
+Running both reconciliations with no exclusions returned five failures, and
+every one is an error already recorded here, resurfacing in a column nobody had
+checked:
+
+| Sheet | Column | Published | Computed | Cause |
+|---|---|---|---|---|
+| University Librarian | budget | 100 | 95 | its disadvantages gap (30 printed, 25 listed) |
+| University Librarian | unspent | 9 | 4 | the same five points |
+| Monastery Scholar | unspent | 1 | 11 | its advantages gap, inverted |
+| Beat Cop | unspent | 0 | 4 | its own, with nothing to check it against |
+| LOTM Blank Character Sheet | budget | 0 | 70 | a template, not a character |
+
+**The sign is the finding.** The librarian's gaps are +5 and the scholar's is
+−10, and the reason is structural: the budget IS 70 plus capped disadvantages,
+so an over-stated DISADVANTAGE raises the sheet's budget and its unspent
+together, while an over-stated ADVANTAGE raises what the sheet thinks it SPENT
+and therefore lowers its unspent. A guard asserting magnitude would pass under
+either sign — the defect class section 5 measured once (base -4 landing on +2)
+and 6cg measured again (a substring guard blind to a minus). Both guards assert
+the signed difference, and the scholar's was RED-proved by dropping the minus:
+1 of 223 fails.
+
+**The diff review verified both signs with the published arithmetic and got a
+third number wrong** — it computed Beat Cop's surplus as 64 where the failing
+run printed 4. The verdict it supported (pin the SIGN, not the magnitude, since
+that sheet has no per-category subtotal to anchor a number to) survives its own
+bad arithmetic, and the reminder is 6cq's one level up: **a review's numbers
+are evidence to check, not facts to copy.** Every figure in the table above
+came from a test run, not from the review.
+
+**The blank sheet needed no exclusion at all.** Switching both factories to
+`playable()` drops it, which is what the file's older budget test already does,
+and it is the honest filter: a template with no skills is not a character whose
+budget disagrees. An exclusion is a claim someone has to maintain; not needing
+one is better than recording one.
+
+So the two known spreadsheet errors are now pinned in every column they touch —
+three each. `tools/test_tools.py`'s `test_beat_cop_has_no_point_breakdown`
+enumerated six fields of that block and stopped one short of the seventh, the
+only one that is not null; it now asserts the published zero with the source
+reference beside it, so the Python and Kotlin suites agree about the same odd
+sheet. 1580 Kotlin green, 268 Python green.
+
+**Next, with evidence.** Nothing is named. The fixture sweep that opened 6ct is
+now exhausted for the `published` block, but it only ever asked "does a Kotlin
+reader exist" — it never asked whether a reader **reconciles** the value or
+merely displays it. `hp`, `fp`, `will`, `per`, `basicSpeed`, `basicMove` and
+`dodge` are all reconciled by `derived secondaries match on the trusted field
+set`; `spi` and `cor` are not, and `spi` has a test asserting only that
+`toCharacter` carries it. Whether `cor` is checked anywhere is the next
+question, and it is one grep.
 
 6cs closed its direction with no successor, so this one starts from a corpus
 rather than a category: **the 23 fixtures.** Every sweep this repo has run

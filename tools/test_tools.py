@@ -102,6 +102,14 @@ def test_beat_cop_has_no_point_breakdown():
     assert f["published"]["advantagesSubtotal"] is None
     assert f["published"]["disadvantagesSubtotal"] is None
     assert f["published"]["skillsSubtotal"] is None
+    # The seventh field of that block is NOT None, and this enumeration used
+    # to stop one short of it. The sheet really does print "Unspent" with 0
+    # beside it (Beat Cop.xlsx, row 1, two cells right of the label) while
+    # printing no "Budget (BP)" and no "Total spent" at all -- which is why
+    # `unspent` is read by value_right_of and the other two by points_after.
+    # GoldenSheetTest excludes it from the surplus reconciliation for exactly
+    # this reason, so the two suites now agree about the same odd sheet.
+    assert f["published"]["unspent"] == 0
 
 @needs_pdf
 def test_coverage_reports_every_chapter():

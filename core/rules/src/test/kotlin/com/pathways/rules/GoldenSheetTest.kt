@@ -54,6 +54,31 @@ class GoldenSheetTest {
      */
     private val totalSpentExclusions = setOf("Monastery Scholar")
 
+    /**
+     * The sheet's printed budget, excluded where its own disadvantage list
+     * disagrees with its printed subtotal.
+     *
+     * The budget IS 70 plus capped disadvantages, so a sheet that over-states
+     * its disadvantages over-states its budget by the same amount. The guard
+     * below pins that it is the same five points.
+     */
+    private val budgetExclusions = setOf("University Librarian")
+
+    /**
+     * The sheet's printed unspent points, excluded for the three sheets whose
+     * gaps have a recorded cause.
+     *
+     * Two are columns of errors already recorded above and pinned by the
+     * guards below; Beat Cop's is its own, and is not a per-category error at
+     * all -- it prints "Unspent 0" while printing neither a budget nor a
+     * total spent, which is why nothing else in this class notices it.
+     */
+    private val unspentExclusions = setOf(
+        "Beat Cop",
+        "Monastery Scholar",
+        "University Librarian",
+    )
+
     private fun playable() = Premades.all().filter { it.skills.isNotEmpty() }
 
     @Test
@@ -246,6 +271,95 @@ class GoldenSheetTest {
             advantageGap,
             spendGap,
             "the total-spent gap is no longer the advantages gap; these are now two errors, not one",
+        )
+    }
+
+    /**
+     * The sheet's printed budget against 70 plus its capped disadvantages.
+     *
+     * playable(), not all(): the blank template prints a budget of 0 and has
+     * no character to compute one from, so it is not a disagreement.
+     */
+    @TestFactory
+    fun `computed budget matches every sheet's published budget`(): List<DynamicTest> =
+        playable()
+            .filter { it.published.bpTotal != null && it.name !in budgetExclusions }
+            .map { f ->
+                DynamicTest.dynamicTest(f.name) {
+                    assertEquals(
+                        f.published.bpTotal,
+                        Derive.of(f.toCharacter()).budget.budget,
+                        "${f.name}: budget",
+                    )
+                }
+            }
+
+    /** The sheet's printed unspent points against budget minus spend. */
+    @TestFactory
+    fun `computed surplus matches every sheet's published unspent`(): List<DynamicTest> =
+        playable()
+            .filter { it.published.unspent != null && it.name !in unspentExclusions }
+            .map { f ->
+                DynamicTest.dynamicTest(f.name) {
+                    assertEquals(
+                        f.published.unspent,
+                        Derive.of(f.toCharacter()).budget.surplus,
+                        "${f.name}: unspent",
+                    )
+                }
+            }
+
+    /**
+     * University Librarian's budget and unspent gaps are its disadvantage gap.
+     *
+     * Direction matters and is asserted rather than absolute: an over-stated
+     * DISADVANTAGE raises the sheet's budget, so the published numbers are
+     * five points ABOVE the computed ones on both columns.
+     */
+    @Test
+    fun `the librarian's two gaps are its disadvantage gap, in that direction`() {
+        val f = Premades.byName("University Librarian")
+        val r = Derive.of(f.toCharacter()).budget
+        val disadvantageGap = f.published.disadvantagesSubtotal!! -
+            f.disadvantages.sumOf { it.cost }
+        assertEquals(5, disadvantageGap, "the disadvantages gap moved")
+        assertEquals(disadvantageGap, f.published.bpTotal!! - r.budget, "budget gap")
+        assertEquals(disadvantageGap, f.published.unspent!! - r.surplus, "unspent gap")
+    }
+
+    /**
+     * Monastery Scholar's unspent gap is its advantage gap, the OTHER way up.
+     *
+     * An over-stated ADVANTAGE inflates what the sheet thinks it spent, so its
+     * printed unspent is ten points BELOW the computed surplus -- the mirror
+     * of the librarian's sign. Asserting magnitude alone would pass under a
+     * sign flip, which is a defect class this repo has already measured once.
+     */
+    @Test
+    fun `the scholar's unspent gap is its advantage gap, the other way up`() {
+        val f = Premades.byName("Monastery Scholar")
+        val r = Derive.of(f.toCharacter()).budget
+        val advantageGap = f.published.advantagesSubtotal!! - f.advantages.sumOf { it.cost }
+        assertEquals(10, advantageGap, "the advantages gap moved")
+        assertEquals(-advantageGap, f.published.unspent!! - r.surplus, "unspent gap")
+    }
+
+    /**
+     * Beat Cop claims no unspent points and prints nothing to check it with.
+     *
+     * Its sheet really does print "Unspent 0" (verified in the source
+     * spreadsheet) while printing no Budget (BP) and no Total spent, so this
+     * gap has no per-category cause to pin it to. Recorded, never repaired.
+     */
+    @Test
+    fun `Beat Cop prints an unspent of zero it cannot support`() {
+        val f = Premades.byName("Beat Cop")
+        assertEquals(0, f.published.unspent)
+        assertEquals(null, f.published.bpTotal)
+        assertEquals(null, f.published.totalSpent)
+        assertTrue(
+            Derive.of(f.toCharacter()).budget.surplus > 0,
+            "Beat Cop now spends its whole budget; re-check whether the exclusion is warranted",
         )
     }
 
