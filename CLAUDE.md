@@ -103,7 +103,12 @@ point-bought technique into a free +1 on whatever method was picked, because
 load. The refusal is recorded in `Divination.UNAPPLIED` (the
 `ActiveDefenses.UNPAYABLE` standard, discoverability not strength) and shown on
 screen. Read it also for a string with two readers: the reason renders to the
-PLAYER, so the developer's argument moved into the KDoc and the sentence stayed.
+PLAYER, so the developer's argument moved into the KDoc and the sentence
+stayed; for a block that **inherited the branch it was pasted into** (the
+refusal first shipped inside `if (ownedSupportSkills.isEmpty()) … else`, so
+only the diviners it did not concern would have seen it); and for the corrected
+constant census, which is **clean** — 100 constants, one hit, and that hit is a
+test locator for a row the screen renders by loop. **No slice is named next.**
 
 **6cr is next**, and its most reusable finding is that **a quotation and a
 restatement look identical in a grep.** It ran 6cq's named successor and found

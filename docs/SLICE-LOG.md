@@ -6791,15 +6791,32 @@ copy. Suite 1514 green (measured per module: 1028 `core:rules`, 466 `app`, 20
 `core:model` — the filtered RED-proof run overwrites one module's XML, so a
 per-module count taken straight after it is wrong).
 
-**Next, with evidence, and it is a correction to 6cr's own instrument.** That
-census counted occurrences repo-wide, tests included, so a constant *pinned by
-a test and applied by nothing* scores the same as one in daily use. Its second
-column ("no reader outside the declaring file") is worse than useless — 52
-constants match it and all 52 are healthy. The query that would find the next
-`SPECIALISATION_BONUS` before it becomes one is **constants whose only
-non-declaration reader is a test**, and neither column answers it. Write that
-one properly, and expect it to be small: this repo tends to test what it
-applies.
+**The corrected census ran in the same session, and it is clean.** 6cr's
+version counted occurrences repo-wide, tests included, so a constant *pinned by
+a test and applied by nothing* scored the same as one in daily use; its second
+column ("no reader outside the declaring file") matched 52 healthy constants
+and was worse than useless. The query that actually answers the question is
+**production readers excluding the declaration LINE, against test readers** —
+excluding the whole declaring file was the earlier bug, because a constant used
+once inside its own object is normal.
+
+Over 100 constants in `core/rules` and `core/model` it returns **one hit, and
+that hit is a false positive**: `SpiritualSenses.SEER` has no production reader
+because it exists to LOCATE a row in a test — `perception.modifiers.single {
+it.situation == SEER }`. The rule itself is applied: `MainActivity` passes
+`SpiritualSenses.forSkill(skill.key)` into the roll dialog, which renders the
+sense's rows by loop, so "+6 Seer" is on screen without any code naming it.
+**That is 6ci's finding restated at the level of a constant** — a table
+consumed by loop correctly names none of its rows, so "no reader" and "not
+applied" are different claims and only the second one is a defect.
+
+So this direction is exhausted rather than deferred, and there is **no named
+successor**. The next slice needs a fresh sweep; the directions already run
+(fields with no reader, functions with no caller, rows with no consumer,
+literals restating a computed value, constants with no production reader, seams
+between claimed spans, rules the app contradicts, what the tests know that
+production does not) have each returned their findings and expire rather than
+standing.
 
 ## 6cr. Three of the four hits were quotations
 
