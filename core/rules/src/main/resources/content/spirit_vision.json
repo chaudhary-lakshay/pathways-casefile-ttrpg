@@ -1,0 +1,156 @@
+{
+ "sourceLines": {
+  "7.6": [
+   [
+    4769,
+    4855
+   ]
+  ]
+ },
+ "astralColors": [
+  {
+   "color": "Red",
+   "meaning": "Passion, excitement, anger"
+  },
+  {
+   "color": "Orange",
+   "meaning": "Warmth, satisfaction"
+  },
+  {
+   "color": "Yellow",
+   "meaning": "Happiness, extroversion"
+  },
+  {
+   "color": "Green",
+   "meaning": "Calm, peace, balance"
+  },
+  {
+   "color": "Blue",
+   "meaning": "Coldness, stillness, logic"
+  },
+  {
+   "color": "White",
+   "meaning": "Brightness, ambition"
+  },
+  {
+   "color": "Dark",
+   "meaning": "Worry, sorrow, fear"
+  },
+  {
+   "color": "Purple",
+   "meaning": "Spirituality, madness"
+  }
+ ],
+ "etherBody": [
+  {
+   "region": "Limbs active",
+   "color": "Red"
+  },
+  {
+   "region": "Brain",
+   "color": "Purple"
+  },
+  {
+   "region": "Waste systems",
+   "color": "Orange"
+  },
+  {
+   "region": "Digestion",
+   "color": "Yellow"
+  },
+  {
+   "region": "Heart/reg",
+   "color": "Green"
+  },
+  {
+   "region": "Nerves",
+   "color": "Blue"
+  },
+  {
+   "region": "Healthy",
+   "color": "White"
+  },
+  {
+   "region": "Ill",
+   "color": "Dark/Thin"
+  }
+ ],
+ "etherBodyNote": "A balanced body appears white. Darkness or thinning indicates illness.",
+ "pathwayDifferences": [
+  {
+   "name": "Seer (Fool)",
+   "sequence": 9,
+   "ability": "Standard: Ether Body + Astral"
+  },
+  {
+   "name": "Mystery Pryer (Hermit)",
+   "sequence": 9,
+   "ability": "Eyes of Mystery Prying: See truth, reality, Astral Body"
+  },
+  {
+   "name": "Spectator (Visionary)",
+   "sequence": 9,
+   "ability": "Enhanced: Read emotions & thoughts"
+  },
+  {
+   "name": "Sleepless (Darkness)",
+   "sequence": 9,
+   "ability": "Limited: Spiritual entities only (no Ether Body analysis)"
+  },
+  {
+   "name": "Corpse Collector (Death)",
+   "sequence": 9,
+   "ability": "Passive: See spirits & undead without activation"
+  }
+ ],
+ "reading": {
+  "activation": 1,
+  "maintenance": 1,
+  "rows": [
+   {
+    "result": "Success",
+    "effect": "Identify primary emotion or general health"
+   },
+   {
+    "result": "Success by 3+",
+    "effect": "Detect specific feelings",
+    "margin": 3
+   },
+   {
+    "result": "Success by 5+",
+    "effect": "Sense recent events",
+    "margin": 5
+   },
+   {
+    "result": "Critical",
+    "effect": "Full reading"
+   },
+   {
+    "result": "Failure",
+    "effect": "Incorrect reading"
+   }
+  ]
+ },
+ "specialForms": [
+  {
+   "form": "Ether Body Awareness",
+   "pathwayRank": "Seer"
+  },
+  {
+   "form": "Eyes of Mystery Prying",
+   "pathwayRank": "Mystery Pryer"
+  },
+  {
+   "form": "Enhanced Emotions",
+   "pathwayRank": "Spectator"
+  },
+  {
+   "form": "Limited Form",
+   "pathwayRank": "Sleepless"
+  },
+  {
+   "form": "Passive Spirit Vision",
+   "pathwayRank": "Corpse Collector"
+  }
+ ]
+}

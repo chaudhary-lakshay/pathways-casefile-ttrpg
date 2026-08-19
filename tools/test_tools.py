@@ -3971,19 +3971,26 @@ def test_mechanical_filter_sees_a_cost_priced_in_a_bare_pool():
 
 
 @needs_pdf
-def test_spirit_vision_chapter_no_longer_reports_itself_complete():
+def test_spirit_vision_chapter_reports_a_completion_it_earned():
     """The blind spot moved the denominator, not just the miss count.
 
     A line the filter cannot see is excluded from BOTH sides of the ratio,
     and main() reads an empty denominator as "no mechanical lines to claim --
     chapter is complete". So chapter 7.6 reported 100.0% while being claimed
-    by no content file whatsoever.
+    by no content file whatsoever. 6db widened the filter and it fell to
+    0.0%, which is what it had always been.
 
-    This asserts the REPORTED PERCENTAGE, by running coverage.py and reading
-    its output. Checking only that line 4840 matches the filter and is
-    unclaimed would assert the precondition and not the consequence: an
-    off-by-one in the chapter page range, or the empty-denominator branch
-    firing when it should not, would leave the chapter claiming it is
+    **It reads 100.0% again now, and this time it is earned**:
+    `extract_spirit_vision.py` claims the chapter. That makes the earned and
+    the unearned completion indistinguishable by percentage alone, which is
+    precisely the hazard this test was written against -- so the percentage
+    is no longer what it rests on. It asserts the thing the number was
+    standing in for: that the chapter's priced line is CLAIMED. A completion
+    nobody earned fails here; a completion somebody extracted passes.
+
+    The assertion order is the lesson. Checking only that line 4840 matches
+    the filter would assert the precondition and not the consequence, and an
+    off-by-one in the page range would leave the chapter claiming it is
     finished with every precondition still true.
     """
     import coverage as coverage_tool
@@ -4000,9 +4007,11 @@ def test_spirit_vision_chapter_no_longer_reports_itself_complete():
         for spans in (data.get("sourceLines") or {}).values():
             for a, b in spans:
                 claimed.update(range(a, b + 1))
-    assert 4840 not in claimed, (
-        "Spirit Vision's cost is now claimed by a content file -- good, but "
-        "this test's premise is gone and the chapter's percentage moved"
+    assert 4840 in claimed, (
+        "Spirit Vision's activation cost is claimed by no content file. The "
+        "chapter reports 100.0% anyway once its visible lines go, which is "
+        "the empty-denominator branch reading invisibility as completion -- "
+        "the defect this test exists for."
     )
 
     subprocess.run(
@@ -4017,9 +4026,9 @@ def test_spirit_vision_chapter_no_longer_reports_itself_complete():
     assert row, f"chapter 7.6 is missing from the coverage report:\n{report}"
     pct = re.search(r"\|\s*([\d.]+)%\s*\|", row)
     assert pct, f"no percentage in chapter 7.6's row: {row!r}"
-    assert float(pct.group(1)) == 0.0, (
-        "chapter 7.6 is claimed by nothing, so it must report 0.0% and not a "
-        f"completion it never earned: {row!r}"
+    assert float(pct.group(1)) == 100.0, (
+        "chapter 7.6 is claimed by extract_spirit_vision.py, so it must "
+        f"report the completion it earned: {row!r}"
     )
 
 
@@ -4222,3 +4231,119 @@ def test_the_pages_column_reports_the_range_actually_measured():
                           .read_text(encoding="utf-8"))
     appendix_a = next(c for c in chapters if c["id"] == "A")
     assert appendix_a["startPage"] == 159 and appendix_a["endPage"] == 159
+
+
+def test_spirit_vision_keeps_its_two_colour_tables_apart():
+    """Chapter 7.6 prints two colour tables that share a vocabulary.
+
+    Seven of the eight colours appear in both, meaning unrelated things: the
+    Astral table reads Purple as "Spirituality, madness", the Ether table
+    puts Purple on the BRAIN. The column orders are inverted too -- A prints
+    the colour first, B prints the region first. Either fact alone makes a
+    merge or a shared positional parser a defect, so both are pinned here
+    rather than only in the extractor, which runs on demand.
+    """
+    d = json.loads((ROOT / "core" / "rules" / "src" / "main" / "resources"
+                    / "content" / "spirit_vision.json").read_text(encoding="utf-8"))
+    astral = {r["color"]: r["meaning"] for r in d["astralColors"]}
+    ether = {r["color"]: r["region"] for r in d["etherBody"]}
+    assert len(astral) == 8 and len(ether) == 8
+    assert len(set(astral) & set(ether)) == 7, sorted(set(astral) & set(ether))
+    assert astral["Purple"] == "Spirituality, madness"
+    assert ether["Purple"] == "Brain"
+    # The field names are the guard against a positional merge: each table
+    # names its own key, so neither can be read as the other by accident.
+    assert set(d["astralColors"][0]) == {"color", "meaning"}
+    assert set(d["etherBody"][0]) == {"region", "color"}
+
+
+def test_spirit_vision_prints_rows_chapter_four_does_not():
+    """Why 7.6's result table cannot be graded by `SpiritualSenses.rowFor`.
+
+    Chapter 4's two sense tables print four rows, all successes, and
+    `extract_spirituality.verify()` asserts the absence of a failure row.
+    7.6 prints five, including a Failure -- and labels its critical row
+    "Critical" where every other table in the book writes "Critical Success",
+    which is the literal `rowFor` matches on. Feeding this table to that
+    function would drop the failure and mis-grade the critical, silently.
+    """
+    d = json.loads((ROOT / "core" / "rules" / "src" / "main" / "resources"
+                    / "content" / "spirit_vision.json").read_text(encoding="utf-8"))
+    rows = d["reading"]["rows"]
+    assert [r["result"] for r in rows] == [
+        "Success", "Success by 3+", "Success by 5+", "Critical", "Failure",
+    ]
+    assert next(r["effect"] for r in rows if r["result"] == "Failure") == "Incorrect reading"
+
+    # The short label really is unique to this table: the long form is what
+    # the rest of the book uses, so this is a difference in the source and
+    # not a normalisation this extractor chose.
+    book = (ROOT / "build" / "extract" / "book.txt").read_text(encoding="utf-8", errors="replace")
+    assert book.count("Critical Success") > 10
+    assert "\nCritical\n" not in book.replace("Critical Success", "")
+
+
+def test_spirit_vision_records_the_spectator_disagreement():
+    """4.1/4.2: the summary and the chapter disagree, and that is recorded.
+
+    Chapter 7.6 files the Spectator's Sequence 9 power under Spirit Vision as
+    "Enhanced: Read emotions & thoughts". The Spectator's own chapter 9 block
+    prints `Body Language Analysis (1 FP)` -- an observation power, priced in
+    FP, that never mentions Spirit Vision. The other four rows of that table
+    agree with their blocks, which is what makes this one a disagreement
+    rather than a chapter that simply says less.
+
+    This is the guard against silent repair. It fails if someone "corrects"
+    either printing into agreement with the other.
+    """
+    content = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
+    d = json.loads((content / "spirit_vision.json").read_text(encoding="utf-8"))
+    blocks = json.loads((content / "pathways.json").read_text(encoding="utf-8"))["entries"]
+
+    row = next(r for r in d["pathwayDifferences"] if r["name"].startswith("Spectator"))
+    assert row["ability"] == "Enhanced: Read emotions & thoughts"
+
+    own = next(b for b in blocks if b["name"] == "Spectator" and b["sequence"] == 9)
+    assert "Body Language Analysis (1 FP)" in own["ability"]
+    assert "Spirit Vision" not in own["ability"], (
+        "the Spectator's block now claims Spirit Vision; the disagreement 7.6 "
+        "records has been repaired away and the reading must be made again"
+    )
+
+    for name in ("Seer", "Mystery Pryer", "Sleepless", "Corpse Collector"):
+        block = next(b for b in blocks if b["name"] == name and b["sequence"] == 9)
+        assert "Spirit Vision" in block["ability"], name
+
+
+def test_ether_body_awareness_is_two_different_things():
+    """One name, two printings, opposite premises — and nothing may join them.
+
+    Chapter 7.6's closing sentence lists `Ether Body Awareness` as the Seer's
+    Special Form OF Spirit Vision. Chapter 3 prices `Ether Body Awareness` at
+    5 points in `advantages.json` and defines it as knowing when something
+    targets your soul **"even without Spirit Vision"** — a trait bought by
+    characters who do not have the ability at all.
+
+    A resolver joining the two on the name would hand every Seer a 5-point
+    advantage they never bought, or gate a bought advantage behind a pathway.
+    Both printings are pinned so the collision cannot be resolved by accident
+    in either direction.
+    """
+    content = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
+    sv = json.loads((content / "spirit_vision.json").read_text(encoding="utf-8"))
+    advantages = json.loads((content / "advantages.json").read_text(encoding="utf-8"))["entries"]
+
+    seer = next(f for f in sv["specialForms"] if f["pathwayRank"] == "Seer")
+    assert seer["form"] == "Ether Body Awareness"
+
+    bought = next(a for a in advantages if a["name"] == "Ether Body Awareness")
+    assert bought["cost"] == 5
+    assert "even without Spirit Vision" in bought["notes"], (
+        "the advantage no longer disclaims Spirit Vision; the two printings "
+        "may no longer be distinct and the reading must be made again"
+    )
+
+    # Five forms, one per Sequence 9 rank, matching section C's five rows.
+    assert [f["pathwayRank"] for f in sv["specialForms"]] == [
+        r["name"].split(" (")[0] for r in sv["pathwayDifferences"]
+    ]
