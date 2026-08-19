@@ -4048,3 +4048,177 @@ def test_the_book_does_print_a_direction_where_it_cares():
                       .read_text(encoding="utf-8"))}
     assert re.search(r"rounded down", byn[2450], re.I), byn[2450]
     assert re.search(r"round up", byn[6050], re.I), byn[6050]
+
+
+def test_chapter_boundaries_fall_on_the_heading_not_the_page():
+    """A chapter partition by PAGE puts 57 mechanical lines in the wrong chapter.
+
+    `chapters.json` carries a startPage per chapter, so `coverage.py` used to
+    assign every line on that page to the chapter -- including the lines above
+    the heading, which belong to the chapter before it. That is invisible for
+    most chapters (a page break usually falls between them) and wrong wherever
+    the book starts a chapter mid-page.
+
+    Appendix A is the case that proves it. Its heading is on p. 159, Appendix
+    B's on p. 160, so the page partition gave the WHOLE of p. 160 to B. But
+    lines 9707-9747 -- the Spiritual Skills table, the CoR reference, the SPI
+    recovery row and the entire Common Modifiers table -- print on p. 160 and
+    belong to A. `common_modifiers.json` claims them under "A", correctly, and
+    the claim landed in a bucket holding none of those lines while chapter B
+    was charged for lines nothing had promised to extract.
+
+    So the reading that looks obvious from the coverage table -- "six content
+    files declare the wrong chapter id" -- is backwards. Every one of the six
+    declared ids is right when measured against the heading. The partition was
+    the defect, and a fix that "corrected" the declarations would have moved
+    Appendix A's own quick-reference tables into the political appendix.
+    """
+    lines = json.loads((ROOT / "build" / "extract" / "lines.json")
+                       .read_text(encoding="utf-8"))
+    byn = {r["n"]: r["text"] for r in lines}
+
+    # The heading lines the partition must respect, read from the book itself.
+    assert byn[9631].strip().startswith("Appendix A:")
+    assert byn[9748].strip().startswith("Appendix B:")
+
+    # Between them lies content that is Appendix A's, on Appendix B's page.
+    pageof = {r["n"]: r["page"] for r in lines}
+    assert pageof[9745] == 160, "the Common Modifiers table prints on p.160"
+    assert pageof[9631] == 159, "but Appendix A's heading is on p.159"
+    assert byn[9745].strip() == "+2 (if they succeed first)"
+
+    # And the content file that claims them names A, which the heading agrees
+    # with and the page range does not.
+    claim = json.loads((ROOT / "core" / "rules" / "src" / "main" / "resources"
+                        / "content" / "common_modifiers.json")
+                       .read_text(encoding="utf-8"))
+    assert claim["sourceLines"] == {"A": [[9725, 9745]]}
+    assert 9631 < 9725 and 9745 < 9748, "the claim sits inside A's heading span"
+
+
+@needs_pdf
+def test_coverage_credits_a_claim_that_spans_a_mid_page_boundary():
+    """The regression this guards: Appendix A's own tables scored against B.
+
+    Run over the real content, Appendix B must not be charged for the
+    twenty-one lines `common_modifiers.json` extracted, and Appendix A must be
+    credited for them. Under the page partition B read 0.0% with 12 unclaimed
+    mechanical lines that were every one of them already extracted.
+    """
+    import re as regex
+    subprocess.run([sys.executable, str(ROOT / "tools" / "coverage.py")],
+                   capture_output=True, text=True)
+    report = (OUT / "coverage.md").read_text(encoding="utf-8")
+
+    row = regex.search(r"^\| B \| The Political World \|[^|]*\|\s*([\d.]+)%\s*\|\s*(\d+) \|$",
+                       report, regex.MULTILINE)
+    assert row, "Appendix B should be in the coverage report"
+    unclaimed = int(row.group(2))
+    # Appendix B genuinely holds no extracted table of its own; the lines it
+    # was being charged for belong to A. Charging it none of them is the fix.
+    assert unclaimed == 0, (
+        f"Appendix B has {unclaimed} unclaimed mechanical lines; under a "
+        f"heading-precise partition it should have none -- the lines it was "
+        f"charged for are Appendix A's Common Modifiers table."
+    )
+
+
+def test_no_claim_crosses_a_chapter_heading():
+    """Every extracted span sits inside the chapter it declares.
+
+    This is the check that would have caught the partition defect from the
+    other side, and it found five spans the coverage table never flagged.
+    Four were two-line page headers. The fifth was fifty lines: `pathways.json`
+    filed Arbiter and Lawyer under chapter 10, and both are SEQUENCE 9 entries
+    whose rows happen to print on p.97 above chapter 10's heading. The page
+    partition and the declaration were wrong in the same direction, so they
+    agreed with each other and the error was invisible to a report comparing
+    them.
+
+    A misfiled claim does not lose the line -- it is still claimed by SOMETHING,
+    so no total moves. It moves the credit to the wrong chapter, which is
+    exactly the failure that makes a per-chapter percentage untrustworthy.
+    """
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "tools"))
+    import coverage as coverage_tool
+
+    lines = json.loads((ROOT / "build" / "extract" / "lines.json")
+                       .read_text(encoding="utf-8"))
+    chapters = json.loads((ROOT / "build" / "extract" / "chapters.json")
+                          .read_text(encoding="utf-8"))
+    heads = coverage_tool.heading_lines(lines, chapters)
+    ordered = sorted(chapters, key=lambda c: heads[c["id"]])
+    bounds = {
+        c["id"]: (heads[c["id"]],
+                  heads[ordered[i + 1]["id"]] - 1 if i + 1 < len(ordered)
+                  else lines[-1]["n"])
+        for i, c in enumerate(ordered)
+    }
+
+    content = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
+    offenders = []
+    for f in sorted(content.rglob("*.json")):
+        data = json.loads(f.read_text(encoding="utf-8"))
+        for cid, spans in (data.get("sourceLines") or {}).items():
+            lo, hi = bounds[cid]
+            for span in spans:
+                if span[0] < lo or span[1] > hi:
+                    offenders.append(f"{f.name} claims {span} under {cid} (which is {lo}-{hi})")
+    assert not offenders, "claims crossing a chapter heading:\n  " + "\n  ".join(offenders)
+
+
+def test_the_glossary_is_the_one_heading_the_book_does_not_number():
+    """Why `heading_lines` names "G" explicitly instead of falling back.
+
+    Every other section heads with "Chapter N:" or "Appendix X:". The glossary
+    prints "Glossary of Terms" bare -- "G" is this project's id for it, not the
+    book's. A general "try the title if the prefix misses" fallback would cover
+    it AND would silently cover the next heading an extractor mangles, which is
+    the failure the SystemExit exists to make loud. So the exception is named,
+    and this test is what makes the naming checkable.
+    """
+    byn = {r["n"]: r["text"] for r in
+           json.loads((ROOT / "build" / "extract" / "lines.json")
+                      .read_text(encoding="utf-8"))}
+    assert byn[10156].strip() == "Glossary of Terms"
+    assert not byn[10156].strip().startswith("Appendix")
+    # And the form every other section does use, for contrast.
+    assert byn[9840].strip().startswith("Appendix C:")
+    assert byn[2995].strip().startswith("Chapter 6:")
+
+
+@needs_pdf
+def test_the_pages_column_reports_the_range_actually_measured():
+    """The Pages column is derived from the same boundaries as the percentage.
+
+    A review finding: the column used to print `chapters.json`'s declared
+    startPage-endPage while the percentage beside it was measured over the
+    heading-derived line span. Those disagree for precisely the chapters this
+    partition exists to fix -- Appendix A is declared 159-159 and its content
+    runs onto p.160 -- so a correct number sat next to a page range it had not
+    been measured over.
+
+    Overlapping ranges between neighbours are the POINT, not a defect: a page
+    holding the end of one chapter and the start of the next is reported by
+    both, which is what the book does.
+    """
+    import re as regex
+    subprocess.run([sys.executable, str(ROOT / "tools" / "coverage.py")],
+                   capture_output=True, text=True)
+    report = (OUT / "coverage.md").read_text(encoding="utf-8")
+
+    row = regex.search(r"^\| A \| Quick Reference Tables \| (\d+)-(\d+) \|",
+                       report, regex.MULTILINE)
+    assert row, "Appendix A should be in the coverage report"
+    assert (int(row.group(1)), int(row.group(2))) == (159, 160), (
+        f"Appendix A measured over pages {row.group(1)}-{row.group(2)}; its "
+        f"content runs onto p.160 and the column must say so"
+    )
+
+    # And chapters.json still declares the narrower range, which is what makes
+    # this a real difference rather than a restatement.
+    chapters = json.loads((ROOT / "build" / "extract" / "chapters.json")
+                          .read_text(encoding="utf-8"))
+    appendix_a = next(c for c in chapters if c["id"] == "A")
+    assert appendix_a["startPage"] == 159 and appendix_a["endPage"] == 159
