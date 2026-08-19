@@ -251,4 +251,80 @@ class PotionDigestionTest {
         // apply must fail here rather than in front of a player.
         ContentLoader.pathways().forEach { block -> PotionDigestion.digest(mortal, block) }
     }
+
+    @Test
+    fun `the unread ability prose is recorded as a gap, naming both fields`() {
+        // UNPARSED exists so a sweep over Kotlin finds the
+        // largest unbuilt thing in the repo. Both prose fields must be named:
+        // reinforcedAbilities is a second printing of the same defect, and a
+        // record covering only the first would read as complete.
+        assertEquals(
+            setOf("ability", "reinforcedAbilities"),
+            PotionDigestion.UNPARSED.keys,
+        )
+        // The wording carries the distinction the KDoc argues for. A future
+        // reader must not inherit this as a settled refusal of the
+        // Equipment.UNMODELLED kind -- it is work nobody has done.
+        assertTrue(
+            PotionDigestion.UNPARSED.values.any { it.contains("not a refusal") },
+            "the record must say this is unbuilt work rather than a refusal",
+        )
+    }
+
+    @Test
+    fun `the ability prose really does price abilities this engine never charges`() {
+        // The claim the gap record rests on, measured rather than asserted.
+        // If a future slice parses these costs, this test goes red and that is
+        // the signal to update the record -- a gap that closes silently is how
+        // a stale refusal outlives its reason.
+        val blocks = ContentLoader.pathways()
+        val priced = Regex("""\d+\s*SPI\b""")
+        val mentions = blocks.sumOf {
+            priced.findAll(it.ability + " " + it.reinforcedAbilities).count()
+        }
+        assertTrue(mentions > 200, "expected the prose to price abilities; found $mentions")
+
+        // The scoping argument needs costs that sit OUTSIDE the named clause
+        // shape, and comparing the two counts does not establish that: six
+        // named clauses carry two prices each ("(2 SPI + 1 SPI/turn):"), so
+        // the named shape accounts for more MENTIONS than it has CLAUSES.
+        // Subtracting one count from the other credits those six to running
+        // prose that does not exist. A review caught this: the assertion
+        // passed, for a reason six cases weaker than it claimed.
+        val named = Regex("""[A-Z][A-Za-z' -]{2,40}\s*\(\d+\s*SPI[^)]*\)\s*:""")
+        val outsideNamed = blocks.sumOf { block ->
+            val text = block.ability + " " + block.reinforcedAbilities
+            val spans = named.findAll(text).map { it.range }.toList()
+            priced.findAll(text).count { hit -> spans.none { hit.range.first in it } }
+        }
+        assertTrue(
+            outsideNamed > 0,
+            "the named-clause shape must not account for every printed SPI " +
+                "cost, or a parser built on it alone would be sufficient and " +
+                "the recorded gap overstates the problem",
+        )
+    }
+
+    @Test
+    fun `a per-turn boolean cannot carry what the book prints`() {
+        // Why the SealedArtifacts cost shape was refused for these. That record
+        // has ArtifactCost.perTurn, a Boolean rendered "per turn maintained".
+        // These abilities are priced per minute as well -- and one turn is one
+        // second in this engine -- so the two are 60x apart and a boolean puts
+        // them in the same bucket.
+        val prose = ContentLoader.pathways().joinToString(" ") {
+            it.ability + " " + it.reinforcedAbilities
+        }
+        assertTrue(prose.contains("SPI/turn"), "expected a per-turn price")
+        assertTrue(
+            prose.contains("per minute") || prose.contains("SPI/min"),
+            "expected a per-minute price, which is the one a Boolean loses",
+        )
+        // And a per-UNIT price, which is neither and is what makes this a
+        // question about kinds rather than about a longer enum.
+        assertTrue(
+            Regex("""per (raven|feature|fireball|hit|\d+ bullets)""").containsMatchIn(prose),
+            "expected a per-unit price",
+        )
+    }
 }

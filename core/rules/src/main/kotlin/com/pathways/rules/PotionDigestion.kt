@@ -63,6 +63,66 @@ data class DigestedCharacter(
  */
 object PotionDigestion {
 
+    /**
+     * What a Sequence block carries that this object deliberately does NOT read.
+     *
+     * [SequenceBlock.ability] and `reinforcedAbilities` are prose, printed by
+     * `PathwayScreen` and parsed by nothing. That is 46.1% of the book's
+     * mechanical lines, and chapters 9-12 report 100% coverage while it sits
+     * there, because a coverage number measures extraction and this is a
+     * question about application.
+     *
+     * **This is a GAP, not a refusal, and the distinction is the point.**
+     * [Equipment.UNMODELLED] and [ActiveDefenses.UNPAYABLE] record rules this
+     * app cannot support -- no inventory to own the item, no field to read.
+     * Nothing of that kind blocks these: `Character.beyonder` records the
+     * pathway and Sequence, [digestThrough] already folds the chain, and the
+     * app spends SPI for a sealed artifact's ability on exactly this shape.
+     * It is unbuilt work, and it must not be inherited as settled.
+     *
+     * What a design review stopped, and what the next attempt has to fix:
+     *
+     *  - **The price is not one number with a boolean.** `ArtifactCost` carries
+     *    `perTurn`, and `ArtifactDialog` renders it "per turn maintained". The
+     *    book prices these abilities in **at least three kinds** of qualifier,
+     *    which is the part a test pins: recurring per turn AND per minute
+     *    (this app's clock is one turn = one second, so collapsing those is a
+     *    60x error), and per-unit scaling ("per raven", "per 2 bullets", "per
+     *    fireball"). Reading the prose also shows action economy ("Free
+     *    Action") and one composite ("+ Ritualistic Magic"), for fifteen
+     *    distinct qualifier strings in all -- that fuller count is a reading,
+     *    not a checked number, and the three pinned kinds are already one more
+     *    than a boolean can carry.
+     *  - **58 of the 237 printed SPI costs sit outside any named clause.**
+     *    The named `Name (N SPI):` shape yields 173 clauses, but six of those
+     *    carry two prices each, so it accounts for 179 mentions and not 173 --
+     *    a distinction that matters because subtracting the clause COUNT from
+     *    the mention count overstates the prose-only figure by exactly those
+     *    six. The remainder are priced in running prose -- "Spend 1 SPI to
+     *    activate", "All spells cost 2 SPI". A per-block
+     *    list built from the named shape alone would read as exhaustive while
+     *    silently dropping a clause, which is an invisible line reading as
+     *    completion one layer down. Any parse needs a per-block reconciliation
+     *    against the raw SPI count, not a global total.
+     *  - **The entry point takes the chain, not the block.** Abilities are
+     *    cumulative exactly as stats and skills are; a Sequence 5 Seer holds
+     *    five blocks' worth. A `forBlock` API bypasses the three `require`
+     *    guards in [digestThrough] and answers a different question than the
+     *    caller asked.
+     *
+     * [SealedArtifacts] is the right precedent for the SPEND mechanism only.
+     * It is not the precedent for possession: `SealedArtifacts.all()` is
+     * ungated and offers every artifact to every character, so it never had to
+     * answer that question. [digestThrough] is what answers it here.
+     */
+    val UNPARSED = mapOf(
+        "ability" to
+            "priced Beyonder powers, 237 SPI costs in 15 qualifier shapes; " +
+            "unbuilt work, not a refusal -- see this object's KDoc",
+        "reinforcedAbilities" to
+            "the same, for the blocks that reinforce an earlier Sequence",
+    )
+
     /** Every standard pathway begins at Sequence 9 (Ch. 9). */
     const val STARTING_SEQUENCE = 9
 
