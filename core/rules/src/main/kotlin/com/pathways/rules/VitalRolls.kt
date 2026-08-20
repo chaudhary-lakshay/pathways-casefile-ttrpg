@@ -90,15 +90,32 @@ object VitalRolls {
      * reeling since 1/3 HP, so nothing here creates the state mid-roll -- the
      * argument that keeps shock off [RollKind.MAJOR_WOUND_HT] has no
      * counterpart on these two.
+     *
+     * **It carries the FP penalty as well as the HP one, deliberately.** These
+     * rolls are gated on an HP threshold, but "-1 to all rolls per 1 FP below
+     * 0" (p. 41) names ROLLS and not a pool, so a character at -8 FP rolls to
+     * stay conscious at -8. Scoping it to HP would be this app inventing the
+     * qualifier the book left out -- the move 4.1 forbids in both directions.
      */
     fun targetFor(check: VitalCheck, ht: Int, traits: List<Trait>, poolPenalty: Int): Int =
         ht + bonusFor(check, traits) + poolPenalty
 
     /** The threshold row's own sentence, quoted rather than paraphrased. */
-    fun printed(check: VitalCheck): String {
-        val level = if (check == VitalCheck.CONSCIOUSNESS) CONSCIOUSNESS_ROW else SURVIVAL_ROW
-        val row = Pools.thresholds(Pool.HP).firstOrNull { it.level == level }
-        require(row != null) { "the HP table prints no row called '$level'" }
-        return row.effect
-    }
+    fun printed(check: VitalCheck): String = row(check).effect
+
+    /**
+     * The row's printed LEVEL, which is what tells two offered rolls apart.
+     *
+     * Below `-HP` both checks are due and their targets differ (`Hard to Kill`
+     * lifts one of them), so two buttons reading "Roll HT n" would leave the
+     * player guessing which number belonged to which rule. The book's own
+     * "0 HP" and "-HP" are the discriminator, so no label is invented here --
+     * 6cn's rule that an unnamed label gets picked by whoever writes the
+     * screen, and the default is the worse one.
+     */
+    fun rowFor(check: VitalCheck): String = row(check).level
+
+    private fun row(check: VitalCheck) = Pools.thresholds(Pool.HP)
+        .firstOrNull { it.level == if (check == VitalCheck.CONSCIOUSNESS) CONSCIOUSNESS_ROW else SURVIVAL_ROW }
+        ?: error("the HP table prints no row for $check")
 }

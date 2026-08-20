@@ -99,6 +99,31 @@ class VitalRollsTest {
     }
 
     @Test
+    fun `spent FP reaches an HP roll, because the book scopes it to rolls`() {
+        // "-1 to all rolls per 1 FP below 0" (p. 41) names rolls, not a pool.
+        // These two are gated on an HP threshold and take it anyway; scoping
+        // it to HP would add a qualifier the book does not print.
+        val hp = Pools.hp(0, 10)
+        val spent = Pools.fp(-8, 12)
+        // -9, not -8: the reeling -1 is in force at 0 HP as well, and the two
+        // penalties are separate rules that both name "all rolls".
+        assertEquals(-9, Conditions.penaltyFor(RollKind.ATTRIBUTE, hp, spent))
+        assertEquals(
+            4,
+            VitalRolls.targetFor(VitalCheck.CONSCIOUSNESS, 12, emptyList(), poolPenalty = -8),
+        )
+    }
+
+    @Test
+    fun `the two offered rolls are told apart by the row that prints them`() {
+        // Below -HP both are due and a Hard to Kill carrier sees two different
+        // targets; without the row's own name the player cannot tell which
+        // number belongs to which rule.
+        assertEquals("0 HP", VitalRolls.rowFor(VitalCheck.CONSCIOUSNESS))
+        assertEquals("-HP", VitalRolls.rowFor(VitalCheck.SURVIVAL))
+    }
+
+    @Test
     fun `each check quotes the row it comes from`() {
         assertTrue(VitalRolls.printed(VitalCheck.CONSCIOUSNESS).contains("fall unconscious"))
         assertTrue(VitalRolls.printed(VitalCheck.SURVIVAL).contains("die"))

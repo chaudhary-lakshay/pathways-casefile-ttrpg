@@ -6847,12 +6847,31 @@ vacuity in this file's recent history, and the same shape each time: the
 expectation was written from the arithmetic rather than from the failure. It
 now asserts three targets whose differences are the two terms.
 
-**Next: the Will rolls' own sweep has one half left.** The four conditional
-Will rows are unreachable today because no fixture carries them — but
-`PurchasableTraits` can put an advantage on a character (6cc), so "no carrier"
-is a claim about the fixtures, not about the app. The check worth running is
-whether any purchasable row this app can GRANT names a roll the app makes, and
-that is a different corpus from the 23 sheets every previous census used.
+### Two follow-ups the diff review and a second pass added
+
+`VitalRolls.due` returns both checks below `-HP` and the screen rendered two
+buttons reading `Roll HT n` — with **different** numbers, because `Hard to
+Kill` lifts one of them and not the other. A player would have had to infer
+which target belonged to which rule from two long sentences that start alike.
+They are now named by the book's own row, `0 HP` and `-HP`, so no label is
+invented (6cn: an unnamed label gets picked by whoever writes the screen, and
+the default is the worse one).
+
+And the FP reading is now stated rather than implied. These rolls are gated on
+an **HP** threshold and take the FP penalty too, because "-1 to all rolls per 1
+FP below 0" names ROLLS and not a pool; a character at -8 FP and 0 HP rolls at
+-9, both rules at once. Scoping it to HP would add a qualifier the book does
+not print, which 4.1 forbids in the same way it forbids dropping one.
+
+**Next: the Will rolls, and the corpus the sweep should have used.** The four
+conditional Will rows are carried by no fixture — but `PurchasableTraits.offered()`
+takes the WHOLE advantages and disadvantages catalogue, minus Wealth, and none
+of the four is excluded. **They are buyable today.** So "no carrier" was a
+claim about the 23 sheets and not about the app, and every census in this file
+that used the fixtures as its reachability corpus has the same blind spot. The
+slice is a declared-condition chip on the three bare Will rolls, the shape
+`socialClauses` and `frightClauses` already have — and the wider finding is the
+corpus: a purchasable row is reachable whether or not a premade prints it.
 
 ## 6dd. One sentence, two reaches — and the bar it never had to clear
 

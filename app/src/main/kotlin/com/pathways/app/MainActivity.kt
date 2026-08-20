@@ -1529,7 +1529,9 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
                     if (outcome != null) return@TextButton
                     outcome = SuccessRoll.against(target, appDice)
                 },
-            ) { Text("Roll HT $target") }
+                // Named by the book's own row, because below -HP BOTH rolls
+                // are offered and their targets differ (6cn).
+            ) { Text("Roll HT $target — ${VitalRolls.rowFor(check)}") }
         } else {
             Text(
                 "3d6: ${result.total} vs $target - ${result.outcome.name.lowercase()}",
