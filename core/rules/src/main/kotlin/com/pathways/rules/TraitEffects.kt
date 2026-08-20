@@ -303,8 +303,10 @@ object TraitEffects {
      * too.
      *
      * Deliberately NOT a general attribute-roll accessor, the same call
-     * [htRollBonus] makes: the app's other bare rolls are Will, IQ and Per,
-     * and nothing here names those.
+     * [htRollBonus] makes: the app's other bare rolls are Will, IQ and Per.
+     * **"Nothing names those" was loose and 6de's sweep corrected it** -- four
+     * catalogue rows name Will rolls, all CONDITIONAL and none carried by a
+     * fixture. See [htRollBonus], which carries the census.
      */
     fun spiRollBonus(traits: List<Trait>): Int =
         SPI_ROLL_TRAITS.entries.sumOf { (trait, value) ->
@@ -555,14 +557,22 @@ object TraitEffects {
      * What [traits] add to any roll of HT itself.
      *
      * **"+1 to all HT rolls" means all of them, and [modifiers] can only
-     * reach the ones a [SkillKey] carries.** This app makes exactly one bare
-     * HT roll -- the Major Wound's -- so Fit missed it for six premades from
-     * 6n until now. The same structural gap 6al had to thread explicitly for
-     * Alertness, whose "all Per rolls" could not reach the detection roll.
+     * reach the ones a [SkillKey] carries.** The Major Wound's roll was the
+     * only bare HT roll this app made -- so Fit missed it for six premades
+     * from 6n until 6bs -- and 6de added two more, the HP table's own
+     * consciousness and survival rolls ([VitalRolls]). The same structural
+     * gap 6al had to thread explicitly for Alertness, whose "all Per rolls"
+     * could not reach the detection roll.
      *
-     * Deliberately NOT a general attribute-roll bonus: the app's other bare
+     * Deliberately NOT a general attribute-roll bonus. The app's other bare
      * rolls are Will, IQ, Per and SPI (fright, self-control, concentration,
-     * detection), and no trait here names those.
+     * detection). **A sweep in 6de asked whether any trait names those**: four
+     * rows name Will rolls (`Incorruptible Will`, `Grief-Stricken`,
+     * `Reluctant Killer`, `Evil Eye Fear`), every one of them CONDITIONAL --
+     * "to resist Beyonder abilities", "in situations that echo a specific
+     * loss" -- and no fixture carries any of them. A conditional clause is a
+     * different feature from an unconditional one (6bt), so none joins here;
+     * IQ is named by nothing at all.
      */
     fun htRollBonus(traits: List<Trait>): Int =
         HT_ROLL_TRAITS.entries.sumOf { (trait, value) ->

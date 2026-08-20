@@ -106,7 +106,31 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6dd is newest, and it is one sentence that had two reaches in one app.**
+**6de is newest, and it is two fields nothing ever read.** `Pools.hp` has
+computed `rollsToStayConscious` and `rollsToSurvive` since M0; a grep for
+readers returns `PoolsTest` and nothing else. The sheet printed the HP table's
+own sentences — *"Roll 3d6 <= HT or fall unconscious"* and *"Roll vs. HT or
+die"* — and **no screen could roll either**. `VitalRolls` gives both flags
+their first reader. Read it for four things. The **scope is the slice**: three
+traits name an HT roll and none means the same thing — `Fit`/`Very Fit`/`Unfit`
+say "to all HT rolls" and reach both checks, `Hard to Kill` says "HT rolls to
+avoid death" and reaches the `-HP` roll ALONE (dying starts one row lower;
+widening a clause that names its own condition is 6ck's refused move), and
+`High Pain Threshold` says "to avoid knockdown" and reaches neither. **`Very
+Fit` was missing from `HT_ROLL_TRAITS`**, whose KDoc claims to hold every trait
+saying "to all HT rolls" — invisible because `htRollNames()` returns the map's
+own keys, so every guard asserted the data rather than the failure; the
+catalogue is now the corpus that can disagree, and the diff review caught that
+adding it also moves the **Major Wound's** roll, correctly and untested until
+pinned. **Three recorded refusals cited "this app models no death roll"** and
+all three moved in the same commit — one applied, two re-stated on the halves
+of their reason that survive. And the sweep 6dd named came back **closed**: 16
+`to all X rolls` shapes, the only open class is Will, all four rows are
+CONDITIONAL and no fixture carries one — but the sentence that would have
+stopped the next sweep ("nothing here names those") was loose and is corrected
+in place. **A sweep that finds nothing still has a deliverable.**
+
+**6dd is next, and it is one sentence that had two reaches in one app.**
 p. 40's *"Reeling: -1 to all rolls"* and p. 42's *"-1 to all rolls"* reached
 `SkillKey` rolls only, through `Conditions.forSkill`'s ledger — while the
 Major Wound row on the SAME page prints the identical phrase and `Shock`
@@ -571,7 +595,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dd, then 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6de, then 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -802,7 +826,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1613 Kotlin** (JUnit 5 — 1127 `core:rules`, 466 `app`, 20 `core:model`) + **291 Python** (pytest), all green — counted from the JUnit XML, not from memory. **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1624 Kotlin** (JUnit 5 — 1138 `core:rules`, 466 `app`, 20 `core:model`) + **291 Python** (pytest), all green — counted from the JUnit XML, not from memory. **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -911,6 +935,10 @@ Conditions.forSkill(skill, hp, fp, spi, cor): List<Modifier>   // scoped per ski
 Conditions.penaltyFor(kind, hp, fp): Int      // the same two, for the rolls
                                               // outside SkillKey; throws on SKILL
 ActiveDefenses.everyDefence(traits, stunned, shocked, poolPenalty): Int
+VitalRolls.due(hp): List<VitalCheck>          // the HP table's own two rolls
+VitalRolls.bonusFor(check, traits) / .targetFor(check, ht, traits, poolPenalty)
+VitalRolls.printed(check): String             // CONSCIOUSNESS at 0 HP, SURVIVAL at -HP
+TraitEffects.deathRollBonus(traits): Int      // Hard to Kill, survival roll only
 Attacks.modifiers(plan, skillLevel): List<Modifier>        // maneuver + options
 Attacks.attackCount(plan) / .fpCost(plan) / .maxDeceptive(skillLevel)
 Attacks.damageBonus(plan, fromSkill): Int                  // Strong + Boxing
@@ -1181,10 +1209,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6dd. The slice log
+## 6a-6de. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6dd is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6de is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

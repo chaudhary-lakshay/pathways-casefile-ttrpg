@@ -6726,6 +6726,134 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6de. Two flags, no reader — the rolls the HP table prints
+
+6dd named a sweep: every rule delivered to one roll class while its printing
+names a wider one. **The sweep came back closed, and the finding is what it
+turned up on the way.**
+
+### The sweep, and its verdict
+
+Query: every `to all <X> rolls` clause in the content, against what the app
+joins it to. 16 shapes across five files. The controlling-attribute joins are
+already deliberate — `Alertness` on Per (6al), `Fit`/`Unfit` on HT (6bs),
+`Ether Body Damage` on SPI (6ca) — and each has both paths, typed and bare.
+The open class was **Will**: four rows name Will rolls, and this app makes
+three bare Will rolls (self-control, Concentration, and the Fright Check).
+
+All four are CONDITIONAL — `Incorruptible Will` is "+3 to all Will rolls **to
+resist Beyonder abilities, evil god whispers, and ritual compulsion**",
+`Grief-Stricken` is "in situations that echo a specific loss" — and **no
+fixture carries any of them**. A conditional clause is a different feature
+from an unconditional one (6bt), so the answer is that nothing joins, and
+`SPI_ROLL_TRAITS`' KDoc sentence that would have made the next sweep skip this
+("the app's other bare rolls are Will, IQ and Per, and nothing here names
+those") was loose. It is corrected in place: Will IS named, four times, all
+conditional, zero carriers. **A sweep that finds nothing still has a
+deliverable — the sentence that would have stopped the next one.**
+
+### What it found instead
+
+`pool_thresholds.json` prints two rolls on the HP table:
+
+| Row | Effect |
+|---|---|
+| `0 HP` | "Roll 3d6 <= HT or fall unconscious; roll each turn to remain conscious" |
+| `-HP` | "Roll vs. HT or die; must roll vs. HT each turn while below this threshold" |
+
+`Pools.hp` has computed `rollsToStayConscious` and `rollsToSurvive` **since
+M0**, and a grep for readers returns `PoolsTest` and nothing else. The sheet's
+`PoolRow` printed the sentence; no screen could roll it. That is 6cf's class
+(tested, documented, called by nothing) sitting under 6dc's class (one screen
+prints the rule, the next ignores it), on the same table 6dd had just fixed.
+
+Reachability was checked before the slice was named, not assumed:
+`BeyonderSession.spend` floors `hpLost` at zero and caps nothing, so current HP
+goes arbitrarily negative and **both** rolls are reachable — not one.
+
+### The scope, which is the whole slice
+
+Three traits name an HT roll and none of them means the same thing:
+
+| Trait | Cell | Reaches |
+|---|---|---|
+| `Fit` / `Very Fit` / `Unfit` | "to all HT rolls" | both checks, and the Major Wound's |
+| `Hard to Kill` | "HT rolls **to avoid death**" | the `-HP` roll alone |
+| `High Pain Threshold` | "to avoid knockdown" | neither |
+
+`Hard to Kill` is refused the consciousness roll because dying starts one row
+lower: widening a clause that names its own condition is the move 6ck refused
+for facing. The design review put the same question the other way — is losing
+consciousness part of a death spiral? — and answered it from the table's own
+boundary rather than from the fiction.
+
+**`VitalRolls.due` returns BOTH checks below `-HP`**, because `Pools` sets both
+flags there and the dying row does not withdraw the row above it. Reporting one
+would be a reading; reporting what the model already says is not.
+
+### Very Fit, and a guard that could not see it
+
+`HT_ROLL_TRAITS`' KDoc says it holds "every trait whose cell says 'to all HT
+rolls'". It held `Fit` and `Unfit`. **`Very Fit` prints "+2 to all HT rolls"
+and was not in it** — and `htRollNames()`, the accessor written for the guard
+tests, returns the map's own keys, so every test built on it asserted the data
+rather than the failure. The catalogue is the corpus that can disagree, and the
+new test reads it: neutering the map entry reddens two tests, which is the RED
+proof that it was never covered before.
+
+Its consequence reaches further than this slice, which the diff review caught:
+`Very Fit` now moves the **Major Wound's** HT roll too, through the same
+`htRollBonus`. That is correct — "all HT rolls" includes the one this app
+already made — but nothing asserted it, and a behaviour change nothing asserts
+is one nobody chose. Pinned.
+
+### Three refusals whose reason died
+
+`TraitEffects.UNAPPLIED` said "this app models no death roll to avoid" of
+`Hard to Kill`, and two more entries cited that refusal by name:
+
+- **`Hard to Kill`** — now applied; the entry is gone and `deathRollBonus`
+  carries the history in its KDoc.
+- **`Uncanny Survivor`** — "once per campaign arc, when you would die on a
+  death roll, succeed automatically". The death roll now exists, so the reason
+  is re-stated on the half that survives: a once-per-arc budget needs a
+  campaign this app does not hold, and the book hands the cost to the GM.
+- **`Earth Mother`** — "revive from death" is not a modifier on a roll, and the
+  HP table's rolls stop at "Dead — no roll required". The clock half of its
+  reason was always the load-bearing one.
+
+A refusal expires exactly like a sweep verdict (6ba, 6bl), and three of them
+expiring on one commit is what a shipped roll does to a file that used its
+absence as a reason.
+
+### Deliberately not modelled
+
+**The repetition.** Both rows say "each turn". This app holds no clock (6ad,
+6ah, 6an, 6dc), so one roll is offered and the screen says the book asks for
+one a turn — silence there would let a single roll read as the whole rule.
+
+**The outcome.** Nothing latches. `Shock` latches because the app creates a
+state it can then charge for; nothing in this app consumes unconsciousness, so
+storing it would recreate the field-with-no-reader this slice exists to remove.
+The design review's strongest counter is recorded rather than dismissed: a
+failed consciousness roll IS a real state, and the day something reads it, this
+decision is the one to revisit.
+
+### One test caught its own author
+
+`targetFor` was first asserted at HT 12 with `Fit` and a reeling `-1` — and
+12 + 1 − 1 is 12, so **the assertion passed with both terms removed**. Fifth
+vacuity in this file's recent history, and the same shape each time: the
+expectation was written from the arithmetic rather than from the failure. It
+now asserts three targets whose differences are the two terms.
+
+**Next: the Will rolls' own sweep has one half left.** The four conditional
+Will rows are unreachable today because no fixture carries them — but
+`PurchasableTraits` can put an advantage on a character (6cc), so "no carrier"
+is a claim about the fixtures, not about the app. The check worth running is
+whether any purchasable row this app can GRANT names a roll the app makes, and
+that is a different corpus from the 23 sheets every previous census used.
+
 ## 6dd. One sentence, two reaches — and the bar it never had to clear
 
 6dc named this next and named the wrong bar for it: *"whether it reaches a
