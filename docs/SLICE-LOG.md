@@ -6836,6 +6836,26 @@ three questions through `task --effort high`, with an explicit *"do not read
 CLAUDE.md or docs/SLICE-LOG.md"*, answered in full. Codex's usage limit had
 reset (14:23, and the clock read 23:14 — 6am/6as's rule paying again).
 
+### Two things a review AFTER the commit found
+
+The diff applied a printed clause to Fright, Concentrate and Detection and gave
+`DefenseDialog` **the number with no text** — a reeling character's Parry
+dropping by 1 with nothing on screen saying why, which is the standard the same
+diff's own `Detection` KDoc quotes ("a target that moves without the breakdown
+saying why is how these numbers stopped reconciling", 6ag, 6ai). It now
+announces itself beside the stun, inside the same `refusal.defends` block so a
+withdrawn set of defences does not price a penalty on nothing (6cs).
+
+The other was a claim, not a defect, and the check is the useful part. `hurt`
+is re-read live on every recomposition, so a Major Wound HT roll made AFTER
+Apply would charge the character for the very blow that triggered it — the
+exact thing `Shock`'s own `MAJOR_WOUND_HT` exclusion exists to prevent, and the
+opposite of what this slice's prose asserts. **Apply calls `onDismiss` in the
+same handler**, so the panel is gone before that state exists; the tap order
+cannot reach it. Latching would have been the wrong fix anyway (6ch: a live
+pool must not be `remember`ed), and the reason now sits in the KDoc so the next
+reader does not re-derive it.
+
 ### Left unapplied, deliberately
 
 `Pools.thresholds(fp)` is still empty and FP's rows are still prose; nothing

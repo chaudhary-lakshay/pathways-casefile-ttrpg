@@ -91,6 +91,14 @@ fun DamageDialog(
      * character carried them in -- so the exclusion is about WHEN and does not
      * transfer, and "-1 to all rolls" reaches the only bare HT roll this app
      * makes.
+     *
+     * **It is live, and the tap order cannot make it wrong.** The value is
+     * re-read from the trackers on every recomposition, so the obvious worry
+     * is a roll made AFTER Apply charging the character for the very blow that
+     * triggered it. Apply calls `onDismiss` in the same handler, so the panel
+     * is gone before that state exists: this roll can only be made on the HP
+     * the character walked in with. Checked rather than latched -- 6ch's
+     * `spiAvailable` says a live pool must not be `remember`ed.
      */
     hurt: Int,
     onDismiss: () -> Unit,

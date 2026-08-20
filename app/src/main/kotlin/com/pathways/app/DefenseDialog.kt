@@ -415,6 +415,19 @@ fun DefenseDialog(
                     // the one above, so a withdrawn set of defences does not
                     // offer a -4 on nothing.
                     StunPicker(stunned) { stunned = !stunned }
+                    // Beside the stun, because it is the other thing already
+                    // inside every row below -- and inside this same block, so
+                    // a withdrawn set of defences does not announce a penalty
+                    // on nothing (6cs: a block inherits the branch it lands
+                    // in). Announced rather than left silent: a target that
+                    // moves without the screen saying why is how these numbers
+                    // stopped reconciling in 6ag and 6ai.
+                    if (poolPenalty != 0) {
+                        Note(
+                            "Hurt or tired: $poolPenalty to every defence below, " +
+                                "from the HP and FP thresholds on the sheet (pp. 40 and 42).",
+                        )
+                    }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     // Above the rows it changes, unlike the parry stepper: it
                     // moves the unarmed parries AND withdraws them, so a
