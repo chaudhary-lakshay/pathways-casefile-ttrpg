@@ -130,6 +130,15 @@ CONDITIONAL and no fixture carries one — but the sentence that would have
 stopped the next sweep ("nothing here names those") was loose and is corrected
 in place. **A sweep that finds nothing still has a deliverable.**
 
+**And its own reachability verdict was wrong within the hour.** 6de closed the
+Will class as "no fixture carries one" — but `PurchasableTraits.offered()` takes
+the WHOLE advantages and disadvantages catalogue minus Wealth, and none of the
+four is excluded, so **they are buyable today**. Every census in this file that
+used the 23 fixtures as its reachability corpus has that blind spot: a
+purchasable row is reachable whether or not a premade prints it. The named next
+slice is a declared-condition chip on the three bare Will rolls, the shape
+`socialClauses` and `frightClauses` already have.
+
 **6dd is next, and it is one sentence that had two reaches in one app.**
 p. 40's *"Reeling: -1 to all rolls"* and p. 42's *"-1 to all rolls"* reached
 `SkillKey` rolls only, through `Conditions.forSkill`'s ledger — while the
@@ -826,7 +835,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1624 Kotlin** (JUnit 5 — 1138 `core:rules`, 466 `app`, 20 `core:model`) + **291 Python** (pytest), all green — counted from the JUnit XML, not from memory. **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1626 Kotlin** (JUnit 5 — 1140 `core:rules`, 466 `app`, 20 `core:model`) + **291 Python** (pytest), all green — counted from the JUnit XML, not from memory. **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
