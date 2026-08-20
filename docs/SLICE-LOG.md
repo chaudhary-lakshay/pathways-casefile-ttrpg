@@ -6726,6 +6726,133 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dd. One sentence, two reaches — and the bar it never had to clear
+
+6dc named this next and named the wrong bar for it: *"whether it reaches a
+defence VALUE on a screen that never rolls one needs the bar 6ck set for the
+stun — a printing that says 'active defenseS'."* **That bar was already
+cleared, four slices earlier, by a rule in production source.** Running the
+inherited reason as a query is what found it (stage 1's rule), and the answer
+was one grep away in `Shock.kt`.
+
+### The finding
+
+Three pool penalties print the same unqualified phrase:
+
+| Book line | Printed |
+|---|---|
+| 2702 (p. 40) | `1/3 HP remaining` → `Reeling: -1 to all rolls` |
+| 2852 (p. 42) | `At 1/3 FP or below` → `-1 to all rolls; Move and Dodge halved` |
+| 2724 (p. 41) | `FP below 0: -1 to all rolls per 1 FP below 0` |
+
+They reached `SkillKey` rolls and nothing else, through
+`Conditions.forSkill`'s modifier ledger. **Line 2824, on the same page as the
+second one, prints the identical phrase** — the Major Wound's success row,
+`-4 to all rolls for 1 turn from shock and pain` — and `Shock` reaches all four
+`RollKind`s with it, on a warrant its own KDoc records:
+
+> **"All rolls" is taken at its word, and that is a reading.** GURPS 4e exempts
+> active defences from its shock penalty; this book prints "all rolls"
+> unqualified.
+
+So one sentence had **two reaches in one app**, decided by which function the
+wiring happened to land in. In play that meant a reeling, fatigued character:
+
+- defended at **full Dodge, Parry and Block** (`ActiveDefenses.everyDefence`
+  carried the stun's -4 and shock's -4 and nothing from the trackers),
+- rolled their **Fright Check, self-control roll, Concentration and Detection**
+  at full value (the four bare-attribute dialogs took `shockOnAttribute` alone),
+- rolled the **Major Wound's own HT roll** at full value,
+
+while their shock was applied to every one of those.
+
+### The bar, and why 6ck's was the wrong one
+
+6ck refused the facing penalty because `Attacked from side: -2 to defense` is
+printed **singular** and needs a second printing to widen it to three rows.
+That condition does not describe this rule at all. `-1 to all rolls` names a
+**superset that already contains a defence** — nothing needs widening, and the
+app had already decided, in `RollKind.ACTIVE_DEFENSE`'s own KDoc, that a
+defence is *"a number the player rolls under"*. **A precedent travels with the
+condition that produced it** (6cm), and so does a refusal's bar: inheriting
+6ck's here would have refused a rule on a fact about a different sentence.
+
+### What ships
+
+`Conditions.penaltyFor(kind, hp, fp)` answers once for the three kinds the
+ledger cannot see, and **refuses `RollKind.SKILL`** — that path takes them
+through `forSkill`, and a caller taking both would charge a reeling character
+twice with no other number on screen disagreeing. Its RED proof deleted the
+`require` and reddened exactly one test of thirteen.
+
+`spi` and `cor` are deliberately not in it. Spiritual Attrition prints "all
+SPI-based **SKILL** rolls" and the CoR ladder "all **ritual** rolls"; both name
+a scope, and a defence value has no skill to match against.
+
+**Shock's own exclusion does not transfer, and that is the interesting half.**
+`Shock.appliesTo` refuses `MAJOR_WOUND_HT` because that roll is what *creates*
+the shock — an argument about WHEN, not about what the roll is. Nothing creates
+reeling mid-roll: the character carried it in. So the two states answer
+differently for the same kind, and `DamageDialog`'s call site names the kind so
+the difference can be read rather than guessed.
+
+`everyDefence` takes `poolPenalty` with **no default** (6ch: a literal at a
+call site is a domain claim nobody argued for). Neutering the term reddened
+2 of 27 `ActiveDefensesTest` cases and left the other 25 green.
+
+### The composition order, which the book does not print
+
+p. 42 prints two clauses for one state: `-1 to all rolls; Move and Dodge
+halved`. 6dc's `Pools.halvedForFatigue` halves the BASE score, round up; the
+boost, Dive!, Retreat and a shield's DB are additive whole numbers on top. The
+-1 lands **on top**, where the stun's -4 and shock's -4 already do — halving is
+a property of the Dodge SCORE and the -1 is a property of every ROLL. At base 8
+the readings differ (`ceil(8/2)-1 = 3` against `ceil(7/2) = 4`), which is what
+makes it a decision rather than a formatting detail. Both are pinned.
+
+**The diff review's finding is about that test, and it is right.** The test
+composes both readings itself, so it would stay green if `MainActivity` were
+edited to halve `vitals.dodge + poolPenalty`. What actually stops that is the
+**boundary**: `DefenseDialog` is handed a Dodge that is already halved and
+never sees the raw score, so the dialog cannot express the refused order —
+only the one site that owns the halving could, and no test in this repo can
+reach a composable (6cq). The test now says which of those it is.
+
+### Two process findings
+
+**A reviewer can review the wrong target and exit clean.** `review --wait` with
+no argument picked up `tools/extract_glossary.py` — untracked leftover from an
+earlier session, not in this diff — reported two P2s about it, and dismissed
+the actual change in one sentence. Re-asked with the target named and the
+leftover excluded, the same reviewer returned the Medium above on its first
+pass. **Read the reviewer's target list before reading its findings**; a
+one-sentence "nothing found" over ten changed files is a non-answer.
+
+**`adversarial-review --wait` refused its own input**: `Input exceeds the
+maximum length of 1048576 characters`. Not the prompt — the companion
+discovers `CLAUDE.md` from the cwd the way Claude does, and this repo's
+instruction file plus `docs/SLICE-LOG.md` are several hundred KB. The same
+three questions through `task --effort high`, with an explicit *"do not read
+CLAUDE.md or docs/SLICE-LOG.md"*, answered in full. Codex's usage limit had
+reset (14:23, and the clock read 23:14 — 6am/6as's rule paying again).
+
+### Left unapplied, deliberately
+
+`Pools.thresholds(fp)` is still empty and FP's rows are still prose; nothing
+here changed that. The **recovery and Regeneration RATES** stay unapplied for
+6dc's mechanism reason — this app holds no clock — and 2899's Regeneration rule
+still needs a reachability check before it can be named as a slice.
+
+**The next slice: sweep the OTHER direction this one only half-ran.**
+`Conditions.penaltyFor` now answers for three kinds; what has not been checked
+is whether any *other* rule in this app is delivered to one roll class while
+its printing names a wider one. The query is mechanical and the corpus is
+small: every constant or clause that reaches `SkillKey` rolls alone
+(`TraitEffects`' bonuses, `CommonModifiers`, the ritual and divination ladders),
+asked whether its sentence names skills or names rolls. This slice found the
+class by accident on one member; running it deliberately is the obligation
+6ay's lesson sets.
+
 ## 6dc. The sentence one screen printed and the next screen ignored
 
 6db named the recovery cluster and asked a precondition before any build:

@@ -40,8 +40,22 @@ clean. Verify that claim the way 6ax asks you to verify 6ax, and note that
 6ci found two claims in this file's own newest paragraphs had been false for
 four slices, and then 6cj found one of 6ci's own.
 
-**Codex is refusing again** — usage limit, resets **2026-08-20 14:23** from its
-own error text. **When the free panel is also silent, go to
+**Codex answered again on 2026-08-20 at 23:14**, its stated 14:23 reset having
+passed — check the CLOCK and not just the date (6am, 6as). Two things about
+that pass are worth inheriting. `adversarial-review --wait` refused its own
+input (`Input exceeds the maximum length of 1048576 characters`): the companion
+discovers this file from the cwd, and it plus `docs/SLICE-LOG.md` are several
+hundred KB, so a design review has to go through `task --effort high` with an
+explicit *"do not read CLAUDE.md or docs/SLICE-LOG.md"*. And `review --wait`
+with no argument **reviewed the wrong target** — an untracked leftover script —
+returning two P2s about it and one dismissive sentence about the ten files that
+had actually changed; re-asked with the target named, it returned a real
+finding on its first pass. **Read a reviewer's target list before reading its
+findings** (6dd).
+
+**When Codex is out and the free panel is also silent, go to
+`ecc:kotlin-reviewer` rather than shipping self-checked** — 6cz is what two
+slices of not doing that cost. **When the free panel is also silent, go to
 `ecc:kotlin-reviewer` rather than shipping self-checked** — 6cz is what two
 slices of not doing that cost. Every pass since 6cd has been the documented
 `ecc:kotlin-reviewer` fallback, scoped to three questions and the files needed
@@ -92,7 +106,32 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6dc is newest, and it is the rule one screen printed while the next screen
+**6dd is newest, and it is one sentence that had two reaches in one app.**
+p. 40's *"Reeling: -1 to all rolls"* and p. 42's *"-1 to all rolls"* reached
+`SkillKey` rolls only, through `Conditions.forSkill`'s ledger — while the
+Major Wound row on the SAME page prints the identical phrase and `Shock`
+carries it to all four `RollKind`s, on a warrant its own KDoc records
+(*"'All rolls' is taken at its word"*). So a reeling, fatigued character
+defended at full Dodge, Parry and Block and rolled their Fright Check,
+self-control roll, Concentration, Detection and Major Wound HT roll at full
+value, with their shock applied to every one. **6dc named this next and named
+the wrong bar for it**: 6ck's "a printing that says active defenseS" is the bar
+for widening a SINGULAR, and `-1 to all rolls` names a superset that already
+contains a defence — a refusal's bar travels with the condition that produced
+it, exactly as a precedent does (6cm). `Conditions.penaltyFor(kind, hp, fp)`
+answers once and **refuses `RollKind.SKILL`**, which `forSkill` already
+carries. Read it for three more things. **Shock's own exclusion does not
+transfer** — it refuses `MAJOR_WOUND_HT` because that roll CREATES the shock,
+an argument about WHEN, and nothing creates reeling mid-roll — so the two
+states answer differently for one kind and the call site names it. The
+composition order against 6dc's halving is a DECISION the book does not print
+(`ceil(base/2) - 1`, not `ceil((base-1)/2)`; they differ at base 8), and the
+diff review was right that its test **composes both readings by hand** and so
+pins the difference rather than the order: what stops the reversal is the
+BOUNDARY, since `DefenseDialog` never sees the unhalved score. And `spi` and
+`cor` stay out of the new number because both printings name a scope.
+
+**6dc is next, and it is the rule one screen printed while the next screen
 ignored it.** p. 42's FP row — *"At 1/3 FP or below: -1 to all rolls; **Move and
 Dodge halved**"* — had its -1 applied since 6h and its whole sentence printed on
 the sheet, while `DefenseDialog` one tap away was handed the full
@@ -532,7 +571,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dc, then 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dd, then 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -763,7 +802,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1604 Kotlin** (JUnit 5 — 1118 `core:rules`, 466 `app`, 20 `core:model`) + **291 Python** (pytest), all green — counted from the JUnit XML, not from memory. **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1613 Kotlin** (JUnit 5 — 1127 `core:rules`, 466 `app`, 20 `core:model`) + **291 Python** (pytest), all green — counted from the JUnit XML, not from memory. **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -869,6 +908,9 @@ Corruption.ritualPenalty(cor) / .ritualThresholdsReached(cor)
 Pools.hp(current, max) / .fp(current, max) / .spi(current, max): PoolStatus
 Pools.thresholds(pool): List<PoolThreshold>   // empty for FP: prose only
 Conditions.forSkill(skill, hp, fp, spi, cor): List<Modifier>   // scoped per skill
+Conditions.penaltyFor(kind, hp, fp): Int      // the same two, for the rolls
+                                              // outside SkillKey; throws on SKILL
+ActiveDefenses.everyDefence(traits, stunned, shocked, poolPenalty): Int
 Attacks.modifiers(plan, skillLevel): List<Modifier>        // maneuver + options
 Attacks.attackCount(plan) / .fpCost(plan) / .maxDeceptive(skillLevel)
 Attacks.damageBonus(plan, fromSkill): Int                  // Strong + Boxing
@@ -1139,10 +1181,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6dc. The slice log
+## 6a-6dd. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6dc is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6dd is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
