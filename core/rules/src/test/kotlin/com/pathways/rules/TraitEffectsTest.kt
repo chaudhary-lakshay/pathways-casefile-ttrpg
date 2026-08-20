@@ -256,10 +256,14 @@ class TraitEffectsTest {
      */
     @Test
     fun `an unapplied trait is reported with the book's own words`() {
-        val notes = TraitEffects.reported(listOf(advantage("Hard to Kill 2")))
-        assertEquals(listOf("Hard to Kill 2"), notes.map { it.trait })
-        // The levelled one still finds its catalogue row through the level.
-        assertTrue(notes[0].printed.contains("HT rolls to avoid death"), notes[0].printed)
+        // This used to read "Hard to Kill 2", which 6de applied: the HP
+        // table's death roll now exists, so its refusal expired and it left
+        // the map. No unapplied trait is levelled any more, and the levelled
+        // resolution it used to pin here lives in `VitalRollsTest` instead,
+        // against the accessor that now reads the level.
+        val notes = TraitEffects.reported(listOf(advantage("Danger Sense")))
+        assertEquals(listOf("Danger Sense"), notes.map { it.trait })
+        assertTrue(notes[0].reason.contains("GM"), notes[0].reason)
     }
 
     /**
@@ -463,6 +467,27 @@ class TraitEffectsTest {
         assertEquals(TraitEffects.FIT_BONUS + TraitEffects.KNOCKDOWN_BONUS, effect.bonus)
         assertTrue(effect.line!!.contains(TraitEffects.FIT), effect.line!!)
         assertTrue(effect.line!!.contains(TraitEffects.HIGH_PAIN_THRESHOLD), effect.line!!)
+    }
+
+    /**
+     * The Major Wound roll moved when `Very Fit` joined the map, and that is
+     * the point rather than a side effect.
+     *
+     * "+2 to all HT rolls" includes the one bare HT roll this app already
+     * made, so 6de's addition reaches BOTH that roll and the HP table's two.
+     * Pinned here because the slice that added it tested only the new rolls,
+     * and a behaviour change nothing asserts is one nobody chose (a review's
+     * finding).
+     */
+    @Test
+    fun `Very Fit lifts the Major Wound roll too, and by two`() {
+        val veryFit = listOf(advantage(TraitEffects.VERY_FIT))
+        val effect = TraitEffects.majorWoundHt(veryFit)
+        assertEquals(TraitEffects.VERY_FIT_BONUS, effect.bonus)
+        assertTrue(effect.line!!.contains(TraitEffects.VERY_FIT), effect.line!!)
+        // Not the same number as Fit's: a test asserting "some bonus" would
+        // pass with the wrong row wired.
+        assertTrue(TraitEffects.VERY_FIT_BONUS != TraitEffects.FIT_BONUS)
     }
 
     /**

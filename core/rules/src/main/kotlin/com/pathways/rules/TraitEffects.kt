@@ -109,6 +109,15 @@ object TraitEffects {
 
     const val ALERTNESS = "Alertness"
     const val FIT = "Fit"
+
+    /**
+     * "Very Fit", which says "+2 to all HT rolls" and was outside
+     * [HT_ROLL_TRAITS] until 6de.
+     *
+     * No premade carries it, which is why nothing caught it: every guard on
+     * that map reads the map. The catalogue is the corpus that can disagree.
+     */
+    const val VERY_FIT = "Very Fit"
     const val COMBAT_REFLEXES = "Combat Reflexes"
     const val PERFECT_BALANCE = "Perfect Balance"
     const val GREAT_BALANCE = "Great Balance"
@@ -202,6 +211,12 @@ object TraitEffects {
      */
     const val UNFIT_PENALTY = 1
 
+    /** "+2 to all HT rolls; lose FP at half the normal rate...". */
+    const val VERY_FIT_BONUS = 2
+
+    /** "+1/level to HT rolls to avoid death; can take 1-5 levels". */
+    const val HARD_TO_KILL = "Hard to Kill"
+
     /** "+1 to all active defenses, +6 to recover from stun, never freeze." */
     const val COMBAT_REFLEXES_BONUS = 1
 
@@ -230,10 +245,18 @@ object TraitEffects {
      */
     private val HT_ROLL_TRAITS: Map<String, Int> = mapOf(
         FIT to FIT_BONUS,
+        VERY_FIT to VERY_FIT_BONUS,
         UNFIT to -UNFIT_PENALTY,
     )
 
-    /** The traits whose cell says "to all HT rolls", for the guard tests. */
+    /**
+     * The traits whose cell says "to all HT rolls", for the guard tests.
+     *
+     * **This cannot check the map's own claim**, which is what let `Very Fit`
+     * sit outside it: it returns the keys, so a row nobody added is invisible
+     * to any test built on it. `VitalRollsTest` reads the CATALOGUE for the
+     * phrase and compares -- the census-as-a-test 6bu argued for.
+     */
     fun htRollNames(): Set<String> = HT_ROLL_TRAITS.keys
 
     /** "Prior spirit body damage ... All SPI-based rolls at -1." */
@@ -453,6 +476,23 @@ object TraitEffects {
      */
     fun knockdownBonus(traits: List<Trait>): Int =
         if (levelOf(traits, HIGH_PAIN_THRESHOLD) != null) KNOCKDOWN_BONUS else 0
+
+    /**
+     * What [traits] add to a roll made to avoid DEATH, which is one of the two
+     * rolls the HP table prints ([VitalCheck.SURVIVAL]).
+     *
+     * `Hard to Kill` is "+1/level to HT rolls to avoid death", so the level is
+     * the number: a sheet printing "Hard to Kill 2" rolls at +2. It is
+     * deliberately scoped away from the consciousness roll one row above, for
+     * the reason [knockdownBonus] is scoped away from both -- a clause naming
+     * its own condition is not widened by the app that reads it (6ck).
+     *
+     * **This used to be an UNAPPLIED entry reading "this app models no death
+     * roll to avoid".** That was true when it was written and stopped being
+     * true in the commit that offered the roll; a refusal expires exactly like
+     * a sweep verdict (6ba, 6bl).
+     */
+    fun deathRollBonus(traits: List<Trait>): Int = levelOf(traits, HARD_TO_KILL) ?: 0
 
     /**
      * What [traits] take off a darkness penalty: Night Eyes' "reduce all
@@ -1226,6 +1266,17 @@ object TraitEffects {
             "recover FP at twice the normal rate" to
                 "this app holds no clock to recover against",
         ),
+        // The moment Very Fit's HT clause was applied (6de), its other two
+        // became clauses of a HANDLED trait -- which is what the guard test
+        // says must be reported. Both are FP rates, and the rates are the
+        // half of p. 42 this app deliberately does not run.
+        VERY_FIT to listOf(
+            "lose FP at half the normal rate" to
+                "this app charges FP where the book prices it, and halving a " +
+                "RATE needs a clock it does not hold",
+            "recover FP at twice the normal rate" to
+                "this app holds no clock to recover against",
+        ),
         COMBAT_REFLEXES to listOf(
             "+6 to recover from stun" to
                 "this app models no stun recovery roll to make",
@@ -1387,7 +1438,6 @@ object TraitEffects {
      * asymmetry 6ai turned on: a field left unapplied on purpose says so.
      */
     private val UNAPPLIED = mapOf(
-        "Hard to Kill" to "this app models no death roll to avoid",
         "Danger Sense" to "the book hands this to the GM, not to a roll",
         "Eidetic Memory" to "this app models no recall roll",
         "Single-Minded" to "which tasks count as extended concentration is the GM's call",
@@ -1423,8 +1473,9 @@ object TraitEffects {
             "the +3 is scoped to pressure, and this app rolls no pressure " +
             "roll; the ten hours are a duration it holds no clock for",
         "Earth Mother" to
-            "this app models no death roll to revive from — the same refusal " +
-            "Hard to Kill already carries — and healing over time needs a clock",
+            "reviving a DEAD character is not a roll — the HP table's own two " +
+            "rolls stop at \"-5xHP: Dead, no roll required\" — and burying to " +
+            "regenerate is healing over time, which needs a clock",
         "Eternal Blazing Sun" to
             "the 1d6 falls on someone else each round, and this app holds " +
             "neither a second sheet nor a round",
@@ -1439,8 +1490,9 @@ object TraitEffects {
             "this app models no morale roll, and the reroll it grants belongs " +
             "to an ally's Fright Check rather than to this character's",
         "Uncanny Survivor" to
-            "this app models no death roll to succeed at — the same refusal " +
-            "Hard to Kill already carries",
+            "the death roll now exists, but \"once per campaign arc\" is a " +
+            "budget this app holds no campaign to spend from, and the book " +
+            "hands the cost to the GM",
         "Glass Jaw" to
             "the book's knockdown rolls for a hit location print no attribute " +
             "to roll against, so this app shows those cells rather than rolling " +

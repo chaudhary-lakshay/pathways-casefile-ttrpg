@@ -78,7 +78,9 @@ import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
 import com.pathways.model.ModEffect
 import com.pathways.model.Outcome
+import com.pathways.model.RollResult
 import com.pathways.model.SkillKey
+import com.pathways.model.Trait
 import com.pathways.model.TraitKind
 import com.pathways.rules.BurnKind
 import com.pathways.rules.CommonModifiers
@@ -97,6 +99,9 @@ import com.pathways.rules.PenaltyScope
 import com.pathways.rules.Pool
 import com.pathways.rules.PoolStatus
 import com.pathways.rules.Pools
+import com.pathways.rules.SuccessRoll
+import com.pathways.rules.VitalCheck
+import com.pathways.rules.VitalRolls
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.PremadeSkill
@@ -568,7 +573,20 @@ fun SheetScreen(
             }
 
             if (tab == SheetTab.VITALS) {
-                item { PoolTrackers(session, vitals, maxCor) }
+                item {
+                    PoolTrackers(
+                        session = session,
+                        vitals = vitals,
+                        maxCor = maxCor,
+                        hp = hpNow,
+                        ht = attributes.ht,
+                        traits = traits,
+                        // The same number every other bare attribute roll
+                        // takes. A character at 0 HP has been reeling since
+                        // 1/3 HP, so this is not the state the roll creates.
+                        poolPenalty = hurtOnAttribute,
+                    )
+                }
             }
             if (shocked && tab == SheetTab.VITALS) {
                 item {
@@ -1473,6 +1491,64 @@ private data class Vitals(
 )
 
 /**
+ * One of the HP table's own HT rolls, offered rather than made.
+ *
+ * The Major Wound's precedent (6n): the book says "make an immediate HT roll",
+ * and a roll the GM did not ask for is one they cannot un-ask. The outcome is
+ * deliberately NOT latched -- nothing in this app consumes unconsciousness,
+ * and a stored fact with no reader is what this whole slice exists to remove.
+ *
+ * Keyed on the target, so a character healed or hurt between rolls does not
+ * keep an outcome that belonged to a different number (6k, 6y).
+ */
+@Composable
+private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: Int, poolPenalty: Int) {
+    var outcome by remember(check, target) { mutableStateOf<RollResult?>(null) }
+    Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+        Text(VitalRolls.printed(check), style = MaterialTheme.typography.bodySmall)
+        // The parts, because they have to sum to the number below them (6ag,
+        // 6ai). Traits are one term rather than named individually: the two
+        // rules that reach these rolls are scoped in VitalRolls, and a screen
+        // re-deciding which applied would be the second copy.
+        Text(
+            buildList {
+                add("HT $ht")
+                if (fromTraits > 0) add("+$fromTraits from traits")
+                if (fromTraits < 0) add("$fromTraits from traits")
+                if (poolPenalty != 0) add("$poolPenalty hurt or tired")
+            }.joinToString(", "),
+            style = MaterialTheme.typography.bodySmall,
+        )
+        val result = outcome
+        if (result == null) {
+            TextButton(
+                onClick = {
+                    // The re-entrancy guard every roll button in this app
+                    // needs: two taps can both reach the handler before the
+                    // button leaves the tree (6p).
+                    if (outcome != null) return@TextButton
+                    outcome = SuccessRoll.against(target, appDice)
+                },
+            ) { Text("Roll HT $target") }
+        } else {
+            Text(
+                "3d6: ${result.total} vs $target - ${result.outcome.name.lowercase()}",
+                style = MaterialTheme.typography.titleSmall,
+            )
+            // The book asks for one of these A TURN and this app holds no
+            // clock, so the repetition is said rather than run. Silence would
+            // let one roll read as the whole rule (6bl).
+            Text(
+                "The book asks for this roll each turn while the threshold holds - " +
+                    "that repetition is the GM's to run.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            TextButton(onClick = { outcome = null }) { Text("Roll again") }
+        }
+    }
+}
+
+/**
  * HP, FP and SPI at the table (Ch. 5).
  *
  * SPI is shown only for a Beyonder: "Non-Beyonders (SPI 0) ... have no
@@ -1480,10 +1556,30 @@ private data class Vitals(
  * zero rather than reporting a mortal as Spiritually Exhausted.
  */
 @Composable
-private fun PoolTrackers(session: BeyonderSession, vitals: Vitals, maxCor: Int) {
+private fun PoolTrackers(
+    session: BeyonderSession,
+    vitals: Vitals,
+    maxCor: Int,
+    hp: PoolStatus,
+    ht: Int,
+    traits: List<Trait>,
+    poolPenalty: Int,
+) {
     Column(Modifier.padding(vertical = 4.dp)) {
-        PoolRow(Pools.hp(vitals.maxHp - session.hpLost, vitals.maxHp)) {
+        PoolRow(hp) {
             session.spend(Pool.HP, it, vitals.maxHp, maxCor)
+        }
+        // Under the row that produced them, and only where the table prints
+        // one: `Pools` has flagged these two rolls since M0 and nothing could
+        // make them. See VitalRolls.
+        VitalRolls.due(hp).forEach { check ->
+            VitalRollRow(
+                check = check,
+                target = VitalRolls.targetFor(check, ht, traits, poolPenalty),
+                fromTraits = VitalRolls.bonusFor(check, traits),
+                ht = ht,
+                poolPenalty = poolPenalty,
+            )
         }
         PoolRow(Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp)) {
             session.spend(Pool.FP, it, vitals.maxFp, maxCor)
