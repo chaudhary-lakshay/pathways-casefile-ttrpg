@@ -65,6 +65,13 @@ fun DetectionDialog(
      */
     shock: Int = 0,
     /**
+     * Reeling and fatigue, "-1 to all rolls" on pp. 40 and 42 -- the same
+     * unqualified phrase as the shock above, and this roll is one of the four
+     * the modifier ledger cannot reach. Unlike [spiTrait] below it, this is
+     * not attribute-scoped: it moves the target whichever attribute is taken.
+     */
+    hurt: Int = 0,
+    /**
      * Ether Body Damage's "-1 to all SPI-based rolls" -- Alertness's mirror,
      * one attribute over, and the same structural gap: this roll is made
      * outside `SkillKey`, so the attribute-scoped join cannot reach it.
@@ -119,7 +126,7 @@ fun DetectionDialog(
     // it is not always the higher of the two, so the roll a Fool is granted is
     // a Per roll even when their SPI is better. See Detection.attributeFor.
     val freeRoll = awareness?.freeRoll
-    val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness, shock, spiTrait)
+    val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness, shock, hurt, spiTrait)
     // The row grants automatic awareness only against a WEAKER diviner, and
     // this screen holds the target's sheet alone -- so the comparison is the
     // GM's to state. Reset with the row, or a declaration about one pathway's
@@ -333,6 +340,7 @@ fun DetectionDialog(
                             // breakdown and the target above it must reconcile
                             // (6ag, 6ai), and shock moves the target (Codex).
                             (if (shock != 0) ", ${signedInt(shock)} shock" else "") +
+                            (if (hurt != 0) ", ${signedInt(hurt)} hurt or tired" else "") +
                             ". Free action, costs no SPI.",
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -345,6 +353,7 @@ fun DetectionDialog(
                                 alertness = alertness,
                                 spiModifier = spiTrait,
                                 shock = shock,
+                                hurt = hurt,
                                 spi = spi,
                                 per = per,
                                 situations = pickedSituations,

@@ -82,6 +82,17 @@ fun DamageDialog(
      * sum, which this codebase has produced three times (6ag, 6ai, 6bp).
      */
     majorWoundHt: MajorWoundHt = MajorWoundHt(0, null),
+    /**
+     * What the HP and FP trackers cost this roll, from
+     * [com.pathways.rules.Conditions.penaltyFor].
+     *
+     * `Shock` refuses `RollKind.MAJOR_WOUND_HT` because that roll is what
+     * CREATES the shock. Reeling and fatigue are not created by it -- the
+     * character carried them in -- so the exclusion is about WHEN and does not
+     * transfer, and "-1 to all rolls" reaches the only bare HT roll this app
+     * makes.
+     */
+    hurt: Int,
     onDismiss: () -> Unit,
 ) {
     val rules = remember { ContentLoader.spiritDamage() }
@@ -153,16 +164,23 @@ fun DamageDialog(
                         modifier = Modifier.padding(top = 4.dp),
                     )
                 }
+                // ONE expression, printed and rolled. It was written out
+                // twice, which is the shape that let a caption and a roll drift
+                // apart three times in this codebase (6ag, 6ai, 6be) -- and a
+                // third term is exactly the edit that would have split them.
+                val htTarget = ht + majorWoundHt.bonus + hurt
                 MajorWoundPanel(
                     isMajor = isMajor,
                     threshold = Wounds.majorWoundThreshold(maxHp),
-                    ht = ht + majorWoundHt.bonus,
+                    ht = htTarget,
                     traitLine = majorWoundHt.line,
                     shock = shock,
                     // Rolled WITHOUT any shock of its own: this is the roll
                     // that creates the state, and Shock refuses to reach
-                    // RollKind.MAJOR_WOUND_HT for that reason.
-                    onRoll = { shock = SuccessRoll.against(ht + majorWoundHt.bonus, dice) },
+                    // RollKind.MAJOR_WOUND_HT for that reason. Reeling and
+                    // fatigue are inside [htTarget], because the character was
+                    // already carrying those when the blow landed.
+                    onRoll = { shock = SuccessRoll.against(htTarget, dice) },
                 )
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 var section = ""

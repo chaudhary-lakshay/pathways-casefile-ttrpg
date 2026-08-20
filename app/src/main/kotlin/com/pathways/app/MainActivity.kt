@@ -353,6 +353,15 @@ fun SheetScreen(
     val divinationLevel = divination?.level
     val ritualLevel = ritual?.level
 
+    // The two pools whose penalties the book prints unscoped, derived ONCE:
+    // the ledger below reads them for a skill and the bare rolls read them
+    // through Conditions.penaltyFor, and two sites deciding "how hurt is this
+    // character" is the drift this codebase has produced three times (6ag,
+    // 6ai, 6be). Plain live expressions, deliberately not remembered, for the
+    // reason the defence dialog's own halving is not (6dc).
+    val hpNow = Pools.hp(vitals.maxHp - session.hpLost, vitals.maxHp)
+    val fpNow = Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp)
+
     // What the trackers are costing a roll of [key]. [cor] is a parameter
     // because RitualResolution applies the corruption ladder itself, and
     // passing it here as well would charge a corrupted caster twice.
@@ -372,8 +381,8 @@ fun SheetScreen(
         withShock: Boolean = true,
     ) = Conditions.forSkill(
         skill = key,
-        hp = Pools.hp(vitals.maxHp - session.hpLost, vitals.maxHp),
-        fp = Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp),
+        hp = hpNow,
+        fp = fpNow,
         spi = if (vitals.maxSpi > 0) {
             Pools.spi(vitals.maxSpi - session.spiSpent - spiAboutToSpend, vitals.maxSpi)
         } else {
@@ -388,6 +397,13 @@ fun SheetScreen(
     // -- the exclusion Codex warned would otherwise look like an oversight in
     // whichever adapter went unwired.
     val shockOnAttribute = Shock.penaltyFor(RollKind.ATTRIBUTE, shocked, traits)
+    // Reeling and fatigue, for those same four rolls. p. 40's "Reeling: -1 to
+    // all rolls" and p. 42's "-1 to all rolls" are the phrase Shock already
+    // reads at its word, so this is the same scope decision -- made ONCE here,
+    // because an adapter left unwired looks like an oversight rather than a
+    // decision (Codex, 6bo). Named separately from the shock beside it: a
+    // breakdown that has to sum must say which state moved the target.
+    val hurtOnAttribute = Conditions.penaltyFor(RollKind.ATTRIBUTE, hpNow, fpNow)
     // The same number the ledger would have carried, for the three dialogs
     // that reduce it to an Int and print their own breakdown.
     val shockOnSkill = Shock.penaltyFor(RollKind.SKILL, shocked, traits)
@@ -818,7 +834,9 @@ fun SheetScreen(
         )
     }
     controlling?.let { check ->
-        SelfControlDialog(check, vitals.will, attributes.iq, shockOnAttribute) { controlling = null }
+        SelfControlDialog(check, vitals.will, attributes.iq, shockOnAttribute, hurtOnAttribute) {
+            controlling = null
+        }
     }
 
     if (frightening) {
@@ -831,10 +849,11 @@ fun SheetScreen(
             will = vitals.will,
             clauses = remember(traits) { TraitEffects.frightClauses(traits) },
             shock = shockOnAttribute,
+            hurt = hurtOnAttribute,
         ) { frightening = false }
     }
     if (focusing) {
-        ConcentrateDialog(vitals.will, shockOnAttribute) { focusing = false }
+        ConcentrateDialog(vitals.will, shockOnAttribute, hurtOnAttribute) { focusing = false }
     }
     if (damaging) {
         DamageDialog(
@@ -855,6 +874,10 @@ fun SheetScreen(
             },
             onShocked = { shocked = true },
             majorWoundHt = TraitEffects.majorWoundHt(traits),
+            // The kind is named at the call site because the two states answer
+            // differently for it: shock refuses this roll (the roll creates
+            // it) and the pools do not (the character carried them in).
+            hurt = Conditions.penaltyFor(RollKind.MAJOR_WOUND_HT, hpNow, fpNow),
             onDismiss = { damaging = false },
         )
     }
@@ -864,7 +887,7 @@ fun SheetScreen(
         // edits, so a remembered halving would freeze at whatever the pool held
         // when one of THOSE last changed. The same reason `spiAvailable` below
         // is written out rather than cached.
-        val fatigue = Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp)
+        val fatigue = fpNow
         DefenseDialog(
             // p. 42: "At 1/3 FP or below ... Move and Dodge halved". The sheet
             // screen has printed that sentence since 6b; until now the dialog
@@ -873,6 +896,11 @@ fun SheetScreen(
             // SheetComparison is an audit of the DERIVATION and stays whole.
             dodge = Pools.halvedForFatigue(vitals.dodge, fatigue),
             fatigued = Pools.isFatigued(fatigue),
+            // p. 40 and p. 42's "-1 to all rolls", added to every row. The
+            // halving above is the fatigue row's OTHER clause and lands on the
+            // Dodge score first; this lands on top, where the stun's -4 and a
+            // shield's DB already do.
+            poolPenalty = Conditions.penaltyFor(RollKind.ACTIVE_DEFENSE, hpNow, fatigue),
             skillLevels = skillLevels,
             weapons = session.characterFor(sheet).weapons,
             dice = appDice,
@@ -974,6 +1002,7 @@ fun SheetScreen(
         // "does not cost SPI".
         DetectionDialog(
             shock = shockOnAttribute,
+            hurt = hurtOnAttribute,
             // The SPI branch's mirror of alertness below, and equally unable
             // to be reached by SkillKey scoping.
             spiTrait = spiTrait,
@@ -1091,6 +1120,8 @@ private fun FrightDialog(
     will: Int,
     clauses: List<TraitClause> = emptyList(),
     shock: Int = 0,
+    /** Reeling and fatigue: "-1 to all rolls", the phrase shock is read by. */
+    hurt: Int = 0,
     onDismiss: () -> Unit,
 ) {
     var kind by remember { mutableStateOf(FrightKind.FRIGHT) }
@@ -1170,11 +1201,17 @@ private fun FrightDialog(
                     // total comes from rules for the same reason -- a screen
                     // that summed its own chips would be the second copy.
                     val fromTraits = TraitEffects.frightBonus(clauses, declared)
-                    val effective = modifier + shock + fromTraits.total
+                    val effective = modifier + shock + hurt + fromTraits.total
                     Text("3d6 vs ${will + effective}", style = MaterialTheme.typography.bodySmall)
                     if (shock != 0) {
                         Text(
                             "includes $shock from shock — \"${Shock.printed()}\"",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    if (hurt != 0) {
+                        Text(
+                            "includes $hurt from the HP and FP trackers",
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -1262,6 +1299,8 @@ private fun SelfControlDialog(
     will: Int,
     iq: Int,
     shock: Int = 0,
+    /** Reeling and fatigue: "-1 to all rolls", the phrase shock is read by. */
+    hurt: Int = 0,
     onDismiss: () -> Unit,
 ) {
     // Keyed on the check: a modifier left over from another disadvantage
@@ -1273,7 +1312,10 @@ private fun SelfControlDialog(
     // will/iq choice beside it is 6ai's defect exactly.
     // The GM's stepper and the shock are one number by the time the roll is
     // made, so the caption and the dice cannot disagree.
-    val target = SelfControl.targetFor(check.spec, will, iq, modifier + shock)
+    // Both states in one term, so the target above and the roll below cannot
+    // take different subsets of what the character is carrying.
+    val fromState = shock + hurt
+    val target = SelfControl.targetFor(check.spec, will, iq, modifier + fromState)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1326,7 +1368,7 @@ private fun SelfControlDialog(
                     TextButton(
                         onClick = {
                             if (outcome != null) return@TextButton
-                            outcome = SelfControl.attempt(check, will, iq, appDice, modifier + shock)
+                            outcome = SelfControl.attempt(check, will, iq, appDice, modifier + fromState)
                         },
                     ) { Text("Roll") }
                 } else {
@@ -1354,7 +1396,7 @@ private fun SelfControlDialog(
  * three sentences and where a trait cancels exactly one (6bg).
  */
 @Composable
-private fun ConcentrateDialog(will: Int, shock: Int = 0, onDismiss: () -> Unit) {
+private fun ConcentrateDialog(will: Int, shock: Int = 0, hurt: Int = 0, onDismiss: () -> Unit) {
     var disturbed by remember { mutableStateOf(false) }
     // Cleared with the declaration, because an outcome belongs to the
     // circumstance it was rolled under -- the rule the Major Wound's HT roll
@@ -1384,9 +1426,10 @@ private fun ConcentrateDialog(will: Int, shock: Int = 0, onDismiss: () -> Unit) 
                     )
                     result == null -> {
                         Text(
-                            "3d6 ≤ ${Concentration.targetFor(will, shock)} — Will " +
+                            "3d6 ≤ ${Concentration.targetFor(will, shock, hurt)} — Will " +
                                 "$will${Concentration.PENALTY}" +
-                                if (shock != 0) ", $shock shock" else "",
+                                (if (shock != 0) ", $shock shock" else "") +
+                                if (hurt != 0) ", $hurt hurt or tired" else "",
                             style = MaterialTheme.typography.titleLarge,
                         )
                         // Guarded inline as well as by the tree: two taps can
@@ -1394,7 +1437,7 @@ private fun ConcentrateDialog(will: Int, shock: Int = 0, onDismiss: () -> Unit) 
                         TextButton(
                             onClick = {
                                 if (outcome != null) return@TextButton
-                                outcome = Concentration.attempt(will, disturbed, appDice, shock)
+                                outcome = Concentration.attempt(will, disturbed, appDice, shock, hurt)
                             },
                         ) { Text("Roll") }
                     }

@@ -271,6 +271,14 @@ object Detection {
          */
         shock: Int = 0,
         /**
+         * Reeling and fatigue, both printed "-1 to all rolls" -- the same
+         * unqualified phrase as the shock above, and this is one of the four
+         * bare attribute rolls the modifier ledger never sees. Separate from
+         * [shock] so [attempt] can name each: two states that moved one target
+         * must both appear in a breakdown that has to sum (6ag).
+         */
+        hurt: Int = 0,
+        /**
          * Ether Body Damage's "-1 to all SPI-based rolls", which lands on the
          * ATTRIBUTE rather than beside it: this roll is SPI-based only when
          * SPI is the attribute taken, and a Per roll is not one. Kept out of
@@ -278,7 +286,7 @@ object Detection {
          * choice is made, so it is the only place that can tell.
          */
         spiModifier: Int = 0,
-    ): Int = attributeFor(spi, per, freeRoll, alertness, spiModifier) + modifier + shock
+    ): Int = attributeFor(spi, per, freeRoll, alertness, spiModifier) + modifier + shock + hurt
 
     /**
      * The row [roll] landed on.
@@ -313,12 +321,14 @@ object Detection {
         freeRoll: String? = null,
         alertness: Int = 0,
         shock: Int = 0,
+        /** Reeling and fatigue, as [targetFor] takes them. */
+        hurt: Int = 0,
         spiModifier: Int = 0,
         source: RandomSource,
     ): DetectionResult {
         val total = modifierTotal(situations, techniques, items, awarenessBonus)
         val roll = SuccessRoll.against(
-            targetFor(spi, per, total, freeRoll, alertness, shock, spiModifier),
+            targetFor(spi, per, total, freeRoll, alertness, shock, hurt, spiModifier),
             source,
         )
         val parts = buildList {
@@ -327,6 +337,7 @@ object Detection {
             // would double it in a breakdown that has to sum (6ag).
             add(attributeLine(spi, per, freeRoll, alertness, spiModifier))
             if (shock != 0) add("shock ${signed(shock)}")
+            if (hurt != 0) add("hurt or tired ${signed(hurt)}")
             situations.filter { it.modifier != 0 }
                 .forEach { add("${it.situation} ${signed(it.modifier)}") }
             techniques.filter { (it.detectionBonus ?: 0) != 0 }

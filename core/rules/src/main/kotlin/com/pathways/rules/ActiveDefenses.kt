@@ -511,6 +511,17 @@ object ActiveDefenses {
      * the same reason the stun does -- the screen renders a defence in seven
      * places, two of them by hand.
      *
+     * **Reeling and fatigue are a fourth term, on the phrase shock already
+     * reads at its word.** p. 40's "Reeling: -1 to all rolls" and p. 42's "-1
+     * to all rolls" are the SAME unqualified wording as the Major Wound's
+     * success row, so they clear the bar the stun had to clear by naming a
+     * category that already contains a defence rather than by needing a second
+     * printing to widen a singular. They arrive as one number ([poolPenalty]),
+     * and the fatigue row's other clause -- "Move and Dodge halved" -- is
+     * applied to the Dodge SCORE before this addition, by
+     * [Pools.halvedForFatigue]; the -1 lands on top, where the stun's -4,
+     * Retreat's +3 and a shield's DB already land.
+     *
      * **The facing penalty is deliberately NOT a fourth term here, and the bar
      * it fails is the one the stun had to clear.** `defense_modifiers.json`
      * prints "Attacked from side: -2 to defense" and "Attacked from rear: -4 to
@@ -549,10 +560,27 @@ object ActiveDefenses {
      * says "all active defenses (Dodge, Parry, and Block)" and enumerates them.
      * See [Shields.coverageAt].
      */
-    fun everyDefence(traits: List<Trait>, stunned: Boolean, shocked: Boolean = false): Int =
+    fun everyDefence(
+        traits: List<Trait>,
+        stunned: Boolean,
+        shocked: Boolean = false,
+        /**
+         * What the HP and FP trackers cost every row, from
+         * [Conditions.penaltyFor]. **No default**: one production call site
+         * asks for it, and a zero written at a callsite is a domain claim
+         * nobody argued for (6ch).
+         *
+         * Passed in rather than computed here because [Conditions] is where a
+         * pool's penalty is decided, and a second site deciding it is the
+         * two-copies drift this codebase has produced three times (6ag, 6ai,
+         * 6be).
+         */
+        poolPenalty: Int,
+    ): Int =
         TraitEffects.defenseBonus(traits) +
             (if (stunned) STUNNED_PENALTY else 0) +
-            Shock.penaltyFor(RollKind.ACTIVE_DEFENSE, shocked, traits)
+            Shock.penaltyFor(RollKind.ACTIVE_DEFENSE, shocked, traits) +
+            poolPenalty
 
     /** The book's own sentence for a cause, refused when the content prints none. */
     fun printedFor(cause: String): String {

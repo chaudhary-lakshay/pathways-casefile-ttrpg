@@ -87,7 +87,7 @@ object Concentration {
      * book itself declines to pick a value there. A circumstance beyond the
      * printed one is Appendix A's business ([CommonModifiers]).
      */
-    fun targetFor(will: Int, shock: Int = 0): Int = will + PENALTY + shock
+    fun targetFor(will: Int, shock: Int = 0, hurt: Int = 0): Int = will + PENALTY + shock + hurt
 
     /**
      * Roll it, if the book calls for a roll at all.
@@ -103,9 +103,10 @@ object Concentration {
         disturbed: Boolean,
         source: RandomSource,
         shock: Int = 0,
+        hurt: Int = 0,
     ): ConcentrationOutcome {
         require(disturbed) { "the book calls for no roll here: ${printed()}" }
-        val target = targetFor(will, shock)
+        val target = targetFor(will, shock, hurt)
         return ConcentrationOutcome(target, SuccessRoll.against(target, source))
     }
 }

@@ -50,13 +50,43 @@ object Conditions {
         penalty("hp", hp.penalty, hp.level)?.let(::add)
         penalty("fp", fp.penalty, fp.level)?.let(::add)
         // Scoped: SPI-controlled skills only, which is why this is not simply
-        // added to every roll the way reeling and fatigue are.
+        // added to every roll the way reeling and fatigue are -- here for a
+        // skill, and through penaltyFor for the three kinds this ledger cannot
+        // reach.
         if (spi != null && skill.attr == ControllingAttribute.Spi) {
             penalty("spi", spi.penalty, spi.level)?.let(::add)
         }
         if (skill.name.equals(RITUAL_SKILL, ignoreCase = true)) {
             penalty("cor", Corruption.ritualPenalty(cor), "$cor CoR")?.let(::add)
         }
+    }
+
+    /**
+     * The same two penalties as an Int, for the rolls that never see a [SkillKey].
+     *
+     * p. 40's "Reeling: -1 to all rolls" and p. 42's "-1 to all rolls" are
+     * unqualified, and [Shock] already reads that exact phrase at its word for
+     * every [RollKind] -- so a defence value, a bare attribute roll and the
+     * Major Wound's own HT roll are inside "all". Every kind gets the same
+     * answer here because nothing excludes one: shock's single exclusion is
+     * about WHEN ([RollKind.MAJOR_WOUND_HT] is the roll that CREATES it), and
+     * a character was already reeling before the blow landed.
+     *
+     * [spi] and [cor] are deliberately absent. Spiritual Attrition prints "all
+     * SPI-based SKILL rolls" (p. 35) and the ritual ladder "all ritual rolls"
+     * (p. 68); both name a scope, and a defence value has no skill to match it
+     * against. Widening either here would author a rule the book scopes.
+     *
+     * @throws IllegalArgumentException for [RollKind.SKILL], which takes these
+     * through [forSkill] as ledger modifiers. The invariant is one delivery
+     * path per roll kind; a caller taking both would charge a reeling
+     * character twice, and no other number on the screen would disagree.
+     */
+    fun penaltyFor(kind: RollKind, hp: PoolStatus, fp: PoolStatus): Int {
+        require(kind != RollKind.SKILL) {
+            "a skill roll takes reeling and fatigue through forSkill's ledger, not this number"
+        }
+        return hp.penalty + fp.penalty
     }
 
     private fun penalty(id: String, value: Int, tracker: String): Modifier? {

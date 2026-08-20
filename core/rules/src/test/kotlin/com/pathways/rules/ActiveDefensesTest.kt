@@ -226,10 +226,67 @@ class ActiveDefensesTest {
      */
     @Test
     fun `being stunned costs every defence four, trait or no trait`() {
-        assertEquals(0, ActiveDefenses.everyDefence(emptyList(), stunned = false))
-        assertEquals(-4, ActiveDefenses.everyDefence(emptyList(), stunned = true))
-        assertEquals(1, ActiveDefenses.everyDefence(reflexes, stunned = false))
-        assertEquals(-3, ActiveDefenses.everyDefence(reflexes, stunned = true))
+        assertEquals(0, ActiveDefenses.everyDefence(emptyList(), stunned = false, poolPenalty = 0))
+        assertEquals(-4, ActiveDefenses.everyDefence(emptyList(), stunned = true, poolPenalty = 0))
+        assertEquals(1, ActiveDefenses.everyDefence(reflexes, stunned = false, poolPenalty = 0))
+        assertEquals(-3, ActiveDefenses.everyDefence(reflexes, stunned = true, poolPenalty = 0))
+    }
+
+    /**
+     * The pool penalties reach every defence, on the phrase Shock already
+     * reads at its word.
+     *
+     * p. 40's "Reeling: -1 to all rolls" and p. 42's "-1 to all rolls" are the
+     * same unqualified wording the Major Wound's success row prints, and
+     * [Shock] takes that literally for [RollKind.ACTIVE_DEFENSE]. They arrive
+     * as one number rather than as a fourth term computed here, because
+     * [Conditions] is where a pool's penalty is decided and a second site
+     * deciding it is the drift this codebase has produced three times.
+     */
+    @Test
+    fun `a reeling and fatigued defender is at minus two on every row`() {
+        val penalty = Conditions.penaltyFor(RollKind.ACTIVE_DEFENSE, Pools.hp(3, 10), Pools.fp(3, 12))
+        assertEquals(-2, penalty)
+        assertEquals(-2, ActiveDefenses.everyDefence(emptyList(), stunned = false, poolPenalty = penalty))
+        // Stunned, shocked, reeling and fatigued at once: four rules, four
+        // sources, one number. Any of them applied alone gives a different one.
+        assertEquals(
+            -10,
+            ActiveDefenses.everyDefence(emptyList(), stunned = true, shocked = true, poolPenalty = penalty),
+        )
+    }
+
+    /**
+     * The fatigue row's two clauses land in a printed ORDER this book does not
+     * print, so the choice is recorded here.
+     *
+     * "At 1/3 FP or below: -1 to all rolls; Move and Dodge halved" (p. 42).
+     * The halving is a property of the Dodge SCORE and the -1 is a property of
+     * every ROLL, so the -1 lands where the stun's -4, shock's -4, Retreat's
+     * +3 and a shield's DB already land: on top of the halved score. The
+     * refused reading subtracts first and halves after, which at an odd base
+     * returns a different number -- that is what makes this a decision rather
+     * than a formatting detail.
+     *
+     * **What this pins, and what it does not.** It pins that the two readings
+     * DIFFER and which one the numbers below are the app's; it composes them
+     * by hand, so it would stay green if `MainActivity` were edited to halve
+     * `vitals.dodge + poolPenalty` instead (a diff review's finding, taken).
+     * What stops that is the boundary rather than this test: `DefenseDialog`
+     * is handed a Dodge that is already halved and never sees the raw score,
+     * so the dialog CANNOT compose the refused order -- only the one call site
+     * that owns the halving could, and no test in this repo can reach a
+     * composable to check it (6cq).
+     */
+    @Test
+    fun `the fatigue penalty lands after the halving, not inside it`() {
+        val tired = Pools.fp(3, 12)
+        val penalty = Conditions.penaltyFor(RollKind.ACTIVE_DEFENSE, Pools.hp(10, 10), tired)
+        val shipped = Pools.halvedForFatigue(8, tired) +
+            ActiveDefenses.everyDefence(emptyList(), stunned = false, poolPenalty = penalty)
+        assertEquals(3, shipped)
+        // ceil((8 - 1) / 2) = 4. Both readings apply both clauses; they differ.
+        assertEquals(4, Pools.halvedForFatigue(8 + penalty, tired))
     }
 
     /**
@@ -286,7 +343,7 @@ class ActiveDefensesTest {
     @Test
     fun `combat reflexes cancels the surprise and not the stun`() {
         assertTrue(ActiveDefenses.state(setOf(DefenseRefusal.SURPRISE), reflexes).defends)
-        assertEquals(-3, ActiveDefenses.everyDefence(reflexes, stunned = true))
+        assertEquals(-3, ActiveDefenses.everyDefence(reflexes, stunned = true, poolPenalty = 0))
         val printed = ContentLoader.advantages()
             .first { it.name == TraitEffects.COMBAT_REFLEXES }.notes
         assertTrue(printed.contains("recover from stun"), printed)

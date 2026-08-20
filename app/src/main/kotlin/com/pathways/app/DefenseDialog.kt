@@ -222,6 +222,16 @@ fun DefenseDialog(
      * control for it could disagree with them (Codex, at design time).
      */
     shocked: Boolean = false,
+    /**
+     * What the HP and FP trackers cost every row, from
+     * [com.pathways.rules.Conditions.penaltyFor].
+     *
+     * The NUMBER here, unlike [fatigued] beside it: the halving is a fact this
+     * screen states in words, and this is a term the rows add. It arrives
+     * already decided for the same reason [dodge] does -- one place owns what
+     * a pool costs.
+     */
+    poolPenalty: Int,
     onDismiss: () -> Unit,
 ) {
     // Everything p. 36 scopes to a round, held together so the boundary can
@@ -234,8 +244,8 @@ fun DefenseDialog(
     // all hand it out. It is not a DefenseRefusal -- it prices the defences
     // rather than withdrawing them.
     var stunned by remember { mutableStateOf(false) }
-    val everyDefence = remember(traits, stunned, shocked) {
-        ActiveDefenses.everyDefence(traits, stunned, shocked)
+    val everyDefence = remember(traits, stunned, shocked, poolPenalty) {
+        ActiveDefenses.everyDefence(traits, stunned, shocked, poolPenalty)
     }
     val refusal = ActiveDefenses.state(round.declared, traits)
     val forfeiting = remember { ActiveDefenses.forfeitingActions() }
