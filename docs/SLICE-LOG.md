@@ -6826,7 +6826,14 @@ earlier session, not in this diff — reported two P2s about it, and dismissed
 the actual change in one sentence. Re-asked with the target named and the
 leftover excluded, the same reviewer returned the Medium above on its first
 pass. **Read the reviewer's target list before reading its findings**; a
-one-sentence "nothing found" over ten changed files is a non-answer.
+one-sentence "nothing found" over ten changed files is a non-answer. Its two
+P2s are kept here rather than discarded, because that file is still untracked
+and the next session would re-derive them: `tools/extract_glossary.py:128`'s
+expected-count assertion always raises against today's
+`build/extract/lines.json` (25 entries parsed), and once that is fixed, lines
+104-106 fold book line 10213 (`Characters (4th Edition).`) into the `Will`
+definition, because the closing note spans two lines and only the first is
+skipped. Neither is this slice's work; both are checkable claims.
 
 **`adversarial-review --wait` refused its own input**: `Input exceeds the
 maximum length of 1048576 characters`. Not the prompt — the companion
