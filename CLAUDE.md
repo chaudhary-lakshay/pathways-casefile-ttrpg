@@ -51,7 +51,13 @@ with no argument **reviewed the wrong target** — an untracked leftover script 
 returning two P2s about it and one dismissive sentence about the ten files that
 had actually changed; re-asked with the target named, it returned a real
 finding on its first pass. **Read a reviewer's target list before reading its
-findings** (6dd).
+findings** (6dd). **And as of 6df the companion's `review` subcommand refuses
+focus text at all** — it answers *"/codex:review now maps directly to the
+built-in reviewer and does not support custom focus text"* — so naming the
+target, which is the fix 6dd found, is no longer possible through that
+subcommand. Both the design review and the diff review now go through
+`task --effort high`, which takes the target list, the three questions and the
+"do not read CLAUDE.md or docs/SLICE-LOG.md" instruction in one prompt.
 
 **When Codex is out and the free panel is also silent, go to
 `ecc:kotlin-reviewer` rather than shipping self-checked** — 6cz is what two
