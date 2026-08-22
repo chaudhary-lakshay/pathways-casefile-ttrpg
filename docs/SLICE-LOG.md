@@ -6726,6 +6726,153 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6df. Three clauses, no join — and a count that could not be checked
+
+6de named this next: the Will rolls, and the corpus its own sweep should have
+used. Both halves survived. What did not survive is the shape of the answer.
+
+### The census, and why 6de's number was unfalsifiable
+
+6de recorded "four rows name Will rolls, all four CONDITIONAL". The number is
+right and it was **unreproducible**, because the sentence states no query.
+Three queries, three numbers:
+
+| Query | Rows |
+|---|---|
+| `to all Will rolls` — the shape 6de's own sweep says it ran | 1 |
+| `Will roll` | 5 |
+| `Will rolls` (plural) | **4** |
+
+The plural query is the one that returns four, and what it drops is
+`Compulsive Gambling`: "requires Will **roll** at -2", singular, and already
+read as a self-control check through the catalogue's own `selfControl` field.
+So the recorded count was correct under a filter nobody could recover from the
+words. **A count without its query cannot be checked**, and the fix is a test
+that asserts the set and names the filter, not a paragraph that asserts the
+number.
+
+Of the four the plural query returns, two are already read (`Compulsive
+Gambling` at -2, `Reluctant Killer` at 0 — a row NAMING a roll is not a row
+MODIFYING one). Three carry a modifier and reached nothing:
+
+| Row | Cost | Clause |
+|---|---|---|
+| `Incorruptible Will` | 10 | "+3 to all Will rolls **to resist Beyonder abilities, evil god whispers, and ritual compulsion**. Does not apply to mundane social pressure." |
+| `Grief-Stricken` | 5 | "**In situations that echo a specific loss**, Will rolls **to act clearly** are at -2." |
+| `Evil Eye Fear` | 5 | "**If interrupted from a warding routine**, -1 to Will rolls for the day." |
+
+None is carried by a fixture, and all three are buyable today —
+`PurchasableTraits.offered()` takes the whole advantages and disadvantages
+catalogue minus Wealth, which is 6de's own correction to its own reachability
+verdict, applied.
+
+### The scope, which is where the slice was nearly wrong
+
+The obvious split was two rows applied and `Grief-Stricken` refused: its cell
+adds "to act clearly" on top of its circumstance, which looked like `Hard to
+Kill`'s "HT rolls **to avoid death**" — the shape 6de refused the consciousness
+roll one slice earlier. A design review agreed there was a problem and returned
+**NO-SHIP**, and the reviewer's own answer was a per-row scope enum
+(`allWill` / `fright` / `selfControl` / `concentrate` / `unsupported`).
+
+Both were wrong, and one line of the repo settled it. **The discriminator is
+not whether the cell adds a qualifier — it is whether the qualifier names a
+roll this book PRINTS.** `Hard to Kill`'s "to avoid death" picks one of a
+printed pair, which is what made scoping available at all; `High Pain
+Threshold`'s "to avoid knockdown" names a printed roll this app does not make,
+which is why it reached neither. "To act clearly" names no printed roll, and
+neither does "to resist Beyonder abilities". So all three name a
+**circumstance**, all three are declarations, and the roll each reaches is
+whichever bare Will roll is happening when the GM says the circumstance holds.
+
+That answers the reviewer's second finding by removing it: with no row
+qualified by roll, its enum has **one inhabitant** — an abstraction with one
+implementation, which this repo's own rules name as a prohibition. **Take a
+reviewer's diagnosis over its prescription** (6cz), and note the reviewer was
+working from a blind spot it had been given: it was told not to read the slice
+log, so the `Fit` / `Hard to Kill` / `High Pain Threshold` precedent was not
+available to it. **A review's reach is bounded by the corpus you hand it**, and
+that bound is the reviewer's input rather than its judgement.
+
+### The suite knew and production did not
+
+`SelfControlTest` has recorded since 6am that `Grief-Stricken`'s offset "is
+attached TO a roll ... so it is a modifier and `TraitEffects`' business", in a
+test that lists it among four mechanics refused as self-control checks. It was
+routed correctly, and `TraitEffects` **never took the business** — for four
+milestones, on a row a player can buy.
+
+That is 6bx's class, and it matters that 6bz ran exactly this sweep — *what
+does the TEST suite know that production does not?* — **deliberately, and
+closed it.** This is the third instance, found by accident again. A sweep
+verdict expires (6ba); so does the sweep that was run to make sure none were
+left.
+
+### What shipped
+
+`TraitEffects.WILL_CLAUSES` with the three rows quoted verbatim, plus
+`willClauses` / `willClauseRows` / `willClauseNames` and an entry in `known()`.
+`FrightBonus` / `frightBonus` become `ClauseBonus` / `clauseBonus`: the
+filter-sum-join is behaviourally generic and only its NAME was scoped to the
+Fright Check, so a second copy would have been the defect this file records
+five times over. The chip row is extracted to one `ClauseChips` composable read
+by three dialogs.
+
+Three plumbing decisions worth inheriting:
+
+- **`Concentration` takes its own parameter.** `fromTraits`, not folded into
+  `hurt` — that one is named for reeling and fatigue and renders as "hurt or
+  tired", so a trait bonus arriving through it would print under someone
+  else's label. Its two call sites (`targetFor` for the caption, `attempt` for
+  the roll) both take it, and `attempt` reaches it through `targetFor` rather
+  than re-deriving.
+- **The Fright Check takes both lists, concatenated.** It IS a bare Will roll,
+  so refusing the Will rows there would be a qualifier the book does not print.
+  `TraitClause.key` is `"$shown / $printed"` and no row appears in both lists,
+  so no declaration can move two clauses.
+- **`Incorruptible Will`'s exclusion is printed, not coded.** "Does not apply
+  to mundane social pressure" is the GM's to honour; no code here can tell
+  which pressure a scene is, and the chip quotes the cell.
+
+### The review's four findings, two taken and two refused
+
+Taken: `declared` is now keyed on `clauses` in both dialogs — a declaration is
+a set of clause KEYS, and a changed trait list retires the key one names, which
+is the stale-state family 6k, 6y and 6af each found once.
+
+**Refused: recomputing the bonus inside `onClick`.** The reviewer's
+stale-capture argument would create a SECOND call site for the number the
+caption already prints — which is the drift the same review, in its own answer
+to question two, certified absent. A LOW that reintroduces a MEDIUM is not a
+LOW (6ch). The re-entrancy that IS reachable, two taps on the Roll button, was
+already guarded inline (6p). The refusal is recorded where the value is
+computed.
+
+The review's other two findings were about the tests and both were right: a
+test named "two of them are already read" never called the reader, and one
+named "answers every bare will roll" proved two sites of three. Both now assert
+what their names claim, the second through `FrightCheck.against`.
+
+### Proof
+
+1632 Kotlin tests and 300 Python, all green. RED-proved by neutering one
+reading at a time and restoring from a copy, never `git checkout` (6ba):
+`Incorruptible Will` +3 to +1 reddens the pin and the sum; `Concentration`
+dropping `fromTraits` reddens the cross-site test; removing the
+`Grief-Stricken` row reddens three; `FrightCheck.against` ignoring its modifier
+reddens the third-site assertion the review asked for. The screens are
+device-unverified, as every Compose change in this repo is.
+
+**Next: no slice is named, and that is deliberate.** 6cp's lesson is that a
+closing paragraph is the one part of this log nothing verifies. The sweep
+directions already run each expire rather than stand — but two leads carry
+evidence rather than memory. `known()` names `FIT` alone where `HT_ROLL_TRAITS`
+now holds three traits, so the catalogue guard covers `Very Fit` and `Unfit` by
+accident or not at all; one test decides which. And the census direction this
+slice used — **every recorded COUNT re-run against a stated query** — has never
+been run over this file, where counts are quoted constantly and filters almost
+never are.
+
 ## 6de. Two flags, no reader — the rolls the HP table prints
 
 6dd named a sweep: every rule delivered to one roll class while its printing

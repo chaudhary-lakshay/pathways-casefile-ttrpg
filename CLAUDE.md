@@ -106,7 +106,32 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6de is newest, and it is two fields nothing ever read.** `Pools.hp` has
+**6df is newest, and it is three clauses nothing joined — plus a count that
+could not be checked.** Three catalogue rows modify a bare Will roll and
+reached nothing (`Incorruptible Will` +3, `Grief-Stricken` -2, `Evil Eye Fear`
+-1); each is now a GM declaration on all three of this app's bare Will rolls —
+self-control, Concentrate, and the Fright Check, which IS a Will roll and now
+takes both clause lists. Read it for four things. **6de's "four rows" was right
+and unreproducible**: it states no query, and the three obvious ones return 1,
+5 and 4 — the filter is `Will rolls` PLURAL, which is what drops `Compulsive
+Gambling`'s singular "requires Will roll at -2", already read as a self-control
+check. A count without its query cannot be checked, and the fix is a test that
+asserts the set and names the filter. **The scope discriminator is not whether
+a cell adds a qualifier but whether the qualifier names a roll the book
+PRINTS** — `Hard to Kill`'s "to avoid death" picks one of a printed pair, which
+is what made 6de's scoping available at all, while "to act clearly" and "to
+resist Beyonder abilities" name no printed roll, so all three are
+circumstances. That killed both my split (two applied, one refused) and the
+design review's per-row scope enum, whose five values would have had **one
+inhabitant**; the reviewer had been told not to read the slice log, so **a
+review's reach is bounded by the corpus you hand it**. And `Grief-Stricken` was
+routed to `TraitEffects` by `SelfControlTest` in 6am — *"a modifier and
+`TraitEffects`' business"* — and `TraitEffects` **never took the business**,
+which is the third instance of the suite knowing what production does not, and
+the third found by accident **after 6bz ran that exact sweep deliberately and
+closed it**.
+
+**6de is the slice before it, and it is two fields nothing ever read.** `Pools.hp` has
 computed `rollsToStayConscious` and `rollsToSurvive` since M0; a grep for
 readers returns `PoolsTest` and nothing else. The sheet printed the HP table's
 own sentences — *"Roll 3d6 <= HT or fall unconscious"* and *"Roll vs. HT or
@@ -135,9 +160,11 @@ Will class as "no fixture carries one" — but `PurchasableTraits.offered()` tak
 the WHOLE advantages and disadvantages catalogue minus Wealth, and none of the
 four is excluded, so **they are buyable today**. Every census in this file that
 used the 23 fixtures as its reachability corpus has that blind spot: a
-purchasable row is reachable whether or not a premade prints it. The named next
-slice is a declared-condition chip on the three bare Will rolls, the shape
-`socialClauses` and `frightClauses` already have.
+purchasable row is reachable whether or not a premade prints it. The next
+slice it named — a declared-condition chip on the three bare Will rolls — **is
+built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
+`socialClauses` / `frightClauses` shape borrowed whole, because those lists are
+each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
 **6dd is next, and it is one sentence that had two reaches in one app.**
 p. 40's *"Reeling: -1 to all rolls"* and p. 42's *"-1 to all rolls"* reached
@@ -604,7 +631,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6de, then 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6df, then 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -835,7 +862,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1626 Kotlin** (JUnit 5 — 1140 `core:rules`, 466 `app`, 20 `core:model`) + **291 Python** (pytest), all green — counted from the JUnit XML, not from memory. **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1632 Kotlin** (JUnit 5 — 1146 `core:rules`, 466 `app`, 20 `core:model`) + **300 Python** (pytest), all green — counted from the JUnit XML, not from memory. **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1218,10 +1245,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6de. The slice log
+## 6a-6df. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6de is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6df is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
