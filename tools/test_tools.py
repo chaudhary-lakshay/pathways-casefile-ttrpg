@@ -4347,3 +4347,65 @@ def test_ether_body_awareness_is_two_different_things():
     assert [f["pathwayRank"] for f in sv["specialForms"]] == [
         r["name"].split(" (")[0] for r in sv["pathwayDifferences"]
     ]
+
+
+def test_markdown_repair_restores_arrows_and_bullets():
+    """markitdown's glyph mapping for this PDF is worse than pypdf's.
+
+    It emits a bare `fi` ligature where the book prints an arrow, and
+    `(cid:127)` where it prints a bullet. Both survive every byte-count and
+    line-count completeness check -- "Status 1 fi +1" reads as ordinary text --
+    so `extract_markdown.repair` fixes them and `main()` refuses to write a
+    file where either shape remains. Measured on v6.9d: 18 arrows, 261 bullets.
+    """
+    import extract_markdown
+
+    # Mid-line, the shape the first lookahead already caught.
+    assert extract_markdown.repair("Status 1 fi +1 reaction") == "Status 1 \u2192 +1 reaction"
+    # End of line: the arrow the first lookahead MISSED, because it required a
+    # trailing space or paren and a wrapped line offers neither.
+    assert extract_markdown.repair("soft liquor (wine, etc.) fi\nHT") == "soft liquor (wine, etc.) \u2192\nHT"
+    assert extract_markdown.repair("(cid:127) FP fi 1 per 10 minutes") == "\u2022 FP \u2192 1 per 10 minutes"
+
+    # The ligature inside a word is a real "fi", not an arrow, and must survive.
+    assert extract_markdown.repair("20% efficiency") == "20% efficiency"
+    assert extract_markdown.repair("classified") == "classified"
+
+
+def test_markdown_rendering_loses_nothing_that_book_txt_has():
+    """book.md is a SECOND rendering, never a replacement for book.txt.
+
+    book.txt's global line numbers are this repo's citation anchor (coverage.py
+    compares line sets; the tests above pin book lines by number), so the two
+    files must both exist and book.md must not be missing content book.txt has.
+    """
+    md = OUT / "book.md"
+    if not md.exists():
+        pytest.skip("book.md not built; run tools/extract_markdown.py")
+
+    normalise = lambda s: re.sub(r"\W+", "", s).lower()
+    body = normalise(md.read_text(encoding="utf-8"))
+    lines = [
+        re.sub(r"^\s*\d+:\s?", "", line)
+        for line in (OUT / "book.txt").read_text(encoding="utf-8").splitlines()
+    ]
+    missing = [l for l in lines if len(normalise(l)) >= 30 and normalise(l) not in body]
+    assert missing == [], f"{len(missing)} book.txt lines absent from book.md"
+
+    # The gain that justifies the second rendering: pdfplumber recovers ruled
+    # tables as pipe rows where pypdf flattens them into prose.
+    body_text = md.read_text(encoding="utf-8")
+    rows = sum(1 for l in body_text.splitlines() if l.startswith("|"))
+    assert rows > 1000, f"only {rows} table rows; the table recovery regressed"
+
+    # normalise() above strips every non-word character, so it is BLIND to the
+    # failure this file exists to prevent: markitdown substituting a glyph
+    # rather than dropping a line. "Status 1 fi +1" survives the containment
+    # check untouched. These three counts are the part that can see it.
+    book_txt = (OUT / "book.txt").read_text(encoding="utf-8")
+    assert body_text.count("→") == book_txt.count("→"), (
+        "book.md and book.txt disagree on arrow count; either the repair "
+        "missed one or it substituted a real standalone 'fi'"
+    )
+    assert "(cid:" not in body_text, "unmapped glyphs survived into book.md"
+    assert body_text.count("•") > 200, "the bullet repair regressed"
