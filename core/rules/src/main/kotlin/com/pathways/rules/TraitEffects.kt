@@ -1317,7 +1317,16 @@ object TraitEffects {
         UNAPPLIED.keys + PARTLY_APPLIED.keys + SKILL_BONUSES.keys +
             CATEGORY_BONUSES.keys + frightClauseNames() + socialClauseNames() +
             willClauseNames() +
-            setOf(ALERTNESS, FIT, COMBAT_REFLEXES) + SPI_ROLL_TRAITS.keys
+            // [HT_ROLL_TRAITS].keys, not FIT alone. The map has held three
+            // traits since 6de and this set named one -- and the guard still
+            // covered all three, because `Very Fit` and `Unfit` are also
+            // [PARTLY_APPLIED] keys. That is the accident this function's own
+            // KDoc already records against Outdoorsman, one map over: covered
+            // by a second route rather than by the one that applies them, so
+            // the first HT-roll trait with nothing left to report would have
+            // been the one that slipped. A census reads the collection, never
+            // a member of it.
+            HT_ROLL_TRAITS.keys + setOf(ALERTNESS, COMBAT_REFLEXES) + SPI_ROLL_TRAITS.keys
 
     /** The traits reported whole, for the disjointness test. */
     fun unappliedNames(): Set<String> = UNAPPLIED.keys

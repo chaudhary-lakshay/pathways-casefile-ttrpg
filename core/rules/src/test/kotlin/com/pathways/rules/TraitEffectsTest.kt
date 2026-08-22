@@ -2186,6 +2186,14 @@ class TraitEffectsTest {
         // takes cannot collide, because [TraitClause.key] is "shown /
         // printed" and no row appears in both (Codex: the name claimed three
         // sites and the body proved two).
+        // The invariant the concatenation rests on is that no TRAIT is in
+        // both lists -- a same-trait pair is the only way two keys could
+        // collide, and it is what a future slice adding a row to the wrong
+        // list would break.
+        assertEquals(
+            emptySet<String>(),
+            TraitEffects.frightClauseNames() intersect TraitEffects.willClauseNames(),
+        )
         val fright = TraitEffects.frightClauses(listOf(advantage("Fearlessness"))) + clauses
         assertEquals(fright.size, fright.map { it.key }.toSet().size)
         val declaredAll = clauses.map { it.key }.toSet()

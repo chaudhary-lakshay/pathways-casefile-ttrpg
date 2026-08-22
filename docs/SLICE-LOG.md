@@ -6865,10 +6865,22 @@ device-unverified, as every Compose change in this repo is.
 
 **Next: no slice is named, and that is deliberate.** 6cp's lesson is that a
 closing paragraph is the one part of this log nothing verifies. The sweep
-directions already run each expire rather than stand — but two leads carry
-evidence rather than memory. `known()` names `FIT` alone where `HT_ROLL_TRAITS`
-now holds three traits, so the catalogue guard covers `Very Fit` and `Unfit` by
-accident or not at all; one test decides which. And the census direction this
+directions already run each expire rather than stand — but one lead carries
+evidence rather than memory.
+
+**A lead in this paragraph was checked before it was written down, and it was
+wrong.** `known()` named `FIT` alone where `HT_ROLL_TRAITS` holds three, which
+looked like `Very Fit` and `Unfit` sitting outside the typo guard. Typo-ing
+`VERY_FIT` reddens that guard under the OLD `known()` too: both are
+`PARTLY_APPLIED` keys, which `known()` already reads. So there was no hole —
+there was **coverage by a second route**, which is the accident this file's own
+KDoc records against Outdoorsman. `known()` now derives from the map anyway, so
+the first HT-roll trait with nothing left to report is covered by the route that
+applies it; the comment says which of those two things it is. **RED-prove what
+the OLD guard allowed, not only what the new one catches** — the difference
+between a fix and a tidy-up is invisible without it.
+
+And the census direction this
 slice used — **every recorded COUNT re-run against a stated query** — has never
 been run over this file, where counts are quoted constantly and filters almost
 never are.
