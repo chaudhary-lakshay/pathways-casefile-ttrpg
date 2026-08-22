@@ -87,7 +87,20 @@ object Concentration {
      * book itself declines to pick a value there. A circumstance beyond the
      * printed one is Appendix A's business ([CommonModifiers]).
      */
-    fun targetFor(will: Int, shock: Int = 0, hurt: Int = 0): Int = will + PENALTY + shock + hurt
+    fun targetFor(
+        will: Int,
+        shock: Int = 0,
+        hurt: Int = 0,
+        /**
+         * What the character's own Will clauses add once the GM has declared
+         * which circumstances hold ([TraitEffects.willClauses]).
+         *
+         * Its own parameter rather than folded into [hurt]: that one is named
+         * for reeling and fatigue and prints as "hurt or tired", so a trait
+         * bonus arriving through it would render under someone else's label.
+         */
+        fromTraits: Int = 0,
+    ): Int = will + PENALTY + shock + hurt + fromTraits
 
     /**
      * Roll it, if the book calls for a roll at all.
@@ -104,9 +117,13 @@ object Concentration {
         source: RandomSource,
         shock: Int = 0,
         hurt: Int = 0,
+        fromTraits: Int = 0,
     ): ConcentrationOutcome {
         require(disturbed) { "the book calls for no roll here: ${printed()}" }
-        val target = targetFor(will, shock, hurt)
+        // Through [targetFor], never re-derived: the caption above the button
+        // and the roll under it take the same four terms or they disagree
+        // (6ag, 6ai).
+        val target = targetFor(will, shock, hurt, fromTraits)
         return ConcentrationOutcome(target, SuccessRoll.against(target, source))
     }
 }

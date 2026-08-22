@@ -424,10 +424,10 @@ class PurchasableTraitsTest {
         assertEquals(2, clauses.size)
         assertEquals(2, clauses.map { it.key }.distinct().size, "one key each")
         val cities = clauses.single { it.shown == "Phobia (Cities)" }
-        assertEquals(-2, TraitEffects.frightBonus(clauses, setOf(cities.key)).total)
+        assertEquals(-2, TraitEffects.clauseBonus(clauses, setOf(cities.key)).total)
         assertEquals(
             -4,
-            TraitEffects.frightBonus(clauses, clauses.map { it.key }.toSet()).total,
+            TraitEffects.clauseBonus(clauses, clauses.map { it.key }.toSet()).total,
             "both fears in play cost both penalties",
         )
     }

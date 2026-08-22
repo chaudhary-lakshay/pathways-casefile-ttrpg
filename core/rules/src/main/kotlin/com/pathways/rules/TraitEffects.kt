@@ -72,7 +72,7 @@ data class TraitClause(
  * reconciling five times over (6ag, 6ai, 6be, 6bp, 6bs). [line] is null
  * exactly when nothing applied.
  */
-data class FrightBonus(val total: Int, val line: String?)
+data class ClauseBonus(val total: Int, val line: String?)
 
 /**
  * Ch. 3's advantages, where their printed effects reach a roll.
@@ -566,13 +566,17 @@ object TraitEffects {
      *
      * Deliberately NOT a general attribute-roll bonus. The app's other bare
      * rolls are Will, IQ, Per and SPI (fright, self-control, concentration,
-     * detection). **A sweep in 6de asked whether any trait names those**: four
-     * rows name Will rolls (`Incorruptible Will`, `Grief-Stricken`,
-     * `Reluctant Killer`, `Evil Eye Fear`), every one of them CONDITIONAL --
-     * "to resist Beyonder abilities", "in situations that echo a specific
-     * loss" -- and no fixture carries any of them. A conditional clause is a
-     * different feature from an unconditional one (6bt), so none joins here;
-     * IQ is named by nothing at all.
+     * detection). **A sweep in 6de asked whether any trait names those**, and
+     * the Will half of its answer expired in 6df: the query is `Will rolls`
+     * (plural, which is what excludes `Compulsive Gambling`'s singular
+     * "requires Will roll at -2"), it returns four rows, and three of them
+     * carry a modifier that now reaches a roll -- through [WILL_CLAUSES],
+     * NOT through here. That is the structural point this KDoc is making: a
+     * clause naming a CIRCUMSTANCE is the GM's to declare, so it cannot be
+     * summed unasked the way "+1 to all HT rolls" can. 6de's "no fixture
+     * carries any of them" was also a claim about the wrong corpus --
+     * `PurchasableTraits.offered()` makes all three buyable. IQ is still
+     * named by nothing at all.
      */
     fun htRollBonus(traits: List<Trait>): Int =
         HT_ROLL_TRAITS.entries.sumOf { (trait, value) ->
@@ -1111,13 +1115,13 @@ object TraitEffects {
      * the two sentences of Sacred Symbols' cell name two circumstances that
      * can hold at once.
      */
-    fun frightBonus(clauses: List<TraitClause>, declared: Set<String>): FrightBonus {
+    fun clauseBonus(clauses: List<TraitClause>, declared: Set<String>): ClauseBonus {
         val applied = clauses.filter { !it.conditional || it.key in declared }
-        if (applied.isEmpty()) return FrightBonus(0, null)
+        if (applied.isEmpty()) return ClauseBonus(0, null)
         val parts = applied.joinToString(", ") {
             "${it.shown} ${if (it.value > 0) "+" else ""}${it.value}"
         }
-        return FrightBonus(applied.sumOf { it.value }, parts)
+        return ClauseBonus(applied.sumOf { it.value }, parts)
     }
 
     /** A row of [FRIGHT_CLAUSES]: [shown] is filled in per character. */
@@ -1127,6 +1131,85 @@ object TraitEffects {
         value: Int,
         conditional: Boolean = true,
     ) = TraitClause(trait, trait, printed, value, conditional)
+
+    // ---- the three rows that modify a bare Will roll -----------------------
+
+    /**
+     * Every clause the book prints against a Will roll, before a character is
+     * considered.
+     *
+     * **The query is `Will rolls`, plural, and it returns four rows.** 6de
+     * recorded that count without stating the query, which is why it could
+     * not be checked: `Compulsive Gambling` prints "requires Will roll at -2"
+     * in the SINGULAR and is already read as a self-control check (the
+     * catalogue's own `selfControl` field), and `Reluctant Killer`, which the
+     * plural query does return, carries no number at all and is read the same
+     * way. The three that remain carry a modifier and reached nothing.
+     *
+     * **None of the three qualifies the ROLL, so each reaches all of them.**
+     * The bar is the one 6de applied to the HP table's two HT rolls: `Hard to
+     * Kill`'s "HT rolls to avoid death" picks one of a PRINTED pair, and
+     * `High Pain Threshold`'s "to avoid knockdown" names a printed roll this
+     * app does not make. "To resist Beyonder abilities", "in situations that
+     * echo a specific loss" and "to act clearly" name no printed roll at all
+     * -- they name the circumstance -- so they are declarations, and the roll
+     * they reach is whichever of this app's three bare Will rolls
+     * (self-control, Concentrate, the Fright Check) is happening when the GM
+     * says the circumstance holds.
+     *
+     * `Grief-Stricken` was routed here by a test and never collected:
+     * `SelfControlTest` records that "its offset is attached TO a roll ... so
+     * it is a modifier and `TraitEffects`' business", and this file had never
+     * taken the business. The suite knew and production did not (6bx, 6bz).
+     *
+     * Each cell is quoted whole, because the qualifier is the GM's to honour:
+     * `Incorruptible Will` excludes mundane social pressure in its own words,
+     * and no code here can tell which pressure a scene is.
+     */
+    private val WILL_CLAUSES: List<TraitClause> = listOf(
+        willClause(
+            "Incorruptible Will",
+            "+3 to all Will rolls to resist Beyonder abilities, evil god " +
+                "whispers, and ritual compulsion",
+            3,
+        ),
+        willClause(
+            "Grief-Stricken",
+            "In situations that echo a specific loss, Will rolls to act " +
+                "clearly are at -2",
+            -2,
+        ),
+        willClause(
+            "Evil Eye Fear",
+            "If interrupted from a warding routine, -1 to Will rolls for the day",
+            -1,
+        ),
+    )
+
+    /** The printed rows, for the pin tests. [TraitClause.shown] is per character. */
+    fun willClauseRows(): List<TraitClause> = WILL_CLAUSES
+
+    /** The traits whose cell modifies a bare Will roll, for the guard tests. */
+    fun willClauseNames(): Set<String> = WILL_CLAUSES.map { it.trait }.toSet()
+
+    /**
+     * The clauses [traits] bring to a bare Will roll, under the sheet's own
+     * spellings.
+     *
+     * No level scaling, unlike [frightClauses]: not one of the three cells
+     * prints "per level", so multiplying would invent a scale where
+     * Fearlessness's cell states one.
+     */
+    fun willClauses(traits: List<Trait>): List<TraitClause> = traits.flatMap { owned ->
+        val bare = catalogueName(owned.name)
+        WILL_CLAUSES
+            .filter { it.trait.equals(bare, ignoreCase = true) }
+            .map { it.copy(shown = displayName(owned.name)) }
+    }
+
+    /** A row of [WILL_CLAUSES]: every one names a circumstance, so all are conditional. */
+    private fun willClause(trait: String, printed: String, value: Int) =
+        TraitClause(trait, trait, printed, value, conditional = true)
 
     // ---- the social rows whose penalty needs a circumstance ----------------
 
@@ -1233,6 +1316,7 @@ object TraitEffects {
     fun known(): Set<String> =
         UNAPPLIED.keys + PARTLY_APPLIED.keys + SKILL_BONUSES.keys +
             CATEGORY_BONUSES.keys + frightClauseNames() + socialClauseNames() +
+            willClauseNames() +
             setOf(ALERTNESS, FIT, COMBAT_REFLEXES) + SPI_ROLL_TRAITS.keys
 
     /** The traits reported whole, for the disjointness test. */

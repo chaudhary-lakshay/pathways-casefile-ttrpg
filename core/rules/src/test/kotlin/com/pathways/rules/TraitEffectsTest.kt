@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test
 class TraitEffectsTest {
 
     private fun advantage(name: String) = Trait(name, 5, TraitKind.ADVANTAGE)
+    private fun fixed(face: Int) = RandomSource { face }
     private fun skill(attr: ControllingAttribute) =
         SkillKey("Whatever", null, attr, Difficulty.AVERAGE)
 
@@ -1820,7 +1821,7 @@ class TraitEffectsTest {
         assertEquals(2, clauses.map { it.key }.toSet().size)
         assertEquals(
             -3,
-            TraitEffects.frightBonus(clauses, clauses.map { it.key }.toSet()).total,
+            TraitEffects.clauseBonus(clauses, clauses.map { it.key }.toSet()).total,
         )
     }
 
@@ -1837,7 +1838,7 @@ class TraitEffectsTest {
         // Every subset of the declarable clauses.
         for (mask in 0 until (1 shl keys.size)) {
             val declared = keys.filterIndexed { i, _ -> (mask shr i) and 1 == 1 }.toSet()
-            val bonus = TraitEffects.frightBonus(clauses, declared)
+            val bonus = TraitEffects.clauseBonus(clauses, declared)
             val line = bonus.line
             if (bonus.total == 0 && line == null) continue
             val summed = Regex("[+−-]\\d+").findAll(line.orEmpty())
@@ -1854,11 +1855,11 @@ class TraitEffectsTest {
     @Test
     fun `an unconditional clause needs no declaration`() {
         val clauses = frightOf("Fearlessness")
-        assertEquals(1, TraitEffects.frightBonus(clauses, emptySet()).total)
+        assertEquals(1, TraitEffects.clauseBonus(clauses, emptySet()).total)
         // ...and a conditional one is worth nothing until it is declared.
         val phobia = frightOf("Phobia (Cities)")
-        assertEquals(0, TraitEffects.frightBonus(phobia, emptySet()).total)
-        assertEquals(-2, TraitEffects.frightBonus(phobia, setOf(phobia.single().key)).total)
+        assertEquals(0, TraitEffects.clauseBonus(phobia, emptySet()).total)
+        assertEquals(-2, TraitEffects.clauseBonus(phobia, setOf(phobia.single().key)).total)
     }
 
     /**
@@ -2027,5 +2028,174 @@ class TraitEffectsTest {
         )
         assertEquals(emptyList<Any>(), TraitEffects.modifiers(loner, diplomacy))
         assertTrue(TraitEffects.reported(loner).any { "social rolls" in it.printed })
+    }
+
+    // ---- the three rows that modify a bare Will roll -----------------------
+
+    private fun willOf(vararg names: String) =
+        TraitEffects.willClauses(names.map { Trait(it, 5, TraitKind.ADVANTAGE) })
+
+    /**
+     * **The census, with the query that reproduces it.** 6de recorded "four
+     * rows name Will rolls" and stated no filter, so the number could not be
+     * checked -- and `Will roll` singular returns five. The filter is `Will
+     * rolls`, PLURAL: it drops `Compulsive Gambling`, whose "requires Will
+     * roll at -2" is already read as a self-control check.
+     *
+     * A count without its query is unreproducible, which is what this test
+     * exists to stop happening a second time.
+     */
+    @Test
+    fun `four catalogue rows name Will rolls and two of them are already read`() {
+        val catalogue = ContentLoader.advantages() + ContentLoader.disadvantages()
+        val plural = catalogue.filter { "Will rolls" in it.notes.orEmpty() }.map { it.name }
+        assertEquals(
+            setOf("Incorruptible Will", "Grief-Stricken", "Reluctant Killer", "Evil Eye Fear"),
+            plural.toSet(),
+        )
+        // The singular row is the one the plural query drops, and it is read.
+        val gambling = ContentLoader.disadvantages().single { it.name == "Compulsive Gambling" }
+        assertTrue("Will roll at -2" in gambling.notes.orEmpty())
+        assertTrue("Will rolls" !in gambling.notes.orEmpty())
+        assertTrue("Compulsive Gambling" !in TraitEffects.willClauseNames())
+        // Reluctant Killer IS returned by the plural query and still carries
+        // no number, so it is read as a self-control check and not as a
+        // clause. A row NAMING a roll is not a row MODIFYING one.
+        assertTrue("Reluctant Killer" !in TraitEffects.willClauseNames())
+        // ...and "already read" is asserted, not asserted-about: both rows
+        // still produce a self-control check, at the offset their cell prints
+        // (Codex -- the name claimed a reader the test never called).
+        for ((name, offset) in listOf("Compulsive Gambling" to -2, "Reluctant Killer" to 0)) {
+            val check = SelfControl.checksFor(
+                listOf(Trait(name, 10, TraitKind.DISADVANTAGE)),
+            ).single()
+            assertEquals(name, check.trait)
+            assertEquals(offset, check.spec.offset, name)
+        }
+    }
+
+    /**
+     * Every value is pinned against the copy production reads, so a
+     * re-extract that reworded a cell fails here rather than moving a number
+     * in silence -- the guard the Fright Check's rows already have.
+     */
+    @Test
+    fun `every will number is still the one its row prints`() {
+        val byName =
+            (ContentLoader.advantages() + ContentLoader.disadvantages()).associateBy { it.name }
+        assertEquals(3, TraitEffects.willClauseRows().size)
+        for (clause in TraitEffects.willClauseRows()) {
+            val notes = byName.getValue(clause.trait).notes.orEmpty()
+            assertTrue(clause.printed in notes, "${clause.trait}: ${clause.printed}")
+            val sign = if (clause.value < 0) "-" else "+"
+            assertTrue(
+                "$sign${kotlin.math.abs(clause.value)}" in clause.printed,
+                "${clause.trait} prints no $sign${kotlin.math.abs(clause.value)}",
+            )
+        }
+    }
+
+    /**
+     * **All three name a circumstance, so none may be counted unasked.**
+     * Unlike the Fright Check's rows, where Fearlessness is what the
+     * character always is, there is no unconditional Will clause: every cell
+     * says "to resist", "if interrupted" or "in situations that echo".
+     */
+    @Test
+    fun `no will clause may be counted without a declaration`() {
+        assertTrue(TraitEffects.willClauseRows().all { it.conditional })
+        val carrier = willOf("Incorruptible Will", "Evil Eye Fear")
+        assertEquals(0, TraitEffects.clauseBonus(carrier, emptySet()).total)
+        assertNull(TraitEffects.clauseBonus(carrier, emptySet()).line)
+    }
+
+    /**
+     * The arithmetic names both terms. +3 and -1 were chosen as the carrier
+     * pair precisely because 3, -1, 0 and 2 are four different answers: no
+     * assertion here survives dropping either clause, which is the vacuity
+     * 6de's own targetFor test shipped (12 + 1 - 1 == 12).
+     */
+    @Test
+    fun `declared will clauses sum and undeclared ones do not`() {
+        val clauses = willOf("Incorruptible Will", "Evil Eye Fear")
+        assertEquals(2, clauses.size)
+        val incorruptible = clauses.single { it.trait == "Incorruptible Will" }
+        val evilEye = clauses.single { it.trait == "Evil Eye Fear" }
+        assertEquals(3, TraitEffects.clauseBonus(clauses, setOf(incorruptible.key)).total)
+        assertEquals(-1, TraitEffects.clauseBonus(clauses, setOf(evilEye.key)).total)
+        assertEquals(
+            2,
+            TraitEffects.clauseBonus(clauses, setOf(incorruptible.key, evilEye.key)).total,
+        )
+        // The sentence and the number come from one call, so they cannot drift.
+        val both = TraitEffects.clauseBonus(clauses, clauses.map { it.key }.toSet())
+        assertTrue("Incorruptible Will +3" in both.line.orEmpty(), both.line.orEmpty())
+        assertTrue("Evil Eye Fear -1" in both.line.orEmpty(), both.line.orEmpty())
+    }
+
+    /**
+     * **The suite knew and production did not.** SelfControlTest has recorded
+     * since 6am that Grief-Stricken's offset "is attached TO a roll ... so it
+     * is a modifier and `TraitEffects`' business" -- and `TraitEffects` had
+     * never taken the business. Both halves are asserted here: it is NOT a
+     * self-control check, and it IS a Will clause.
+     */
+    @Test
+    fun `the row a test routed here is now collected`() {
+        val grief = Trait("Grief-Stricken", 5, TraitKind.DISADVANTAGE)
+        assertTrue(SelfControl.checksFor(listOf(grief)).isEmpty())
+        val clause = TraitEffects.willClauses(listOf(grief)).single()
+        assertEquals(-2, clause.value)
+        // Its qualifier names no roll this book prints, which is why it
+        // reaches every bare Will roll rather than one of them: contrast
+        // Hard to Kill's "to avoid death", which picks one of the HP table's
+        // PRINTED pair.
+        assertTrue("to act clearly" in clause.printed)
+        assertEquals(3, TraitEffects.willClauseNames().size)
+    }
+
+    /**
+     * One list answers all three sites, so the same declaration moves the
+     * same number wherever it is made -- and Concentrate takes it through its
+     * OWN parameter, never through the one named for reeling and fatigue.
+     */
+    @Test
+    fun `one clause list answers every bare will roll`() {
+        val clauses = willOf("Grief-Stricken")
+        val bonus = TraitEffects.clauseBonus(clauses, clauses.map { it.key }.toSet()).total
+        assertEquals(-2, bonus)
+        assertEquals(
+            Concentration.targetFor(will = 12) + bonus,
+            Concentration.targetFor(will = 12, fromTraits = bonus),
+        )
+        // Distinct from the fatigue term: passing it as `hurt` would land the
+        // same number under someone else's label on screen, so the two
+        // parameters must both exist and both count.
+        assertEquals(
+            Concentration.targetFor(will = 12, hurt = -1, fromTraits = bonus),
+            Concentration.targetFor(will = 12) - 1 + bonus,
+        )
+        val spec = ContentLoader.disadvantages()
+            .first { it.selfControl != null }.selfControl!!
+        assertEquals(
+            SelfControl.targetFor(spec, will = 12, iq = 10, modifier = 0) + bonus,
+            SelfControl.targetFor(spec, will = 12, iq = 10, modifier = bonus),
+        )
+        // The third site. A Fright Check IS a bare Will roll, so the same
+        // declaration moves its target too -- and the two clause lists it now
+        // takes cannot collide, because [TraitClause.key] is "shown /
+        // printed" and no row appears in both (Codex: the name claimed three
+        // sites and the body proved two).
+        val fright = TraitEffects.frightClauses(listOf(advantage("Fearlessness"))) + clauses
+        assertEquals(fright.size, fright.map { it.key }.toSet().size)
+        val declaredAll = clauses.map { it.key }.toSet()
+        assertEquals(
+            1 + bonus,
+            TraitEffects.clauseBonus(fright, declaredAll).total,
+        )
+        assertEquals(
+            FrightCheck.against(will = 12, modifier = 0, source = fixed(10)).target + bonus,
+            FrightCheck.against(will = 12, modifier = bonus, source = fixed(10)).target,
+        )
     }
 }

@@ -295,6 +295,10 @@ fun SheetScreen(
     val selfControl = remember(traits) {
         SelfControl.checksFor(traits).associateBy { it.trait }
     }
+    // Derived once for both bare Will rolls. Two `remember`s over one input
+    // is two chances to key them differently, which is the drift this file
+    // records against every re-derived value (6ai).
+    val willClauses = remember(traits) { TraitEffects.willClauses(traits) }
     // Every disadvantage the character carries, in sheet order, with the
     // book's own effect cell where the two spellings meet. A sheet name that
     // matches nothing gets its name alone -- three sheets print
@@ -852,9 +856,14 @@ fun SheetScreen(
         )
     }
     controlling?.let { check ->
-        SelfControlDialog(check, vitals.will, attributes.iq, shockOnAttribute, hurtOnAttribute) {
-            controlling = null
-        }
+        SelfControlDialog(
+            check = check,
+            will = vitals.will,
+            iq = attributes.iq,
+            clauses = willClauses,
+            shock = shockOnAttribute,
+            hurt = hurtOnAttribute,
+        ) { controlling = null }
     }
 
     if (frightening) {
@@ -865,13 +874,22 @@ fun SheetScreen(
         // screen only asks which circumstances hold.
         FrightDialog(
             will = vitals.will,
-            clauses = remember(traits) { TraitEffects.frightClauses(traits) },
+            // A Fright Check IS a bare Will roll, so the rows that say
+            // "Will rolls" reach it as well as the ones that name the
+            // Fright Check itself. Concatenated rather than merged:
+            // `TraitClause.key` is "shown / printed" and the two lists
+            // share no row, so no declaration can move two clauses.
+            clauses = remember(traits) {
+                TraitEffects.frightClauses(traits) + TraitEffects.willClauses(traits)
+            },
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,
         ) { frightening = false }
     }
     if (focusing) {
-        ConcentrateDialog(vitals.will, shockOnAttribute, hurtOnAttribute) { focusing = false }
+        ConcentrateDialog(vitals.will, willClauses, shockOnAttribute, hurtOnAttribute) {
+            focusing = false
+        }
     }
     if (damaging) {
         DamageDialog(
@@ -1185,40 +1203,13 @@ private fun FrightDialog(
                     // because whether this character is in a church or facing
                     // the thing they fear is the GM's to say and this app
                     // holds no scene.
-                    val conditional = clauses.filter { it.conditional }
-                    if (conditional.isNotEmpty()) {
-                        Text(
-                            "Does any of this hold?",
-                            style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                        FlowRow {
-                            conditional.forEach { clause ->
-                                TextButton(onClick = {
-                                    declared = if (clause.key in declared) {
-                                        declared - clause.key
-                                    } else {
-                                        declared + clause.key
-                                    }
-                                }) {
-                                    Text(
-                                        "${clause.shown}: ${clause.printed}",
-                                        color = if (clause.key in declared) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            MaterialTheme.colorScheme.onSurfaceVariant
-                                        },
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    ClauseChips(clauses, declared) { declared = it }
                     // ONE value, displayed and rolled: computing the caption
                     // from one expression and the roll from another is how
                     // these numbers stopped reconciling (6ag, 6ai). The trait
                     // total comes from rules for the same reason -- a screen
                     // that summed its own chips would be the second copy.
-                    val fromTraits = TraitEffects.frightBonus(clauses, declared)
+                    val fromTraits = TraitEffects.clauseBonus(clauses, declared)
                     val effective = modifier + shock + hurt + fromTraits.total
                     Text("3d6 vs ${will + effective}", style = MaterialTheme.typography.bodySmall)
                     if (shock != 0) {
@@ -1299,6 +1290,48 @@ private fun FrightDialog(
 }
 
 /**
+ * The conditional clauses a character carries, each one a chip the GM turns on.
+ *
+ * One composable for all three bare Will rolls (self-control, Concentrate, the
+ * Fright Check) plus the Fright Check's own rows. Unconditional clauses never
+ * appear: they are what the character always is, so [TraitEffects.clauseBonus]
+ * counts them whether or not anyone declared them, and a chip that changed
+ * nothing would read as one that did.
+ */
+@Composable
+private fun ClauseChips(
+    clauses: List<TraitClause>,
+    declared: Set<String>,
+    onDeclared: (Set<String>) -> Unit,
+) {
+    val conditional = clauses.filter { it.conditional }
+    if (conditional.isEmpty()) return
+    Text(
+        "Does any of this hold?",
+        style = MaterialTheme.typography.labelMedium,
+        modifier = Modifier.padding(top = 8.dp),
+    )
+    FlowRow {
+        conditional.forEach { clause ->
+            TextButton(onClick = {
+                onDeclared(
+                    if (clause.key in declared) declared - clause.key else declared + clause.key,
+                )
+            }) {
+                Text(
+                    "${clause.shown}: ${clause.printed}",
+                    color = if (clause.key in declared) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                )
+            }
+        }
+    }
+}
+
+/**
  * One self-control roll at the table (Ch. 3, 6am).
  *
  * The consequence is [SelfControlCheck.printed] verbatim. Three sentence
@@ -1316,6 +1349,8 @@ private fun SelfControlDialog(
     check: SelfControlCheck,
     will: Int,
     iq: Int,
+    /** The character's own Will clauses ([TraitEffects.willClauses]). */
+    clauses: List<TraitClause> = emptyList(),
     shock: Int = 0,
     /** Reeling and fatigue: "-1 to all rolls", the phrase shock is read by. */
     hurt: Int = 0,
@@ -1326,13 +1361,31 @@ private fun SelfControlDialog(
     // and 6af each found once.
     var modifier by remember(check) { mutableIntStateOf(0) }
     var outcome by remember(check) { mutableStateOf<SelfControlOutcome?>(null) }
+    // Keyed on the check for the same reason the modifier is: a circumstance
+    // declared for one disadvantage is not declared for the next. Keyed on
+    // [clauses] as well, because a declaration is a set of clause KEYS and a
+    // changed trait list can retire the key one names -- the stale-state
+    // family 6k, 6y and 6af each found once (Codex).
+    var declared by remember(check, clauses) { mutableStateOf(emptySet<String>()) }
     // The ONE place the number is computed. A caption that re-derived the
     // will/iq choice beside it is 6ai's defect exactly.
     // The GM's stepper and the shock are one number by the time the roll is
     // made, so the caption and the dice cannot disagree.
     // Both states in one term, so the target above and the roll below cannot
     // take different subsets of what the character is carrying.
-    val fromState = shock + hurt
+    // The trait total comes from rules, not from summing the chips here: a
+    // screen that added them up would be the second copy of a rule that
+    // already has one (6ag, 6ai).
+    //
+    // Read ONCE, by both the caption and the Roll handler. A review proposed
+    // recomputing it inside onClick against a stale capture between a chip
+    // tap and a roll tap; refused, because that is a second call site for the
+    // number the caption prints, which is the drift the same review certified
+    // absent. Compose recomposes on the state write, so the two taps are two
+    // frames -- and the re-entrancy that IS reachable (two taps on the ROLL
+    // button) is guarded inline below, the fix 6p needed.
+    val fromTraits = TraitEffects.clauseBonus(clauses, declared)
+    val fromState = shock + hurt + fromTraits.total
     val target = SelfControl.targetFor(check.spec, will, iq, modifier + fromState)
 
     AlertDialog(
@@ -1367,6 +1420,10 @@ private fun SelfControlDialog(
                 )
                 val result = outcome
                 if (result == null) {
+                    ClauseChips(clauses, declared) { declared = it }
+                    fromTraits.line?.let {
+                        Text("includes $it", style = MaterialTheme.typography.bodySmall)
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         TextButton(onClick = { modifier -= 1 }) { Text("−1") }
                         Text(
@@ -1414,8 +1471,21 @@ private fun SelfControlDialog(
  * three sentences and where a trait cancels exactly one (6bg).
  */
 @Composable
-private fun ConcentrateDialog(will: Int, shock: Int = 0, hurt: Int = 0, onDismiss: () -> Unit) {
+private fun ConcentrateDialog(
+    will: Int,
+    /** The character's own Will clauses ([TraitEffects.willClauses]). */
+    clauses: List<TraitClause> = emptyList(),
+    shock: Int = 0,
+    hurt: Int = 0,
+    onDismiss: () -> Unit,
+) {
     var disturbed by remember { mutableStateOf(false) }
+    // Keyed on [clauses] and NOT on [disturbed]: a changed trait list retires
+    // the keys a declaration names (Codex), while whether a Beyonder ability
+    // disturbed the focus is the same fact before and after the GM says the
+    // character is injured -- clearing it there would make the player
+    // re-declare something they already said.
+    var declared by remember(clauses) { mutableStateOf(emptySet<String>()) }
     // Cleared with the declaration, because an outcome belongs to the
     // circumstance it was rolled under -- the rule the Major Wound's HT roll
     // (6n) and the entity's answer (6z) both follow.
@@ -1443,11 +1513,17 @@ private fun ConcentrateDialog(will: Int, shock: Int = 0, hurt: Int = 0, onDismis
                         color = MaterialTheme.colorScheme.primary,
                     )
                     result == null -> {
+                        ClauseChips(clauses, declared) { declared = it }
+                        // From rules, and read by BOTH the caption and the
+                        // roll below -- the two call sites this dialog has
+                        // always had are why the term is computed once (6ai).
+                        val fromTraits = TraitEffects.clauseBonus(clauses, declared)
                         Text(
-                            "3d6 ≤ ${Concentration.targetFor(will, shock, hurt)} — Will " +
-                                "$will${Concentration.PENALTY}" +
+                            "3d6 ≤ ${Concentration.targetFor(will, shock, hurt, fromTraits.total)}" +
+                                " — Will $will${Concentration.PENALTY}" +
                                 (if (shock != 0) ", $shock shock" else "") +
-                                if (hurt != 0) ", $hurt hurt or tired" else "",
+                                (if (hurt != 0) ", $hurt hurt or tired" else "") +
+                                (fromTraits.line?.let { ", $it" } ?: ""),
                             style = MaterialTheme.typography.titleLarge,
                         )
                         // Guarded inline as well as by the tree: two taps can
@@ -1455,7 +1531,9 @@ private fun ConcentrateDialog(will: Int, shock: Int = 0, hurt: Int = 0, onDismis
                         TextButton(
                             onClick = {
                                 if (outcome != null) return@TextButton
-                                outcome = Concentration.attempt(will, disturbed, appDice, shock, hurt)
+                                outcome = Concentration.attempt(
+                                    will, disturbed, appDice, shock, hurt, fromTraits.total,
+                                )
                             },
                         ) { Text("Roll") }
                     }
