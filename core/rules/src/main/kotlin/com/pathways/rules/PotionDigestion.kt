@@ -80,6 +80,30 @@ object PotionDigestion {
      * app spends SPI for a sealed artifact's ability on exactly this shape.
      * It is unbuilt work, and it must not be inherited as settled.
      *
+     * **Every GURPS Basic Set deferral this book makes is either ruled on
+     * already or sits in here.** Seven lines defer to a Basic Set rule this
+     * book does not reprint (2723; 3653-3654; 6553; 7348; 8030; 8059; 8062,
+     * whose clause opens at 8061). Two are outside this prose, are claimed
+     * by a content file, and have a verdict: 2723 is
+     * `spirit_damage.json`'s threshold list,
+     * whose `HP <= 0` row points at rules chapter 5 prints for itself and
+     * [VitalRolls] applies; 3653's specialisation technique is REFUSED in
+     * [Divination.UNAPPLIED]. The other five are `ability` and
+     * `reinforcedAbilities` text, so they are this entry's, not a separate
+     * refusal's.
+     *
+     * That answers what thirteen slices kept deferring. `Shaken` -- *"the
+     * target must roll HT or be Shaken (see GURPS p. B360) for 1 turn"*,
+     * line 8030, which prints the roll and never what failing it costs --
+     * was read as a special case earning its own recorded refusal. It is
+     * not one. Three of the five name a term this book prints elsewhere and
+     * this app models (`grappled`, and `mentally Stunned` twice), and TWO
+     * name a term printed exactly once in the whole book: `Shaken` and
+     * 7348's `suffocates`. A refusal filed against `Shaken` alone would be
+     * a blocklist of one with its twin a chapter away. `test_tools.py` pins
+     * the census and both single printings, so a second printing of either
+     * reddens rather than quietly widening this.
+     *
      * What a design review stopped, and what the next attempt has to fix:
      *
      *  - **The price is not one number with a boolean.** `ArtifactCost` carries

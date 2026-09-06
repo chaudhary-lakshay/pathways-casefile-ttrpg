@@ -5528,3 +5528,112 @@ def test_chapter_4_prices_spirit_vision_a_second_time_and_says_less():
     assert "Activate by expending 1 SPI" in byn[4840], (
         f"7.6's governing printing moved: {byn[4840]!r}"
     )
+
+
+# 6dr ran the "places the book defers to a GURPS rule it does not reprint"
+# census by hand and reported six sites. These two tests re-derive it as a
+# QUERY and key it to what claims each line, because the verdict on `Shaken`
+# -- deferred from 6dk through 6dw -- rests on both facts.
+GURPS_DEFERRAL = re.compile(r"\bp\.\s*B\d+|\b(?:per|per normal|Standard) GURPS\b")
+
+
+def _gurps_deferrals():
+    """Every line that defers to the GURPS Basic Set, keyed by where it starts.
+
+    Scanned over each line JOINED to the one after it, because a citation
+    wraps: 3653 ends "(see GURPS Techniques, p." and 3654 opens "B229)". A
+    line-at-a-time search returns seven sites and silently drops that one --
+    which is how this test's first version was written, and it is 6ba's rule
+    (a rule spanning a boundary is invisible to a scan that stops at it).
+    """
+    byn = {l["n"]: l["text"] for l in json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
+    sites = []
+    for n in sorted(byn):
+        joined = byn[n] + " " + byn.get(n + 1, "")
+        # A match starting inside line n belongs to n, wherever it ends.
+        if any(m.start() < len(byn[n]) for m in GURPS_DEFERRAL.finditer(joined)):
+            sites.append(n)
+    return byn, sites
+
+
+def test_the_gurps_deferrals_outside_the_ability_prose_are_all_ruled_on():
+    """Where the class sits, which is what settles 6dw's question.
+
+    Eight sites defer to the GURPS Basic Set. 246 is the book's own framing
+    ("Standard GURPS rules apply unless this book explicitly overrides them")
+    and prices nothing. Of the SEVEN that carry a rule, five sit inside a
+    `pathways.json` Sequence block's `ability` prose -- the field
+    `PotionDigestion.UNPARSED` already records as unbuilt work -- and the two
+    that do not are claimed by a content file and ruled on already:
+
+      * 2723 is `spirit_damage.json`'s threshold list. Its `HP <= 0` row
+        points at rules chapter 5 prints for itself, and `VitalRolls`
+        applies those (6de).
+      * 3653-3654 is `divination_methods.json`. Its specialisation
+        technique is REFUSED in `Divination.UNAPPLIED` (6cs).
+
+    So there is no unruled GURPS deferral outside that prose, and none
+    inside it that the prose's own record does not already cover.
+
+    Fails if a re-extraction moves a line, or if an eighth deferral appears
+    in prose no Sequence block claims -- either of which reopens the verdict.
+    """
+    byn, sites = _gurps_deferrals()
+    assert sites == [246, 2723, 3653, 6553, 7348, 8030, 8059, 8062], sites
+    assert "unless this book explicitly overrides them" in byn[246], (
+        f"246 is no longer the book-level framing: {byn[246]!r}"
+    )
+    assert "B229" in byn[3654], f"the wrapped citation moved: {byn[3654]!r}"
+
+    entries = json.loads((CONTENT / "pathways.json").read_text(encoding="utf-8"))["entries"]
+    def claimant(n):
+        return [e for e in entries if e["sourceLines"][0] <= n <= e["sourceLines"][1]]
+
+    for n in (6553, 7348, 8030, 8059, 8062):
+        owners = claimant(n)
+        assert len(owners) == 1, f"line {n} claimed by {[e['name'] for e in owners]}"
+        prose = owners[0]["ability"] + " " + owners[0].get("reinforcedAbilities", "")
+        assert byn[n].strip()[:40] in prose, (
+            f"line {n} is inside {owners[0]['name']}'s span but not in its prose"
+        )
+    # The two outside it are claimed, and by the files whose objects rule on
+    # them -- named here so "already ruled on" is checkable, not asserted.
+    for n, f, chapter in ((2723, "spirit_damage.json", "5"),
+                          (3653, "divination_methods.json", "6.5")):
+        assert claimant(n) == [], f"line {n} is not Sequence block prose"
+        spans = json.loads((CONTENT / f).read_text(encoding="utf-8"))["sourceLines"][chapter]
+        assert any(a <= n <= b for a, b in spans), f"{f} no longer claims line {n}"
+
+
+def test_shaken_is_one_of_two_deferred_terms_the_book_prints_once():
+    """The claim thirteen slices made about `Shaken`, run as a query.
+
+    `Shaken` is deferred as a bare term: 8030 prints the ROLL ("must roll HT
+    or be Shaken ... for 1 turn") and never what failing it does. The reading
+    inherited from 6dk onward was that this makes it a special case worth its
+    own recorded refusal. It does not. Of the five deferrals in ability
+    prose, THREE name a term this book prints elsewhere and this app models
+    -- `grappled` (the Wrestling table, 6do) and `mentally Stunned` twice
+    (chapter 5's Major Wound row, `StunRecovery`) -- and TWO name a term
+    printed exactly once in the whole book: `Shaken` (8030) and `suffocates`
+    (7348). A refusal recorded against `Shaken` alone would be a blocklist of
+    one, with its twin one chapter away.
+
+    A case-insensitive search for the first returns THREE, and the two extra
+    are ordinary English -- "shaken awake" (6521) and "being damaged, shaken,
+    or a loud noise" (8602). Both counts are asserted, so a re-extraction
+    that turns one of those into the game term reddens rather than quietly
+    widening the reason.
+    """
+    byn, _ = _gurps_deferrals()
+    def printed(term):
+        return [n for n, t in byn.items() if re.search(term, t)]
+
+    assert printed("Shaken") == [8030]
+    assert printed("suffocat") == [7348]
+    assert len(printed("grappl")) > 1 and len(printed("Stunned")) > 1, (
+        "the two glossed terms are no longer printed outside their deferral"
+    )
+    assert [n for n, t in byn.items() if "shaken" in t.lower()] == [6521, 8030, 8602]
+    assert "shaken awake" in byn[6521]
+    assert "damaged, shaken, or a loud noise" in byn[8602]
