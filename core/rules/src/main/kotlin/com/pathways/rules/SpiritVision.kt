@@ -23,6 +23,14 @@ data class SpiritVisionResult(
  * "Activate by expending 1 SPI (1 SPI per minute to maintain). Make a
  * Perception-based roll to interpret correctly."
  *
+ * **Chapter 4 prices it a second time and says strictly less.** p. 34's skill
+ * overview reads "Cost: 1 SPI per minute" -- the maintenance rate alone, with
+ * no activation charge. It agrees with the sentence above on the term it
+ * prints and is silent on the one it does not, so there is nothing to
+ * reconcile: a second printing widens a rule only by saying something the
+ * first did not. 7.6 is titled "A Complete Guide" and governs. The activation
+ * charge `SpiritVisionDialog` bills is not disputed by that line.
+ *
  * **The gate is each pathway's own block, never chapter 7.6's summary.**
  * Section C lists five Sequence 9 pathways and there are five Sequence 9
  * grants, but the membership differs by one in each direction: it prints

@@ -74,6 +74,42 @@ object Pools {
     /** p. 42: "At 1/3 FP or below: -1 to all rolls; Move and Dodge halved". */
     const val TIRED_PENALTY = -1
 
+    /**
+     * Printed pool rules this app does not apply, each beside its reason.
+     *
+     * The standard is [ActiveDefenses.UNPAYABLE]'s and [Divination.UNAPPLIED]'s:
+     * a printed rule that reaches nothing says so in production source rather
+     * than in a journal, so a sweep over Kotlin finds the reason. Its scope is
+     * the same and no larger -- removing an entry here turns no test red.
+     *
+     * **Recovery is temporal and this object is not.** Everything above
+     * computes a status from a current value and a maximum; nothing here
+     * advances a pool, because current values are table state the session
+     * owner holds. That is the whole reason, and it is the same one
+     * [Study] gives for not earning study points over downtime periods.
+     *
+     * **The subject is chapter 4, not the quick-reference table.** `Study`'s
+     * KDoc cited *"Appendix A's SPI recovery"*, which is the SUMMARY (p. 160,
+     * three cells: Rest / 1 SPI per hour / the requirement). p. 34 prints the
+     * rule and carries two clauses that row drops, and the exclusivity one is
+     * what a reader needs. Pinned by `test_tools.py`.
+     */
+    val UNMODELLED = mapOf(
+        "Spirituality Recovery" to
+            "p. 34: \"recovers 1 SPI per hour. This is the standard and only " +
+            "recovery rate. Combat, ritual casting, or heavy physical " +
+            "exertion interrupts rest and halts recovery.\" -- both the rate " +
+            "and the interruption are clock-bound, and this app holds no " +
+            "clock to run either against. p. 88's Sequence 9 Bard prints a " +
+            "narrower ability that restores SPI outside ordinary rest " +
+            "(\"allies recover 1 SPI at the song's end\", two at p. 100). " +
+            "Reading that as specific-beating-general rather than as a " +
+            "contradiction is THIS REPO's, on the model of the Potion " +
+            "Consumption Roll against SuccessRoll's crits; the book states " +
+            "no priority. Nothing turns on it while both are unmodelled, and " +
+            "pathway prose is not modelled here either",
+    )
+
     /** The book's printed rows for [pool]; empty for [Pool.FP], which has none. */
     fun thresholds(pool: Pool): List<PoolThreshold> =
         ContentLoader.poolThresholds().filter { it.pool == pool.name }

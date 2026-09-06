@@ -36,8 +36,11 @@ class StudyRefusedException(val reason: String) : IllegalStateException(reason)
  *
  * **Stateless on purpose, and that is the whole reason this exists.** The book
  * earns study points over "downtime periods" and this app holds no clock --
- * the reason Appendix A's SPI recovery (6ad) and a technique's duration (6ah)
- * are both unmodelled. What makes THIS page buildable anyway is one sentence:
+ * the reason chapter 4's SPI recovery (p. 34, recorded in [Pools.UNMODELLED])
+ * and a technique's duration (6ah) are both unmodelled. This cited Appendix
+ * A's quick-reference row until 6dq: that is the SUMMARY, and it drops the
+ * two clauses the governing printing carries. What makes THIS page buildable
+ * anyway is one sentence:
  * a session earns *"1 character point locked to that skill"*. Study points ARE
  * character points, so [SkillLadder] already prices the rung and this table
  * only prices the point. The GM says when the time passed; the planner says
