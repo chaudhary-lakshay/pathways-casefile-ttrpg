@@ -6843,8 +6843,39 @@ presentation copy and a `durationBreakdown` struct would be the better boundary
 — is refused as an abstraction with one consumer, and it said itself it would
 not block.
 
-**1690 Kotlin** (+7) and **341 Python** (+4), no compile warnings. Not
-device-verified.
+**1690 Kotlin** (+7) and **341 Python** (+4), no compile warnings.
+
+### Device-verified, all three columns
+
+On an SM-T570, Church Healer (HT 9, Will 11, IQ 11), driven through the real
+dialog until the effect roll landed on 12:
+
+| Column | The cell | The line the app adds |
+|---|---|---|
+| fright | `Retching for (25 − HT) sec; roll vs. Will to recover.` | `16 sec (25 − HT 9)`, over `Roll WILL 11 to recover now` |
+| awe | `Ecstasy for (25 − Will) sec; roll vs. Will to recover.` | `14 sec (25 − Will 11)` |
+| confusion | `Dazed for (25 − IQ) sec; roll vs. IQ to recover.` | `14 sec (25 − IQ 11)`, over `Roll IQ 11 to recover now` |
+
+The fright row is the one worth having on a screenshot: **sixteen seconds off
+HT beside a recovery roll against Will**, on one cell. Band 4-9 came up during
+the runs (`Stunned 1 sec`) and printed no duration line, which is the null
+case.
+
+**Getting there cost more than the slice did, and two things are worth
+keeping.** Band 12 is a single value on a 3d6-plus-margin table, so it cannot
+be navigated to — at a target of 7 the chance per attempt is
+`Σ P(3d6 = 7+m)·P(3d6 = 12−m) = 3195/46656`, about 6.9%, and it took 5, 10
+and 1 attempts for the three columns. And **the taps have to come from
+screencap, not from the dump**: `uiautomator dump` reports this device's sheet
+in a 900x1440 space against a physical 1200x1920, and deriving the scale from
+the largest node in the dump gives `(1.386, 1.576)` when a dialog is up,
+because no node spans the window then. That put one tap 400 px low, onto the
+scrim, which dismissed the dialog — **indistinguishable from the control not
+responding**, and it cost about twenty minutes of a loop that looked like it
+was working. Screencap pixels are physical; four fixed coordinates read off a
+screenshot drove 30 attempts without a miss, and one shell round trip per
+attempt (four taps and the dump in a single `adb shell`) took it from ~75 s to
+6 s.
 
 ### Three follow-ups the reviews were never asked for
 
