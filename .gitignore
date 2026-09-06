@@ -11,3 +11,7 @@ replay_pid*.log
 
 # Kotlin daemon crash logs: build noise, carries local paths (6as)
 .kotlin/
+
+# graphify's knowledge-graph output: 21 MB, regenerated from the tree by the
+# tool itself, and a claim about the tree at the moment it ran.
+graphify-out/
