@@ -148,7 +148,12 @@ slices**, in a test file written to be careful about exactly that: five
 assertions in `GlossaryContentTest` were forced by the exact ordered term list
 above them, so two tests and two assertions were deleted and what they were
 SAYING moved into that list's KDoc. An intent with no independent failure mode
-is a comment, not a test.
+is a comment, not a test. **The sheet itself is not device-verified** — read
+6dg as compiles, unit-tested, not rendered — and its `LazyColumn` became a
+scrolling `Column` for that reason: a lazy list inside a `ModalBottomSheet`
+shares one gesture with drag-to-dismiss, and 25 short rows never needed lazy
+layout. `ThemePicker` is not precedent for the lazy version; it uses a plain
+`Column`.
 
 **6df is newest, and it is three clauses nothing joined — plus a count that
 could not be checked.** Three catalogue rows modify a bare Will roll and
@@ -949,8 +954,11 @@ qa-findings/    free-model QA harness: batches.txt + two round scripts
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading 79 JSON
-files from `core/rules/src/main/resources/content/`: `skills.json` (158),
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading 78 of the 79 JSON
+files from `core/rules/src/main/resources/content/` — the odd one out is
+`spirit_vision.json`, which no Kotlin names and which is nonetheless the sole
+claimant of chapter 7.6, so `coverage.py` reports that chapter 100.0% off a
+file nothing loads (6dg names it as the next slice): `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
 `cor_gained.json` (6), `ritual_cor_thresholds.json` (4),
@@ -963,6 +971,7 @@ files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `ranged_modifiers.json` (9), `hit_locations.json` (9),
 `wounding_multipliers.json` (8), `spirit_damage.json` (15),
 `major_wound.json` (3), `shields.json` (4), `shield_rules.json` (3),
+`glossary.json` (25),
 `divination_difficulty.json` (5), `divination_methods.json` (8),
 `divination_modifiers.json` (8), `divination_clarity.json` (6),
 `divination_support.json` (4), `ritual_preparation.json` (5),

@@ -8,10 +8,10 @@ can put in front of a player who is not holding the book. Chapter G read 0.0%
 because nothing claimed it, and no percentage was ever going to move until
 something did.
 
-THE SHAPE, AND THE THREE THINGS THAT BREAK A NAIVE PARSE
+THE SHAPE, AND THE FOUR THINGS THAT BREAK A NAIVE PARSE
 ----------------------------------------------------------
 Each entry is `Term: definition`, with the definition wrapping over one or two
-further lines. Three details defeat the obvious regex:
+further lines. Four details defeat the obvious regex:
 
   - **One entry continues with a labelled line of its own.** The Pathway
     entry wraps onto "Examples: Fool Pathway, Error Pathway, Darkness
@@ -37,14 +37,21 @@ further lines. Three details defeat the obvious regex:
     Spirituality:`. It still ends in a colon, so it parses, but the term
     carries the dash and that is kept rather than normalised -- the book's
     spelling is the book's.
-  - **The chapter does not end where the glossary does.** Line 10212 is a
-    closing note pointing at GURPS Characters, and from 10214 the back cover
-    runs -- title, blurb, a full table of contents reprint, and the credits.
-    The table of contents reprint is the hazard: it lists every chapter name
-    in the book, and a parser that walked to the chapter's end would read
-    "Chapter 8: Equipment & Starting Wealth" as a glossary term. So the range
-    stops at the closing note, and verify() asserts the first line beyond it
-    is the one that begins the back matter.
+  - **The closing note is TWO lines, and the second one hides.** 10212 opens
+    it and 10213 finishes it -- "Characters (4th Edition)." -- which begins
+    with neither the note's own text nor a term, so a parser that SKIPS the
+    note one line at a time folds the remainder into whatever entry came
+    last. That is not hypothetical: `Will` shipped reading "...and CoR.
+    Characters (4th Edition)." No term list can see it, because every term is
+    still present and correctly spelled and exactly one definition is longer
+    than the page. The note is therefore a STOP, not a skip.
+  - **The chapter does not end where the glossary does.** From 10214 the back
+    cover runs -- title, blurb, a full table of contents reprint, and the
+    credits. The table of contents reprint is the hazard: it lists every
+    chapter name in the book, and a parser that walked to the chapter's end
+    would read "Chapter 8: Equipment & Starting Wealth" as a glossary term. So
+    the range stops at the closing note, and verify() asserts the first line
+    beyond it is the one that begins the back matter.
 
 WHAT IS NOT ALPHABETISED, AND STAYS THAT WAY
 ----------------------------------------------

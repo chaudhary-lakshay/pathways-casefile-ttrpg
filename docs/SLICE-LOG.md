@@ -6949,6 +6949,23 @@ built to disagree with the parser. It also bought the seventh mutation above.
 on a 25-entry classpath resource is the pattern `DefenseDialog.kt:252` and
 `PathwayScreen.kt:104` already use, and no coroutine was proposed.
 
+### What is NOT verified, and the risk that was removed instead of tested
+
+**The sheet has never been rendered.** Compile plus three unit tests prove
+`ContentLoader.glossary()` returns the right 25 rows in the right order; nothing
+here proves the control opens. Every app-level defect in this repo's history has
+landed in wiring rather than rules, so read this slice as *compiles,
+unit-tested, not device-verified*.
+
+One specific risk was removed rather than left untested. The sheet first shipped
+a `LazyColumn` inside `ModalBottomSheet`, which puts the list's vertical scroll
+and the sheet's drag-to-dismiss on the same gesture — the usual symptom is a
+list that will not scroll or a sheet that dismisses when you try. `ThemePicker`
+is NOT precedent for that: it uses a plain `Column`. Twenty-five short rows do
+not need lazy layout, so the list is now a `Column` with `verticalScroll`,
+matching the file one directory over. **The cheapest answer to an interaction
+question no test in this repo can reach is not to create the interaction.**
+
 ## 6df. Three clauses, no join — and a count that could not be checked
 
 6de named this next: the Will rolls, and the corpus its own sweep should have

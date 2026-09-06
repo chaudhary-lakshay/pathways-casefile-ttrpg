@@ -2,13 +2,11 @@ package com.pathways.app
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -35,8 +33,13 @@ import com.pathways.rules.content.ContentLoader
  * `Sea of Collective Subconscious` and `Will`. Sorting it here would make the
  * screen disagree with the page a player is holding.
  *
- * ponytail: no search box. 25 entries is two flicks; add one if the reference
- * surface ever grows to the appendices.
+ * ponytail: a scrolling `Column`, not a `LazyColumn`, and no search box. 25
+ * short rows do not need lazy layout, and a lazy list inside a
+ * `ModalBottomSheet` puts the list's scroll and the sheet's drag-to-dismiss on
+ * the same gesture -- a question this repo cannot answer without a device,
+ * and one a plain scrolling column (which is what `ThemePicker` does one file
+ * over) never asks. Add both if the reference surface ever grows to the
+ * appendices.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,8 +50,11 @@ fun GlossarySheet(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
-        LazyColumn(
-            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 32.dp),
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             // Title only. The book's closing note -- "This glossary covers only
@@ -56,15 +62,13 @@ fun GlossarySheet(onDismiss: () -> Unit) {
             // to the GURPS Basic Set: Characters (4th Edition)." -- is book
             // text the extractor deliberately drops, and typing it in here
             // would be a screen restating content nothing joins it to.
-            item {
-                Text(
-                    "Glossary",
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(bottom = 6.dp),
-                )
-            }
+            Text(
+                "Glossary",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 6.dp),
+            )
 
-            items(entries, key = { it.term }) { entry ->
+            for (entry in entries) {
                 Column(Modifier.fillMaxWidth()) {
                     Text(
                         entry.term,
@@ -74,8 +78,6 @@ fun GlossarySheet(onDismiss: () -> Unit) {
                     Text(entry.definition, style = MaterialTheme.typography.bodyMedium)
                 }
             }
-
-            item { HorizontalDivider(Modifier.padding(top = 6.dp)) }
         }
     }
 }
