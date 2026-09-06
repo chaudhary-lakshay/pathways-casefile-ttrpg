@@ -4326,9 +4326,15 @@ def test_every_clause_target_that_joins_nothing_is_recorded():
     }
     assert unresolved == extract_equipment.RECORDED_UNJOINED
     # Each of the three sets earns its place: a roll the book never prints as
-    # a skill, a skill chapter 3 omits, and one it spells differently.
+    # a skill, a skill chapter 3 omits, and one it spells differently. Their
+    # union is asserted above, so what is left to check is that they are
+    # DISJOINT -- a name recorded in two of them is two records of one fact,
+    # and the union cannot see that.
+    sets = (extract_equipment.UNPRINTED_TARGETS,
+            extract_equipment.ABSENT_FROM_CHAPTER_3,
+            extract_equipment.HYPHENATED_IN_CHAPTER_8)
+    assert sum(len(x) for x in sets) == len(extract_equipment.RECORDED_UNJOINED)
     assert "reaction" in extract_equipment.UNPRINTED_TARGETS
-    assert extract_equipment.ABSENT_FROM_CHAPTER_3 <= unresolved
     assert extract_equipment.HYPHENATED_IN_CHAPTER_8 == {"Fortune-Telling"}
 
 
