@@ -1,9 +1,11 @@
 package com.pathways.rules
 
 import com.pathways.model.Outcome
+import com.pathways.model.Trait
 import com.pathways.model.RollResult
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.FrightEffect
+import com.pathways.rules.content.FrightRecovery
 import com.pathways.rules.content.FrightTrigger
 
 /**
@@ -113,6 +115,43 @@ object FrightCheck {
         FrightKind.AWE -> effect.awe
         FrightKind.CONFUSION -> effect.confusion
     }
+
+    /**
+     * The way out of that column, or null where the table prints none.
+     *
+     * Three of the nine bands offer one and six do not — past 12 the table
+     * hands out a quirk, a disadvantage or a permanent loss with no roll to
+     * escape it, and offering one there would be this app granting a way back
+     * the book withholds.
+     *
+     * **The repetition is the GM's**, exactly as [StunRecovery]'s is: rows 4-9
+     * say "each sec" and this app holds no clock, so one roll is offered and
+     * the cell's own sentence is printed beside it.
+     */
+    fun recoveryFor(effect: FrightEffect, kind: FrightKind): FrightRecovery? = when (kind) {
+        FrightKind.FRIGHT -> effect.frightRecovery
+        FrightKind.AWE -> effect.aweRecovery
+        FrightKind.CONFUSION -> effect.confusionRecovery
+    }
+
+    /**
+     * What [traits] add to [recovery], signed.
+     *
+     * One clause reaches these and it is scoped on the STATE, not the roll:
+     * Combat Reflexes' "+6 to recover from stun" answers for rows 4-9 and
+     * 10-11, whose cells all print "Stunned", and for none of row 12's three.
+     * The discriminator is [StunRecovery]'s, which is where this app already
+     * decides what a stun is.
+     *
+     * **No attribute bonus composes here, and that is the book's doing.**
+     * These rolls are Will and IQ; `Fit`'s "+1 to all HT rolls" reaches the
+     * Major Wound's recovery for exactly that reason and reaches none of
+     * these, and this book prints no "all Will rolls" or "all IQ rolls" trait
+     * to take its place. The GM-declared Will clauses are a different thing
+     * and the caller supplies them, on the Will columns only.
+     */
+    fun recoveryBonus(recovery: FrightRecovery, traits: List<Trait>): Int =
+        if (StunRecovery.isStun(recovery)) TraitEffects.stunRecoveryBonus(traits) else 0
 
     private fun rollThreeDSix(source: RandomSource) = (1..3).sumOf { source.roll(6) }
 }

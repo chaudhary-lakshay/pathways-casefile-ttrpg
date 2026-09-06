@@ -122,6 +122,9 @@ import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.SpiritualSenses
 import com.pathways.rules.SuccessDegree
 import com.pathways.rules.TraitClause
+import com.pathways.rules.StunRecovery
+import com.pathways.rules.ClauseBonus
+import com.pathways.rules.content.FrightRecovery
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.content.CommonModifier
 import com.pathways.rules.content.ContentLoader
@@ -902,9 +905,15 @@ fun SheetScreen(
             // Fright Check itself. Concatenated rather than merged:
             // `TraitClause.key` is "shown / printed" and the two lists
             // share no row, so no declaration can move two clauses.
+            iq = attributes.iq,
             clauses = remember(traits) {
                 TraitEffects.frightClauses(traits) + TraitEffects.willClauses(traits)
             },
+            // The recovery roll is a bare Will roll a second later, so the
+            // rows that name one reach it and the ones scoped to the Fright
+            // Check do not — that check is over by then.
+            willOnlyClauses = willClauses,
+            stunRecoveryBonus = TraitEffects.stunRecoveryBonus(traits),
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,
         ) { frightening = false }
@@ -1199,7 +1208,29 @@ fun SheetScreen(
 @Composable
 private fun FrightDialog(
     will: Int,
+    /** For the Confusion column's recovery roll, which is the only IQ roll here. */
+    iq: Int,
     clauses: List<TraitClause> = emptyList(),
+    /**
+     * The subset of [clauses] that name a bare Will roll rather than the
+     * Fright Check itself.
+     *
+     * The recovery roll is a second bare Will roll in two of three columns, so
+     * a clause like "-1 to Will rolls for the day" reaches it — but the rows
+     * scoped to the Fright Check do not, because the check is over. Passed
+     * separately rather than re-filtered here: which clause names which roll
+     * is [TraitEffects]' business, and a composable deciding it would be the
+     * second copy.
+     */
+    willOnlyClauses: List<TraitClause> = emptyList(),
+    /**
+     * Combat Reflexes' "+6 to recover from stun", already resolved.
+     *
+     * Whether it APPLIES is still the rules' call, not this screen's:
+     * [FrightCheck.recoveryBonus] gates it on the row's own state, so row 12's
+     * Retching, Ecstasy and Dazed get nothing.
+     */
+    stunRecoveryBonus: Int = 0,
     shock: Int = 0,
     /** Reeling and fatigue: "-1 to all rolls", the phrase shock is read by. */
     hurt: Int = 0,
@@ -1213,6 +1244,9 @@ private fun FrightDialog(
     // cell prints two ("-2 on direct exposure; -1 in consecrated buildings")
     // and a key that could not tell them apart would move both at once (6r).
     var declared by remember(clauses) { mutableStateOf(emptySet<String>()) }
+    // Keyed on the check, so a new Fright Check clears the last one's recovery
+    // roll without a second clearing site (6cp: the key is the guard).
+    var recovery by remember(outcome) { mutableStateOf<RollResult?>(null) }
     val triggers = remember { FrightCheck.triggers() }
 
     AlertDialog(
@@ -1327,11 +1361,93 @@ private fun FrightDialog(
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(top = 8.dp),
                         )
+                        // Six of the nine bands print no way out at all, so
+                        // this is null for them and no control appears. The
+                        // cell's own sentence above already said so.
+                        result.effect?.let { FrightCheck.recoveryFor(it, kind) }?.let { out ->
+                            FrightRecoveryPanel(
+                                recovery = out,
+                                // The column decides the attribute: Will in two
+                                // of three, IQ in Confusion, whatever state the
+                                // row leaves the character in.
+                                attributeLevel = if (out.attribute == "IQ") iq else will,
+                                bonus = if (StunRecovery.isStun(out)) stunRecoveryBonus else 0,
+                                // Will clauses reach a bare Will roll and not an
+                                // IQ one; this book prints no IQ-roll clause to
+                                // stand in for them, which is a gap and not a
+                                // choice made here.
+                                clauseBonus = if (out.attribute == "IQ") {
+                                    ClauseBonus(0, null)
+                                } else {
+                                    TraitEffects.clauseBonus(willOnlyClauses, declared)
+                                },
+                                shock = shock,
+                                hurt = hurt,
+                                rolled = recovery,
+                                onRoll = { target -> recovery = SuccessRoll.against(target, appDice) },
+                            )
+                        }
                     }
                 }
             }
         },
     )
+}
+
+/**
+ * The way out of a Fright Effects row, where the table prints one.
+ *
+ * Three of the nine bands do. The other six hand out a quirk, a disadvantage
+ * or a permanent loss with no roll to escape, so nothing renders for them —
+ * a control there would grant a way back the book withholds.
+ *
+ * **One roll, not one a turn.** Rows 4-9 say "roll vs. Will each sec to
+ * recover" and this app holds no clock, so the button says "now" and the
+ * cell's own sentence — already printed above — is what says the book asks
+ * again. The same reading `DamageDialog` makes of the Major Wound's stun.
+ *
+ * The duration each cell prints is shown and never computed: row 12 counts
+ * down from "(25 − HT)", "(25 − Will)" and "(25 − IQ)", and two of those three
+ * are not the attribute that column rolls.
+ */
+@Composable
+private fun FrightRecoveryPanel(
+    recovery: FrightRecovery,
+    attributeLevel: Int,
+    bonus: Int,
+    clauseBonus: ClauseBonus,
+    shock: Int,
+    hurt: Int,
+    rolled: RollResult?,
+    onRoll: (Int) -> Unit,
+) {
+    // ONE expression, printed and rolled, for the reason the Major Wound panel
+    // states: two would let the caption and the roll drift.
+    val target = attributeLevel + bonus + clauseBonus.total + shock + hurt
+    Column(Modifier.padding(top = 8.dp)) {
+        if (rolled == null) {
+            TextButton(onClick = { onRoll(target) }) {
+                Text("Roll ${recovery.attribute} $target to recover now")
+            }
+            if (bonus != 0) {
+                Text(
+                    "includes +$bonus from ${TraitEffects.COMBAT_REFLEXES} — " +
+                        "\"+6 to recover from stun\"",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            clauseBonus.line?.let {
+                Text("includes $it", style = MaterialTheme.typography.bodySmall)
+            }
+            return@Column
+        }
+        Text("3d6: ${rolled.total} vs $target", style = MaterialTheme.typography.titleMedium)
+        Text(
+            if (rolled.total <= target) "Recovered." else "Still there; the row asks again.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
+    }
 }
 
 /**

@@ -455,10 +455,68 @@ data class FrightEffect(
     val fright: String,
     val awe: String,
     val confusion: String,
+    val frightRecovery: FrightRecovery? = null,
+    val aweRecovery: FrightRecovery? = null,
+    val confusionRecovery: FrightRecovery? = null,
 ) {
     init {
         require(high == null || high >= low) { "fright band '$printed' runs $low..$high" }
+        val present = listOfNotNull(frightRecovery, aweRecovery, confusionRecovery).size
+        require(present == 0 || present == 3) {
+            "fright band '$printed' offers a recovery roll in $present of 3 columns; " +
+                "the table prints one in every column or in none"
+        }
     }
+}
+
+/**
+ * The way out of a Fright Effects cell, structured by `tools/extract_fright.py`.
+ *
+ * **The attribute is the COLUMN's, never the state's.** Rows 4-9, 10-11 and 12
+ * all roll Will in the Fright and Awe columns and IQ in Confusion, whatever
+ * they leave the character as — so a screen cannot infer it from the outcome.
+ * The extractor anchors on the cell's own "roll vs. X" and never on an
+ * attribute name, because two of row 12's three cells name an attribute they
+ * do NOT roll: its fright cell counts down from HT, and its awe cell prints
+ * "Will" once as a duration and once as the roll.
+ *
+ * **[state] is the book's own leading word, decoded rather than matched.** The
+ * extractor reads the prose and this ships the result, so no rules code has to
+ * be a second authority on what the cell says (6dh). What reads it is Combat
+ * Reflexes' "+6 to recover from stun", which reaches [RecoveryState.STUNNED]
+ * and none of the other three.
+ *
+ * The duration each cell prints is deliberately unread — "1d-2d sec",
+ * "(25 - HT) sec" — because this app holds no clock. The cell's own sentence
+ * is shown beside the roll instead.
+ */
+@Serializable
+data class FrightRecovery(val attribute: String, val state: RecoveryState)
+
+/**
+ * What a Fright Effects row leaves the character as, in the book's own word.
+ *
+ * A closed set because the table prints exactly these four across its three
+ * rows that offer a way out, and an unknown fifth is a re-extraction that
+ * drifted rather than a state to render.
+ */
+@Serializable
+enum class RecoveryState {
+    /** Rows 4-9 and 10-11, all three columns. The one a stun clause reaches. */
+    @SerialName("Stunned")
+    STUNNED,
+
+    /** Row 12, Fright. */
+    @SerialName("Retching")
+    RETCHING,
+
+    /** Row 12, Awe. */
+    @SerialName("Ecstasy")
+    ECSTASY,
+
+    /** Row 12, Confusion. */
+    @SerialName("Dazed")
+    DAZED,
 }
 
 /** One row of the ritual weight table (Ch. 7, p. 67): how hard a category is. */

@@ -2,7 +2,9 @@ package com.pathways.rules
 
 import com.pathways.model.Trait
 import com.pathways.rules.content.ContentLoader
+import com.pathways.rules.content.FrightRecovery
 import com.pathways.rules.content.MajorWound
+import com.pathways.rules.content.RecoveryState
 
 /**
  * The Major Wound table's own recovery roll, which this app printed and never
@@ -59,6 +61,18 @@ object StunRecovery {
 
     /** That row's effect cell, quoted rather than paraphrased. */
     fun printed(): String = row().effect
+
+    /**
+     * Whether [recovery] is a stun, and so whether a stun clause reaches it.
+     *
+     * The Fright Effects table prints four states across the three rows that
+     * offer a way out — `Stunned` twice over, then `Retching`, `Ecstasy` and
+     * `Dazed` — and Combat Reflexes' "+6 to recover from stun" names one of
+     * them. Answered here rather than at the caller because this object
+     * already holds which Major Wound row is the stun, and two sites deciding
+     * what a stun IS is the defect, not the drift it produces.
+     */
+    fun isStun(recovery: FrightRecovery): Boolean = recovery.state == RecoveryState.STUNNED
 
     /**
      * What [traits] add to this roll, signed.
