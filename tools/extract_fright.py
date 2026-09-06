@@ -73,6 +73,17 @@ STATE = re.compile(r"^([A-Z][a-z]+)\b")
 # The attributes this book rolls against. A cell whose "roll vs." is followed
 # by anything else is a parse that drifted, not a cell without a recovery.
 ATTRIBUTES = ("Will", "IQ", "HT", "DX", "Per", "ST", "SPI")
+# A cell's duration where the book COMPUTES it, anchored on the parenthetical
+# and never on an attribute name.
+#
+# Row 12 is the only band whose duration has a stat operand -- rows 4-9 print
+# "1 sec" and 10-11 "1d-2d sec", both already resolved in the cell -- and the
+# operand is not the attribute the same cell ROLLS: the fright cell counts
+# down from HT and rolls Will. Reusing RECOVERY here would answer Will for a
+# duration the book takes from HT, and the awe cell (which prints Will in both
+# roles) cannot tell the two readings apart. So the fright column is what
+# decides this parse, and the anchor is the "(25 - X)" the book prints.
+DURATION = re.compile(rf"\((\d+)\s*[{MINUS}–—]\s*([A-Za-z]+)\)")
 
 EXPECTED_BANDS = [(4, 9), (10, 11), (12, 12), (13, 15), (16, 21), (22, 23),
                   (24, 29), (30, 34), (35, None)]
@@ -147,6 +158,28 @@ def recovery_of(cell, band):
     return {"attribute": attribute, "state": state.group(1)}
 
 
+def duration_of(cell, band):
+    """The duration a cell computes from the character, or None if it prints
+    a duration this app has nothing to work out.
+
+    Eight of the nine bands yield None and that is correct: two print a
+    duration with no stat in it and six print no duration at all. The third
+    case -- a parenthetical naming something this book prints no attribute
+    for -- RAISES, because returning None there turns a drifted parse into a
+    row whose duration the screen simply never computes.
+    """
+    printed = DURATION.search(cell)
+    if printed is None:
+        return None
+    base, attribute = printed.groups()
+    if attribute not in ATTRIBUTES:
+        raise ValueError(
+            f"band {band!r} computes a duration from {attribute!r}, which is "
+            f"not one of {ATTRIBUTES}: {cell!r}"
+        )
+    return {"base": int(base), "attribute": attribute}
+
+
 def ends_cell(text):
     if not text.endswith((".", "!", "?")):
         return False
@@ -195,7 +228,11 @@ def parse_effects(lines):
             f"{column}Recovery": recovery_of(cell, row["printed"])
             for column, cell in zip(COLUMNS, cells)
         }
-        out.append({**row, **dict(zip(COLUMNS, cells)), **recoveries})
+        durations = {
+            f"{column}ComputedDuration": duration_of(cell, row["printed"])
+            for column, cell in zip(COLUMNS, cells)
+        }
+        out.append({**row, **dict(zip(COLUMNS, cells)), **recoveries, **durations})
     return out
 
 
@@ -223,6 +260,26 @@ def verify(triggers, effects):
                 f"band {row['printed']!r} parsed a recovery roll in {present} "
                 "only; the table prints one in every column or in none"
             )
+    # One band computes its duration from the character, and its fright cell
+    # counts down from an attribute it does not roll. That disagreement is the
+    # only evidence the duration anchor did not collapse into the recovery one,
+    # and it exists in exactly one cell of the table.
+    computed = [r["printed"] for r in effects if r["frightComputedDuration"]]
+    if computed != ["12"]:
+        raise ValueError(
+            f"the computed-duration bands changed: {computed} != ['12']"
+        )
+    twelve = next(r for r in effects if r["printed"] == "12")
+    if twelve["frightComputedDuration"]["attribute"] ==             twelve["frightRecovery"]["attribute"]:
+        raise ValueError(
+            "row 12's fright cell used to count down from HT and roll Will; "
+            f"both now read {twelve['frightRecovery']['attribute']!r}, so the "
+            "duration anchor and the recovery anchor cannot be told apart"
+        )
+    bases = {r[f"{c}ComputedDuration"]["base"] for c in COLUMNS for r in [twelve]}
+    if bases != {25}:
+        raise ValueError(f"row 12's three durations used to count down from 25; got {bases}")
+
     with_recovery = [r["printed"] for r in effects if r["frightRecovery"]]
     if len(with_recovery) != 3:
         raise ValueError(

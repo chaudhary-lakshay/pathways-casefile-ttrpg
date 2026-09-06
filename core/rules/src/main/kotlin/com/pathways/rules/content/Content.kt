@@ -458,6 +458,9 @@ data class FrightEffect(
     val frightRecovery: FrightRecovery? = null,
     val aweRecovery: FrightRecovery? = null,
     val confusionRecovery: FrightRecovery? = null,
+    val frightComputedDuration: ComputedDuration? = null,
+    val aweComputedDuration: ComputedDuration? = null,
+    val confusionComputedDuration: ComputedDuration? = null,
 ) {
     init {
         require(high == null || high >= low) { "fright band '$printed' runs $low..$high" }
@@ -466,7 +469,68 @@ data class FrightEffect(
             "fright band '$printed' offers a recovery roll in $present of 3 columns; " +
                 "the table prints one in every column or in none"
         }
+        val computed = listOfNotNull(
+            frightComputedDuration, aweComputedDuration, confusionComputedDuration,
+        ).size
+        require(computed == 0 || computed == 3) {
+            "fright band '$printed' computes a duration in $computed of 3 columns; " +
+                "the one band that computes one does so in every column"
+        }
     }
+}
+
+/**
+ * A duration one Fright Effects cell works out from the character.
+ *
+ * "Retching for (25 - HT) sec", "Ecstasy for (25 - Will) sec", "Dazed for
+ * (25 - IQ) sec" -- row 12's three cells, and the only durations in the table
+ * with a stat operand. **The other two printed durations stay prose on
+ * purpose**: rows 4-9 print "1 sec", already resolved in the cell, and 10-11
+ * print "1d-2d sec", which is a range the GM rolls rather than a number the
+ * app can derive. So this is not "the table's duration" structured -- it is
+ * the subset a character's own sheet answers, which is the boundary the table
+ * itself draws.
+ *
+ * **The operand is not the attribute the same cell ROLLS.** The fright cell
+ * counts down from HT and rolls Will, which is why this cannot ride on
+ * [FrightRecovery]: `extract_fright.py` anchors on the printed parenthetical
+ * and a guard there fails the day the two anchors answer the same attribute.
+ */
+@Serializable
+data class ComputedDuration(val base: Int, val attribute: DurationAttribute)
+
+/**
+ * What a Fright Effects cell counts its duration down from, in the book's own
+ * name.
+ *
+ * Three members against [RecoveryAttribute]'s two, and the extra one is the
+ * whole point: HT is named by row 12's fright duration and by no recovery roll
+ * in the table. Widening [RecoveryAttribute] to hold it would put a value in
+ * [com.pathways.rules.FrightCheck.levelFor]'s exhaustive `when` that no
+ * recovery roll can ever take.
+ */
+@Serializable
+enum class DurationAttribute(
+    /**
+     * The book's own spelling, so the screen never writes its own.
+     *
+     * The same string the serial name carries: a dialog that spelled these
+     * itself would be a second copy of a decision, which is how this repo's
+     * numbers have twice stopped reconciling.
+     */
+    val printed: String,
+) {
+    /** Row 12, Fright -- the column whose duration and roll disagree. */
+    @SerialName("HT")
+    HT("HT"),
+
+    /** Row 12, Awe, which prints "Will" in both roles. */
+    @SerialName("Will")
+    WILL("Will"),
+
+    /** Row 12, Confusion. */
+    @SerialName("IQ")
+    IQ("IQ"),
 }
 
 /**

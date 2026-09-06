@@ -729,6 +729,86 @@ def test_an_unparsable_recovery_is_reported_not_dropped():
         ])
 
 
+def test_a_computed_duration_is_anchored_on_the_parenthetical_not_on_the_roll():
+    """The attribute a cell COUNTS DOWN FROM is not the one it rolls.
+
+    Row 12's fright cell counts down from HT and rolls Will, so reusing the
+    recovery anchor -- or searching for an attribute name -- answers Will for
+    a duration the book computes from HT. Its awe cell prints Will in both
+    roles and cannot tell the two readings apart, which is why the fright
+    column is the one that decides this parse.
+    """
+    rows = extract_fright.parse_effects([
+        "12",
+        "Retching for (25 − HT) sec; roll vs.", "Will to recover.",
+        "Ecstasy for (25 − Will) sec; roll vs.", "Will to recover.",
+        "Dazed for (25 − IQ) sec; roll vs. IQ to", "recover.",
+    ])
+    assert rows[0]["frightComputedDuration"] == {"base": 25, "attribute": "HT"}
+    assert rows[0]["aweComputedDuration"] == {"base": 25, "attribute": "Will"}
+    assert rows[0]["confusionComputedDuration"] == {"base": 25, "attribute": "IQ"}
+
+
+def test_a_printed_duration_with_no_attribute_in_it_is_not_computed():
+    """Rows 4-9 print "1 sec" and 10-11 "1d-2d sec".
+
+    Those are durations too, and neither is a function of the character: one
+    is already resolved in the cell and the other is a range the GM rolls.
+    The boundary is the table's own -- a duration with a STAT OPERAND is the
+    only kind this app can work out -- so the other two stay prose rather
+    than being structured into a field nothing could compute.
+    """
+    stunned = extract_fright.parse_effects([
+        "4–9",
+        "Stunned 1 sec; roll vs. Will each", "sec to recover.",
+        "Stunned 1 sec; roll vs. Will each sec to", "recover.",
+        "Stunned 1 sec; roll vs. IQ each sec to", "recover.",
+    ])
+    dice = extract_fright.parse_effects([
+        "10–11",
+        "Stunned 1d–2d sec; roll vs. Will to", "recover.",
+        "Stunned 1d–2d sec; roll vs. Will to", "recover.",
+        "Stunned 1d–2d sec; roll vs. IQ to", "recover.",
+    ])
+    for rows in (stunned, dice):
+        for column in ("fright", "awe", "confusion"):
+            assert rows[0][f"{column}ComputedDuration"] is None
+
+
+def test_a_computed_duration_naming_an_unknown_attribute_is_reported():
+    """A parenthetical this book prints no attribute for is a parse that
+    drifted, not a cell whose duration is fixed."""
+    with pytest.raises(ValueError, match="duration"):
+        extract_fright.parse_effects([
+            "12",
+            "Retching for (25 − Fortitude) sec; roll", "vs. Will to recover.",
+            "Ecstasy for (25 − Will) sec; roll vs.", "Will to recover.",
+            "Dazed for (25 − IQ) sec; roll vs. IQ to", "recover.",
+        ])
+
+
+def test_the_committed_row_counts_down_from_an_attribute_it_does_not_roll():
+    """The one band with a computed duration, and the seam that proves the
+    two anchors did not collapse.
+
+    Asserted against the committed file rather than a hand-typed cell: what
+    would be wrong is the duration reading the recovery's attribute, and that
+    is only visible where the book prints two different ones on one cell.
+    """
+    entries = json.loads((CONTENT / "fright_effects.json").read_text(encoding="utf-8"))["entries"]
+    computed = [
+        e["printed"] for e in entries
+        if any(e.get(f"{c}ComputedDuration") for c in ("fright", "awe", "confusion"))
+    ]
+    assert computed == ["12"], f"expected only band 12 to compute a duration, got {computed}"
+    row = next(e for e in entries if e["printed"] == "12")
+    assert row["frightComputedDuration"]["attribute"] == "HT"
+    assert row["frightRecovery"]["attribute"] == "Will"
+    # All three bases are the same number today; if a re-extraction ever splits
+    # them the arithmetic below stops being one rule.
+    assert {row[f"{c}ComputedDuration"]["base"] for c in ("fright", "awe", "confusion")} == {25}
+
+
 # --- Ritual resolution (Ch. 7, p. 67-68) -----------------------------------
 
 import extract_ritual

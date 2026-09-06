@@ -4,6 +4,8 @@ import com.pathways.model.Trait
 import com.pathways.model.RollResult
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.FrightEffect
+import com.pathways.rules.content.ComputedDuration
+import com.pathways.rules.content.DurationAttribute
 import com.pathways.rules.content.FrightRecovery
 import com.pathways.rules.content.RecoveryAttribute
 import com.pathways.rules.content.FrightTrigger
@@ -133,6 +135,62 @@ object FrightCheck {
         FrightKind.AWE -> effect.aweRecovery
         FrightKind.CONFUSION -> effect.confusionRecovery
     }
+
+    /**
+     * The duration that column of [effect] works out from the character, or
+     * null where the cell prints one this app has nothing to compute.
+     *
+     * Eight of the nine bands answer null, and two of those DO print a
+     * duration: rows 4-9 print "1 sec" and 10-11 "1d-2d sec". Neither has a
+     * stat in it — one is already a number and the other a range the GM
+     * rolls — so the boundary here is the table's own rather than a list of
+     * the cases this app happens to want (see [ComputedDuration]).
+     */
+    fun durationFor(effect: FrightEffect, kind: FrightKind): ComputedDuration? = when (kind) {
+        FrightKind.FRIGHT -> effect.frightComputedDuration
+        FrightKind.AWE -> effect.aweComputedDuration
+        FrightKind.CONFUSION -> effect.confusionComputedDuration
+    }
+
+    /**
+     * How many seconds [duration] lasts for a character at these levels.
+     *
+     * The attribute is the CELL's and it is not [levelFor]'s: row 12's fright
+     * cell counts down from HT and rolls Will, so a screen taking the
+     * recovery's attribute for both would print the wrong duration on the one
+     * column where the two differ. Exhaustive over [DurationAttribute] for the
+     * same reason [levelFor] is over [RecoveryAttribute].
+     *
+     * **The floor is this app's, because the book prints none.** "(25 - HT)"
+     * runs negative above HT 25, and a negative duration is not a duration —
+     * a character that resilient is simply not retching, which is what zero
+     * seconds says. The screen still prints the subtraction, so the reading is
+     * visible rather than swallowed.
+     */
+    fun secondsFor(duration: ComputedDuration, ht: Int, will: Int, iq: Int): Int =
+        (duration.base - levelOf(duration, ht, will, iq)).coerceAtLeast(0)
+
+    /**
+     * The whole sentence a screen prints for [duration], subtraction included.
+     *
+     * "14 sec (25 − HT 11)". Authored here rather than in the dialog, the
+     * call [Divination.sourceLine] already had to make: the screen would
+     * otherwise need the attribute's name AND its level, which is [levelOf]
+     * asked a second time somewhere it cannot be tested.
+     *
+     * The working is shown because the answer alone hides two things -- which
+     * attribute the cell counts down from, and the floor above HT 25.
+     */
+    fun durationLine(duration: ComputedDuration, ht: Int, will: Int, iq: Int): String =
+        "${secondsFor(duration, ht, will, iq)} sec (${duration.base} − " +
+            "${duration.attribute.printed} ${levelOf(duration, ht, will, iq)})"
+
+    private fun levelOf(duration: ComputedDuration, ht: Int, will: Int, iq: Int): Int =
+        when (duration.attribute) {
+            DurationAttribute.HT -> ht
+            DurationAttribute.WILL -> will
+            DurationAttribute.IQ -> iq
+        }
 
     /**
      * What [traits] add to [recovery], signed.
