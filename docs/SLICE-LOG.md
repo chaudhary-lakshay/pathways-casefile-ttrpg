@@ -6726,6 +6726,140 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6do. The table a true reason about one column kept out whole
+
+`AttackDialog.kt:113` read *"Null for every skill with no attack table --
+Wrestling included, which the book gives 'None (grapple only)'"*, and
+`extract_unarmed.py`'s docstring gave the same reason at length: Wrestling
+*"deals no damage at all ... so parsing it as a damage table would invent
+damage the book does not print."*
+
+**Both sentences are true, and both are about the DAMAGE column.** Book lines
+2602-2621 print a four-row Wrestling table with different columns —
+**Maneuver / Roll / Opposed Roll / Notes** — claimed by no content file and
+modelled nowhere:
+
+```
+Grapple  | Wrestling   | DX or Escape    | Initiate grapple; both roll DX
+Takedown | Wrestling-1 | DX or Wrestling | Knock down; target falls prone
+Pin      | Wrestling-2 | DX or Wrestling | Immobilize; target cannot act
+Escape   | Escape-2    | DX or Wrestling | Break free from grapple or pin
+```
+
+**And the counter-example is in the file the reason is written in.** `Shove`
+has been a row of `unarmed_attacks.json` since M0 with `damage: "Special"` and
+no damage parts at all — its own KDoc argues *"an attack that knocks down
+instead of wounding deals no damage, which is not the same as dealing zero."*
+So "no damage, therefore no row" was refuted by the table's own contents before
+it was ever written down. Third instance running of 6dl's shape, and the
+sharpest: the sentence stayed true while answering a question the decision did
+not ask.
+
+**Reachable, checked before the slice was named.** `Wrestling` and `Escape` are
+both in `skills.json`, and **five of the 23 fixtures carry one** — Barmaid
+Brawler, Dock Foreman and Docks Bouncer have Wrestling; Pickpocket and Street
+Acrobat have Escape. A Docks Bouncer picked Wrestling in the attack screen and
+was offered nothing at all.
+
+**And the reason was not inherited blindly — it was read SELECTIVELY.** The
+same summary row's third cell reads *"No default; ST bonus for grappling; parry
+at -3"*, and `parry at -3` is applied, through `ParryBlock`. One cell of that
+row governed the whole table and the cell beside it was taken. That is a
+narrower finding than "nobody read it" and a truer one.
+
+### The subject is what decides the shape, not the column count
+
+I had weighed reuse-vs-new-table on the columns. The discriminator is the
+**subject**: Grapple, Takedown and Pin are the GRAPPLER's, and `Escape-2` is
+rolled by the person being HELD. `unarmed_attacks.json` is keyed by the acting
+character's skill and read by an attack picker, so storing the fourth row would
+offer anyone with Escape a way out of a grapple they are not in. It is left out
+as a **GAP** — this app holds no grappled state and has no screen for the
+acted-upon character — not as a refusal (6by's distinction). The design review
+agreed and named the strongest case against, which is that it leaves an
+Escape-trained character with no path to a printed row: *that argues for a
+grapple-state surface, not for putting it in this table.*
+
+The filter is drawn from the table's own definition — keep the rows whose roll
+is the table's own skill — rather than from a blocklist of the one row that
+went wrong; `GRAPPLED_ROW` exists only so `verify_grappling` can assert that
+exactly that one was dropped.
+
+### The parse: an anchor that matched a maneuver name
+
+The two damage tables are cut on the **Roll** column, *"always the table's own
+skill with an optional penalty ... a closed shape per table"*. That does not
+hold here, and the guard is what said so rather than a silent bad parse:
+
+```
+ValueError: the grappling table now prints ['Grapple', 'Takedown', 'Pin',
+'Immobilize; target cannot act', 'Escape'], not [...]
+```
+
+**The maneuver named `Escape` is spelled exactly like the skill named
+`Escape`**, so the roll pattern matched a row's NAME and read the note above it
+as a maneuver. The anchor moved to the **Opposed Roll** column
+(`^DX or (Wrestling|Escape)$`), which is the closed shape this table actually
+has. A column whose values collide with another column's is not an anchor.
+
+`damage` stays non-null and carries the summary's own cell, `"None (grapple
+only)"`, **read from line 2640 rather than typed** — the design review's
+alternative to making the field nullable, which would have weakened the type
+for the ten rows that do print a damage cell. `opposedRoll` is the book's third
+column, and it is RENDERED (*"Rolls no damage. The target rolls DX or
+Wrestling."*), because a column with no reader is 6di's finding waiting to
+happen.
+
+### Two committed tests asserted the expired half
+
+```
+DamageTest > wrestling has no attack rows, brawling and boxing do  FAILED
+GoldenMeleeSummaryTest > Wrestling prints no attacks, so it can roll no damage  FAILED
+```
+
+The second's own comment states the mistake exactly: *"its table is Maneuver /
+Roll / Opposed Roll and parsing it beside the other two would invent damage
+(6j)"* — right about damage, and it concluded *no attacks*. Both were rewritten
+to assert the half that survives: three maneuvers, none of which rolls damage,
+each carrying the summary's cell. **A test can encode a reason, and then it
+expires with the reason** — which is the inverse of this repo's usual "the
+tests knew and production did not".
+
+The diff review's second finding is about exactly that rewrite: the old
+assertion caught **any** Wrestling row appearing, and the new pair checks
+count, damage and opposed roll but not row identity — which the new
+`AttacksTest` case does. The identity guard survived by moving file, so those
+two tests have to be read together. Its third finding asked `verify_grappling`
+to also assert the offered set is exactly the three; refused, because `verify()`
+already owns that for all three tables through `EXPECTED`, and the refusal is
+recorded in the function's own docstring.
+
+### What shipped
+
+- `tools/extract_unarmed.py` — `parse_grappling`, `verify_grappling`,
+  `GRAPPLING_*`, `SUMMARY_DAMAGE`, the new spans, and a docstring that no
+  longer stops at the damage column.
+- `UnarmedAttack.opposedRoll`, its KDoc, and `AttackDialog`'s render of it.
+- Six tests (three Python, three Kotlin) and two rewritten.
+- **1665 Kotlin** (+2) and **328 Python** (+3), all green. Chapter 5:
+  **74.4% → 76.3%**, unclaimed mechanical lines 40 → 37 — a percentage that
+  moved, unlike 6di's.
+
+### The next slice
+
+- **The grapple-state surface the design review named.** Escape-2, and with it
+  the Grappling ST Bonus at line 2600 (*"+1 ST at DX+1, +2 ST at DX+2 (max +2
+  without Wrestling Master)"*, grappling only, not strikes) which was left out
+  of this slice deliberately: it needs a ST-for-grappling path and a trait this
+  app does not hold.
+- **Line 2606's `Grapple` row is filter-invisible** — its roll cell is a bare
+  `Wrestling` with no number — so three of the four rows were reported
+  unclaimed and the fourth was not reported at all (6di, at line resolution
+  again). Recorded, not widened.
+- Chapter 3 (87.9%, 56 unclaimed) is the largest block left; read 6cy's warning
+  first. Appendix A: 35 at 25.5%. `Shaken` (line 8030) still unchecked.
+- Still unrun: catalogue → fixture, and extractor → `sourceLines`.
+
 ## 6dn. Nine costs, seven counted — and the corpus stopped one line short
 
 `tools/coverage.py`, re-run: chapters 1, 2, 4, 6.5, 7, 9 and C between them hold

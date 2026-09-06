@@ -112,7 +112,36 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6dn is newest, and it is a count taken with the wrong filter.**
+**6do is newest, and it is a whole table kept out by a reason that was true
+about one column.** `AttackDialog.kt:113` and `extract_unarmed.py`'s docstring
+both said Wrestling has no attacks because the book gives it *"None (grapple
+only)"* and *"parsing it as a damage table would invent damage"* — both true,
+and both about the DAMAGE column, while book lines 2602-2621 print a four-row
+Wrestling table with different columns (**Maneuver / Roll / Opposed Roll /
+Notes**) that no content file claimed. **The counter-example was in the file
+the reason is written in**: `Shove` has sat in `unarmed_attacks.json` since M0
+with no damage parts at all, its own KDoc arguing that "deals no damage" is not
+"deals zero". Third instance running of 6dl's shape. **Five of the 23 fixtures
+carry Wrestling or Escape**, so a Docks Bouncer picked Wrestling in the attack
+screen and was offered nothing. Read it for four more things. **The reason was
+read SELECTIVELY, not ignored** — the same summary row's third cell,
+*"parry at -3"*, is applied through `ParryBlock`. **The subject decides the
+shape, not the column count**: Grapple/Takedown/Pin are the grappler's and
+`Escape-2` is the HELD character's, so the fourth row is left out as a GAP
+(this app has no grappled state and no screen for the acted-upon character),
+not a refusal — and the filter is *keep the rows rolled off this table's own
+skill*, drawn from the table's definition rather than a blocklist. **An anchor
+matched a maneuver NAME**: the maneuver `Escape` is spelled exactly like the
+skill `Escape`, so the Roll-column anchor the two damage tables use read a note
+as a row; the guard caught it rather than a silent bad parse, and the anchor
+moved to the Opposed Roll column — **a column whose values collide with another
+column's is not an anchor.** And **two committed tests asserted the expired
+half** and had to be rewritten (`wrestling has no attack rows`, `Wrestling
+prints no attacks, so it can roll no damage`): **a test can encode a reason,
+and then it expires with the reason**, which is the inverse of this repo's
+usual "the tests knew and production did not". Chapter 5: **74.4% → 76.3%**.
+
+**6dn is next, and it is a count taken with the wrong filter.**
 `extract_worked_rituals.py`'s docstring says *"Rechecked against all seven
 costed rituals"* — the evidence CLAUDE.md 6aa's two-axis SPI decision rests on,
 with `verify()` asserting it so it *"cannot quietly change"*. Every `SPI Cost:`
@@ -911,7 +940,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dn, then 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6do, then 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1142,7 +1171,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1663 Kotlin** (JUnit 5 — 1177 `core:rules`, 466 `app`, 20 `core:model`) + **325 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1665 Kotlin** (JUnit 5 — 1179 `core:rules`, 466 `app`, 20 `core:model`) + **328 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1198,7 +1227,7 @@ is in 6dg: `skills.json` (158),
 `ritual_failures.json` (4), `ritual_critical.json` (9), `defenses.json` (4),
 `defense_modifiers.json` (5), `maneuvers.json` (14),
 `extra_effort.json` (4), `attack_options.json` (2),
-`unarmed_attacks.json` (10), `range_penalties.json` (7),
+`unarmed_attacks.json` (13), `range_penalties.json` (7),
 `ranged_modifiers.json` (9), `hit_locations.json` (9),
 `wounding_multipliers.json` (8), `spirit_damage.json` (15),
 `major_wound.json` (3), `shields.json` (4), `shield_rules.json` (3),
@@ -1546,10 +1575,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6dn. The slice log
+## 6a-6do. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6dn is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6do is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
