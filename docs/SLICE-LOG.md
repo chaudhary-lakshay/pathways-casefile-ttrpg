@@ -6726,6 +6726,133 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dl. A reason that stayed true and stopped being relevant
+
+6dk named the cross-reference sweep next and it was run deliberately: **35
+claimed lines carry a cross-reference**, and every target resolves to a claimed
+file — the Critical Failure Table, the Entity Response Table, Step 1's
+difficulty table, ch. 2's burning mechanic. A clean sweep. What it found on the
+way past was a line in the corpus it was reading, and the finding is about a
+REASON rather than a rule.
+
+### Two printings of one row, fifteen minutes against six hours
+
+Appendix A line 9672, unclaimed:
+
+> Major Wound: Hit > ½ HP -> HT or stunned 1d6 sec | **Fail by 5+ -> down 15 min**
+
+Chapter 5's own table, extracted into `major_wound.json` since M0:
+
+> Fail by 5+ — **Knocked down and unconscious for 1d hours**
+
+Fifteen minutes against one-to-six hours. Chapter 5 governs — a summary may
+define but not overrule, which is line 9667's own principle in the other
+direction — so this is RECORDED and never repaired (4.1), and
+`major_wound.json` is untouched.
+
+**It is not a rule nobody reads.** `DamageDialog` renders
+`"${row.result} — ${row.effect}"` on every Major Wound, so the app has been
+printing one of the two printings to the player with nothing recording that
+the other exists. That check was run first, because it decides the size of the
+slice: 6di found `HitLocation.effect` stored on nine rows and read by nothing,
+and the sibling column here could have been the same.
+
+### The reason that failed twice, in two different ways
+
+`extract_appendix.py` skipped the rest of the page for a stated reason: **"a
+summary of chapters already claimed"**. That sentence does two jobs at once —
+the lines restate claimed content, THEREFORE nothing is lost — and both halves
+have now failed, separately:
+
+| | |
+|---|---|
+| 6da, line 9667 | killed the FIRST job: a line that is not a summary of a claimed chapter at all (the facing rule, which nothing extracts) |
+| 6dl, line 9672 | kills the SECOND: it **is** a summary of claimed content **and it disagrees with it** |
+
+The second is the worse failure, because **the reason stays TRUE while becoming
+irrelevant.** A stated reason that fails by being falsified is one a re-run
+catches; one that fails by answering a different question than the decision
+needs is invisible to any re-run of itself. Claim status was never the same
+question as agreement.
+
+**And 6da read this line.** Its pass went through Appendix A's 32 unclaimed
+mechanical lines one at a time and returned "31 are faithful restatements and
+one is not". 9672 carries `1d6`, so it was visible under the pre-6db filter,
+and both its neighbours' claims (`damage_abbreviations` on 9671,
+`success_ladder` on 9673-9676) landed on 2026-08-04 and 2026-08-06 against
+6da's 2026-08-16 — checked with `git log -S`, because the accusation is a claim
+about a corpus and 6ci and 6cj were both burned by asserting one without its
+query.
+
+Its docstring is not silent about disagreements either: it already records two,
+the hit-location line's flat "Vitals -3 ×3" dropping chapter 5's "(imp/pi
+only)" scope, and its "Hand/Foot" where chapter 5 has only Hand. **Both are in
+prose, which no sweep over this repo can read (6cj)** — and a third, which
+changes a number the app displays, sat between them unrecorded.
+
+### So the method is a guard rather than a sentence
+
+`verify_major_wound` compares the summary with the rows it summarises, clause
+by clause, and `SUMMARY_DISAGREEMENTS` names **both printings** of the one that
+differs — in the 4.2 shape, so the day they agree the extraction FAILS rather
+than a repair going unnoticed. RED-proved against the real file: editing
+`major_wound.json`'s third row to match the appendix makes the extractor exit
+with *"the appendix and chapter 5 no longer disagree"*.
+
+The other clause is checked in the same pass rather than assumed, and `> ½ HP`
+against chapter 5's "more than half your HP (round up)" is **not** counted as a
+second disagreement: it says strictly less, which is 6da's own NO-SHIP standard.
+
+### The review's three findings, all taken, and one is 6dh's lesson again
+
+- **MEDIUM: a one-way check with a blind side.** The agreement clause was
+  compared against the APPENDIX's wording alone, so chapter 5's row could drift
+  to anything while the guard kept passing. Both sides now. The tests above did
+  not find it; the reviewer did.
+- **MEDIUM: reading another extractor's output made the guard order-dependent.**
+  It read `major_wound.json` off disk — a file this extractor does not write —
+  so the answer depended on which extractor ran last, which is the staleness
+  family 6dk had just been bitten by. It reads chapter 5's own LINES now
+  (2826, 2830), addressed by number the way `WOUNDING_LINE` already is. **This
+  is a question about two printings, and the book is the authority for both.**
+- **LOW:** `SUMMARISES` was partitioned by `AGREES_ON` and
+  `SUMMARY_DISAGREEMENTS` only implicitly, so a clause in neither fell through
+  to a `KeyError`. Now a stated failure.
+
+**No vacuous assertion** — the first slice in eleven where the review found
+none.
+
+### What shipped
+
+- `tools/extract_appendix.py` — `parse_major_wound`, `verify_major_wound`,
+  `SUMMARISES` / `AGREES_ON` / `SUMMARY_DISAGREEMENTS`, wired into `main()`,
+  and the docstring's stated reason rewritten from the sentence that failed to
+  the guard that replaces it.
+- Four Python tests. Nothing in Kotlin, and nothing in `content/`: the app
+  already applies the printing that governs.
+
+**1662 Kotlin** (unchanged) and **322 Python**, all green.
+
+### The next slice
+
+Named with its query, because a closing paragraph is the one part of a slice
+log nothing verifies (6cp):
+
+- **`AntiDivinationTechniques.spiFor` has no production caller.** `grep -rn
+  "spiFor" --include=*.kt app/src/main` returns `Boons`, `Divination` and
+  `PowerSources` and not this one. It is the 6cf class, and it has a
+  consequence: `DetectionDialog` offers a "Spiritual Warding +2" chip and tells
+  the player *"The SPI a technique costs is spent on the tracker"* **without
+  naming the number**, while the one function whose whole job is to answer it
+  sits tested and uncalled. 3A costs 2 SPI. (6dh's "the button did not SAY the
+  second press costs a point" and 6cn's "a spec which omits a label is not a
+  spec that has no label".)
+- **`Shaken` occurs once in the whole book** (line 8030, a pathway ability's
+  "roll HT or be Shaken (see GURPS p. B360)") and the book never prints what it
+  does. Nothing in Kotlin names it. Likely a refusal on the 6cs standard — the
+  book pricing a rule it does not reprint — but it needs the check.
+- Still unrun: catalogue → fixture, and extractor → `sourceLines`.
+
 ## 6dk. The reference a claimed sentence pointed at
 
 6dj named chapter 7.5 next — the last rules chapter claimed by nothing,

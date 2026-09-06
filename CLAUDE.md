@@ -112,7 +112,36 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6dk is newest, and it found the reference a CLAIMED sentence pointed at.**
+**6dl is newest, and it is a stated reason that stayed TRUE and stopped being
+relevant.** 6dk's cross-reference sweep ran clean — 35 claimed lines carry one
+and every target resolves to a claimed file — and what it found on the way past
+was in its own corpus. Appendix A line 9672 summarises chapter 5's Major Wound
+table and **disagrees with it**: *"Fail by 5+ -> down 15 min"* against chapter
+5's *"Knocked down and unconscious for 1d hours"*. Fifteen minutes against one
+to six hours, on a row `DamageDialog` PRINTS to the player. Chapter 5 governs
+(a summary may define but not overrule) so it is recorded, never repaired, and
+`major_wound.json` is untouched. Read it for four things. **`extract_appendix
+.py`'s reason for skipping the page — "a summary of chapters already claimed" —
+does two jobs at once** (the lines restate claimed content, THEREFORE nothing
+is lost) **and both halves have now failed separately**: 6da killed the first
+at line 9667, and this kills the second, which is the worse failure because the
+sentence remains true while answering a different question than the decision
+needs. **Claim status was never the same question as agreement.** 6da read this
+line and called it a restatement — verified with `git log -S` against its own
+commit date rather than asserted, because 6ci and 6cj were both burned by a
+count without its query. The file's docstring already recorded TWO
+hit-location disagreements **in prose, which no sweep can read (6cj)**, and a
+third that moves a displayed number sat between them. So the method is now a
+GUARD: `verify_major_wound` compares clause by clause and
+`SUMMARY_DISAGREEMENTS` names both printings in the 4.2 shape, RED-proved by
+editing the committed row to match. Its review found **a one-way check with a
+blind side** (the agreement clause read only the appendix's wording, so chapter
+5's row could drift under a passing guard — 6dh again) and **an order
+dependency** (it read `major_wound.json`, a file it does not write; it reads
+chapter 5's own lines now). **First slice in eleven with no vacuous
+assertion.**
+
+**6dk is next, and it found the reference a CLAIMED sentence pointed at.**
 Book line 4141 sits inside `ritual_preparation.json`'s claimed span and reads
 *"The player narrates the incantation (**4-part Hermes structure — see
 reference below**). The GM may award a Flourish Bonus (+1)..."* — and
@@ -825,7 +854,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dk, then 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dl, then 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1056,7 +1085,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1662 Kotlin** (JUnit 5 — 1176 `core:rules`, 466 `app`, 20 `core:model`) + **318 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1662 Kotlin** (JUnit 5 — 1176 `core:rules`, 466 `app`, 20 `core:model`) + **322 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |

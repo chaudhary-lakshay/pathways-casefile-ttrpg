@@ -4058,6 +4058,80 @@ def test_pricing_a_row_the_table_refuses_fails_verification():
             bands, pools, rows, defs, secs, extract_core_rules.load_lines())
 
 
+# Chapter 5's own rows, as the book prints them on lines 2826 and 2830.
+CHAPTER_5_MAJOR_WOUND = {
+    "Failure": "Stunned for 1d6 seconds (roll HT each turn to recover early)",
+    "Fail by 5+": "Knocked down and unconscious for 1d hours",
+}
+APPENDIX_MAJOR_WOUND = (
+    "Major Wound: Hit > ½ HP -> HT or stunned 1d6 sec | Fail by 5+ -> down 15 min"
+)
+
+
+def test_the_appendix_summary_is_cut_into_the_clauses_it_summarises():
+    """Two clauses, each a condition and an outcome, on one line."""
+    summary = extract_appendix.parse_major_wound(APPENDIX_MAJOR_WOUND)
+    assert summary == {
+        "Hit > ½ HP": "HT or stunned 1d6 sec",
+        "Fail by 5+": "down 15 min",
+    }
+
+
+def test_the_appendix_and_chapter_five_really_do_disagree_on_the_worst_row():
+    """A guard against silent repair, in the 4.2 shape.
+
+    Chapter 5's own table says a Major Wound failed by 5+ leaves you "Knocked
+    down and unconscious for 1d hours". Appendix A's summary of that same
+    table says "down 15 min". Chapter 5 governs -- a summary may define but
+    not overrule -- so this is RECORDED, never repaired, and the recording is
+    only honest while both printings still say what it claims.
+    """
+    summary = extract_appendix.parse_major_wound(APPENDIX_MAJOR_WOUND)
+    extract_appendix.verify_major_wound(summary, CHAPTER_5_MAJOR_WOUND)
+
+    # The exclusion is stale the day they agree, and a stale exclusion is how
+    # a repair goes unnoticed.
+    with pytest.raises(ValueError, match="no longer disagree"):
+        extract_appendix.verify_major_wound(
+            summary, {**CHAPTER_5_MAJOR_WOUND, "Fail by 5+": "down 15 min"})
+
+    # And the clause they DO agree on is checked in the same pass, because
+    # "already claimed" was never the same question as "agrees".
+    moved = dict(summary)
+    moved["Hit > ½ HP"] = "HT or stunned 2d6 sec"
+    with pytest.raises(ValueError, match="agreed with"):
+        extract_appendix.verify_major_wound(moved, CHAPTER_5_MAJOR_WOUND)
+
+
+def test_the_agreement_check_reads_both_printings_not_just_the_summary():
+    """A one-way check has a blind side (6dh), and this one had it.
+
+    The agreement clause was compared against the appendix's wording alone,
+    so chapter 5's own row could drift to anything at all while the guard
+    kept passing. Found by review, not by the tests above.
+    """
+    summary = extract_appendix.parse_major_wound(APPENDIX_MAJOR_WOUND)
+    drifted = {**CHAPTER_5_MAJOR_WOUND, "Failure": "Knocked out for 2d6 seconds"}
+    with pytest.raises(ValueError, match="chapter 5 now reads"):
+        extract_appendix.verify_major_wound(summary, drifted)
+
+
+def test_the_recorded_disagreement_names_both_printings():
+    """A prose-only record is invisible to every sweep this repo runs (6cj).
+
+    The two hit-location disagreements this file found were written into a
+    docstring, and the Major Wound one was missed for six slices while being
+    printed to the player on the damage screen.
+    """
+    both = extract_appendix.SUMMARY_DISAGREEMENTS["Fail by 5+"]
+    assert both == ("down 15 min", "Knocked down and unconscious for 1d hours")
+    byn = {r["n"]: r["text"] for r in
+           json.loads((ROOT / "build" / "extract" / "lines.json")
+                      .read_text(encoding="utf-8"))}
+    assert byn[9672].strip() == APPENDIX_MAJOR_WOUND
+    assert byn[2830].strip() == both[1]
+
+
 # --- Appendix A's facing line (Ch. A, p. 159) ------------------------------
 
 
