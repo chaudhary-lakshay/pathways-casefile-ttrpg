@@ -112,6 +112,44 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
+**6dg is newest, and it shipped a guard that could not pass.**
+`tools/extract_glossary.py` sat untracked and fully written, and had never
+run: `verify()` asserted `len(ent) == 26` beside an assertion that
+`Examples` is not a term, and those two cannot both hold — 25 entries with
+the exclusion, 26 without. The book prints **25**; the docstring said 28.
+Read it for five things. The broken count was **hiding a real defect**: the
+closing note wraps onto a second line, `entries()` skipped only the first,
+and `Will` ended "...and CoR. **Characters (4th Edition).**" — invisible in
+any term list, because every term is present and one definition is longer
+than the page. The replacement is CONSERVATION (the entries rendered back to
+`Term: definition` must EQUAL the lines they came from), and its **first
+version was vacuous**: it built its expected value with `stream()`, the same
+function the parse uses, so widening `FURNITURE` dropped the line from both
+sides and it stayed green — the mutation suite is what said so, and it now
+reads the raw lines. Naming the furniture then **caught its own author**: the
+list shipped with two page breaks and only ONE is in range. `TERM`'s comment
+credited the length bound; measured, the bound is slack at 58 against a
+longest term of 31, and the **full stop** the class omits is what does the
+work. And **chapter G's 0.0% → 100.0% is nearly weightless**: `MECHANICAL`
+matches three lines in the whole chapter, and the 39 lines of back matter in
+its page range are prose, so they can never be counted as missing.
+
+**6dg also names its successor with a query, and the query is a sweep
+direction this repo had not run: every content FILE checked for a loader.**
+79 files, exactly one unloaded — `spirit_vision.json`, which is also the
+**sole claimant of chapter 7.6**, so `coverage.py` reports that chapter at
+100.0% off a file no Kotlin reads. Field-for-reader (6ai), function-for-caller
+(6cf) and row-for-consumer (6ci) sweeps are all blind to it by construction.
+The first run of that sweep returned 79 false positives because a relative
+path put the loader out of reach and every `grep` failed — **a failed command
+read as a finding**, so the recorded query resolves the loader once and
+asserts it exists. 6dg's diff review then found a **fifth vacuity in five
+slices**, in a test file written to be careful about exactly that: five
+assertions in `GlossaryContentTest` were forced by the exact ordered term list
+above them, so two tests and two assertions were deleted and what they were
+SAYING moved into that list's KDoc. An intent with no independent failure mode
+is a comment, not a test.
+
 **6df is newest, and it is three clauses nothing joined — plus a count that
 could not be checked.** Three catalogue rows modify a bare Will roll and
 reached nothing (`Incorruptible Will` +3, `Grief-Stricken` -2, `Evil Eye Fear`
@@ -637,7 +675,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6df, then 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dg, then 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -868,7 +906,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1632 Kotlin** (JUnit 5 — 1146 `core:rules`, 466 `app`, 20 `core:model`) + **300 Python** (pytest), all green — counted from the JUnit XML, not from memory. **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1635 Kotlin** (JUnit 5 — 1149 `core:rules`, 466 `app`, 20 `core:model`) + **306 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -911,7 +949,7 @@ qa-findings/    free-model QA harness: batches.txt + two round scripts
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading 77 JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading 79 JSON
 files from `core/rules/src/main/resources/content/`: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
@@ -995,6 +1033,7 @@ Wounds.typeMultiplier(type) / .modifier(location) / .render(multiplier)
 Wounds.majorWoundThreshold(maxHp) / .isMajorWound(damage, maxHp)
 Wounds.majorWoundFor(roll): MajorWound / .majorWounds()
 ContentLoader.hitLocations() / .woundingMultipliers() / .spiritDamage()
+ContentLoader.glossary()               // p.167-168, reference only; no rule
 ContentLoader.majorWound() / .shields() / .shieldRules()
 Shields.all() / .rules() / .named(type): Shield
 Shields.withBonus(defense, shield) / .blockFor(shield, skill, isRanged)
@@ -1251,10 +1290,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6df. The slice log
+## 6a-6dg. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6df is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6dg is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

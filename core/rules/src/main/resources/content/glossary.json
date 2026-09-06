@@ -1,0 +1,112 @@
+{
+ "sourceLines": {
+  "G": [
+   [
+    10156,
+    10213
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "term": "Acting Method",
+   "definition": "The practice of embodying your Beyonder potion's 'role' to digest it safely. The more faithfully you act, the faster you digest (see Digestion)."
+  },
+  {
+   "term": "Astral Projection / Astral Body",
+   "definition": "The layer of a soul that reveals emotional state. Visible through Spirit Vision."
+  },
+  {
+   "term": "Backlund",
+   "definition": "The capital of the Loen Kingdom. A sprawling industrial city of fog, factories, slums, and aristocratic mansions. Most campaigns begin here."
+  },
+  {
+   "term": "Beyonder",
+   "definition": "A person who has consumed a potion and gained supernatural abilities along a divine Pathway. Beyonders progress from Sequence 9 (weakest) to Sequence 0 (godlike)."
+  },
+  {
+   "term": "Beyonder Weapon",
+   "definition": "A weapon imbued with spiritual power (either innately or through a Beyonder's ability) that can damage spirit bodies, incorporeal beings, and spiritually reinforced targets as though it were a Beyonder-level effect. Mundane weapons without this property deal half or no damage to such targets at the GM's discretion."
+  },
+  {
+   "term": "Body of Heart and Mind",
+   "definition": "The layer of a soul governing emotion, reason, and self-awareness. Lies between the Astral Body and the Spirit Body. Targeted by Visionary pathway mental manipulation abilities such as Frenzy and Telepathy."
+  },
+  {
+   "term": "Character Points",
+   "definition": "The currency used to build characters. You spend points on attributes, advantages, and skills. Disadvantages give points back. Starting budget: 70 points."
+  },
+  {
+   "term": "CoR",
+   "definition": "A measure of how close a Beyonder is to losing control. Max CoR = Will score. At max, the character becomes an NPC monster."
+  },
+  {
+   "term": "Critical Success / Failure",
+   "definition": "Rolling 3–4 is always a critical success (brilliant result). Rolling 17–18 is always a critical failure (disaster)."
+  },
+  {
+   "term": "Digestion",
+   "definition": "The process of safely incorporating a potion's power. Tracked as 0% -> 100%. Must be at or near 100% before advancing to the next Sequence."
+  },
+  {
+   "term": "Ether Body",
+   "definition": "The outermost layer of a soul, visible through Spirit Vision. Shows physical health — white = healthy, dark = ill."
+  },
+  {
+   "term": "FP (Fatigue Points)",
+   "definition": "Energy for physical exertion, extra effort, and some supernatural abilities. Recovered by rest. Equal to HT at character creation."
+  },
+  {
+   "term": "Game Master (GM)",
+   "definition": "The player who runs the game — describes the world, plays NPCs, calls for rolls, and keeps the story moving."
+  },
+  {
+   "term": "HP (Hit Points)",
+   "definition": "Physical damage capacity. Equal to ST at character creation. At 0 HP you are near death; negative HP forces consciousness checks."
+  },
+  {
+   "term": "Loen Kingdom",
+   "definition": "See Backlund. The dominant nation of the Fifth Epoch, equivalent to Victorian Britain."
+  },
+  {
+   "term": "Losing Control",
+   "definition": "When a Beyonder's CoR reaches their maximum. They transform into a monster or mad creature — permanently removed from play."
+  },
+  {
+   "term": "Margin of Success / Failure",
+   "definition": "The difference between your roll and your target number. A bigger margin means a better (or worse) outcome."
+  },
+  {
+   "term": "Pathway",
+   "definition": "One of 22 divine progressions. Each pathway runs from Sequence 9 to Sequence 0 and grants specific abilities. Examples: Fool Pathway, Error Pathway, Darkness Pathway."
+  },
+  {
+   "term": "Potion",
+   "definition": "An alchemical brew that grants Beyonder powers. Must be brewed from specific ingredients, then consumed. Brings side effects and corruption risk."
+  },
+  {
+   "term": "Sequence",
+   "definition": "The numerical rank of a Beyonder's power level. Sequence 9 = newly awakened. Sequence 0 = god-equivalent. Lower numbers are stronger."
+  },
+  {
+   "term": "SPI — Spirituality",
+   "definition": "A spiritual stat (not a buyable attribute). Measures connection to the spirit world. Fixed at 0 for mortals; increased only by Beyonder potions or supernatural means. Used for Spirit Vision, Ritualistic Magic (as a resource), and Beyonder abilities."
+  },
+  {
+   "term": "Spirit Vision",
+   "definition": "A Beyonder ability that reveals auras, Ether Bodies, Astral Bodies, and supernatural entities. Costs 1 SPI per minute to maintain."
+  },
+  {
+   "term": "Sea of Collective Subconscious",
+   "definition": "A shared psychic realm containing the unconscious minds of all sentient beings. Accessible via certain Visionary-pathway abilities (e.g., Psychological Cue). The GM determines effects when a character enters this realm."
+  },
+  {
+   "term": "3d6",
+   "definition": "Three six-sided dice rolled together. The standard die roll for all success checks. Add the three numbers for your result (range 3–18)."
+  },
+  {
+   "term": "Will",
+   "definition": "Mental fortitude and resistance to influence. = IQ at character creation. Used to resist intimidation, mind control, and CoR."
+  }
+ ]
+}

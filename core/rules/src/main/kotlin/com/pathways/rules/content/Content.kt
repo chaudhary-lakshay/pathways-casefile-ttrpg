@@ -1300,6 +1300,18 @@ data class AppearanceLevel(
     val reactionModifier: Int,
 )
 
+/**
+ * One entry of the Glossary of Terms (p. 167-168).
+ *
+ * Reference, not rules: every term here names something the engine already
+ * implements or something the setting already assumes, so nothing on this
+ * type reaches a roll. [term] carries the book's spelling verbatim, including
+ * `SPI — Spirituality`'s em-dash, and the list is kept in the book's printed
+ * order, which is not alphabetical. A screen that wants A-Z sorts its own copy.
+ */
+@Serializable
+data class GlossaryEntry(val term: String, val definition: String)
+
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
 data class DamageRowJson(val st: Int, val thrust: String, val swing: String)

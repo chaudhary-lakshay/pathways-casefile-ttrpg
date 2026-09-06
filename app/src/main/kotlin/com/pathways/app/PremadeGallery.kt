@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Palette
@@ -164,6 +165,7 @@ fun PremadeGallery(
 ) {
     var roster by remember { mutableStateOf(Roster.ALL) }
     var themeOpen by remember { mutableStateOf(false) }
+    var glossaryOpen by remember { mutableStateOf(false) }
     val people = remember(sheets) { sheets.filterNot(::isTemplate) }
     val templates = remember(sheets) { sheets.filter(::isTemplate) }
     val shown = remember(people, roster) {
@@ -192,6 +194,15 @@ fun PremadeGallery(
                         )
                     },
                     actions = {
+                        // The glossary's only entry point, and it is here for
+                        // its own reason rather than the theme picker's: the
+                        // other three screens all require a selected
+                        // character, and "what is CoR" is not a question about
+                        // one. This is the only character-independent screen
+                        // the app has. See [GlossarySheet].
+                        IconButton(onClick = { glossaryOpen = true }) {
+                            Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Glossary")
+                        }
                         // The theme picker's only entry point. It lives here
                         // because this is the one screen every session starts
                         // on; burying it a tap deeper would make the choice
@@ -245,6 +256,10 @@ fun PremadeGallery(
                 }
             }
         }
+    }
+
+    if (glossaryOpen) {
+        GlossarySheet(onDismiss = { glossaryOpen = false })
     }
 
     if (themeOpen) {

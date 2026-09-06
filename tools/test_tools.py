@@ -2,6 +2,7 @@ import json, re, subprocess, sys, pathlib
 
 import pytest
 
+import extract_glossary
 import extract_pdf
 import extract_sheets
 
@@ -4195,6 +4196,131 @@ def test_the_glossary_is_the_one_heading_the_book_does_not_number():
     # And the form every other section does use, for contrast.
     assert byn[9840].strip().startswith("Appendix C:")
     assert byn[2995].strip().startswith("Chapter 6:")
+
+
+def _glossary_lines():
+    return {r["n"]: r["text"] for r in
+            json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
+
+
+def test_the_examples_exclusion_rests_on_typography_this_pdf_destroyed():
+    """Why one line is excluded BY NAME rather than by a rule.
+
+    `extract_glossary.NOT_TERMS` drops "Examples", and the reason is that the
+    book's own discriminator is unavailable: line 10157 prints "Terms in
+    italics are game mechanics; bold terms are setting concepts", and this
+    PDF is flattened, so neither weight survives extraction. The exclusion is
+    therefore a claim about the EXTRACTION, not about the book -- and it
+    expires the day a re-extraction preserves formatting.
+
+    Both halves are pinned so that day is loud: the sentence that names the
+    missing discriminator, and the line it would have discriminated.
+    """
+    byn = _glossary_lines()
+    assert "Terms in italics are game mechanics" in byn[10157]
+    assert byn[10158].strip() == "bold terms are setting concepts."
+    # The line that satisfies every structural property a term has.
+    assert byn[10193].strip() == "Examples: Fool Pathway, Error Pathway, Darkness Pathway."
+    assert extract_glossary.TERM.match(byn[10193].strip()), (
+        "Examples no longer parses as a term, so NOT_TERMS may be dead weight"
+    )
+
+
+def test_the_full_stop_is_what_keeps_prose_out_of_the_glossary_terms():
+    """The load-bearing character in TERM, measured rather than asserted.
+
+    TERM's comment used to credit the length bound. It does not: relax the
+    bound and nothing moves. What keeps a mid-sentence colon out is the full
+    stop the character class omits -- line 10172 ends
+    "...Starting budget: 70 points." and would parse as a term named for the
+    prose in front of the colon, stealing Character Points' continuation.
+
+    A comment is not a pin (this repo has paid for that), so the mutation
+    that disproves it runs here.
+    """
+    byn = _glossary_lines()
+    lines = extract_glossary.stream(byn, *extract_glossary.GLOSSARY_RANGE)
+    base = [e["term"] for e in extract_glossary.entries(lines)]
+    assert base == extract_glossary.TERMS
+
+    original = extract_glossary.TERM
+    try:
+        extract_glossary.TERM = re.compile(r"^([A-Z0-9][A-Za-z0-9 /()'.—-]{0,58}?): (.+)$")
+        widened = [e["term"] for e in extract_glossary.entries(lines)]
+        assert "Disadvantages give points back. Starting budget" in widened, widened
+
+        # And the bound the comment used to credit, which is slack: the
+        # longest real term is 31 characters against a limit of 58.
+        extract_glossary.TERM = re.compile(r"^([A-Z0-9][A-Za-z0-9 /()'—-]{0,200}?): (.+)$")
+        assert [e["term"] for e in extract_glossary.entries(lines)] == base
+    finally:
+        extract_glossary.TERM = original
+    assert max(len(t) for t in extract_glossary.TERMS) < 58
+
+
+def test_chapter_G_reads_100_percent_off_a_denominator_of_three_lines():
+    """What "G 100.0%" does and does not say.
+
+    `glossary.json` moved chapter G from 0.0% to 100.0%, and quoting that
+    without its denominator would repeat 6db exactly. G's MECHANICAL filter
+    matches THREE lines in the whole chapter -- the HP, Spirit Vision and 3d6
+    entries, which are the only ones carrying a number the filter recognises.
+    The other 55 lines of glossary are prose, and the 39 lines of back matter
+    below the closing note (blurb, credits, and a full table-of-contents
+    reprint) are prose too, so nothing there can ever be counted as missing.
+
+    The percentage is therefore true and nearly weightless: it says three
+    lines are claimed, not that four pages were read. The claim `sourceLines`
+    makes -- 10156-10213 -- is the honest statement of what was read, and it
+    deliberately stops before the back matter.
+    """
+    byn = _glossary_lines()
+    import coverage as coverage_tool
+
+    in_glossary = [n for n in range(10156, 10214) if byn.get(n, "").strip()]
+    mechanical = [n for n in in_glossary if coverage_tool.MECHANICAL.search(byn[n])]
+    assert mechanical == [10185, 10203, 10208], mechanical
+    assert len(in_glossary) == 58, len(in_glossary)
+
+    # The back matter: in the chapter's page range, claimed by nothing, and
+    # invisible to the metric because not one line of it is mechanical.
+    back = [n for n in range(10214, 10253) if byn.get(n, "").strip()]
+    assert back, "the back matter moved; G's page range no longer runs past 10213"
+    assert not [n for n in back if coverage_tool.MECHANICAL.search(byn[n])]
+    assert extract_glossary.GLOSSARY_RANGE[1] < back[0]
+
+
+def test_the_glossary_conservation_check_reads_the_raw_lines():
+    """The guard for the guard: verify() must not re-derive its own input.
+
+    Conservation is what catches a continuation line that stops being
+    emitted -- the term list cannot, because the definition it belonged to
+    just gets shorter and every term is still present. The first version of
+    that check built its expected value with `stream()`, so widening
+    FURNITURE dropped the line from the output AND from the expectation and
+    it stayed green. It now reads the raw lines, and this is the mutation
+    that says so.
+    """
+    byn = _glossary_lines()
+    data = {"entries": extract_glossary.entries(
+        extract_glossary.stream(byn, *extract_glossary.GLOSSARY_RANGE))}
+    extract_glossary.verify(data, byn)
+
+    original = extract_glossary.FURNITURE
+    try:
+        # "the faster you digest..." is Acting Method's continuation (10160).
+        extract_glossary.FURNITURE = re.compile(
+            r"^(Powered by GURPS.*|Page \d+|the faster you digest.*)$")
+        starved = {"entries": extract_glossary.entries(
+            extract_glossary.stream(byn, *extract_glossary.GLOSSARY_RANGE))}
+        assert [e["term"] for e in starved["entries"]] == extract_glossary.TERMS, (
+            "the dropped line must leave the term list intact -- that is the "
+            "whole reason conservation exists"
+        )
+        with pytest.raises(AssertionError, match="not conserved"):
+            extract_glossary.verify(starved, byn)
+    finally:
+        extract_glossary.FURNITURE = original
 
 
 @needs_pdf

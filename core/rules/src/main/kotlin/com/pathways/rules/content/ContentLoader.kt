@@ -123,6 +123,7 @@ object ContentLoader {
     private val studyCostsLazy: List<StudyCost> by lazy { load("study_costs.json") }
     private val studyRulesLazy: List<StudyRule> by lazy { load("study_rules.json") }
     private val appearanceLazy: List<AppearanceLevel> by lazy { load("appearance.json") }
+    private val glossaryLazy: List<GlossaryEntry> by lazy { load("glossary.json") }
     private val entityResponseLazy: List<EntityResponse> by lazy {
         load("entity_response.json")
     }
@@ -274,6 +275,16 @@ object ContentLoader {
 
     /** The eight Appearance levels, best first (Ch. 3, p. 13-14). */
     fun appearance(): List<AppearanceLevel> = appearanceLazy
+
+    /**
+     * The Glossary of Terms (p. 167-168), in the book's printed order.
+     *
+     * The one content file that adds no rule. It exists so the app can answer
+     * "what is CoR" for a player who is not holding the book, and it is read
+     * by the app module's `GlossarySheet` and by nothing in this one. A KDoc
+     * link would not resolve: `core:rules` cannot see `app`.
+     */
+    fun glossary(): List<GlossaryEntry> = glossaryLazy
 
     /** The six Entity Response bands (Ch. 7, p. 66). See [EntityResponse]. */
     fun entityResponse(): List<EntityResponse> = entityResponseLazy

@@ -6726,6 +6726,229 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dg. A guard that could not pass, and the surface it was waiting for
+
+`tools/extract_glossary.py` was sitting untracked in the tree, fully written,
+with a docstring arguing its own case. It had never run. `glossary.json` did
+not exist, no `ContentLoader` function named it, and nothing in the app could
+show a player what CoR is.
+
+### Two assertions that cannot both hold
+
+`verify()` asserted `len(ent) == 26` and, eleven lines further down, that
+`"Examples"` is not among the terms. With the `NOT_TERMS` exclusion in force
+the parse yields **25**; without it, 26 — *including* `Examples`. There is no
+state in which both assertions pass, so `verify()` had never reached its end,
+and the missing output file is the corroboration.
+
+The glossary is 25 entries. The docstring said 28, the assertion said 26, and
+the book says 25. **Three numbers, no query between them** — 6df's lesson
+arriving from a different direction: 6df's count was right and unreproducible,
+this one was simply wrong, and the same fix covers both. `TERMS` is now a named
+ordered list and `verify()` asserts equality against it, so the file states the
+set rather than its size.
+
+### What the broken count was hiding
+
+The closing note wraps onto a second line — *"Characters (4th Edition)."* —
+which starts with neither the note nor a term. `entries()` skipped the note
+with `continue`, so the second line fell through to the fold-into-the-previous
+branch and landed in the last entry. `Will` read:
+
+> Mental fortitude and resistance to influence. = IQ at character creation.
+> Used to resist intimidation, mind control, and CoR. **Characters (4th
+> Edition).**
+
+The closing note is now a `break`. Nothing about that defect is visible in a
+term list: all 25 terms are present, correctly spelled, in the book's order,
+and one definition carries a sentence the book prints somewhere else.
+
+### The guard that replaced the count, and the guard's own vacuity
+
+A term list cannot see a continuation line that stops being emitted — the
+definition just gets shorter. So `verify()` now also asserts **conservation**:
+the entries, rendered back to `Term: definition` and joined, must EQUAL the
+lines they were built from. Nothing dropped, nothing added, nothing attached
+to the wrong entry.
+
+The first version of that assertion was **vacuous**, and the mutation suite is
+what said so. It built its expected value by calling `stream()` — the same
+function the parse uses — so widening `FURNITURE` to swallow a continuation
+line dropped that line from the output *and* from the expectation, and the
+check stayed green. It now reads the raw lines from `lines.json` and drops
+page furniture by NAME (`FURNITURE_IN_RANGE`), which is the only version that
+can disagree with the parser.
+
+Naming the furniture then **caught its own author**: the list shipped with four
+entries, two page breaks' worth, and the baseline went red. Only ONE page break
+is inside the range — p.167 → p.168, falling between the second and third lines
+of the SPI entry. The p.166 → p.167 break sits two lines *above* the heading and
+so is out of range. The assertion written to catch a future page-break move
+caught a present miscount instead.
+
+Seven mutations, all fired, all restored: drop a continuation line, neuter the
+closing-note stop, allow a full stop in a term, remove the `Examples`
+exclusion, run the range into the back cover, shorten `TERMS`, and move a
+furniture line to the wrong number. An eighth — removing the apostrophe from
+the character class — stays GREEN, correctly: no *term* contains one, only
+definitions do.
+
+### A comment crediting the wrong condition, again
+
+`TERM`'s comment said *"The length bound is what keeps a mid-sentence colon
+out"*, and named `Examples` as a line that *"never matches at the start"*. Both
+false, and the second is contradicted by the paragraph above it — `Examples`
+matches at the start of line 10193, which is precisely why `NOT_TERMS` exists.
+
+Measured, one condition at a time:
+
+| Mutation | Terms |
+|---|---|
+| baseline | 25 |
+| add `.` to the class | **26** — `Disadvantages give points back. Starting budget` |
+| add `,` to the class | 25 |
+| relax the bound 58 → 200 | 25 |
+
+The **full stop** is load-bearing; the bound is slack (the longest real term is
+31 characters). Line 10172 ends *"...Starting budget: 70 points."* and would
+have parsed as a term named for the prose in front of its colon, stealing
+`Character Points`' continuation. 6cb's pattern for the third time: a safety
+rationale is a hypothesis about which condition does the work, and the
+hypothesis was wrong. The mutation now runs in `test_tools.py`, because a
+comment is not a pin.
+
+### The design review: one finding taken whole, two refused with their own warrants
+
+`task --effort high`, three questions, four files, with the audit paragraph and
+the `UNPAYABLE`/`UNMODELLED` precedent quoted **inline** — the reviewer is told
+not to read `CLAUDE.md` or this file, so a precedent it cannot see is a
+precedent it cannot weigh (6df).
+
+**Q3 taken whole.** Its answer is the conservation check above: a set assertion
+cannot see order, duplicates, or a stray line folded into a valid neighbour. It
+named `Will` as the entry a stray line would lengthen. It was right, and the
+stray line was already there.
+
+**Q1 refused, and the refusal fixed the warrant rather than the code.** The
+reviewer called the gallery top bar a weak host: `ThemePicker` sits there
+because it MUTATES a preference the whole app reads, and a static reference
+sheet does not inherit that reason — 6cx's "a precedent travels by ROLE, not by
+shape", correctly applied to a decomposition that had cited exactly that
+resemblance. The control stays where it is on a reason of its own: `SHEET`,
+`PATHWAY` and `BUILDER` all require a selected character, and *"what is CoR"*
+is not a question about one. The gallery is the only character-independent
+screen this app has. The reviewer's alternative — a row in the body list beside
+"Start from a blank sheet" — was declined because that list is the roster, and
+a reference surface below a scroll of 23 characters is reachable the way
+`Divination.UNAPPLIED` is reachable.
+
+**Q2 refused.** The reviewer argued the surface is scope talked into existence,
+and that the honest slice is extractor + JSON with a recorded refusal. Against
+it: `docs/AUDIT-2026-08-19.md:75` records *"nothing in the app browses the
+book"* as **the dominant term in the 58% parity figure**, so the surface closes
+a gap this repo has already written down rather than inventing one. And a
+loader with no caller is 6cf exactly.
+
+### G moved to 100.0%, and the number is nearly weightless
+
+Chapter G went 0.0% → 100.0%. **Do not quote that without its denominator.**
+`coverage.py`'s `MECHANICAL` filter matches **three lines** in the whole
+chapter — the `HP`, `Spirit Vision` and `3d6` entries, the only ones carrying a
+number it recognises. The other 55 lines of glossary are prose, and so are the
+39 lines of back matter below the closing note (blurb, credits, and a full
+table-of-contents reprint), which are inside G's declared page range, claimed
+by nothing, and **invisible to the metric because not one of them is
+mechanical**. 6db in the other direction: there an unread chapter reported
+100%, here a read one reports 100% for a reason almost unrelated to having been
+read. `sourceLines` — 10156-10213 — is the honest statement of what was read,
+and a test pins the denominator so the next sweep cannot mistake the percentage
+for completion.
+
+### One line I nearly typed into a screen
+
+The sheet's first draft carried a subtitle: *"Terms unique to this book. For
+full GURPS terminology, see the GURPS Basic Set: Characters (4th Edition)."*
+That is book text — lines 10212-10213, the closing note the extractor
+deliberately drops — hand-retyped into a composable. 6cq's defect class,
+authored rather than inherited. The sheet shows its title and nothing else.
+
+### The sweep, and the next slice it names
+
+A direction this repo had not run: **every content FILE checked for a loader.**
+Previous sweeps ran fields-for-readers (6ai), functions-for-callers (6cf) and
+rows-for-consumers (6ci); none of them can see a file that `ContentLoader`
+never names. 79 files, and exactly **one** is unloaded:
+
+```bash
+LOADER=core/rules/src/main/kotlin/com/pathways/rules/content/ContentLoader.kt
+for f in core/rules/src/main/resources/content/*.json; do
+  grep -q "\"$(basename "$f")\"" "$LOADER" || echo "NO LOADER: $(basename "$f")"
+done
+```
+
+`spirit_vision.json`. And it is worse than unloaded: it is the **sole claimant
+of chapter 7.6**, which `coverage.py` therefore reports at 100.0%. A grep for
+`spirit_vision` across Kotlin returns nothing. So 7.6's completion rests on a
+file no code reads — the same shape 6db found when an unread chapter reported
+100%, except this one has content extracted and stranded rather than missing.
+**That is the named next slice, and the query above is what checks it.**
+
+The first run of that sweep also produced 79 false positives: a relative path
+put the loader out of reach, every `grep` failed, and a failed command read as
+a finding — so the query above resolves the loader once and asserts it exists.
+
+### What shipped
+
+- `tools/extract_glossary.py` — the count replaced by `TERMS`, the closing note
+  a stop rather than a skip, `FURNITURE_IN_RANGE` named, conservation asserted
+  against the raw lines.
+- `content/glossary.json` — 25 entries, `sourceLines` `{"G": [[10156, 10213]]}`.
+- `GlossaryEntry` + `ContentLoader.glossary()`, with `GlossaryContentTest`
+  (3 tests) pinning the ordered set, whole-sentence definitions, and the folded
+  continuations.
+- `app/GlossarySheet.kt` and one icon in `PremadeGallery`'s existing `actions`.
+- Four Python tests: the typography the exclusion rests on, the full-stop
+  mutation, the conservation guard's own vacuity, and G's denominator.
+
+1635 Kotlin (1149 `core:rules`, 466 `app`, 20 `core:model`) and 306 Python,
+all green.
+
+**Both counts in `CLAUDE.md` needed re-deriving, and one was wrong.** The
+Python row read 300 against a `HEAD` that carried 302, so adding this slice's
+delta to the recorded number would have shipped 304. And counting Kotlin
+straight after a filtered run gives **489**: `--tests '*GlossaryContentTest*'`
+leaves the results directory holding only the three files it wrote, and Gradle
+then reports the unfiltered `test` task UP-TO-DATE and does not repopulate it.
+`--rerun-tasks` is what makes the directory mean what the row claims.
+
+### The diff review: three LOWs, all three taken
+
+`task --effort high` again, target list named. All three findings were about
+assertions rather than behaviour, and all three were right.
+
+**Five assertions were forced by the canonical term list.** The exact ordered
+`assertEquals` at the top of `GlossaryContentTest` already fixes the order, so
+a separate "is not alphabetical" test, an `Examples`-is-not-a-term check, and a
+`containsAll` over the five terms the engine implements could not fail on their
+own — and `definition.isNotBlank()` is forced by the assertion one line above
+it that the definition ends in a full stop. Two tests deleted, two assertions
+removed, and what they were *saying* moved into the canonical list's KDoc,
+which is where an intent with no independent failure mode belongs. Five in five
+slices now; the reviewer found this set in a file written to be careful about
+exactly this.
+
+**`FURNITURE_IN_RANGE` was consumed by text and is now keyed by line number.**
+The ledger popped its head whenever a raw line equalled it, so a line that came
+to read exactly like the page header could be dropped in the header's place
+while the real header went unnoticed and conservation still passed. The
+reviewer's concrete case needed two simultaneous changes and is remote; the fix
+is four lines and makes each drop exact, which is the whole point of a guard
+built to disagree with the parser. It also bought the seventh mutation above.
+
+**Q3 returned no finding**, asked plainly: `remember { ContentLoader.glossary() }`
+on a 25-entry classpath resource is the pattern `DefenseDialog.kt:252` and
+`PathwayScreen.kt:104` already use, and no coroutine was proposed.
+
 ## 6df. Three clauses, no join — and a count that could not be checked
 
 6de named this next: the Will rolls, and the corpus its own sweep should have
