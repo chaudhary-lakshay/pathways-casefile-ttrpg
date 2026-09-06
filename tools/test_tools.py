@@ -5171,3 +5171,107 @@ def test_markdown_rendering_loses_nothing_that_book_txt_has():
     )
     assert "(cid:" not in body_text, "unmapped glyphs survived into book.md"
     assert body_text.count("•") > 200, "the bullet repair regressed"
+
+
+@needs_pdf
+def test_chapter_4_governs_spi_recovery_and_the_appendix_says_less():
+    """Which printing of the SPI recovery rule the recorded refusal names.
+
+    `Study.kt`'s KDoc cited *"Appendix A's SPI recovery"* as one of the two
+    rules this app leaves unmodelled for want of a clock. Appendix A is the
+    QUICK REFERENCE, and its row (9718-9724) is three cells: Rest, 1 SPI per
+    hour, and the requirement. Chapter 4 p.34 prints the rule itself and
+    carries two clauses the summary drops -- an exclusivity sentence and an
+    interruption clause -- so the refusal named the summary and never
+    mentioned the printing that governs. Claim status was never the same
+    question as which printing governs (6dl), and neither is being handy to
+    quote.
+
+    Pinned so the reason recorded in `Pools.UNMODELLED` cannot drift off the
+    sentence it rests on. RED-proved by editing 2340's text in `lines.json`.
+    """
+    byn = {l["n"]: l["text"] for l in json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
+
+    rule = " ".join(byn[n] for n in range(2338, 2342))
+    assert "recovers 1 SPI" in rule and "per hour" in rule, (
+        f"p.34 no longer prints the recovery rate: {rule!r}"
+    )
+    assert "the standard and only recovery rate" in rule, (
+        f"p.34's exclusivity clause is gone: {rule!r}"
+    )
+    assert "interrupts rest and halts recovery" in rule, (
+        f"p.34's interruption clause is gone: {rule!r}"
+    )
+
+    summary = " ".join(byn[n] for n in range(9718, 9725))
+    assert "1 SPI per hour" in summary, (
+        f"Appendix A no longer prints the same rate: {summary!r}"
+    )
+    # A negative pin on two words, not on a meaning: a reworded summary
+    # carrying the same two clauses would pass this. That is the reach a
+    # substring check has, stated rather than assumed -- what it does catch
+    # is the extraction moving the row or the book gaining the sentence.
+    assert "only" not in summary and "halts" not in summary, (
+        "Appendix A now carries a clause chapter 4 was cited for; the "
+        f"refusal may name either printing: {summary!r}"
+    )
+
+
+@needs_pdf
+def test_the_bard_restores_spi_outside_rest():
+    """The narrower ability p.34's "only" does not reach.
+
+    p.88's Sequence 9 Bard picks one Singing buff, and option (d) is
+    *"Spiritual Recovery - allies recover 1 SPI at the song's end"*, upgraded
+    at p.100 to two. That is not a second ORDINARY recovery rate competing
+    with p.34's -- it is an active pathway ability with its own scope, and
+    the parenthetical proves the scoping is deliberate: the Bard is excluded
+    from their own effect.
+
+    **This test pins the ability, never the priority.** Reading it as
+    specific-beating-general -- the reading `Pools.UNMODELLED` records, on
+    the model of the Potion Consumption Roll against `SuccessRoll` -- is this
+    repo's; the book states no priority between the two printings, and no
+    assertion below proves one.
+
+    Recorded rather than repaired, and pinned here because `Pools.UNMODELLED`
+    names it: a reader who greps "only recovery rate" must find the exception
+    beside it, not conclude the book contradicts itself.
+    """
+    byn = {l["n"]: l["text"] for l in json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
+
+    song = " ".join(byn[n] for n in range(5600, 5602))
+    assert "Spiritual Recovery" in song, f"p.88's buff list lost the option: {song!r}"
+    assert "recover 1 SPI at the song" in song, f"the buff no longer restores SPI: {song!r}"
+    assert "Bard cannot benefit from this effect" in song, (
+        f"the exclusion that makes this an ability rather than a rate is gone: {song!r}"
+    )
+    assert "restores 2 SPI instead of 1" in byn[6402], (
+        f"p.100's upgrade no longer doubles it: {byn[6402]!r}"
+    )
+
+
+@needs_pdf
+def test_chapter_4_prices_spirit_vision_a_second_time_and_says_less():
+    """The other unclaimed line on p. 34, and why it disputes nothing.
+
+    Ch. 7.6 line 4840 prints *"Activate by expending 1 SPI (1 SPI per minute
+    to maintain)"* and `SpiritVisionDialog` bills the activation. Ch. 4's
+    skill overview prints the maintenance rate ALONE. A second printing
+    widens a rule only by saying something the first did not, so this one is
+    recorded and not applied -- but the claim rests on the word `Activate`
+    being absent from it, which is a fact about the book and can move.
+    """
+    byn = {l["n"]: l["text"] for l in json.loads((OUT / "lines.json").read_text(encoding="utf-8"))}
+
+    overview = " ".join(byn[n] for n in range(2309, 2311))
+    assert "Cost: 1 SPI per" in overview and "minute" in overview, (
+        f"p.34 no longer prices Spirit Vision: {overview!r}"
+    )
+    assert "Activate" not in overview, (
+        "p.34 now names an activation charge, so it is no longer a printing "
+        f"that says strictly less than 7.6's: {overview!r}"
+    )
+    assert "Activate by expending 1 SPI" in byn[4840], (
+        f"7.6's governing printing moved: {byn[4840]!r}"
+    )
