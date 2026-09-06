@@ -313,9 +313,12 @@ private fun MajorWoundPanel(
         }
         return
     }
-    Text("3d6: ${recovery.total} vs $recoveryTarget", style = MaterialTheme.typography.titleMedium)
+    // The roll's OWN target and verdict. Re-judging a stored roll against a
+    // recomputed target lets a tracker moving under an open dialog reprint an
+    // old roll against a number it was never made against (Codex, 6ds).
+    Text("3d6: ${recovery.total} vs ${recovery.target}", style = MaterialTheme.typography.titleMedium)
     Text(
-        if (recovery.total <= recoveryTarget) "Recovered early." else "Still stunned; the row asks again next turn.",
+        if (recovery.outcome.isSuccess) "Recovered early." else "Still stunned; the row asks again next turn.",
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.primary,
     )

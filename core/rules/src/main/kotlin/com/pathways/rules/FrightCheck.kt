@@ -1,11 +1,11 @@
 package com.pathways.rules
 
-import com.pathways.model.Outcome
 import com.pathways.model.Trait
 import com.pathways.model.RollResult
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.FrightEffect
 import com.pathways.rules.content.FrightRecovery
+import com.pathways.rules.content.RecoveryAttribute
 import com.pathways.rules.content.FrightTrigger
 
 /**
@@ -75,7 +75,7 @@ object FrightCheck {
         // By outcome, not by margin: 3 and 4 always succeed whatever the
         // target, and a Will of 6 facing an Outer God at -8 is exactly when
         // that matters.
-        if (roll.outcome == Outcome.SUCCESS || roll.outcome == Outcome.CRITICAL_SUCCESS) {
+        if (roll.outcome.isSuccess) {
             return FrightOutcome(roll = roll, target = target, margin = 0)
         }
         // RollResult.margin is target - total, so a failure carries it
@@ -152,6 +152,33 @@ object FrightCheck {
      */
     fun recoveryBonus(recovery: FrightRecovery, traits: List<Trait>): Int =
         if (StunRecovery.isStun(recovery)) TraitEffects.stunRecoveryBonus(traits) else 0
+
+    /**
+     * The attribute level [recovery] is rolled against.
+     *
+     * Answered here rather than at the screen because the screen would ask it
+     * twice — once for the number and once for which clause list applies — and
+     * the same predicate at two call sites is the defect, not the drift it
+     * produces. Exhaustive over [RecoveryAttribute] so a third column added to
+     * the table cannot be silently read as Will.
+     */
+    fun levelFor(recovery: FrightRecovery, will: Int, iq: Int): Int = when (recovery.attribute) {
+        RecoveryAttribute.WILL -> will
+        RecoveryAttribute.IQ -> iq
+    }
+
+    /**
+     * Whether the GM-declared clauses for a bare Will roll reach [recovery].
+     *
+     * Two of the three columns roll Will, so a cell like "-1 to Will rolls for
+     * the day" applies to the recovery a second after the check. The third
+     * rolls IQ and gets nothing, and **that is a gap rather than a choice**:
+     * this book prints no trait clause naming IQ rolls, so there is no list to
+     * offer. The rows scoped to the Fright Check itself reach neither — that
+     * check is over.
+     */
+    fun takesWillClauses(recovery: FrightRecovery): Boolean =
+        recovery.attribute == RecoveryAttribute.WILL
 
     private fun rollThreeDSix(source: RandomSource) = (1..3).sumOf { source.roll(6) }
 }

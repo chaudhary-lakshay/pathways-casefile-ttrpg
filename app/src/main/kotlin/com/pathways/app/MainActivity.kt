@@ -1367,19 +1367,16 @@ private fun FrightDialog(
                         result.effect?.let { FrightCheck.recoveryFor(it, kind) }?.let { out ->
                             FrightRecoveryPanel(
                                 recovery = out,
-                                // The column decides the attribute: Will in two
-                                // of three, IQ in Confusion, whatever state the
-                                // row leaves the character in.
-                                attributeLevel = if (out.attribute == "IQ") iq else will,
+                                // Both of these are the rules' call, asked once
+                                // each: the column decides the attribute, and
+                                // the same fact decides which clause list can
+                                // reach the roll.
+                                attributeLevel = FrightCheck.levelFor(out, will, iq),
                                 bonus = if (StunRecovery.isStun(out)) stunRecoveryBonus else 0,
-                                // Will clauses reach a bare Will roll and not an
-                                // IQ one; this book prints no IQ-roll clause to
-                                // stand in for them, which is a gap and not a
-                                // choice made here.
-                                clauseBonus = if (out.attribute == "IQ") {
-                                    ClauseBonus(0, null)
-                                } else {
+                                clauseBonus = if (FrightCheck.takesWillClauses(out)) {
                                     TraitEffects.clauseBonus(willOnlyClauses, declared)
+                                } else {
+                                    ClauseBonus(0, null)
                                 },
                                 shock = shock,
                                 hurt = hurt,
@@ -1441,9 +1438,13 @@ private fun FrightRecoveryPanel(
             }
             return@Column
         }
-        Text("3d6: ${rolled.total} vs $target", style = MaterialTheme.typography.titleMedium)
+        // The roll's OWN target and verdict, never the recomputed ones: a
+        // clause chip or a tracker moving while the result is on screen would
+        // otherwise reprint an old roll against a number it was not made
+        // against (Codex).
+        Text("3d6: ${rolled.total} vs ${rolled.target}", style = MaterialTheme.typography.titleMedium)
         Text(
-            if (rolled.total <= target) "Recovered." else "Still there; the row asks again.",
+            if (rolled.outcome.isSuccess) "Recovered." else "Still there; the row asks again.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.primary,
         )

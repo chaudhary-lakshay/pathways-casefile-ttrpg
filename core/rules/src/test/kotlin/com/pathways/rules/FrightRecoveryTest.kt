@@ -44,16 +44,42 @@ class FrightRecoveryTest {
         }
     }
 
+    /**
+     * The column decides, and [FrightCheck.levelFor] is the only thing asked.
+     *
+     * Row 12 is the dangerous case — its fright cell counts down from HT and
+     * rolls Will — but the guard against reading HT there belongs to the
+     * extractor's anchor test, which is mutation-proved against exactly that
+     * substitution. Asserting the cell still contains "HT" here would restate
+     * the book rather than exercise production, so what this checks is the
+     * number a screen would roll against.
+     */
     @Test
-    fun `the attribute is the column's, and it is not the one the row counts down from`() {
+    fun `the column decides which attribute level the roll uses`() {
         val twelve = band(12)
-        assertEquals("Will", FrightCheck.recoveryFor(twelve, FrightKind.FRIGHT)!!.attribute)
-        assertEquals("Will", FrightCheck.recoveryFor(twelve, FrightKind.AWE)!!.attribute)
-        assertEquals("IQ", FrightCheck.recoveryFor(twelve, FrightKind.CONFUSION)!!.attribute)
-        // That row's fright cell counts down from HT and rolls Will. If the
-        // extraction ever anchored on an attribute NAME it would read HT here,
-        // and this is the assertion that would say so.
-        assertTrue(twelve.fright.contains("HT"), twelve.fright)
+        val will = 11
+        val iq = 14
+        assertEquals(will, FrightCheck.levelFor(FrightCheck.recoveryFor(twelve, FrightKind.FRIGHT)!!, will, iq))
+        assertEquals(will, FrightCheck.levelFor(FrightCheck.recoveryFor(twelve, FrightKind.AWE)!!, will, iq))
+        assertEquals(iq, FrightCheck.levelFor(FrightCheck.recoveryFor(twelve, FrightKind.CONFUSION)!!, will, iq))
+    }
+
+    /**
+     * Which recovery rolls the bare-Will clause list reaches.
+     *
+     * Two of three columns and never the third: this book prints no trait
+     * clause naming IQ rolls, so the Confusion column has no list to offer.
+     * That is a gap in the source, recorded rather than papered over by
+     * handing it the Will one.
+     */
+    @Test
+    fun `only the Will columns take the bare-Will clauses`() {
+        for (low in listOf(4, 10, 12)) {
+            val row = band(low)
+            assertTrue(FrightCheck.takesWillClauses(FrightCheck.recoveryFor(row, FrightKind.FRIGHT)!!))
+            assertTrue(FrightCheck.takesWillClauses(FrightCheck.recoveryFor(row, FrightKind.AWE)!!))
+            assertFalse(FrightCheck.takesWillClauses(FrightCheck.recoveryFor(row, FrightKind.CONFUSION)!!))
+        }
     }
 
     @Test

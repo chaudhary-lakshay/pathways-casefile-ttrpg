@@ -491,7 +491,26 @@ data class FrightEffect(
  * is shown beside the roll instead.
  */
 @Serializable
-data class FrightRecovery(val attribute: String, val state: RecoveryState)
+data class FrightRecovery(val attribute: RecoveryAttribute, val state: RecoveryState)
+
+/**
+ * What a Fright Effects column rolls to recover, in the book's own name.
+ *
+ * A closed set rather than a string, so that a reader has to answer for every
+ * member: with a string, "is it IQ" reads every other value as Will, and this
+ * table is exactly where that goes wrong — two of row 12's cells NAME an
+ * attribute they do not roll.
+ */
+@Serializable
+enum class RecoveryAttribute {
+    /** The Fright and Awe columns, all three rows that offer a way out. */
+    @SerialName("Will")
+    WILL,
+
+    /** The Confusion column. */
+    @SerialName("IQ")
+    IQ,
+}
 
 /**
  * What a Fright Effects row leaves the character as, in the book's own word.
