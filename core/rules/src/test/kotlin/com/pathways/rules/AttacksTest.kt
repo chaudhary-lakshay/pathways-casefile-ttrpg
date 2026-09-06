@@ -11,6 +11,7 @@ import com.pathways.rules.content.UnarmedAttack
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -566,5 +567,36 @@ class AttacksTest {
         // Reach is a property of the attack, not of the maneuver, so it rides
         // across -- and [atRange] stays the only thing that changes it.
         assertTrue(Attacks.withManeuver(AttackPlan(isRanged = true), AttackManeuver.REGULAR).isRanged)
+    }
+
+    /**
+     * Ch. 5 p. 39's Wrestling table -- Maneuver / Roll / Opposed Roll / Notes.
+     * Claimed by nothing until now, while five fixtures carry the skill and
+     * the attack screen offered a wrestler nothing at all. The recorded reason
+     * was that Wrestling "deals no damage", which is true and is about the
+     * DAMAGE column: Shove has sat in the same table with no damage since M0.
+     */
+    @Test
+    fun `Wrestling offers the grappler's three maneuvers and rolls no damage`() {
+        val rows = Damage.attacksFor("Wrestling")
+        assertEquals(listOf("Grapple", "Takedown", "Pin"), rows.map { it.attack })
+        assertEquals(listOf(0, -1, -2), rows.map { it.rollModifier })
+        assertEquals("DX or Escape", rows.first().opposedRoll)
+        assertEquals("DX or Wrestling", rows.last().opposedRoll)
+        rows.forEach {
+            assertNull(Damage.forAttack(it, st = 10), "${it.attack} rolled damage")
+        }
+    }
+
+    /**
+     * The fourth printed row is the HELD character's, rolled off Escape, and
+     * this table is keyed by the acting character's skill and read by an
+     * attack picker. Offering it would hand anyone with Escape a way out of a
+     * grapple they are not in. A gap with no screen, not a refusal.
+     */
+    @Test
+    fun `the escape from a grapple is not offered as an attack`() {
+        assertTrue(Damage.attacksFor("Escape").isEmpty())
+        assertTrue(ContentLoader.unarmedAttacks().none { it.attack == "Escape" })
     }
 }

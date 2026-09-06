@@ -602,7 +602,14 @@ private fun AttackOptions(
                     "Damage on a hit: ${roll.render()}" +
                         if (times == 1.0) "" else ", ${Wounds.render(times)} there"
                 }
-            } ?: if (unarmed != null) "Rolls no damage; see the note above." else "",
+            } ?: unarmed?.let { row ->
+                // The grappling rows print an Opposed Roll column the two
+                // damage tables do not have, and it is the whole resolution:
+                // this screen rolls the grappler's half and the target's is
+                // the GM's. Named here or the column would have no reader.
+                row.opposedRoll?.let { "Rolls no damage. The target rolls $it." }
+                    ?: "Rolls no damage; see the note above."
+            }.orEmpty(),
             style = MaterialTheme.typography.bodySmall,
         )
         Text(

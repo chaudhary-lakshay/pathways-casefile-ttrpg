@@ -4,6 +4,7 @@ import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.UnarmedAttack
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -88,10 +89,13 @@ class DamageTest {
     }
 
     @Test
-    fun `wrestling has no attack rows, brawling and boxing do`() {
-        // The book's own summary: "None (grapple only)". Inventing a row for
-        // it would invent damage.
-        assertTrue(Damage.attacksFor("Wrestling").isEmpty())
+    fun `wrestling's maneuvers roll no damage, brawling and boxing do`() {
+        // The summary's "None (grapple only)" is the DAMAGE cell, and this is
+        // the half of it that survives: Wrestling's own table prints three
+        // maneuvers the grappler can attempt, and not one rolls damage.
+        val grappling = Damage.attacksFor("Wrestling")
+        assertEquals(3, grappling.size)
+        grappling.forEach { assertFalse(it.wounds, "${it.attack} rolls damage") }
         assertEquals(6, Damage.attacksFor("Brawling").size)
         assertEquals(4, Damage.attacksFor("Boxing").size)
     }

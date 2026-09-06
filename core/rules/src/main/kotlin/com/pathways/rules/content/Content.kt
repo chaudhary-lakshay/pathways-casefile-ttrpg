@@ -1154,8 +1154,19 @@ data class RangedModifier(
  * "Special" -- an attack that knocks down instead of wounding deals no damage,
  * which is not the same as dealing zero.
  *
- * Wrestling has no row here: the book's own summary gives it "None (grapple
- * only)".
+ * Wrestling's three rows come from a DIFFERENT table on the same page --
+ * Maneuver / Roll / Opposed Roll / Notes, which prints no damage column at
+ * all. Their [damage] is the summary table's own cell for the skill, "None
+ * (grapple only)", read from the book rather than typed; [opposedRoll] is the
+ * third column, which the other two tables do not have. The older reason for
+ * leaving that table out -- that Wrestling deals no damage -- is true and is
+ * about the damage column: Shove has been a row here with no damage parts
+ * since M0.
+ *
+ * The book's fourth grappling row, Escape, is NOT here. It rolls off Escape
+ * and its subject is the character being HELD, where every other row here is
+ * the one acting; this table is keyed by the acting character's skill and read
+ * by an attack picker. A gap with no screen to live on, not a refusal.
  */
 @Serializable
 data class UnarmedAttack(
@@ -1167,8 +1178,10 @@ data class UnarmedAttack(
     val base: String? = null,
     val modifier: Int = 0,
     val type: String? = null,
+    /** The grappling table's third column; absent on the two damage tables. */
+    val opposedRoll: String? = null,
 ) {
-    /** False for Shove, the one row that rolls no damage at all. */
+    /** False for Shove and the grappling rows, which roll no damage at all. */
     val wounds: Boolean get() = base != null
 }
 

@@ -1202,6 +1202,52 @@ def test_an_unreadable_damage_cell_is_an_error_not_a_guess():
         ])
 
 
+def test_the_grappling_table_is_cut_on_its_own_roll_column():
+    """Maneuver / Roll / Opposed Roll / Notes -- four columns, and the roll
+    names a DIFFERENT skill on the last row, so the anchor cannot be one
+    skill's name the way the two damage tables' is."""
+    rows = extract_unarmed.parse_grappling([
+        "Grapple", "Wrestling", "DX or Escape", "Initiate grapple; both roll DX",
+        "Takedown", "Wrestling-1", "DX or Wrestling", "Knock down;",
+        "target falls prone",
+        "Escape", "Escape-2", "DX or Wrestling", "Break free from grapple or pin",
+    ], damage="None (grapple only)")
+    assert [(r["skill"], r["attack"], r["rollModifier"]) for r in rows] == [
+        ("Wrestling", "Grapple", 0),
+        ("Wrestling", "Takedown", -1),
+        ("Escape", "Escape", -2),
+    ]
+    assert rows[0]["opposedRoll"] == "DX or Escape"
+    assert rows[1]["notes"] == "Knock down; target falls prone"
+
+
+def test_the_grappling_rows_carry_no_damage_parts():
+    """The Wrestling table prints no Damage column at all. Its rows take the
+    summary table's own cell for that skill and no parts -- Shove's shape,
+    which is already in this file and is what disproves "no damage, no row"."""
+    rows = extract_unarmed.parse_grappling(
+        ["Pin", "Wrestling-2", "DX or Wrestling", "Immobilize; target cannot act"],
+        damage="None (grapple only)",
+    )
+    assert "base" not in rows[0]
+    assert rows[0]["damage"] == "None (grapple only)"
+
+
+def test_only_the_grapplers_maneuvers_are_offered_as_attacks():
+    """Three of the four rows are the GRAPPLER's; Escape-2 is rolled by the
+    person being held. This table is keyed by the acting character's skill and
+    consumed by an attack picker, so storing Escape here would offer a
+    character with that skill an escape from a grapple they are not in. A gap,
+    recorded -- not a refusal."""
+    entries = json.loads(
+        (CONTENT / "unarmed_attacks.json").read_text(encoding="utf-8"))["entries"]
+    assert [e["attack"] for e in entries if e["skill"] == "Wrestling"] == [
+        "Grapple", "Takedown", "Pin",
+    ]
+    assert not any(e["skill"] == "Escape" for e in entries)
+    assert extract_unarmed.GRAPPLED_ROW == "Escape"
+
+
 def test_committed_unarmed_attacks_match_the_two_printed_tables():
     entries = json.loads((CONTENT / "unarmed_attacks.json").read_text(encoding="utf-8"))["entries"]
     by_skill = {}

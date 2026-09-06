@@ -42,7 +42,7 @@ BONUS_RANGE = (2575, 2576)
 BONUS_PHRASE = "+1 to all Boxing attacks at DX+1; +2 at DX+2"
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
-HEADER = {"Attack", "Roll", "Damage", "Notes"}
+HEADER = {"Attack", "Roll", "Damage", "Notes", "Maneuver", "Opposed Roll"}
 DAMAGE = re.compile(r"^(thr|sw)([+-]\d+)?\s+(\w+)$")
 # "Special" is a real cell, not a missing one; the book prints it for Shove.
 SPECIAL = "Special"
@@ -50,7 +50,31 @@ SPECIAL = "Special"
 EXPECTED = {
     "Brawling": ["Punch", "Kick", "Elbow", "Knee", "Headbutt", "Shove"],
     "Boxing": ["Jab", "Cross", "Hook", "Uppercut"],
+    "Wrestling": ["Grapple", "Takedown", "Pin"],
 }
+
+# The Wrestling table: Maneuver / Roll / Opposed Roll / Notes, four columns
+# where the two above have Attack / Roll / Damage / Notes.
+GRAPPLING_SKILL = "Wrestling"
+GRAPPLING_RANGE = (2602, 2621)
+# The anchor is the OPPOSED ROLL column, not the Roll column the two damage
+# tables use. The Roll column here names two skills, and one of them is spelled
+# exactly like a MANEUVER in the column beside it -- "Escape" the maneuver
+# above "Escape-2" the roll -- so anchoring there reads a note as a maneuver
+# name. The opposed column is the closed shape this table actually has.
+GRAPPLING_OPPOSED = re.compile(r"^DX or (Wrestling|Escape)$")
+GRAPPLING_ROLL = re.compile(r"^(Wrestling|Escape)(-\d+)?$")
+GRAPPLING_PRINTED = ["Grapple", "Takedown", "Pin", "Escape"]
+# The row whose subject is the person BEING held rather than the one acting on
+# them: it rolls off Escape, and its note is "Break free from grapple or pin".
+# Dropped by the filter below -- named here only so verify() can check that
+# exactly this one was dropped.
+GRAPPLED_ROW = "Escape"
+# The Wrestling table prints no Damage column at all. Its rows carry the
+# summary table's own cell for the skill, READ from the book rather than typed
+# here, and no damage parts -- Shove's shape.
+SUMMARY_DAMAGE_LINE = 2640
+SUMMARY_DAMAGE = "None (grapple only)"
 
 
 def load_lines():
@@ -105,6 +129,60 @@ def parse_table(skill, lines):
     return rows
 
 
+def parse_grappling(lines, damage):
+    """Rows of Maneuver / Roll / Opposed Roll / Notes, cut on the roll column.
+
+    [damage] is passed in rather than defaulted: it is a cell from a DIFFERENT
+    table on the same page, and main() reads it from the book.
+    """
+    rows = []
+    for i, line in enumerate(lines):
+        if not GRAPPLING_OPPOSED.match(line):
+            continue
+        if i < 2:
+            raise ValueError(f"opposed roll {line!r} has no maneuver and roll before it")
+        found = GRAPPLING_ROLL.match(lines[i - 1])
+        if not found:
+            raise ValueError(f"{lines[i - 1]!r} is not a grappling roll")
+        rows.append({
+            "skill": found.group(1),
+            "attack": lines[i - 2],
+            "rollModifier": int(found.group(2) or 0),
+            "damage": damage,
+            "opposedRoll": line,
+            "_notes_from": i + 1,
+        })
+
+    for n, row in enumerate(rows):
+        # Notes run to the line before the NEXT row's maneuver name, which sits
+        # two above that row's opposed roll -- i.e. three above its notes.
+        end = len(lines) if n + 1 == len(rows) else rows[n + 1]["_notes_from"] - 3
+        row["notes"] = " ".join(lines[row.pop("_notes_from"):end])
+    return rows
+
+
+def verify_grappling(printed, offered, damage):
+    """The four the book prints, and the one this table cannot hold."""
+    if [r["attack"] for r in printed] != GRAPPLING_PRINTED:
+        raise ValueError(
+            f"the grappling table now prints {[r['attack'] for r in printed]}, "
+            f"not {GRAPPLING_PRINTED}")
+    dropped = [r["attack"] for r in printed if r not in offered]
+    if dropped != [GRAPPLED_ROW]:
+        raise ValueError(
+            f"{dropped} were dropped from the grappling table, not "
+            f"['{GRAPPLED_ROW}']. This table is keyed by the ACTING "
+            "character's skill and read by an attack picker; a row rolled off "
+            "another skill has another subject")
+    if damage != SUMMARY_DAMAGE:
+        raise ValueError(
+            f"the summary's damage cell for {GRAPPLING_SKILL} now reads "
+            f"{damage!r}, not {SUMMARY_DAMAGE!r}")
+    for row in offered:
+        if not row["opposedRoll"]:
+            raise ValueError(f"{row['attack']!r} lost its opposed roll")
+
+
 def verify(rows, bonus):
     by_skill = {}
     for row in rows:
@@ -138,11 +216,21 @@ def main():
     rows = []
     for skill, start, end in TABLES:
         rows.extend(parse_table(skill, stream(byn, start, end)))
+    damage = " ".join(stream(byn, SUMMARY_DAMAGE_LINE, SUMMARY_DAMAGE_LINE))
+    printed = parse_grappling(stream(byn, *GRAPPLING_RANGE), damage)
+    # Drawn from the table's own definition, not from a list of the rows that
+    # went wrong: this is the Wrestling table, so a row rolled off another
+    # skill is another character's action.
+    offered = [r for r in printed if r["skill"] == GRAPPLING_SKILL]
+    verify_grappling(printed, offered, damage)
+    rows.extend(offered)
+
     bonus = " ".join(stream(byn, *BONUS_RANGE))
     verify(rows, bonus)
 
     OUT.mkdir(parents=True, exist_ok=True)
-    spans = [[start, end] for _, start, end in TABLES] + [list(BONUS_RANGE)]
+    spans = ([[start, end] for _, start, end in TABLES] + [list(BONUS_RANGE)]
+             + [list(GRAPPLING_RANGE), [SUMMARY_DAMAGE_LINE, SUMMARY_DAMAGE_LINE]])
     payload = {"sourceLines": {CHAPTER: spans}, "entries": rows}
     (OUT / "unarmed_attacks.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"

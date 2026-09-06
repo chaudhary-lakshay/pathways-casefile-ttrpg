@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -71,10 +72,18 @@ class GoldenMeleeSummaryTest {
     }
 
     @Test
-    fun `Wrestling prints no attacks, so it can roll no damage`() {
-        // "None (grapple only)" -- its table is Maneuver / Roll / Opposed Roll
-        // and parsing it beside the other two would invent damage (6j).
-        assertTrue(Damage.attacksFor("Wrestling").isEmpty())
+    fun `Wrestling's maneuvers carry the summary's damage cell and roll none`() {
+        // "None (grapple only)" is this row's DAMAGE cell, and 6j read it as
+        // "no attacks at all". Its own table two lines above prints Maneuver /
+        // Roll / Opposed Roll / Notes, so the maneuvers are real and the cell
+        // travels with them as the damage they do not roll.
+        val grappling = Damage.attacksFor("Wrestling")
+        assertEquals(3, grappling.size)
+        grappling.forEach {
+            assertEquals("None (grapple only)", it.damage)
+            assertFalse(it.wounds, "${it.attack} rolls damage")
+            assertTrue(it.opposedRoll!!.startsWith("DX or "))
+        }
         assertTrue(Damage.attacksFor("Brawling").isNotEmpty())
         assertTrue(Damage.attacksFor("Boxing").isNotEmpty())
     }

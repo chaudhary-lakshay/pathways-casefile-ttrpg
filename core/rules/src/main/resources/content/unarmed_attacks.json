@@ -12,6 +12,14 @@
    [
     2575,
     2576
+   ],
+   [
+    2602,
+    2621
+   ],
+   [
+    2640,
+    2640
    ]
   ]
  },
@@ -112,6 +120,30 @@
    "base": "thr",
    "modifier": 2,
    "type": "cr"
+  },
+  {
+   "skill": "Wrestling",
+   "attack": "Grapple",
+   "rollModifier": 0,
+   "damage": "None (grapple only)",
+   "opposedRoll": "DX or Escape",
+   "notes": "Initiate grapple; both roll DX"
+  },
+  {
+   "skill": "Wrestling",
+   "attack": "Takedown",
+   "rollModifier": -1,
+   "damage": "None (grapple only)",
+   "opposedRoll": "DX or Wrestling",
+   "notes": "Knock down; target falls prone"
+  },
+  {
+   "skill": "Wrestling",
+   "attack": "Pin",
+   "rollModifier": -2,
+   "damage": "None (grapple only)",
+   "opposedRoll": "DX or Wrestling",
+   "notes": "Immobilize; target cannot act"
   }
  ]
 }
