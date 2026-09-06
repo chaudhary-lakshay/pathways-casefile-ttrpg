@@ -112,7 +112,38 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6dr is newest, and it is the harder version of 6dq: a refusal whose reason
+**6ds is newest, and it builds the gap 6dr named — nine cells whose attribute
+belongs to the COLUMN.** The Fright Effects table prints a recovery roll in
+three of its nine bands, Will in the Fright and Awe columns and IQ in
+Confusion, and the other six bands print an outcome with no way out — so
+nothing is offered there, because **offering a roll the table does not print is
+granting a way back the book withholds.** Read it for five things. **The anchor
+was the whole parsing problem**: row 12's fright cell reads *"Retching for (25 −
+**HT**) sec; roll vs. **Will** to recover"* and its awe cell prints `Will`
+twice in two roles, so an attribute-name search is wrong in two cells out of
+nine — the anchor is the cell's own `roll vs. X`, 6do's rule applied BEFORE the
+bad parse, and mutation-proved (with the mutation verified to have landed, 6db).
+**The state ships as the book's word, decoded not matched**: a boolean would
+make the extractor decide what a stun IS rather than structure what the cell
+printed, so `StunRecovery.isStun` answers, in the object that already holds
+which Major Wound row is the stun. **The Confusion column takes no clauses and
+that is the BOOK's gap** — the recovery roll is a bare Will roll in two columns
+so 6df's clause list reaches it, and this book prints no trait clause naming IQ
+rolls, so there is no list to offer. **The diff review found a defect 6dr
+shipped and this slice copied**: both panels stored a `RollResult` and re-judged
+it against a RECOMPUTED target, so a chip moving under an open dialog reprints
+an old roll against a number it never faced — `RollResult` carries its own
+`target` and `outcome`, and **a finding on new code is a finding on the code it
+was modelled on**, worth running backwards one slice every time. Its other two
+were mine: `attribute == "IQ"` at two call sites reading every non-IQ as Will
+(typed now, both questions answered once in `FrightCheck`), and a **data-shape
+assertion** restating the book where the real guard is the extractor's anchor
+test. And one editing hazard: writing a regex through a Python heredoc's
+replacement string **ate `\b` as a backspace byte** — pattern compiled, matched
+nothing, exit 0. Same class as the `sed a/i/c` rule; verify a written pattern
+with `repr()`.
+
+**6dr is next, and it is the harder version of 6dq: a refusal whose reason
 was a claim about the app, and the claim was false the day it was written.**
 `TraitEffects.PARTLY_APPLIED` reported Combat Reflexes' *"+6 to recover from
 stun"* as *"this app models no stun recovery roll to make"* — while
@@ -1034,7 +1065,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dr, then 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6ds, then 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1265,7 +1296,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1673 Kotlin** (JUnit 5 — 1187 `core:rules`, 466 `app`, 20 `core:model`) + **333 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1680 Kotlin** (JUnit 5 — 1194 `core:rules`, 466 `app`, 20 `core:model`) + **337 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1383,6 +1414,11 @@ VitalRolls.due(hp): List<VitalCheck>          // the HP table's own two rolls
 VitalRolls.bonusFor(check, traits) / .targetFor(check, ht, traits, poolPenalty)
 VitalRolls.printed(check): String             // CONSCIOUSNESS at 0 HP, SURVIVAL at -HP
 StunRecovery.stunsOn(row) / .printed() / .bonusFor(traits)
+StunRecovery.isStun(recovery)                 // the one authority on the word
+FrightCheck.recoveryFor(effect, kind): FrightRecovery?   // null in 6 of 9 bands
+FrightCheck.recoveryBonus(recovery, traits)   // Combat Reflexes, Stunned only
+FrightCheck.levelFor(recovery, will, iq) / .takesWillClauses(recovery)
+Outcome.isSuccess: Boolean                    // print a roll's OWN verdict
 StunRecovery.targetFor(ht, traits, poolPenalty)   // the Major Wound Failure
                                               // row's own roll; the fright
                                               // table's Will/IQ ones are a GAP
@@ -1675,10 +1711,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6dr. The slice log
+## 6a-6ds. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6dr is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6ds is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

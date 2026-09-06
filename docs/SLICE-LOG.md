@@ -6726,6 +6726,119 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ds. Nine cells, and the attribute belongs to the column
+
+6dr left this as a stated gap with its blocker named: the Fright Effects table
+prints a recovery roll nine times, the attribute is carried in prose, and
+structuring prose is the extractor's job. This builds it.
+
+| band | Fright | Awe | Confusion |
+|---|---|---|---|
+| 4-9 | Stunned, **Will** | Stunned, **Will** | Stunned, **IQ** |
+| 10-11 | Stunned, Will | Stunned, Will | Stunned, IQ |
+| 12 | Retching, Will | Ecstasy, Will | Dazed, IQ |
+
+The other six bands print an outcome and no way out of it — a quirk, a
+disadvantage, a permanent loss — so nothing is offered there. **Offering a roll
+where the table prints none would be granting a way back the book withholds**,
+which is the same class as offering a defence it does not grant.
+
+### The anchor was the whole parsing problem
+
+The obvious parse is to find an attribute name in the cell. Row 12 is where
+that dies, and it dies twice in one row:
+
+> **Retching for (25 − HT) sec; roll vs. Will to recover.**
+> Ecstasy for (25 − **Will**) sec; roll vs. **Will** to recover.
+
+The fright cell names HT and rolls Will. The awe cell prints `Will` twice in
+two different roles. So the anchor is the cell's own `roll vs. X` — 6do's rule
+that a candidate anchor colliding with another column's values is not an
+anchor, applied before the bad parse rather than after it. **Mutation-proved**:
+swapping the regex for a bare attribute search reddens the anchor test, and the
+mutation was verified to have landed before the result was read (6db's rule
+that a mutation reporting success is not a mutation that happened).
+
+A third case is neither of the two: a cell that says `roll vs.` and then
+something this book does not roll. That **raises** rather than returning None —
+silently treating it as "no recovery here" would turn a drifted parse into a
+row the screen quietly never offers.
+
+### The state is the book's word, decoded not matched
+
+Combat Reflexes' "+6 to recover from stun" reaches rows 4-9 and 10-11 and none
+of row 12. The discriminator could have been a boolean from the extractor, and
+the design review rejected that: it would make the extractor decide what a stun
+IS rather than structure what the cell printed. So the state ships as a decoded
+enum — `STUNNED`, `RETCHING`, `ECSTASY`, `DAZED` — and `StunRecovery.isStun`
+answers, because that object already holds which Major Wound row is the stun
+and **two sites deciding what a stun is would be the defect** (6cr).
+
+### The Will clauses, and a gap that is the book's
+
+The recovery roll is a bare Will roll a second after the check in two columns
+of three, so the clauses 6df wired to bare Will rolls reach it — but the rows
+scoped to the Fright Check itself do not, because that check is over. The
+Confusion column gets nothing, and **that is a gap rather than a choice**: this
+book prints no trait clause naming IQ rolls, so there is no list to offer.
+Recorded in `FrightCheck.takesWillClauses`' KDoc, where a sweep finds it.
+
+### The review found the same defect in last slice's panel
+
+Three findings, all taken. The sharpest is one **6dr shipped and this slice
+copied**: both panels stored a `RollResult` and then re-judged it against a
+RECOMPUTED target, so a clause chip or a tracker moving under an open dialog
+reprints an old roll against a number it never faced. `RollResult` carries its
+own `target` and `outcome`; both panels use them now, and `Outcome.isSuccess`
+replaces a two-branch comparison three sites were making. **A finding on new
+code is a finding on the code it was modelled on** — worth running backwards
+one slice, every time.
+
+The second was mine at two call sites: `attribute == "IQ"` decided the number
+AND which clause list applied, with every non-IQ silently read as Will. The
+attribute is a typed enum now and both questions are answered once, in
+`FrightCheck`.
+
+The third was a **data-shape assertion** in my own test — `twelve.fright
+.contains("HT")`, which restates the book instead of exercising production, and
+whose real guard is the extractor's mutation-proved anchor test. Deleted, and
+what replaced it asserts the number a screen would roll against.
+
+### What shipped
+
+- `extract_fright.py`: `recovery_of`, the anchor, and two `verify()` guards —
+  a band offers a way out in all three columns or none, and exactly three
+  bands do.
+- `FrightRecovery` + `RecoveryState` + `RecoveryAttribute` in the content
+  model; `FrightCheck.recoveryFor` / `.recoveryBonus` / `.levelFor` /
+  `.takesWillClauses`; `StunRecovery.isStun`.
+- `FrightDialog` takes `iq`, the Will-only clause list and the resolved stun
+  bonus; `FrightRecoveryPanel` renders one roll, keyed on the check (6cp).
+- **1680 Kotlin** (+7) and **337 Python** (+4), no compile warnings. **Not
+  device-verified.**
+
+### An editing hazard worth the line
+
+Writing a regex through a Python heredoc's replacement string **ate `\b` as a
+backspace byte**: the pattern still compiled, matched nothing, and the
+extractor reported no recovery rows at all. Exit 0, no error. Same class as
+this repo's `sed a/i/c` rule — a payload reparsed as program text — and the
+tell was a `search()` returning None on a string that plainly contains the
+phrase. Verify a written pattern by printing `repr()` of the line, not by
+re-reading it through a tool that renders control characters invisibly.
+
+### The next slice
+
+- **`Shaken`** (line 8030) is the last GURPS deferral with no verdict.
+- **Row 12's computed durations** — "(25 − HT)", "(25 − Will)", "(25 − IQ)" —
+  are deliberately unread, and the design review's own case against that is
+  worth keeping: two of the three subtract an attribute the column does not
+  roll, which is exactly the sort of thing a player misreads. Printing them
+  needs the duration parsed as structure and `ht` threaded, and it is a
+  separate slice.
+- **The grapple-state surface** (6do) is still the biggest named thing.
+- Still unrun: catalogue → fixture, and extractor → `sourceLines`.
+
 ## 6dr. The roll a refusal said did not exist
 
 6dq's finding was a refusal whose SUBJECT was wrong. This one is the harder
