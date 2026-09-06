@@ -147,7 +147,13 @@ The floor above HT 25 is this app's and the screen prints its working
 (`0 sec (25 − HT 27)`). Diff review: **no findings**, and its one design opinion
 (a `durationBreakdown` struct instead of `durationLine`) is refused as an
 abstraction with one consumer. **And the heredoc ate a regex escape again** —
-this time loudly, as a `SyntaxWarning` where 6ds's `\b` was silent.
+this time loudly, as a `SyntaxWarning` where 6ds's `\b` was silent. **Three
+follow-ups landed after that review**, all of them things a diff review was
+never going to be asked for: the new `init` require was the slice's one
+UNPROVED branch (RED-proved now by neutering it), the extractor's 0-or-3 check
+read the FRIGHT column alone so a two-of-three parse reached a `TypeError`
+instead of its own message, and `docs/HOW-TO-PLAY.md` was **a slice behind
+before this one touched it** — it never got 6ds's recovery roll either.
 
 **6dt is next, and it is the row printed DIRECTLY BELOW one that was
 applied.** `Hard to Kill` (2 pts/level, *"+1/level to HT rolls to avoid
@@ -1368,7 +1374,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1689 Kotlin** (JUnit 5 — 1203 `core:rules`, 466 `app`, 20 `core:model`) + **341 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1690 Kotlin** (JUnit 5 — 1204 `core:rules`, 466 `app`, 20 `core:model`) + **341 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |

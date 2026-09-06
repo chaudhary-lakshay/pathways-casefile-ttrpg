@@ -6843,8 +6843,23 @@ presentation copy and a `durationBreakdown` struct would be the better boundary
 — is refused as an abstraction with one consumer, and it said itself it would
 not block.
 
-**1689 Kotlin** (+6) and **341 Python** (+4), no compile warnings. Not
+**1690 Kotlin** (+7) and **341 Python** (+4), no compile warnings. Not
 device-verified.
+
+### Three follow-ups the reviews were never asked for
+
+The new `init` require on `FrightEffect` was **the slice's one unproved
+branch** — every other guard had a mutation behind it — and neutering it is
+its RED proof. The extractor's 0-or-3 check was reading the FRIGHT column
+alone, so a parse emitting two of three durations passed it and then hit
+`TypeError: 'NoneType' object is not subscriptable` three lines later; the
+shape check runs over both field families in one loop now, and both halves
+were RED-proved (without the loop the parse `TypeError`s; with it, the band
+names the columns it dropped). And `docs/HOW-TO-PLAY.md` was **a slice behind
+before this one touched it** — it never got 6ds's recovery roll either, so
+the guide CLAUDE.md calls "verified against the labels in source" had been
+describing a two-line screen for two slices. **A doc's staleness is not
+reported by the slice that caused it.**
 
 ### And the heredoc ate an escape again
 
