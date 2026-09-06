@@ -178,4 +178,23 @@ class AntiDivinationTechniquesTest {
             assertNotNull(it.bullet("Duration"), "${it.id} lost its duration")
         }
     }
+
+    /**
+     * The ward chip names what raising it costs, so the set the screen offers
+     * and the set that prints a price have to be one set. Resolved once in
+     * [AntiDivinationTechniques.onDetectionRoll] rather than filtered a second
+     * time in the dialog -- the same predicate at two call sites is the defect,
+     * not the drift it produces.
+     */
+    @Test
+    fun `every ward the detection screen offers prints the price its chip shows`() {
+        val offered = AntiDivinationTechniques.onDetectionRoll()
+        assertTrue(offered.isNotEmpty(), "the detection screen would offer no ward at all")
+        offered.forEach {
+            assertNotNull(
+                it.bullet("Cost"),
+                "${it.id} ${it.name} moves the detection roll and prints no Cost to show",
+            )
+        }
+    }
 }

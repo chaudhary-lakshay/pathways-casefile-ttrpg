@@ -91,9 +91,7 @@ fun DetectionDialog(
     // about sensing a RITUAL and the other four items do something else
     // entirely, so Detection refuses to sum them.
     val items = remember { Detection.items().filter { it.detectionBonus != null } }
-    val wards = remember {
-        AntiDivinationTechniques.all().filter { it.detectionBonus != null }
-    }
+    val wards = remember { AntiDivinationTechniques.onDetectionRoll() }
 
     var awareness by remember { mutableStateOf<DivinationAwareness?>(null) }
     // Three of the four printed bonuses are scoped to what the divination is
@@ -252,8 +250,9 @@ fun DetectionDialog(
                     modifier = Modifier.padding(top = 8.dp),
                 )
                 Text(
-                    "The SPI a technique costs is spent on the tracker; nothing " +
-                        "here holds a clock for its duration.",
+                    "A ward's price is on its chip, and spending it is the " +
+                        "tracker's job; nothing here holds a clock for the " +
+                        "duration it buys.",
                     style = MaterialTheme.typography.bodySmall,
                 )
                 FlowRow {
@@ -266,7 +265,12 @@ fun DetectionDialog(
                                     else wardIds + row.id
                             },
                             label = {
-                                Text("${row.name} ${signedInt(row.detectionBonus ?: 0)}")
+                                // The book's own words for the price, not a
+                                // second spelling of `spi` typed on screen.
+                                val price = row.bullet("Cost")?.let { " · $it" }.orEmpty()
+                                Text(
+                                    "${row.name} ${signedInt(row.detectionBonus ?: 0)}$price",
+                                )
                             },
                             modifier = Modifier.padding(end = 8.dp),
                         )

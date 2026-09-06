@@ -63,6 +63,25 @@ object AntiDivinationTechniques {
         chosen.distinctBy { it.id }.sumOf { it.detectionBonus ?: 0 }
 
     /**
+     * The techniques a target may raise to help their OWN detection roll --
+     * 3A alone, because the ward is the only row printing a detection bonus.
+     *
+     * Resolved here rather than filtered again at the screen: the offer and
+     * any guard on it must read one predicate, or a widening moves the chips
+     * and leaves the guard checking the set it used to be.
+     *
+     * **This is not the payable set.** It answers which rows move the roll,
+     * and [spiFor] answers what a set costs -- two questions, and the second
+     * refuses a row priced in prose (3F). A row that helped the target notice
+     * AND priced itself that way would belong here and not there, because
+     * withdrawing a printed rule for being unsummable is the 4.1 sin. The
+     * screen prints each row's own Cost bullet for that reason; a caller that
+     * SUMS this set has to answer the question again.
+     */
+    fun onDetectionRoll(): List<AntiDivinationTechnique> =
+        all().filter { it.detectionBonus != null }
+
+    /**
      * What [chosen] costs the target in SPI.
      *
      * Refuses a technique the book prices in prose rather than in a number:
