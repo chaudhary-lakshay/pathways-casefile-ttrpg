@@ -16,6 +16,22 @@ data class BudgetReport(
  * Budget = 70 + capped disadvantages (max 40) + capped quirks (max 5).
  * Spending must be <= budget, never == budget: surplus is normal and
  * several published sheets leave points unspent.
+ *
+ * **The quirk term is unreachable today, and is kept anyway.** The book prints
+ * the rule -- "Up to 5 ADDITIONAL points of quirks (minor personality traits
+ * at -1 pt each) are allowed", lines 1121-1122, where `additional` is what
+ * puts them beside the -40 rather than inside it -- but nothing produces one.
+ * Checked against three corpora, not one (6de's verdict failed for naming a
+ * single one): no Kotlin under `src/main` constructs [TraitKind.QUIRK], none
+ * of the 23 fixtures carries a trait of that kind, and no row of
+ * `disadvantages.json` costs 1, so [PurchasableTraits] cannot offer one
+ * either. `extract_sheets.py` reads the sheets' own "DISADVANTAGES AND
+ * QUIRKS" block whole and files all of it as [TraitKind.DISADVANTAGE] -- a
+ * block NAME, not evidence any sheet holds a quirk; none does.
+ *
+ * A hand-written fixture may still carry `"kind": "QUIRK"`, which is why the
+ * term stays: the book prints the rule, and deleting it would drop a printed
+ * rule from the engine to tidy away a branch today's data cannot reach.
  */
 object PointBudget {
 

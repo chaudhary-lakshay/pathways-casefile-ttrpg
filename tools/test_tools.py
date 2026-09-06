@@ -2755,6 +2755,27 @@ def test_rushing_always_costs_and_extending_always_pays():
         assert row["extended"] > 0
 
 
+@needs_pdf
+def test_the_quirk_allowance_is_five_ADDITIONAL_points():
+    """`PointBudget.MAX_QUIRKS` is the one budget constant with no tie to a
+    printed line, and the reason is 6dn's shape again: the guard that pins the
+    other two reads the Character Creation Summary box, which prints the -40
+    and says nothing about quirks. Its corpus excludes the constant it cannot
+    see.
+
+    The printing wraps across two lines, and the load-bearing word is
+    ADDITIONAL: it is what makes the budget 70 + min(dis, 40) + min(quirks, 5)
+    rather than quirks coming out of the -40."""
+    lines = json.loads((OUT / "lines.json").read_text(encoding="utf-8"))
+    text = [(l["text"] if isinstance(l, dict) else l) for l in lines]
+    sentence = " ".join(t.strip() for t in text[1120:1122])
+    assert "Up to 5 additional points of quirks" in sentence, sentence
+    assert "-1 pt each" in sentence, sentence
+    # The corpus the Kotlin guard reads, and what it cannot say.
+    summary = " ".join(t.strip() for t in text[2238:2244])
+    assert "40" in summary and "quirk" not in summary.lower(), summary
+
+
 import extract_worked_rituals
 
 

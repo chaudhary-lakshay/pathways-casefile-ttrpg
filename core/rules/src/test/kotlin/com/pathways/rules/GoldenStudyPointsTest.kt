@@ -202,12 +202,21 @@ class GoldenStudyPointsTest {
     }
 
     @Test
-    fun `the Character Creation Summary agrees with the constants it summarises`() {
+    fun `the printed budget agrees with the constants it is built from`() {
         // Lines 2239-2244, bullet by bullet. Every one is a live constant,
         // which is what makes the summary checkable rather than authoritative
         // -- 6v's rule, and the reason it is not extracted either.
         assertEquals(70, PointBudget.STARTING_TOTAL)
         assertEquals(40, PointBudget.MAX_DISADVANTAGES)
+        // And the third constant, which is NOT in that box: the summary prints
+        // the -40 and says nothing about quirks, so a guard reading only those
+        // bullets had a corpus that excluded MAX_QUIRKS. Its printing wraps
+        // across lines 1121-1122 -- "Up to 5 ADDITIONAL points of quirks
+        // (minor personality traits at -1 pt each) are allowed" -- and
+        // `additional` is what makes the budget 70 + min(dis, 40) +
+        // min(quirks, 5) rather than quirks coming out of the -40. The
+        // sentence itself is pinned in test_tools.py, which can read the book.
+        assertEquals(5, PointBudget.MAX_QUIRKS)
         // "each level doubles the previous: ST: 10 -> 20 -> 40 |
         //  DX/IQ: 20 -> 40 -> 80 | HT: 10 -> 20 -> 40"
         //
