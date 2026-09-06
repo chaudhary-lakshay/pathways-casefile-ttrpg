@@ -6726,6 +6726,125 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dt. The row printed directly below the one that was applied
+
+Three sweeps ran this slice and two returned nothing. The third found a trait
+that **quotes the HP table's own words back at it** and reached nothing, in the
+object built one slice ago to distinguish exactly the roll it names.
+
+| | |
+|---|---|
+| `Hard to Kill` | 2 pts/level, *"+1/level to HT rolls **to avoid death**; 1-5 levels"* — applied since 6de |
+| `Hard to Subdue` | 2 pts/level, *"+1/level **to remain conscious** when reduced to 0 or negative HP"* — reached nothing |
+
+Adjacent rows, same price, same shape, and between them they partition the two
+rolls chapter 5's HP table prints. The `0 HP` row reads *"Roll 3d6 ≤ HT or fall
+unconscious; **roll each turn to remain conscious**"* — the second trait's cell
+is not an inference from that row, it is a quotation of it.
+
+### Why every sweep was blind to it
+
+`VitalRolls`' own KDoc said *"Three traits name an HT roll and they do not
+agree on which"* and enumerated Fit / Very Fit / Unfit, Hard to Kill, High Pain
+Threshold. There were four, and the fourth's cell **never contains the words
+"HT roll"**. Every census that would have found it filtered on that phrase —
+including 6de's, which was written specifically to sort the traits that name
+these two rolls.
+
+That is 6bu's finding on a fourth mechanic: **a roll the book NAMES rather than
+describes.** A Fright Check, a morale roll, a death roll, a knockdown roll —
+and now "remain conscious". The census test guarding that class searches for
+those four literal strings, and this cell contains none of them.
+
+### The second gap, which cancelled the first
+
+Found alongside it, and only because the sweep's own instrument was checked
+before its output was read: **`TraitEffects.known()` omitted two traits it
+applies.** That function says in its KDoc it is *"every trait this object knows
+about, applied or not"*, and it is what the catalogue guard uses as its handled
+set. It is built out of the collections — and `Hard to Kill` and `High Pain
+Threshold` are applied by single-trait functions belonging to no collection.
+Both return non-zero, both `reported()` empty, both absent.
+
+**The two gaps cancel, which is why nothing ever went red.** The census filter
+cannot see the phrasing `High Pain Threshold` uses ("HT rolls to avoid
+knockdown" against a filter looking for "knockdown roll"), and if the filter
+were widened the handled set would report a correctly-applied trait as dropped.
+Either gap alone produces a wrong answer; together they produce silence.
+
+`known()`'s KDoc already records this same failure **twice** — Outdoorsman,
+then the HT-roll map — and both fixes were "add the collection". These three
+had none, so the declaration IS the collection now: `BespokeBonus` is a private
+enum whose entries carry the trait name and an optional flat value, each bonus
+function reads its own entry, and `known()` reads the enum. **A fourth bespoke
+bonus cannot be written without an entry**, which is what stops a fourth
+instance.
+
+### The scope, and the clause that names its own condition
+
+`Hard to Subdue` reaches `CONSCIOUSNESS` and not `SURVIVAL`, and the
+interesting part is that it names *"0 **or negative** HP"* — where both checks
+are due, because `Pools` sets both flags below `-HP` and the dying row does not
+withdraw the consciousness roll above it. **Two rolls falling in one moment
+does not merge their scopes**: the survival row's own words are "or die", and
+widening a clause that names its own condition is 6ck's refused move. The
+design review took the same reading and named the case against it.
+
+No cap, because its cell prints none where its sibling's prints "1-5 levels" —
+a ceiling here would be app-authored (4.1).
+
+### Three sweeps, two clean, and what that is worth
+
+- **Every content span against its chapter's own bounds**: 81 files, all
+  inside. Clean.
+- **Lines a file CLAIMS whose words appear nowhere in it**: 76 hits and no
+  defect. The instrument is too blunt — a cell storing `+1` and a line reading
+  "+1 to reaction rolls" share no word by construction — so this is a
+  measurement of the instrument, not a bill of health. Two candidates were
+  chased to the end anyway: the two support-skill caps (`+2` for divination,
+  `+3` for rituals) are each correct against their own printing, and both
+  dedupe.
+- **Catalogue rows with a signed clause reaching nothing**: the one that paid.
+
+### The review
+
+One LOW, taken, and it is the vacuity class in a test written to be careful
+about exactly that. My "no cap" guard asserted the catalogue text lacks the
+word "levels" — **a claim about the data**, which a mistaken cap of 5 in
+production satisfies along with every level below it. It asserts `Hard to
+Subdue 6` gives +6 now, above the sibling's ceiling, and that is RED-proved by
+capping the registry at 5.
+
+Two other mutations RED-proved the slice: widening the clause to reach
+`SURVIVAL` fails 1, emptying the registry's contribution to `known()` fails 1.
+
+**And the restore from that second mutation corrupted an unrelated line.** I
+patched `emptyList()` back with a first-occurrence replace and hit a different
+function 600 lines up. CLAUDE.md's own rule — `cp` the file first, restore from
+the copy — written down and not followed, in the same session that wrote a
+memory about a related hazard. The repair was checked by reading the diff's
+REMOVED lines rather than by re-running the suite, because the suite was green
+under the corruption.
+
+**1683 Kotlin** (+3) and **337 Python**, no compile warnings. Test-only on the
+UI side: a Hard to Subdue carrier's consciousness-roll target and its "from
+traits" line move, and nothing else does — checked against every caller of
+`VitalRolls.bonusFor`.
+
+### The next slice
+
+- **`Shaken`** (line 8030) is still unchecked, and the earlier assumption about
+  it is already dead: I expected the book to quote its GURPS deferrals inline
+  and it does that in **one of six** places (the B420 stun, twice). So the
+  contrast that would have justified a refusal does not exist, and the honest
+  question is narrower — whether one clause of one pathway ability deserves a
+  recorded refusal when no pathway ability mechanic is modelled at all.
+- **Row 12's computed durations** (6ds), which need the duration parsed as
+  structure.
+- **The grapple-state surface** (6do) is still the biggest named thing.
+- Still unrun: extractor → `sourceLines` in its sharp form (does each
+  extractor's declared RANGE match what it parses, rather than what it claims).
+
 ## 6ds. Nine cells, and the attribute belongs to the column
 
 6dr left this as a stated gap with its blocker named: the Fright Effects table

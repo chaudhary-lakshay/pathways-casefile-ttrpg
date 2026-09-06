@@ -112,7 +112,42 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ds is newest, and it builds the gap 6dr named — nine cells whose attribute
+**6dt is newest, and it is the row printed DIRECTLY BELOW one that was
+applied.** `Hard to Kill` (2 pts/level, *"+1/level to HT rolls to avoid
+death"*) has been applied since 6de. `Hard to Subdue` sits under it at the same
+price and the same shape — *"+1/level **to remain conscious** when reduced to 0
+or negative HP"* — and reached nothing. Between them they partition the two
+rolls the HP table prints, and the second **quotes the `0 HP` row's own words**
+(*"roll each turn to remain conscious"*). Read it for four things. **Every
+sweep was blind to it by construction**: `VitalRolls`' KDoc said *"Three traits
+name an HT roll"* and there were four, because this cell never contains the
+words "HT roll" — 6bu's finding on a fourth mechanic, a roll the book NAMES
+rather than describes. **A second gap was found alongside it and the two
+CANCEL**: `TraitEffects.known()` claims to be "every trait this object knows
+about" and omitted two it applies (`Hard to Kill`, `High Pain Threshold` —
+single-trait functions belonging to no collection), so widening the census
+filter would have reported a correctly-applied trait as dropped, while the
+narrow filter cannot see the phrasing. Either gap alone gives a wrong answer;
+together they give silence. Its own KDoc records that failure **twice** already
+and both fixes were "add the collection" — these had none, so `BespokeBonus` is
+a private enum the bonus functions AND `known()` both read: **a fourth bespoke
+bonus cannot be written without an entry.** **The clause names "0 or negative
+HP" and still does not reach the survival roll** — both checks are due below
+`-HP`, and two rolls falling in one moment does not merge their scopes, because
+that row's own words are "or die" (6ck). No cap, where the sibling's cell
+prints "1-5 levels". Its review returned one LOW, the vacuity class in a test
+written to be careful about it: my "no cap" guard asserted the CATALOGUE TEXT
+lacks the word "levels", which a mistaken cap of 5 satisfies along with every
+level below it. **Three sweeps ran and two were clean** — content spans against
+chapter bounds (81 files, all inside), and lines a file claims whose words
+appear nowhere in it (76 hits, no defect: a cell storing `+1` shares no word
+with "+1 to reaction rolls", so that is a measurement of the instrument). **And
+a mutation restore corrupted an unrelated line**: a first-occurrence replace of
+`emptyList()` hit a function 600 lines up, and the suite stayed GREEN under the
+corruption — CLAUDE.md's own `cp`-first rule, written down and not followed.
+Read the diff's REMOVED lines, not the exit code.
+
+**6ds is next, and it builds the gap 6dr named — nine cells whose attribute
 belongs to the COLUMN.** The Fright Effects table prints a recovery roll in
 three of its nine bands, Will in the Fright and Awe columns and IQ in
 Confusion, and the other six bands print an outcome with no way out — so
@@ -1065,7 +1100,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6ds, then 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dt, then 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1296,7 +1331,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1680 Kotlin** (JUnit 5 — 1194 `core:rules`, 466 `app`, 20 `core:model`) + **337 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1683 Kotlin** (JUnit 5 — 1197 `core:rules`, 466 `app`, 20 `core:model`) + **337 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1412,6 +1447,7 @@ Conditions.penaltyFor(kind, hp, fp): Int      // the same two, for the rolls
 ActiveDefenses.everyDefence(traits, stunned, shocked, poolPenalty): Int
 VitalRolls.due(hp): List<VitalCheck>          // the HP table's own two rolls
 VitalRolls.bonusFor(check, traits) / .targetFor(check, ht, traits, poolPenalty)
+TraitEffects.consciousnessRollBonus(traits): Int   // Hard to Subdue, 0 HP roll
 VitalRolls.printed(check): String             // CONSCIOUSNESS at 0 HP, SURVIVAL at -HP
 StunRecovery.stunsOn(row) / .printed() / .bonusFor(traits)
 StunRecovery.isStun(recovery)                 // the one authority on the word
@@ -1425,6 +1461,7 @@ StunRecovery.targetFor(ht, traits, poolPenalty)   // the Major Wound Failure
 TraitEffects.stunRecoveryHt(traits): MajorWoundHt
 TraitEffects.stunRecoveryBonus(traits): Int   // Combat Reflexes, any stun
 TraitEffects.deathRollBonus(traits): Int      // Hard to Kill, survival roll only
+                                              // both via BespokeBonus, which known() reads
 Attacks.modifiers(plan, skillLevel): List<Modifier>        // maneuver + options
 Attacks.attackCount(plan) / .fpCost(plan) / .maxDeceptive(skillLevel)
 Attacks.damageBonus(plan, fromSkill): Int                  // Strong + Boxing
@@ -1711,10 +1748,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6ds. The slice log
+## 6a-6dt. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6ds is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6dt is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
