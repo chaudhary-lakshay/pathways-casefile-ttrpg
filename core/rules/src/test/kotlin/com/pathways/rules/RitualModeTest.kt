@@ -350,6 +350,14 @@ class RitualModeTest {
     fun `the summoning structure is shown and never chosen for the caster`() {
         val summoning = Incantations.all().single { it.referenceOnly }
         assertEquals("Summoning a spiritual creature", summoning.scope)
+        // What the screen actually prints for it, read through the loader.
+        // The scope and the flag survived a stale content file once; the TEXT
+        // is the field a re-extraction would move, and it is chapter 7.5's
+        // only claimed content.
+        assertTrue(
+            "resident realm of the creature" in summoning.text,
+            "ch. 7.5's incantation rule is gone from the row that claims it",
+        )
         assertTrue(
             listOf(true, false).none { Incantations.forPowerSource(it) == summoning },
             "a reference-only structure was selectable by power source",

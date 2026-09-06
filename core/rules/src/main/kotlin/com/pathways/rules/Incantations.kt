@@ -14,7 +14,9 @@ import com.pathways.rules.content.Incantation
  *
  * **Reference, not a modifier.** Nothing here reaches a roll: the +1 is the
  * GM's to award and [RitualMode.FLOURISH_BONUS] already carries it. The same
- * standing as `Equipment.forSkill` -- shown, never applied.
+ * standing as `Equipment.forSkill` -- shown, never applied. That is about
+ * MODIFIERS and is true of all three rows; whether a row is ever SELECTED is a
+ * separate axis, and [forPowerSource] is where it is settled.
  */
 object Incantations {
 
