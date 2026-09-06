@@ -6743,7 +6743,8 @@ not depend on that state.* Its own defect was a gear reference sitting below a
 | `return@` inside a composable | 4 | none — three partition post-roll from pre-roll correctly, the fourth is 6dw's own fix |
 | `if (x != null) { }` whose body never names `x` | 9 reported | none — destructured lambda params and gate-as-affordance (`HubAction` gated on `ritualLevel`, which the dialog reads) |
 | `if (x == null) { }` same test | 19 reported | none — every one is a picker branch, pre-roll by rule |
-| `when (x) { }` same test | 17 scanned, 16 reported | **the shape cannot find anything by construction**: an exhaustive `when` names its subject in the BRANCH LABELS (`Pool.HP`), never in the bodies |
+| `when (x) { }` same test | 17 scanned, 16 reported | **this shape cannot find anything by construction**: an exhaustive `when` names its subject in the BRANCH LABELS (`Pool.HP`), never in the bodies |
+| bare `when { cond -> }` | 10, read by eye | none — the automated test above does NOT cover these, and they CAN carry 6dw's shape; every one is a value selector rather than a block placement |
 
 Plus a census that is not this sweep and was worth one grep: eight sites guard
 a roll button with `if (result != null) return@TextButton`, and
