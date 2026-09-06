@@ -6726,6 +6726,155 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6du. The one duration the table computes, and two sweeps that came back clean
+
+6dt named four things and this builds the second. Before it, the sweep 6dt
+left unrun was run in a sharper form than the one it describes, and it is the
+larger half of what this slice is worth.
+
+### The sweep: numbers, not words
+
+6dt ran *lines a file CLAIMS whose WORDS appear nowhere in it* — 76 hits, no
+defect, and recorded as a measurement of the instrument, because a cell storing
+`+1` and a line reading "+1 to reaction rolls" share no word by construction.
+The sharper query is the same shape over **numbers**: for every claimed line
+`coverage.py` calls mechanical, do any of that line's mechanical tokens' digits
+appear anywhere in the file claiming it? A rules line's number is exactly what
+a content file would have had to store.
+
+**26 hits across 7 files, and 18 of them were the instrument.** Three content
+files share one span (`languages.json`, `language_proficiency.json`,
+`language_notes.json` are written from one `source` variable), so each was
+being asked to hold its siblings' numbers. Unioning the files that claim a line
+before comparing drops it to **8, in 5 files** — and all 8 are accounted for:
+
+- **`3559-3560`, `3580`, `4028`** — the cross-skill default and the two
+  support-skill caps. Each lives in Kotlin (`Divination.CROSS_DEFAULT_PENALTY`,
+  `CROSS_DEFAULT_THRESHOLD`, and the two `supportBonus` ceilings), pinned
+  against the book in Python by `verify_cross_default`. 6dt chased the two caps
+  to the end already.
+- **`4087`, `4090`** — the Effect Weight table's FIRST printing, inside
+  `ritual_success.json`'s span. `ritual_weights.json` claims the second
+  printing (4318-4345) and the numbers agree; `verify_step_four` records why
+  only the success half of Step 4's table is adopted.
+- **`4104`** — "1 SPI = +1 ... There is no cap", which is chapter 2's universal
+  burn. `effort_burn.json` holds it, and `EffortBurn`'s KDoc records that this
+  chapter is one of the two agreeing printings that let the general form ship.
+- **`2231`** — a worked example.
+
+So the sweep is clean, and it discriminates: 8 hits out of roughly two thousand
+claimed mechanical lines, against 76 for the word version.
+
+### The inverse direction, which had not been run either
+
+*Numbers a content file STORES that appear nowhere in the span it claims* — a
+fabrication check rather than a coverage one. Six files, and five are the
+instrument again (`pathways.json` and `non_standard_pathways.json` store each
+block's own line numbers as fields; three `0`s are defaults).
+
+The sixth is worth writing down and is **not a defect**: `spirit_vision.json`
+stores two grants at Sequence 8 (Mother, Red Priest) and its span is chapter
+7.6's alone. Those two rows never came from 7.6 — 6dh's whole finding was that
+section C is wrong in both directions, so `grants()` reads each pathway's OWN
+block out of `pathways.json` instead. The provenance is one hop away and
+`pathways.json` claims those lines, so no coverage number moves.
+**`sourceLines` says "which source lines it consumed", and a file deriving rows
+from a sibling content file consumes lines it cannot name.** Recorded, not
+repaired: naming chapter 9-12 spans there would double-claim lines another file
+already owns.
+
+### The slice: row 12
+
+| Band | Fright | Awe | Confusion |
+|---|---|---|---|
+| 4-9 | Stunned **1 sec** | Stunned 1 sec | Stunned 1 sec |
+| 10-11 | Stunned **1d-2d sec** | Stunned 1d-2d sec | Stunned 1d-2d sec |
+| 12 | Retching for **(25 − HT)** sec | Ecstasy for **(25 − Will)** sec | Dazed for **(25 − IQ)** sec |
+
+6ds structured the recovery ROLL of those three bands and left the duration in
+prose. The dialog printed the cell verbatim, so a player read the parenthetical
+and did the subtraction by hand.
+
+**The boundary is the table's own, not a list of the cases I wanted.** A
+duration with a STAT OPERAND is the only kind this app can work out: "1 sec" is
+already resolved in the cell, and "1d-2d sec" is a range the GM rolls. That
+came out of the design review, along with the field name — `frightDuration`
+would read as "the table's duration is structured" when eight of nine bands
+answer null, so the fields are `frightComputedDuration` and its two siblings
+and the type is `ComputedDuration`. **A name is where a scope decision either
+survives or gets misread.**
+
+**The operand is not the attribute the same cell ROLLS**, which is the whole
+reason this could not ride on `FrightRecovery`: the fright cell counts down
+from HT and rolls Will. So `DurationAttribute` is a third member wider than
+`RecoveryAttribute` — HT is named by no recovery roll in the table, and
+widening the existing enum would have put a value in `FrightCheck.levelFor`'s
+exhaustive `when` that no recovery can ever take. The extractor anchors on the
+printed parenthetical (6do's rule, applied before the bad parse rather than
+after it), and `verify()` **fails the day the two anchors answer alike** — that
+disagreement exists in exactly one cell of the nine, and it is the only
+evidence they did not collapse.
+
+Both extractor guards were RED-proved separately, and the second proof is the
+one that mattered: the first mutation (the duration reading the recovery's
+phrase) was caught by the BAND-set check before the attribute check could
+speak, so the equality guard was still unproved. A second mutation that keeps
+the band set at `['12']` and only flips the attribute is what fired it.
+**A guard caught by its neighbour is a guard not yet proved.**
+
+### The floor is this app's
+
+`25 − HT` runs negative above HT 25 and the book prints none. Zero ships,
+because a negative duration is not a duration — and the screen prints the
+subtraction beside the answer (`0 sec (25 − HT 27)`), so the reading is visible
+rather than swallowed. `FrightCheck.durationLine` composes that sentence in the
+rules object for `Divination.sourceLine`'s reason: the screen would otherwise
+need the attribute's NAME and its LEVEL, which is the attribute-to-level
+mapping asked a second time somewhere no test can reach it.
+
+### The reviews
+
+The design review ran before any code, took all three questions, and answered
+them the way this ships — correcting the field name and asking for the clamp's
+working to stay on screen. The diff review returned **no findings** on its own
+terms: no vacuous assertion, and it named the production edit that fails each
+of the eight new tests. Its one design opinion — that `durationLine` is
+presentation copy and a `durationBreakdown` struct would be the better boundary
+— is refused as an abstraction with one consumer, and it said itself it would
+not block.
+
+**1689 Kotlin** (+6) and **341 Python** (+4), no compile warnings. Not
+device-verified.
+
+### And the heredoc ate an escape again
+
+Writing the new regex through a Python heredoc produced
+`re.compile(r"\((\d+)\s*[" + MINUS + "–—]\s*([A-Za-z]+)\)")` — the second
+fragment is not raw, so `\s` and `\)` are unknown escapes. **This time it was
+visible**: Python printed `SyntaxWarning: invalid escape sequence` on import,
+where 6ds's `\b` became a backspace byte in silence. Same class as the
+`sed a/i/c` rule; the pattern was checked with `repr()` before anything read
+it, and both mutation restores were verified by reading the diff's REMOVED
+lines rather than by re-running the suite.
+
+### The next slice
+
+- **`Shaken`** (line 8030) is still unchecked, unchanged from 6dt: whether one
+  clause of one pathway ability deserves a recorded refusal when no pathway
+  ability mechanic is modelled at all.
+- **The grapple-state surface** (6do) is still the biggest named thing, and it
+  is a milestone with its own decomposition rather than a slice.
+- **A sweep direction now named with evidence**: `spirit_vision.json` is not
+  the only content file whose rows may be derived from a SIBLING content file
+  rather than from the book — `extract_appearance`, `extract_appendix`,
+  `extract_common_modifiers`, `extract_core_rules`, `extract_defense_refusals`,
+  `extract_detection`, `extract_equipment`, `extract_languages` and
+  `extract_non_standard` all read a JSON they do not write. Most only VERIFY
+  against it, which is the house style; the question is which of them DERIVE an
+  output row from it, because that is the case where `sourceLines` cannot name
+  what was consumed and where a stale sibling changes an answer in silence
+  (6dk: a failing extractor never rewrites its JSON).
+
 ## 6dt. The row printed directly below the one that was applied
 
 Three sweeps ran this slice and two returned nothing. The third found a trait

@@ -112,7 +112,44 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6dt is newest, and it is the row printed DIRECTLY BELOW one that was
+**6du is newest, and it is the sweep 6dt named, run in a sharper form than
+6dt describes — plus the one duration in the Fright Effects table that the
+book computes from the character.** The sweep: *claimed mechanical lines whose
+NUMBERS appear nowhere in the file claiming them*, where 6dt's version compared
+WORDS and returned 76 hits by construction. 26 hits, and **18 of them were the
+instrument** — three content files share one `sourceLines` span, so each was
+being asked to hold its siblings' numbers; unioning the files that claim a line
+before comparing leaves **8, all accounted for** (the cross-skill default and
+the two support caps live in Kotlin pinned by Python; two are the Effect Weight
+table's first printing, deduped against its second; one is chapter 2's burn;
+one is a worked example). Its inverse — *numbers a file STORES that its claimed
+span never prints* — had not been run either and is also clean, with one thing
+worth inheriting: **`spirit_vision.json` derives two of its grants from
+`pathways.json`, so it consumes lines it cannot name.** Not a defect (the
+sibling claims them), but it names the next sweep: nine extractors read a JSON
+they do not write, and the question is which DERIVE a row from it rather than
+merely verify against it. The slice itself is row 12 — *"Retching for (25 − HT)
+sec"*, *"Ecstasy for (25 − Will) sec"*, *"Dazed for (25 − IQ) sec"* — which the
+dialog printed verbatim, so a player did the subtraction by hand. Read it for
+four things. **The boundary is the table's own**: a duration with a STAT
+OPERAND is the only kind this app can work out, so rows 4-9's "1 sec" and
+10-11's "1d-2d sec" stay prose, and the field is `frightComputedDuration`
+rather than `frightDuration` because **a name is where a scope decision either
+survives or gets misread** (the design review's correction, before any code).
+**The operand is not the attribute the same cell ROLLS** — HT for the duration,
+Will for the recovery — so `DurationAttribute` has a third member
+`RecoveryAttribute` must not gain, the anchor is the printed parenthetical, and
+`verify()` fails the day the two anchors answer alike. **A guard caught by its
+neighbour is a guard not yet proved**: the first mutation was caught by the
+band-set check before the attribute check could speak, and a second mutation
+that keeps the band set and flips only the attribute is what actually fired it.
+The floor above HT 25 is this app's and the screen prints its working
+(`0 sec (25 − HT 27)`). Diff review: **no findings**, and its one design opinion
+(a `durationBreakdown` struct instead of `durationLine`) is refused as an
+abstraction with one consumer. **And the heredoc ate a regex escape again** —
+this time loudly, as a `SyntaxWarning` where 6ds's `\b` was silent.
+
+**6dt is next, and it is the row printed DIRECTLY BELOW one that was
 applied.** `Hard to Kill` (2 pts/level, *"+1/level to HT rolls to avoid
 death"*) has been applied since 6de. `Hard to Subdue` sits under it at the same
 price and the same shape — *"+1/level **to remain conscious** when reduced to 0
@@ -1100,7 +1137,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dt, then 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6du, then 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1331,7 +1368,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1683 Kotlin** (JUnit 5 — 1197 `core:rules`, 466 `app`, 20 `core:model`) + **337 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1689 Kotlin** (JUnit 5 — 1203 `core:rules`, 466 `app`, 20 `core:model`) + **341 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1454,6 +1491,10 @@ StunRecovery.isStun(recovery)                 // the one authority on the word
 FrightCheck.recoveryFor(effect, kind): FrightRecovery?   // null in 6 of 9 bands
 FrightCheck.recoveryBonus(recovery, traits)   // Combat Reflexes, Stunned only
 FrightCheck.levelFor(recovery, will, iq) / .takesWillClauses(recovery)
+FrightCheck.durationFor(effect, kind): ComputedDuration?   // row 12 only:
+                                      // the one duration with a stat in it
+FrightCheck.secondsFor(duration, ht, will, iq) / .durationLine(...)
+                                      // the operand is NOT the roll's
 Outcome.isSuccess: Boolean                    // print a roll's OWN verdict
 StunRecovery.targetFor(ht, traits, poolPenalty)   // the Major Wound Failure
                                               // row's own roll; the fright
@@ -1748,10 +1789,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6dt. The slice log
+## 6a-6du. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6dt is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6du is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
