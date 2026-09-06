@@ -650,6 +650,85 @@ def test_an_odd_trigger_stream_is_reported_not_silently_paired():
         extract_fright.parse_triggers(["Witnessing a supernatural death", "-4", "A new row"])
 
 
+def test_a_recovery_roll_is_anchored_on_the_roll_and_not_on_a_duration():
+    """The attribute a cell ROLLS is not the only attribute it names.
+
+    Row 12's fright cell counts down from HT and rolls Will; its awe cell
+    names Will twice in two roles, "(25 - Will)" as the duration and "roll
+    vs. Will" as the roll. A search for an attribute NAME finds the wrong
+    token in two of the three, so the anchor is the roll's own phrase -- the
+    6do rule that a candidate anchor colliding with another column's values
+    is not an anchor.
+    """
+    rows = extract_fright.parse_effects([
+        "12",
+        "Retching for (25 − HT) sec; roll vs.", "Will to recover.",
+        "Ecstasy for (25 − Will) sec; roll vs.", "Will to recover.",
+        "Dazed for (25 − IQ) sec; roll vs. IQ to", "recover.",
+    ])
+    assert rows[0]["frightRecovery"] == {"attribute": "Will", "state": "Retching"}
+    assert rows[0]["aweRecovery"] == {"attribute": "Will", "state": "Ecstasy"}
+    assert rows[0]["confusionRecovery"] == {"attribute": "IQ", "state": "Dazed"}
+
+
+def test_a_row_that_prints_no_roll_carries_no_recovery():
+    """Six of the nine bands print an outcome and no way out of it.
+
+    Emitting a recovery for them would let the screen offer a roll the book
+    withholds, which is the same class as offering a defence it does not
+    grant.
+    """
+    rows = extract_fright.parse_effects([
+        "13–15",
+        "Acquire a quirk: mild phobia or", "superstition.",
+        "Acquire a quirk: fascination or", "devotion to the trigger.",
+        "Acquire a quirk: persistent confusion", "or memory tic.",
+    ])
+    assert rows[0]["frightRecovery"] is None
+    assert rows[0]["aweRecovery"] is None
+    assert rows[0]["confusionRecovery"] is None
+
+
+def test_the_stunned_rows_are_the_only_ones_the_stun_clause_reaches():
+    """The state is the book's own leading word, so the engine never guesses.
+
+    Rows 4-9 and 10-11 print "Stunned" in all three columns; row 12 prints
+    three different states. Combat Reflexes' "+6 to recover from stun" is
+    scoped on that word, and storing a boolean here would make this extractor
+    decide what a stun IS rather than structure what the cell printed.
+    """
+    entries = json.loads((CONTENT / "fright_effects.json").read_text(encoding="utf-8"))["entries"]
+    by_band = {e["printed"]: e for e in entries}
+    states = {
+        band: {
+            col: (by_band[band][f"{col}Recovery"] or {}).get("state")
+            for col in ("fright", "awe", "confusion")
+        }
+        for band in by_band
+    }
+    stunned = {b for b, cols in states.items() if set(cols.values()) == {"Stunned"}}
+    assert len(stunned) == 2, f"expected two all-Stunned bands, got {stunned}"
+    twelve = next(b for b in by_band if by_band[b]["low"] == 12)
+    assert set(states[twelve].values()) == {"Retching", "Ecstasy", "Dazed"}
+    # Every band with a recovery has one in ALL THREE columns or in none: the
+    # table never gives one column a way out that another lacks.
+    for band, cols in states.items():
+        present = [c for c, v in cols.items() if v is not None]
+        assert len(present) in (0, 3), f"{band} offers recovery in {present} only"
+
+
+def test_an_unparsable_recovery_is_reported_not_dropped():
+    """A cell that says "roll vs." and then something that is not an
+    attribute is a parse that drifted, not a row with no recovery."""
+    with pytest.raises(ValueError, match="recovery"):
+        extract_fright.parse_effects([
+            "4–9",
+            "Stunned 1 sec; roll vs. Fortitude each", "sec to recover.",
+            "Stunned 1 sec; roll vs. Will each sec to", "recover.",
+            "Stunned 1 sec; roll vs. IQ each sec to", "recover.",
+        ])
+
+
 # --- Ritual resolution (Ch. 7, p. 67-68) -----------------------------------
 
 import extract_ritual

@@ -58,6 +58,22 @@ BAND = re.compile(rf"^(\d+)(?:[{MINUS}–—](\d+)|(\+))?$")
 # The only abbreviation in the effects table that ends in a period.
 ABBREVIATIONS = ("vs.",)
 
+# A cell's recovery roll, anchored on the ROLL and never on an attribute name.
+#
+# Two of row 12's three cells name an attribute they do not roll: the fright
+# cell counts down from HT and rolls Will, and the awe cell prints "Will"
+# twice, once as "(25 - Will)" and once as the roll. So a search for an
+# attribute is a search for the wrong token in two cells out of nine, and the
+# anchor is "roll vs. <ATTR>", which occurs exactly where the roll does.
+RECOVERY = re.compile(r"\broll vs\.\s+([A-Za-z]+)\b")
+# What the book calls the state, taken from the cell's own first word so the
+# engine never has to read prose. "Stunned" is the one Combat Reflexes' "+6 to
+# recover from stun" reaches; the 12 row prints three others.
+STATE = re.compile(r"^([A-Z][a-z]+)\b")
+# The attributes this book rolls against. A cell whose "roll vs." is followed
+# by anything else is a parse that drifted, not a cell without a recovery.
+ATTRIBUTES = ("Will", "IQ", "HT", "DX", "Per", "ST", "SPI")
+
 EXPECTED_BANDS = [(4, 9), (10, 11), (12, 12), (13, 15), (16, 21), (22, 23),
                   (24, 29), (30, 34), (35, None)]
 
@@ -108,6 +124,29 @@ def parse_triggers(lines):
     return rows
 
 
+def recovery_of(cell, band):
+    """The roll a cell offers out of its own state, or None if it offers none.
+
+    Six of the nine bands print an outcome and no way back from it, and those
+    correctly yield None. A cell that names a roll this book does not print an
+    attribute for is the third case and RAISES: silently returning None there
+    would turn a drifted parse into a row the screen simply never offers.
+    """
+    roll = RECOVERY.search(cell)
+    if roll is None:
+        return None
+    attribute = roll.group(1)
+    if attribute not in ATTRIBUTES:
+        raise ValueError(
+            f"band {band!r} rolls recovery against {attribute!r}, which is not "
+            f"one of {ATTRIBUTES}: {cell!r}"
+        )
+    state = STATE.match(cell)
+    if state is None:
+        raise ValueError(f"band {band!r} names a recovery roll with no state: {cell!r}")
+    return {"attribute": attribute, "state": state.group(1)}
+
+
 def ends_cell(text):
     if not text.endswith((".", "!", "?")):
         return False
@@ -152,7 +191,11 @@ def parse_effects(lines):
                 f"band {row['printed']!r} parsed {len(cells)} cells, expected "
                 f"{len(COLUMNS)}: {cells}"
             )
-        out.append({**row, **dict(zip(COLUMNS, cells))})
+        recoveries = {
+            f"{column}Recovery": recovery_of(cell, row["printed"])
+            for column, cell in zip(COLUMNS, cells)
+        }
+        out.append({**row, **dict(zip(COLUMNS, cells)), **recoveries})
     return out
 
 
@@ -169,6 +212,22 @@ def verify(triggers, effects):
             raise ValueError(
                 f"bands do not tile: {lower['printed']} then {upper['printed']}"
             )
+    # A band offers a way out in all three columns or in none. The table never
+    # gives one column a recovery another lacks, and a parse that produced one
+    # would have the screen withhold a roll the book prints -- invisible in the
+    # cell text, which still reads correctly.
+    for row in effects:
+        present = [c for c in COLUMNS if row[f"{c}Recovery"] is not None]
+        if len(present) not in (0, len(COLUMNS)):
+            raise ValueError(
+                f"band {row['printed']!r} parsed a recovery roll in {present} "
+                "only; the table prints one in every column or in none"
+            )
+    with_recovery = [r["printed"] for r in effects if r["frightRecovery"]]
+    if len(with_recovery) != 3:
+        raise ValueError(
+            f"expected 3 bands with a recovery roll, got {with_recovery}"
+        )
 
 
 def write(name, entries, spans):
