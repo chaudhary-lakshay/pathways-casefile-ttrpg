@@ -6747,16 +6747,17 @@ on the screen. Three things could have printed it:
 | `row.bullet("Cost")` | the book's own `"2 SPI"`, which is 6dj's `printedCost` shape |
 | `spiFor(pickedWards)` | the SUM of what is picked |
 
-And the third is the same number as the first two, permanently. `wards` is
-filtered on `detectionBonus != null`, and **3A is the only row in the section
-that prints one** — so the chip price and the total are one value, and printing
-both is 6cr exactly (*"`+1 each` was a third copy of a value the chips beneath
+And the third is the same number as the first two, on today's content. `wards`
+is filtered on `detectionBonus != null`, and **3A is the only one of the six
+rows that prints one** — measured from the JSON, which is a claim about the
+file as it stands and not a promise about a re-extraction — so the chip price
+and the total are one value, and printing both is 6cr exactly (*"`+1 each` was a third copy of a value the chips beneath
 it already print"*). The chip prints `bullet("Cost")` and nothing prints a
 total.
 
 ### So this slice does NOT close what 6dl named, and that is the finding
 
-`spiFor` still has no production caller. Calling it on a permanent singleton to
+`spiFor` still has no production caller. Calling it on a one-element list to
 retire a sweep hit would be the sweep answering itself — and the function's own
 shape is evidence about the caller it is waiting for: `distinctBy { it.id }`,
 `sumOf`, and a throw for the one row priced in prose only make sense for a
@@ -6807,7 +6808,15 @@ Codex answered on `task --effort high` with the target list and the
 - `AntiDivinationTechniques.onDetectionRoll()` and its KDoc seam.
 - `DetectionDialog` — the chip's price, and a caption that no longer claims the
   number is somewhere it is not.
-- One Kotlin test. **1663 Kotlin** (+1) and **322 Python**, all green.
+- One Kotlin test, carrying two assertions with separate failure modes: that
+  every offered ward prints a `Cost` at all, and that 3A's reads exactly
+  `"2 SPI"`. The second is not redundant — `spi` is parsed off the FRONT of
+  that string, so a line that grew a clause (`"2 SPI, or 1 if already
+  warded"`) leaves `spi == 2` and every existing pin green while the chip
+  prints the clause whole. RED-proved with exactly that edit: the price test
+  reddens, `SPI costs add` does not. **The chip prints the string, so the
+  string is what needs pinning.**
+- **1663 Kotlin** (+1) and **322 Python**, all green.
 
 ### The next slice
 

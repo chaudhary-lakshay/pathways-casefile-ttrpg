@@ -190,6 +190,10 @@ class AntiDivinationTechniquesTest {
     fun `every ward the detection screen offers prints the price its chip shows`() {
         val offered = AntiDivinationTechniques.onDetectionRoll()
         assertTrue(offered.isNotEmpty(), "the detection screen would offer no ward at all")
+        // The chip prints this STRING, so presence is not enough: `spi` is
+        // parsed off the front of it and would still read 2 if the line grew
+        // a clause the chip would then print whole.
+        assertEquals("2 SPI", ward.bullet("Cost"))
         offered.forEach {
             assertNotNull(
                 it.bullet("Cost"),

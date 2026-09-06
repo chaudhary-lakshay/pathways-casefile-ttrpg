@@ -250,9 +250,8 @@ fun DetectionDialog(
                     modifier = Modifier.padding(top = 8.dp),
                 )
                 Text(
-                    "A ward's price is on its chip, and spending it is the " +
-                        "tracker's job; nothing here holds a clock for the " +
-                        "duration it buys.",
+                    "A ward's price is on its chip; spend it on the tracker. " +
+                        "Nothing here holds a clock for the duration it buys.",
                     style = MaterialTheme.typography.bodySmall,
                 )
                 FlowRow {
