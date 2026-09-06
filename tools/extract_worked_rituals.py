@@ -134,6 +134,9 @@ CASTER = re.compile(r"Each assumes a caster with Ritualistic Magic-(\d+)")
 # "SPI Cost: 2-4 SPI", with whichever dash the flattening produced.
 TEMPLATE_COST = re.compile(rf"SPI Cost: (\d+)\s*[{MINUS}–—]\s*(\d+) SPI")
 
+# Where Ritual 8's template ends and Ritual 9's begins, in the joined blob.
+TEMPLATE_NINTH = "Ritual 9:"
+
 TEMPLATE_TIERS = re.compile(r"Trivial \+0, Meaningful \+2, Precious \+4")
 TEMPLATE_SHIFT = re.compile(r"Critical Failure Table with \+(\d+) to the result")
 
@@ -363,13 +366,22 @@ def verify(rituals, caster, weights, complexity, template):
             "the table prints -2, and that is why the table is a summary")
 
     # Ritual 8 names Section IV.D's cheapest tier differently and shifts the
-    # critical table the opposite way. Both recorded, neither reconciled.
-    if not TEMPLATE_TIERS.search(template):
+    # critical table the opposite way. Both recorded, neither reconciled --
+    # and both are RITUAL 8's, so the blob is cut at the book's own title
+    # first. Two templates share this text since Ritual 9 came into range,
+    # and a guard that reads its neighbour's lines can be satisfied by the
+    # wrong ritual (Codex).
+    if TEMPLATE_NINTH not in template:
+        raise ValueError(
+            f"the blob no longer contains '{TEMPLATE_NINTH}', so Ritual 8's "
+            "two disagreements would be searched across both templates")
+    eighth = template.split(TEMPLATE_NINTH, 1)[0]
+    if not TEMPLATE_TIERS.search(eighth):
         raise ValueError(
             "Ritual 8's 'Trivial +0, Meaningful +2, Precious +4' is gone. It is "
             "the same three values Section IV.D prints, with the cheapest tier "
             "under a second name")
-    shift = TEMPLATE_SHIFT.search(template)
+    shift = TEMPLATE_SHIFT.search(eighth)
     if not shift or int(shift.group(1)) != 2:
         raise ValueError(
             "Ritual 8 rolled the Critical Failure Table at +2 where Section VI "

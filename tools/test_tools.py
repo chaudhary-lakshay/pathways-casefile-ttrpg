@@ -2804,6 +2804,28 @@ def test_losing_a_worked_ritual_would_fail_verification():
 
 
 @needs_pdf
+def test_ritual_nine_cannot_stand_in_for_ritual_eights_own_facts():
+    """Widening TEMPLATE_RANGE put two rituals in one blob, and Ritual 8's two
+    pinned disagreements are searched in it. A guard about Ritual 8 must not be
+    satisfied by text Ritual 9 printed -- so the blob is cut at the book's own
+    "Ritual 9:" title before those two are looked for."""
+    rituals, caster = extract_worked_rituals.extract()
+    byn = extract_worked_rituals.load_lines()
+    template = " ".join(
+        extract_worked_rituals.stream(byn, *extract_worked_rituals.TEMPLATE_RANGE))
+    weights = json.loads(
+        (CONTENT / "ritual_weights.json").read_text(encoding="utf-8"))["entries"]
+    rungs = json.loads(
+        (CONTENT / "ritual_complexity.json").read_text(encoding="utf-8"))["entries"]
+
+    tiers = "Trivial +0, Meaningful +2, Precious +4"
+    eight, nine = template.split("Ritual 9:", 1)
+    moved = eight.replace(tiers, "") + "Ritual 9:" + nine + " " + tiers
+    with pytest.raises(ValueError, match="is gone"):
+        extract_worked_rituals.verify(rituals, caster, weights, rungs, moved)
+
+
+@needs_pdf
 def test_a_row_that_swallowed_a_template_range_would_fail_verification():
     """4.2 shape. The two templates sit outside both tables because they price
     a class of ritual, not one ritual. The day a printed row contains a whole
