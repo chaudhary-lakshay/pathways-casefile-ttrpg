@@ -906,6 +906,10 @@ fun SheetScreen(
             // `TraitClause.key` is "shown / printed" and the two lists
             // share no row, so no declaration can move two clauses.
             iq = attributes.iq,
+            // Row 12's fright cell counts its duration down from HT while
+            // rolling Will, so the screen needs an attribute no roll here
+            // takes. [FrightCheck.durationLine] is what decides which.
+            ht = attributes.ht,
             clauses = remember(traits) {
                 TraitEffects.frightClauses(traits) + TraitEffects.willClauses(traits)
             },
@@ -1210,6 +1214,13 @@ private fun FrightDialog(
     will: Int,
     /** For the Confusion column's recovery roll, which is the only IQ roll here. */
     iq: Int,
+    /**
+     * For row 12's fright duration, which is the only HT term on this screen.
+     *
+     * No roll in this table is HT. The cell counts down from it and rolls
+     * Will, which is exactly why the duration could not ride on the recovery.
+     */
+    ht: Int,
     clauses: List<TraitClause> = emptyList(),
     /**
      * The subset of [clauses] that name a bare Will roll rather than the
@@ -1361,6 +1372,17 @@ private fun FrightDialog(
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(top = 8.dp),
                         )
+                        // One band works its duration out from the character
+                        // ("Retching for (25 - HT) sec"); the other two that
+                        // print a duration already print a number. Null
+                        // elsewhere, so no line appears.
+                        result.effect?.let { FrightCheck.durationFor(it, kind) }?.let { held ->
+                            Text(
+                                FrightCheck.durationLine(held, ht = ht, will = will, iq = iq),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        }
                         // Six of the nine bands print no way out at all, so
                         // this is null for them and no control appears. The
                         // cell's own sentence above already said so.
