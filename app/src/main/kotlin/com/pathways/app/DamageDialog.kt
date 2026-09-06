@@ -115,6 +115,20 @@ fun DamageDialog(
      * `spiAvailable` says a live pool must not be `remember`ed.
      */
     hurt: Int,
+    /**
+     * A shock the character walked in with, for the RECOVERY roll only.
+     *
+     * Separate from [hurt] because the two rolls answer differently and the
+     * reason is `Shock`'s own: it refuses `RollKind.MAJOR_WOUND_HT` because
+     * that roll CREATES the shock, and the recovery roll creates nothing —
+     * `Shock.appliesTo` is true for every other kind. Folding it into [hurt]
+     * would apply it to both.
+     *
+     * It can only ever be a shock from an EARLIER wound. This hit's shock
+     * comes from the Success row, and the recovery button is offered on the
+     * Failure row, so the two are never the same -4.
+     */
+    carriedShock: Int = 0,
     onDismiss: () -> Unit,
 ) {
     val rules = remember { ContentLoader.spiritDamage() }
@@ -210,7 +224,7 @@ fun DamageDialog(
                 // The table's Failure row asks for a second HT roll and the
                 // two are reached by different clauses, so this is its own
                 // expression rather than htTarget reused.
-                val recoveryTarget = ht + stunRecoveryHt.bonus + hurt
+                val recoveryTarget = ht + stunRecoveryHt.bonus + hurt + carriedShock
                 MajorWoundPanel(
                     isMajor = isMajor,
                     threshold = Wounds.majorWoundThreshold(maxHp),

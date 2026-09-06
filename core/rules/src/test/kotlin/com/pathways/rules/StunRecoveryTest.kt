@@ -57,8 +57,22 @@ class StunRecoveryTest {
         assertEquals(0, StunRecovery.bonusFor(emptyList()))
     }
 
+    /**
+     * The guard for the one assumption `bonusFor` makes structurally.
+     *
+     * It adds `TraitEffects.htRollBonus` unconditionally, which is right only
+     * while this row's recovery roll IS an HT roll — the Fright Effects
+     * table's is Will in two columns and IQ in the third. A KDoc saying so
+     * cannot fail, so the claim is read off the row itself: if an
+     * re-extraction ever puts a different attribute in that cell, the
+     * composition below becomes wrong and this reddens.
+     */
     @Test
-    fun `Fit composes because this recovery roll is an HT roll`() {
+    fun `Fit composes because the row itself says this roll is HT`() {
+        assertTrue(
+            StunRecovery.printed().contains("roll HT"),
+            "bonusFor adds an HT bonus to a roll the row no longer calls HT: ${StunRecovery.printed()}",
+        )
         assertEquals(1, StunRecovery.bonusFor(fit))
         assertEquals(7, StunRecovery.bonusFor(reflexes + fit))
     }

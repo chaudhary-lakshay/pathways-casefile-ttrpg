@@ -938,6 +938,11 @@ fun SheetScreen(
             // differently for it: shock refuses this roll (the roll creates
             // it) and the pools do not (the character carried them in).
             hurt = Conditions.penaltyFor(RollKind.MAJOR_WOUND_HT, hpNow, fpNow),
+            // The recovery roll's own term, and only its own: Shock
+            // refuses the Major Wound roll (that roll makes the shock)
+            // and reaches every other kind, so a character already
+            // shocked from an earlier wound recovers at -4.
+            carriedShock = shockOnAttribute,
             onDismiss = { damaging = false },
         )
     }
