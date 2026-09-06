@@ -2756,6 +2756,35 @@ def test_rushing_always_costs_and_extending_always_pays():
 
 
 @needs_pdf
+def test_the_study_grid_is_the_skill_ladder_cell_for_cell():
+    """Line 2204 says study points "follow the same exponential ladder as
+    normal character points" -- which is the book asserting the two printings
+    agree, not a comparison of them. Three findings this session were a
+    summary saying something true about itself and disagreeing with the table
+    it summarised, so the 16 cells are compared rather than inherited."""
+    lines = json.loads((OUT / "lines.json").read_text(encoding="utf-8"))
+    byn = {l["n"]: l["text"] for l in lines}
+    assert "same exponential ladder" in byn[2204], byn[2204]
+
+    # Cumulative CP down the left, four difficulties across: 2211 is "1" and
+    # 2212-2215 are its row, then 2216 and so on.
+    printed = {}
+    for row, first in enumerate((2211, 2216, 2221, 2226)):
+        printed[int(byn[first].strip())] = [
+            byn[first + 1 + col].strip() for col in range(4)
+        ]
+
+    ladder = json.loads(
+        (CONTENT / "skill_ladder.json").read_text(encoding="utf-8"))["entries"][0]
+    for row, cp in enumerate(sorted(printed)):
+        assert ladder["cumulative"][row] == cp, (row, cp)
+        for col, rung in enumerate(ladder["rungs"]):
+            offset = rung["offsets"][row]
+            cell = f"Attr{offset:+d}".replace("+0", "+0")
+            assert printed[cp][col] == cell, (cp, rung["difficulty"], printed[cp][col], cell)
+
+
+@needs_pdf
 def test_the_quirk_allowance_is_five_ADDITIONAL_points():
     """`PointBudget.MAX_QUIRKS` is the one budget constant with no tie to a
     printed line, and the reason is 6dn's shape again: the guard that pins the
@@ -2767,12 +2796,15 @@ def test_the_quirk_allowance_is_five_ADDITIONAL_points():
     ADDITIONAL: it is what makes the budget 70 + min(dis, 40) + min(quirks, 5)
     rather than quirks coming out of the -40."""
     lines = json.loads((OUT / "lines.json").read_text(encoding="utf-8"))
-    text = [(l["text"] if isinstance(l, dict) else l) for l in lines]
-    sentence = " ".join(t.strip() for t in text[1120:1122])
+    # Keyed by the line's own number rather than sliced positionally, so the
+    # numbers quoted above are what is actually read (a review's finding: a
+    # positional slice proves nothing about the line it claims to cite).
+    byn = {l["n"]: l["text"] for l in lines}
+    sentence = " ".join(byn[n].strip() for n in (1121, 1122))
     assert "Up to 5 additional points of quirks" in sentence, sentence
     assert "-1 pt each" in sentence, sentence
     # The corpus the Kotlin guard reads, and what it cannot say.
-    summary = " ".join(t.strip() for t in text[2238:2244])
+    summary = " ".join(byn[n].strip() for n in range(2239, 2245))
     assert "40" in summary and "quirk" not in summary.lower(), summary
 
 

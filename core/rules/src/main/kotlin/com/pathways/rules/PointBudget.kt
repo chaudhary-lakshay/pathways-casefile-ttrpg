@@ -17,7 +17,10 @@ data class BudgetReport(
  * Spending must be <= budget, never == budget: surplus is normal and
  * several published sheets leave points unspent.
  *
- * **The quirk term is unreachable today, and is kept anyway.** The book prints
+ * **Nothing this app ships produces a quirk, and the term is kept anyway.**
+ * Not "unreachable": [report] takes any `List<Trait>`, so a caller or a
+ * deserialized character can hand it one, and the branch below handles that
+ * correctly (a review corrected the stronger wording). The book prints
  * the rule -- "Up to 5 ADDITIONAL points of quirks (minor personality traits
  * at -1 pt each) are allowed", lines 1121-1122, where `additional` is what
  * puts them beside the -40 rather than inside it -- but nothing produces one.
@@ -29,9 +32,9 @@ data class BudgetReport(
  * QUIRKS" block whole and files all of it as [TraitKind.DISADVANTAGE] -- a
  * block NAME, not evidence any sheet holds a quirk; none does.
  *
- * A hand-written fixture may still carry `"kind": "QUIRK"`, which is why the
- * term stays: the book prints the rule, and deleting it would drop a printed
- * rule from the engine to tidy away a branch today's data cannot reach.
+ * That is why the term stays: the book prints the rule, the engine answers it
+ * correctly for any caller who supplies one, and deleting it would drop a
+ * printed rule to tidy away a branch the bundled data happens not to reach.
  */
 object PointBudget {
 
