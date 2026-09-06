@@ -162,7 +162,13 @@ def parse_grappling(lines, damage):
 
 
 def verify_grappling(printed, offered, damage):
-    """The four the book prints, and the one this table cannot hold."""
+    """The four the book prints, and the one this table cannot hold.
+
+    It deliberately does NOT also assert that [offered] is exactly Grapple /
+    Takedown / Pin: verify() owns that check for all three tables at once,
+    through EXPECTED, and a second copy here would be a second authority on
+    the same question (a review asked for it).
+    """
     if [r["attack"] for r in printed] != GRAPPLING_PRINTED:
         raise ValueError(
             f"the grappling table now prints {[r['attack'] for r in printed]}, "
