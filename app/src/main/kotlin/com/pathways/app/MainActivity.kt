@@ -2190,6 +2190,37 @@ private fun RollDialog(
                         }
                     }
                     CircumstanceRow(chosen, gmValue, withheld)
+                    // Every row the table prints for this skill, conditions
+                    // and all. Showing only the unconditional ones would teach
+                    // the player that a skill with no line here has no gear --
+                    // false exactly in the conditional band, which is most of
+                    // them.
+                    //
+                    // PRE-ROLL, and that is the whole point of it sitting
+                    // inside this branch. It used to live below the burn row,
+                    // past the `return@Column`, so it composed only once a
+                    // result existed -- chapter 8's rows reached the GM AFTER
+                    // the dice, when the one thing they are for is choosing a
+                    // modifier before them. Device-verified, because no test
+                    // in this repo can reach a Compose label.
+                    //
+                    // BELOW the chips rather than above them, against a
+                    // reviewer who preferred reference-before-picker. These
+                    // rows print numbers ("+1 to First Aid"), and a numbered
+                    // line directly above a row of tappable modifier chips
+                    // reads as another selectable one; this app already
+                    // refused a design that blurred an applied chip into a
+                    // shown reference, and that distinction breaks the tie.
+                    if (equipment.isNotEmpty()) {
+                        Text(
+                            "Gear that names this skill (not applied):",
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.padding(top = 12.dp),
+                        )
+                        equipment.forEach {
+                            Text(it, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
                     return@Column
                 }
                 RollResult(shownOut, sense)
@@ -2226,20 +2257,6 @@ private fun RollDialog(
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(top = 12.dp),
                     )
-                }
-                // Every row the table prints for this skill, conditions and
-                // all. Showing only the unconditional ones would teach the
-                // player that a skill with no line here has no gear -- false
-                // exactly in the conditional band, which is most of them.
-                if (equipment.isNotEmpty()) {
-                    Text(
-                        "Gear that names this skill (not applied):",
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(top = 12.dp),
-                    )
-                    equipment.forEach {
-                        Text(it, style = MaterialTheme.typography.bodySmall)
-                    }
                 }
             }
         },
