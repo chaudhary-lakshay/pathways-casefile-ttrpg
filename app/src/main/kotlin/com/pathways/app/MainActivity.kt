@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Radar
+import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Visibility
@@ -99,6 +100,7 @@ import com.pathways.rules.PenaltyScope
 import com.pathways.rules.Pool
 import com.pathways.rules.PoolStatus
 import com.pathways.rules.Pools
+import com.pathways.rules.SpiritVision
 import com.pathways.rules.SuccessRoll
 import com.pathways.rules.VitalCheck
 import com.pathways.rules.VitalRolls
@@ -260,6 +262,7 @@ fun SheetScreen(
     var supplicating by remember(sheet) { mutableStateOf(false) }
     var handling by remember(sheet) { mutableStateOf(false) }
     var sensing by remember(sheet) { mutableStateOf(false) }
+    var looking by remember(sheet) { mutableStateOf(false) }
     // The CHECK, not the outcome, exactly as `rolling` holds the skill: the
     // roll happens inside the dialog, after the GM has stated a modifier.
     var controlling by remember(sheet) { mutableStateOf<SelfControlCheck?>(null) }
@@ -361,6 +364,15 @@ fun SheetScreen(
     val ritual = levels.ritual
     val divinationLevel = divination?.level
     val ritualLevel = ritual?.level
+
+    // Ch. 7.6. Gated on the character's OWN potion block, via the grants the
+    // extractor derives -- never on 7.6's own section C summary, which lists
+    // Visionary (whose Spectator block grants none) and omits Moon (whose
+    // Apothecary block grants it). A gate on the summary would hide the tile
+    // from the one premade in this corpus who has the ability.
+    val spiritVisionForm = drunk?.let { SpiritVision.formFor(it.pathway)?.takeIf { _ ->
+        SpiritVision.grantedTo(it.pathway, it.sequence)
+    } }
 
     // The two pools whose penalties the book prints unscoped, derived ONCE:
     // the ledger below reads them for a skill and the bare rolls read them
@@ -553,6 +565,17 @@ fun SheetScreen(
                             HubAction("Divine", Icons.Filled.Visibility, ActionKind.BEYONDER) {
                                 divining = true
                             }
+                        }
+                        if (spiritVisionForm != null) {
+                            // Labelled with the pathway's OWN name for it: a
+                            // Hermit's block writes "Eyes of Mystery Prying"
+                            // and never "Spirit Vision", so a fixed label
+                            // would name something their sheet does not.
+                            HubAction(
+                                spiritVisionForm,
+                                Icons.Filled.RemoveRedEye,
+                                ActionKind.BEYONDER,
+                            ) { looking = true }
                         }
                         if (ritualLevel != null) {
                             // Same gate as the ritual: Chapter 13 rolls the
@@ -1057,6 +1080,22 @@ fun SheetScreen(
             per = vitals.per,
             dice = appDice,
             onDismiss = { sensing = false },
+        )
+    }
+    if (looking && spiritVisionForm != null) {
+        SpiritVisionDialog(
+            form = spiritVisionForm,
+            // The ATTRIBUTE, not what is left in the pool -- the reading a
+            // wounded Detection roll already needed. Per is the roll; SPI is
+            // only what it costs.
+            per = vitals.per,
+            spiAvailable = vitals.maxSpi - session.spiSpent,
+            shock = shockOnAttribute,
+            hurt = hurtOnAttribute,
+            dice = appDice,
+            // Through the tracker, so activating actually costs the point.
+            onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
+            onDismiss = { looking = false },
         )
     }
     if (casting && ritualLevel != null) {

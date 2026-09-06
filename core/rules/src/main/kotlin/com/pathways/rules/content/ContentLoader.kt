@@ -124,6 +124,7 @@ object ContentLoader {
     private val studyRulesLazy: List<StudyRule> by lazy { load("study_rules.json") }
     private val appearanceLazy: List<AppearanceLevel> by lazy { load("appearance.json") }
     private val glossaryLazy: List<GlossaryEntry> by lazy { load("glossary.json") }
+    private val spiritVisionLazy: SpiritVisionFile by lazy { loadWhole("spirit_vision.json") }
     private val entityResponseLazy: List<EntityResponse> by lazy {
         load("entity_response.json")
     }
@@ -285,6 +286,14 @@ object ContentLoader {
      * link would not resolve: `core:rules` cannot see `app`.
      */
     fun glossary(): List<GlossaryEntry> = glossaryLazy
+
+    /**
+     * Chapter 7.6's Spirit Vision guide (p. 77-78), whole.
+     *
+     * `loadWhole`, because the file carries six sibling sections rather than
+     * one `entries` list. Read through [com.pathways.rules.SpiritVision].
+     */
+    fun spiritVision(): SpiritVisionFile = spiritVisionLazy
 
     /** The six Entity Response bands (Ch. 7, p. 66). See [EntityResponse]. */
     fun entityResponse(): List<EntityResponse> = entityResponseLazy

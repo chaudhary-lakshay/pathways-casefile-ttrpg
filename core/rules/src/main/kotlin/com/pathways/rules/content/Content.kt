@@ -1312,6 +1312,91 @@ data class AppearanceLevel(
 @Serializable
 data class GlossaryEntry(val term: String, val definition: String)
 
+/** A: one Astral Projection colour and the emotional state it reveals. */
+@Serializable
+data class AstralColor(val color: String, val meaning: String)
+
+/**
+ * B: one Ether Body region and its colour.
+ *
+ * The INVERSE column order to [AstralColor], and seven of the eight colours
+ * appear in both tables meaning unrelated things -- Purple is "Spirituality,
+ * madness" there and the BRAIN here. Nothing may join the two on the colour.
+ */
+@Serializable
+data class EtherBodyRegion(val region: String, val color: String)
+
+/**
+ * C: one row of chapter 7.6's Sequence 9 summary.
+ *
+ * **Reference only, and never a gate.** The table lists five pathways and
+ * there are five Sequence 9 grants, but the membership differs by one in each
+ * direction: it prints Visionary, whose Spectator block grants no Spirit
+ * Vision at all, and omits Moon, whose Apothecary block grants it. Who may
+ * roll comes from [SpiritVisionGrant], derived from each pathway's own block.
+ */
+@Serializable
+data class PathwayDifference(val name: String, val sequence: Int, val ability: String)
+
+/**
+ * One row of D's interpretation table.
+ *
+ * [margin] is the band this row needs, absent on the rows the book names
+ * instead ("Critical", "Failure"). This table prints a FAILURE row where
+ * chapter 4's sibling tables print none: a failed reading is a confident
+ * WRONG answer rather than no answer at all.
+ */
+@Serializable
+data class SpiritVisionRow(
+    val result: String,
+    val effect: String,
+    val margin: Int? = null,
+)
+
+/** D's activation cost and its five result rows. */
+@Serializable
+data class SpiritVisionReading(
+    val activation: Int,
+    val maintenance: Int,
+    val rows: List<SpiritVisionRow>,
+)
+
+/** The chapter's closing sentence: each pathway's own name for the ability. */
+@Serializable
+data class SpecialForm(val form: String, val pathwayRank: String)
+
+/**
+ * Which pathway grants Spirit Vision, and from which rung.
+ *
+ * Derived by `tools/extract_spirit_vision.py` from each pathway's own potion
+ * block, NOT from chapter 7.6's summary table, which is wrong in both
+ * directions. The prose matching lives in the extractor so that the rules
+ * engine consumes structure: a matcher here would be a second authority on
+ * what the book grants.
+ *
+ * [sequence] is the HIGHEST sequence number granting it, and sequences count
+ * DOWN -- a Sequence 8 Fool drank the Seer's potion first -- so a character
+ * has the ability when their own sequence is at or below this rung.
+ *
+ * [form] is the book's own name for it, which is not always "Spirit Vision":
+ * the Hermit's block writes "Eyes of Mystery Prying" and never the common
+ * name at all.
+ */
+@Serializable
+data class SpiritVisionGrant(val pathway: String, val sequence: Int, val form: String)
+
+/** Chapter 7.6 whole: four lettered sections plus the derived grants. */
+@Serializable
+data class SpiritVisionFile(
+    val astralColors: List<AstralColor>,
+    val etherBody: List<EtherBodyRegion>,
+    val etherBodyNote: String,
+    val pathwayDifferences: List<PathwayDifference>,
+    val reading: SpiritVisionReading,
+    val specialForms: List<SpecialForm>,
+    val grants: List<SpiritVisionGrant>,
+)
+
 /** Raw thrust/swing row exactly as read from the ThrustTable spreadsheet tab. */
 @Serializable
 data class DamageRowJson(val st: Int, val thrust: String, val swing: String)

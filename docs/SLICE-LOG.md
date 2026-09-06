@@ -6726,6 +6726,182 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dh. The summary was wrong in both directions at once
+
+6dg's sweep named this: of 79 content files, exactly one had no `ContentLoader`
+function — `spirit_vision.json` — and it was also the **sole claimant of
+chapter 7.6**, so `coverage.py` reported that chapter 100.0% off a file no
+Kotlin read. Its extractor had shipped deliberately without a consumer,
+recording *"a loader with no caller is 6cf's defect, and this slice would ship
+one"*, and deferring the model together with the question of which screen shows
+it.
+
+### The finding: section C is not four-right-and-one-wrong
+
+Chapter 7.6's section C is a five-row summary of which Sequence 9 pathways see
+what. The extractor already pinned one disagreement in it: the **Spectator**
+row files a power under Spirit Vision that the Spectator's own chapter 9 block
+prices in FP as `Body Language Analysis` and never names Spirit Vision at all.
+
+That check runs **row → block**: for each row in C, does the pathway's block
+agree? It cannot see the opposite question. Running **block → row** finds
+**Moon's Apothecary**, whose block prints `Spirit Vision — Ether Body` and
+which section C does not list.
+
+So the table is the right SIZE and the wrong MEMBERSHIP:
+
+| | |
+|---|---|
+| Section C lists | Fool, Hermit, **Visionary**, Darkness, Death |
+| Blocks grant at Seq 9 | Fool, Hermit, **Moon**, Darkness, Death |
+
+Five against five. **A magnitude check passes, a count check passes, and a
+one-directional check finds half of it.** A screen gated on C would have
+refused the ability to the one premade pathway in the corpus that has it and
+offered it to one that does not. Both halves are asserted, in the extractor and
+in Python, because repairing either alone leaves the other standing.
+
+### 21 blocks say "Spirit Vision" and mean three things
+
+The gate reads each pathway's own block. A substring match over those blocks is
+wrong in a way that only shows up on three characters:
+
+| Class | Count | Example |
+|---|---|---|
+| GRANT | 9 | `Spirit Vision:` / `Eyes of Mystery Prying (` |
+| UPGRADE | 7 | the same label inside `reinforcedAbilities` |
+| NEITHER | 5 | a DEFENCE against someone else's, or a mention of other pathways' |
+
+The five non-grants are the interesting ones. The **Werewolf** (Chained 7)
+"reveals only a figure covered in black hair" to it; the **Hypnotist**
+(Visionary 6) has an illusion that "works even against Spirit Vision"; the
+**Monster** (Wheel of Fortune 9) perceives what "Pathways with strong Spirit
+Vision abilities cannot". Three characters the book gives no part of the
+ability, and a bare match hands it to all three.
+
+The discriminator comes from how the book WRITES a power rather than from the
+cases that went wrong: a granted ability is a **label opening its own clause**,
+so the name is followed by `:`, `(` or an em dash. Every non-grant says the
+words mid-sentence. The mutation is in `test_tools.py`.
+
+**And the common name is not enough.** The Mystery Pryer's block never writes
+"Spirit Vision" — it writes `Eyes of Mystery Prying`, which section C and the
+chapter's Special Forms sentence both confirm is the same ability. Matching only
+the common name silently loses one grant of seven, so the pattern carries both
+names and the tile is labelled with the pathway's own.
+
+**Two pathways grant it at Sequence 8, not 9** — Mother's Doctor and Red
+Priest's Provoker — which is why a Sequence 9 table is right to omit them, and
+why "the five rows are the five pathways" was never a safe reading.
+
+### The design review moved the parser out of the engine
+
+Its Q1 answer is the one that changed the shape: matching prose inside
+`SpiritVision.grantedTo` would make the rules engine *"another authority
+surface"*, competing with the content files, and typography would become part
+of rules logic. Taken whole. `GRANT` and the classification now live in
+`tools/extract_spirit_vision.py`, which writes a `grants` block of
+`{pathway, sequence, form}`; Kotlin consumes structure and parses nothing.
+
+Its Q2 answer killed a branch I had proposed: **`reinforcedAbilities` is not
+read.** Every upgrade in the book sits on a pathway granted the ability at a
+higher rung, so reading it cannot change an answer — and a branch no data can
+reach is one a later reader trusts as though it meant something. What ships
+instead is the invariant, asserted: every `reinforcedAbilities` mention has an
+earlier grant on the same pathway, and `verify()` fails loudly if the book ever
+upgrades an ability it never granted. It also named the asymmetry that decides
+the default: a **false grant fabricates a rule-backed action, an SPI cost and a
+roll**, where a false omission is only an omission.
+
+Its Q3 answer shaped the screen. This table prints a **FAILURE row** —
+"Incorrect reading" — where chapter 4's sibling tables print none, and
+`SpiritualSenses.rowFor` returns null on a failure by documented design. A
+failed Spirit Vision is not the absence of an answer, it is a confident WRONG
+one. So `rowForOutcome` returns the row rather than null, and the dialog
+**renders the row's own words with no "Failure" label beside them**: a screen
+that prints the verdict has modelled the die and not the rule, and hands the
+player information their character does not have. `isMisleading` exists so a
+caller can tell the two apart without matching on the text.
+
+### The gate, RED-proved
+
+The whole slice rests on `grantedTo` reading the grants and not section C, so
+that is the mutation: point it at `pathwayDifferences()` and **four tests
+redden**, including the one named for it. Restored from a `cp` copy, never
+`git checkout` — the file held uncommitted work.
+
+Four extractor mutations also fire: a bare-substring `GRANT` (grants Moon and
+Wheel of Fortune wrongly), dropping the Hermit alias, removing Moon from
+`grants()`, and moving Mother and Red Priest to Sequence 9.
+
+### The diff review: one MEDIUM refused with the lines that disprove it
+
+It reported that `Look again` rolls with stale inputs, that `spiAvailable`
+never recomposes, and that the button stays enabled after the pool empties.
+All three are wrong, and the code says so:
+
+- `spiAvailable` is `vitals.maxSpi - session.spiSpent` read at
+  `MainActivity.kt:1092`, in the caller's composable scope, and `spiSpent` is
+  `mutableIntStateOf` (`BeyonderSession.kt:74`). Spending recomposes the caller
+  and the dialog is handed the new figure — the same wiring `RitualDialog`
+  already ships.
+- **Nothing about spending SPI can make the target stale**:
+  `SpiritVision.targetFor` is `per + shock + hurt`, and those read the
+  ATTRIBUTE and the HP/FP pools. There is no SPI term. Passing a remaining pool
+  is the defect `DetectionDialog` already records having made once.
+- Re-roll-and-recharge is `ArtifactDialog`'s `"Use again"` exactly.
+
+What the finding was worth: the button did not SAY the second press costs
+another point. It now reads `Look again (1 SPI)`, and the warrant for all three
+refusals is in the dialog's KDoc rather than in this file alone.
+
+Its two LOWs asked for Compose tests, which this repo cannot write. The
+survivable half is that both test NAMES overclaimed: `section C is reference and
+is never the gate` asserted no such thing, and its last line duplicated an
+assertion from the test above it — the forced-assertion pattern for the seventh
+time. It is now `section C and the grants are the same size and disagree both
+ways`, asserting the set difference in each direction, which nothing else in
+Kotlin does.
+
+### One decision worth inheriting
+
+`grantedTo` **throws** on a pathway no content file prints, rather than
+answering false. This app walks 22 pathways plus the non-standard ones, and a
+typo silently withdrawing a character's ability is the failure that refuses to
+be had. The reviewer checked whether that crashes the sheet screen and found it
+cannot: `formFor` short-circuits first.
+
+### What shipped
+
+- `tools/extract_spirit_vision.py` — `GRANT`, `grants()`, and a `verify()` that
+  pins the swap in both directions, the seven grants verbatim, the Hermit's
+  alias, the three non-grants, and the upgrade invariant.
+- `spirit_vision.json` — a `grants` block; the file now has a loader.
+- `SpiritVision` + six content types + `ContentLoader.spiritVision()`
+  (`loadWhole`, six sibling sections rather than `entries`), with
+  `SpiritVisionTest` (15 tests).
+- `SpiritVisionDialog` and one BEYONDER hub tile, gated on the character's own
+  block and labelled with the pathway's own name for the ability.
+- Two Python tests: the swap, and the three-class predicate.
+
+Chapter 7.6 now reads 100.0% because something reads it. **Every content file
+has a loader: 79 of 79.** 1650 Kotlin (1164 `core:rules`, 466 `app`, 20
+`core:model`) and 308 Python, all green.
+
+**Not device-verified.** The tile and the dialog compile and the rules beneath
+them have 15 tests; no test in this repo reaches a composable.
+
+### The next slice, and the sweep that names it
+
+The file-for-loader sweep is now clean and stays worth re-running, but it will
+not find the next thing. What this slice suggests instead is the direction that
+found its own defect: **a check that runs one way over two printings has a
+blind side, and the reverse query is a separate sweep.** Section C had been
+checked row → block since it was extracted; block → row was never run, and it
+is where Moon was. Candidates with the same shape: the fixtures against the
+catalogue (6ct ran fixture → Kotlin; catalogue → fixture is unrun), and
+`sourceLines` claims against the extractors that write them.
+
 ## 6dg. A guard that could not pass, and the surface it was waiting for
 
 `tools/extract_glossary.py` was sitting untracked in the tree, fully written,

@@ -3,6 +3,7 @@ import json, re, subprocess, sys, pathlib
 import pytest
 
 import extract_glossary
+import extract_spirit_vision
 import extract_pdf
 import extract_sheets
 
@@ -4439,6 +4440,98 @@ def test_spirit_vision_records_the_spectator_disagreement():
     for name in ("Seer", "Mystery Pryer", "Sleepless", "Corpse Collector"):
         block = next(b for b in blocks if b["name"] == name and b["sequence"] == 9)
         assert "Spirit Vision" in block["ability"], name
+
+
+def test_spirit_vision_section_c_is_a_swap_not_a_one_sided_error():
+    """The other direction of the sweep, which nothing had run.
+
+    `test_spirit_vision_records_the_spectator_disagreement` asks, of each row
+    in 7.6's section C, whether the pathway's own block agrees. It cannot see
+    the opposite question: is there a pathway whose block GRANTS Spirit Vision
+    at Sequence 9 and which section C omits? There is -- Moon's Apothecary,
+    whose block prints "Spirit Vision - Ether Body".
+
+    So the table is not four-right-and-one-wrong. It is the right SIZE and the
+    wrong MEMBERSHIP: five rows against five Sequence 9 grants, with Visionary
+    listed and not granted, and Moon granted and not listed. A swap.
+
+    Both halves are asserted, because a repair in either direction would
+    otherwise pass: dropping the Visionary row leaves Moon still missing, and
+    adding Moon leaves Visionary still wrong.
+    """
+    content = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
+    sv = json.loads((content / "spirit_vision.json").read_text(encoding="utf-8"))
+    blocks = json.loads((content / "pathways.json").read_text(encoding="utf-8"))["entries"]
+
+    granted = {b["pathway"] for b in blocks
+               if b["sequence"] == 9 and extract_spirit_vision.GRANT.search(b["ability"] or "")}
+    assert granted == {"Fool", "Darkness", "Death", "Hermit", "Moon"}, sorted(granted)
+
+    listed = {r["name"].split("(")[1].rstrip(")").strip()
+              for r in sv["pathwayDifferences"] if "(" in r["name"]}
+    assert listed == {"Fool", "Hermit", "Visionary", "Darkness", "Death"}, sorted(listed)
+
+    assert listed - granted == {"Visionary"}, "7.6 no longer lists a pathway that grants none"
+    assert granted - listed == {"Moon"}, "7.6 no longer omits a pathway that grants it"
+    assert len(listed) == len(granted), "the swap has become an imbalance; re-read section C"
+
+
+def test_the_spirit_vision_grant_predicate_separates_three_classes():
+    """Why the gate reads a LABEL and not the words "Spirit Vision".
+
+    21 of 88 pathway blocks name Spirit Vision and they do not mean one thing.
+    Three classes, each verified against the book's own prose:
+
+      GRANT     the ability named as a label -- "Spirit Vision:",
+                "Spirit Vision - Limited Form:", "Eyes of Mystery Prying (".
+      UPGRADE   the same label inside `reinforcedAbilities`, which improves a
+                grant an earlier rung already made.
+      NEITHER   a DEFENCE against someone else's Spirit Vision (the Werewolf
+                reveals only black hair; the Hypnotist's illusion "works even
+                against Spirit Vision"), or a mention of what OTHER pathways
+                can do (the Monster sees what "Pathways with strong Spirit
+                Vision abilities cannot").
+
+    A bare substring match grants the Werewolf, the Hypnotist and the Monster
+    an ability the book gives them no part of. The label is what separates
+    them, and this is the test that says the classification still holds.
+    """
+    content = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
+    blocks = json.loads((content / "pathways.json").read_text(encoding="utf-8"))["entries"]
+
+    grants, upgrades, neither = set(), set(), set()
+    for b in blocks:
+        ability, reinforced = b["ability"] or "", b.get("reinforcedAbilities") or ""
+        key = (b["pathway"], b["sequence"])
+        if extract_spirit_vision.GRANT.search(ability):
+            grants.add(key)
+        elif extract_spirit_vision.GRANT.search(reinforced):
+            upgrades.add(key)
+        elif "Spirit Vision" in ability or "Spirit Vision" in reinforced:
+            neither.add(key)
+
+    assert grants == {
+        ("Fool", 9), ("Darkness", 9), ("Death", 9), ("Hermit", 9), ("Moon", 9),
+        ("Death", 8), ("Mother", 8), ("Mother", 7), ("Red Priest", 8),
+    }, sorted(grants)
+    assert neither == {
+        ("Wheel of Fortune", 9), ("Chained", 7), ("Visionary", 6),
+        ("Darkness", 6), ("Red Priest", 7),
+    }, sorted(neither)
+    assert len(grants) + len(upgrades) + len(neither) == 21
+
+    # The invariant the gate rests on: an UPGRADE never stands alone. Every
+    # one sits on a pathway that granted the ability at a HIGHER sequence
+    # number, which the cumulative walk has already passed through. That is
+    # why the gate reads grants only -- checking `reinforcedAbilities` too
+    # would be a branch no data can reach, trusted later as though it meant
+    # something.
+    earliest = {}
+    for pathway, sequence in grants:
+        earliest[pathway] = max(earliest.get(pathway, -1), sequence)
+    for pathway, sequence in upgrades:
+        assert pathway in earliest, f"{pathway} upgrades Spirit Vision it was never granted"
+        assert earliest[pathway] > sequence, (pathway, sequence, earliest[pathway])
 
 
 def test_ether_body_awareness_is_two_different_things():

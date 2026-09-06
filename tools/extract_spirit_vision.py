@@ -104,6 +104,24 @@ SPECIAL_FORM = re.compile(r"([A-Z][A-Za-z' ]+?) \(([A-Z][A-Za-z ]+?)\)")
 PER_ROLL = "Make a Perception-based roll"
 SPECTATOR_CLAIM = "Enhanced: Read emotions & thoughts"
 
+PATHWAYS_PATH = OUT / "pathways.json"
+
+# What counts as the book GRANTING this ability, rather than mentioning it.
+#
+# 21 of the 88 potion blocks contain the words "Spirit Vision" and they mean
+# three different things. A bare substring match grants the ability to the
+# Werewolf ("Any divination or Spirit Vision targeting the Werewolf reveals
+# only a figure covered in black hair"), to the Hypnotist (an illusion that
+# "works even against Spirit Vision") and to the Monster (who sees what
+# "Pathways with strong Spirit Vision abilities cannot") -- three characters
+# the book gives no part of it.
+#
+# The discriminator is drawn from how the book WRITES a power, not from a
+# list of the cases that went wrong: a granted ability is a LABEL opening its
+# own clause, so the name is followed by a colon, a parenthesis or an em dash.
+# Every one of the three non-grants above says the words mid-sentence.
+GRANT = re.compile(r"(?:Spirit Vision|Eyes of Mystery Prying)\s*(?::|\(|—)")
+
 
 def load_lines():
     return {row["n"]: row["text"] for row in json.loads(LINES_PATH.read_text("utf-8"))}
@@ -271,6 +289,51 @@ def reading(lines):
     }
 
 
+def grants():
+    """Which pathway grants Spirit Vision, and from which rung.
+
+    Section C is NOT the answer, and this is the whole reason this function
+    exists. C lists five Sequence 9 rows and there are five Sequence 9 grants,
+    but the membership differs by one in each direction: it prints Visionary,
+    whose Spectator block grants none, and omits Moon, whose Apothecary block
+    prints "Spirit Vision - Ether Body". A gate reading C would refuse the
+    ability to the one character in the corpus who has it and offer it to one
+    who does not.
+
+    So the grant is read from each pathway's OWN block, here, at extraction
+    time -- not by a matcher living in the rules engine. Prose belongs to the
+    extractor; what ships is structure.
+
+    Sequences are cumulative and count DOWN: a Sequence 8 Fool drank the
+    Sequence 9 potion first. So a pathway's entry is the HIGHEST sequence
+    number at which a block grants the ability, and a character has it when
+    their own sequence is at or below that rung. Two pathways -- Mother and
+    Red Priest -- grant it at 8 and not at 9, which is why a Sequence 9 table
+    is right to leave them out.
+
+    `reinforcedAbilities` is deliberately NOT read. Every upgrade in the book
+    sits on a pathway that granted the ability at a higher rung, so reading it
+    could not change an answer -- and a branch no data can reach is a branch a
+    later reader trusts as though it meant something. verify() asserts that
+    invariant instead, so it fails loudly if the book ever upgrades an
+    ability it never granted.
+    """
+    blocks = json.loads(PATHWAYS_PATH.read_text("utf-8"))["entries"]
+    earliest = {}
+    forms = {}
+    for block in blocks:
+        if not GRANT.search(block.get("ability") or ""):
+            continue
+        pathway, sequence = block["pathway"], block["sequence"]
+        if sequence > earliest.get(pathway, -1):
+            earliest[pathway] = sequence
+            forms[pathway] = GRANT.search(block["ability"]).group(0).rstrip(":( —")
+    return [
+        {"pathway": p, "sequence": earliest[p], "form": forms[p]}
+        for p in sorted(earliest)
+    ]
+
+
 def extract(byn):
     sections = split_sections(stream(byn, *CHAPTER_RANGE))
     body, note = ether(sections["B"])
@@ -281,6 +344,7 @@ def extract(byn):
         "pathwayDifferences": pathways(sections["C"]),
         "reading": reading(sections["D"]),
         "specialForms": special_forms(sections["D"]),
+        "grants": grants(),
     }
 
 
@@ -333,6 +397,68 @@ def verify(data, byn):
     for name in ("Seer", "Mystery Pryer", "Sleepless", "Corpse Collector"):
         block = next(b for b in blocks if b["name"] == name and b["sequence"] == 9)
         assert "Spirit Vision" in block["ability"], f"{name} lost its Spirit Vision"
+
+    # -- the swap, which the check above cannot see -----------------------
+    # Asking of each ROW whether its block agrees is only half the question.
+    # The other half -- is there a block that grants the ability and no row
+    # names it -- has an answer: Moon's Apothecary. So section C is not four
+    # right and one wrong, it is the right SIZE and the wrong MEMBERSHIP, and
+    # both directions are asserted because repairing either one alone would
+    # leave the other standing.
+    listed = {r["name"].split("(")[1].rstrip(")").strip()
+              for r in rows if "(" in r["name"]}
+    granted_at_nine = {g["pathway"] for g in data["grants"] if g["sequence"] == 9}
+    assert listed - granted_at_nine == {"Visionary"}, sorted(listed - granted_at_nine)
+    assert granted_at_nine - listed == {"Moon"}, sorted(granted_at_nine - listed)
+    assert len(listed) == len(granted_at_nine), (sorted(listed), sorted(granted_at_nine))
+
+    # -- the grants, which are what a screen may act on -------------------
+    # Section C must never be the gate: it would refuse the ability to Moon
+    # and offer it to Visionary. These come from each pathway's own block.
+    assert data["grants"] == [
+        {"pathway": "Darkness", "sequence": 9, "form": "Spirit Vision"},
+        {"pathway": "Death", "sequence": 9, "form": "Spirit Vision"},
+        {"pathway": "Fool", "sequence": 9, "form": "Spirit Vision"},
+        {"pathway": "Hermit", "sequence": 9, "form": "Eyes of Mystery Prying"},
+        {"pathway": "Moon", "sequence": 9, "form": "Spirit Vision"},
+        {"pathway": "Mother", "sequence": 8, "form": "Spirit Vision"},
+        {"pathway": "Red Priest", "sequence": 8, "form": "Spirit Vision"},
+    ], data["grants"]
+
+    # The Hermit's own name for it. The book never writes "Spirit Vision" in
+    # the Mystery Pryer's block -- it writes "Eyes of Mystery Prying", and
+    # section C and the Special Forms sentence both confirm that is the same
+    # ability. A matcher looking only for the common name loses one of seven.
+    hermit = next(g for g in data["grants"] if g["pathway"] == "Hermit")
+    assert hermit["form"] == "Eyes of Mystery Prying", hermit
+    assert any(f["form"] == "Eyes of Mystery Prying" for f in data["specialForms"])
+
+    # The GRANT label is what separates a power from a defence against one.
+    # These three name Spirit Vision and are given no part of it: a bare
+    # substring match hands the ability to all three.
+    for pathway, sequence in (("Chained", 7), ("Visionary", 6), ("Wheel of Fortune", 9)):
+        block = next(b for b in blocks
+                     if b["pathway"] == pathway and b["sequence"] == sequence)
+        assert "Spirit Vision" in block["ability"], (pathway, sequence)
+        assert not GRANT.search(block["ability"]), (
+            f"{pathway} {sequence} now reads as a GRANT; it mentions Spirit "
+            f"Vision without being given it, and the label rule has moved"
+        )
+
+    # An UPGRADE never stands alone: every `reinforcedAbilities` mention sits
+    # on a pathway granted the ability at a HIGHER sequence number, which the
+    # cumulative walk already passed. That invariant is why grants() reads
+    # `ability` only -- reading both would add a branch no data can reach.
+    by_pathway = {g["pathway"]: g["sequence"] for g in data["grants"]}
+    for block in blocks:
+        if not GRANT.search(block.get("reinforcedAbilities") or ""):
+            continue
+        pathway, sequence = block["pathway"], block["sequence"]
+        assert pathway in by_pathway, (
+            f"{pathway} {sequence} upgrades Spirit Vision its pathway never "
+            f"grants; grants() reads `ability` only and would miss it"
+        )
+        assert by_pathway[pathway] > sequence, (pathway, sequence)
 
     # -- D: the cost, the roll, and the two rows chapter 4 does not have --
     read = data["reading"]

@@ -152,5 +152,42 @@
    "form": "Passive Spirit Vision",
    "pathwayRank": "Corpse Collector"
   }
+ ],
+ "grants": [
+  {
+   "pathway": "Darkness",
+   "sequence": 9,
+   "form": "Spirit Vision"
+  },
+  {
+   "pathway": "Death",
+   "sequence": 9,
+   "form": "Spirit Vision"
+  },
+  {
+   "pathway": "Fool",
+   "sequence": 9,
+   "form": "Spirit Vision"
+  },
+  {
+   "pathway": "Hermit",
+   "sequence": 9,
+   "form": "Eyes of Mystery Prying"
+  },
+  {
+   "pathway": "Moon",
+   "sequence": 9,
+   "form": "Spirit Vision"
+  },
+  {
+   "pathway": "Mother",
+   "sequence": 8,
+   "form": "Spirit Vision"
+  },
+  {
+   "pathway": "Red Priest",
+   "sequence": 8,
+   "form": "Spirit Vision"
+  }
  ]
 }

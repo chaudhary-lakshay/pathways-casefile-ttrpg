@@ -112,6 +112,47 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
+**6dh is newest, and its finding is that a summary can be wrong in both
+directions at once.** It builds the slice 6dg named — `spirit_vision.json` was
+the one content file of 79 with no loader, and the sole claimant of chapter
+7.6, so `coverage.py` reported that chapter 100% off a file no Kotlin read.
+Read it for five things. **Chapter 7.6's section C is not four-right-and-one-
+wrong**: it lists five Sequence 9 pathways and there are five Sequence 9
+grants, but it prints Visionary (whose Spectator block grants none) and omits
+Moon (whose Apothecary block grants it). Same size, membership differing by one
+in each direction — so a count check passes, a magnitude check passes, and the
+row → block check that had been running since extraction finds half of it. **A
+check that runs one way over two printings has a blind side, and the reverse
+query is a separate sweep.** **21 blocks say "Spirit Vision" and mean three
+things** — 9 grants, 7 upgrades, and 5 that are a DEFENCE against someone
+else's (the Werewolf reveals only black hair; the Hypnotist's illusion works
+"even against Spirit Vision") — so the predicate is a LABEL opening its own
+clause, drawn from how the book writes a power rather than from the cases that
+went wrong; and the common name is not enough, because the Mystery Pryer's
+block writes only "Eyes of Mystery Prying". The design review moved the prose
+matching **out of `core:rules` and into the extractor**: a matcher in the
+engine is a second authority surface competing with the content files, so what
+ships is structure. It also killed a branch — `reinforcedAbilities` is not
+read, because every upgrade sits on a pathway granted at a higher rung, and a
+branch no data can reach is one a later reader trusts; the invariant is
+asserted instead. And **the FAILURE row shaped the screen**: "Incorrect
+reading" is a confident WRONG answer, not an absence, so the dialog prints the
+row's own words with no "Failure" label — a screen that prints the verdict has
+modelled the die and not the rule.
+
+**6dh also refused a MEDIUM with the lines that disprove it.** The diff review
+said `Look again` rolls with stale inputs, `spiAvailable` never recomposes, and
+the button stays enabled after the pool empties. `spiSpent` is
+`mutableIntStateOf` (`BeyonderSession.kt:74`) read in the caller's composable
+scope (`MainActivity.kt:1092`), and **nothing about spending SPI can move the
+target**: `SpiritVision.targetFor` is `per + shock + hurt`, which read the
+attribute and the HP/FP pools and contain no SPI term. Re-roll-and-recharge is
+`ArtifactDialog`'s `"Use again"` exactly. What the finding was worth is that
+the button did not SAY the second press costs a point; it now names the price.
+Its two LOWs asked for Compose tests this repo cannot write, but the survivable
+half was real — both test NAMES overclaimed, and one duplicated an assertion
+from the test above it. **Seventh forced assertion in seven slices.**
+
 **6dg is newest, and it shipped a guard that could not pass.**
 `tools/extract_glossary.py` sat untracked and fully written, and had never
 run: `verify()` asserted `len(ent) == 26` beside an assertion that
@@ -680,7 +721,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dg, then 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dh, then 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -911,7 +952,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1635 Kotlin** (JUnit 5 — 1149 `core:rules`, 466 `app`, 20 `core:model`) + **306 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1650 Kotlin** (JUnit 5 — 1164 `core:rules`, 466 `app`, 20 `core:model`) + **308 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -954,11 +995,11 @@ qa-findings/    free-model QA harness: batches.txt + two round scripts
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading 78 of the 79 JSON
-files from `core/rules/src/main/resources/content/` — the odd one out is
-`spirit_vision.json`, which no Kotlin names and which is nonetheless the sole
-claimant of chapter 7.6, so `coverage.py` reports that chapter 100.0% off a
-file nothing loads (6dg names it as the next slice): `skills.json` (158),
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading all 79 JSON
+files from `core/rules/src/main/resources/content/` — **every one of them has
+a loader as of 6dh**, which closed `spirit_vision.json`, the last file no
+Kotlin named. Re-run that sweep rather than trusting this sentence; the query
+is in 6dg: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
 `cor_gained.json` (6), `ritual_cor_thresholds.json` (4),
@@ -971,7 +1012,7 @@ file nothing loads (6dg names it as the next slice): `skills.json` (158),
 `ranged_modifiers.json` (9), `hit_locations.json` (9),
 `wounding_multipliers.json` (8), `spirit_damage.json` (15),
 `major_wound.json` (3), `shields.json` (4), `shield_rules.json` (3),
-`glossary.json` (25),
+`glossary.json` (25), `spirit_vision.json` (4 sections + 7 grants),
 `divination_difficulty.json` (5), `divination_methods.json` (8),
 `divination_modifiers.json` (8), `divination_clarity.json` (6),
 `divination_support.json` (4), `ritual_preparation.json` (5),
@@ -1043,6 +1084,11 @@ Wounds.majorWoundThreshold(maxHp) / .isMajorWound(damage, maxHp)
 Wounds.majorWoundFor(roll): MajorWound / .majorWounds()
 ContentLoader.hitLocations() / .woundingMultipliers() / .spiritDamage()
 ContentLoader.glossary()               // p.167-168, reference only; no rule
+SpiritVision.grantedTo(pathway, sequence) / .formFor(pathway)  // the BLOCKS, never ch.7.6's table
+SpiritVision.targetFor(per, shock, hurt) / .attempt(...) / .partsFor(...)
+SpiritVision.rowFor(margin) / .rowForOutcome(outcome) / .isMisleading(row)
+SpiritVision.astralColors() / .etherBody() / .pathwayDifferences() / .grants()
+ContentLoader.spiritVision()          // loadWhole: six sections, not `entries`
 ContentLoader.majorWound() / .shields() / .shieldRules()
 Shields.all() / .rules() / .named(type): Shield
 Shields.withBonus(defense, shield) / .blockFor(shield, skill, isRanged)
@@ -1299,10 +1345,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6dg. The slice log
+## 6a-6dh. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6dg is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6dh is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
