@@ -162,4 +162,62 @@ class VitalRollsTest {
         }
         assertEquals(emptyList<String>(), stale, "a refusal citing a roll this app now makes")
     }
+
+    /**
+     * The fourth trait that names one of these rolls, and the first to name it
+     * WITHOUT the words "HT roll".
+     *
+     * `Hard to Subdue` is printed immediately below `Hard to Kill`, at the same
+     * price and the same shape — "+1/level to remain conscious when reduced to
+     * 0 or negative HP" — and it quotes the 0 HP row's own words back at it
+     * ("roll each turn to remain conscious"). It reached nothing until 6dt,
+     * because every census that would have found it filtered on the phrase
+     * "HT roll", which this cell never uses.
+     *
+     * **CONSCIOUSNESS only, at every HP where that check is due.** The clause
+     * names "negative HP" and the survival roll happens there, but the survival
+     * row's own words are "or die" — two rolls being due at once does not merge
+     * their scopes, and widening a clause that names its own condition is the
+     * move 6ck refused.
+     */
+    @Test
+    fun `Hard to Subdue lifts the consciousness roll and not the survival roll`() {
+        val subdue = listOf(trait("Hard to Subdue 2"))
+        assertEquals(2, VitalRolls.bonusFor(VitalCheck.CONSCIOUSNESS, subdue))
+        assertEquals(0, VitalRolls.bonusFor(VitalCheck.SURVIVAL, subdue))
+        // Its mirror runs the other way, which is what makes the pair a test
+        // rather than two assertions about one trait.
+        val kill = listOf(trait("Hard to Kill 2"))
+        assertEquals(0, VitalRolls.bonusFor(VitalCheck.CONSCIOUSNESS, kill))
+        assertEquals(2, VitalRolls.bonusFor(VitalCheck.SURVIVAL, kill))
+    }
+
+    @Test
+    fun `Hard to Subdue is per level, and the book prints it no cap`() {
+        assertEquals(1, VitalRolls.bonusFor(VitalCheck.CONSCIOUSNESS, listOf(trait("Hard to Subdue"))))
+        assertEquals(4, VitalRolls.bonusFor(VitalCheck.CONSCIOUSNESS, listOf(trait("Hard to Subdue 4"))))
+        // Hard to Kill's cell caps itself at 1-5 levels and this one prints no
+        // cap at all, so inventing one would be app-authored (4.1).
+        val row = ContentLoader.advantages().first { it.name == TraitEffects.HARD_TO_SUBDUE }
+        assertFalse(row.notes.contains("levels"), row.notes)
+    }
+
+    /**
+     * The census's own corpus, which could not see two traits it applies.
+     *
+     * `TraitEffects.known()` says it is "every trait this object knows about,
+     * applied or not", and it is what the catalogue guard uses as its handled
+     * set. It read a list of collections, so the traits applied by a bespoke
+     * single-trait function belonged to none — `Hard to Kill` and `High Pain
+     * Threshold` were both applied, both reported nothing, and both absent.
+     * Third instance of the failure that function's own KDoc records twice.
+     */
+    @Test
+    fun `every trait a bespoke bonus applies is one the census can see`() {
+        val known = TraitEffects.known()
+        for (name in listOf(TraitEffects.HARD_TO_KILL, TraitEffects.HARD_TO_SUBDUE,
+                            TraitEffects.HIGH_PAIN_THRESHOLD)) {
+            assertTrue(name in known, "$name is applied and invisible to the catalogue guard")
+        }
+    }
 }

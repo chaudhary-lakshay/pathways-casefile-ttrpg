@@ -223,6 +223,9 @@ object TraitEffects {
     /** "+1/level to HT rolls to avoid death; can take 1-5 levels". */
     const val HARD_TO_KILL = "Hard to Kill"
 
+    /** "+1/level to remain conscious when reduced to 0 or negative HP". */
+    const val HARD_TO_SUBDUE = "Hard to Subdue"
+
     /** "+1 to all active defenses, +6 to recover from stun, never freeze." */
     const val COMBAT_REFLEXES_BONUS = 1
 
@@ -482,8 +485,45 @@ object TraitEffects {
      * attribute to roll against, so this app shows those cells rather than
      * rolling them. [RollKind.MAJOR_WOUND_HT] is this bonus's only roll.
      */
-    fun knockdownBonus(traits: List<Trait>): Int =
-        if (levelOf(traits, HIGH_PAIN_THRESHOLD) != null) KNOCKDOWN_BONUS else 0
+    fun knockdownBonus(traits: List<Trait>): Int = BespokeBonus.KNOCKDOWN.of(traits)
+
+    /**
+     * The traits applied by a function of their own rather than through a map.
+     *
+     * **This exists because [known] missed them, twice over.** That function
+     * builds the census's handled set out of the collections above, so a trait
+     * applied by a single-trait function belongs to none of them and reads as
+     * unreached — and `Hard to Kill` and `High Pain Threshold` were both
+     * applied, both reported nothing, and both invisible to the guard whose
+     * whole job is to notice that. The KDoc on [known] already records the
+     * same failure twice (Outdoorsman, then the HT-roll map) and both times
+     * the fix was "add the collection". These three had no collection.
+     *
+     * So the declaration IS the collection: each bonus function reads its own
+     * entry, and [known] reads the enum. A fourth bespoke bonus cannot be
+     * written without an entry here, which is what stops this recurring.
+     *
+     * [fixed] is null where the book prices the clause per level.
+     */
+    private enum class BespokeBonus(val trait: String, val fixed: Int?) {
+        /** "+1/level to HT rolls to avoid death" — [VitalCheck.SURVIVAL]. */
+        DEATH(HARD_TO_KILL, null),
+
+        /**
+         * "+1/level to remain conscious when reduced to 0 or negative HP" —
+         * [VitalCheck.CONSCIOUSNESS].
+         */
+        CONSCIOUSNESS(HARD_TO_SUBDUE, null),
+
+        /** "+3 on HT rolls to avoid knockdown" — the Major Wound's own roll. */
+        KNOCKDOWN(HIGH_PAIN_THRESHOLD, KNOCKDOWN_BONUS),
+        ;
+
+        fun of(traits: List<Trait>): Int {
+            val level = levelOf(traits, trait) ?: return 0
+            return fixed ?: level
+        }
+    }
 
     /**
      * What [traits] add to a roll made to avoid DEATH, which is one of the two
@@ -500,7 +540,33 @@ object TraitEffects {
      * true in the commit that offered the roll; a refusal expires exactly like
      * a sweep verdict (6ba, 6bl).
      */
-    fun deathRollBonus(traits: List<Trait>): Int = levelOf(traits, HARD_TO_KILL) ?: 0
+    fun deathRollBonus(traits: List<Trait>): Int = BespokeBonus.DEATH.of(traits)
+
+    /**
+     * What [traits] add to a roll made to REMAIN CONSCIOUS, the other of the
+     * two rolls the HP table prints ([VitalCheck.CONSCIOUSNESS]).
+     *
+     * `Hard to Subdue` is printed immediately below `Hard to Kill`, at the same
+     * price and the same shape, and the pair partitions the table: one names
+     * "HT rolls to avoid death", the other "to remain conscious when reduced to
+     * 0 or negative HP". The second quotes the 0 HP row's own words — "roll
+     * each turn to remain conscious".
+     *
+     * **It reached nothing until 6dt, and the reason is the filter.** Every
+     * census that would have found it looked for the phrase "HT roll", which
+     * this cell never uses — a roll the book NAMES rather than describes, which
+     * is 6bu's finding on a fourth mechanic.
+     *
+     * **It does not reach the survival roll**, even though that roll happens
+     * at negative HP and this clause names negative HP. Both checks are due
+     * below `-HP`, and two rolls falling in one moment does not merge their
+     * scopes: the survival row's own words are "or die". Widening a clause
+     * that names its own condition is the move 6ck refused.
+     *
+     * No cap: `Hard to Kill`'s cell prints "can take 1-5 levels" and this one
+     * prints nothing, so a ceiling here would be app-authored (4.1).
+     */
+    fun consciousnessRollBonus(traits: List<Trait>): Int = BespokeBonus.CONSCIOUSNESS.of(traits)
 
     /**
      * What [traits] take off a darkness penalty: Night Eyes' "reduce all
@@ -1375,7 +1441,10 @@ object TraitEffects {
             // the first HT-roll trait with nothing left to report would have
             // been the one that slipped. A census reads the collection, never
             // a member of it.
-            HT_ROLL_TRAITS.keys + setOf(ALERTNESS, COMBAT_REFLEXES) + SPI_ROLL_TRAITS.keys
+            HT_ROLL_TRAITS.keys + setOf(ALERTNESS, COMBAT_REFLEXES) + SPI_ROLL_TRAITS.keys +
+            // The third instance of the failure this KDoc records twice above,
+            // and the one that had no collection to add: see [BespokeBonus].
+            BespokeBonus.entries.map { it.trait }
 
     /** The traits reported whole, for the disjointness test. */
     fun unappliedNames(): Set<String> = UNAPPLIED.keys

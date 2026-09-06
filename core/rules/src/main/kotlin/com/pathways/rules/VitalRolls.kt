@@ -72,15 +72,27 @@ object VitalRolls {
      *    alone: dying starts at the `-HP` row, and losing consciousness one
      *    row above it is not death. Applying it to both would widen a clause
      *    that names its own scope -- the move 6ck refused.
+     *  - `Hard to Subdue` says "+1/level **to remain conscious** when reduced
+     *    to 0 or negative HP", so [VitalCheck.CONSCIOUSNESS] alone -- the
+     *    mirror of the row printed directly above it in the same catalogue.
+     *    It names negative HP, where BOTH checks are due, and still does not
+     *    reach the survival roll: that row's own words are "or die".
      *  - `High Pain Threshold` says "to avoid knockdown", so neither. Its roll
      *    is the Major Wound's ([TraitEffects.knockdownBonus]).
+     *
+     * **This said THREE traits until 6dt and there were four.** `Hard to
+     * Subdue`'s cell never contains the words "HT roll", so every census that
+     * would have found it -- all of them filtered on that phrase -- was blind
+     * to it by construction (6bu).
      *
      * Decided here rather than at the screen, so the two checks cannot drift
      * apart in a composable nothing tests.
      */
     fun bonusFor(check: VitalCheck, traits: List<Trait>): Int =
-        TraitEffects.htRollBonus(traits) +
-            if (check == VitalCheck.SURVIVAL) TraitEffects.deathRollBonus(traits) else 0
+        TraitEffects.htRollBonus(traits) + when (check) {
+            VitalCheck.SURVIVAL -> TraitEffects.deathRollBonus(traits)
+            VitalCheck.CONSCIOUSNESS -> TraitEffects.consciousnessRollBonus(traits)
+        }
 
     /**
      * The number 3d6 is rolled against.
