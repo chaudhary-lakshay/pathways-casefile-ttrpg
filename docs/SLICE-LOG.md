@@ -6744,7 +6744,7 @@ assertion.
 | 4 | 2309, 2339 | Spirit Vision's cost, said with strictly less than 7.6's printing; SPI recovery on its **third** printing, refused for a clock since 6ad |
 | 6.5 | 3548, 3550 | prose restating the method table's own 1-2 SPI |
 | 7 | 25 lines | `PowerSources` constants (4271, 4276-7, 4289, 4222), recorded refusals (4161 timing in `RitualMode.kt:49`, 4398 CoR-by-rest), prose, and the ritual templates below |
-| 9 | 9 lines | how to read a potion's `+N` grant — the reading M3 already applies |
+| 9 | 9 lines | how to read a potion's `+N` grant. Checked, not assumed: 5458-5462's *"if you already have the skill"* rule, including its **name AND difficulty must match exactly** condition, is cited by line and applied in `PotionDigestion`'s KDoc |
 | C | 9953, 10010 | `(pre-1352)` and `(expelled post-1350)`: dates the widened filter matches and nothing prices |
 
 **Chapter 7's constants are the interesting half of that table.** `PowerSources`

@@ -113,6 +113,11 @@ WORKED_RANGE = (4422, 4638)
 # Rituals 8 and 9's templates, read only so verify() can pin what they
 # disagree with. Ritual 9 was inside the group this file excludes and outside
 # every range it reads, so its silence was inherited rather than checked.
+#
+# It STOPS at Ritual 9's last line. Ritual 10 begins at 4665 and prints no SPI
+# cost, so widening to take it in would leave template_costs() still finding
+# two while the count guard's message named a third -- and its 17-row material
+# table is a separate slice's content, not a disagreement to pin here.
 TEMPLATE_RANGE = (4639, 4664)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
