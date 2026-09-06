@@ -197,7 +197,11 @@ class VitalRollsTest {
         assertEquals(1, VitalRolls.bonusFor(VitalCheck.CONSCIOUSNESS, listOf(trait("Hard to Subdue"))))
         assertEquals(4, VitalRolls.bonusFor(VitalCheck.CONSCIOUSNESS, listOf(trait("Hard to Subdue 4"))))
         // Hard to Kill's cell caps itself at 1-5 levels and this one prints no
-        // cap at all, so inventing one would be app-authored (4.1).
+        // cap at all, so inventing one would be app-authored (4.1). Asserted
+        // ABOVE the sibling's ceiling, because a check that the catalogue text
+        // lacks the word "levels" is a claim about the data: a mistaken cap of
+        // 5 in production satisfies it and every level below it (Codex).
+        assertEquals(6, VitalRolls.bonusFor(VitalCheck.CONSCIOUSNESS, listOf(trait("Hard to Subdue 6"))))
         val row = ContentLoader.advantages().first { it.name == TraitEffects.HARD_TO_SUBDUE }
         assertFalse(row.notes.contains("levels"), row.notes)
     }
