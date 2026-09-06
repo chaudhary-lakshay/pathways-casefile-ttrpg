@@ -6726,6 +6726,126 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dp. The constant the summary box could not see
+
+Chapter 3 was the largest block left — **56 unclaimed mechanical lines at
+87.9%** — and 6cy's warning held: read one at a time, all 56 are accounted for.
+
+| lines | what they are |
+|---|---|
+| 475-501 | the attribute cost ladder, 10/20/40/80/160 per rung — `AttributeCosts` computes it, so it reads unclaimed forever (6cy) |
+| 508-525 | the p.11 Character Creation budget table |
+| 456, 1120-1122 | the -40 disadvantage cap and the quirk allowance |
+| 1577-1579 | the skill point ladder in prose; `skill_ladder.json` claims the table at 1580-1658 |
+| 2206-2230 | the STUDY points ladder, **compared cell by cell rather than inherited** — see below |
+| 2238-2244 | the Character Creation Summary box |
+| 505-506 | how much SPI a pathway grants, prose |
+
+**That is the third chapter this session whose unclaimed count is a coverage
+proxy rather than a gap** (7's `PowerSources` constants, 9's reading
+instructions, and now 3's ladders). What the sweep found instead was in the
+guard that reads the last row of that table.
+
+### The one restatement that was checked instead of believed
+
+Line 2204 says study points *"follow the same exponential ladder as normal
+character points"* — which is **the book asserting its two printings agree, not
+a comparison of them**, and three findings this session were exactly a summary
+saying something true about itself while disagreeing with the table it
+summarised (6dl's Major Wound, 6dn's nine costs, 6do's damage cell). So the
+grid at 2211-2230 is compared with `skill_ladder.json` cell by cell: four
+cumulative CP values against four difficulties, **16 of 16 agree**. That
+comparison is a test now rather than a sentence, RED-proved by drifting Hard's
+2-CP offset from -1 to 0.
+
+### One of three constants had no tie to a printed line
+
+`GoldenStudyPointsTest` has carried a test since 6v — *"the Character Creation
+Summary agrees with the constants it summarises"* — pinning
+`PointBudget.STARTING_TOTAL` and `MAX_DISADVANTAGES` against the summary box's
+bullets. **`MAX_QUIRKS` is not in it**, and the reason is 6dn's shape a second
+time in three slices: the box prints *"Disadvantages: 0 to -40 pts maximum"*
+and says nothing about quirks at all, so the guard's corpus excluded the one
+constant it could not see. A grep confirms it: `MAX_QUIRKS` was asserted
+nowhere in 1665 tests.
+
+Its printing wraps across lines 1121-1122:
+
+> Up to 5 **additional** points of quirks (minor personality traits at -1 pt
+> each) are allowed.
+
+**`additional` is the load-bearing word.** It is what makes
+`70 + min(dis, 40) + min(quirks, 5)` right rather than quirks coming out of the
+-40 — and I read the paragraph the other way first, on line 1120 alone, before
+1121 settled it. That is the assertion whose failure mode is real, so it is
+pinned in `test_tools.py`, which can read the book, and the Kotlin constant is
+asserted inside the EXISTING guard rather than a new one beside it (the same
+predicate at two sites is the defect).
+
+The second assertion is the finding itself made checkable: the summary box
+contains `40` and does not contain `quirk`. A corpus that cannot see a constant
+is a fact about the corpus, and now it reddens if the box ever gains the row.
+
+### What the quirk term actually is
+
+Nothing this app ships produces one. Checked against three corpora rather than
+one, because 6de's reachability verdict failed within the hour for naming a
+single one:
+
+- no Kotlin under any `src/main` constructs `TraitKind.QUIRK` — the enum has
+  one reader, `PointBudget`, and no producer;
+- none of the 23 fixtures carries a trait of that kind;
+- no row of `disadvantages.json` costs 1, so `PurchasableTraits` cannot offer
+  one either.
+
+`extract_sheets.py` reads the sheets' own block named **"DISADVANTAGES AND
+QUIRKS"** and files all of it as `DISADVANTAGE` — a block NAME, not evidence a
+sheet holds a quirk; none does, and the two lists were checked rather than
+inferred from the heading.
+
+**And the consequence is smaller than it looks, which is worth saying rather
+than dressing up.** A quirk filed as a disadvantage credits the same point
+unless the character is at the -40 cap, and no fixture is within five points of
+it. So this is a producer that does not exist, not a miscount — the 6cf class,
+not a defect.
+
+The review corrected the word: the first draft called the term **unreachable**,
+and `report` takes any `List<Trait>`, so a caller or a deserialized character
+can hand it a quirk and the branch answers correctly. *No producer in the
+bundled corpus* is the true claim; unreachable is not. The term stays for that
+reason — the book prints the rule and the engine answers it.
+
+### What shipped
+
+- `PointBudget`'s KDoc: the printing, the word `additional`, the three corpora
+  and what each was checked against.
+- `MAX_QUIRKS` asserted in the existing Kotlin guard, renamed to *"the printed
+  budget agrees with the constants it is built from"* because its subject is no
+  longer the summary box alone.
+- One Python test comparing the study grid with the ladder, 16 cells.
+- One Python test pinning lines 1121-1122 and the box's silence. Keyed by each
+  line's own `n` rather than sliced positionally — the review's other finding,
+  and a real one: **a positional slice proves nothing about the line number it
+  claims to cite.**
+- **1665 Kotlin** (unchanged: the assertion joined a test rather than adding
+  one) and **330 Python** (+2).
+
+### The next slice
+
+- **Appendix A: 35 unclaimed at 25.5%.** 6da read 32 one at a time and 6dl
+  found a thirty-third by cross-reference; the filter has widened since 6db, so
+  the delta over 6da's corpus is small and nameable.
+- **`Shaken`** (line 8030) — one occurrence in the whole book, which never
+  prints what it does. Likely a 6cs refusal; still unchecked.
+- **Available, and deliberately not built here:** the p.11 table's two advisory
+  columns, *"Advantages: 10-15 pts typical"* and *"Skills: ~50 pts typical"*,
+  are printed twice and read nowhere. The builder has a live budget bar they
+  would sit beside. The book calls them typical, so they are guidance, not a
+  rule — a display the user has not asked for, named rather than invented.
+- **The grapple-state surface** (6do) is still the biggest named thing: a
+  screen for the acted-upon character, plus a state this app does not hold.
+- Still unrun: catalogue → fixture, and extractor → `sourceLines`.
+
 ## 6do. The table a true reason about one column kept out whole
 
 `AttackDialog.kt:113` read *"Null for every skill with no attack table --
