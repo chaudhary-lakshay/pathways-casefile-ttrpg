@@ -380,10 +380,14 @@ class ActiveDefensesTest {
         if (ActiveDefenses.state(setOf(DefenseRefusal.SURPRISE), reflexes).defends) {
             assertTrue(notes.none { it.contains("surprise", ignoreCase = true) }, "$notes")
         }
-        // The stun clause is still reported, and correctly: the trait's own
-        // words are "+6 to RECOVER from stun", which is the roll this app has
-        // no clock for -- not the -4 it now applies while stunned.
-        assertTrue(notes.any { it.contains("recover from stun") }, "$notes")
+        // The stun clause was reported here until 6dr, on the reason "this app
+        // models no stun recovery roll to make" -- while `DamageDialog`
+        // rendered the Major Wound row that prints one. [StunRecovery] is that
+        // roll, so the disclaimer would now be the same defect in reverse: a
+        // GM told a trait does nothing on a screen two taps from where it
+        // moves the number. Same failure mode, opposite direction.
+        assertTrue(notes.none { it.contains("recover from stun") }, "$notes")
+        assertEquals(6, StunRecovery.bonusFor(reflexes) - StunRecovery.bonusFor(emptyList()))
     }
 
     /** Every cause the enum names is a rule the book prints, and the reverse. */

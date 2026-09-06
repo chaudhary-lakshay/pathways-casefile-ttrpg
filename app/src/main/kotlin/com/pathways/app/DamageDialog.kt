@@ -26,6 +26,7 @@ import com.pathways.rules.MajorWoundHt
 import com.pathways.rules.Pool
 import com.pathways.rules.RandomSource
 import com.pathways.rules.Shock
+import com.pathways.rules.StunRecovery
 import com.pathways.rules.SuccessRoll
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.Wounds
@@ -85,6 +86,17 @@ fun DamageDialog(
      */
     majorWoundHt: MajorWoundHt = MajorWoundHt(0, null),
     /**
+     * The same, for the recovery roll the Failure row prints
+     * ([com.pathways.rules.StunRecovery]).
+     *
+     * A second parameter rather than a flag on the one above, because the two
+     * rolls are reached by different clauses: `High Pain Threshold` moves the
+     * table's roll and not this one, Combat Reflexes moves this one and not
+     * that one. Resolved at the call site for the same reason `majorWoundHt`
+     * is — the number and the sentence must be built together.
+     */
+    stunRecoveryHt: MajorWoundHt = MajorWoundHt(0, null),
+    /**
      * What the HP and FP trackers cost this roll, from
      * [com.pathways.rules.Conditions.penaltyFor].
      *
@@ -112,6 +124,11 @@ fun DamageDialog(
     var amount by remember { mutableIntStateOf(1) }
     var pool by remember { mutableStateOf(Pool.HP) }
     var shock by remember { mutableStateOf<RollResult?>(null) }
+    // Keyed on the wound roll, never cleared by hand: a recovery roll belongs
+    // to the stun that roll produced, so it dies with it. Five sites clear
+    // `shock` and adding a sixth line to each is how one gets missed — the
+    // key IS the guard (6cp), and it resets through null on every path.
+    var recovery by remember(shock) { mutableStateOf<RollResult?>(null) }
     // Optional, and null by default: a hit with no called shot behind it is
     // the common case, and the book's own effect column has nothing to say
     // about it. Only HP carries these -- every threshold in that column is
@@ -190,6 +207,10 @@ fun DamageDialog(
                 // apart three times in this codebase (6ag, 6ai, 6be) -- and a
                 // third term is exactly the edit that would have split them.
                 val htTarget = ht + majorWoundHt.bonus + hurt
+                // The table's Failure row asks for a second HT roll and the
+                // two are reached by different clauses, so this is its own
+                // expression rather than htTarget reused.
+                val recoveryTarget = ht + stunRecoveryHt.bonus + hurt
                 MajorWoundPanel(
                     isMajor = isMajor,
                     threshold = Wounds.majorWoundThreshold(maxHp),
@@ -202,6 +223,10 @@ fun DamageDialog(
                     // fatigue are inside [htTarget], because the character was
                     // already carrying those when the blow landed.
                     onRoll = { shock = SuccessRoll.against(htTarget, dice) },
+                    recoveryTarget = recoveryTarget,
+                    recoveryLine = stunRecoveryHt.line,
+                    recovery = recovery,
+                    onRecoveryRoll = { recovery = SuccessRoll.against(recoveryTarget, dice) },
                 )
                 if (pool == Pool.HP) {
                     WhereItLanded(
@@ -238,6 +263,10 @@ private fun MajorWoundPanel(
     traitLine: String? = null,
     shock: RollResult?,
     onRoll: () -> Unit,
+    recoveryTarget: Int,
+    recoveryLine: String? = null,
+    recovery: RollResult?,
+    onRecoveryRoll: () -> Unit,
 ) {
     Text(
         if (isMajor) "Major wound: $threshold or more in one hit" else "Major wound at $threshold+",
@@ -256,6 +285,23 @@ private fun MajorWoundPanel(
     val row = Wounds.majorWoundFor(shock)
     Text(
         "${row.result} — ${row.effect}",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.primary,
+    )
+    if (!StunRecovery.stunsOn(row)) return
+    if (recovery == null) {
+        // The button says "now" because the duration is the GM's: the row
+        // itself asks for one of these a turn and this app holds no clock,
+        // so a bare "Recover" would promise a rule the book does not print.
+        TextButton(onClick = onRecoveryRoll) { Text("Roll HT $recoveryTarget to recover now") }
+        if (recoveryLine != null) {
+            Text(recoveryLine, style = MaterialTheme.typography.bodySmall)
+        }
+        return
+    }
+    Text("3d6: ${recovery.total} vs $recoveryTarget", style = MaterialTheme.typography.titleMedium)
+    Text(
+        if (recovery.total <= recoveryTarget) "Recovered early." else "Still stunned; the row asks again next turn.",
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.primary,
     )

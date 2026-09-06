@@ -903,11 +903,20 @@ class TraitEffectsTest {
     }
 
     /**
-     * **A notes cell can hold several rules, and this app applies one of
+     * **A notes cell can hold several rules, and this app applies some of
      * them.** Combat Reflexes prints three -- "+1 to all active defenses,
-     * +6 to recover from stun, never freeze in surprise" -- and only the
-     * first has a roll here to land on. Fit prints two and only the first
-     * does.
+     * +6 to recover from stun, never freeze in surprise" -- and Fit prints
+     * two of which only the first lands.
+     *
+     * **Combat Reflexes was the subject of this test and is not any more.**
+     * All three of its clauses are applied as of 6dr: the defence bonus, the
+     * surprise refusal (6bg), and the stun recovery roll ([StunRecovery]) --
+     * whose refusal read "this app models no stun recovery roll to make"
+     * while `DamageDialog` rendered the row that prints one. A test can
+     * encode a reason and expire with it (6do), so the trait stays in the
+     * INPUT here: what is asserted is that a wholly applied trait drops OUT
+     * of the report, which is the failure this test exists to catch running
+     * in the other direction.
      *
      * `reported` keyed on the trait NAME, and both traits are applied, so it
      * returned nothing for either: the remaining clauses were not merely
@@ -922,23 +931,15 @@ class TraitEffectsTest {
     @Test
     fun `a partly applied trait reports the clauses that reach nothing`() {
         val notes = TraitEffects.reported(listOf(advantage("Combat Reflexes"), advantage("Fit")))
-        assertEquals(
-            listOf("Combat Reflexes", "Fit"),
-            notes.map { it.trait },
-        )
-        assertEquals(
-            listOf(
-                // "never freeze in surprise" was here until the surprise
-                // refusal shipped (6bg) and the stun penalty followed it. What
-                // is left is the RECOVERY roll, which needs a clock.
-                "+6 to recover from stun",
-                "recover FP at twice the normal rate",
-            ),
-            notes.map { it.printed },
-        )
-        // The applied clause is never reported -- it is not left over.
+        assertEquals(listOf("Fit"), notes.map { it.trait })
+        assertEquals(listOf("recover FP at twice the normal rate"), notes.map { it.printed })
+        // Every applied clause is absent -- none is left over. The last of the
+        // three, "+6 to recover from stun", left this list in 6dr; the other
+        // two went in 6bg and 6bf.
         assertTrue(notes.none { it.printed.contains("active defenses") }, notes.toString())
         assertTrue(notes.none { it.printed.contains("HT rolls") }, notes.toString())
+        assertTrue(notes.none { it.printed.contains("recover from stun") }, notes.toString())
+        assertTrue(notes.none { it.printed.contains("surprise") }, notes.toString())
     }
 
     /**

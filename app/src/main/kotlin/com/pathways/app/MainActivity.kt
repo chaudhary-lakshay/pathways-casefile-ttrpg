@@ -933,6 +933,7 @@ fun SheetScreen(
             },
             onShocked = { shocked = true },
             majorWoundHt = TraitEffects.majorWoundHt(traits),
+            stunRecoveryHt = TraitEffects.stunRecoveryHt(traits),
             // The kind is named at the call site because the two states answer
             // differently for it: shock refuses this roll (the roll creates
             // it) and the pools do not (the character carried them in).

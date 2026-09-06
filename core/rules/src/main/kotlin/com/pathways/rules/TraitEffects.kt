@@ -17,8 +17,14 @@ import com.pathways.rules.content.TraitDefinition
 data class TraitNote(val trait: String, val printed: String, val reason: String)
 
 /**
- * What a character's traits do to the Major Wound's HT roll: the number, and
- * the sentence naming every trait that produced it.
+ * What a character's traits do to an HT roll the Major Wound table asks for:
+ * the number, and the sentence naming every trait that produced it.
+ *
+ * That table asks for two, and they are different rolls with different
+ * reachers — the table's own roll ([TraitEffects.majorWoundHt]) and the one
+ * its Failure row prints to recover from the stun ([StunRecovery.bonusFor]).
+ * The shape is shared because both are "a bonus and the credit for it"; the
+ * SCOPES are not, and each function decides its own.
  *
  * [line] is null exactly when [bonus] is zero, so a screen cannot print a
  * credit for a roll nothing moved.
@@ -554,6 +560,31 @@ object TraitEffects {
     }
 
     /**
+     * The same, for the recovery roll the Failure row prints ([StunRecovery]).
+     *
+     * Here rather than on [StunRecovery] because [HT_ROLL_TRAITS] is private
+     * and the credit is built from it — the number itself still comes from
+     * [StunRecovery.bonusFor], so the two cannot disagree.
+     *
+     * The scopes differ by one clause each way, which is the reason this is
+     * not [majorWoundHt] with a flag: `High Pain Threshold` reaches that roll
+     * and not this one (its clause names knockdown), and Combat Reflexes
+     * reaches this one and not that one (its clause names stun recovery).
+     */
+    fun stunRecoveryHt(traits: List<Trait>): MajorWoundHt {
+        val parts = mutableListOf<String>()
+        if (stunRecoveryBonus(traits) != 0) {
+            parts += "+${StunRecovery.COMBAT_REFLEXES_BONUS} from $COMBAT_REFLEXES"
+        }
+        for ((trait, value) in HT_ROLL_TRAITS) {
+            if (levelOf(traits, trait) == null) continue
+            parts += "${if (value < 0) "−${-value}" else "+$value"} from $trait"
+        }
+        if (parts.isEmpty()) return MajorWoundHt(0, null)
+        return MajorWoundHt(StunRecovery.bonusFor(traits), "includes ${parts.joinToString(", ")}.")
+    }
+
+    /**
      * What [traits] add to any roll of HT itself.
      *
      * **"+1 to all HT rolls" means all of them, and [modifiers] can only
@@ -1016,6 +1047,24 @@ object TraitEffects {
         if (levelOf(traits, COMBAT_REFLEXES) != null) COMBAT_REFLEXES_BONUS else 0
 
     /**
+     * What [traits] add to a roll to recover from stun.
+     *
+     * The same cell's second clause, and it was refused until 6dr on the
+     * ground that this app made no such roll. [StunRecovery] is that roll;
+     * read its KDoc for which stuns it answers for and why the others are a
+     * gap rather than a refusal.
+     *
+     * **The clause names the CONDITION, never an attribute** — "+6 to recover
+     * from stun" — so it would reach the Fright Effects table's Will and IQ
+     * recovery rolls on the same warrant, if this app offered them. That is
+     * the opposite scoping to [knockdownBonus] one clause up, whose "+3 on
+     * **HT rolls** to avoid knockdown" names both, and the difference is the
+     * book's rather than this app's.
+     */
+    fun stunRecoveryBonus(traits: List<Trait>): Int =
+        if (levelOf(traits, COMBAT_REFLEXES) != null) StunRecovery.COMBAT_REFLEXES_BONUS else 0
+
+    /**
      * The traits a character owns whose printed effect is real and lands on
      * nothing this app rolls, each with the reason.
      *
@@ -1380,10 +1429,13 @@ object TraitEffects {
             "recover FP at twice the normal rate" to
                 "this app holds no clock to recover against",
         ),
-        COMBAT_REFLEXES to listOf(
-            "+6 to recover from stun" to
-                "this app models no stun recovery roll to make",
-        ),
+        // Combat Reflexes was here, on "+6 to recover from stun" — refused
+        // saying "this app models no stun recovery roll to make". The Major
+        // Wound's Failure row prints one and `DamageDialog` had rendered its
+        // sentence since 6n, so the reason was a claim about the app that had
+        // stopped being true. All three of that cell's clauses are applied
+        // now ([defenseBonus], [stunRecoveryBonus], and the surprise refusal
+        // pinned in `ActiveDefensesTest`), which is why no entry is left.
         // Both Balance rows are the Fit shape: one clause reaches a roll and
         // one does not. The clause sweep (6bh) DID flag these two cells --
         // they carry two mechanical clauses each, which is exactly its filter
