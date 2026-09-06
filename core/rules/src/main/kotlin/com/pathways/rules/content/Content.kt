@@ -803,6 +803,29 @@ data class ExtraEffort(val option: String, val fp: Int, val effect: String)
 data class AttackOption(val option: String, val rule: String)
 
 /**
+ * One row of the skill-boundary table (Ch. 6.5, Sec. I, p. 54).
+ *
+ * Which of the two skills a question of this scope needs -- NOT how hard the
+ * question is, which is [DivinationDifficulty]'s separate axis. Only the
+ * Complex row carries a [modifier], and it prices the SUBSTITUTION: what a
+ * caster pays for reaching for Divination Arts where the book asks for
+ * Ritualistic Magic.
+ *
+ * [printedCost] is prose and never a number. Step 2 sends the payment to
+ * Section II's method table, which `Divination.spiFor` already charges, so an
+ * integer here would be charged twice.
+ */
+@Serializable
+data class DivinationScope(
+    val scope: String,
+    val examples: String,
+    val guidance: String,
+    val printedCost: String,
+    val modifier: Int? = null,
+    val printedModifier: String? = null,
+)
+
+/**
  * One band of the Question Difficulty table (Ch. 6.5, Step 1).
  *
  * [openEnded] marks "-6 or worse", the one band whose modifier is a floor

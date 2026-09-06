@@ -7,6 +7,7 @@ import com.pathways.rules.content.DivinationClarity
 import com.pathways.rules.content.DivinationDifficulty
 import com.pathways.rules.content.DivinationMethod
 import com.pathways.rules.content.DivinationModifier
+import com.pathways.rules.content.DivinationScope
 import com.pathways.rules.content.DivinationSupport
 
 /**
@@ -244,10 +245,42 @@ object Divination {
     )
 
     fun difficulties(): List<DivinationDifficulty> = ContentLoader.divinationDifficulty()
+    fun scopes(): List<DivinationScope> = ContentLoader.divinationScopes()
     fun methods(): List<DivinationMethod> = ContentLoader.divinationMethods()
     fun modifiers(): List<DivinationModifier> = ContentLoader.divinationModifiers()
     fun clarities(): List<DivinationClarity> = ContentLoader.divinationClarity()
     fun supportingSkills(): List<DivinationSupport> = ContentLoader.divinationSupport()
+
+    /** The scope named [name]; refused rather than defaulted to the free one. */
+    fun scopeNamed(name: String): DivinationScope =
+        scopes().firstOrNull { it.scope.equals(name, ignoreCase = true) }
+            ?: throw IllegalArgumentException(
+                "no divination scope named '$name'; the book prints " +
+                    scopes().joinToString { it.scope },
+            )
+
+    /**
+     * What reaching for Divination Arts at this [scope] costs the roll.
+     *
+     * Zero for the two rows the book prices nothing on, and that zero is a
+     * VALUE rather than an absence: "Divination Arts is sufficient" and
+     * "Either skill works" are the book saying the substitution is free, not
+     * declining to say what it costs. The null this reads is therefore
+     * answered here, once, instead of at every call site.
+     *
+     * NOT composed with the question's difficulty band, which arrives through
+     * [targetFor]'s own parameter: the band prices the QUESTION and this
+     * prices the SKILL, so a complex question about a hard subject is charged
+     * both times. That composition is a reading the book does not print --
+     * see this object's UNAPPLIED neighbours and the extractor's verify_scope,
+     * which pins the descriptors of the two tables staying disjoint.
+     *
+     * "Requires Ritualistic Magic or a very high Divination Arts roll" prints
+     * no threshold for "very high", so none is enforced: the cross-skill
+     * default one line below prints its own ("at 12+"), and inventing one
+     * here would be app-authored.
+     */
+    fun penaltyFor(scope: DivinationScope): Int = scope.modifier ?: 0
 
     /** The method named [name]; refused rather than defaulted to the cheapest. */
     fun methodNamed(name: String): DivinationMethod =

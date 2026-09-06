@@ -112,7 +112,37 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6di is newest, and it found a rule no coverage number could ever have
+**6dj is newest, and it overturns a refusal whose author had already written
+down that its evidence was thin.** Book lines 3553-3558 — chapter 6.5's
+skill-boundary table, three scopes of question and which of the two skills
+each needs — were claimed by nothing, with `divination_support.json`'s claims
+BRACKETING them (3559-3560 and 3563-3580). Its Complex row prices the
+substitution at **-4**, and `extract_divination.py` had REFUSED that number as
+"prose for the SAME axis the Question Difficulty table already prices", whose
+Hard row is also -4; `verify_cross_default`'s own message called that numeric
+agreement **"the only evidence"**. Re-run as a query it dies: the descriptors
+are disjoint and they CROSS — "long-range" belongs to the **Moderate** band's
+"distant" at **-2**, "multiple questions" to no band at all, "resisting
+countermeasures" to `AntiDivination`, and neither of the Hard band's own words
+(*future*, *abstract*) is in the bullet. **Two -4s pricing different facts,
+agreeing by coincidence.** Read it for four more things. **Half the reason
+survives and is honoured** — it is not a sixth row of the Step 3 modifier
+table, so it ships as Section I's OWN table and `divination_modifiers.json` is
+untouched. **A guard on a dead reason must become a guard on the live one**:
+the old check asserted the two numbers agree; `verify_scope` now asserts the
+two tables' descriptors stay DISJOINT, so a re-extraction that puts *future*
+into that bullet reddens rather than silently re-merging the axes. **The cost
+column is not a second charge** — Step 2 names Section II's method table as the
+payment, and the tiers print 2 SPI where a Pendulum costs 1, so it is stored as
+PROSE (`printedCost: "2 SPI"`), the type-level "shown, never applied". And
+**"very high" is left unenforced**: the cross-skill default one line below
+prints its own threshold ("at 12+") and this sentence prints none, so a cutoff
+would be app-authored. Chapter 6.5: 92.3% → 96.9%. Its diff review returned one
+LOW (the composition test pinned the band, which the difficulty test above
+already pins, and left the scope penalty it actually composes unpinned) and two
+explicit no-findings.
+
+**6di is next, and it found a rule no coverage number could ever have
 reported.** Book lines 2785-2787 — the Crippling paragraph, which governs the
 hit-location table's entire `Special Effect on Hit` column — sit in the
 **three-line seam** between `hit_locations.json` (ends 2784) and
@@ -760,7 +790,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6di, then 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dj, then 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -991,7 +1021,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1657 Kotlin** (JUnit 5 — 1171 `core:rules`, 466 `app`, 20 `core:model`) + **312 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1659 Kotlin** (JUnit 5 — 1173 `core:rules`, 466 `app`, 20 `core:model`) + **314 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1034,7 +1064,7 @@ qa-findings/    free-model QA harness: batches.txt + two round scripts
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading all 79 JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading all 80 JSON
 files from `core/rules/src/main/resources/content/` — **every one of them has
 a loader as of 6dh**, which closed `spirit_vision.json`, the last file no
 Kotlin named. Re-run that sweep rather than trusting this sentence; the query
@@ -1052,7 +1082,8 @@ is in 6dg: `skills.json` (158),
 `wounding_multipliers.json` (8), `spirit_damage.json` (15),
 `major_wound.json` (3), `shields.json` (4), `shield_rules.json` (3),
 `glossary.json` (25), `spirit_vision.json` (4 sections + 7 grants),
-`divination_difficulty.json` (5), `divination_methods.json` (8),
+`divination_difficulty.json` (5), `divination_scope.json` (3),
+`divination_methods.json` (8),
 `divination_modifiers.json` (8), `divination_clarity.json` (6),
 `divination_support.json` (4), `ritual_preparation.json` (5),
 `boon_granting.json` (1), `boon_modifiers.json` (8),
@@ -1138,6 +1169,10 @@ Divination.targetFor(skill, difficulty, extras) / .attempt(...): DivinationOutco
 Divination.clarityFor(roll) / .modifierTotal(rows, gmValue, repeats)
 Divination.supportBonus(skills) / .spiFor(method, chosen, burned)
 Divination.difficulties() / .methods() / .modifiers() / .clarities()
+Divination.scopes() / .scopeNamed(name) / .penaltyFor(scope): Int
+                                      // Sec. I's skill boundary; -4 for Complex,
+                                      // NOT the question's difficulty band
+ContentLoader.divinationScopes()
 SkillRoll.at(label, base, key, source, mods, ctx): SkillRollOutcome
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()

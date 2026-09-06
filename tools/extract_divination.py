@@ -1,7 +1,8 @@
-"""Extract the Divination Arts resolution tables (Ch. 6.5, global 3563-3736).
+"""Extract the Divination Arts resolution tables (Ch. 6.5, global 3553-3736).
 
-Five tables, and each needs a different anchor because each has a different
-closed column:
+Six tables, and each needs a different anchor because each has a different
+closed column. Five are listed here; the sixth is the skill-boundary table,
+whose anchor is a bullet glyph and which has a section of its own below:
 
   * SUPPORTING SKILLS (3563-3579) and MODIFIER SOURCES (3690-3707) both put a
     signed value in the second column, so the anchor is the sign -- the rule
@@ -51,17 +52,45 @@ as a gate rather than a rounding: a caster at 11 gets no default at all. Read
 as advisory it would hand every apprentice the cheap default the sentence
 conditions.
 
-WHY THE -4 ONE LINE ABOVE IT IS NOT A MODIFIER
-------------------------------------------------
-3557-3558: "Complex divination ... Requires Ritualistic Magic or a very high
-Divination Arts roll (-4 penalty)." It reads like a sixth modifier row and it
-is not: it is prose for the SAME axis the Question Difficulty table already
-prices, whose "Hard -- well-guarded, future, abstract" row is exactly -4 and
-whose Extreme row is "-6 or worse". Offering it beside that table charges one
-hard question twice -- the scoping that keeps Appendix A's adverse conditions
-off a shot already priced by chapter 5's darkness row (6ae). verify() pins
-that the difficulty table still prints a -4 row, because that agreement is
-the whole reason this line is read as a restatement rather than a rule.
+THE SKILL-BOUNDARY TABLE (3553-3558), AND THE REFUSAL THAT EXPIRED ON IT
+--------------------------------------------------------------------------
+Section I closes on a table of its own: "The two skills overlap at the
+following boundaries", three scopes of question and which of the two skills
+each needs. Two of its three rows WRAP, and the bullet glyph is the only
+thing marking where a row begins, so a line-at-a-time read gives Moderate no
+cost and Complex no penalty -- which is what a missing rule looks like.
+
+This extractor used to refuse the third row's number:
+
+    3557-3558: "Complex divination ... Requires Ritualistic Magic or a very
+    high Divination Arts roll (-4 penalty)."
+
+on the reading that it "is prose for the SAME axis the Question Difficulty
+table already prices, whose 'Hard -- well-guarded, future, abstract' row is
+exactly -4", and verify_cross_default's own message called that numeric
+agreement "the only evidence". Re-run as a query, the evidence does not
+survive: neither of the Hard band's distinctive descriptors (future,
+abstract) appears in the complex bullet, whose "long-range" belongs to the
+MODERATE band's "distant" at -2 and whose "multiple questions" appears in no
+band at all. The third, "resisting countermeasures", is priced by a wholly
+separate system -- Sec. 4-6's Sequence Immunity and the target's active
+techniques -- which the same dialog already adds BESIDE the difficulty band.
+Two -4s that price different facts, agreeing by coincidence.
+
+Half of the old reason survives and is honoured: it is not a sixth row of
+the Step 3 modifier table. It is Section I's own table, so it ships as one,
+and divination_modifiers.json is left alone.
+
+verify_scope now pins the evidence the refusal died on, in the direction
+that can disagree: the priced row's descriptors must share no word with any
+difficulty band's. If a re-extraction ever puts a band descriptor into that
+bullet the two really would be one axis, and applying both would charge one
+question twice -- the scoping that keeps Appendix A's adverse conditions off
+a shot already priced by chapter 5's darkness row (6ae).
+
+"Very high" is left unenforced on purpose. The cross-skill default one line
+below prints its threshold ("at 12+") and this sentence prints none, so any
+cutoff would be app-authored: the enforceable rule is the -4.
 """
 import json, pathlib, re, sys
 
@@ -73,8 +102,8 @@ CHAPTER = "6.5"
 # The cross-skill default, in the seam above the first table. Two lines,
 # because the sentence wraps across a page break.
 CROSS_DEFAULT_RANGE = (3559, 3560)
-# The overlap bullets above it, read only to prove the -4 is the difficulty
-# table restated rather than a modifier of its own.
+# Sec. I's skill-boundary table, above it: three scopes of question and which
+# skill each needs. Its bullets are the row boundaries; two rows wrap.
 OVERLAP_RANGE = (3553, 3558)
 SUPPORT_RANGE = (3563, 3580)
 METHOD_RANGE = (3583, 3654)
@@ -135,6 +164,16 @@ CROSS_THRESHOLD = re.compile(
     r"one skill at\s*(\d+)\+\s*can attempt the other at\s*([+-]\d+)", re.IGNORECASE)
 # The complex-divination bullet, whose -4 is the difficulty table restated.
 COMPLEX_PENALTY = re.compile(r"very high Divination Arts roll\s*\(([+-]\d+) penalty\)")
+
+# The skill-boundary table (3553-3558). The bullet is the row boundary; two of
+# the three rows wrap onto a second line without one.
+BULLET = "\x7f"
+SCOPE_ROW = re.compile(r"^(\w+) divination \((.+?)\):\s*(.+)$")
+SCOPE_COST = "Cost:"
+EXPECTED_SCOPES = ["Simple", "Moderate", "Complex"]
+# The band's name is cut from its descriptors on the FIRST dash: "Hard -
+# well-guarded, ..." carries a second one inside a descriptor.
+DASH = re.compile(r"\s*[-–—]\s*")
 # Ch. 7 II p. 61, in a chapter this module does not otherwise read. It is the
 # ONLY thing limiting the sentence above to one direction, and that limit is
 # invisible from here -- which is exactly how it went unread until the seam
@@ -320,6 +359,100 @@ def parse_clarity(lines):
     return out
 
 
+def parse_scope(lines):
+    """Section I's three scopes, cut on the BULLET rather than on the line.
+
+    Two of the three rows wrap, and the wrapped half carries the payload both
+    times -- Moderate's cost and Complex's penalty. A line-at-a-time read
+    returns two rows with no number, which is indistinguishable from a table
+    that prints none. Same shape as the cross-skill default below, and as the
+    Flourish Bonus (6ay).
+    """
+    rows, current = [], None
+    for line in lines:
+        if line.startswith(BULLET):
+            if current is not None:
+                rows.append(current)
+            current = line[len(BULLET):].strip()
+        elif current is not None:
+            current = f"{current} {line}"
+    if current is not None:
+        rows.append(current)
+
+    out = []
+    for row in rows:
+        parsed = SCOPE_ROW.match(row)
+        if not parsed:
+            raise ValueError(f"not a scope row: {row!r}")
+        scope, examples, tail = parsed.groups()
+        if SCOPE_COST not in tail:
+            raise ValueError(f"the {scope} row prints no cost: {tail!r}")
+        guidance, cost = tail.split(SCOPE_COST, 1)
+        entry = {
+            "scope": scope,
+            "examples": examples,
+            "guidance": guidance.strip(),
+            # Stored as the book PRINTS it and never as a number: Step 2 sends
+            # the payment to Section II's method table ("Select a divination
+            # method (see Section II). Pay the SPI cost."), which Divination
+            # .spiFor already charges. A second integer here is the live double
+            # count 6bx fixed one screen over.
+            "printedCost": cost.strip().rstrip("."),
+        }
+        penalty = COMPLEX_PENALTY.search(tail)
+        if penalty:
+            entry["modifier"] = int(penalty.group(1))
+            entry["printedModifier"] = penalty.group(1)
+        out.append(entry)
+
+    got = [e["scope"] for e in out]
+    if got != EXPECTED_SCOPES:
+        raise ValueError(f"the boundary table's scopes changed: {got} != {EXPECTED_SCOPES}")
+    return out
+
+
+def scope_descriptors(band):
+    """The band's own words, without its name -- "Hard -- well-guarded, future,
+    abstract" is three descriptors, not four."""
+    parts = DASH.split(band, maxsplit=1)
+    if len(parts) != 2:
+        raise ValueError(f"a difficulty band names no descriptors: {band!r}")
+    return [d.strip() for d in parts[1].split(",") if d.strip()]
+
+
+def verify_scope(scopes, difficulty):
+    """The evidence the same-axis refusal died on, in the direction that can
+    disagree.
+
+    The refusal read the Complex row's -4 as the Hard band restated, on the
+    numeric agreement alone. What disproves it is the WORDS, so this asserts
+    the words stay apart: no difficulty band's descriptor may appear in a
+    PRICED scope row's. Should a re-extraction ever put one there the two are
+    one axis after all, and applying both charges one question twice.
+
+    Both corpora are asserted non-empty first. A disjointness check over an
+    empty side is the guard that cannot fire (6cz).
+    """
+    priced = [s for s in scopes if "modifier" in s]
+    if not priced:
+        raise ValueError(
+            "the complex-divination bullet no longer prints its penalty. The "
+            "rule is applied only while the number is there"
+        )
+    if not difficulty:
+        raise ValueError("no difficulty bands to compare the scope rows against")
+
+    for row in priced:
+        for band in difficulty:
+            for descriptor in scope_descriptors(band["band"]):
+                if descriptor in row["examples"]:
+                    raise ValueError(
+                        f"the {row['scope']} scope and the {band['band'].split()[0]} "
+                        f"question band now share {descriptor!r}, which makes them one "
+                        "axis -- the reading that applies both has to be made again"
+                    )
+
+
 def parse_cross_default(cells):
     """The cross-skill default's penalty and its source-skill threshold.
 
@@ -338,10 +471,15 @@ def parse_cross_default(cells):
     return int(default.group(1)), int(gated.group(1)), int(gated.group(2)), joined
 
 
-def verify_cross_default(penalty, threshold, gated_penalty, seam, overlap,
-                         difficulty, ritual_section=None):
-    """The default, its gate, why the -4 beside it is not a modifier, and
-    which of the sentence's two directions the other chapter forbids."""
+def verify_cross_default(penalty, threshold, gated_penalty, seam,
+                         ritual_section=None):
+    """The default, its gate, and which of the sentence's two directions the
+    other chapter forbids.
+
+    The -4 one bullet above used to be argued here, on the grounds that it
+    restated the difficulty table. It has its own table and its own guard now
+    (see verify_scope): one predicate, one home.
+    """
     if ritual_section is not None and RITUAL_NO_DEFAULT not in ritual_section:
         raise ValueError(
             "ch. 7 II no longer prints its prohibition. This sentence's 'and "
@@ -368,24 +506,6 @@ def verify_cross_default(penalty, threshold, gated_penalty, seam, overlap,
     # printed above the tables, not in the modifier list.
     if "Default:" not in seam:
         raise ValueError(f"the seam no longer labels itself a default: {seam!r}")
-
-    # And the -4 one line above, which is the difficulty table restated. If
-    # that table ever stops printing a -4 row, this line becomes a rule of its
-    # own and the refusal to apply it has to be re-argued.
-    complex_penalty = COMPLEX_PENALTY.search(" ".join(overlap))
-    if not complex_penalty:
-        raise ValueError(
-            "the complex-divination bullet no longer prints its penalty. The "
-            "refusal to apply it is only a decision while the number is there"
-        )
-    printed = [d["modifier"] for d in difficulty]
-    if int(complex_penalty.group(1)) not in printed:
-        raise ValueError(
-            f"the complex-divination bullet prints {complex_penalty.group(1)} and the "
-            f"Question Difficulty table prints {printed}. They used to agree, which is "
-            "the only evidence that bullet restates the table rather than adding a "
-            "sixth modifier -- applying both would charge one hard question twice"
-        )
 
 
 def verify(support, methods, difficulty, modifiers, clarity, prose):
@@ -454,9 +574,12 @@ def main():
     penalty, threshold, gated, seam = parse_cross_default(
         stream(byn, *CROSS_DEFAULT_RANGE))
     verify_cross_default(penalty, threshold, gated, seam,
-                         stream(byn, *OVERLAP_RANGE), difficulty,
                          " ".join(stream(byn, *RITUAL_NO_DEFAULT_RANGE)))
 
+    scopes = parse_scope(stream(byn, *OVERLAP_RANGE))
+    verify_scope(scopes, difficulty)
+
+    write("divination_scope", scopes, [list(OVERLAP_RANGE)])
     write("divination_support", support, [list(CROSS_DEFAULT_RANGE), list(SUPPORT_RANGE)])
     write("divination_methods", methods, [list(METHOD_RANGE)])
     write("divination_difficulty", difficulty, [list(DIFFICULTY_RANGE)])

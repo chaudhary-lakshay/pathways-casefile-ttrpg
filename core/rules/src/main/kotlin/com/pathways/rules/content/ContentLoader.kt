@@ -89,6 +89,9 @@ object ContentLoader {
     private val divinationDifficultyLazy: List<DivinationDifficulty> by lazy {
         load("divination_difficulty.json")
     }
+    private val divinationScopeLazy: List<DivinationScope> by lazy {
+        load("divination_scope.json")
+    }
     private val divinationMethodsLazy: List<DivinationMethod> by lazy {
         load("divination_methods.json")
     }
@@ -243,6 +246,9 @@ object ContentLoader {
 
     /** The Question Difficulty bands (Ch. 6.5, Step 1), easiest first. */
     fun divinationDifficulty(): List<DivinationDifficulty> = divinationDifficultyLazy
+
+    /** Which skill each scope of question needs (Ch. 6.5, Sec. I). */
+    fun divinationScopes(): List<DivinationScope> = divinationScopeLazy
 
     /** The eight divination methods and what each costs (Ch. 6.5, Sec. II). */
     fun divinationMethods(): List<DivinationMethod> = divinationMethodsLazy

@@ -101,6 +101,7 @@ fun DivinationDialog(
     onDismiss: () -> Unit,
 ) {
     val difficulties = remember { Divination.difficulties() }
+    val scopes = remember { Divination.scopes() }
     val methods = remember { Divination.methods() }
     // The cross-reference row is not a modifier; Divination refuses it.
     val rows = remember { Divination.modifiers().filterNot { it.crossReference } }
@@ -108,6 +109,10 @@ fun DivinationDialog(
     val allTechniques = remember { AntiDivinationTechniques.all() }
 
     var difficulty by remember { mutableStateOf(difficulties.first()) }
+    // Sec. I's boundary table: which skill the question needs. Defaults to the
+    // first row like the band above it, which is also the row the book prices
+    // nothing on -- a default that charges is a rule nobody declared.
+    var scope by remember { mutableStateOf(scopes.first()) }
     var method by remember { mutableStateOf(methods.first()) }
     var chosen by remember { mutableStateOf<Set<String>>(emptySet()) }
     // Which of the diviner's own supporting skills they are bringing to bear.
@@ -189,7 +194,14 @@ fun DivinationDialog(
     val support = Divination.supportBonus(
         ownedSupportSkills.filter { it.skill in supporting },
     )
-    val extras = circumstances + protection.penalty + shock + spiTrait + support
+    // What reaching for Divination Arts at this scope costs. Named on its own
+    // rather than folded into `circumstances`, for the reason the support
+    // bonus is: the signed numbers on the breakdown line have to sum to the
+    // target printed above them. It is NOT the question's band -- that prices
+    // how hard the question is and this prices which skill is asking.
+    val scopePenalty = Divination.penaltyFor(scope)
+    val extras =
+        circumstances + protection.penalty + shock + spiTrait + support + scopePenalty
     val target = Divination.targetFor(skillLevel, difficulty, extras)
 
     AlertDialog(
@@ -231,6 +243,34 @@ fun DivinationDialog(
                     }
                 }
                 Text(difficulty.example, style = MaterialTheme.typography.bodySmall)
+
+                Text(
+                    "Scope",
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+                FlowRow {
+                    scopes.forEach { option ->
+                        FilterChip(
+                            selected = option == scope,
+                            onClick = { scope = option },
+                            label = {
+                                // The two free rows carry no number to show,
+                                // and showing "+0" would print a modifier the
+                                // book does not.
+                                Text(
+                                    listOfNotNull(option.scope, option.printedModifier)
+                                        .joinToString(" "),
+                                )
+                            },
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                    }
+                }
+                Text(
+                    "${scope.examples} — ${scope.guidance}",
+                    style = MaterialTheme.typography.bodySmall,
+                )
 
                 Text(
                     "Method",
@@ -467,6 +507,11 @@ fun DivinationDialog(
                 }
                 Text(
                     "Skill $skillLevel, question ${signed(difficulty.modifier)}" +
+                        (
+                            if (scopePenalty != 0) {
+                                ", ${scope.scope.lowercase()} scope ${signed(scopePenalty)}"
+                            } else ""
+                            ) +
                         (if (shock != 0) ", shock ${signed(shock)}" else "") +
                         (
                             if (spiTrait != 0) {

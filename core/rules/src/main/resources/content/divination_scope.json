@@ -1,0 +1,32 @@
+{
+ "sourceLines": {
+  "6.5": [
+   [
+    3553,
+    3558
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "scope": "Simple",
+   "examples": "yes/no, vague direction, basic insight",
+   "guidance": "Divination Arts is sufficient.",
+   "printedCost": "1–2 SPI"
+  },
+  {
+   "scope": "Moderate",
+   "examples": "find a person, glimpse a scene, interpret a dream",
+   "guidance": "Either skill works. Divination Arts is faster (minutes vs. ritual setup) but may receive less detail.",
+   "printedCost": "2 SPI"
+  },
+  {
+   "scope": "Complex",
+   "examples": "long-range, multiple questions, resisting countermeasures",
+   "guidance": "Requires Ritualistic Magic or a very high Divination Arts roll (-4 penalty).",
+   "printedCost": "2 SPI",
+   "modifier": -4,
+   "printedModifier": "-4"
+  }
+ ]
+}

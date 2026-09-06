@@ -1353,26 +1353,80 @@ def test_the_cross_skill_default_is_read_across_the_page_break_it_wraps_on():
         ])
 
 
-def test_the_complex_bullet_is_the_difficulty_table_restated():
-    """Its -4 equals the Hard row. Applying both charges one hard question
-    twice, so that agreement is what makes the refusal a decision."""
-    overlap = ["Complex divination (long-range, multiple questions, resisting "
-               "countermeasures): Requires Ritualistic Magic or a",
-               "very high Divination Arts roll (-4 penalty). Cost: 2 SPI."]
-    seam = ("Default: Divination Arts defaults to Ritualistic Magic-2 and vice "
-            "versa. A character with one skill at 12+ can attempt the other at -2.")
-    hard = [{"modifier": 2}, {"modifier": 0}, {"modifier": -2},
-            {"modifier": -4}, {"modifier": -6}]
-    extract_divination.verify_cross_default(-2, 12, -2, seam, overlap, hard)
+OVERLAP_LINES = [
+    "The two skills overlap at the following boundaries:",
+    "\x7f Simple divination (yes/no, vague direction, basic insight): "
+    "Divination Arts is sufficient. Cost: 1–2 SPI.",
+    "\x7f Moderate divination (find a person, glimpse a scene, interpret a "
+    "dream): Either skill works. Divination Arts is",
+    "faster (minutes vs. ritual setup) but may receive less detail. Cost: 2 SPI.",
+    "\x7f Complex divination (long-range, multiple questions, resisting "
+    "countermeasures): Requires Ritualistic Magic or a",
+    "very high Divination Arts roll (-4 penalty). Cost: 2 SPI.",
+]
 
-    # If the table stopped printing a -4, the bullet would be a rule of its own.
-    with pytest.raises(ValueError, match="restates the table"):
-        extract_divination.verify_cross_default(
-            -2, 12, -2, seam, overlap, [{"modifier": -3}])
-    # And the refusal only holds while the bullet still prints its number.
+
+def test_the_skill_boundary_table_parses_three_scopes():
+    """Section I's own table: which skill each scope of question needs.
+
+    Two of the three rows WRAP, and the bullet glyph is the only thing that
+    marks where a row starts -- a line-at-a-time read gives Moderate no cost
+    and Complex no penalty, which is what a missing rule looks like.
+    """
+    rows = extract_divination.parse_scope(OVERLAP_LINES)
+    assert [r["scope"] for r in rows] == ["Simple", "Moderate", "Complex"]
+    assert rows[0]["examples"] == "yes/no, vague direction, basic insight"
+    assert rows[0]["guidance"] == "Divination Arts is sufficient."
+    assert rows[0]["printedCost"] == "1–2 SPI"
+    # The wrapped row keeps both halves of its sentence and its cost.
+    assert rows[1]["guidance"].endswith("may receive less detail.")
+    assert rows[1]["printedCost"] == "2 SPI"
+    # Only the third row prices anything, and it prices the SUBSTITUTION.
+    assert [r.get("modifier") for r in rows] == [None, None, -4]
+    assert rows[2]["printedModifier"] == "-4"
+
+
+def test_the_complex_scope_is_not_the_hard_band_restated():
+    """The evidence the same-axis refusal died on, guarded.
+
+    That refusal read the bullet's -4 as the Hard band restated, on the only
+    evidence that the two numbers agree. They still agree; what disproves it
+    is the WORDS. The Hard band's own descriptors are "well-guarded, future,
+    abstract" and none of them is in the complex bullet, whose "long-range"
+    belongs to the MODERATE band's "distant" at -2 and whose "multiple
+    questions" is in no band at all. If a re-extraction ever puts a Hard
+    descriptor into this bullet the two really would be one axis, and the
+    reading has to be made again rather than inherited.
+    """
+    rows = extract_divination.parse_scope(OVERLAP_LINES)
+    difficulty = [
+        {"band": "Trivial — personal, present, simple", "modifier": 2},
+        {"band": "Easy — personal, recent, concrete", "modifier": 0},
+        {"band": "Moderate — impersonal, distant, vague", "modifier": -2},
+        {"band": "Hard — well-guarded, future, abstract", "modifier": -4},
+        {"band": "Extreme — divine, fate-bound, cosmic", "modifier": -6},
+    ]
+    extract_divination.verify_scope(rows, difficulty)
+
+    shared = [dict(r) for r in rows]
+    shared[2]["examples"] = "long-range, future, abstract"
+    with pytest.raises(ValueError, match="one axis"):
+        extract_divination.verify_scope(shared, difficulty)
+
+    # And the rule is only applied while the bullet still prints its number.
+    unpriced = [dict(r) for r in rows]
+    unpriced[2].pop("modifier")
     with pytest.raises(ValueError, match="no longer prints its penalty"):
-        extract_divination.verify_cross_default(
-            -2, 12, -2, seam, ["Complex divination: Requires Ritualistic Magic."], hard)
+        extract_divination.verify_scope(unpriced, difficulty)
+
+
+def test_committed_divination_scope_claims_the_boundary_table():
+    """Six lines that no content file claimed, bracketed on both sides by
+    claims -- divination_support.json takes 3559-3560 and 3563-3580."""
+    body = json.loads(
+        (CONTENT / "divination_scope.json").read_text(encoding="utf-8"))
+    assert body["sourceLines"]["6.5"] == [[3553, 3558]]
+    assert [e["scope"] for e in body["entries"]] == ["Simple", "Moderate", "Complex"]
 
 
 def test_the_vice_versa_half_is_refused_from_the_other_chapter():
@@ -1386,17 +1440,14 @@ def test_the_vice_versa_half_is_refused_from_the_other_chapter():
     """
     seam = ("Default: Divination Arts defaults to Ritualistic Magic-2 and vice "
             "versa. A character with one skill at 12+ can attempt the other at -2.")
-    overlap = ["Complex divination: Requires Ritualistic Magic or a "
-               "very high Divination Arts roll (-4 penalty). Cost: 2 SPI."]
-    hard = [{"modifier": -4}]
     extract_divination.verify_cross_default(
-        -2, 12, -2, seam, overlap, hard,
+        -2, 12, -2, seam,
         "Ritualistic Magic (IQ/Very Hard) - your core skill. "
         "It has no default and cannot be substituted.",
     )
     with pytest.raises(ValueError, match="no longer prints its prohibition"):
         extract_divination.verify_cross_default(
-            -2, 12, -2, seam, overlap, hard,
+            -2, 12, -2, seam,
             "Ritualistic Magic (IQ/Very Hard) - your core skill.",
         )
 

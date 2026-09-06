@@ -511,4 +511,44 @@ class DivinationTest {
             "the reason no longer names what the book prices it as",
         )
     }
+
+    /**
+     * "Complex divination ... Requires Ritualistic Magic or a very high
+     * Divination Arts roll (-4 penalty)." (Sec. I, p. 54)
+     *
+     * One of three scopes and the only one that prices anything: the other
+     * two say which skill suffices and charge nothing for saying it. A row
+     * that priced all three would be a table this book does not print.
+     */
+    @Test
+    fun `only the complex scope charges for the skill it substitutes`() {
+        assertEquals(
+            listOf("Simple", "Moderate", "Complex"),
+            Divination.scopes().map { it.scope },
+        )
+        assertEquals(0, Divination.penaltyFor(Divination.scopeNamed("Simple")))
+        assertEquals(0, Divination.penaltyFor(Divination.scopeNamed("Moderate")))
+        assertEquals(-4, Divination.penaltyFor(Divination.scopeNamed("Complex")))
+    }
+
+    /**
+     * The composition the book does not print, pinned at the boundary that
+     * would hide a reversal.
+     *
+     * The scope penalty prices the SKILL SUBSTITUTION and the band prices the
+     * QUESTION, so they add -- the reading that expired the old refusal. They
+     * arrive through different parameters, so a later reader who made them
+     * exclusive would still satisfy every assertion that checks one alone;
+     * what fails is this total.
+     */
+    @Test
+    fun `a complex question asked of a hard subject is charged both times`() {
+        val hard = difficulty("Hard")
+        val scope = Divination.penaltyFor(Divination.scopeNamed("Complex"))
+        // The input this test composes, pinned here. The band's own -4 is
+        // pinned by the difficulty test above; asserting it again would be a
+        // second copy of that guard rather than a guard on this one.
+        assertEquals(-4, scope)
+        assertEquals(6, Divination.targetFor(14, hard, scope))
+    }
 }

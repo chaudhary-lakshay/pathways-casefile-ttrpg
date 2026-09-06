@@ -6726,6 +6726,192 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dj. Two minus fours, agreeing by coincidence
+
+6di named its own successor: **28 of the 29 newly-visible unclaimed lines are
+still unread, and the honest first question about each is not "build it" but
+"is it already implemented as arithmetic".** Running that list one line at a
+time is what found this — but not where 6di pointed. Four of the 29 sit in
+chapter 6.5's Section I, and reading them led to six lines no content file
+claimed, one of which carries a number this app had **deliberately refused,
+for a reason that does not survive being re-run as a query.**
+
+### The seam, which is 6da's shape a second time
+
+Book lines 3553-3558, chapter 6.5 Section I:
+
+> The two skills overlap at the following boundaries:
+> • **Simple** divination (yes/no, vague direction, basic insight): Divination Arts is sufficient. Cost: 1–2 SPI.
+> • **Moderate** divination (find a person, glimpse a scene, interpret a dream): Either skill works. Divination Arts is faster (minutes vs. ritual setup) but may receive less detail. Cost: 2 SPI.
+> • **Complex** divination (long-range, multiple questions, resisting countermeasures): Requires Ritualistic Magic or a very high Divination Arts roll (**-4 penalty**). Cost: 2 SPI.
+
+`divination_support.json` claims **3559-3560** and **3563-3580**. The claims
+BRACKET this table and skip it — the seam sweep's shape (6ay, 6ba), and the
+second time after 6da that two careful claims have left a rule between them.
+
+### The refusal, and the half of it that died
+
+`tools/extract_divination.py` did not overlook the -4. It read it and refused
+it, in its module docstring:
+
+> it is prose for the SAME axis the Question Difficulty table already prices,
+> whose "Hard — well-guarded, future, abstract" row is exactly -4 … applying
+> both would charge one hard question twice
+
+and `verify_cross_default` guarded that refusal by asserting the two numbers
+still agree — its own message calling that agreement **"the only evidence"**.
+
+Re-run as a query, the evidence does not survive. **The two tables' descriptors
+are disjoint, and they cross:**
+
+| The complex bullet says | which band owns that word |
+|---|---|
+| long-range | **Moderate** — "impersonal, **distant**, vague" (**-2**, not -4) |
+| multiple questions | no band at all |
+| resisting countermeasures | not a band: Sec. 4-6's Sequence Immunity and the target's techniques, which `AntiDivination` already prices |
+
+and neither of the Hard band's own distinctive words — *future*, *abstract* —
+appears in the bullet. A question can be Complex in scope at any band ("where
+is my own key, 500 km away" is personal and concrete, and long-range), and
+Hard at any scope ("will the Church raid this hideout" is one yes/no question).
+**The two -4s price different facts and agree by coincidence.** The axis the
+scope table actually names is which SKILL suffices, which is why its other two
+rows carry no number: "Divination Arts is sufficient" and "Either skill works"
+are the book saying the substitution is free.
+
+**Half the reason survives and is honoured.** It really is not a sixth row of
+the Step 3 modifier table — that table is enumerated under "Roll Divination
+Arts, adding all applicable modifiers" and this bullet is not in it. So the
+rule ships as **Section I's own table**, `divination_scope.json`, and
+`divination_modifiers.json` is left alone. 6cp's lesson again, on a different
+document: a refusal can survive its author's stated reason and die of a fact
+none of its words mention — and here the author had already written down that
+the evidence was thin.
+
+### Three things the design review settled before any code
+
+Scoped to three questions and four files through `task --effort high`, since
+`adversarial-review` refuses this repo's input length and `review` no longer
+takes focus text (6df).
+
+- **The composition is additive**, and the boundary that stops a reversal is
+  that the two arrive through different parameters: `targetFor(skill,
+  difficulty, extras)` takes the band on its own. A later reader who made them
+  exclusive would satisfy every assertion that checks one alone; what fails is
+  the total, so the test pins `targetFor(14, Hard, complex) == 6`. The strongest
+  case against, recorded: -8 is harsh, and "well-guarded" does partly overlap
+  "resisting countermeasures" — but this app already adds the band and the
+  anti-divination penalty side by side on the same screen, so overlapping
+  descriptors have not collapsed those axes either.
+- **"Very high" is not a gate.** The cross-skill default one line BELOW prints
+  its threshold ("a character with one skill at 12+") and this sentence prints
+  none, so any cutoff would be app-authored. The enforceable rule is the -4.
+  The tell was stated in advance: *if you find yourself inventing a threshold
+  for "very high", that is the tell.*
+- **The cost column is not a second charge.** Step 2 reads "Select a divination
+  method (see Section II). Pay the SPI cost", which names the method table —
+  what `Divination.spiFor` already charges. Note the tiers print 1–2 / 2 / 2
+  against methods costing 1..2, so a tier cost read as authoritative would
+  make a Pendulum cost 2 on a moderate question. It is stored as **prose**
+  (`printedCost: "2 SPI"`), which is the type-level version of "shown, never
+  applied" — an Int there is 6bx's live double count.
+
+### The guard, and what a guard on a dead reason must become
+
+The old `verify_cross_default` asserted the two numbers agree. That guard was
+protecting the refusal, so it cannot simply be deleted: what replaces it is
+`verify_scope`, asserting the evidence the refusal DIED on, in the direction
+that can disagree — **no difficulty band's descriptor may appear in a priced
+scope row's**. If a re-extraction ever puts *future* or *abstract* into that
+bullet the two really are one axis, and the reading has to be made again
+rather than inherited. Both corpora are asserted non-empty first, because a
+disjointness check over an empty side is the guard that cannot fire (6cz).
+
+### The parse: the bullet is the row, and two rows wrap
+
+Two of the three rows wrap onto a second line, and the wrapped half carries
+the payload **both times** — Moderate's cost and Complex's penalty. A
+line-at-a-time read returns two rows with no number, which is
+indistinguishable from a table that prints none. RED-proved by deleting the
+join: two Python tests redden.
+
+### The picker, and a default that must not charge
+
+Three chips rather than one, because the book distinguishes three scopes and
+the existing difficulty picker renders straight from its rows — the loop is
+LESS bespoke code than one hand-labelled chip (6cn, on which side "the rule
+shapes the control" falls this time). The two free rows show no modifier,
+because `+0` would print a number the book does not. It defaults to Simple:
+the same first-row default the band above it takes, and also the row that
+prices nothing — **a default that charges is a rule nobody declared.**
+
+### The diff review, and the vacuity I caught first
+
+Codex returned **one LOW and two explicit no-findings** (the dialog's
+`scopePenalty` reaches the target, the breakdown and `attempt`'s `extras`, and
+the breakdown still sums to the target; `printedCost` is safe as a String). The
+LOW: `assertEquals(-4, hard.modifier)` inside the composition test duplicates
+a guard the difficulty test above already carries, and the input the test
+actually composes — the scope penalty — was unpinned. Now `assertEquals(-4,
+scope)`.
+
+Before sending the diff I had already deleted a third test of my own for the
+opposite failure: `the scope rows print a cost and hold no number to charge`
+asserted a string and a method cost, and **neither assertion could check what
+the name claimed**. What enforces it is the TYPE. An intent with no independent
+failure mode is a comment, not a test (6dg) — so it is one, on
+`DivinationScope`.
+
+### What shipped
+
+- `tools/extract_divination.py` — `parse_scope` (bullet-anchored, wrap-joining),
+  `verify_scope` (the disjointness guard), the docstring section rewritten from
+  the dead reason to the live one, and `verify_cross_default` trimmed to the
+  rule it is named for: one predicate, one home.
+- `divination_scope.json` — three rows claiming 3553-3558.
+- `DivinationScope`, `ContentLoader.divinationScopes()`, `Divination.scopes()`
+  / `.scopeNamed()` / `.penaltyFor()`.
+- `DivinationDialog`'s Scope picker, its guidance line, and the breakdown's
+  named term.
+- Three Python tests, two Kotlin.
+
+Chapter 6.5: **92.3% → 96.9%**, unclaimed 5 → 2. **1659 Kotlin** (1173
+`core:rules`, 466 `app`, 20 `core:model`) and **314 Python**, all green. Two
+mutations RED-proved: the wrap-join deleted (2 Python fail) and `penaltyFor`
+returning 0 (2 Kotlin fail). **Not device-verified** — no test in this repo
+reaches a composable, and the picker has not been rendered.
+
+### The next slice
+
+The two lines left unclaimed in 6.5 are 3548 and 3550, and they stay that way
+on purpose: both restate the method table's 1–2 SPI range, and claiming lines
+a file did not consume would make `sourceLines` a lie. 6da left Appendix A's
+31 restatements unclaimed for the same reason, so **a chapter's last few
+percent may be restatement rather than work** — the honest reading of a
+coverage number that will not reach 100.
+
+What is genuinely outstanding, in order of evidence:
+
+- **Chapter 7.5, Summoning Spiritual Creatures, reads 0.0% and is claimed by
+  NO content file** — the last wholly unstarted rules chapter, and it has been
+  at 0.0% in plain sight the whole time, because `main()` sets `failed` only
+  for a chapter that HAS claims. 6cw's census missed 7.6 because the instrument
+  said 100%; it missed 7.5 for the opposite reason, that 0.0% reads as "not
+  started yet" rather than as a defect. **Read it before building it**: its
+  four visible lines are an example creature's stat block and a GM's 3d roll
+  for a summoned creature's response, and that roll is NOT the Entity Response
+  Table `Invocation` already models — that table sits under "F. Invocation
+  (Deity or Hidden Existence)" and a spiritual creature is neither. An app
+  holding one player character may have no consumer for a GM procedure at all,
+  and saying so with the evidence is a deliverable.
+- The remaining 25 of 6di's 29 lines. The HP/FP recovery block (2842-2899) and
+  the CoR abstinence rule (4398) are RATES, which `docs/HOW-TO-PLAY.md` refuses
+  under "Track a clock it does not hold" — 6dc confirmed that refusal has a
+  mechanism reason. 3548/3550 are settled above. That leaves 4646 and 4660,
+  two ritual EXAMPLES' SPI costs, and 2309's Spirit Vision maintenance cost.
+- The unrun sweep directions 6di named: catalogue → fixture, and extractor →
+  `sourceLines`.
+
 ## 6di. The rule no coverage number could ever have reported
 
 6dh named a method rather than a target: **a check that reconciles two
