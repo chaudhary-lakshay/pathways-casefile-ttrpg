@@ -6726,6 +6726,123 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dx. The refusal that never needed writing, and the citation that wrapped
+
+6dw named three things. Two of them are this slice: **run the sweep it argued
+for**, and **rule on `Shaken`**, which had been carried unchecked from 6dk
+through 6dw — thirteen slices of "likely a refusal; nobody has looked".
+
+### The sweep, in four shapes, clean
+
+6dw's unit: *every composable gated on a state, checked for a block that does
+not depend on that state.* Its own defect was a gear reference sitting below a
+`return@Column`, so the instrument has to see more than one shape.
+
+| shape | sites | finding |
+|---|---|---|
+| `return@` inside a composable | 4 | none — three partition post-roll from pre-roll correctly, the fourth is 6dw's own fix |
+| `if (x != null) { }` whose body never names `x` | 9 reported | none — destructured lambda params and gate-as-affordance (`HubAction` gated on `ritualLevel`, which the dialog reads) |
+| `if (x == null) { }` same test | 19 reported | none — every one is a picker branch, pre-roll by rule |
+| `when (x) { }` same test | 17 scanned, 16 reported | **the shape cannot find anything by construction**: an exhaustive `when` names its subject in the BRANCH LABELS (`Pool.HP`), never in the bodies |
+
+Plus a census that is not this sweep and was worth one grep: eight sites guard
+a roll button with `if (result != null) return@TextButton`, and
+`DefenseDialog`, `DamageDialog` and `AttackDialog` appear in none of them. All
+three are guarded another way — `AttackDialog` partitions on
+`outcomes.isNotEmpty()` in a `when`, `DamageDialog` returns before the button
+when `shock != null`, and the Acrobatic Dodge deliberately says **"Roll
+again"** beside a Clear, which is a re-roll affordance and not a missing guard.
+
+**The discriminator matters more than the query.** 6dw's defect was not "the
+block does not name the state" — it was "and its purpose requires the other
+state". Without the second clause every literal `Text(…)` in a gated branch is
+a hit, which is what the 45 reported sites above are.
+
+### `Shaken` is not a special case, and a query says so
+
+Book line 8030, the Werewolf's Sequence 7 upgrade: *"on a successful hit, the
+target must roll HT or be Shaken (see GURPS p. B360) for 1 turn."* Every
+predecessor read this as a rule whose definition is in a book this one does not
+reprint, and therefore as a refusal wanting a record of its own.
+
+It is not. Its carrier is `reinforcedAbilities` prose, and
+**`PotionDigestion.UNPARSED` already records that prose** — as a GAP, in the
+KDoc's own words *"unbuilt work, and it must not be inherited as settled"*.
+Filing an UNPAYABLE-standard refusal beside a GAP is a category error twice
+over: it says the clause is settled, and it invites the next reader to treat
+the prose around it the same way.
+
+And the instance is not even distinctive. **Seven lines in this book defer to a
+GURPS Basic Set rule it does not reprint** (2723; 3653-3654; 6553; 7348; 8030;
+8059; 8062, whose clause opens at 8061). Two sit outside the ability prose, are
+claimed by a content file, and have a verdict already:
+
+- **2723** is `spirit_damage.json`'s threshold list, whose `HP ≤ 0` row points
+  at rules chapter 5 prints for itself and `VitalRolls` applies (6de).
+- **3653-3654** is `divination_methods.json`, and its specialisation technique
+  is refused in `Divination.UNAPPLIED` (6cs).
+
+Of the five inside it, **three name a term this book prints elsewhere and this
+app models** — `grappled` (the Wrestling table, 6do) and `mentally Stunned`
+twice (chapter 5's Major Wound row, `StunRecovery`) — **and TWO name a term
+printed exactly once in the whole book: `Shaken`, and 7348's `suffocates`.** A
+refusal filed against `Shaken` alone would have been a blocklist of one with
+its twin a chapter away, which is the move CLAUDE.md's own rules forbid.
+
+So what ships is a paragraph on the object that owns the prose, and two guards.
+
+### What the review found, and it is the older lesson
+
+`task --effort high`, scoped to three questions with *"do not read CLAUDE.md or
+docs/SLICE-LOG.md"*. One HIGH and one MEDIUM, both taken.
+
+**The HIGH: my census read one line at a time and the book wraps.** Line 3653
+ends *"(see GURPS Techniques, p."* and 3654 opens *"B229)"*, so a `p\. B\d+`
+search over single lines returns seven sites and drops that one **silently** —
+6ba's rule, which this repo wrote down for claimed SPANS and had not applied to
+a regex over lines. The scan now joins each line to the next and attributes a
+match to the line it STARTS on. RED-proved by restoring the line-local version:
+it returns the census with `3653` missing and `6553` in its place.
+
+That correction is also what reconciles this slice with 6dr, whose hand census
+listed `p. B229` and which my first query had quietly dropped: **the fixed
+query reproduces the predecessor's membership exactly.**
+
+**The MEDIUM: one of the four "names its effect inline" claims was weaker than
+I wrote.** 8062 prints only *"stun rules, p. B420"* plus a Will recovery; the
+term `mentally Stunned` is on 8061 and the `-4 to active defenses` gloss
+belongs to 8059's separate clause. The discriminator moved off "does the
+sentence gloss it" and onto **"does the book print this term anywhere else"**,
+which is a query rather than a reading — and running it is what found
+`suffocates`, the twin that killed the instance refusal.
+
+### Guards
+
+`test_the_gurps_deferrals_outside_the_ability_prose_are_all_ruled_on` pins the
+eight-site census, the two outside claimants, and that the five inside really
+are inside a Sequence block's prose.
+`test_shaken_is_one_of_two_deferred_terms_the_book_prints_once` pins both
+single printings and the case-insensitive count of three (*"shaken awake"*,
+6521; *"damaged, shaken, or a loud noise"*, 8602), so a re-extraction that
+turns either into the game term reddens rather than widening the reason in
+silence. Three mutations, one at a time, restored from a copy: a second
+printing of the term, the loss of a sibling's gloss, and the line-local scan.
+
+**1691 Kotlin** unchanged and **347 Python** (from 345). Nothing renders, so
+there is nothing to device-verify — stated rather than skipped.
+
+### The next slice
+
+- **A direction this slice earned: every census in this repo that scans book
+  lines one at a time.** The wrap that hid `p. B229` is not specific to
+  citations, and `coverage.py`'s filter, the `MECHANICAL` sweeps and every
+  ad-hoc grep in these notes read one line at a time. One of them has already
+  been shown to have false negatives twice (6db, 6di) without anyone looking at
+  the line boundary.
+- **The grapple-state surface** (6do) is still the biggest named thing, and
+  still a milestone rather than a slice.
+- Still unrun, inherited: catalogue → fixture, and extractor → `sourceLines`.
+
 ## 6dw. Reference after the dice, and the one-line early return that put it there
 
 6dv's device pass found this and left it: `RollDialog`'s pre-roll state ends

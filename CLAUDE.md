@@ -112,7 +112,38 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6dw is newest, and it is the slice 6dv's device pass named: one
+**6dx is newest, and it is a refusal that turned out not to need writing.**
+`Shaken` (line 8030) had been carried unchecked from 6dk through 6dw as
+"likely a refusal, nobody has looked". Run as a query it is not one: its
+carrier is `reinforcedAbilities` prose, which **`PotionDigestion.UNPARSED`
+already records — as a GAP**, in the KDoc's own words *"unbuilt work, and it
+must not be inherited as settled"*, so an UNPAYABLE-standard refusal beside it
+would say the clause is settled AND invite the next reader to read the prose
+around it that way. **And the instance is not distinctive.** Seven lines defer
+to a GURPS Basic Set rule this book does not reprint; two sit outside that
+prose and are already ruled on (2723 → `VitalRolls`, 3653 →
+`Divination.UNAPPLIED`), and of the five inside it three name a term the book
+prints elsewhere and this app models, while **TWO are printed exactly once:
+`Shaken` and 7348's `suffocates`.** A refusal against `Shaken` alone would be
+a blocklist of one with its twin a chapter away. Read it for three more
+things. **The review's HIGH is 6ba's rule applied to a regex**: my census read
+one line at a time and `p. B229` **wraps** — 3653 ends *"(see GURPS
+Techniques, p."* and 3654 opens *"B229)"* — so the query silently returned
+seven sites and dropped it; the scan joins each line to the next now,
+RED-proved by restoring the line-local version, and the fix makes it reproduce
+6dr's hand census exactly. **The MEDIUM killed my discriminator and the
+replacement is what found the twin**: "does the sentence gloss the term" was
+wrong about 8062, so the question became "does the book print this term
+anywhere else", which is a query and not a reading. **And 6dw's named sweep
+ran clean in four shapes** — `return@` (4 sites), `if (x != null)`, `if (x ==
+null)` and `when (x)` — with the fourth unable to find anything by
+construction, because an exhaustive `when` names its subject in the branch
+LABELS and never in the bodies. The double-tap-guard census beside it is clean
+too: the three dialogs missing the `if (result != null) return@TextButton`
+idiom each guard the button another way, and the Acrobatic Dodge's "Roll
+again" is a deliberate re-roll.
+
+**6dw is next, and it is the slice 6dv's device pass named: one
 `return@Column` that showed reference AFTER the dice.** Three blocks sit below
 that early return in `RollDialog` and only one was misplaced — the burn row and
 its conditional note both need an outcome and the book allows the push only
@@ -1224,7 +1255,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dw, then 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dx, then 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1455,7 +1486,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1691 Kotlin** (JUnit 5 — 1205 `core:rules`, 466 `app`, 20 `core:model`) + **341 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1691 Kotlin** (JUnit 5 — 1205 `core:rules`, 466 `app`, 20 `core:model`) + **347 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1881,10 +1912,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6dw. The slice log
+## 6a-6dx. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6dw is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6dx is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
