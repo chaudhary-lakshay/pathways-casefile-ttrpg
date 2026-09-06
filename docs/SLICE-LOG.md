@@ -6726,6 +6726,141 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dr. The roll a refusal said did not exist
+
+6dq's finding was a refusal whose SUBJECT was wrong. This one is the harder
+version: a refusal whose subject was right, whose reason was a claim about the
+app, and whose claim was **false when it was written down and false every day
+since**.
+
+`TraitEffects.PARTLY_APPLIED` reported Combat Reflexes' printed clause:
+
+> **+6 to recover from stun** — *not applied here: this app models no stun
+> recovery roll to make.*
+
+The Major Wound table's Failure row is
+
+> Stunned for 1d6 seconds (**roll HT each turn to recover early**)
+
+and `DamageDialog`'s `MajorWoundPanel` has rendered that sentence since 6n.
+**Military Police carries Combat Reflexes.** So a GM who rolled a Major Wound,
+failed it, and read the row telling them to roll HT was looking at a screen
+that also told them the trait moving that roll did nothing.
+
+### The sweep that found it, and the one it started as
+
+The direction was **every place the book explicitly defers to a rule it does
+not reprint** — a census this repo had not run, with one instance already
+recorded by accident (`Divination.UNAPPLIED`'s GURPS technique, 6cs). Six
+sites: `p. B360` (Shaken), `p. B420` twice, `p. B229`, "per GURPS grappling
+rules", "per normal GURPS rules" (suffocation), plus `HP ≤ 0: Standard GURPS
+death/dying rules`.
+
+**The census found nothing and the walk to it found this.** Both `B420` lines
+quote the effect inline, and one of them prints a recovery roll — which sent
+the query back into chapter 5, where the same roll is printed in a table this
+app extracts, loads and displays. The GURPS-deferral census remains a real
+direction with a real yield of zero: every one of the six is prose in a block
+whose surrounding rules are already claimed, and none reaches a control.
+
+### Five printings, and the attribute is never the stun's
+
+| where | attribute |
+|---|---|
+| Major Wound, Failure row (p. 42) | **HT** |
+| Fright Effects 4-9 and 10-11, Fright column | Will |
+| the same rows, Awe column | Will |
+| the same rows, Confusion column | **IQ** |
+| Interrogator, Psychic Piercing (p. 128) | HT |
+| Interrogator, Whip of Pain (p. 128) | **Will** |
+
+The last two are the same book, the same page, the same ability block and the
+same GURPS citation, disagreeing about which attribute recovers from the stun
+they both inflict. **Recorded, never repaired.** What it settles is the design
+question: *recover from stun* is not one roll, and any object answering for all
+of them would have to take the attribute from the source.
+
+That is why `StunRecovery` answers for **one** of the six and says so. Its
+`bonusFor` composes `TraitEffects.htRollBonus` unconditionally — correct only
+because this row's roll is HT — and **a KDoc saying so cannot fail**, so the
+claim is read off the row itself in the test that pins the composition. The
+fright rows are a **GAP, not a refusal**: their recovery attribute is in prose,
+and structuring prose is the extractor's job (6dh), which is a slice of its own.
+
+### The scope is two clauses, one each way
+
+- **Combat Reflexes reaches this roll and not the table's own.** "+6 to recover
+  from stun" names the CONDITION and no attribute — so it would reach the Will
+  and IQ rolls too, if they were offered.
+- **High Pain Threshold reaches the table's roll and not this one.** "+3 on **HT
+  rolls** to avoid knockdown" names both, and the fail-by-5 row is a knockdown;
+  recovering from the stun one row above avoids no knockdown, so widening it is
+  6ck's refused move.
+
+The two scopes crossing is why the credit is a second function rather than
+`majorWoundHt` with a flag — a flag would be one predicate answering two
+questions.
+
+### Two committed tests asserted the expired reason
+
+Second instance of 6do's shape in three slices, and this time the tests said
+so in their own comments — *"which is the roll this app has no clock for"* and
+*"What is left is the RECOVERY roll, which needs a clock"*. Both were rewritten
+to assert the OPPOSITE, which is what they were actually for:
+`ActiveDefensesTest`'s seam test exists to catch a GM being told a trait does
+nothing on a screen that applies it, and it was enforcing exactly that defect
+in the other direction.
+
+**Its own reason was half right and that half survives.** The clock refusal
+holds for the DURATION: `Rapid Recovery`'s "Stun durations halved" stays
+refused, one roll is offered rather than one a turn, and the button reads
+**"Roll HT n to recover now"** — 6cn's rule that an unnamed label gets picked by
+whoever writes the screen, and a bare "Recover" would promise a rule the book
+does not print.
+
+### The review
+
+Design review before any code: approved the shape, narrowed it twice (row 12 of
+the fright table — Retching / Ecstasy / Dazed — is a different state and out of
+Combat Reflexes' scope; the control must be GM-gated in its wording). Diff
+review returned a **MEDIUM and a LOW, both taken**:
+
+- **The recovery roll omitted an active shock.** `Shock.appliesTo` refuses only
+  `MAJOR_WOUND_HT` — because that roll CREATES the shock — and reaches every
+  other kind, so a character already shocked from an earlier wound should
+  recover at -4. `DamageDialog` took only the Major Wound's `hurt`. The fix is
+  a separate parameter, never folded into `hurt`, because the two rolls answer
+  differently. `shockOnAttribute` already existed at the call site.
+- **A KDoc is not a guard** — the LOW above, and its fix is the test that reads
+  the row.
+
+Q1 came back with **no vacuous assertion**, which is worth stating as the
+weaker claim it is: the reviewer named one weak pin (the credit compared
+against `bonusFor`, so a shared wrong `bonusFor` satisfies both) and that is
+the honest ceiling on it.
+
+`recovery` is `remember(shock)` — keyed on the wound roll rather than cleared
+at the five sites that clear it, because adding a sixth line to each is how one
+gets missed (6cp: the key IS the guard).
+
+Both mutations RED-proved: the row name `Failure` → `Success` fails 2, dropping
+`htRollBonus` from the composition fails 1. **1673 Kotlin** (+8) and **333
+Python**, no compile warnings (6dl). **Not device-verified** — read this as
+compiles, unit-tested, not rendered.
+
+### The next slice
+
+- **The Fright Effects table's own recovery rolls**, with the blocker stated:
+  six cells across two rows, Will in two columns and IQ in the third, carried
+  in prose. `extract_fright.py` must emit the attribute as structure before any
+  engine reads it, and `FrightDialog` takes `will` and would need `iq`. Combat
+  Reflexes reaches all of them on the warrant already argued here.
+- **`Shaken`** (line 8030) is still unchecked and is now the last GURPS
+  deferral with no verdict — one occurrence, and the book never prints what it
+  does.
+- **The grapple-state surface** (6do) is still the biggest named thing.
+- Still unrun: catalogue → fixture, and extractor → `sourceLines`.
+
 ## 6dq. A refusal recorded against the summary, not the rule
 
 Chapter 4 was the smallest thing left with anything in it — **80.0%, two
