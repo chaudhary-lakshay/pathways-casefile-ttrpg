@@ -112,7 +112,30 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6dv is newest, and it is one predicate answered at two sites, taught on
+**6dw is newest, and it is the slice 6dv's device pass named: one
+`return@Column` that showed reference AFTER the dice.** Three blocks sit below
+that early return in `RollDialog` and only one was misplaced — the burn row and
+its conditional note both need an outcome and the book allows the push only
+after the result, while **chapter 8's gear reference depends on the outcome not
+at all**. So the rows that name a skill reached the GM after the roll, when the
+one thing they are for is choosing a modifier before it. It moves into the
+pre-roll branch and **no longer renders post-roll, which is the deliberate
+half**: the roll is over and the reference can inform nothing. The
+`return@Column` itself is left alone — removing it is a ~40-line indentation
+diff and a deeper nest for behaviour this screen does not need, and a local
+composable called from both branches is two call sites for a pre-roll-only
+list. **It ships BELOW the circumstance chips against the reviewer's stated
+preference**, on the reviewer's own counter-case: these rows print numbers, and
+a numbered line directly above a row of tappable modifier chips reads as
+another selectable one — the distinction 6cx already returned NO-SHIP to
+protect. **Verified the only way it can be**, which is why it survived from 6cx
+with a live caller the whole time: nothing here can assert a Compose label, so
+three pre-roll cases were read off an SM-T570 (`Savoir-Faire (High Society)`
+showing 6dv's own join, `Psychology` showing a join that has existed since 6cx,
+`Occultism` showing no section), plus the post-roll state confirmed empty. No
+test ships, because the only assertion available would restate the source.
+
+**6dv is next, and it is one predicate answered at two sites, taught on
 only one of them.** It runs the sweep 6du named — which extractors DERIVE an
 output row from a sibling content file rather than merely verify against it —
 and **nine of ten are verify-only**, which is the house style and is recorded
@@ -1201,7 +1224,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dv, then 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dw, then 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1858,10 +1881,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6dv. The slice log
+## 6a-6dw. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6dv is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6dw is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

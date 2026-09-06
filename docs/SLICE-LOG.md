@@ -6726,6 +6726,78 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dw. Reference after the dice, and the one-line early return that put it there
+
+6dv's device pass found this and left it: `RollDialog`'s pre-roll state ends
+with **`return@Column`**, so every block below it composed only once a result
+existed. Three blocks sit there and only one was misplaced.
+
+| Block | Belongs post-roll? |
+|---|---|
+| the burn row | **Yes.** "You may use this after seeing the result", and `EffortBurn.canPush` takes a non-null outcome |
+| the conditional-burn note | **Yes**, same gate, so post-roll by construction |
+| chapter 8's gear reference | **No.** It has no dependency on the outcome at all |
+
+So the rows that name a skill reached the GM *after* the dice, when the one
+thing they are for is choosing a modifier *before* them. It moves into the
+pre-roll branch, after `CircumstanceRow`, and no longer renders post-roll —
+which is the deliberate half of the change, not an oversight: the roll is
+over, the reference can inform nothing, and leaving it there mainly invites
+re-reading a modifier that can no longer be applied.
+
+**The `return@Column` is not the defect and was left alone.** Removing it to
+let the block stay at the bottom and render in both states is a ~40-line
+indentation diff and a deeper nest for behaviour this screen does not need;
+a local composable called from both branches is two call sites for a list
+whose only purpose is pre-roll. Both were considered and are recorded here
+rather than in a commit message.
+
+**Below the chips, against the reviewer's preference.** The design review
+called reference-before-picker "slightly stronger" and named the case for the
+other side itself: these rows print numbers (`+1 to First Aid`), and a
+numbered line directly above a row of tappable modifier chips reads as another
+selectable one. This app has already returned NO-SHIP on a design that blurred
+an applied chip into a shown reference (6cx), so that precedent breaks the tie
+and the reviewer's own counter-case is what ships. Its other two answers were
+taken as given: losing the post-roll appearance is acceptable, and the gear
+list is the only block that return misplaces.
+
+### Verified the only way it can be
+
+**Nothing in this repo can assert a Compose label**, so the check is the
+device and there is no test to write — which is exactly why the defect
+survived from 6cx to now with `Equipment.referenceFor` wired to a caller the
+whole time. Three cases on an SM-T570, all pre-roll:
+
+- **`Savoir-Faire (High Society)`** (Fortune Teller) — `Gear that names this
+  skill (not applied):` / `Fine clothes (quality) (£1 10s) — +1 to
+  Savoir-Faire (High Society); status marker`. 6dv's own join, now visible
+  when it is useful.
+- **`Psychology`** — `Crystal ball (glass) (£2) — Fortune-telling prop; +1 to
+  Fortune-Telling or Psychology`. A join that has existed since 6cx, so the
+  fix is not specific to 6dv's rows.
+- **`Occultism`** — no section at all, the null case.
+
+And post-roll the same dialog prints the result with no gear line, which is
+the change's other half confirmed rather than assumed.
+
+**1691 Kotlin** and **345 Python**, unchanged: this slice adds no test,
+because the only assertion available would restate the source.
+
+### The next slice
+
+- **`Shaken`** (line 8030), still unchecked, unchanged from 6dt through 6dv:
+  whether one clause of one pathway ability deserves a recorded refusal when
+  no pathway ability mechanic is modelled at all.
+- **The grapple-state surface** (6do) — still the biggest named thing, still a
+  milestone with its own decomposition rather than a slice.
+- **A direction this slice argues for**: every composable gated on a state,
+  checked for a block that does not depend on that state. This one was found
+  by device verification of an unrelated rules fix, not by a sweep, and the
+  sweep that would find the next one iterates `if` conditions in the app
+  module rather than anything in `core:rules` — a unit no sweep here has ever
+  taken.
+
 ## 6dv. The same predicate, taught on one side of the join
 
 6du named a sweep with evidence: nine extractors read a content JSON they do
