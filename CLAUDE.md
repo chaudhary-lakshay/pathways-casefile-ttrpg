@@ -112,6 +112,33 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
+**6dn is newest, and it is a count taken with the wrong filter.**
+`extract_worked_rituals.py`'s docstring says *"Rechecked against all seven
+costed rituals"* — the evidence CLAUDE.md 6aa's two-axis SPI decision rests on,
+with `verify()` asserting it so it *"cannot quietly change"*. Every `SPI Cost:`
+line in Section VIII says **nine**: Rituals 8 and 9 print one too, as RANGES
+(2-4 and 4-8), and those two are the only costs in the section that **no rung
+of the complexity ladder and no row of the weight table contains**. The filter
+was *has a worked total*, not *prints a cost* — so **the assertion's corpus
+excluded the only rows that could contradict it, and the exclusion and the
+assertion were written in the same docstring.** Not repaired: a template prices
+a CLASS of ritual across scopes where a rung prices one ritual, so `verify()`
+now fails the day a printed row swallows a template range whole (4.2). Read it
+for three more things. **The excluding sentence — *"they print ranges rather
+than a worked total, so there is no arithmetic to check an engine against"* —
+is TRUE and is about the ORACLE**, the 6dl shape again, and the file disproves
+its own reach by already reading Ritual 8's template for two disagreements;
+**Ritual 9 had group membership and nothing else.** Its review's finding is one
+the widening itself created: `TEMPLATE_TIERS` and `TEMPLATE_SHIFT` are Ritual
+8's facts and now searched a blob containing Ritual 9, so **a guard about one
+ritual could pass on its neighbour's line** — cut at the book's own `Ritual 9:`
+title, with its absence a stated failure rather than a silent fallback. **A
+widened range is a widened scope for every predicate reading it.** And the
+sweep behind it read **44 unclaimed mechanical lines across chapters 1, 2, 4,
+6.5, 7, 9 and C** and accounted for all 44 — chapter 7's are `PowerSources`
+constants its own KDoc refuses to make into content, so they read unclaimed
+forever by design.
+
 **6dm is newest, and it is a slice that deliberately did NOT close the thing
 it was named for.** 6dl named `AntiDivinationTechniques.spiFor` as the one
 function with no production caller, with the consequence that
@@ -884,7 +911,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dm, then 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dn, then 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1115,7 +1142,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1663 Kotlin** (JUnit 5 — 1177 `core:rules`, 466 `app`, 20 `core:model`) + **322 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1663 Kotlin** (JUnit 5 — 1177 `core:rules`, 466 `app`, 20 `core:model`) + **325 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1519,10 +1546,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6dm. The slice log
+## 6a-6dn. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6dm is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6dn is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

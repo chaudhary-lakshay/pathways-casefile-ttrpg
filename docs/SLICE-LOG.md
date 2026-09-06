@@ -6726,6 +6726,125 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dn. Nine costs, seven counted — and the corpus stopped one line short
+
+`tools/coverage.py`, re-run: chapters 1, 2, 4, 6.5, 7, 9 and C between them hold
+**44 unclaimed mechanical lines**, and every one was read. The verdict is that
+44 of 44 are already accounted for — which is the deliverable a sweep that
+finds nothing still owes (6de) — except that reading them turned up a claimed
+span that stops one line before the rows that would contradict its own
+assertion.
+
+### What the seven chapters actually hold
+
+| ch | lines | verdict |
+|---|---|---|
+| 1 | 234 | prose defining 3d6 |
+| 2 | 266, 273, 350 | worked examples of the roll procedure |
+| 4 | 2309, 2339 | Spirit Vision's cost, said with strictly less than 7.6's printing; SPI recovery on its **third** printing, refused for a clock since 6ad |
+| 6.5 | 3548, 3550 | prose restating the method table's own 1-2 SPI |
+| 7 | 25 lines | `PowerSources` constants (4271, 4276-7, 4289, 4222), recorded refusals (4161 timing in `RitualMode.kt:49`, 4398 CoR-by-rest), prose, and the ritual templates below |
+| 9 | 9 lines | how to read a potion's `+N` grant — the reading M3 already applies |
+| C | 9953, 10010 | `(pre-1352)` and `(expelled post-1350)`: dates the widened filter matches and nothing prices |
+
+**Chapter 7's constants are the interesting half of that table.** `PowerSources`
+holds `HP_PER_SPI`, `PARTICIPANT_BONUS`/`CAP`, `SENTIENT_BONUS`,
+`CATALYST_LOWEST`/`HIGHEST` and `SUSPENSION_PENALTY`, and its KDoc says why they
+are constants rather than content: *"a column for +1-per-assistant or +0-to-+2
+for a catalyst would make the book look like it printed a table it never did."*
+So those lines read unclaimed forever, by design — 6cy's *"a table implemented
+as arithmetic reads 0% forever"* at line resolution.
+
+### The finding: a count taken with the wrong filter
+
+`extract_worked_rituals.py` claims **4422-4638**, and Section VIII's list runs to
+Ritual 10 at ~4717. Its stated exclusion:
+
+> Rituals 8-10's templates: they print ranges rather than a worked total, so
+> there is no arithmetic to check an engine against.
+
+**True, and about the ORACLE.** It says nothing about whether the lines are
+READ — and the file itself proves that, because it already reads Ritual 8's
+template through a second range for two pinned disagreements. **Ritual 9 got
+group membership and nothing else**: inside the sentence that excludes it, and
+outside every range the file reads. Ritual 10 at least got a named deferral
+with its own reason.
+
+So the docstring's other claim was worth re-running as a query — *"Rechecked
+against all seven costed rituals"*, the evidence CLAUDE.md 6aa's two-axis SPI
+decision rests on, with `verify()` asserting it *"so the evidence the decision
+rests on cannot quietly change"*. Every `SPI Cost:` line in 4415-4725:
+
+```
+R1 Luck Enhancement       4      rung: Moderate
+R2 Divination             3      rung: Light
+R3 Summoning              7      rung: Heavy
+R4 Curse                  7      rung: Heavy
+R5 Oath-Sealing           5      rung: Moderate
+R6 Fabrication            6      rung: Moderate
+R7 Binding                9      rung: Heavy
+R8 Sacrificial          2-4      rung: NONE
+R9 Dualistic            4-8      rung: NONE
+```
+
+**The section prints nine costs, not seven.** "All seven costed rituals" was
+taken with the filter *has a worked total*, and the two it drops are the only
+two that fall outside the ladder — R8 straddles Light (2-3) and Moderate (4-6),
+R9 straddles Moderate and Heavy (7-10). Neither is inside a weight-table row
+either (Light 2, Moderate 4-6, Heavy 8+). **An assertion whose corpus excludes
+the only rows that could contradict it**, and the exclusion and the assertion
+were written in the same docstring.
+
+### And it is not a disagreement to repair
+
+A template prices a CLASS of ritual across scopes; a rung prices one ritual.
+That is exactly why the seven single values each sit in a rung and these two
+sit in none — so this is recorded, in the 4.2 shape: `verify()` now reads both
+templates and **fails the day a printed row contains a template range whole**,
+because that is the day the two axes have merged. RED-proved by handing
+`verify()` a rung spanning 2-20.
+
+Ritual 10 stays deferred on its own reason (its 17-row pathway/material table
+has no caller — nothing in this app creates charms) with one fact added: **it
+prints no SPI cost at all**, which is why the count is nine and not ten.
+
+### The review found a scope the widening had broken
+
+Codex answered on `task --effort high`. Q1 and Q2 came back clean — the new
+branch is reachable, and the `pytest.raises(match=...)` proves the NEW branch
+raised rather than an earlier check. Q3 was the finding, and it is one the
+widening itself created: `TEMPLATE_TIERS` and `TEMPLATE_SHIFT` are **Ritual
+8's** facts and they search the joined blob, which now contains Ritual 9. Lose
+the fact from Ritual 8, have Ritual 9 print matching text, and **a guard about
+one ritual passes on its neighbour's line.** Cut at the book's own `Ritual 9:`
+title before those two are searched — and the absence of that title is a
+stated failure rather than a silent fallback to the whole blob. RED-proved by
+moving the tiers sentence from Ritual 8's half into Ritual 9's.
+
+**A widened range is a widened scope for every predicate reading it.**
+
+### What shipped
+
+- `tools/extract_worked_rituals.py` — `TEMPLATE_RANGE` 4639-4664, `TEMPLATE_COST`,
+  `template_costs()`, `TEMPLATE_NINTH`, two `verify()` guards, and a docstring
+  whose count now states its filter.
+- Three Python tests. **325 Python** (+3), **1663 Kotlin** unchanged — no Kotlin
+  and no `content/` file moved, and the extractor re-run rewrites
+  `ritual_examples.json` byte-identically.
+
+### The next slice
+
+- **Chapter 5 (74.4%, 40 unclaimed) and chapter 3 (87.9%, 56) are the two
+  unswept blocks left**, and they are the biggest. Note 6cy's warning before
+  reading chapter 3's: a table implemented as arithmetic reads 0% forever, so a
+  raw count there is not a gap count.
+- **Appendix A: 35 unclaimed at 25.5%.** 6da read 32 of them one at a time and
+  6dl found a thirty-third by cross-reference; the filter has widened since, so
+  the delta is small and named.
+- **`Shaken`** (line 8030) still unchecked — one occurrence, and the book never
+  prints what it does.
+- Still unrun: catalogue → fixture, and extractor → `sourceLines`.
+
 ## 6dm. The control that did not name its price — and the caller it still has not got
 
 6dl named this next with its query, and the query holds: `grep -rn "spiFor"
