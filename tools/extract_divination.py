@@ -162,7 +162,8 @@ CROSS_DEFAULT = re.compile(
 # "A character with one skill at 12+ can attempt the other at -2."
 CROSS_THRESHOLD = re.compile(
     r"one skill at\s*(\d+)\+\s*can attempt the other at\s*([+-]\d+)", re.IGNORECASE)
-# The complex-divination bullet, whose -4 is the difficulty table restated.
+# The complex-divination bullet's price for substituting the narrower skill.
+# It is the only number the boundary table prints, and the only one applied.
 COMPLEX_PENALTY = re.compile(r"very high Divination Arts roll\s*\(([+-]\d+) penalty\)")
 
 # The skill-boundary table (3553-3558). The bullet is the row boundary; two of

@@ -6895,9 +6895,12 @@ What is genuinely outstanding, in order of evidence:
 - **Chapter 7.5, Summoning Spiritual Creatures, reads 0.0% and is claimed by
   NO content file** — the last wholly unstarted rules chapter, and it has been
   at 0.0% in plain sight the whole time, because `main()` sets `failed` only
-  for a chapter that HAS claims. 6cw's census missed 7.6 because the instrument
-  said 100%; it missed 7.5 for the opposite reason, that 0.0% reads as "not
-  started yet" rather than as a defect. **Read it before building it**: its
+  for a chapter that HAS claims. Measured, not assumed: line 4730's `3d`
+  matches the PRE-6db filter, so 7.5 read 0.0% with one unclaimed line before
+  the widening and 0.0% with four after — it was never invisible the way 7.6
+  was. 6cw's census missed 7.6 because the instrument said 100%; it missed 7.5
+  for the OPPOSITE reason, that 0.0% reads as "not started yet" rather than as
+  a defect. **Both directions of a coverage number can hide a chapter.** **Read it before building it**: its
   four visible lines are an example creature's stat block and a GM's 3d roll
   for a summoned creature's response, and that roll is NOT the Entity Response
   Table `Invocation` already models — that table sits under "F. Invocation
