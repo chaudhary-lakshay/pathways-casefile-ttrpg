@@ -112,7 +112,33 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6dp is newest, and it is 6dn's finding a second time in three slices.**
+**6dq is newest, and it is a refusal that named the wrong printing for the
+right reason.** `Study.kt`'s KDoc cited *"Appendix A's SPI recovery"* as one of
+the two rules this app leaves unmodelled for want of a clock — and Appendix A
+is the SUMMARY. Its row is three cells (`Rest` / `1 SPI per hour` / the
+requirement); p. 34 prints the rule and carries two clauses that row drops,
+*"This is the standard and only recovery rate"* and the interruption clause.
+**The reason never expired — only its subject and its address were wrong**,
+which is the half of a refusal nothing ever re-reads. It now lives in
+`Pools.UNMODELLED`, on the object that owns `spi()`, where a sweep over Kotlin
+finds it (6cj: a parenthetical in an object about downtime STUDY is invisible
+to a sweep for what `Pools` refuses). Read it for three more things. **The
+exclusivity clause is contradicted in the letter** by p. 88's Sequence 9 Bard
+(*"allies recover 1 SPI at the song's end"*, doubled at p. 100), and the
+specific-beats-general reading ships **as this repo's, not the book's** — the
+diff review caught the first draft asserting it as fact, and the book states no
+priority. **The obvious close was refused**: an `spi_recovery.json` would be
+data no Kotlin loads, the defect 6dg found and 6dh closed, so **chapter 4 stays
+at 80.0%** — the third measurement that claiming is orthogonal to the
+percentage (6di, 6dk), and the first where the honest move was to claim
+nothing. And **no Kotlin test shipped on purpose**: a census over a one-entry
+map written in the same commit asserts that the compiler compiled a string, and
+the design review named that before it was written rather than after. Chapter
+4's other unclaimed line prices Spirit Vision a second time and **says strictly
+less** (no activation charge), so 7.6 governs and the dialog's price is
+undisputed — 6da's bar applied to a line rather than to a modifier.
+
+**6dp is next, and it is 6dn's finding a second time in three slices.**
 Chapter 3 was the largest block left (56 unclaimed lines at 87.9%) and all 56
 are a coverage proxy, exactly as 6cy predicted — the attribute ladder and the
 skill ladder are arithmetic, so they read unclaimed forever. What the sweep
@@ -969,7 +995,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dp, then 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dq, then 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1200,7 +1226,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1665 Kotlin** (JUnit 5 — 1179 `core:rules`, 466 `app`, 20 `core:model`) + **330 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1665 Kotlin** (JUnit 5 — 1179 `core:rules`, 466 `app`, 20 `core:model`) + **333 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1604,10 +1630,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6dp. The slice log
+## 6a-6dq. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6dp is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6dq is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

@@ -6726,6 +6726,106 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dq. A refusal recorded against the summary, not the rule
+
+Chapter 4 was the smallest thing left with anything in it — **80.0%, two
+unclaimed mechanical lines** — and the finding is not the count. It is the
+SUBJECT of a refusal that has been correct the whole time.
+
+### The two lines
+
+| line | what it is |
+|---|---|
+| 2309-2310 | Spirit Vision priced a second time: *"Cost: 1 SPI per minute."* |
+| 2339-2341 | Spirituality Recovery: 1 SPI per hour of rest |
+
+Neither is a gap. What made the second worth a slice is where its reason
+lived.
+
+### The refusal named the quick-reference table
+
+`Study.kt`'s KDoc explains why a downtime planner is stateless, and cites two
+siblings on the way past:
+
+> this app holds no clock — the reason **Appendix A's SPI recovery** (6ad) and
+> a technique's duration (6ah) are both unmodelled.
+
+Appendix A is the SUMMARY. Its row (9718-9724) is three cells — `Rest` /
+`1 SPI per hour` / `No strenuous physical or spiritual activity`. The rule is
+printed at p. 34, and it carries two clauses that row drops:
+
+> A character who rests … recovers 1 SPI per hour. **This is the standard and
+> only recovery rate.** Combat, ritual casting, or heavy physical exertion
+> **interrupts rest and halts recovery.**
+
+So the recorded reason named a printing that says less than the one that
+governs, and never mentioned the chapter at all. **Claim status was never the
+same question as which printing governs (6dl), and neither is being handy to
+quote.** This is 6cj on top of it: the reason was a parenthetical in an object
+about downtime STUDY, so a sweep for what `Pools` refuses could not find it —
+and `Pools` is the object that owns `spi()`.
+
+The reason itself never expired. Only its subject and its address were wrong,
+which is the half of a refusal nothing ever re-reads.
+
+### The exclusivity clause is not enforceable and says so
+
+*"the standard and only recovery rate"* is contradicted in the letter by a
+printed pathway ability: p. 88's Sequence 9 Bard picks one Singing buff and
+option (d) is *"Spiritual Recovery — allies recover 1 SPI at the song's
+end"*, doubled at p. 100. **The reading that ships is specific-beats-general,
+and it is recorded AS this repo's reading rather than as the book's** — the
+design review's call, and the diff review then caught the first draft
+asserting it as fact. The book states no priority between them. Nothing turns
+on it while both are unmodelled, and the parenthetical *"(Bard cannot benefit
+from this effect)"* is the evidence the ability's scope is deliberate.
+
+### What a content file would have cost
+
+The obvious way to close chapter 4 is an `spi_recovery.json`. **It is the
+defect 6dg found and 6dh closed** — data no Kotlin loads, and this repo has
+exactly one measurement of what that produces (a chapter reporting 100% off a
+file nothing read). So the refusal is Kotlin, the pins are Python, and
+**chapter 4 stays at 80.0%.** That is the third measurement of claiming being
+orthogonal to the percentage (6di, 6dk), and the first where the honest move
+was to claim nothing at all.
+
+### What shipped
+
+- `Pools.UNMODELLED`, one entry, at the `Equipment.UNMODELLED` /
+  `ActiveDefenses.UNPAYABLE` / `Divination.UNAPPLIED` standard, with the
+  book's sentence, the reason, and the Bard exception inside it.
+- `Study.kt`'s parenthetical corrected to name ch. 4 and point at it.
+- `SpiritVision`'s KDoc: ch. 4 prices it a second time and **says strictly
+  less** — no activation charge — so 7.6 governs and the dialog's price is
+  undisputed. 6da's bar, applied to a line rather than to a modifier.
+- Three Python pins, each RED-proved by mutating its line in `lines.json`.
+  **No Kotlin test**: a census over a one-entry map written in the same
+  commit asserts the compiler compiled a string. The design review named that
+  before it was written, which is cheaper than the eleven this repo shipped
+  and had a reviewer find.
+- **1665 Kotlin** (unchanged) and **333 Python** (+3). No compile warnings
+  (6dl).
+
+### The next slice
+
+- **`Shaken`** (line 8030) — *"the target must roll HT or be Shaken (see
+  GURPS p. B360) for 1 turn"*, on the Werewolf's improvised-weapon upgrade.
+  **One occurrence in the whole book, and the book never prints what it
+  does.** Same shape as `Divination.UNAPPLIED`'s technique: a rule whose
+  definition lives in a book this one does not reprint. Likely a refusal, and
+  it is unchecked — nothing here has looked for a second printing.
+- **Appendix A is closed for this filter.** 6da read 32 lines, 6dl found a
+  33rd, and the delta the widened filter added is exactly three: 9716 is
+  `cor_gained.json` verbatim, 9717 prints `+10` where the chapter prints
+  `10+` (6da's bar — it says less), and 9723 is this slice's rule a second
+  time. A sweep whose yield is computed to be zero before running it.
+- **Chapter 7.5's four lines are the GM's.** 6dk ruled on 4730; 4762-4764 are
+  the Bookworm, an EXAMPLE creature under a heading that says *"determined by
+  the GM"*. The chapter reads 0.0% and that is what an example costs.
+- **The grapple-state surface** (6do) is still the biggest named thing.
+- Still unrun: catalogue → fixture, and extractor → `sourceLines`.
+
 ## 6dp. The constant the summary box could not see
 
 Chapter 3 was the largest block left — **56 unclaimed mechanical lines at
