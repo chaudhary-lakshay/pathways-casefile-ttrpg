@@ -2804,6 +2804,58 @@ def test_losing_a_worked_ritual_would_fail_verification():
 
 
 @needs_pdf
+def test_a_row_that_swallowed_a_template_range_would_fail_verification():
+    """4.2 shape. The two templates sit outside both tables because they price
+    a class of ritual, not one ritual. The day a printed row contains a whole
+    template range the extraction FAILS, rather than the two axes merging with
+    every assertion still green."""
+    rituals, caster = extract_worked_rituals.extract()
+    byn = extract_worked_rituals.load_lines()
+    template = " ".join(
+        extract_worked_rituals.stream(byn, *extract_worked_rituals.TEMPLATE_RANGE))
+    weights = json.loads(
+        (CONTENT / "ritual_weights.json").read_text(encoding="utf-8"))["entries"]
+    rungs = json.loads(
+        (CONTENT / "ritual_complexity.json").read_text(encoding="utf-8"))["entries"]
+    swallowing = rungs + [
+        {"complexity": "Invented", "spi": 2, "spiMax": 20, "spiOpen": False},
+    ]
+    with pytest.raises(ValueError, match="fits one printed row whole"):
+        extract_worked_rituals.verify(
+            rituals, caster, weights, swallowing, template)
+
+
+@needs_pdf
+def test_the_two_templates_price_a_class_no_rung_contains():
+    """Section VIII prints NINE SPI costs, not seven.
+
+    The seven worked rituals each name one number and each sits inside one
+    rung of the complexity ladder. Rituals 8 and 9 print RANGES -- 2-4 and
+    4-8 -- and no rung, and no row of Section V's weight table, contains
+    either. That is not an error to repair: a template prices a CLASS of
+    ritual across scopes where a rung prices one ritual. It is recorded
+    because "all seven costed rituals" was a count taken with the filter
+    "has a worked total", and the section's own costed rituals number nine.
+    """
+    byn = extract_worked_rituals.load_lines()
+    template = " ".join(
+        extract_worked_rituals.stream(byn, *extract_worked_rituals.TEMPLATE_RANGE))
+    assert extract_worked_rituals.template_costs(template) == [(2, 4), (4, 8)]
+
+    rungs = json.loads(
+        (CONTENT / "ritual_complexity.json").read_text(encoding="utf-8"))["entries"]
+    weights = json.loads(
+        (CONTENT / "ritual_weights.json").read_text(encoding="utf-8"))["entries"]
+    for row in rungs + weights:
+        top = None if row.get("spiOpen") else row.get("spiMax") or row["spi"]
+        for lo, hi in extract_worked_rituals.template_costs(template):
+            assert not (lo >= row["spi"] and (top is None or hi <= top)), (
+                f"a template's {lo}-{hi} SPI now fits one printed row whole; "
+                "the two tables priced one ritual and the templates a class"
+            )
+
+
+@needs_pdf
 def test_ritual_eight_names_the_cheapest_tier_a_second_way():
     """Section IV.D prints "Ordinary (common goods, small animals) grants +0";
     Ritual 8 prints "Trivial +0" for the same three values. Two names, one

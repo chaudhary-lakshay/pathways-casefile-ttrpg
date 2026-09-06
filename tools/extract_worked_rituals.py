@@ -17,8 +17,8 @@ tables, and 8-10 are procedure templates that print a RANGE of base difficulty
 and cost instead of one ritual's numbers. Only the first seven can be replayed.
 
 That miscount mattered, because the two-axis SPI decision (CLAUDE.md 6aa) was
-argued from "six of six". Rechecked against all seven costed rituals it holds
-and is stronger:
+argued from "six of six". Rechecked against the seven that print a SINGLE cost
+it holds and is stronger:
 
     R1 Enhancement    4 SPI   ladder Moderate 4-6  weight 4-6   both
     R2 Divination     3 SPI   ladder Simple   2-3  weight 2     LADDER ONLY
@@ -31,6 +31,25 @@ and is stronger:
 Seven of seven inside the complexity ladder; three of seven outside the weight
 column, none outside the ladder. verify() asserts both halves, so the evidence
 the decision rests on cannot quietly change.
+
+AND THE SECTION PRINTS NINE COSTS, NOT SEVEN
+---------------------------------------------
+"All seven costed rituals" is a count taken with the filter "has a worked
+total". Rituals 8 and 9 print an `SPI Cost:` line as well, so the section
+prints nine -- and neither of those two is contained by any rung of the
+complexity ladder OR any row of the weight table:
+
+    R8 Sacrificial  2-4 SPI   ladder Light 2-3  / Moderate 4-6   straddles
+    R9 Dualistic    4-8 SPI   ladder Moderate 4-6 / Heavy 7-10   straddles
+
+Not a third disagreement to repair. A template prices a CLASS of ritual across
+scopes where a rung prices one ritual, which is exactly why the seven single
+values each sit in a rung and these two sit in none. It is recorded because
+the "seven of seven inside the ladder" evidence was measured over
+WORKED_RANGE, and WORKED_RANGE stops one line before Ritual 8 -- an
+assertion whose corpus excludes the only rows that could contradict it.
+verify() reads both templates now and fails the day a printed row swallows
+one whole.
 
 AND THE BASE DIFFICULTIES DO NOT MATCH THE WEIGHT TABLE
 ---------------------------------------------------------
@@ -72,9 +91,16 @@ Recorded, not reconciled.
 WHAT IS DELIBERATELY NOT EXTRACTED
 ----------------------------------
 Rituals 8-10's templates: they print ranges rather than a worked total, so
-there is no arithmetic to check an engine against. Ritual 10's pathway/material
-table (17 rows of "Fool / Silver, Paper") is real content with no caller --
-nothing in the app creates charms -- and belongs to whichever slice does.
+there is no arithmetic to check an engine against. That reason is about the
+ORACLE and says nothing about whether the lines are read -- 8 and 9 are, by
+TEMPLATE_RANGE, for what they disagree with. Ritual 9 had been inside the
+group this sentence excludes and outside every range the file reads, so its
+silence was inherited rather than checked; it is checked now.
+
+Ritual 10's pathway/material table (17 rows of "Fool / Silver, Paper") is real
+content with no caller -- nothing in the app creates charms -- and belongs to
+whichever slice does. It prints no SPI cost, which is why the count above is
+nine and not ten.
 """
 import json, pathlib, re, sys
 
@@ -84,9 +110,10 @@ OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "7"
 WORKED_RANGE = (4422, 4638)
-# Ritual 8's template, read only so verify() can pin its two disagreements
-# with Section IV.D and Section VI.
-TEMPLATE_RANGE = (4639, 4649)
+# Rituals 8 and 9's templates, read only so verify() can pin what they
+# disagree with. Ritual 9 was inside the group this file excludes and outside
+# every range it reads, so its silence was inherited rather than checked.
+TEMPLATE_RANGE = (4639, 4664)
 
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 HEADERS = {"Category", "Base Difficulty", "Time", "Value"}
@@ -103,6 +130,9 @@ NET = "Net modifier"
 EFFECTIVE = re.compile(rf"^Effective Skill: (\d+) ([+{MINUS}]) (\d+) = (\d+)")
 SPI_COST = re.compile(r"^SPI Cost: (\d+)")
 CASTER = re.compile(r"Each assumes a caster with Ritualistic Magic-(\d+)")
+
+# "SPI Cost: 2-4 SPI", with whichever dash the flattening produced.
+TEMPLATE_COST = re.compile(rf"SPI Cost: (\d+)\s*[{MINUS}–—]\s*(\d+) SPI")
 
 TEMPLATE_TIERS = re.compile(r"Trivial \+0, Meaningful \+2, Precious \+4")
 TEMPLATE_SHIFT = re.compile(r"Critical Failure Table with \+(\d+) to the result")
@@ -344,6 +374,38 @@ def verify(rituals, caster, weights, complexity, template):
         raise ValueError(
             "Ritual 8 rolled the Critical Failure Table at +2 where Section VI "
             "rolls it at -2; that opposite shift is gone or changed")
+
+    # Rituals 8 and 9 are the section's eighth and ninth SPI costs, and they
+    # print RANGES because they price a class of ritual across scopes. No rung
+    # and no weight row contains one whole -- recorded, never repaired, and
+    # the day one fits, the two axes have merged and this has to fail.
+    costs = template_costs(template)
+    if len(costs) != 2:
+        raise ValueError(
+            f"Rituals 8 and 9 print two SPI ranges; {len(costs)} were found. "
+            "They are why 'all seven costed rituals' is a count taken with the "
+            "filter 'has a worked total' -- the section prints nine")
+    for row in list(complexity) + list(weights):
+        top = None if row.get("spiOpen") else row.get("spiMax") or row["spi"]
+        for low, high in costs:
+            if low >= row["spi"] and (top is None or high <= top):
+                named = row.get("complexity") or row.get("weight")
+                raise ValueError(
+                    f"a template's {low}-{high} SPI now fits one printed row "
+                    f"whole ({named}); the two tables price one ritual and "
+                    "the templates a class of them")
+
+
+def template_costs(text):
+    """The SPI ranges Rituals 8 and 9 print, in printed order.
+
+    A range, not a number: these templates price a CLASS of ritual across
+    scopes, which is why no rung of the complexity ladder and no row of the
+    weight table contains one. The seven worked rituals above them each name a
+    single number that does sit in a rung -- so the section prints NINE costs
+    and only seven of them are a ritual's own.
+    """
+    return [(int(a), int(b)) for a, b in TEMPLATE_COST.findall(text)]
 
 
 def extract():
