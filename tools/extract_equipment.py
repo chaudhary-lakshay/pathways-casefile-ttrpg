@@ -113,12 +113,25 @@ CONDITION_SEPARATORS = (
 TARGET_JOINERS = (" & ", " or ")
 
 # Rolls this book prices without printing them as skills anywhere.
+# "reaction" is the Velvet shawl's "+1 to reaction from romantic interests":
+# a reaction roll is not a skill roll, and the wealth table already prices
+# reactions on their own axis.
 UNPRINTED_TARGETS = {
     "spot", "fool officials", "infection-resistance rolls", "ritual effects",
+    "reaction",
 }
 # Skills chapter 8 grants bonuses to that chapter 3's list never prints.
 # A 4.1 disagreement: recorded here, never resolved by inventing a row.
 ABSENT_FROM_CHAPTER_3 = {"Forced Entry", "Gather Information"}
+# Chapter 8's spelling of a skill chapter 3 prints unhyphenated. Recorded
+# rather than resolved: overturning it needs its own warrant, and the guard
+# that owns the fact is the spelling pair at the bottom of verify() -- this set
+# exists so RECORDED_UNJOINED can be closed, not as a second check on it.
+HYPHENATED_IN_CHAPTER_8 = {"Fortune-Telling"}
+# Every clause target that resolves to no skill row, as a CLOSED set. The old
+# guard ran one way -- no recorded exclusion may resolve -- and could not see a
+# new target being dropped in silence.
+RECORDED_UNJOINED = UNPRINTED_TARGETS | ABSENT_FROM_CHAPTER_3 | HYPHENATED_IN_CHAPTER_8
 
 # Counted from the printed table: 27 general tools, 15 medical, 11 clothing,
 # 24 specialized. Exact rather than a floor -- see verify().
@@ -153,6 +166,9 @@ PINNED_JOINS = {
     "Compass (brass)": [("Navigation", "Land")],
     "Portable medicine chest": [("First Aid", None), ("Surgery", None)],
     "Crystal ball (glass)": [("Psychology", None)],
+    # An instance of a row chapter 3 leaves open, which a strict match dropped.
+    "Rare book catalogue": [("Connoisseur", "Books")],
+    "Fine clothes (quality)": [("Savoir-Faire", "High Society")],
     # A mention with no signed clause. This row is the predicate's guard.
     "Lock picks (set)": [],
     # Chapter 8 hyphenates; chapter 3 does not. The book's own seam.
@@ -199,10 +215,38 @@ def tag_categories(cells):
 
 
 def skill_index():
-    """Every (name, specialization) chapter 3's skill list prints."""
+    """Every (name, specialization) chapter 3 prints -> is that row OPEN?
+
+    A dict rather than a set so `key in index` still answers the same
+    question, with the extra fact a caller needs beside it: whether the list
+    marks the row specializable. That flag is the single source for the
+    predicate `joins` asks and the one `Equipment.isTemplate` asks in Kotlin,
+    so the two sites agree on the data rather than on having both been edited.
+    """
     path = OUT / "skills.json"
     entries = json.loads(path.read_text(encoding="utf-8"))["entries"]
-    return {(e["name"], e.get("specialization")) for e in entries}
+    return {
+        (e["name"], e.get("specialization")): bool(e.get("specializable"))
+        for e in entries
+    }
+
+
+def joins(key, index):
+    """Whether chapter 3 prints a row this clause target names.
+
+    Exactly as printed, or an INSTANCE of a row chapter 3 left open: a name
+    printed once with no specialization and marked specializable is a template
+    the player fills in, so "Connoisseur (Books)" names it. The alternative --
+    a strict key match -- reads that as a skill chapter 3 never printed and
+    drops a priced bonus, which is 6cz's defect on this side of the join.
+
+    The widening stops at the book's own line. Navigation is printed three
+    times and marked NOT specializable, so the list enumerates its instances
+    and "Navigation (Air)" is a skill this book does not have.
+    """
+    if key in index:
+        return True
+    return key[1] is not None and index.get((key[0], None)) is True
 
 
 def trim_condition(target):
@@ -245,7 +289,7 @@ def resolve_skills(notes, index):
     for target in clause_targets(notes):
         key = as_key(target)
         already = [(s["name"], s["specialization"]) for s in out]
-        if key in index and key not in already:
+        if joins(key, index) and key not in already:
             out.append({"name": key[0], "specialization": key[1]})
     return out
 
@@ -321,6 +365,23 @@ def verify(rows, index):
             "before trusting the split.\n"
             f"  now: {sorted(joined_clauses)}\n"
             f"  was: {sorted(JOINED_CLAUSES)}"
+        )
+
+    # THE REVERSE DIRECTION, which had no check at all. Below, no recorded
+    # exclusion may resolve; here, no unrecorded target may be dropped. Only
+    # this half can see a NEW clause naming a skill under a spelling chapter 3
+    # does not print -- the row count, the pinned joins and the joiner set all
+    # stay green through that, and the bonus reaches nothing on screen.
+    unresolved = {
+        t for row in rows for t in clause_targets(row["notes"])
+        if not joins(as_key(t), index)
+    }
+    if unresolved != RECORDED_UNJOINED:
+        raise ValueError(
+            "the clause targets that resolve to no skill row changed; read the "
+            "new one before deciding it is a disagreement.\n"
+            f"  unrecorded: {sorted(unresolved - RECORDED_UNJOINED)}\n"
+            f"  recorded but gone: {sorted(RECORDED_UNJOINED - unresolved)}"
         )
 
     # No target the book prices without printing may be guessed into a skill.

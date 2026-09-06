@@ -4259,11 +4259,99 @@ def test_a_specialization_is_part_of_the_identity():
     ]
     index = extract_equipment.skill_index()
     assert ("Navigation", "Land") in index and ("Navigation", None) in index
-    # The two the book writes the same way and chapter 3 leaves open.
+
+
+def test_a_bonus_naming_an_instance_of_an_open_row_joins_it():
+    """Chapter 3 leaves two of these rows OPEN, and that is what makes an
+    instance of them a match rather than a miss.
+
+    "Connoisseur" and "Savoir-Faire" are printed once each with no
+    specialization and marked specializable -- a template the player fills in.
+    Chapter 8 prices instances of both. A strict key match reads those as
+    skills chapter 3 never printed and drops the bonus, which is 6cz's defect
+    on the WRITING side of the same join: `Equipment.forSkill` was taught that
+    an open row is matched by its instance and this was not.
+    """
+    index = extract_equipment.skill_index()
+    assert index[("Connoisseur", None)] is True
+    assert index[("Savoir-Faire", None)] is True
     assert ("Connoisseur", "Books") not in index
     assert ("Savoir-Faire", "High Society") not in index
-    assert equipment_named("Rare book catalogue")["skills"] == []
-    assert equipment_named("Fine clothes (quality)")["skills"] == []
+    # Stored as the book prints it: the bonus is scoped to that instance, so a
+    # character with Connoisseur (Antiques) must not be offered it.
+    assert equipment_named("Rare book catalogue")["skills"] == [
+        {"name": "Connoisseur", "specialization": "Books"}
+    ]
+    assert equipment_named("Fine clothes (quality)")["skills"] == [
+        {"name": "Savoir-Faire", "specialization": "High Society"}
+    ]
+
+
+def test_an_unprinted_specialization_of_an_ENUMERATED_row_joins_nothing():
+    """The widening stops where the book stops leaving the row open.
+
+    Chapter 3 prints Navigation three times -- bare, (Sea), (Land) -- and
+    marks it NOT specializable, so the list enumerates its own instances and
+    "Navigation (Air)" is a skill this book does not have. Reading every
+    parenthesis as an instance would invent it.
+    """
+    index = extract_equipment.skill_index()
+    assert index[("Navigation", None)] is False
+    assert extract_equipment.joins(("Navigation", "Land"), index)
+    assert not extract_equipment.joins(("Navigation", "Air"), index)
+    assert extract_equipment.joins(("Connoisseur", "Books"), index)
+    # An open row is matched by an instance, never by a name it never printed.
+    assert not extract_equipment.joins(("Sommelier", "Wine"), index)
+
+
+@needs_pdf
+def test_every_clause_target_that_joins_nothing_is_recorded():
+    """The guard that was missing, and the reason this slice exists.
+
+    verify() checked that no RECORDED exclusion resolved -- and never that
+    every unresolved target is recorded. A new clause naming a skill under a
+    spelling chapter 3 does not print would be dropped in silence, with the
+    row count, the pinned joins and the joiner set all still green. The set
+    below is the closed answer, so a new drop has to be read by a human.
+    """
+    index = extract_equipment.skill_index()
+    tagged = extract_equipment.tag_categories(
+        extract_equipment.stream(extract_equipment.load_lines(),
+                                 *extract_equipment.EQUIPMENT_RANGE)
+    )
+    rows = extract_equipment.parse(tagged, index)
+    unresolved = {
+        t for r in rows for t in extract_equipment.clause_targets(r["notes"])
+        if not extract_equipment.joins(extract_equipment.as_key(t), index)
+    }
+    assert unresolved == extract_equipment.RECORDED_UNJOINED
+    # Each of the three sets earns its place: a roll the book never prints as
+    # a skill, a skill chapter 3 omits, and one it spells differently.
+    assert "reaction" in extract_equipment.UNPRINTED_TARGETS
+    assert extract_equipment.ABSENT_FROM_CHAPTER_3 <= unresolved
+    assert extract_equipment.HYPHENATED_IN_CHAPTER_8 == {"Fortune-Telling"}
+
+
+@needs_pdf
+def test_a_target_that_joins_nothing_and_is_unrecorded_fails_verification():
+    """RED-proof for the reverse guard, mutating the direction that FAILS
+    silently: a new clause appearing, not an old one going away."""
+    index = extract_equipment.skill_index()
+    tagged = extract_equipment.tag_categories(
+        extract_equipment.stream(extract_equipment.load_lines(),
+                                 *extract_equipment.EQUIPMENT_RANGE)
+    )
+    rows = extract_equipment.parse(tagged, index)
+    patched = [
+        # A name chapter 3 does not print. Cryptography would have been the
+        # obvious mutation and it IS in the skill list, so it resolves and
+        # proves nothing -- a mutation has to land where the guard looks.
+        {**r, "notes": r["notes"] + "; +1 to Basket Weaving"}
+        if r["name"] == "Magnifying glass" else r
+        for r in rows
+    ]
+    with pytest.raises(ValueError, match="Basket Weaving"):
+        extract_equipment.verify(patched, index)
 
 
 def test_four_rolls_are_priced_without_ever_being_printed_as_skills():

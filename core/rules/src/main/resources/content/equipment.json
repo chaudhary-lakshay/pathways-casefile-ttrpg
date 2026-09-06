@@ -461,7 +461,12 @@
    "cost": "£1 10s",
    "category": "Clothing & Protective",
    "notes": "+1 to Savoir-Faire (High Society); status marker",
-   "skills": []
+   "skills": [
+    {
+     "name": "Savoir-Faire",
+     "specialization": "High Society"
+    }
+   ]
   },
   {
    "name": "Velvet shawl",
@@ -597,7 +602,12 @@
    "cost": "5s",
    "category": "Specialized Equipment",
    "notes": "Reference; +1 to Connoisseur (Books) when appraising tomes",
-   "skills": []
+   "skills": [
+    {
+     "name": "Connoisseur",
+     "specialization": "Books"
+    }
+   ]
   },
   {
    "name": "Personal lending ledger",

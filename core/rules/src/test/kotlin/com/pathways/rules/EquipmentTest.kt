@@ -91,6 +91,39 @@ class EquipmentTest {
     }
 
     @Test
+    @DisplayName("a clause naming one instance reaches that instance and no sibling")
+    fun `an instance-scoped clause is scoped to the instance`() {
+        // The mirror of the bedroll: there the CLAUSE was bare and the
+        // character held an instance; here the clause names the instance
+        // itself ("+1 to Savoir-Faire (High Society)") and four sheets hold
+        // four different classes. Until the extractor learned that an open
+        // row is named by its instance, the clause resolved to nothing at
+        // all and none of the four saw the row -- the same predicate as
+        // `isTemplate`, answered on the writing side of the join.
+        val fine = "Fine clothes (quality)"
+        val teller = Premades.all().first { it.name == "Fortune Teller" }
+        val theirs = teller.skills.first { it.name == "Savoir-Faire" }
+        assertEquals("High Society", theirs.specialization)
+        assertTrue(
+            Equipment.referenceFor(theirs.key()).any { it.startsWith(fine) },
+            "the one sheet with High Society saw no fine clothes",
+        )
+
+        // And the scoping is the book's: three other sheets buy the same
+        // skill in another class and the bonus does not reach them.
+        val others = Premades.all()
+            .mapNotNull { p -> p.skills.firstOrNull { it.name == "Savoir-Faire" } }
+            .filter { it.specialization != "High Society" }
+        assertTrue(others.size >= 3, "expected other Savoir-Faire classes, got $others")
+        others.forEach {
+            assertTrue(
+                Equipment.forSkill(it.key()).none { item -> item.name == fine },
+                "${it.specialization} was offered a High Society bonus",
+            )
+        }
+    }
+
+    @Test
     @DisplayName("an enumerated specialization is still a different skill")
     fun `a non-template specialization keeps strict matching`() {
         // Navigation is the opposite case: specializable = false, and the
