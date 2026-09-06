@@ -138,8 +138,11 @@ editing the committed row to match. Its review found **a one-way check with a
 blind side** (the agreement clause read only the appendix's wording, so chapter
 5's row could drift under a passing guard — 6dh again) and **an order
 dependency** (it read `major_wound.json`, a file it does not write; it reads
-chapter 5's own lines now). **First slice in eleven with no vacuous
-assertion.**
+chapter 5's own lines now). **No vacuous assertion in what the reviewer read** — a
+weaker claim than "the first in eleven", because the tests were restructured
+AFTER the review and the restructuring introduced one (a hand-typed literal of
+two book lines with nothing tying it to them). **A review's verdict expires
+when the diff moves under it.**
 
 **6dk is next, and it found the reference a CLAIMED sentence pointed at.**
 Book line 4141 sits inside `ritual_preparation.json`'s claimed span and reads

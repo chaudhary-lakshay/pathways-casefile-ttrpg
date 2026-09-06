@@ -148,6 +148,11 @@ SUMMARISES = {
 # whole: the appendix abbreviates ("HT or stunned 1d6 sec" against "Stunned
 # for 1d6 seconds (roll HT each turn to recover early)"), and an equality test
 # would report every abbreviation as a disagreement.
+# Three dicts keyed on the same clauses, and they must stay in step: every
+# SUMMARISES key belongs to exactly one of AGREES_ON and SUMMARY_DISAGREEMENTS.
+# verify_major_wound says so rather than leaving a KeyError to say it. Two
+# clauses and one entry each is thin, and deliberately not generalised -- a
+# fourth clause needs a reading of what it summarises, not a wider structure.
 AGREES_ON = {
     "Hit > ½ HP": ("stunned", "1d6"),
 }

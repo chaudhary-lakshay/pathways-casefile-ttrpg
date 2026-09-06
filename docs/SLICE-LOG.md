@@ -6819,8 +6819,19 @@ second disagreement: it says strictly less, which is 6da's own NO-SHIP standard.
   `SUMMARY_DISAGREEMENTS` only implicitly, so a clause in neither fell through
   to a `KeyError`. Now a stated failure.
 
-**No vacuous assertion** — the first slice in eleven where the review found
-none.
+**No vacuous assertion in what the reviewer read.** That is a weaker claim
+than "the first slice in eleven with none", and the difference matters: the
+tests were RESTRUCTURED after the review to take chapter 5's lines instead of
+`major_wound.json`, so the reviewed tests and the shipped tests are not the
+same tests. The restructuring introduced one — `CHAPTER_5_MAJOR_WOUND` is a
+hand-typed literal of two book lines, and nothing tied it to them, so the
+guard would have been checking the appendix against strings typed in the test
+file. One loop over `SUMMARISES` closes it, RED-proved by corrupting the
+literal. **A review's verdict expires when the diff moves under it.**
+
+And restoring the file after that proof with `git checkout` **discarded the
+fix**, which was uncommitted at the time — this repo's own recorded lesson,
+hit live rather than read. `cp` aside first.
 
 ### What shipped
 

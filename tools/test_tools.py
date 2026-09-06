@@ -4129,7 +4129,13 @@ def test_the_recorded_disagreement_names_both_printings():
            json.loads((ROOT / "build" / "extract" / "lines.json")
                       .read_text(encoding="utf-8"))}
     assert byn[9672].strip() == APPENDIX_MAJOR_WOUND
-    assert byn[2830].strip() == both[1]
+    # Every chapter-5 string the tests above feed the guard, tied to the line
+    # the book prints it on. Without this the guard would be checking the
+    # appendix against strings typed HERE -- a value asserted on the wrong
+    # side of the thing that produces it, which is the hole 6dk shipped once.
+    for row, n in extract_appendix.SUMMARISES.values():
+        assert byn[n].strip() == CHAPTER_5_MAJOR_WOUND[row], (row, n)
+    assert CHAPTER_5_MAJOR_WOUND["Fail by 5+"] == both[1]
 
 
 # --- Appendix A's facing line (Ch. A, p. 159) ------------------------------
