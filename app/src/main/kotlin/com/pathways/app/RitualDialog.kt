@@ -25,6 +25,7 @@ import com.pathways.rules.Pools
 import com.pathways.rules.Corruption
 import com.pathways.rules.Divination
 import com.pathways.rules.EntityAnswer
+import com.pathways.rules.Incantations
 import com.pathways.rules.Invocation
 import com.pathways.rules.Languages
 import com.pathways.rules.PowerSourceDeclaration
@@ -617,6 +618,44 @@ fun RitualDialog(
                                 "Rolled ${given.roll}" +
                                     (if (given.shifted != given.roll) " → ${given.shifted}" else "") +
                                     ": ${given.response.response}",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+
+                    // The reference Phase II points at: "(4-part Hermes
+                    // structure — see reference below)". The Flourish chip
+                    // above quoted the rest of that sentence and dropped the
+                    // parenthetical, so the app awarded +1 for narrating a
+                    // structure it never showed. Rendered HERE rather than
+                    // beside the chip because the book's own note picks the
+                    // structure off the power source chosen just above, and a
+                    // reference that changes with a control below it reads as
+                    // a glitch. Full mode only, on the same warrant as the
+                    // chip: the Quick Ritual's four steps print no narration.
+                    if (mode.usesFlourish) {
+                        val incantation = Incantations.forPowerSource(invoked)
+                        Text(
+                            "Incantation (Phase II)",
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        Text(
+                            "${incantation.structure} — ${incantation.text}",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        incantation.parts.forEach {
+                            Text(it, style = MaterialTheme.typography.bodySmall)
+                        }
+                        incantation.note?.let {
+                            Text(it, style = MaterialTheme.typography.bodySmall)
+                        }
+                        // Shown, never chosen: nothing here can say a ritual IS
+                        // a summoning, and gating on Heavy would say it of
+                        // binding and affliction too.
+                        Incantations.all().filter { it.referenceOnly }.forEach {
+                            Text(
+                                "${it.scope}: ${it.text}",
                                 style = MaterialTheme.typography.bodySmall,
                             )
                         }

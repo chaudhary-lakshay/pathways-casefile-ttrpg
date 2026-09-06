@@ -756,6 +756,124 @@ def test_committed_ritual_content_claims_the_flourish_sentence():
     assert "flourish" not in body.lower()
 
 
+HERMES_PART_LINES = [
+    "\x7f Part 1 — Invocation: A prayer for someone's power. Replace 'someone' "
+    "with the entity's honorific name, symbol,",
+    "or domain. E.g.: \"The existence that rules the concealed path and controls fate...\"",
+    "\x7f Part 2 — Grace: \"I pray for the God's loving grace.\"",
+    "\x7f Part 3 — Request: What you pray for. Must be brief — finish in one sentence.",
+    "\x7f Part 4 — Empowerment: Invoke a specific herb or ingredient to empower "
+    "the request. E.g.: \"Sun Flower, a herb",
+    "that belongs to the Sun. Please bestow your powers to my incantation.\"",
+]
+HERMES_INTRO = ["The standard incantation has four parts, spoken in Hermes:"]
+HERMES_NOTE = [
+    "As long as the four-part structure is followed and the key meaning is "
+    "expressed in Hermes, the rest can be left to the caster's",
+    "creativity. For Praying to Oneself, replace the four-part structure with "
+    "the three-line self-description (see Section IV —",
+    "Personal Spirituality).",
+]
+SELF_LINES = [
+    "Praying to Oneself — Ritualistic magic can also be directed inward, "
+    "drawing power from your own spirituality without",
+    "petitioning any god. To do so, craft a three-line description of your "
+    "being that precisely identifies your spiritual location",
+    "within the Wall of Spirituality. For example: \"Cordu Village's Trickster "
+    "King, Aurore Lee's younger brother, An entity known",
+    "as Lumian Lee...\" The benefit is total independence from divine "
+    "constraints — the weakness is that the result is limited by your",
+    "personal power. A weak Beyonder gets a weak result.",
+]
+SUMMONING_LINES = [
+    "In order to summon a mystical being one needs to discover or create a "
+    "three-line incantation that points to a specific spiritual",
+    "creature. The first line should be the resident realm of the creature "
+    "(The Unfounded, the Spirit Realm, the Darkness, etc.). The",
+    "second and third lines should be accurate descriptors of the creature.",
+]
+
+
+def test_the_four_parts_survive_the_two_that_wrap():
+    """Parts 1 and 4 each carry their EXAMPLE on a second line.
+
+    A line-at-a-time read returns six parts, two of them fragments beginning
+    "or domain." and "that belongs to the Sun." -- and the two parts whose
+    worked example is the whole reason to print them lose it.
+    """
+    parts = extract_ritual.parse_parts(HERMES_PART_LINES)
+    assert len(parts) == 4
+    assert [p.split(":")[0] for p in parts] == [
+        "Part 1 — Invocation", "Part 2 — Grace",
+        "Part 3 — Request", "Part 4 — Empowerment",
+    ]
+    assert parts[0].endswith('controls fate..."')
+    assert parts[3].endswith('powers to my incantation."')
+
+
+def test_the_three_printed_incantation_structures_are_kept_apart():
+    """Three structures, two of them three-line, and they are NOT one row.
+
+    The self-description identifies the caster's own spiritual location; the
+    summoning incantation identifies a creature by realm and descriptors.
+    Merging them on the shared shape would print a rule the book does not.
+    """
+    entries = extract_ritual.build_incantations(
+        HERMES_INTRO, HERMES_PART_LINES, HERMES_NOTE, SELF_LINES, SUMMONING_LINES)
+    # The scopes as the page prints them, NOT extract_ritual's own constant --
+    # comparing a builder's output with the list it built from cannot fail.
+    assert [e["scope"] for e in entries] == [
+        "Invocation", "Praying to Oneself", "Summoning a spiritual creature",
+    ]
+    assert [len(e["parts"]) for e in entries] == [4, 0, 0]
+    # The book's own join, stored where it selects.
+    assert "replace the four-part structure" in entries[0]["note"]
+    assert "Lumian Lee" in entries[1]["text"]
+    assert "resident realm of the creature" in entries[2]["text"]
+    # The note is printed AFTER the parts and is kept apart from the intro so
+    # the screen can render the page's own order.
+    assert entries[0]["text"].endswith("spoken in Hermes:")
+    # Only chapter 7's pair is selectable by the power source the app models.
+    assert [e.get("referenceOnly") for e in entries] == [None, None, True]
+
+
+def test_phase_two_still_names_the_structure_the_screen_shows():
+    """The cross-reference is the whole warrant for showing it there.
+
+    Phase II's own sentence says "(4-part Hermes structure — see reference
+    below)". The app claimed that sentence and rendered only its second half,
+    so the Flourish chip awarded +1 for narrating a structure nothing showed.
+    If the book stops naming it, the reference beside that chip is no longer
+    the one Phase II points at.
+    """
+    entries = extract_ritual.build_incantations(
+        HERMES_INTRO, HERMES_PART_LINES, HERMES_NOTE, SELF_LINES, SUMMONING_LINES)
+    phase_two = (
+        "The player narrates the incantation (4-part Hermes structure — see "
+        "reference below). The GM may award a Flourish Bonus (+1) for good "
+        "in-character delivery."
+    )
+    extract_ritual.verify_incantations(entries, phase_two)
+
+    with pytest.raises(ValueError, match="no longer names"):
+        extract_ritual.verify_incantations(
+            entries, "The player narrates the incantation. The GM may award a "
+                     "Flourish Bonus (+1).")
+    # And a structure that lost a part is a structure nobody can recite.
+    short = [dict(e) for e in entries]
+    short[0]["parts"] = short[0]["parts"][:3]
+    with pytest.raises(ValueError, match="four parts"):
+        extract_ritual.verify_incantations(short, phase_two)
+
+
+def test_committed_incantations_claim_all_three_printings():
+    """Two chapters, three spans. Chapter 7.5 is claimed by nothing else at
+    all, and this is its first."""
+    body = json.loads((CONTENT / "incantations.json").read_text(encoding="utf-8"))
+    assert body["sourceLines"]["7"] == [[3992, 3996], [4195, 4204]]
+    assert body["sourceLines"]["7.5"] == [[4718, 4720]]
+
+
 def test_committed_ritual_content_carries_cost_and_preparation():
     weights = json.loads((CONTENT / "ritual_weights.json").read_text(encoding="utf-8"))["entries"]
     assert {w["weight"]: w["spi"] for w in weights} == {"Light": 2, "Moderate": 4, "Heavy": 8}

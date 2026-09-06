@@ -6726,6 +6726,181 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dk. The reference a claimed sentence pointed at
+
+6dj named chapter 7.5 next — the last rules chapter claimed by nothing,
+reading 0.0%. **It was right to name it and wrong about what was in it**, and
+finding that out took four checks that each cost a grep.
+
+### 7.5's ritual is already in the app, and was before anyone read the chapter
+
+| 7.5 prints | where it already lives |
+|---|---|
+| "performing a ritual" to summon | `RitualResolution`, reachable today |
+| its weight | `ritual_weights.json` prints **Summoning** as the first Heavy category, and `RitualDialog` renders `weight.categories` |
+| Full vs Quick | p. 61: "Full Ritual is for consequential magic (curses, binding, **summoning**, cleansing)" |
+| "supplicating a higher being" | ch. 7 IV.F, `Invocation` + `entity_response.json` |
+| a mystical language | `RitualDialog`'s proficiency picker |
+
+So a player can roll a summoning today: Heavy, -4, 8+ SPI. **The join was
+checked from 7.5's own side rather than from the shared word**, which is the
+`pts/level` trap 6cy paid for — p. 61 naming summoning among the Full
+Ritual's own examples is the warrant, not the fact that two chapters use one
+noun.
+
+Three things in 7.5 are refused with their reasons, and one is a GAP rather
+than a refusal — 6by's distinction, because calling a gap a refusal is how
+this repo shipped four milestones of unreachable rules:
+
+- **The 3d creature-response roll is NOT the Entity Response Table.** That
+  table sits under "F. Invocation (Deity or Hidden Existence)" and a spiritual
+  creature is neither. Better: the book **names that table by its proper name
+  four times** (4046, 4144, 4295, 4506) and line 4730 does not — and the output
+  axis differs, a modifier to the ritual roll against "the higher the chance
+  they will peacefully arrive". A GM's free roll.
+- **The creature format and the Bookworm** are GM content: this app holds one
+  player character.
+- **The ancient/regular mystical-language partition is a GAP.** 7.5 splits the
+  six mystical languages into ancient (Ancient Hermes, Jotun, Dragonese,
+  Elvish) and regular (Hermes, Ancient Feysac) — a complete partition of
+  `languages.json` — and requires one of each. It reaches nothing because the
+  app records a proficiency TIER and never which language. **7.5 is the first
+  rule in the book that would need language identity**, and that names what
+  unblocks it.
+
+### What the chapter did have, and where it led
+
+7.5's one player-facing rule is its **three-line summoning incantation**. And
+chasing that found the slice, one chapter over.
+
+Book line 4141 — **inside `ritual_preparation.json`'s claimed span 4120-4143** —
+reads:
+
+> The player narrates the incantation (**4-part Hermes structure — see
+> reference below**). The GM may award a Flourish Bonus (+1) for good
+> in-character delivery.
+
+`RitualDialog` renders a "Flourish +1" chip and quotes that sentence — its
+SECOND half. The parenthetical was read past, and the reference it points at
+(4195-4204) was **claimed by no content file and modelled nowhere**. So the app
+awarded a bonus for narrating a structure it never showed.
+
+That is a sweep direction this repo had not run: **a CLAIMED line whose
+cross-reference target is unclaimed.** `divination_modifiers.json`'s "See Step
+1 table" row is the same shape and its target IS claimed, which is why nothing
+had noticed the class. And every line involved is **filter-invisible** — none
+carries a number — so 6di's finding holds a second time: not reported
+unclaimed, not reported claimed, not reported at all.
+
+The test suite knew. `test_the_flourish_bonus_is_read_across_the_line_it_wraps_on`
+has quoted the whole sentence, parenthetical included, since the Flourish
+slice. **Fourth instance of the suite knowing what production does not**, and
+the third found by accident after 6bz ran that sweep deliberately and closed it.
+
+### Three structures, and why they are three rows
+
+| structure | scope | printed at |
+|---|---|---|
+| Four-part Hermes | Invocation | 4195-4204 |
+| Three-line self-description | Praying to Oneself | 3992-3996 |
+| Three-line summoning incantation | Summoning a spiritual creature | 4718-4720 |
+
+The design review settled the two questions that decide the shape. **The two
+three-line forms are two rows, not one**: one identifies the CASTER's spiritual
+location within the Wall of Spirituality, the other identifies a creature by
+realm and descriptors. Merging them on the shared shape would print a rule the
+book does not.
+
+And **the first two are SELECTED, the third is shown.** The book's own sentence
+does the selecting — "For Praying to Oneself, replace the four-part structure
+with the three-line self-description" — and it keys on a two-state chip pair
+`RitualDialog` has had all along, `invoked`, whose "Personal SPI" label p. 62
+spells "Personal SPI (Praying to Oneself)". A caster burning HP, leading
+assistants or feeding a catalyst is still praying to oneself: IV.B-E are fuel
+and bonuses stacked ON a source. The summoning row is `referenceOnly` because
+**nothing here can say a ritual IS a summoning** — the weight is picked and its
+category list is display text, and gating on Heavy would claim it of binding,
+affliction and four others.
+
+`verify_incantations` pins the replacement sentence for that reason: without
+it the two structures are unrelated printings and the branch is invented.
+
+### The review found a stale file, and I had hidden the failure that made it
+
+**MEDIUM, and it is this repo's own recorded trap.** I split `text` from `note`
+in the extractor, re-ran it as `py extract_ritual.py >/dev/null 2>&1`, and ran
+the suite: 318 green. The extractor had **crashed on its own new guard** —
+`verify_incantations` was still looking for a phrase that had just moved — and
+**a failing extractor never rewrites its JSON** (6cx). The stale file kept the
+old shape, the Python tests build their entries in memory so they could not
+see it, and my Kotlin test asserted `structure` and `parts`, which were both
+still right. Only `note` was missing, and nothing read `note`.
+
+Two fixes, and the second is the one that matters: re-run visibly, and **pin
+the field from the committed FILE** — the Kotlin test now asserts `note`, so a
+crashed extractor reddens. **Never redirect an extractor's stderr.**
+
+Its other three findings, all taken:
+
+- **MEDIUM: a guard that hid its own input error.** `parse_parts` joins every
+  non-bullet line onto the part above it, so a `HERMES_PARTS_RANGE` running
+  past the last bullet would swallow the note into Part 4 with the count and
+  the order both still right. Now the note's own opening words are checked for
+  inside the parts, RED-proved by widening the range to 4204 (it fires).
+- **LOW: the ninth vacuous assertion in nine slices.** The scope list was
+  compared against `INCANTATION_SCOPES`, the same constant `build_incantations`
+  writes them from. Literal strings now.
+- **LOW:** the committed span said 4717 and the extractor said 4718 — the
+  stale file's second face, invisible while the file was old.
+
+### What shipped
+
+- `tools/extract_ritual.py` — `parse_parts` (bullet-anchored, wrap-joining),
+  `build_incantations`, `verify_incantations`, three named ranges, and `write`
+  taking spans in a second chapter.
+- `incantations.json` — three structures, claiming ch. 7 3992-3996 and
+  4195-4204 and ch. 7.5 4718-4720, **the first line of that chapter anything
+  has ever claimed**.
+- `Incantation`, `ContentLoader.incantations()`, `Incantations.all()` /
+  `.forPowerSource(isInvoking)`.
+- `RitualDialog`'s "Incantation (Phase II)" block, rendered after the power
+  source that selects it rather than beside the chip that points at it.
+- Four Python tests, three Kotlin.
+
+**A Boolean, not the two-value enum the review proposed.** The book's sentence
+is binary, the control is a two-chip pair with no third state, and an enum
+whose only job is to rename `true` is the abstraction 6df refused. Recorded in
+the KDoc with the condition that would revive it.
+
+**1662 Kotlin** (1176 `core:rules`, 466 `app`, 20 `core:model`) and **318
+Python**, all green. **Not device-verified.**
+
+### Claiming a whole chapter's first lines moved no number
+
+Chapter 7.5 still reads **0.0%** and chapter 7 still reads **85.9%**, because
+none of the eighteen lines claimed here carries a number. That is 6di's
+measurement reproduced on a different chapter, and it is the second time: **a
+coverage percentage is not a measure of whether a chapter has been read.**
+7.5's four "mechanical" lines are an example creature's stat block and the GM's
+3d roll, all four refused above with their reasons, so its 0.0% is now
+**correct and permanent** rather than a gap.
+
+### The next slice
+
+The unrun sweep directions 6di named are still unrun: catalogue → fixture, and
+extractor → `sourceLines`. Ahead of them, two leads this slice opened:
+
+- **A claimed line whose cross-reference target is unclaimed** is a sweep
+  nobody has run, and it found this slice by accident. The queries are cheap:
+  "see reference", "see Section", "see Chapter", "see below" inside claimed
+  spans. `divination_modifiers.json`'s "See Step 1 table" is the known-good
+  case to calibrate against.
+- **Language identity**, which 7.5's ancient/regular partition is the first
+  rule in the book to need, and which `RitualDialog`'s own comment already
+  says is missing ("No premade prints a language and nothing buys one").
+  Check reachability first: nothing in the 23 fixtures records one, and the
+  builder does not sell them.
+
 ## 6dj. Two minus fours, agreeing by coincidence
 
 6di named its own successor: **28 of the 29 newly-visible unclaimed lines are

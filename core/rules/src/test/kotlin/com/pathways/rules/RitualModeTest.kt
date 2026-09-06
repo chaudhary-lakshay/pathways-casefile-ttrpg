@@ -292,4 +292,67 @@ class RitualModeTest {
         assertEquals(3, RitualMode.QUICK.supportCap)
         assertEquals(3, RitualMode.FULL.supportCap)
     }
+
+    /**
+     * "For Praying to Oneself, replace the four-part structure with the
+     * three-line self-description" (p. 65).
+     *
+     * The book's own selection rule, and it keys on the power source the
+     * dialog's two-chip pair already sets. A caster using HP, assistants or a
+     * catalyst while not invoking is still praying to oneself: p. 62 labels
+     * that choice "Personal SPI (Praying to Oneself)", and Section IV.B-E are
+     * fuel and bonuses stacked ON a source rather than sources of their own.
+     */
+    @Test
+    fun `the power source chooses which structure the caster recites`() {
+        assertEquals(
+            "Four-part Hermes",
+            Incantations.forPowerSource(isInvoking = true).structure,
+        )
+        assertEquals(
+            "Three-line self-description",
+            Incantations.forPowerSource(isInvoking = false).structure,
+        )
+    }
+
+    /**
+     * The four parts, which are the whole point of showing the structure.
+     *
+     * Two of them wrap onto a second line carrying their worked example, and
+     * a part without its example is a part a player cannot use.
+     */
+    @Test
+    fun `the standard incantation keeps all four parts and both examples`() {
+        val hermes = Incantations.forPowerSource(isInvoking = true)
+        assertEquals(4, hermes.parts.size)
+        assertTrue(hermes.parts[0].endsWith("controls fate...\""))
+        assertTrue(hermes.parts[3].endsWith("powers to my incantation.\""))
+        // The paragraph printed AFTER the parts, which the screen renders
+        // last. Read from the committed file rather than from the parse: a
+        // failing extractor leaves its old JSON in place, and this field is
+        // exactly what a stale file was missing when Codex found it.
+        assertTrue(
+            hermes.note!!.startsWith("As long as the four-part structure"),
+            "the note the page prints after the list is gone",
+        )
+    }
+
+    /**
+     * Chapter 7.5's is REFERENCE, because nothing here can say a ritual is a
+     * summoning.
+     *
+     * The weight is picked and its category list is display text, so gating on
+     * Heavy would claim "summoning" of binding, affliction and four others.
+     * It is shown, never selected -- so [forPowerSource] must not be able to
+     * return it, which is what this asserts rather than the flag alone.
+     */
+    @Test
+    fun `the summoning structure is shown and never chosen for the caster`() {
+        val summoning = Incantations.all().single { it.referenceOnly }
+        assertEquals("Summoning a spiritual creature", summoning.scope)
+        assertTrue(
+            listOf(true, false).none { Incantations.forPowerSource(it) == summoning },
+            "a reference-only structure was selectable by power source",
+        )
+    }
 }

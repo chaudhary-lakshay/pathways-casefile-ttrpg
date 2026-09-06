@@ -131,6 +131,7 @@ object ContentLoader {
     private val entityResponseLazy: List<EntityResponse> by lazy {
         load("entity_response.json")
     }
+    private val incantationsLazy: List<Incantation> by lazy { load("incantations.json") }
     private val ritualSupportLazy: List<RitualSupportSkill> by lazy {
         load("ritual_support.json")
     }
@@ -246,6 +247,9 @@ object ContentLoader {
 
     /** The Question Difficulty bands (Ch. 6.5, Step 1), easiest first. */
     fun divinationDifficulty(): List<DivinationDifficulty> = divinationDifficultyLazy
+
+    /** The three printed incantation structures (Ch. 7 and 7.5). */
+    fun incantations(): List<Incantation> = incantationsLazy
 
     /** Which skill each scope of question needs (Ch. 6.5, Sec. I). */
     fun divinationScopes(): List<DivinationScope> = divinationScopeLazy

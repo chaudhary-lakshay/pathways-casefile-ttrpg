@@ -116,6 +116,45 @@ QUICK_BURN = "1 SPI = +1"
 # Section C, the canon procedure, whose timing penalty is refused.
 CANON_RANGE = (4155, 4165)
 
+# THE REFERENCE PHASE II POINTS AT, WHICH NOTHING CLAIMED
+# --------------------------------------------------------
+# FLOURISH_RANGE's own sentence reads "The player narrates the incantation
+# (4-part Hermes structure -- see reference below). The GM may award a
+# Flourish Bonus (+1)...". The parenthetical was read past: the app claimed
+# the sentence, rendered its second half beside a chip, and awarded +1 for
+# narrating a structure it never showed. Three ranges, because the book
+# prints the structure in three scopes and the parts are bulleted while the
+# prose around them is not.
+#
+# Split into intro / parts / note rather than parsed out of one block: after
+# the last bullet the paragraph resumes at the left margin, and no rule drawn
+# from the text can tell that resumption from a bulleted part's WRAP, which
+# looks identical. Two of the four parts wrap, and both carry their worked
+# example on the second line.
+HERMES_INTRO_RANGE = (4195, 4195)
+HERMES_PARTS_RANGE = (4196, 4201)
+HERMES_NOTE_RANGE = (4202, 4204)
+# Section IV.A, the structure the note above sends a self-praying caster to.
+# The whole paragraph, because the app's "Personal SPI" chip selects this
+# power source and has never said what it asks the caster to recite.
+SELF_DESCRIPTION_RANGE = (3992, 3996)
+# Ch. 7.5's own, and the first line of that chapter anything claims. It is a
+# third structure rather than the self-description reused: that one identifies
+# the CASTER's spiritual location, this one a creature by realm and
+# descriptors. The shared three-line shape is not a shared rule.
+SUMMONING_RANGE = (4718, 4720)
+SUMMONING_CHAPTER = "7.5"
+BULLET = "\x7f"
+PART_LABEL = re.compile(r"^Part (\d) —")
+INCANTATION_SCOPES = ["Invocation", "Praying to Oneself", "Summoning a spiritual creature"]
+# Phase II's cross-reference, which is the warrant for showing the structure
+# beside the Flourish chip rather than anywhere else.
+PHASE_TWO_REFERENCE = "4-part Hermes structure"
+# The note's own join to the second structure, which the app branches on.
+REPLACEMENT_SENTENCE = "replace the four-part structure with the three-line self-description"
+# The note resumes at the left margin, which looks exactly like a part's wrap.
+NOTE_OPENING = "As long as the four-part structure is followed"
+
 FURNITURE = re.compile(r"^(Powered by GURPS.*|Page \d+)$")
 HEADER = {
     "Weight", "Categories", "Result", "Consequence", "Roll", "Outcome",
@@ -421,6 +460,126 @@ def parse_critical(lines):
     return out
 
 
+def parse_parts(lines):
+    """The four bulleted parts, each joined across the line it wraps on.
+
+    Parts 1 and 4 carry their worked EXAMPLE on a second line, and the example
+    is most of what makes the part usable at the table. A line-at-a-time read
+    returns six parts, two of them fragments starting "or domain." and "that
+    belongs to the Sun." -- and neither of the two real parts keeps its quote.
+    """
+    parts, current = [], None
+    for line in lines:
+        if line.startswith(BULLET):
+            if current is not None:
+                parts.append(current)
+            current = line[len(BULLET):].strip()
+        elif current is not None:
+            current = f"{current} {line}"
+    if current is not None:
+        parts.append(current)
+    return parts
+
+
+def build_incantations(intro, part_lines, note, self_lines, summoning_lines):
+    """The three structures the book prints, each with its own scope.
+
+    [referenceOnly] marks the summoning one: this app models WHICH POWER
+    SOURCE a ritual draws on, which is what chapter 7's pair is selected by,
+    and it does not model what the ritual is FOR. The weight is picked and its
+    category list is display text, so nothing here can say a ritual IS a
+    summoning -- and gating on Heavy would say it about binding, affliction
+    and four other categories too.
+    """
+    return [
+        {
+            "structure": "Four-part Hermes",
+            "scope": INCANTATION_SCOPES[0],
+            "text": " ".join(intro),
+            "parts": parse_parts(part_lines),
+            # Printed AFTER the parts, and it carries the book's own join to
+            # the next structure. Kept apart from [text] so the screen renders
+            # the three in the order the page prints them.
+            "note": " ".join(note),
+        },
+        {
+            "structure": "Three-line self-description",
+            "scope": INCANTATION_SCOPES[1],
+            "text": " ".join(self_lines),
+            "parts": [],
+        },
+        {
+            "structure": "Three-line summoning incantation",
+            "scope": INCANTATION_SCOPES[2],
+            "text": " ".join(summoning_lines),
+            "parts": [],
+            "referenceOnly": True,
+        },
+    ]
+
+
+def verify_incantations(entries, phase_two):
+    """The parts, the scopes, and the cross-reference the screen rests on."""
+    scopes = [e["scope"] for e in entries]
+    if scopes != INCANTATION_SCOPES:
+        raise ValueError(f"the printed incantation scopes changed: {scopes}")
+
+    hermes = entries[0]
+    labels = [PART_LABEL.match(p) for p in hermes["parts"]]
+    if len(hermes["parts"]) != 4 or not all(labels):
+        raise ValueError(
+            f"the standard incantation prints four parts; parsed "
+            f"{len(hermes['parts'])}, labelled {[p[:20] for p in hermes['parts']]}"
+        )
+    if [m.group(1) for m in labels] != ["1", "2", "3", "4"]:
+        raise ValueError("the four parts are no longer printed in order")
+    # parse_parts joins every non-bullet line onto the part above it, so a
+    # PARTS_RANGE that ran past the last bullet would swallow the note and
+    # report nothing: the count and the order would both still be right, and
+    # Part 4 would silently grow a paragraph. The note's own opening words are
+    # what says the range ended in the wrong place (Codex).
+    swallowed = next(
+        (p for p in hermes["parts"] if NOTE_OPENING in p or REPLACEMENT_SENTENCE in p),
+        None,
+    )
+    if swallowed is not None:
+        raise ValueError(
+            "a part swallowed the paragraph printed after the list, so "
+            f"HERMES_PARTS_RANGE runs past the last bullet: {swallowed[-60:]!r}"
+        )
+
+    # Each structure still says the thing that makes it that structure. The
+    # two three-line forms are kept apart by their TARGET, so both phrases are
+    # checked rather than the shared "three-line".
+    for entry, phrase in zip(entries, (
+        "four parts, spoken in Hermes", "description of your being",
+        "resident realm of the creature",
+    )):
+        if phrase not in entry["text"]:
+            raise ValueError(
+                f"the {entry['scope']} structure no longer prints {phrase!r}"
+            )
+
+    # The book's own selection rule, and the whole warrant for the app showing
+    # one structure or the other off a chip the player already sets. Without
+    # this sentence the two are unrelated printings and the branch is invented.
+    if REPLACEMENT_SENTENCE not in hermes["note"]:
+        raise ValueError(
+            f"the four-part structure's note no longer says {REPLACEMENT_SENTENCE!r}. "
+            "That sentence is the only thing joining it to the self-description, "
+            "so nothing licenses choosing between them"
+        )
+
+    # The warrant for rendering this beside the Flourish chip, and the half of
+    # Phase II's sentence the app used to drop.
+    if PHASE_TWO_REFERENCE not in phase_two:
+        raise ValueError(
+            f"Phase II no longer names the {PHASE_TWO_REFERENCE!r} it sends the "
+            "caster to. That cross-reference is the only reason this structure "
+            "is shown beside the Flourish Bonus rather than anywhere else"
+        )
+
+
 def parse_flourish(cells):
     """The Flourish Bonus's value, read from the joined Phase II paragraph.
 
@@ -534,9 +693,11 @@ def verify(weights, failures, critical, preparation):
         raise ValueError("'None' used to print '-4 or worse'; the floor is gone")
 
 
-def write(name, entries, spans):
+def write(name, entries, spans, extra=None):
+    """[extra] carries spans in ANOTHER chapter -- only the incantations need
+    it, because the book prints one of the three structures in ch. 7.5."""
     OUT.mkdir(parents=True, exist_ok=True)
-    payload = {"sourceLines": {CHAPTER: spans}, "entries": entries}
+    payload = {"sourceLines": {CHAPTER: spans, **(extra or {})}, "entries": entries}
     (OUT / f"{name}.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
     )
@@ -570,6 +731,16 @@ def main():
         preparation,
     )
 
+    # And the reference that sentence points at, which nothing claimed.
+    incantations = build_incantations(
+        stream(byn, *HERMES_INTRO_RANGE),
+        stream(byn, *HERMES_PARTS_RANGE),
+        stream(byn, *HERMES_NOTE_RANGE),
+        stream(byn, *SELF_DESCRIPTION_RANGE),
+        stream(byn, *SUMMONING_RANGE),
+    )
+    verify_incantations(incantations, phase_two)
+
     # Step 4's outcome table. Only its success half is written; its failure
     # half is Section VI coarsened, and its weight table is Section V's a
     # third time. The whole block is claimed all the same, because every part
@@ -588,6 +759,11 @@ def main():
     write("ritual_weights", weights, [list(WEIGHT_RANGE), list(WEIGHT_COST_RANGE)])
     write("ritual_preparation", preparation,
           [list(PREPARATION_RANGE), list(FLOURISH_RANGE)])
+    write(
+        "incantations", incantations,
+        [list(SELF_DESCRIPTION_RANGE), [HERMES_INTRO_RANGE[0], HERMES_NOTE_RANGE[1]]],
+        {SUMMONING_CHAPTER: [list(SUMMONING_RANGE)]},
+    )
     write("ritual_failures", failures, [list(FAILURE_RANGE)])
     write("ritual_critical", critical, [list(CRITICAL_RANGE)])
 

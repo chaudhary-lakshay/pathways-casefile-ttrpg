@@ -803,6 +803,26 @@ data class ExtraEffort(val option: String, val fp: Int, val effect: String)
 data class AttackOption(val option: String, val rule: String)
 
 /**
+ * One printed incantation structure (Ch. 7 p. 63/65, Ch. 7.5 p. 76).
+ *
+ * [parts] is the four-part Hermes structure's own enumeration and is empty for
+ * the two the book describes in prose. [note] is what the page prints AFTER
+ * the parts, so a screen can render intro, parts and note in that order.
+ *
+ * [referenceOnly] marks a structure no choice in this app selects: it is shown
+ * and never chosen. See `Incantations.forPowerSource`.
+ */
+@Serializable
+data class Incantation(
+    val structure: String,
+    val scope: String,
+    val text: String,
+    val parts: List<String> = emptyList(),
+    val note: String? = null,
+    val referenceOnly: Boolean = false,
+)
+
+/**
  * One row of the skill-boundary table (Ch. 6.5, Sec. I, p. 54).
  *
  * Which of the two skills a question of this scope needs -- NOT how hard the

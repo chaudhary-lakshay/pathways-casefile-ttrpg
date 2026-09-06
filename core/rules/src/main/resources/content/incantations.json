@@ -1,0 +1,47 @@
+{
+ "sourceLines": {
+  "7": [
+   [
+    3992,
+    3996
+   ],
+   [
+    4195,
+    4204
+   ]
+  ],
+  "7.5": [
+   [
+    4718,
+    4720
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "structure": "Four-part Hermes",
+   "scope": "Invocation",
+   "text": "The standard incantation has four parts, spoken in Hermes:",
+   "parts": [
+    "Part 1 — Invocation: A prayer for someone's power. Replace 'someone' with the entity's honorific name, symbol, or domain. E.g.: \"The existence that rules the concealed path and controls fate...\"",
+    "Part 2 — Grace: \"I pray for the God's loving grace.\"",
+    "Part 3 — Request: What you pray for. Must be brief — finish in one sentence.",
+    "Part 4 — Empowerment: Invoke a specific herb or ingredient to empower the request. E.g.: \"Sun Flower, a herb that belongs to the Sun. Please bestow your powers to my incantation.\""
+   ],
+   "note": "As long as the four-part structure is followed and the key meaning is expressed in Hermes, the rest can be left to the caster's creativity. For Praying to Oneself, replace the four-part structure with the three-line self-description (see Section IV — Personal Spirituality)."
+  },
+  {
+   "structure": "Three-line self-description",
+   "scope": "Praying to Oneself",
+   "text": "Praying to Oneself — Ritualistic magic can also be directed inward, drawing power from your own spirituality without petitioning any god. To do so, craft a three-line description of your being that precisely identifies your spiritual location within the Wall of Spirituality. For example: \"Cordu Village's Trickster King, Aurore Lee's younger brother, An entity known as Lumian Lee...\" The benefit is total independence from divine constraints — the weakness is that the result is limited by your personal power. A weak Beyonder gets a weak result.",
+   "parts": []
+  },
+  {
+   "structure": "Three-line summoning incantation",
+   "scope": "Summoning a spiritual creature",
+   "text": "In order to summon a mystical being one needs to discover or create a three-line incantation that points to a specific spiritual creature. The first line should be the resident realm of the creature (The Unfounded, the Spirit Realm, the Darkness, etc.). The second and third lines should be accurate descriptors of the creature.",
+   "parts": [],
+   "referenceOnly": true
+  }
+ ]
+}

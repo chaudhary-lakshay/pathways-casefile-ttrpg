@@ -112,7 +112,42 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6dj is newest, and it overturns a refusal whose author had already written
+**6dk is newest, and it found the reference a CLAIMED sentence pointed at.**
+Book line 4141 sits inside `ritual_preparation.json`'s claimed span and reads
+*"The player narrates the incantation (**4-part Hermes structure — see
+reference below**). The GM may award a Flourish Bonus (+1)..."* — and
+`RitualDialog` renders a Flourish chip quoting only the SECOND half, while the
+reference itself (4195-4204) was claimed by nothing and modelled nowhere. **The
+app awarded a bonus for narrating a structure it never showed.** That is a
+sweep direction this repo had not run — **a claimed line whose cross-reference
+target is unclaimed** — and every line involved is filter-invisible, so 6di's
+"not reported at all" holds a second time. The suite knew: the Flourish test
+has quoted the whole sentence, parenthetical included, since that slice
+(**fourth instance** of the tests knowing what production does not). Read it
+for five more things. **6dj's named chapter 7.5 was the right lead and the
+wrong content**: its summoning ritual is ALREADY rollable as a Heavy Full
+Ritual, on p. 61's own "curses, binding, **summoning**, cleansing" rather than
+on the shared noun (6cy's trap, checked from 7.5's side). Its 3d
+creature-response roll is **not** the Entity Response Table — the book names
+that table by its proper name four times and line 4730 does not, and the output
+axis differs. Its ancient/regular mystical-language split is a **GAP, not a
+refusal**: it partitions all six mystical languages and reaches nothing because
+this app records a proficiency TIER and never which language, so 7.5 is the
+first rule in the book needing language identity. Three structures ship as
+three rows (the two three-line forms identify a CASTER and a CREATURE — merging
+them prints a rule the book does not), the first two SELECTED by the book's own
+"For Praying to Oneself, replace..." keyed on `RitualDialog`'s existing
+`invoked` chip pair, the third `referenceOnly` because nothing can say a ritual
+IS a summoning. **And the diff review caught a stale content file I had caused
+and hidden**: I re-ran the extractor as `>/dev/null 2>&1`, it crashed on its own
+new guard, and **a failing extractor never rewrites its JSON** (6cx) — 318 tests
+stayed green because the Python tests build entries in memory and the Kotlin
+test read only the fields that had not moved. Never redirect an extractor's
+stderr; pin the field from the committed FILE. Chapter 7.5 still reads 0.0% and
+chapter 7 still 85.9%, because none of the eighteen lines claimed carries a
+number — **the second measurement that claiming lines moves no percentage.**
+
+**6dj is next, and it overturns a refusal whose author had already written
 down that its evidence was thin.** Book lines 3553-3558 — chapter 6.5's
 skill-boundary table, three scopes of question and which of the two skills
 each needs — were claimed by nothing, with `divination_support.json`'s claims
@@ -790,7 +825,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dj, then 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dk, then 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1021,7 +1056,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1659 Kotlin** (JUnit 5 — 1173 `core:rules`, 466 `app`, 20 `core:model`) + **314 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1662 Kotlin** (JUnit 5 — 1176 `core:rules`, 466 `app`, 20 `core:model`) + **318 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1064,7 +1099,7 @@ qa-findings/    free-model QA harness: batches.txt + two round scripts
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading all 80 JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading all 81 JSON
 files from `core/rules/src/main/resources/content/` — **every one of them has
 a loader as of 6dh**, which closed `spirit_vision.json`, the last file no
 Kotlin named. Re-run that sweep rather than trusting this sentence; the query
@@ -1085,7 +1120,7 @@ is in 6dg: `skills.json` (158),
 `divination_difficulty.json` (5), `divination_scope.json` (3),
 `divination_methods.json` (8),
 `divination_modifiers.json` (8), `divination_clarity.json` (6),
-`divination_support.json` (4), `ritual_preparation.json` (5),
+`divination_support.json` (4), `ritual_preparation.json` (5), `incantations.json` (3),
 `boon_granting.json` (1), `boon_modifiers.json` (8),
 `non_standard_pathways.json` (17), `weapons.json` (9), `wealth.json` (7),
 `equipment.json` (77), `secondary_costs.json` (9),
@@ -1212,6 +1247,10 @@ Languages.ritualModifier(prof?): Int    // throws for Broken and for common
 Languages.canPerformRituals(prof) / .ritualProficiencies() / .notes()
 ContentLoader.languages() / .languageProficiencies() / .languageNotes()
 RitualResolution.targetFor(skill, weight, cor, preparation, language, mode, link, support)
+Incantations.all() / .forPowerSource(isInvoking): Incantation
+                                      // ch.7's pair is selected; ch.7.5's
+                                      // summoning row is shown, never chosen
+ContentLoader.incantations()
 RitualMode.QUICK / .FULL                      // two tables, two link rules
 RitualMode.preparations() / .preparationNamed(quality) / .modifierTotal(prep, link)
 RitualMode.links() / .linkNamed(name) / .supportSkills() / .supportBonus(names)
