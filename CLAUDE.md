@@ -147,7 +147,17 @@ The floor above HT 25 is this app's and the screen prints its working
 (`0 sec (25 − HT 27)`). Diff review: **no findings**, and its one design opinion
 (a `durationBreakdown` struct instead of `durationLine`) is refused as an
 abstraction with one consumer. **And the heredoc ate a regex escape again** —
-this time loudly, as a `SyntaxWarning` where 6ds's `\b` was silent. **Three
+this time loudly, as a `SyntaxWarning` where 6ds's `\b` was silent.
+**Device-verified on all three columns** (SM-T570, Church Healer HT 9 / Will 11
+/ IQ 11: `16 sec (25 − HT 9)` above a `Roll WILL 11 to recover now` button,
+`14 sec (25 − Will 11)`, `14 sec (25 − IQ 11)`), and read 6du for what that
+cost. Band 12 is ONE value on a 3d6-plus-margin table, so it cannot be
+navigated to — about 6.9% per attempt at a target of 7 — and **a tap must come
+from screencap, never from the dump**: deriving the scale from the largest node
+in a `uiautomator dump` gives `(1.386, 1.576)` instead of `(1.333, 1.333)`
+whenever a dialog is up, because no node spans the window then. That lands the
+tap on the scrim and dismisses the dialog, which is **indistinguishable from
+the control not responding**. **Three
 follow-ups landed after that review**, all of them things a diff review was
 never going to be asked for: the new `init` require was the slice's one
 UNPROVED branch (RED-proved now by neutering it), the extractor's 0-or-3 check
