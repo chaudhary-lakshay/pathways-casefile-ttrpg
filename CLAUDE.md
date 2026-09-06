@@ -112,6 +112,28 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
+**6dm is newest, and it is a slice that deliberately did NOT close the thing
+it was named for.** 6dl named `AntiDivinationTechniques.spiFor` as the one
+function with no production caller, with the consequence that
+`DetectionDialog`'s ward chip said `Spiritual Warding +2` over a caption
+promising the SPI cost was "spent on the tracker" and **no number anywhere on
+the screen**. The chip now prints the book's own `Cost` bullet — and `spiFor`
+still has no caller, because the dialog offers exactly one ward (3A is the only
+row in the section printing a `detectionBonus`) so the chip price and any total
+are permanently the same number, and printing both is 6cr's third-copy defect.
+**A sum function called on a permanent singleton is the sweep answering
+itself.** Read it for three more things. The offered set moved out of the
+dialog into `onDetectionRoll()` so the guard would not copy the predicate it
+guards. Its review's sharpest finding — that the offered set can hold a row
+`spiFor` cannot price — is **right in its diagnosis and wrong in its
+prescription** (6cz): filtering the offer down to payable rows would withdraw a
+printed rule for being unsummable, which is the 4.1 sin, so what ships is the
+seam recorded in KDoc — *which rows move the roll* was never the same question
+as *which rows can be summed*. And the wider slice is named with the two
+questions it must answer first: whether `availability` gates the offer (against
+`SealedArtifacts`' deliberate no-`canUse`), and how 3F's throw is kept out of a
+composable.
+
 **6dl is newest, and it is a stated reason that stayed TRUE and stopped being
 relevant.** 6dk's cross-reference sweep ran clean — 35 claimed lines carry one
 and every target resolves to a claimed file — and what it found on the way past
@@ -862,7 +884,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dl, then 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dm, then 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1093,7 +1115,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1662 Kotlin** (JUnit 5 — 1176 `core:rules`, 466 `app`, 20 `core:model`) + **322 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1663 Kotlin** (JUnit 5 — 1177 `core:rules`, 466 `app`, 20 `core:model`) + **322 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1497,10 +1519,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6di. The slice log
+## 6a-6dm. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6di is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6dm is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

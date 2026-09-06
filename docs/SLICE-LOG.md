@@ -6726,6 +6726,102 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dm. The control that did not name its price — and the caller it still has not got
+
+6dl named this next with its query, and the query holds: `grep -rn "spiFor"
+--include=*.kt app/src/main` returns `Boons`, `Divination` and `PowerSources`,
+never `AntiDivinationTechniques`. Its two siblings both have callers —
+`penaltyTotal` at `DivinationDialog.kt:153`, `detectionBonus` inside
+`Detection.modifierTotal` — so the object is called and one function of it is
+not.
+
+### The number had three possible sources and only one of them is `spiFor`
+
+`DetectionDialog` offered a `Spiritual Warding +2` chip under a caption reading
+*"The SPI a technique costs is spent on the tracker"*, with no number anywhere
+on the screen. Three things could have printed it:
+
+| | |
+|---|---|
+| `row.spi` | the parsed `2`, which makes the screen type the unit `SPI` itself — 6cq's defect class |
+| `row.bullet("Cost")` | the book's own `"2 SPI"`, which is 6dj's `printedCost` shape |
+| `spiFor(pickedWards)` | the SUM of what is picked |
+
+And the third is the same number as the first two, permanently. `wards` is
+filtered on `detectionBonus != null`, and **3A is the only row in the section
+that prints one** — so the chip price and the total are one value, and printing
+both is 6cr exactly (*"`+1 each` was a third copy of a value the chips beneath
+it already print"*). The chip prints `bullet("Cost")` and nothing prints a
+total.
+
+### So this slice does NOT close what 6dl named, and that is the finding
+
+`spiFor` still has no production caller. Calling it on a permanent singleton to
+retire a sweep hit would be the sweep answering itself — and the function's own
+shape is evidence about the caller it is waiting for: `distinctBy { it.id }`,
+`sumOf`, and a throw for the one row priced in prose only make sense for a
+caller that can be handed more than one technique. **The dialog's filter is not
+that caller and never will be.** The wider slice — the target declaring any
+technique they pay for, whether or not it moves this roll — is named at the
+bottom with the two questions it has to answer first.
+
+### The offered set moved out of the screen
+
+The guard had to not copy the dialog's predicate, or a widening would move the
+chips and leave the guard checking the set they used to be — this repo's *"the
+same predicate at two call sites is the defect, not the drift it produces"*. So
+`AntiDivinationTechniques.onDetectionRoll()` resolves it once and both read it.
+The test asserts every row it returns prints a `Cost` the chip can show, plus
+the non-emptiness that keeps the `forEach` from passing vacuously.
+
+RED-proved against the real file rather than argued: `cp` the content file
+aside, delete 3A's `Cost` bullet, and exactly that test reddens — no other test
+in the class notices, which is what makes it the guard rather than a duplicate
+of the duration check three lines above it. Restored from the copy, never with
+`git checkout`, because the implementation was uncommitted (6dl hit that live).
+
+### The review's three findings, all refused, one of them for a rule
+
+Codex answered on `task --effort high` with the target list and the
+*"do not read CLAUDE.md or docs/SLICE-LOG.md"* instruction (6dd/6df).
+
+- **MEDIUM: the test does not exercise the chip label**, so a dialog regression
+  that stops appending the Cost still passes. True, and it asks for the Compose
+  test this repo cannot write (6cq, and 6dh refused two LOWs of the same shape).
+  Its alternative — extract the label into a testable function — is an
+  abstraction with one implementation.
+- **MEDIUM: `onDetectionRoll()` can offer a row `spiFor` cannot price.** The
+  strongest of the three, and its prescription is the wrong half. A ward that
+  helps you notice AND prices itself in prose belongs on the screen: withdrawing
+  a printed rule for being unsummable is the 4.1 sin, and it is the failure 6cz
+  shipped in the concrete. **Take the diagnosis over the prescription** (6cz
+  again). What ships is the seam written down: `onDetectionRoll` answers which
+  rows move the roll, `spiFor` answers what a set costs, and a caller that sums
+  this set has to answer the second question again.
+- **LOW: a null `Cost` renders a chip with no price, silently.** It cannot
+  print `"null"` (the `?.let` sees to that), and the guard makes real content
+  fail in the suite rather than on the screen. Refused.
+
+### What shipped
+
+- `AntiDivinationTechniques.onDetectionRoll()` and its KDoc seam.
+- `DetectionDialog` — the chip's price, and a caption that no longer claims the
+  number is somewhere it is not.
+- One Kotlin test. **1663 Kotlin** (+1) and **322 Python**, all green.
+
+### The next slice
+
+- **The wider `spiFor` caller: a target declaring any technique they pay for.**
+  Two questions before any code. (1) Does `availability` (`"Darkness Pathway,
+  Seq 5 — Spirit Warlock"`) gate the offer? The app knows pathway and Sequence,
+  but `SealedArtifacts` deliberately has no `canUse` — *grade is not a gate* —
+  and that precedent has to be read from its own condition rather than borrowed
+  (6cm). (2) How is 3F's throw kept out of a composable — refused from the
+  offer, or offered with its prose price and excluded from the sum?
+- **`Shaken` occurs once in the whole book** (line 8030) and the book never
+  prints what it does. Still unchecked; likely a 6cs refusal.
+- Still unrun: catalogue → fixture, and extractor → `sourceLines`.
+
 ## 6dl. A reason that stayed true and stopped being relevant
 
 6dk named the cross-reference sweep next and it was run deliberately: **35
