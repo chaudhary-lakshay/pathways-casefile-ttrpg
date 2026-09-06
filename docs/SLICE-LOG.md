@@ -6839,7 +6839,15 @@ recorded in the function's own docstring.
 - `tools/extract_unarmed.py` — `parse_grappling`, `verify_grappling`,
   `GRAPPLING_*`, `SUMMARY_DAMAGE`, the new spans, and a docstring that no
   longer stops at the damage column.
-- `UnarmedAttack.opposedRoll`, its KDoc, and `AttackDialog`'s render of it.
+- `UnarmedAttack.opposedRoll`, its KDoc, and `AttackDialog`'s render of it —
+  which names the contest ONLY, because a grappling row's own damage cell two
+  lines above already reads "None (grapple only)". Shove keeps the "rolls no
+  damage" sentence, because its cell reads "Special" and does not say it.
+- The Kotlin guard asserts the three rows share ONE damage cell rather than
+  naming the string: `extract_unarmed.SUMMARY_DAMAGE` ties it to book line
+  2640, and typing it in a Kotlin test would be a guard comparing the extractor
+  against a literal in the test file (6dl's twelfth vacuity, avoided). **The
+  tie exists one language over, which is worth knowing before trusting it.**
 - Six tests (three Python, three Kotlin) and two rewritten.
 - **1665 Kotlin** (+2) and **328 Python** (+3), all green. Chapter 5:
   **74.4% → 76.3%**, unclaimed mechanical lines 40 → 37 — a percentage that
@@ -6847,17 +6855,27 @@ recorded in the function's own docstring.
 
 ### The next slice
 
-- **The grapple-state surface the design review named.** Escape-2, and with it
-  the Grappling ST Bonus at line 2600 (*"+1 ST at DX+1, +2 ST at DX+2 (max +2
-  without Wrestling Master)"*, grappling only, not strikes) which was left out
-  of this slice deliberately: it needs a ST-for-grappling path and a trait this
-  app does not hold.
+Ordered by what is actually next, not by what this slice deferred:
+
+- **Chapter 3 (87.9%, 56 unclaimed) is the largest block left**, and the only
+  one of a size this session has been shipping. Read 6cy's warning before
+  counting them: a table implemented as arithmetic reads 0% forever, so the raw
+  count there is not a gap count.
+- **Appendix A: 35 unclaimed at 25.5%.** 6da read 32 one at a time and 6dl
+  found a thirty-third by cross-reference; the filter has widened since, so the
+  delta is small and named.
+- **`Shaken`** (line 8030) still unchecked — one occurrence, and the book never
+  prints what it does.
+- **The grapple-state surface the design review named** is real and is BIG: a
+  screen for the acted-upon character, plus a state this app does not hold.
+  Escape-2 lives there, and with it the Grappling ST Bonus at line 2600
+  (*"+1 ST at DX+1, +2 ST at DX+2 (max +2 without Wrestling Master)"*,
+  grappling only, not strikes), left out of this slice deliberately: it needs a
+  ST-for-grappling path and a trait this app does not hold.
 - **Line 2606's `Grapple` row is filter-invisible** — its roll cell is a bare
   `Wrestling` with no number — so three of the four rows were reported
   unclaimed and the fourth was not reported at all (6di, at line resolution
   again). Recorded, not widened.
-- Chapter 3 (87.9%, 56 unclaimed) is the largest block left; read 6cy's warning
-  first. Appendix A: 35 at 25.5%. `Shaken` (line 8030) still unchecked.
 - Still unrun: catalogue → fixture, and extractor → `sourceLines`.
 
 ## 6dn. Nine costs, seven counted — and the corpus stopped one line short

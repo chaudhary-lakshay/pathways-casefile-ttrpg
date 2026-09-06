@@ -607,7 +607,12 @@ private fun AttackOptions(
                 // damage tables do not have, and it is the whole resolution:
                 // this screen rolls the grappler's half and the target's is
                 // the GM's. Named here or the column would have no reader.
-                row.opposedRoll?.let { "Rolls no damage. The target rolls $it." }
+                //
+                // Those rows do NOT also get "rolls no damage": their own cell
+                // two lines above already reads "None (grapple only)". Shove's
+                // reads "Special", which does not say it, so Shove keeps the
+                // sentence.
+                row.opposedRoll?.let { "The target rolls $it." }
                     ?: "Rolls no damage; see the note above."
             }.orEmpty(),
             style = MaterialTheme.typography.bodySmall,

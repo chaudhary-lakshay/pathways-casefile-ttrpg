@@ -79,8 +79,11 @@ class GoldenMeleeSummaryTest {
         // travels with them as the damage they do not roll.
         val grappling = Damage.attacksFor("Wrestling")
         assertEquals(3, grappling.size)
+        // ONE cell, shared: the string itself is tied to book line 2640 by
+        // extract_unarmed.SUMMARY_DAMAGE, so naming it here would be a guard
+        // comparing the extractor against a literal typed in this file.
+        assertEquals(1, grappling.map { it.damage }.toSet().size)
         grappling.forEach {
-            assertEquals("None (grapple only)", it.damage)
             assertFalse(it.wounds, "${it.attack} rolls damage")
             assertTrue(it.opposedRoll!!.startsWith("DX or "))
         }
