@@ -180,7 +180,12 @@ class PoolsTest {
         // and reportable, because spirit body damage still goes there -- and
         // 6m's charge for it is untouched.
         assertEquals(3, Pools.spi(-3, 9).corGained)
-        assertTrue(Pools.spi(0, 9).penalty != null || Pools.spi(0, 9).corGained == 0)
+        // Exactly 0 is the Exhaustion row, NOT Soul Debt: the book charges
+        // "+1 CoR per 1 point BELOW 0", so the boundary is the whole assertion
+        // and an off-by-one here would bill a caster for reaching zero.
+        val exhausted = Pools.spi(0, 9)
+        assertTrue(exhausted.abilitiesOffline, "0 SPI still deactivates abilities")
+        assertEquals(0, exhausted.corGained, "0 is not yet below 0")
     }
 
     @Test

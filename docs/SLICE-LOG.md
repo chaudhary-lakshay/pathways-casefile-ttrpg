@@ -6844,6 +6844,39 @@ hit live rather than read. `cp` aside first.
 
 **1662 Kotlin** (unchanged) and **322 Python**, all green.
 
+### A twelfth vacuous assertion, and the compiler had been reporting it
+
+Found while verifying the tree before handover, not by a reviewer.
+`PoolsTest.kt:183` read:
+
+```kotlin
+assertTrue(Pools.spi(0, 9).penalty != null || Pools.spi(0, 9).corGained == 0)
+```
+
+`PoolStatus.penalty` is `Int = 0`, **non-nullable**, so `penalty != null` is
+always true, the `||` short-circuits, and the assertion cannot fail. **Kotlin
+had been printing `Condition is always 'true'` on every single build** — the
+eleven found before this one were found by reviewers reading a diff, and this
+one was free, in the build output, for however many slices.
+
+Replaced by the boundary the test's own name is about: at exactly 0 SPI the
+Exhaustion row still reports (`abilitiesOffline`) and Soul Debt has NOT
+started, because the book charges "+1 CoR per 1 point **below** 0". RED-proved
+by mutating `corGained`'s comparison to `<= 0` — two tests redden, where the
+old assertion stayed green.
+
+**Read the build's own warnings before asking a reviewer for findings.**
+
+### One non-reproducible test failure, stated rather than hidden
+
+The first verification run after committing reported `:core:rules:test FAILED`.
+**Six subsequent full `--rerun-tasks` runs were green**, exit 0, and no
+`failures` or `errors` attribute in any of the 1662 tests' JUnit XML. Not
+diagnosed and not reproduced; this machine has a recorded history of Gradle
+daemons surviving `--stop` and starving the box. Recorded because an
+unexplained red that goes away is worth a sentence in the log rather than
+silence.
+
 ### The next slice
 
 Named with its query, because a closing paragraph is the one part of a slice

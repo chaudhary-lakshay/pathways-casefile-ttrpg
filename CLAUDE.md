@@ -142,7 +142,12 @@ chapter 5's own lines now). **No vacuous assertion in what the reviewer read** â
 weaker claim than "the first in eleven", because the tests were restructured
 AFTER the review and the restructuring introduced one (a hand-typed literal of
 two book lines with nothing tying it to them). **A review's verdict expires
-when the diff moves under it.**
+when the diff moves under it.** A **twelfth** turned up while verifying the
+tree for handover: `PoolsTest.kt:183` asserted `penalty != null ||
+corGained == 0` on a NON-NULLABLE `Int`, so it short-circuited and could never
+fail â€” and **Kotlin had been printing `Condition is always 'true'` on every
+build the whole time**. The other eleven cost a reviewer; this one was free in
+the build output. **Read the build's own warnings before asking for findings.**
 
 **6dk is next, and it found the reference a CLAIMED sentence pointed at.**
 Book line 4141 sits inside `ritual_preparation.json`'s claimed span and reads
