@@ -1,6 +1,7 @@
 package com.pathways.app
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,6 +30,7 @@ import com.pathways.rules.SuccessRoll
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.Wounds
 import com.pathways.rules.content.ContentLoader
+import com.pathways.rules.content.HitLocation
 
 /**
  * One hit: how much, and which pool absorbs it (Ch. 5, p. 40-42).
@@ -110,6 +112,11 @@ fun DamageDialog(
     var amount by remember { mutableIntStateOf(1) }
     var pool by remember { mutableStateOf(Pool.HP) }
     var shock by remember { mutableStateOf<RollResult?>(null) }
+    // Optional, and null by default: a hit with no called shot behind it is
+    // the common case, and the book's own effect column has nothing to say
+    // about it. Only HP carries these -- every threshold in that column is
+    // written against HP.
+    var landed by remember { mutableStateOf<HitLocation?>(null) }
 
     // Only HP has a Major Wound threshold: the rule is written against "half
     // your HP", and FP and SPI print no equivalent.
@@ -159,7 +166,13 @@ fun DamageDialog(
                             // The roll belongs to the hit it was rolled for.
                             // Moving it to another pool makes it a different
                             // hit, so its shock result is no longer an answer.
-                            onClick = { pool = option; shock = null },
+                            // The location goes with the shock, and for the
+                            // same reason: moving the damage to another pool
+                            // makes it a different hit. Without this the
+                            // picker's choice survives out of sight while the
+                            // amount changes, and coming back to HP shows an
+                            // effect fired for a hit nobody described.
+                            onClick = { pool = option; shock = null; landed = null },
                             label = { Text(option.name) },
                             modifier = Modifier.padding(end = 8.dp),
                         )
@@ -190,6 +203,14 @@ fun DamageDialog(
                     // already carrying those when the blow landed.
                     onRoll = { shock = SuccessRoll.against(htTarget, dice) },
                 )
+                if (pool == Pool.HP) {
+                    WhereItLanded(
+                        landed = landed,
+                        damage = amount,
+                        maxHp = maxHp,
+                        onLocation = { landed = if (landed == it) null else it },
+                    )
+                }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 var section = ""
                 rules.forEach {
@@ -238,6 +259,75 @@ private fun MajorWoundPanel(
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.primary,
     )
+}
+
+/**
+ * The hit location's own effect column (Ch. 5, p. 41), which had no reader.
+ *
+ * **This picker does NOT re-price the damage.** The wounding multiplier is
+ * the attacker's business and `AttackDialog` already prints it ("×4 there"),
+ * so the number typed above is the injury that got through. Choosing a
+ * location here asks one question the app could not answer before: what does
+ * the book say a hit THERE, of THIS size, on THIS character, triggers.
+ *
+ * **It reports a trigger and never applies a state.** Crippling is "unusable
+ * until healed" and this app tracks no such duration, so nothing is marked
+ * and nothing is stored — the same call `Wounds.effectsAt` records, one layer
+ * down. The row's printed cell and the paragraph governing it are shown
+ * whole, because they say what the thresholds cannot.
+ *
+ * Offered on HP only: every threshold in that column is written against HP,
+ * and FP and SPI print no equivalent — the reading the Major Wound panel one
+ * control up already makes.
+ */
+@Composable
+private fun WhereItLanded(
+    landed: HitLocation?,
+    damage: Int,
+    maxHp: Int,
+    onLocation: (HitLocation) -> Unit,
+) {
+    val locations = remember { Wounds.locations() }
+    Text(
+        "Where it landed",
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(top = 8.dp),
+    )
+    FlowRow {
+        locations.forEach { option ->
+            FilterChip(
+                selected = option == landed,
+                onClick = { onLocation(option) },
+                label = { Text(option.target) },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
+    }
+    landed?.let { location ->
+        val fired = Wounds.effectsAt(location, damage, maxHp)
+        Text(
+            if (fired.isEmpty()) "Nothing this hit triggers there."
+            else fired.joinToString("; ") { row ->
+                val at = Wounds.thresholdFor(location, row.outcome, maxHp)
+                "${row.outcome} (at $at${if (row.isApproximate) ", approx." else ""})"
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        Text(
+            location.effect,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (fired.any { it.outcome == "Crippled" }) {
+            Text(
+                Wounds.cripplingRule(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
+    }
 }
 
 /** One damage is the smallest hit there is; zero is not a hit at all. */

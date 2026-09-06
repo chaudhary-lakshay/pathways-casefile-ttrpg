@@ -112,6 +112,45 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
+**6di is newest, and it found a rule no coverage number could ever have
+reported.** Book lines 2785-2787 — the Crippling paragraph, which governs the
+hit-location table's entire `Special Effect on Hit` column — sit in the
+**three-line seam** between `hit_locations.json` (ends 2784) and
+`wounding_multipliers.json` (starts 2789), AND match **neither the old
+`MECHANICAL` filter nor 6db's widened one**: their numbers are a fraction
+glyph, a bare `1`, and a `12+` whose sign comes last where the filter wants it
+first. **A line the filter cannot see is not reported unclaimed and is not
+reported claimed — it is not reported at all**, which is 6db's finding at line
+resolution, surviving 6db's own widening. Read it for four more things. The
+column it governs **had no reader whatsoever** — `HitLocation.effect`, stored
+on nine rows, unread in production AND in the test suite — while pricing five
+outcomes against damage the app already held. **Arm and Leg print two numbers
+and only one is the rule**: "> ½ HP of LIMB" governs and "~ HP/3" is the
+BOOK's own approximation of it in character HP, so `approximate` travels with
+the divisor rather than letting a test bless the approximation as the rule
+(the design review's finding, and the one I would not have made). **Two of the
+four refusals were already recorded in production source** — `Shock.kt` for the
+knockdown cells, `Equipment.UNMODELLED["Armour"]` for DR — and citing them beat
+re-deriving them. And the picker went to `DamageDialog`, not to the screen that
+owns the table: `AttackDialog` has the location and the damage EXPRESSION,
+`DamageDialog` has the AMOUNT and the target's HP, and **neither screen had all
+three**.
+
+**6di also measured something worth quoting: claiming those lines moved no
+number.** Chapter 5 reads 74.4% before and after, because the filter cannot see
+what was claimed — so **a coverage percentage is not a measure of whether a
+chapter has been read**, and `coverage.py`'s filter has now been shown to have
+false negatives twice, neither found by looking at the filter. Its own first
+sweep also produced false positives by re-deriving `chapters.json`'s raw page
+partition, which `coverage.py`'s comment says disagrees with the boundaries it
+measures by — **a sweep that rebuilds the instrument's partition inherits none
+of its corrections.** Its diff review returned four findings, all taken,
+including the **eighth vacuous assertion in eight slices** (mine:
+`thresholds.isNotEmpty() == effectsAt(99).isNotEmpty()` cannot fail, because
+`effectsAt` filters that same list) and a prefix match that would read
+"Blindness or disfigurement" as the Eye's definite "Blind" while leaving its
+own raise-guard silent.
+
 **6dh is newest, and its finding is that a summary can be wrong in both
 directions at once.** It builds the slice 6dg named — `spirit_vision.json` was
 the one content file of 79 with no loader, and the sole claimant of chapter
@@ -721,7 +760,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dh, then 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6di, then 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -952,7 +991,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1650 Kotlin** (JUnit 5 — 1164 `core:rules`, 466 `app`, 20 `core:model`) + **308 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1657 Kotlin** (JUnit 5 — 1171 `core:rules`, 466 `app`, 20 `core:model`) + **312 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1081,6 +1120,8 @@ Wounds.locationNamed(target): HitLocation / .locations() / .damageTypes()
 Wounds.multiplierFor(location, type): Double   // both tables, composed
 Wounds.typeMultiplier(type) / .modifier(location) / .render(multiplier)
 Wounds.majorWoundThreshold(maxHp) / .isMajorWound(damage, maxHp)
+Wounds.effectsAt(location, damage, maxHp) / .thresholdFor(location, outcome, maxHp)
+Wounds.cripplingRule()                // p.41, unclaimed and filter-invisible until 6di
 Wounds.majorWoundFor(roll): MajorWound / .majorWounds()
 ContentLoader.hitLocations() / .woundingMultipliers() / .spiritDamage()
 ContentLoader.glossary()               // p.167-168, reference only; no rule
@@ -1345,10 +1386,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6dh. The slice log
+## 6a-6di. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6dh is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6di is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

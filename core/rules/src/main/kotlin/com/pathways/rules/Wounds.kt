@@ -10,6 +10,7 @@ import com.pathways.model.Outcome
 import com.pathways.model.RollResult
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.HitLocation
+import com.pathways.rules.content.HitLocationThreshold
 import com.pathways.rules.content.MajorWound
 import com.pathways.rules.content.WoundingMultiplier
 
@@ -210,4 +211,61 @@ object Wounds {
     /** "x3", "x1.5" -- a whole multiplier prints without a decimal tail. */
     fun render(multiplier: Double): String =
         if (multiplier == Math.floor(multiplier)) "×${multiplier.toInt()}" else "×$multiplier"
+
+    /**
+     * The paragraph governing the `Special Effect on Hit` column (p. 41).
+     *
+     * Kept whole because it says what the thresholds cannot: crippling lasts
+     * "until healed", recovery is "when the limb returns to positive HP", and
+     * First Aid at skill 12+ removes the permanent risk. **None of that is
+     * duration this app tracks**, which is why [effectsAt] reports that an
+     * effect TRIGGERED and never records that a character is crippled.
+     *
+     * Unclaimed by any content file until this was written, in the three-line
+     * seam between the hit-location table and the wounding multipliers, and
+     * invisible to `coverage.py` in both its narrow and widened forms.
+     */
+    fun cripplingRule(): String = ContentLoader.cripplingRule()
+
+    /**
+     * The damage at which [outcome] fires on [location], or null if that row
+     * does not price it.
+     *
+     * "More than" for a fraction of HP and "at least" for a flat amount,
+     * because the book writes them differently -- "> HP/6" against ">= 3".
+     * The fraction reading matches [majorWoundThreshold], whose KDoc records
+     * why "more than half" is strictly greater. An unconditional clause
+     * answers 1: it fires on any damage that lands.
+     */
+    fun thresholdFor(location: HitLocation, outcome: String, maxHp: Int): Int? {
+        require(maxHp >= 1) { "HP must be at least 1; was $maxHp" }
+        val row = location.thresholds.firstOrNull { it.outcome == outcome } ?: return null
+        row.minDamage?.let { return it }
+        // floorDiv, not `/`: rule 4.3, and the ceiling is reached by adding
+        // one to the floor rather than by dividing the other way.
+        row.hpDivisor?.let { return Math.floorDiv(maxHp, it) + 1 }
+        return 1
+    }
+
+    /**
+     * Which of [location]'s printed effects [damage] triggers.
+     *
+     * A DETECTION, not an application. The book's own words for each are on
+     * [HitLocation.effect] and [cripplingRule]; nothing here marks a limb,
+     * starts a clock, or changes a character.
+     *
+     * Four of the nine rows answer empty at any damage, and each is refused
+     * for its own reason rather than by omission: Torso prints no effect at
+     * all; the knockdown cells on Face, Skull and Neck "print no attribute to
+     * roll against" ([Shock]); Skull's DR 2 and Eye's "bypasses head DR" ask
+     * for armour this app does not model
+     * ([Equipment.UNMODELLED]); and "risk of blindness or disfigurement" and
+     * "bleeding risk" price nothing at all.
+     */
+    fun effectsAt(location: HitLocation, damage: Int, maxHp: Int): List<HitLocationThreshold> =
+        location.thresholds.filter { row ->
+            val at = thresholdFor(location, row.outcome, maxHp)
+                ?: error("${location.target} lost the threshold for ${row.outcome}")
+            damage >= at
+        }
 }

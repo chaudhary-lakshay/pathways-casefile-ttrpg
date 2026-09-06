@@ -3,6 +3,7 @@ package com.pathways.rules.content
 import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -981,6 +982,55 @@ data class HitLocation(
     val multiplier: Double,
     val byType: Map<String, Double> = emptyMap(),
     val effect: String,
+    val thresholds: List<HitLocationThreshold> = emptyList(),
+)
+
+/**
+ * The hit-location table plus the paragraph that governs its effect column.
+ *
+ * `loadWhole`, because [cripplingRule] is one rule for all nine rows and
+ * [ContentLoader.load] would drop it -- the shape [BlessingsFile] already has
+ * for the same reason.
+ */
+@Serializable
+data class HitLocationFile(
+    val cripplingRule: String,
+    val entries: List<HitLocation>,
+) {
+    init {
+        require(cripplingRule.isNotBlank()) { "the crippling rule is a printed paragraph" }
+    }
+}
+
+/**
+ * One computable clause of a hit location's `Special Effect on Hit` cell.
+ *
+ * Parsed by `tools/extract_wounds.py`, never here: the cell is prose, and a
+ * matcher in the engine would be a second authority on what the book says.
+ * Five of the nine rows carry these; the other four print effects this app
+ * refuses, each for its own reason recorded in production Kotlin.
+ *
+ * Exactly one of the two conditions is normally set, and both may be absent —
+ * the Hand's cell prints "Drop held item" bare where the Arm's prints
+ * ">= 3", so an unconditional clause fires on any damage that lands.
+ *
+ * [minDamage] is read as "at least", [hpDivisor] as "more than", because the
+ * book writes them that way: ">= 3" against "> HP/6".
+ *
+ * [approximate] marks a divisor the BOOK itself offers as an approximation.
+ * Arm and Leg print the governing rule as "> 1/2 HP of limb" and give
+ * "~ HP/3" as its equivalent in character HP; Hand, Neck and Eye print a
+ * character-HP threshold outright. Without this flag a reader would take the
+ * approximation for the rule.
+ */
+@Serializable
+data class HitLocationThreshold(
+    val outcome: String,
+    val minDamage: Int? = null,
+    val hpDivisor: Int? = null,
+    // The JSON key is the book's word; the property carries the repo's
+    // boolean prefix, so the two are joined rather than renamed apart.
+    @SerialName("approximate") val isApproximate: Boolean = false,
 )
 
 /**

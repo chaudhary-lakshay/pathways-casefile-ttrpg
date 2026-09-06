@@ -164,7 +164,7 @@ object ContentLoader {
     }
     private val shieldsLazy: List<Shield> by lazy { load("shields.json") }
     private val shieldRulesLazy: List<ShieldRule> by lazy { load("shield_rules.json") }
-    private val hitLocationsLazy: List<HitLocation> by lazy { load("hit_locations.json") }
+    private val hitLocationsLazy: HitLocationFile by lazy { loadWhole("hit_locations.json") }
     private val woundingMultipliersLazy: List<WoundingMultiplier> by lazy {
         load("wounding_multipliers.json")
     }
@@ -342,7 +342,13 @@ object ContentLoader {
     fun spiritDamage(): List<SpiritDamageRule> = spiritDamageLazy
 
     /** The Optional Hit Locations table (Ch. 5, p. 41), in printed order. */
-    fun hitLocations(): List<HitLocation> = hitLocationsLazy
+    fun hitLocations(): List<HitLocation> = hitLocationsLazy.entries
+
+    /**
+     * The Crippling paragraph (Ch. 5, p. 41), which governs every row's
+     * `Special Effect on Hit` cell. Read through [com.pathways.rules.Wounds].
+     */
+    fun cripplingRule(): String = hitLocationsLazy.cripplingRule
 
     /** The Optional Wounding Multipliers table (Ch. 5, p. 41). */
     fun woundingMultipliers(): List<WoundingMultiplier> = woundingMultipliersLazy

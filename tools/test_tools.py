@@ -4442,6 +4442,127 @@ def test_spirit_vision_records_the_spectator_disagreement():
         assert "Spirit Vision" in block["ability"], name
 
 
+def test_the_crippling_paragraph_is_invisible_to_the_coverage_filter():
+    """The rule no coverage number has ever reported missing.
+
+    Lines 2785-2787 govern the entire `Special Effect on Hit` column -- what
+    crippling IS, what it costs, and how it ends -- and they sit in a THREE
+    LINE seam between two claimed spans: `hit_locations.json` stops at 2784
+    and `wounding_multipliers.json` starts at 2789.
+
+    That alone would be 6ba's gap. What makes it worse is that the paragraph
+    matches NEITHER the old MECHANICAL filter nor the widened one, so it was
+    never in any denominator: its numbers are a fraction glyph, a bare "1",
+    and "12+" -- and the filter's signed-number rule wants the sign FIRST.
+
+    Both halves are pinned. If a future filter learns to see these lines the
+    assertion fails loudly, which is the right time to re-read this test.
+    """
+    import coverage as coverage_tool
+    byn = _glossary_lines()
+
+    assert byn[2785].strip().startswith("Crippling: A limb or extremity struck")
+    assert "First Aid (skill 12+) removes permanent" in byn[2786]
+    assert byn[2787].strip() == "damage risk."
+    for n in (2785, 2786, 2787):
+        assert not coverage_tool.MECHANICAL.search(byn[n]), (
+            f"line {n} is now visible to the coverage filter; it was invisible "
+            f"to both the narrow and the widened form, which is why nothing "
+            f"ever reported it unclaimed"
+        )
+
+
+def test_every_hit_location_threshold_is_read_from_its_own_cell():
+    """The five cells that print a damage threshold, and the four that do not.
+
+    The `Special Effect on Hit` column had no reader at all -- not in
+    production, not in a test -- while carrying thresholds the damage screen
+    already holds both sides of. These are the cells `parse_thresholds` reads,
+    named rather than counted, so a cell changing its wording fails here
+    instead of silently dropping an effect.
+
+    **Arm and Leg print two numbers and only one of them is the rule.** The
+    governing threshold is "> 1/2 HP of limb"; "~ HP/3" is the BOOK's own
+    approximation of that in character HP, tilde and all. Storing one divisor
+    without saying so would let a test bless the approximation as the rule,
+    so `approximate` travels with it.
+    """
+    content = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
+    rows = json.loads((content / "hit_locations.json").read_text(encoding="utf-8"))["entries"]
+    by_target = {r["target"]: r for r in rows}
+
+    assert by_target["Arm"]["thresholds"] == [
+        {"outcome": "Drop held item", "minDamage": 3},
+        {"outcome": "Crippled", "hpDivisor": 3, "approximate": True},
+    ]
+    assert by_target["Leg"]["thresholds"] == [
+        {"outcome": "Knock prone", "minDamage": 3},
+        {"outcome": "Crippled", "hpDivisor": 3, "approximate": True},
+    ]
+    # The Hand drops the item on ANY hit -- its cell prints no damage
+    # condition where Arm and Leg both print ">= 3".
+    assert by_target["Hand"]["thresholds"] == [
+        {"outcome": "Drop held item"},
+        {"outcome": "Crippled", "hpDivisor": 6},
+    ]
+    assert by_target["Neck"]["thresholds"] == [{"outcome": "Choke possible", "hpDivisor": 2}]
+    assert by_target["Eye"]["thresholds"] == [{"outcome": "Blind", "hpDivisor": 10}]
+
+    # And the four rows whose cells print no damage threshold at all. Each is
+    # refused for its own reason, recorded in production Kotlin; none of them
+    # may acquire a threshold here by resemblance.
+    for target in ("Torso", "Face", "Skull", "Vitals"):
+        assert by_target[target].get("thresholds", []) == [], target
+
+    # The prose stays verbatim beside the structure, because it says things
+    # the structure does not -- "unusable until healed", "bypasses head DR".
+    assert all(r["effect"] for r in rows)
+
+
+def test_an_outcome_name_is_closed_at_a_word_boundary():
+    """Why OUTCOMES holds anchored regexes and not a prefix test.
+
+    A bare `startswith` reads "Blindness or disfigurement at > HP/10" -- the
+    Face cell's wording one re-extraction away -- as the Eye's definite
+    "Blind", prices it, fires it, and leaves the raise-guard silent because it
+    had found a name. That is the worst failure this parser has available: not
+    a crash, not a dropped clause, but a confident wrong effect.
+
+    The same closure separates "Knock prone" from "Knockdown", which share
+    five letters and are the only two outcomes in the column that do.
+    """
+    assert extract_wounds.parse_thresholds("Blind at > HP/10", "Eye") == [
+        {"outcome": "Blind", "hpDivisor": 10}
+    ]
+    with pytest.raises(ValueError, match="cannot name"):
+        extract_wounds.parse_thresholds("Blindness or disfigurement at > HP/10", "Face")
+
+    assert extract_wounds.parse_thresholds("Knock prone if damage >= 3", "Leg") == [
+        {"outcome": "Knock prone", "minDamage": 3}
+    ]
+    # Knockdown names no threshold and must stay silent -- Shock records why.
+    assert extract_wounds.parse_thresholds("Knockdown at -10", "Skull") == []
+
+
+def test_the_hit_location_table_now_claims_the_rule_that_governs_it():
+    """The seam, closed -- and the span that closes it stops where it should.
+
+    2788 is the NEXT table's heading ("Optional -- Wounding Multipliers") and
+    2789 is where `wounding_multipliers.json` begins, so a span that ran one
+    line further would claim a heading it does not read and collide with its
+    neighbour.
+    """
+    content = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
+    spans = json.loads((content / "hit_locations.json").read_text(encoding="utf-8"))["sourceLines"]["5"]
+    claimed = {n for lo, hi in spans for n in range(lo, hi + 1)}
+    assert {2785, 2786, 2787} <= claimed, sorted(claimed)[-6:]
+    assert 2788 not in claimed, "the span now claims the next table's heading"
+
+    others = json.loads((content / "wounding_multipliers.json").read_text(encoding="utf-8"))
+    for lo, hi in others["sourceLines"]["5"]:
+        assert not (claimed & set(range(lo, hi + 1))), (lo, hi)
+
+
 def test_spirit_vision_section_c_is_a_swap_not_a_one_sided_error():
     """The other direction of the sweep, which nothing had run.
 

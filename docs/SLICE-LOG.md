@@ -6726,6 +6726,178 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6di. The rule no coverage number could ever have reported
+
+6dh named a method rather than a target: **a check that reconciles two
+printings runs one way, and the reverse is a separate sweep.** Running the
+reverse of `coverage.py` — content files' claims back against the book, rather
+than book lines forward against the claims — found four overlapping spans (all
+sibling files splitting one printed table, legitimate) and then something
+better by a different route.
+
+### 6db widened the filter after 6da had already read the chapter
+
+`coverage.py`'s `MECHANICAL` filter decides which lines COUNT. 6db widened it
+from three alternatives to five, making 286 lines newly visible. **6da had read
+Appendix A's unclaimed lines one at a time BEFORE that**, under the narrow
+filter, which is exactly what 6db's own warning says not to compare across.
+
+So: which lines became mechanical only after 6db, and are claimed by nobody?
+**29.** Most are rules already implemented as Kotlin arithmetic — the FP
+thresholds, the 2 HP → 1 SPI ritual burn — which 6cy already established read
+0% forever. The genuinely unread cluster is chapter 5's Healing & Recovery
+table, and 6dc's refusal covers most of it (the recovery and Regeneration
+RATES need a clock this app does not hold).
+
+**The first run of that query filed glossary lines 10185 and 10203 under
+Appendix C and reported them unclaimed.** They are claimed, under `G`. My
+partition used `chapters.json`'s raw page ranges, which `coverage.py`'s own
+comment says disagree with the boundaries it measures by. Re-run
+chapter-agnostically — *is this line claimed by ANY content file* — the false
+positives vanished. **A sweep that re-derives the instrument's partition
+inherits none of its corrections** (6dg's 79 false positives, one slice later,
+by a different mechanism).
+
+### What the neighbourhood held
+
+Reading around the cluster reached book lines 2785-2787:
+
+> **Crippling:** A limb or extremity struck for more than ½ its HP is crippled
+> — unusable until healed. Arm/leg crippling: drop held items or reduce Move
+> to 1. Recovers when the limb returns to positive HP. First Aid (skill 12+)
+> removes permanent damage risk.
+
+Three lines. Claimed by nothing. They sit in the **three-line seam** between
+`hit_locations.json` (2743-2784) and `wounding_multipliers.json` (2789+) —
+6ba's gap. And they match **neither the old `MECHANICAL` filter nor the widened
+one**, so they were never in any denominator, in either era: the numbers are a
+fraction glyph, a bare `1`, and a `12+` whose sign comes last where the
+filter's signed-number rule wants it first.
+
+**A line invisible to the filter is not reported as unclaimed and is not
+reported as claimed. It is not reported.** 6db found a chapter reading 100%
+because its lines were filtered out of the sweep for unread chapters; this is
+the same shape at line resolution, and it survived 6db's widening.
+
+### And the column it governs had no reader at all
+
+`HitLocation.effect` is stored on all nine rows and read by **nothing** —
+checked in production and in the test suite. `DamageDialog` picks a pool and
+applies a number; `AttackDialog` picks a location and prints its to-hit
+penalty and wounding multiplier. Neither reads the effect column, which prices
+five outcomes against damage:
+
+| Row | Cell | Computable |
+|---|---|---|
+| Arm | `Drop held item if damage >= 3; crippled at > ½ HP of limb (~ HP/3)` | both |
+| Leg | `Knock prone if damage >= 3; crippled at > HP/3` | both |
+| Hand | `Drop held item; crippled easily (> HP/6)` | both |
+| Neck | `Knockdown roll at -5; choke possible if damage > HP/2` | the choke |
+| Eye | `Blind at > HP/10; bypasses head DR` | the blinding |
+
+**Two of the four refusals were already recorded in production source**, and
+citing them beat re-deriving them: `Shock.kt` says the hit-location knockdown
+cells "print no attribute to roll against", and `Equipment.UNMODELLED["Armour"]`
+says nothing here models DR. The other two — "risk of blindness or
+disfigurement", "bleeding risk" — price nothing at all.
+
+### The design review, and the distinction it saved
+
+**Arm and Leg print TWO numbers and only one is the rule.** The governing
+threshold is "> ½ HP of **limb**"; `~ HP/3` is the BOOK's own approximation of
+it in character HP, tilde and all. Hand, Neck and Eye print character-HP
+thresholds outright. Storing one `hpDivisor` for both shapes would let a test
+bless the approximation as the rule, so `approximate` travels with it and the
+KDoc says which is which. That is the finding I would not have made.
+
+Its other two: a `List<String>` return makes UI copy into engine identity, so a
+small record ships instead — and a sealed hierarchy for five cells would be the
+one-implementation abstraction the repo forbids. And the UI must report a
+**trigger**, never an applied state: "unusable until healed" is duration this
+app does not track, so nothing marks a limb, starts a clock, or changes a
+character.
+
+### Where the picker had to go, which was not where the table is
+
+`AttackDialog` has the location and the damage EXPRESSION; `DamageDialog` has
+the damage AMOUNT and the target's HP. **Neither screen had all three**, which
+is `DetectionDialog`'s problem again — this app holds one character, and an
+attack is aimed at somebody else. The picker went where the character actually
+takes the hit, and it does **not** re-price the damage: the wounding multiplier
+is the attacker's business and `AttackDialog` already prints it, so the number
+typed in is the injury that got through. Saying that on screen was necessary,
+because a player choosing "Skull" would otherwise expect ×4.
+
+### The diff review: four findings, four taken
+
+**A prefix match can name the wrong outcome and silence its own guard.**
+`clause.lower().startswith("blind")` reads `Blindness or disfigurement at >
+HP/10` — the Face cell's wording one re-extraction away — as the Eye's definite
+`Blind`, prices it, fires it, and leaves the raise-guard quiet because it had
+found a name. Not a crash, not a dropped clause: a confident wrong effect. The
+keys are anchored regexes closed at a word boundary now, and the reviewer's
+exact case is a test. (`Knock prone` and `Knockdown` share five letters and are
+the only pair in the column that do.)
+
+**The eighth vacuous assertion in eight slices, and mine again.** `assertEquals(
+location.thresholds.isNotEmpty(), effectsAt(damage = 99).isNotEmpty())` cannot
+fail: `effectsAt` FILTERS that same list, so a row silently losing its
+thresholds makes both sides `false`. Replaced by the named set — which five
+rows, and how many clauses each.
+
+**A selection survived out of sight.** `landed` persisted while the HP-only
+picker was hidden, so picking Eye, switching to FP, changing the amount and
+switching back showed an effect fired for a hit nobody described. It clears
+with the pool now, beside the shock, for the same stated reason: moving the
+damage to another pool makes it a different hit.
+
+**And a KDoc my own edit orphaned** — inserting `HitLocationFile` between the
+threshold type's KDoc and its class left the comment describing the wrong
+declaration. Third instance of a block inheriting where it landed.
+
+### Two things worth inheriting
+
+**Claiming these lines moved no number.** Chapter 5 reads 74.4% before and
+after, because the filter cannot see what was claimed. A slice whose whole
+subject is invisible to the metric produces no metric movement, and a coverage
+percentage is therefore not a measure of whether the chapter has been read.
+
+**A `\b` written through a heredoc collapsed to a literal backspace byte
+(0x08).** The extractor then failed loudly on its own guard — the right
+failure, from the wrong cause — and `cat -A` is what showed `^H` where `\b`
+should be. A regex assembled through two layers of quoting needs its bytes
+checked, not its source read.
+
+### What shipped
+
+- `tools/extract_wounds.py` — `OUTCOMES` as anchored regexes, `parse_thresholds`,
+  the `CRIPPLING_RANGE` claim, and the governing paragraph STORED rather than
+  merely claimed (a span with nothing behind it says the lines were read and
+  leaves nothing that can disagree when they change).
+- `hit_locations.json` — `thresholds` per row, `cripplingRule` whole.
+- `HitLocationThreshold`, `HitLocationFile`, `ContentLoader.cripplingRule()`,
+  and `Wounds.thresholdFor` / `.effectsAt` / `.cripplingRule`, with
+  `WoundEffectsTest` (7 tests). Mutating the `+1` off the fraction reddens two.
+- `DamageDialog`'s "Where it landed", HP only, reporting triggers.
+- Four Python tests: the invisibility, the parsed set, the word boundary, the
+  closed seam.
+
+1657 Kotlin (1171 `core:rules`, 466 `app`, 20 `core:model`) and 312 Python, all
+green. **Not device-verified**; no test here reaches a composable.
+
+### The next slice
+
+The reverse-sweep method still has unrun directions — catalogue → fixture (6ct
+ran fixture → Kotlin), and extractor → `sourceLines`. But the sharper lead is
+the one this slice opened and did not take: **28 of the 29 newly-visible
+unclaimed lines are still unread**, and the honest first question about each is
+not "build it" but "is it already implemented as arithmetic". The FP rows and
+the 2 HP → 1 SPI burn are; chapter 6.5's `1–2 SPI per use` and chapter 7's
+ritual SPI costs need checking one at a time. And **`coverage.py`'s filter has
+now been shown to have false negatives twice** — the fraction glyph and the
+trailing-sign form are two shapes it cannot see, and neither was found by
+looking at the filter.
+
 ## 6dh. The summary was wrong in both directions at once
 
 6dg's sweep named this: of 79 content files, exactly one had no `ContentLoader`

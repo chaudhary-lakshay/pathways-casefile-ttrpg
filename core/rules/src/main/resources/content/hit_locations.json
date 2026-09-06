@@ -4,37 +4,74 @@
    [
     2743,
     2784
+   ],
+   [
+    2785,
+    2787
    ]
   ]
  },
+ "cripplingRule": "Crippling: A limb or extremity struck for more than ½ its HP is crippled — unusable until healed. Arm/leg crippling: drop held items or reduce Move to 1. Recovers when the limb returns to positive HP. First Aid (skill 12+) removes permanent damage risk.",
  "entries": [
   {
    "target": "Torso",
    "penalty": 0,
    "printedMultiplier": "×1",
    "multiplier": 1.0,
-   "effect": "Default location. No special effect."
+   "effect": "Default location. No special effect.",
+   "thresholds": []
   },
   {
    "target": "Arm",
    "penalty": -2,
    "printedMultiplier": "×1",
    "multiplier": 1.0,
-   "effect": "Drop held item if damage >= 3; crippled at > ½ HP of limb (~ HP/3)"
+   "effect": "Drop held item if damage >= 3; crippled at > ½ HP of limb (~ HP/3)",
+   "thresholds": [
+    {
+     "outcome": "Drop held item",
+     "minDamage": 3
+    },
+    {
+     "outcome": "Crippled",
+     "hpDivisor": 3,
+     "approximate": true
+    }
+   ]
   },
   {
    "target": "Leg",
    "penalty": -2,
    "printedMultiplier": "×1",
    "multiplier": 1.0,
-   "effect": "Knock prone if damage >= 3; crippled at > ½ HP of limb (~ HP/3)"
+   "effect": "Knock prone if damage >= 3; crippled at > ½ HP of limb (~ HP/3)",
+   "thresholds": [
+    {
+     "outcome": "Knock prone",
+     "minDamage": 3
+    },
+    {
+     "outcome": "Crippled",
+     "hpDivisor": 3,
+     "approximate": true
+    }
+   ]
   },
   {
    "target": "Hand",
    "penalty": -4,
    "printedMultiplier": "×1",
    "multiplier": 1.0,
-   "effect": "Drop held item; crippled easily (> HP/6)"
+   "effect": "Drop held item; crippled easily (> HP/6)",
+   "thresholds": [
+    {
+     "outcome": "Drop held item"
+    },
+    {
+     "outcome": "Crippled",
+     "hpDivisor": 6
+    }
+   ]
   },
   {
    "target": "Neck",
@@ -46,21 +83,29 @@
     "cr": 1.5,
     "cut": 2.0,
     "imp": 2.0
-   }
+   },
+   "thresholds": [
+    {
+     "outcome": "Choke possible",
+     "hpDivisor": 2
+    }
+   ]
   },
   {
    "target": "Face",
    "penalty": -5,
    "printedMultiplier": "×1",
    "multiplier": 1.0,
-   "effect": "Knockdown at -5; risk of blindness or disfigurement"
+   "effect": "Knockdown at -5; risk of blindness or disfigurement",
+   "thresholds": []
   },
   {
    "target": "Skull",
    "penalty": -7,
    "printedMultiplier": "×4",
    "multiplier": 4.0,
-   "effect": "Knockdown at -10; DR 2 (skull bone, stacks with helmet)"
+   "effect": "Knockdown at -10; DR 2 (skull bone, stacks with helmet)",
+   "thresholds": []
   },
   {
    "target": "Vitals",
@@ -71,14 +116,21 @@
    "byType": {
     "imp": 3.0,
     "pi": 3.0
-   }
+   },
+   "thresholds": []
   },
   {
    "target": "Eye",
    "penalty": -9,
    "printedMultiplier": "×4",
    "multiplier": 4.0,
-   "effect": "Blind at > HP/10; bypasses head DR (not eye protection)"
+   "effect": "Blind at > HP/10; bypasses head DR (not eye protection)",
+   "thresholds": [
+    {
+     "outcome": "Blind",
+     "hpDivisor": 10
+    }
+   ]
   }
  ]
 }

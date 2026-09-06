@@ -42,6 +42,15 @@ OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
 CHAPTER = "5"
 LOCATION_RANGE = (2743, 2784)
+# The paragraph that GOVERNS the Special Effect column -- what crippling is,
+# what it costs, and how it ends. It sat unclaimed in the three-line seam
+# between this table and the next one, and it matches neither the old
+# coverage MECHANICAL filter nor the widened one (its numbers are a fraction
+# glyph, a bare "1", and a "12+" whose sign comes last), so no coverage
+# number ever reported it missing. Claimed separately from the table rather
+# than by widening LOCATION_RANGE, because the rows are parsed out of that
+# range and this prose is not a row.
+CRIPPLING_RANGE = (2785, 2787)
 MULTIPLIER_RANGE = (2789, 2816)
 STACKING_RANGE = (2817, 2818)
 MAJOR_RANGE = (2819, 2832)
@@ -59,6 +68,37 @@ HEADER = {
 # signed-number rule would cut them wrong.
 RESULTS = ["Success", "Failure", "Fail by 5+"]
 FAIL_BY = re.compile(r"Fail by (\d+)\+")
+
+# --- the Special Effect column's computable thresholds ---------------------
+#
+# Five of the nine cells price an outcome against damage the damage screen
+# already holds. The outcome NAMES are listed rather than derived: the book
+# writes "crippled at ..." in one cell and "crippled easily (...)" in another,
+# and `easily` is an adverb about how readily, not a different outcome. A
+# heuristic tuned until both reduce to one string would state something false
+# about the cells it was not tuned on.
+# Anchored at the clause's start AND closed at a word boundary. A bare prefix
+# test is not enough: "Blindness or disfigurement at > HP/10" -- the Face
+# cell's wording one re-extraction away -- starts with "blind" and would be
+# read as the Eye's definite "Blind", priced and fired, with the raise-guard
+# silent because it had found a name. `\b` is what makes "blind" not match
+# "blindness", and the same closure separates "Knock prone" from "Knockdown".
+OUTCOMES = {
+    re.compile(r"^drop held item\b", re.I): "Drop held item",
+    re.compile(r"^knock prone\b", re.I): "Knock prone",
+    re.compile(r"^crippled\b", re.I): "Crippled",
+    re.compile(r"^choke possible\b", re.I): "Choke possible",
+    re.compile(r"^blind\b", re.I): "Blind",
+}
+
+# "if damage >= 3" -- a flat amount, printed only by Arm and Leg.
+MIN_DAMAGE = re.compile(r"damage\s*>=\s*(\d+)")
+# "> HP/6", "(~ HP/3)" -- a fraction of the character's HP. The tilde matters:
+# Arm and Leg print the governing rule as "> 1/2 HP of LIMB" and give HP/3 as
+# the BOOK's own approximation of it in character HP. Hand, Neck and Eye print
+# a character-HP threshold directly and approximate nothing. Storing one
+# divisor for both shapes would let a test bless the approximation as the rule.
+HP_DIVISOR = re.compile(r"(~\s*)?HP/(\d+)")
 
 PENALTY = re.compile(r"^[+-]\d+$")
 # "x1", "x1.5", "x3 (imp/pi only)" -- the cell opens with the sign.
@@ -170,6 +210,46 @@ def parse_multiplier(text):
     return 1.0, typed
 
 
+def parse_thresholds(effect, target):
+    """The cell's computable clauses, in printed order.
+
+    A clause is a semicolon-separated part of the cell. It becomes a threshold
+    when its opening words name an outcome from [OUTCOMES]; a clause naming
+    none is left
+    alone, which is how "Knockdown roll at -5", "DR 2 (skull bone ...)",
+    "risk of blindness or disfigurement" and "bleeding risk" stay out. Each of
+    those is refused for its own reason in production Kotlin.
+
+    A clause that carries a number this parser CAN read and an outcome it
+    cannot raises rather than dropping the clause: an effect silently lost is
+    the failure this column already had for its whole life.
+    """
+    out = []
+    for clause in effect.split(";"):
+        clause = clause.strip()
+        if not clause:
+            continue
+        name = next((v for k, v in OUTCOMES.items() if k.match(clause)), None)
+        divisor = HP_DIVISOR.search(clause)
+        amount = MIN_DAMAGE.search(clause)
+        if name is None:
+            if divisor or amount:
+                raise ValueError(
+                    f"{target}: clause {clause!r} prices an outcome this parser "
+                    f"cannot name; add it to OUTCOMES rather than losing it"
+                )
+            continue
+        entry = {"outcome": name}
+        if amount:
+            entry["minDamage"] = int(amount.group(1))
+        if divisor:
+            entry["hpDivisor"] = int(divisor.group(2))
+            if divisor.group(1):
+                entry["approximate"] = True
+        out.append(entry)
+    return out
+
+
 def parse_locations(lines):
     out = []
     for target, penalty, cells in rows(lines):
@@ -186,6 +266,9 @@ def parse_locations(lines):
         }
         if by_type:
             entry["byType"] = by_type
+        # The prose STAYS, verbatim, beside the structure: it says things the
+        # structure cannot -- "unusable until healed", "bypasses head DR".
+        entry["thresholds"] = parse_thresholds(effect, target)
         out.append(entry)
     return out
 
@@ -283,9 +366,9 @@ def verify(locations, types, stacking, major, major_lines, intro):
             raise ValueError(f"the major wound threshold rule is gone: {phrase!r}")
 
 
-def write(name, entries, spans):
+def write(name, entries, spans, extra=None):
     OUT.mkdir(parents=True, exist_ok=True)
-    payload = {"sourceLines": {CHAPTER: spans}, "entries": entries}
+    payload = {"sourceLines": {CHAPTER: spans}, **(extra or {}), "entries": entries}
     (OUT / f"{name}.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
     )
@@ -303,7 +386,16 @@ def main():
     intro = stream(byn, MULTIPLIER_RANGE[0], MULTIPLIER_RANGE[0])
     verify(locations, types, stacking, major, major_lines, intro)
 
-    write("hit_locations", locations, [list(LOCATION_RANGE)])
+    # The governing paragraph, joined into one sentence-carrying string. It is
+    # stored rather than merely CLAIMED: a span with nothing behind it says the
+    # lines were read and leaves nothing that can disagree when they change.
+    crippling = " ".join(stream(byn, *CRIPPLING_RANGE))
+    write(
+        "hit_locations",
+        locations,
+        [list(LOCATION_RANGE), list(CRIPPLING_RANGE)],
+        {"cripplingRule": crippling},
+    )
     write("wounding_multipliers", types, [list(MULTIPLIER_RANGE), list(STACKING_RANGE)])
     write("major_wound", major, [list(MAJOR_RANGE)])
 
