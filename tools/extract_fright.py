@@ -253,13 +253,20 @@ def verify(triggers, effects):
     # gives one column a recovery another lacks, and a parse that produced one
     # would have the screen withhold a roll the book prints -- invisible in the
     # cell text, which still reads correctly.
+    #
+    # The same shape holds for the one band that computes a duration, and it is
+    # checked in the same loop rather than beside the band-set check below: that
+    # one reads the FRIGHT column alone, so a parse emitting two of three
+    # durations would pass it and then subscript a None.
     for row in effects:
-        present = [c for c in COLUMNS if row[f"{c}Recovery"] is not None]
-        if len(present) not in (0, len(COLUMNS)):
-            raise ValueError(
-                f"band {row['printed']!r} parsed a recovery roll in {present} "
-                "only; the table prints one in every column or in none"
-            )
+        for field, what in (("Recovery", "a recovery roll"),
+                            ("ComputedDuration", "a computed duration")):
+            present = [c for c in COLUMNS if row[f"{c}{field}"] is not None]
+            if len(present) not in (0, len(COLUMNS)):
+                raise ValueError(
+                    f"band {row['printed']!r} parsed {what} in {present} only; "
+                    "the table prints one in every column or in none"
+                )
     # One band computes its duration from the character, and its fright cell
     # counts down from an attribute it does not roll. That disagreement is the
     # only evidence the duration anchor did not collapse into the recovery one,

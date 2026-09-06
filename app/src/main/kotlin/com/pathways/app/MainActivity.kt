@@ -909,6 +909,12 @@ fun SheetScreen(
             // Row 12's fright cell counts its duration down from HT while
             // rolling Will, so the screen needs an attribute no roll here
             // takes. [FrightCheck.durationLine] is what decides which.
+            //
+            // From `attributes`, which is `effectiveAttributes` -- the levels
+            // AFTER any potion, the same source the Major Wound's HT roll
+            // takes. `will` above comes off `vitals` and is post-potion too;
+            // the two read from different objects because Will is a SECONDARY
+            // and HT is bought.
             ht = attributes.ht,
             clauses = remember(traits) {
                 TraitEffects.frightClauses(traits) + TraitEffects.willClauses(traits)

@@ -1,10 +1,14 @@
 package com.pathways.rules
 
+import com.pathways.rules.content.ComputedDuration
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.DurationAttribute
+import com.pathways.rules.content.FrightEffect
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 /**
@@ -79,6 +83,29 @@ class FrightDurationTest {
         assertEquals(
             "0 sec (25 − HT 27)",
             FrightCheck.durationLine(duration, ht = 27, will = 10, iq = 10),
+        )
+    }
+
+    @Test
+    fun `a band cannot compute a duration for some of its columns`() {
+        // The table prints row 12's parenthetical in all three cells. A row
+        // carrying one or two is a parse that dropped a cell, and the screen
+        // would silently print the worked number for one column and the raw
+        // subtraction for its neighbours.
+        val thrown = assertThrows(IllegalArgumentException::class.java) {
+            FrightEffect(
+                low = 12,
+                high = 12,
+                printed = "12",
+                fright = "Retching for (25 − HT) sec.",
+                awe = "Ecstasy for (25 − Will) sec.",
+                confusion = "Dazed for (25 − IQ) sec.",
+                frightComputedDuration = ComputedDuration(25, DurationAttribute.HT),
+            )
+        }
+        assertTrue(
+            thrown.message!!.contains("computes a duration in 1 of 3 columns"),
+            "wrong guard spoke: ${thrown.message}",
         )
     }
 

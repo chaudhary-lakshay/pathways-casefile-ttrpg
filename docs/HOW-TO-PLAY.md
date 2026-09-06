@@ -136,6 +136,13 @@ and if so, rolls that table, whose shock the sheet then carries for the turn.
 **Concentrate** is the focus some actions gate behind. **Fright** rolls the
 Fright Check: two rolls, the check and then the effect table.
 
+Three of the table's nine bands print a way out, and those show a **recovery
+roll** against the column's own attribute — Will in Fright and Awe, IQ in
+Confusion. The other six print no roll and offer none. The `12` band also
+works its duration out for you (`14 sec (25 − HT 11)`), with the subtraction
+shown because the attribute it counts down from is not always the one it
+rolls.
+
 ---
 
 ## 4. Beyonder play
