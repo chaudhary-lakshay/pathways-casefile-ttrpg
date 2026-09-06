@@ -112,7 +112,55 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6du is newest, and it is the sweep 6dt named, run in a sharper form than
+**6dv is newest, and it is one predicate answered at two sites, taught on
+only one of them.** It runs the sweep 6du named — which extractors DERIVE an
+output row from a sibling content file rather than merely verify against it —
+and **nine of ten are verify-only**, which is the house style and is recorded
+as closed. The tenth is `extract_equipment.skill_index()`, whose value decides
+the `skills` field on all 77 equipment rows, and it used a strict
+`(name, spec)` match. Chapter 3 prints `Connoisseur` and `Savoir-Faire` ONCE
+each with no specialization and `specializable: true` — an open row the player
+fills in — and chapter 8 prices instances of both, so both bonuses were
+dropped and **the one fixture holding `Savoir-Faire (High Society)` was offered
+nothing**. That is 6cz's defect on the WRITING side of the same join: its
+`isTemplate` and the extractor's `key in index` ask one question of one flag in
+one file, and **the two must agree by construction, not by both having been
+edited**. Read it for five more things. **A committed test asserted the defect
+while quoting the fact that disproves it** — *"the two the book writes the same
+way and chapter 3 leaves open"*, beside an assertion that the openness means no
+match. **`verify()` ran one way**: no recorded exclusion may resolve, and
+nothing said every unresolved target must be recorded, so a new dropped clause
+was invisible with the row count, the pinned joins and the joiner set all green
+— `RECORDED_UNJOINED` closes it, and the hyphenation seam is NAMED there while
+the spelling pair below stays the authority on the fact, so there is one check
+on one fact. **The RED proof had to be an addition and the first one proved
+nothing**: appending `+1 to Cryptography` resolved, because Cryptography IS in
+chapter 3's list — **a mutation has to land where the guard looks**.
+`Connoisseur (Books)` is correct with **no carrier**: no fixture buys it and
+the builder cannot produce a specialized instance at all (its picker passes
+`definition.specialization`, null for an open row, and prints *"needs a
+specialization"*). And its review's LOW was the vacuity class again — a subset
+check forced by the equality above it, now disjointness, because what a union
+cannot see is one name recorded in two sets.
+
+**6dv is device-verified, and the device found the sharper half.** The Fortune
+Teller's roll prints `Fine clothes (quality) (£1 10s) — +1 to Savoir-Faire
+(High Society); status marker` — but only AFTER the roll, because
+`MainActivity.kt:2195` is a **`return@Column`** and everything below it (the
+burn row, the conditional-burn note, the gear reference) composes only once a
+result exists. So chapter 8's rows reach the GM *after* the dice, when the one
+thing they are for is choosing a modifier *before* them. Recorded, not
+repaired — it wants its own design review and is the named next slice. **A rule
+can be applied, tested, wired to a caller and still be shown at the wrong
+moment**, and no test here reaches a composable: three hypotheses (stale APK,
+failed content load, key mismatch) died to one temporary `Log.w` printing
+`rows=77 withSkills=34 ref=1` while the screen showed nothing. **And the dump's
+scale is per WINDOW**, which corrects 6du: the sheet is a clean 4/3, the DIALOG
+is not — its Roll button at dump `(787,1146)` is tapped at about `(1024,1356)`
+and the 4/3 point `(1049,1528)` lands on the scrim and dismisses it. One scale
+cannot drive both windows.
+
+**6du is next, and it is the sweep 6dt named, run in a sharper form than
 6dt describes — plus the one duration in the Fright Effects table that the
 book computes from the character.** The sweep: *claimed mechanical lines whose
 NUMBERS appear nowhere in the file claiming them*, where 6dt's version compared
@@ -1153,7 +1201,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6du, then 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dv, then 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1384,7 +1432,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1690 Kotlin** (JUnit 5 — 1204 `core:rules`, 466 `app`, 20 `core:model`) + **341 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1691 Kotlin** (JUnit 5 — 1205 `core:rules`, 466 `app`, 20 `core:model`) + **341 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1580,6 +1628,11 @@ Wealth.traitFor(level): Trait?                    // null at 0 pts (Average)
 Wealth.levelOf(traits) / .applied(traits, level)  // replaces, never adds
 ContentLoader.wealth()
 Equipment.all() / .forSkill(key) / .referenceFor(key)   // shown, never applied
+                                      // an OPEN catalogue row (specializable,
+                                      // no specialization) is matched by an
+                                      // instance in EITHER direction: the
+                                      // extractor's `joins` and `isTemplate`
+                                      // read one flag in skills.json (6dv)
 Equipment.UNMODELLED                  // ch.8's four unread tables, with reasons
 ContentLoader.equipment()
 Appearance.all() / .named(level): AppearanceLevel  // throws for an unprinted level
@@ -1805,10 +1858,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6du. The slice log
+## 6a-6dv. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6du is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6dv is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

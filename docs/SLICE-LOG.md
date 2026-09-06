@@ -6726,6 +6726,160 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dv. The same predicate, taught on one side of the join
+
+6du named a sweep with evidence: nine extractors read a content JSON they do
+not write, and the question was which of them **DERIVE an output row** from it
+rather than merely verify against it. Ten sites, and **nine are verify-only** —
+`extract_appearance`, `extract_appendix`, `extract_blessings`,
+`extract_common_modifiers`, `extract_core_rules`, `extract_defense_refusals`,
+`extract_detection`, `extract_languages` and `extract_non_standard` all read a
+sibling to assert something and never to build a row. That is the house style
+and it stays.
+
+The tenth is `extract_equipment.skill_index()`, whose return value goes into
+`parse(tagged, index)` and decides the `skills` field on all 77 equipment
+rows. And what it decided was wrong.
+
+### Chapter 3 leaves two rows OPEN, and that is what makes an instance a match
+
+| | |
+|---|---|
+| `Connoisseur` | printed once, `specialization: null`, `specializable: true`, *"Expert knowledge... in a specific field"* |
+| `Savoir-Faire` | printed once, `specialization: null`, `specializable: true`, *"Social graces (specify class)"* |
+
+Chapter 8 prices instances of both — *"+1 to Connoisseur (Books) when
+appraising tomes"*, *"+1 to Savoir-Faire (High Society); status marker"*. The
+join was a strict `(name, spec) in index`, so both read as skills chapter 3
+never printed and both bonuses were dropped. **Four of 23 fixtures buy
+Savoir-Faire and one buys exactly High Society**, so the Fortune Teller's own
+roll was offered nothing.
+
+**This is 6cz's defect on the WRITING side of the same join.** 6cz taught
+`Equipment.forSkill` that an open row is matched by its instance — its
+`isTemplate` reads `skills.json`'s `specializable` flag — and the extractor,
+which reads the same flag from the same file, was never taught. Not "a finding
+on the reader never run against the writer": it is **one predicate answered at
+two sites**, which is this repo's own recorded defect shape, and it says what
+to look for next — the two should agree by construction, not by both having
+been edited. The flag is now the single source both read, and
+`skill_index()` returns `{(name, spec): specializable}` so `key in index`
+still answers the old question with the new fact beside it.
+
+**The widening stops at the book's own line.** Navigation is printed three
+times — bare, `(Sea)`, `(Land)` — and marked NOT specializable, so the list
+enumerates its own instances and `Navigation (Air)` is a skill this book does
+not have. `joins()` asks the catalogue, never the parenthesis.
+
+### A committed test asserted the defect, quoting the fact that disproves it
+
+`test_a_specialization_is_part_of_the_identity` has pinned
+
+```python
+# The two the book writes the same way and chapter 3 leaves open.
+assert equipment_named("Rare book catalogue")["skills"] == []
+assert equipment_named("Fine clothes (quality)")["skills"] == []
+```
+
+since 6cx. **"chapter 3 leaves open" is the template condition**, written into
+the comment beside an assertion that the openness means no match. Another
+instance of 6do's shape — a test encoding a reason, expiring with it — and the
+inverse of this repo's usual "the tests knew and production did not".
+
+### The guard that ran one way
+
+`verify()` checked that no recorded exclusion RESOLVED, and never that every
+unresolved target is RECORDED. So a new clause naming a skill under a spelling
+chapter 3 does not print would be dropped in silence with `EXPECTED_ROWS`, the
+`PINNED_JOINS` and `JOINED_CLAUSES` all green — 6dh's blind-side class, in an
+extractor otherwise guarded to the teeth. `RECORDED_UNJOINED` closes it as one
+set built from three: rolls the book never prints as skills (`spot`, `fool
+officials`, `infection-resistance rolls`, `ritual effects`, and now
+`reaction`, the Velvet shawl's), skills chapter 3 omits (`Forced Entry`,
+`Gather Information`), and one it spells differently (`Fortune-Telling`).
+
+**The hyphenation seam is recorded, not resolved.** Naming it in a set is what
+lets the unresolved set be closed; the authority on the FACT stays the spelling
+pair already asserted at the bottom of `verify()`, so there is one check on one
+fact. Overturning that disagreement needs its own warrant and did not get one
+here — no fixture carries `Fortune Telling` at all.
+
+**The RED proof had to be an ADDITION, and the first attempt proved nothing.**
+The failure mode is a new drop appearing, not an old one going away, so the
+mutation appends a clause. The first one appended `+1 to Cryptography` — which
+IS in chapter 3's list, so it resolved and the guard never spoke. **A mutation
+has to land where the guard looks.**
+
+### Reachability, checked in three corpora rather than one
+
+- `Savoir-Faire (High Society)`: **live**. The Fortune Teller holds exactly
+  that instance and now sees the row; the Barmaid (Servant), the Foreman
+  (Worker) and the Librarian (Academic) correctly do not, which is the book's
+  own scoping and is asserted per sheet.
+- `Connoisseur (Books)`: correct, and **no carrier**. No fixture buys it, and
+  **the builder cannot produce a specialized instance at all** — its picker
+  passes `definition.specialization`, which is null for an open row, and prints
+  *"needs a specialization"* beside it. A missing producer (6cf, 6dp), not a
+  reachable row, and 6de's verdict died within the hour for claiming otherwise.
+
+### The review, and the device
+
+One LOW, taken, and it is the vacuity class again in a test written to be
+careful about it: `ABSENT_FROM_CHAPTER_3 <= unresolved` is forced by the
+equality two lines above, because `RECORDED_UNJOINED` is built from that set.
+What the union cannot see is a name recorded in TWO of the three sets — two
+records of one fact — so the assertion is now disjointness, RED-proved by
+putting `Fortune-Telling` in both.
+
+**Device-verified** on an SM-T570. The Fortune Teller's `Savoir-Faire (High
+Society)` roll prints:
+
+```
+Gear that names this skill (not applied):
+Fine clothes (quality) (£1 10s) — +1 to Savoir-Faire (High Society); status marker
+```
+
+### And the device found something the tests cannot
+
+Getting that line on screen took four wrong hypotheses, and the answer is
+**`MainActivity.kt:2195` — a `return@Column`** in `RollDialog`. Everything below
+it composes only once a result exists: the burn row (deliberately, "you may use
+this after seeing the result"), the conditional-burn note, and **the gear
+reference**. So chapter 8's rows are shown to the GM *after* the dice, when the
+one thing they are for is deciding a modifier *before* it. Recorded, not
+repaired: moving the block changes the reading order of a screen and the early
+return is load-bearing for the burn's own semantics, so it wants its own design
+review. **A rule can be applied, tested, wired to a caller, and still be shown
+at the wrong moment** — no test in this repo reaches a composable, and the
+first three hypotheses (stale APK, a failed content load, a key mismatch) were
+all disproved by one temporary `Log.w` that printed `rows=77 withSkills=34
+ref=1` while the screen showed nothing.
+
+**And the dump's scale is per WINDOW, which corrects yesterday's note.** 6du
+recorded that a `uiautomator dump` reports this device's sheet in a 900x1440
+space against a physical 1200x1920. True — and the DIALOG window is not the
+same: the sheet's Roll button at dump `(848,549)` is tapped at `(1130,732)`,
+a clean 4/3, while the dialog's Roll at dump `(787,1146)` is at roughly
+`(1024,1356)` and the 4/3 point `(1049,1528)` lands on the scrim and dismisses
+it. **One scale cannot drive both windows**, so a tap inside a dialog comes
+from a screenshot and is confirmed by the state it produces, never by
+arithmetic on the dump.
+
+**1691 Kotlin** (+1) and **345 Python** (+4), no compile warnings.
+
+### The next slice
+
+- **The `return@Column` above.** It is the sharpest thing this slice found and
+  it is a UI decomposition question, not a rules one: which of the three blocks
+  below that return belong to the pre-roll state, and where does a reference
+  list sit on a screen whose top half is the modifier picker.
+- **`Shaken`** (line 8030), still unchecked, unchanged from 6dt and 6du.
+- **The grapple-state surface** (6do), still the biggest named thing and still
+  a milestone rather than a slice.
+- The sibling-derivation sweep is **closed**: one derivation in ten, fixed, and
+  the other nine recorded as verify-only so the direction does not need
+  re-running.
+
 ## 6du. The one duration the table computes, and two sweeps that came back clean
 
 6dt named four things and this builds the second. Before it, the sweep 6dt
