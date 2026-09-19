@@ -6842,6 +6842,36 @@ Python**, all green. Chapter coverage is untouched, because nothing here
 claims a book line — which is the third measurement that **applying a rule and
 moving a percentage are different things** (6di, 6dk, 6dq).
 
+**No successor is named, and that is a verdict rather than an omission.** 6cp's
+rule is that a closing paragraph is the one part of this log nothing verifies,
+so this one states only what was checked. The census over all 196 unclaimed
+lines closes the question it was run to answer: there is no rule in this book
+that reaches nothing and that a census over those lines could see. The two
+real gaps the parameter sweep left are **features, not oversights, and both
+are already recorded in CLAUDE.md §6** — `Character.weapons` (weapons are not
+editable, which is what `ParryBlock` has been waiting on since M0) and
+`Character.secondaryDelta` (`SavedEdits` covers the four attributes and bought
+skills, and pp. 8-9 price six secondary characteristics nothing can buy).
+Either is a schema change to `SavedEdits` plus real UI, and **`SessionStore
+.load` discards the WHOLE file on a decode failure**, so either has to widen
+additively or drop every existing save — the same constraint 6cb recorded for
+the instanced traits.
+
+So the next slice needs a fresh sweep, and every direction already run expires
+rather than standing: fields for a reader (6ai), functions for a caller (6cf),
+rows for a consumer (6ci), files for a loader (6dg), strings a screen types
+(6cq), seams between claimed spans (6ba), rules the app contradicts, what the
+tests know that production does not (6bz), and now parameters with no
+non-default argument (6dz). One grep per named artefact is what checking this
+paragraph costs.
+
+**One loose end, stated so it is not inherited as settled:** the divination
+backlash disappearing when a push clears a critical failure is correct by
+construction — `Result` is handed `backlash?.takeIf { answer.isCritical }` —
+and has not been seen on a device, because a margin-based critical failure on
+a target a push can carry is a state a 3d6 roll reaches rarely. It is a
+reading of two lines, not a test and not a device check.
+
 ---
 
 ## 6dy. The rule three screens printed a price for and never sold

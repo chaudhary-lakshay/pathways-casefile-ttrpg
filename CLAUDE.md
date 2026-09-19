@@ -141,7 +141,13 @@ own wiring: deleting the `gmValue` argument left every test green. Read 6dz
 also for a dead `to == from` branch deleted along with the test guarding it,
 and for why NOT auto-incrementing the repeat count on "Ask again" is correct.
 **Device-verified on an SM-T570**: `circumstances -6` to `-4` on a +2 pick,
-the target 16 to 18, and `Range and cover: -9`.
+the target 16 to 18, and `Range and cover: -9`. **No successor is named, and 6dz says
+so as a verdict**: the census closes, and the two real gaps the parameter
+sweep left are features already recorded in section 6 — weapons and the six
+priced secondary characteristics, both blocked behind an ADDITIVE `SavedEdits`
+widening, because `SessionStore.load` drops the whole file on a decode
+failure. The next slice needs a fresh sweep; every direction already run
+expires rather than standing.
 
 **6dy is next, and it is a scoping sentence that was a claim about this app.**
 `EffortBurn`'s KDoc kept the post-roll SPI push on the plain skill roll because
