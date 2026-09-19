@@ -6905,10 +6905,23 @@ and it is the one sweep this repo has now run exactly once.
 
 **1701 Kotlin** (1215 `core:rules`, 466 `app`, 20 `core:model`) and **347
 Python**, all green, counted from the JUnit XML after a full unfiltered run.
-Build warnings: none. **Not device-verified** — read 6dy as compiles,
-unit-tested, reviewed twice, not rendered. The three push rows, the settlement
-on rotation, and the divination backlash disappearing when a push clears the
-critical are all Compose behaviour no test in this repo can reach.
+Build warnings: none.
+
+**Device-verified on an SM-T570, on both screens, and the arithmetic is the
+proof.** Apothecary drinking Hermit Sequence 9 (Ritualistic Magic 14,
+Divination Arts 20, SPI 18). Divination, Extreme question and Complex scope,
+target 10: *"3d6: 12 vs 10 — Failure by 1-4 — Murky"*, then **+2** gives
+*"3d6: 12 vs 12 — Success by 0-2 — Vague"*. **The total did not move and the
+target did**, which is the whole rule, and the band was re-read with it. Ritual,
+Light weight, target 14: *"3d6: 11 vs 14"*, then **+1** gives *"11 vs 15"*.
+The pool tells the rest: SPI went 18 → 15 (1 Pendulum fuel + 2 pushed) → 12
+(2 ritual fuel + 1 pushed). **Each push charged exactly once, at close, on top
+of a fuel cost it never touched.** The push row prints its own chapter's note
+on each screen (*"Separate from the method's cost"* / *"the ritual's fuel"*).
+
+What is still unverified on a device: the rotation path through
+`DisposableEffect`, and the divination backlash disappearing when a push
+clears a critical failure — both need a state a 3d6 roll reaches rarely.
 
 ---
 

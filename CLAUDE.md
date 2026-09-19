@@ -141,8 +141,12 @@ regression the design review did not reach**: `remember` does not survive the
 dialog leaving composition and leaving composition is not a dismiss request, so
 a rotation dropped the CoR the roll owed — which the pre-deferral version
 charged at the roll and could not lose. `DisposableEffect { onDispose { … } }`
-closes every in-app path; process death is a stated bound. **Not
-device-verified.**
+closes every in-app path; process death is a stated bound. **Device-verified
+on an SM-T570 on both screens**: a divination went `12 vs 10` (Murky) to
+`12 vs 12` (Vague) on a +2 with the TOTAL unmoved, a ritual `11 vs 14` to
+`11 vs 15` on a +1, and SPI ran 18 → 15 → 12, which is each fuel cost plus
+each push charged exactly once at close. The rotation path and a push clearing
+a critical failure are the two states a 3d6 roll did not reach.
 
 **6dy also closes the coverage question with a census rather than a
 percentage.** All 196 unclaimed mechanical lines are accounted for in one table
