@@ -6973,7 +6973,24 @@ goes away by being asked about, per test, in the review prompt.**
 
 **Every unclaimed mechanical line in the book is now accounted for, and this is
 the list.** `tools/coverage.py` reports 196 across nine chapters. Read as a
-work queue it is a lie; read as a proxy it is finished. Fourteen candidates
+work queue it is a lie; read as a proxy it is finished.
+
+**That claim was written before it was true, and the correction is the more
+useful half.** The first version of this table covered fourteen candidate
+clusters plus three bulk categories — about 155 of the 196 — and the sentence
+above it said "every". Ten chapters' worth of lines were outside the corpus it
+was written from, including **Appendix C, which reads 0.0%, is claimed by no
+content file, and was not in the table at all** — 6db's finding exactly, an
+unread chapter filtered out of the sweep that exists to find unread chapters.
+6dn's shape in a paragraph written four slices after 6dn. The remaining ~40
+were triaged the same way and every one resolves; the table below is the
+complete one, and **Appendix C's two lines are the most interesting thing in
+it**: they are `(expelled post-1350)` and `(pre-1352)`, so that chapter's 0.0%
+is **two dates the `MECHANICAL` filter read as signed numbers.** A political
+and ecclesiastical chapter with no rules content in it reads 0.0% forever, and
+the number says nothing about whether it was read.
+
+Fourteen candidates
 were put to a read-only census (Codex `gpt-6-astra` at `xhigh`, each verdict
 required to cite `file:line` or name a grep that returned nothing), and twelve
 came back settled before a line was written:
@@ -6996,6 +7013,18 @@ came back settled before a line was written:
 | ch. 3's 56, App. A's ladder rows | the attribute and skill ladders | arithmetic, so they read unclaimed forever (6cy, 6dp) |
 | ch. 8's 19 | four equipment tables | refused in `Equipment.UNMODELLED` (6cx) |
 | 9667, 9672, 9723 | facing penalties, the Major Wound summary, SPI recovery | refused in 6da, recorded as a disagreement in 6dl, refused in `Pools.UNMODELLED` in 6dq |
+| 234, 266, 273, 350 | *"three six-sided dice (3d6)"*, the Stealth 12 example, the "-2 to Stealth" example | ch. 1-2 prose and worked examples of `SuccessRoll` |
+| 2309, 2339 | Spirit Vision's cost printed a second time, and rest recovering 1 SPI | 6dq: the second printing says strictly less, and the rate is `Pools.UNMODELLED` |
+| 3548, 3550 | *"Divination Arts costs 1-2 SPI per use"* | prose summarising `divination_methods.json`, which prices each method |
+| 2375 | initiative, *"Roll 1d6 — higher goes first"* | refused: no initiative, no map, no turn counter (`HOW-TO-PLAY`'s own list) |
+| 2379, 2540-2541, 2598, 2629-2643 | Combat Reflexes' +1, the Brawling and Wrestling defaults and parries, and the Summary: Melee Skill Comparison restating all three | `ActiveDefenses`, `SkillLadder.defaultFor`, `ParryBlock.unarmedParry` |
+| 2645-2646 | the ranged prose intro, *"TL5+1 weapons"* | setting prose; the rows are `Ranged` |
+| 2695-2696 | the HP ladder in prose, to `-5xHP` | `VitalRolls` and `pool_thresholds.json`, whose last row is *"Dead — no roll required"* |
+| 2842-2852 | the FP table's rows | applied in Kotlin since 6h and 6dc (`Pools.isFatigued`, `halvedForFatigue`), which `coverage.py` cannot see |
+| 2902, 2917 | the Fright Check's prose and *"3d6 + margin of failure"* | `FrightCheck.against` / `.effectFor` |
+| 4360 | the `Critical Failure Table (3d6)` heading | a table heading; its rows are `ritual_critical.json` |
+| 4407-4419 | typical maximum SPI by Sequence, and a worked comparison | prose bands ("Seq 9 = 3-6") the sheets settle per character |
+| 9953, 10010 | `(expelled post-1350)`, `(pre-1352)` | **dates.** Appendix C's whole 0.0% is the filter reading two years as signed numbers |
 
 **Read that table as a claim with an expiry date, not as a clean bill.** Three
 of its rows are refusals whose stated reason is a claim about this app rather
@@ -7004,7 +7033,7 @@ than about the book — the exact shape this very slice overturned — and 6da,
 watching it die. The cheap version of that check is one grep per row. What the
 table does close is the question *"is there a rule in this book that reaches
 nothing and nobody has looked at it"*: there is not one left that a census over
-these fourteen could see.
+all 196 could see.
 
 **What it cannot see is what found this slice.** A rule can be extracted,
 loaded, tested, documented, reachable from a called function, and still be
@@ -7014,12 +7043,29 @@ functions for a caller (6cf), rows for a consumer (6ci), files for a loader
 (6dg), strings a screen types (6cq) — and every one of them is blind to a
 **parameter with no non-default argument**. That query is:
 
+**two** steps, and the grep alone is not it — recording only the grep would be
+a count without its query (6df), in the paragraph naming that lesson:
+
 ```bash
-# every optional parameter in core/rules, against every call site in app/
-grep -rnoE '\b[a-z][A-Za-z]*: [A-Za-z<>?]+ = [^,)]+' core/rules/src/main/kotlin --include=*.kt
+# 1. ENUMERATE the optional parameters. This is the candidate list, not the
+#    finding list: 369 in core/rules + core/model on the run this slice made.
+grep -rnoE '\b[a-z][A-Za-z]*: [A-Za-z<>?]+ = [^,)]+' \
+  core/rules/src/main/kotlin core/model/src/main/kotlin --include=*.kt
+
+# 2. For each, look for a call site passing a NON-default value, in
+#    app/src/main (the only UI) and core/rules/src/main (internal composition
+#    counts as production). A call in src/test does NOT count as reachable.
 ```
 
-and it is the one sweep this repo has now run exactly once.
+**with three exclusions, which are the difference between 369 and the 194 that
+were actually checked**, and without which a re-run cannot reproduce 36 or 5:
+
+- a parameter whose default is a `ContentLoader` call, and every `RandomSource`
+  — those are injection seams this repo builds on purpose;
+- a parameter on a function with no production caller at all, which belongs to
+  6cf's sweep rather than this one.
+
+It is the one sweep this repo has now run exactly once.
 
 **1701 Kotlin** (1215 `core:rules`, 466 `app`, 20 `core:model`) and **347
 Python**, all green, counted from the JUnit XML after a full unfiltered run.
@@ -7037,9 +7083,34 @@ The pool tells the rest: SPI went 18 → 15 (1 Pendulum fuel + 2 pushed) → 12
 of a fuel cost it never touched.** The push row prints its own chapter's note
 on each screen (*"Separate from the method's cost"* / *"the ritual's fuel"*).
 
-What is still unverified on a device: the rotation path through
-`DisposableEffect`, and the divination backlash disappearing when a push
-clears a critical failure — both need a state a 3d6 roll reaches rarely.
+**The third screen and the rotation path were verified afterwards, and the
+rotation is the one that mattered.** `BoonDialog` got the same treatment and
+had never been rendered — *"The prayer fails — 3d6: 13 vs 12"* became **"The
+boon is granted — 3d6: 13 vs 13"** on a +1, with the title, the verdict and
+the consequence block all re-derived, and SPI went 6 → 1 (4 fuel + 1 push). It
+offered **only +1 and +2**, because 2 SPI was all the caster had left: the
+pool bound `EffortBurn.affordable` applies reaches a third screen.
+
+**Rotation settles.** With a ritual result on screen and +2 pushed but
+uncharged, rotating to landscape and back destroys the activity and takes the
+dialog's `remember` with it — and SPI came back 10 → 6, which is that ritual's
+2 fuel plus the 2 pushed, charged exactly once through
+`DisposableEffect { onDispose { settle() } }`. Without it those 2 were simply
+lost, and so was the CoR a critical failure would have owed. **The stale-
+capture worry does not bite**: the closure captures composition #1's callbacks,
+and those are `BeyonderSession` methods on an object that outlives the
+activity, not inline lambdas over dead state.
+
+What is still unverified on a device: the divination backlash disappearing
+when a push clears a critical failure, which needs a state a 3d6 roll reaches
+rarely.
+
+**And the device taught the scale lesson again.** The `+2` chip's `uiautomator`
+bounds times 4/3 — the factor that is correct for the activity window — put the
+tap 200px low, on nothing, three times in a row, which is indistinguishable
+from a chip that does not respond. **The dialog window's factor is about
+1.126**, and the way through is the one the memory already records: take the
+coordinate off the SCREENCAP, never off the dump.
 
 ---
 

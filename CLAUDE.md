@@ -176,14 +176,25 @@ closes every in-app path; process death is a stated bound. **Device-verified
 on an SM-T570 on both screens**: a divination went `12 vs 10` (Murky) to
 `12 vs 12` (Vague) on a +2 with the TOTAL unmoved, a ritual `11 vs 14` to
 `11 vs 15` on a +1, and SPI ran 18 → 15 → 12, which is each fuel cost plus
-each push charged exactly once at close. The rotation path and a push clearing
-a critical failure are the two states a 3d6 roll did not reach.
+each push charged exactly once at close. **The third screen and the rotation path were
+verified after that**: `BoonDialog` had never been rendered and turns *"The
+prayer fails — 13 vs 12"* into *"The boon is granted — 13 vs 13"* on a +1
+(SPI 6 → 1, 4 fuel plus 1 pushed, and it offered only +1 and +2 because 2 was
+all the caster had); and rotating with 2 pushed but uncharged took SPI 10 → 6,
+so `DisposableEffect` charges exactly once on a path that has no dismiss
+request. Only the divination backlash clearing on a push is still unreached.
 
 **6dy also closes the coverage question with a census rather than a
 percentage.** All 196 unclaimed mechanical lines are accounted for in one table
 in the slice log — twelve of fourteen candidates came back SETTLED before a
-line was written, citing `file:line` or a grep that returned nothing. **Read
-that table as a claim with an expiry date**: three of its rows are refusals
+line was written, citing `file:line` or a grep that returned nothing. **That
+table's first version said "every" over a corpus of about 155 of the 196**,
+and Appendix C — 0.0%, claimed by nothing — was not in it at all, which is
+6db's finding in a paragraph written four slices after 6db. The remaining ~40
+are triaged in it now, and Appendix C's two lines turn out to be **dates**:
+`(expelled post-1350)` and `(pre-1352)`, read by the filter as signed
+numbers, so that chapter's whole percentage is an artefact. **Read the table
+as a claim with an expiry date**: three of its rows are refusals
 whose stated reason is a claim about this app, which is the exact shape 6dy
 itself overturned, and 6da, 6dj, 6dl, 6dq and 6dr each began by re-running one
 such reason as a query and watching it die. One grep per row is what checking

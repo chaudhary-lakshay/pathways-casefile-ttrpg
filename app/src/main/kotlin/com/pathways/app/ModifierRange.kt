@@ -31,8 +31,17 @@ internal fun endsBetween(from: Int, to: Int?): List<Int> {
  *
  * One is the row itself: "Previous divination about the same subject
  * (cumulative) -2 per repeat" prices the repeat that is happening, so
- * ticking the chip is already one. Four is where the offer stops, for the
- * reason the burn's own stepper stops at four -- the book names no ceiling,
- * and a stepper running to a hundred is not a choice made at a table.
+ * ticking the chip is already one. Four is where the offer stops, because the
+ * book names no ceiling and a stepper running to a hundred is not a choice
+ * made at a table.
+ *
+ * **That ceiling is harder here than the burn's, and the difference is
+ * deliberate.** `BurnRow` offers four as an INCREMENT, so a caster who taps
+ * twice has spent eight; this is a terminal selection, so a seventh repeat is
+ * unexpressible. The narrower reading ships because the penalty grows without
+ * limit and the row is the GM's declaration about history rather than a
+ * purchase -- a diviner who has asked the same question seven times is in
+ * territory the screen should hand back to the GM rather than price. Widen it
+ * the day a table asks, not on the strength of the symmetry.
  */
 internal fun repeatChoices(): List<Int> = (1..4).toList()
