@@ -91,12 +91,8 @@ private fun GrantedBlock(block: SequenceBlock) {
     }
 }
 
-/** The ends a ranged option offers, nearer zero first ("+1 to +3" -> 1, 2, 3). */
-private fun endsOf(row: BoonModifier): List<Int> {
-    val best = row.best ?: return listOf(row.modifier)
-    return if (best > row.modifier) (row.modifier..best).toList()
-    else (row.modifier downTo best).toList()
-}
+/** The ends a ranged option offers, the row's own figure first. */
+private fun endsOf(row: BoonModifier): List<Int> = endsBetween(row.modifier, row.best)
 
 /**
  * Petition a Hidden Existence for a boon (Ch. 13, p. 144-145).

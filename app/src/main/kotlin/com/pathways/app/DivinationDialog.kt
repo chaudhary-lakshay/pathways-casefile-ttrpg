@@ -15,6 +15,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -129,6 +130,16 @@ fun DivinationDialog(
     // with the method, or a 2 chosen for the rods would follow them onto a
     // method that costs 1 (Codex).
     var spiChoice by remember(method) { mutableIntStateOf(method.spi) }
+    // What the GM picked inside a printed range, by the row's own `source`.
+    // Four of this table's rows print a span and the screen applied the first
+    // figure of each, so ticking "Method match +0 to +2" added +0 -- a control
+    // whose only effect was nothing. `BoonDialog` has had the picker since
+    // 6bk; this table never got it.
+    val picked = remember { mutableStateMapOf<String, Int>() }
+    // "Previous divination about the same subject (cumulative) -2 per repeat".
+    // The row prices one repeat and the engine multiplies; without this the
+    // second attempt cost what the first did.
+    var repeats by remember { mutableIntStateOf(1) }
     // p. 55: "As with rituals, you may spend additional SPI (1 SPI = +1, no
     // cap) after seeing your result." Accumulated here and charged at [finish].
     var burned by remember { mutableIntStateOf(0) }
@@ -189,7 +200,14 @@ fun DivinationDialog(
     // The cost is known before the penalty, because the penalty depends on
     // it: the book pays in Step 2 and rolls in Step 3.
     val cost = Divination.spiFor(method, spiChoice)
-    val circumstances = Divination.modifierTotal(rows.filter { it.source in chosen }) +
+    val picks = rows.filter { it.source in chosen }
+    // Only what is ticked RIGHT NOW: filtering here rather than pruning
+    // [picked] on every change means no path can leave a value behind to
+    // modify a later question -- the defect the attack dialog's "Another turn"
+    // shipped with, and the reason `BoonDialog` builds its overrides this way.
+    val overrides = picks.mapNotNull { row -> picked[row.source]?.let { row.source to it } }
+        .toMap()
+    val circumstances = Divination.modifierTotal(picks, overrides, repeats) +
         conditionPenaltyAfterSpending(cost)
     // Ch. 6.5 p. 55's supporting skills. Named on their own rather than folded
     // into `circumstances`, because the breakdown line has to add up to the
@@ -377,6 +395,46 @@ fun DivinationDialog(
                             },
                             modifier = Modifier.padding(end = 8.dp),
                         )
+                    }
+                }
+                // The second row of chips appears only for a span that is
+                // ticked: an untouched table reads as it always did, and a
+                // row printing one number gets no picker at all.
+                picks.filter { it.best != null }.forEach { row ->
+                    Text(
+                        "${row.source.substringBefore(" (")} — pick a value",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    FlowRow {
+                        endsBetween(row.modifier!!, row.best).forEach { value ->
+                            FilterChip(
+                                // The row's own figure is what the engine
+                                // applies when nothing is picked, so the chip
+                                // showing selected is the one being used.
+                                selected = (picked[row.source] ?: row.modifier) == value,
+                                onClick = { picked[row.source] = value },
+                                label = { Text(signed(value)) },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                }
+                if (picks.any { it.perRepeat }) {
+                    Text(
+                        "How many times this subject has been divined before",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    FlowRow {
+                        repeatChoices().forEach { count ->
+                            FilterChip(
+                                selected = repeats == count,
+                                onClick = { repeats = count },
+                                label = { Text("x$count") },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
                     }
                 }
 

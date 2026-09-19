@@ -136,6 +136,12 @@ fun AttackDialog(
     // say what the weather is, which is the printed-and-not-applied defect in
     // miniature.
     var darknessCause by remember { mutableStateOf(DarknessCause.DARKNESS) }
+    // "Darkness or heavy fog: -3 to -9 depending on severity". The screen
+    // applied -3 and the other six were unreachable, although `Ranged` has
+    // taken a `gmValue` for this row -- and validated it against the printed
+    // ends -- since the row was extracted. Null is "the GM has not said",
+    // which is the row's own first figure.
+    var darknessSeverity by remember { mutableStateOf<Int?>(null) }
     // Null is the Torso: the book's own default, and the row it prints at +0.
     // A called shot survives the reach/range toggle -- unlike distance and
     // cover, "aiming at the skull" means the same thing with a fist or a gun.
@@ -274,7 +280,9 @@ fun AttackDialog(
                     aimCancelled = aimCancelled,
                     darknessCause = darknessCause,
                     darknessReduction = darknessReduction,
+                    darknessSeverity = darknessSeverity,
                     onDarknessCause = { darknessCause = it },
+                    onDarknessSeverity = { darknessSeverity = it },
                     location = location,
                     onAttack = {
                         unarmed = it
@@ -358,7 +366,7 @@ fun AttackDialog(
                         // lands, so the NEXT turn feels it.
                         val mods = conditions(chosen.key) +
                             Attacks.modifiers(plan, chosen.value, unarmed) +
-                            rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled, darknessCause, darknessReduction) +
+                            rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled, darknessCause, darknessReduction, darknessSeverity) +
                             meleeModifiers(plan, circumstances) +
                             listOfNotNull(location?.let(Wounds::modifier))
                         // A fresh roll starts with a fresh +5 budget per roll.
@@ -395,7 +403,9 @@ private fun AttackOptions(
     aimCancelled: Boolean,
     darknessCause: DarknessCause,
     darknessReduction: Int,
+    darknessSeverity: Int?,
     onDarknessCause: (DarknessCause) -> Unit,
+    onDarknessSeverity: (Int) -> Unit,
     location: HitLocation?,
     onAttack: (UnarmedAttack) -> Unit,
     onArmed: (Armed?) -> Unit,
@@ -471,10 +481,12 @@ private fun AttackOptions(
                 aimCancelled,
                 darknessCause,
                 darknessReduction,
+                darknessSeverity,
                 onBand,
                 onCircumstance,
                 onAimCancelled,
                 onDarknessCause,
+                onDarknessSeverity,
             )
         } else {
             Stepper("Rapid Strike", plan.rapidStrikes, "${Attacks.RAPID_STRIKE_PENALTY} each") {
@@ -552,7 +564,7 @@ private fun AttackOptions(
         val total = Attacks.modifiers(plan, skillLevel, unarmed)
             .sumOf { (it.effect as ModEffect.Flat).n }
         val count = Attacks.attackCount(plan)
-        val fromRange = rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled, darknessCause, darknessReduction)
+        val fromRange = rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled, darknessCause, darknessReduction, darknessSeverity)
             .sumOf { (it.effect as ModEffect.Flat).n }
         Text(
             "Attack options: ${if (total == 0) "no modifier" else signed(total)}" +
@@ -731,10 +743,12 @@ private fun RangedOptions(
     aimCancelled: Boolean,
     darknessCause: DarknessCause,
     darknessReduction: Int,
+    darknessSeverity: Int?,
     onBand: (RangePenalty) -> Unit,
     onCircumstance: (String) -> Unit,
     onAimCancelled: () -> Unit,
     onDarknessCause: (DarknessCause) -> Unit,
+    onDarknessSeverity: (Int) -> Unit,
 ) {
     val bands = remember { Ranged.bands() }
     // What the book still allows, decided in rules: a screen filtering its own
@@ -769,6 +783,28 @@ private fun RangedOptions(
     // Offered only to a character the trait can help, and only once the row
     // it modifies is actually selected: nobody else has anything to declare,
     // and the row itself is never withdrawn from them.
+    if (DARKNESS_ROW in circumstances) {
+        val row = Ranged.conditions().single { it.condition == DARKNESS_ROW }
+        Text(
+            "How bad is it?",
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+        FlowRow {
+            endsBetween(row.modifier!!, row.worstCase).forEach { value ->
+                FilterChip(
+                    // Unset shows the row's own figure selected, because that
+                    // is the one the roll is using.
+                    selected = (darknessSeverity ?: row.modifier) == value,
+                    onClick = { onDarknessSeverity(value) },
+                    label = { Text(signed(value)) },
+                    modifier = Modifier.padding(end = 8.dp),
+                )
+            }
+        }
+    }
+    // Offered only to a character the trait can help, and only once the row
+    // it modifies is actually selected.
     if (darknessReduction > 0 && DARKNESS_ROW in circumstances) {
         Text(
             "What is it?",
@@ -902,6 +938,7 @@ private fun rangedModifiers(
     aimCancelled: Boolean,
     darknessCause: DarknessCause,
     darknessReduction: Int,
+    darknessSeverity: Int?,
 ): List<com.pathways.model.Modifier> {
     if (!plan.isRanged) return emptyList()
     // The chosen band is passed whole, never re-looked-up by its lower bound:
@@ -909,6 +946,11 @@ private fun rangedModifiers(
     return Ranged.modifiers(
         band = band,
         conditions = Ranged.conditions().filter { it.condition in circumstances },
+        // Keyed by the row's own condition, and only when the GM has said --
+        // an empty map is what the engine already treats as "take the row's
+        // figure", so there is one authority on that default and it is not
+        // this screen.
+        gmValue = darknessSeverity?.let { mapOf(DARKNESS_ROW to it) } ?: emptyMap(),
         weaponAcc = weaponAcc,
         aimCancelled = aimCancelled,
         darknessCause = darknessCause,
