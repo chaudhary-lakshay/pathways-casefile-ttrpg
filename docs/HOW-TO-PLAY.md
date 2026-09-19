@@ -63,6 +63,26 @@ Critical rules are the book's: 3-4 always succeed, 17-18 always fail — except
 where a specific table overrides them, which the app follows over the general
 rule.
 
+**Push the roll (chapter 2, p. 9).** After the dice are on the table you may
+buy the result up: **1 FP for +1** on a ST, DX or HT roll, at most +5, or
+**1 SPI for +1** on a spiritual one, with no cap the book prints. You cannot
+spend both on the same roll, so the app offers whichever pool the skill's own
+row names and nothing on a roll named by neither — an IQ, Will or Per skill
+gets no push, which is why the row is missing rather than empty there.
+
+It raises the **target**, never the dice: the same total is re-read against a
+higher number, which is what "after seeing your result" means. Spend nothing
+and the roll stands. The SPI side stops at what you actually have — personal
+spirituality cannot go below zero — while FP is allowed past it, because the
+book charges 1 HP for every point below 0 rather than forbidding it.
+
+The same push is offered on **Ritual**, **Boon** and **Divine**, where the
+book prints it again in each chapter's own words. There it is charged **when
+you close the dialog**, not on each tap, and it is separate from the fuel that
+screen already took. Closing is also when a critical failure's Corruption is
+charged — because a push can take a ritual off the Critical Failure Table
+entirely, and you should not pay for a disaster you bought your way out of.
+
 **Gear that names this skill (not applied).** Under the roll you may see lines
 from chapter 8's equipment table — "Magnifying glass (3s) — +1 to Search for
 fine details". Those are printed for you to read, and the app does not add
@@ -173,14 +193,23 @@ penalty at the thresholds the book prints, and prices the SPI. Quick and Full
 preparation are two different tables with two different link rules.
 
 Failures roll on their own table (backlash, spiritual drain, and worse), and
-criticals on theirs.
+criticals on theirs — and both can still be pushed (see **Push the roll**
+above). A rolled 17 or 18 cannot: that row is named for the dice rather than
+the margin, so it is taken against any target and no amount of SPI moves it.
+The app withholds the row rather than selling you a point that buys nothing.
 
 ### Divine
 
 Choose the method and difficulty, add the modifiers the GM allows, and roll.
 Clarity is read off the result. Divining a Beyonder stronger than you is harder
 per their Sequence, and at the top of the ladder only a critical success can
-work at all — the app demotes the roll rather than pretending.
+work at all — the app demotes the roll rather than pretending. Under that rule
+no push is offered either, for the same arithmetic: a burn moves the target and
+never the dice, so it can never reach the 3 or 4 the rule demands.
+
+Everywhere else it is offered, a critical success included — the clarity table
+prints no critical row and grades one by margin like any other, so a point
+still buys a clearer answer.
 
 ### Boon
 

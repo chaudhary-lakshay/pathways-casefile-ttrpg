@@ -6726,6 +6726,192 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dy. The rule three screens printed a price for and never sold
+
+**The finding: a scoping sentence that was a claim about this app, and the
+claim was false the whole time.** `EffortBurn`'s KDoc justified belonging to
+the plain skill roll alone with *"A ritual and a divination keep charging their
+own burn, because offering this one as well would charge a single point of
+effort twice."* Both halves of that are good rules. The premise was not true of
+this codebase:
+
+- `DivinationDialog.kt:186` called `Divination.spiFor(method, spiChoice)` with
+  `burned` defaulted; `RitualDialog.kt:229` and `BoonDialog.kt:157` the same.
+- No `BurnRow`, no burn chip, and no `burned` identifier in any of the three.
+- `Divination.attempt(..., burned)` had **no non-default caller** anywhere in
+  `app/`.
+
+So a Beyonder who rolled a ritual was told about the push on one screen
+(`RollDialog` has offered it since 6ar) and denied it on the next. This is
+6dr's shape a second time — *a refusal whose reason is a claim about the app,
+and nothing ever re-reads those* — and it is why that lesson now sits in
+`EffortBurn`'s own KDoc rather than only in this log.
+
+**The two halves disagreed in opposite directions, which is the sharper half
+of the finding.** `Divination.attempt` added `burned` to the target BEFORE
+`SuccessRoll.against`, so its "burn" was a PRE-commitment — a different
+decision from the one the book prints, because the whole point of the rule is
+that the dice are already on the table. `RitualResolution.attempt` took no
+`burned` at all, while `RitualResolution.spiFor(weight, chosen, burned)` would
+happily charge for it: **the ritual's charge was implemented and its bonus was
+not.** A parameter that only costs is worse than a missing one.
+
+**The book prints this five times and the extraction had all five.** Lines 393
+(ch. 2, the general form), 3708 (ch. 6.5), 4105 (Quick Ritual), 4145 (Full
+Ritual Phase II) and 4268 (Power Source A). Three of the five are inside
+claimed spans. So no coverage number could report this, and no content sweep
+could either — it is a rule the engine holds, correctly, and no screen asks
+for. 6cf's "every public rules function checked for a UI caller" sweep is one
+unit too coarse to see it: the functions HAD callers. **The unit that finds it
+is a PARAMETER checked for a non-default argument.** That is a sweep direction
+this repo had not run, and it is the deliverable to inherit.
+
+**Boons arrive by referral, not by resemblance.** Chapter 13 prints no burn
+sentence — grepped, pages 144-146, and the only SPI it prints is the Effect
+Weight row and the Dancer's ability costs. The temptation was to reason from
+`Boons.weight()` returning a `RitualWeight`, i.e. from the two screens looking
+alike, which is exactly the warrant 6cx returned NO-SHIP on. The real warrant
+is a sentence: book line 8933, *"The boon granting ritual uses the standard
+Ritualistic Magic system (see Chapter 7)"* — chapter 13's own first line about
+the procedure — and ch. 2's SPI row naming **Ritualistic Magic** outright at
+line 392. What chapter 13 fixes is the baseline (Heavy complexity, Moderate
+weight); it replaces no part of chapter 7 it does not name. **A silence is not
+an absence of authority when the chapter has already delegated.**
+
+**`canPush` is arithmetic on both objects, and it is arithmetic in opposite
+directions.** A ritual's rolled 17-18 takes `failures.single { it.critical }`
+whatever the target and carries no -2 to adjust, so nothing a caster spends
+there buys anything — `EffortBurn.canPush`'s own stated reason, applied to a
+different sum. A divination's **critical SUCCESS is pushable**, because the
+clarity table prints no critical row and grades one by margin like any other;
+copying `EffortBurn.canPush` wholesale would have refused it. Same function
+name, opposite answer, and the design review caught the copy before it shipped.
+
+**The Critical Failure Table's roll is a second sample, not derived data.**
+`RitualOutcome.criticalRoll` is 3d6 taken at resolution and shifted by -2. A
+push shrinks the margin, so a severe misfire can leave that table entirely.
+Re-rolling on the pushed path would hand the caster a fresh chance at a milder
+row the book never offered; keeping it on a result that no longer reaches the
+table would leave a GM reading a disaster the caster spent SPI to avoid. So it
+is **re-used or dropped, never re-sampled**, and because a push can only
+shrink the margin, needing a sample that was never taken is impossible and is
+`requireNotNull`-asserted rather than handled. RED-proved by flipping `pushed`
+to widen the margin: the guard raised `IllegalArgumentException` at the call
+site, read from the message and not from the exit code (6du).
+
+**The deferral of the CoR is the part that needed a design review, and then a
+diff review on top.** Charging the critical row's CoR at the roll — where it
+used to be, correctly, before this slice — would leave corruption paid for a
+consequence the caster then spent SPI to avoid. So it moves to one settlement
+point per dialog. The first draft wired that to Close and `onDismissRequest`
+and **that was not enough**: `remember` does not survive the dialog leaving
+composition, and leaving composition is not a dismiss request, so a rotation
+dropped both the pushed SPI and the CoR the roll owed. The CoR half was a
+**regression this slice introduced** — the pre-deferral version charged it at
+the roll and could not lose it. `DisposableEffect { onDispose { settle() } }`
+closes every in-app path; process death still loses it, and loses the outcome
+with it, which is where that bound is stated rather than skipped.
+
+**Two taps beat one recomposition.** The push row's callback pushed the
+outcome CAPTURED when the row was composed, so two quick taps each started
+from the same value: the second overwrote the first, charging 2 SPI for +1,
+and the affordability the chips were drawn against was equally stale. Reading
+the LIVE state inside the callback fixes both — the `val live = out ?:
+return@BurnRow` idiom `RollDialog` has used since 6ar, which is the third time
+this repo has needed it and the first time it was found by a reviewer rather
+than by a player.
+
+**The SPI is accumulated and charged once, rather than charged per tap.** The
+diff review's prescription was an owner-side `trySpendSpi(points): Boolean`
+that checks and debits atomically; what ships accumulates in dialog-local state
+and settles once, which has no check-then-act window to close because nothing
+else spends during the push window. **Take a reviewer's diagnosis over its
+prescription** (6cz) — the invariant is theirs, the mechanism is smaller.
+
+**Reviews.** Design review (Codex `gpt-6-astra`, `model_reasoning_effort=xhigh`)
+before any code: it supplied the chapter 13 warrant I did not have, returned
+NO-SHIP on wiring push buttons into the ritual lifecycle as it stood, and
+NO-SHIP on affordability that relies only on rendered chips. Diff review after:
+one HIGH (disposal), one MEDIUM (the captured outcome), one LOW (unchecked
+`Int` addition on the target — `Math.addExact` now, as `spiFor` already used
+for the same wrap) and four LOWs on my own tests, every one of them a name
+claiming more than its assertions checked:
+
+- *"refuses one"* asserted the demoted verdict, which a push that HAPPENED also
+  satisfies; it asserts the whole outcome comes back unchanged now.
+- *"still has a band to improve"* used a fixture already at the top band, so a
+  no-op push passed; skill 1 on a Trivial (+2) question is a target of 3, and
+  three 1s is a critical success at the MILDEST band.
+- *"a rolled 17 or 18"* exercised only the 18, so a threshold slipping to 18
+  would have left 17 pushable with the test still green.
+- *"improves the success band"* checked inequality, which `null` also satisfies.
+
+That is the thirteenth, fourteenth, fifteenth and sixteenth vacuous-or-overclaiming
+assertion this log has recorded, all four in tests written by an author who
+knew about the other twelve. **The class does not go away by being known; it
+goes away by being asked about, per test, in the review prompt.**
+
+`--- the census ---`
+
+**Every unclaimed mechanical line in the book is now accounted for, and this is
+the list.** `tools/coverage.py` reports 196 across nine chapters. Read as a
+work queue it is a lie; read as a proxy it is finished. Fourteen candidates
+were put to a read-only census (Codex `gpt-6-astra` at `xhigh`, each verdict
+required to cite `file:line` or name a grep that returned nothing), and twelve
+came back settled before a line was written:
+
+| Book lines | Rule | Verdict |
+|---|---|---|
+| 2454 | Parry's cumulative -4 / -2 fencing | implemented, `ParryBlock.kt:115`, applied at `DefenseDialog.kt:523` |
+| 2599-2601 | Grappling ST bonus at DX+1 / DX+2 | refused in 6do: it needs an ST-for-grappling path and a trait (`Wrestling Master`) this app does not hold |
+| 2861-2895, 2899 | Natural Recovery, First Aid, Regeneration RATES | refused in 6dc under *"track a clock it does not hold"*; the HT roll at 0 HP itself is `VitalRolls`, implemented |
+| 4105, 4145, 4268 | the post-roll SPI push | **this slice** |
+| 4271 | HP sacrifice, 2 HP = 1 SPI | implemented, `PowerSources.kt:150`, `RitualDialog.kt:864` |
+| 4276-4277 | assistants, +1 each capped at +3 | implemented, `PowerSources.kt:172`, offered at `RitualDialog.kt:399` |
+| 4289 | catalyst +0 to +2 | implemented, `PowerSources.kt:203`, picked at `RitualDialog.kt:479` |
+| 4222 | suspending a ritual, -2 | implemented, `PowerSources.SUSPENSION_PENALTY` |
+| 4161 | wrong timing, -1 to -2 | refused at `RitualMode.kt:49` — preparation already prices timing, and charging both charges twice |
+| 4398 | reducing ritual CoR by a month's abstinence | refused, the clock again |
+| 4642-4670 | Rituals 8 and 9 (offering, union) | recorded in 6dn: they print RANGES, so `extract_worked_rituals.py` reads them as templates and guards them, and executes neither |
+| 4730, 4762-4764 | the creature response roll, the Bookworm block | recorded in 6dk: a GM's free roll, and GM content — this app holds one player character |
+| ch. 9's nine lines | *"how to read a potion's +N grant"* | prose and worked examples; the rule is `PotionDigestion` |
+| ch. 3's 56, App. A's ladder rows | the attribute and skill ladders | arithmetic, so they read unclaimed forever (6cy, 6dp) |
+| ch. 8's 19 | four equipment tables | refused in `Equipment.UNMODELLED` (6cx) |
+| 9667, 9672, 9723 | facing penalties, the Major Wound summary, SPI recovery | refused in 6da, recorded as a disagreement in 6dl, refused in `Pools.UNMODELLED` in 6dq |
+
+**Read that table as a claim with an expiry date, not as a clean bill.** Three
+of its rows are refusals whose stated reason is a claim about this app rather
+than about the book — the exact shape this very slice overturned — and 6da,
+6dj, 6dl, 6dq and 6dr each began by re-running one such reason as a query and
+watching it die. The cheap version of that check is one grep per row. What the
+table does close is the question *"is there a rule in this book that reaches
+nothing and nobody has looked at it"*: there is not one left that a census over
+these fourteen could see.
+
+**What it cannot see is what found this slice.** A rule can be extracted,
+loaded, tested, documented, reachable from a called function, and still be
+unreachable by a player, because the call passes a default. Five sweep
+directions in this log iterate declarations — fields for a reader (6ai),
+functions for a caller (6cf), rows for a consumer (6ci), files for a loader
+(6dg), strings a screen types (6cq) — and every one of them is blind to a
+**parameter with no non-default argument**. That query is:
+
+```bash
+# every optional parameter in core/rules, against every call site in app/
+grep -rnoE '\b[a-z][A-Za-z]*: [A-Za-z<>?]+ = [^,)]+' core/rules/src/main/kotlin --include=*.kt
+```
+
+and it is the one sweep this repo has now run exactly once.
+
+**1701 Kotlin** (1215 `core:rules`, 466 `app`, 20 `core:model`) and **347
+Python**, all green, counted from the JUnit XML after a full unfiltered run.
+Build warnings: none. **Not device-verified** — read 6dy as compiles,
+unit-tested, reviewed twice, not rendered. The three push rows, the settlement
+on rotation, and the divination backlash disappearing when a push clears the
+critical are all Compose behaviour no test in this repo can reach.
+
+---
+
 ## 6dx. The refusal that never needed writing, and the citation that wrapped
 
 6dw named three things. Two of them are this slice: **run the sweep it argued

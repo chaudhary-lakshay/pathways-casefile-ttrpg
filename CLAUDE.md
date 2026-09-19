@@ -112,7 +112,49 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6dx is newest, and it is a refusal that turned out not to need writing.**
+**6dy is newest, and it is a scoping sentence that was a claim about this app.**
+`EffortBurn`'s KDoc kept the post-roll SPI push on the plain skill roll because
+*"a ritual and a divination keep charging their own burn"* — and neither did.
+All three specialist dialogs called `spiFor` with `burned` defaulted and drew no
+push row, `Divination.attempt(..., burned)` had no non-default caller in `app/`
+at all, and `RitualResolution.attempt` took no `burned` while `spiFor` would
+charge for one: **the ritual's charge was implemented and its bonus was not.**
+The book prints the rule five times (lines 393, 3708, 4105, 4145, 4268) and
+three of those sit inside CLAIMED spans, so no coverage number and no content
+sweep could report it. Read it for five things. **The unit that finds it is a
+PARAMETER checked for a non-default ARGUMENT** — the five sweeps this file
+already records iterate declarations (fields, functions, rows, files, screen
+strings) and every one is blind to a call that passes a default; 6dy states the
+query. **Boons arrive by REFERRAL, not resemblance**: ch. 13 prints no burn
+sentence, and the warrant is its own line 8933, *"The boon granting ritual uses
+the standard Ritualistic Magic system (see Chapter 7)"*, plus ch. 2's SPI row
+naming Ritualistic Magic outright — arguing from `Boons.weight()` returning a
+`RitualWeight` would have been the warrant 6cx returned NO-SHIP on. **`canPush`
+answers OPPOSITELY on the two objects**: a ritual's rolled 17-18 takes its row
+whatever the target so nothing can move it, while a divination's critical
+SUCCESS is pushable because the clarity table grades one by margin — copying
+`EffortBurn.canPush` wholesale would have refused it. **The Critical Failure
+Table's roll is a second SAMPLE**, re-used or dropped and never re-taken, with
+the impossible case (`requireNotNull`) RED-proved by flipping the push to widen
+the margin and reading the raised message. And **deferring the CoR introduced a
+regression the design review did not reach**: `remember` does not survive the
+dialog leaving composition and leaving composition is not a dismiss request, so
+a rotation dropped the CoR the roll owed — which the pre-deferral version
+charged at the roll and could not lose. `DisposableEffect { onDispose { … } }`
+closes every in-app path; process death is a stated bound. **Not
+device-verified.**
+
+**6dy also closes the coverage question with a census rather than a
+percentage.** All 196 unclaimed mechanical lines are accounted for in one table
+in the slice log — twelve of fourteen candidates came back SETTLED before a
+line was written, citing `file:line` or a grep that returned nothing. **Read
+that table as a claim with an expiry date**: three of its rows are refusals
+whose stated reason is a claim about this app, which is the exact shape 6dy
+itself overturned, and 6da, 6dj, 6dl, 6dq and 6dr each began by re-running one
+such reason as a query and watching it die. One grep per row is what checking
+it costs.
+
+**6dx is next, and it is a refusal that turned out not to need writing.**
 `Shaken` (line 8030) had been carried unchecked from 6dk through 6dw as
 "likely a refusal, nobody has looked". Run as a query it is not one: its
 carrier is `reinforcedAbilities` prose, which **`PotionDigestion.UNPARSED`
@@ -1255,7 +1297,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dx, then 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dy, then 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1486,7 +1528,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1691 Kotlin** (JUnit 5 — 1205 `core:rules`, 466 `app`, 20 `core:model`) + **347 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1701 Kotlin** (JUnit 5 — 1215 `core:rules`, 466 `app`, 20 `core:model`) + **347 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1659,6 +1701,10 @@ SkillRoll.at(label, base, key, source, mods, ctx): SkillRollOutcome
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
 RitualResolution.attempt(skill, weight, cor, source): RitualOutcome
+RitualResolution.canPush(outcome) / .pushed(outcome, points): RitualOutcome
+                                      // p.63/66's post-roll push: the same
+                                      // dice against a higher target. Keeps or
+                                      // DROPS criticalRoll; never re-samples
 RitualResolution.targetFor(skill, weight, cor, preparation) / .criticalFor(roll)
 RitualResolution.weights() / .preparations() / .preparationNamed(quality)
 RitualResolution.spiFor(weight, chosen, burned): Int
@@ -1666,6 +1712,8 @@ Boons.granting() / .modifiers() / .groups() / .weight(): RitualWeight
 Boons.penaltyForSequence(sequence): Int      // doubling, 9=0 down to 0=-512
 Boons.modifierTotal(chosen, gmValue) / .spiFor(chosen, burned)
 Boons.targetFor(skill, cor, sequence, chosen, gmValue) / .attempt(...)
+Boons.canPush(outcome) / .pushed(outcome, points)   // ch.13 line 8933 defers
+                                      // to ch.7, so ch.7's push reaches here
 NonStandardPathways.all() / .pathways() / .blocksFor(pathway)
 NonStandardPathways.blockFor(pathway, sequence): SequenceBlock?  // null = no such rung
 NonStandardPathways.knownSequences(pathway) / .alsoPrintedAs(pathway)
@@ -1722,6 +1770,12 @@ AntiDivination.against(targetSequence, divinerSequence?, techniquePenalty,
                        directLink, hpSacrificed): AntiDivinationResult
 AntiDivination.modifiers(result)      // Flat + RequireCrit, never one alone
 Divination.attempt(..., requiresCritical)  // demotes, and re-reads clarity
+                                      // NO `burned`: it added to the target
+                                      // BEFORE the dice, which is not the
+                                      // decision the book prints (6dy)
+Divination.canPush(outcome) / .pushed(outcome, points): DivinationOutcome
+                                      // a critical SUCCESS is pushable here
+                                      // and a rolled 17-18 is not, on a ritual
 ContentLoader.sequenceImmunity() / .antiDivinationCounters()
 ```
 
