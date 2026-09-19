@@ -6830,6 +6830,13 @@ correct**, because the row prices PREVIOUS divinations, which may have
 happened off-screen, and bumping it would be the app authoring a clock it does
 not hold (6dc's refusal, applied to a counter).
 
+**The reset is device-verified too**, which is the only way it could be: tick
+Darkness, pick -9, tap "Another turn", tick Darkness again — the row comes
+back with **-3 selected and `Range and cover: -3`**. A `uiautomator` dump
+cannot read it, because Compose does not expose a `FilterChip`'s selection as
+the `checked` attribute the dump prints; the screencap is the instrument here
+(6du's rule about taps, applied to a reading).
+
 **1710 Kotlin** (1215 `core:rules`, 475 `app`, 20 `core:model`) and **347
 Python**, all green. Chapter coverage is untouched, because nothing here
 claims a book line — which is the third measurement that **applying a rule and
