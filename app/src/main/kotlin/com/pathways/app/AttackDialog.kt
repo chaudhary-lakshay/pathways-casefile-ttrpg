@@ -184,6 +184,10 @@ fun AttackDialog(
                         aimCancelled = false
                         // So does what the scene was lit by.
                         darknessCause = DarknessCause.DARKNESS
+                        // And how bad it was. The same GM declares it about
+                        // the same row, so leaving it would let last turn's
+                        // pitch dark price this turn's dusk at -9.
+                        darknessSeverity = null
                         location = null
                     },
                 ) { Text("Another turn") }
@@ -930,7 +934,7 @@ internal fun meleeModifiers(
     return Ranged.meleeModifiers(Ranged.meleeConditions().filter { it.condition in circumstances })
 }
 
-private fun rangedModifiers(
+internal fun rangedModifiers(
     plan: AttackPlan,
     band: RangePenalty?,
     circumstances: Set<String>,

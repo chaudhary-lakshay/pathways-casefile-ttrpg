@@ -2,6 +2,7 @@ package com.pathways.app
 
 import com.pathways.model.ModEffect
 import com.pathways.rules.AttackPlan
+import com.pathways.rules.DarknessCause
 import com.pathways.rules.Ranged
 import com.pathways.rules.Weapons
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -89,5 +90,60 @@ class AttackDialogTest {
         val knife = Armed(Weapons.named("Combat Knife"))
         assertEquals("sw-1 cut", knife.mode.printed)
         assertEquals(2, knife.weapon.damage.size)
+    }
+
+    @Test
+    fun `the severity the GM picked reaches the darkness row's modifier`() {
+        // The commit that added the picker wired it through `gmValue`, and
+        // nothing asserted the wiring: deleting that argument left every test
+        // green while the row went back to its gentlest printed figure.
+        val darkness = Ranged.conditions().single { it.worstCase != null }
+        val ranged = AttackPlan(isRanged = true)
+        val unpicked = rangedModifiers(
+            plan = ranged,
+            band = null,
+            circumstances = setOf(darkness.condition),
+            weaponAcc = null,
+            aimCancelled = false,
+            darknessCause = DarknessCause.DARKNESS,
+            darknessReduction = 0,
+            darknessSeverity = null,
+        )
+        assertEquals(listOf(darkness.modifier), flats(unpicked))
+        val picked = rangedModifiers(
+            plan = ranged,
+            band = null,
+            circumstances = setOf(darkness.condition),
+            weaponAcc = null,
+            aimCancelled = false,
+            darknessCause = DarknessCause.DARKNESS,
+            darknessReduction = 0,
+            darknessSeverity = darkness.worstCase,
+        )
+        assertEquals(listOf(darkness.worstCase), flats(picked))
+    }
+
+    @Test
+    fun `a severity left over from a scene that is no longer lit cannot price one`() {
+        // "Another turn" clears the row along with the severity, so the key
+        // is unmatched rather than applied -- and an unmatched key is inert
+        // rather than a throw, which is what makes the clearing a tidiness
+        // fix and not a crash fix.
+        val darkness = Ranged.conditions().single { it.worstCase != null }
+        assertEquals(
+            emptyList<Int>(),
+            flats(
+                rangedModifiers(
+                    plan = AttackPlan(isRanged = true),
+                    band = null,
+                    circumstances = emptySet(),
+                    weaponAcc = null,
+                    aimCancelled = false,
+                    darknessCause = DarknessCause.DARKNESS,
+                    darknessReduction = 0,
+                    darknessSeverity = darkness.worstCase,
+                ),
+            ),
+        )
     }
 }

@@ -40,17 +40,27 @@ class ModifierRangeTest {
     }
 
     @Test
-    fun `a range of one value is not a range`() {
-        assertEquals(listOf(2), endsBetween(2, 2))
-    }
-
-    @Test
     fun `every printed divination range is offered, ends included`() {
         // Read off the content rather than typed here: a re-extraction that
         // widens a row must widen what the screen offers, and the engine
         // REFUSES a value outside the printed ends, so an offer that
         // overshot would throw on the Roll button rather than misprice.
-        for (row in Divination.modifiers().filter { it.best != null }) {
+        //
+        // The SET is pinned first, because a filter that goes empty passes
+        // every assertion below it -- a re-extraction dropping `best` from
+        // all four rows would silently stop testing anything, which is this
+        // repo's oldest way of shipping a guard that cannot fire.
+        val ranged = Divination.modifiers().filter { it.best != null }
+        assertEquals(
+            listOf(
+                "Method match (right tool for the question)",
+                "Target link (true name, possession, blood)",
+                "Unfavourable timing (wrong phase, entity's off-day)",
+                "Quiet, dedicated space",
+            ),
+            ranged.map { it.source },
+        )
+        for (row in ranged) {
             val offered = endsBetween(row.modifier!!, row.best)
             assertEquals(row.modifier, offered.first())
             assertEquals(row.best, offered.last())
@@ -80,5 +90,28 @@ class ModifierRangeTest {
             Divination.modifierTotal(listOf(row), repeats = 0)
         }
         assertEquals(listOf(1, 2, 3, 4), repeatChoices())
+    }
+
+    @Test
+    fun `a pick reaches the roll only while its own row is ticked`() {
+        // The picker's whole wiring: without it the divination screen applies
+        // each row's first figure, which is what "+0 to +2" adding nothing
+        // looked like. And a value left behind by unticking must not price a
+        // row the GM has not re-ticked.
+        val method = Divination.modifiers().single { it.source.startsWith("Method match") }
+        val link = Divination.modifiers().single { it.source.startsWith("Target link") }
+        val picked = mapOf(method.source to 2, link.source to 4)
+
+        val both = overridesFor(listOf(method, link), picked)
+        assertEquals(6, Divination.modifierTotal(listOf(method, link), both))
+
+        // Only the link is ticked now: the method's 2 is held, not applied.
+        val linkOnly = overridesFor(listOf(link), picked)
+        assertEquals(mapOf(link.source to 4), linkOnly)
+        assertEquals(4, Divination.modifierTotal(listOf(link), linkOnly))
+
+        // And with nothing picked the engine takes each row's own figure --
+        // the behaviour this slice exists to stop being the only one.
+        assertEquals(0, Divination.modifierTotal(listOf(method, link), emptyMap()))
     }
 }

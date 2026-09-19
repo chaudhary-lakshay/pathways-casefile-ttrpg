@@ -19,7 +19,10 @@ package com.pathways.app
  * way.
  */
 internal fun endsBetween(from: Int, to: Int?): List<Int> {
-    if (to == null || to == from) return listOf(from)
+    if (to == null) return listOf(from)
+    // No `to == from` short-circuit: `(n downTo n)` is already `[n]`, and a
+    // branch no edit can change the output of is a comment pretending to be
+    // code -- along with the test that was written to guard it.
     return if (to > from) (from..to).toList() else (from downTo to).toList()
 }
 

@@ -33,6 +33,7 @@ import com.pathways.rules.RandomSource
 import com.pathways.rules.RitualMode
 import com.pathways.rules.RitualResolution
 import com.pathways.rules.TraitEffects
+import com.pathways.rules.content.DivinationModifier
 import com.pathways.rules.content.DivinationMethod
 import com.pathways.rules.content.DivinationSupport
 
@@ -201,12 +202,7 @@ fun DivinationDialog(
     // it: the book pays in Step 2 and rolls in Step 3.
     val cost = Divination.spiFor(method, spiChoice)
     val picks = rows.filter { it.source in chosen }
-    // Only what is ticked RIGHT NOW: filtering here rather than pruning
-    // [picked] on every change means no path can leave a value behind to
-    // modify a later question -- the defect the attack dialog's "Another turn"
-    // shipped with, and the reason `BoonDialog` builds its overrides this way.
-    val overrides = picks.mapNotNull { row -> picked[row.source]?.let { row.source to it } }
-        .toMap()
+    val overrides = overridesFor(picks, picked)
     val circumstances = Divination.modifierTotal(picks, overrides, repeats) +
         conditionPenaltyAfterSpending(cost)
     // Ch. 6.5 p. 55's supporting skills. Named on their own rather than folded
@@ -738,3 +734,19 @@ private fun techniquesOnly(penalty: Int) = AntiDivinationResult(
     parts = if (penalty == 0) emptyList()
     else listOf("active techniques ${signed(penalty)}"),
 )
+
+/**
+ * What the GM picked, narrowed to the rows ticked RIGHT NOW.
+ *
+ * Filtering at use rather than pruning [picked] on every change is what makes
+ * a left-behind value unable to reach a later question: it can only come back
+ * by re-ticking the row it belongs to, where it renders as the selected chip.
+ * That is the defect the attack dialog's "Another turn" shipped with, avoided
+ * by construction instead of by remembering to clean up, and it is the shape
+ * `BoonDialog` already uses.
+ */
+internal fun overridesFor(
+    picks: List<DivinationModifier>,
+    picked: Map<String, Int>,
+): Map<String, Int> =
+    picks.mapNotNull { row -> picked[row.source]?.let { row.source to it } }.toMap()
