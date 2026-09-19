@@ -420,12 +420,66 @@ object Divination {
         difficulty: DivinationDifficulty,
         source: RandomSource,
         extras: Int = 0,
-        burned: Int = 0,
         requiresCritical: Boolean = false,
     ): DivinationOutcome {
-        require(burned >= 0) { "SPI burned cannot be negative; was $burned" }
-        val target = targetFor(skill, difficulty, extras) + burned * BURN_PER_SPI
+        val target = targetFor(skill, difficulty, extras)
         val roll = SuccessRoll.against(target, source)
+        return read(roll, 0, requiresCritical)
+    }
+
+    /**
+     * Whether a burn can still move [outcome] (p. 55).
+     *
+     * False under Sequence Immunity's critical-only rule, and for the same
+     * arithmetic reason [EffortBurn.canPush] gives: a push raises the TARGET
+     * and never the total, so no amount of it reaches a rolled 3 or 4. True
+     * everywhere else, a critical success included -- the clarity table has
+     * no critical row and grades one by margin like any other roll, so a
+     * point still buys a clearer answer.
+     */
+    fun canPush(outcome: DivinationOutcome): Boolean = !outcome.requiresCritical
+
+    /**
+     * The same dice read against a target [points] SPI higher (p. 55).
+     *
+     * "Burning SPI to improve the roll: As with rituals, you may spend
+     * additional SPI (1 SPI = +1, no cap) after seeing your result." After is
+     * the load-bearing word, and it is why this is a second step rather than
+     * an argument to [attempt]: the dice are already cast, so the same total
+     * is re-read against a higher number. [spiFor] takes the same points as
+     * COST; this takes them as the bonus.
+     *
+     * [points] is what is spent on THIS call, and [DivinationOutcome.spiBurned]
+     * accumulates -- a caller pushing twice has spent both.
+     *
+     * Returns [outcome] unchanged when [canPush] is false, so a caller that
+     * forgets to ask cannot spend SPI on a roll the burn cannot move. SPI's
+     * Soul Debt is permanent (6m), which is why that is refused here rather
+     * than left to the screen.
+     */
+    fun pushed(outcome: DivinationOutcome, points: Int): DivinationOutcome {
+        require(points >= 0) { "cannot burn a negative number of SPI; was $points" }
+        if (points == 0 || !canPush(outcome)) return outcome
+        val target = Math.addExact(outcome.roll.target, points * BURN_PER_SPI)
+        return read(
+            SuccessRoll.evaluate(outcome.roll.total, target),
+            Math.addExact(outcome.spiBurned, points),
+            outcome.requiresCritical,
+        )
+    }
+
+    /**
+     * What a resolved [roll] means, in one place.
+     *
+     * [attempt] and [pushed] read the same clarity table off the same roll and
+     * must not answer that twice -- the demotion in particular, which is easy
+     * to apply on one path and forget on the other.
+     */
+    private fun read(
+        roll: RollResult,
+        burned: Int,
+        requiresCritical: Boolean,
+    ): DivinationOutcome {
         // Sec. 5's "only a critical success (3-4) can succeed" against a Seq 4
         // or Seq 3 target. Not expressible as a penalty, which is the whole
         // point of it -- see [AntiDivination].

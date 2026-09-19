@@ -57,6 +57,25 @@ object Boons {
         RitualResolution.spiFor(weight(), chosen, burned)
 
     /**
+     * Whether a burn can still move [outcome] (ch. 13 via ch. 7, p. 66).
+     *
+     * **Chapter 13 prints no burn sentence of its own, and that is not its
+     * silence.** "The boon granting ritual uses the standard Ritualistic Magic
+     * system (see Chapter 7)" is the chapter's own first line about the
+     * procedure, and chapter 2's SPI row names Ritualistic Magic outright. So
+     * the push arrives here by referral rather than by resemblance -- the bar
+     * 6ck set for widening a rule, cleared by a sentence rather than by the
+     * two screens looking alike (6cx). What chapter 13 fixes is the baseline:
+     * Heavy complexity, Moderate weight. It replaces no part of chapter 7 it
+     * does not name.
+     */
+    fun canPush(outcome: RitualOutcome): Boolean = RitualResolution.canPush(outcome)
+
+    /** The same dice read against a target [points] SPI higher. See [canPush]. */
+    fun pushed(outcome: RitualOutcome, points: Int): RitualOutcome =
+        RitualResolution.pushed(outcome, points)
+
+    /**
      * The penalty for supplicating a boon at [sequence].
      *
      * READING. The book prints "Sequence 9 equivalent (+0), Sequence 8 (-2),

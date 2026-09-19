@@ -71,6 +71,9 @@ object RitualResolution {
     /** GURPS calls 17 and 18 a critical failure whatever the target. */
     private const val CRITICAL_ROLL_FLOOR = 17
 
+    /** "1 SPI = +1, no cap", spent after seeing the result (p. 63, p. 66). */
+    const val BURN_PER_SPI = 1
+
     fun weights(): List<RitualWeight> = ContentLoader.ritualWeights()
 
     /** The Phase I preparation qualities, best first (p. 63). */
@@ -212,6 +215,87 @@ object RitualResolution {
             support, complexity, powerSources,
         )
         val roll = SuccessRoll.against(target, source)
+        return classify(roll, target, failures, criticals, successBands) { shift ->
+            // The shift belongs to the by-margin row only; the 17-18 row says
+            // "immediately", with no adjustment. A 3 shifted by -2 would fall
+            // off the bottom of a 3d6 table, so the lookup is clamped to it.
+            (rollThreeDSix(source) + shift)
+                .coerceIn(LOWEST_CRITICAL_ROLL, HIGHEST_CRITICAL_ROLL)
+        }
+    }
+
+    /**
+     * Whether a burn can still move [outcome] (p. 63, p. 66).
+     *
+     * False for a rolled 17 or 18. That row is named for the ROLL and not for
+     * the margin -- "Critical Failure (17-18)" is taken against any target
+     * however high, and it carries no -2 to adjust. Nothing a caster spends
+     * there buys anything, which is the arithmetic [EffortBurn.canPush]
+     * refuses a critical-only rule on rather than a reading of the sentence.
+     * Every other result is pushable, a success included: Step 4 grades that
+     * by margin, so a point still buys a better grade.
+     */
+    fun canPush(outcome: RitualOutcome): Boolean =
+        outcome.roll.total < CRITICAL_ROLL_FLOOR
+
+    /**
+     * The same dice read against a target [points] SPI higher (p. 63, p. 66).
+     *
+     * "You may spend additional SPI (1 SPI = +1, no cap) after seeing your
+     * result, separate from the ritual's fuel cost." Separate is the load-
+     * bearing word: [spiFor] takes the same points as COST and this takes
+     * them as the bonus, so the two halves of one spend live apart. The dice
+     * are never rolled again -- "after seeing your result" is the whole reason
+     * this is a second step rather than a modifier.
+     *
+     * **The Critical Failure Table's roll is a second sample, not derived
+     * data.** It is kept where the pushed outcome still reaches the table and
+     * dropped where it no longer does: rolling it again would hand the caster
+     * a fresh chance at a milder row the book never offered, and a caster who
+     * pushes OFF the table must not be left holding a row -- nor the CoR that
+     * row charges. A push can only shrink the margin, so it can never need a
+     * sample that was not already taken, and that is asserted rather than
+     * quietly handled.
+     *
+     * Returns [outcome] unchanged when [canPush] is false, so a caller that
+     * forgets to ask cannot spend SPI on a result the burn cannot move.
+     */
+    fun pushed(
+        outcome: RitualOutcome,
+        points: Int,
+        failures: List<RitualFailure> = ContentLoader.ritualFailures(),
+        criticals: List<RitualCritical> = ContentLoader.ritualCriticals(),
+        successBands: List<RitualSuccess> = ContentLoader.ritualSuccess(),
+    ): RitualOutcome {
+        require(points >= 0) { "cannot burn a negative number of SPI; was $points" }
+        if (points == 0 || !canPush(outcome)) return outcome
+        val target = Math.addExact(outcome.target, points * BURN_PER_SPI)
+        val roll = SuccessRoll.evaluate(outcome.roll.total, target)
+        return classify(roll, target, failures, criticals, successBands) {
+            requireNotNull(outcome.criticalRoll) {
+                "a push shrinks the margin, so it cannot reach a Critical " +
+                    "Failure Table the unpushed ritual missed"
+            }
+        }
+    }
+
+    /**
+     * What a known total against a known target means, in one place.
+     *
+     * [attempt] and [pushed] ask the same question of the same three tables
+     * and must not answer it twice. [tableRoll] is the only thing they differ
+     * on, and it takes the shift so that the caller which SAMPLES can apply
+     * it -- the caller which re-uses an earlier sample has no use for it,
+     * because the shift is already inside the number it kept.
+     */
+    private fun classify(
+        roll: RollResult,
+        target: Int,
+        failures: List<RitualFailure>,
+        criticals: List<RitualCritical>,
+        successBands: List<RitualSuccess>,
+        tableRoll: (shift: Int) -> Int,
+    ): RitualOutcome {
         // By outcome, not by margin. A 17 or 18 fails whatever the target, and
         // against a target of 18 its margin is not even negative -- reading
         // the margin alone would report the book's own critical-failure row as
@@ -241,12 +325,7 @@ object RitualResolution {
             )
         }
 
-        // The shift belongs to the by-margin row only; the 17-18 row says
-        // "immediately", with no adjustment. A 3 shifted by -2 would fall off
-        // the bottom of a 3d6 table, so the lookup is clamped to it.
-        val shift = if (rolledCritical) 0 else SEVERE_MISFIRE_SHIFT
-        val criticalRoll = (rollThreeDSix(source) + shift)
-            .coerceIn(LOWEST_CRITICAL_ROLL, HIGHEST_CRITICAL_ROLL)
+        val criticalRoll = tableRoll(if (rolledCritical) 0 else SEVERE_MISFIRE_SHIFT)
         return RitualOutcome(
             roll = roll,
             target = target,

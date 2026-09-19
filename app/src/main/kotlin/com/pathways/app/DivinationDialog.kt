@@ -12,6 +12,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.BurnKind
 import com.pathways.rules.Pools
 import com.pathways.rules.AntiDivination
 import com.pathways.rules.AntiDivinationResult
@@ -127,6 +129,9 @@ fun DivinationDialog(
     // with the method, or a 2 chosen for the rods would follow them onto a
     // method that costs 1 (Codex).
     var spiChoice by remember(method) { mutableIntStateOf(method.spi) }
+    // p. 55: "As with rituals, you may spend additional SPI (1 SPI = +1, no
+    // cap) after seeing your result." Accumulated here and charged at [finish].
+    var burned by remember { mutableIntStateOf(0) }
     // null = an ordinary target. The two counters reset with it, so a link
     // ticked against a demigod cannot survive onto a shopkeeper -- the stale
     // pick the boon and ritual dialogs were each fixed for.
@@ -204,13 +209,34 @@ fun DivinationDialog(
         circumstances + protection.penalty + shock + spiTrait + support + scopePenalty
     val target = Divination.targetFor(skillLevel, difficulty, extras)
 
+    // Charged by zeroing what it accumulated, so paying is idempotent and
+    // every exit from one question pays exactly once -- Close, a back press,
+    // the scrim, and "Ask again", which ends a question as surely as closing
+    // does. Nothing else is deferred: the backlash is a sample already taken,
+    // shown only while the outcome it belongs to is still a critical one.
+    val settleBurn = {
+        if (burned > 0) {
+            onSpendSpi(burned)
+            burned = 0
+        }
+    }
+    // See RitualDialog: leaving composition is not a dismiss request, and
+    // `remember` does not survive it.
+    DisposableEffect(Unit) { onDispose { settleBurn() } }
+    val finish = {
+        settleBurn()
+        onDismiss()
+    }
     AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        onDismissRequest = finish,
+        confirmButton = { TextButton(onClick = finish) { Text("Close") } },
         dismissButton = {
             if (outcome != null) {
                 TextButton(
                     onClick = {
+                        // The push bought the question that is ending, so it
+                        // is paid for here rather than carried into the next.
+                        settleBurn()
                         // The backlash belongs to the roll that caused it;
                         // carrying it into the next question would report a
                         // critical the diviner never rolled.
@@ -225,7 +251,30 @@ fun DivinationDialog(
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 val answer = outcome
                 if (answer != null) {
-                    Result(answer, backlash)
+                    // The backlash is shown only while the roll it came from
+                    // is still critical: a push can take a margin-based
+                    // critical failure off that row, and printing the ritual
+                    // table's answer beside a merely-failed reading would
+                    // report a disaster the diviner spent SPI to avoid.
+                    Result(answer, backlash?.takeIf { answer.isCritical })
+                    if (Divination.canPush(answer)) {
+                        BurnRow(
+                            kind = BurnKind.MYSTICAL,
+                            burned = burned,
+                            spiAvailable = spiAvailable - burned,
+                            note = "Separate from the method's cost, which is " +
+                                "already paid. Charged when this question ends.",
+                        ) { points ->
+                            // See RitualDialog: the row was drawn against a
+                            // value two taps can outrun.
+                            val live = outcome ?: return@BurnRow
+                            if (!Pools.canAffordSpi(burned + points, spiAvailable)) {
+                                return@BurnRow
+                            }
+                            burned += points
+                            outcome = Divination.pushed(live, points)
+                        }
+                    }
                     return@Column
                 }
                 sourceLine?.let { Text(it, style = MaterialTheme.typography.bodySmall) }

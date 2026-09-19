@@ -11,6 +11,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.BurnKind
 import com.pathways.rules.Pools
 import com.pathways.rules.Boons
 import com.pathways.rules.NonStandardPathways
@@ -140,6 +142,10 @@ fun BoonDialog(
     // label, which the two groups are free to share.
     val picked = remember { mutableStateMapOf<String, Int>() }
     var spiChoice by remember { mutableIntStateOf(granting.spi) }
+    // Ch. 13's ritual is chapter 7's, by its own first sentence about the
+    // procedure -- so chapter 7's post-roll push reaches it. See Boons.canPush.
+    var burned by remember { mutableIntStateOf(0) }
+    var settled by remember { mutableStateOf(false) }
     // Null is a real answer: the Great Ones are not a closed list, and the
     // book records only fourteen of their pathways. Petitioning one it never
     // printed is the GM's to adjudicate, not this dialog's to refuse.
@@ -156,9 +162,24 @@ fun BoonDialog(
     val target = Boons.targetFor(effectiveSkill, cor, sequence, picks, overrides)
     val cost = Boons.spiFor(spiChoice)
 
+    // One place charges the push and the consequence, off the FINAL outcome:
+    // see RitualDialog for why the CoR cannot be charged at the roll.
+    val settle = {
+        if (!settled) {
+            settled = true
+            if (burned > 0) onSpendSpi(burned)
+            outcome?.critical?.corGained?.let(onCorGained)
+        }
+    }
+    // See RitualDialog: leaving composition is not a dismiss request.
+    DisposableEffect(Unit) { onDispose { settle() } }
+    val finish = {
+        settle()
+        onDismiss()
+    }
     AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        onDismissRequest = finish,
+        confirmButton = { TextButton(onClick = finish) { Text("Close") } },
         title = {
             Text(
                 outcome?.let { if (it.succeeded) "The boon is granted" else "The prayer fails" }
@@ -331,8 +352,9 @@ fun BoonDialog(
                             outcome = rolled
                             // Spent whether or not the Great One answers:
                             // "No effect. SPI and materials spent" (p. 62).
+                            // The CoR waits for [finish]: a push can take this
+                            // off the Critical Failure Table entirely.
                             onSpendSpi(cost)
-                            rolled.critical?.corGained?.let(onCorGained)
                         },
                     ) { Text("Pray") }
                 } else {
@@ -355,7 +377,28 @@ fun BoonDialog(
                             modifier = Modifier.padding(top = 8.dp),
                         )
                         critical.corGained?.let {
-                            Text("+$it CoR charged.", style = MaterialTheme.typography.bodySmall)
+                            Text(
+                                "+$it CoR on closing.",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+                    if (Boons.canPush(result)) {
+                        BurnRow(
+                            kind = BurnKind.MYSTICAL,
+                            burned = burned,
+                            spiAvailable = spiAvailable - burned,
+                            note = "Separate from the ritual's fuel, which is " +
+                                "already paid. Charged when this closes.",
+                        ) { points ->
+                            // See RitualDialog: the row was drawn against a
+                            // value two taps can outrun.
+                            val live = outcome ?: return@BurnRow
+                            if (!Pools.canAffordSpi(burned + points, spiAvailable)) {
+                                return@BurnRow
+                            }
+                            burned += points
+                            outcome = Boons.pushed(live, points)
                         }
                     }
                     if (result.succeeded) {

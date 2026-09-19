@@ -2413,6 +2413,15 @@ internal fun BurnRow(
     kind: BurnKind,
     burned: Int,
     spiAvailable: Int,
+    /**
+     * What this screen's own chapter adds to chapter 2's row, or null.
+     *
+     * The ritual and divination screens have already charged a cost, and the
+     * book is explicit that the push is "separate from the ritual's fuel
+     * cost" -- a caster reading a second SPI figure needs that sentence, and
+     * the plain skill roll, which charged nothing, does not.
+     */
+    note: String? = null,
     onBurn: (Int) -> Unit,
 ) {
     val pool = EffortBurn.pool(kind)
@@ -2452,6 +2461,7 @@ internal fun BurnRow(
         },
         style = MaterialTheme.typography.bodySmall,
     )
+    note?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
     // Four steps, or fewer when the printed cap is closer. The uncapped pool
     // is not offered without limit: the book names no ceiling, and a stepper
     // running to a hundred is not a choice worth making at the table -- the

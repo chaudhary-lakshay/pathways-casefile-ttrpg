@@ -27,12 +27,19 @@ enum class BurnKind { PHYSICAL, MYSTICAL }
  * be per-table. Neither chapter prints the FP half, the +5 cap, or the
  * either-or; those come from here alone.
  *
- * **Specific still beats general.** A ritual and a divination keep charging
- * their own burn, because offering this one as well would charge a single
- * point of effort twice -- the scoping the CoR ladder needed (6h), that keeps
- * chapter 13's boons off Phase I preparation (6r), and that withholds
- * Appendix A's darkness row on a ranged shot (6ae). This object belongs to
- * the plain skill roll.
+ * **Specific still beats general.** A ritual and a divination charge their own
+ * burn -- [RitualResolution.pushed] and [Divination.pushed] -- because
+ * offering this one as well would charge a single point of effort twice: the
+ * scoping the CoR ladder needed (6h), that keeps chapter 13's boons off Phase
+ * I preparation (6r), and that withholds Appendix A's darkness row on a ranged
+ * shot (6ae). This object belongs to the plain skill roll.
+ *
+ * That sentence was a claim about this app before it was a rule about the
+ * book, and for a long time it was FALSE: neither of those functions existed
+ * and no screen offered the push, so a Beyonder who rolled a ritual was told
+ * about a rule on one screen and denied it on the next. A scoping argument
+ * names what the other owner does, so it expires the day that owner stops
+ * doing it -- which nothing re-reads (6dr).
  *
  * **The bonus raises the TARGET, it does not lower the roll.** The dice are
  * already cast when it is spent, so pushing means the same total is read

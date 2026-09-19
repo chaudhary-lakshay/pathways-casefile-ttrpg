@@ -12,6 +12,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.BurnKind
 import com.pathways.rules.Pools
 import com.pathways.rules.Corruption
 import com.pathways.rules.Divination
@@ -162,6 +164,12 @@ fun RitualDialog(
     // can coincide on a base cost, and the stated intent is that a sacrifice
     // does not outlive the ritual it was offered for.
     var hpSacrificed by remember(complexity, spiChoice) { mutableIntStateOf(0) }
+    // p. 63 and p. 66: "you may spend additional SPI (1 SPI = +1, no cap)
+    // after seeing your result, separate from the ritual's fuel cost."
+    // Accumulated rather than charged per tap, so the balance the chips are
+    // offered against cannot go stale between two of them.
+    var burned by remember { mutableIntStateOf(0) }
+    var settled by remember { mutableStateOf(false) }
     // Section II's supporting skills: +1 each, capped at +3 by a sentence
     // rather than by the table (6y). Extracted, implemented and tested in
     // that slice and reachable from no screen until now -- `targetFor` has
@@ -246,9 +254,32 @@ fun RitualDialog(
     // beside a cost it no longer covers.
     val hpOwed = if (residual) 0 else hpSacrificed
 
+    // The push window closes when the dialog does, and that is the ONE place
+    // the pushed SPI and the outcome's consequences are charged. Both are read
+    // off the FINAL outcome, because a push can take a ritual off the Critical
+    // Failure Table and the CoR that row charges must go with it -- charging
+    // at Roll, as this screen used to, left corruption paid for a consequence
+    // the caster spent SPI to avoid.
+    val settle = {
+        if (!settled) {
+            settled = true
+            if (burned > 0) onSpendSpi(burned)
+            outcome?.critical?.corGained?.let(onCorGained)
+        }
+    }
+    // Close is the usual way out, but not the only one: a rotation destroys
+    // this composable without a dismiss request, and `remember` goes with it.
+    // Settling on disposal is what makes the deferral safe -- without it, a
+    // rotated ritual lost the CoR it owed, which the pre-deferral version
+    // charged at the roll and never lost.
+    DisposableEffect(Unit) { onDispose { settle() } }
+    val finish = {
+        settle()
+        onDismiss()
+    }
     AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        onDismissRequest = finish,
+        confirmButton = { TextButton(onClick = finish) { Text("Close") } },
         title = {
             Text(
                 outcome?.let { if (it.succeeded) "The ritual holds" else "The ritual fails" }
@@ -861,9 +892,13 @@ fun RitualDialog(
                                 // HP goes through the tracker too -- printing
                                 // a sacrifice the app then fails to charge is
                                 // how a tracker starts lying.
+                                //
+                                // The CoR is NOT charged here: a push can move
+                                // this ritual off the Critical Failure Table
+                                // altogether, so the row's price is read once,
+                                // at [finish].
                                 onSpendSpi(spiOwed)
                                 if (hpOwed > 0) onSpendHp(hpOwed)
-                                rolled.critical?.corGained?.let(onCorGained)
                             },
                         ) { Text("Roll") }
                     }
@@ -895,7 +930,30 @@ fun RitualDialog(
                             modifier = Modifier.padding(top = 8.dp),
                         )
                         critical.corGained?.let {
-                            Text("+$it CoR charged.", style = MaterialTheme.typography.bodySmall)
+                            Text(
+                                "+$it CoR on closing.",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+                    if (RitualResolution.canPush(result)) {
+                        BurnRow(
+                            kind = BurnKind.MYSTICAL,
+                            burned = burned,
+                            spiAvailable = spiAvailable - burned,
+                            note = "Separate from the ritual's fuel, which is " +
+                                "already paid. Charged when this closes.",
+                        ) { points ->
+                            // The LIVE outcome, not the one this row was drawn
+                            // against: two taps land before a recomposition,
+                            // and pushing the captured value would throw the
+                            // first away while charging for it.
+                            val live = outcome ?: return@BurnRow
+                            if (!Pools.canAffordSpi(burned + points, spiAvailable)) {
+                                return@BurnRow
+                            }
+                            burned += points
+                            outcome = RitualResolution.pushed(live, points)
                         }
                     }
                 }
