@@ -118,6 +118,12 @@ Deceptive Attack's -2 per -1 imposed (capped at half your skill), Rapid Strike's
 It will not let you buy an option the maneuver does not allow, and it charges FP
 once per purchase, not once per recomposition.
 
+**At range**, tick the conditions the GM called. One of them prints a range
+rather than a number — *"Darkness or heavy fog: -3 to -9 depending on
+severity"* — so ticking it opens a **How bad is it?** row and you pick where in
+that span the scene sits. Until you do, the app applies the gentlest figure the
+book prints, which is what the chip shows selected.
+
 ### Defend
 
 The busiest screen in the app, and the one with the most declarations.
@@ -203,7 +209,15 @@ The app withholds the row rather than selling you a point that buys nothing.
 Choose the method and difficulty, add the modifiers the GM allows, and roll.
 Clarity is read off the result. Divining a Beyonder stronger than you is harder
 per their Sequence, and at the top of the ladder only a critical success can
-work at all — the app demotes the roll rather than pretending. Under that rule
+work at all — the app demotes the roll rather than pretending.
+
+Four of the circumstance rows print a **range** — *"Method match +0 to +2"*,
+*"Target link +0 to +4"*, *"Unfavourable timing -1 to -2"*, *"Quiet, dedicated
+space +0 to +1"* — and ticking one opens a second row of chips to pick inside
+it. The value shown selected is the one the roll is using, so an untouched row
+applies the first figure the book prints. *"Previous divination about the same
+subject"* is -2 **per repeat**, so it asks how many times instead: x1 through
+x4. Under that rule
 no push is offered either, for the same arithmetic: a burn moves the target and
 never the dice, so it can never reach the 3 or 4 the rule demands.
 

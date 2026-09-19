@@ -112,7 +112,38 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6dy is newest, and it is a scoping sentence that was a claim about this app.**
+**6dz is newest, and it ran the sweep 6dy named: every optional parameter
+checked for a non-default ARGUMENT.** 369 optional public parameters across
+`core/rules` and `core/model`, 175 excluded by the query's own rules (a
+`ContentLoader` default and a `RandomSource` are deliberate test seams), **36
+never overridden in production, 5 a real gap** — two of them already-recorded
+deliberate gaps (`Character.weapons`, `Character.secondaryDelta`) and one a
+false positive that was CHECKED rather than believed. What shipped is one
+defect wearing two costumes: several modifier rows print a SPAN, every engine
+reading one has taken a validated `gmValue` override since extraction, and
+**only `BoonDialog` ever passed one**. So `Method match +0 to +2` applied +0 —
+a control whose only effect was nothing, with its own range printed on it —
+`Darkness or heavy fog -3 to -9` was always -3, and `-2 per repeat` never
+multiplied, so a third divination cost what the first did. Read it for four
+things. **`endsBetween` runs OUTWARD from the row's own figure, not
+numerically**: a descending span worsens as it runs, so sorting would put the
+worst case first and leave the chip the roll is USING at the far end of the
+row (mutation-proved). **The default chip showing selected is a claim about
+the engine** — the screen passes an empty map rather than seeding `picked`, so
+there is one authority on that default and it is not the screen. **A stale
+pick cannot reach a later roll by construction**: `overrides` is built by
+filtering against the rows ticked RIGHT NOW, which is `BoonDialog`'s own
+design, rather than by pruning on every change. And its review — through the
+single-agent fallback, because Codex hit its weekly limit mid-pass and the
+free `pi-qa` gateway was down — returned **four findings and every one was a
+guard that could not fire**, including the two tests written for this slice's
+own wiring: deleting the `gmValue` argument left every test green. Read 6dz
+also for a dead `to == from` branch deleted along with the test guarding it,
+and for why NOT auto-incrementing the repeat count on "Ask again" is correct.
+**Device-verified on an SM-T570**: `circumstances -6` to `-4` on a +2 pick,
+the target 16 to 18, and `Range and cover: -9`.
+
+**6dy is next, and it is a scoping sentence that was a claim about this app.**
 `EffortBurn`'s KDoc kept the post-roll SPI push on the plain skill roll because
 *"a ritual and a divination keep charging their own burn"* — and neither did.
 All three specialist dialogs called `spiFor` with `burned` defaulted and drew no
@@ -1301,7 +1332,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dy, then 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6dz, then 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1532,7 +1563,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1701 Kotlin** (JUnit 5 — 1215 `core:rules`, 466 `app`, 20 `core:model`) + **347 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1710 Kotlin** (JUnit 5 — 1215 `core:rules`, 475 `app`, 20 `core:model`) + **347 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |

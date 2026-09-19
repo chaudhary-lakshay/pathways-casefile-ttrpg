@@ -6726,6 +6726,117 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6dz. The sweep 6dy named, run — and a chip whose only effect was nothing
+
+**6dy named a sweep and this is it: every optional parameter checked for a
+non-default ARGUMENT.** 369 optional public parameters across `core/rules` and
+`core/model`; 175 excluded by the query's own rules (a `ContentLoader` default
+and a `RandomSource` are test seams this repo builds deliberately, and a
+function with no production caller belongs to 6cf's sweep, not this one); of
+the 194 left, **36 are never overridden in production and 5 are a real gap.**
+
+**Two of the five are already-recorded deliberate gaps** — `Character.weapons`
+and `Character.secondaryDelta`, both named in CLAUDE.md §6 as "not editable
+yet". **One is a false positive and was checked rather than believed**:
+`Ranged.modifiers(gmValue)` was reported as making the darkness severity
+unreachable, and the screen does have a bespoke path for that row — but it is
+`darknessCause`/`darknessReduction`, which is Night Eyes' RELIEF and not the
+severity at all. So the finding was right about the gap and wrong about the
+mechanism, which is 6cz's rule (take a reviewer's diagnosis over its
+prescription) applied to a census.
+
+**The two that ship are the same defect wearing two costumes.** Several of
+this book's modifier rows print a SPAN rather than a number, and every engine
+that reads one has taken a `gmValue: Map<String, Int>` override — validated
+against the printed ends — since the row was extracted. **Only `BoonDialog`
+ever passed one.** So:
+
+- Ticking `Method match +0 to +2` on the divination screen applied **+0**. A
+  control whose only effect is nothing, with its own range printed on it.
+  Four rows on that table are like this (`+0 to +2`, `+0 to +4`, `-1 to -2`,
+  `+0 to +1`), and `+0 to +4` is the largest single bonus the screen offers.
+- `Darkness or heavy fog -3 to -9 depending on severity` was always **-3**,
+  with the other six severities unreachable — on a screen that prints the
+  range on the chip. `Ranged.reliefFor`'s own KDoc had already written down
+  that "the GM's severity is the book's and stays inside the printed range",
+  so the engine was waiting for a caller that never came.
+- `Previous divination about the same subject (cumulative) -2 per repeat` is
+  the same defect one layer down. `Divination.modifierTotal` multiplies by
+  `repeats` and the screen never passed a count, so **a third attempt cost
+  what the first did.**
+
+**The helper is shared because the count of wrong ways was already two.**
+`BoonDialog` had a private `endsOf` and the other two screens had nothing, so
+a per-screen fix would leave three near-identical functions and a fourth
+screen free to get it wrong a fourth way. `endsBetween(from, to)` is one
+function in the app module, `endsOf` delegates to it, and **its order is the
+load-bearing part**: it runs OUTWARD from the row's own figure, because a
+descending span (`-1 to -2`, `-3 to -9`) worsens as it runs and numeric order
+would put the WORST case first — leaving the chip the roll is actually using
+at the far end of the row. Mutation-proved by swapping in `sorted()`: three
+tests redden, including both that read the ends off the content.
+
+**The default chip shows selected, and that is a claim about the engine.**
+Nothing is picked until the GM picks, and what the engine applies until then
+is `row.modifier` — so the chip rendered as selected on an untouched row is
+the one the roll is using, rather than a UI default that happens to agree. The
+screen passes an empty map rather than eagerly seeding `picked`, which keeps
+one authority on that default and it is not the screen.
+
+**A stale pick cannot reach a later roll**, and the guard is the one
+`BoonDialog` already used: `overrides` is built by filtering `picked` against
+the rows ticked RIGHT NOW, rather than by pruning `picked` on every change.
+That is the defect the attack dialog's "Another turn" shipped with, avoided by
+construction rather than by remembering to clean up.
+
+**Device-verified on an SM-T570, on both screens.** Divination (Apothecary,
+Hermit Sequence 9, Divination Arts 20): ticking `Method match` and `Previous
+divination` gave `Roll 3d6 ≤ 16 — Skill 20, question +2, circumstances -6`,
+which is -2 × 3 repeats with the method match still at its +0; picking **+2**
+moved it to `≤ 18 … circumstances -4`. Attack, at range, darkness ticked:
+`How bad is it?` offers -3 through -9 and picking -9 prints `Range and
+cover: -9`. Before this slice neither number could move.
+
+**The diff review returned four findings and every one was about a guard that
+could not fire.** Codex hit its weekly limit mid-review and the free `pi-qa`
+gateway was down, so this went through the single-agent fallback CLAUDE.md
+names — one reviewer, three questions, the files needed to answer them.
+
+- **The severity was a scene fact that outlived its scene.** "Another turn"
+  clears the band, the circumstances, the aim and what the scene was lit by,
+  under a comment saying that inheriting last turn's distance or cover would
+  modify the next roll invisibly. The severity added in this slice was not
+  added to that list, so pitch dark last turn priced this turn's dusk at -9.
+  **The warrant is the file's own standard, not the value's invisibility** —
+  every sibling on that list is equally visible as a selected chip and is
+  reset anyway.
+- **`endsBetween`'s `to == from` branch was dead**, because `(n downTo n)` is
+  already `[n]`. The branch and the test written to guard it are both deleted:
+  a branch no edit can change the output of is a comment pretending to be code.
+- **The content census passed on an empty filter.** `every printed divination
+  range is offered` looped over `Divination.modifiers().filter { it.best !=
+  null }`, so a re-extraction dropping `best` from all four rows would have
+  left it green and silent. The four are pinned by name before the loop now.
+- **Nothing reached the wiring either screen exists for.** Deleting the
+  `gmValue` argument from the attack dialog, or the overrides from the
+  divination one, left every test green — the defect this slice is about,
+  reproduced in the tests written for it. `rangedModifiers` is internal and
+  `overridesFor` is extracted, each with a test RED-proved by neutering the
+  one line it guards.
+
+The four other stale-state paths were checked and are clean, and one of them
+is worth inheriting: **not auto-incrementing `repeats` on "Ask again" is
+correct**, because the row prices PREVIOUS divinations, which may have
+happened off-screen, and bumping it would be the app authoring a clock it does
+not hold (6dc's refusal, applied to a counter).
+
+**1710 Kotlin** (1215 `core:rules`, 475 `app`, 20 `core:model`) and **347
+Python**, all green. Chapter coverage is untouched, because nothing here
+claims a book line — which is the third measurement that **applying a rule and
+moving a percentage are different things** (6di, 6dk, 6dq).
+
+---
+
 ## 6dy. The rule three screens printed a price for and never sold
 
 **The finding: a scoping sentence that was a claim about this app, and the
