@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import com.pathways.model.Attr
 import com.pathways.model.BASE_ATTRIBUTE
 import com.pathways.model.BeyonderState
+import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.model.Character
 import com.pathways.model.MAX_ATTRIBUTE
 import com.pathways.model.canDrink
@@ -88,6 +89,23 @@ class BeyonderSession(
     /** Set [attr] to [level]; the point budget answers back through Derive. */
     fun setAttribute(attr: Attr, level: Int) {
         edits = edits.withAttribute(attr, level.coerceIn(BASE_ATTRIBUTE, MAX_ATTRIBUTE))
+        persist()
+    }
+
+    /**
+     * Buy [steps] of the secondary characteristic the book's row [key] names
+     * (Ch. 2, pp. 8-9); 0 is the way back to what the sheet printed.
+     *
+     * A zero is REMOVED rather than stored, so a player who steps back to the
+     * printed value leaves a save that is empty again rather than one that
+     * looks edited forever. Coerced here as well as on the way back in: this
+     * is the input boundary, and the file is the other one.
+     */
+    fun setSecondary(key: String, steps: Int) {
+        val n = steps.coerceIn(-MAX_SECONDARY_DELTA_MAGNITUDE, MAX_SECONDARY_DELTA_MAGNITUDE)
+        edits = edits.copy(
+            secondaries = if (n == 0) edits.secondaries - key else edits.secondaries + (key to n),
+        )
         persist()
     }
 

@@ -7,6 +7,7 @@ import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.rules.Appearance
 import com.pathways.rules.PremadeSheet
+import com.pathways.rules.SecondaryCharacteristics
 import com.pathways.rules.InstancedPurchase
 import com.pathways.rules.PurchasableTraits
 import com.pathways.rules.SkillLadder
@@ -36,6 +37,10 @@ fun SavedEdits.applyTo(base: Character): Character {
     )
     return base.copy(
         attributes = attributes,
+        // ADDED to what the character already carries, never substituted for
+        // it: a potion grant lands in this same field, so a sparse map naming
+        // one row must not zero a granted Will (Codex, on the design).
+        secondaryDelta = SecondaryCharacteristics.plusSteps(base.secondaryDelta, secondaries),
         traits = chosenTraits(base.traits),
         skills = base.skills + purchases(base),
     )

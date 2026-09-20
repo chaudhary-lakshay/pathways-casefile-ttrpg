@@ -90,11 +90,31 @@ data class SavedEdits(
      * save readable.
      */
     val instanced: List<SavedInstancedTrait> = emptyList(),
+    /**
+     * Secondary characteristics bought in play (Ch. 2, pp. 8-9), as the
+     * book's own row key to the number of STEPS bought.
+     *
+     * The key is the one `secondary_costs.json` prints -- "hp", "basicSpeed"
+     * -- and it is a stable save-file identifier from here on, not an
+     * incidental content label: renaming a row in that file stops applying
+     * every save that named it, silently (Codex, on the design). Basic Speed
+     * counts quarters, because that is the step the book prices.
+     *
+     * A map of numbers rather than a [com.pathways.model.SecondaryDelta],
+     * which rejects a magnitude over 100 in its constructor: a save file is
+     * hand-editable and [SessionStore.load] discards the WHOLE file on a
+     * decode failure, so one bad number would delete every other edit. The
+     * steps are coerced and unknown or unpriced keys dropped on the way back
+     * in, by [com.pathways.rules.SecondaryCharacteristics.plusSteps], which
+     * is the same rule [traits] follows -- the book resolves what a save
+     * merely names.
+     */
+    val secondaries: Map<String, Int> = emptyMap(),
 ) {
     val isEmpty: Boolean
         get() = st == null && dx == null && iq == null && ht == null &&
             skills.isEmpty() && wealth == null && appearance == null &&
-            traits.isEmpty() && instanced.isEmpty()
+            traits.isEmpty() && instanced.isEmpty() && secondaries.isEmpty()
 }
 
 /**

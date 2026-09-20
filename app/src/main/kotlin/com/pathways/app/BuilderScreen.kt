@@ -37,11 +37,13 @@ import androidx.compose.material3.AlertDialog
 import com.pathways.model.Attr
 import com.pathways.model.BASE_ATTRIBUTE
 import com.pathways.model.MAX_ATTRIBUTE
+import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.rules.AttributeCosts
 import com.pathways.rules.Derive
 import com.pathways.rules.InstantiableTrait
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.PurchasableTraits
+import com.pathways.rules.SecondaryCharacteristics
 import com.pathways.rules.SkillLadder
 import com.pathways.rules.Study
 import com.pathways.rules.StudyMethod
@@ -53,6 +55,7 @@ import com.pathways.rules.Appearance
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.AppearanceLevel
 import com.pathways.rules.content.ContentLoader
+import com.pathways.rules.content.SecondaryCost
 import com.pathways.rules.content.SkillDefinition
 import com.pathways.rules.content.WealthLevel
 
@@ -77,6 +80,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     val character = session.characterFor(sheet)
     val derived = remember(character) { Derive.of(character) }
     val report = derived.budget
+    // The six rows the book prices; the three it refuses to price carry no
+    // pointsPerStep and so offer no stepper (Ch. 2, pp. 8-9).
+    val secondaryRows = remember { ContentLoader.secondaryCosts().filter { it.pointsPerStep != null } }
     var adding by remember { mutableStateOf(false) }
     var picking by remember { mutableStateOf(false) }
     var pickingLooks by remember { mutableStateOf(false) }
@@ -149,6 +155,35 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     onChange = { delta ->
                         session.setAttribute(attr, character.attributes[attr] + delta)
                     },
+                )
+                HorizontalDivider()
+            }
+
+            item {
+                Text(
+                    "Secondary characteristics",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                )
+            }
+
+            items(secondaryRows) { row ->
+                // The STEPS come from the save, never from the composed
+                // character: a potion grant lands in the same field, and
+                // stepping from the composed figure would buy the grant a
+                // second time.
+                val bought = session.edits.secondaries[row.key] ?: 0
+                SecondaryRow(
+                    row = row,
+                    // Never null for a priced row, and pinned by
+                    // SecondaryPurchaseTest: a content file that grew a
+                    // seventh price without a field to put it in should fail
+                    // loudly rather than drop the row off the screen.
+                    value = checkNotNull(
+                        SecondaryCharacteristics.valueLabelOf(derived.secondaries, row.key),
+                    ) { "${row.characteristic} is priced and has no value to show" },
+                    steps = bought,
+                    onChange = { delta -> session.setSecondary(row.key, bought + delta) },
                 )
                 HorizontalDivider()
             }
@@ -364,6 +399,65 @@ private fun AttributeRow(attr: Attr, level: Int, startingLevel: Int, onChange: (
             modifier = Modifier.padding(horizontal = 8.dp),
         )
         OutlinedIconButton(onClick = { onChange(1) }, enabled = level < MAX_ATTRIBUTE) { Text("+") }
+    }
+}
+
+/**
+ * A secondary characteristic, what it reads now, and what the book charges to
+ * move it (Ch. 2, pp. 8-9).
+ *
+ * The price is the book's own printed cell rather than a computed figure:
+ * `SecondaryCharacteristics.costOf` already bills the purchase through the
+ * budget bar above, and an arithmetic second site here is a copy that can
+ * drift from the one doing the billing.
+ *
+ * Basic Speed steps by a quarter and shows two decimals, because that is the
+ * unit its row is priced in -- the value label and the step both come from
+ * the rules rather than from a `when` on this screen.
+ *
+ * The second line says what was BOUGHT here, not what the sheet printed.
+ * Comparing against the published column is `SheetComparison`'s job and it
+ * renders one tap away -- and a copy of it here would have been wrong about
+ * the very rows the sheets disagree on, since at least 19 of the 23 floor
+ * Basic Speed where the book does not (Codex, verified on an SM-T570: the
+ * sheet screen reads `4.50 (sheet: 4.00)` for a row this line would have
+ * called "sheet prints 4.50").
+ */
+@Composable
+private fun SecondaryRow(
+    row: SecondaryCost,
+    value: String,
+    steps: Int,
+    onChange: (Int) -> Unit,
+) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(row.characteristic, style = MaterialTheme.typography.titleMedium)
+            Text(
+                buildString {
+                    append(row.cost)
+                    if (steps != 0) append(" — ${steps.signed()} bought")
+                },
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        OutlinedIconButton(
+            onClick = { onChange(-1) },
+            enabled = steps > -MAX_SECONDARY_DELTA_MAGNITUDE,
+        ) { Text("−") }
+        Text(
+            value,
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 8.dp),
+        )
+        OutlinedIconButton(
+            onClick = { onChange(1) },
+            enabled = steps < MAX_SECONDARY_DELTA_MAGNITUDE,
+        ) { Text("+") }
     }
 }
 

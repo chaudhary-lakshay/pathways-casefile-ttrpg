@@ -4,6 +4,7 @@ import com.pathways.model.Attr
 import com.pathways.model.Attributes
 import com.pathways.model.Character
 import com.pathways.model.Difficulty
+import com.pathways.model.SecondaryDelta
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
 import com.pathways.rules.Appearance
@@ -14,6 +15,7 @@ import com.pathways.rules.TraitEffects
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -554,5 +556,39 @@ class EditedCharacterTest {
             instanced = listOf(SavedInstancedTrait("Secret", instance = "A body", cost = 999)),
         ).applyTo(mortal)
         assertTrue(edited.traits.none { it.name == "Secret" })
+    }
+
+    @Test
+    fun `a bought secondary characteristic reaches the character and the budget`() {
+        // PointBudget has billed SecondaryCharacteristics.costOf since M0 and
+        // nothing ever built a non-default delta, so the six rows the book
+        // prices on pp. 8-9 could not be bought at all.
+        val plain = Derive.of(mortal)
+        val edited = SavedEdits(secondaries = mapOf("hp" to 1)).applyTo(mortal)
+        val after = Derive.of(edited)
+        assertEquals(plain.secondaries.maxHp + 1, after.secondaries.maxHp)
+        assertEquals(
+            plain.budget.spent + 2,
+            after.budget.spent,
+            "the book prices HP at 2 pts per level",
+        )
+    }
+
+    @Test
+    fun `a bought secondary adds to one a potion granted`() {
+        // A grant lands in this same field (PotionDigestion), so a sparse map
+        // naming one row must not zero the rest.
+        val granted = mortal.copy(secondaryDelta = SecondaryDelta(will = 1))
+        val edited = SavedEdits(secondaries = mapOf("will" to 1, "hp" to 1)).applyTo(granted)
+        // Bought on the SAME row as the grant: a merge that took the saved
+        // number as the answer would read 1 here rather than 2, and a test
+        // that only bought a different row could not see it (Codex).
+        assertEquals(2, edited.secondaryDelta.will)
+        assertEquals(1, edited.secondaryDelta.hp, "a row the grant never touched is still bought")
+    }
+
+    @Test
+    fun `a saved secondary counts as an edit`() {
+        assertFalse(SavedEdits(secondaries = mapOf("will" to 1)).isEmpty)
     }
 }

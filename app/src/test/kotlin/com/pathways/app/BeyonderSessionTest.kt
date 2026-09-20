@@ -1,6 +1,7 @@
 package com.pathways.app
 
 import com.pathways.model.BeyonderState
+import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.rules.Pool
 import com.pathways.rules.RandomSource
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -318,5 +319,32 @@ class BeyonderSessionTest {
         assertEquals(3, saved().spiSpent)
         s.drink(fool9, fixed(6)) { 10 }
         assertEquals(fool9, saved().beyonder)
+    }
+
+    @Test
+    fun `a bought secondary is stored by the book's row key, and zero is the way back`() {
+        val (s, saved) = session()
+        s.setSecondary("hp", 2)
+        s.setSecondary("basicSpeed", 1)
+        assertEquals(mapOf("hp" to 2, "basicSpeed" to 1), s.edits.secondaries)
+        assertEquals(mapOf("hp" to 2, "basicSpeed" to 1), saved().edits.secondaries)
+
+        // Back to what the sheet prints leaves no entry behind: a stored zero
+        // would keep the save looking edited forever. Cleared with a SECOND
+        // row saved, so emptying the whole map would fail here (Codex).
+        s.setSecondary("hp", 0)
+        assertEquals(mapOf("basicSpeed" to 1), s.edits.secondaries)
+        s.setSecondary("basicSpeed", 0)
+        assertTrue(s.edits.secondaries.isEmpty())
+        assertTrue(s.edits.isEmpty)
+    }
+
+    @Test
+    fun `a step past the model's bound is coerced at the setter`() {
+        val (s, _) = session()
+        s.setSecondary("hp", 10_000)
+        assertEquals(MAX_SECONDARY_DELTA_MAGNITUDE, s.edits.secondaries["hp"])
+        s.setSecondary("will", -10_000)
+        assertEquals(-MAX_SECONDARY_DELTA_MAGNITUDE, s.edits.secondaries["will"])
     }
 }
