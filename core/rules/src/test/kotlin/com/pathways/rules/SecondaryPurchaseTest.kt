@@ -84,6 +84,24 @@ class SecondaryPurchaseTest {
     }
 
     @Test
+    @DisplayName("a saved step at the type's extreme cannot wrap past the bound")
+    fun `the saved operand is coerced before it is added`() {
+        // Against an EMPTY base the addition cannot overflow, so the test
+        // above passes whether the operand is coerced before the sum or only
+        // after it. A carried step plus Int.MAX_VALUE wraps to Int.MIN_VALUE,
+        // which the bound then accepts as a legal -100 (Codex).
+        val granted = SecondaryDelta(hp = 1)
+        assertEquals(
+            MAX_SECONDARY_DELTA_MAGNITUDE,
+            SecondaryCharacteristics.plusSteps(granted, mapOf("hp" to Int.MAX_VALUE)).hp,
+        )
+        assertEquals(
+            -MAX_SECONDARY_DELTA_MAGNITUDE,
+            SecondaryCharacteristics.plusSteps(SecondaryDelta(hp = -1), mapOf("hp" to Int.MIN_VALUE)).hp,
+        )
+    }
+
+    @Test
     @DisplayName("every row the book prices is buyable and has a value to show")
     fun `the offered set is the content file's own priced rows`() {
         val priced = ContentLoader.secondaryCosts().filter { it.pointsPerStep != null }

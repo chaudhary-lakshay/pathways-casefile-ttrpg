@@ -6827,7 +6827,13 @@ of adding (the original test granted Will and bought HP, which the replacement
 satisfies; it buys Will on top of granted Will now), and `setSecondary`
 clearing to `emptyMap()` instead of removing the key (the original saved one
 row, so emptying it looked identical; two rows are saved and one is cleared
-now). The fourth added the lower bound to the setter's coercion test. The
+now). The fourth added the lower bound to the setter's coercion test. **The
+overflow fix above was itself untested for an hour**: the coercion test bought
+against an EMPTY base, where no addition can overflow, so it passed whether
+the operand was coerced before the sum or only after it — the fix for a
+finding about guards that cannot fire, shipped with a guard that could not
+fire. A carried step plus `Int.MAX_VALUE` is the case that discriminates, and
+it is RED-proved. The
 fifth asked for a Compose test of the stepper wiring and is refused on the
 standing reason: no test in this repo can reach a composable, which is why the
 rows below were read off a device. `?: return@items` became `checkNotNull`
@@ -6850,7 +6856,7 @@ engine-against-the-book diff a purchase must not move (6e). Stepping back to 9
 cleared the line, the budget and the saved entry together, and the purchase
 survived a reinstall before that.
 
-**1722 Kotlin** (1222 `core:rules`, 480 `app`, 20 `core:model`) and **347
+**1723 Kotlin** (1223 `core:rules`, 480 `app`, 20 `core:model`) and **347
 Python**, all green, counted from the JUnit XML after deleting the results
 directories — a filtered run leaves only its own leftovers and the next plain
 run reports UP-TO-DATE. Chapter coverage is untouched: nothing here claims a
