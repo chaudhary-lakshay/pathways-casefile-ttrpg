@@ -6726,6 +6726,149 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ea. Six rows the budget billed and no screen could ask for
+
+**6dz closed its census with a verdict and named no successor, so this slice
+began with two fresh sweeps.** Both came back clean and both are recorded with
+their bounds, because a sweep that finds nothing still has a deliverable (6de)
+and an instrument's reach is the part that expires.
+
+| Sweep | Unit | Result |
+|---|---|---|
+| every KEY in every content JSON checked for a Kotlin declaration | JSON key | **clean** — 81 files, one hit (`glossary.json`'s `"G"`, a chapter label inside `sourceLines`, not a field) |
+| every enum MEMBER checked for a production use | enum entry | **clean** — 116 members, 35 flagged and every one a false positive |
+
+The first is a direction this repo had not run and it has a real failure mode:
+`ContentLoader` builds its decoder with `ignoreUnknownKeys = true`
+(`ContentLoader.kt:14`), so a key an extractor writes that no `@Serializable`
+class declares is **dropped in silence at decode** — invisible to 6ai's
+fields-for-a-reader sweep, which iterates Kotlin declarations and therefore
+cannot see a key that never becomes one. **State its bound rather than the
+count**: the query matched the key as a word against all of `src/main`, so a
+key spelled like an unrelated Kotlin word (`name`, `cost`) passes on that word
+alone. The second sweep's 35 flags are the instrument too — it excluded the
+whole DECLARING file, so every member a picker reaches through `entries` (five
+`ThemeSeed`s, `Incoming`, `SheetTab`) reads as unused. Neither number is a
+finding; both are a measurement of the query.
+
+**What shipped came from 6dz's own closing paragraph, which named two real
+gaps and called them features.** `Character.secondaryDelta` is one of them:
+`PointBudget.report` has taken it and charged
+`SecondaryCharacteristics.costOf` since M0, `Derive` composes it,
+`PotionDigestion` adds grants into it — and **nothing in production ever
+constructed a non-default one**, so the six rows chapter 2 prices on pp. 8-9
+(HP ±2, FP ±3, Will ±5, Per ±5, Basic Speed ±5 per 0.25, Basic Move ±5) could
+be billed and never bought. The engine could charge for them and no screen
+could ask. That is 6dz's own defect class — a parameter with no non-default
+argument — one rung up, at a FIELD whose only writer was a potion.
+
+Read it for six things.
+
+**The save stores the book's row key, not the object the engine bills.**
+`SavedEdits.secondaries` is a `Map<String, Int>` — `"hp"`, `"basicSpeed"` —
+because `SecondaryDelta`'s `init` rejects a magnitude over 100 and
+`SessionStore.load` discards the WHOLE file on a decode failure, so one
+hand-edited number would delete every other edit a player had made. That is
+the same rule `wealth`, `appearance` and `traits` already follow: a save NAMES
+and the book RESOLVES. The design review's condition on accepting it is
+recorded in the field's KDoc — those keys are stable save identifiers from
+here on, so renaming a row in `secondary_costs.json` stops applying every save
+that named it, silently — and it corrected the argument I had written for it:
+*"a map cannot throw at decode"* is too strong, since a wrong JSON value type
+still loses the file. It avoids exactly one throw, the constructor's.
+
+**The merge ADDS and the reason is a state, not a preference.** My
+decomposition proposed replacing `base.secondaryDelta` when the map is
+non-empty, on the evidence that no fixture carries a non-zero delta (checked,
+not assumed — a grep for the field across `fixtures/` returns nothing). The
+review named the state that breaks it: a potion grants Will +1, the player
+buys a point of HP, and a sparse map naming one row zeroes the granted Will.
+**A reachability claim about today's fixtures is not an argument about the
+API**, and `PotionDigestion` is the caller that proves it — it has been adding
+into this field since M3.
+
+**One key→field table, and the pin test keeps its own.** `stepsOf`,
+`withSteps`, `plusSteps` and `valueLabelOf` all live in
+`SecondaryCharacteristics`, so the stepper, the resolver and the value shown
+beside it ask one authority rather than each carrying a copy (6dv). The
+obvious tidy-up — rewriting `SecondaryCostPinTest.engineCostOf` to call the
+new mapping — was **refused by the design review with the arithmetic that
+settles it**: four of the six rows cost 5 points, so a mapping that sent Will,
+Per, Basic Speed and Basic Move to one field would satisfy that test's price
+loop unchanged. The test's independent `when` is the oracle and stays.
+
+**The diff review's two MEDIUMs were one line, and the device had already
+printed the proof.** `SecondaryRow` first carried a *"sheet prints 4.50"*
+comparison derived from the unedited CHARACTER — the engine's own derivation,
+not the sheet's printed column — and at least 19 of the 23 sheets floor Basic
+Speed where the book does not. The Vitals screen one tap away reads
+**`Basic Speed 4.50 (sheet: 4.00)`** for that very row, so the line would have
+asserted the opposite of the recorded disagreement on the majority of the
+corpus. Its second MEDIUM is the same line from the other side: gating the
+comparison on `steps != 0` hides a potion-granted value that also differs.
+**Both die by deleting the claim rather than repairing it** —
+`SheetComparison` is the authority for computed-versus-published and it
+renders correctly one tap away, so a copy here was a third printing of a
+number (6cr). What ships says what this screen can back:
+`±2 pts per level — +1 bought`.
+
+**The third MEDIUM is an overflow the bound could not catch.** `plusSteps`
+folded the saved steps onto the carried ones and coerced afterwards, so a
+hand-edited `Int.MAX_VALUE` plus any positive grant wraps negative and lands
+inside ±100 as a legal purchase. The saved operand is coerced BEFORE the
+addition now. **A bound applied after arithmetic is not a bound on the
+arithmetic.**
+
+**Four of the five LOWs were vacuity and all four bit.** Three are RED-proved
+by mutation: `valueLabelOf("hp")` reading `maxFp` (the original test used a
+default character, where HP and FP are both 9 — so the assertion survived the
+swap; the fixture now has six DISTINCT values), `plusSteps` replacing instead
+of adding (the original test granted Will and bought HP, which the replacement
+satisfies; it buys Will on top of granted Will now), and `setSecondary`
+clearing to `emptyMap()` instead of removing the key (the original saved one
+row, so emptying it looked identical; two rows are saved and one is cleared
+now). The fourth added the lower bound to the setter's coercion test. The
+fifth asked for a Compose test of the stepper wiring and is refused on the
+standing reason: no test in this repo can reach a composable, which is why the
+rows below were read off a device. `?: return@items` became `checkNotNull`
+with a message — unreachable while the content test holds, and a priced row
+the mapping cannot label should fail loudly rather than vanish (6dy's
+`requireNotNull`, same shape).
+
+**Device-verified on an SM-T570, both directions.** Church Healer (ST 9, IQ
+11, HT 9): the section renders six rows and only six — SPI, CoR and Digestion
+carry no `pointsPerStep` and offer no stepper, which is the book's refusal
+read off the data rather than a list of three names. Basic Speed **4.50 →
+4.75** on one tap with the budget going **102 of 105, 3 spare → 107 of 105 —
+over budget** in red: five points for one QUARTER, which is the unit the whole
+parse turns on. Basic Move stayed 4 under it, because 4.75 still floors to 4.
+HP **9 → 10** at 104 of 105, the sub-line reading `±2 pts per level — +1
+bought`, and the sheet's own pool tracker one screen back reading **HP 10 /
+10** while its comparison table still reads HP 9 — correct, and worth stating:
+that table is `SheetComparison.of(sheet)`, keyed on the SHEET, so it stays the
+engine-against-the-book diff a purchase must not move (6e). Stepping back to 9
+cleared the line, the budget and the saved entry together, and the purchase
+survived a reinstall before that.
+
+**1722 Kotlin** (1222 `core:rules`, 480 `app`, 20 `core:model`) and **347
+Python**, all green, counted from the JUnit XML after deleting the results
+directories — a filtered run leaves only its own leftovers and the next plain
+run reports UP-TO-DATE. Chapter coverage is untouched: nothing here claims a
+book line, which is the fourth measurement that applying a rule and moving a
+percentage are different things.
+
+**No successor is named.** The gap this slice closes was one of the two 6dz
+recorded, and the other — `Character.weapons`, what `ParryBlock` has been
+waiting on since M0 — is now the only one of the two left. It needs the same
+additive `SavedEdits` widening this slice just proved out, plus a picker over
+`Weapons.all()`; that is a design review's question, not a sentence here. The
+sweep directions that have now been run and expire rather than standing:
+fields for a reader (6ai), functions for a caller (6cf), rows for a consumer
+(6ci), files for a loader (6dg), strings a screen types (6cq), seams between
+claimed spans (6ba), what the tests know that production does not (6bz),
+parameters with no non-default argument (6dz), **JSON keys with no Kotlin
+declaration** and **enum members with no production use** (6ea).
+
 ## 6dz. The sweep 6dy named, run — and a chip whose only effect was nothing
 
 **6dy named a sweep and this is it: every optional parameter checked for a

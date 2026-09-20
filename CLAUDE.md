@@ -112,7 +112,55 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6dz is newest, and it ran the sweep 6dy named: every optional parameter
+**6ea is newest, and it is a field whose only writer was a potion.**
+`PointBudget.report` has billed `SecondaryCharacteristics.costOf` since M0,
+`Derive` composes it and `PotionDigestion` adds grants into it — and **nothing
+in production ever constructed a non-default `SecondaryDelta`**, so the six
+rows chapter 2 prices on pp. 8-9 (HP ±2, FP ±3, Will ±5, Per ±5, Basic Speed
+±5 per 0.25, Basic Move ±5) could be charged for and never bought. That is
+6dz's own defect class one rung up, at a FIELD rather than a parameter. It
+ships as a `Secondary characteristics` section of steppers in the builder.
+Read it for six things. **The save stores the book's ROW KEY** (`"hp"`,
+`"basicSpeed"`) to the steps bought, not a `SecondaryDelta`, because that
+class rejects a magnitude over 100 in its constructor and `SessionStore.load`
+discards the WHOLE file on a decode failure — the same NAME-and-resolve rule
+`wealth`, `appearance` and `traits` already follow, and those keys are stable
+save identifiers from here on. **The merge ADDS**: my decomposition proposed
+replacing `base.secondaryDelta` on the evidence that no fixture carries one,
+and the design review named the state that breaks it — a granted Will +1 goes
+to zero the moment a player buys a point of HP. **A reachability claim about
+today's fixtures is not an argument about the API.** **The obvious tidy-up was
+refused with arithmetic**: rewriting `SecondaryCostPinTest.engineCostOf` to
+call the new mapping would have left four rows indistinguishable, because Will,
+Per, Basic Speed and Basic Move all cost 5, so that test keeps its own
+independent `when` as the oracle. **The diff review's two MEDIUMs were one
+line and the device had already disproved it**: a *"sheet prints 4.50"*
+comparison derived from the unedited CHARACTER, where the Vitals screen one
+tap away reads `Basic Speed 4.50 (sheet: 4.00)` — at least 19 of the 23 sheets
+floor Basic Speed and the line asserted the opposite on all of them. It is
+DELETED rather than repaired, because `SheetComparison` is the authority for
+computed-versus-published and renders one tap away (6cr); what ships is
+`±2 pts per level — +1 bought`, which is a claim this screen can back. The
+third MEDIUM is an overflow: coercing AFTER the addition let a hand-edited
+`Int.MAX_VALUE` wrap negative into a legal purchase — **a bound applied after
+arithmetic is not a bound on the arithmetic.** And **four of five LOWs were
+vacuity and all four bit**, three RED-proved by mutation, including a label
+test that survived reading HP out of FP because a default character has 9 of
+each. **Device-verified on an SM-T570 in both directions** (Basic Speed 4.50 →
+4.75 taking the budget 102/105 to `107 of 105 — over budget`, five points for
+one QUARTER; HP 9 → 10 at 104/105; stepping back clearing the line, the budget
+and the saved entry together). **Its two fresh sweeps both came back clean and
+both are recorded with their bounds**: every content JSON KEY checked for a
+Kotlin declaration (81 files, one hit and it is a chapter label) — which
+matters because `ContentLoader` decodes with `ignoreUnknownKeys = true`, so an
+undeclared key is dropped in SILENCE and 6ai's sweep cannot see it — and every
+enum MEMBER checked for a production use (116 members, 35 flagged and every one
+a false positive, because the query excluded the declaring file and a picker
+reaches its members through `entries`). **Neither number is a finding; both
+measure the query.** **No successor is named**: `Character.weapons` is now the
+only one of 6dz's two recorded gaps left, and it wants its own design review.
+
+**6dz is next, and it ran the sweep 6dy named: every optional parameter
 checked for a non-default ARGUMENT.** 369 optional public parameters across
 `core/rules` and `core/model`, 175 excluded by the query's own rules (a
 `ContentLoader` default and a `RandomSource` are deliberate test seams), **36
@@ -1349,7 +1397,7 @@ validity, not catalogue identity."** It refuses a rule that resolves two more
 sheet spellings and that excludes every objection previously raised against it
 — because excluding counter-examples is not the same as producing evidence.
 
-**Where to start next: 6dz, then 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6ea, then 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1580,7 +1628,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1710 Kotlin** (JUnit 5 — 1215 `core:rules`, 475 `app`, 20 `core:model`) + **347 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1722 Kotlin** (JUnit 5 — 1222 `core:rules`, 480 `app`, 20 `core:model`) + **347 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1669,6 +1717,18 @@ ParryBlock.unarmedParry(style, skillLevel): Int
 ParryBlock.blockFor(shieldSkillLevel, shieldDb): Int
 PointBudget.report(...): BudgetReport
 SecondaryCharacteristics.of(a, d): Secondaries
+SecondaryCharacteristics.costOf(d): Int            // what PointBudget bills
+SecondaryCharacteristics.stepsOf(d, key) / .withSteps(d, key, steps)
+SecondaryCharacteristics.plusSteps(base, steps: Map<String, Int>)
+                                      // the book's own row key from
+                                      // secondary_costs.json -> steps bought;
+                                      // ADDS, because a potion grant lands in
+                                      // the same field. Basic Speed counts
+                                      // QUARTERS, and an unpriced or unknown
+                                      // key changes nothing
+SecondaryCharacteristics.valueLabelOf(s, key): String?
+                                      // null for spi/cor/digestion: the three
+                                      // rows the table refuses to price
 SkillLadder.levelFor(points, difficulty, attributeLevel): Int
 SkillLadder.defaultFor(difficulty, attributeLevel): Int?
 SuccessRoll.against(target, source: RandomSource): RollResult
@@ -2003,10 +2063,13 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ### Known gaps left deliberately
 
-- **Traits and weapons are not editable yet.** `SavedEdits` covers the four
-  attributes and bought skills; advantages, disadvantages and weapons still
-  come only from the published sheet. Weapons are what `ParryBlock` is waiting
-  on.
+- **Weapons are not editable yet.** `SavedEdits` covers the four attributes,
+  bought skills, wealth, appearance, traits (fixed-price and instanced) and —
+  since 6ea — the six priced secondary characteristics; weapons still come
+  only from the published sheet, and they are what `ParryBlock` has been
+  waiting on since M0. Widen `SavedEdits` ADDITIVELY: `SessionStore.load`
+  discards the whole file on a decode failure, so a shape change drops every
+  existing save.
 - **Advantage and drawback rows are prose, not structure.** The flattened PDF
   gives no boundary between a wrapped effect line and the next row's name, and
   this PDF reports x=0 for every glyph so column geometry is unavailable. See

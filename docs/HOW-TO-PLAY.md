@@ -19,7 +19,7 @@ it does the arithmetic. Nothing is hidden and nothing is invented.
 | **Premade list** | opens first | pick one of the 23 published characters |
 | **Sheet** | tap a premade | play: roll skills, fight, cast, divine |
 | **Pathway** | the **Pathway** tile on the sheet — labelled **Drink a potion** until you have drunk one | drink potions, advance Sequence, track digestion |
-| **Builder** | the **Spend points** tile on the sheet | change attributes and buy skills against a live budget |
+| **Builder** | the **Spend points** tile on the sheet | change attributes and secondary characteristics, and buy skills, against a live budget |
 
 ---
 
@@ -247,6 +247,15 @@ budget, and skills bought at the ladder's own cost. **Add a skill** buys one.
 **Wealth** and **Appearance** each have a row with a **Change** button (the
 wealth one opens a picker titled *Economic status*), and picking a level
 replaces the one you had rather than stacking a second.
+
+Under the attributes, **Secondary characteristics** has a stepper for each of
+the six the book prices — HP, Will, Perception, FP, Basic Speed and Basic Move
+— with the book's own price beside it (*±2 pts per level*, and *±5 pts per
+0.25* for Basic Speed, which steps a quarter at a time). Spirituality, CoR and
+Digestion have no stepper because the book prices none of them. Stepping back
+to the printed value clears the purchase; the sheet's own **computed vs.
+as-published** table keeps showing what the sheet printed, because that
+comparison is the engine against the book and a purchase is neither.
 
 Traits the book prints with a cost range or a "(specify)" name are bought by
 naming the instance and its price — the app stores the row, the variant and the
