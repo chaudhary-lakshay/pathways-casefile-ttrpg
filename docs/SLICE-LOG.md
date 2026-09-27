@@ -6858,7 +6858,7 @@ reconstructing work it did not witness. **A lead paragraph can be the only
 copy** — 6cp's rule was that a closing paragraph is the one part of this log
 nothing verifies, and this is the same hazard one file over.
 
-**1730 Kotlin** (1227 `core:rules`, 483 `app`, 20 `core:model`) and **347
+**1732 Kotlin** (1227 `core:rules`, 485 `app`, 20 `core:model`) and **347
 Python**, all green, counted from the JUnit XML after deleting the results
 directories. Chapter coverage is untouched: nothing here claims a book line.
 
