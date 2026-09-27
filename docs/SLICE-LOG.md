@@ -6815,14 +6815,36 @@ whose repeat simply vanished behind the canonical entry ahead of it, and a
 drop test that used the canonical spelling for both calls. **A test written
 for a rule about SPELLING must use a spelling the code has to normalise.**
 
-**NOT device-verified, and that is a plain statement rather than a skipped
-step.** No device is attached this session; the SM-T570 that verified 6ea and
-6dz is disconnected. The APK assembles and all 1730 Kotlin tests pass, and
-nothing in this repo can assert a Compose label, so **three claims in this
-slice are unproved until someone taps them**: that the Weapons row renders in
-the builder, that the picker carries a weapon, and that an armed parry row
-appears in the defence dialog with the cumulative penalty applied. The unit
-layer under each of them is tested; the wiring is not.
+**Device-verified on an SM-T570 on 2026-09-27, in the session after the one
+that shipped it.** All three claims held. The carrier was the Journalist,
+which carries no Knife at all, so the untrained line and the granted one are
+the SAME row read twice: as a mortal it printed *"Knife — not a skill this
+character has, so no parry"* with the defence dialog showing no armed row at
+all, and after one Error Sequence 9 potion (*Marauder*: DX +1, then Knife at
+DX/Easy +3) it printed **"Knife 13 — parry 9"**. The defence dialog one tap
+away printed **`Parry (Combat Knife) 9`** — **one expression, two screens,
+one number**, which is the check that discriminates the post-review
+`liveSkillLevels` fix and the only one of the three the pre-fix code would
+have failed. The picker offered **all nine catalogue rows**, including the
+four firearms and the five this character cannot wield, marking the taken one
+*"· carried"*; the budget stayed at 91 of 100, because a weapon costs no
+points. The cumulative penalty ran `9` to `5` on one prior parry, with the
+note moving from *"The first parry of a round is free"* to *"Parry rows above
+include −4"*, and `New round` put both back. And the carry survived an
+`am force-stop`: `sessions.json` holds `"weapons": ["Combat Knife"]` — the
+catalogue NAME, as designed — beside the Error block, and the row read back
+`Knife 13 — parry 9` on relaunch. **The additive widening is proved by the
+saves that predate it**: the two entries written before this field existed
+loaded without loss.
+
+**One thing the pass found outside the slice, recorded and not repaired.**
+`PremadeGallery.isBeyonder` is `sheet.published.spi > 0`, so a character the
+player walks onto a pathway keeps its `Mortal` tab and its `SPI 0` in the
+roster while the sheet one tap away says otherwise. That is not this slice's
+defect and it may not be a defect at all — every number in a gallery row is
+the PUBLISHED sheet's, attributes included, so the screen is internally
+consistent and nothing says it is meant to show live state. It wants its own
+reading before anyone calls it the one-question-two-sites shape.
 
 **One environment fact worth inheriting.** Gradle failed six times in this
 session with `java.io.IOException: Unable to delete directory` on

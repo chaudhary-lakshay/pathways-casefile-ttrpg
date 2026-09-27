@@ -147,14 +147,26 @@ its skill levels from `Derive` while the sheet screen has folded a potion's
 grants in since M3, so a Beyonder would read one parry beside the weapon and
 another on the defence screen — `liveSkillLevels` is the one expression now,
 and it was found by checking what the OLDER call site held rather than the
-line I had just written. **NOT device-verified — no device is attached this
-session**, so three claims are unproved until someone taps them: the row
-renders, the picker carries, and an armed parry appears with the cumulative
-penalty. And one environment fact: Gradle failed six times with `Unable to
+line I had just written. **Device-verified on an SM-T570 on 2026-09-27**,
+in the session after the one that shipped it, and all three claims held. The carrier was the
+Journalist, who has no Knife at all, so ONE row was read twice: *"Knife —
+not a skill this character has, so no parry"* as a mortal, and **"Knife 13
+— parry 9"** after one Error Sequence 9 potion. The defence dialog one tap
+away printed **`Parry (Combat Knife) 9`** — one expression, two screens,
+one number, and the only one of the three checks the pre-fix code would
+have failed. The picker offered all nine rows including the four firearms,
+the parry ran 9 to 5 on one prior parry and back on `New round`, and the
+carry survived a force-stop as `"weapons": ["Combat Knife"]`. And one
+environment fact: Gradle failed six times with `Unable to
 delete directory` on Windows, **indistinguishable from a build failure in the
 exit code**; `rm -rf` the named directory and re-run. **No successor is
-named** — both gaps 6dz recorded are closed, and what is outstanding is a
-device pass over this slice rather than a sweep. **It also cut the lead
+named** — both gaps 6dz recorded are closed, and the device pass that was
+outstanding is done, so the next slice needs a fresh sweep. One thing the
+pass found outside the slice is recorded and NOT repaired: `PremadeGallery
+.isBeyonder` is `sheet.published.spi > 0`, so a character walked onto a
+pathway keeps its `Mortal` tab and `SPI 0` in the roster — which may be
+correct, because every number in a gallery row is the PUBLISHED sheet's.
+**It also cut the lead
 paragraphs for 6cz down to 6cd**, because this file went back over the
 150 k-char limit (152,583); each was checked against the slice log first, and
 **6ct had no section there at all** — its paragraph was the only copy, and it
