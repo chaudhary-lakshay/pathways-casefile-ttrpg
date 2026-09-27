@@ -6764,8 +6764,10 @@ until the same query has returned non-zero on data known to contain the
 thing.**
 
 **What the control turned up is the slice.** Of the ten qualifier lines it
-found, every one wraps onto a following line, and for eight the wrap is in the
-stored note. For two it is not:
+found, one is ability prose (White Tower Seq 6, line 8226, a false positive
+of the regex) and one does not wrap at all (Death Seq 7's `+2 (upgrade)`).
+Eight wrap onto a following line; **six carry their continuation into the
+stored note and two lost it**:
 
 - **White Tower Seq 9** (book 5640-5641). The book prints `IQ +1 (knowledge
   retention and learning)`. Stored: the stat note was `"(knowledge retention"`
@@ -6827,6 +6829,23 @@ found. **The signature change is what found the second call site**:
 `extract_non_standard.py` shares `extract()` and failed loudly with a
 `TypeError` rather than quietly keeping the old answer.
 
+**A THIRD site was found by reading `b1c8c4e`'s own file list, and it is
+the worst of them.** That commit refiled three content files, not two:
+`pool_thresholds.json` moved lines 2346-2356 from chapter 5 to chapter 4.
+`extract_pools.py` did not bucket by page — it had `CHAPTER = "5"`, a
+constant, and wrote BOTH printed ranges under it. The SPI ladder prints in
+chapter 4 (Spirituality, heading at 2247) and only the HP one is chapter
+5's (heading 2361), so a re-run put the refile straight back — confirmed by
+running it. **A hardcoded answer cannot learn a correction**, and nothing
+in the file said where the number came from. `chapter_spans` asks the same
+`chapter_at`, and a range no heading precedes RAISES rather than returning
+None, which would have written the key as JSON `null`. The regenerated file
+is set-identical to `HEAD`; only the key ORDER moves, because the ranges are
+now iterated in the file's own ascending line order. The fourth two-line
+header `b1c8c4e` names is `non_standard_pathways.json`'s `[9323,9324]`, and
+`extract_core_rules.py` writes a single hardcoded `CHAPTER` for a file
+wholly inside one chapter, so it is not a fourth site.
+
 **The oracle for that half was the committed file itself.** Chapter headings
 sit at 5416 / 6217 / 7043 / 8098 / 8908, and `HEAD`'s spans end at 6216, 7042,
 8097 and 8905 — exactly heading-partitioned, because `b1c8c4e` did it by hand.
@@ -6836,6 +6855,18 @@ loop no longer breaks a block where the chapter key changed, so
 counts (751 / 820 / 1049 / 803) match `HEAD` exactly, and `coverage.py`
 compares line SETS, never ranges (4.6). `non_standard_pathways.json` merged the
 same way with no content change.
+
+**The partition half is pinned by a test that RED-proves against the old
+behaviour, not merely against a missing function.** The first version of
+`test_a_line_above_a_mid_page_chapter_heading...` exercised `chapter_at`
+alone, and `test_a_block_stops_at_the_next_chapter_heading`'s fixture had
+the page boundary and the heading on the same line — so reverting
+`chapter_of` to page bucketing left all 351 tests green, which is the exact
+silent revert this slice exists to stop. **An `AttributeError` proves a
+function is missing, not that a behaviour changed.** That fixture now puts
+a chapter 9 line on chapter 10's PAGE, the way 6167 sits in the book, and
+the mutation fails it with the defect's own shape
+(`{'10': [[3, 3], [6, 8]]}`).
 
 **Two corpus guards ship, and each RED-proved on a DIFFERENT instance.**
 Against the committed pre-fix JSON,

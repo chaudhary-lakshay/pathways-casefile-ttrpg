@@ -410,7 +410,10 @@ def test_a_block_stops_at_the_next_chapter_heading():
     lines = [
         {"n": 1, "page": 1, "text": "Sequence 9: Seer · Fool Pathway"},
         {"n": 2, "page": 1, "text": " Ability"},
-        {"n": 3, "page": 1, "text": "Spirit Vision: sees ghosts and spectres."},
+        # ON PAGE 2, above chapter 10's heading: the ability text runs onto
+        # the next chapter's first page, which is what lines 6167, 7041 and
+        # 8096 do in the book. Bucketing by page files it under 10; it is 9's.
+        {"n": 3, "page": 2, "text": "Spirit Vision: sees ghosts and spectres."},
         {"n": 4, "page": 2, "text": "Chapter 10: Sequence 8 Potion Effects"},
         {"n": 5, "page": 2, "text": "How to Read These Entries: read +N as Attribute + N."},
         {"n": 6, "page": 2, "text": "Sequence 8: Clown · Fool Pathway"},
@@ -423,8 +426,23 @@ def test_a_block_stops_at_the_next_chapter_heading():
 
     assert entries[0]["ability"] == "Spirit Vision: sees ghosts and spectres."
     assert entries[0]["sourceLines"] == [1, 3]
-    # the intro is left unclaimed rather than credited to the previous block
+    # the intro is left unclaimed rather than credited to the previous block,
+    # and line 3 is claimed under 9 although it sits on chapter 10's PAGE
     assert spans == {"9": [[1, 3]], "10": [[6, 8]]}
+
+
+def test_the_two_pool_tables_are_filed_under_the_chapters_that_print_them():
+    """`extract_pools` hardcoded CHAPTER = "5" and filed BOTH tables under
+    Combat. The SPI ladder prints in chapter 4 (Spirituality, heading at line
+    2247) and only the HP one is chapter 5's (heading 2361), so b1c8c4e had to
+    refile lines 2346-2356 by hand -- and a re-run put them back. The chapter
+    a line belongs to is asked of the headings now, at this site too."""
+    spans = extract_pools.chapter_spans({"3": 443, "4": 2247, "5": 2361, "6": 2995})
+    assert spans == {"4": [[2346, 2356]], "5": [[2697, 2708]]}
+    # a range no heading precedes must raise: a None key writes JSON "null",
+    # which is a chapter nobody can claim and nothing would report
+    with pytest.raises(ValueError, match="no chapter heading precedes"):
+        extract_pools.chapter_spans({"9": 9999})
 
 
 def test_no_pathway_string_is_cut_mid_parenthetical():

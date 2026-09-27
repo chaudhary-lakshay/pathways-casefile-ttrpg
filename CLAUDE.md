@@ -115,7 +115,7 @@ nothing new unless the batches change.
 **6ec is newest, and its sweep came back clean while the defect sat beside
 it.** The direction was the inverse of 6ea's — every declared `@Serializable`
 property checked for a JSON key that actually SETS it, since a property no
-data file populates is always its default. Read it for six things. **The
+data file populates is always its default. **The
 first two runs measured the instrument**: matching property names against the
 union of all 81 files' keys returned 0 of 471 because a key named `name` is in
 nearly every file, and the tightened per-file version silently covered **73 of
@@ -145,7 +145,16 @@ hand-refiled `pathways.json` to match, and `extract_pathways.py` was never
 taught — so re-running it **silently reverts that commit**, and only reading
 the diff can see it. `chapter_at` asks `coverage.heading_lines` now, and the
 signature change is what found the second call site (`extract_non_standard.py`
-shares `extract()` and failed loudly). The oracle was `HEAD` itself: the
+shares `extract()` and failed loudly). **Reading `b1c8c4e`'s own file list
+found a THIRD site and the worst kind**: `extract_pools.py` had
+`CHAPTER = "5"`, a CONSTANT, writing both printed ranges under Combat when
+the SPI ladder prints in chapter 4 — so a re-run reverted that refile too.
+**A hardcoded answer cannot learn a correction.** `extract_core_rules.py`
+also hardcodes one, correctly, for a file wholly inside one chapter.
+**And the partition test only became a test after the review**: reverting
+`chapter_of` left all 351 green, because its fixture had the page boundary
+and the heading on one line — **an `AttributeError` proves a function is
+missing, not that a behaviour changed.** The oracle was `HEAD` itself: the
 regenerated spans are set-identical to the committed ones and the per-chapter
 counts match exactly. **Two corpus guards ship and each RED-proved on a
 DIFFERENT instance**, which is why both are kept. **Device-verified on an
@@ -1401,7 +1410,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1732 Kotlin** (JUnit 5 — 1227 `core:rules`, 485 `app`, 20 `core:model`) + **351 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1732 Kotlin** (JUnit 5 — 1227 `core:rules`, 485 `app`, 20 `core:model`) + **352 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |

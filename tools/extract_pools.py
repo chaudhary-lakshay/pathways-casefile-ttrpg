@@ -27,11 +27,12 @@ are still the labels the book prints.
 """
 import json, pathlib, re, sys
 
+import extract_pathways as pathways
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LINES_PATH = ROOT / "build" / "extract" / "lines.json"
 OUT = ROOT / "core" / "rules" / "src" / "main" / "resources" / "content"
 
-CHAPTER = "5"
 SPI_RANGE = (2346, 2356)
 HP_RANGE = (2697, 2708)
 
@@ -102,6 +103,29 @@ def verify(rows):
         raise ValueError(f"the attrition row no longer states -3: {attrition['effect']!r}")
 
 
+def chapter_spans(heading_of):
+    """Which chapter each printed range is claimed under.
+
+    This was `CHAPTER = "5"` -- the question answered by hand, and answered
+    wrongly: the SPI ladder prints in chapter 4 (Spirituality) and only the
+    HP one is chapter 5's. b1c8c4e refiled it by hand and a re-run of this
+    file put it straight back, because the constant knew nothing about the
+    correction. It goes through the same `chapter_at` the potion tables use,
+    which is the one place that answers this.
+
+    A range no heading precedes RAISES rather than returning None, which
+    would write the key as JSON `null` -- a chapter nobody can claim and no
+    report would name.
+    """
+    spans = {}
+    for span in (SPI_RANGE, HP_RANGE):
+        cid = pathways.chapter_at(span[0], heading_of)
+        if cid is None:
+            raise ValueError(f"no chapter heading precedes line {span[0]}")
+        spans.setdefault(cid, []).append(list(span))
+    return spans
+
+
 def main():
     byn = load_lines()
     rows = parse(stream(byn, *SPI_RANGE), "SPI") + parse(stream(byn, *HP_RANGE), "HP")
@@ -109,7 +133,7 @@ def main():
 
     OUT.mkdir(parents=True, exist_ok=True)
     payload = {
-        "sourceLines": {CHAPTER: [list(SPI_RANGE), list(HP_RANGE)]},
+        "sourceLines": chapter_spans(pathways.heading_of_chapters(pathways.load_lines())),
         "entries": rows,
     }
     (OUT / "pool_thresholds.json").write_text(
