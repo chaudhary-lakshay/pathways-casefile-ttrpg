@@ -591,4 +591,35 @@ class EditedCharacterTest {
     fun `a saved secondary counts as an edit`() {
         assertFalse(SavedEdits(secondaries = mapOf("will" to 1)).isEmpty)
     }
+
+    @Test
+    fun `a carried weapon resolves against the catalogue, and an unknown name is skipped`() {
+        // A name the book no longer prints is DROPPED rather than guessed at,
+        // and kept in the file -- the same call a saved trait takes, because
+        // a content fix may print it again.
+        val carried = SavedEdits(weapons = listOf("Broadsword", "Zweihander")).carriedWeapons()
+        assertEquals(listOf("Broadsword"), carried.map { it.name })
+    }
+
+    @Test
+    fun `one weapon is carried once however a save spells it`() {
+        // Two identical parry rows read as a defect on screen, and the nine
+        // catalogue rows all carry distinct names, so there is nothing a
+        // repeat could mean. Hand-edited case is folded in too.
+        val carried = SavedEdits(weapons = listOf("Broadsword", "broadsword", "Combat Knife"))
+            .carriedWeapons()
+        assertEquals(listOf("Broadsword", "Combat Knife"), carried.map { it.name })
+
+        // A save that carries ONLY the lowercase spelling still resolves, and
+        // under the catalogue's own name. Without this the test above passes
+        // with a case-SENSITIVE match, because the repeat just vanishes
+        // behind the canonical entry ahead of it (Codex).
+        val lower = SavedEdits(weapons = listOf("broadsword")).carriedWeapons()
+        assertEquals(listOf("Broadsword"), lower.map { it.name })
+    }
+
+    @Test
+    fun `a saved weapon counts as an edit`() {
+        assertFalse(SavedEdits(weapons = listOf("Broadsword")).isEmpty)
+    }
 }

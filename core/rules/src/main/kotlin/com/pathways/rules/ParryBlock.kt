@@ -28,6 +28,17 @@ enum class ParryClass(val perExtraParry: Int) {
  */
 object ParryBlock {
 
+    /**
+     * A published SHEET's weapon row, whose cell prints its own modifier.
+     *
+     * **No production caller today, and that is a scope decision rather than
+     * dead code.** None of the 23 sheets prints a weapon row, so this has
+     * never had data; the weapons a player carries are chapter 8's catalogue
+     * and are priced by [Weapons.parryFor], which takes no modifier because
+     * the book prints none. Kept, with its formula pinned by a test, for the
+     * provenance that does print one -- a sheet carrying a fencing blade at
+     * +1 would otherwise have that number silently dropped.
+     */
     fun parryFor(weapon: Weapon, skillLevel: Int): Int? =
         weapon.parryMod?.let { mod -> Math.floorDiv(skillLevel, 2) + 3 + mod }
 

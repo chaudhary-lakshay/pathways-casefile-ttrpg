@@ -179,4 +179,23 @@ class ParryBlockTest {
             defenses.single { it.defense == "Dodge" }.notes.contains("May be used repeatedly"),
         )
     }
+
+    /**
+     * The SHEET's weapon row, which is the only thing [ParryBlock.parryFor]
+     * answers for.
+     *
+     * These three cases lived in `DefenseDialogTest` until the defence
+     * dialog moved onto chapter 8's catalogue, where the book prints no
+     * per-weapon modifier. They move here rather than dying with that
+     * screen's shape: the function is the sheet path, kept for a published
+     * sheet that prints a weapon row, and a formula with no test is a claim.
+     */
+    @Test
+    fun `a sheet weapon parries at half its skill plus three, plus its own modifier`() {
+        val sword = SkillKey("Shortsword", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)
+        assertEquals(9, ParryBlock.parryFor(Weapon("Cane sword", sword, parryMod = 0), 13))
+        assertEquals(10, ParryBlock.parryFor(Weapon("Fencing blade", sword, parryMod = 1), 13))
+        // A dash on the sheet is not a +0: that weapon cannot parry at all.
+        assertNull(ParryBlock.parryFor(Weapon("Revolver", sword, parryMod = null), 13))
+    }
 }

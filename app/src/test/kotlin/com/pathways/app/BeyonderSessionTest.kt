@@ -347,4 +347,26 @@ class BeyonderSessionTest {
         s.setSecondary("will", -10_000)
         assertEquals(-MAX_SECONDARY_DELTA_MAGNITUDE, s.edits.secondaries["will"])
     }
+
+    @Test
+    fun `a weapon is carried once however it is spelled, and dropping it leaves the others`() {
+        val (s, saved) = session()
+        s.carryWeapon("Broadsword")
+        // The catalogue's nine rows carry nine distinct names, so a repeat is
+        // not a second weapon -- it would print a second identical parry row.
+        s.carryWeapon("broadsword")
+        s.carryWeapon("Combat Knife")
+        assertEquals(listOf("Broadsword", "Combat Knife"), s.edits.weapons)
+        assertEquals(listOf("Broadsword", "Combat Knife"), saved().edits.weapons)
+
+        // Dropped by a spelling the save does not use: both calls using the
+        // canonical name let a case-SENSITIVE comparison pass (Codex).
+        s.dropWeapon("BROADSWORD")
+        assertEquals(listOf("Combat Knife"), s.edits.weapons)
+        // A weapon that is not carried is not an error and writes nothing.
+        s.dropWeapon("Hand Axe")
+        assertEquals(listOf("Combat Knife"), s.edits.weapons)
+        s.dropWeapon("Combat Knife")
+        assertTrue(s.edits.isEmpty)
+    }
 }

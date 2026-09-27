@@ -52,6 +52,29 @@ object Weapons {
     }
 
     /**
+     * The level [weapon] is wielded at, or null when no skill this character
+     * has arms it.
+     *
+     * The HIGHEST among every matching skill, never the first the map yields:
+     * p. 85 makes two rows of one name at two difficulties into two different
+     * skills, and five of this book's potion grants produce exactly that, so
+     * iteration order would otherwise decide the number.
+     *
+     * Matched through [forSkill], the join that already exists and the one
+     * that reads the specialization. Going the other way would mean parsing
+     * "Guns (Revolver)" back into a [SkillKey], inventing a difficulty and a
+     * controlling attribute the catalogue never printed.
+     *
+     * A weapon no skill arms answers null rather than 0: a borrowed
+     * broadsword is still CARRIED, it just cannot be parried with, and 0
+     * would be a parry of 3.
+     */
+    fun levelFor(weapon: CataloguedWeapon, skillLevels: Map<SkillKey, Int>): Int? =
+        skillLevels.entries
+            .filter { (key, _) -> forSkill(key).any { it.name == weapon.name } }
+            .maxOfOrNull { it.value }
+
+    /**
      * Whether [weapon] is fired rather than held.
      *
      * The table has no such column, so the only signal in it is the Range

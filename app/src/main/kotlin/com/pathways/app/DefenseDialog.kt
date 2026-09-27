@@ -30,6 +30,8 @@ import com.pathways.rules.DefenseBoost
 import com.pathways.rules.DefenseRefusal
 import com.pathways.rules.Facing
 import com.pathways.rules.ParryBlock
+import com.pathways.rules.Weapons
+import com.pathways.rules.content.CataloguedWeapon
 import com.pathways.rules.RandomSource
 import com.pathways.rules.ShieldCoverage
 import com.pathways.rules.Shields
@@ -173,7 +175,7 @@ private fun NewRoundControl(round: RoundState, onNewRound: () -> Unit) {
 fun DefenseDialog(
     dodge: Int,
     skillLevels: Map<SkillKey, Int>,
-    weapons: List<Weapon> = emptyList(),
+    weapons: List<CataloguedWeapon> = emptyList(),
     /** The dice an Acrobatic Dodge is rolled with. */
     dice: RandomSource,
     /**
@@ -520,7 +522,7 @@ fun DefenseDialog(
                     DefenseRow(
                         label,
                         shielded(
-                            value + parryPenalty + boostOn(label, round.boost) + retreatParry,
+                            parryScore(value, parryPenalty, boostOn(label, round.boost), retreatParry),
                             shieldForDb,
                             everyDefence,
                         ),
@@ -549,7 +551,13 @@ fun DefenseDialog(
                     DefenseRow(
                         label,
                         shielded(
-                            value + parryPenalty + vsWeapon + boostOn(label, round.boost) + retreatParry,
+                            parryScore(
+                                value,
+                                parryPenalty,
+                                boostOn(label, round.boost),
+                                retreatParry,
+                                vsWeapon,
+                            ),
                             shieldForDb,
                             everyDefence,
                         ),
@@ -1230,23 +1238,43 @@ private fun ParriesThisRound(prior: Int, penalty: Int, onChange: (Int) -> Unit) 
 }
 
 /**
- * Each ready weapon's parry, paired with the level of the skill that wields it.
+ * What a parry row prints: the weapon's or the style's own number, plus every
+ * term that moves it.
  *
- * A weapon whose skill the character does not have is skipped: the book's
- * formula is `Weapon Skill / 2 + 3`, and there is no skill to halve. So is one
- * that cannot parry at all -- [Weapon.parryMod] is null where the sheet prints
- * a dash, which is not the same as parrying at +0, and [ParryBlock.parryFor]
- * returns null for it.
+ * ONE function for both row types on purpose. They differ by exactly one
+ * term -- an unarmed style parries a WEAPON at its own penalty, and a
+ * catalogue weapon does not -- and a term added to one composition and left
+ * out of the other is this project's most repeated defect: one question
+ * answered at two sites, taught at one. A reviewer found that deleting
+ * `parryPenalty` from the armed rows alone left every test green.
  *
- * No premade carries a weapon today, so nothing here is on screen yet; it is
- * one branch rather than a silent omission the first time one does.
+ * No test pins the sum, because a test of `a + b + c` restates it. What
+ * stops the drift is that there is one expression; whether the screen calls
+ * it with the right arguments is only reachable on a device.
+ */
+private fun parryScore(base: Int, penalty: Int, boost: Int, retreat: Int, vsWeapon: Int = 0) =
+    base + penalty + vsWeapon + boost + retreat
+
+/**
+ * Each carried weapon's parry, at the level of the skill that wields it.
+ *
+ * Chapter 8's catalogue, never [com.pathways.model.Weapon]: the book prints
+ * one formula for every weapon and no per-weapon modifier (see
+ * [Weapons.parryFor]), so a catalogue row has nothing a `parryMod` could be
+ * set from. [ParryBlock.parryFor] stays for the published sheets, which is
+ * the only provenance that prints one -- see its own KDoc.
+ *
+ * Two rows are skipped, for two different reasons. A weapon no skill of
+ * theirs arms has no level to halve, and it stays CARRIED -- possession is
+ * not training, and a borrowed broadsword is still in hand. A firearm cannot
+ * parry at all, which is not the same as parrying at +0.
  */
 internal fun armedParries(
-    weapons: List<Weapon>,
+    weapons: List<CataloguedWeapon>,
     skillLevels: Map<SkillKey, Int>,
 ): List<Pair<String, Int>> = weapons.mapNotNull { weapon ->
-    val level = skillLevels[weapon.skill] ?: return@mapNotNull null
-    ParryBlock.parryFor(weapon, level)?.let { weapon.name to it }
+    val level = Weapons.levelFor(weapon, skillLevels) ?: return@mapNotNull null
+    Weapons.parryFor(weapon, level)?.let { weapon.name to it }
 }
 
 @Composable

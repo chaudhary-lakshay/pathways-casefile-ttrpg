@@ -87,6 +87,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     var picking by remember { mutableStateOf(false) }
     var pickingLooks by remember { mutableStateOf(false) }
     var pickingTrait by remember { mutableStateOf(false) }
+    var pickingWeapon by remember { mutableStateOf(false) }
     var settling by remember { mutableStateOf<InstantiableTrait?>(null) }
     // Which road the study lines are priced for. The book prints two
     // and they differ by more than money -- Very Hard self-study is
@@ -212,6 +213,20 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
             }
 
             item {
+                WeaponsRow(
+                    carried = session.edits.carriedWeapons(),
+                    // The LIVE levels, which is what a parry is computed
+                    // from: a potion that raised DX re-levels every bought DX
+                    // skill, and the sheet's printed figure is the level of a
+                    // character who no longer exists (6e).
+                    skillLevels = derived.skillLevels,
+                    onAdd = { pickingWeapon = true },
+                    onRemove = { session.dropWeapon(it) },
+                )
+                HorizontalDivider()
+            }
+
+            item {
                 TraitsRow(
                     bought = session.edits.traits,
                     // Resolved against the same list the composition asks the
@@ -300,6 +315,14 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                 picking = false
             },
             onDismiss = { picking = false },
+        )
+    }
+
+    if (pickingWeapon) {
+        WeaponPicker(
+            carried = session.edits.weapons,
+            onCarry = { session.carryWeapon(it) },
+            onDismiss = { pickingWeapon = false },
         )
     }
 

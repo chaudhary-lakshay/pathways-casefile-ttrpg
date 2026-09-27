@@ -11,8 +11,10 @@ import com.pathways.rules.SecondaryCharacteristics
 import com.pathways.rules.InstancedPurchase
 import com.pathways.rules.PurchasableTraits
 import com.pathways.rules.SkillLadder
+import com.pathways.rules.Weapons
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.AppearanceLevel
+import com.pathways.rules.content.CataloguedWeapon
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SkillDefinition
 import com.pathways.rules.content.WealthLevel
@@ -134,6 +136,33 @@ private fun SavedEdits.boughtTraits(held: List<Trait>): List<Trait> {
         chosen += row.toTrait()
     }
     return chosen
+}
+
+/**
+ * The weapons carried in play, resolved against chapter 8's catalogue.
+ *
+ * A name the book no longer prints is DROPPED rather than guessed at, the
+ * same call a saved trait and a saved skill already take -- and [Weapons
+ * .named] is deliberately not used, because it THROWS, and one stale save
+ * would take the screen down rather than lose one row.
+ *
+ * Repeats are folded, by the catalogue's own spelling rather than the save's:
+ * the nine printed rows carry nine distinct names, so a second copy is not a
+ * second weapon and two identical parry rows would read as a defect. Order is
+ * the save's, which is the order the player added them in.
+ *
+ * These are [CataloguedWeapon]s and never [com.pathways.model.Weapon]s.
+ * `Weapon.parryMod` exists because a published SHEET prints a dash or a
+ * number beside a weapon row, and this book prints no per-weapon parry
+ * modifier anywhere (see [Weapons.parryFor]) -- building one from catalogue
+ * data would claim chapter 8 supplied a modifier it never printed, and leave
+ * two formulas for one fact agreeing only by construction.
+ */
+fun SavedEdits.carriedWeapons(): List<CataloguedWeapon> {
+    val printed = Weapons.all()
+    return weapons
+        .mapNotNull { saved -> printed.firstOrNull { it.name.equals(saved, ignoreCase = true) } }
+        .distinctBy { it.name }
 }
 
 /**

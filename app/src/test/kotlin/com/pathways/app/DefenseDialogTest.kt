@@ -6,6 +6,7 @@ import com.pathways.model.Difficulty
 import com.pathways.model.SkillKey
 import com.pathways.model.Weapon
 import com.pathways.rules.DefenseBoost
+import com.pathways.rules.Weapons
 import com.pathways.rules.Facing
 import com.pathways.rules.Shields
 import com.pathways.rules.UnarmedStyle
@@ -26,6 +27,12 @@ class DefenseDialogTest {
 
     private val swordKey = SkillKey("Shortsword", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)
     private val knifeKey = SkillKey("Knife", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
+
+    // Chapter 8 arms these three by the skill NAME it prints in the table.
+    private val broadswordKey =
+        SkillKey("Broadsword", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)
+    private val revolverKey =
+        SkillKey("Guns", "Revolver", ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
 
     /**
      * p. 36: "Each can be used once per round unless stated otherwise", and
@@ -76,53 +83,44 @@ class DefenseDialogTest {
     }
 
     @Test
-    fun `a weapon parries at half its skill plus three`() {
+    fun `a carried weapon parries at half its skill plus three`() {
         val parries = armedParries(
-            weapons = listOf(Weapon("Cane sword", swordKey, parryMod = 0)),
-            skillLevels = mapOf(swordKey to 13),
+            weapons = listOf(Weapons.named("Broadsword")),
+            skillLevels = mapOf(broadswordKey to 13),
         )
-        assertEquals(listOf("Cane sword" to 9), parries) // floor(13/2) + 3 + 0
-    }
-
-    @Test
-    fun `a weapon's own modifier moves its parry`() {
-        val parries = armedParries(
-            weapons = listOf(Weapon("Fencing blade", swordKey, parryMod = 1)),
-            skillLevels = mapOf(swordKey to 13),
-        )
-        assertEquals(listOf("Fencing blade" to 10), parries)
+        assertEquals(listOf("Broadsword" to 9), parries) // floor(13/2) + 3
     }
 
     @Test
     fun `a weapon that cannot parry is not listed at all`() {
-        // The sheets print a dash there, which is not the same as +0.
+        // Chapter 8's Range column prints metres for a firearm, and nothing
+        // in this book is both fired and parried. Refusing is not parrying
+        // at +0.
         val parries = armedParries(
-            weapons = listOf(Weapon("Revolver", knifeKey, parryMod = null)),
-            skillLevels = mapOf(knifeKey to 12),
+            weapons = listOf(Weapons.named("Revolver (.38 cal)")),
+            skillLevels = mapOf(revolverKey to 12),
         )
         assertTrue(parries.isEmpty())
     }
 
     @Test
-    fun `a weapon whose skill the character lacks is skipped`() {
-        // The formula is skill/2 + 3, and there is no skill to halve.
+    fun `a carried weapon whose skill the character lacks is skipped`() {
+        // The formula is skill/2 + 3, and there is no skill to halve. The
+        // weapon stays CARRIED -- a borrowed broadsword is still in hand.
         val parries = armedParries(
-            weapons = listOf(Weapon("Borrowed sabre", swordKey, parryMod = 0)),
+            weapons = listOf(Weapons.named("Broadsword")),
             skillLevels = emptyMap(),
         )
         assertTrue(parries.isEmpty())
     }
 
     @Test
-    fun `two weapons give two parries`() {
+    fun `two carried weapons give two parries`() {
         val parries = armedParries(
-            weapons = listOf(
-                Weapon("Shortsword", swordKey, parryMod = 0),
-                Weapon("Knife", knifeKey, parryMod = 0),
-            ),
-            skillLevels = mapOf(swordKey to 12, knifeKey to 11),
+            weapons = listOf(Weapons.named("Broadsword"), Weapons.named("Combat Knife")),
+            skillLevels = mapOf(broadswordKey to 12, knifeKey to 11),
         )
-        assertEquals(listOf("Shortsword" to 9, "Knife" to 8), parries)
+        assertEquals(listOf("Broadsword" to 9, "Combat Knife" to 8), parries)
     }
 
     /**

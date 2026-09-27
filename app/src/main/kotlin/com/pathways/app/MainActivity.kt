@@ -986,7 +986,11 @@ fun SheetScreen(
             // shield's DB already do.
             poolPenalty = Conditions.penaltyFor(RollKind.ACTIVE_DEFENSE, hpNow, fatigue),
             skillLevels = skillLevels,
-            weapons = session.characterFor(sheet).weapons,
+            // What the player says they are CARRYING, resolved against
+            // chapter 8. `Character.weapons` is the published sheet's own
+            // weapon rows and no sheet prints one, so reading it here showed
+            // an armed parry to nobody (see SavedEdits.weapons).
+            weapons = session.edits.carriedWeapons(),
             dice = appDice,
             // The same ledger the attack dialog and the sheet's own skill rolls
             // use. An Acrobatic Dodge is a skill roll like any other, and

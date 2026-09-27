@@ -173,4 +173,39 @@ class WeaponsTest {
         assertEquals(4, Weapons.named("Bolt-Action Rifle").acc)
         assertEquals(0, Weapons.named("Broadsword").acc)
     }
+
+    @Test
+    fun `a carried weapon is wielded at the highest level among the skills that arm it`() {
+        // p. 85 makes two rows of one name at two difficulties two different
+        // skills, and five of this book's potion grants do exactly that -- so
+        // "the first matching entry" would answer with whichever the map
+        // happened to hold first.
+        val easy = SkillKey("Broadsword", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
+        val average = SkillKey("Broadsword", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)
+        // Asserted in BOTH orders: with the 14 inserted last, "the last
+        // match" passes too, and a map's iteration order is not a rule
+        // (Codex).
+        assertEquals(
+            14,
+            Weapons.levelFor(Weapons.named("Broadsword"), mapOf(easy to 11, average to 14)),
+        )
+        assertEquals(
+            14,
+            Weapons.levelFor(Weapons.named("Broadsword"), mapOf(easy to 14, average to 11)),
+        )
+    }
+
+    @Test
+    fun `a weapon no skill of theirs arms has no level to wield it at`() {
+        // The formula is skill/2 + 3 and there is no skill to halve. A
+        // borrowed weapon is still CARRIED -- it just cannot be parried with.
+        assertNull(Weapons.levelFor(Weapons.named("Broadsword"), mapOf(knifeSkill to 12)))
+    }
+
+    @Test
+    fun `the specialization decides which gun a shooter wields`() {
+        val rifle = Weapons.named("Hunting Rifle")
+        assertNull(Weapons.levelFor(rifle, mapOf(gun("Revolver") to 13)))
+        assertEquals(13, Weapons.levelFor(rifle, mapOf(gun("Rifle") to 13)))
+    }
 }

@@ -93,6 +93,31 @@ class BeyonderSession(
     }
 
     /**
+     * Carry the chapter-8 weapon [name] (p. 80).
+     *
+     * A repeat is refused rather than appended: the catalogue's nine rows
+     * carry nine distinct names, so a second copy is not a second weapon and
+     * would print a second identical parry row. Matched without case, which
+     * is also what a hand-edited save takes.
+     *
+     * Nothing is billed. Chapter 8 prices weapons in money and this app
+     * tracks none, so carrying one moves no point total.
+     */
+    fun carryWeapon(name: String) {
+        if (edits.weapons.any { it.equals(name, ignoreCase = true) }) return
+        edits = edits.copy(weapons = edits.weapons + name)
+        persist()
+    }
+
+    /** Put [name] down again — the way back from [carryWeapon]. */
+    fun dropWeapon(name: String) {
+        val kept = edits.weapons.filterNot { it.equals(name, ignoreCase = true) }
+        if (kept.size == edits.weapons.size) return
+        edits = edits.copy(weapons = kept)
+        persist()
+    }
+
+    /**
      * Buy [steps] of the secondary characteristic the book's row [key] names
      * (Ch. 2, pp. 8-9); 0 is the way back to what the sheet printed.
      *

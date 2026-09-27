@@ -110,11 +110,31 @@ data class SavedEdits(
      * merely names.
      */
     val secondaries: Map<String, Int> = emptyMap(),
+    /**
+     * The weapons carried in play, by their chapter-8 catalogue NAME
+     * (p. 80).
+     *
+     * The name alone, for the reason [traits] stores one: the damage, the
+     * reach, the skill that arms it and whether it parries at all belong to
+     * the book, and a save carrying its own copy could contradict the
+     * catalogue after a content fix. Resolved through
+     * [com.pathways.rules.Weapons] on the way back in; a name the book no
+     * longer prints is skipped and NOT deleted, because a content fix may
+     * print it again (6as).
+     *
+     * Possession, not training: a character may carry a weapon they have no
+     * skill for, and the defence dialog then prints no parry row for it
+     * because the book's formula is `skill / 2 + 3` and there is no skill to
+     * halve. Chapter 8 prices weapons in money, which this app does not
+     * track, so nothing here spends points.
+     */
+    val weapons: List<String> = emptyList(),
 ) {
     val isEmpty: Boolean
         get() = st == null && dx == null && iq == null && ht == null &&
             skills.isEmpty() && wealth == null && appearance == null &&
-            traits.isEmpty() && instanced.isEmpty() && secondaries.isEmpty()
+            traits.isEmpty() && instanced.isEmpty() && secondaries.isEmpty() &&
+            weapons.isEmpty()
 }
 
 /**
