@@ -6823,10 +6823,10 @@ character has, so no parry"* with the defence dialog showing no armed row at
 all, and after one Error Sequence 9 potion (*Marauder*: DX +1, then Knife at
 DX/Easy +3) it printed **"Knife 13 — parry 9"**. The defence dialog one tap
 away printed **`Parry (Combat Knife) 9`** — **one expression, two screens,
-one number**, which is the check that discriminates the post-review
-`liveSkillLevels` fix and the only one of the three the pre-fix code would
-have failed. The picker offered **all nine catalogue rows**, including the
-four firearms and the five this character cannot wield, marking the taken one
+one number**, which is 3f177c5's check rather than one of this slice's
+three, and the one reading the pre-fix code would have failed. The picker
+offered **all nine catalogue rows** — five firearms and four melee — to a
+character trained in none of them, marking the taken one
 *"· carried"*; the budget stayed at 91 of 100, because a weapon costs no
 points. The cumulative penalty ran `9` to `5` on one prior parry, with the
 note moving from *"The first parry of a round is free"* to *"Parry rows above

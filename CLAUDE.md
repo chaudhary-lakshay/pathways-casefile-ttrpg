@@ -153,9 +153,10 @@ Journalist, who has no Knife at all, so ONE row was read twice: *"Knife —
 not a skill this character has, so no parry"* as a mortal, and **"Knife 13
 — parry 9"** after one Error Sequence 9 potion. The defence dialog one tap
 away printed **`Parry (Combat Knife) 9`** — one expression, two screens,
-one number, and the only one of the three checks the pre-fix code would
-have failed. The picker offered all nine rows including the four firearms,
-the parry ran 9 to 5 on one prior parry and back on `New round`, and the
+one number, which is 3f177c5's check rather than one of this slice's three.
+The picker offered all nine rows — five firearms and four melee — to a
+character trained in none of them; the parry ran 9 to 5 on one prior parry
+and back on `New round`, and the
 carry survived a force-stop as `"weapons": ["Combat Knife"]`. And one
 environment fact: Gradle failed six times with `Unable to
 delete directory` on Windows, **indistinguishable from a build failure in the
