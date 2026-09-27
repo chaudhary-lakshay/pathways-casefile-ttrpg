@@ -142,7 +142,12 @@ rows alone left every test green (the two row types are one `parryScore`
 expression now, and no test pins the sum because a test of `a + b + c`
 restates it), my "highest level" test inserted the 14 LAST so *"take the last
 match"* passed it, and both case-insensitive matches were asserted only with
-canonical spellings. **NOT device-verified — no device is attached this
+canonical spellings. **A third finding landed after the review**: the builder's new row computed
+its skill levels from `Derive` while the sheet screen has folded a potion's
+grants in since M3, so a Beyonder would read one parry beside the weapon and
+another on the defence screen — `liveSkillLevels` is the one expression now,
+and it was found by checking what the OLDER call site held rather than the
+line I had just written. **NOT device-verified — no device is attached this
 session**, so three claims are unproved until someone taps them: the row
 renders, the picker carries, and an armed parry appears with the cumulative
 penalty. And one environment fact: Gradle failed six times with `Unable to

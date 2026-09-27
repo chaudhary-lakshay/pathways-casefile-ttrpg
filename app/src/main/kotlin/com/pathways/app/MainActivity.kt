@@ -332,10 +332,7 @@ fun SheetScreen(
     // printed column is not. Computed once for defence, attack and the ritual
     // gate rather than three times over.
     val skillLevels = remember(sheet, drunk, session.edits) {
-        val played = session.characterFor(sheet)
-        PotionDigestion.of(played.copy(beyonder = drunk), ContentLoader.pathways())
-            ?.skillLevels
-            ?: Derive.of(played).skillLevels
+        liveSkillLevels(session.characterFor(sheet).copy(beyonder = drunk))
     }
     // Only a caster can cast. No premade prints either skill, so both are
     // null until a potion grants one -- ch. 9 p. 85 forbids buying Divination

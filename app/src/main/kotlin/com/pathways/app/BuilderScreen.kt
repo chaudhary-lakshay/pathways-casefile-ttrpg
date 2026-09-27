@@ -215,11 +215,15 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
             item {
                 WeaponsRow(
                     carried = session.edits.carriedWeapons(),
-                    // The LIVE levels, which is what a parry is computed
-                    // from: a potion that raised DX re-levels every bought DX
-                    // skill, and the sheet's printed figure is the level of a
-                    // character who no longer exists (6e).
-                    skillLevels = derived.skillLevels,
+                    // The levels rolled TODAY, which is what a parry is
+                    // computed from -- the same expression the sheet screen
+                    // builds. `derived` is the PURCHASED character, which the
+                    // budget above is right to use and a parry is not: a
+                    // Beyonder whose potion granted the weapon's skill would
+                    // read one number here and another on the defence screen.
+                    skillLevels = liveSkillLevels(
+                        character.copy(beyonder = session.state),
+                    ),
                     onAdd = { pickingWeapon = true },
                     onRemove = { session.dropWeapon(it) },
                 )

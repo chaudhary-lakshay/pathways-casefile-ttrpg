@@ -1,6 +1,7 @@
 package com.pathways.app
 
 import com.pathways.model.Attr
+import com.pathways.model.BeyonderState
 import com.pathways.model.Attributes
 import com.pathways.model.Character
 import com.pathways.model.Difficulty
@@ -621,5 +622,29 @@ class EditedCharacterTest {
     @Test
     fun `a saved weapon counts as an edit`() {
         assertFalse(SavedEdits(weapons = listOf("Broadsword")).isEmpty)
+    }
+
+    @Test
+    fun `the live levels fold in what a potion granted, and Derive alone does not`() {
+        // The number a parry is computed from is the level rolled TODAY. The
+        // sheet screen has built this map since M3 and the builder computed
+        // its own from Derive, so a Beyonder's weapon row would have printed
+        // one parry there and another on the defence screen (Codex).
+        val fool = researcher.toCharacter().copy(beyonder = BeyonderState("Fool", 9))
+        val live = liveSkillLevels(fool)
+        val purchased = Derive.of(fool).skillLevels
+        assertTrue(
+            live.keys.any { it.name == "Divination Arts" },
+            "the Fool's Sequence 9 potion grants it",
+        )
+        assertTrue(
+            purchased.keys.none { it.name == "Divination Arts" },
+            "and nothing bought it, which is what the two maps disagree about",
+        )
+    }
+
+    @Test
+    fun `a mortal's live levels are its purchased ones`() {
+        assertEquals(Derive.of(mortal).skillLevels, liveSkillLevels(mortal))
     }
 }

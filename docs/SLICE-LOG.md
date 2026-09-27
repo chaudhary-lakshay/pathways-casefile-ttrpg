@@ -6832,6 +6832,21 @@ code**. The fix each time was `rm -rf` on the directory the message names,
 plus `--no-watch-fs`; nothing about the code was wrong. Read the message,
 not the status.
 
+**A third finding landed after the diff review, and it is this slice's own
+defect one layer up.** `MainActivity` has built the LIVE skill levels since
+M3 — a potion's grants folded in — under a comment saying they are *"computed
+once for defence, attack and the ritual gate rather than three times over"*.
+The builder's new Weapons row computed its own from `Derive` alone, which is
+the PURCHASED character, so **a Beyonder whose potion granted the weapon's
+skill would read one parry beside the weapon they carry and another on the
+defence screen, from one save.** One question, two sites, in the slice that
+exists to remove an instance of exactly that. `liveSkillLevels(character)` is
+the one expression now and both screens call it. The builder's OTHER rows
+keep `derived`, correctly: the budget bills purchases and a grant is free
+(M3). Found by asking what the variable at the older call site actually held
+rather than by reading the one I had just written — **I asserted the new
+screen's choice and never checked the old screen's.**
+
 **And the docs pass found a slice with no section in this file.**
 `CLAUDE.md` went back over its 150 k-char limit (152,583), so the lead
 paragraphs for 6cz down to 6cd were cut — every one of them duplicated in
@@ -11434,38 +11449,6 @@ slice's own paragraphs, reproducible verbatim, and the file holding real work
 (`GoldenSheetTest.kt`) was not in the checkout. Use the editing tools for
 prose; a shell round-trip is a re-encode.
 
-## 6ct. The fixtures nobody had swept
-
-**Recovered from `CLAUDE.md`'s lead paragraph in 6eb, and that is the point of
-recording it here.** This slice never had a section in this file — the
-sections run 6cv, then 6cu, with nothing between — so for however many slices
-that has been true, its only surviving account was the summary paragraph in
-the handover. 6eb cut that stack of paragraphs to get `CLAUDE.md` back under
-its size limit, checked each cut section against this file first, and found
-this one missing. **A lead paragraph can be the only copy**; the check that
-catches it is one `grep -c "^## <slice>\."` per name, and it costs a second.
-
-What the paragraph said, verbatim:
-
-> **6ct is next**, and it sweeps a corpus nobody had swept: **the 23
-> fixtures.** 32 keys, all occurring in Kotlin; counting readers outside the
-> model declarations leaves five, four already reconciled, and one —
-> `totalSpent` — with its declaration and nothing else. The sheet's printed
-> TOTAL SPENT had never been compared with what the rules compute. Wiring it
-> up found exactly one disagreement, Monastery Scholar's 99 against 89, and
-> that is 4.1's existing advantages error surfacing in a second column: a
-> test now asserts both gaps are ten and EQUAL, so if they diverge one
-> spreadsheet error has become two. Read it for the count guard that caught
-> its own author — `grep -l` says 23 fixtures carry the field and the loaded
-> answer is 22, because Beat Cop's file has the key with a `null` value. **A
-> grep for a key is not a count of a value.**
-
-Its successor's own opening confirms the subject: 6cu begins *"6ct named the
-sibling column, and said to start with the question that needs no engine"*.
-Nothing here is reconstructed beyond that paragraph — the slice's commits are
-in `git log`, and this section is a pointer to them rather than a rewritten
-account of work it did not witness.
-
 ## 6cu. Two errors, six columns, and the sign that carries the finding
 
 6ct named the sibling column, and said to start with the question that needs no
@@ -11594,6 +11577,38 @@ surface, but nothing yet checks a sheet's printed unspent points against
 up, and the cheap question to ask first is whether `spent + unspent == bpTotal`
 holds on all 23 as published, because a sheet that fails its OWN arithmetic
 needs no engine to prove it.
+
+## 6ct. The fixtures nobody had swept
+
+**Recovered from `CLAUDE.md`'s lead paragraph in 6eb, and that is the point of
+recording it here.** This slice never had a section in this file — the
+sections run 6cv, then 6cu, with nothing between — so for however many slices
+that has been true, its only surviving account was the summary paragraph in
+the handover. 6eb cut that stack of paragraphs to get `CLAUDE.md` back under
+its size limit, checked each cut section against this file first, and found
+this one missing. **A lead paragraph can be the only copy**; the check that
+catches it is one `grep -c "^## <slice>\."` per name, and it costs a second.
+
+What the paragraph said, verbatim:
+
+> **6ct is next**, and it sweeps a corpus nobody had swept: **the 23
+> fixtures.** 32 keys, all occurring in Kotlin; counting readers outside the
+> model declarations leaves five, four already reconciled, and one —
+> `totalSpent` — with its declaration and nothing else. The sheet's printed
+> TOTAL SPENT had never been compared with what the rules compute. Wiring it
+> up found exactly one disagreement, Monastery Scholar's 99 against 89, and
+> that is 4.1's existing advantages error surfacing in a second column: a
+> test now asserts both gaps are ten and EQUAL, so if they diverge one
+> spreadsheet error has become two. Read it for the count guard that caught
+> its own author — `grep -l` says 23 fixtures carry the field and the loaded
+> answer is 22, because Beat Cop's file has the key with a `null` value. **A
+> grep for a key is not a count of a value.**
+
+Its successor's own opening confirms the subject: 6cu begins *"6ct named the
+sibling column, and said to start with the question that needs no engine"*.
+Nothing here is reconstructed beyond that paragraph — the slice's commits are
+in `git log`, and this section is a pointer to them rather than a rewritten
+account of work it did not witness.
 
 ## 6cs. The slice that ships a refusal
 

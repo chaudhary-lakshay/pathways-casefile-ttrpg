@@ -6,6 +6,8 @@ import com.pathways.model.PurchasedSkill
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.rules.Appearance
+import com.pathways.rules.Derive
+import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.SecondaryCharacteristics
 import com.pathways.rules.InstancedPurchase
@@ -137,6 +139,26 @@ private fun SavedEdits.boughtTraits(held: List<Trait>): List<Trait> {
     }
     return chosen
 }
+
+/**
+ * The levels this character actually rolls at: a potion's grants folded in,
+ * the sheet's printed column left out (M3).
+ *
+ * ONE expression for every screen that needs it. `MainActivity` has built
+ * this map since M3 under a comment saying it is *"computed once for
+ * defence, attack and the ritual gate rather than three times over"*, and the
+ * builder then computed a DIFFERENT one from [Derive] alone — so a Beyonder
+ * whose potion granted a weapon skill would read one parry beside the weapon
+ * they carry and another on the defence screen, from one save. That is this
+ * project's most repeated defect and it arrived in the slice that exists to
+ * remove an instance of it.
+ *
+ * A mortal has no beyonder state, so [PotionDigestion.of] answers null and
+ * the purchased levels are the live ones.
+ */
+fun liveSkillLevels(character: Character): Map<SkillKey, Int> =
+    PotionDigestion.of(character, ContentLoader.pathways())?.skillLevels
+        ?: Derive.of(character).skillLevels
 
 /**
  * The weapons carried in play, resolved against chapter 8's catalogue.
