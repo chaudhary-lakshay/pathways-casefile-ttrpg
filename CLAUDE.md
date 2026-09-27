@@ -112,7 +112,52 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ea is newest, and it is a field whose only writer was a potion.**
+**6eb is newest, and it is a parry the defence screen could never show.**
+`DefenseDialog.armedParries` read `Character.weapons` — a field no published
+sheet fills and no save could write — so the armed-parry rows were
+permanently absent on all 23 premades, while `AttackDialog.kt:722` printed a
+chapter-8 weapon's parry from `Weapons.parryFor` one tap away. **One
+question, two sites, data at one.** It ships as `SavedEdits.weapons`
+(catalogue NAMES, resolved by the book), a `Weapons` row and picker in the
+builder, and `armedParries` moved onto `CataloguedWeapon`. Read it for six
+things. **The shape was the decision**: `Weapon.parryMod` exists because a
+published SHEET prints a dash or a number and this book prints no per-weapon
+modifier anywhere, so manufacturing one from catalogue data would claim
+chapter 8 supplied it and leave two formulas for one fact — the strongest
+case against is recorded, not dismissed, and `ParryBlock.parryFor` plus
+`Character.weapons` are now a **stated non-goal in production source** rather
+than accidental silence. **The tests MOVED rather than died**: three
+`DefenseDialogTest` cases were the only thing pinning the sheet path's
+formula, and they are one `ParryBlockTest` case now. **Possession is not
+training** — the picker offers all nine rows because a GM may hand anyone a
+weapon, and an untrained one prints *"not a skill this character has, so no
+parry"* rather than vanishing; the reviewer's further demand that
+`AttackDialog` filter its chips to possessed weapons is **refused** on 6cx's
+role distinction — a picker asks, a list asserts. **`Weapons.levelFor` takes
+the HIGHEST matching level**, because p. 85 makes two rows of one name at two
+difficulties into two skills and iteration order would otherwise decide the
+number. **The diff review returned four findings and all four were the
+vacuity class**, three RED-proved: deleting `+ parryPenalty` from the armed
+rows alone left every test green (the two row types are one `parryScore`
+expression now, and no test pins the sum because a test of `a + b + c`
+restates it), my "highest level" test inserted the 14 LAST so *"take the last
+match"* passed it, and both case-insensitive matches were asserted only with
+canonical spellings. **NOT device-verified — no device is attached this
+session**, so three claims are unproved until someone taps them: the row
+renders, the picker carries, and an armed parry appears with the cumulative
+penalty. And one environment fact: Gradle failed six times with `Unable to
+delete directory` on Windows, **indistinguishable from a build failure in the
+exit code**; `rm -rf` the named directory and re-run. **No successor is
+named** — both gaps 6dz recorded are closed, and what is outstanding is a
+device pass over this slice rather than a sweep. **It also cut the lead
+paragraphs for 6cz down to 6cd**, because this file went back over the
+150 k-char limit (152,583); each was checked against the slice log first, and
+**6ct had no section there at all** — its paragraph was the only copy, and it
+is restored in `docs/SLICE-LOG.md` as its own section. **A lead paragraph can
+be the only copy**, so one `grep -c "^## <slice>\."` per name is what cutting
+one costs.
+
+**6ea is next, and it is a field whose only writer was a potion.**
 `PointBudget.report` has billed `SecondaryCharacteristics.costOf` since M0,
 `Derive` composes it and `PotionDigestion` adds grants into it — and **nothing
 in production ever constructed a non-default `SecondaryDelta`**, so the six
@@ -1036,368 +1081,35 @@ refusal ships on the right reason, with `test_tools.py` pinning 9667's wording
 and its nounlessness — an argument resting on a sentence needs that sentence
 guarded.
 
-**6cz is next, and it is a process finding before it is a code one.** 6cx
-and 6cy both shipped recording "Codex is out, the free panel returned empty
-bodies, diff self-checked". The owner asked for `ecc:kotlin-reviewer` — the
-documented Codex-exhausted fallback both slices had walked past — and it
-returned **BLOCK on two HIGHs**. **An unavailable gate is a reason to reach for
-the next gate, not a reason to record its absence and carry on.** What it found:
-`Equipment.forSkill` matched name AND specialization exactly, but the catalogue
-distinguishes `Navigation` (`specializable = false`, three printed rows — strict
-match correct) from `Survival` (`specializable = true`, one row, "specify
-terrain" — so `Survival (Woodlands)` is an INSTANCE). `hunter_tracker.json:85`
-buys exactly that, so **the one character in the corpus who would use the bedroll
-was the one who could not see it** — the false-negation failure 6cx's own design
-review named in the abstract, shipped in the concrete. Note the reviewer was
-right about the defect and **wrong about its reach** (it called the row
-unreachable in today's fixtures; one parse finds it) — a reviewer's reachability
-claim is a claim about the data and expires like any other. A `ecc:python-reviewer` pass over the two extractors then returned no HIGH but
-three **guards that could not fire** — a floor where the failure adds a row, a
-`% 3` blind to three cells wrapping at once, and an unbounded `&`/`or`
-splitter. Its prescription for the third could never fire either (no skill name
-contains `" or "`), so **take a reviewer's diagnosis over its prescription**.
-It also found two
-**vacuous assertions inside 6cy's own anti-vacuity test file**: a "derivations"
-test that never called the engine, and a `step == null || step == "level"` that
-all five rows regressing to null would satisfy. Third vacuity in two slices, and
-the pattern is one thing — **the assertion was written from the shape of the
-DATA rather than the shape of the FAILURE**.
-
-**6cy is next, and its finding is that `pts/level` meant two different
-things.** `extract_core_rules.py` had skipped chapter 2's Secondary
-Characteristics table with a recorded reason — "ch 3 prints the costs, which
-are already extracted". Chapter 3 prints no such thing: its `pts/level` lines
-are ADVANTAGE rows (Hard to Kill 2/level, Charisma 5/level), a different table
-wearing the same words, and `"Cost to Modify"` occurs **once in the whole
-book**. So the six constants `PointBudget` bills every character with had no
-tie to any printed line. **The gap was measured, not argued**: move the
-extracted HP price from 2 to 4 and exactly **one test in 1597 fails** — the new
-one. `PointBudgetTest`, `SecondaryCharacteristicsTest` and `GoldenSheetTest`
-stay green while book and engine disagree about what every character paid. Read
-it also for a guard that **could not fire** (the priced-set check ran first, so
-the unbuyable-row check was unreachable — found by writing the RED test for the
-GUARD rather than for the feature), and for the sweep's four cleared clusters,
-which are the deliverable: a table implemented as arithmetic reads 0% forever,
-so ch 3's 40 unclaimed lines are the coverage proxy, not a gap. Chapter 2:
-**30.8% -> 76.9%**.
-
-**6cx is next, and it builds the chapter 6cw named.** Chapter 8 goes from
-**21.2% to 81.7%**, unclaimed mechanical lines from **82 to 19**, and all 19
-sit inside four tables refused in production source (`Equipment.UNMODELLED`,
-to the `ActiveDefenses.UNPAYABLE` standard) rather than overlooked — checked
-line by line, not inferred from the total. **Its most reusable finding is that
-a precedent travels by ROLE, not by shape.** The design review returned
-NO-SHIP on a decomposition that modelled equipment chips on `AttackDialog`'s
-weapon picker: `Weapons.forSkill` is ungated and offers the same chapter's
-catalogue, but it **re-parameterises** the roll (which attack, which damage,
-melee or ranged) where a bonus chip **adds to** it — and `RollDialog`'s own
-possession control, `socialClauses`, is gated twice, on category AND on a list
-of traits the character carries. Two controls can be pixel-identical and
-mechanically opposite; "the app already does this" was a claim about the
-screen where the warrant needed to be about the semantics. What shipped is
-reference rather than a modifier, on the precedent four lines above it in the
-same function — `conditionalBurnNote`'s "**Shown, never applied**". Read it
-also for a **RED-proof that indicted the tests**: neutering the signed-clause
-predicate makes the extractor refuse to run, and ten of the eleven Kotlin
-tests still pass, because **a failing extractor never rewrites its JSON** and
-they re-read the old good file. Only `verify()` pins the parser. And for
-6cw's census being too narrow in its turn — 47 signed clauses, not 34, in six
-shapes spanning three subjects. **The diff got no independent review**: Codex
-is out and the free-model panel exited 0 with two empty bodies after sixteen
-minutes, which is a silent no-answer and not a clean bill.
-
-**6cw is next, and it named the largest thing outstanding at the time.**
-`tools/coverage.py`, re-run after a long gap, puts **chapter 8 at 21.2% with 82
-unclaimed mechanical lines** — an equipment catalogue this app has never seen:
-armour with DR, a three-tier currency, and items carrying clauses like "-1 to
-Lockpicking", "+2 to First Aid & Surgery", "+1 to Ritualistic Magic". The join
-was checked before the slice was named: 34 signed clauses name 30 skills and
-`skills.json` already holds nearly all of them, so the bonuses have rows to
-land on. Three seams decide its shape — **`Forced Entry` and `Gather
-Information` are named by chapter 8 and absent from chapter 3's skill list**
-(a 4.1 disagreement to record, not repair), `Fortune-Telling` vs `Fortune
-Telling` is a hyphenation seam of the 6bx/6by kind, and most clauses are
-CONDITIONAL ("+1 to Search for fine details"), which 6bt already showed is a
-different feature from an unconditional one. **6cw builds nothing** — it is the
-census and the evidence; the build deserves its own decomposition and design
-review.
-
-**6cv is next**, and it closes the fixtures' `published` block: every field is
-now either reconciled against the engine or recorded with a reason. Its subject
-is `cor`, the last one with no reader — and unlike `spi` there is nothing to
-read it into, because `Character` declares no corruption at all (CoR is session
-state). A sheet printing a nonzero starting CoR would have it dropped in
-silence, so the slice is one guard that says so. **Its most reusable finding is
-that a predicate is a claim about what a null MEANS**: I tightened
-`(cor ?: 0) == 0` to a strict `== 0` and the review pointed at `Premades.kt:80`
-— "Absent means mortal" — which makes null legitimately zero, so the strict
-version would have failed on a state this repo already calls correct. Read it
-also for an editing hazard this session hit: a PowerShell
-`Get-Content -Raw | Set-Content` round-trip **re-encodes UTF-8 as ANSI** and
-mangled every em-dash in this file and the slice log; use the editing tools for
-prose.
-
-**6cu is next**, and its most reusable finding is that **a gap has a
-direction, and the direction is the evidence.** It reconciles the two remaining
-published budget columns and finds five disagreements, all but one being an
-error this file already records, resurfacing where nobody had looked: the
-librarian's disadvantage gap shows up in `bpTotal` and `unspent` at **+5**, the
-scholar's advantage gap in `unspent` at **−10**, and the opposite signs are
-structural (a disadvantage inflates the BUDGET, an advantage inflates the
-SPEND). A magnitude guard would pass under either. Read it also for a suspicion
-the source settled: Beat Cop's lone non-null `unspent: 0` looked like an
-extractor artefact, and `Beat Cop.xlsx` row 1 prints exactly that — **the
-source spreadsheets are on this machine, so extraction questions are
-answerable rather than arguable.** And for an exclusion that was not needed:
-`playable()` drops the blank template without one.
-
-**6ct is next**, and it sweeps a corpus nobody had swept: **the 23 fixtures.**
-32 keys, all occurring in Kotlin; counting readers outside the model
-declarations leaves five, four already reconciled, and one — `totalSpent` —
-with its declaration and nothing else. The sheet's printed TOTAL SPENT had
-never been compared with what the rules compute. Wiring it up found exactly one
-disagreement, Monastery Scholar's 99 against 89, and that is 4.1's existing
-advantages error surfacing in a second column: a test now asserts both gaps are
-ten and EQUAL, so if they diverge one spreadsheet error has become two. Read it
-for the count guard that caught its own author — `grep -l` says 23 fixtures
-carry the field and the loaded answer is 22, because Beat Cop's file has the
-key with a `null` value. **A grep for a key is not a count of a value.**
-
-**6cs is next, and it ships a refusal rather than a feature.** 6cr's census
-found the one constant in 96 that occurs once in the repo —
-`Divination.SPECIALISATION_BONUS` — and the obvious slice was a chip offering
-its +1. The design review said NO-SHIP: the same book sentence prices it as a
-GURPS technique this book does not reprint, and nothing in the corpus records
-which method a diviner trained in, while every other bonus on that screen is
-gated on an owned list the CALLER resolves. Its sharpest finding was against my
-state design — a `remember(method)` reset would have turned one permanent
-point-bought technique into a free +1 on whatever method was picked, because
-`spiChoice` resets by RE-DERIVING a value and specialisation has nothing to
-load. The refusal is recorded in `Divination.UNAPPLIED` (the
-`ActiveDefenses.UNPAYABLE` standard, discoverability not strength) and shown on
-screen. Read it also for a string with two readers: the reason renders to the
-PLAYER, so the developer's argument moved into the KDoc and the sentence
-stayed; for a block that **inherited the branch it was pasted into** (the
-refusal first shipped inside `if (ownedSupportSkills.isEmpty()) … else`, so
-only the diviners it did not concern would have seen it); and for the corrected
-constant census, which is **clean** — 100 constants, one hit, and that hit is a
-test locator for a row the screen renders by loop. **No slice is named next.**
-
-**6cr is next**, and its most reusable finding is that **a quotation and a
-restatement look identical in a grep.** It ran 6cq's named successor and found
-three of the four hits were code comments citing the page — deriving them would
-make the source stop saying what the book says — with one real duplicate. The
-discriminator is not the string: ask whether a rules value would have to move
-for the sentence to become false. Read it also for a **fifth `+2` in
-`DefenseDialog`**, in a file two earlier patterns had already searched (a
-widened query is not a finished query), and for a number **deleted rather than
-derived**: `"+1 each"` was a third copy of a value the chips beneath it already
-print per row, and is each row's own field rather than a constant.
-
-**6cq is next**, and its most reusable finding is that **a comment is not a
-pin.** It runs a seventh sweep direction — numbers a screen types in English
-that production already reads from content — and the six sites it found are
-only half the slice. Chasing one of them (`"advancing now also costs 10+ CoR"`)
-reached `PotionConsumption.attempt`, which charged a Kotlin literal `10` while
-`cor_gained.json` prints `minimum: 10`, and `CorruptionTest` already had a test
-joining them — in its COMMENT. The test pinned the data; nothing pinned the
-charge. Read it also for a query that had to be widened before it was right
-(the first pattern missed a fourth `+2` in a file it had already searched), and
-for a design review that refused to invent a check: **no test in this repo can
-reach a Compose label**, so deriving removes the drift rather than catching it.
-
-**6cp is next**, and its most reusable finding is that **a refusal can
+**6cz back to 6cd had lead paragraphs here and they have been cut, because
+this file went over the 150 k-char limit again (6eb: 152,583).** Every one of
+them is in [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md) unchanged and in full, and
+the reading order below still names them. What they are worth in one line
+each: **6cz** — an unavailable review gate is a reason to reach for the next
+gate, not to record its absence and ship; **6cy** — `pts/level` named two
+different tables, so six constants billed every character with no tie to a
+printed line; **6cx** — a precedent travels by ROLE, not by shape; **6cw** —
+chapter 8 was at 21.2% with an equipment catalogue nobody had read; **6cv** —
+a predicate is a claim about what a null MEANS; **6cu** — a gap has a
+DIRECTION and the direction is the evidence; **6ct** — a grep for a key is not
+a count of a value; **6cs** — a refusal shipped instead of a feature, on a
+design review's NO-SHIP; **6cr** — a quotation and a restatement look
+identical in a grep; **6cq** — a comment is not a pin; **6cp** — a refusal can
 survive its author's stated reason and die of a fact none of its words
-mention.** 6co refused the round boundary because a latch on one control would
-claim a round the others could not honour — a claim about REACH, which had
-already changed: three free actions, a parry stepper and a paid boost all sit
-in one composable, so one assignment honours the paragraph for all of them.
-6bf's separate "not worth global state" survives untouched, and nothing here is
-global. Read it also for a guard that is a MEMBERSHIP assertion — a field on
-`RoundState` is a value a new round clears, so `stunned` (its own 1d6-second
-clock, line 2826) reddening the test is the point — and for three design-review
-findings taken before commit: a `LaunchedEffect` is not the guard a `remember`
-key was (it fires after the pass commits), three comment blocks left orphaned
-above the wrong declarations, and a clearing control parked beside "Close"
-where a mis-tap drops FP already spent.
+mention; **6co** — a condition can outlive the question it stood in for;
+**6cn** — a spec that omits a label still gets one; **6cm** — a precedent
+travels with the condition that produced it; **6cl** — a recorded defect is
+evidence about the inputs it was measured on; **6ck** — one false sentence
+copied into three files reads as corroboration; **6cj** — a sweep cannot see
+the journal, and provenance cannot answer a mechanism objection; **6ci** — a
+census settles what an argument cannot; **6ch** — two reviews can contradict,
+and a LOW that would reintroduce a MEDIUM is not a LOW; **6cg** — a pin runs
+in one direction; **6cf** — sweep the API for callers, not just data for
+readers; **6ce** — one grep can decide a reading two other readings would have
+authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
+catalogue identity.
 
-**6cp's own closing paragraph was wrong for an hour, and the correction is in
-it.** It named 6cb's successor — the nineteen withheld trait rows, one record
-shape — which **6cc had already built** (`InstancedTraitDialog.kt`,
-`InstantiableTrait`, `PurchasableTraits.instantiableIn`), along with both items
-filed behind it (`QUOTED_INSTANCE_ROWS` resolves the six `Sense of Duty`
-instances; `Secret` stays unmatched with its reason recorded). **A closing
-paragraph is the one part of a slice log nothing verifies** — every other claim
-has a test or a book line behind it, and "what to do next" has only the last
-author's memory. One grep per named artefact is what checking it costs. So
-there is **no named successor outstanding**; the next slice needs a fresh sweep,
-and the directions already run (fields with no reader, functions with no caller,
-rows with no consumer, seams between claimed spans, rules the app contradicts,
-what the tests know that production does not) each expire rather than standing.
-
-**6co is next**, and its most reusable finding is that **a condition can
-outlive the question it was standing in for**. The Block row's "Against ranged
-attacks" note fired on `shot != melee`, a correct proxy only while every other
-term on the two sides was identical; a melee-only bonus on one side would have
-had it announce a shield penalty the shield does not have. It now asks the
-shield's own rule instead. That is 6bl's defect one step earlier than usual — a
-trigger drifting from its stated reason, rather than a disclaimer outliving its
-rule. Read it also for a refusal that needed its OWN warrant rather than its
-siblings' (the two Dodge-only bullets stay out of `everyDefence` because they
-name one row; Retreat stays out because its three numbers DIFFER), and for two
-warrants found already printed instead of argued: the Acrobatic Dodge's cell ends
-"Stacks with Retreat.", and `ActiveDefenses.UNPAYABLE`'s own text answers why a
-one-attack bonus may show on five rows at once.
-
-**6cn is next**, and its most reusable finding is that **a spec which omits a
-label is not a spec that has no label** — the implementer picks one, and the
-default is the worse one. It wires up the prone -4 that `RangedTest.kt:112` was
-the only reader of, and its design review cleared both the mechanism and a
-refused tidy-up before catching the one thing the decomposition never wrote down:
-what the new chip's text is. Read it also for a scope chosen from the data's own
-definition (`melee != null`) and then CHECKED — one grep over the book's own
-lines proves that table prices exactly one condition for reach — and for a
-guard that is the whole slice: two helpers reading one `plan`, mirrored so that
-exactly one can speak, RED-proved by deleting it and watching the roll take -6.
-
-**6cm is next**, and its most reusable finding is about a BAR rather than a
-rule. 6ck refused the facing penalty because its bullets print "to defense"
-singular with no second printing to widen them; Dive! sits in that same bullet
-list and has no second printing either, so the obvious move was to refuse it the
-same way — and that would have been wrong. **A precedent travels with the
-condition that produced it, not with the shelf it was found on**: the facing
-bullets need corroboration because they never say WHICH row, while Dive! says
-"+3 Dodge vs. ranged only" and names both its scopes itself. Read it also for a
-cost checked rather than assumed — diving leaves you prone, and the only line in
-the book that prices prone is on the ATTACKER's to-hit roll, so a Dodge penalty
-invented to "balance" the +3 would have been a rule authored from a resemblance.
-And for where the answer to its design question lived: p. 36's free-actions
-paragraph, in the seam **outside** the span `defense_modifiers.json` claims —
-6ba's lesson applied to a REASON rather than to a rule, which no coverage number
-can report as missing.
-
-**6cl is next**, and its most reusable finding is about a REASON rather than
-a rule. It withheld the Acrobatic Dodge roll from an untrained character citing
-6aw's recorded defect in `SkillLadder.defaultFor` — and a design review pointed
-out that 6aw's three overrides are the *unarmed-parry* skills, so the cited
-defect could not answer wrong for Acrobatics at all. **A recorded defect is
-evidence about the inputs it was measured on**; the refusal survived only
-because reading `common_modifiers.json` produced a real reason (the untrained
-default is stored as a RANGE with no number). Read it also for the finding that
-changed a number: rolling through `SuccessRoll` instead of `SkillRoll` would
-have had a reeling character roll Acrobatics at one target in the defence dialog
-and another on the sheet, because `Conditions`' HP/FP penalties are unscoped.
-And for a latch refused as the mirror of 6ck's own refusal — enforcing a
-sentence printed PLURAL ("Each of the three free actions…") on one member.
-
-**6ck is next**, and it found the same false sentence in THREE files: "the
-book prints no arc to test against", explaining why facing is unmodelled. The
-book prints the arc — "Attacked from side: -2 to defense" / "-4 to rear" — in
-the list the defence dialog itself renders, and the model's version of the
-excuse was drawn from ONE row (Acrobatic Dodge's ±2) and generalised to the
-table. Read it for what the design review did with it: it returned **NO-SHIP**
-because my warrant for composing the penalty into `everyDefence` was the stun's
-*insufficient-alone* reading — that rule reaches every row only because a SECOND
-printing says "active defenseS", and facing has no second printing anywhere
-(checked across the book and re-checked by the diff reviewer across all 59
-content files). So the penalty is refused, pinned by a test asserting the
-bullets still read "to defense" singular — and the same check found the half
-that ships, the shield DB's arc, printed plural and enumerated. Read it also for
-the reviewer's other HIGH: the Block row builds its arrow by hand, so gating
-only the shared helper would have left the bonus on exactly the row the change
-exists for.
-
-**6cj is next, and it is the slice that did NOT build what it set out to.**
-6ci named `All-Out Defense (Double)` as next on the grounds that it had "no
-code, a test, a comment, or a recorded reason" — but **6bl had refused that row
-four slices earlier, in the slice log**, with a mechanism reason. 6ci's sweep
-iterates content rows against Kotlin, so a rationale kept in a prose journal is
-invisible to it by construction: read it for that first. Then for what happened
-when 6bl's reason was re-run as a query — its PROVENANCE half expired (line
-2453 is extracted, stored and on screen, and the app reads only its
-parenthetical while the main clause, the one-defence limit, reaches nothing) and
-its MECHANISM half survived, so **provenance evidence cannot answer a mechanism
-objection**. A design review returned NO-SHIP on three HIGHs before any code
-existed, including that I had copied a "charge on first selection" trigger whose
-semantics do not transfer — the precedent delivers what you bought at the first
-pick, this row delivers it at the second. Read it also for 6ci's other three
-deferrals, all closed as artefacts of its own instrument: the sweep's "modelled"
-predicate is a substring search, so its sibling ratio means nothing for a table
-consumed by loop, and 6ci hardened its *test* against exactly that predicate
-while leaving its *shortlist* built on the unhardened one.
-
-**6ci is next**, and it starts by disproving the paragraph directly below
-this one. 6cg and 6ch both closed by naming `Ether Body Damage` / purchasable
-traits as "the largest thing outstanding"; **6cc had shipped them four slices
-earlier**, and the item behind it was shipped too — two closing paragraphs
-copied forward instead of re-derived. Read 6ci for three things. Its **sweep
-iterates a third unit this repo never had** — 6ai swept extracted FIELDS for a
-reader, 6cf swept public FUNCTIONS for a caller, and neither can see a **row**
-nothing consumes; the signal is the sibling ratio inside one table, never the
-raw miss count, because a table consumed by loop correctly names none of its
-rows. Its **design review was right to say NO-SHIP and wrong about why**, and
-what settled the question was not a better argument but a census over the
-attribute the disputed rows share: the book prices nine rows across its two FP
-tables and this app charged **seven**, so those rows were never out of scope —
-they were *unpayable*, which inverted my own proposal to record them as
-unapplied. That review's first finding was also a **correction to me**: my
-decomposition's central argument named `ActiveDefenses.boostFor`, which does
-not exist. A design document is an argument made of claims about code, and one
-grep per symbol is what those claims cost. The diff review then found a
-**third** plan transition living inline in the dialog, which `atRange` and
-`withAttack` were both written to prevent — invisible until an unscoped option
-existed for it to drop.
-
-**6ch after it**: `AttackDialog` passed `spiAvailable = 0` as a LITERAL, and
-**no slice in the 7400-line log ever argued for it** — so the dialog told a
-Beyonder at full SPI they had "no spirituality left", one line under the rule
-granting the push. Reachable on a character's FIRST potion (Ritualistic Magic
-is granted at Sequence 9 of six pathways). Read it for two things. Its design
-review made it CHECK its own reachability claim rather than assert it — the
-Roll button turned out to need no weapon, but that was a claim until
-`AttackDialog.kt:521` said so. And **its two reviews contradict each other**:
-the design review requires `spiAvailable` be live and never `remember`ed
-(two attacks of one maneuver share one pool), and the diff review's only
-finding proposes memoizing it for recomposition cost. The correctness axis
-wins and the refusal is recorded — **a LOW that would reintroduce a MEDIUM is
-not a LOW.**
-
-**6cg is next**: it takes 6cf's deferred `attackOptions` loader and finds it
-is neither of the two things 6cf offered — the rules ARE applied, and what was
-missing is the **direction of the pin**. The Python extractor pins the book's
-sentence INTO the JSON; nothing ran JSON → Kotlin, so the only two constants in
-`Attacks` with no tie back to their row were exactly the two whose row lives in
-the file with no caller. **The absent caller and the absent guard are one fact,
-not two.** Read it also for the review finding: the first guard asserted
-`"$n to skill"`, which **a sign flip satisfies** — `"6 to skill"` is a substring
-of `"-6 to skill"` — so a guard against drift in MAGNITUDE was blind to drift in
-SIGN, the cheaper mutation and the one this repo has already measured once
-(section 5, base -4 landing on +2). And for a finding refused: the same check on
-the neighbouring row, whose clause `PINNED_OPTIONS` already pins whole.
-
-**6cf after it**: it wires up a +2 the divination screen has never asked
-for — extracted in 6p, tested, documented, and called by NOTHING. Read it
-for the sweep that found it, which is a sixth direction this repo had never
-run deliberately: **every public rules function checked for a UI caller**.
-323 functions, 46 uncalled, 3 real. 6aj and 6be each hit that class by
-accident; two of two by accident is not a method.
-
-**6ce after it**: it builds the table 6bc read and left, and that THREE
-slices deferred — 6bc, 6ca and 6cb — each on a reason that had already
-stopped being true. Read it for the shape of the check that costs a minute
-and settles it: **"occult skill" is printed nowhere in this book**, so the
-slash in "+5 to all occult/knowledge skills" cannot be joining two groups,
-and one grep decides a reading two other readings would have authored. Read
-it also for a guard that had been blind to an entire map since the slice
-that added it — under a comment warning about exactly that failure.
-
-**6cd is the one to read after it**, for a sentence that settles a question this
-file has circled four times: **"cost-inside-bounds corroborates pricing
-validity, not catalogue identity."** It refuses a rule that resolves two more
-sheet spellings and that excludes every objection previously raised against it
-— because excluding counter-examples is not the same as producing evidence.
-
-**Where to start next: 6ea, then 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6eb, then 6ea, 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1623,12 +1335,13 @@ There is an Android module (`app/`, Compose) with four screens: premade list
 (theme picker in its top bar) -> sheet (the `computed vs asPublished` diff, a
 Vitals/Skills/Traits bottom bar, and a twelve-tile action hub), the pathway
 screen (potion grants, digestion tracker, Potion Consumption Roll), and the
-builder (attributes against a live point budget). `docs/HOW-TO-PLAY.md` is the
+builder (attributes, secondary characteristics, wealth, appearance, traits,
+weapons and bought skills, against a live point budget). `docs/HOW-TO-PLAY.md` is the
 player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1723 Kotlin** (JUnit 5 — 1223 `core:rules`, 480 `app`, 20 `core:model`) + **347 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1730 Kotlin** (JUnit 5 — 1227 `core:rules`, 483 `app`, 20 `core:model`) + **347 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1830,6 +1543,15 @@ NonStandardPathways.all() / .pathways() / .blocksFor(pathway)
 NonStandardPathways.blockFor(pathway, sequence): SequenceBlock?  // null = no such rung
 NonStandardPathways.knownSequences(pathway) / .alsoPrintedAs(pathway)
 Weapons.all() / .named(name) / .forSkill(key): List<CataloguedWeapon>
+Weapons.levelFor(weapon, skillLevels): Int?   // the HIGHEST matching skill,
+                                      // never the first: p.85 makes one name
+                                      // at two difficulties two skills. Null
+                                      // means carried but untrained
+Weapons.parryFor(weapon, skillLevel): Int?    // ch.5's skill/2+3, no modifier
+                                      // because the book prints none. This is
+                                      // what BOTH screens use; ParryBlock
+                                      // .parryFor is the SHEET path and has
+                                      // no production caller on purpose
 Weapons.damageFor(weapon, mode, st, bonus): DamageRoll
 Weapons.isRanged(weapon) / .canParry(weapon) / .parryFor(weapon, skill): Int?
 Weapons.hasWoundingMultiplier(mode)   // true for pi+ since Appendix A (6v)
@@ -2063,13 +1785,17 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ### Known gaps left deliberately
 
-- **Weapons are not editable yet.** `SavedEdits` covers the four attributes,
-  bought skills, wealth, appearance, traits (fixed-price and instanced) and —
-  since 6ea — the six priced secondary characteristics; weapons still come
-  only from the published sheet, and they are what `ParryBlock` has been
-  waiting on since M0. Widen `SavedEdits` ADDITIVELY: `SessionStore.load`
-  discards the whole file on a decode failure, so a shape change drops every
-  existing save.
+- **`SavedEdits` now covers everything a player changes** — the four
+  attributes, bought skills, wealth, appearance, traits (fixed-price and
+  instanced), the six priced secondary characteristics (6ea) and the weapons
+  carried (6eb). Widen it ADDITIVELY: `SessionStore.load` discards the whole
+  file on a decode failure, so a shape change drops every existing save.
+- **A SHEET-printed weapon row is a stated non-goal.** `Character.weapons`
+  and `ParryBlock.parryFor(Weapon, …)` have no production caller: no
+  published sheet prints a weapon row, and the weapons a player carries are
+  chapter 8's catalogue, priced by `Weapons.parryFor`, which takes no
+  modifier because the book prints none. Both are kept, with the formula
+  pinned by a test, for the provenance that does print one (6eb).
 - **Advantage and drawback rows are prose, not structure.** The flattened PDF
   gives no boundary between a wrapped effect line and the next row's name, and
   this PDF reports x=0 for every glyph so column geometry is unavailable. See

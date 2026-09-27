@@ -6726,6 +6726,136 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6eb. The parry the sheet screen could never show
+
+**One question, answered at two sites, with data at one.**
+`DefenseDialog.armedParries` read `Character.weapons` and computed each row
+with `ParryBlock.parryFor`. No published sheet prints a weapon row — a grep
+for `weapons` across `fixtures/` returns nothing — and no `SavedEdits` field
+could write one, so **the armed-parry rows were permanently absent on all 23
+premades**. One tap away, `AttackDialog.kt:722` has printed
+`Weapons.parryFor(held.weapon, skillLevel)` for a chapter-8 weapon since that
+catalogue was read. So a character could swing a Broadsword and could not
+parry with it, and the function's own KDoc said *"No premade carries a weapon
+today, so nothing here is on screen yet"* — a gap recorded in the place only
+its author reads.
+
+This is the second of the two gaps 6dz recorded and called features rather
+than oversights; 6ea closed the other. Both were fields whose only writer was
+somebody else's data.
+
+Read it for six things.
+
+**The load-bearing decision was the SHAPE, and the design review took it.**
+`armedParries` moves from `List<Weapon>` to `List<CataloguedWeapon>` and
+computes with `Weapons.parryFor`. `Weapon.parryMod` exists because a
+published SHEET prints a dash or a number beside a weapon row; `Weapons.kt`'s
+own KDoc records that this book prints **no per-weapon parry modifier
+anywhere**, leaving `ParryBlock.parryFor` *"for the sheets that carry one"*.
+Manufacturing `Weapon(name, skill, parryMod = if (canParry) 0 else null)`
+from catalogue data would claim chapter 8 supplied a modifier it never
+printed, invent a `SkillKey`'s difficulty and controlling attribute out of a
+printed skill STRING, and leave two formulas for one fact agreeing only by
+construction. **The strongest case against it is recorded rather than
+dismissed**: a future importer carrying a fencing blade at +1 would get no
+defence row, so `ParryBlock.parryFor` and `Character.weapons` are a stated
+non-goal in production source — *"No production caller today, and that is a
+scope decision rather than dead code"* — not accidental silence.
+
+**The tests MOVED rather than died, and that is the honest artefact.**
+`ParryBlock.parryFor` and `Weapon.parryMod` were pinned by exactly one thing
+in this repo: five `armedParries` cases in `DefenseDialogTest`, three of
+which asserted the modifier. Switching the screen's shape would have deleted
+the only proof that the sheet path's formula is right. The three cases are
+rewritten as one `ParryBlockTest` case instead, where they belong — **a
+formula with no test is a claim** — and the remaining four become
+catalogue-based.
+
+**Possession is not training, and the design review is what settled it.** My
+decomposition offered the picker only the weapons the character's own skills
+can wield. That makes possession require training, which neither the book nor
+this app says: a GM may hand anyone a weapon. All nine rows are offered, and a
+weapon no skill arms prints *"not a skill this character has, so no parry"*
+rather than vanishing — **a saved weapon that renders nowhere is
+indistinguishable from a save that lost it.** The reviewer's further point is
+recorded and REFUSED with its counter-case: it wanted `AttackDialog`'s weapon
+chips filtered to possessed weapons too, or else *"Defense says possession
+matters while Attack does not"*. Filtering them would withdraw a working
+capability for want of a record the app has only just gained. The distinction
+is 6cx's, and it is about ROLE: Attack's chips are a PICKER that
+re-parameterises one roll and is answered per roll; the defence rows are a
+LIST rendered with no choice, so they need a possession record to know which
+rows to print. **A picker asks; a list asserts.**
+
+**`levelFor` takes the HIGHEST matching level, never the first.** p. 85 makes
+two rows of one name at two difficulties into two different skills, and five
+of this book's potion grants produce exactly that, so a `skillLevels` map can
+legitimately hold `Knife/Easy` and `Knife/Average` at once and iteration order
+would otherwise decide the number. The join runs through `forSkill`, the
+direction that already exists and the one that reads the specialization —
+going the other way means parsing `"Guns (Revolver)"` back into a `SkillKey`
+and inventing the two fields the catalogue never printed.
+
+**The diff review returned four findings and all four were the vacuity
+class.** Three are RED-proved by mutation. The first MEDIUM is the sharpest:
+deleting `+ parryPenalty` from the ARMED rows alone left every test green,
+because `DefenseDialogTest` exercises `armedParries`' base values and nothing
+composes the row. The two row types differ by exactly one term (an unarmed
+style parries a WEAPON at its own penalty), so they are now one `parryScore`
+expression with that term defaulted — **one question, one site**, which is the
+defect this slice is about, one screen further in. **No test pins the sum,
+because a test of `a + b + c` restates it**; what stops the drift is that
+there is one expression, and whether the screen calls it with the right
+arguments is only reachable on a device. The second MEDIUM: my "highest level"
+test inserted the 14 LAST, so *"take the last match"* passed it — both map
+orders are asserted now, and the mutation that proves it is `lastOrNull`,
+where my own first mutation had been `firstOrNull` and told me nothing. The
+two LOWs are the same shape in the case-insensitive matches: a dedupe test
+whose repeat simply vanished behind the canonical entry ahead of it, and a
+drop test that used the canonical spelling for both calls. **A test written
+for a rule about SPELLING must use a spelling the code has to normalise.**
+
+**NOT device-verified, and that is a plain statement rather than a skipped
+step.** No device is attached this session; the SM-T570 that verified 6ea and
+6dz is disconnected. The APK assembles and all 1730 Kotlin tests pass, and
+nothing in this repo can assert a Compose label, so **three claims in this
+slice are unproved until someone taps them**: that the Weapons row renders in
+the builder, that the picker carries a weapon, and that an armed parry row
+appears in the defence dialog with the cumulative penalty applied. The unit
+layer under each of them is tested; the wiring is not.
+
+**One environment fact worth inheriting.** Gradle failed six times in this
+session with `java.io.IOException: Unable to delete directory` on
+`build/test-results`, `build/kotlin` and `build/intermediates` — a Windows
+file lock, and **it is indistinguishable from a build failure in the exit
+code**. The fix each time was `rm -rf` on the directory the message names,
+plus `--no-watch-fs`; nothing about the code was wrong. Read the message,
+not the status.
+
+**And the docs pass found a slice with no section in this file.**
+`CLAUDE.md` went back over its 150 k-char limit (152,583), so the lead
+paragraphs for 6cz down to 6cd were cut — every one of them duplicated in
+full here, and the reading order still names them. Checked before cutting,
+one `grep -c` per slice, and **22 of 23 were present**: 6ct's section had
+never been written, so that paragraph was its only surviving account. It is
+restored above as its own section, quoting the paragraph verbatim rather than
+reconstructing work it did not witness. **A lead paragraph can be the only
+copy** — 6cp's rule was that a closing paragraph is the one part of this log
+nothing verifies, and this is the same hazard one file over.
+
+**1730 Kotlin** (1227 `core:rules`, 483 `app`, 20 `core:model`) and **347
+Python**, all green, counted from the JUnit XML after deleting the results
+directories. Chapter coverage is untouched: nothing here claims a book line.
+
+**No successor is named.** Both gaps 6dz recorded are now closed, so the next
+slice needs a fresh sweep, and every direction already run expires rather
+than standing: fields for a reader (6ai), functions for a caller (6cf), rows
+for a consumer (6ci), files for a loader (6dg), strings a screen types (6cq),
+seams between claimed spans (6ba), what the tests know that production does
+not (6bz), parameters with no non-default argument (6dz), JSON keys with no
+Kotlin declaration and enum members with no production use (6ea). The one
+thing outstanding is not a sweep but a device pass over this slice.
+
 ## 6ea. Six rows the budget billed and no screen could ask for
 
 **6dz closed its census with a verdict and named no successor, so this slice
@@ -11303,6 +11433,38 @@ which was safe **only** because their sole uncommitted content was this
 slice's own paragraphs, reproducible verbatim, and the file holding real work
 (`GoldenSheetTest.kt`) was not in the checkout. Use the editing tools for
 prose; a shell round-trip is a re-encode.
+
+## 6ct. The fixtures nobody had swept
+
+**Recovered from `CLAUDE.md`'s lead paragraph in 6eb, and that is the point of
+recording it here.** This slice never had a section in this file — the
+sections run 6cv, then 6cu, with nothing between — so for however many slices
+that has been true, its only surviving account was the summary paragraph in
+the handover. 6eb cut that stack of paragraphs to get `CLAUDE.md` back under
+its size limit, checked each cut section against this file first, and found
+this one missing. **A lead paragraph can be the only copy**; the check that
+catches it is one `grep -c "^## <slice>\."` per name, and it costs a second.
+
+What the paragraph said, verbatim:
+
+> **6ct is next**, and it sweeps a corpus nobody had swept: **the 23
+> fixtures.** 32 keys, all occurring in Kotlin; counting readers outside the
+> model declarations leaves five, four already reconciled, and one —
+> `totalSpent` — with its declaration and nothing else. The sheet's printed
+> TOTAL SPENT had never been compared with what the rules compute. Wiring it
+> up found exactly one disagreement, Monastery Scholar's 99 against 89, and
+> that is 4.1's existing advantages error surfacing in a second column: a
+> test now asserts both gaps are ten and EQUAL, so if they diverge one
+> spreadsheet error has become two. Read it for the count guard that caught
+> its own author — `grep -l` says 23 fixtures carry the field and the loaded
+> answer is 22, because Beat Cop's file has the key with a `null` value. **A
+> grep for a key is not a count of a value.**
+
+Its successor's own opening confirms the subject: 6cu begins *"6ct named the
+sibling column, and said to start with the question that needs no engine"*.
+Nothing here is reconstructed beyond that paragraph — the slice's commits are
+in `git log`, and this section is a pointer to them rather than a rewritten
+account of work it did not witness.
 
 ## 6cu. Two errors, six columns, and the sign that carries the finding
 

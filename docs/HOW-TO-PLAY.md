@@ -19,7 +19,7 @@ it does the arithmetic. Nothing is hidden and nothing is invented.
 | **Premade list** | opens first | pick one of the 23 published characters |
 | **Sheet** | tap a premade | play: roll skills, fight, cast, divine |
 | **Pathway** | the **Pathway** tile on the sheet — labelled **Drink a potion** until you have drunk one | drink potions, advance Sequence, track digestion |
-| **Builder** | the **Spend points** tile on the sheet | change attributes and secondary characteristics, and buy skills, against a live budget |
+| **Builder** | the **Spend points** tile on the sheet | change attributes and secondary characteristics, buy skills and traits, and carry weapons, against a live budget |
 
 ---
 
@@ -256,6 +256,15 @@ Digestion have no stepper because the book prices none of them. Stepping back
 to the printed value clears the purchase; the sheet's own **computed vs.
 as-published** table keeps showing what the sheet printed, because that
 comparison is the engine against the book and a purchase is neither.
+
+**Weapons** lists what the character is carrying, with **Carry a weapon**
+opening chapter 8's nine rows. All nine are offered whether or not the
+character has the skill — a GM can hand anyone a weapon — and a weapon they
+have no skill for says so instead of disappearing, because the parry is
+`skill / 2 + 3` and there is no skill to halve. Carrying one costs no points:
+the book prices weapons in money, which this app does not track. What it
+changes is the **Defend** screen, which now prints a `Parry (name)` row for
+each carried weapon it can compute one for.
 
 Traits the book prints with a cost range or a "(specify)" name are bought by
 naming the instance and its price — the app stores the row, the variant and the
