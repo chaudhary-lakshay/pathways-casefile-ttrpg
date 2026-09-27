@@ -123,7 +123,10 @@ def not_also_a_potion(entries):
 
 
 def main():
-    entries, spans, unparsed = standard.extract(standard.load_lines(), chapter_ranges())
+    all_lines = standard.load_lines()
+    entries, spans, unparsed = standard.extract(
+        all_lines, chapter_ranges(), standard.heading_of_chapters(all_lines)
+    )
     verify(entries)
     not_also_a_potion(entries)
 

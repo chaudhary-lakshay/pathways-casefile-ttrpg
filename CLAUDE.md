@@ -112,7 +112,49 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6eb is newest, and it is a parry the defence screen could never show.**
+**6ec is newest, and its sweep came back clean while the defect sat beside
+it.** The direction was the inverse of 6ea's — every declared `@Serializable`
+property checked for a JSON key that actually SETS it, since a property no
+data file populates is always its default. Read it for six things. **The
+first two runs measured the instrument**: matching property names against the
+union of all 81 files' keys returned 0 of 471 because a key named `name` is in
+nearly every file, and the tightened per-file version silently covered **73 of
+81** because its loader regex could not see a comment between `by lazy {` and
+the `load(…)` call. At 81 of 81 it returns **10 hits, and all ten are
+settled by a named query** rather than by assertion — including `\(\d+\)`
+returning 0 over the advantages spans and 9 over the disadvantages spans,
+which is why the book prints no self-control advantage. **A sweep's zero is
+worth nothing until the same query has returned non-zero on data known to
+hold the thing**: the qualifier query that settled chapters 14/15 first
+returned 0 on `pathways.json`, which holds twelve such notes, because the
+flattened PDF puts the attribute on one line and its gain on the next. Fixing
+that control is what found the slice. **Two stat notes were cut at their
+wrap and the remainder landed in the neighbouring prose field** — White Tower
+Seq 9 stored `"(knowledge retention"` and ended its advantages `"…near-perfect
+recall and learning)"`; Demoness Seq 9 stored `"— reflexes sharpen"` and
+OPENED its advantages `"for precise timing Night Vision…"`. One sentence,
+arriving as two wrong fields, both rendered (`PathwayScreen.kt:505` and
+`:513`). The rule is the book's own signal — a wrapped line is mid-sentence
+so it opens lowercase — and it is measured over **all 105 blocks this parser
+sees: 62 followers, 60 capitalised advantage names, 2 lowercase and both the
+defect.** The first count said 88 blocks, and the review's LOW was that the 17
+non-standard blocks run the same parser and were excluded from the corpus that
+could contradict the rule. **Regenerating found a larger defect**:
+`b1c8c4e` taught `coverage.py` to partition chapters at the HEADING and
+hand-refiled `pathways.json` to match, and `extract_pathways.py` was never
+taught — so re-running it **silently reverts that commit**, and only reading
+the diff can see it. `chapter_at` asks `coverage.heading_lines` now, and the
+signature change is what found the second call site (`extract_non_standard.py`
+shares `extract()` and failed loudly). The oracle was `HEAD` itself: the
+regenerated spans are set-identical to the committed ones and the per-chapter
+counts match exactly. **Two corpus guards ship and each RED-proved on a
+DIFFERENT instance**, which is why both are kept. **Device-verified on an
+SM-T570 without drinking anything**, since the pathway screen renders a block
+before the Drink button. **No successor is named**, but one thing found on the
+way is a sweep direction: **nothing anywhere checks that a committed content
+file still reproduces from its extractor**, and that is what saved this slice.
+
+**6eb is next, and it is a parry the defence screen could never show.**
 `DefenseDialog.armedParries` read `Character.weapons` — a field no published
 sheet fills and no save could write — so the armed-parry rows were
 permanently absent on all 23 premades, while `AttackDialog.kt:722` printed a
@@ -1127,7 +1169,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: 6eb, then 6ea, 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6ec, then 6eb, 6ea, 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1359,7 +1401,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1732 Kotlin** (JUnit 5 — 1227 `core:rules`, 485 `app`, 20 `core:model`) + **347 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1732 Kotlin** (JUnit 5 — 1227 `core:rules`, 485 `app`, 20 `core:model`) + **351 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |

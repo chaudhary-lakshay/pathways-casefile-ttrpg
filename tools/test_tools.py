@@ -299,13 +299,53 @@ def test_stat_rows_pair_an_attribute_with_its_signed_gain():
     assert prose == ""
 
 
-def test_fractional_basic_speed_gain_keeps_the_note_on_its_line():
+def test_a_stat_note_claims_its_lowercase_continuation():
+    """A wrapped line is the middle of a sentence, so it starts lowercase.
+    Measured over all 105 blocks this parser sees -- the 88 potion blocks and
+    the 17 non-standard ones, because `extract_non_standard.py` calls the same
+    function and a count of 88 would exclude the rows that could contradict
+    it: 62 lines follow a stat gain line inside the Stat / Advantage section,
+    60 are advantage NAMES and start with a capital, and the 2 that do not are
+    both a note cut at its wrap."""
     stats, prose = extract_pathways.parse_stats(
         ["Basic Speed", "+0.25 — reflexes sharpen", "for precise timing"]
     )
-    assert stats == [{"attr": "Basic Speed", "delta": 0.25, "note": "— reflexes sharpen"}]
-    # the wrapped remainder is not silently dropped
-    assert "for precise timing" in prose
+    assert stats == [
+        {
+            "attr": "Basic Speed",
+            "delta": 0.25,
+            "note": "— reflexes sharpen for precise timing",
+        }
+    ]
+    # and it LEAVES the prose: the wrap was never an advantage row
+    assert prose == ""
+
+
+def test_a_line_above_a_mid_page_chapter_heading_stays_with_the_chapter_before():
+    """b1c8c4e taught coverage.py that a chapter starts at its HEADING, not at
+    the top of the page the heading sits on, and hand-refiled pathways.json's
+    spans to match. This extractor is the other site answering that same
+    question and was never taught, so re-running it silently reverted the fix.
+    Line 6167 is chapter 10's page furniture at the top of p. 97, above
+    chapter 10's heading at 6217, and it belongs to chapter 9."""
+    heading_of = {"9": 5416, "10": 6217, "11": 7043, "12": 8098}
+    assert extract_pathways.chapter_at(6166, heading_of) == "9"
+    assert extract_pathways.chapter_at(6167, heading_of) == "9"
+    assert extract_pathways.chapter_at(6216, heading_of) == "9"
+    assert extract_pathways.chapter_at(6217, heading_of) == "10"
+    # before the first heading in scope: not this extractor's business
+    assert extract_pathways.chapter_at(5415, heading_of) is None
+
+
+def test_a_wrapped_parenthetical_is_not_cut_at_the_line_break():
+    stats, prose = extract_pathways.parse_stats(
+        ["IQ", "+1 (knowledge retention", "and learning)",
+         "Eidetic Memory", "+5 to remember things"]
+    )
+    assert stats == [
+        {"attr": "IQ", "delta": 1.0, "note": "(knowledge retention and learning)"}
+    ]
+    assert prose == "Eidetic Memory +5 to remember things"
 
 
 def test_advantage_rows_are_kept_as_prose_rather_than_invented_structure():
@@ -377,12 +417,55 @@ def test_a_block_stops_at_the_next_chapter_heading():
         {"n": 7, "page": 2, "text": " Ability"},
         {"n": 8, "page": 2, "text": "Clown Agility: impossible acrobatics."},
     ]
-    entries, spans, _ = extract_pathways.extract(lines, {"9": (1, 1), "10": (2, 2)})
+    entries, spans, _ = extract_pathways.extract(
+        lines, {"9": (1, 1), "10": (2, 2)}, {"9": 1, "10": 4}
+    )
 
     assert entries[0]["ability"] == "Spirit Vision: sees ghosts and spectres."
     assert entries[0]["sourceLines"] == [1, 3]
     # the intro is left unclaimed rather than credited to the previous block
     assert spans == {"9": [[1, 3]], "10": [[6, 8]]}
+
+
+def test_no_pathway_string_is_cut_mid_parenthetical():
+    """A gain cell cut at its wrap leaves an unclosed "(" on the stat note and
+    strands the ")" on whatever field swallowed the remainder. That is one
+    sentence arriving as two wrong ones, and it is checkable without knowing
+    which sentence: a stored string this extractor built should balance its
+    own brackets. Read off the COMMITTED files, not from entries built in
+    memory, because a crashed extractor leaves its JSON intact.
+
+    What this does NOT catch is a parser regression on its own: breaking
+    `parse_stats` leaves the committed file green until someone regenerates.
+    That half belongs to test_a_stat_note_claims_its_lowercase_continuation,
+    which is a unit test of the parser. This one covers the other half -- a
+    wrap this fixture does not contain, arriving in a future re-extraction."""
+    for name in ("pathways", "non_standard_pathways"):
+        data = json.loads((CONTENT / f"{name}.json").read_text(encoding="utf-8"))
+        for entry in data["entries"]:
+            for field, value in entry.items():
+                for text in (value if isinstance(value, list) else [value]):
+                    for key, inner in (text.items() if isinstance(text, dict) else [(field, text)]):
+                        if isinstance(inner, str) and inner.count("(") != inner.count(")"):
+                            raise AssertionError(
+                                f"{name}: {entry['pathway']} Seq {entry['sequence']} "
+                                f"{key} has unbalanced brackets: {inner!r}"
+                            )
+
+
+def test_no_pathway_prose_field_opens_mid_sentence():
+    """The advantages and drawbacks blobs are collected from whatever the stat
+    parser did not claim, so a note's lost remainder lands at the FRONT of
+    them. A prose field opening lowercase is that remainder."""
+    for name in ("pathways", "non_standard_pathways"):
+        data = json.loads((CONTENT / f"{name}.json").read_text(encoding="utf-8"))
+        for entry in data["entries"]:
+            for field in ("advantages", "drawbacks"):
+                text = entry.get(field, "")
+                assert not text[:1].islower(), (
+                    f"{name}: {entry['pathway']} Seq {entry['sequence']} "
+                    f"{field} opens mid-sentence: {text[:60]!r}"
+                )
 
 
 def test_pathways_json_covers_88_blocks_across_22_pathways():

@@ -3,30 +3,18 @@
   "9": [
    [
     5466,
-    6166
-   ],
-   [
-    6167,
     6216
    ]
   ],
   "10": [
    [
     6223,
-    7040
-   ],
-   [
-    7041,
     7042
    ]
   ],
   "11": [
    [
     7049,
-    8095
-   ],
-   [
-    8096,
     8097
    ]
   ],
@@ -328,7 +316,7 @@
     {
      "attr": "IQ",
      "delta": 1.0,
-     "note": "(knowledge retention"
+     "note": "(knowledge retention and learning)"
     }
    ],
    "skills": [
@@ -351,7 +339,7 @@
      "bonus": 2
     }
    ],
-   "advantages": "Eidetic Memory +5 to remember things after one reading; near-perfect recall and learning)",
+   "advantages": "Eidetic Memory +5 to remember things after one reading; near-perfect recall",
    "drawbacks": "",
    "ability": "Reading — Knowledge Wealth: A Reader gains a wealth of knowledge through extensive reading combined with enhanced mental attributes. May attempt an IQ roll (no penalty) to recall any piece of general knowledge — history, science, mysticism, language — that could plausibly be found in books, even if the player has not specifically researched it. Critical success produces highly specific detail. The GM may impose -2 to -4 for very obscure material. The Reader also learns new languages in half the normal time.",
    "reinforcedAbilities": "",
@@ -542,7 +530,7 @@
     {
      "attr": "Basic Speed",
      "delta": 0.25,
-     "note": "— reflexes sharpen"
+     "note": "— reflexes sharpen for precise timing"
     },
     {
      "attr": "SPI",
@@ -557,7 +545,7 @@
      "bonus": 2
     }
    ],
-   "advantages": "for precise timing Night Vision see in total darkness without penalty Acute Vision +2 to vision-based Perception rolls Acute Hearing +2 to hearing-based Perception rolls",
+   "advantages": "Night Vision see in total darkness without penalty Acute Vision +2 to vision-based Perception rolls Acute Hearing +2 to hearing-based Perception rolls",
    "drawbacks": "",
    "ability": "Feather Fall: Assassins can descend from any height without injury. All falls are treated as controlled regardless of height — the Assassin always lands safely and silently. While descending they may glide short horizontal distances (up to 1 meter horizontal per 2 meters vertical). Not sustained flight; cannot maintain altitude. Lands without audible impact — no Perception roll detects the landing through sound alone. Shadow Concealment: The Assassin's body instinctively blends with shadows. In any environment with partial shadow or dim lighting, the Assassin is supernaturally difficult to notice — observers must succeed at a Perception roll at -3 to detect them while they are stationary, and at -1 while moving slowly. This is a passive physical change, not a trained skill. Bright, open daylight negates this effect. Mighty Blow (3 FP): Spend 3 FP and roll the appropriate melee skill. You gain +3 to hit. On a hit, multiply raw damage dice by 3 (before DR). This ability cannot be modified by other maneuvers or by burning FP.",
    "reinforcedAbilities": "",

@@ -37,6 +37,22 @@ continuation, "Poison Resistance" is a name, and both are capitalised
 single-clause lines. pypdf offers no rescue: this PDF's text matrices are
 degenerate (every glyph reports x=0), so column geometry is unavailable.
 
+That claim is about an ADVANTAGE row's boundary and it still stands. An
+ATTRIBUTE row's gain cell does have a signal, because a wrapped line is the
+middle of a sentence and opens lowercase where the next row's name is a
+proper noun. Measured over every block this parser sees -- the 88 potion
+blocks AND the 17 non-standard ones `extract_non_standard.py` runs it on,
+which a count of 88 would have left out: 62 lines follow a stat gain line in
+this section, 60 open with a capital and are advantage names, and the 2 that
+do not are the gain cell's own remainder. Before that was read, the
+remainder was swept into `advantages`, so ONE sentence arrived split across
+two fields -- White Tower Seq 9 stored `"(knowledge retention"` and ended its
+advantages `"...near-perfect recall and learning)"`, and Demoness Seq 9
+stored `"-- reflexes sharpen"` and OPENED its advantages `"for precise
+timing ..."`. Note the counter-example above is the other direction: a
+capitalised continuation is left where it falls, which costs nothing this
+parser was getting right.
+
 Rather than guess a boundary, those rows are preserved verbatim as prose in
 `advantages` / `drawbacks`. Nothing is dropped; it is presented as the book
 prints it, and the GM adjudicates it, which is what a drawback like "Roll
@@ -53,6 +69,8 @@ the reader, not content. They show up as unclaimed mechanical lines in
 coverage.md, which is the honest reading.
 """
 import json, pathlib, re, sys
+
+import coverage
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LINES_PATH = ROOT / "build" / "extract" / "lines.json"
@@ -154,11 +172,26 @@ def parse_stats(lines):
         gain = _signed(lines[i + 1]) if i + 1 < len(lines) else None
         if label in ATTRIBUTES and gain is not None:
             delta, note = gain
+            i += 2
+            # The gain cell wraps, and a wrapped line is the middle of a
+            # sentence, so it opens lowercase; the next row's name is a
+            # proper noun and does not. That is the one textual signal this
+            # table gives, and it is measured rather than assumed: of the 62
+            # lines that follow a stat gain line across all 105 blocks this
+            # parser sees (88 potion + 17 non-standard), 60 are advantage
+            # names and open with a capital, and the 2 that do not are this
+            # cell's own remainder (White Tower Seq 9's
+            # "and learning)" and Demoness Seq 9's "for precise timing").
+            # Without this the remainder was swept into `prose`, so one
+            # sentence arrived split across a stat note and the advantages
+            # blob -- see test_a_stat_note_claims_its_lowercase_continuation.
+            while i < len(lines) and lines[i].strip()[:1].islower():
+                note = f"{note} {lines[i].strip()}".strip()
+                i += 1
             row = {"attr": label, "delta": delta}
             if note:
                 row["note"] = note
             stats.append(row)
-            i += 2
             continue
         if label:
             prose.append(label)
@@ -262,16 +295,45 @@ def chapter_ranges():
     return {c["id"]: (c["startPage"], c["endPage"]) for c in chapters if c["id"] in CHAPTER_IDS}
 
 
-def extract(all_lines, ranges):
+def heading_of_chapters(all_lines):
+    """Where each chapter's heading sits, as a global line number.
+
+    Asked of `coverage.heading_lines` rather than restated here: the chapter
+    a line belongs to is ONE question, and answering it twice is what this
+    function exists to stop. It raises rather than falling back to the page
+    range when a heading cannot be found, which is deliberate there.
+    """
+    chapters = json.loads(CHAPTERS_PATH.read_text(encoding="utf-8"))
+    return coverage.heading_lines(all_lines, chapters)
+
+
+def chapter_at(n, heading_of):
+    """The chapter a global line belongs to: the LAST chapter whose heading
+    precedes it, or None above them all.
+
+    A chapter starts at its HEADING, not at the top of the page the heading
+    sits on. The book opens a chapter mid-page, so the page furniture above
+    that heading still belongs to the chapter before it. `coverage.py` was
+    taught this in b1c8c4e ("partition chapters at the heading, not the
+    page") and pathways.json's spans were hand-refiled to match -- but THIS
+    extractor, the other site answering the same question, kept bucketing by
+    `chapters.json` page ranges. So a re-run silently re-filed those three
+    spans back to the defect, and only reading the diff could see it.
+    """
+    started = [(line, cid) for cid, line in heading_of.items() if line <= n]
+    return max(started)[1] if started else None
+
+
+def extract(all_lines, ranges, heading_of):
     """Walk chapters 9-12 and return (entries, spans, unparsed)."""
     in_scope = [
         l for l in all_lines
         if any(a <= l["page"] <= b for a, b in ranges.values())
     ]
-    chapter_of = {
-        l["n"]: next(cid for cid, (a, b) in ranges.items() if a <= l["page"] <= b)
-        for l in in_scope
-    }
+    # The page range says which lines this extractor WALKS; the heading says
+    # which chapter each one is CLAIMED under. They are different questions
+    # and the page range is the wrong answer to the second -- see chapter_at.
+    chapter_of = {l["n"]: chapter_at(l["n"], heading_of) for l in in_scope}
 
     starts = [l for l in in_scope if parse_header(l["text"])]
     known = skill_vocabulary()
@@ -386,7 +448,10 @@ def compare_to_skill_list(entries):
 
 
 def main():
-    entries, spans, unparsed = extract(load_lines(), chapter_ranges())
+    all_lines = load_lines()
+    entries, spans, unparsed = extract(
+        all_lines, chapter_ranges(), heading_of_chapters(all_lines)
+    )
     verify(entries, unparsed)
 
     OUT.mkdir(parents=True, exist_ok=True)

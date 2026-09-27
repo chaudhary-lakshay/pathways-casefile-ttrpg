@@ -6726,6 +6726,160 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ec. One sentence, arriving as two wrong fields
+
+**The sweep this slice set out to run came back clean, and the defect was
+found beside it.** The direction was the inverse of 6ea's: 6ea checked every
+content JSON KEY for a Kotlin declaration, and this checked every declared
+`@Serializable` property for a JSON key that actually SETS it. A property no
+data file populates is always its default, so anything reading it reads a
+constant — 6ea's defect class and 6dz's, at a third unit.
+
+**The first run of it measured the instrument, not the data.** Matching every
+property name against the union of all 81 files' keys returned **0 of 471**,
+because a key named `name` exists in nearly every file. Tightened to match
+each class against only the file(s) that decode into it, it returned 10 — and
+its loader mapping silently covered **73 of 81 files**, because the regex
+required the `load(...)` call to sit directly under `by lazy {` and eight of
+them have a comment in between. Widened to track the enclosing property type
+line by line: **81 of 81, every root a known class, 10 hits.** A sweep that
+skips ten per cent of its corpus and still reports a number is the shape this
+repo keeps recording.
+
+**All ten are settled, each by its own named query rather than by assertion:**
+
+| Hit | Query | Verdict |
+|---|---|---|
+| `advantages.json`: `SelfControlRoll`'s four fields, and `TraitDefinition.selfControl` | `\(\d+\)` over each catalogue's claimed spans | **0 in the advantages spans, 9 in the disadvantages spans** (`Curious (12)`, `Greed (12)`, …). The book prints no self-control ADVANTAGE, so the field is correctly absent |
+| `disadvantages.json`: `TraitDefinition.perLevel`, `variableCost` | `level`/`variable`/`scales`/`per ` over the 402 lines of the disadvantages spans | 3 matches, none a PRICE (`Bad Temper (12)`, a once-per-session clause, a cumulative Will penalty). No per-level or variable-cost disadvantage exists to drop. `costMin`/`costMax` ARE set there — 13 rows — so ranges are captured |
+| `ritual_quick_preparation.json`: `RitualPreparation.openEnded` | book line 4064 | prints `-2 to -4`, a bounded range. Only the FULL table's `None` row prints `-4 or worse`, and it carries the flag |
+| `non_standard_pathways.json`: `SkillGrant.note`, `StatGain.note` | a gain-line qualifier regex, **run first over `pathways.json`'s spans as a positive control** | 10 hits there against 12 stored notes, so the query fires; **0 over chapters 14/15**. Those blocks print no qualifier |
+
+**The positive control is the reusable part.** My first version of that
+qualifier query returned 0 over chapters 14/15 AND 0 over `pathways.json`,
+which holds twelve stored notes — so the 0 settled nothing. It failed because
+the flattened PDF puts the attribute on one line and its gain on the next,
+and the regex was anchored on the attribute. **A sweep's zero is worth nothing
+until the same query has returned non-zero on data known to contain the
+thing.**
+
+**What the control turned up is the slice.** Of the ten qualifier lines it
+found, every one wraps onto a following line, and for eight the wrap is in the
+stored note. For two it is not:
+
+- **White Tower Seq 9** (book 5640-5641). The book prints `IQ +1 (knowledge
+  retention and learning)`. Stored: the stat note was `"(knowledge retention"`
+  — an unclosed bracket — and the tail landed at the END of the advantages
+  blob, which read `"Eidetic Memory +5 to remember things after one reading;
+  near-perfect recall and learning)"`.
+- **Demoness Seq 9** (book 5811-5812). The book prints `Basic Speed +0.25 —
+  reflexes sharpen for precise timing`. Stored: the note was `"— reflexes
+  sharpen"` and the advantages blob OPENED `"for precise timing Night Vision
+  …"`.
+
+**One sentence, arriving as two wrong fields**, and both fields render:
+`PathwayScreen.kt:505` prints `gain.note` and `:513` prints
+`Prose(block.advantages)`.
+
+**The signal is the book's own, and it is measured.** A wrapped line is the
+middle of a sentence, so it opens lowercase; the next row's name is a proper
+noun and does not. Over every block this parser sees — the 88 potion blocks
+AND the 17 non-standard ones, because `extract_non_standard.py` calls the same
+function — **62 lines follow a stat gain line inside the Stat / Advantage
+section, 60 open with a capital and are advantage names (`Eidetic Memory`,
+`Acute Vision`, `Fit`, `Perfect Balance`, …), and the 2 that do not are
+exactly these two remainders.** Zero false positives over the whole corpus.
+The first version of that count said 88 blocks and 53/2/51; the diff review's
+LOW was that the 17 non-standard blocks use the same parser and were excluded
+from the corpus that could contradict the rule — **an assertion's corpus
+excluding the rows that could disagree**, 6dn's shape. Re-run over all 105: 9
+more followers, all uppercase.
+
+**Two other anchors were refused and the reasons matter.** Balancing
+parentheses fixes White Tower and cannot reach Demoness, whose em-dash
+qualifier has no closing token. Looking the following line up in
+`advantages.json` fails on the very case that needs it: the book writes
+`Night Vision` and the catalogue prints `Night Eyes`. **The extractor's own
+docstring records why neither works in general** — "no textual signal
+separates a wrapped effect line from the next row's name",
+`Sunlight/purification/holy` against `Poison Resistance` — and that claim is
+about an ADVANTAGE row's boundary and still stands. The docstring says so now
+rather than reading as contradicted, and it names its own counter-example as
+the other direction: a capitalised continuation is left where it falls.
+
+**Regenerating found the second defect, which is larger.** `b1c8c4e`
+("partition chapters at the heading, not the page") taught `coverage.py` that
+a chapter starts at its HEADING, because the book opens a chapter mid-page and
+the page furniture above that heading belongs to the chapter before it. That
+commit hand-refiled `pathways.json`'s spans to match. **`extract_pathways.py`
+was never taught**, and still bucketed claimed lines by `chapters.json` page
+ranges — so re-running it silently re-filed three spans back to the defect,
+each of them a `"Powered by GURPS: Pathways"` furniture line at the top of the
+next chapter's first page. **One question, two sites, one taught** — and this
+one is armed, because the only thing between it and the repo is someone
+reading a regeneration diff.
+
+**The fix is to ask the question once.** `chapter_at(n, heading_of)` is the
+last chapter whose heading precedes a line, and `heading_of_chapters` asks
+`coverage.heading_lines` rather than restating it — which also inherits that
+function's refusal to fall back to the page range when a heading cannot be
+found. **The signature change is what found the second call site**:
+`extract_non_standard.py` shares `extract()` and failed loudly with a
+`TypeError` rather than quietly keeping the old answer.
+
+**The oracle for that half was the committed file itself.** Chapter headings
+sit at 5416 / 6217 / 7043 / 8098 / 8908, and `HEAD`'s spans end at 6216, 7042,
+8097 and 8905 — exactly heading-partitioned, because `b1c8c4e` did it by hand.
+The regenerated spans are byte-different and **set-identical**: the per-line
+loop no longer breaks a block where the chapter key changed, so
+`[[5466,6166],[6167,6216]]` becomes `[[5466,6216]]`. The printed per-chapter
+counts (751 / 820 / 1049 / 803) match `HEAD` exactly, and `coverage.py`
+compares line SETS, never ranges (4.6). `non_standard_pathways.json` merged the
+same way with no content change.
+
+**Two corpus guards ship, and each RED-proved on a DIFFERENT instance.**
+Against the committed pre-fix JSON,
+`test_no_pathway_string_is_cut_mid_parenthetical` names White Tower and
+`test_no_pathway_prose_field_opens_mid_sentence` names Demoness. They are not
+redundant: an em-dash wrap strands no bracket, and a bracket wrap that lands at
+the END of the prose blob leaves it opening with a capital. Both read the
+**committed file** rather than entries built in memory, because a crashed
+extractor never rewrites its JSON (6dk). The diff review called them vacuous —
+deleting the fix leaves them green until someone regenerates — which is **true
+and is what the unit test is for**; each docstring says which half it covers,
+rather than a third copy of the check being added.
+
+**One review finding is refused with the chain that closes it.** The reviewer
+wanted `in_scope` filtered by `chapter_at` as well, on the grounds that a line
+the headings put outside chapters 9-12 is still walked. It cannot be claimed
+wrongly: a chapter heading INSIDE the walked pages already bounds the block
+(`end = min(end, next_heading - 1)`), one outside them is past the last walked
+line (chapter 13's heading is 8908 on p. 144; chapter 12's pages end at 143 and
+the last claimed line is 8905), and `heading_lines` RAISES rather than falling
+back if a heading cannot be found. A filter there is a guard that cannot fire.
+
+**Device-verified on an SM-T570 without drinking anything**, because the
+pathway screen renders a block before the Drink button is tapped. Academic
+Researcher, Demoness Seq 9: `Basic Speed +0.25` over `— reflexes sharpen for
+precise timing`, and Advantages opening `Night Vision see in total darkness
+…`. White Tower Seq 9: `IQ +1` over `(knowledge retention and learning)`, and
+Advantages ending `… near-perfect recall`. Both halves of both instances, on
+the screen that shows them.
+
+**Gradle failed once more with the Windows lock**, this time as `Failed to
+clean up stale outputs` on `:core:rules:processResources` rather than `Unable
+to delete directory`. Same fix, same indistinguishability from a real failure:
+`rm -rf` the module's `build/resources` and re-run.
+
+**No successor is named.** The property sweep is closed and recorded above, and
+the next slice needs a fresh direction. One thing found on the way and NOT
+chased: the committed `pathways.json` did not reproduce from a fresh local
+build before this slice, and the only reason anyone would notice is reading a
+regeneration diff line by line. There is no check anywhere that a committed
+content file still reproduces — every extractor writes its file and nothing
+compares the file to what the extractor would write today. That is a sweep
+direction, and it is the one this slice was saved by.
+
 ## 6eb. The parry the sheet screen could never show
 
 **One question, answered at two sites, with data at one.**
