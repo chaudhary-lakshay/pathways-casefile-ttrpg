@@ -6842,9 +6842,22 @@ in the file said where the number came from. `chapter_spans` asks the same
 None, which would have written the key as JSON `null`. The regenerated file
 is set-identical to `HEAD`; only the key ORDER moves, because the ranges are
 now iterated in the file's own ascending line order. The fourth two-line
-header `b1c8c4e` names is `non_standard_pathways.json`'s `[9323,9324]`, and
-`extract_core_rules.py` writes a single hardcoded `CHAPTER` for a file
-wholly inside one chapter, so it is not a fourth site.
+header `b1c8c4e` names is `non_standard_pathways.json`'s `[9323,9324]`.
+
+**"Is there a fourth site?" is answered by an audit, not by a grep, and
+the grep is why.** `grep -l 'chapters.json|startPage'` over `tools/` does
+NOT return `extract_pools.py` — a hardcoded `CHAPTER = "5"` is invisible
+to it, which is the worst form of this defect and the one that query cannot
+see. So the audit asks the DATA: every chapter key of every top-level
+`sourceLines` dict in all 81 committed files, checked against
+`chapter_at`. **80 files carry one, and 0 spans disagree** — so
+`extract_core_rules.py`'s own hardcoded constant is right rather than
+merely unexamined. It ships as a test, with the pre-`b1c8c4e`
+`pool_thresholds` span as an inline positive control, and it is also the
+only thing that would catch `extract_pools.main()` being reverted to a
+hardcoded key: `chapter_spans` is unit-tested and nothing else asserts
+`main` calls it — the same gap the `extract()` signature change closed by
+accident.
 
 **The oracle for that half was the committed file itself.** Chapter headings
 sit at 5416 / 6217 / 7043 / 8098 / 8908, and `HEAD`'s spans end at 6216, 7042,

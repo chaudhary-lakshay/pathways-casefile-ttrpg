@@ -149,8 +149,13 @@ shares `extract()` and failed loudly). **Reading `b1c8c4e`'s own file list
 found a THIRD site and the worst kind**: `extract_pools.py` had
 `CHAPTER = "5"`, a CONSTANT, writing both printed ranges under Combat when
 the SPI ladder prints in chapter 4 — so a re-run reverted that refile too.
-**A hardcoded answer cannot learn a correction.** `extract_core_rules.py`
-also hardcodes one, correctly, for a file wholly inside one chapter.
+**A hardcoded answer cannot learn a correction**, and a grep for
+`chapters.json` cannot SEE one — it does not return `extract_pools.py` at
+all. So "is there a fourth site" is answered by an audit of the data:
+every chapter key of every top-level `sourceLines` dict in all 81
+committed files against `chapter_at` — **80 carry one, 0 disagree**, and
+it ships as a test with the pre-`b1c8c4e` span as an inline positive
+control.
 **And the partition test only became a test after the review**: reverting
 `chapter_of` left all 351 green, because its fixture had the page boundary
 and the heading on one line — **an `AttributeError` proves a function is
@@ -1410,7 +1415,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1732 Kotlin** (JUnit 5 — 1227 `core:rules`, 485 `app`, 20 `core:model`) + **352 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1732 Kotlin** (JUnit 5 — 1227 `core:rules`, 485 `app`, 20 `core:model`) + **353 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |

@@ -431,6 +431,40 @@ def test_a_block_stops_at_the_next_chapter_heading():
     assert spans == {"9": [[1, 3]], "10": [[6, 8]]}
 
 
+def test_every_committed_span_agrees_with_the_heading_partition():
+    """b1c8c4e taught `coverage.py` that a chapter starts at its HEADING and
+    hand-refiled three content files. Nothing then checked that the
+    extractors WRITING those files agree, and two of them did not: one
+    bucketed by page and one had the chapter as a constant. A grep for
+    `chapters.json` cannot see the constant, so this asks the data instead --
+    every chapter key in every committed file, against the one partition.
+
+    It is also the only thing that would catch `extract_pools.main()` being
+    reverted to a hardcoded key: `chapter_spans` is unit-tested, and nothing
+    else tests that `main` calls it."""
+    heading_of = extract_pathways.heading_of_chapters(extract_pathways.load_lines())
+
+    def disagreements(name, data):
+        out = []
+        for cid, spans in (data.get("sourceLines") or {}).items():
+            for a, b in spans:
+                for n in (a, b):
+                    got = extract_pathways.chapter_at(n, heading_of)
+                    if got != cid:
+                        out.append(f"{name}: [{a}, {b}] filed under {cid!r}, "
+                                   f"line {n} is {got!r}")
+        return out
+
+    # the checker can fire: this is pool_thresholds.json exactly as it stood
+    # before b1c8c4e, and what `extract_pools` wrote again until 6ec
+    assert disagreements("control", {"sourceLines": {"5": [[2346, 2356]]}})
+
+    found = []
+    for path in sorted(CONTENT.glob("*.json")):
+        found += disagreements(path.name, json.loads(path.read_text(encoding="utf-8")))
+    assert found == []
+
+
 def test_the_two_pool_tables_are_filed_under_the_chapters_that_print_them():
     """`extract_pools` hardcoded CHAPTER = "5" and filed BOTH tables under
     Combat. The SPI ladder prints in chapter 4 (Spirituality, heading at line
