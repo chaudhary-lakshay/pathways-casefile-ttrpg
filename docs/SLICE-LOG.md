@@ -6802,8 +6802,8 @@ roll, and it had its own spelling the whole time:
 
 **Not wrong — the same list.** `printed` is always one end of `lo..hi`, so
 sorting by distance from it IS the outward walk; checked on both rows that
-carry an `otherEnd` (`[1, 2]` and `[-2, -3, -4]`). It is one call now, and the
-KDoc says four. No test ships: the two expressions agree on every span a
+carry an `otherEnd` (`[1, 2]` and `[-2, -3, -4]`). It is one call now. No
+test ships: the two expressions agree on every span a
 modifier table can print, so there is no behaviour to pin, and the function the branch now calls already
 has `ModifierRangeTest`. What 6dz's sweep could not see is why it survived —
 that sweep looked for a `gmValue` parameter nobody passed, and this screen
@@ -6841,11 +6841,78 @@ Both suites re-counted from a wiped tree: 1732 Kotlin (20 / 1227 / 485) and
 356 Python. **Not device-verified**, and nothing here needs it: the one
 production line changed returns the list it returned before.
 
-**No successor is named.** The diagnostics the toolchain gives for nothing
-are read. The direction this slice leaves open is the one its own census
-only bounded — a negative assertion whose needle cannot occur for a reason
-OTHER than case or escaping, which two slices running have now found by
-accident and none by query.
+**Then I corrected "three" to "four", and that was the same mistake one
+size up.** I had counted CALLERS of `endsBetween` and written the number
+down as a count of the book's tables. The failure that KDoc exists to prevent
+— a printed span the screen collapses to one value — leaves no inline copy
+to find, so neither my grep nor the reviewer's could see a fifth. The query
+that can is over the data, in two passes:
+
+```python
+# every book line printing a signed span, grouped by the file claiming it
+re.compile(r'[+\-\u2212\u2013]\d+\s+to\s+[+\-\u2212\u2013]?\d+')
+# every content entry storing a second bound
+k in ('otherEnd', 'best', 'worstCase')
+```
+
+**Eight content files store a second bound, not four**:
+
+| File | Rows | How the screen reaches the span |
+|---|---|---|
+| `divination_modifiers.json` | 4 | `endsBetween` chips (6dz) |
+| `boon_modifiers.json` | 4 | `endsBetween` chips |
+| `ranged_modifiers.json` | 1 | `endsBetween` chips (6dz) |
+| `common_modifiers.json` | 2 | `endsBetween` chips (this slice) |
+| `fright_triggers.json` | 1 | a free ±1 stepper; `FrightCheck.against` takes the number |
+| `ritual_preparation.json` | 2 | **nothing** |
+| `ritual_quick_preparation.json` | 1 | **nothing** |
+| `ritual_target_link.json` | 2 | **nothing** |
+
+The first pass also returns `disadvantages.json` (14 cost ranges, the
+instanced-trait feature of 6cb), `spi_affinity.json`, two lines of pathway
+prose and three unclaimed lines that 6dy's census already settles (4161,
+4289, 4659) — none of them a modifier table.
+
+**The next slice is those five ritual rows, and it is named with its
+evidence.** `RitualDialog`'s chips read `Good +1 to +2`, `Poor -1 to -2`,
+`Poor / None -2 to -4`, `Strong +2 to +3` and `Weak +0 to -1`, and each
+applies `.modifier`, the end nearer zero. `RitualMode.modifierTotal` takes no
+override at all, which is why 6dz's sweep — a `gmValue` parameter no caller
+passes — could not see it: **there is no parameter to leave defaulted.**
+Three things make it a defect rather than a reading:
+
+- **Its recorded warrant is dead on both legs.** 6q applied the near end as
+  *"the same gentle reading as the darkness row"*, and
+  `RitualResolution.targetFor`'s KDoc still cites *"the gentle reading the
+  darkness row and the fright triggers already settled"*. 6k's own words for
+  darkness were *"applies the gentle end **for now**"*, 6dz ended that, and
+  the fright trigger has had a stepper since M4 because *"rolling the
+  gentlest end … would quietly turn their failures into successes"*.
+- **The book's own worked rituals use the far ends.** `GoldenRitualTest`
+  accepts a worked row when `row.value == it.modifier || row.value ==
+  it.best`, for both tables — so Section VIII prints rituals at values this
+  dialog cannot produce.
+- **`best` on all three classes has no production reader**, only tests that
+  pin it was extracted.
+
+It overturns a recorded decision, so it wants its decomposition reviewed
+before code (the engine needs a validated pick on two tables; `Weak +0 to
+-1` runs downward from a zero default; and a Full ritual refuses a link
+outright). Not built here.
+
+**Four of the eight instruments had no control when the table above was
+first written**, which made the handover's "each recorded with its control"
+false. They have one now, each a single planted line: `x = "\d"` appended to
+a copy of a tools file returns `WARN invalid escape sequence`; a scratch test
+calling `warnings.warn` surfaces in pytest's summary; `assert "Foo" in
+s.lower()` is listed by the case-fold grep; `assert "→" in json.dumps(x)` is
+counted as the one non-ASCII needle of one. The first attempt at that last
+check had died on `grep -P` in this locale and printed nothing, which read
+exactly like a clean result.
+
+The other direction left open is the one the census only bounded — a
+negative assertion whose needle cannot occur for a reason OTHER than case or
+escaping, found by accident two slices running and by query in neither.
 
 ## 6ed. The file every citation is read against had no writer
 

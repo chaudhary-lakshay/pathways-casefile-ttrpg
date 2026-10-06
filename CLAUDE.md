@@ -126,13 +126,22 @@ false since M1 — and `"100.0%"` contains `"0.0%"`, so it could not fail. And
 one of the local scan's false positives was a **fourth inline copy of
 `endsBetween`** in `RollDialog`, under a KDoc saying *"Three of this book's
 modifier tables print a span"*: the same list by a different spelling, one
-call now. **A count in a KDoc is a claim about every other file.** Read it
+call now. **A count in a KDoc is a claim about every other file** — and I
+then corrected "three" to "four" by counting CALLERS, which was the same
+mistake: **eight content files store a second bound**, and a span the screen
+collapses leaves no inline copy for a grep to find. Read it
 also for the Gradle lock's third costume (`Failed to load cache entry`), for
 why deleting the module's whole `build/` beats deleting the named directory,
 and for a harness line reading `exited with code 0` over `BUILD FAILED` —
-grep the log for `BUILD SUCCESSFUL`. **No successor is named**; the open
-direction is a negative assertion whose needle cannot occur by FORMAT, found
-by accident two slices running and by query in neither.
+grep the log for `BUILD SUCCESSFUL`. **The successor is named with its
+evidence: chapter 7's three ritual tables print five spans (`Good +1 to +2`,
+`Poor / None -2 to -4`, `Strong +2 to +3`…) and `RitualDialog` applies the
+near end of each with no picker.** `RitualMode.modifierTotal` takes no
+override, so 6dz's parameter sweep could not see it; its warrant (6q: "the
+same gentle reading as the darkness row") died when 6dz gave darkness a
+picker; and `GoldenRitualTest` already accepts the book's worked rituals at
+`it.best`, values this dialog cannot produce. It overturns a recorded
+decision, so review the decomposition first.
 
 **6ed is next, and it is the sweep 6ec named: does a committed generated
 file still reproduce from the tool that writes it?** Clean, with its control —

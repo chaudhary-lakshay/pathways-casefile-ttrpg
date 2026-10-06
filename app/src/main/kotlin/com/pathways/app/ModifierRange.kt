@@ -3,11 +3,19 @@ package com.pathways.app
 /**
  * The values a printed range offers, the row's own figure first.
  *
- * Four of this book's modifier tables print a span rather than a number --
+ * For a modifier table that prints a span rather than a number --
  * divination's "+0 to +2", chapter 13's boon rows, the ranged darkness row's
- * "-3 to -9 depending on severity" and Appendix A's "Improvised / poor tools
- * -2 to -4" -- and every engine that reads one takes a `gmValue` override,
+ * "-3 to -9 depending on severity", Appendix A's "Improvised / poor tools
+ * -2 to -4" -- where the engine reading it takes a `gmValue` override,
  * defaulting to [from] when none is given.
+ *
+ * **Those four are this function's callers, not the book's spans.** This
+ * KDoc counted "three" while a fourth caller stood, and then "four" while
+ * eight content files stored a second bound (6ee). The fright trigger's
+ * span is reached by a free stepper instead. Chapter 7's three ritual tables
+ * -- five rows, "Good +1 to +2" among them -- are reached by NOTHING: their
+ * chips print the span and apply its near end. That is a gap, not a reading
+ * this file endorses.
  *
  * **The order is outward from [from], not numeric.** A descending span like
  * "-1 to -2" or "-3 to -9" worsens as it runs, so sorting numerically would
@@ -18,8 +26,8 @@ package com.pathways.app
  * two others had nothing, which is how a chip reading "+0 to +2" came to add
  * zero. The plain skill roll had it all along under a different spelling --
  * the range sorted by distance from the printed figure, which is this list --
- * and this file said "three" for as long as that copy stood (6ee). One
- * function means a fifth screen cannot get it wrong a fifth way.
+ * for as long as that copy stood. One function means the next screen cannot
+ * get it wrong a new way.
  */
 internal fun endsBetween(from: Int, to: Int?): List<Int> {
     if (to == null) return listOf(from)
