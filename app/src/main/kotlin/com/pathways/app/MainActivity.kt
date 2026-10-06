@@ -2322,11 +2322,7 @@ private fun CircumstanceRow(
         val printed = row.modifier
         val ends = when {
             printed == null -> emptyList()
-            row.otherEnd != null -> {
-                val lo = minOf(printed, row.otherEnd!!)
-                val hi = maxOf(printed, row.otherEnd!!)
-                (lo..hi).sortedBy { kotlin.math.abs(it - printed) }
-            }
+            row.otherEnd != null -> endsBetween(printed, row.otherEnd)
             // Away from zero, which is the only direction the book bounds.
             printed < 0 -> (0..OPEN_END_STEPS).map { printed - it }
             else -> (0..OPEN_END_STEPS).map { printed + it }

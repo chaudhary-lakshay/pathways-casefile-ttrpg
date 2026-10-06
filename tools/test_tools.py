@@ -120,8 +120,13 @@ def test_coverage_reports_every_chapter():
     report = (OUT / "coverage.md").read_text(encoding="utf-8")
     assert "| 3 | Character Creation |" in report
     assert "| 9 | Sequence 9 Potion Effects |" in report
-    # With no content extracted yet, every chapter is 0% claimed.
-    assert "0.0%" in report
+    # EVERY chapter, which is what the name says. Until 6ee this ended with
+    # `assert "0.0%" in report` under a comment that had been false since M1
+    # ("with no content extracted yet, every chapter is 0% claimed") -- and
+    # "100.0%" contains "0.0%", so it could not fail either.
+    chapters = json.loads((OUT / "chapters.json").read_text(encoding="utf-8"))
+    missing = [c["id"] for c in chapters if f"| {c['id']} | {c['title']} |" not in report]
+    assert len(chapters) == 22 and missing == []
 
 @needs_pdf
 def test_coverage_intersects_claims_with_mechanical_lines():
@@ -141,8 +146,6 @@ def test_coverage_intersects_claims_with_mechanical_lines():
     lines_data = json.loads((OUT / "lines.json").read_text(encoding="utf-8"))
     chapters = json.loads((OUT / "chapters.json").read_text(encoding="utf-8"))
 
-    # Get chapter 3 and chapter 5 line ranges
-    ch3 = next(c for c in chapters if c["id"] == "3")
     ch5 = next(c for c in chapters if c["id"] == "5")
 
     ch5_lines = [line for line in lines_data if ch5["startPage"] <= line["page"] <= ch5["endPage"]]

@@ -3,10 +3,11 @@ package com.pathways.app
 /**
  * The values a printed range offers, the row's own figure first.
  *
- * Three of this book's modifier tables print a span rather than a number --
- * divination's "+0 to +2", chapter 13's boon rows, and the ranged darkness
- * row's "-3 to -9 depending on severity" -- and every engine that reads one
- * takes a `gmValue` override, defaulting to [from] when none is given.
+ * Four of this book's modifier tables print a span rather than a number --
+ * divination's "+0 to +2", chapter 13's boon rows, the ranged darkness row's
+ * "-3 to -9 depending on severity" and Appendix A's "Improvised / poor tools
+ * -2 to -4" -- and every engine that reads one takes a `gmValue` override,
+ * defaulting to [from] when none is given.
  *
  * **The order is outward from [from], not numeric.** A descending span like
  * "-1 to -2" or "-3 to -9" worsens as it runs, so sorting numerically would
@@ -14,9 +15,11 @@ package com.pathways.app
  * sitting at the far end of the row. First offered is first applied.
  *
  * Shared rather than written per screen: the boon dialog had this logic and
- * the other two had nothing, which is how a chip reading "+0 to +2" came to
- * add zero. One function means a fourth screen cannot get it wrong a fourth
- * way.
+ * two others had nothing, which is how a chip reading "+0 to +2" came to add
+ * zero. The plain skill roll had it all along under a different spelling --
+ * the range sorted by distance from the printed figure, which is this list --
+ * and this file said "three" for as long as that copy stood (6ee). One
+ * function means a fifth screen cannot get it wrong a fifth way.
  */
 internal fun endsBetween(from: Int, to: Int?): List<Int> {
     if (to == null) return listOf(from)
