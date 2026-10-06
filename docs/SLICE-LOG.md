@@ -6726,6 +6726,127 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ee. The compiler's zero, and the two things beside it
+
+6dl found a vacuous test for free — Kotlin had been printing `Condition is
+always 'true'` on every build — and wrote *"read the build's own warnings
+before asking for findings"*. Nobody then ran that as a sweep. This is it:
+every diagnostic the toolchain will give for nothing, over both languages.
+
+**It is clean, and each zero is recorded with what it can and cannot see.**
+
+| Instrument | Corpus | Hits | Real |
+|---|---|---|---|
+| Kotlin compiler `w:` lines | 6 source sets, build dirs wiped | 0 | 0 |
+| Kotlin parameter never read in its body | 1160 parameters, `src/main` | 2 | 0 |
+| Kotlin local never read again | 1736 `val`/`var` matches | 19 | 0 |
+| Python compile, `SyntaxWarning` as error | 46 files in `tools/` | 0 | 0 |
+| pytest's own warnings | 356 tests | 0 | 0 |
+| Python name bound and never loaded (`ast`) | 46 files | 4 | 0 |
+| Case-folded haystack, cased needle | 5 Python + 2 Kotlin sites | 0 | 0 |
+| Non-ASCII needle against `json.dumps` | 6 sites | 0 | 0 |
+
+**The compiler's zero had to be earned twice.** The first clean run had
+`:core:model:compileKotlin FROM-CACHE`, and a cached compile prints nothing —
+a zero from a task that did not run. Then the control: one planted line in
+`core:model` main and one in its tests, compiled with `--no-build-cache`.
+`x is Int` on an `Int` and `x != null && x != null` are both reported.
+**`val unused = 1` is not.** So this compiler's silence covers the
+always-true class 6dl met and says nothing about a value computed and
+dropped, which is the class that would matter here: an input a rule accepts
+and ignores.
+
+That blind spot is what the two scanners are for, and both are crude on
+purpose. The parameter scan's two hits are `RandomSource.roll(sides)`, an
+interface declaration, and `ParryBlock.canParryRanged(style)`, which returns
+`false` for every style and whose KDoc says why it takes one anyway. The
+local scan's nineteen are seventeen properties at function-body indentation
+and two locals read as `(lower..upper)` and `(lo..hi)` — the scanner's own
+lookbehind refuses a name preceded by a dot. **A hit list that is all false
+positives is the query returning non-zero on real text, which is the control
+a clean sweep needs** (6ec).
+
+**Nothing the instruments flagged was a defect. Two things beside their hits
+were.**
+
+*The first sat four lines above a dead binding.* `ast` flagged `ch3` in
+`test_coverage_intersects_claims_with_mechanical_lines` — bound, never read,
+harmless. The test above it, `test_coverage_reports_every_chapter`, ended:
+
+```python
+# With no content extracted yet, every chapter is 0% claimed.
+assert "0.0%" in report
+```
+
+The comment has been false since M1. The assertion outlived it because
+**`"100.0%"` contains `"0.0%"`**: it passes on any report with a chapter at a
+round ten. Second instance in two slices of a substring that cannot
+discriminate (6ed's was `"\nCritical\n"` against a file whose lines open with
+a number), and like that one it encoded a fact about a file's FORMAT that was
+written down nowhere. It now asserts what its name says — all 22 chapters of
+`chapters.json` have a row — and cutting the 7.5 row from the report returns
+`['7.5']` where the old line still said `True`.
+
+*The second was the false positive itself.* `val hi = maxOf(printed,
+row.otherEnd!!)` in `RollDialog` is read, so the scanner was wrong — and the
+line is a **fourth copy of `endsBetween`**. `ModifierRange.kt` exists because
+6dz found three dialogs offering a printed span three ways, and its KDoc says
+*"Three of this book's modifier tables print a span… one function means a
+fourth screen cannot get it wrong a fourth way."* The fourth table is Appendix
+A's `Improvised / poor tools -2 to -4`, the fourth screen is the plain skill
+roll, and it had its own spelling the whole time:
+
+```kotlin
+(lo..hi).sortedBy { kotlin.math.abs(it - printed) }
+```
+
+**Not wrong — the same list.** `printed` is always one end of `lo..hi`, so
+sorting by distance from it IS the outward walk; checked on both rows that
+carry an `otherEnd` (`[1, 2]` and `[-2, -3, -4]`). It is one call now, and the
+KDoc says four. No test ships: the two expressions agree on every span a
+modifier table can print, so there is no behaviour to pin, and the function the branch now calls already
+has `ModifierRangeTest`. What 6dz's sweep could not see is why it survived —
+that sweep looked for a `gmValue` parameter nobody passed, and this screen
+passed one. **A count in a KDoc is a claim about every other file** (6ci's
+lesson about this handover, applied to source).
+
+**The negative-assertion census is recorded as run.** 63 `not in` assertions
+in `test_tools.py`; most assert a KEY is absent from a parsed row, which an
+extractor can make false. The ones that search text were checked for the two
+ways a needle becomes unmatchable by format rather than by fact — a cased
+needle against a lowered haystack, a non-ASCII needle against `json.dumps` —
+and neither occurs. That is a narrower claim than "no vacuous negative
+assertion": it rules out two mechanisms, not the class.
+
+**Gradle's Windows lock cost six builds this session and wore a third
+costume**: `Failed to load cache entry … Could not load from local cache:
+Unable to delete directory`, on a task that was restoring, not compiling. The
+`rm -rf` of the one named directory is not enough when the next attempt
+names a sibling; deleting the module's whole `build/` is. And a build
+launched as `./gradlew …; echo rc=$?` behind a redirect reports the echo's
+status — **the harness said `exited with code 0` over a log reading `BUILD
+FAILED`.** Grep the log for `BUILD SUCCESSFUL`; do not read the exit code.
+
+**The diff review (Codex, two questions) returned one LOW and it is a
+correction to a sentence, not to the code.** I had written that the two
+expressions agree "on every input". They do not: at `(0, Int.MIN_VALUE)`
+`abs` overflows to a negative key and the old sort would have put the far end
+first. That span has two billion members and no table prints one, so the
+claim above is narrowed to what is true and the helper stays. It also read
+the test for the two ways a row check goes soft — an id `7` matching inside
+`7.5`, a title that prefixes a longer title — and the cell delimiters stop
+both; and its grep found no other inline bounded span in `app/src/main`.
+
+Both suites re-counted from a wiped tree: 1732 Kotlin (20 / 1227 / 485) and
+356 Python. **Not device-verified**, and nothing here needs it: the one
+production line changed returns the list it returned before.
+
+**No successor is named.** The diagnostics the toolchain gives for nothing
+are read. The direction this slice leaves open is the one its own census
+only bounded — a negative assertion whose needle cannot occur for a reason
+OTHER than case or escaping, which two slices running have now found by
+accident and none by query.
+
 ## 6ed. The file every citation is read against had no writer
 
 6ec closed by naming a sweep nobody had run: *does a committed generated file

@@ -112,7 +112,29 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ed is newest, and it is the sweep 6ec named: does a committed generated
+**6ee is newest, and it ran 6dl's own advice as a sweep: every diagnostic the
+toolchain gives for nothing.** Clean on eight instruments, each recorded with
+its control — and **the compiler's zero had to be earned twice**: the first
+run restored one compile task FROM-CACHE, which prints nothing, and a planted
+control showed this compiler reports `x is Int` and a doubled null check but
+**not `val unused = 1`**, so its silence says nothing about a value computed
+and dropped. Two crude scanners cover that blind spot (1160 parameters, 1736
+locals, every hit a false positive or a documented choice). **Nothing an
+instrument flagged was a defect; two things beside their hits were.** Four
+lines above a dead binding, `assert "0.0%" in report` sat under a comment
+false since M1 — and `"100.0%"` contains `"0.0%"`, so it could not fail. And
+one of the local scan's false positives was a **fourth inline copy of
+`endsBetween`** in `RollDialog`, under a KDoc saying *"Three of this book's
+modifier tables print a span"*: the same list by a different spelling, one
+call now. **A count in a KDoc is a claim about every other file.** Read it
+also for the Gradle lock's third costume (`Failed to load cache entry`), for
+why deleting the module's whole `build/` beats deleting the named directory,
+and for a harness line reading `exited with code 0` over `BUILD FAILED` —
+grep the log for `BUILD SUCCESSFUL`. **No successor is named**; the open
+direction is a negative assertion whose needle cannot occur by FORMAT, found
+by accident two slices running and by query in neither.
+
+**6ed is next, and it is the sweep 6ec named: does a committed generated
 file still reproduce from the tool that writes it?** Clean, with its control —
 40 extractors rewrite **81 of 81** content files, one writer each, zero diff,
 and every one recovers after its outputs are overwritten with junk; the 23
@@ -1215,7 +1237,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: 6ed, then 6ec, 6eb, 6ea, 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6ee, then 6ed, 6ec, 6eb, 6ea, 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
