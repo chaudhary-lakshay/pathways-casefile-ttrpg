@@ -6726,6 +6726,177 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ed. The file every citation is read against had no writer
+
+6ec closed by naming a sweep nobody had run: *does a committed generated file
+still reproduce from the tool that writes it?* This is that sweep, run over
+everything in the tree a tool writes, and the guard that makes it stop being
+a one-off.
+
+**The sweep is clean, and it is recorded with its control.** Run on
+2026-10-06 against `baf9df7`:
+
+| Tool | Writes | Rewritten | Differs |
+|---|---|---|---|
+| 40 `extract_*.py` | 81 content JSON | 81 of 81, one writer each | 0 |
+| `extract_sheets.py` | 23 fixtures | 23 of 23 | 0 |
+| `extract_pdf.py` | `pages.json`, `chapters.json` | 2 of 2 | 0 |
+| `coverage.py` | `lines.json`, `coverage.md` | 2 of 2 | 0 |
+| `extract_markdown.py` | `book.md` | 1 of 1 | 0 |
+| `gen_theme.py` | `ThemeSchemes.kt` | 1 of 1 | 0 |
+
+Each extractor was run from the committed tree on its own, which is enough:
+every output equals its committed copy, so the set is a fixed point and no
+run order can produce anything else. The query, for the content half:
+
+```bash
+for f in tools/extract_*.py; do   # minus extract_pdf, _markdown, _sheets
+  touch marker; sleep 1; py $f
+  find . -newer marker -type f    # what it WROTE
+  git status --short              # what DIFFERS
+done
+```
+
+**A zero from `git status` is not a zero until the same loop has returned
+non-zero** (6ec). The control: overwrite exactly the files an extractor wrote
+with `{"entries": []}`, re-run it, and require a clean tree. All 40 recover.
+That is what turns "nothing changed" into "it rewrote 81 files and they came
+out the same".
+
+**The first upstream measurement was the instrument, and fixing it is what
+found the slice.** I ran `extract_pdf.py` and byte-compared all six files in
+`build/extract` against a backup: six lines of `same`. `extract_pdf` writes
+TWO of them. The other four compared equal because nothing had touched them —
+a failed generator's output looks exactly like a reproduced one (6cx, 6dk),
+and so does the output of a generator that was never run. Re-done with an
+mtime marker per tool, five of the six come out `NEW same` and one comes out
+`old` under every tool in the directory:
+
+**`build/extract/book.txt` had no writer.** It is the file this handover
+calls the citation anchor — `<globalLineNumber>: <text>`, what every
+`sourceLines` number is read against, what two tests open and what the QA
+harness tells its models to grep. Its mtime is 2026-08-15, and no commit ever
+gave it a writer: `git log --all -S"book.txt" -- tools qa-findings` returns
+three commits and all three add READERS.
+`extract_markdown.py` credited it to `extract_pdf.py` twice — once in its
+docstring, once in the message it prints when the file is absent, *"run
+extract_pdf.py first"* — and `extract_pdf.py` writes `pages.json` and
+`chapters.json` and nothing else. So on a fresh clone the anchor could not be
+built, and the tool that noticed would have named the wrong fix.
+
+It is 6dg's sweep inverted: that one checked every content file for a
+LOADER, this one checks every generated file for a WRITER. **It had not
+drifted** — rendered from `lines.json` it matches on 10252 of 10252 lines —
+so this is a missing producer (6cf), not a wrong number. `coverage.py` writes
+it now, in the same walk of `pages.json` that numbers `lines.json`, because
+two files that must carry one numbering should not be numbered twice. The
+result is byte-identical to the hand-made file, CRLF and missing final
+newline included.
+
+**`extract_spirit.py` exited 1 after writing its file.** Its closing echo
+quotes the book, the book prints `→`, and a redirected stdout on Windows is
+cp1252. On a console it is fine, which is why it survived: every scripted run
+— `py a.py && py b.py`, or an agent's shell — saw a failure, and this repo's
+own rule that *a crashed extractor never rewrites its JSON* (6dk) then reads
+`spirit_damage.json` as stale when it had just been rewritten correctly. One
+line, `sys.stdout.reconfigure(encoding="utf-8")`, and the RED proof is the
+redirected command itself: rc 1, then rc 0.
+
+**Three tests ship, and the fixture is the design.** Each extractor is run
+as a SCRIPT through `runpy`, with `Path.write_text` captured rather than
+performed and stdout replaced by a strict cp1252 stream:
+
+- `test_every_extractor_finishes_on_a_redirected_stdout` — RED on
+  `extract_spirit`'s `UnicodeEncodeError`.
+- `test_every_content_file_is_what_exactly_one_extractor_writes_today` — one
+  comparison with four ways to fail: no writer, two writers, a stale file, a
+  written file that is not there.
+- `test_the_citation_anchor_is_what_coverage_writes_today` — RED on
+  `book.txt` being absent from what `coverage.py` writes.
+
+**The first version called `main()` and reported nine files with no writer.**
+Four extractors (`extract_core_rules`, `extract_glossary`,
+`extract_spirit_vision`, `extract_spirituality`) have no `main` at all — the
+work is in the `if __name__ == "__main__":` body. That was the guard
+measuring its own assumption, and `runpy.run_path(..., run_name="__main__")`
+is the fix because it is also the more honest test: it runs what `py
+tools/x.py` runs.
+
+**The reproduction test passed the moment it was written, so its RED proof
+is historical.** A worktree at `5e803b6` — the commit before 6ec's two fixes —
+with the new tests dropped in names exactly three files:
+
+```
+{'non_standard_pathways.json': ['extract_non_standard'],
+ 'pathways.json': ['extract_pathways'],
+ 'pool_thresholds.json': ['extract_pools']}
+```
+
+Those are the three 6ec found by reading a regeneration diff line by line and
+then by reading `b1c8c4e`'s file list. The third call site took 6ec a second
+pass to find; the guard names it in under five seconds. The no-writer branch
+is mutation-proved separately: a stray `zzz_hand_authored.json` in the content
+directory fails it as `{'zzz_hand_authored.json': []}`.
+
+**One thing the guard is stricter about than 6ec was.** 6ec called
+`non_standard_pathways.json`'s change set-identical with no content change
+(`[[a,b],[b+1,c]]` merging to `[[a,c]]`). The guard compares TEXT, so it
+reports that file too. That is deliberate: "equal as line sets" is
+`coverage.py`'s question (4.6), and "is this the file the tool writes" is this
+one's.
+
+**Bounds, stated.** `extract_pdf`, `extract_markdown` and `extract_sheets` are
+not in the suite because their inputs are a PDF and 23 spreadsheets outside
+the repo, and `gen_theme.py`'s docstring refuses wiring for its own reason (a
+third-party colour dependency). Their rows above are a hand run and expire.
+The content guard compares against the LOCAL `build/extract/lines.json`, so
+it proves the JSON reproduces from the extraction on this machine;
+`pages.json` → `lines.json` + `book.txt` is pinned by the third test, and PDF
+→ `pages.json` is the hand run. Line endings are not pinned: the comparison
+reads text, and this checkout has `core.autocrlf=true`.
+
+**Writing `book.txt`'s format down found an assertion that could not fire.**
+`test_spirit_vision_prints_rows_chapter_four_does_not` asserted `"
+Critical
+"
+not in book` to show the short label is unique to 7.6's table. Every line of
+`book.txt` opens with its own number, so that substring cannot occur whatever
+the book prints — and the assertion read backwards besides: the bare label IS
+printed, exactly once, at line 4850, inside 7.6's own span. It asserts that
+now (`bare == [4850]`, and 4850 within `sourceLines`). Nobody had reason to
+look, because the file's format was a fact about a hand-made artefact and
+written down nowhere.
+
+**The diff review (Codex, `codex exec`, three questions) returned no HIGH and
+no MEDIUM.** Its checks are worth more than its findings: all 40 extractors
+grep-verified to write through `Path.write_text` with no `newline=` or
+`errors=` override, so the capture sees what lands on disk; and the 40 run in
+forward AND reverse order to identical output for all 81 files, which is the
+fixed-point argument measured instead of argued. Two LOWs:
+
+- *Runs leak `sys.path`* — `extract_non_standard.py:36` inserts into it.
+  **Taken**: the fixture snapshots `sys.path` per run. Its other half, evicting
+  the modules a run imports, is **refused**: they are the same `extract_pathways`
+  and `coverage` the suite imports by name, and evicting them leaves two copies
+  of one module in a process, which is the worse leak.
+- *`reconfigure` raises on a stream that has none (`io.StringIO`)* —
+  **refused**, with the bound stated. A script run always has a
+  `TextIOWrapper`; the only in-process callers are tests, and no test calls
+  `extract_spirit.main()`. A `hasattr` guard is a branch nothing reaches.
+
+It also named a bound this slice does not close: a diagnostic on a branch the
+committed data never takes (`extract_non_standard.py:148`) can still print an
+unencodable character, and no run over committed data can prove otherwise.
+**The Critical-line assertion and the `sys.path` line landed AFTER that
+review** (6dl: a verdict expires when the diff moves under it); both are
+test-only, and the suite is 356 green with them.
+
+**No successor is named.** Writer-for-every-generated-file is closed and
+guarded. What the guard cannot see is its own input: PDF → `pages.json` runs
+by hand, and nothing notices a `build/extract` built from a different PDF
+than the one the committed JSON came from, except that the content test would
+then fail on every file at once.
+
 ## 6ec. One sentence, arriving as two wrong fields
 
 **The sweep this slice set out to run came back clean, and the defect was

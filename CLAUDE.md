@@ -112,7 +112,39 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ec is newest, and its sweep came back clean while the defect sat beside
+**6ed is newest, and it is the sweep 6ec named: does a committed generated
+file still reproduce from the tool that writes it?** Clean, with its control —
+40 extractors rewrite **81 of 81** content files, one writer each, zero diff,
+and every one recovers after its outputs are overwritten with junk; the 23
+fixtures, `ThemeSchemes.kt` and `build/extract` reproduce too. **The first
+upstream run measured the instrument**: six files byte-compared `same` after
+running a tool that writes two of them — an untouched file compares equal by
+construction. Re-done with an mtime marker, one file was rewritten by NOTHING:
+**`build/extract/book.txt`, the citation anchor, had no writer.**
+`extract_markdown.py` credited it to `extract_pdf.py`, which writes
+`pages.json` and `chapters.json` only, so a fresh clone could not build the
+file every `sourceLines` number is read against. It had not drifted (10252 of
+10252 lines match `lines.json`); `coverage.py` writes it now, in the same walk
+that numbers `lines.json`, byte-identical. That is 6dg's loader sweep
+inverted — **every generated file checked for a WRITER.** Read it for three
+more things. **`extract_spirit.py` exited 1 AFTER writing its file** whenever
+stdout was redirected (the book's `→` against cp1252), so every scripted run
+read a correct rewrite as a failure. **The guard is three tests in
+`test_tools.py`** that run each extractor as a script under `runpy` with
+`Path.write_text` captured — as a script because four extractors have no
+`main()`, which the first version found by reporting nine files with no
+writer. Its RED proof is historical: at `5e803b6` it names `pathways.json`,
+`pool_thresholds.json` and `non_standard_pathways.json`, exactly the three
+6ec found by reading a diff. And **writing the anchor's format down found an
+assertion that could never fire** — `"
+Critical
+" not in book`, on a file
+whose every line opens with a number. Regeneration order on a fresh clone:
+`extract_pdf.py`, then `coverage.py`, then the extractors. Codex's diff review:
+no HIGH, no MEDIUM, two LOWs (one taken, one refused with its bound). **No
+successor is named.**
+
+**6ec is next, and its sweep came back clean while the defect sat beside
 it.** The direction was the inverse of 6ea's — every declared `@Serializable`
 property checked for a JSON key that actually SETS it, since a property no
 data file populates is always its default. **The
@@ -1183,7 +1215,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: 6ec, then 6eb, 6ea, 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6ed, then 6ec, 6eb, 6ea, 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1415,7 +1447,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1732 Kotlin** (JUnit 5 — 1227 `core:rules`, 485 `app`, 20 `core:model`) + **353 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1732 Kotlin** (JUnit 5 — 1227 `core:rules`, 485 `app`, 20 `core:model`) + **356 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
