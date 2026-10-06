@@ -146,6 +146,9 @@ def main():
     verify(rules, raw)
     write("spirit_damage", rules, [list(SPIRIT_RANGE)])
 
+    # The echo below quotes the book, and the book prints an arrow. A redirected
+    # stdout on Windows is cp1252, which has none -- so this died AFTER writing.
+    sys.stdout.reconfigure(encoding="utf-8")
     print(f"spirit_damage: {len(rules)} rules")
     for rule in rules:
         print(f"  [{rule['section']}] {rule['rule'][:78]}")

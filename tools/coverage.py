@@ -174,6 +174,12 @@ def main() -> int:
 
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "lines.json").write_text(json.dumps(global_lines, indent=2) + "\n", encoding="utf-8")
+    # The same numbering as text, which is what a person greps and every
+    # `sourceLines` citation is read against. Written HERE so the two cannot
+    # be numbered by different walks; until 6ed it had no writer at all.
+    (OUT / "book.txt").write_text(
+        "\n".join(f"{line['n']}: {line['text']}" for line in global_lines), encoding="utf-8"
+    )
 
     # Build claimed line numbers as sets, deduplicating overlaps
     claimed: dict[str, set[int]] = {}

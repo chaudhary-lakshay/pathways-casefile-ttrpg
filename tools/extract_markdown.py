@@ -1,7 +1,7 @@
 """Render the rulebook PDF to Markdown with markitdown (pdfminer + pdfplumber).
 
 Output goes to build/extract/book.md and is gitignored, exactly like
-`extract_pdf.py`'s book.txt. It is a SECOND rendering, never a replacement:
+`coverage.py`'s book.txt. It is a SECOND rendering, never a replacement:
 `book.txt`'s global line numbers are this repo's citation anchor (coverage.py
 compares line sets; test_tools.py pins verbatim book lines by number), and
 this file's line numbering is different and must never be cited as those.
@@ -50,7 +50,7 @@ def cross_check_arrows(md: str) -> None:
     """
     book_txt = OUT / "book.txt"
     if not book_txt.exists():
-        print("book.txt absent; arrow count unverified (run extract_pdf.py first)")
+        print("book.txt absent; arrow count unverified (run extract_pdf.py, then coverage.py)")
         return
 
     expected = book_txt.read_text(encoding="utf-8").count("→")

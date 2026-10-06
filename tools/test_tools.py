@@ -5215,9 +5215,17 @@ def test_spirit_vision_prints_rows_chapter_four_does_not():
     # The short label really is unique to this table: the long form is what
     # the rest of the book uses, so this is a difference in the source and
     # not a normalisation this extractor chose.
+    #
+    # Until 6ed this asserted `"\nCritical\n" not in book`, which could not
+    # fire: every line of book.txt opens with its own number. It also read
+    # backwards -- the bare label IS printed, exactly once, and that one line
+    # is this table's.
     book = (ROOT / "build" / "extract" / "book.txt").read_text(encoding="utf-8", errors="replace")
     assert book.count("Critical Success") > 10
-    assert "\nCritical\n" not in book.replace("Critical Success", "")
+    bare = [int(n) for n in re.findall(r"(?m)^(\d+): Critical$", book)]
+    assert bare == [4850]
+    (first, last), = d["sourceLines"]["7.6"]
+    assert first <= bare[0] <= last
 
 
 def test_spirit_vision_records_the_spectator_disagreement():
@@ -5772,3 +5780,101 @@ def test_shaken_is_one_of_two_deferred_terms_the_book_prints_once():
     assert [n for n, t in byn.items() if "shaken" in t.lower()] == [6521, 8030, 8602]
     assert "shaken awake" in byn[6521]
     assert "damaged, shaken, or a loud noise" in byn[8602]
+
+
+# --- 6ed: does a generated file still reproduce from its writer? -------------
+#
+# Every extractor writes its file and, until this section, nothing compared the
+# file to what the extractor would write today. That is how `b1c8c4e` could
+# hand-refile `pathways.json` without teaching `extract_pathways.py`: the next
+# regeneration silently reverted it, and only reading that diff could see it
+# (6ec).
+
+import io, runpy
+
+# Their inputs are the PDF and the spreadsheets, which live outside the repo.
+RUN_BY_HAND = {"extract_pdf", "extract_markdown", "extract_sheets"}
+
+
+def _captured_run(script, written):
+    """Run a tool the way `py tools/x.py` does, with every `Path.write_text`
+    captured, not written. As a SCRIPT because four extractors have no
+    `main()` at all; returns its exit code.
+
+    The tree is left untouched, and a sibling file an extractor reads is still
+    the committed one -- which is the question: does the COMMITTED set
+    reproduce itself.
+
+    Stdout is a strict cp1252 stream because that is what a redirected stdout
+    is on Windows, and a redirect is how every scripted run reaches these.
+    """
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(
+            pathlib.Path, "write_text",
+            lambda self, data, *args, **kwargs: written.setdefault(self, []).append(data),
+        )
+        patch.setattr(sys, "stdout", io.TextIOWrapper(io.BytesIO(), encoding="cp1252"))
+        patch.setattr(sys, "path", list(sys.path))    # extract_non_standard inserts
+        try:
+            runpy.run_path(str(script), run_name="__main__")
+        except SystemExit as stop:
+            return stop.code
+
+
+@pytest.fixture(scope="module")
+def regenerated():
+    """Every content extractor, run once against the committed tree."""
+    writers, failures = {}, []
+    for script in sorted((ROOT / "tools").glob("extract_*.py")):
+        tool = script.stem
+        if tool in RUN_BY_HAND:
+            continue
+        written = {}
+        try:
+            code = _captured_run(script, written)
+            if code:
+                failures.append(f"{tool}: exit {code}")
+        except Exception as error:      # one crash must not hide the other 39
+            failures.append(f"{tool}: {type(error).__name__}: {error}")
+        for path, texts in written.items():
+            if path.parent != CONTENT:
+                failures.append(f"{tool} wrote outside content: {path}")
+            writers.setdefault(path.name, []).append((tool, texts[-1]))
+    return writers, failures
+
+
+def test_every_extractor_finishes_on_a_redirected_stdout(regenerated):
+    """An extractor that writes its file and THEN dies reports a failure it
+    did not have: `py a.py && py b.py` stops, and a reader who knows that a
+    crashed extractor never rewrites its JSON (6dk) concludes the file is
+    stale when it is not."""
+    _, failures = regenerated
+    assert failures == []
+
+
+def test_every_content_file_is_what_exactly_one_extractor_writes_today(regenerated):
+    """One comparison, four ways to fail it: a file no extractor writes (a
+    hand-authored one), a file two extractors write, a file whose extractor
+    would write something else today, and an extractor writing a file that is
+    not there. The message maps each offending name to the tools that wrote it.
+    """
+    writers, _ = regenerated
+    committed = {p.name: [p.read_text(encoding="utf-8")] for p in CONTENT.iterdir()}
+    written = {name: [text for _, text in runs] for name, runs in writers.items()}
+    differing = sorted(
+        name for name in committed.keys() | written.keys()
+        if committed.get(name) != written.get(name)
+    )
+    assert {name: [tool for tool, _ in writers.get(name, [])] for name in differing} == {}
+
+
+def test_the_citation_anchor_is_what_coverage_writes_today():
+    """`book.txt` is the file every `sourceLines` number is read against, and
+    `lines.json` is the same numbering as data. Both must come from ONE walk
+    of `pages.json`, or the numbers a person greps and the numbers an
+    extractor indexes can part company with nothing to say so."""
+    written = {}
+    _captured_run(ROOT / "tools" / "coverage.py", written)   # exits 1 by design
+    texts = {path.name: runs[-1] for path, runs in written.items()}
+    for name in ("lines.json", "book.txt"):
+        assert texts.get(name) == (OUT / name).read_text(encoding="utf-8"), name
