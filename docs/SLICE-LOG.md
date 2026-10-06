@@ -6855,6 +6855,20 @@ it proves the JSON reproduces from the extraction on this machine;
 → `pages.json` is the hand run. Line endings are not pinned: the comparison
 reads text, and this checkout has `core.autocrlf=true`.
 
+**The fresh-clone case was run, not argued.** With `build/extract` moved
+away the suite is 355 passed and 1 skipped (`book.md`, which only
+`extract_markdown.py` builds): the `needs_pdf` tests near the top of the file
+run `extract_pdf.py` and `coverage.py` as subprocesses, so the suite rebuilds
+its own input, and all five rebuilt files — `book.txt` among them — are
+byte-identical to the originals. Before this slice that run could not have
+passed, because nothing would have written `book.txt` for the two tests that
+open it. The bound is the PDF: with neither it nor `build/extract`, those
+tests skip and nearly every other test in the file fails on `lines.json`,
+the three new ones included — which predates this slice and is not changed by
+it. One exit-code hole was looked for and is closed: `runpy` sees a nonzero
+exit only as `SystemExit`, and `extract_content.py` is the one entry point
+that calls a bare `main()` — whose body has no `return` at all.
+
 **Writing `book.txt`'s format down found an assertion that could not fire.**
 `test_spirit_vision_prints_rows_chapter_four_does_not` asserted `"
 Critical
