@@ -748,7 +748,9 @@ data class RitualExample(
  * Three of the five carry something a single number cannot say: [best] is the
  * other end of "+1 to +2" and "-1 to -2", and [openEnded] marks "-4 or worse",
  * which is a floor rather than a value. [modifier] is always the end nearer
- * zero, so a caller that ignores the rest is gentle rather than harsh.
+ * zero, and it is what an UNPICKED row applies: this app's default, not the
+ * book's rule. The GM's pick inside the cell goes through
+ * [com.pathways.rules.RitualMode.valueFor], which holds it to the cell (6ef).
  */
 @Serializable
 data class RitualPreparation(
@@ -1486,7 +1488,8 @@ data class RitualSupportSkill(val skill: String, val bonus: Int, val notes: Stri
  * [com.pathways.rules.RitualMode.modifierTotal] refuses that.
  *
  * [modifier] is the end of a printed range nearer zero, [best] the other end,
- * exactly as [RitualPreparation] reads its own ranges.
+ * exactly as [RitualPreparation] reads its own ranges -- and, as there, the
+ * GM picks between them through [com.pathways.rules.RitualMode.valueFor].
  */
 @Serializable
 data class TargetLink(

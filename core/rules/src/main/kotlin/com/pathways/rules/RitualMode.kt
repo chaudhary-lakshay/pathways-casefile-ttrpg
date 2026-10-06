@@ -112,11 +112,17 @@ enum class RitualMode(
      * mode sums exactly the two modifiers its Step 3 names, and awarding a
      * bonus it never prints would invent a step. Refused rather than dropped,
      * so a GM who described a performance is not left believing it counted.
+     *
+     * [preparationValue] and [linkValue] are the GM's picks inside a cell
+     * that prints more than one number; see [valueFor]. Null is "not picked",
+     * which takes the cell's printed near end.
      */
     fun modifierTotal(
         preparation: RitualPreparation?,
         link: TargetLink? = null,
         flourish: Boolean = false,
+        preparationValue: Int? = null,
+        linkValue: Int? = null,
     ): Int {
         require(link == null || usesTargetLink) {
             "a $name ritual's preparation modifier already includes the target " +
@@ -144,7 +150,7 @@ enum class RitualMode(
                 "the $name ritual's preparation table, which prints " +
                 preparations().joinToString { "${it.quality} ${it.printed}" }
         }
-        return (preparation?.modifier ?: 0) + (link?.modifier ?: 0) +
+        return valueFor(preparation, preparationValue) + valueFor(link, linkValue) +
             (if (flourish) FLOURISH_BONUS else 0)
     }
 
@@ -166,6 +172,83 @@ enum class RitualMode(
          * the book gives it to the GM and this app does not judge acting.
          */
         const val FLOURISH_BONUS = 1
+
+        /**
+         * What [preparation] is worth: the figure its cell prints, or the
+         * GM's [chosen] one where the cell prints more than a number.
+         *
+         * "The GM determines the Preparation Modifier from the player's
+         * declarations" (p. 63), and three of the cells they determine it
+         * from are not a number: "+1 to +2", "-1 to -2" and "-4 or worse" in
+         * a Full ritual, "-2 to -4" in a Quick one. Section VIII uses them --
+         * rituals 3 and 7 print "Long-used sanctified space +2", which is
+         * Good's far end.
+         *
+         * **Unpicked is the near end, and that is this app's default rather
+         * than the book's rule.** Until 6ef it was the only value there was:
+         * the chip read "Good +1 to +2" and the roll took +1, on a warrant
+         * ("the gentle reading the darkness row settled") that 6dz had
+         * already withdrawn from the darkness row itself.
+         *
+         * A [chosen] value is held to its OWN cell. +3 is Excellent's and is
+         * refused for Good, because a pick that could borrow a neighbour's
+         * number would make the row's name mean nothing. Same contract as
+         * [CommonModifiers.valueFor], which is the precedent.
+         */
+        fun valueFor(preparation: RitualPreparation?, chosen: Int? = null): Int {
+            if (preparation == null) {
+                require(chosen == null) {
+                    "$chosen was picked with no preparation row to pick it inside"
+                }
+                return 0
+            }
+            return pickedWithin(
+                "'${preparation.quality}' preparation", preparation.printed,
+                preparation.modifier, preparation.best, preparation.openEnded, chosen,
+            )
+        }
+
+        /**
+         * The same for the Quick Ritual's [link]: "+2 to +3" and "+0 to -1".
+         * Ritual 4's "True name known +3" is Strong's far end.
+         */
+        fun valueFor(link: TargetLink?, chosen: Int? = null): Int {
+            if (link == null) {
+                require(chosen == null) {
+                    "$chosen was picked with no target link to pick it inside"
+                }
+                return 0
+            }
+            return pickedWithin(
+                "a '${link.link}' link", link.printed, link.modifier, link.best,
+                openEnded = false, chosen,
+            )
+        }
+
+        private fun pickedWithin(
+            what: String,
+            printed: String,
+            near: Int,
+            far: Int?,
+            openEnded: Boolean,
+            chosen: Int?,
+        ): Int {
+            if (chosen == null) return near
+            when {
+                // minOf/maxOf, never `near..far`: "+0 to -1" runs downward and
+                // Kotlin's `0..-1` is empty, which would refuse every pick.
+                far != null -> require(chosen in minOf(near, far)..maxOf(near, far)) {
+                    "$what prints $printed; $chosen is outside it"
+                }
+                openEnded -> require(if (near < 0) chosen <= near else chosen >= near) {
+                    "$what prints $printed; $chosen is on the wrong side of it"
+                }
+                else -> require(chosen == near) {
+                    "$what prints exactly $printed, not $chosen"
+                }
+            }
+            return chosen
+        }
 
         /** Section II's five supporting skills, in printed order. */
         fun supportSkills(): List<RitualSupportSkill> = ContentLoader.ritualSupport()

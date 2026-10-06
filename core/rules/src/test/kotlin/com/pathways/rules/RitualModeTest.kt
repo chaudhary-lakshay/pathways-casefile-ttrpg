@@ -215,14 +215,117 @@ class RitualModeTest {
     }
 
     @Test
-    fun `a range is applied at the end nearer zero`() {
-        // The gentle reading the darkness row, the fright triggers and the
-        // Phase I preparations already settled. "Poor / None" prints
-        // "-2 to -4" and "+0 to -1" is a link that barely hurts.
+    fun `a range is stored as both its ends, nearer zero first`() {
+        // This comment used to call the near end "the gentle reading the
+        // darkness row, the fright triggers and the Phase I preparations
+        // already settled". None of the three is settled that way any more:
+        // darkness has had a picker since 6dz, the fright trigger a stepper
+        // since M4, and the preparations since 6ef. The near end is the
+        // DEFAULT, which is this app's policy and not the book's rule.
         assertEquals(-2, RitualMode.QUICK.preparationNamed("Poor / None").modifier)
         assertEquals(-4, RitualMode.QUICK.preparationNamed("Poor / None").best)
         assertEquals(0, RitualMode.linkNamed("Weak").modifier)
         assertEquals(-1, RitualMode.linkNamed("Weak").best)
+    }
+
+    /**
+     * "The GM determines the Preparation Modifier from the player's
+     * declarations" (p. 63, line 4119), and three of the cells they determine
+     * it from print a span.
+     *
+     * The picks are chosen so that ignoring either one, or both, gives a
+     * different sum: -4 with +3 is -1, where the two defaults give 0, the
+     * preparation pick alone -2 and the link pick alone +1.
+     */
+    @Test
+    fun `a GM's pick inside a printed range is what the roll takes`() {
+        val good = RitualMode.FULL.preparationNamed("Good")
+        assertEquals(1, RitualMode.FULL.modifierTotal(good), "unpicked, the printed near end")
+        assertEquals(2, RitualMode.FULL.modifierTotal(good, preparationValue = 2))
+
+        assertEquals(
+            -1,
+            RitualMode.QUICK.modifierTotal(
+                preparation = RitualMode.QUICK.preparationNamed("Poor / None"),
+                link = RitualMode.linkNamed("Strong"),
+                preparationValue = -4,
+                linkValue = 3,
+            ),
+        )
+        // "-2 to -4" prints -3 as surely as it prints its two ends.
+        assertEquals(-3, RitualMode.valueFor(RitualMode.QUICK.preparationNamed("Poor / None"), -3))
+    }
+
+    /**
+     * "+0 to -1" runs DOWN from its default, and Kotlin's `0..-1` is empty --
+     * a bound written in the row's own order would refuse every pick in it.
+     */
+    @Test
+    fun `a range that runs downward from zero still takes its far end`() {
+        val weak = RitualMode.linkNamed("Weak")
+        assertEquals(0, RitualMode.valueFor(weak))
+        assertEquals(-1, RitualMode.valueFor(weak, -1))
+        val refused = assertThrows<IllegalArgumentException> { RitualMode.valueFor(weak, 1) }
+        assertTrue("+0 to -1" in refused.message!!, refused.message)
+    }
+
+    /**
+     * +3 is Excellent's cell and +0 is Adequate's. A pick that could borrow a
+     * neighbour's number would let "Good" mean anything on the table.
+     */
+    @Test
+    fun `a pick outside its own cell is refused, even where another row prints it`() {
+        val good = RitualMode.FULL.preparationNamed("Good")
+        listOf(3, 0).forEach { outside ->
+            val refused = assertThrows<IllegalArgumentException> { RitualMode.valueFor(good, outside) }
+            assertTrue("+1 to +2" in refused.message!!, refused.message)
+        }
+        val strong = RitualMode.linkNamed("Strong")
+        val refused = assertThrows<IllegalArgumentException> { RitualMode.valueFor(strong, 4) }
+        assertTrue("+2 to +3" in refused.message!!, refused.message)
+    }
+
+    @Test
+    fun `a cell that prints one number takes no pick but its own`() {
+        val excellent = RitualMode.FULL.preparationNamed("Excellent")
+        assertEquals(3, RitualMode.valueFor(excellent, 3))
+        val refused = assertThrows<IllegalArgumentException> { RitualMode.valueFor(excellent, 2) }
+        assertTrue("exactly +3" in refused.message!!, refused.message)
+
+        val perfect = RitualMode.linkNamed("Perfect")
+        val refusedLink = assertThrows<IllegalArgumentException> { RitualMode.valueFor(perfect, 3) }
+        assertTrue("exactly +4" in refusedLink.message!!, refusedLink.message)
+    }
+
+    /** "-4 or worse" (line 4138): at or below -4, with no floor the book names. */
+    @Test
+    fun `or worse runs away from zero and names no floor`() {
+        val none = RitualMode.FULL.preparationNamed("None")
+        assertEquals(-4, RitualMode.valueFor(none))
+        assertEquals(-4, RitualMode.valueFor(none, -4))
+        assertEquals(-9, RitualMode.valueFor(none, -9))
+        val refused = assertThrows<IllegalArgumentException> { RitualMode.valueFor(none, -3) }
+        assertTrue("-4 or worse" in refused.message!!, refused.message)
+    }
+
+    /**
+     * Refused rather than dropped, for the reason a link given to a Full
+     * ritual is: a GM who picked a number must not be left believing it
+     * counted.
+     */
+    @Test
+    fun `a pick with no row to pick inside is refused`() {
+        val noPreparation = assertThrows<IllegalArgumentException> {
+            RitualMode.QUICK.modifierTotal(preparation = null, preparationValue = -3)
+        }
+        assertTrue("no preparation row" in noPreparation.message!!, noPreparation.message)
+        val noLink = assertThrows<IllegalArgumentException> {
+            RitualMode.QUICK.modifierTotal(
+                preparation = RitualMode.QUICK.preparationNamed("Adequate"),
+                linkValue = 3,
+            )
+        }
+        assertTrue("no target link" in noLink.message!!, noLink.message)
     }
 
     @Test

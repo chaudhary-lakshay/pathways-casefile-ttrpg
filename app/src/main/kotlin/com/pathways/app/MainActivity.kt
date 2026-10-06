@@ -143,15 +143,6 @@ private enum class Screen { SHEET, PATHWAY, BUILDER }
 /** [SheetComparison] emits the seven secondaries before any skill row. */
 private const val SECONDARY_ROWS = 7
 
-/**
- * Steps offered past an open-ended modifier's printed end ("-6 or worse").
- *
- * The book names no ceiling, so this is a UI reading and not a rule: the same
- * one the open-ended ritual fuel cell takes (6q). `CommonModifiers.valueFor`
- * still validates whatever is passed, so nothing here can widen the book.
- */
-private const val OPEN_END_STEPS = 3
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -2324,8 +2315,7 @@ private fun CircumstanceRow(
             printed == null -> emptyList()
             row.otherEnd != null -> endsBetween(printed, row.otherEnd)
             // Away from zero, which is the only direction the book bounds.
-            printed < 0 -> (0..OPEN_END_STEPS).map { printed - it }
-            else -> (0..OPEN_END_STEPS).map { printed + it }
+            else -> endsBeyond(printed)
         }
         Text(
             "${row.situation}: ${row.printed}",

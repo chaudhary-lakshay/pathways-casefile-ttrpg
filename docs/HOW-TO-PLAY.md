@@ -198,6 +198,14 @@ any supporting skills. The dialog composes the target, subtracts the Corruption
 penalty at the thresholds the book prints, and prices the SPI. Quick and Full
 preparation are two different tables with two different link rules.
 
+Six of those cells print a span or a floor rather than a number — *Good +1 to
++2*, *Poor -1 to -2*, *None -4 or worse*, the quick table's *Poor / None -2 to
+-4*, and the links *Strong +2 to +3* and *Weak +0 to -1*. Picking one opens a
+row headed **The book prints … — the GM picks:** with every value in the cell.
+Until you tap one, the roll takes the figure nearer zero, which is the chip
+shown selected. *Or worse* offers three steps past its printed figure; the
+book names no floor, so a harsher call than that is yours to apply by hand.
+
 Failures roll on their own table (backlash, spiritual drain, and worse), and
 criticals on theirs — and both can still be pushed (see **Push the roll**
 above). A rolled 17 or 18 cannot: that row is named for the dice rather than

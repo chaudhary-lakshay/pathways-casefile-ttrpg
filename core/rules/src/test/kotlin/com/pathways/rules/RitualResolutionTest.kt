@@ -278,6 +278,55 @@ class RitualResolutionTest {
         assertThrows<IllegalArgumentException> { RitualResolution.preparationNamed("Perfect") }
     }
 
+    /**
+     * The pick has to survive three hops -- attempt, targetFor, modifierTotal
+     * -- and a dropped argument at any of them still compiles and still
+     * rolls. So the pick is read back off the outcome of a real attempt, and
+     * not only off the function that computes the number.
+     */
+    @Test
+    fun `a pick reaches the target and the roll that is made against it`() {
+        val good = RitualResolution.preparationNamed("Good")
+        assertEquals(15, RitualResolution.targetFor(14, light, cor = 0, preparation = good))
+        assertEquals(
+            16,
+            RitualResolution.targetFor(14, light, cor = 0, preparation = good, preparationValue = 2),
+        )
+        // Three fives are 15: a success by exactly 1 against 16, by 0 against 15.
+        val unpicked = RitualResolution.attempt(14, light, 0, fixed(5), good)
+        val picked = RitualResolution.attempt(14, light, 0, fixed(5), good, preparationValue = 2)
+        assertEquals(15, unpicked.target)
+        assertEquals(16, picked.target)
+        assertEquals(unpicked.roll.total, picked.roll.total, "the same dice, a different target")
+        // The target REPORTED and the target ROLLED AGAINST are two values,
+        // and a pick that reached only the first would print 16 over dice
+        // judged against 15.
+        assertEquals(picked.target, picked.roll.target)
+
+        // And the pick changes what happened, not just what is printed: three
+        // fives against 14 miss by one, and against 15 they land.
+        val missed = RitualResolution.attempt(13, light, 0, fixed(5), good)
+        val landed = RitualResolution.attempt(13, light, 0, fixed(5), good, preparationValue = 2)
+        assertTrue(!missed.roll.outcome.isSuccess, "15 against 14")
+        assertTrue(landed.roll.outcome.isSuccess, "15 against 15")
+
+        val strong = RitualMode.linkNamed("Strong")
+        val adequate = RitualMode.QUICK.preparationNamed("Adequate")
+        assertEquals(
+            17,
+            RitualResolution.targetFor(
+                14, light, cor = 0, preparation = adequate, mode = RitualMode.QUICK,
+                link = strong, linkValue = 3,
+            ),
+        )
+        val linked = RitualResolution.attempt(
+            14, light, 0, fixed(5), adequate, mode = RitualMode.QUICK,
+            link = strong, linkValue = 3,
+        )
+        assertEquals(17, linked.target)
+        assertEquals(17, linked.roll.target)
+    }
+
     @Test
     fun `a botched preparation can cost more than the ritual's own weight`() {
         // -4 preparation against a Heavy ritual's -4 is -8 before corruption:

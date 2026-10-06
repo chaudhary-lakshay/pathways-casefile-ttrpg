@@ -125,9 +125,11 @@ object RitualResolution {
      * spiritual instability of [cor], plus how well it was [preparation]ed.
      *
      * Preparation may be null, which is simply "not described". Where it is
-     * given, [RitualPreparation.modifier] is the end of its cell nearer zero
-     * -- the gentle reading the darkness row and the fright triggers already
-     * settled.
+     * given and its cell prints a span, [preparationValue] is the GM's pick
+     * inside it and [linkValue] the same for [link]; unpicked, each takes the
+     * end nearer zero. See [RitualMode.valueFor] -- and note that this
+     * paragraph used to call the near end "the gentle reading the darkness
+     * row and the fright triggers already settled", which neither had.
      *
      * **CORRECTION.** This KDoc used to say "preparation is null for the quick
      * mode, which the book resolves without Phase I at all". That is wrong:
@@ -181,8 +183,13 @@ object RitualResolution {
         support: List<String> = emptyList(),
         complexity: RitualComplexity? = null,
         powerSources: PowerSourceDeclaration = PowerSourceDeclaration(),
+        preparationValue: Int? = null,
+        linkValue: Int? = null,
     ): Int = skillLevel + weight.modifier + Corruption.ritualPenalty(cor) +
-        mode.modifierTotal(preparation, link, flourish) +
+        mode.modifierTotal(
+            preparation, link, flourish,
+            preparationValue = preparationValue, linkValue = linkValue,
+        ) +
         RitualMode.supportBonus(support) +
         Languages.ritualModifier(language) +
         PowerSources.modifierTotal(complexity, powerSources)
@@ -209,10 +216,13 @@ object RitualResolution {
         failures: List<RitualFailure> = ContentLoader.ritualFailures(),
         criticals: List<RitualCritical> = ContentLoader.ritualCriticals(),
         successBands: List<RitualSuccess> = ContentLoader.ritualSuccess(),
+        preparationValue: Int? = null,
+        linkValue: Int? = null,
     ): RitualOutcome {
         val target = targetFor(
             skillLevel, weight, cor, preparation, language, mode, link, flourish,
             support, complexity, powerSources,
+            preparationValue = preparationValue, linkValue = linkValue,
         )
         val roll = SuccessRoll.against(target, source)
         return classify(roll, target, failures, criticals, successBands) { shift ->

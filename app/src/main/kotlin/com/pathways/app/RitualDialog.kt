@@ -60,7 +60,7 @@ const val RITUAL_SKILL = "Ritualistic Magic"
  */
 private fun spiChoices(complexity: RitualComplexity): List<Int> {
     val top = complexity.spiMax ?: complexity.spi
-    return (complexity.spi..(if (complexity.spiOpen) top + 3 else top)).toList()
+    return (complexity.spi..(if (complexity.spiOpen) top + OPEN_END_STEPS else top)).toList()
 }
 
 /**
@@ -75,6 +75,39 @@ private fun hpChoices(cost: Int): List<Int> =
     (0..minOf(cost, 4)).map { PowerSources.hpFor(it) }
 
 private fun signed(n: Int) = if (n >= 0) "+$n" else "$n"
+
+/**
+ * The GM's pick inside one cell, when the cell prints more than a number.
+ *
+ * "The GM determines the Preparation Modifier from the player's declarations"
+ * (p. 63), and six cells across chapter 7's three tables hand them a span or
+ * a floor to determine it from. Draws nothing for a cell that prints one
+ * figure, so the row above it stays the whole control there.
+ *
+ * [applied] is what the ENGINE says the roll is using, not what was tapped:
+ * the chip showing selected before anything is tapped is a claim about the
+ * default, and there is one authority on that (6dz).
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CellValueChips(printed: String, values: List<Int>, applied: Int, onPick: (Int) -> Unit) {
+    if (values.size < 2) return
+    Text(
+        "The book prints $printed — the GM picks:",
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.padding(top = 4.dp),
+    )
+    FlowRow {
+        values.forEach { value ->
+            FilterChip(
+                selected = applied == value,
+                onClick = { onPick(value) },
+                label = { Text(signed(value)) },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
+    }
+}
 
 /**
  * Cast a ritual (Ch. 7, p. 67-68).
@@ -142,6 +175,15 @@ fun RitualDialog(
     // a link in full mode, so a link left over from a quick ritual would throw
     // rather than merely mislead.
     var link by remember(mode) { mutableStateOf<TargetLink?>(null) }
+    // The GM's pick inside a cell that prints more than a number. Null until
+    // a chip is tapped, so the engine stays the only authority on the default.
+    //
+    // Keyed on the ROW as well as the mode, and that is load-bearing:
+    // `targetFor` runs below while this dialog DRAWS and refuses a pick
+    // outside its cell, so a pick that outlived its row -- Good's +2 carried
+    // onto Excellent -- would throw during composition, not on Roll.
+    var preparationPick by remember(mode, preparation) { mutableStateOf<Int?>(null) }
+    var linkPick by remember(mode, link) { mutableStateOf<Int?>(null) }
     // Phase II's Flourish Bonus, and the mirror of the link in every respect
     // including this one: keyed on the mode because modifierTotal REFUSES it
     // in quick mode, so an award left over from a full ritual would throw
@@ -230,6 +272,7 @@ fun RitualDialog(
             effectiveSkill + (answer?.ritualModifier ?: 0),
             weight, cor, preparation, language, mode, link, flourish, support,
             complexity = complexity, powerSources = declaration,
+            preparationValue = preparationPick, linkValue = linkPick,
         )
     } else {
         null
@@ -546,6 +589,12 @@ fun RitualDialog(
                         }
                     }
                     Text(preparation.looksLike, style = MaterialTheme.typography.bodySmall)
+                    CellValueChips(
+                        printed = preparation.printed,
+                        values = valuesOf(preparation.modifier, preparation.best, preparation.openEnded),
+                        applied = RitualMode.valueFor(preparation, preparationPick),
+                        onPick = { preparationPick = it },
+                    )
 
                     // Quick mode only. In a full ritual the preparation row
                     // above already priced the link -- its own text names one
@@ -566,7 +615,15 @@ fun RitualDialog(
                                 )
                             }
                         }
-                        link?.let { Text(it.looksLike, style = MaterialTheme.typography.bodySmall) }
+                        link?.let { chosen ->
+                            Text(chosen.looksLike, style = MaterialTheme.typography.bodySmall)
+                            CellValueChips(
+                                printed = chosen.printed,
+                                values = valuesOf(chosen.modifier, chosen.best, openEnded = false),
+                                applied = RitualMode.valueFor(chosen, linkPick),
+                                onPick = { linkPick = it },
+                            )
+                        }
                     }
 
                     // Full mode only, and the exact mirror of the row above:
@@ -777,8 +834,10 @@ fun RitualDialog(
                         )
                         Text(
                             "$RITUAL_SKILL $skillLevel, ${weight.weight} ${weight.modifier}" +
-                                ", preparation ${signed(preparation.modifier)}" +
-                                (link?.let { ", ${signed(it.modifier)} ${it.link.lowercase()} link" } ?: "") +
+                                ", preparation ${signed(RitualMode.valueFor(preparation, preparationPick))}" +
+                                (link?.let {
+                                    ", ${signed(RitualMode.valueFor(it, linkPick))} ${it.link.lowercase()} link"
+                                } ?: "") +
                                 // Named, because the breakdown and the target
                                 // above it must reconcile -- the invariant
                                 // 6ag added 300 cases for and 6ak broke once.
@@ -885,6 +944,8 @@ fun RitualDialog(
                                     support,
                                     complexity = complexity,
                                     powerSources = declaration,
+                                    preparationValue = preparationPick,
+                                    linkValue = linkPick,
                                 )
                                 outcome = rolled
                                 // The fuel is spent whether or not it works:

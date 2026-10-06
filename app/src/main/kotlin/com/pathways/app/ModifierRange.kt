@@ -9,13 +9,12 @@ package com.pathways.app
  * -2 to -4" -- where the engine reading it takes a `gmValue` override,
  * defaulting to [from] when none is given.
  *
- * **Those four are this function's callers, not the book's spans.** This
- * KDoc counted "three" while a fourth caller stood, and then "four" while
- * eight content files stored a second bound (6ee). The fright trigger's
- * span is reached by a free stepper instead. Chapter 7's three ritual tables
- * -- five rows, "Good +1 to +2" among them -- are reached by NOTHING: their
- * chips print the span and apply its near end. That is a gap, not a reading
- * this file endorses.
+ * **These are examples, not a count.** This KDoc said "three" while a fourth
+ * caller stood and "four" while eight content files stored a second bound
+ * (6ee). Chapter 7's three ritual tables reach it through [valuesOf] (6ef);
+ * the fright trigger's span is reached by a free stepper instead. To know
+ * which tables print a span, query the content for `best`, `worstCase`,
+ * `otherEnd` and `openEnded` -- do not read a number off this comment.
  *
  * **The order is outward from [from], not numeric.** A descending span like
  * "-1 to -2" or "-3 to -9" worsens as it runs, so sorting numerically would
@@ -36,6 +35,29 @@ internal fun endsBetween(from: Int, to: Int?): List<Int> {
     // code -- along with the test that was written to guard it.
     return if (to > from) (from..to).toList() else (from downTo to).toList()
 }
+
+/**
+ * Steps offered past an open-ended cell's printed end ("-6 or worse",
+ * "-4 or worse", "11-15+").
+ *
+ * The book names no ceiling, so this is a UI reading and not a rule. The
+ * engines still validate whatever is passed and take a value further out, so
+ * nothing here can widen the book -- or narrow it.
+ */
+internal const val OPEN_END_STEPS = 3
+
+/** [from] and [OPEN_END_STEPS] values beyond it, running away from zero. */
+internal fun endsBeyond(from: Int): List<Int> =
+    (0..OPEN_END_STEPS).map { if (from < 0) from - it else from + it }
+
+/**
+ * Everything one cell offers: a span's whole run, an open end's first few
+ * steps, or the single figure a plain cell prints. [openEnded] wins only
+ * where there is no [to], which is how the book writes them -- no cell prints
+ * both a far end and "or worse".
+ */
+internal fun valuesOf(from: Int, to: Int?, openEnded: Boolean): List<Int> =
+    if (to == null && openEnded) endsBeyond(from) else endsBetween(from, to)
 
 /**
  * How many times a "per repeat" row may be counted.

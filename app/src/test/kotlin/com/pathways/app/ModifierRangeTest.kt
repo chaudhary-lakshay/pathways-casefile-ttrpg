@@ -2,17 +2,20 @@ package com.pathways.app
 
 import com.pathways.rules.Divination
 import com.pathways.rules.Ranged
+import com.pathways.rules.RitualMode
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 /**
  * The values a printed range offers a GM to pick between.
  *
- * Three screens print ranges -- the divination modifiers, chapter 13's boon
- * modifiers and the ranged darkness row -- and only the boon screen ever let
- * one be picked. The other two applied the row's own first figure, so a chip
- * reading "+0 to +2" added nothing at all.
+ * When this file was written three screens printed ranges -- the divination
+ * modifiers, chapter 13's boon modifiers and the ranged darkness row -- and
+ * only the boon screen let one be picked. The other two applied the row's own
+ * first figure, so a chip reading "+0 to +2" added nothing at all. The ritual
+ * screen was a fourth doing the same thing until 6ef, with six cells.
  */
 class ModifierRangeTest {
 
@@ -68,6 +71,61 @@ class ModifierRangeTest {
                 Divination.modifierTotal(listOf(row), mapOf(row.source to value))
             }
         }
+    }
+
+    /**
+     * Chapter 7's three tables: six cells that are not one number. The chips
+     * are the only way a GM reaches the far end of one, and `targetFor` runs
+     * while the dialog DRAWS -- so an offered value the engine refuses would
+     * crash the screen rather than misprice a roll.
+     */
+    @Test
+    fun `every value a ritual cell offers is one the engine takes, its own figure first`() {
+        val preparations = (RitualMode.FULL.preparations() + RitualMode.QUICK.preparations())
+            .filter { it.best != null || it.openEnded }
+        assertEquals(
+            listOf("Good +1 to +2", "Poor -1 to -2", "None -4 or worse", "Poor / None -2 to -4"),
+            preparations.map { "${it.quality} ${it.printed}" },
+        )
+        for (row in preparations) {
+            val offered = valuesOf(row.modifier, row.best, row.openEnded)
+            assertTrue(offered.size > 1, "${row.quality} offers a choice")
+            assertEquals(RitualMode.valueFor(row), offered.first(), "unpicked is the engine's default")
+            row.best?.let { assertEquals(it, offered.last()) }
+            offered.forEach { assertEquals(it, RitualMode.valueFor(row, it)) }
+        }
+        // The INTERIOR, which first-and-last cannot see: "-2 to -4" prints -3,
+        // and an offer of the two ends alone passes everything above.
+        val poorOrNone = RitualMode.QUICK.preparationNamed("Poor / None")
+        assertEquals(
+            listOf(-2, -3, -4),
+            valuesOf(poorOrNone.modifier, poorOrNone.best, poorOrNone.openEnded),
+        )
+
+        val links = RitualMode.links().filter { it.best != null }
+        assertEquals(
+            listOf("Strong +2 to +3", "Weak +0 to -1"),
+            links.map { "${it.link} ${it.printed}" },
+        )
+        for (row in links) {
+            val offered = valuesOf(row.modifier, row.best, openEnded = false)
+            assertEquals(RitualMode.valueFor(row), offered.first())
+            assertEquals(row.best, offered.last())
+            offered.forEach { assertEquals(it, RitualMode.valueFor(row, it)) }
+        }
+    }
+
+    /**
+     * "-4 or worse" names no floor, so three steps is this screen's limit and
+     * not the book's: the engine takes -9 as readily as -7.
+     */
+    @Test
+    fun `an open end offers its printed figure and three steps away from zero`() {
+        assertEquals(listOf(-4, -5, -6, -7), endsBeyond(-4))
+        assertEquals(listOf(4, 5, 6, 7), endsBeyond(4))
+        assertEquals(endsBeyond(-4), valuesOf(-4, to = null, openEnded = true))
+        assertEquals(listOf(1, 2), valuesOf(1, to = 2, openEnded = false))
+        assertEquals(listOf(3), valuesOf(3, to = null, openEnded = false))
     }
 
     @Test

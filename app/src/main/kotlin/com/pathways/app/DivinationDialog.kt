@@ -50,10 +50,10 @@ import com.pathways.rules.content.DivinationSupport
  * already apply, and [Divination.modifierTotal] refuses it rather than letting
  * a caller charge the question twice.
  *
- * Rows printing a range ("+0 to +4") are applied at the end nearer zero, which
- * is the gentle one. The GM's harsher or kinder call is theirs to make out
- * loud -- the same reading the fright triggers and the darkness row settled.
- * ponytail: a stepper per range row when a GM asks for one.
+ * Rows printing a range ("+0 to +4") START at the end nearer zero and offer
+ * the rest of the span as chips (6dz). This comment said "applied at the end
+ * nearer zero ... ponytail: a stepper when a GM asks" for five slices after
+ * the picker shipped.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

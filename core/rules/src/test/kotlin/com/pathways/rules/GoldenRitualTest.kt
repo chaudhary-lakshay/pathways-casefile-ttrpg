@@ -59,6 +59,11 @@ class GoldenRitualTest {
      * Every "true name" row is the Quick Ritual's Target Link table, and all
      * six land on a printed cell -- including the two that take a range's end
      * rather than its middle.
+     *
+     * "Lands on a cell" is asked of the ENGINE, not re-derived here: until 6ef
+     * this compared against `modifier || best` by hand, which is how the book
+     * could print "True name known +3" for four slices while no caller could
+     * produce a Strong link at +3.
      */
     @Test
     fun `every target-link row matches the printed link table`() {
@@ -69,12 +74,21 @@ class GoldenRitualTest {
         }
         assertEquals(6, checked.size, "the worked rituals print six link rows")
         checked.forEach { (ritual, row) ->
-            val fits = links.any { row.value == it.modifier || row.value == it.best }
+            // The value RETURNED, not merely the absence of a refusal: an
+            // engine that validated a pick and then applied the near end
+            // anyway would accept all six and produce none of them.
+            val fits = links.any { runCatching { RitualMode.valueFor(it, row.value) }.getOrNull() == row.value }
             assertTrue(fits) {
                 "ritual ${ritual.number}'s '${row.source}' is ${row.value}, " +
                     "which no Target Link cell prints"
             }
         }
+        // The one the old default could not reach: ritual 4, Strong's far end.
+        assertEquals(
+            listOf(4 to 3),
+            checked.filter { (_, row) -> links.none { it.modifier == row.value } }
+                .map { (ritual, row) -> ritual.number to row.value },
+        )
     }
 
     /**
@@ -90,12 +104,21 @@ class GoldenRitualTest {
         }
         assertTrue(spaces.isNotEmpty())
         spaces.forEach { (ritual, row) ->
-            val fits = preparations.any { row.value == it.modifier || row.value == it.best }
+            val fits = preparations.any {
+                runCatching { RitualMode.valueFor(it, row.value) }.getOrNull() == row.value
+            }
             assertTrue(fits) {
                 "ritual ${ritual.number}'s '${row.source}' is ${row.value} and " +
                     "no preparation quality prints it"
             }
         }
+        // "Long-used sanctified space +2", twice: Good's far end, which no
+        // row's default prints.
+        assertEquals(
+            listOf(3 to 2, 7 to 2),
+            spaces.filter { (_, row) -> preparations.none { it.modifier == row.value } }
+                .map { (ritual, row) -> ritual.number to row.value },
+        )
     }
 
     /** Materials and offerings are External Sacrifice tiers: all three are +2. */
