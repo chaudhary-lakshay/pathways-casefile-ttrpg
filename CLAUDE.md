@@ -112,7 +112,40 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ee is newest, and it ran 6dl's own advice as a sweep: every diagnostic the
+**6ef is newest, and it builds the slice 6ee named: the GM picks inside a
+ritual cell that prints a span.** Six cells across chapter 7's three tables
+(`Good +1 to +2`, `Poor -1 to -2`, `None -4 or worse`, the quick table's
+`Poor / None -2 to -4`, the links `Strong +2 to +3` and `Weak +0 to -1`)
+showed the span on the chip and applied its near end. `RitualMode.valueFor`
+holds a pick to its OWN cell — +3 is Excellent's and is refused for Good —
+and the pick is threaded by name through `modifierTotal`, `targetFor` and
+`attempt`. **Unpicked is still the near end, and that is this app's default,
+not the book's rule.** Read it for four things. **Its warrant had named two
+precedents and neither held**: "the gentle reading the darkness row and the
+fright triggers already settled", where one has a picker and the other a
+stepper. **The diff review ran AFTER the commit and found a crash the comment
+beside it claimed to prevent**: the picks were `remember(mode, preparation)`
+under a note calling that key "load-bearing", and **a keyed `remember` resets
+one recomposition late while a click handler reads state as it stands** — so
+Good's +2, a tap on Excellent and a tap on Roll inside one frame handed the
+engine a pick it throws on. The pick is held WITH its row now and filtered on
+read (`pickInside`), which is 6dz's design and was in the sibling dialogs the
+whole time; a pick therefore comes back when the GM returns to its row.
+**That finding indicts its model and the model is NOT repaired**:
+`preparation`, `link` and `flourish` are `remember(mode)` with the same
+one-frame window on a mode switch, read off the code and never reproduced.
+**Six mutations were executed rather than predicted**, all caught — and the
+first baseline run failed on Gradle's file lock, which looked exactly like a
+caught mutation. The review's LOW (the golden test reaches `valueFor`, not
+`attempt`) is refused on the reviewer's own next clause. **Device-verified on
+an EMULATOR** (`Medium_Tablet`, API 35 — no hardware attached): Good at +2
+took `3d6 ≤ 13` to `≤ 15` and rolled **`15 vs 15`**, a success the unpicked
++1 misses; quick mode at -3 with a Strong +3 link printed `preparation -3,
++3 strong link` and rolled `15 vs 13`. **No decomposition review is on
+record**, which 6ee asked for. The nearest thing to a successor is the
+mode-switch window.
+
+**6ee is next, and it ran 6dl's own advice as a sweep: every diagnostic the
 toolchain gives for nothing.** Clean on eight instruments, each recorded with
 its control — and **the compiler's zero had to be earned twice**: the first
 run restored one compile task FROM-CACHE, which prints nothing, and a planted
@@ -140,8 +173,7 @@ near end of each with no picker.** `RitualMode.modifierTotal` takes no
 override, so 6dz's parameter sweep could not see it; its warrant (6q: "the
 same gentle reading as the darkness row") died when 6dz gave darkness a
 picker; and `GoldenRitualTest` already accepts the book's worked rituals at
-`it.best`, values this dialog cannot produce. It overturns a recorded
-decision, so review the decomposition first.
+`it.best`, values this dialog cannot produce. **6ef built it.**
 
 **6ed is next, and it is the sweep 6ec named: does a committed generated
 file still reproduce from the tool that writes it?** Clean, with its control —
@@ -1246,7 +1278,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: 6ee, then 6ed, 6ec, 6eb, 6ea, 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6ef, then 6ee, 6ed, 6ec, 6eb, 6ea, 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1478,7 +1510,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1732 Kotlin** (JUnit 5 — 1227 `core:rules`, 485 `app`, 20 `core:model`) + **356 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1742 Kotlin** (JUnit 5 — 1234 `core:rules`, 488 `app`, 20 `core:model`) + **356 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1718,6 +1750,10 @@ Languages.ritualModifier(prof?): Int    // throws for Broken and for common
 Languages.canPerformRituals(prof) / .ritualProficiencies() / .notes()
 ContentLoader.languages() / .languageProficiencies() / .languageNotes()
 RitualResolution.targetFor(skill, weight, cor, preparation, language, mode, link, support)
+RitualMode.valueFor(preparation, chosen) / .valueFor(link, chosen)
+                                      // a GM's pick inside a cell that prints
+                                      // a span or a floor; refused outside
+                                      // its own cell, near end when unpicked
 Incantations.all() / .forPowerSource(isInvoking): Incantation
                                       // ch.7's pair is selected; ch.7.5's
                                       // summoning row is shown, never chosen
@@ -1944,10 +1980,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6dx. The slice log
+## 6a-6ef. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6dx is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6ef is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

@@ -6726,6 +6726,149 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ef. The span a chip printed and the roll never took
+
+6ee named this slice with its evidence: chapter 7's three ritual tables print
+cells that are a span or a floor, and `RitualDialog` showed the span on the
+chip and applied the end nearer zero, with no way to reach the rest. The
+cells, as `ModifierRangeTest` now pins them by name:
+
+| Table | Cell | Offered |
+|---|---|---|
+| Full preparation | `Good +1 to +2` | +1, +2 |
+| Full preparation | `Poor -1 to -2` | -1, -2 |
+| Full preparation | `None -4 or worse` | -4, -5, -6, -7 |
+| Quick preparation | `Poor / None -2 to -4` | -2, -3, -4 |
+| Target link | `Strong +2 to +3` | +2, +3 |
+| Target link | `Weak +0 to -1` | +0, -1 |
+
+**The warrant had already died.** `RitualResolution.targetFor`'s KDoc called
+the near end *"the gentle reading the darkness row and the fright triggers
+already settled"*. 6dz gave the darkness row a picker and the fright trigger
+has had a stepper since M4, so the sentence named two precedents and neither
+held. And the book's own worked rituals use the far ends: rituals 3 and 7
+print *"Long-used sanctified space +2"* (Good's far end) and ritual 4 prints
+*"True name known +3"* (Strong's). `GoldenRitualTest` had accepted those by
+comparing against `modifier || best` by hand — values no caller could produce.
+
+**What shipped (`80fe956`).** `RitualMode.valueFor(row, chosen)` holds a pick
+to its OWN cell, on the contract `CommonModifiers.valueFor` already set: a
+span takes anything between its ends, a floor anything at or past it on the
+far side of zero, and a cell printing one figure takes that figure only. +3 is
+Excellent's and is refused for Good. The pick is threaded by name through
+`modifierTotal`, `targetFor` and `attempt`. **Unpicked is still the near end,
+and that is this app's default, not the book's rule** — the book says only
+that *"the GM determines the Preparation Modifier from the player's
+declarations"* (p. 63). `-4 or worse` offers three steps past its figure
+(`OPEN_END_STEPS`, the constant `spiChoices` already used as a bare 3); the
+engine takes -9 as readily, so the limit is the screen's.
+
+`GoldenRitualTest` now asks the ENGINE whether a printed value lands on a
+cell, and asserts the value RETURNED — an engine that validated a pick and
+then applied the near end would accept all of them and produce none.
+
+**No record of a decomposition review exists**, which 6ee asked for because
+the slice overturns a recorded decision. The commit body names none and the
+session that wrote it left no section here. The diff review below is the only
+gate this slice can show, and it ran AFTER the commit.
+
+### The mutation pass, executed
+
+Six single edits, each `cp`-restored, each read by the test it reddened and
+not by exit code (the first attempt at a baseline failed on Gradle's `Unable
+to delete directory` and looked exactly like a caught mutation):
+
+| Mutation | Caught by |
+|---|---|
+| `minOf..maxOf` → `near..far` | `RitualModeTest` ×2, `GoldenRitualTest` (links) |
+| open-ended side check flipped | `RitualModeTest` *or worse runs away from zero* |
+| single-figure branch → `require(true)` | `RitualModeTest` *a cell that prints one number* |
+| `targetFor` drops the picks | `RitualResolutionTest` *a pick reaches the target and the roll* |
+| `attempt` drops the picks | the same test |
+| `pickedWithin` validates, returns `near` | seven tests across all four files |
+
+The first one says more than its row: `-2 to -4` runs downward too, so the
+empty-range bug `Weak +0 to -1` was written to guard would have refused every
+pick in a second cell.
+
+### The diff review (Codex, `codex exec`, three questions, `80fe956`)
+
+**MEDIUM, taken (`ce463ab`).** The picks were `remember(mode, preparation)`
+and `remember(mode, link)`, under a comment calling the row key
+"load-bearing" because `targetFor` throws on a pick outside its cell. **A
+keyed `remember` resets at the next recomposition, and a click handler reads
+state as it stands now.** Good's +2, a tap on Excellent and a tap on Roll
+inside one frame hand `attempt` Excellent with a 2 it refuses, and the throw
+is in the handler. The pick is now held WITH its row
+(`Pair<RitualPreparation, Int>`) and read through `pickInside(row, held)`,
+which answers null for any other row — filtered on read rather than cleared
+on change, which is 6dz's own design for `overrides` and was sitting in the
+sibling dialogs the whole time. The Roll handler calls `pickInside` itself
+instead of using the value the composition drew with.
+
+RED was taken twice on purpose: the unresolved reference first, then a
+pass-through `held?.second`, which fails with the engine's own
+`IllegalArgumentException` on the line that hands Excellent a 2. **A missing
+function proves nothing about a behaviour (6ec).**
+
+One behaviour changed with it and is stated in `docs/HOW-TO-PLAY.md`: a pick
+now comes back when the GM returns to its row, shown selected. Under the
+keyed `remember` it was forgotten.
+
+**The finding indicts its model, and the model is NOT repaired (6ds).**
+`preparation`, `link` and `flourish` are `remember(mode)`, and their comments
+say a stale one "would throw rather than merely mislead". By the same
+reading, a tap on a mode chip and a tap on Roll inside one frame hand
+`attempt` the old mode's link under the new mode, which `modifierTotal`
+refuses. That window predates this slice. It is read off the code, not
+reproduced — it needs two taps between two frames, which is two fingers — and
+closing it means re-shaping three pieces of state the slice did not touch.
+Recorded as the nearest thing to a named successor.
+
+**LOW, refused.** *"Worked rituals 3/4/7 reach `valueFor` only, never
+`targetFor`/`attempt`."* True, and the reviewer's own next clause is the
+reason: `RitualResolutionTest` pins the forwarding, and mutations four and
+five above RED-prove it. The golden test's question is whether a printed
+value lands on a cell. One check on one fact (6dv); a second forwarding
+assertion built from worked examples would also have to route around the
+discrepancies those examples already record.
+
+Q3, whether the chips offered and the picks accepted can disagree: no
+finding, and `ModifierRangeTest` walks every offered value of every such row
+through the engine.
+
+### On a device
+
+Emulator, `Medium_Tablet`, API 35, 2560×1600 — not the SM-T570 the earlier
+slices used; no hardware was attached. The carrier is the Academic Researcher
+after one Fool Sequence 9 potion (no published sheet has Ritualistic Magic),
+skill 13.
+
+- **Full.** `Adequate +0` draws no pick row. `Good +1 to +2` draws *"The book
+  prints +1 to +2 — the GM picks:"* with +1 selected before anything is
+  tapped. Tapping +2 takes the target `3d6 ≤ 13` → `3d6 ≤ 15`, breakdown
+  `preparation +2`. **Roll printed `3d6: 15 vs 15` — "The ritual holds"**,
+  which the unpicked +1 would have missed by one.
+- **Row switches.** Good +2 → Excellent: no pick row, no crash. → `None -4 or
+  worse`: -4, -5, -6, -7 with -4 selected. → Good: +2 selected again.
+- **Quick.** `Poor / None -2 to -4` offers -2, -3, -4. With -3 and `Strong
+  +2 to +3` at +3: `3d6 ≤ 13`, breakdown `preparation -3, +3 strong link`,
+  and Roll printed `3d6: 15 vs 13`. Strong switched off with its +3 held: no
+  crash. `Weak +0 to -1` offers +0 then -1, in that order. Strong again: +3.
+
+The preview and the roll are two call sites handed the picks separately, and
+nothing but those two `vs` lines pins them to each other. The one-frame race
+itself was not reproduced; `pickInside`'s test is what covers it.
+
+Dump coordinates were true pixels on the emulator, sheet and dialog both, so
+6du's per-window scale is a fact about that tablet and not about
+`uiautomator`. And a `selected` attribute sits on the chip node while the
+text sits on its child, so a dump filtered on text reads every chip as
+unselected.
+
+**No successor is named beyond the mode-switch window above.** The six cells
+were the last spans 6ee found applied with no picker.
+
 ## 6ee. The compiler's zero, and the two things beside it
 
 6dl found a vacuous test for free — Kotlin had been printing `Condition is

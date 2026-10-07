@@ -203,7 +203,8 @@ Six of those cells print a span or a floor rather than a number — *Good +1 to
 -4*, and the links *Strong +2 to +3* and *Weak +0 to -1*. Picking one opens a
 row headed **The book prints … — the GM picks:** with every value in the cell.
 Until you tap one, the roll takes the figure nearer zero, which is the chip
-shown selected. *Or worse* offers three steps past its printed figure; the
+shown selected. A pick belongs to its cell: choose another row and it is not
+carried over, come back and it is still there, shown selected. *Or worse* offers three steps past its printed figure; the
 book names no floor, so a harsher call than that is yours to apply by hand.
 
 Failures roll on their own table (backlash, spiritual drain, and worse), and
