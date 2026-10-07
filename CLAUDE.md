@@ -122,9 +122,13 @@ so Detection's caption is the result's own itemised list now. Read it for
 four things. **The design review changed three of the seven before any
 code** — my sketch dropped Concentration's `disturbed` guard off the path
 production takes, and passing a target without its breakdown was *"cosmetic"*.
-**One verdict is refused with its reason**: a session-held prepared target for
-the potion roll is a cache of a pure function, and trades two calls for state
-that can go stale. **`attempt` is test-only API in eight engines now**, and
+**The potion roll is left, and its window is open**: the review's
+session-held prepared target is a cache and is refused, but my first reason
+for leaving the pair ("one predicate, in the engine") was equally true of
+Divination before this slice. What differs is that the session owns PERSISTED
+state and must not trust a number from the screen — so the `±5%` stepper and
+Drink can still roll a PCR one step off the printed target, and a failed PCR
+ends the character. **`attempt` is test-only API in eight engines now**, and
 that is what the mutations found: the diff review proposed seven by reading,
 **five survived the whole suite when run**, three of them forwarding bugs in
 wrappers production no longer calls — which mislead only the suite, and the
@@ -134,10 +138,11 @@ success through the engine**, so reading it by outcome instead of by margin
 returned the bare row for every margin. **And one "survived" was not a
 survival** — a half-applied script left two tests unchanged, and `BUILD
 SUCCESSFUL` under a mutation says the guard did not fire, not that it exists.
-**Device-verified on the emulator, all seven**: printed and rolled are the
+**A regression pass on the emulator, all seven** — it proves no fix,
+since the mismatch was never produced on a device; printed and rolled are the
 same number in each (`vs 6` → `11 vs 6`, `≤ 7` → `9 vs 7`, `≤ 10` → `5 vs 10`,
 `10 or under` → `10 vs 10`, `≤ 14` → `10 vs 14`, `≤ 11` → `13 vs 11`, `≤ 9` →
-`12 vs 9`). **No successor is named.**
+`12 vs 9`). **The successor is a stale check on Drink**, design review first.
 
 **6eg is next, and it reverses the fix 6ef shipped a day earlier.** 6ef
 closed one stale-state window in the ritual Roll handler by reading the pick

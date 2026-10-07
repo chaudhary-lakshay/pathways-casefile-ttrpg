@@ -6780,13 +6780,30 @@ shaped three of the seven:
   Deleting them and rewriting ~60 call sites as `rollAgainst(targetFor(...))`
   was judged the larger and less safe change.
 
-**One verdict refused: the potion roll.** The review said SHIP WITH CHANGE —
-*"share a session-owned prepared target tied to its state, updating it when
-state changes."* That is a cached copy of a pure function of one field, and a
-cache has to be invalidated: it trades two calls to `targetFor(digestion)`
-for a second piece of state that can go stale. `PathwayScreen` reads the
-state the session owns and the session rolls from that same state; the
-predicate is written once, in the engine. Left as it is, on that reason.
+**One verdict not taken: the potion roll, and its window is still open.**
+The review said SHIP WITH CHANGE — *"share a session-owned prepared target
+tied to its state, updating it when state changes."* A stored target is a
+cache of a pure function of one field and has to be invalidated, so that
+shape is refused. **But this section's first reason for leaving the pair
+alone was not a reason.** It said the screen and the session read the same
+state and the predicate is written once, in the engine — which was equally
+true of Divination before this slice, whose preview and whose `attempt` both
+went through `Divination.targetFor`. One predicate, two call sites, one state
+read at two moments: the same shape, fixed there and left here.
+
+What actually differs is the layer. Everywhere else the dialog owns the
+inputs, so handing the engine the number it printed is handing it the truth.
+Here `BeyonderSession` owns state that is PERSISTED, and it must not take a
+number from the screen as authoritative — that is the one caller that has to
+re-read. So the window stays: the `±5%` digestion stepper is on the same
+screen as Drink, `digest` writes the session's state at once, and `drink`
+reads it at click. Two taps inside one frame roll a Potion Consumption Roll
+against a target one step away from the one printed — the true one, after
+the GM's own tap, but not the one on screen, and **a failed PCR ends the
+character.** Never reproduced, the same two-finger window as every other.
+The fix that needs neither a cache nor a trusted integer is a stale check:
+Drink carries the digestion the screen printed, and the session does nothing
+if it has moved. Not built; named below.
 
 ### The mutations, and what "survives" turned out to mean
 
@@ -6836,8 +6853,11 @@ mutation means the guard did not fire; it does not say the guard exists.
 ### On a device
 
 Emulator (`Medium_Tablet`, API 35). The Academic Researcher as a Sequence 9
-Seer for six, the Antiquarian Dealer for the self-control roll. In every row
-the printed number is the number rolled against:
+Seer for six, the Antiquarian Dealer for the self-control roll. **This is a
+regression pass and proves no fix**: the same table would have read the same
+one commit earlier, because the mismatch this slice removes was never
+produced on a device. The one change it confirms is Detection's caption. In
+every row the printed number is the number rolled against:
 
 | Roll | Printed | Rolled |
 |---|---|---|
@@ -6866,10 +6886,13 @@ Tests: 1750 Kotlin (1242 `core:rules`, 488 `app`, 20 `core:model`) after
 `--rerun-tasks`. The Python suite was not re-run; nothing under `tools/`
 changed.
 
-**No successor is named.** Of 6eg's first table only the potion pair still
-has two sites, refused above. `SelfControl.targetFor` is also called from the
-trait list, which prints the UNMODIFIED target for a row nobody has opened —
-a different question from the dialog's, not a second copy of it.
+**The successor is the potion pair's stale check**, and it overturns a
+refusal this section first recorded on the wrong reason, so its decomposition
+is reviewed before code: what `drink` is handed, what it does when the value
+has moved (nothing, and the screen redraws), and whether the same check
+belongs on `digest`'s neighbours. `SelfControl.targetFor` is also called from
+the trait list, which prints the UNMODIFIED target for a row nobody has
+opened — a different question from the dialog's, not a second copy of it.
 
 ## 6eg. One target, printed and then rolled
 
