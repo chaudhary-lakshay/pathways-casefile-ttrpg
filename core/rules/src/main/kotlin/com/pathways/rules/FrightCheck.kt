@@ -71,8 +71,22 @@ object FrightCheck {
         modifier: Int,
         source: RandomSource,
         effects: List<FrightEffect> = ContentLoader.frightEffects(),
+    ): FrightOutcome = rollAgainst(targetFor(will, modifier), source, effects)
+
+    /** What a Fright Check is rolled against: Will, plus what the scene adds. */
+    fun targetFor(will: Int, modifier: Int): Int = will + modifier
+
+    /**
+     * The check itself, against a [target] already composed by [targetFor] --
+     * what a screen that printed the number calls (6eg, 6eh). Until then the
+     * screen wrote `will + effective` for its caption and this object added
+     * the same two numbers again.
+     */
+    fun rollAgainst(
+        target: Int,
+        source: RandomSource,
+        effects: List<FrightEffect> = ContentLoader.frightEffects(),
     ): FrightOutcome {
-        val target = will + modifier
         val roll = SuccessRoll.against(target, source)
         // By outcome, not by margin: 3 and 4 always succeed whatever the
         // target, and a Will of 6 facing an Outer God at -8 is exactly when

@@ -125,6 +125,12 @@ fun DetectionDialog(
     // a Per roll even when their SPI is better. See Detection.attributeFor.
     val freeRoll = awareness?.freeRoll
     val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness, shock, hurt, spiTrait)
+    // The breakdown of that number, composed once: printed before the roll
+    // and carried by the result after it, so the two lines cannot differ.
+    val parts = Detection.partsFor(
+        spi, per, pickedSituations, pickedWards, pickedItems, bonus, awareness?.pathway,
+        freeRoll, alertness, shock, hurt, spiTrait,
+    )
     // The row grants automatic awareness only against a WEAKER diviner, and
     // this screen holds the target's sheet alone -- so the comparison is the
     // GM's to state. Reset with the row, or a declaration about one pathway's
@@ -337,14 +343,11 @@ fun DetectionDialog(
                         // copy here is how the caption came to say "the higher
                         // of SPI and Per" over a target taken from the row's
                         // own attribute.
-                        Detection.attributeLine(spi, per, freeRoll, alertness, spiTrait) +
-                            (if (modifier != 0) ", ${signedInt(modifier)}" else "") +
-                            // Named BEFORE the roll as well as after it: the
-                            // breakdown and the target above it must reconcile
-                            // (6ag, 6ai), and shock moves the target (Codex).
-                            (if (shock != 0) ", ${signedInt(shock)} shock" else "") +
-                            (if (hurt != 0) ", ${signedInt(hurt)} hurt or tired" else "") +
-                            ". Free action, costs no SPI.",
+                        // Named BEFORE the roll as well as after it: the
+                        // breakdown and the target above it must reconcile
+                        // (6ag, 6ai). It is the result's own list, so each
+                        // circumstance is itemised here as it is there.
+                        parts.joinToString(", ") + ". Free action, costs no SPI.",
                         style = MaterialTheme.typography.bodySmall,
                     )
                     TextButton(
@@ -352,21 +355,7 @@ fun DetectionDialog(
                             // One roll per sensing; the re-entrancy guard the
                             // divination and ritual dialogs both needed.
                             if (result != null) return@TextButton
-                            result = Detection.attempt(
-                                alertness = alertness,
-                                spiModifier = spiTrait,
-                                shock = shock,
-                                hurt = hurt,
-                                spi = spi,
-                                per = per,
-                                situations = pickedSituations,
-                                techniques = pickedWards,
-                                items = pickedItems,
-                                awarenessBonus = bonus,
-                                awarenessLabel = awareness?.pathway,
-                                freeRoll = freeRoll,
-                                source = dice,
-                            )
+                            result = Detection.rollAgainst(target, dice, parts)
                         },
                     ) { Text("Sense") }
                 }

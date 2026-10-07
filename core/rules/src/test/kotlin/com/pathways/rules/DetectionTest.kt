@@ -449,4 +449,27 @@ class DetectionTest {
             )
         }
     }
+
+    /**
+     * A screen that prints the target and its breakdown and then rolls must
+     * roll THAT target and carry THAT breakdown. Composing either a second
+     * time inside the roll is two call sites answering one question (6eh).
+     */
+    @Test
+    fun `a roll against a composed target is the attempt that composed it`() {
+        val target = Detection.targetFor(spi = 11, per = 10, modifier = -2, shock = -1, hurt = -1)
+        val situation = Detection.modifiers().first { it.modifier == -2 }
+        val parts = Detection.partsFor(spi = 11, per = 10, situations = listOf(situation), shock = -1, hurt = -1)
+        val rolled = Detection.rollAgainst(target, rolling(9), parts)
+        assertEquals(7, rolled.roll.target, "judged against the target it was handed")
+        assertEquals(parts, rolled.parts)
+        assertEquals(
+            Detection.attempt(
+                spi = 11, per = 10, situations = listOf(situation), shock = -1, hurt = -1,
+                source = rolling(9),
+            ),
+            rolled,
+        )
+        assertEquals(listOf("as printed"), Detection.rollAgainst(target, rolling(9), listOf("as printed")).parts)
+    }
 }

@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.pathways.rules.BurnKind
 import com.pathways.rules.Pools
 import com.pathways.rules.Boons
+import com.pathways.rules.RitualResolution
 import com.pathways.rules.NonStandardPathways
 import com.pathways.rules.RandomSource
 import com.pathways.rules.RitualOutcome
@@ -337,14 +338,9 @@ fun BoonDialog(
                             // button leaves the tree charges the fuel again,
                             // and below 0 that buys permanent CoR.
                             if (outcome != null) return@TextButton
-                            val rolled = Boons.attempt(
-                                skillLevel = effectiveSkill,
-                                cor = cor,
-                                sequence = sequence,
-                                source = dice,
-                                chosen = picks,
-                                gmValue = overrides,
-                            )
+                            // Against the target printed above, never
+                            // composed a second time here (6eg, 6eh).
+                            val rolled = RitualResolution.rollAgainst(target, dice)
                             outcome = rolled
                             // Spent whether or not the Great One answers:
                             // "No effect. SPI and materials spent" (p. 62).

@@ -119,11 +119,23 @@ object Concentration {
         hurt: Int = 0,
         fromTraits: Int = 0,
     ): ConcentrationOutcome {
-        require(disturbed) { "the book calls for no roll here: ${printed()}" }
         // Through [targetFor], never re-derived: the caption above the button
         // and the roll under it take the same four terms or they disagree
         // (6ag, 6ai).
-        val target = targetFor(will, shock, hurt, fromTraits)
+        return rollAgainst(targetFor(will, shock, hurt, fromTraits), disturbed, source)
+    }
+
+    /**
+     * The roll itself, against a [target] already composed by [targetFor].
+     *
+     * What a screen that printed the number calls, so the printed target and
+     * the rolled one are the same value rather than the same arguments handed
+     * over twice (6eg, 6eh). [disturbed] stays here and not only on
+     * [attempt]: the book calls for no roll while nothing disturbs the focus,
+     * and that has to be refused on the path production takes.
+     */
+    fun rollAgainst(target: Int, disturbed: Boolean, source: RandomSource): ConcentrationOutcome {
+        require(disturbed) { "the book calls for no roll here: ${printed()}" }
         return ConcentrationOutcome(target, SuccessRoll.against(target, source))
     }
 }

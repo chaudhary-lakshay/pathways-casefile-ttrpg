@@ -199,4 +199,28 @@ class BoonsTest {
         assertNotNull(granting.consequences.single { "Critical Failure Table" in it })
         assertTrue("doubling the penalty" in granting.boonLevelRule)
     }
+
+    /**
+     * A screen that prints "3d6 <= N" and then rolls must roll against N.
+     * Composing N a second time inside the roll is two call sites answering
+     * one question (6eg, 6eh), so the roll takes the composed target and
+     * the older entry point is that roll with the target composed first.
+     */
+    @Test
+    fun `a prayer is one roll against the target the screen printed`() {
+        // With a modifier AND a GM's pick inside it, so that an attempt which
+        // dropped either reads a different number: this test first passed
+        // neither, and `attempt` ignoring both left every test here green.
+        val offering = BoonModifier("Sacrifice quality", "a great offering", 1, "+1 to +3", 3)
+        val plain = Boons.targetFor(skillLevel = 14, cor = 0, sequence = 8)
+        val picked = Boons.targetFor(14, 0, 8, listOf(offering), mapOf(offering.key to 3))
+        assertEquals(plain + 3, picked)
+
+        val rolled = Boons.attempt(14, 0, 8, fixed(4), listOf(offering), mapOf(offering.key to 3))
+        assertEquals(picked, rolled.roll.target)
+        assertEquals(RitualResolution.rollAgainst(picked, fixed(4)), rolled)
+        assertEquals(plain + 1, Boons.attempt(14, 0, 8, fixed(4), listOf(offering)).roll.target)
+        // 3 CoR is -1 on every ritual roll, and a prayer is one.
+        assertEquals(plain - 1, Boons.attempt(14, 3, 8, fixed(4)).roll.target)
+    }
 }

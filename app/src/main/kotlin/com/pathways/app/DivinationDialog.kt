@@ -660,12 +660,10 @@ fun DivinationDialog(
                         // would charge the SPI again -- which below 0 buys
                         // Soul Debt, and that CoR never comes back (Codex).
                         if (outcome != null) return@TextButton
-                        val result = Divination.attempt(
-                            skill = skillLevel,
-                            difficulty = difficulty,
-                            source = dice,
-                            extras = extras,
-                            requiresCritical = protection.requiresCritical,
+                        // Against the target printed above, never composed
+                        // a second time here (6eg, 6eh).
+                        val result = Divination.rollAgainst(
+                            target, dice, requiresCritical = protection.requiresCritical,
                         )
                         outcome = result
                         // Spent whatever the roll says, like the SPI: it is

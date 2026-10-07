@@ -179,10 +179,8 @@ object Boons {
         source: RandomSource,
         chosen: List<BoonModifier> = emptyList(),
         gmValue: Map<String, Int> = emptyMap(),
-    ): RitualOutcome = RitualResolution.attempt(
-        skillLevel = skillLevel + penaltyForSequence(sequence) + modifierTotal(chosen, gmValue),
-        weight = weight(),
-        cor = cor,
-        source = source,
-    )
+    ): RitualOutcome =
+        // Through [targetFor], so the adjustments are written once: this
+        // used to repeat them, and the screen rolls the printed target.
+        RitualResolution.rollAgainst(targetFor(skillLevel, cor, sequence, chosen, gmValue), source)
 }

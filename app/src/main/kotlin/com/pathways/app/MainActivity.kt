@@ -1299,7 +1299,9 @@ private fun FrightDialog(
                     // that summed its own chips would be the second copy.
                     val fromTraits = TraitEffects.clauseBonus(clauses, declared)
                     val effective = modifier + shock + hurt + fromTraits.total
-                    Text("3d6 vs ${will + effective}", style = MaterialTheme.typography.bodySmall)
+                    // Composed once: the caption and the roll are this value.
+                    val target = FrightCheck.targetFor(will, effective)
+                    Text("3d6 vs $target", style = MaterialTheme.typography.bodySmall)
                     if (shock != 0) {
                         Text(
                             "includes $shock from shock — \"${Shock.printed()}\"",
@@ -1323,7 +1325,7 @@ private fun FrightDialog(
                         enabled = outcome == null,
                         onClick = {
                             if (outcome == null) {
-                                outcome = FrightCheck.against(will, effective, appDice)
+                                outcome = FrightCheck.rollAgainst(target, appDice)
                             }
                         },
                     ) {
@@ -1625,7 +1627,7 @@ private fun SelfControlDialog(
                     TextButton(
                         onClick = {
                             if (outcome != null) return@TextButton
-                            outcome = SelfControl.attempt(check, will, iq, appDice, modifier + fromState)
+                            outcome = SelfControl.rollAgainst(check, target, appDice)
                         },
                     ) { Text("Roll") }
                 } else {
@@ -1700,8 +1702,9 @@ private fun ConcentrateDialog(
                         // roll below -- the two call sites this dialog has
                         // always had are why the term is computed once (6ai).
                         val fromTraits = TraitEffects.clauseBonus(clauses, declared)
+                        val target = Concentration.targetFor(will, shock, hurt, fromTraits.total)
                         Text(
-                            "3d6 ≤ ${Concentration.targetFor(will, shock, hurt, fromTraits.total)}" +
+                            "3d6 ≤ $target" +
                                 " — Will $will${Concentration.PENALTY}" +
                                 (if (shock != 0) ", $shock shock" else "") +
                                 (if (hurt != 0) ", $hurt hurt or tired" else "") +
@@ -1712,10 +1715,11 @@ private fun ConcentrateDialog(
                         // both reach the handler before it leaves (6p).
                         TextButton(
                             onClick = {
-                                if (outcome != null) return@TextButton
-                                outcome = Concentration.attempt(
-                                    will, disturbed, appDice, shock, hurt, fromTraits.total,
-                                )
+                                // `disturbed` is read here on purpose: it
+                                // is whether the book calls for a roll at
+                                // all, not a term of the target above.
+                                if (outcome != null || !disturbed) return@TextButton
+                                outcome = Concentration.rollAgainst(target, disturbed, appDice)
                             },
                         ) { Text("Roll") }
                     }

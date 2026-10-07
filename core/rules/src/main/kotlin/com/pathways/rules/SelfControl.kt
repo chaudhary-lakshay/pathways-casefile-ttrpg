@@ -146,8 +146,12 @@ object SelfControl {
         iq: Int,
         source: RandomSource,
         modifier: Int = 0,
-    ): SelfControlOutcome {
-        val target = targetFor(check.spec, will, iq, modifier)
-        return SelfControlOutcome(check, target, SuccessRoll.against(target, source))
-    }
+    ): SelfControlOutcome = rollAgainst(check, targetFor(check.spec, will, iq, modifier), source)
+
+    /**
+     * The roll itself, against a [target] already composed by [targetFor] --
+     * what a screen that printed the number calls (6eg, 6eh).
+     */
+    fun rollAgainst(check: SelfControlCheck, target: Int, source: RandomSource): SelfControlOutcome =
+        SelfControlOutcome(check, target, SuccessRoll.against(target, source))
 }

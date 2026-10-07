@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.assertThrows
 
 /** Ch. 3's self-control rolls (6am). */
@@ -336,5 +337,29 @@ class SelfControlTest {
             SelfControlRoll(target = 12, attribute = "Will", source = "effect")
         }
         assertThrows<IllegalArgumentException> { SelfControlRoll(source = "effect") }
+    }
+
+    /**
+     * A screen that prints "3d6 <= N" and then rolls must roll against N.
+     * Composing N a second time inside the roll is two call sites answering
+     * one question (6eg, 6eh), so the roll takes the composed target and
+     * the older entry point is that roll with the target composed first.
+     */
+    @Test
+    fun `a roll against a composed target is the attempt that composed it`() {
+        val curious = check("Curious")
+        val target = SelfControl.targetFor(curious.spec, will = 10, iq = 10, modifier = -3)
+        val rolled = SelfControl.rollAgainst(curious, target, rolling(9))
+        assertEquals(target, rolled.target)
+        assertEquals(target, rolled.roll.target, "judged against the target it was handed")
+        assertEquals(curious, rolled.check)
+        assertEquals(SelfControl.attempt(curious, will = 10, iq = 10, source = rolling(9), modifier = -3), rolled)
+        // A different number is a different verdict off the same dice.
+        assertNotEquals(SelfControl.attempt(curious, will = 10, iq = 10, source = rolling(9)), rolled)
+
+        // Curious prints a flat target, so it cannot tell Will from IQ.
+        // Impulsive is keyed on IQ-2, and the two attributes differ here.
+        val impulsive = check("Impulsive")
+        assertEquals(10, SelfControl.attempt(impulsive, will = 7, iq = 12, source = rolling(9)).target)
     }
 }

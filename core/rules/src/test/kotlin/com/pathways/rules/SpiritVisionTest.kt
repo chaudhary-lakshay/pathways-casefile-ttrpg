@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -195,5 +196,29 @@ class SpiritVisionTest {
         assertEquals(listed.size, grantedAtNine.size)
         assertEquals(setOf("Visionary"), listed - grantedAtNine)
         assertEquals(setOf("Moon"), grantedAtNine - listed)
+    }
+
+    /**
+     * A screen that prints the target and its breakdown and then rolls must
+     * roll THAT target and carry THAT breakdown. Composing either a second
+     * time inside the roll is two call sites answering one question (6eh).
+     */
+    @Test
+    fun `a roll against a composed target is the attempt that composed it`() {
+        val target = SpiritVision.targetFor(10, shock = -4, hurt = -1)
+        val parts = SpiritVision.partsFor(10, shock = -4, hurt = -1)
+        val rolled = SpiritVision.rollAgainst(target, fixed(3), parts)
+        assertEquals(5, rolled.roll.target, "judged against the target it was handed")
+        assertEquals(parts, rolled.parts)
+        assertEquals(SpiritVision.attempt(10, fixed(3), shock = -4, hurt = -1), rolled)
+        // The parts are carried, not rebuilt: what the screen printed is what
+        // the result holds, even where no input could have produced it.
+        assertEquals(listOf("as printed"), SpiritVision.rollAgainst(target, fixed(3), listOf("as printed")).parts)
+
+        // A success is read by its MARGIN, a critical or a failure by its
+        // outcome. 2+2+2 against 11 succeeds by 5, and that is not the row a
+        // bare success names -- which is what makes the difference visible.
+        assertNotEquals(SpiritVision.rowForOutcome(Outcome.SUCCESS), SpiritVision.rowFor(5))
+        assertEquals(SpiritVision.rowFor(5), SpiritVision.rollAgainst(11, fixed(2), parts).row)
     }
 }

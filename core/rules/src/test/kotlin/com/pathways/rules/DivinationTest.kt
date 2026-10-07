@@ -613,4 +613,26 @@ class DivinationTest {
         assertEquals(-4, scope)
         assertEquals(6, Divination.targetFor(14, hard, scope))
     }
+
+    /**
+     * A screen that prints "3d6 <= N" and then rolls must roll against N.
+     * Composing N a second time inside the roll is two call sites answering
+     * one question (6eg, 6eh), so the roll takes the composed target and
+     * the older entry point is that roll with the target composed first.
+     */
+    @Test
+    fun `a roll against a composed target is the attempt that composed it`() {
+        val band = Divination.difficulties().first()
+        val target = Divination.targetFor(12, band, extras = -3)
+        val rolled = Divination.rollAgainst(target, fixed(3))
+        assertEquals(target, rolled.roll.target, "judged against the target it was handed")
+        assertEquals(Divination.attempt(12, band, fixed(3), extras = -3), rolled)
+        // Sequence Immunity's critical-only rule rides with the roll, not
+        // with the inputs that composed the number.
+        assertEquals(
+            Divination.attempt(12, band, fixed(3), extras = -3, requiresCritical = true),
+            Divination.rollAgainst(target, fixed(3), requiresCritical = true),
+        )
+        assertNotEquals(rolled, Divination.rollAgainst(target, fixed(3), requiresCritical = true))
+    }
 }

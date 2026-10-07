@@ -325,30 +325,62 @@ object Detection {
         hurt: Int = 0,
         spiModifier: Int = 0,
         source: RandomSource,
-    ): DetectionResult {
-        val total = modifierTotal(situations, techniques, items, awarenessBonus)
-        val roll = SuccessRoll.against(
-            targetFor(spi, per, total, freeRoll, alertness, shock, hurt, spiModifier),
-            source,
-        )
-        val parts = buildList {
-            // The attribute line carries the trait itself, because it moved the
-            // attribute rather than the target beside it -- naming it twice
-            // would double it in a breakdown that has to sum (6ag).
-            add(attributeLine(spi, per, freeRoll, alertness, spiModifier))
-            if (shock != 0) add("shock ${signed(shock)}")
-            if (hurt != 0) add("hurt or tired ${signed(hurt)}")
-            situations.filter { it.modifier != 0 }
-                .forEach { add("${it.situation} ${signed(it.modifier)}") }
-            techniques.filter { (it.detectionBonus ?: 0) != 0 }
-                .forEach { add("${it.name} ${signed(it.detectionBonus ?: 0)}") }
-            items.filter { (it.detectionBonus ?: 0) != 0 }
-                .forEach { add("${it.name} ${signed(it.detectionBonus ?: 0)}") }
-            if (awarenessBonus != 0) {
-                add("${awarenessLabel ?: "pathway ability"} ${signed(awarenessBonus)}")
-            }
-        }
+    ): DetectionResult = rollAgainst(
+        targetFor(
+            spi, per, modifierTotal(situations, techniques, items, awarenessBonus),
+            freeRoll, alertness, shock, hurt, spiModifier,
+        ),
+        source,
+        partsFor(
+            spi, per, situations, techniques, items, awarenessBonus, awarenessLabel,
+            freeRoll, alertness, shock, hurt, spiModifier,
+        ),
+    )
+
+    /**
+     * The roll itself, against a [target] already composed by [targetFor],
+     * carrying the breakdown already composed by [partsFor] -- what a screen
+     * that printed both calls, so each is composed once (6eg, 6eh).
+     */
+    fun rollAgainst(target: Int, source: RandomSource, parts: List<String>): DetectionResult {
+        val roll = SuccessRoll.against(target, source)
         return DetectionResult(roll, outcomeFor(roll), parts)
+    }
+
+    /**
+     * The breakdown of [targetFor]'s number, one part per source. The screen
+     * prints it before the roll and the result carries it after, and it is
+     * the same list both times because it is built once.
+     */
+    fun partsFor(
+        spi: Int,
+        per: Int,
+        situations: List<DetectionModifier> = emptyList(),
+        techniques: List<AntiDivinationTechnique> = emptyList(),
+        items: List<AntiDivinationItem> = emptyList(),
+        awarenessBonus: Int = 0,
+        awarenessLabel: String? = null,
+        freeRoll: String? = null,
+        alertness: Int = 0,
+        shock: Int = 0,
+        hurt: Int = 0,
+        spiModifier: Int = 0,
+    ): List<String> = buildList {
+        // The attribute line carries the trait itself, because it moved the
+        // attribute rather than the target beside it -- naming it twice
+        // would double it in a breakdown that has to sum (6ag).
+        add(attributeLine(spi, per, freeRoll, alertness, spiModifier))
+        if (shock != 0) add("shock ${signed(shock)}")
+        if (hurt != 0) add("hurt or tired ${signed(hurt)}")
+        situations.filter { it.modifier != 0 }
+            .forEach { add("${it.situation} ${signed(it.modifier)}") }
+        techniques.filter { (it.detectionBonus ?: 0) != 0 }
+            .forEach { add("${it.name} ${signed(it.detectionBonus ?: 0)}") }
+        items.filter { (it.detectionBonus ?: 0) != 0 }
+            .forEach { add("${it.name} ${signed(it.detectionBonus ?: 0)}") }
+        if (awarenessBonus != 0) {
+            add("${awarenessLabel ?: "pathway ability"} ${signed(awarenessBonus)}")
+        }
     }
 
     private fun signed(n: Int) = if (n >= 0) "+$n" else "$n"

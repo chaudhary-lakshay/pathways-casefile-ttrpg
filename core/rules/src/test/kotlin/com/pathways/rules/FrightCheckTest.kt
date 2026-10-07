@@ -110,4 +110,22 @@ class FrightCheckTest {
         val outcome = FrightCheck.against(will = 6, modifier = -8, source = fixed(1))
         assertTrue(outcome.passed, "3 on 3d6 is a critical success")
     }
+
+    /**
+     * A screen that prints "3d6 <= N" and then rolls must roll against N.
+     * Composing N a second time inside the roll is two call sites answering
+     * one question (6eg, 6eh), so the roll takes the composed target and
+     * the older entry point is that roll with the target composed first.
+     */
+    @Test
+    fun `a roll against a composed target is the check that composed it`() {
+        assertEquals(8, FrightCheck.targetFor(will = 10, modifier = -2))
+        // 6+6+6 against 8 fails by 10; the table roll is 1+1+2 plus that 10.
+        val rolled = FrightCheck.rollAgainst(8, scripted(6, 6, 6, 1, 1, 2))
+        assertEquals(8, rolled.target)
+        assertEquals(8, rolled.roll.target, "judged against the target it was handed")
+        assertEquals(10, rolled.margin)
+        assertEquals(14, rolled.effectRoll)
+        assertEquals(FrightCheck.against(10, -2, scripted(6, 6, 6, 1, 1, 2)), rolled)
+    }
 }

@@ -421,11 +421,21 @@ object Divination {
         source: RandomSource,
         extras: Int = 0,
         requiresCritical: Boolean = false,
-    ): DivinationOutcome {
-        val target = targetFor(skill, difficulty, extras)
-        val roll = SuccessRoll.against(target, source)
-        return read(roll, 0, requiresCritical)
-    }
+    ): DivinationOutcome = rollAgainst(targetFor(skill, difficulty, extras), source, requiresCritical)
+
+    /**
+     * The roll itself, against a [target] already composed by [targetFor] --
+     * what a screen that printed the number calls (6eg, 6eh).
+     *
+     * [requiresCritical] rides with the roll and not with the inputs that
+     * composed the number: Sequence Immunity changes how the dice are READ,
+     * never what they are rolled against.
+     */
+    fun rollAgainst(
+        target: Int,
+        source: RandomSource,
+        requiresCritical: Boolean = false,
+    ): DivinationOutcome = read(SuccessRoll.against(target, source), 0, requiresCritical)
 
     /**
      * Whether a burn can still move [outcome] (p. 55).

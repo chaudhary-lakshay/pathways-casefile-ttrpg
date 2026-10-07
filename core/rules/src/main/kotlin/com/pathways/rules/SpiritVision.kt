@@ -194,13 +194,20 @@ object SpiritVision {
         source: RandomSource,
         shock: Int = 0,
         hurt: Int = 0,
-    ): SpiritVisionResult {
+    ): SpiritVisionResult =
         // Through [targetFor], never re-derived: the caption above the button
         // and the roll under it take the same terms or they disagree.
-        val target = targetFor(per, shock, hurt)
+        rollAgainst(targetFor(per, shock, hurt), source, partsFor(per, shock, hurt))
+
+    /**
+     * The roll itself, against a [target] already composed by [targetFor],
+     * carrying the [parts] already composed by [partsFor] -- what a screen
+     * that printed both calls, so each is composed once (6eg, 6eh).
+     */
+    fun rollAgainst(target: Int, source: RandomSource, parts: List<String>): SpiritVisionResult {
         val roll = SuccessRoll.against(target, source)
         val row = if (roll.outcome == Outcome.SUCCESS) rowFor(roll.margin)
         else rowForOutcome(roll.outcome)
-        return SpiritVisionResult(roll, row, partsFor(per, shock, hurt))
+        return SpiritVisionResult(roll, row, parts)
     }
 }

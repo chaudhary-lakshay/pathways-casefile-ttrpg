@@ -117,4 +117,31 @@ class ConcentrationTest {
         val fields = ConcentrationOutcome::class.java.declaredFields.map { it.name }.toSet()
         assertEquals(setOf("target", "roll"), fields)
     }
+
+    /**
+     * A screen that prints "3d6 <= N" and then rolls must roll against N.
+     * Composing N a second time inside the roll is two call sites answering
+     * one question (6eg, 6eh), so the roll takes the composed target and
+     * the older entry point is that roll with the target composed first.
+     */
+    @Test
+    fun `a roll against a composed target is the attempt that composed it`() {
+        val target = Concentration.targetFor(will = 12, shock = -2, hurt = -1, fromTraits = 1)
+        val rolled = Concentration.rollAgainst(target, disturbed = true, source = rolling(7))
+        assertEquals(7, rolled.target)
+        assertEquals(7, rolled.roll.target, "judged against the target it was handed")
+        assertEquals(
+            Concentration.attempt(12, disturbed = true, source = rolling(7), shock = -2, hurt = -1, fromTraits = 1),
+            rolled,
+        )
+        // The book calls for no roll while nothing disturbs the focus, and
+        // that is refused on the path the screen takes, not only on attempt.
+        // Refused BEFORE the dice: a guard placed after the roll throws the
+        // same exception and has already drawn from the source.
+        var draws = 0
+        assertThrows<IllegalArgumentException> {
+            Concentration.rollAgainst(target, disturbed = false, source = RandomSource { draws++; 3 })
+        }
+        assertEquals(0, draws)
+    }
 }

@@ -75,6 +75,9 @@ fun SpiritVisionDialog(
     var result by remember { mutableStateOf<SpiritVisionResult?>(null) }
     val activation = SpiritVision.activation()
     val target = SpiritVision.targetFor(per, shock, hurt)
+    // Composed once, beside the target: the caption prints these and the
+    // result carries them, and a second call would be a second answer.
+    val parts = SpiritVision.partsFor(per, shock, hurt)
     val affordable = spiAvailable >= activation
 
     AlertDialog(
@@ -92,7 +95,7 @@ fun SpiritVisionDialog(
                 )
                 Text(
                     "Roll $target or under" +
-                        SpiritVision.partsFor(per, shock, hurt).joinToString(
+                        parts.joinToString(
                             prefix = "  (", postfix = ")",
                         ),
                     style = MaterialTheme.typography.bodySmall,
@@ -153,7 +156,7 @@ fun SpiritVisionDialog(
                     // action here: the book spends to activate, and a reading
                     // that failed still cost the point.
                     onSpendSpi(activation)
-                    result = SpiritVision.attempt(per, dice, shock, hurt)
+                    result = SpiritVision.rollAgainst(target, dice, parts)
                 },
             ) { Text(if (result == null) "Look ($activation SPI)" else "Look again ($activation SPI)") }
         },
