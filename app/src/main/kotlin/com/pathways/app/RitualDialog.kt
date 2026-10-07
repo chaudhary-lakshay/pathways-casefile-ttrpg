@@ -179,10 +179,11 @@ fun RitualDialog(
     // The GM's pick inside a cell that prints more than a number. Null until
     // a chip is tapped, so the engine stays the only authority on the default.
     //
-    // Held WITH its row and read back through pickInside, so a pick comes
-    // back if the GM returns to its row, shown selected. (6ef did this to keep
-    // a stale pick out of the Roll handler; the handler reads no state at all
-    // since 6eg, so what is left of the reason is the returning pick.)
+    // Held WITH its row and read back through pickInside, which does two
+    // jobs. It is what keeps Good's +2 from reaching `targetFor` beside
+    // Excellent -- that throws while this dialog DRAWS, and nothing else
+    // resets the pair now that it is not keyed on the row. And it brings a
+    // pick back, shown selected, when the GM returns to its row.
     var heldPreparationPick by remember { mutableStateOf<Pair<RitualPreparation, Int>?>(null) }
     var heldLinkPick by remember { mutableStateOf<Pair<TargetLink, Int>?>(null) }
     val preparationPick = pickInside(preparation, heldPreparationPick)

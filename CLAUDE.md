@@ -124,12 +124,15 @@ is that roll with the target composed first, and the handler is one line
 passing the composition's own `target`. **The warrant is not the race**: the
 dialog composed its target at two call sites from the same fifteen arguments,
 and 6ef's device pass had written down that nothing but the screen pinned
-them together. Read it for three things. **The census**: seven dialogs
-compute a preview and then call `attempt` again; Ritual was the only one
-whose handler mixed eight state reads with composition values, two more
-(Divination's `difficulty`, self-control's `modifier`) mix one read into a
-sum nothing validates, and **six still have two call sites whose agreement is
-pinned by reading** — available, not owed. **A comment at `MainActivity.kt:
+them together. Read it for three things. **The census**: eight rolls print
+a target and then compose it again to roll — Ritual, Divination,
+self-control, Boon, Detection, Concentration, Spirit Vision and the potion
+roll (whose two sites are in two FILES) — and the Fright Check writes its sum
+in the screen and again in the engine. Ritual was the only one that could
+throw. **Its first draft listed seven and called the rest "available, not
+owed"**: the header query returned two rows the table left out, and "a
+mismatch nobody has seen" is a drift argument the owner's own rule rejects —
+*the same predicate at two call sites is the defect.* **A comment at `MainActivity.kt:
 1566` says "the two taps are two frames"**, which is this slice's premise
 denied; neither is reproduced and the slice does not depend on which is
 right. And **the fix made its own test's equality blind**: `attempt ==
@@ -140,7 +143,8 @@ discarded draw (4, 4, 3 now, RED-proved). One behaviour changes by contract:
 an unspeakable language tapped in the same frame as Roll used to throw and
 now rolls the number on screen. Design review before code, diff review before
 commit, both through `codex exec`. **Device-verified on the emulator**: `3d6
-≤ 15` then `8 vs 15`; `3d6 ≤ 16` then `9 vs 16`. **No successor is named.**
+≤ 15` then `8 vs 15`; `3d6 ≤ 16` then `9 vs 16`. **The successor is the
+seven pairs left and the Fright Check's inline sum**, design review first.
 
 **6ef is next, and it builds the slice 6ee named: the GM picks inside a
 ritual cell that prints a span.** Six cells across chapter 7's three tables

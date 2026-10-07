@@ -6769,27 +6769,44 @@ returned.
 
 ### The census this rests on
 
-`grep -n "\.targetFor(\|\.attempt(\|\.against(" app/src/main/kotlin/com/pathways/app/*.kt`,
-each pair read at both ends:
+`grep -n "\.targetFor(\|\.attempt(\|\.against(\|\.rollAgainst(\|SkillRoll\.at(" app/src/main/kotlin/com/pathways/app/*.kt`
+returns 27 lines. One is not a roll (`AntiDivination.against` composes a
+penalty). The rest, each read at both ends:
 
-| Dialog | Preview | Roll handler passes | Verdict |
+**A printed target and a roll composed at two call sites — eight, one fixed:**
+
+| Roll | Preview | Roll handler passes | Can it throw? |
 |---|---|---|---|
-| Ritual | `targetFor`, 15 args | 8 state reads beside 4 composition values | **fixed here** |
-| Divination | `targetFor(skill, difficulty, extras)` | `difficulty` (state) beside `extras` (value) | sum only; left |
-| Self-control | `targetFor(…, modifier + fromState)` | `modifier` (state) beside `fromState` (value) | sum only; left |
-| Boon | `Boons.targetFor` | composition values and parameters | consistent |
-| Detection | `Detection.targetFor` | composition values and parameters | consistent |
-| Concentration | `Concentration.targetFor` | parameters and `fromTraits.total` | consistent |
-| Spirit Vision | `SpiritVision.targetFor` | parameters | consistent |
-| Damage (×2), vital rolls, fright recovery | a target | `SuccessRoll.against(target, dice)` | already this shape |
+| Ritual | `targetFor`, 15 args | 8 state reads beside 4 composition values | yes — **fixed here** |
+| Divination | `targetFor(skill, difficulty, extras)` | `difficulty` (state) beside `extras` (value) | no, a sum |
+| Self-control | `targetFor`, at TWO sites (the trait list's base figure, the dialog's) | `modifier` (state) beside `fromState` (value) | no, a sum |
+| Boon | `Boons.targetFor` | composition values and parameters | no |
+| Detection | `Detection.targetFor` | composition values and parameters | no |
+| Concentration | `Concentration.targetFor` | parameters and `fromTraits.total` | no |
+| Spirit Vision | `SpiritVision.targetFor` | parameters | no |
+| Potion Consumption | `PathwayScreen` prints `targetFor(digestion)` | `BeyonderSession` calls `attempt(state)` | no — two FILES |
 
-**Six dialogs still compute a target at two call sites, and their agreement
-is pinned by reading, not by construction.** The two mixed ones cannot throw:
-a difficulty or a stepper feeds a sum and nothing validates the pair, so the
-worst case is a roll against the number one frame newer than the one printed.
-The same `rollAgainst` shape would close them. It is not built, because it is
-six more engine entry points for a mismatch nobody has seen — available, not
-owed.
+**A sum written in the screen and again in the engine — one.** The Fright
+Check prints `3d6 vs ${will + effective}` and then calls
+`FrightCheck.against(will, effective, …)`, which adds the same two numbers.
+
+**One call site, nothing printed before the dice — three.** The skill roll,
+the attack and the Acrobatic Dodge compose their modifiers inside the handler
+from unkeyed state and print the target only off the outcome.
+
+**Already rolling against a number they were handed — four.** Both
+`DamageDialog` rolls, the vital rolls and the fright recovery call
+`SuccessRoll.against(target, dice)`.
+
+**This table's first version listed seven pairs and called the remaining six
+"available, not owed". Both were wrong.** Its header query returns the potion
+pair and the Fright Check and the table listed neither; the skill roll, the
+most-used roll in the app, was not in it at all. And "a mismatch nobody has
+seen" is a drift argument, which the owner's rule rejects in so many words:
+*the same predicate at two call sites is the defect, not the drift it
+produces.* This section's own warrant — one target instead of two — applies
+to every row it had left. None of the seven can throw, which is why they are
+not this slice; they are the next one.
 
 **A comment in the tree disagrees with this slice's premise, and neither is
 proven.** `MainActivity.kt:1566`, above the self-control roll: *"Compose
@@ -6853,8 +6870,13 @@ Tests: 1743 Kotlin (1235 `core:rules`, 488 `app`, 20 `core:model`) after
 `--rerun-tasks`; the 356 Python tests were not re-run, nothing under `tools/`
 having changed.
 
-**No successor is named.** The six two-call-site dialogs above are the
-obvious next reading of this one, and the table says why they are not owed.
+**The successor is the seven rows of the first table that still say "no",
+and the Fright Check's inline sum.** It overturns the verdict this section
+first recorded, so its decomposition is reviewed before code, with the
+handlers named. Two things to settle there rather than assume: whether each
+engine needs a new entry point at all (the Boon dialog can call
+`RitualResolution.rollAgainst` as it stands), and whether the potion pair is
+the same defect or a screen reading the state its session owns.
 
 ## 6ef. The span a chip printed and the roll never took
 
