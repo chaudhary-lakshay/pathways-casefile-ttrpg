@@ -179,11 +179,10 @@ fun RitualDialog(
     // The GM's pick inside a cell that prints more than a number. Null until
     // a chip is tapped, so the engine stays the only authority on the default.
     //
-    // Held WITH its row and read back through pickInside, never keyed on the
-    // row: `targetFor` refuses a pick outside its cell, and a keyed `remember`
-    // resets one recomposition late -- so Good's +2, a tap on Excellent and a
-    // tap on Roll inside one frame would throw in the click handler. A pick
-    // therefore comes back if the GM returns to its row, shown selected.
+    // Held WITH its row and read back through pickInside, so a pick comes
+    // back if the GM returns to its row, shown selected. (6ef did this to keep
+    // a stale pick out of the Roll handler; the handler reads no state at all
+    // since 6eg, so what is left of the reason is the returning pick.)
     var heldPreparationPick by remember { mutableStateOf<Pair<RitualPreparation, Int>?>(null) }
     var heldLinkPick by remember { mutableStateOf<Pair<TargetLink, Int>?>(null) }
     val preparationPick = pickInside(preparation, heldPreparationPick)
@@ -935,24 +934,13 @@ fun RitualDialog(
                                 // fuel again, and below 0 that buys permanent
                                 // CoR.
                                 if (outcome != null) return@TextButton
-                                val rolled = RitualResolution.attempt(
-                                    effectiveSkill + (answer?.ritualModifier ?: 0),
-                                    weight,
-                                    cor,
-                                    dice,
-                                    preparation,
-                                    language,
-                                    mode,
-                                    link,
-                                    flourish,
-                                    support,
-                                    complexity = complexity,
-                                    powerSources = declaration,
-                                    // Read NOW, not the values this
-                                    // composition drew with: see the picks.
-                                    preparationValue = pickInside(preparation, heldPreparationPick),
-                                    linkValue = pickInside(link, heldLinkPick),
-                                )
+                                // Against the number PRINTED above, and
+                                // nothing read here: this handler belongs
+                                // to the composition that drew it, so a
+                                // state it read now could be a row, a mode
+                                // or a complexity that number never saw --
+                                // which targetFor refuses by throwing.
+                                val rolled = RitualResolution.rollAgainst(target, dice)
                                 outcome = rolled
                                 // The fuel is spent whether or not it works:
                                 // "No effect. SPI and materials spent" (p. 62).

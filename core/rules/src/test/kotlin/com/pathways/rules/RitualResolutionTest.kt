@@ -327,6 +327,37 @@ class RitualResolutionTest {
         assertEquals(17, linked.roll.target)
     }
 
+    /**
+     * The dialog prints "3d6 <= N" and then rolls. Handing the same fifteen
+     * inputs to a second call is two sites answering one question, and the
+     * second runs in a click handler that can read a row the first never saw
+     * (6ef). So the roll is made against the number that was PRINTED, and
+     * [RitualResolution.attempt] is that roll with the target composed first.
+     */
+    @Test
+    fun `a roll against a composed target is the attempt that composed it`() {
+        val good = RitualResolution.preparationNamed("Good")
+        val target = RitualResolution.targetFor(14, light, cor = 0, preparation = good, preparationValue = 2)
+        val rolled = RitualResolution.rollAgainst(target, fixed(5))
+        assertEquals(16, rolled.target)
+        assertEquals(16, rolled.roll.target, "judged against the target it was handed")
+        assertEquals(
+            RitualResolution.attempt(14, light, 0, fixed(5), good, preparationValue = 2),
+            rolled,
+        )
+
+        // The table's second sample comes off the same source, in the same
+        // order: 5+5+5 against 4 misses by 11, then 4+4+3 shifted by -2. The
+        // last face differs on purpose -- `scripted` repeats its final face,
+        // so 4+4+4 reads the same with a draw taken and thrown away between.
+        val misfire = RitualResolution.rollAgainst(4, scripted(5, 5, 5, 4, 4, 3))
+        assertEquals(9, misfire.criticalRoll)
+        assertEquals(
+            RitualResolution.attempt(4, light, cor = 0, source = scripted(5, 5, 5, 4, 4, 3)),
+            misfire,
+        )
+    }
+
     @Test
     fun `a botched preparation can cost more than the ritual's own weight`() {
         // -4 preparation against a Heavy ritual's -4 is -8 before corruption:

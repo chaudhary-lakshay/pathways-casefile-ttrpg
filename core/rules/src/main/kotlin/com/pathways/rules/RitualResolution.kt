@@ -218,12 +218,35 @@ object RitualResolution {
         successBands: List<RitualSuccess> = ContentLoader.ritualSuccess(),
         preparationValue: Int? = null,
         linkValue: Int? = null,
-    ): RitualOutcome {
-        val target = targetFor(
+    ): RitualOutcome = rollAgainst(
+        targetFor(
             skillLevel, weight, cor, preparation, language, mode, link, flourish,
             support, complexity, powerSources,
             preparationValue = preparationValue, linkValue = linkValue,
-        )
+        ),
+        source, failures, criticals, successBands,
+    )
+
+    /**
+     * The roll itself, against a [target] already composed by [targetFor].
+     *
+     * A screen that prints "3d6 <= N" and then rolls must roll against N.
+     * Handing [attempt] the same inputs a second time is two call sites
+     * answering one question, and the second runs in a click handler: it can
+     * read a row, a mode or a complexity the printed number never saw, and
+     * [targetFor] refuses the mismatch by throwing (6ef, 6eg).
+     *
+     * [target] is not checked for where it came from. [classify] needs the
+     * dice and the number to agree, not the number's provenance, and [pushed]
+     * already re-reads a roll against a target no [targetFor] returned.
+     */
+    fun rollAgainst(
+        target: Int,
+        source: RandomSource,
+        failures: List<RitualFailure> = ContentLoader.ritualFailures(),
+        criticals: List<RitualCritical> = ContentLoader.ritualCriticals(),
+        successBands: List<RitualSuccess> = ContentLoader.ritualSuccess(),
+    ): RitualOutcome {
         val roll = SuccessRoll.against(target, source)
         return classify(roll, target, failures, criticals, successBands) { shift ->
             // The shift belongs to the by-margin row only; the 17-18 row says

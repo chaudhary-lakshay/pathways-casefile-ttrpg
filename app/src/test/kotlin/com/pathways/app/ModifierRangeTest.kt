@@ -131,16 +131,15 @@ class ModifierRangeTest {
 
     /**
      * A pick is held WITH the row it was made inside, and read back only for
-     * that row. A `remember` keyed on the row resets one recomposition late:
-     * Good's +2, a tap on Excellent and a tap on Roll inside one frame handed
-     * the engine Excellent with a 2 it refuses (6ef's diff review).
+     * that row, so Good's +2 can never be handed to the engine beside
+     * Excellent, which refuses it (6ef's diff review).
      */
     @Test
     fun `a pick does not follow the GM onto another row`() {
         val good = RitualMode.FULL.preparationNamed("Good")
         val excellent = RitualMode.FULL.preparationNamed("Excellent")
         assertEquals(2, pickInside(good, good to 2))
-        // What Roll hands the engine after the switch: Excellent's own +3,
+        // What the dialog hands the engine after the switch: Excellent's own +3,
         // where the bare 2 is a refusal.
         assertEquals(3, RitualMode.valueFor(excellent, pickInside(excellent, good to 2)))
         assertThrows<IllegalArgumentException> { RitualMode.valueFor(excellent, 2) }
