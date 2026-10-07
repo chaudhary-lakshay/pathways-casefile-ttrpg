@@ -178,7 +178,7 @@ enum class RitualMode(
          * GM's [chosen] one where the cell prints more than a number.
          *
          * "The GM determines the Preparation Modifier from the player's
-         * declarations" (p. 63), and three of the cells they determine it
+         * declarations" (p. 63), and some of the cells they determine it
          * from are not a number: "+1 to +2", "-1 to -2" and "-4 or worse" in
          * a Full ritual, "-2 to -4" in a Quick one. Section VIII uses them --
          * rituals 3 and 7 print "Long-used sanctified space +2", which is

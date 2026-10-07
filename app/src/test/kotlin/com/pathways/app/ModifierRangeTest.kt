@@ -3,6 +3,7 @@ package com.pathways.app
 import com.pathways.rules.Divination
 import com.pathways.rules.Ranged
 import com.pathways.rules.RitualMode
+import com.pathways.rules.content.TargetLink
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -126,6 +127,30 @@ class ModifierRangeTest {
         assertEquals(endsBeyond(-4), valuesOf(-4, to = null, openEnded = true))
         assertEquals(listOf(1, 2), valuesOf(1, to = 2, openEnded = false))
         assertEquals(listOf(3), valuesOf(3, to = null, openEnded = false))
+    }
+
+    /**
+     * A pick is held WITH the row it was made inside, and read back only for
+     * that row. A `remember` keyed on the row resets one recomposition late:
+     * Good's +2, a tap on Excellent and a tap on Roll inside one frame handed
+     * the engine Excellent with a 2 it refuses (6ef's diff review).
+     */
+    @Test
+    fun `a pick does not follow the GM onto another row`() {
+        val good = RitualMode.FULL.preparationNamed("Good")
+        val excellent = RitualMode.FULL.preparationNamed("Excellent")
+        assertEquals(2, pickInside(good, good to 2))
+        // What Roll hands the engine after the switch: Excellent's own +3,
+        // where the bare 2 is a refusal.
+        assertEquals(3, RitualMode.valueFor(excellent, pickInside(excellent, good to 2)))
+        assertThrows<IllegalArgumentException> { RitualMode.valueFor(excellent, 2) }
+
+        // A link switched off is no row at all, and the engine refuses a pick
+        // with no row to pick it inside.
+        val strong = RitualMode.linkNamed("Strong")
+        val off: TargetLink? = null
+        assertEquals(0, RitualMode.valueFor(off, pickInside(off, strong to 3)))
+        assertThrows<IllegalArgumentException> { RitualMode.valueFor(off, 3) }
     }
 
     @Test

@@ -39,6 +39,7 @@ import com.pathways.rules.RitualPacing
 import com.pathways.rules.RitualResolution
 import com.pathways.rules.content.LanguageProficiency
 import com.pathways.rules.content.RitualComplexity
+import com.pathways.rules.content.RitualPreparation
 import com.pathways.rules.content.SacrificeTier
 import com.pathways.rules.content.TargetLink
 
@@ -80,8 +81,8 @@ private fun signed(n: Int) = if (n >= 0) "+$n" else "$n"
  * The GM's pick inside one cell, when the cell prints more than a number.
  *
  * "The GM determines the Preparation Modifier from the player's declarations"
- * (p. 63), and six cells across chapter 7's three tables hand them a span or
- * a floor to determine it from. Draws nothing for a cell that prints one
+ * (p. 63), and some cells of chapter 7's three tables hand them a span or a
+ * floor to determine it from -- `ModifierRangeTest` holds the list. Draws nothing for a cell that prints one
  * figure, so the row above it stays the whole control there.
  *
  * [applied] is what the ENGINE says the roll is using, not what was tapped:
@@ -178,12 +179,15 @@ fun RitualDialog(
     // The GM's pick inside a cell that prints more than a number. Null until
     // a chip is tapped, so the engine stays the only authority on the default.
     //
-    // Keyed on the ROW as well as the mode, and that is load-bearing:
-    // `targetFor` runs below while this dialog DRAWS and refuses a pick
-    // outside its cell, so a pick that outlived its row -- Good's +2 carried
-    // onto Excellent -- would throw during composition, not on Roll.
-    var preparationPick by remember(mode, preparation) { mutableStateOf<Int?>(null) }
-    var linkPick by remember(mode, link) { mutableStateOf<Int?>(null) }
+    // Held WITH its row and read back through pickInside, never keyed on the
+    // row: `targetFor` refuses a pick outside its cell, and a keyed `remember`
+    // resets one recomposition late -- so Good's +2, a tap on Excellent and a
+    // tap on Roll inside one frame would throw in the click handler. A pick
+    // therefore comes back if the GM returns to its row, shown selected.
+    var heldPreparationPick by remember { mutableStateOf<Pair<RitualPreparation, Int>?>(null) }
+    var heldLinkPick by remember { mutableStateOf<Pair<TargetLink, Int>?>(null) }
+    val preparationPick = pickInside(preparation, heldPreparationPick)
+    val linkPick = pickInside(link, heldLinkPick)
     // Phase II's Flourish Bonus, and the mirror of the link in every respect
     // including this one: keyed on the mode because modifierTotal REFUSES it
     // in quick mode, so an award left over from a full ritual would throw
@@ -593,7 +597,7 @@ fun RitualDialog(
                         printed = preparation.printed,
                         values = valuesOf(preparation.modifier, preparation.best, preparation.openEnded),
                         applied = RitualMode.valueFor(preparation, preparationPick),
-                        onPick = { preparationPick = it },
+                        onPick = { heldPreparationPick = preparation to it },
                     )
 
                     // Quick mode only. In a full ritual the preparation row
@@ -621,7 +625,7 @@ fun RitualDialog(
                                 printed = chosen.printed,
                                 values = valuesOf(chosen.modifier, chosen.best, openEnded = false),
                                 applied = RitualMode.valueFor(chosen, linkPick),
-                                onPick = { linkPick = it },
+                                onPick = { heldLinkPick = chosen to it },
                             )
                         }
                     }
@@ -944,8 +948,10 @@ fun RitualDialog(
                                     support,
                                     complexity = complexity,
                                     powerSources = declaration,
-                                    preparationValue = preparationPick,
-                                    linkValue = linkPick,
+                                    // Read NOW, not the values this
+                                    // composition drew with: see the picks.
+                                    preparationValue = pickInside(preparation, heldPreparationPick),
+                                    linkValue = pickInside(link, heldLinkPick),
                                 )
                                 outcome = rolled
                                 // The fuel is spent whether or not it works:

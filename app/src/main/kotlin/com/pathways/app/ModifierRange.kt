@@ -60,6 +60,18 @@ internal fun valuesOf(from: Int, to: Int?, openEnded: Boolean): List<Int> =
     if (to == null && openEnded) endsBeyond(from) else endsBetween(from, to)
 
 /**
+ * The GM's pick for [row], out of the one [held] with the row it was made
+ * inside -- null for any other row, and for no row at all.
+ *
+ * Filtered on read rather than cleared on change (6dz's design): a click
+ * handler reads state as it stands NOW, and a `remember` keyed on the row
+ * resets only at the next recomposition, so a row tap and a Roll tap inside
+ * one frame carried Good's +2 onto Excellent, which the engine refuses.
+ */
+internal fun <R : Any> pickInside(row: R?, held: Pair<R, Int>?): Int? =
+    held?.takeIf { it.first == row }?.second
+
+/**
  * How many times a "per repeat" row may be counted.
  *
  * One is the row itself: "Previous divination about the same subject
