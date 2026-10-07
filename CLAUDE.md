@@ -112,7 +112,37 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ef is newest, and it builds the slice 6ee named: the GM picks inside a
+**6eg is newest, and it reverses the fix 6ef shipped a day earlier.** 6ef
+closed one stale-state window in the ritual Roll handler by reading the pick
+at click time, and recorded two more beside it. **Reading state later cannot
+close them**: a handler belongs to the composition that drew it, so after a
+mode tap it reads the new `mode` beside the OLD composition's `remember(mode)`
+row, and no click-time read reaches the new objects. The consistent pairing
+runs the other way — roll what was printed. `RitualResolution.rollAgainst
+(target, source)` is what `attempt` did after composing its target, `attempt`
+is that roll with the target composed first, and the handler is one line
+passing the composition's own `target`. **The warrant is not the race**: the
+dialog composed its target at two call sites from the same fifteen arguments,
+and 6ef's device pass had written down that nothing but the screen pinned
+them together. Read it for three things. **The census**: seven dialogs
+compute a preview and then call `attempt` again; Ritual was the only one
+whose handler mixed eight state reads with composition values, two more
+(Divination's `difficulty`, self-control's `modifier`) mix one read into a
+sum nothing validates, and **six still have two call sites whose agreement is
+pinned by reading** — available, not owed. **A comment at `MainActivity.kt:
+1566` says "the two taps are two frames"**, which is this slice's premise
+denied; neither is reproduced and the slice does not depend on which is
+right. And **the fix made its own test's equality blind**: `attempt ==
+rollAgainst(targetFor)` cannot see a draw-order change once one calls the
+other, so the literal numbers beside it are what pin the order — the review's
+LOW was that `scripted(…, 4, 4, 4)` repeats its last face and hides a
+discarded draw (4, 4, 3 now, RED-proved). One behaviour changes by contract:
+an unspeakable language tapped in the same frame as Roll used to throw and
+now rolls the number on screen. Design review before code, diff review before
+commit, both through `codex exec`. **Device-verified on the emulator**: `3d6
+≤ 15` then `8 vs 15`; `3d6 ≤ 16` then `9 vs 16`. **No successor is named.**
+
+**6ef is next, and it builds the slice 6ee named: the GM picks inside a
 ritual cell that prints a span.** Six cells across chapter 7's three tables
 (`Good +1 to +2`, `Poor -1 to -2`, `None -4 or worse`, the quick table's
 `Poor / None -2 to -4`, the links `Strong +2 to +3` and `Weak +0 to -1`)
@@ -152,7 +182,8 @@ took `3d6 ≤ 13` to `≤ 15` and rolled **`15 vs 15`**, a success the unpicked
 decomposition review was on record**: it was checked against the commit body
 and the slice log, and `~/.codex/sessions` held a design review and a diff
 review from the hour before the commit. The nearest thing to a successor is
-the two handler windows.
+the two handler windows — **which 6eg closed, by undoing this slice's
+click-time read.**
 
 **6ee is next, and it ran 6dl's own advice as a sweep: every diagnostic the
 toolchain gives for nothing.** Clean on eight instruments, each recorded with
@@ -1287,7 +1318,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: 6ef, then 6ee, 6ed, 6ec, 6eb, 6ea, 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6eg, then 6ef, 6ee, 6ed, 6ec, 6eb, 6ea, 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1519,7 +1550,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1742 Kotlin** (JUnit 5 — 1234 `core:rules`, 488 `app`, 20 `core:model`) + **356 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1743 Kotlin** (JUnit 5 — 1235 `core:rules`, 488 `app`, 20 `core:model`) + **356 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1704,6 +1735,10 @@ SkillRoll.at(label, base, key, source, mods, ctx): SkillRollOutcome
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
 RitualResolution.attempt(skill, weight, cor, source): RitualOutcome
+RitualResolution.rollAgainst(target, source): RitualOutcome
+                                      // the roll, against a target targetFor
+                                      // already composed -- what a screen that
+                                      // PRINTED the number must call (6eg)
 RitualResolution.canPush(outcome) / .pushed(outcome, points): RitualOutcome
                                       // p.63/66's post-roll push: the same
                                       // dice against a higher target. Keeps or
@@ -1989,10 +2024,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6ef. The slice log
+## 6a-6eg. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6ef is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6eg is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

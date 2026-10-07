@@ -6726,6 +6726,136 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6eg. One target, printed and then rolled
+
+6ef closed one stale-state window in `RitualDialog`'s Roll handler and
+recorded two more beside it as "the nearest thing to a named successor". This
+slice closes all three, and does it by reversing the direction 6ef took.
+
+**Reading state later cannot fix it.** `ce463ab` made the handler read the
+pick "NOW". But a click handler belongs to the composition that drew it: a
+Roll lambda from composition N holds the state objects N's keyed `remember`s
+created. After a tap on a mode chip, `mode` (unkeyed) reads the new value and
+`preparation`, `link` and `flourish` (`remember(mode)`) read N's old objects.
+No amount of reading at click time makes every input current, because the old
+lambda never sees the new objects. The only pairing that is consistent by
+construction is the other one: everything composition N computed.
+
+**And the handler was the second of two call sites.** The dialog composed its
+target while drawing — `targetFor(...)`, fifteen arguments, for the printed
+`3d6 ≤ N` — and then handed `attempt(...)` the same fifteen in the handler.
+6ef's device pass said so in its own words: *"nothing but those two `vs`
+lines pins them to each other."* That is the warrant for this slice. The race
+would not have carried it alone.
+
+**What shipped (`873813c`).** `RitualResolution.rollAgainst(target, source)`
+is what `attempt` did after composing its target; `attempt` is now
+`rollAgainst(targetFor(...), ...)`, so there is one `classify` path and
+`Boons.attempt` is untouched. The handler is one line,
+`RitualResolution.rollAgainst(target, dice)`, where `target` is the
+composition's own `val` — non-null in that branch, and the value on screen.
+The handler now reads exactly one state, the `outcome` re-entrancy guard;
+`spiOwed` and `hpOwed` were composition values already.
+
+`pickInside` and the row-held picks stay. They are what bring a pick back
+when the GM returns to its row, and they filter during composition; the
+click-time reads 6ef added are gone, and the comments that gave the handler
+as their reason are rewritten rather than left to expire.
+
+`rollAgainst` takes a bare `Int` and does not ask where it came from. That is
+deliberate and is in its KDoc: `classify` needs the dice and the number to
+agree, and `pushed` has always re-read a roll against a target no `targetFor`
+returned.
+
+### The census this rests on
+
+`grep -n "\.targetFor(\|\.attempt(\|\.against(" app/src/main/kotlin/com/pathways/app/*.kt`,
+each pair read at both ends:
+
+| Dialog | Preview | Roll handler passes | Verdict |
+|---|---|---|---|
+| Ritual | `targetFor`, 15 args | 8 state reads beside 4 composition values | **fixed here** |
+| Divination | `targetFor(skill, difficulty, extras)` | `difficulty` (state) beside `extras` (value) | sum only; left |
+| Self-control | `targetFor(…, modifier + fromState)` | `modifier` (state) beside `fromState` (value) | sum only; left |
+| Boon | `Boons.targetFor` | composition values and parameters | consistent |
+| Detection | `Detection.targetFor` | composition values and parameters | consistent |
+| Concentration | `Concentration.targetFor` | parameters and `fromTraits.total` | consistent |
+| Spirit Vision | `SpiritVision.targetFor` | parameters | consistent |
+| Damage (×2), vital rolls, fright recovery | a target | `SuccessRoll.against(target, dice)` | already this shape |
+
+**Six dialogs still compute a target at two call sites, and their agreement
+is pinned by reading, not by construction.** The two mixed ones cannot throw:
+a difficulty or a stepper feeds a sum and nothing validates the pair, so the
+worst case is a roll against the number one frame newer than the one printed.
+The same `rollAgainst` shape would close them. It is not built, because it is
+six more engine entry points for a mismatch nobody has seen — available, not
+owed.
+
+**A comment in the tree disagrees with this slice's premise, and neither is
+proven.** `MainActivity.kt:1566`, above the self-control roll: *"Compose
+recomposes on the state write, so the two taps are two frames."* Codex's
+reading in 6ef is that two taps can land inside one frame. Neither has been
+reproduced on a device. This slice does not depend on which is right — one
+target instead of two is the reason it shipped — and the comment is left
+alone for that reason.
+
+### The reviews
+
+**Design, before any code** (`codex exec`, three questions, the Roll handler
+named). No finding on the handler, the entity answer, or the engine shape.
+Two things worth keeping:
+
+- *Ask then Roll in one frame* is not reachable in HEAD or after: the Ask
+  button exists only while `answer == null`, and that same condition
+  withholds Roll.
+- **One behaviour does change, and it is the contract rather than a defect.**
+  A language the caster cannot speak, tapped in the same frame as Roll, used
+  to reach the engine's refusal and throw. It now rolls the target that was
+  on screen when Roll was pressed.
+
+**Diff, before the commit.** No finding on behaviour preservation (same
+defaults, same order of draws, same arguments to `classify`), none on the
+handler, and **one LOW, taken**: the new test's misfire used
+`scripted(5, 5, 5, 4, 4, 4)`, and `scripted` repeats its last face, so a draw
+taken and thrown away between the ritual's roll and the table's reads 4+4+4
+either way. The faces are 4, 4, 3 now. RED-proved by adding that discarded
+`source.roll(6)`: the test fails on `criticalRoll`, 8 for 9.
+
+Two things the review did not say and the fix made visible:
+
+- `assertEquals(attempt(...), rollAgainst(targetFor(...)))` cannot see a
+  change in draw order any more, because `attempt` IS `rollAgainst` — both
+  sides move together. What pins the order is the two literal numbers beside
+  it. The equality still earns its place: it is what fails if `attempt`
+  composes a target and then rolls against something else.
+- The older `a severe misfire rolls the critical table at minus two` uses
+  4, 4, 4 as well and has the same blind side. Left as it is: the mutation it
+  would miss is now caught one test down, and that is one check on one fact.
+
+RED for the function itself was taken twice, as in 6ef: unresolved reference,
+then a stub that judged the dice against `target - 1` while reporting
+`target`, which fails `rolled.roll.target` 15 for 16 — and fails 6ef's own
+pick test with it.
+
+### On a device
+
+Emulator again (`Medium_Tablet`, API 35), same carrier. The one claim to
+check is that the printed number and the rolled number are the same number:
+
+- Full, Good at +2: `3d6 ≤ 15`, then **`3d6: 8 vs 15`**.
+- Quick, Strong at +3: `3d6 ≤ 16`, `preparation +0, +3 strong link`, then
+  **`3d6: 9 vs 16`**.
+
+No `com.pathways` line in `AndroidRuntime:E`. The one-frame race was not
+reproduced before the fix and cannot be exercised after it.
+
+Tests: 1743 Kotlin (1235 `core:rules`, 488 `app`, 20 `core:model`) after
+`--rerun-tasks`; the 356 Python tests were not re-run, nothing under `tools/`
+having changed.
+
+**No successor is named.** The six two-call-site dialogs above are the
+obvious next reading of this one, and the table says why they are not owed.
+
 ## 6ef. The span a chip printed and the roll never took
 
 6ee named this slice with its evidence: chapter 7's three ritual tables print
