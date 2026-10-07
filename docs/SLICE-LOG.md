@@ -6767,10 +6767,24 @@ engine takes -9 as readily, so the limit is the screen's.
 cell, and asserts the value RETURNED — an engine that validated a pick and
 then applied the near end would accept all of them and produce none.
 
-**No record of a decomposition review exists**, which 6ee asked for because
-the slice overturns a recorded decision. The commit body names none and the
-session that wrote it left no section here. The diff review below is the only
-gate this slice can show, and it ran AFTER the commit.
+**Both gates ran before the commit, and this section first said neither
+had.** Its first draft read *"No record of a decomposition review exists"*,
+checked against the commit body and this log. The third place is
+`~/.codex/sessions`, which holds both, forty and seventeen minutes before
+`80fe956`:
+
+- **Design review, 00:28, SHIP on all three questions.** The API shape (two
+  nullable picks passed by name), stale state, and the book — which is where
+  *"near-end defaults are app policy, not a book rule"* comes from, with line
+  4119 quoted.
+- **Diff review, 00:39: no finding on the dialog, two MEDIUMs and a LOW in
+  the tests, all three taken** and visible in the commit — the interior `-3`
+  that a first-and-last check cannot see, `picked.roll.target` beside
+  `picked.target`, and the golden tests comparing the value RETURNED rather
+  than the absence of a refusal.
+
+**An absence claim names the corpus it was checked against (6da)**, and this
+one named two places out of three.
 
 ### The mutation pass, executed
 
@@ -6791,7 +6805,7 @@ The first one says more than its row: `-2 to -4` runs downward too, so the
 empty-range bug `Weak +0 to -1` was written to guard would have refused every
 pick in a second cell.
 
-### The diff review (Codex, `codex exec`, three questions, `80fe956`)
+### A third review, after the commit (Codex, `codex exec`, three questions)
 
 **MEDIUM, taken (`ce463ab`).** The picks were `remember(mode, preparation)`
 and `remember(mode, link)`, under a comment calling the row key
@@ -6806,6 +6820,17 @@ on change, which is 6dz's own design for `overrides` and was sitting in the
 sibling dialogs the whole time. The Roll handler calls `pickInside` itself
 instead of using the value the composition drew with.
 
+**Two reviews had been asked about exactly this and cleared it, and both
+were right about what they were asked.** The design review's question was
+whether pick and row can *"disagree for one composition"*, and its answer —
+*"there is no composition with the new row and old pick"* — is true. The
+window is BETWEEN compositions, in a handler, and the third review found it
+because its question named the Roll button's `attempt()` instead. The design
+review had even written the fix down as its strongest objection to the shape
+it approved: *"nullable integers separate a choice from its owning row … a
+wrapper could preserve that association."* **A reviewer answers the question's
+frame; ask about the handlers by name.**
+
 RED was taken twice on purpose: the unresolved reference first, then a
 pass-through `held?.second`, which fails with the engine's own
 `IllegalArgumentException` on the line that hands Excellent a 2. **A missing
@@ -6816,16 +6841,33 @@ now comes back when the GM returns to its row, shown selected. Under the
 keyed `remember` it was forgotten.
 
 **The finding indicts its model, and the model is NOT repaired (6ds).**
-`preparation`, `link` and `flourish` are `remember(mode)`, and their comments
-say a stale one "would throw rather than merely mislead". By the same
-reading, a tap on a mode chip and a tap on Roll inside one frame hand
-`attempt` the old mode's link under the new mode, which `modifierTotal`
-refuses. That window predates this slice. It is read off the code, not
-reproduced — it needs two taps between two frames, which is two fingers — and
-closing it means re-shaping three pieces of state the slice did not touch.
-Recorded as the nearest thing to a named successor.
+The query is `grep -rn "by remember([a-zA-Z]" app/src/main/kotlin`: 43 hits,
+most of them dialog-open flags and stored outcomes. A keyed state that is
+validated only DURING composition is sound, which is what `DivinationDialog`
+(`spiFor`, line 203), `ArtifactDialog` (`costOf`, line 61) and
+`DetectionDialog` do. `RitualDialog`'s Roll handler is the one traced that
+hands delegate reads to a validating call:
 
-**LOW, refused.** *"Worked rituals 3/4/7 reach `valueFor` only, never
+- `preparation`, `link` and `flourish` are `remember(mode)` and are passed
+  beside a fresh `mode`; `modifierTotal` refuses the old mode's row, link or
+  flourish under the new one.
+- `declaration` is a composition-time value built from `spiChoice`,
+  `hpSacrificed` and `sentientBeings`, passed beside a fresh `complexity`;
+  `PowerSources.modifierTotal` validates the pair.
+
+`Divination.attempt`'s handler (line 663) was not traced further.
+
+**Neither window was reproduced, and the one fixed is no more reachable than
+the ones left.** Each needs two taps between two frames, which is two
+fingers, and in Full mode on the tested tablet the preparation chips and Roll
+are about 1750 px apart in a dialog showing about 1200 — never on screen
+together. The pick was fixed and the rest was not for a reason of cost, not
+of risk: its fix is one function and is the design the sibling dialogs
+already use, while the others mean re-shaping six pieces of state this slice
+did not touch. Recorded as the nearest thing to a named successor.
+
+**LOW, refused** — and not the pre-commit LOW on the same test, which was
+about the value returned and was taken. *"Worked rituals 3/4/7 reach `valueFor` only, never
 `targetFor`/`attempt`."* True, and the reviewer's own next clause is the
 reason: `RitualResolutionTest` pins the forwarding, and mutations four and
 five above RED-prove it. The golden test's question is whether a printed
@@ -6866,7 +6908,7 @@ Dump coordinates were true pixels on the emulator, sheet and dialog both, so
 text sits on its child, so a dump filtered on text reads every chip as
 unselected.
 
-**No successor is named beyond the mode-switch window above.** The six cells
+**No successor is named beyond the two handler windows above.** The six cells
 were the last spans 6ee found applied with no picker.
 
 ## 6ee. The compiler's zero, and the two things beside it
