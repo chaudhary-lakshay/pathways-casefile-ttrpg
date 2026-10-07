@@ -6726,6 +6726,151 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6eh. Seven more targets, each composed once
+
+6eg's corrected census named this: seven rolls still printed a target and
+then composed it a second time in the click handler, and the Fright Check
+wrote its sum in the screen and again in the engine. None could throw. They
+are fixed on the owner's rule rather than on a failure — *the same predicate
+at two call sites is the defect, not the drift it produces.*
+
+**What shipped (`55bfa83`).** Each engine gains `rollAgainst`, its older entry
+point is that roll with the target composed first, and each handler passes
+the value on screen.
+
+| Roll | Engine | Handler now calls |
+|---|---|---|
+| Boon | none new | `RitualResolution.rollAgainst(target, dice)` |
+| Concentration | `rollAgainst(target, disturbed, source)` | the same, behind `!disturbed` |
+| Self-control | `rollAgainst(check, target, source)` | the same |
+| Divination | `rollAgainst(target, source, requiresCritical)` | the same |
+| Fright Check | `targetFor(will, modifier)`, `rollAgainst(target, source, effects)` | prints and rolls one `target` |
+| Spirit Vision | `rollAgainst(target, source, parts)` | `parts` built once beside `target` |
+| Detection | `partsFor(...)`, `rollAgainst(target, source, parts)` | the same |
+
+`Boons.attempt` used to repeat `targetFor`'s adjustments line for line; it
+goes through `targetFor` now.
+
+**Detection's caption changed, and that is the half that is not cosmetic.**
+It was `attributeLine` plus the SUMMED modifier plus shock and hurt, assembled
+in the screen, while the result carried an itemised list built in the engine
+— two renderings of one breakdown. It prints `partsFor(...)` now, the list
+the result holds, so the line before the roll and the line after it are the
+same line.
+
+### The design review, before code
+
+`codex exec`, the eight pairs lettered and the handlers named. Its verdicts
+shaped three of the seven:
+
+- **Concentration: SHIP WITH CHANGE.** My sketch passed "only what the outcome
+  needs beyond the target", which dropped `disturbed` — the guard that says
+  the book calls for no roll at all. Kept only on `attempt`, it would have
+  left the path production takes unguarded. It is a parameter of
+  `rollAgainst`, and the handler reads it at click time on purpose: it is
+  eligibility, not a term of the target.
+- **Spirit Vision and Detection: SHIP WITH CHANGE.** Passing the target alone
+  leaves the breakdown composed at two sites, *"making the change cosmetic"*.
+  Both pass the parts they printed.
+- **Rolling the printed target is wrong nowhere among the seven.** Nothing a
+  handler mutates before rolling is a term of its target; Spirit Vision spends
+  SPI first, and SPI is not in its number.
+- **The wrappers stay.** `attempt(inputs)` loses its production caller in all
+  eight engines and survives as the composed convenience the tests use.
+  Deleting them and rewriting ~60 call sites as `rollAgainst(targetFor(...))`
+  was judged the larger and less safe change.
+
+**One verdict refused: the potion roll.** The review said SHIP WITH CHANGE —
+*"share a session-owned prepared target tied to its state, updating it when
+state changes."* That is a cached copy of a pure function of one field, and a
+cache has to be invalidated: it trades two calls to `targetFor(digestion)`
+for a second piece of state that can go stale. `PathwayScreen` reads the
+state the session owns and the session rolls from that same state; the
+predicate is written once, in the engine. Left as it is, on that reason.
+
+### The mutations, and what "survives" turned out to mean
+
+**The first pass was mine: eight single edits, one survived.** `Boons.attempt`
+ignoring `chosen` and `gmValue` left every test green. No test had ever
+passed a modifier through `attempt` — only through `targetFor` — so the
+function's forwarding was pinned by nothing, before this slice and after it.
+
+**The diff review then proposed seven more, assessed by reading.** Run against
+the whole suite instead:
+
+| Review's mutation | Result | Path |
+|---|---|---|
+| Concentration rolls, then refuses | **survived** | production |
+| `SelfControl.attempt` passes Will for IQ | **survived** | wrapper |
+| Divination grades a demoted roll as a success | caught, `AntiDivinationTest` | — |
+| `FrightCheck.against` drops its `effects` table | **survived** | wrapper |
+| Spirit Vision reads every roll by outcome | **survived** | production |
+| Detection reads the row at margin 0 | caught, `the deeper success band wins` | — |
+| `Boons.attempt` drops `cor` | **survived** | wrapper |
+
+Five of seven, which is a reviewer reading correctly without running
+anything. Four are taken and each is RED-proved; the `effects` one is
+refused, because that parameter is a test seam no test passes, so pinning it
+pins nothing a caller reads.
+
+**Two things in that table are worth more than the fixes.**
+
+- **No test had ever rolled a Spirit Vision SUCCESS through the engine.** The
+  one `attempt` call in `SpiritVisionTest` fails its roll. Reading a success
+  by outcome instead of by margin returned the bare "Success" row for every
+  margin and nothing noticed. That is the production path, and the row is
+  what the dialog prints.
+- **Three of the five are forwarding bugs in functions production no longer
+  calls.** This slice is what made `attempt` test-only, and a wrapper that
+  forwards wrongly now misleads only the suite — which is worse than it
+  sounds, because the suite is what reads it. Each wrapper's forwarding is
+  pinned by an assertion chosen so the dropped argument changes the number:
+  Impulsive is keyed on IQ-2 with Will 7 and IQ 12, the prayer carries 3 CoR,
+  the boon carries a modifier AND a pick inside it.
+
+**And one "survived" was not a survival.** A script that edited two test files
+failed half-way on an import that file does not have, so two mutations ran
+against tests that had not changed and passed. `BUILD SUCCESSFUL` under a
+mutation means the guard did not fire; it does not say the guard exists.
+
+### On a device
+
+Emulator (`Medium_Tablet`, API 35). The Academic Researcher as a Sequence 9
+Seer for six, the Antiquarian Dealer for the self-control roll. In every row
+the printed number is the number rolled against:
+
+| Roll | Printed | Rolled |
+|---|---|---|
+| Fright Check, *Witnessing a supernatural death (-4)* | `3d6 vs 6` | `3d6: 11 vs 6` |
+| Concentration, *Injured or defending* | `3d6 ≤ 7 — Will 10-3` | `3d6: 9 vs 7` |
+| Detection, two situations (+2, -2) | `Roll 3d6 ≤ 10` | `3d6: 5 vs 10` |
+| Spirit Vision | `Roll 10 or under (Per 10)` | `rolled 10 vs 10` |
+| Divination | `Roll 3d6 ≤ 14` | `3d6: 10 vs 14` |
+| Boon | `3d6 ≤ 11` | `3d6: 13 vs 11` |
+| Self-control, Stubborn stepped to +2 | `3d6 ≤ 9` | `3d6: 12 vs 9` |
+
+Detection's breakdown read *"Per 10 (the higher of SPI 9 and Per 10), Diviner
+is 2+ Sequences weaker than the target +2, Diviner has the target's true name
++ personal item -2"* before the roll and the same sentence after it. With
+three situations ticked it printed `≤ 11` and all three by name, which is the
+itemised caption reconciling with its target.
+
+Two things about driving it. A swipe that begins outside a dialog dismisses
+it, and a dialog that has shrunk to its result is much smaller than the one
+the swipe was aimed at — which looked like a crash until `logcat` said
+otherwise. And the Seer had 0 SPI left from two slices of rituals, so the
+divination printed *"only 0 is left"* and offered no button until the tracker
+was stepped back up.
+
+Tests: 1750 Kotlin (1242 `core:rules`, 488 `app`, 20 `core:model`) after
+`--rerun-tasks`. The Python suite was not re-run; nothing under `tools/`
+changed.
+
+**No successor is named.** Of 6eg's first table only the potion pair still
+has two sites, refused above. `SelfControl.targetFor` is also called from the
+trait list, which prints the UNMODIFIED target for a row nobody has opened —
+a different question from the dialog's, not a second copy of it.
+
 ## 6eg. One target, printed and then rolled
 
 6ef closed one stale-state window in `RitualDialog`'s Roll handler and

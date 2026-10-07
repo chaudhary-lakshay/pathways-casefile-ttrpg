@@ -112,7 +112,34 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6eg is newest, and it reverses the fix 6ef shipped a day earlier.** 6ef
+**6eh is newest, and it is the slice 6eg's corrected census named: seven
+more rolls that printed a target and then composed it again.** Boon,
+Detection, Divination, Concentration, self-control, Spirit Vision and the
+Fright Check. Each engine gains `rollAgainst`, its older `attempt` is that
+roll with the target composed first, and each handler passes the value on
+screen; Detection and Spirit Vision pass the breakdown they printed as well,
+so Detection's caption is the result's own itemised list now. Read it for
+four things. **The design review changed three of the seven before any
+code** — my sketch dropped Concentration's `disturbed` guard off the path
+production takes, and passing a target without its breakdown was *"cosmetic"*.
+**One verdict is refused with its reason**: a session-held prepared target for
+the potion roll is a cache of a pure function, and trades two calls for state
+that can go stale. **`attempt` is test-only API in eight engines now**, and
+that is what the mutations found: the diff review proposed seven by reading,
+**five survived the whole suite when run**, three of them forwarding bugs in
+wrappers production no longer calls — which mislead only the suite, and the
+suite is what reads them. The other two were on the production path, and one
+is the finding of the slice: **no test had ever rolled a Spirit Vision
+success through the engine**, so reading it by outcome instead of by margin
+returned the bare row for every margin. **And one "survived" was not a
+survival** — a half-applied script left two tests unchanged, and `BUILD
+SUCCESSFUL` under a mutation says the guard did not fire, not that it exists.
+**Device-verified on the emulator, all seven**: printed and rolled are the
+same number in each (`vs 6` → `11 vs 6`, `≤ 7` → `9 vs 7`, `≤ 10` → `5 vs 10`,
+`10 or under` → `10 vs 10`, `≤ 14` → `10 vs 14`, `≤ 11` → `13 vs 11`, `≤ 9` →
+`12 vs 9`). **No successor is named.**
+
+**6eg is next, and it reverses the fix 6ef shipped a day earlier.** 6ef
 closed one stale-state window in the ritual Roll handler by reading the pick
 at click time, and recorded two more beside it. **Reading state later cannot
 close them**: a handler belongs to the composition that drew it, so after a
@@ -144,7 +171,7 @@ an unspeakable language tapped in the same frame as Roll used to throw and
 now rolls the number on screen. Design review before code, diff review before
 commit, both through `codex exec`. **Device-verified on the emulator**: `3d6
 ≤ 15` then `8 vs 15`; `3d6 ≤ 16` then `9 vs 16`. **The successor is the
-seven pairs left and the Fright Check's inline sum**, design review first.
+seven pairs left and the Fright Check's inline sum** — built in 6eh.
 
 **6ef is next, and it builds the slice 6ee named: the GM picks inside a
 ritual cell that prints a span.** Six cells across chapter 7's three tables
@@ -1190,115 +1217,19 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-**6dd is next, and it is one sentence that had two reaches in one app.**
-p. 40's *"Reeling: -1 to all rolls"* and p. 42's *"-1 to all rolls"* reached
-`SkillKey` rolls only, through `Conditions.forSkill`'s ledger — while the
-Major Wound row on the SAME page prints the identical phrase and `Shock`
-carries it to all four `RollKind`s, on a warrant its own KDoc records
-(*"'All rolls' is taken at its word"*). So a reeling, fatigued character
-defended at full Dodge, Parry and Block and rolled their Fright Check,
-self-control roll, Concentration, Detection and Major Wound HT roll at full
-value, with their shock applied to every one. **6dc named this next and named
-the wrong bar for it**: 6ck's "a printing that says active defenseS" is the bar
-for widening a SINGULAR, and `-1 to all rolls` names a superset that already
-contains a defence — a refusal's bar travels with the condition that produced
-it, exactly as a precedent does (6cm). `Conditions.penaltyFor(kind, hp, fp)`
-answers once and **refuses `RollKind.SKILL`**, which `forSkill` already
-carries. Read it for three more things. **Shock's own exclusion does not
-transfer** — it refuses `MAJOR_WOUND_HT` because that roll CREATES the shock,
-an argument about WHEN, and nothing creates reeling mid-roll — so the two
-states answer differently for one kind and the call site names it. The
-composition order against 6dc's halving is a DECISION the book does not print
-(`ceil(base/2) - 1`, not `ceil((base-1)/2)`; they differ at base 8), and the
-diff review was right that its test **composes both readings by hand** and so
-pins the difference rather than the order: what stops the reversal is the
-BOUNDARY, since `DefenseDialog` never sees the unhalved score. And `spi` and
-`cor` stay out of the new number because both printings name a scope.
-
-**6dc is next, and it is the rule one screen printed while the next screen
-ignored it.** p. 42's FP row — *"At 1/3 FP or below: -1 to all rolls; **Move and
-Dodge halved**"* — had its -1 applied since 6h and its whole sentence printed on
-the sheet, while `DefenseDialog` one tap away was handed the full
-`vitals.dodge`. The threshold was re-derived at three sites inside `Pools`,
-which is what let one screen print the rule and another break it; it is now
-`Pools.isFatigued` with four readers, and `Pools.halvedForFatigue` halves the
-BASE score only (the boost, Dive!, Retreat and a shield's DB print whole numbers
-by rules of their own). **The rounding direction is this app's recorded choice,
-not the book's**: that row prints "halved" bare where the book prints "rounded
-down" (line 2450) and "round up" (line 6050), so there is no house convention —
-up ships because it cannot leave a character worse off than the sentence states,
-and both citations are pinned in `test_tools.py`. Read it for three things. Its
-design review **corrected the warrant before any code existed**: I had cited
-CLAUDE.md 4.3 for the rounding, and every `floorDiv` in `Pools` is a THRESHOLD
-COMPARISON — a rule cited from the right file can still be the wrong rule.
-6db's named cluster was **16 lines, not 15**, and three of those were already
-implemented in Kotlin, which `coverage.py` cannot see — so chapter 5 stays at
-**73.9%** and that is the honest number. And the diff review found a **fifth
-vacuity in four slices**, again mine: a test named for the below-zero case
-asserted the tired case's text. `docs/HOW-TO-PLAY.md`'s *"FP recovery … yours to
-run"* turns out to be a real refusal with a mechanism reason (it sits under
-"Track a clock it does not hold") that never covered this rule at all — **the
-recovery and Regeneration RATES stay unapplied for that reason**, and
-"Very Rapid Healing" (line 2861) is in no catalogue while `Rapid Recovery`
-(line 922) and `Rapid Healing` (line 6928) are two other rules wearing similar
-names. **It also leaves one sentence half-applied, deliberately**: 2852's other
-clause, "-1 to all rolls", still reaches skill rolls only, and whether it
-reaches a defence VALUE on a screen that never rolls one needs the bar 6ck set
-for the stun — a printing that says "active defenseS". That is the named next
-slice, ahead of 2899's Regeneration rule, which needs a reachability check
-first.
-
-**6db is next, and every coverage percentage in this file is now suspect.**
-`tools/coverage.py`'s `MECHANICAL` filter decides which lines COUNT as rules
-content; what it cannot see is excluded from the numerator **and the
-denominator**, and `main()` reads an empty denominator as "chapter is
-complete". It matched `N pts` but no other unit, so every price this book
-quotes in SPI, HP, FP, CoR or DR — "Ability - Book Reading (1 SPI)",
-"Attributes: 4 HP" — read as flavour. **Chapter 7.6, Spirit Vision Guide, is
-claimed by NO content file at all and was reporting 100.0%**; it now reads
-0.0%, which is what it always was. That is not a number nobody looked at:
-**6cw's census shortlisted the four chapters below 100% and 7.6 was not one
-of them**, because the instrument said it was finished — an unread chapter
-was filtered out of the very sweep that exists to find unread chapters.
-Widening the
-filter to the other pools (derived from its own `N pts` condition, not from
-the lines that were missed) made **286 lines visible, 33 of them unclaimed**,
-and moved six chapters — 4 100.0%→66.7%, 5 80.8%→73.9%, 6.5 89.3%→81.2%,
-while 6 and 9 ROSE because their newly visible lines were already claimed.
-**Percentages recorded before 6db were measured under the narrower filter and
-must not be compared with ones after it** — including this session's own
-"ch. 8 21.2%→81.7%". Read 6db also for a RED proof that silently did nothing
-(a `str.replace` that matched no text, printed `narrowed`, and left both tests
-green — **a mutation that reports success is not a mutation that happened**),
-and for the review's HIGH: my test was named for the reported percentage and
-asserted only the preconditions, so an off-by-one in the page range would have
-left chapter 7.6 claiming completion with every assertion still true.
-
-**6da is next, and it reads the chapter 6cz called "probably correct".**
-Appendix A's 32 unclaimed lines, one at a time: **31 are faithful restatements
-and one is not.** Line 9667 prints `Direction Penalties: Side -2 | Rear -4` —
-and `ActiveDefenses`' KDoc had refused the facing penalty saying it "has no
-second printing anywhere in the book — checked, not assumed". **Two careful
-exclusions hid it between them**: the KDoc's claim was verified by sweeping the
-59 content files, and `extract_appendix.py` skipped the page as "a summary of
-chapters already claimed" — true of the other 31 lines, false of the one that
-summarises a rule nothing claims. Each was right about its own corpus. **A
-sweep's blind spot can be another document's stated reason.** The design review
-then returned NO-SHIP on applying it, with the sentence that settles it: *to
-widen a singular, the second printing has to say something the first did not,
-and this one says strictly less* — 9667 carries no noun at all. It also killed
-my supporting argument: Retreat reaches all three rows because **ch. 5's own
-bullet** enumerates them, not because the appendix prints it nearby, so a
-neighbour that was applied is not proof the neighbourhood grants authority. The
-refusal ships on the right reason, with `test_tools.py` pinning 9667's wording
-and its nounlessness — an argument resting on a sentence needs that sentence
-guarded.
-
-**6cz back to 6cd had lead paragraphs here and they have been cut, because
-this file went over the 150 k-char limit again (6eb: 152,583).** Every one of
+**6dd back to 6cd had lead paragraphs here and they have been cut, because
+this file keeps reaching the 150 k-char limit (6eb: 152,583; 6eh cut 6dd to
+6da at 146,179, each checked for its own section first).** Every one of
 them is in [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md) unchanged and in full, and
 the reading order below still names them. What they are worth in one line
-each: **6cz** — an unavailable review gate is a reason to reach for the next
+each: **6dd** — "-1 to all rolls" had two reaches in one app, and a
+refusal's bar travels with the condition that produced it; **6dc** — one
+screen printed "Dodge halved" and the next ignored it, and a rule cited from
+the right file can be the wrong rule; **6db** — a line the coverage filter
+cannot see leaves the denominator too, so an unread chapter reported 100%,
+and **percentages recorded before 6db must not be compared with ones after
+it**; **6da** — two careful exclusions hid one line between them, and an
+absolute names the corpus it was checked against; **6cz** — an unavailable review gate is a reason to reach for the next
 gate, not to record its absence and ship; **6cy** — `pts/level` named two
 different tables, so six constants billed every character with no tie to a
 printed line; **6cx** — a precedent travels by ROLE, not by shape; **6cw** —
@@ -1322,7 +1253,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: 6eg, then 6ef, 6ee, 6ed, 6ec, 6eb, 6ea, 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
+**Where to start next: 6eh, then 6eg, 6ef, 6ee, 6ed, 6ec, 6eb, 6ea, 6dz, 6dy, 6dx, 6dw, 6dv, 6du, 6dt, 6ds, 6dr, 6dq, 6dp, 6do, 6dn, 6dm, 6dl, 6dk, 6dj, 6di, 6dh, 6dg, 6df, 6de, 6dd, 6dc, 6db, 6da, 6cz, 6cy, 6cx, 6cw, 6cv, 6cu, 6ct, 6cs, 6cr, 6cq, 6cp, 6co, 6cn, 6cm, 6cl, 6ck, 6cj, 6ci, 6ch, 6cg, 6cf, 6ce, 6cd, 6cc, 6cb, 6ca, 6bz, 6by, 6bx, 6bw, 6bv, 6bu, 6bt, 6bs, 6br, 6bq,
 6bp, 6bo, 6bn, 6bm, 6bl, 6bk, 6bj, 6bi, 6bh, 6bg and 6bf.** 6cb is the slice that
 did NOT build what it set out to, and the reason is the most reusable thing in
 it: a design review, **re-asked with two questions and two files, answered in 34
@@ -1554,7 +1485,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1743 Kotlin** (JUnit 5 — 1235 `core:rules`, 488 `app`, 20 `core:model`) + **356 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1750 Kotlin** (JUnit 5 — 1242 `core:rules`, 488 `app`, 20 `core:model`) + **356 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -1743,6 +1674,17 @@ RitualResolution.rollAgainst(target, source): RitualOutcome
                                       // the roll, against a target targetFor
                                       // already composed -- what a screen that
                                       // PRINTED the number must call (6eg)
+Concentration.rollAgainst(target, disturbed, source)
+SelfControl.rollAgainst(check, target, source)
+Divination.rollAgainst(target, source, requiresCritical)
+FrightCheck.targetFor(will, modifier) / .rollAgainst(target, source)
+SpiritVision.rollAgainst(target, source, parts)
+Detection.partsFor(...) / .rollAgainst(target, source, parts)
+                                      // the same shape in seven more engines
+                                      // (6eh). Each attempt(inputs) is now
+                                      // rollAgainst(targetFor(inputs)) and has
+                                      // NO production caller: it is the
+                                      // composed convenience the tests use
 RitualResolution.canPush(outcome) / .pushed(outcome, points): RitualOutcome
                                       // p.63/66's post-roll push: the same
                                       // dice against a higher target. Keeps or
@@ -2028,10 +1970,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6eg. The slice log
+## 6a-6eh. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6eg is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6eh is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
