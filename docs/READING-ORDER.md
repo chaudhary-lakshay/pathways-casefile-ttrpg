@@ -190,7 +190,36 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6eh back to 6de
+## Retired lead paragraphs, 6ei back to 6de
+
+**6ei is next, and it is the first claim in this chain produced on a
+device.** 6eh named a stale check on Drink because "the digestion stepper is
+on the same screen" — **false, and never checked**: the tracker is drawn on
+the current potion's block and Drink on the next. The design review refuted
+it from two lines and found the real defect beside it: **Drink had no
+re-entrancy guard, alone among the roll buttons.** On an SM-T570, with the
+guard neutered, two taps from one `monkey --throttle 0 -f` script killed the
+app in `drink`'s own `require` — *"…is not the next potion after…"*. Read it
+for four things. **That settles the premise 6ef, 6eg and 6eh rested on**: two
+taps a few milliseconds apart do reach one composition's handler, and the
+comment at `MainActivity.kt:1568` saying *"the two taps are two frames"* is
+false — its refusal was right and its reason was not. **It does not settle a
+finger**: monkey's taps are milliseconds apart, a human double-tap about a
+hundred. **Two injectors failed first** — parallel `input tap` is too slow,
+and writing `/dev/input` is refused by SELinux and was left alone. **The fix
+is two questions on the session**, pulled apart by the two reviews:
+`stillShows(printed, printedCor)` for Drink, because a CoR step and an early
+advancement in one frame can end a character, and the looser
+`onSamePotion(printed)` for the CoR steppers, because a Drink can LOWER the
+ceiling they were drawn against while a digestion step must not drop the next
+tap. `drink` is unchanged; the session still trusts no number from the
+screen. Seven mutations, all caught. **Device-verified on the SM-T570**: the
+crash before, one clean drink after, two fast CoR taps both counted — and
+the ritual dialog and all seven of 6eh's at last on hardware (`3d6 ≤ 15`,
+then `14 vs 15`; the seven are tabled in the log). `onSamePotion` was written
+after the diff review and has two mutations and a grep behind it, no reviewer
+**(6ej: reviewed, and correct). No successor is named** — 6ej built the thing
+it saw on the way.
 
 **6eh is next, and it is the slice 6eg's corrected census named: seven
 more rolls that printed a target and then composed it again.** Boon,

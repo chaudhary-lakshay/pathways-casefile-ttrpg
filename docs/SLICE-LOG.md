@@ -6726,6 +6726,157 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6en. Two rows the floors did not reach
+
+6em left two of 6ek's items standing. This is the first: *"Selling a
+secondary refunds points without limit. With Basic Speed and Basic Move at
+−100 the budget bar read `-808 of 100 points, 908 spare`… Whether a reduced
+secondary counts against chapter 3's '-40 points of disadvantages' (book
+line 1120) is a question for the book, and it was not asked here."*
+
+### The book, asked
+
+- Lines 353-386 price every secondary *"±N pts per level"* (Speed *"±5 pts
+  per 0.25"*) and print no floor and no cap.
+- Line 1120 states the cap of *"disadvantages"*, and 455-456 as *"Take
+  Disadvantages… up to -40 pts worth"*. The chapter then lists them.
+- A grep over the whole book for `minimum|at least|no less|cannot
+  (fall|go|drop)|to 0|below` within 60 characters of `move` or `speed`
+  returned nothing. The only in-play reductions are effects on a target
+  (*"-1 Basic Speed, -1 Basic Move for 1d6 turns"*, 6886-6887), which this
+  app does not model.
+
+So the book answers neither question. Both answers below are the app's, and
+each is labelled so in the source.
+
+### Two floors, on a warrant of their own
+
+`ScoreFloors`' KDoc gives its reason as *"the lowest values the rules this
+app models can compute on"*. That reason does not hold for these rows: 6ek's
+own census, on the tablet, showed Vitals, Defend, Attack and Damage all open
+at Speed −20.50 and Move −100. A floor added under that sentence would have
+borrowed a warrant that does not apply. `MIN_MOVE = 0` and
+`MIN_SPEED_QUARTERS = 0` carry their own, labelled policy:
+
+- **Move is a distance.** *"How far you move per second"* (172), *"Move up to
+  your full Basic Move in meters"* (2391). Below 0 it names none.
+- **Speed is held because Move alone bounds nothing.** Speed sold a hundred
+  quarters refunds 500 and drags Move's base to −21; Move bought back 21
+  costs 105. That is 395 points kept with Move standing at a legal 0.
+- **Zero, not lower.** My draft gave the book's two roundings as the reason
+  for the floor: *"rounded down"* (382) against *"drop fractions"* (172,
+  2464). The design review's one finding was that this does not establish a
+  minimum, since a negative INTEGER satisfies both. The KDoc now says only
+  that the two part company on a negative fraction, as a reason for zero
+  rather than for the floor.
+
+What the pair can still refund is 5 × (HT + DX) points: 90 at the book's 9s,
+since Move's base is 0 once Speed is.
+
+### One function changed
+
+`ScoreFloors.shortfall` returns two more rows. `allows`, `canSetAttribute`,
+`canSetSecondary` and the opening repair already read it, and `boughtBack`
+folds over every priced key, so **no session or screen code changed**. The
+builder greys `−` on both rows, and on DX and HT when a step would take
+Speed below zero.
+
+**Move's row is measured after Speed's repair.** Move's base is Speed
+rounded down, so buying Speed back returns part of Move. Read in one pass, a
+save at −100 / −100 with attributes of 9 stands at Speed −82 quarters and
+Move −121, and owes Move 121 steps. A `SecondaryDelta` holds ±100, so the
+repair meant to rescue that save would have thrown in its constructor.
+Measured after, it owes 82 quarters and 100 steps, and opens at
+`basicSpeed = -18` with no Move purchase left.
+
+No potion lowers either row. `ScoreFloorsTest`'s *no potion lowers anything
+but Will* reads every `stats` row of both catalogues, so the two-pass bound
+in the opening repair still holds, and a floor on the bought score is
+enough.
+
+### The −40, refused as a reading
+
+A sold secondary is not counted against the disadvantage cap. The reason is
+in `PointBudget`'s KDoc, in production source, and it is worded as a reading
+and not a quotation: the book states the cap of a category it goes on to
+list, and prices secondaries with no cap of their own. Nothing printed files
+a sold level under either heading. GURPS Basic counts it, and `ScoreFloors`
+already records that GURPS Basic's limits are not borrowed. The design
+review called the reading defensible and asked that it be documented as an
+interpretation, which is how it is written.
+
+### Tests and mutations
+
+Five tests were written first and failed for the stated reason: two in
+`ScoreFloorsTest` (the floors themselves; Move after Speed) and three in
+`BeyonderSessionTest` (the setters refuse; DX `−` is refused at Speed 0; a
+−100 / −100 save opens at `basicSpeed = -18` and is written back).
+
+| Mutation | Caught by |
+|---|---|
+| no Speed floor | both `ScoreFloorsTest` cases, the repair test, and *…are not sold below zero* **after an assertion was added** |
+| no Move floor | all four |
+| Move not measured after Speed | both `ScoreFloorsTest` cases and the repair test |
+| `MIN_MOVE = -1` | all four |
+| `MIN_SPEED_QUARTERS = -1` | both `ScoreFloorsTest` cases and the repair test |
+| the returned Move ignores the old base | all four |
+
+**The first run reported six survivors, and none was one.** The harness
+called `gradlew.bat` through `cmd /c` without `.\`, which is not found;
+every run exited 1 and named no failing test, and the script read "exit 1,
+no test named, no `e:` line" as a survival. It now asserts a success token
+(`tests completed` or `BUILD SUCCESSFUL`) before it reads anything. That is
+the failure-filter-cannot-see-a-no-op class, in a script an hour old.
+
+The session tests at first caught the missing Speed floor only through
+Move: Speed −19 drags Move to −1, and the Move floor refuses. An assertion
+was added that separates them — Move bought `+1` on top, where Move stands
+at 0 and only Speed's own floor refuses — and the mutation was re-run
+against it.
+
+Tests: 1795 Kotlin (1256 `core:rules`, 519 `app`, 20 `core:model`) after
+`--rerun-tasks`, and 357 Python.
+
+### Reviews
+
+Codex answered, through `codex exec` with the target named and *"do not read
+CLAUDE.md or docs/SLICE-LOG.md"*.
+
+- **The design review returned SHIP**, with the LOW above on the Speed
+  warrant. It modelled the −100 / −100 repair: one pass, 910 points repaid,
+  90 kept. It did not verify the potion paths, which the census test covers.
+- **The diff review returned SHIP with no findings.** It confirmed `395 =
+  500 − 105` and the 5 × (HT + DX) figure. It did not run the suites or the
+  mutations.
+
+### On the SM-T570
+
+Academic Researcher (ST 9, DX 9, IQ 10, HT 9), `91 of 100 points`.
+
+| Taps | Screen |
+|---|---|
+| Move `−` × 6 | stops at `0`, *"−4 bought"*, `−` `enabled=false`; `71 of 100` |
+| Speed `−` × 4, Move at 0 | stops at `4.00`, *"−2 bought"*, `−` `enabled=false` |
+| Move back to `+0`, Speed `−` × 22 | `0.00`, *"−18 bought"*; both `−` `enabled=false`; `1 of 100 points, 99 spare` |
+| DX `+`, Speed `−` × 2 | `0.00`, *"−19 bought"*; DX `−` `enabled=false` |
+
+The premade was left as found: `91 of 100 points`, *"1 of 17 values
+differ"*, crash buffer empty. The tablet was dozing behind the keyguard
+with another app's notification activity resumed, not the monitor app.
+
+### Seen and not touched
+
+- **6ek's last item stands**: the builder prints bought values without
+  potion grants.
+- **The refund is bounded, not small.** With HP, FP, Will and Per at their
+  floors as well, a character at the book's 9s gets back 16 + 24 + 40 + 45 +
+  90 = 215 points against a budget of 70. That is arithmetic on the printed
+  prices, not a device reading. Whether the app should hold the total is the
+  −40 question again, and it was answered above as a reading.
+- **The floors hold a purchase, not a state in play.** *"-1 Basic Speed"*
+  on a character at 0.00 is a thing the book's abilities can do, and this
+  app models none of them.
+
 ## 6em. A state the app only checked on the way in
 
 6el named no successor, and 6ek had left three items. This is the first:

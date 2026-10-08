@@ -135,7 +135,39 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6em is newest, and it is the first of 6ek's three seen-and-not-touched
+**6en is newest, and it is the second of 6ek's items: Basic Speed and Basic
+Move sold a hundred steps each.** Nothing crashed, which is why 6ek's floors
+never reached them. The tablet read Speed `-20.50`, Move `-100` and *"-808
+of 100 points, 908 spare"*. Both rows now stand at zero in `ScoreFloors`,
+and no session code changed. Read it for four things.
+
+- **The existing warrant did not transfer.** `ScoreFloors` says "the lowest
+  values the rules can compute on", and both rows compute at −100. The two
+  constants carry their own reason, labelled policy. Move is a distance.
+  Speed is held because Move alone bounds nothing: Speed sold 100 quarters
+  and Move bought back 21 on top kept 395 points. The design review removed
+  my third reason, since the book's two roundings disagree only on a
+  negative FRACTION.
+- **Move's shortfall is measured after Speed's repair.** In one pass a
+  −100 / −100 save owes Move 121 steps, which a `SecondaryDelta` cannot
+  hold, so the opening repair would have thrown.
+- **The −40 is not applied to a sold secondary.** That is a reading, kept
+  in `PointBudget`'s KDoc: the book states the cap of disadvantages and
+  prices secondaries with none. The pair can still refund 5 × (HT + DX), 90
+  at the book's 9s.
+- **Six mutations "survived" a harness that never ran Gradle**
+  (`gradlew.bat` not found, exit 1, no test named). With the path fixed all
+  six were caught, and one assertion was added where the session tests had
+  caught the Speed floor only through Move.
+
+Codex answered both reviews, SHIP and SHIP. Device-verified on the SM-T570:
+Move `−` stops at 0, Speed `−` at 4.00 while Move is 0 and at 0.00
+otherwise, DX `−` greyed at Speed 0.00, `1 of 100 points` at the floor.
+**6ek's last item stands**: the builder prints bought values without potion
+grants. **The refund is bounded, not small**: with the other four floors, a
+character at the book's 9s gets back 215 points on a budget of 70.
+
+**6em is next, and it is the first of 6ek's three seen-and-not-touched
 items: maximum CoR is a STATE, and the app checked it only on a gain.**
 Selling Will, IQ or a bought Spiritual Fortitude could leave a live
 character at 9 / 9. Worse than 6ek's sentence, the next gain did not latch
@@ -261,38 +293,10 @@ what that exposed**: the builder sells Will down a hundred steps, and every
 CoR-gaining TAP on such a character still throws — the steppers, Drink, a
 ritual's CoR, Soul Debt.
 
-**6ei is next, and it is the first claim in this chain produced on a
-device.** 6eh named a stale check on Drink because "the digestion stepper is
-on the same screen" — **false, and never checked**: the tracker is drawn on
-the current potion's block and Drink on the next. The design review refuted
-it from two lines and found the real defect beside it: **Drink had no
-re-entrancy guard, alone among the roll buttons.** On an SM-T570, with the
-guard neutered, two taps from one `monkey --throttle 0 -f` script killed the
-app in `drink`'s own `require` — *"…is not the next potion after…"*. Read it
-for four things. **That settles the premise 6ef, 6eg and 6eh rested on**: two
-taps a few milliseconds apart do reach one composition's handler, and the
-comment at `MainActivity.kt:1568` saying *"the two taps are two frames"* is
-false — its refusal was right and its reason was not. **It does not settle a
-finger**: monkey's taps are milliseconds apart, a human double-tap about a
-hundred. **Two injectors failed first** — parallel `input tap` is too slow,
-and writing `/dev/input` is refused by SELinux and was left alone. **The fix
-is two questions on the session**, pulled apart by the two reviews:
-`stillShows(printed, printedCor)` for Drink, because a CoR step and an early
-advancement in one frame can end a character, and the looser
-`onSamePotion(printed)` for the CoR steppers, because a Drink can LOWER the
-ceiling they were drawn against while a digestion step must not drop the next
-tap. `drink` is unchanged; the session still trusts no number from the
-screen. Seven mutations, all caught. **Device-verified on the SM-T570**: the
-crash before, one clean drink after, two fast CoR taps both counted — and
-the ritual dialog and all seven of 6eh's at last on hardware (`3d6 ≤ 15`,
-then `14 vs 15`; the seven are tabled in the log). `onSamePotion` was written
-after the diff review and has two mutations and a grep behind it, no reviewer
-**(6ej: reviewed, and correct). No successor is named** — 6ej built the thing
-it saw on the way.
-
-**6eh back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6ei back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ei** — Drink alone had no re-entrancy guard: two monkey taps in one frame crashed it on an SM-T570; `stillShows` guards Drink, the looser `onSamePotion` the CoR steppers;
 **6eh** — seven more engines roll the target they printed; `attempt` became test-only, and no test had rolled a Spirit Vision success through the engine;
 **6eg** — print a target, then roll it: a handler belongs to the composition that drew it, so `rollAgainst` takes the target on screen;
 **6ef** — the GM picks inside a span cell; a keyed `remember` resets a frame late, so a pick lives with its row, and the click-time read was undone by 6eg;
@@ -360,7 +364,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: the slice log, from the END — 6em first.** The
+**Where to start next: the slice log, from the END — 6en first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -415,7 +419,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1790 Kotlin** (JUnit 5 — 1254 `core:rules`, 516 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1795 Kotlin** (JUnit 5 — 1256 `core:rules`, 519 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -540,6 +544,8 @@ Corruption.ritualPenalty(cor) / .ritualThresholdsReached(cor)
 ScoreFloors.MIN_POOL_MAX / .MIN_COR_CEILING / .MIN_PER   // the app's, not the
                                       // book's: the guards in Pools, Wounds,
                                       // Corruption and Detection read these
+ScoreFloors.MIN_MOVE / .MIN_SPEED_QUARTERS   // policy, not a guard: both 0,
+                                      // and Move is measured after Speed (6en)
 ScoreFloors.shortfall(secondaries, traits) / .holdsCeiling(ceiling)
 PurchaseCeilings.attribute(attr) / .secondarySteps(key)   // the highest a
                                       // purchase may reach so every potion
@@ -911,10 +917,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6em. The slice log
+## 6a-6en. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6em is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6en is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
