@@ -572,10 +572,11 @@ object TraitEffects {
      * **Then it was a [PARTLY_APPLIED] entry reading "this app offers no
      * other roll at a default"**, which [SkillDefaults] made false in turn
      * (6et). Every roll this app makes at a default takes the +1 now -- the
-     * Divine tile's, the Skills tab's untrained roll and the Attack dialog's
-     * untrained attack (6eu), all three through [SkillDefaults] or
-     * [Divination] -- so the trait has nothing left to report. A fourth
-     * consumer of a default must take it too.
+     * Divine tile's, the Skills tab's untrained roll, the Attack dialog's
+     * untrained attack (6eu) and the Defend dialog's untrained Acrobatic
+     * Dodge (6ev), all four through [SkillDefaults] or [Divination] -- so
+     * the trait has nothing left to report. A fifth consumer of a default
+     * must take it too.
      *
      * NOT a Warrior's or Weapon Master's weapon, which is "treated as known
      * at effective DX": that is not a roll at a default, and

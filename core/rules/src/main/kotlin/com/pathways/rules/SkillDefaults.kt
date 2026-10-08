@@ -90,12 +90,14 @@ object SkillDefaults {
     /**
      * What a roll from the list does NOT do, and where to go instead. The
      * Attack dialog takes the untrained skills it can make an attack with
-     * ([attacks], 6eu); the Defend dialog still takes none.
+     * ([attacks], 6eu); the Defend dialog takes Acrobatics, for the
+     * Acrobatic Dodge, and no default for a parry (6ev).
      */
     const val PLAIN_ROLL =
         "A roll from this list is the skill alone. For an untrained punch, or " +
             "a weapon you have no skill with, use Attack, which carries the " +
-            "damage. An Acrobatic Dodge's ±2 is not carried to Defend."
+            "damage. For an Acrobatic Dodge use Defend, which carries its ±2 " +
+            "to the Dodge row."
 
     /** [WEAPON_LINES] as the sentence the list prints, or null for a character with none. */
     fun weaponNote(pathway: String, sequence: Int): String? =

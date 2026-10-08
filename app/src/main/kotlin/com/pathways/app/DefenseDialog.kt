@@ -35,8 +35,10 @@ import com.pathways.rules.content.CataloguedWeapon
 import com.pathways.rules.RandomSource
 import com.pathways.rules.ShieldCoverage
 import com.pathways.rules.Shields
+import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
+import com.pathways.rules.TraitEffects
 import com.pathways.rules.UnarmedStyle
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.Shield
@@ -52,6 +54,112 @@ private val UNARMED = mapOf(
     "Brawling" to UnarmedStyle.BRAWLING,
     "Boxing" to UnarmedStyle.BOXING,
     "Wrestling" to UnarmedStyle.WRESTLING,
+)
+
+/**
+ * The name of the row for the Parry (Unarmed) formula's other operand:
+ * "Brawling or DX ÷ 2 + 3". Rendered as "Parry (DX, bare hands)".
+ */
+internal const val BARE_HANDS = "DX, bare hands"
+
+/**
+ * Every unarmed parry row, as (name, style, parry): the styles the sheet
+ * holds, then the hand at DX wherever [ParryBlock.bareHandParry] offers it.
+ *
+ * The STYLE travels with the row, because the Notes cell's rules are
+ * per-style: Boxing alone ignores the weapon penalty, and Wrestling's own -3
+ * is already inside the number.
+ *
+ * [dx] is the character's DX as played. The DX row is one of the rows and
+ * not a line drawn beside them, so the shot filter, the cumulative penalty
+ * and the boost picker reach it without being told to (the design review's
+ * HIGH, on a decomposition that built it apart).
+ */
+internal fun unarmedParries(
+    skillLevels: Map<SkillKey, Int>,
+    dx: Int,
+): List<Triple<String, UnarmedStyle, Int>> {
+    val held = skillLevels.entries
+        .mapNotNull { (key, level) -> UNARMED[key.name]?.let { Triple(key.name, it, level) } }
+        .sortedBy { it.first }
+    val brawling = held.filter { it.second == UnarmedStyle.BRAWLING }.maxOfOrNull { it.third }
+    val bare = ParryBlock.bareHandParry(dx, brawling)
+        ?.let { Triple(BARE_HANDS, UnarmedStyle.BARE_HANDS, it) }
+    return held.map { (name, style, level) ->
+        Triple(name, style, ParryBlock.unarmedParry(style, level))
+    } + listOfNotNull(bare)
+}
+
+/**
+ * The carried weapons that could parry and have no skill behind them, by
+ * name. [armedParries] skips them, and a row that is simply absent reads as
+ * an oversight beside a hand that now parries at DX -- so the screen names
+ * them and says why.
+ */
+internal fun unskilledParriers(
+    weapons: List<CataloguedWeapon>,
+    skillLevels: Map<SkillKey, Int>,
+): List<String> = weapons
+    .filter { Weapons.canParry(it) && Weapons.levelFor(it, skillLevels) == null }
+    .map { it.name }
+
+/**
+ * What an Acrobatic Dodge is rolled against: the sheet's own Acrobatics, or
+ * the default [com.pathways.rules.SkillDefaults] composed for a sheet without
+ * it. [untrainedSource] is null for a trained skill and the default's own
+ * account of itself otherwise ("DX-6, +1 Versatile").
+ */
+internal data class AcrobaticSkill(val key: SkillKey, val level: Int, val untrainedSource: String?) {
+    /** What the roll is called, so a default says it is one and which. */
+    val label: String
+        get() = untrainedSource?.let { "${key.name} (untrained, $it)" } ?: key.name
+}
+
+/**
+ * The key and level together: the key is what the modifier ledger is asked
+ * about, and the level is what is rolled against.
+ *
+ * **The default is taken from [untrained], never rebuilt here.** Every roll
+ * at a default carries Versatile's +1 and that lives in `SkillDefaults`; a
+ * second DX-6 written on this screen is the one that would forget it.
+ */
+internal fun acrobaticsFor(
+    skillLevels: Map<SkillKey, Int>,
+    untrained: List<SkillDefaults.Untrained>,
+): AcrobaticSkill? =
+    skillLevels.entries
+        .firstOrNull { it.key.name == ActiveDefenses.ACROBATIC_SKILL }
+        ?.let { AcrobaticSkill(it.key, it.value, null) }
+        ?: untrained
+            .firstOrNull { it.key.name == ActiveDefenses.ACROBATIC_SKILL }
+            ?.let { AcrobaticSkill(it.key, it.level, it.source) }
+
+/**
+ * The Acrobatic Dodge's roll, with what the Skills tab gives the same skill:
+ * what the trackers cost ([conditions]) and what the character is
+ * ([TraitEffects.modifiers] -- Perfect Balance's +2 on Acrobatics).
+ *
+ * **The second term was missing until 6ev**, on the trained path too. No
+ * premade could show it: the one sheet with Perfect Balance has no
+ * Acrobatics, and this control refused a sheet without the skill. Offering
+ * the default is what made Pickpocket roll 4 here and 6 on the Skills tab
+ * (the diff review's HIGH).
+ *
+ * NOT the GM's circumstance chips: those belong to the Skills tab's roll
+ * dialog, and this screen has none, so a circumstance is still the GM's to
+ * apply by hand.
+ */
+internal fun acrobaticRoll(
+    skill: AcrobaticSkill,
+    conditions: (SkillKey) -> List<com.pathways.model.Modifier>,
+    traits: List<Trait>,
+    dice: RandomSource,
+): SkillRollOutcome = SkillRoll.at(
+    label = skill.label,
+    base = skill.level,
+    key = skill.key,
+    source = dice,
+    mods = conditions(skill.key) + TraitEffects.modifiers(traits, skill.key),
 )
 
 /** The shield skill Block is rolled off (Ch. 5, p. 37). */
@@ -175,6 +283,16 @@ private fun NewRoundControl(round: RoundState, onNewRound: () -> Unit) {
 fun DefenseDialog(
     dodge: Int,
     skillLevels: Map<SkillKey, Int>,
+    /**
+     * DX as played, after potions: the second operand of the Parry (Unarmed)
+     * formula cell. Required, because a default here would be a parry.
+     */
+    dx: Int,
+    /**
+     * The skills this character may attempt untrained, as the sheet composed
+     * them. Read for Acrobatics alone -- see [acrobaticsFor].
+     */
+    untrained: List<SkillDefaults.Untrained>,
     weapons: List<CataloguedWeapon> = emptyList(),
     /** The dice an Acrobatic Dodge is rolled with. */
     dice: RandomSource,
@@ -256,35 +374,18 @@ fun DefenseDialog(
     // quoted at the control that applies it, and ActiveDefenses decides which
     // half a bullet is in, so the two cannot disagree.
     val modifiers = remember { ActiveDefenses.unappliedModifiers() }
-    // The STYLE travels with the row, because two of the three rules on the
-    // Parry (Unarmed) line are per-style: Boxing alone ignores the weapon
-    // penalty, and Wrestling's own -3 is already inside the number.
-    val parries = remember(skillLevels) {
-        skillLevels.entries
-            .mapNotNull { (key, level) ->
-                UNARMED[key.name]?.let { style ->
-                    Triple(key.name, style, ParryBlock.unarmedParry(style, level))
-                }
-            }
-            .sortedBy { it.first }
-    }
+    val parries = remember(skillLevels, dx) { unarmedParries(skillLevels, dx) }
     val armed = remember(weapons, skillLevels) { armedParries(weapons, skillLevels) }
+    val unskilled = remember(weapons, skillLevels) { unskilledParriers(weapons, skillLevels) }
     val shieldSkill = remember(skillLevels) {
         skillLevels.entries.firstOrNull { it.key.name == SHIELD_SKILL }?.value
     }
-    // The character's own Acrobatics, key and level together: the key is what
-    // the modifier ledger is asked about, and the level is what is rolled
-    // against. Null is a sheet without the skill, which is NOT offered an
-    // untrained roll -- see AcrobaticDodge.
-    val acrobatics = remember(skillLevels) {
-        skillLevels.entries
-            .firstOrNull { it.key.name == ActiveDefenses.ACROBATIC_SKILL }
-            // A Pair, not the Map.Entry: an entry is a live view of the map and
-            // compares unstably, which both keeps the control from ever
-            // skipping recomposition and makes it useless as a remember key --
-            // and it is needed as one, immediately below.
-            ?.let { it.key to it.value }
-    }
+    // The character's own Acrobatics, or the default the sheet composed for
+    // one without it. A data class and not the Map.Entry it is read from: an
+    // entry is a live view of the map and compares unstably, which both keeps
+    // the control from ever skipping recomposition and makes it useless as a
+    // remember key -- and it is needed as one, immediately below.
+    val acrobatics = remember(skillLevels, untrained) { acrobaticsFor(skillLevels, untrained) }
     // The roll as it came out, or null for "not taken this attack". Kept as the
     // whole outcome rather than the ±2 it produces, because the note under the
     // button reports the target the trackers left and the total rolled against
@@ -293,8 +394,9 @@ fun DefenseDialog(
     // control on this screen on purpose -- the GM took it against this attack --
     // but it must not survive the LEVEL changing underneath it: the note reports
     // a target the row's ±2 would no longer match, and if the skill left the
-    // sheet the control would vanish while its bonus stayed on Dodge (a review's
-    // finding, latent today because the sheet is behind this dialog).
+    // sheet the roll would turn into one at its default while a bonus rolled at
+    // the trained level stayed on Dodge (a review's finding, latent today
+    // because the sheet is behind this dialog).
     // The roll lives in [RoundState] with the other two free actions, so the
     // guard that `remember(acrobatics)` used to give it is written out here.
     // It stays a COMPOSITION-time clear, exactly as the remember key was: a
@@ -495,15 +597,9 @@ fun DefenseDialog(
                         skill = acrobatics,
                         rolled = round.acrobatic,
                         onRoll = {
-                            acrobatics?.let { (key, level) ->
+                            acrobatics?.let { skill ->
                                 round = round.copy(
-                                    acrobatic = SkillRoll.at(
-                                        label = key.name,
-                                        base = level,
-                                        key = key,
-                                        source = dice,
-                                        mods = conditions(key),
-                                    ),
+                                    acrobatic = acrobaticRoll(skill, conditions, traits, dice),
                                 )
                             }
                         },
@@ -564,13 +660,30 @@ fun DefenseDialog(
                     )
                 }
                 item {
-                    if (parries.isEmpty() && armed.isEmpty()) {
-                        // A gap, said as one: until 6et this read "the GM's
-                        // call", beside a book that prints Brawling's default.
+                    // The DX row's two readings, said beside it. Until 6ev
+                    // a note here called a sheet with no unarmed skill "a
+                    // gap" in defaults, under a cell that prints DX.
+                    if (standing.any { it.second == UnarmedStyle.BARE_HANDS }) {
+                        val formula = printed
+                            .firstOrNull { it.defense.startsWith("Parry (Unarmed)") }
+                            ?.formula
                         Note(
-                            "No unarmed combat skill on this sheet. Brawling defaults to " +
-                                "DX-2 untrained; this screen offers no parry from a " +
-                                "default, which is a gap and not a ruling.",
+                            "Parry ($BARE_HANDS) is the formula cell's other operand" +
+                                (formula?.let { ", \"$it\"" } ?: "") +
+                                ": DX itself, not a default, so nothing is taken off " +
+                                "and Versatile adds nothing. Against a weapon it takes " +
+                                "Brawling's −3. That is a reading: the cell names " +
+                                "Brawling and exempts Boxing alone.",
+                        )
+                    }
+                    // What is still not offered, named rather than absent.
+                    if (unskilled.isNotEmpty()) {
+                        Note(
+                            "No parry offered with ${unskilled.joinToString(", ")}: no " +
+                                "skill on this sheet wields it, and the Parry (Armed) " +
+                                "row prints Weapon Skill ÷ 2 + 3 with no second operand. " +
+                                "Whether a default parries, or a weapon a Warrior holds " +
+                                "as known at DX, is a gap here and not a ruling.",
                         )
                     }
                     // A refusal, not a penalty, so the rows are withdrawn and
@@ -841,11 +954,11 @@ internal fun defenceLabels(
  * have a reeling character roll Acrobatics at one number here and another on
  * the sheet screen.
  *
- * **No untrained roll HERE, and that is a gap rather than a ruling.** The
- * policy this KDoc once waited on exists: `SkillDefaults` answers chapter 2's
- * table with chapter 5's three overrides, and the Skills tab rolls Acrobatics
- * at DX-6 for a sheet without it (6et). What is missing is this screen taking
- * that roll and applying the +2 or -2, so the note below says exactly that.
+ * **A sheet without Acrobatics rolls its default here** (6ev). The bullet
+ * says "Roll vs. Acrobatics" and names no training, and p. 10 opens "You can
+ * attempt most skills even without training". The level is the one
+ * `SkillDefaults` composed for the Skills tab ([acrobaticsFor]), and
+ * [acrobaticRoll] adds the same tracker and trait modifiers that roll takes.
  *
  * **Re-rollable on purpose.** See the state's own comment: the "once per round"
  * limit lives in a paragraph governing all three free actions, which this app
@@ -853,19 +966,24 @@ internal fun defenceLabels(
  */
 @Composable
 private fun AcrobaticDodge(
-    skill: Pair<SkillKey, Int>?,
+    skill: AcrobaticSkill?,
     rolled: SkillRollOutcome?,
     onRoll: () -> Unit,
     onClear: () -> Unit,
 ) {
     Note(ActiveDefenses.printedAcrobaticDodge())
     if (skill == null) {
-        Note(
-            "No ${ActiveDefenses.ACROBATIC_SKILL} on this sheet. It can be rolled untrained " +
-                "from the Skills tab; this screen does not take that roll, so its +2 or " +
-                "−2 is yours to apply.",
-        )
+        // Not reachable from a printed sheet: Acrobatics is DX/Hard and the
+        // table gives Hard a default. Said rather than left blank all the same.
+        Note("No ${ActiveDefenses.ACROBATIC_SKILL} on this sheet, and no default for it.")
         return
+    }
+    if (skill.untrainedSource != null) {
+        // p. 10's own caveat, which this app records no ruling for.
+        Note(
+            "${skill.label} ${skill.level}. The GM may rule that a skill needs " +
+                "specialist knowledge before it can be attempted at all.",
+        )
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         TextButton(onClick = onRoll) {
@@ -898,7 +1016,7 @@ private fun AcrobaticDodge(
         val effective = outcome.effectiveOutcome ?: return@let
         val swing = ActiveDefenses.acrobaticDodge(effective)
         Note(
-            "${ActiveDefenses.ACROBATIC_SKILL} $target: rolled ${roll.total} — " +
+            "${skill.label} $target: rolled ${roll.total} — " +
                 "${label(effective, outcome.degree)}, " +
                 "${if (swing > 0) "+" else ""}$swing on Dodge above.",
         )

@@ -1012,17 +1012,22 @@ fun SheetScreen(
             // shield's DB already do.
             poolPenalty = Conditions.penaltyFor(RollKind.ACTIVE_DEFENSE, hpNow, fatigue),
             skillLevels = skillLevels,
+            // p. 37's Parry (Unarmed) formula prints DX as an operand, and the
+            // Acrobatic Dodge is rolled at the default this sheet composed.
+            dx = attributes.dx,
+            untrained = untrained,
             // What the player says they are CARRYING, resolved against
             // chapter 8. `Character.weapons` is the published sheet's own
             // weapon rows and no sheet prints one, so reading it here showed
             // an armed parry to nobody (see SavedEdits.weapons).
             weapons = session.edits.carriedWeapons(),
             dice = appDice,
-            // The same ledger the attack dialog and the sheet's own skill rolls
-            // use. An Acrobatic Dodge is a skill roll like any other, and
+            // What the trackers cost, the first term of the sheet's own skill
+            // rolls. An Acrobatic Dodge is a skill roll like any other, and
             // rolling it bare would have a reeling character roll Acrobatics at
             // two different targets depending on which screen asked (a design
-            // review's finding, and reachable today).
+            // review's finding). The dialog adds the trait term itself, from
+            // `traits` below -- see acrobaticRoll.
             conditions = { conditionsFor(it) },
             // The traits themselves: Combat Reflexes both adds +1 to every
             // defence and cancels the surprise refusal, and one trait's two

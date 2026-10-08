@@ -809,7 +809,8 @@ private fun ArmedWith(
             "Acc ${held.weapon.acc} · reach/range ${held.weapon.range} · " +
                 (
                     // Whether a default parries is not settled, and Defend
-                    // offers none, so this line must not print one either.
+                    // offers none with a weapon (its bare-hand row is DX, a
+                    // printed operand), so this line must not print one either.
                     if (isUntrained) {
                         "no parry offered without the skill"
                     } else {

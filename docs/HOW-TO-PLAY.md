@@ -121,7 +121,8 @@ with the default as its skill: *"Acrobatics (untrained, DX-6)"*.
   does not record that, so ask before you roll.
 - It is the skill roll alone. For an untrained punch, or a weapon you have no
   skill with, use **Attack**, which lists those skills under your own and
-  carries the damage. **Defend** takes no untrained roll.
+  carries the damage. For an Acrobatic Dodge use **Defend**, which rolls the
+  default itself and moves the Dodge row.
 
 ---
 
@@ -170,12 +171,20 @@ The busiest screen in the app, and the one with the most declarations.
 - **Stunned** — a -4 that prices every defence rather than withdrawing it.
 - **What is coming at you** — bare hand, weapon, or a shot. This changes the
   unarmed parries (-3 against a weapon) and withdraws them against a shot.
+- **Parry (DX, bare hands)** — the book's unarmed formula is *"Brawling or DX
+  ÷ 2 + 3"*, so every character has a parry with no skill at all. The row is
+  left out only when your Brawling already parries as well. It takes the same
+  -3 against a weapon, which is the app's reading and is said on screen. A
+  melee weapon you carry with no skill for it gets no parry row, and a note
+  names it. A firearm parries at nothing, skill or no skill.
 - **Facing** — front, side, rear. Decides whether the shield's DB counts.
   From the side the book settles nothing, so the app *offers* the number and
   says the call is yours.
 - **Shield Readied** — a shield must be readied to do anything.
 - **Free actions** — Retreat (+3 Dodge / +1 Block / +1 Parry, melee only),
-  Dive! (+3 Dodge, ranged only), Acrobatic Dodge (roll Acrobatics, ±2). They
+  Dive! (+3 Dodge, ranged only), Acrobatic Dodge (roll Acrobatics, ±2; without
+  the skill it is rolled at the default, DX-6 and one more with Versatile,
+  and labelled untrained). They
   stack with each other and with an active defence; the book allows each once
   per round, which is what **New round** is for.
 - **Parries this round** — the stepper. Each parry after the first is -4

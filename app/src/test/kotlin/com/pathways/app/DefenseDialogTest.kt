@@ -4,11 +4,16 @@ import com.pathways.model.Attr
 import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
 import com.pathways.model.SkillKey
+import com.pathways.model.Trait
+import com.pathways.model.TraitKind
 import com.pathways.model.Weapon
 import com.pathways.rules.DefenseBoost
 import com.pathways.rules.Weapons
 import com.pathways.rules.Facing
+import com.pathways.rules.RandomSource
 import com.pathways.rules.Shields
+import com.pathways.rules.SkillDefaults
+import com.pathways.rules.TraitEffects
 import com.pathways.rules.UnarmedStyle
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -195,5 +200,154 @@ class DefenseDialogTest {
             listOf("Dodge", "Parry (Shortsword)"),
             defenceLabels(dodge = true, armed, emptyList(), block = false),
         )
+    }
+
+    private fun dxSkill(name: String, difficulty: Difficulty) =
+        SkillKey(name, null, ControllingAttribute.Buyable(Attr.DX), difficulty)
+
+    private val brawlingKey = dxSkill("Brawling", Difficulty.EASY)
+    private val acrobaticsKey = dxSkill("Acrobatics", Difficulty.HARD)
+
+    /**
+     * p. 37's Parry (Unarmed) formula cell: "Brawling or DX ÷ 2 + 3". A sheet
+     * with no unarmed skill was shown no parry row at all, and a note calling
+     * that a gap in defaults. DX is an operand the cell prints.
+     */
+    @Test
+    fun `a sheet with no unarmed skill parries bare-handed at DX`() {
+        assertEquals(
+            listOf(Triple(BARE_HANDS, UnarmedStyle.BARE_HANDS, 8)),
+            unarmedParries(skillLevels = emptyMap(), dx = 10),
+        )
+    }
+
+    @Test
+    fun `a brawler at or above DX is not shown the DX row as well`() {
+        assertEquals(
+            listOf(Triple("Brawling", UnarmedStyle.BRAWLING, 9)),
+            unarmedParries(mapOf(brawlingKey to 12), dx = 10),
+        )
+    }
+
+    /**
+     * "Or", not "only without Brawling". A potion's frozen grant can sit under
+     * a DX that rose later, and the cell then offers the better operand.
+     */
+    @Test
+    fun `a Brawling below DX leaves the DX row standing beside it`() {
+        assertEquals(
+            listOf(
+                Triple("Brawling", UnarmedStyle.BRAWLING, 8),
+                Triple(BARE_HANDS, UnarmedStyle.BARE_HANDS, 9),
+            ),
+            unarmedParries(mapOf(brawlingKey to 11), dx = 12),
+        )
+    }
+
+    /**
+     * The cell names Brawling as the alternative to DX, and no other style,
+     * so a boxer or a wrestler keeps the DX row whatever their own style
+     * parries at. Boxing's row differs from it in what a weapon costs.
+     * Wrestling's can coincide, as it does here at 8 and 8, and the row
+     * stays: withholding it would read "or DX" as "or DX unless you wrestle".
+     */
+    @Test
+    fun `Boxing and Wrestling do not withdraw the DX row`() {
+        val rows = unarmedParries(
+            mapOf(dxSkill("Boxing", Difficulty.AVERAGE) to 14, dxSkill("Wrestling", Difficulty.AVERAGE) to 14),
+            dx = 10,
+        )
+        assertEquals(
+            listOf(
+                Triple("Boxing", UnarmedStyle.BOXING, 10),
+                Triple("Wrestling", UnarmedStyle.WRESTLING, 8),
+                Triple(BARE_HANDS, UnarmedStyle.BARE_HANDS, 8),
+            ),
+            rows,
+        )
+    }
+
+    /** The row is one of the rows, so a boost can be bought on it by its label. */
+    @Test
+    fun `the DX row can be paid for like any other parry`() {
+        assertEquals(
+            listOf("Dodge", "Parry ($BARE_HANDS)"),
+            defenceLabels(dodge = true, emptyList(), unarmedParries(emptyMap(), dx = 10), block = false),
+        )
+    }
+
+    /**
+     * p. 37: "Roll vs. Acrobatics", and p. 10: "You can attempt most skills
+     * even without training". The level is the one `SkillDefaults` already
+     * composed, Versatile's +1 inside it; this screen must not rebuild DX-6.
+     */
+    @Test
+    fun `an Acrobatic Dodge without the skill rolls the default already composed`() {
+        val untrained = listOf(
+            SkillDefaults.Untrained(dxSkill("Stealth", Difficulty.AVERAGE), 5, "DX-5"),
+            SkillDefaults.Untrained(acrobaticsKey, 5, "DX-6, +1 Versatile"),
+        )
+        val skill = acrobaticsFor(emptyMap(), untrained)
+        assertEquals(AcrobaticSkill(acrobaticsKey, 5, "DX-6, +1 Versatile"), skill)
+        assertEquals("Acrobatics (untrained, DX-6, +1 Versatile)", skill?.label)
+    }
+
+    @Test
+    fun `a trained Acrobatics is rolled as itself, never as a default`() {
+        val skill = acrobaticsFor(
+            mapOf(acrobaticsKey to 12),
+            listOf(SkillDefaults.Untrained(acrobaticsKey, 4, "DX-6")),
+        )
+        assertEquals(AcrobaticSkill(acrobaticsKey, 12, null), skill)
+        assertEquals("Acrobatics", skill?.label)
+    }
+
+    private val perfectBalance = Trait(TraitEffects.PERFECT_BALANCE, 15, TraitKind.ADVANTAGE)
+
+    /**
+     * The diff review's HIGH. The Skills tab rolls a skill with what the
+     * trackers cost AND what the character is (`TraitEffects.modifiers`);
+     * this dialog passed the first alone. Pickpocket -- DX 10, Perfect
+     * Balance, no Acrobatics -- rolled the default at 4 here and at 6 there.
+     * Latent on the trained path before 6ev, and reachable on a stock premade
+     * the moment a sheet without the skill was offered the roll.
+     */
+    @Test
+    fun `an Acrobatic Dodge takes the trait bonus the Skills tab gives the same roll`() {
+        val untrained = AcrobaticSkill(acrobaticsKey, 4, "DX-6")
+        val rolled = acrobaticRoll(untrained, { emptyList() }, listOf(perfectBalance), RandomSource { 3 })
+        assertEquals(4, rolled.baseTarget)
+        assertEquals(6, rolled.target)
+        assertEquals(4, acrobaticRoll(untrained, { emptyList() }, emptyList(), RandomSource { 3 }).target)
+    }
+
+    /** The trackers' half still arrives: the ledger is added to, not replaced. */
+    @Test
+    fun `an Acrobatic Dodge still takes what the ledger passes in`() {
+        val untrained = AcrobaticSkill(acrobaticsKey, 4, "DX-6")
+        val ledger = { key: SkillKey -> TraitEffects.modifiers(listOf(perfectBalance), key) }
+        assertEquals(6, acrobaticRoll(untrained, ledger, emptyList(), RandomSource { 3 }).target)
+    }
+
+    @Test
+    fun `no Acrobatics and no default leaves nothing to roll`() {
+        assertNull(acrobaticsFor(emptyMap(), emptyList()))
+    }
+
+    /**
+     * The gap this slice leaves, as a list the note can name: a carried
+     * weapon that can parry and has no skill behind it. Line 2468 prints
+     * "Weapon Skill ÷ 2 + 3" and no second operand, where the unarmed row
+     * prints DX. A firearm is not one of them: it parries at nothing.
+     */
+    @Test
+    fun `a parrying weapon carried without its skill is named, a firearm is not`() {
+        val carried = listOf(
+            Weapons.named("Broadsword"),
+            Weapons.named("Combat Knife"),
+            Weapons.named("Revolver (.38 cal)"),
+        )
+        assertEquals(listOf("Broadsword"), unskilledParriers(carried, mapOf(knifeKey to 11)))
+        assertTrue(unskilledParriers(carried, mapOf(knifeKey to 11, broadswordKey to 9)).isEmpty())
     }
 }
