@@ -386,4 +386,112 @@ class SkillDefaultsTest {
         }
         assertEquals(emptySet<String>(), wrong.toSet())
     }
+
+    // ---- 6eu: the attack a default can make --------------------------------
+
+    /**
+     * **The untrained skills the Attack dialog can make an attack with**: the
+     * ones with an unarmed table or a row in chapter 8's weapon table. That
+     * is this app's boundary and not a rule about who may attack -- the book
+     * prints a COMBAT SKILLS banner of nineteen, and a Shield Bash's own
+     * default line, and neither is what decides this list. Stated as names,
+     * so a tenth weapon row is a failing test and not a silent ninth entry.
+     */
+    @Test
+    fun `the attacks supported here, for a character who owns nothing`() {
+        val rows = SkillDefaults.attacks(offered())
+        assertEquals(
+            listOf(
+                "Guns (Revolver)", "Guns (Rifle)", "Guns (Shotgun)", "Brawling", "Boxing",
+                "Knife", "Axe/Mace", "Broadsword",
+            ),
+            rows.map { it.key.specialization?.let { s -> "${it.key.name} ($s)" } ?: it.key.name },
+        )
+        // Guns (Pistol) has a default and no weapon row, so it is a Skills-tab roll.
+        assertTrue(offered().any { it.key.specialization == "Pistol" && it.key.name == "Guns" })
+    }
+
+    /**
+     * **Warrior's and Weapon Master's lines, applied where a weapon is in
+     * hand** (6et named them and applied none, because a list of skills has
+     * no weapon). "Every weapon is treated as known at effective DX (no
+     * default penalty)": DX, and not a roll at a default, so Versatile's +1
+     * does not come along. The fist keeps the default -- the line is about a
+     * weapon -- which is why this asks whether one is held and not whether
+     * the skill has one.
+     *
+     * **A FLOOR, and for a skill the character bought as well** (the diff
+     * review's MEDIUM). One point in Axe/Mace is DX-1, and the first version
+     * lifted only an untrained skill, so a Warrior who trained with the axe
+     * swung it worse than one who had never held it. "Every weapon" is the
+     * book's phrase. A level already at DX or above is left alone.
+     */
+    @Test
+    fun `a weapon in a master's hand is wielded at no less than DX, and a fist is not`() {
+        val knife = offered(level = 10, bonus = 1).single { it.key.name == "Knife" }
+        assertEquals(7, knife.level)
+        for (mastery in SkillDefaults.WeaponMastery.entries) {
+            // Untrained, Versatile and all: DX and no more.
+            assertEquals(12, SkillDefaults.mastered(knife.level, weaponInHand = true, mastery = mastery, dx = 12))
+            // Bought one rung below DX.
+            assertEquals(12, SkillDefaults.mastered(11, weaponInHand = true, mastery = mastery, dx = 12))
+            // At DX or above the line changes nothing, and says so with null.
+            assertNull(SkillDefaults.mastered(12, weaponInHand = true, mastery = mastery, dx = 12))
+            assertNull(SkillDefaults.mastered(15, weaponInHand = true, mastery = mastery, dx = 12))
+            // The fist.
+            assertNull(SkillDefaults.mastered(knife.level, weaponInHand = false, mastery = mastery, dx = 12))
+            assertTrue(mastery.block in mastery.source && mastery.source.startsWith("DX"), mastery.source)
+            assertTrue(TraitEffects.VERSATILE !in mastery.source, mastery.source)
+        }
+        assertNull(SkillDefaults.mastered(knife.level, weaponInHand = true, mastery = null, dx = 12))
+    }
+
+    /**
+     * Which mastery a walked chain holds. Weapon Master's block calls itself
+     * "a strict upgrade to and replacement of the Warrior's Combat Mastery",
+     * so it is one or the other and never both -- and the repeated-use clause
+     * is the Warrior's alone.
+     */
+    @Test
+    fun `Weapon Master replaces Warrior, and only Warrior counts repeated use`() {
+        val warrior = ContentLoader.pathways().single { it.name == "Warrior" }.ability
+        val master = ContentLoader.pathways().single { it.name == "Weapon Master" }.ability
+        assertTrue("treated as known at effective DX (no default penalty)" in warrior, warrior)
+        assertTrue("treated as known at default +2" in warrior, warrior)
+        assertTrue("treated as known at effective DX (no default penalty)" in master, master)
+        assertTrue("strict upgrade to and replacement of the Warrior" in master, master)
+
+        val w = SkillDefaults.WeaponMastery.WARRIOR
+        val m = SkillDefaults.WeaponMastery.WEAPON_MASTER
+        assertEquals(w, SkillDefaults.masteryFor("Twilight Giant", 9))
+        assertEquals(w, SkillDefaults.masteryFor("Twilight Giant", 8))
+        assertEquals(m, SkillDefaults.masteryFor("Twilight Giant", 7))
+        assertEquals(m, SkillDefaults.masteryFor("Twilight Giant", 6))
+        assertNull(SkillDefaults.masteryFor("Fool", 9))
+        assertNull(SkillDefaults.masteryFor("Mother", 7))
+        assertTrue("default +2" in w.unapplied!! && w.unapplied!!.startsWith("Not applied here"), w.unapplied)
+        assertNull(m.unapplied)
+        // The Harvest Priest's line is about a tool the weapon table does not mark.
+        assertNull(SkillDefaults.toolNote("Twilight Giant", 7))
+        assertTrue("farming or gardening tool" in SkillDefaults.toolNote("Mother", 7)!!)
+    }
+
+    /**
+     * A level can DROP inside one turn: put the weapon down and a master is
+     * back at the default. A Deceptive Attack chosen under the higher ceiling
+     * would then throw on Roll ([Attacks.modifiers] refuses it), so the plan
+     * is moved to the new level and loses what no longer fits -- visibly, to
+     * zero, never trimmed to a number the player did not pick.
+     */
+    @Test
+    fun `a plan moved to a lower level drops a Deceptive Attack it cannot afford`() {
+        val plan = AttackPlan(deceptive = 3, rapidStrikes = 1)
+        assertEquals(3, Attacks.maxDeceptive(12))
+        assertEquals(1, Attacks.maxDeceptive(6))
+        assertEquals(plan, Attacks.atLevel(plan, 12))
+        assertEquals(plan.copy(deceptive = 0), Attacks.atLevel(plan, 6))
+        assertEquals(1, Attacks.atLevel(plan.copy(deceptive = 1), 6).deceptive)
+        // And the moved plan is one Attacks will roll.
+        Attacks.modifiers(Attacks.atLevel(plan, 6), 6)
+    }
 }

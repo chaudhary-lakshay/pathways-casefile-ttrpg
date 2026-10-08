@@ -158,8 +158,10 @@ object TraitEffects {
      * skill outside this banner -- but the book files it under SURVIVAL &
      * OTHER, so calling it occult is my judgement and not the book's.
      * NARROWER would mean curating which of the banner's twenty-six rows are
-     * occult, which is the list-building 6i refused when no skill is tagged as
-     * a combat skill. Every occult skill this book prints -- Occultism, Hidden
+     * occult, which is list-building of the kind 6i refused for attacks. (6i's
+     * stated premise, that no skill is tagged as a combat skill, was false:
+     * the book prints a COMBAT SKILLS banner. Its refusal to curate WITHIN a
+     * banner is the part that carries over.) Every occult skill this book prints -- Occultism, Hidden
      * Lore, Thaumatology, Theology, Alchemy -- is already inside it.
      *
      * "Expert in mysticism." is the cell's lead-in and grants nothing, so it
@@ -569,9 +571,15 @@ object TraitEffects {
      *
      * **Then it was a [PARTLY_APPLIED] entry reading "this app offers no
      * other roll at a default"**, which [SkillDefaults] made false in turn
-     * (6et). Both rolls this app makes at a default take the +1 now -- the
-     * Divine tile's and the Skills tab's untrained roll -- so the trait has
-     * nothing left to report. A third consumer of a default must take it too.
+     * (6et). Every roll this app makes at a default takes the +1 now -- the
+     * Divine tile's, the Skills tab's untrained roll and the Attack dialog's
+     * untrained attack (6eu), all three through [SkillDefaults] or
+     * [Divination] -- so the trait has nothing left to report. A fourth
+     * consumer of a default must take it too.
+     *
+     * NOT a Warrior's or Weapon Master's weapon, which is "treated as known
+     * at effective DX": that is not a roll at a default, and
+     * [SkillDefaults.mastered] leaves the +1 off it.
      */
     fun defaultBonus(traits: List<Trait>): Int = BespokeBonus.DEFAULT.of(traits)
 

@@ -160,6 +160,20 @@ object Attacks {
         else plan.copy(isRanged = true, rapidStrikes = 0, deceptive = 0, strongBlow = false)
 
     /**
+     * [plan] moved to a different skill [level], dropping what cannot come
+     * along.
+     *
+     * A fourth transition, new with 6eu: a level was fixed once a skill was
+     * picked, and now a Warrior's untrained knife is wielded at DX and the
+     * same skill with the knife put down is back at its default. A Deceptive
+     * Attack bought under the higher ceiling would throw in [modifiers].
+     * Dropped to zero rather than trimmed, because a trimmed plan is a
+     * number the player did not pick -- the refusal [modifiers] already makes.
+     */
+    fun atLevel(plan: AttackPlan, level: Int): AttackPlan =
+        if (plan.deceptive > maxDeceptive(level)) plan.copy(deceptive = 0) else plan
+
+    /**
      * [plan] moved onto a different unarmed attack, dropping what cannot come
      * along.
      *
