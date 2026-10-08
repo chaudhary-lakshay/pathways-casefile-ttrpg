@@ -366,7 +366,10 @@ class BeyonderSession(
      *
      * Pathway and Sequence only. A digestion step or an earlier CoR step
      * moves neither the ceiling nor the meaning of the next tap, and
-     * comparing them would drop the second of two quick taps. A Drink does
+     * comparing them would drop the second of two quick taps. (Checked, not
+     * assumed: the ceiling is `PathwayScreen`'s `maxCorFor`, which goes
+     * through `PotionDigestion.of`, and nothing in `PotionDigestion.kt` or
+     * `Corruption.kt` reads `digestion`.) A Drink does
      * move the ceiling -- a potion can LOWER Will -- so a step from the
      * composition before it waits for the screen to catch up.
      */

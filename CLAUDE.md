@@ -135,8 +135,10 @@ ceiling they were drawn against while a digestion step must not drop the next
 tap. `drink` is unchanged; the session still trusts no number from the
 screen. Seven mutations, all caught. **Device-verified on the SM-T570**: the
 crash before, one clean drink after, two fast CoR taps both counted — and
-the ritual dialog at last on hardware (`3d6 ≤ 15`, then `14 vs 15`). 6eh's
-seven dialogs are still emulator-only. **No successor is named.**
+the ritual dialog and all seven of 6eh's at last on hardware (`3d6 ≤ 15`,
+then `14 vs 15`; the seven are tabled in the log). `onSamePotion` was written
+after the diff review and has two mutations and a grep behind it, no reviewer.
+**No successor is named.**
 
 **6eh is next, and it is the slice 6eg's corrected census named: seven
 more rolls that printed a target and then composed it again.** Boon,

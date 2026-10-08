@@ -6806,7 +6806,13 @@ Will-lowering-potion defect M4 already paid for once. So the steppers got a
 guard too, on the same predicate — and the diff review found that it then
 dropped a CoR step taken in the same frame as a digestion step, because
 state equality includes digestion. The steppers' question is narrower than
-Drink's: only a new potion moves their ceiling.
+Drink's: only a new potion moves their ceiling. **`onSamePotion` was written
+AFTER that review and no reviewer has read it**, nor the rewritten comment at
+`MainActivity.kt:1568`. What stands behind it is two mutations and one
+grep: the claim that a digestion step cannot move the ceiling was checked
+against `PotionDigestion.kt` and `Corruption.kt`, neither of which reads
+`digestion`, on the screen where a claim of exactly this kind had just been
+found false.
 
 `edits` is compared by neither. Nothing on the pathway screen changes it,
 and `maxCorFor` reads the live edits when it is called.
@@ -6837,11 +6843,24 @@ has, and "lost" was only ever reached by a failed roll.
   taps: one drink, no crash.
 - Two taps on Corruption `+1` from one script: `0 / 10` → `2 / 10`. Both
   count, which is what `onSamePotion` is for.
-- **And the ritual dialog, which until now had only an emulator behind it.**
-  Good at +2 on the Academic Researcher as a Seer: `3d6 ≤ 15`, `preparation
-  +2`, then **`3d6: 14 vs 15` — "The ritual holds"**. That is 6ef's pick and
-  6eg's roll on the hardware the earlier slices used. The seven dialogs of
-  6eh are still emulator-only.
+- **And everything 6ef, 6eg and 6eh had only an emulator behind.** The ritual
+  dialog, Good at +2 on the Academic Researcher as a Seer: `3d6 ≤ 15`,
+  `preparation +2`, then **`3d6: 14 vs 15` — "The ritual holds"**. Then 6eh's
+  seven, printed against rolled:
+
+  | Roll | Printed | Rolled |
+  |---|---|---|
+  | Fright Check, supernatural death (-4) | `3d6 vs 6` | `3d6: 7 vs 6` |
+  | Concentration | `3d6 ≤ 7 — Will 10-3` | `3d6: 12 vs 7` |
+  | Spirit Vision | `Roll 10 or under (Per 10)` | `rolled 9 vs 10` |
+  | Detection, three situations (+2, +1, -2) | `Roll 3d6 ≤ 11` | `3d6: 4 vs 11 — Critical Success` |
+  | Divination | `Roll 3d6 ≤ 14` | `3d6: 10 vs 14` |
+  | Boon | `3d6 ≤ 11` | `3d6: 4 vs 11` |
+  | Self-control, Stubborn at +2 (Antiquarian Dealer) | `3d6 ≤ 9` | `3d6: 12 vs 9` |
+
+  Detection's itemised caption read the same sentence before the roll and
+  after it. As in 6eh, this is a regression pass: it shows nothing broke on
+  the hardware, not that a mismatch was ever produced there.
 - Not exercised: a *Drink and roll* through the guard. At 0% digestion the
   roll is against 1, and it would have cost a saved character to watch a
   dialog open. The first-potion path ran; the roll path is the same handler
@@ -6851,7 +6870,8 @@ The dialog's dump coordinates were off again on this tablet — Roll at dump
 `(120,1272)` is at pixel `(144,1680)` — so every tap came off a screencap.
 
 The premades this left changed on the tablet: Beat Cop, Dock Foreman and
-Academic Researcher are Sequence 9 Seers, and the last has spent 2 SPI.
+Academic Researcher are Sequence 9 Seers, and the last has spent 8 of its 9
+SPI (a ritual, a Spirit Vision, a divination and a boon).
 
 Tests: 1753 Kotlin (1242 `core:rules`, 491 `app`, 20 `core:model`) after
 `--rerun-tasks`.
