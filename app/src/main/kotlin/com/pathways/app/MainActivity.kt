@@ -313,8 +313,9 @@ fun SheetScreen(
     }
     // The advantages, which had no list at all until 6es: the sheet printed
     // `TraitEffects.reported` and the drawbacks, so an advantage with nothing
-    // to report was on no screen but the builder. 6am's finding, one list
-    // over, and 24 of the premades' 50 advantage rows.
+    // to report had its cell on no screen -- the gallery card and the builder
+    // show a name. 6am's finding, one list over, and 24 of the premades' 50
+    // advantage rows.
     val advantages = remember(traits) { TraitEffects.held(traits, TraitKind.ADVANTAGE) }
     // Damage rolls off ST, Boxing's bonus off DX and a Major Wound off HT, all
     // AFTER any potion that raised them -- the same digested character the

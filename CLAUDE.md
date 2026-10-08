@@ -40,6 +40,14 @@ a fresh clone the regeneration order is `extract_pdf.py`, then `coverage.py`,
 then the extractors, because `coverage.py` writes `build/extract/book.txt`,
 the anchor every `sourceLines` number is read against (6ed).
 
+**A new production reader of a trait by name must add it to
+`TraitEffects.known()` in the same commit.** Before 6es a trait missing
+from that set made the sheet silent. Now `reported()` prints
+`TraitEffects.UNREAD` for it, *"this app applies nothing this row prints"*,
+beside a rule that is applied. Nothing enforces this: the census tests name
+the readers that were found (Night Eyes, Spiritual Fortitude, the language
+pricing pair) and cannot see the next one.
+
 **`defense_modifiers.json` is finished, and so is the round boundary behind
 it.** 6co applied Retreat — three numbers scoped per defence row (+3 Dodge / +1
 Block / +1 Parry vs. 1 melee attack per round) — after 6cm's Dive! and 6cn's
@@ -150,9 +158,9 @@ rows, by a throwaway test at `c3011e6`. Read it for four things.
   chapter 6 says that of a potion's entry, and agreement between two
   proposed readings does not establish the rule.
 - **The sheet listed no advantages.** It printed `reported()` and the
-  drawbacks, so 24 of the premades' 50 advantage rows were on no screen
-  but the builder. Each held trait is one row now, with its cell and its
-  notes, and a row nothing reads says `TraitEffects.UNREAD`.
+  drawbacks, so 24 of the premades' 50 advantage rows were nowhere on it.
+  Each held trait is one row now, with its cell and its notes, and a row
+  nothing reads says `TraitEffects.UNREAD`.
 
 Codex answered both reviews: CHANGE on all three design questions, then
 FIX on the diff. Its MEDIUM was that `UNREAD`'s first wording, *"reads no

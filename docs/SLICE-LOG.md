@@ -6813,8 +6813,9 @@ questions, three verdicts.
 - `TraitEffects.held(traits, kind)`: one `HeldTrait` per trait, with the
   book's cell and its notes.
 - **The sheet.** The Traits tab printed `reported(traits)` and then every
-  drawback. An advantage with nothing to report was on no screen but the
-  builder, which is 6am's finding one list over. It prints one row per
+  drawback. An advantage with nothing to report was nowhere on the sheet,
+  and its cell was on no screen: the gallery card and the builder show a
+  name. That is 6am's finding one list over. It prints one row per
   held advantage now (*"name — N pts"*, the cell), then the drawbacks as
   before, and each row carries its own notes under it. A note on the
   whole cell prints the caveat alone. A note on one clause quotes the

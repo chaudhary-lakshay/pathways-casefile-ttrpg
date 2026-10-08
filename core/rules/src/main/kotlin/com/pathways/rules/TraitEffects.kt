@@ -1208,8 +1208,14 @@ object TraitEffects {
      * their cell with no word on whether it was counted. A reason per row
      * would be the honest-looking alternative and is the one that rots --
      * each is a claim about this app that nothing re-reads (6eq). This one is
-     * true by construction, PROVIDED every reader of an EFFECT is in [known];
-     * that is what the census tests beside it are for.
+     * true by construction, PROVIDED every reader of an EFFECT is in [known].
+     *
+     * **Nothing enforces that proviso.** The census tests name the readers
+     * that were found; they cannot see the next one. Before this sentence a
+     * trait missing from [known] made the sheet silent, and now the sheet
+     * says "applies nothing" beside a rule that is applied -- a disclaimer
+     * that expires the day a reader is written (6ba). So a new production
+     * reader of a trait by name adds it to [known] in the same commit.
      *
      * **"Its price aside", because a price is read from rows outside
      * [known]** and the first wording, "reads no rule from this row", was
@@ -1240,8 +1246,8 @@ object TraitEffects {
      *
      * The advantages had no such list: the sheet printed [reported] and the
      * drawbacks, so an advantage with nothing to report -- applied in full,
-     * or read by nothing -- was on no screen but the builder (6am's finding,
-     * one list over). A sheet name that matches no row keeps its name and a
+     * or read by nothing -- was nowhere on the sheet, and its cell on no
+     * screen at all (6am's finding, one list over). A sheet name that matches no row keeps its name and a
      * null cell, which is the record 4.1 asks for.
      */
     fun held(traits: List<Trait>, kind: TraitKind): List<HeldTrait> {

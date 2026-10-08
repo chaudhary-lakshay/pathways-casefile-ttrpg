@@ -1025,7 +1025,11 @@ class TraitEffectsTest {
      * read since M4's first slice. The fifth and sixth instances of the
      * failure `known()`'s KDoc records, found by listing the complement
      * rather than by waiting for the next one: 148 of 198 rows, and these two
-     * were the only ones a reader reaches by name.
+     * are the ones a grep for name matches found applying an EFFECT. Not
+     * "the only readers": [Wealth] matches four rows by prefix and
+     * `pricedVariants` reads Social Stigma's cell, both for a price, and the
+     * gallery card prints names. This list is what was found, and it cannot
+     * see the next reader.
      */
     @Test
     fun `a trait applied by name elsewhere is one the census can see`() {
