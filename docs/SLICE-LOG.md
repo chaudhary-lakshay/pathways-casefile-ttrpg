@@ -6726,6 +6726,141 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6em. A state the app only checked on the way in
+
+6el named no successor, and 6ek had left three items. This is the first:
+*"an edit that lowers a POSITIVE ceiling onto the CoR total does not latch
+the loss; the next CoR gain does."* Checked before it was believed, it is
+worse than that sentence says.
+
+The book prints the rule as a STATE: *"Maximum CoR equals the character's
+Will score. Reaching maximum CoR means the character becomes an NPC monster
+… removed from play"* (book lines 3059-3060), and *"[!] At maximum CoR: The
+character is permanently lost"* (3075). The app latched it only inside
+`gainCor`. Three builder edits lower the ceiling without a gain: selling Will
+steps, selling IQ (Will = IQ + steps), and selling a bought Spiritual
+Fortitude (+3, line 1028). So a character at CoR 9 under Will 10 could sell
+one Will and stand at 9 / 9, live. **And the next gain does not always latch
+it**: a CoR `−1` tap there is `isLostAfter(9, −1, 9)` = `isLostAt(8, 9)`,
+false. So the stepper walked the character back out, and the book's
+"permanently" was never reached. The design review found that, against my
+draft's claim that leaving old saves alone was safe.
+
+### Refuse, not latch: the split the code already makes
+
+The strongest case for latching on the edit is the book's own wording, plus
+a precedent: a potion that lowers Will onto the total is warned about before
+the tap (`drinkLine`) and latched by `drink`. The design review made that
+case and then ruled against it **by role**. A potion is an event in the book;
+selling Will in play is app latitude, since the book prints no such sale.
+Where only an app bound is at stake, this repo already refuses rather than
+latches: 6ek's `holdsCeiling` refusal on Drink, and `ScoreFloors`. So:
+
+- **A builder edit is refused** when it would leave a live character at or
+  above the ceiling. `BeyonderSession.allows` asks
+  `keepsBelowCeiling(next)`, after the floors, because a candidate below a
+  floor may not digest. The builder greys `−` through `canSet*` as before,
+  and the trait row's *Give back* is now greyed through a new `canSellTrait`,
+  with the line *"Kept: giving it back would bring maximum CoR to the CoR
+  total or below 1."* Before this, a refused sale was a button that did
+  nothing.
+- **A save already at or past its ceiling buys Will back once on opening**,
+  to one above the total, and writes back. It runs after 6el's ceilings and
+  6ek's floors. Buying Will only raises the ceiling, so no floor moves. Only
+  if the purchase ceiling (Will +98) stops the buy-back short does the
+  character stand at maximum and is lost. That is the book's answer, and the
+  latch is persisted even though the edits did not change.
+- **The first potion latches now.** `drink`'s mortal branch set the state
+  and returned without `gainCor(0, ceilingAfter)`. A mortal can carry CoR (a
+  ritual's), and Abyss Sequence 9 is Will −1. Before this slice that left
+  one loss unlatched. After it, the opening repair would have bought the
+  loss back with a Will purchase. The diff review's MEDIUM.
+
+The ceiling now has **one reading**, `SavedEdits.corCeilingOn(sheet,
+state)`. The session, the sheet screen's `maxCor` and the pathway screen's
+`maxCorFor` all ask it; before, two screens composed it separately. The
+review traced both old paths and found no number changes. ScoreFloors' Will
+row is a third computation, and it is left alone because it answers a floor
+question.
+
+**And a label was false.** The tracker printed *"maximum CoR is Will
+($max)"*, and on the tablet under Fortitude it read *"Will (13)"* beside a
+Will of 10. It now prints the number alone. That is the
+"literal restating a computed number" class; a grep found no other copy.
+
+### Tests and mutations
+
+The RED test was written to hold under either design: after each of the
+three edits, `isLost || cor < ceiling`. It failed with *"CoR 9 under a
+ceiling of 9, and live"*. The tests after the design review failed on an
+unresolved `canSellTrait`, and the first-potion test on `isLost` false.
+One of my own tests was wrong, not the code: the Beyonder case first used
+CoR 7, where selling one Will leaves 7 / 8, which is legal. At CoR 8 it
+separates the digested ceiling (8 / 8, refused) from the undigested one
+(8 / 9).
+
+| Mutation | Caught by |
+|---|---|
+| `allows` skips the ceiling | the boundary test, the three-edit test, the Fortitude test |
+| `>` → `>=` | the boundary test, the three-edit test |
+| no buy-back on opening | *a save already standing at its ceiling…* |
+| `canSellTrait` skips `allows` | the Fortitude test |
+| no latch when the buy-back falls short | *…cannot buy back above its total is lost* |
+| latch persisted only when edits change | the same, **after retargeting it** |
+| ceiling read without the potions drunk | the first-potion test and *a Beyonder's ceiling…* |
+| buy-back ignores `isLost` | *a lost save is not bought back*, the first-potion test |
+| first potion does not latch | the first-potion test |
+
+The persistence mutation first **survived** (exit 0). The test started at
+IQ 30, so `withinCeilings` changed the edits, and the save was written
+anyway. It now starts at both purchase ceilings (IQ 26, Will +98, CoR 124),
+so the edits come back unchanged and only the latch can trigger the write.
+One run was a **compile failure, not a survival**: the mutation text
+contained `||`, the harness's own pair separator. That is the reason 6eh
+gives for reading `BUILD SUCCESSFUL` and the testcase, not the exit code.
+
+Tests: 1790 Kotlin (1254 `core:rules`, 516 `app`, 20 `core:model`) after
+`--rerun-tasks`, and 357 Python.
+
+### Reviews
+
+Codex was still rate-limited (reset 15:26) and the 9router gateway refused
+the probe again. So, as in 6el, the design review and the diff review were
+one sub-agent each.
+
+- **The design review returned CHANGE.** It replaced my draft's two
+  weakest parts: "old saves left alone" (the `−1` escape) and a "lower than
+  the current ceiling" clause, which let an old 9 / 8 save buy Will up to
+  9 / 9. It also asked for the visible refusal on *Give back*.
+- **The diff review returned FIX.** Its MEDIUM was the first potion. Its
+  LOWs were taken: an unused `Corruption` import in `MainActivity`, two
+  stale comments (*"The CoR ceiling is the character's CURRENT Will"* and
+  *"three readers need them: the CoR cap"*), the `a || b && c` precedence
+  parenthesised, and two test gaps (the walk branch and the lost guard,
+  rows 7 and 8 above).
+
+### On the SM-T570
+
+| State | Screen |
+|---|---|
+| Academic Researcher, CoR 9 / 10 | builder: Will `−` and IQ `−` `enabled=false` (ST/DX/HT at the book's 9 too); HP, Per and FP `−` live; a Will `−` tap leaves Will 10 |
+| Spiritual Fortitude bought, CoR 9 / 13 | the tracker reads `9 / 13`; *Give back* live |
+| CoR 12 / 13 | *Give back* `enabled=false`, with *"Kept: giving it back would bring maximum CoR to the CoR total or below 1."*; a tap leaves the trait |
+
+That device pass ran on the build before the label fix and the first-potion
+latch, both of which are unit-tested only. The premade was left as found:
+CoR 0, Fortitude given back, Fool Sequence 9 at 0%, *"1 of 17 values
+differ"*, crash buffer empty.
+
+### Seen and not touched
+
+- **6ek's two remaining items stand**: selling Basic Speed and Basic Move
+  refunds without limit, and the builder prints bought values without potion
+  grants.
+- **An old save at the ceiling is repaired at a cost of points, and nothing
+  says why.** That is the same trade 6ek recorded for the floors, made for
+  the same reason.
+
 ## 6el. The ceiling a browse could cross
 
 6ek named its successor as the ceiling side of its own overflow:

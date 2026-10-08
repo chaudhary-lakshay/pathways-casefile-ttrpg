@@ -190,7 +190,39 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6eg back to 6de
+## Retired lead paragraphs, 6eh back to 6de
+
+**6eh is next, and it is the slice 6eg's corrected census named: seven
+more rolls that printed a target and then composed it again.** Boon,
+Detection, Divination, Concentration, self-control, Spirit Vision and the
+Fright Check. Each engine gains `rollAgainst`, its older `attempt` is that
+roll with the target composed first, and each handler passes the value on
+screen; Detection and Spirit Vision pass the breakdown they printed as well,
+so Detection's caption is the result's own itemised list now. Read it for
+four things. **The design review changed three of the seven before any
+code** — my sketch dropped Concentration's `disturbed` guard off the path
+production takes, and passing a target without its breakdown was *"cosmetic"*.
+**The potion roll is left, and its window is open**: the review's
+session-held prepared target is a cache and is refused, but my first reason
+for leaving the pair ("one predicate, in the engine") was equally true of
+Divination before this slice. What differs is that the session owns PERSISTED
+state and must not trust a number from the screen. **This paragraph then
+claimed the `±5%` stepper and Drink shared a screen; they do not (6ei).** **`stillShows` closes the window itself (6ej).** **`attempt` is test-only API in eight engines now**, and
+that is what the mutations found: the diff review proposed seven by reading,
+**five survived the whole suite when run**, three of them forwarding bugs in
+wrappers production no longer calls — which mislead only the suite, and the
+suite is what reads them. The other two were on the production path, and one
+is the finding of the slice: **no test had ever rolled a Spirit Vision
+success through the engine**, so reading it by outcome instead of by margin
+returned the bare row for every margin. **And one "survived" was not a
+survival** — a half-applied script left two tests unchanged, and `BUILD
+SUCCESSFUL` under a mutation says the guard did not fire, not that it exists.
+**A regression pass on the emulator, all seven** — it proves no fix,
+since the mismatch was never produced on a device; printed and rolled are the
+same number in each (`vs 6` → `11 vs 6`, `≤ 7` → `9 vs 7`, `≤ 10` → `5 vs 10`,
+`10 or under` → `10 vs 10`, `≤ 14` → `10 vs 14`, `≤ 11` → `13 vs 11`, `≤ 9` →
+`12 vs 9`). **The successor is a stale check on Drink** — built in 6ei, for a
+different reason than the one given here.
 
 **6eg is next, and it reverses the fix 6ef shipped a day earlier.** 6ef
 closed one stale-state window in the ritual Roll handler by reading the pick

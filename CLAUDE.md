@@ -135,7 +135,30 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6el is newest, and it is 6ek's successor, the ceiling side of the same
+**6em is newest, and it is the first of 6ek's three seen-and-not-touched
+items: maximum CoR is a STATE, and the app checked it only on a gain.**
+Selling Will, IQ or a bought Spiritual Fortitude could leave a live
+character at 9 / 9. Worse than 6ek's sentence, the next gain did not latch
+it: a CoR `−1` there is `isLostAt(8, 9)`, which is false, so the stepper
+walked the character out. Read it for four things.
+
+- **Refuse, not latch, by role.** A potion is a book event and latches. A
+  builder sale is app latitude and is refused, which is the split 6ek's
+  Drink refusal and `ScoreFloors` already make. *Give back* is now greyed
+  through `canSellTrait`, with its reason.
+- **An old save at its ceiling buys Will back once on opening**, after
+  6el's ceilings and 6ek's floors. It is lost only if Will +98 stops the
+  buy-back short.
+- **The first potion never latched**: `drink`'s mortal branch skipped
+  `gainCor(0, …)`, and Abyss 9 is Will −1. The diff review's MEDIUM.
+- **One reading of the ceiling**, `SavedEdits.corCeilingOn`, replaces two
+  screens' copies. A label printed *"Will (13)"* beside a Will of 10.
+
+One mutation first survived, because its test's setup changed the edits
+anyway. Device-verified on the SM-T570: Will and IQ `−` greyed at 9 / 10,
+and *Give back* greyed at 12 / 13. **6ek's two remaining items stand.**
+
+**6el is next, and it is 6ek's successor, the ceiling side of the same
 overflow, which was wider than 6ek said.** A potion's grants are ADDED to the
 bought score, and the sum goes through `Attributes` (ST 30) and
 `SecondaryDelta` (±100). The builder sold up to both. **The pathway screen
@@ -267,41 +290,10 @@ after the diff review and has two mutations and a grep behind it, no reviewer
 **(6ej: reviewed, and correct). No successor is named** — 6ej built the thing
 it saw on the way.
 
-**6eh is next, and it is the slice 6eg's corrected census named: seven
-more rolls that printed a target and then composed it again.** Boon,
-Detection, Divination, Concentration, self-control, Spirit Vision and the
-Fright Check. Each engine gains `rollAgainst`, its older `attempt` is that
-roll with the target composed first, and each handler passes the value on
-screen; Detection and Spirit Vision pass the breakdown they printed as well,
-so Detection's caption is the result's own itemised list now. Read it for
-four things. **The design review changed three of the seven before any
-code** — my sketch dropped Concentration's `disturbed` guard off the path
-production takes, and passing a target without its breakdown was *"cosmetic"*.
-**The potion roll is left, and its window is open**: the review's
-session-held prepared target is a cache and is refused, but my first reason
-for leaving the pair ("one predicate, in the engine") was equally true of
-Divination before this slice. What differs is that the session owns PERSISTED
-state and must not trust a number from the screen. **This paragraph then
-claimed the `±5%` stepper and Drink shared a screen; they do not (6ei).** **`stillShows` closes the window itself (6ej).** **`attempt` is test-only API in eight engines now**, and
-that is what the mutations found: the diff review proposed seven by reading,
-**five survived the whole suite when run**, three of them forwarding bugs in
-wrappers production no longer calls — which mislead only the suite, and the
-suite is what reads them. The other two were on the production path, and one
-is the finding of the slice: **no test had ever rolled a Spirit Vision
-success through the engine**, so reading it by outcome instead of by margin
-returned the bare row for every margin. **And one "survived" was not a
-survival** — a half-applied script left two tests unchanged, and `BUILD
-SUCCESSFUL` under a mutation says the guard did not fire, not that it exists.
-**A regression pass on the emulator, all seven** — it proves no fix,
-since the mismatch was never produced on a device; printed and rolled are the
-same number in each (`vs 6` → `11 vs 6`, `≤ 7` → `9 vs 7`, `≤ 10` → `5 vs 10`,
-`10 or under` → `10 vs 10`, `≤ 14` → `10 vs 14`, `≤ 11` → `13 vs 11`, `≤ 9` →
-`12 vs 9`). **The successor is a stale check on Drink** — built in 6ei, for a
-different reason than the one given here.
-
-**6eg back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6eh back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6eh** — seven more engines roll the target they printed; `attempt` became test-only, and no test had rolled a Spirit Vision success through the engine;
 **6eg** — print a target, then roll it: a handler belongs to the composition that drew it, so `rollAgainst` takes the target on screen;
 **6ef** — the GM picks inside a span cell; a keyed `remember` resets a frame late, so a pick lives with its row, and the click-time read was undone by 6eg;
 **6ee** — every free toolchain diagnostic run as a sweep: clean, and beside its hits an assertion that could not fail and a fourth inline copy of `endsBetween`;
@@ -368,7 +360,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: the slice log, from the END — 6el first.** The
+**Where to start next: the slice log, from the END — 6em first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -423,7 +415,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1782 Kotlin** (JUnit 5 — 1254 `core:rules`, 508 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1790 Kotlin** (JUnit 5 — 1254 `core:rules`, 516 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -919,10 +911,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6el. The slice log
+## 6a-6em. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6el is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6em is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
