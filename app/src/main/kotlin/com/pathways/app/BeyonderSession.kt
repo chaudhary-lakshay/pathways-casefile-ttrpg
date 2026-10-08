@@ -280,6 +280,26 @@ class BeyonderSession(
     }
 
     /**
+     * Buy a language, or change one already owned (Ch. 3, pp. 13-14).
+     *
+     * Nothing is stored but the three names -- see [SavedEdits.languages] --
+     * and nothing here judges the purchase: [com.pathways.rules.Languages]
+     * drops what the book does not print when the character is composed.
+     */
+    fun buyLanguage(language: SavedLanguage) {
+        edits = edits.withLanguage(language)
+        persist()
+    }
+
+    /** Give a language back, by the name it is owned under. */
+    fun sellLanguage(name: String) {
+        val kept = edits.languages.filterNot { it.language.equals(name, ignoreCase = true) }
+        if (kept.size == edits.languages.size) return
+        edits = edits.copy(languages = kept)
+        persist()
+    }
+
+    /**
      * Give one back, by position.
      *
      * By INDEX rather than by name, because two purchases of one row are legal

@@ -466,8 +466,9 @@ class PurchasableTraitsTest {
     fun `the language row is not withheld for a table this app holds`() {
         val language = PurchasableTraits.unoffered().single { "Language (specify)" in it.names }
         assertFalse("has not read" in language.reason, language.reason)
-        assertTrue("not built" in language.reason, language.reason)
-        assertFalse("costs half" in language.reason, language.reason)
+        // It is sold, by the builder's own Languages row, and says where.
+        assertTrue("Languages row" in language.reason, language.reason)
+        assertFalse("not built" in language.reason, language.reason)
         // Reputation prints no table at all, and is not filed under this one.
         assertEquals(listOf("Language (specify)"), language.names)
         val reputation = PurchasableTraits.unoffered().single { "Reputation" in it.names }

@@ -17,6 +17,9 @@ import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.SecondaryCharacteristics
 import com.pathways.rules.InstancedPurchase
+import com.pathways.rules.LanguagePurchase
+import com.pathways.rules.Languages
+import com.pathways.rules.OwnedLanguage
 import com.pathways.rules.PurchasableTraits
 import com.pathways.rules.PurchaseCeilings
 import com.pathways.rules.ScoreFloors
@@ -161,9 +164,53 @@ fun SavedEdits.boughtBack(gap: SecondaryDelta): SavedEdits {
  * a level left unchosen leaves whatever the sheet printed alone.
  */
 private fun SavedEdits.chosenTraits(printed: List<Trait>): List<Trait> {
+    val held = traitsBeforeLanguages(printed)
+    return held + ownedLanguages(printed).map { it.toTrait() }
+}
+
+/** Everything but the languages, which are priced against this list. */
+private fun SavedEdits.traitsBeforeLanguages(printed: List<Trait>): List<Trait> {
     val withBought = traitsBeforeInstanced(printed)
     return withBought + instancedTraits(withBought)
 }
+
+/**
+ * The languages these edits own on a sheet printing [printed], priced.
+ *
+ * LAST in the composition, so a Language Talent or Multilingual bought in
+ * play is already held when the price is read. The builder's rows, the
+ * picker's preview and the Ritual dialog's note all ask here: one reading of
+ * what a language costs and whether the book prints it at all.
+ */
+fun SavedEdits.ownedLanguages(printed: List<Trait>): List<OwnedLanguage> = Languages.owned(
+    languages.map { LanguagePurchase(it.language, it.proficiency, it.form) },
+    traitsBeforeLanguages(printed),
+).mapNotNull { it.second }
+
+/**
+ * [bought] as these edits would own it, or null where the book does not print
+ * it. Priced in the list it would JOIN, through the same two calls a tap then
+ * makes, so the picker cannot print a price the purchase does not bill.
+ */
+fun SavedEdits.pricedWith(bought: SavedLanguage, printed: List<Trait>): OwnedLanguage? =
+    withLanguage(bought).ownedLanguages(printed)
+        .firstOrNull { it.purchase.language.equals(bought.language, ignoreCase = true) }
+
+/**
+ * These edits with [bought] owned. A language is owned once, so buying an
+ * owned one again changes it IN PLACE: the position is what Multilingual's
+ * "first two" reads, and a re-pick must not move it.
+ */
+fun SavedEdits.withLanguage(bought: SavedLanguage): SavedEdits =
+    if (languages.none { it.language.equals(bought.language, ignoreCase = true) }) {
+        copy(languages = languages + bought)
+    } else {
+        copy(
+            languages = languages.map {
+                if (it.language.equals(bought.language, ignoreCase = true)) bought else it
+            },
+        )
+    }
 
 /**
  * The traits bought at a price the book leaves to the instance.

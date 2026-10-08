@@ -19,7 +19,7 @@ it does the arithmetic. Nothing is hidden and nothing is invented.
 | **Premade list** | opens first | pick one of the 23 published characters |
 | **Sheet** | tap a premade | play: roll skills, fight, cast, divine |
 | **Pathway** | the **Pathway** tile on the sheet — labelled **Drink a potion** until you have drunk one | drink potions, advance Sequence, track digestion |
-| **Builder** | the **Spend points** tile on the sheet | change attributes and secondary characteristics, buy skills and traits, and carry weapons, against a live budget |
+| **Builder** | the **Spend points** tile on the sheet | change attributes and secondary characteristics, buy skills, traits and languages, and carry weapons, against a live budget |
 
 ---
 
@@ -198,7 +198,10 @@ bought; it does not re-level what an earlier potion granted.
 Pick the ritual's weight, your preparation, the language, the target link and
 any supporting skills. The dialog composes the target, subtracts the Corruption
 penalty at the thresholds the book prints, and prices the SPI. Quick and Full
-preparation are two different tables with two different link rules.
+preparation are two different tables with two different link rules. The
+language is yours to state per ritual; under the chips the dialog lists the
+mystical languages the character bought in the builder, and does not pick one
+for you.
 
 Six of those cells print a span or a floor rather than a number — *Good +1 to
 +2*, *Poor -1 to -2*, *None -4 or worse*, the quick table's *Poor / None -2 to
@@ -279,6 +282,20 @@ potions* wherever a potion moved it. The steppers, the prices and the budget
 all work on the bought number, because a potion's gains are free. Skill rows
 stay on bought levels and say *before potions*; the sheet shows the levels
 actually rolled.
+
+**Languages** lists the languages bought, with **Add or change** opening the
+book's twelve in its own two groups. Pick a language, one of the three
+proficiencies at that group's prices (6 / 4 / 2 for a common tongue, 30 / 20 /
+10 for a mystical one) and a form: *Spoken + Written* is the printed price,
+and *Spoken only* or *Written only* costs half. The line above **Buy** is
+what the budget will bill and why. Language Talent halves it, rounded up, and
+Multilingual makes the first two common languages bought at Native in both
+forms free; both are read whenever the character is composed, so buying
+either one later reprices what is already owned. Picking a language the
+character owns changes it in place, and **Give back** removes it. The points
+are applied and the *-2 / -3 to language-dependent skill rolls* are not: the
+book tags no skill as language-dependent, so those are the GM's. No language
+is free without Multilingual, because the book prints no free native tongue.
 
 **Weapons** lists what the character is carrying, with **Carry a weapon**
 opening chapter 8's nine rows. All nine are offered whether or not the

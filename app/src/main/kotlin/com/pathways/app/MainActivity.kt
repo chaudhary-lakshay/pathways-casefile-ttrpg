@@ -99,6 +99,7 @@ import com.pathways.rules.PenaltyScope
 import com.pathways.rules.NaturalRecovery
 import com.pathways.rules.Pool
 import com.pathways.rules.PoolStatus
+import com.pathways.rules.Languages
 import com.pathways.rules.Pools
 import com.pathways.rules.SpiritVision
 import com.pathways.rules.SuccessRoll
@@ -1133,6 +1134,13 @@ fun SheetScreen(
             // the same reason: without it a potion would not recompute the row.
             ownedSupportSkills = remember(skillLevels) {
                 RitualMode.supportSkillsOwnedBy(skillLevels.keys.map { it.name })
+            },
+            // Through the one reading of what a save owns, so the note
+            // cannot name a language the budget does not bill.
+            boughtLanguages = remember(sheet, session.edits) {
+                session.edits.ownedLanguages(sheet.toCharacter().traits)
+                    .filter { it.type == Languages.MYSTICAL }
+                    .map { it.label }
             },
             // cor = 0 here on purpose: RitualResolution applies the CoR
             // ladder itself, so including it would charge the caster twice

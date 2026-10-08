@@ -10,6 +10,7 @@ import com.pathways.model.Trait
 import com.pathways.model.TraitKind
 import com.pathways.rules.Appearance
 import com.pathways.rules.Derive
+import com.pathways.rules.Languages
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.Premades
 import com.pathways.rules.TraitEffects
@@ -668,5 +669,96 @@ class EditedCharacterTest {
         assertEquals("9 before potions", beforePotions(bought = "9", played = "11"))
         assertEquals("10 before potions", beforePotions(bought = "10", played = "9"))
         assertNull(beforePotions(bought = "4.50", played = "4.50"), "nothing moved: nothing to explain")
+    }
+
+    // ---- languages ---------------------------------------------------------
+
+    private fun language(name: String, proficiency: String, form: String = Languages.BOTH_FORMS) =
+        SavedLanguage(name, proficiency, form)
+
+    private fun languageCosts(edits: SavedEdits) = edits.applyTo(mortal).traits
+        .filter { TraitEffects.catalogueName(it.name) == Languages.ROW }
+        .map { it.cost }
+
+    /**
+     * A save holding ONLY a language is not an empty save. `applyTo` returns
+     * the sheet untouched for an empty one, so a field missing from
+     * `isEmpty` is a purchase that bills nothing (a design review's finding).
+     */
+    @Test
+    fun `a bought language reaches the composed character and its budget`() {
+        val edits = SavedEdits(languages = listOf(language("Hermes", "Accented")))
+        assertFalse(edits.isEmpty)
+        val edited = edits.applyTo(mortal)
+        assertTrue(edited.traits.any { it.name == "Language (Hermes, Accented)" && it.cost == 20 })
+        assertEquals(Derive.of(mortal).budget.spent + 20, Derive.of(edited).budget.spent)
+    }
+
+    /** The price is never stored, so a trait bought later still moves it. */
+    @Test
+    fun `Language Talent bought in play halves a language already owned`() {
+        val owned = SavedEdits(languages = listOf(language("Hermes", "Accented", Languages.SPOKEN_ONLY)))
+        assertEquals(listOf(10), languageCosts(owned))
+        assertEquals(listOf(5), languageCosts(owned.copy(traits = listOf(Languages.TALENT))))
+    }
+
+    @Test
+    fun `Multilingual bought in play frees two fluent common languages`() {
+        val owned = SavedEdits(
+            languages = listOf(
+                language("Loen", "Native"),
+                language("Hermes", "Broken"),
+                language("Feysac", "Native"),
+                language("Intis", "Native"),
+            ),
+        )
+        assertEquals(listOf(6, 10, 6, 6), languageCosts(owned))
+        assertEquals(listOf(0, 10, 0, 6), languageCosts(owned.copy(traits = listOf(Languages.MULTILINGUAL))))
+    }
+
+    /** Dropped at composition and not deleted: a content fix may print it. */
+    @Test
+    fun `a language the book does not print bills nothing`() {
+        val edits = SavedEdits(languages = listOf(language("Klingon", "Native")))
+        assertEquals(emptyList<Int>(), languageCosts(edits))
+        assertEquals(1, edits.languages.size)
+    }
+
+    /**
+     * What the picker prints before the tap, and it is the price the tap
+     * bills: the candidate is priced IN the list it would join, because
+     * Multilingual's two free languages depend on what is already owned.
+     */
+    @Test
+    fun `a language is priced where it would land`() {
+        val owned = SavedEdits(
+            traits = listOf(Languages.MULTILINGUAL),
+            languages = listOf(language("Loen", "Native"), language("Feysac", "Native")),
+        )
+        // A third fluent common language is not one of the two.
+        assertEquals(6, owned.pricedWith(language("Intis", "Native"), mortal.traits)!!.cost)
+        // Changing an owned one is priced in its own place, and stops being free.
+        assertEquals(4, owned.pricedWith(language("Loen", "Accented"), mortal.traits)!!.cost)
+        assertTrue(owned.pricedWith(language("Loen", "Native"), mortal.traits)!!.isFree)
+        // ...and the candidate is what the tap then stores.
+        val after = owned.withLanguage(language("Loen", "Accented"))
+        assertEquals(listOf(4, 0), after.ownedLanguages(mortal.traits).map { it.cost })
+        assertNull(owned.pricedWith(language("Klingon", "Native"), mortal.traits))
+    }
+
+    /** What the Ritual dialog prints: the mystical ones, form included. */
+    @Test
+    fun `the owned mystical languages are named with their form`() {
+        val edits = SavedEdits(
+            languages = listOf(
+                language("Loen", "Native"),
+                language("Hermes", "Native", Languages.WRITTEN_ONLY),
+                language("Elvish", "Broken"),
+            ),
+        )
+        assertEquals(
+            listOf("Hermes, Native, written only", "Elvish, Broken"),
+            edits.ownedLanguages(mortal.traits).filter { it.type == Languages.MYSTICAL }.map { it.label },
+        )
     }
 }

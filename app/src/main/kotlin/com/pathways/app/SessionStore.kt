@@ -129,13 +129,29 @@ data class SavedEdits(
      * track, so nothing here spends points.
      */
     val weapons: List<String> = emptyList(),
+    /**
+     * Languages bought in play (Ch. 3, pp. 13-14), in the order bought.
+     *
+     * Three NAMES and no price, for the reason [traits] stores a name: the
+     * points belong to the book's two tables, and they move when Language
+     * Talent or Multilingual is bought or sold. Resolved through
+     * [com.pathways.rules.Languages.owned] on the way back in; a language,
+     * proficiency or form the book does not print bills nothing and is NOT
+     * deleted. The order is kept because Multilingual frees the first two
+     * that qualify.
+     */
+    val languages: List<SavedLanguage> = emptyList(),
 ) {
     val isEmpty: Boolean
         get() = st == null && dx == null && iq == null && ht == null &&
             skills.isEmpty() && wealth == null && appearance == null &&
             traits.isEmpty() && instanced.isEmpty() && secondaries.isEmpty() &&
-            weapons.isEmpty()
+            weapons.isEmpty() && languages.isEmpty()
 }
+
+/** One bought language, as written to disk: the book's names, never a cost. */
+@Serializable
+data class SavedLanguage(val language: String, val proficiency: String, val form: String)
 
 /**
  * A trait whose price the book leaves to the instance, as written to disk.

@@ -1,5 +1,7 @@
 package com.pathways.rules
 
+import com.pathways.model.Trait
+import com.pathways.model.TraitKind
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.LanguageEntry
 import com.pathways.rules.content.LanguageProficiency
@@ -32,14 +34,148 @@ import com.pathways.rules.content.LanguageProficiency
  * they touch is the GM's call, exactly as with a reaction modifier. Only the
  * ritual clause is scoped tightly enough for the app to apply it.
  *
- * **The cost rules stay sentences.** "Spoken-only or written-only costs half"
- * and "Language Talent halves all costs (rounded up)" interact, and the book
- * combines them in no worked example. Nothing buys a language yet, so a
- * calculator here would be arithmetic nobody can check against a printed
- * total. See [notes], and [PurchasableTraits.unoffered], which says the same
- * to the player.
+ * **The cost rules are applied by [owned], and they compose without a
+ * ruling.** "Spoken-only or written-only costs half" always lands on a whole
+ * number, because every printed price is even, and "Language Talent halves
+ * all costs (rounded up)" then carries the only rounding the book prints. No
+ * worked example combines them and none is needed: there is one order in
+ * which no unprinted rounding ever arises (a design review's reading).
  */
+/** One language as a player bought it: three names, and no price. */
+data class LanguagePurchase(val language: String, val proficiency: String, val form: String)
+
+/** A purchase the book licenses, and what the budget bills for it. */
+data class OwnedLanguage(
+    val purchase: LanguagePurchase,
+    /** [Languages.COMMON] or [Languages.MYSTICAL]. */
+    val type: String,
+    val cost: Int,
+    /** One of Multilingual's two: common, fluent, both forms, billed nothing. */
+    val isFree: Boolean,
+    /** The table's own price, before a form or a trait moved it. */
+    val listed: Int,
+    /** Whether Language Talent's halving is in [cost]. */
+    val isHalvedByTalent: Boolean,
+) {
+    /**
+     * [cost], and what moved it off the table's price. Authored here rather
+     * than in the builder, the call [Divination.sourceLine] makes: a screen
+     * typing its own account of a number is a second copy of the rule.
+     */
+    val costLine: String
+        get() {
+            if (isFree) return "free with ${Languages.MULTILINGUAL} ($listed listed)"
+            val moved = listOfNotNull(
+                "half for one form".takeIf { purchase.form != Languages.BOTH_FORMS },
+                "halved by ${Languages.TALENT}, rounded up".takeIf { isHalvedByTalent },
+            )
+            val points = if (cost == 1) "1 pt" else "$cost pts"
+            return if (moved.isEmpty()) points else "$points ($listed listed; ${moved.joinToString("; ")})"
+        }
+
+    /** "Hermes, Accented, spoken only" -- the form is said only when it is one. */
+    val label: String
+        get() = listOfNotNull(
+            purchase.language,
+            purchase.proficiency,
+            purchase.form.lowercase().takeIf { purchase.form != Languages.BOTH_FORMS },
+        ).joinToString(", ")
+
+    /**
+     * The purchase as an instance of [Languages.ROW], which is the spelling
+     * [TraitEffects.catalogueName] resolves for any "(specify)" row.
+     */
+    fun toTrait(): Trait =
+        Trait("${Languages.ROW.removeSuffix(" (specify)")} ($label)", cost, TraitKind.ADVANTAGE)
+}
+
 object Languages {
+
+    /** The catalogue row every bought language is an instance of (p. 13). */
+    const val ROW = "Language (specify)"
+
+    /** "Points listed are for Spoken + Written at the given level." */
+    const val BOTH_FORMS = "Spoken + Written"
+    const val SPOKEN_ONLY = "Spoken only"
+    const val WRITTEN_ONLY = "Written only"
+
+    /** "Language Talent halves all costs (rounded up)." */
+    const val TALENT = "Language Talent"
+
+    /** "grants fluency in two common languages without point cost" (p. 14). */
+    const val MULTILINGUAL = "Multilingual"
+    const val MULTILINGUAL_LANGUAGES = 2
+
+    /** The row whose effect cell opens "Fluent.", in both tables. */
+    const val FLUENT = "Native"
+
+    /** The three ways a language is bought, the full price first. */
+    fun forms(): List<String> = listOf(BOTH_FORMS, SPOKEN_ONLY, WRITTEN_ONLY)
+
+    /**
+     * Each purchase beside what it became, or null where the book prints no
+     * such language, proficiency or form, or the language is already owned.
+     *
+     * **One call prices, de-duplicates and names**, the shape
+     * [PurchasableTraits.resolved] takes for the same reason: a builder that
+     * priced a row the composition had dropped would list a cost the budget
+     * does not include.
+     *
+     * The price is the language's own table, halved for one form, halved for
+     * [TALENT], and rounded up ONCE. [MULTILINGUAL] then makes the first two
+     * purchases that are common, [FLUENT] and in both forms cost nothing --
+     * "it does not apply to mystical languages". Which two is this app's
+     * convention and changes no total: every eligible purchase costs the
+     * same. The book prints no free native tongue, so nothing else is free.
+     *
+     * A language is owned once, and the FIRST purchase stands. A purchase is
+     * validated before it claims its language, so a stale row cannot
+     * suppress the corrected one that follows it.
+     */
+    fun owned(
+        purchases: List<LanguagePurchase>,
+        held: List<Trait>,
+    ): List<Pair<LanguagePurchase, OwnedLanguage?>> {
+        val talentDivisor = if (holds(held, TALENT)) 2 else 1
+        var free = if (holds(held, MULTILINGUAL)) MULTILINGUAL_LANGUAGES else 0
+        val seen = mutableSetOf<String>()
+        return purchases.map { purchase ->
+            val entry = all().firstOrNull { it.name.equals(purchase.language, ignoreCase = true) }
+            val row = entry?.let { found ->
+                proficiencies(found.type)
+                    .firstOrNull { it.proficiency.equals(purchase.proficiency, ignoreCase = true) }
+            }
+            val formDivisor = when (purchase.form) {
+                BOTH_FORMS -> 1
+                SPOKEN_ONLY, WRITTEN_ONLY -> 2
+                else -> null
+            }
+            if (entry == null || row == null || formDivisor == null || !seen.add(entry.name)) {
+                return@map purchase to null
+            }
+            val isFree = free > 0 && entry.type == COMMON &&
+                row.proficiency == FLUENT && purchase.form == BOTH_FORMS
+            if (isFree) free--
+            // Ceiling division (4.3): the book rounds UP, and floorDiv on the
+            // negated price is how this codebase writes that.
+            val cost = if (isFree) 0 else -Math.floorDiv(-row.points, formDivisor * talentDivisor)
+            purchase to OwnedLanguage(
+                purchase.copy(language = entry.name, proficiency = row.proficiency),
+                entry.type,
+                cost,
+                isFree,
+                listed = row.points,
+                isHalvedByTalent = !isFree && talentDivisor > 1,
+            )
+        }
+    }
+
+    /** [purchases] as the traits the budget bills, in the order bought. */
+    fun traits(purchases: List<LanguagePurchase>, held: List<Trait>): List<Trait> =
+        owned(purchases, held).mapNotNull { it.second?.toTrait() }
+
+    private fun holds(held: List<Trait>, name: String): Boolean =
+        held.any { TraitEffects.catalogueName(it.name).equals(name, ignoreCase = true) }
 
     const val COMMON = "Common"
     const val MYSTICAL = "Mystical"

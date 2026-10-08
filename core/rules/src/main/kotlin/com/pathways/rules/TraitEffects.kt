@@ -920,14 +920,19 @@ object TraitEffects {
      */
     private fun placeholderRow(printed: String): String? {
         if (!printed.endsWith(")")) return null
-        val open = printed.lastIndexOf(" (")
-        if (open <= 0) return null
-        val inside = printed.substring(open + 2, printed.length - 1)
-        // An empty bracket names nothing, and the row is not an instance of
-        // itself.
-        if (inside.isBlank() || " ($inside)" == PLACEHOLDER) return null
-        val head = printed.substring(0, open)
-        return catalogue()["${head.lowercase()}$PLACEHOLDER"]?.name
+        // The LAST bracket first, and then the first: an instance can carry a
+        // bracket of its own -- "Language (Balam (Dutan), Accented)" -- and
+        // splitting on the last one alone reads the head as "Language (Balam".
+        return listOf(printed.lastIndexOf(" ("), printed.indexOf(" (")).distinct()
+            .firstNotNullOfOrNull { open ->
+                if (open <= 0) return@firstNotNullOfOrNull null
+                val inside = printed.substring(open + 2, printed.length - 1)
+                // An empty bracket names nothing, and the row is not an
+                // instance of itself.
+                if (inside.isBlank() || " ($inside)" == PLACEHOLDER) return@firstNotNullOfOrNull null
+                val head = printed.substring(0, open)
+                catalogue()["${head.lowercase()}$PLACEHOLDER"]?.name
+            }
     }
 
     /**
@@ -1694,6 +1699,14 @@ object TraitEffects {
      */
     private val UNAPPLIED = mapOf(
         "Danger Sense" to "the book hands this to the GM, not to a roll",
+        // Bought through the builder's Languages row. The price is applied;
+        // what the proficiency does to a roll is not, for the reason
+        // [Languages]' own KDoc gives.
+        Languages.ROW to
+            "the -2 and -3 are \"to language-dependent skill rolls\", and this " +
+            "book tags no skill as language-dependent, so which rolls they " +
+            "touch is the GM's call; a ritual's language is picked in the " +
+            "Ritual dialog",
         "Eidetic Memory" to "this app models no recall roll",
         "Single-Minded" to "which tasks count as extended concentration is the GM's call",
         "Lightning Calculator" to "this app models no numerical-puzzle roll",

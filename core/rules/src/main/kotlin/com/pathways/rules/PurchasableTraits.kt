@@ -176,22 +176,19 @@ object PurchasableTraits {
      * would make this object report the same row as buyable and unsupported
      * at once (Codex).
      */
-    private const val LANGUAGE_ROW = "Language (specify)"
-
     fun unoffered(): List<UnofferedTraits> {
         val all = ContentLoader.advantages() + ContentLoader.disadvantages()
-        // The language row is priced, by a table [Languages] holds. It is
-        // split off because it used to share Reputation's reason, "a
-        // procedure this app has not read", which was false of it.
+        // The language row is priced by a table [Languages] holds and sold
+        // by the builder's own row, so it is withheld from THIS list only.
         val (language, unbounded) = all.filter {
             it.cost == null && !isWealth(it) && (it.costMin == null || it.costMax == null)
-        }.partition { it.name == LANGUAGE_ROW }
+        }.partition { it.name == Languages.ROW }
         return buildList {
             if (language.isNotEmpty()) {
                 add(
                     UnofferedTraits(
-                        "buying a language is not built yet; the Languages section " +
-                            "prices it by proficiency, and this app holds that table",
+                        "bought in the Languages row above, which prices it from " +
+                            "the Languages section's own tables",
                         language.map { it.name },
                     ),
                 )
@@ -249,9 +246,9 @@ object PurchasableTraits {
      *
      * A row printing NO bounds is deliberately absent. "Reputation" is
      * priced "varies" with no procedure printed, and "Language (specify)"
-     * by a cost table [Languages] does hold and the builder does not sell
-     * yet (see [unoffered]). An unbounded row is not an interval with no
-     * ceiling. Offering one would mean taking whatever number the
+     * by a cost table of its own, which [Languages.owned] applies and the
+     * builder's Languages row sells. An unbounded row is not an interval
+     * with no ceiling. Offering one would mean taking whatever number the
      * player typed, which makes the SAVE authoritative over the book and
      * inverts the rule the rest of this file follows (Codex, on the design).
      */

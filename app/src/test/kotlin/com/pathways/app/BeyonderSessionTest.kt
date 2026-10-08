@@ -5,6 +5,7 @@ import com.pathways.model.BeyonderState
 import com.pathways.model.MAX_ATTRIBUTE
 import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.rules.Corruption
+import com.pathways.rules.Languages
 import com.pathways.rules.Pool
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.content.ContentLoader
@@ -754,5 +755,27 @@ class BeyonderSessionTest {
         assertThrows<IllegalArgumentException> { walker.drink(fool8, untouched) { 0 } }
         assertEquals(fool9, walker.state)
         assertFalse(walker.lost)
+    }
+
+    /**
+     * Three names and no price, for the reason a bought trait stores a name:
+     * the cost is the book's, and it moves when Language Talent is bought or
+     * sold. A language is owned once, so buying an owned one again CHANGES it
+     * in place -- the position is what Multilingual's "first two" reads.
+     */
+    @Test
+    fun `a language is changed in place and given back by name`() {
+        val (s, saved) = session()
+        val hermes = SavedLanguage("Hermes", "Broken", Languages.BOTH_FORMS)
+        val loen = SavedLanguage("Loen", "Native", Languages.BOTH_FORMS)
+        s.buyLanguage(hermes)
+        s.buyLanguage(loen)
+        s.buyLanguage(hermes.copy(proficiency = "Native"))
+        assertEquals(listOf(hermes.copy(proficiency = "Native"), loen), saved().edits.languages)
+
+        s.sellLanguage("Elvish")
+        assertEquals(2, saved().edits.languages.size, "a language not owned changes nothing")
+        s.sellLanguage("Hermes")
+        assertEquals(listOf(loen), saved().edits.languages)
     }
 }

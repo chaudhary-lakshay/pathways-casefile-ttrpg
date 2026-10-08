@@ -149,6 +149,13 @@ fun RitualDialog(
      * call site against [RitualMode.supportSkills].
      */
     ownedSupportSkills: List<String>,
+    /**
+     * The mystical languages this character BOUGHT, each as "Hermes, Native,
+     * written only". Printed beside the picker and never fed to it: owning a
+     * language does not say which one this ritual is cast in, and a potion
+     * can grant one this list cannot see.
+     */
+    boughtLanguages: List<String>,
     dice: RandomSource,
     onCorGained: (Int) -> Unit,
     onSpendSpi: (Int) -> Unit,
@@ -235,9 +242,9 @@ fun RitualDialog(
     var suspended by remember { mutableStateOf(false) }
     var outcome by remember { mutableStateOf<RitualOutcome?>(null) }
     // Null by default -- "not stated" -- so a ritual described without a
-    // language rolls exactly where it did before Ch. 3's table was read. No
-    // premade prints a language and nothing buys one, so this is the GM's
-    // declaration, like the fright trigger's stepper.
+    // language rolls exactly where it did before Ch. 3's table was read. The
+    // builder sells a language now, and this is still the GM's declaration:
+    // which language a ritual is cast in is a fact about the ritual.
     var language by remember { mutableStateOf<LanguageProficiency?>(null) }
     val canSpeak = language?.let { Languages.canPerformRituals(it) } != false
     // The entity is asked once, before the ritual roll: "The GM rolls secretly
@@ -814,6 +821,14 @@ fun RitualDialog(
                         }
                     }
                     language?.let { Text(it.effect, style = MaterialTheme.typography.bodySmall) }
+                    if (boughtLanguages.isNotEmpty()) {
+                        Text(
+                            "Bought by this character: ${boughtLanguages.joinToString("; ")}. " +
+                                "A potion may grant others, and which language this " +
+                                "ritual uses is yours to say.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
 
                     if (target == null) {
                         // Broken is offered as a chip and then refuses, rather

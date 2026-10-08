@@ -92,6 +92,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     var pickingLooks by remember { mutableStateOf(false) }
     var pickingTrait by remember { mutableStateOf(false) }
     var pickingWeapon by remember { mutableStateOf(false) }
+    var pickingLanguage by remember { mutableStateOf(false) }
     var settling by remember { mutableStateOf<InstantiableTrait?>(null) }
     // Which road the study lines are priced for. The book prints two
     // and they differ by more than money -- Very Hard self-study is
@@ -219,6 +220,17 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     level = Appearance.levelOf(character.traits),
                     printed = Appearance.levelOf(start.traits),
                     onPick = { pickingLooks = true },
+                )
+                HorizontalDivider()
+            }
+
+            item {
+                LanguagesRow(
+                    // What the composition bills, read from the SHEET's own
+                    // traits so a Language Talent bought in play is counted.
+                    owned = session.edits.ownedLanguages(start.traits),
+                    onAdd = { pickingLanguage = true },
+                    onGiveBack = { session.sellLanguage(it) },
                 )
                 HorizontalDivider()
             }
@@ -373,6 +385,18 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                 settling = null
             },
             onDismiss = { settling = null },
+        )
+    }
+
+    if (pickingLanguage) {
+        LanguagePicker(
+            saved = session.edits.languages,
+            priced = { session.edits.pricedWith(it, start.traits) },
+            onBuy = {
+                session.buyLanguage(it)
+                pickingLanguage = false
+            },
+            onDismiss = { pickingLanguage = false },
         )
     }
 

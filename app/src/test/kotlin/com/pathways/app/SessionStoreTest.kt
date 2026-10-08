@@ -126,4 +126,19 @@ class SessionStoreTest {
         file.writeText("""{"Beat Cop":{"lost":false,"somethingFromTheFuture":7}}""")
         assertEquals(setOf("Beat Cop"), SessionStore(file).load().keys)
     }
+
+    /** Additive and defaulted, like every field before it: see `instanced`. */
+    @Test
+    fun `a save written before languages existed still loads, and one with them comes back`() {
+        val file = File(dir, "sessions.json")
+        file.writeText("""{"Beat Cop":{"cor":3,"edits":{"traits":["Fit"],"skills":[]}}}""")
+        val store = SessionStore(file)
+        val loaded = store.load().getValue("Beat Cop")
+        assertEquals(emptyList<SavedLanguage>(), loaded.edits.languages)
+
+        val hermes = SavedLanguage("Hermes", "Accented", "Spoken only")
+        store.save(mapOf("Beat Cop" to loaded.copy(edits = loaded.edits.copy(languages = listOf(hermes)))))
+        assertEquals(listOf(hermes), SessionStore(file).load().getValue("Beat Cop").edits.languages)
+        assertFalse("\"cost\"" in file.readText().substringAfter("languages"), "no price is written")
+    }
 }
