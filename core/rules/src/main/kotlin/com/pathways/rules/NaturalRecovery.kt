@@ -45,7 +45,9 @@ object NaturalRecovery {
             "once are the GM's: this app tracks a pool and no wounds",
         "Physician" to
             "\"1 HP (2 HP on critical success) ... Per day of bed rest\" -- " +
-            "a skill roll the sheet already offers; the HP stepper applies it",
+            "a skill roll the sheet offers to a character who has the skill, " +
+            "and the HP stepper applies it. \"skill 12+\", the day and the " +
+            "equipment are the GM's",
         "Healing advantage" to
             "\"2 HP (costs 1 FP) ... Concentration + IQ roll\" -- an " +
             "advantage no catalogue prints, so no character can hold it",

@@ -224,7 +224,7 @@ work at all — the app demotes the roll rather than pretending.
 
 A caster with Ritualistic Magic at 12 or more may divine at that skill -2, and
 the app uses it where it beats their own Divination Arts, saying *"Defaulted
-from"* under the target. **Versatile**'s +1 to a roll at default is counted
+from"* under the dialog's title. **Versatile**'s +1 to a roll at default is counted
 there, before the two numbers are compared.
 
 Four of the circumstance rows print a **range** — *"Method match +0 to +2"*,
@@ -319,7 +319,7 @@ Edits are saved per character and survive a restart.
   is the GM's call. **Another day** clears it for the next one. The Healing
   advantage and Regeneration are not offered. First Aid and Physician are
   skills, rolled from **Skills** like any other by a character who has them,
-  and the app applies nothing for either. The book's rows are *"First Aid: 1
+  and the app restores no HP for either. The book's rows are *"First Aid: 1
   HP + stops bleeding; 1 minute; once per wound"* and *"Physician (skill 12+):
   1 HP (2 HP on critical success); per day of bed rest; requires equipment"*.
   Add the HP with **+1**; the rest is yours to count.

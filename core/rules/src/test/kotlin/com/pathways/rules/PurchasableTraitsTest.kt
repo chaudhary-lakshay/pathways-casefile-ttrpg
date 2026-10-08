@@ -458,16 +458,22 @@ class PurchasableTraitsTest {
     /**
      * The builder told a player the language row "prices itself by a
      * procedure this app has not read". [Languages.proficiencies] has held
-     * that table since 6x. What is unsettled is the book's: two halvings
-     * that no printed example combines.
+     * that table since 6x. The reason that is true is the plain one: buying
+     * a language is not built. A first rewording blamed two halvings the
+     * book never combines in an example, and book 638-639 states both.
      */
     @Test
     fun `the language row is not withheld for a table this app holds`() {
         val language = PurchasableTraits.unoffered().single { "Language (specify)" in it.names }
         assertFalse("has not read" in language.reason, language.reason)
-        assertTrue("costs half" in language.reason, language.reason)
+        assertTrue("not built" in language.reason, language.reason)
+        assertFalse("costs half" in language.reason, language.reason)
         // Reputation prints no table at all, and is not filed under this one.
         assertEquals(listOf("Language (specify)"), language.names)
-        assertTrue(PurchasableTraits.unoffered().any { "Reputation" in it.names })
+        val reputation = PurchasableTraits.unoffered().single { "Reputation" in it.names }
+        // "varies", and nothing else: the book prints no procedure, so there
+        // is none for this app to have left unread.
+        assertFalse("has not read" in reputation.reason, reputation.reason)
+        assertTrue("\"varies\"" in reputation.reason, reputation.reason)
     }
 }

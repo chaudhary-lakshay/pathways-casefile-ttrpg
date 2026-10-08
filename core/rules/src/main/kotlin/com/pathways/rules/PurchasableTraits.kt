@@ -190,11 +190,8 @@ object PurchasableTraits {
             if (language.isNotEmpty()) {
                 add(
                     UnofferedTraits(
-                        "the Languages section prices it by proficiency, and this " +
-                            "app holds that table; what the book never combines in an " +
-                            "example is \"Spoken-only or written-only costs half\" " +
-                            "with Language Talent's halving. The builder sells no " +
-                            "language yet",
+                        "buying a language is not built yet; the Languages section " +
+                            "prices it by proficiency, and this app holds that table",
                         language.map { it.name },
                     ),
                 )
@@ -202,9 +199,9 @@ object PurchasableTraits {
             if (unbounded.isNotEmpty()) {
                 add(
                     UnofferedTraits(
-                        "the book prints no cost bounds for this row at all, so there " +
-                            "is no interval to choose inside -- it prices itself by a " +
-                            "procedure this app has not read",
+                        "the book prices this row \"varies\" and prints neither " +
+                            "bounds nor a way to reach the number, so there is no " +
+                            "interval to choose inside",
                         unbounded.map { it.name }.sorted(),
                     ),
                 )
@@ -250,11 +247,11 @@ object PurchasableTraits {
     /**
      * The rows a player instantiates: a printed interval, and what settles it.
      *
-     * A row printing NO bounds is deliberately absent. "Reputation" prices
-     * itself by a procedure this app does not hold, and "Language (specify)"
-     * by a cost table [Languages] does hold, whose two halvings the book
-     * never combines (see [unoffered]). An unbounded row is not an interval
-     * with no ceiling. Offering one would mean taking whatever number the
+     * A row printing NO bounds is deliberately absent. "Reputation" is
+     * priced "varies" with no procedure printed, and "Language (specify)"
+     * by a cost table [Languages] does hold and the builder does not sell
+     * yet (see [unoffered]). An unbounded row is not an interval with no
+     * ceiling. Offering one would mean taking whatever number the
      * player typed, which makes the SAVE authoritative over the book and
      * inverts the rule the rest of this file follows (Codex, on the design).
      */
