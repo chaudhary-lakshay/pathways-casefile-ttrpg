@@ -316,4 +316,74 @@ class SkillDefaultsTest {
         assertEquals(4, acrobatics.level)
         assertEquals(6, lifted.target)
     }
+
+    /**
+     * **A sheet's spelling of a one-row skill is that skill.** Five premades
+     * print "Mathematics" or "History (Occult)" where the book prints
+     * "Mathematics (Applied)" and "History", and the first version of this
+     * list offered each of them their own skill again, untrained, eight or
+     * nine below what they roll it at (a probe of every premade through
+     * every potion, after the diff review).
+     *
+     * The rule is the catalogue's own shape, not a list of the names seen:
+     * where the book prints ONE row of a name, that row is not open, and one
+     * of the two spellings has no specialization, there is nothing else the
+     * owned skill could be. Two printed specializations that differ stay two
+     * skills -- Fast-Draw (Revolver) is not the book's Fast-Draw (Pistol).
+     */
+    @Test
+    fun `a sheet's spelling of a one-row skill covers that row`() {
+        fun owning(name: String, specialization: String?) = offered(
+            mapOf(SkillKey(name, specialization, ControllingAttribute.Buyable(Attr.IQ), Difficulty.HARD) to 12),
+        ).filter { it.key.name == name }.map { it.key.specialization }
+
+        // What the book prints, which is what makes each case what it is.
+        assertEquals(listOf<String?>(null), ContentLoader.skills().filter { it.name == "History" }.map { it.specialization })
+        assertTrue(!skill("History").specializable)
+        assertEquals(listOf<String?>("Applied"), ContentLoader.skills().filter { it.name == "Mathematics" }.map { it.specialization })
+        assertEquals(listOf<String?>("Pistol"), ContentLoader.skills().filter { it.name == "Fast-Draw" }.map { it.specialization })
+
+        assertEquals(emptyList<String?>(), owning("History", "Occult"))
+        assertEquals(emptyList<String?>(), owning("Mathematics", null))
+        assertEquals(listOf<String?>("Pistol"), owning("Fast-Draw", "Revolver"))
+        // An open row is never covered by an instance, however it is spelt.
+        assertEquals(listOf<String?>(null), owning("Law", "Police"))
+        // And a name the book prints three times is three skills: the bare
+        // Navigation row is its own, not a spelling of Navigation (Land).
+        assertEquals(listOf(null, "Sea"), owning("Navigation", "Land"))
+    }
+
+    /**
+     * The same question asked of the real corpus: every premade as printed,
+     * and one of them through every potion block. An offered row may share a
+     * NAME with an owned skill only where the book makes them two skills --
+     * an open row, or a name it prints more than once.
+     *
+     * **A placeholder grant covers nothing, on purpose.** Warrior grants
+     * "Armoury (any)" and Hunter "Survival (any terrain)": the player chose
+     * one and this app was not told which (M3's recorded placeholders), so
+     * the open row stays on offer beside it.
+     */
+    @Test
+    fun `nothing a premade or a potion owns is offered back to it`() {
+        val printed = ContentLoader.skills()
+        val blocks = ContentLoader.pathways()
+        val base = Premades.all().map { it.toCharacter() }
+        val walked = blocks.map {
+            base.first().copy(beyonder = com.pathways.model.BeyonderState(it.pathway, it.sequence, 0))
+        }
+        val wrong = sortedSetOf<String>()
+        for (character in base + walked) {
+            val owned = (
+                PotionDigestion.of(character, blocks)?.skillLevels ?: Derive.of(character).skillLevels
+                ).keys
+            for (row in SkillDefaults.offeredTo(character)) {
+                val rows = printed.filter { it.name == row.key.name }
+                val twoSkills = rows.size > 1 || rows.single().specializable ||
+                    owned.none { it.name.equals(row.key.name, ignoreCase = true) && (it.specialization == null || row.key.specialization == null) }
+                if (!twoSkills) wrong += row.key.display
+            }
+        }
+        assertEquals(emptySet<String>(), wrong.toSet())
+    }
 }

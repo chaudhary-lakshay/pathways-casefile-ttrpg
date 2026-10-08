@@ -6823,9 +6823,41 @@ Codex again: FIX, one MEDIUM and two LOWs, all taken.
 - **LOW: no test rolled a default.** One does: a negative target through
   `SkillRoll.at`, and Perfect Balance lifting an untrained Acrobatics.
 
+### After both reviews: five premades were offered their own skill
+
+The final check asked what I had measured "an owned skill is not offered"
+on. One premade, twice. A probe ran every premade as printed, and one of
+them through all 88 potion blocks, and listed every offered row sharing a
+name with an owned skill: 55 pairs. Fifty-three are two skills by the
+book's own shape, an open row beside an instance or a name it prints more
+than once. **Two are not.** `academic_researcher`, `antiquarian_dealer`,
+`monastery_scholar`, `occult_scholar` and `university_librarian` print
+*"Mathematics"* or *"History (Occult)"*, the book prints *"Mathematics
+(Applied)"* and a bare, closed *"History"*, and the list offered each its
+own skill again at IQ-6.
+
+- **The rule is the catalogue's shape, not the two names.** Where the book
+  prints one row of a name, that row is not open, and one of the two
+  spellings has no specialization, the owned skill can be nothing else.
+  Fast-Draw (Revolver) beside the book's only Fast-Draw (Pistol) stays two
+  skills, and so does an instance of an open row.
+- **A placeholder grant covers nothing, on purpose.** Warrior's *"Armoury
+  (any)"* and Hunter's *"Survival (any terrain)"* leave the open row on
+  offer. The player chose one and the app was not told which.
+- **A sheet name the book does not print matches nothing.** *"Engineer
+  (Steam)"* does not cover Engineering. Recorded, never repaired.
+- The probe is a test now, over the same corpus. Four mutations of the new
+  check, four caught, `ran=101`.
+
+Neither review could have found it from the diff: the fixture spellings
+are not in it. **A reviewer reads what the diff shows; the corpus has to
+be asked.** The `feat(rules)` commit's body also overclaims. *"Two screens
+cannot give one roll two numbers"* is true of a Divination Arts the
+character does not own, and only of that.
+
 ### Verification
 
-1844 Kotlin (1295 `core:rules`, 529 `app`, 20 `core:model`), green from the
+1846 Kotlin (1297 `core:rules`, 529 `app`, 20 `core:model`), green from the
 JUnit XML after a full run. Python was not run: no tool changed.
 
 **Seventeen mutations, and two survived the first pass**: Versatile
@@ -6856,6 +6888,10 @@ the Divination Arts row; and the weapon note. All four are unit-tested.
   says *"this book tags no skill as a combat skill"* beside a `COMBAT
   SKILLS` banner in `skills.json`. That is a claim to check.
 - **The Acrobatic Dodge takes no untrained roll**, and says so.
+- **An OWNED Divination Arts below the default is two numbers.** The Divine
+  tile uses Ritualistic Magic -2 where that beats the caster's own level,
+  and the Skills tab's potion row rolls the owned one. That predates this
+  slice.
 - **An untrained parry.** Brawling's paragraph prints the default and the
   parry formula in adjacent sentences. Whether a default parries needs a
   design review, not a branch.

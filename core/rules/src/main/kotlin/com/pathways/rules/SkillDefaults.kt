@@ -120,17 +120,21 @@ object SkillDefaults {
      * Owned is the same name and specialization at ANY difficulty: five
      * potion grants disagree with chapter 3 about a difficulty, and the
      * catalogue prints no name and specialization twice, so a difficulty
-     * cannot be what tells two of its rows apart.
+     * cannot be what tells two of its rows apart. See [covers] for the two
+     * spellings a sheet prints that the book does not.
      */
     fun offered(
         owned: Map<SkillKey, Int>,
         attributeLevel: (ControllingAttribute) -> Int,
         defaultBonus: Int,
     ): List<Untrained> {
-        val held = owned.keys.map { it.name.lowercase() to it.specialization?.lowercase() }.toSet()
+        val printed = ContentLoader.skills()
         val suffix = if (defaultBonus != 0) ", +$defaultBonus ${TraitEffects.VERSATILE}" else ""
-        return ContentLoader.skills()
-            .filter { (it.name.lowercase() to it.specialization?.lowercase()) !in held }
+        return printed
+            .filter { row ->
+                val onlyRow = printed.count { it.name == row.name } == 1
+                owned.keys.none { covers(it, row, onlyRow) }
+            }
             .mapNotNull { skill ->
                 val (level, source) = defaultOf(skill, owned, attributeLevel, defaultBonus)
                     ?: return@mapNotNull null
@@ -143,9 +147,37 @@ object SkillDefaults {
     }
 
     /**
+     * Whether holding [owned] is holding the book's [row].
+     *
+     * The same name and specialization, first. Then the one case where a
+     * sheet's spelling and the book's differ and can still only be one
+     * skill: the book prints a single row of that name ([onlyRow]), the row
+     * is not open, and one of the two prints no specialization -- "History
+     * (Occult)" on a sheet against the book's bare History, a bare
+     * "Mathematics" against its Mathematics (Applied). Five premades carry
+     * one or the other, and each was offered its own skill back untrained.
+     *
+     * **Drawn from the catalogue's shape, not from the names seen.** An open
+     * row is never covered by an instance (Hidden Lore (Demons) is not
+     * Hidden Lore (Spirits)), two printed specializations that differ are
+     * two skills (Fast-Draw (Revolver) beside the book's (Pistol)), and a
+     * placeholder grant -- "Guns (any)", "Survival (any terrain)" -- covers
+     * nothing, because the player chose one and this app was not told which.
+     * A sheet name the book does not print at all ("Engineer (Steam)" against
+     * Engineering) matches nothing either: recorded, never repaired.
+     */
+    private fun covers(owned: SkillKey, row: SkillDefinition, onlyRow: Boolean): Boolean {
+        if (!owned.name.equals(row.name, ignoreCase = true)) return false
+        if (owned.specialization.equals(row.specialization, ignoreCase = true)) return true
+        return onlyRow && !row.specializable &&
+            (owned.specialization == null || row.specialization == null)
+    }
+
+    /**
      * [offered], for [character] as played: the digested attributes, pools
      * and skill levels where a potion has been drunk, the purchased ones
-     * where none has. The same two sources every bought skill is rolled from.
+     * where none has. The same two sources every bought skill is rolled from,
+     * and the same call the sheet's `digestedWith` makes for the same state.
      */
     fun offeredTo(character: Character): List<Untrained> {
         val walked = PotionDigestion.of(character, ContentLoader.pathways())

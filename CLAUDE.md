@@ -48,10 +48,11 @@ beside a rule that is applied. Nothing enforces this: the census tests name
 the readers that were found (Night Eyes, Spiritual Fortitude, the language
 pricing pair) and cannot see the next one.
 
-**Every roll at a default asks `SkillDefaults` and takes Versatile's +1.**
-Two do: the Divine tile and the Skills tab's untrained list. Versatile's
-sheet note was removed on that count (6et), so a third consumer that
-skips the +1 leaves the trait silently short.
+**Every roll at a default takes Versatile's +1, and goes through
+`SkillDefaults`, or through `Divination.divinationLevelFor` for Divination
+Arts.** Two do: the Skills tab's untrained list and the Divine tile.
+Versatile's sheet note was removed on that count (6et), so a third
+consumer that skips the +1 leaves the trait silently short.
 
 **`defense_modifiers.json` is finished, and so is the round boundary behind
 it.** 6co applied Retreat — three numbers scoped per defence row (+3 Dodge / +1
@@ -172,7 +173,10 @@ stale sentences listed, then FIX on the diff. Its MEDIUM: one note
 flattened three potion lines about weapons, and Harvest Priest's covers
 farming tools only. Seventeen mutations, two of which survived until they
 got an assertion. On the SM-T570: `Acrobatics (untrained, DX-6)`, `Skill
-4`, `3d6: 14 vs 4`. **Successors**: an untrained punch and a carried weapon
+4`, `3d6: 14 vs 4`. **Both reviews passed a list that offered five premades
+their own skill back**: a sheet prints *"Mathematics"* where the book
+prints *"Mathematics (Applied)"*. A probe of every premade through every
+potion found it, after the commit. **Successors**: an untrained punch and a carried weapon
 in the Attack dialog, the Acrobatic Dodge, whether a default parries, and
 6es's two lists.
 
@@ -440,7 +444,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1844 Kotlin** (JUnit 5 — 1295 `core:rules`, 529 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1846 Kotlin** (JUnit 5 — 1297 `core:rules`, 529 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
