@@ -10,6 +10,7 @@ import com.pathways.model.PurchasedSkill
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.rules.Appearance
+import com.pathways.rules.Corruption
 import com.pathways.rules.Derive
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PremadeSheet
@@ -73,6 +74,21 @@ fun SavedEdits.shortfallOn(sheet: PremadeSheet, state: BeyonderState?): Secondar
     val digested = PotionDigestion.of(character.copy(beyonder = state), ContentLoader.pathways())
         ?: return bought
     return ScoreFloors.shortfall(digested.secondaries, character.traits)
+}
+
+/**
+ * The maximum CoR these edits give [sheet] with [state]'s potions digested:
+ * Will, +3 with Spiritual Fortitude (book lines 1028, 3059). The one reading
+ * of it -- the sheet screen, the pathway screen and the session's refusal all
+ * ask here, because a potion can move Will in either direction.
+ *
+ * Ask it only of edits that keep every floor ([shortfallOn] first): a Will
+ * sold to the bound plus Abyss's -1 does not digest.
+ */
+fun SavedEdits.corCeilingOn(sheet: PremadeSheet, state: BeyonderState?): Int {
+    val character = applyTo(sheet.toCharacter())
+    val walked = PotionDigestion.of(character.copy(beyonder = state), ContentLoader.pathways())
+    return Corruption.maxFor(walked?.secondaries?.will ?: Derive.of(character).secondaries.will, character.traits)
 }
 
 /**

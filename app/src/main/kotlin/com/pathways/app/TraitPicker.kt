@@ -36,6 +36,7 @@ internal fun TraitsRow(
     instanced: List<Pair<SavedInstancedTrait, Trait?>>,
     onAdd: () -> Unit,
     onRemove: (String) -> Unit,
+    canRemove: (String) -> Boolean,
     onRemoveInstanced: (Int) -> Unit,
 ) {
     Column {
@@ -91,6 +92,7 @@ internal fun TraitsRow(
         }
         bought.forEach { name ->
             val row = PurchasableTraits.named(name)
+            val removable = canRemove(name)
             Row(
                 Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -106,8 +108,17 @@ internal fun TraitsRow(
                         } ?: "The book no longer prints this trait, so it costs nothing.",
                         style = MaterialTheme.typography.bodySmall,
                     )
+                    // Spiritual Fortitude is +3 maximum CoR: giving it back
+                    // can bring the ceiling onto the total, or below 1.
+                    if (!removable) {
+                        Text(
+                            "Kept: giving it back would bring maximum CoR to the CoR total or below 1.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
                 }
-                TextButton(onClick = { onRemove(name) }) { Text("Give back") }
+                TextButton(onClick = { onRemove(name) }, enabled = removable) { Text("Give back") }
             }
         }
     }

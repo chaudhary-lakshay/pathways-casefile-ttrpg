@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import com.pathways.model.Attr
 import com.pathways.model.BeyonderState
 import com.pathways.model.Character
+import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.model.SecondaryDelta
 import com.pathways.model.canDrink
 import com.pathways.rules.Corruption
@@ -104,10 +105,20 @@ class BeyonderSession(
         if (sheet != null) {
             // Bought scores, then digested ones: two passes at most, since a
             // potion lowers only Will and by four at most.
-            val repaired = generateSequence(edits.withinCeilings()) { e ->
+            val floored = generateSequence(edits.withinCeilings()) { e ->
                 e.shortfallOn(sheet, state).takeIf { it != SecondaryDelta() }?.let(e::boughtBack)
             }.last()
-            if (repaired != edits) {
+            // Then the CoR ceiling, which the builder used to sell onto the
+            // total: Will bought back to one above it. Buying Will only
+            // raises the ceiling, so no floor moves. Should the purchase
+            // ceiling stop the buy-back short, the character stands at
+            // maximum CoR and is lost, which is the book's answer.
+            val owed = if (isLost) 0 else cor + 1 - floored.corCeilingOn(sheet, state)
+            val repaired = if (owed <= 0) floored else floored
+                .boughtBack(SecondaryDelta(will = owed.coerceAtMost(MAX_SECONDARY_DELTA_MAGNITUDE)))
+                .withinCeilings()
+            if (!isLost && repaired.corCeilingOn(sheet, state) <= cor) corrupted = true
+            if (repaired != edits || corrupted != saved.corrupted) {
                 edits = repaired
                 persist()
             }
@@ -123,7 +134,18 @@ class BeyonderSession(
      * throws on an 8 (SM-T570).
      */
     private fun allows(next: SavedEdits): Boolean =
-        sheet == null || next.shortfallOn(sheet, state) == SecondaryDelta()
+        sheet == null || (next.shortfallOn(sheet, state) == SecondaryDelta() && keepsBelowCeiling(next))
+
+    /**
+     * Whether a live character stays below their maximum CoR after [next].
+     * "At maximum CoR: The character is permanently lost" (book line 3075) is
+     * a STATE, and the latch fires only on a gain, so an edit that lowers
+     * the ceiling -- Will, IQ, or selling Spiritual Fortitude -- is refused
+     * at the total rather than latched: a builder tap is a purchase, not an
+     * event in play. A potion is, and [drink] latches instead.
+     */
+    private fun keepsBelowCeiling(next: SavedEdits): Boolean =
+        isLost || sheet == null || next.corCeilingOn(sheet, state) > cor
 
     private fun edit(next: SavedEdits) {
         if (!allows(next)) return
@@ -229,9 +251,12 @@ class BeyonderSession(
     fun sellTrait(name: String) {
         if (name !in edits.traits) return
         // Spiritual Fortitude is +3 to the CoR ceiling, so selling it can
-        // take the ceiling below its floor.
+        // take the ceiling below its floor, or onto the CoR total.
         edit(edits.copy(traits = edits.traits - name))
     }
+
+    /** Whether [sellTrait] would give [name] back, rather than refuse it. */
+    fun canSellTrait(name: String): Boolean = name in edits.traits && allows(edits.copy(traits = edits.traits - name))
 
     /**
      * Buy a trait whose price the book leaves to the instance.
@@ -417,7 +442,7 @@ class BeyonderSession(
      * Pathway and Sequence only. A digestion step or an earlier CoR step
      * moves neither the ceiling nor the meaning of the next tap, and
      * comparing them would drop the second of two quick taps. (Checked, not
-     * assumed: the ceiling is `PathwayScreen`'s `maxCorFor`, which goes
+     * assumed: the ceiling is `SavedEdits.corCeilingOn`, which goes
      * through `PotionDigestion.of`, and nothing in `PotionDigestion.kt` or
      * `Corruption.kt` reads `digestion`.) A Drink does
      * move the ceiling -- a potion can LOWER Will -- so a step from the
@@ -466,6 +491,10 @@ class BeyonderSession(
 
         if (current == null) {
             state = next
+            // A mortal can carry CoR (a ritual's), and Abyss Sequence 9 is
+            // Will -1: the first potion can land on the total too, and it is
+            // an event in play, so it latches rather than being bought back.
+            gainCor(0, ceilingAfter)
             persist()
             return null
         }

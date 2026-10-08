@@ -244,6 +244,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     ),
                     onAdd = { pickingTrait = true },
                     onRemove = { session.sellTrait(it) },
+                    canRemove = { session.canSellTrait(it) },
                     onRemoveInstanced = { session.sellInstancedTrait(it) },
                 )
                 HorizontalDivider()

@@ -88,7 +88,6 @@ import com.pathways.rules.CommonModifiers
 import com.pathways.rules.Concentration
 import com.pathways.rules.ConcentrationOutcome
 import com.pathways.rules.Conditions
-import com.pathways.rules.Corruption
 import com.pathways.rules.Derive
 import com.pathways.rules.Divination
 import com.pathways.rules.EffortBurn
@@ -275,16 +274,15 @@ fun SheetScreen(
             secondaries.dodge,
         )
     }
-    // The CoR ceiling is the character's CURRENT Will, which a potion can
-    // move. Computed once: the ritual dialog and the SPI tracker's Soul Debt
-    // both charge against it, and two readings of one rule is how they drift.
     // The traits actually in play -- the sheet's, plus anything the edit
-    // layer changed. Hoisted because three readers need them: the CoR cap,
-    // a skill roll, and the active defences.
+    // layer changed. Hoisted because two readers need them: a skill roll and
+    // the active defences.
     val traits = remember(sheet, session.edits) { session.characterFor(sheet).traits }
-    val maxCor = remember(sheet, vitals.will, traits) {
-        Corruption.maxFor(vitals.will, traits)
-    }
+    // The CoR ceiling: the CURRENT Will, which a potion can move, +3 with
+    // Spiritual Fortitude. Computed once: the ritual dialog and the SPI
+    // tracker's Soul Debt both charge against it, and it is the same reading
+    // the pathway screen and the builder's refusal use.
+    val maxCor = remember(sheet, drunk, session.edits) { session.edits.corCeilingOn(sheet, drunk) }
     // The disadvantages that print a number to roll under (6am). Until this
     // slice a character's disadvantages rendered NOWHERE in the app at all --
     // `TraitEffects.reported` reads the advantage catalogue only -- so the

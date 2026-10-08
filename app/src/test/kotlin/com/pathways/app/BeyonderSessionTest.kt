@@ -4,6 +4,7 @@ import com.pathways.model.Attr
 import com.pathways.model.BeyonderState
 import com.pathways.model.MAX_ATTRIBUTE
 import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
+import com.pathways.rules.Corruption
 import com.pathways.rules.Pool
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.content.ContentLoader
@@ -385,6 +386,112 @@ class BeyonderSessionTest {
                 PotionDigestion.digestThrough(s.characterFor(sheet), b.pathway, b.sequence, blocks)
             }
         }
+    }
+
+    @Test
+    fun `no builder edit leaves a live character standing at maximum CoR`() {
+        // "At maximum CoR: The character is permanently lost" (book line 3075): a
+        // STATE, which the app latched only on a gain. Three edits lower the
+        // ceiling -- Will steps, IQ (Will = IQ + steps) and selling Spiritual
+        // Fortitude -- and each, from CoR 9 under a ceiling of 10, reaches 9.
+        val edits = listOf<(BeyonderSession) -> Unit>(
+            { it.setSecondary("will", -1) },
+            { it.setAttribute(Attr.IQ, 9) },
+            { it.sellTrait("Spiritual Fortitude") },
+        )
+        val starts = listOf(
+            SavedEdits(),
+            SavedEdits(),
+            SavedEdits(secondaries = mapOf("will" to -3), traits = listOf("Spiritual Fortitude")),
+        )
+        for ((edit, start) in edits.zip(starts)) {
+            val sheet = plain(iq = 10)
+            val (s, _) = session(SavedSession(cor = 9, edits = start), sheet)
+            edit(s)
+            val ceiling = Corruption.maxFor(s.characterFor(sheet))
+            assertTrue(s.isLost || s.cor < ceiling, "CoR ${s.cor} under a ceiling of $ceiling, and live")
+        }
+    }
+
+    @Test
+    fun `the ceiling may come down to one above the total and no further`() {
+        // CoR 8 under 10: one Will sold leaves 9, live; a second would be 8.
+        val sheet = plain(iq = 10)
+        val (s, _) = session(SavedSession(cor = 8), sheet)
+        assertTrue(s.canSetSecondary("will", -1))
+        s.setSecondary("will", -1)
+        assertFalse(s.canSetSecondary("will", -2))
+        s.setSecondary("will", -2)
+        assertEquals(-1, s.edits.secondaries["will"])
+    }
+
+    @Test
+    fun `selling Spiritual Fortitude onto the total is refused, and the builder can say so`() {
+        val sheet = plain(iq = 10)
+        val start = SavedEdits(secondaries = mapOf("will" to -3), traits = listOf("Spiritual Fortitude"))
+        val (s, _) = session(SavedSession(cor = 9, edits = start), sheet)
+        assertFalse(s.canSellTrait("Spiritual Fortitude"))
+        s.sellTrait("Spiritual Fortitude")
+        assertEquals(listOf("Spiritual Fortitude"), s.edits.traits)
+        val (calm, _) = session(SavedSession(cor = 2, edits = start), sheet)
+        assertTrue(calm.canSellTrait("Spiritual Fortitude"))
+    }
+
+    @Test
+    fun `a save already standing at its ceiling buys Will back on opening, and stays live`() {
+        // Written before the builder refused it: CoR 9 under a ceiling of 9.
+        // A CoR "-" tap there walked the character back out, so the book's
+        // "permanently lost" was never reached; latching it instead would end
+        // a character for a builder tap the app now refuses.
+        val saved = SavedSession(cor = 9, edits = SavedEdits(secondaries = mapOf("will" to -1)))
+        val (s, last) = session(saved, plain(iq = 10))
+        assertFalse(s.isLost)
+        assertTrue(s.edits.secondaries["will"] == null, "bought back to a ceiling of 10")
+        assertEquals(s.edits, last().edits, "and written back")
+    }
+
+    @Test
+    fun `a first potion that lowers the ceiling onto the total latches the loss`() {
+        // A mortal can carry CoR (a ritual's). Abyss Sequence 9 is Will -1, so
+        // CoR 9 under Will 10 lands at 9 / 9: a potion, an event in play, so
+        // the loss latches -- and opening the save must not buy it back.
+        val sheet = plain(iq = 10)
+        val (s, last) = session(SavedSession(cor = 9), sheet)
+        val abyss9 = BeyonderState("Abyss", 9)
+        s.drink(abyss9, fixed(10)) { s.edits.corCeilingOn(sheet, it) }
+        assertTrue(s.isLost)
+        val (reopened, _) = session(last(), sheet)
+        assertTrue(reopened.isLost)
+        assertTrue(reopened.edits.isEmpty, "a loss is not repaired with a Will purchase")
+    }
+
+    @Test
+    fun `a Beyonder's ceiling is read from the potions drunk`() {
+        // Abyss 9 lowers Will to 9: selling one more Will would leave CoR 8
+        // at 8 / 8. Read off the undigested Will (10) it is 8 / 9, and safe.
+        val sheet = plain(iq = 10)
+        val (s, _) = session(SavedSession(beyonder = BeyonderState("Abyss", 9), cor = 8), sheet)
+        assertFalse(s.canSetSecondary("will", -1))
+    }
+
+    @Test
+    fun `a lost save is not bought back on opening`() {
+        val start = SavedEdits(secondaries = mapOf("will" to -1))
+        val (s, _) = session(SavedSession(lost = true, cor = 9, edits = start), plain(iq = 10))
+        assertEquals(start, s.edits)
+    }
+
+    @Test
+    fun `a save the purchase ceiling cannot buy back above its total is lost`() {
+        // IQ 26 and Will +98, both at their purchase ceilings: maximum CoR
+        // 124, sold onto a CoR of 124 before the builder refused it. Will
+        // cannot pass +98, so 124 stands at the maximum -- the book's answer
+        // is "lost". The edits come back UNCHANGED, so only the latch says
+        // the save must be written.
+        val saved = SavedSession(cor = 124, edits = SavedEdits(iq = 26, secondaries = mapOf("will" to 98)))
+        val (s, last) = session(saved, plain(iq = 10))
+        assertTrue(s.isLost)
+        assertTrue(last().corrupted, "and written back")
     }
 
     @Test

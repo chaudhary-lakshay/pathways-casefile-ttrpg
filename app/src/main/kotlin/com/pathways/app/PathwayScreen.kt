@@ -128,13 +128,8 @@ fun PathwayScreen(
     // not with whichever block is being browsed, which is why this asks about
     // a BeyonderState rather than reusing `digested`. Drinking asks it about
     // the state being drunk INTO, since that potion may move Will itself.
-    val maxCorFor = remember(sheet, blocks, session.edits) {
-        { state: BeyonderState? ->
-            val base = session.characterFor(sheet)
-            val walked = PotionDigestion.of(base.copy(beyonder = state), blocks)
-            if (walked == null) Corruption.maxFor(base)
-            else Corruption.maxFor(walked.secondaries.will, base.traits)
-        }
+    val maxCorFor = remember(sheet, session.edits) {
+        { state: BeyonderState? -> session.edits.corCeilingOn(sheet, state) }
     }
     val maxCor = maxCorFor(drunk)
 
@@ -488,7 +483,9 @@ private fun CorruptionTracker(session: BeyonderSession, drunk: BeyonderState, ma
             if (session.corrupted) {
                 "At maximum CoR the character is permanently lost. The GM takes full control."
             } else {
-                "maximum CoR is Will ($max); reaching it removes the character from play"
+                // Not "Will ($max)": Spiritual Fortitude makes it Will + 3,
+                // and the label read "Will (13)" beside a Will of 10.
+                "maximum CoR is $max; reaching it removes the character from play"
             },
             style = MaterialTheme.typography.bodySmall,
             color = if (session.corrupted) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
