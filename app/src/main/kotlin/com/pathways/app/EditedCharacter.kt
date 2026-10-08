@@ -12,6 +12,7 @@ import com.pathways.model.Trait
 import com.pathways.rules.Appearance
 import com.pathways.rules.Corruption
 import com.pathways.rules.Derive
+import com.pathways.rules.DigestedCharacter
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.SecondaryCharacteristics
@@ -58,6 +59,29 @@ fun SavedEdits.applyTo(base: Character): Character {
 }
 
 /**
+ * This character as PLAYED: [state]'s potions digested on top of what was
+ * bought. Null for a mortal, who plays the purchases. The one reading of it --
+ * the sheet's vitals, the builder's rows and the floors all ask here, so one
+ * save cannot read HP 11 on one screen and 9 on the next (SM-T570).
+ *
+ * Ask it only of a character inside the floors and ceilings: a purchase at
+ * the bound plus a potion's grant does not digest ([shortfallOn]).
+ */
+fun Character.digestedWith(state: BeyonderState?): DigestedCharacter? =
+    PotionDigestion.of(copy(beyonder = state), ContentLoader.pathways())
+
+/**
+ * What the builder prints under a number a potion moved: the builder steps,
+ * prices and floors the BOUGHT score, and shows the played one. Null when
+ * the two agree, which is every mortal and every row no potion touched.
+ */
+fun beforePotions(bought: String, played: String): String? =
+    if (bought == played) null else "$bought $BEFORE_POTIONS"
+
+/** Also the label on a Beyonder's skill rows, which stay on bought levels. */
+const val BEFORE_POTIONS = "before potions"
+
+/**
  * How far these edits leave [sheet] below a score floor -- first as BOUGHT,
  * then with the potions of [state] digested. All zero when both hold. See
  * [ScoreFloors].
@@ -71,8 +95,7 @@ fun SavedEdits.shortfallOn(sheet: PremadeSheet, state: BeyonderState?): Secondar
     val character = applyTo(sheet.toCharacter())
     val bought = ScoreFloors.shortfall(Derive.of(character).secondaries, character.traits)
     if (bought != SecondaryDelta()) return bought
-    val digested = PotionDigestion.of(character.copy(beyonder = state), ContentLoader.pathways())
-        ?: return bought
+    val digested = character.digestedWith(state) ?: return bought
     return ScoreFloors.shortfall(digested.secondaries, character.traits)
 }
 
@@ -87,7 +110,7 @@ fun SavedEdits.shortfallOn(sheet: PremadeSheet, state: BeyonderState?): Secondar
  */
 fun SavedEdits.corCeilingOn(sheet: PremadeSheet, state: BeyonderState?): Int {
     val character = applyTo(sheet.toCharacter())
-    val walked = PotionDigestion.of(character.copy(beyonder = state), ContentLoader.pathways())
+    val walked = character.digestedWith(state)
     return Corruption.maxFor(walked?.secondaries?.will ?: Derive.of(character).secondaries.will, character.traits)
 }
 

@@ -103,7 +103,6 @@ import com.pathways.rules.SpiritVision
 import com.pathways.rules.SuccessRoll
 import com.pathways.rules.VitalCheck
 import com.pathways.rules.VitalRolls
-import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.PremadeSkill
 import com.pathways.rules.Premades
@@ -263,7 +262,7 @@ fun SheetScreen(
     // entirely a potion's gift. Recomputed from the walk, never stored.
     val vitals = remember(sheet, drunk, session.edits) {
         val base = session.characterFor(sheet)
-        val walked = PotionDigestion.of(base.copy(beyonder = drunk), ContentLoader.pathways())
+        val walked = base.digestedWith(drunk)
         val secondaries = walked?.secondaries ?: Derive.of(base).secondaries
         Vitals(
             secondaries.maxHp,
@@ -313,7 +312,7 @@ fun SheetScreen(
     // skill levels come from.
     val attributes = remember(sheet, drunk, session.edits) {
         val played = session.characterFor(sheet)
-        PotionDigestion.of(played.copy(beyonder = drunk), ContentLoader.pathways())
+        played.digestedWith(drunk)
             ?.effectiveAttributes
             ?: played.attributes
     }

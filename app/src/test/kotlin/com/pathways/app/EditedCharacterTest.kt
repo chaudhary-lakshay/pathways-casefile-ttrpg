@@ -647,4 +647,26 @@ class EditedCharacterTest {
     fun `a mortal's live levels are its purchased ones`() {
         assertEquals(Derive.of(mortal).skillLevels, liveSkillLevels(mortal))
     }
+
+    // --- what the builder prints -------------------------------------------
+    //
+    // REGRESSION, read off an SM-T570: one save, Abyss Sequence 9 at 100%,
+    // read HP 11 / 11 on the sheet and HP 9 in the builder.
+
+    @Test
+    fun `the builder reads the character the sheet plays`() {
+        // Abyss Sequence 9: ST +2, which lifts HP, and Will -1.
+        val played = checkNotNull(mortal.digestedWith(BeyonderState("Abyss", 9, 100)))
+        assertEquals(11, played.effectiveAttributes.st)
+        assertEquals(11, played.secondaries.maxHp)
+        assertEquals(9, played.secondaries.will)
+        assertNull(mortal.digestedWith(null), "a mortal plays what was bought")
+    }
+
+    @Test
+    fun `a number a potion moved is printed beside the one that was bought`() {
+        assertEquals("9 before potions", beforePotions(bought = "9", played = "11"))
+        assertEquals("10 before potions", beforePotions(bought = "10", played = "9"))
+        assertNull(beforePotions(bought = "4.50", played = "4.50"), "nothing moved: nothing to explain")
+    }
 }

@@ -79,6 +79,10 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     val start = remember(sheet) { sheet.toCharacter() }
     val character = session.characterFor(sheet)
     val derived = remember(character) { Derive.of(character) }
+    // The character as PLAYED, for the numbers shown -- the ones the sheet
+    // shows. Everything stepped, priced or refused stays on the purchase: a
+    // potion's grants are free (p. 85), and `derived` is what the budget bills.
+    val played = remember(character, session.state) { character.digestedWith(session.state) }
     val report = derived.budget
     // The six rows the book prices; the three it refuses to price carry no
     // pointsPerStep and so offer no stepper (Ch. 2, pp. 8-9).
@@ -152,6 +156,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                 AttributeRow(
                     attr = attr,
                     level = character.attributes[attr],
+                    played = played?.effectiveAttributes?.get(attr) ?: character.attributes[attr],
                     startingLevel = start.attributes[attr],
                     // A step the session would refuse: below a score floor (ScoreFloors).
                     canLower = session.canSetAttribute(attr, character.attributes[attr] - 1),
@@ -176,15 +181,18 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                 // stepping from the composed figure would buy the grant a
                 // second time.
                 val bought = session.edits.secondaries[row.key] ?: 0
+                // Never null for a priced row, and pinned by
+                // SecondaryPurchaseTest: a content file that grew a seventh
+                // price without a field to put it in should fail loudly
+                // rather than drop the row off the screen.
+                val boughtValue = checkNotNull(
+                    SecondaryCharacteristics.valueLabelOf(derived.secondaries, row.key),
+                ) { "${row.characteristic} is priced and has no value to show" }
                 SecondaryRow(
                     row = row,
-                    // Never null for a priced row, and pinned by
-                    // SecondaryPurchaseTest: a content file that grew a
-                    // seventh price without a field to put it in should fail
-                    // loudly rather than drop the row off the screen.
-                    value = checkNotNull(
-                        SecondaryCharacteristics.valueLabelOf(derived.secondaries, row.key),
-                    ) { "${row.characteristic} is priced and has no value to show" },
+                    value = played?.let { SecondaryCharacteristics.valueLabelOf(it.secondaries, row.key) }
+                        ?: boughtValue,
+                    boughtValue = boughtValue,
                     steps = bought,
                     canLower = session.canSetSecondary(row.key, bought - 1),
                     onChange = { delta -> session.setSecondary(row.key, bought + delta) },
@@ -224,9 +232,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     // budget above is right to use and a parry is not: a
                     // Beyonder whose potion granted the weapon's skill would
                     // read one number here and another on the defence screen.
-                    skillLevels = liveSkillLevels(
-                        character.copy(beyonder = session.state),
-                    ),
+                    skillLevels = played?.skillLevels ?: derived.skillLevels,
                     onAdd = { pickingWeapon = true },
                     onRemove = { session.dropWeapon(it) },
                 )
@@ -298,7 +304,12 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     // true on THIS screen -- a Character holds purchases only
                     // (M3), so every row here was bought. The rule is enforced
                     // in `Study` regardless, for a caller that does hold grants.
-                    study = studyLine(purchased, character, derived, studyMethod),
+                    study = studyLine(purchased, character, derived, studyMethod, session.state != null),
+                    // A Beyonder's rows stay on BOUGHT levels and say so: a
+                    // potion lifts a bought skill or supersedes it with a
+                    // grant, and which is `PotionDigestion`'s to decide, on
+                    // the sheet -- not a second matcher's here.
+                    isBeforePotions = session.state != null,
                     // Only skills bought in play are editable. The published
                     // sheet's own purchases stay put: the diff against it is a
                     // feature (spec section 6), and quietly re-pointing a
@@ -402,6 +413,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
 private fun AttributeRow(
     attr: Attr,
     level: Int,
+    played: Int,
     startingLevel: Int,
     canLower: Boolean,
     onChange: (Int) -> Unit,
@@ -426,13 +438,14 @@ private fun AttributeRow(
                     append("$spent pts spent here")
                     next?.let { append(" — next level costs $it") }
                     if (level != startingLevel) append(" — sheet prints $startingLevel")
+                    beforePotions("$level", "$played")?.let { append(" — $it") }
                 },
                 style = MaterialTheme.typography.bodySmall,
             )
         }
         OutlinedIconButton(onClick = { onChange(-1) }, enabled = level > BASE_ATTRIBUTE && canLower) { Text("−") }
         Text(
-            "$level",
+            "$played",
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 8.dp),
@@ -466,6 +479,7 @@ private fun AttributeRow(
 private fun SecondaryRow(
     row: SecondaryCost,
     value: String,
+    boughtValue: String,
     steps: Int,
     canLower: Boolean,
     onChange: (Int) -> Unit,
@@ -480,6 +494,7 @@ private fun SecondaryRow(
                 buildString {
                     append(row.cost)
                     if (steps != 0) append(" — ${steps.signed()} bought")
+                    beforePotions(boughtValue, value)?.let { append(" — $it") }
                 },
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -535,6 +550,7 @@ private fun studyLine(
     character: Character,
     derived: DerivedCharacter,
     method: StudyMethod,
+    isBeforePotions: Boolean,
 ): String {
     val attributeLevel = Derive.controllingLevel(
         purchased.key.attr,
@@ -550,7 +566,8 @@ private fun studyLine(
         attr = purchased.key.attr,
     ).fold(
         onSuccess = {
-            "Study: ${it.printed} for ${it.pointsNeeded} CP → level ${it.toLevel}"
+            "Study: ${it.printed} for ${it.pointsNeeded} CP → level ${it.toLevel}" +
+                if (isBeforePotions) " $BEFORE_POTIONS" else ""
         },
         onFailure = { "Study: ${(it as StudyRefusedException).reason}" },
     )
@@ -569,6 +586,7 @@ private fun SkillRow(
     points: Int,
     onSpend: ((Int) -> Unit)?,
     study: String? = null,
+    isBeforePotions: Boolean = false,
 ) {
     Row(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
@@ -577,7 +595,7 @@ private fun SkillRow(
         Column(Modifier.weight(1f)) {
             Text(label, style = MaterialTheme.typography.bodyLarge)
             Text(
-                "$points pts" + (level?.let { " - level $it" } ?: ""),
+                "$points pts" + (level?.let { " - level $it" + if (isBeforePotions) " $BEFORE_POTIONS" else "" } ?: ""),
                 style = MaterialTheme.typography.bodySmall,
             )
             study?.let {

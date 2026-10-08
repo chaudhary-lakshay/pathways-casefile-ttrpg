@@ -268,6 +268,13 @@ to the printed value clears the purchase; the sheet's own **computed vs.
 as-published** table keeps showing what the sheet printed, because that
 comparison is the engine against the book and a purchase is neither.
 
+For a Beyonder, the big number on an attribute or secondary row is the one
+the character plays with, potions included, and the small line adds *N before
+potions* wherever a potion moved it. The steppers, the prices and the budget
+all work on the bought number, because a potion's gains are free. Skill rows
+stay on bought levels and say *before potions*; the sheet shows the levels
+actually rolled.
+
 **Weapons** lists what the character is carrying, with **Carry a weapon**
 opening chapter 8's nine rows. All nine are offered whether or not the
 character has the skill — a GM can hand anyone a weapon — and a weapon they
