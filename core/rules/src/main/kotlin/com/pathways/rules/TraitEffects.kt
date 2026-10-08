@@ -10,6 +10,7 @@ import com.pathways.model.ModifierId
 import com.pathways.model.ModifierSource
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
+import com.pathways.model.TraitKind
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.TraitDefinition
 
@@ -360,6 +361,12 @@ object TraitEffects {
         "Medical Training (Informal)" to flat(1, setOf("First Aid")),
         "Sanctity" to flat(2, setOf("Theology", "Religious Ritual")),
         "Absolute Direction" to flat(3, setOf("Navigation", "Body Sense")),
+        // Three cells that name printed skills and no circumstance, found by
+        // walking the catalogue for rows OUTSIDE [known] (6es). "in formal
+        // settings" belongs to the officer's courtesies, not to his +1.
+        "Acute Social Awareness" to flat(2, setOf("Body Language", "Detect Lies")),
+        "Former Military Officer" to flat(1, setOf("Leadership", "Tactics")),
+        "Photographic Instinct" to flat(2, setOf("Photography")),
         CHARISMA to perLevel(
             1,
             setOf(
@@ -1170,10 +1177,18 @@ object TraitEffects {
         // exactly the trait it was widened for, which is the shape 6am found
         // one list over when a character's disadvantages rendered nowhere.
         val catalogue = catalogue()
+        val known = known()
         return traits.flatMap { owned ->
             val bare = catalogueName(owned.name)
-            val printed = catalogue[bare.lowercase()]?.notes ?: return@flatMap emptyList()
+            val row = catalogue[bare.lowercase()] ?: return@flatMap emptyList()
+            val printed = row.notes
             val shown = displayName(owned.name)
+            // No collection names it and its row offers no roll: nothing this
+            // cell prints is applied but its price, and saying nothing reads
+            // as counted.
+            if (bare !in known && row.selfControl == null) {
+                return@flatMap listOf(TraitNote(shown, printed, UNREAD))
+            }
             val whole = UNAPPLIED[bare]?.let { listOf(TraitNote(shown, printed, it)) }.orEmpty()
             // A trait can be applied and still have rules left over, so the
             // clauses are reported even though the trait itself is not.
@@ -1181,6 +1196,63 @@ object TraitEffects {
                 TraitNote(shown, clause, reason)
             }
             whole + clauses
+        }
+    }
+
+    /**
+     * What [reported] says of a held trait no collection here names.
+     *
+     * **One sentence for the whole complement of [known]**, which was 148 of
+     * the 198 rows when it was first listed (6es) and had never been: 66
+     * advantages printed nowhere on the sheet, and the drawbacks printed
+     * their cell with no word on whether it was counted. A reason per row
+     * would be the honest-looking alternative and is the one that rots --
+     * each is a claim about this app that nothing re-reads (6eq). This one is
+     * true by construction, PROVIDED every reader of an EFFECT is in [known];
+     * that is what the census tests beside it are for.
+     *
+     * **"Its price aside", because a price is read from rows outside
+     * [known]** and the first wording, "reads no rule from this row", was
+     * false of five of them (the diff review's MEDIUM): [Wealth] resolves the
+     * four `Wealth:` rows and the builder shows their starting money, and
+     * [pricedVariants] takes Social Stigma's two prices out of its cell.
+     * Neither applies anything the cell prints to a roll or a pool.
+     *
+     * Read after the sheet's own "Not applied here:" prefix.
+     */
+    const val UNREAD =
+        "its price aside, this app applies nothing this row prints, so its " +
+            "text is the table's to apply"
+
+    /**
+     * One held trait as the sheet prints it: the book's [cell] where the
+     * sheet's spelling finds one, and what of it is not applied.
+     */
+    data class HeldTrait(
+        val trait: Trait,
+        val shown: String,
+        val cell: String?,
+        val notes: List<TraitNote>,
+    )
+
+    /**
+     * Every trait of [kind] in [traits], in sheet order.
+     *
+     * The advantages had no such list: the sheet printed [reported] and the
+     * drawbacks, so an advantage with nothing to report -- applied in full,
+     * or read by nothing -- was on no screen but the builder (6am's finding,
+     * one list over). A sheet name that matches no row keeps its name and a
+     * null cell, which is the record 4.1 asks for.
+     */
+    fun held(traits: List<Trait>, kind: TraitKind): List<HeldTrait> {
+        val catalogue = catalogue()
+        return traits.filter { it.kind == kind }.map { owned ->
+            HeldTrait(
+                trait = owned,
+                shown = displayName(owned.name),
+                cell = catalogue[catalogueName(owned.name).lowercase()]?.notes,
+                notes = reported(listOf(owned)),
+            )
         }
     }
 
@@ -1474,7 +1546,13 @@ object TraitEffects {
             // Applied in another file: [Languages.owned] reads these two to
             // price a language. The fourth instance, and the first where the
             // reader is not this object.
-            Languages.PRICING_TRAITS
+            Languages.PRICING_TRAITS +
+            // The fifth and sixth, found by listing the complement (6es)
+            // rather than by the next accident: [darknessReduction] applies
+            // one from this object, and [Corruption.maxFor] has read the
+            // other since M4. Both clauses of Night Eyes are applied
+            // ([DarknessCause]), so neither has anything to report.
+            setOf(NIGHT_EYES, Corruption.FORTITUDE)
 
     /** The traits reported whole, for the disjointness test. */
     fun unappliedNames(): Set<String> = UNAPPLIED.keys
@@ -1608,6 +1686,16 @@ object TraitEffects {
             "Always know which way is north; never become lost in natural terrain" to
                 "the book hands both to the GM, not to a roll",
         ),
+        "Former Military Officer" to listOf(
+            "military contacts" to
+                "this app keeps no contacts, and who they are is the GM's",
+            "entitled to officer courtesies in formal settings" to
+                "the book hands this to the GM, not to a roll",
+        ),
+        "Photographic Instinct" to listOf(
+            "instinctively know what to capture as evidence" to
+                "the book hands this to the GM, not to a roll",
+        ),
         "Sanctity" to listOf(
             "once per session, the GM must answer one factual question about " +
                 "Church doctrine or history honestly" to
@@ -1711,6 +1799,16 @@ object TraitEffects {
      */
     private val UNAPPLIED = mapOf(
         "Danger Sense" to "the book hands this to the GM, not to a roll",
+        // The only cell that lists "<Skill> +N". Chapter 3 writes a roll
+        // bonus as "+N to X" and chapter 6 defines a bare +N for a potion's
+        // entry, so this is neither idiom's own table. Refused whole on the
+        // design review's HIGH: that both readings give +N to a skill already
+        // owned is an argument about the cell, not a sentence in it (6es).
+        "Official Beyonder" to
+            "the book does not say whether its four \"+N\" entries are " +
+            "bonuses to a roll or skills granted at that level, so none is " +
+            "counted; the language, the Legal Enforcement Powers and the " +
+            "Duty are not added to this sheet either",
         // Bought through the builder's Languages row. The price is applied;
         // what the proficiency does to a roll is not, for the reason
         // [Languages]' own KDoc gives.

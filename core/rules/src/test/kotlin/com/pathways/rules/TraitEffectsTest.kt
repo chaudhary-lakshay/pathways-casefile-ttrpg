@@ -427,6 +427,14 @@ class TraitEffectsTest {
             Triple("Sanctity", key("Theology", iq), 2),
             Triple("Sanctity", key("Religious Ritual", iq), 2),
             Triple("Absolute Direction", key("Navigation", iq), 3),
+            // Three more, found from the catalogue's side (6es): every guard
+            // above walks the maps, so a cell no map names was checked by
+            // nothing. None prints a circumstance.
+            Triple("Acute Social Awareness", key("Body Language", iq), 2),
+            Triple("Acute Social Awareness", key("Detect Lies", iq), 2),
+            Triple("Former Military Officer", key("Leadership", iq), 1),
+            Triple("Former Military Officer", key("Tactics", iq), 1),
+            Triple("Photographic Instinct", key("Photography", iq), 2),
         )
         for ((trait, skill, bonus) in cases) {
             val mods = TraitEffects.modifiers(listOf(advantage(trait)), skill)
@@ -766,6 +774,9 @@ class TraitEffectsTest {
             "generally miss social cues and subtlety",
             "You do not understand subtext, sarcasm, or implication",
             "Expert in mysticism",
+            // Acute Social Awareness's tail: what the +2 looks like at the
+            // table, with no rule of its own.
+            "You read a room before you enter it",
         )
         val catalogue = ContentLoader.advantages() + ContentLoader.disadvantages() +
             ContentLoader.blessings().map { it.asTrait(ContentLoader.blessingCost()) }
@@ -1005,6 +1016,23 @@ class TraitEffectsTest {
         val printed = (ContentLoader.advantages() + ContentLoader.disadvantages())
             .map { it.name }.toSet() + ContentLoader.blessings().map { it.deity }
         assertEquals(emptySet<String>(), TraitEffects.known() - printed)
+    }
+
+    /**
+     * **Two traits production matches by name were outside the census** (6es):
+     * Night Eyes, which [TraitEffects.darknessReduction] applies from this
+     * very object, and Spiritual Fortitude, which [Corruption.maxFor] has
+     * read since M4's first slice. The fifth and sixth instances of the
+     * failure `known()`'s KDoc records, found by listing the complement
+     * rather than by waiting for the next one: 148 of 198 rows, and these two
+     * were the only ones a reader reaches by name.
+     */
+    @Test
+    fun `a trait applied by name elsewhere is one the census can see`() {
+        assertEquals(
+            emptySet<String>(),
+            setOf(TraitEffects.NIGHT_EYES, Corruption.FORTITUDE) - TraitEffects.known(),
+        )
     }
 
     /**
@@ -2249,5 +2277,118 @@ class TraitEffectsTest {
             .filter { "no default is rolled" in it.reason }
             .map { it.trait }
         assertEquals(emptyList<String>(), stale, "Divination Arts is rolled at a default")
+    }
+
+    // ---- 6es: the complement of known() ------------------------------------
+
+    /**
+     * **The one cell that lists `<Skill> +N`, refused whole.** Chapter 3's
+     * idiom for a roll bonus is "+N to X"; chapter 6 defines a bare +N as
+     * "Attribute + N", and says so of a POTION's entry. This cell is neither
+     * table, so which it means is not printed -- and that the two readings
+     * agree for a skill already owned is an argument, not a rule (the design
+     * review's HIGH). The pin is the idiom: a cell that learns to say "+2 to
+     * Occultism" has settled it, and this reddens.
+     */
+    @Test
+    fun `Official Beyonder is refused whole and lifts no skill`() {
+        val cell = ContentLoader.advantages().first { it.name == "Official Beyonder" }.notes
+        assertTrue(
+            cell.contains(
+                "Revolver +2, Ritualistic Magic +1, Hidden Lore (Beyonders) +3, Occultism +2",
+            ),
+            cell,
+        )
+        val held = listOf(advantage("Official Beyonder"))
+        assertTrue("Official Beyonder" in TraitEffects.unappliedNames())
+        assertEquals(cell, TraitEffects.reported(held).single().printed)
+        val occultism = SkillKey(
+            "Occultism", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.AVERAGE,
+        )
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(held, occultism))
+    }
+
+    /**
+     * **A held trait no collection names said nothing at all.** `reported`
+     * answered only for [TraitEffects.known], so 66 of the 99 advantages --
+     * `Legal Enforcement Powers` on three premades among them -- printed
+     * nowhere on the sheet, and a drawback such as `Unsettling Appearance`
+     * printed its "-1 to all reaction rolls" with nothing to say whether it
+     * had been counted. One sentence for all of them, because a reason per
+     * row is sixty reasons to go stale (6eq found seven of 39 had).
+     */
+    @Test
+    fun `a held trait nothing here reads says so`() {
+        val rows = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .associateBy { it.name }
+        val unread = listOf(
+            "Legal Enforcement Powers", "Acute Vision", "Unsettling Appearance",
+            // Read for a PRICE and for nothing they print: the sentence says
+            // "its price aside" because of these two (the diff review).
+            "Wealth: Comfortable", "Social Stigma",
+        )
+        assertTrue(TraitEffects.UNREAD.startsWith("its price aside"), TraitEffects.UNREAD)
+        for (name in unread) {
+            val note = TraitEffects.reported(listOf(advantage(name))).single()
+            assertEquals(rows.getValue(name).notes, note.printed, name)
+            assertEquals(TraitEffects.UNREAD, note.reason, name)
+        }
+    }
+
+    /**
+     * ...and the three ways a row is NOT unread: applied in full with nothing
+     * left over, rolled from its own row ([SelfControl]), or printed by no
+     * catalogue, where there is no cell to make a claim about.
+     */
+    @Test
+    fun `a trait applied in full, rolled, or unprinted is not called unread`() {
+        val quiet = listOf(
+            "${TraitEffects.ALERTNESS} 1", TraitEffects.OUTDOORSMAN, TraitEffects.NIGHT_EYES,
+            Corruption.FORTITUDE, "${TraitEffects.HARD_TO_KILL} 1",
+            // Outside known(), and its row is the roll.
+            "Curious", "Stubborn",
+            "A Name No Catalogue Prints",
+        )
+        for (name in quiet) {
+            assertEquals(emptyList<Any>(), TraitEffects.reported(listOf(advantage(name))), name)
+        }
+    }
+
+    /**
+     * **One row per held trait, with its cell and what of it is not applied**,
+     * which is what the sheet prints. The drawback half is the lookup the
+     * sheet did inline, asked through the one resolution: a second catalogue
+     * merged in must not change a cell it already found.
+     */
+    @Test
+    fun `every held advantage and drawback is a row with its cell`() {
+        val drawbacks = ContentLoader.disadvantages().associateBy { it.name.lowercase() }
+        for (sheet in Premades.all()) {
+            val traits = sheet.toCharacter().traits
+            val boons = TraitEffects.held(traits, TraitKind.ADVANTAGE)
+            val banes = TraitEffects.held(traits, TraitKind.DISADVANTAGE)
+            assertEquals(traits.filter { it.kind == TraitKind.ADVANTAGE }, boons.map { it.trait })
+            assertEquals(
+                traits.filter { it.kind == TraitKind.DISADVANTAGE }
+                    .map { it to drawbacks[TraitEffects.catalogueName(it.name).lowercase()]?.notes },
+                banes.map { it.trait to it.cell },
+                sheet.name,
+            )
+            for (row in boons + banes) {
+                assertEquals(TraitEffects.reported(listOf(row.trait)), row.notes, row.shown)
+            }
+        }
+        // Beat Cop's, which the sheet never printed.
+        val cop = TraitEffects.held(Premades.byName("Beat Cop").toCharacter().traits, TraitKind.ADVANTAGE)
+        val powers = cop.single { it.shown == "Legal Enforcement Powers" }
+        assertEquals(TraitEffects.UNREAD, powers.notes.single().reason)
+        assertTrue(powers.cell!!.startsWith("Official authority to investigate"), powers.cell)
+        // Stated here, not asked of `reported`: applied in full says nothing,
+        // and a cell with one clause left over names that clause alone.
+        assertEquals(emptyList<Any>(), cop.single { it.shown == "Alertness 1" }.notes)
+        assertEquals(
+            listOf("recover FP at twice the normal rate"),
+            cop.single { it.shown == TraitEffects.FIT }.notes.map { it.printed },
+        )
     }
 }
