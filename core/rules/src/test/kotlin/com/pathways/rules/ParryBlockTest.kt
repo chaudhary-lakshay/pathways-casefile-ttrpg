@@ -88,6 +88,59 @@ class ParryBlockTest {
         }
     }
 
+    /**
+     * The Parry (Unarmed) row's FORMULA cell: "Brawling or DX ÷ 2 + 3".
+     *
+     * Two operands, and until 6ev this app read one. The second is DX
+     * itself, so a hand with no Brawling behind it parries at DX/2 + 3 --
+     * NOT at (DX-2)/2 + 3, which is Brawling's default line (p. 38) halved.
+     * Where the book means a penalised operand it prints one: the Shield
+     * Bash's "Skill defaults to Shield/DX or Brawling-2", a page on.
+     */
+    @Test
+    fun `a bare hand parries at half DX plus three, not at Brawling's default`() {
+        val formula = ContentLoader.defenses().single { it.defense == "Parry (Unarmed)" }.formula
+        assertEquals("Brawling or DX ÷ 2 + 3", formula)
+        assertEquals(8, ParryBlock.unarmedParry(UnarmedStyle.BARE_HANDS, 10))
+        assertEquals(8, ParryBlock.unarmedParry(UnarmedStyle.BARE_HANDS, 11))
+        assertEquals(9, ParryBlock.unarmedParry(UnarmedStyle.BARE_HANDS, 12))
+        // 4.3: floored, so a DX driven below zero does not round toward it.
+        assertEquals(2, ParryBlock.unarmedParry(UnarmedStyle.BARE_HANDS, -1))
+    }
+
+    /**
+     * A READING, and the screen says so. The cell's subject is "Brawling"
+     * and no line prints "unarmed parries weapons at -3"; DX takes it here
+     * because it stands in Brawling's slot of the formula and Boxing is the
+     * one exemption the book names. Without it a brawler at 10 turns a knife
+     * at 5 and an untrained hand at DX 10 turns it at 8.
+     */
+    @Test
+    fun `a DX parry takes the weapon penalty Brawling does`() {
+        assertEquals(
+            ParryBlock.versusWeaponPenalty(UnarmedStyle.BRAWLING),
+            ParryBlock.versusWeaponPenalty(UnarmedStyle.BARE_HANDS),
+        )
+        assertEquals(-3, ParryBlock.versusWeaponPenalty(UnarmedStyle.BARE_HANDS))
+    }
+
+    /**
+     * "Brawling OR DX": the cell does not say "only without Brawling", so
+     * holding the skill does not withdraw the other operand. The row is
+     * withheld only where it could tell the GM nothing -- a held Brawling
+     * that already parries at least as well, under the same two notes.
+     */
+    @Test
+    fun `the DX row is withheld only where a held Brawling parries as well`() {
+        assertEquals(8, ParryBlock.bareHandParry(dx = 10, brawling = null))
+        // A potion's frozen Brawling a rung under a DX that has since risen.
+        assertEquals(9, ParryBlock.bareHandParry(dx = 12, brawling = 11))
+        // Different levels, the same parry: 12/2 and 13/2 both floor to 6.
+        assertNull(ParryBlock.bareHandParry(dx = 13, brawling = 12))
+        assertNull(ParryBlock.bareHandParry(dx = 10, brawling = 10))
+        assertNull(ParryBlock.bareHandParry(dx = 10, brawling = 14))
+    }
+
     @Test
     fun `the three rules the unarmed row prints are still printed`() {
         // Numbers inside prose live in Kotlin (6i, 6y, 6z); this pins the

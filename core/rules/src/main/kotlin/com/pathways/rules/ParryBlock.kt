@@ -2,7 +2,12 @@ package com.pathways.rules
 
 import com.pathways.model.Weapon
 
-enum class UnarmedStyle { BRAWLING, BOXING, WRESTLING }
+/**
+ * What a hand parries with. Three are skills; [BARE_HANDS] is the other
+ * operand of the Parry (Unarmed) formula cell, "Brawling or DX ÷ 2 + 3":
+ * DX itself, which every character has.
+ */
+enum class UnarmedStyle { BRAWLING, BOXING, WRESTLING, BARE_HANDS }
 
 /**
  * Which cumulative penalty a parry accumulates, Ch. 5 p. 37.
@@ -22,9 +27,10 @@ enum class ParryClass(val perExtraParry: Int) {
 }
 
 /**
- * Ch. 5, p. 37. Parry is a property of a readied weapon, not of a
+ * Ch. 5, p. 37. An ARMED parry is a property of a readied weapon, not of a
  * character — a character carrying two weapons has two parry values, and
- * some weapons have none at all.
+ * some weapons have none at all. A hand is the exception: its row prints DX
+ * as an operand, so every character has one ([bareHandParry]).
  */
 object ParryBlock {
 
@@ -42,16 +48,46 @@ object ParryBlock {
     fun parryFor(weapon: Weapon, skillLevel: Int): Int? =
         weapon.parryMod?.let { mod -> Math.floorDiv(skillLevel, 2) + 3 + mod }
 
+    /** [skillLevel] is the style's skill, or DX itself for [UnarmedStyle.BARE_HANDS]. */
     fun unarmedParry(style: UnarmedStyle, skillLevel: Int): Int = when (style) {
-        UnarmedStyle.BRAWLING, UnarmedStyle.BOXING -> Math.floorDiv(skillLevel, 2) + 3
+        UnarmedStyle.BRAWLING, UnarmedStyle.BOXING, UnarmedStyle.BARE_HANDS ->
+            Math.floorDiv(skillLevel, 2) + 3
         // The -3 sits inside the halving, so this is not the same as subtracting 3 at the end.
         UnarmedStyle.WRESTLING -> Math.floorDiv(skillLevel - 3, 2) + 3
     }
 
     /**
+     * The parry of a hand with no skill behind it, or null where printing it
+     * would tell the GM nothing (Ch. 5, p. 37).
+     *
+     * The Parry (Unarmed) row's formula cell reads "Brawling or DX ÷ 2 + 3",
+     * and from 6g to 6ev this app read the first operand alone: a sheet with
+     * no unarmed skill was told the screen "offers no parry from a default".
+     * It is not one. The operand is DX, not Brawling's "Default: DX-2 if
+     * untrained" (p. 38) halved -- where the book means a penalised operand
+     * it prints it, as the Shield Bash's "Skill defaults to Shield/DX or
+     * Brawling-2" does on the next page -- so Versatile's +1 "at default"
+     * has nothing here to add to.
+     *
+     * **[brawling] does not withdraw it.** The cell says "or", not "only
+     * without Brawling" (the design review's change), so the row is withheld
+     * only where a held Brawling already parries at least as well: the two
+     * rows would then differ in nothing, because [versusWeaponPenalty] and
+     * [canParryRanged] answer the same for both. No premade through any
+     * potion chain holds Brawling below DX today (2024 states, counted by a
+     * throwaway test in 6ev), so the second row is offered on the cell's
+     * word and not on a state seen: a granted level frozen under a DX that
+     * a later potion raised further is the shape that would show it.
+     */
+    fun bareHandParry(dx: Int, brawling: Int?): Int? =
+        unarmedParry(UnarmedStyle.BARE_HANDS, dx).takeIf { own ->
+            brawling == null || unarmedParry(UnarmedStyle.BRAWLING, brawling) < own
+        }
+
+    /**
      * "Brawling parries weapons at -3." (p. 37)
      *
-     * The Parry (Unarmed) row prints THREE rules and this codebase applied
+     * The Parry (Unarmed) row's Notes cell prints THREE rules and this codebase applied
      * one of them -- the cumulative penalty (6ap). This is the second: a bare
      * hand turning a knife is three points worse than turning a fist, and the
      * app showed one number for both.
@@ -64,14 +100,25 @@ object ParryBlock {
      * always, weapon or not). Two printings agreeing is what licenses reading
      * the exemption as Boxing's alone.
      *
+     * **A bare hand at DX takes it too, and that is a READING.** The cell's
+     * subject is "Brawling" and no line prints "unarmed parries weapons at
+     * -3". DX takes it because it stands in Brawling's slot of the formula
+     * and Boxing is the one exemption the book names; without it an
+     * untrained hand at DX 10 would turn a knife at 8 beside a brawler's 5.
+     * The screen says so beside the row.
+     *
      * A SEPARATE penalty from [parryPenalty], because they compose: a second
      * parry, of a weapon, bare-handed, is -4 and -3.
      */
     const val VS_WEAPON_PENALTY = -3
 
     /** What [style] loses for parrying a weapon rather than a bare hand. */
-    fun versusWeaponPenalty(style: UnarmedStyle): Int =
-        if (style == UnarmedStyle.BOXING) 0 else VS_WEAPON_PENALTY
+    fun versusWeaponPenalty(style: UnarmedStyle): Int = when (style) {
+        UnarmedStyle.BOXING -> 0
+        // Each named rather than left to an `else`: a style added later must
+        // be argued for here, not inherit the penalty by falling through.
+        UnarmedStyle.BRAWLING, UnarmedStyle.WRESTLING, UnarmedStyle.BARE_HANDS -> VS_WEAPON_PENALTY
+    }
 
     /**
      * "Cannot parry ranged attacks." (p. 37)
@@ -89,7 +136,7 @@ object ParryBlock {
      * this a rule about hands rather than about one row.
      *
      * A function taking the style rather than a constant, because the book
-     * refuses all three unarmed styles and a bare `false` would have to be
+     * refuses every unarmed style and a bare `false` would have to be
      * re-read the day it prints an exception.
      */
     fun canParryRanged(style: UnarmedStyle): Boolean = false
