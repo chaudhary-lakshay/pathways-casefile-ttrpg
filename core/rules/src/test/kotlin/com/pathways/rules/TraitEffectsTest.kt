@@ -2264,10 +2264,13 @@ class TraitEffectsTest {
         assertEquals(11, lifted.level)
         assertTrue(TraitEffects.VERSATILE !in TraitEffects.unappliedNames())
         assertTrue(TraitEffects.VERSATILE in TraitEffects.known())
-        // Applied on one roll is not applied everywhere: the sheet still says
-        // where it lands, because this app offers no general untrained roll.
-        val notes = TraitEffects.reported(versatile)
-        assertTrue(notes.any { Divination.SKILL in it.reason }, notes.toString())
+        // Applied on every roll this app makes at a default, so there is
+        // nothing left to report. Until 6et the sheet said "this app offers no
+        // other roll at a default", and the Skills tab's untrained roll made
+        // that the second false sentence this one trait has carried.
+        assertEquals(emptyList<Any>(), TraitEffects.reported(versatile))
+        val untrained = SkillDefaults.offered(emptyMap(), { 10 }, TraitEffects.defaultBonus(versatile))
+        assertEquals(6, untrained.single { it.key.name == "Stealth" }.level)
     }
 
     /**

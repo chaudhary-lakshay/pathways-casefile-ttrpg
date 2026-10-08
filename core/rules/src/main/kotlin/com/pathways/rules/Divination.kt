@@ -84,9 +84,13 @@ object Divination {
      * (p. 54).
      *
      * A SPECIFIC default, and it beats the general one:
-     * [Difficulty.defaultPenalty] answers -6 for an SPI/Hard skill, which is
-     * what a character with NEITHER skill would roll at. This is what one who
-     * has the sibling rolls at, and the book prices that at -2.
+     * [Difficulty.defaultPenalty] answers -6 for an SPI/Hard skill, and this
+     * is what one who has the sibling rolls at, which the book prices at -2.
+     *
+     * The table's -6 is offered by NO screen, for a caster with the sibling
+     * below 12 or with neither skill: see [crossDefaultFor], and
+     * [SkillDefaults], which asks this object rather than the table so the
+     * Skills tab cannot offer what the Divine tile refuses.
      */
     const val CROSS_DEFAULT_PENALTY = -2
 
@@ -123,8 +127,8 @@ object Divination {
      * clause that says it has; the clause loses (4.1). The asymmetry is not
      * arbitrary either -- it falls out of the difficulty grid, because the
      * direction that survives is exactly the one whose difficulty permits a
-     * default at all: Divination Arts is SPI/Hard and defaults at -6
-     * generally, which p. 54 improves to -2.
+     * default at all: Divination Arts is SPI/Hard, where the table prints -6,
+     * and p. 54 prints -2 in its place.
      *
      * [levelsFor] is where the other direction is refused.
      */

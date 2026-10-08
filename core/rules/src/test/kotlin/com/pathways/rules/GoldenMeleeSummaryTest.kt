@@ -107,17 +107,15 @@ class GoldenMeleeSummaryTest {
      * ritual CoR ladder already needed -- so a Brawling default is DX-2 and
      * Wrestling has none, whatever the difficulty ladder says.
      *
-     * **Nothing is wrong today, because [SkillLadder.defaultFor] has no
-     * production caller at all**: this app never shows an untrained level. It
-     * takes a [Difficulty] and cannot express a per-skill override, so the day
-     * something does wire it up -- "what would an untrained character roll?"
-     * -- it will answer DX-4 for Brawling and hand Wrestling a default the
-     * book refuses. That is 6l's shape: nothing can reach the wrong answer
-     * yet, and naming it is what stops the next caller finding it.
+     * **[SkillLadder.defaultFor] still answers DX-4 and DX-5, and that is
+     * right for a function of a [Difficulty].** It had no production caller
+     * until 6et; the caller is [SkillDefaults], which holds the two overrides
+     * and is what a screen asks. This test keeps the ladder's half: if the
+     * ladder and the chapter ever agree, the overrides are stale.
      *
-     * Deliberately not fixed by adding a `default` field to `skills.json`:
-     * three rows of 158 print one, nothing would read it, and an unread field
-     * is the defect 6ai found. This test is the record until a caller exists.
+     * Deliberately not a `default` field in `skills.json`: three rows of 158
+     * print one, in prose, and a column would make the book look like it
+     * printed one for all of them.
      */
     @Test
     fun `the printed per-skill defaults are not the difficulty defaults`() {

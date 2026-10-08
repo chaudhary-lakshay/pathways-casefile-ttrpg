@@ -34,9 +34,9 @@ object CommonModifiers {
      *
      * "Using untrained skill (default)" is excluded, because it is not a
      * modifier: it replaces the roll with an attribute default, which
-     * [SkillLadder.defaultFor] has implemented since M0. Its printed range is
-     * exactly `Difficulty.defaultPenalty`'s two ends, which is how the table
-     * itself says so. Offering it would let a GM subtract it from a SKILL and
+     * [SkillDefaults] answers per skill and [SkillLadder.defaultFor] per
+     * difficulty. Its printed range is exactly `Difficulty.defaultPenalty`'s
+     * two ends, which is how the table itself says so. Offering it would let a GM subtract it from a SKILL and
      * stack it on a default already taken.
      */
     fun offered(): List<CommonModifier> = all().filterNot { it.isDefault }
@@ -56,7 +56,7 @@ object CommonModifiers {
     fun valueFor(row: CommonModifier, chosen: Int? = null): Int {
         require(!row.isDefault) {
             "'${row.situation}' is not a modifier -- it prints '${row.printed}', which " +
-                "replaces the roll with an attribute default. Use SkillLadder.defaultFor."
+                "replaces the roll with an attribute default. Ask SkillDefaults."
         }
         val printed = row.modifier
             ?: error("'${row.situation}' prints no modifier")

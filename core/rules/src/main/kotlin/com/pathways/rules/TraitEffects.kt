@@ -565,8 +565,13 @@ object TraitEffects {
      * **This was an UNAPPLIED entry reading "every skill on a sheet is bought,
      * so no default is rolled here".** [Divination.divinationLevelFor] rolls
      * Divination Arts at Ritualistic Magic-2, and p. 54 calls that number a
-     * default in its own word. It is the only default this app rolls, which
-     * is what the entry left in [PARTLY_APPLIED] says on the sheet.
+     * default in its own word.
+     *
+     * **Then it was a [PARTLY_APPLIED] entry reading "this app offers no
+     * other roll at a default"**, which [SkillDefaults] made false in turn
+     * (6et). Both rolls this app makes at a default take the +1 now -- the
+     * Divine tile's and the Skills tab's untrained roll -- so the trait has
+     * nothing left to report. A third consumer of a default must take it too.
      */
     fun defaultBonus(traits: List<Trait>): Int = BespokeBonus.DEFAULT.of(traits)
 
@@ -1604,15 +1609,6 @@ object TraitEffects {
             "No penalty to language-dependent social skills in those languages" to
                 "this book tags no skill as language-dependent, so which rolls " +
                 "that reaches is the GM's call",
-        ),
-        // Applied, and to one roll. The sheet says which, because a holder
-        // with no Ritualistic Magic would otherwise read the trait as live.
-        VERSATILE to listOf(
-            "+1 to defaults skill rolls" to
-                // Read after the sheet's own "Not applied here:" prefix.
-                "to any roll but ${Divination.SKILL} defaulted from " +
-                "${Divination.SIBLING_SKILL} 12+, which takes it — this app " +
-                "offers no other roll at a default",
         ),
         FIT to listOf(
             "recover FP at twice the normal rate" to

@@ -17,12 +17,16 @@ object SkillLadder {
     private val RUNGS = intArrayOf(1, 2, 4, 8, 16, 32, 64, 128, 256)
 
     fun levelFor(points: Int, difficulty: Difficulty, attributeLevel: Int): Int {
-        require(points > 0) { "spend at least 1 point, or use defaultFor()" }
+        require(points > 0) { "spend at least 1 point, or ask SkillDefaults for an untrained level" }
         val rung = RUNGS.indexOfLast { it <= points }
         return attributeLevel + difficulty.firstRungOffset + rung
     }
 
-    /** Null when the skill cannot be attempted untrained at all. */
+    /**
+     * Ch. 2's table and nothing else: null for Very Hard, which prints "No
+     * default". A SKILL's default is [SkillDefaults]', because three skills
+     * print a line of their own that departs from this.
+     */
     fun defaultFor(difficulty: Difficulty, attributeLevel: Int): Int? =
         difficulty.defaultPenalty?.let { attributeLevel + it }
 
@@ -58,9 +62,13 @@ object SkillLadder {
      * cannot be raised by points", which is why it is not an [Attr] at all
      * (4.4). The skills that hang off it inherit that, and the book says so
      * out loud one chapter over. So a Beyonder gets them from potions and a
-     * mortal does not get them, which is the book gating divination and the
-     * spiritual senses on being a Beyonder -- explicitly, not merely by
-     * arithmetic.
+     * mortal does not get them.
+     *
+     * ACQUIRING one, not attempting it: chapter 2's table gives every
+     * non-Very-Hard skill an untrained default, and no sentence exempts these
+     * ([SkillDefaults]). A mortal's SPI is 0, so theirs is a negative
+     * target -- which is not a gate: [SuccessRoll] still gives a 3 or a 4 its
+     * critical success.
      */
     fun isBuyableWithPoints(attr: ControllingAttribute): Boolean = attr != ControllingAttribute.Spi
 }
