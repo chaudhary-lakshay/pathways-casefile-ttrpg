@@ -201,7 +201,7 @@ penalty at the thresholds the book prints, and prices the SPI. Quick and Full
 preparation are two different tables with two different link rules. The
 language is yours to state per ritual; under the chips the dialog lists the
 mystical languages the character bought in the builder, and does not pick one
-for you.
+for you. A language granted by a trait or a potion is not in that list.
 
 Six of those cells print a span or a floor rather than a number — *Good +1 to
 +2*, *Poor -1 to -2*, *None -4 or worse*, the quick table's *Poor / None -2 to
@@ -295,7 +295,11 @@ either one later reprices what is already owned. Picking a language the
 character owns changes it in place, and **Give back** removes it. The points
 are applied and the *-2 / -3 to language-dependent skill rolls* are not: the
 book tags no skill as language-dependent, so those are the GM's. No language
-is free without Multilingual, because the book prints no free native tongue.
+is free without Multilingual, because the book prints no free native tongue;
+what a premade already speaks is not on its sheet, and the app does not
+guess it. A language that comes with a trait (Official Beyonder's *Hermes
+Language (Broken)*, Dead Language Fluency) or with a potion is not a row
+here either, so do not buy it twice.
 
 **Weapons** lists what the character is carrying, with **Carry a weapon**
 opening chapter 8's nine rows. All nine are offered whether or not the

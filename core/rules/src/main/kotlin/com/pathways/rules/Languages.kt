@@ -106,6 +106,12 @@ object Languages {
     const val MULTILINGUAL = "Multilingual"
     const val MULTILINGUAL_LANGUAGES = 2
 
+    /**
+     * The traits [owned] reads. Exported once so [TraitEffects.known] can
+     * count them as applied without a second copy of the names.
+     */
+    val PRICING_TRAITS = setOf(TALENT, MULTILINGUAL)
+
     /** The row whose effect cell opens "Fluent.", in both tables. */
     const val FLUENT = "Native"
 
@@ -174,8 +180,9 @@ object Languages {
     fun traits(purchases: List<LanguagePurchase>, held: List<Trait>): List<Trait> =
         owned(purchases, held).mapNotNull { it.second?.toTrait() }
 
+    /** Through the one matcher every other trait reader uses. */
     private fun holds(held: List<Trait>, name: String): Boolean =
-        held.any { TraitEffects.catalogueName(it.name).equals(name, ignoreCase = true) }
+        TraitEffects.levelOf(held, name) != null
 
     const val COMMON = "Common"
     const val MYSTICAL = "Mystical"

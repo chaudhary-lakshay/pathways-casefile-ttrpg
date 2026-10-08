@@ -1470,7 +1470,11 @@ object TraitEffects {
             HT_ROLL_TRAITS.keys + setOf(ALERTNESS, COMBAT_REFLEXES) + SPI_ROLL_TRAITS.keys +
             // The third instance of the failure this KDoc records twice above,
             // and the one that had no collection to add: see [BespokeBonus].
-            BespokeBonus.entries.map { it.trait }
+            BespokeBonus.entries.map { it.trait } +
+            // Applied in another file: [Languages.owned] reads these two to
+            // price a language. The fourth instance, and the first where the
+            // reader is not this object.
+            Languages.PRICING_TRAITS
 
     /** The traits reported whole, for the disjointness test. */
     fun unappliedNames(): Set<String> = UNAPPLIED.keys
@@ -1509,6 +1513,14 @@ object TraitEffects {
      * pinned by a test in `ActiveDefensesTest` rather than by this comment.
      */
     private val PARTLY_APPLIED: Map<String, List<Pair<String, String>>> = mapOf(
+        // The price half is applied by [Languages.owned]: two common
+        // languages, fluent, free. The other half is the language row's own
+        // refusal ([UNAPPLIED]).
+        Languages.MULTILINGUAL to listOf(
+            "No penalty to language-dependent social skills in those languages" to
+                "this book tags no skill as language-dependent, so which rolls " +
+                "that reaches is the GM's call",
+        ),
         // Applied, and to one roll. The sheet says which, because a holder
         // with no Ritualistic Magic would otherwise read the trait as live.
         VERSATILE to listOf(

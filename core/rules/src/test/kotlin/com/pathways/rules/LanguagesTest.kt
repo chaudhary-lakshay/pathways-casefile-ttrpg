@@ -172,7 +172,7 @@ class LanguagesTest {
             listOf(8, 5, 3),
             listOf("Native", "Accented", "Broken").map { costOf(buy("Hermes", it, spoken), talent) },
         )
-        // A sheet prints the trait with whatever follows it; it is still held.
+        // At the cost the book prints for it, as Occult Scholar's sheet does.
         assertEquals(3, costOf(buy("Loen", "Native"), listOf(Trait("Language Talent", 10, TraitKind.ADVANTAGE))))
     }
 
@@ -272,6 +272,23 @@ class LanguagesTest {
             assertTrue(Languages.proficiency(type, Languages.FLUENT).effect.startsWith("Fluent."))
             assertEquals(1, Languages.proficiencies(type).count { it.effect.startsWith("Fluent.") })
         }
+    }
+
+    /**
+     * The two traits this object reads are APPLIED, so the trait census has
+     * to see them. `TraitEffects.known()` reads collections, and a trait
+     * applied from another file belongs to none: the failure
+     * `VitalRollsTest` records three times, a fourth time.
+     */
+    @Test
+    fun `every trait the language prices read is one the census can see`() {
+        assertEquals(setOf(Languages.TALENT, Languages.MULTILINGUAL), Languages.PRICING_TRAITS)
+        assertEquals(emptySet<String>(), Languages.PRICING_TRAITS - TraitEffects.known())
+        // Multilingual's cell prints a second clause, and it reaches nothing.
+        val multilingual = TraitEffects.reported(holding(Languages.MULTILINGUAL))
+        assertTrue(multilingual.any { "language-dependent" in it.printed }, multilingual.toString())
+        // Language Talent's one clause is applied whole: nothing to report.
+        assertEquals(emptyList<TraitNote>(), TraitEffects.reported(holding(Languages.TALENT)))
     }
 
     /** Owned, billed, and still on the sheet: the penalties reach no roll. */
