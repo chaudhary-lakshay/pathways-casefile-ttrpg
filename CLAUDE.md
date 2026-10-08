@@ -152,7 +152,32 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ev is newest, and it is the successor 6eu named, asked the right way:
+**6ew is newest, and it is 6es's successor: a self-control row's other
+clauses were unsaid.** `reported` gave `UNREAD` only to a row with no
+self-control roll, so 28 of the 30 rows with one said nothing beside
+Reckless's -1 and Reluctant Killer's *"-4 to hit ... cannot Aim"*. Read
+it for three things.
+
+- **`TraitEffects.ROLLED_ONLY`** is one sentence for all 28, the roll
+  excepted, and `SelfControl.checksFor` decides it, so a quirk of the
+  same name is not told its roll is applied (the review's MEDIUM).
+- **The sweep the review asked for found a row that could not find
+  itself.** `catalogueName` cut `Compulsive Behavior (Indulge Evil
+  Desires) SC 6` to `... SC` as if 6 were a level. The builder sold it,
+  and the sheet showed no cell, no roll and no note. A row's own name
+  now resolves to itself.
+- **6ev's attack-roll successor is answered by census**: with every row
+  held, `TraitEffects.modifiers` returns nothing for all 19 combat
+  skills, so the missing term costs nothing yet.
+
+Codex was out and the gateway down. One sub-agent reviewed the diff, and
+the `catalogueName` line came after its review. **Owed first: Codex on
+`5fe2b41..127532d` and on `63e6290`.** **Successors**: Reluctant Killer
+as a declared clause in the Attack dialog (-4, -2 with the face hidden,
+and no Aim), a Warrior's weapon parrying at DX, Warrior's *default +2*,
+and 6es's two lists.
+
+**6ev is next, and it is the successor 6eu named, asked the right way:
 the bare-hand parry was never a default.** Book line 2473, the Parry
 (Unarmed) formula cell, prints *"Brawling or DX ÷ 2 + 3"*, and the app had
 read the first operand alone since the row was extracted. Read it for four
@@ -274,43 +299,10 @@ holding a quotation** (6er's open question): read it from the raw dump.
 naming a mechanic this app has a screen for (untriaged), and 6eq's second,
 book 2540's *"Default: DX-2 if untrained"*.
 
-**6er is next, and it is the first of 6eq's two successors: the builder
-sells a language.** The row was withheld while both of its tables sat
-loaded. Read it for four things.
-
-- **The recorded ambiguity was not one.** 6x wrote that the two halvings
-  *"interact, and the book combines them in no worked example"*, and 6eq
-  inherited it. Every printed price is even, so the form's half is whole
-  and Language Talent's *"rounded up"* is the only rounding there is. The
-  design review saw it in one pass.
-- **Three names are saved and never a price.** Languages compose LAST, so
-  a Language Talent or Multilingual bought later reprices what is owned,
-  and `SavedEdits.ownedLanguages` is the one reading the builder, the
-  picker's preview and the Ritual note all ask.
-- **The placeholder matcher split on the last bracket**, and the book
-  prints *Balam (Dutan)* and *Jotun (Giant's)*. A design review's MEDIUM,
-  before any code.
-- **Potions and two traits grant languages as prose**, so the Ritual note
-  is printed only for what was BOUGHT. *"Owns no mystical language"* would
-  have been false of two Beyonders.
-
-Codex answered both reviews: CHANGE on the shape, and one MEDIUM on the
-diff (the picker read the raw save where the budget reads the resolved
-list). The final review found the pricing read two traits the census
-could not see (`Languages.PRICING_TRAITS` now). Eighteen mutations of
-eighteen were caught. On the SM-T570, Occult
-Scholar, who prints Language Talent: *"Hermes, Accented, spoken only — 5
-pts (20 listed; half for one form; halved by Language Talent, rounded
-up)"*, `91` to `96 of 100`. **Two successors.** Official Beyonder, a
-15-point advantage the builder sells, is in no collection, no test and no
-slice: five printed benefits reach nothing and the sheet is silent, so ask
-what else is in the complement of `TraitEffects.known()`. And 6eq's
-second stands: book 2540's *"Default: DX-2 if untrained"* against a
-`SkillLadder.defaultFor` with no production caller.
-
-**6eq back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6er back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6er** — the builder sells a language; the two halvings combine with one ceiling, and a Language Talent bought later reprices what is owned;
 **6eq** — 39 refusals in production source whose subject is this app, seven false or stale; Versatile's +1 goes inside the pick between an owned level and a default;
 **6ep** — 6dy's three refusals re-asked; the HP recovery table's first row is a ROLL, so the daily HT roll is offered and nothing is restored;
 **6eo** — the builder printed bought values and the sheet the played ones; rows show the value as played, and every edit still reads the purchase;
@@ -368,7 +360,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ev first.** The
+**Where to start next: the slice log, from the END — 6ew first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -423,7 +415,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1864 Kotlin** (JUnit 5 — 1304 `core:rules`, 540 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1866 Kotlin** (JUnit 5 — 1306 `core:rules`, 540 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -611,6 +603,8 @@ TraitEffects.held(traits, kind): List<HeldTrait>   // one row per held trait:
                                       // applied. What the Traits tab prints
 TraitEffects.UNREAD                   // reported() says it of a row outside
                                       // known() that prints no self-control roll
+TraitEffects.ROLLED_ONLY              // ...and this of one that does: the
+                                      // roll is applied, nothing else (6ew)
 Divination.levelsFor(ownDivination, ownRitual, defaultBonus): CasterLevels
                                       // the bonus goes inside the pick between
                                       // owned and default; a ritual never defaults

@@ -190,7 +190,41 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6eq back to 6de
+## Retired lead paragraphs, 6er back to 6de
+
+**6er is next, and it is the first of 6eq's two successors: the builder
+sells a language.** The row was withheld while both of its tables sat
+loaded. Read it for four things.
+
+- **The recorded ambiguity was not one.** 6x wrote that the two halvings
+  *"interact, and the book combines them in no worked example"*, and 6eq
+  inherited it. Every printed price is even, so the form's half is whole
+  and Language Talent's *"rounded up"* is the only rounding there is. The
+  design review saw it in one pass.
+- **Three names are saved and never a price.** Languages compose LAST, so
+  a Language Talent or Multilingual bought later reprices what is owned,
+  and `SavedEdits.ownedLanguages` is the one reading the builder, the
+  picker's preview and the Ritual note all ask.
+- **The placeholder matcher split on the last bracket**, and the book
+  prints *Balam (Dutan)* and *Jotun (Giant's)*. A design review's MEDIUM,
+  before any code.
+- **Potions and two traits grant languages as prose**, so the Ritual note
+  is printed only for what was BOUGHT. *"Owns no mystical language"* would
+  have been false of two Beyonders.
+
+Codex answered both reviews: CHANGE on the shape, and one MEDIUM on the
+diff (the picker read the raw save where the budget reads the resolved
+list). The final review found the pricing read two traits the census
+could not see (`Languages.PRICING_TRAITS` now). Eighteen mutations of
+eighteen were caught. On the SM-T570, Occult
+Scholar, who prints Language Talent: *"Hermes, Accented, spoken only — 5
+pts (20 listed; half for one form; halved by Language Talent, rounded
+up)"*, `91` to `96 of 100`. **Two successors.** Official Beyonder, a
+15-point advantage the builder sells, is in no collection, no test and no
+slice: five printed benefits reach nothing and the sheet is silent, so ask
+what else is in the complement of `TraitEffects.known()`. And 6eq's
+second stands: book 2540's *"Default: DX-2 if untrained"* against a
+`SkillLadder.defaultFor` with no production caller.
 
 **6eq is next, and it ran 6ep's check where refusals actually live:
 every reason in production source whose subject is THIS APP.** 6ep re-asked

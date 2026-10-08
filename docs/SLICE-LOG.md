@@ -6726,6 +6726,96 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ew. The rows whose roll was taken for the whole cell
+
+6es recorded this as a successor: *"A self-control row's other clauses
+are unsaid."* `reported` gave `UNREAD` only to a row outside `known()`
+that printed no self-control roll. A row that did print one said
+nothing, on the reading that the roll is the row.
+
+### The census
+
+A throwaway test (deleted after it ran) walked every catalogue row with
+`selfControl` through `reported`. **30 rows** carry the field, all in
+`disadvantages.json`. Two are in `known()` (Loner and Workaholic, by
+their social clauses) and say what they leave out. **The other 28 said
+nothing**, beside cells such as Reckless's *"-1 to any roll where
+caution would be smarter"*, Reluctant Killer's *"-4 to hit recognizable
+people with deadly force (-2 if face hidden); cannot Aim"*,
+Absent-Mindedness's -3 and Nightmares' *"lose 1 FP each morning"*. I
+first wrote "29 of 31". The reviewer counted 30 in the JSON, and the
+census's own list held 30.
+
+The same census answered 6ev's attack-roll successor: with every
+catalogue row held, `TraitEffects.modifiers` returns nothing for all 19
+COMBAT SKILLS keys. Every combat skill is DX-controlled and no
+`SKILL_BONUSES` or `CATEGORY_BONUSES` row names one. So the Attack
+dialog's missing trait term costs nothing today. Reluctant Killer is
+the first row that would make it matter, and it would come in as a
+declared clause, not as an unconditional term.
+
+### What was built
+
+- **`TraitEffects.ROLLED_ONLY`**: *"its price and its self-control roll
+  aside, this app applies nothing this row prints, so the rest of its
+  text is the table's to apply"*. It is one sentence for all 28, not
+  five hand-written reasons, for `UNREAD`'s reason: a reason per row is
+  a claim about the app that nothing re-reads (6eq). Curious, which
+  prints only its roll, gets it too. Its *"or investigate any mystery"*
+  is the table's to apply, so the sentence is true of it.
+- **The sentence is decided by `SelfControl.checksFor`**, the code that
+  offers the roll (the review's MEDIUM). `checksFor` rolls DISADVANTAGE
+  rows only, so a quirk named `Reckless` is offered no roll and gets
+  `UNREAD`. A second predicate on `row.selfControl` would have told it
+  the roll was applied.
+
+### The sweep found a row that could not find itself
+
+The review asked for a sweep over all 28 instead of a sample of five,
+with `checksFor` asserted on each. It went red on one row:
+**`Compulsive Behavior (Indulge Evil Desires) SC 6`**. `catalogueName`
+strips a trailing integer as a level (`Alertness 1`), so the row's own
+name resolved to `... SC`, which matches nothing. The builder sells
+this row (`PurchasableTraits.offered()`), and a character who bought it
+got no cell on the Traits tab, no self-control roll and no note, and
+was still charged for it. It is the only catalogue row whose name ends
+in a number. **A row's own name now resolves to itself**, ahead of the
+strip, and `every catalogue row name resolves to itself` pins it.
+
+### Review
+
+Codex was out until Oct 9, 02:02 and the free panel's gateway was down
+(`[qa] fetch failed`), so one review sub-agent read the diff. The
+verdicts were CHANGE, SHIP, CHANGE: the MEDIUM above, the miscount, a
+`startsWith` assertion that compared a constant with its own text, and
+the sample. All were taken. **The `catalogueName` fix came after the
+review and no reviewer has read it.**
+
+### Verification
+
+1866 Kotlin (1306 `core:rules`, 540 `app`, 20 `core:model`), green from
+the JUnit XML after `--rerun-tasks`. Both new tests were watched failing
+first, `List is empty` and `expected <... SC 6> but was <... SC>`.
+Reverting the reason to the old `row.selfControl != null` predicate
+reddens the quirk case, restored from a copy. Not run on the tablet:
+the Traits tab prints `reported` through `held`, which
+`every held advantage and drawback is a row with its cell` already
+asserts.
+
+### Successors
+
+- **Owed first: Codex on `5fe2b41..127532d` (6ev) and on `63e6290`**,
+  the second because its `catalogueName` line has no reviewer.
+- **Reluctant Killer in the Attack dialog.** A GM declaration (a
+  recognizable target, with deadly force) carrying -4, or -2 with the
+  face hidden, and withdrawing Aim. The Aim refusal is scoped by that
+  clause and is not unconditional: the gate would otherwise be mine,
+  not the book's (6ev). It is also the first trait term the Attack roll
+  would take, through `modifiers(traits, key, declared)` as on the
+  Skills tab.
+- 6ev's others stand: a Warrior's weapon parrying at DX, Warrior's
+  *default +2*, and 6es's two lists.
+
 ## 6ev. The operand the parry cell had printed all along
 
 6eu named this successor as *"the Defend dialog takes no default"*, and
