@@ -565,7 +565,13 @@ fun DefenseDialog(
                 }
                 item {
                     if (parries.isEmpty() && armed.isEmpty()) {
-                        Note("No unarmed combat skill on this sheet; an untrained parry is the GM's call.")
+                        // A gap, said as one: until 6et this read "the GM's
+                        // call", beside a book that prints Brawling's default.
+                        Note(
+                            "No unarmed combat skill on this sheet. Brawling defaults to " +
+                                "DX-2 untrained; this screen offers no parry from a " +
+                                "default, which is a gap and not a ruling.",
+                        )
                     }
                     // A refusal, not a penalty, so the rows are withdrawn and
                     // the reason is SAID -- a GM who picks "a shot" and sees
@@ -835,14 +841,11 @@ internal fun defenceLabels(
  * have a reeling character roll Acrobatics at one number here and another on
  * the sheet screen.
  *
- * **No untrained roll, and the reason is not the one it first looked like.**
- * The book prints the untrained default as a RANGE -- `common_modifiers.json`'s
- * "Using untrained skill (default): Attribute -4 to -6", stored with no
- * number -- and settling it needs `SkillLadder.defaultFor`, which has had no
- * production caller since M0 and cannot express the per-skill overrides p. 39
- * prints for two of the three skills it can be checked against (6aw). That is a
- * policy for 158 skills, not a branch for this one, so the roll is offered to
- * the sheets that carry the skill and the rest is said out loud.
+ * **No untrained roll HERE, and that is a gap rather than a ruling.** The
+ * policy this KDoc once waited on exists: `SkillDefaults` answers chapter 2's
+ * table with chapter 5's three overrides, and the Skills tab rolls Acrobatics
+ * at DX-6 for a sheet without it (6et). What is missing is this screen taking
+ * that roll and applying the +2 or -2, so the note below says exactly that.
  *
  * **Re-rollable on purpose.** See the state's own comment: the "once per round"
  * limit lives in a paragraph governing all three free actions, which this app
@@ -857,7 +860,11 @@ private fun AcrobaticDodge(
 ) {
     Note(ActiveDefenses.printedAcrobaticDodge())
     if (skill == null) {
-        Note("No ${ActiveDefenses.ACROBATIC_SKILL} on this sheet; an untrained roll is the GM's call.")
+        Note(
+            "No ${ActiveDefenses.ACROBATIC_SKILL} on this sheet. It can be rolled untrained " +
+                "from the Skills tab; this screen does not take that roll, so its +2 or " +
+                "−2 is yours to apply.",
+        )
         return
     }
     Row(verticalAlignment = Alignment.CenterVertically) {

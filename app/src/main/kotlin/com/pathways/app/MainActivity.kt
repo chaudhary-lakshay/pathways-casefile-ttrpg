@@ -117,6 +117,7 @@ import com.pathways.rules.SelfControlOutcome
 import com.pathways.rules.SheetComparison
 import com.pathways.rules.SheetRow
 import com.pathways.rules.Shock
+import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.SpiritualSenses
@@ -332,6 +333,13 @@ fun SheetScreen(
     val skillLevels = remember(sheet, drunk, session.edits) {
         liveSkillLevels(session.characterFor(sheet).copy(beyonder = drunk))
     }
+    // Every printed skill this character does NOT have and may attempt at its
+    // default (ch. 2 p. 10), off the same played character as the levels
+    // above. Until 6et no screen could roll one.
+    val untrained = remember(sheet, drunk, session.edits) {
+        SkillDefaults.offeredTo(session.characterFor(sheet).copy(beyonder = drunk))
+    }
+    var pickingUntrained by remember(sheet) { mutableStateOf(false) }
     // Only a caster can cast. No premade prints either skill, so both are
     // null until a potion grants one -- ch. 9 p. 85 forbids buying Divination
     // Arts with points, so a potion is its only route (6aq).
@@ -792,6 +800,18 @@ fun SheetScreen(
                     rolling = RollableSkill(label, level, key)
                 }
             }
+
+            // "You can attempt most skills even without training" (p. 10).
+            // Last, because it is the exception: the rows above are what the
+            // character can do, and this is what anyone can try.
+            if (tab == SheetTab.SKILLS) {
+                item {
+                    TextButton(
+                        onClick = { pickingUntrained = true },
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                    ) { Text("Roll a skill this sheet does not have") }
+                }
+            }
         }
     }
 
@@ -808,6 +828,24 @@ fun SheetScreen(
         val pool = if (kind == BurnKind.PHYSICAL) Pool.FP else Pool.SPI
         val max = if (pool == Pool.FP) vitals.maxFp else vitals.maxSpi
         session.spend(pool, points, max, maxCor)
+    }
+
+    if (pickingUntrained) {
+        UntrainedDialog(
+            rows = untrained,
+            weaponNote = drunk?.let { SkillDefaults.weaponNote(it.pathway, it.sequence) },
+            onPick = { row ->
+                pickingUntrained = false
+                // The source rides in the label, so the roll says it is a
+                // default and which one: "Stealth (untrained, DX-5)".
+                rolling = RollableSkill(
+                    "${row.key.label()} (untrained, ${row.source})",
+                    row.level,
+                    row.key,
+                )
+            },
+            onDismiss = { pickingUntrained = false },
+        )
     }
 
     rolling?.let { skill ->
