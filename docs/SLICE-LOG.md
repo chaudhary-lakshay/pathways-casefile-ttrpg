@@ -6726,6 +6726,183 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6er. The row the builder would not sell
+
+6eq named this first of two successors: the builder withheld `Language
+(specify)` while `language_proficiency.json` and `languages.json` sat
+loaded, read only by an ungated picker in the Ritual dialog. This slice
+sells a language.
+
+### What the book prints
+
+Lines 628-713. Twelve languages in two groups, and one three-row price
+table per group: 6 / 4 / 2 for a common tongue, 30 / 20 / 10 for a mystical
+one. Three sentences move a price:
+
+- *"Points listed are for Spoken + Written at the given level.
+  Spoken-only or written-only costs half."* (638-639)
+- *"Language Talent halves all costs (rounded up)."* (639)
+- *"Multilingual (3 pts) grants fluency in two common languages without
+  point cost — it does not apply to mystical languages."* (712-713)
+
+A grep for a free native tongue (`native language`, `mother tongue`,
+`native tongue`) returns nothing, so no language is free without
+Multilingual.
+
+### The design review
+
+Codex, through `codex exec`, on a written decomposition and no diff.
+
+- **The cost rule ships, and needs no ruling.** 6x had recorded that the two
+  halvings *"interact, and the book combines them in no worked example"*,
+  and 6eq inherited that as an ambiguity. It is not one. Every printed price
+  is even, so the form's half is always whole, and Language Talent's
+  halving then carries the only rounding the book prints. One ceiling over
+  the product of the divisors gives the same numbers: 6 → 2, 2 → 1,
+  30 → 8, 10 → 3 for one form with the Talent.
+- **Multilingual ships as two free purchases.** *"Fluent"* is the Native
+  row's own first word in both tables, and the table prices Spoken +
+  Written, so the first two purchases that are common, Native and in both
+  forms cost nothing. Which two is this app's convention and moves no
+  total, since every eligible purchase costs the same. The review asked
+  that the two be visible, and the row says *"free with Multilingual (6
+  listed)"*.
+- **CHANGE on the shape, twice.** A purchase composes to a `Trait` named
+  `Language (Hermes, Accented)`, which `TraitEffects.catalogueName`
+  resolves to the catalogue row by its placeholder rule. That rule split on
+  the LAST bracket, and two printed languages carry brackets of their own:
+  *Balam (Dutan)* and *Jotun (Giant's)*. It tries the last bracket and then
+  the first now. And a `SavedEdits` field missing from `isEmpty` is a
+  purchase that bills nothing, because `applyTo` returns the sheet
+  untouched for an empty save.
+- **The Ritual dialog gets a note and nothing else.** Owning a language
+  does not say which one a ritual is cast in, so the picker stays ungated
+  and still opens on *"Not stated"*. The note carries the form, on the
+  review's LOW.
+
+### What was built
+
+- `Languages.owned(purchases, held)` prices, de-duplicates and names in one
+  call, the shape `PurchasableTraits.resolved` takes. A language is owned
+  once and the first purchase stands; a row is validated before it claims
+  its language. `OwnedLanguage.costLine` is authored in rules, so the
+  builder types no number of its own.
+- `SavedEdits.languages`, additive and defaulted: three names and never a
+  price. Languages compose LAST, so a Language Talent or Multilingual
+  bought in play reprices what is already owned.
+- `SavedEdits.ownedLanguages(printed)` is the one reading. The builder's
+  rows, the picker's preview (`pricedWith`, which prices the candidate in
+  the list it would join) and the Ritual note all ask it.
+- `LanguagePicker.kt`: the twelve in the book's two groups, the three
+  proficiencies at that group's prices, the three forms. Picking an owned
+  language changes it in place, because position is what Multilingual's
+  "first two" reads.
+- `TraitEffects.UNAPPLIED` gains the language row, so a bought language is
+  on the sheet with what is not applied: the *"-2 / -3 to
+  language-dependent skill rolls"*, which reach nothing because the book
+  tags no skill as language-dependent (6x's reason, unchanged).
+- `PurchasableTraits.unoffered()` now says *"bought in the Languages row
+  above"*, the sentence Wealth's row already uses.
+
+### Potions grant languages, as prose
+
+Two blocks print *"Ancient Hermes Fluent — can speak, read, and write
+this dead mystical language"* among their advantages, which are prose
+(`PotionDigestion.UNPARSED`'s neighbour: advantage rows are not structure).
+So the Ritual note is printed only when something was BOUGHT, and says *"A
+potion may grant others"*. A line reading *"owns no mystical language"*
+would have been false of those two Beyonders.
+
+### Tests and mutations
+
+Seventeen tests: nine in `LanguagesTest` and eight across the three `app`
+suites, plus a reworded assertion in `PurchasableTraitsTest`. Each was RED
+first on an unresolved name.
+
+| Mutation | Caught by |
+|---|---|
+| one form costs full price | *one form costs half*, and three more |
+| Language Talent ignored | *Language Talent halves after the form, rounded up* |
+| rounds down | the same |
+| Multilingual frees a mystical language | *Multilingual frees the first two fluent common languages and nothing else* |
+| …a language that is not fluent | the same |
+| …one form | the same |
+| …every one | the same |
+| …three | the same |
+| a language is owned twice | *a purchase the book does not print is dropped, and a language is owned once* |
+| the form is left off the name | *every language composes to a trait the catalogue resolves* |
+| the matcher splits on the last bracket only | the same |
+| priced against the printed sheet only | *Language Talent bought in play halves a language already owned*, and two more |
+| a re-bought language is appended | *a language is changed in place and given back by name* |
+| a language-only save is empty | *a bought language reaches the composed character and its budget* |
+| languages never reach the character | the same |
+| giving back removes nothing | *a language is changed in place and given back by name* |
+
+Sixteen of sixteen, with the `ran=` column 6eq added and the launcher that
+worked there. One equivalent mutant was written and dropped before running:
+`costLine` returns early for a free language, so whether the Talent flag is
+set on one cannot be observed.
+
+1826 Kotlin (1277 `core:rules`, 529 `app`, 20 `core:model`) after
+`--rerun-tasks`. The 361 Python tests were not run: no tool or content file
+changed.
+
+### The diff review
+
+Codex returned FIX with one MEDIUM. The picker loaded an owned language's
+choices from the RAW save. A hand-edited save holding `Hermes / Fluent`
+ahead of `Hermes / Native` bills Native, and the picker loaded *Fluent*,
+printed *"The book prints no such row"* and greyed **Change**. It reads the
+resolved list now. The composition and the screen had asked two lists,
+which is the failure `ownedLanguages` was written to prevent, one caller
+over.
+
+It found no state where the row, the preview, the character and the budget
+disagree, and no existing sheet spelling the widened matcher resolves
+differently.
+
+### On the SM-T570
+
+The tablet had locked. `dumpsys trust` reported `deviceLocked=0`, so `wm
+dismiss-keyguard` was a swipe and not a bypass.
+
+| Premade | Step | Screen |
+|---|---|---|
+| Occult Scholar, who PRINTS Language Talent | builder | `91 of 100 points`; **Languages**, *None bought* |
+| | Hermes | *"Hermes, Native — 15 pts (30 listed; halved by Language Talent, rounded up)"* |
+| | Spoken only, Accented | *"… — 5 pts (20 listed; half for one form; halved by Language Talent, rounded up)"* |
+| | **Buy** | the row, and `96 of 100 points` |
+| | reopen, Hermes | Accented and Spoken only selected; the button reads **Change** |
+| | Spoken + Written, **Change** | one row at 10 pts; `101 of 100 points — over budget` |
+| | sheet, Traits | *"Language (Hermes, Accented)"* and its *"Not applied here"* line |
+| | **Give back** | *None bought*, `91 of 100 points` |
+| Apothecary, Hermit 9 | Hermes, Written only, **Buy** | *"Hermes, Native, written only — 15 pts (30 listed; half for one form)"*; `120 of 105` |
+| | Ritual | *"Bought by this character: Hermes, Native, written only. A potion may grant others, and which language this ritual uses is yours to say."* |
+
+The save held `{"language":"Hermes","proficiency":"Native","form":"Written
+only"}` and no price. `sessions.json` was copied off first and written
+back; `cmp` reports the two identical, the crash buffer was empty, and the
+tablet was left on its launcher. Not exercised on the tablet: Multilingual,
+a common language, and the hand-edited save the diff review described.
+Multilingual and the common table are unit-tested; the picker reading the
+resolved list is not tested at all, because it is a composable.
+
+**One dump lied.** The sheet's *"Not applied here"* line for the language
+was missing from the uiautomator dump and present in the screenshot. I did
+not find out why; the file was overwritten by the next dump. A dump that
+omits a node reads exactly like a node that did not render, so the
+screenshot is the evidence for that row.
+
+### Seen and not touched
+
+- **A language a potion grants is prose.** A player can buy Ancient Hermes
+  beside a block that already grants it, and nothing says so.
+- **6eq's second successor stands**: 6dy calls the Brawling and Wrestling
+  defaults implemented by `SkillLadder.defaultFor`, which has no production
+  caller. Wiring it must take Versatile's +1.
+- **The picker's own logic has no test** (section 6: composables are
+  device-only).
+
 ## 6eq. The refusals in production source, re-asked
 
 6ep named no successor. It had re-asked three rows of a journal census,

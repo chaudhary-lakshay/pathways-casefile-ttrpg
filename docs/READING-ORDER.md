@@ -190,7 +190,30 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6el back to 6de
+## Retired lead paragraphs, 6em back to 6de
+
+**6em is next, and it is the first of 6ek's three seen-and-not-touched
+items: maximum CoR is a STATE, and the app checked it only on a gain.**
+Selling Will, IQ or a bought Spiritual Fortitude could leave a live
+character at 9 / 9. Worse than 6ek's sentence, the next gain did not latch
+it: a CoR `−1` there is `isLostAt(8, 9)`, which is false, so the stepper
+walked the character out. Read it for four things.
+
+- **Refuse, not latch, by role.** A potion is a book event and latches. A
+  builder sale is app latitude and is refused, which is the split 6ek's
+  Drink refusal and `ScoreFloors` already make. *Give back* is now greyed
+  through `canSellTrait`, with its reason.
+- **An old save at its ceiling buys Will back once on opening**, after
+  6el's ceilings and 6ek's floors. It is lost only if Will +98 stops the
+  buy-back short.
+- **The first potion never latched**: `drink`'s mortal branch skipped
+  `gainCor(0, …)`, and Abyss 9 is Will −1. The diff review's MEDIUM.
+- **One reading of the ceiling**, `SavedEdits.corCeilingOn`, replaces two
+  screens' copies. A label printed *"Will (13)"* beside a Will of 10.
+
+One mutation first survived, because its test's setup changed the edits
+anyway. Device-verified on the SM-T570: Will and IQ `−` greyed at 9 / 10,
+and *Give back* greyed at 12 / 13. **6ek's two remaining items stand.**
 
 **6el is next, and it is 6ek's successor, the ceiling side of the same
 overflow, which was wider than 6ek said.** A potion's grants are ADDED to the

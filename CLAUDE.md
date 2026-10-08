@@ -135,7 +135,36 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6eq is newest, and it ran 6ep's check where refusals actually live:
+**6er is newest, and it is the first of 6eq's two successors: the builder
+sells a language.** The row was withheld while both of its tables sat
+loaded. Read it for four things.
+
+- **The recorded ambiguity was not one.** 6x wrote that the two halvings
+  *"interact, and the book combines them in no worked example"*, and 6eq
+  inherited it. Every printed price is even, so the form's half is whole
+  and Language Talent's *"rounded up"* is the only rounding there is. The
+  design review saw it in one pass.
+- **Three names are saved and never a price.** Languages compose LAST, so
+  a Language Talent or Multilingual bought later reprices what is owned,
+  and `SavedEdits.ownedLanguages` is the one reading the builder, the
+  picker's preview and the Ritual note all ask.
+- **The placeholder matcher split on the last bracket**, and the book
+  prints *Balam (Dutan)* and *Jotun (Giant's)*. A design review's MEDIUM,
+  before any code.
+- **Potions grant languages as prose**, so the Ritual note is printed only
+  for what was BOUGHT. *"Owns no mystical language"* would have been false
+  of two Beyonders.
+
+Codex answered both reviews: CHANGE on the shape, and one MEDIUM on the
+diff (the picker read the raw save where the budget reads the resolved
+list). Sixteen mutations of sixteen were caught. On the SM-T570, Occult
+Scholar, who prints Language Talent: *"Hermes, Accented, spoken only — 5
+pts (20 listed; half for one form; halved by Language Talent, rounded
+up)"*, `91` to `96 of 100`. **6eq's second successor is next**: book
+2540's *"Default: DX-2 if untrained"* against a `SkillLadder.defaultFor`
+with no production caller.
+
+**6eq is next, and it ran 6ep's check where refusals actually live:
 every reason in production source whose subject is THIS APP.** 6ep re-asked
 three rows of a journal census. The query in the section returned 39 lines
 at `ae2f957`, across `TraitEffects`, the `UNMODELLED` / `UNPAYABLE` /
@@ -262,32 +291,10 @@ otherwise, DX `−` greyed at Speed 0.00, `1 of 100 points` at the floor.
 grants. **The refund is bounded, not small**: with the other four floors, a
 character at the book's 9s gets back 215 points on a budget of 70.
 
-**6em is next, and it is the first of 6ek's three seen-and-not-touched
-items: maximum CoR is a STATE, and the app checked it only on a gain.**
-Selling Will, IQ or a bought Spiritual Fortitude could leave a live
-character at 9 / 9. Worse than 6ek's sentence, the next gain did not latch
-it: a CoR `−1` there is `isLostAt(8, 9)`, which is false, so the stepper
-walked the character out. Read it for four things.
-
-- **Refuse, not latch, by role.** A potion is a book event and latches. A
-  builder sale is app latitude and is refused, which is the split 6ek's
-  Drink refusal and `ScoreFloors` already make. *Give back* is now greyed
-  through `canSellTrait`, with its reason.
-- **An old save at its ceiling buys Will back once on opening**, after
-  6el's ceilings and 6ek's floors. It is lost only if Will +98 stops the
-  buy-back short.
-- **The first potion never latched**: `drink`'s mortal branch skipped
-  `gainCor(0, …)`, and Abyss 9 is Will −1. The diff review's MEDIUM.
-- **One reading of the ceiling**, `SavedEdits.corCeilingOn`, replaces two
-  screens' copies. A label printed *"Will (13)"* beside a Will of 10.
-
-One mutation first survived, because its test's setup changed the edits
-anyway. Device-verified on the SM-T570: Will and IQ `−` greyed at 9 / 10,
-and *Give back* greyed at 12 / 13. **6ek's two remaining items stand.**
-
-**6el back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6em back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6em** — maximum CoR is a state the app checked only on a gain; a builder sale is refused where a potion latches, and the first potion never latched;
 **6el** — a potion's grants are added to the bought score, so browsing a block crashed a high-ST save; `PurchaseCeilings` bounds each purchase, and 6ek's own example was false;
 **6ek** — the builder sold a secondary a hundred steps and four guards threw below HP/FP 1, a CoR ceiling of 1 and Per 0; "four" came from a keyword grep and held, for crashes, on a wider one;
 **6ej** — the Drink button printed nothing about its own roll; `pcrLine` feeds both blocks, and the new line could crash the block it was drawn on, a Will below 1 throwing in composition;
@@ -359,7 +366,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: the slice log, from the END — 6eq first.** The
+**Where to start next: the slice log, from the END — 6er first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -408,13 +415,13 @@ There is an Android module (`app/`, Compose) with four screens: premade list
 (theme picker in its top bar) -> sheet (the `computed vs asPublished` diff, a
 Vitals/Skills/Traits bottom bar, and a twelve-tile action hub), the pathway
 screen (potion grants, digestion tracker, Potion Consumption Roll), and the
-builder (attributes, secondary characteristics, wealth, appearance, traits,
+builder (attributes, secondary characteristics, wealth, appearance, languages, traits,
 weapons and bought skills, against a live point budget). `docs/HOW-TO-PLAY.md` is the
 player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1809 Kotlin** (JUnit 5 — 1268 `core:rules`, 521 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1826 Kotlin** (JUnit 5 — 1277 `core:rules`, 529 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -692,6 +699,12 @@ Languages.all() / .common() / .mystical(): List<LanguageEntry>
 Languages.proficiencies(type) / .proficiency(type, name)   // type is REQUIRED
 Languages.ritualModifier(prof?): Int    // throws for Broken and for common
 Languages.canPerformRituals(prof) / .ritualProficiencies() / .notes()
+Languages.owned(purchases, held): List<Pair<LanguagePurchase, OwnedLanguage?>>
+                                      // table price, half for one form, half
+                                      // for Language Talent, ONE ceiling;
+                                      // Multilingual frees the first two that
+                                      // are common, Native and in both forms
+Languages.traits(purchases, held) / .forms() / OwnedLanguage.costLine
 ContentLoader.languages() / .languageProficiencies() / .languageNotes()
 RitualResolution.targetFor(skill, weight, cor, preparation, language, mode, link, support)
 RitualMode.valueFor(preparation, chosen) / .valueFor(link, chosen)
@@ -904,8 +917,8 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 - **`SavedEdits` now covers everything a player changes** — the four
   attributes, bought skills, wealth, appearance, traits (fixed-price and
-  instanced), the six priced secondary characteristics (6ea) and the weapons
-  carried (6eb). Widen it ADDITIVELY: `SessionStore.load` discards the whole
+  instanced), the six priced secondary characteristics (6ea), the weapons
+  carried (6eb) and languages (6er). Widen it ADDITIVELY: `SessionStore.load` discards the whole
   file on a decode failure, so a shape change drops every existing save.
 - **A SHEET-printed weapon row is a stated non-goal.** `Character.weapons`
   and `ParryBlock.parryFor(Weapon, …)` have no production caller: no
@@ -924,10 +937,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6eq. The slice log
+## 6a-6er. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6eq is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6er is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
