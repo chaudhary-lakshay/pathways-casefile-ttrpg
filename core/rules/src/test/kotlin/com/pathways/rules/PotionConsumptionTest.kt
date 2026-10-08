@@ -68,6 +68,15 @@ class PotionConsumptionTest {
     }
 
     @Test
+    fun `what advancing costs can be asked before the roll is made`() {
+        // The screen prints this beside the Drink button, so it is the
+        // state's answer and not something only a rolled outcome knows.
+        assertEquals(10, PotionConsumption.corCostFor(BeyonderState("Fool", 9, digestion = 0)))
+        assertEquals(10, PotionConsumption.corCostFor(BeyonderState("Fool", 9, digestion = 95)))
+        assertEquals(0, PotionConsumption.corCostFor(BeyonderState("Fool", 9, digestion = 100)))
+    }
+
+    @Test
     fun `the PCR overrides the general critical rules at both ends`() {
         // The generic success roll is a GURPS one: 3-4 always succeed and
         // 17-18 always fail, whatever the target. The PCR table says

@@ -320,8 +320,8 @@ class BeyonderSession(
      */
     fun gainCor(delta: Int, max: Int) {
         if (isLost) return
+        if (Corruption.isLostAfter(cor, delta, max)) corrupted = true
         cor = Corruption.clamp(cor + delta, max)
-        if (Corruption.isLostAt(cor, max)) corrupted = true
         persist()
     }
 

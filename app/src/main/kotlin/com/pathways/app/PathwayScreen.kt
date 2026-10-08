@@ -260,20 +260,34 @@ fun PathwayScreen(
                             // another pathway", weighted identically to the
                             // control that throws the choice away.
                             drunk.canDrink(chosen) ->
-                                Button(
-                                    onClick = {
-                                        // A second tap, or a CoR step, can
-                                        // reach this handler before the
-                                        // screen redraws. `drink` refuses a
-                                        // state it was not offered by
-                                        // throwing, so a stale tap does
-                                        // nothing instead.
-                                        if (session.stillShows(drunk, printedCor)) {
-                                            pcr = session.drink(chosen, dice, maxCorFor)
-                                        }
-                                    },
-                                ) {
-                                    Text(if (drunk == null) "Drink this potion" else "Drink and roll")
+                                Column(Modifier.weight(1f)) {
+                                    Button(
+                                        onClick = {
+                                            // A second tap, or a CoR step, can
+                                            // reach this handler before the
+                                            // screen redraws. `drink` refuses
+                                            // a state it was not offered by
+                                            // throwing, so a stale tap does
+                                            // nothing instead.
+                                            if (session.stillShows(drunk, printedCor)) {
+                                                pcr = session.drink(chosen, dice, maxCorFor)
+                                            }
+                                        },
+                                    ) {
+                                        Text(if (drunk == null) "Drink this potion" else "Drink and roll")
+                                    }
+                                    // The roll, beside the button that makes
+                                    // it: the tracker that prints it is on the
+                                    // PREVIOUS block. Built from what
+                                    // stillShows compares, so it is the roll
+                                    // the tap makes or the tap does nothing.
+                                    if (drunk != null) {
+                                        Text(
+                                            drinkLine(drunk, printedCor, maxCorFor(chosen)),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            modifier = Modifier.padding(top = 4.dp, end = 16.dp, bottom = 8.dp),
+                                        )
+                                    }
                                 }
                             drunk?.pathway == chosen.pathway && drunk.sequence == chosen.sequence ->
                                 Note("digesting: ${drunk.digestion}%")
@@ -376,15 +390,7 @@ private fun DigestionTracker(state: BeyonderState, onDigest: (Int) -> Unit) {
             )
             OutlinedButton(onClick = { onDigest(5) }) { Text("+5%") }
         }
-        Text(
-            "next potion rolls 3d6 ≤ ${PotionConsumption.targetFor(state.digestion)}" +
-                if (state.isFullyDigested) {
-                    ""
-                } else {
-                    " — advancing now also costs ${PotionConsumption.earlyAdvancementCor()}+ CoR"
-                },
-            style = MaterialTheme.typography.bodySmall,
-        )
+        Text("next potion rolls ${pcrLine(state)}", style = MaterialTheme.typography.bodySmall)
         Text(
             ContentLoader.actingMethod().joinToString("   ") { quality ->
                 val gain = if (quality.losesProgress) "0 or lose" else "+${quality.minGain}-${quality.maxGain}%"
@@ -394,6 +400,40 @@ private fun DigestionTracker(state: BeyonderState, onDigest: (Int) -> Unit) {
             modifier = Modifier.padding(top = 4.dp),
         )
     }
+}
+
+/**
+ * The Potion Consumption Roll [state] would make, and what it charges.
+ *
+ * One line for two blocks: the tracker on the potion being digested, and the
+ * Drink button on the next one. The cost is charged on success only, and it
+ * is the book's floor ("10+ CoR"), which is what [BeyonderSession.drink]
+ * charges.
+ */
+internal fun pcrLine(state: BeyonderState): String {
+    val cost = PotionConsumption.corCostFor(state)
+    return "3d6 ≤ ${PotionConsumption.targetFor(state.digestion)}" +
+        if (cost == 0) "" else " — on success +$cost CoR minimum; the GM may charge more"
+}
+
+/**
+ * What the Drink button says about its own roll.
+ *
+ * [ceilingAfter] is the maximum CoR of the potion being drunk INTO, the one
+ * `drink` charges against. A character can survive the roll and be lost on
+ * the same tap -- the floor of 10 against a Will of 10, or a potion that
+ * lowers Will onto the total at no cost -- and this is the last screen that
+ * can say so.
+ */
+internal fun drinkLine(state: BeyonderState, cor: Int, ceilingAfter: Int): String {
+    val cost = PotionConsumption.corCostFor(state)
+    return "at ${state.digestion}% digested, rolls ${pcrLine(state)}" +
+        if (Corruption.isLostAfter(cor, cost, ceilingAfter)) {
+            ". Maximum CoR after this potion is $ceilingAfter; ${cor + cost} CoR reaches it — " +
+                "lost to corruption even if the potion integrates"
+        } else {
+            ""
+        }
 }
 
 /**

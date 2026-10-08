@@ -90,6 +90,16 @@ object Corruption {
     }
 
     /**
+     * Whether gaining [delta] from [cor] under [max] ends the character.
+     *
+     * Asked twice of one rule: by the session when it charges a gain, and by
+     * the screen that prints what a potion will cost BEFORE it is drunk. A
+     * [delta] of 0 is a real question -- a potion can lower Will onto a total
+     * that was safe under the old ceiling.
+     */
+    fun isLostAfter(cor: Int, delta: Int, max: Int): Boolean = isLostAt(clamp(cor + delta, max), max)
+
+    /**
      * The rungs of the RITUAL ladder (p. 68) a total of [cor] has reached, in
      * ascending order. Ritual-scoped: see [RitualCorThreshold].
      */

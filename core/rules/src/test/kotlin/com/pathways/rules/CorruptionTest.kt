@@ -66,6 +66,18 @@ class CorruptionTest {
     }
 
     @Test
+    fun `a gain that reaches the maximum ends the character`() {
+        assertTrue(Corruption.isLostAfter(cor = 0, delta = 10, max = 10))
+        assertFalse(Corruption.isLostAfter(cor = 0, delta = 9, max = 10))
+        assertTrue(Corruption.isLostAfter(cor = 5, delta = 50, max = 10))
+        // No gain at all, under a ceiling a potion has just lowered onto the
+        // total: the Will-lowering advancement, which costs nothing and ends
+        // the character anyway.
+        assertTrue(Corruption.isLostAfter(cor = 9, delta = 0, max = 9))
+        assertFalse(Corruption.isLostAfter(cor = 8, delta = 0, max = 9))
+    }
+
+    @Test
     fun `corruption is never negative and never counted past the maximum`() {
         assertEquals(0, Corruption.clamp(-3, max = 10))
         assertEquals(10, Corruption.clamp(14, max = 10))

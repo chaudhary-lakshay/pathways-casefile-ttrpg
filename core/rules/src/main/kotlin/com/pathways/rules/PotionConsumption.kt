@@ -84,9 +84,19 @@ object PotionConsumption {
             roll = SuccessRoll.against(target, source),
             target = target,
             digestion = state.digestion,
-            minimumCorGained = if (state.isFullyDigested) 0 else earlyAdvancementCor(),
+            minimumCorGained = corCostFor(state),
         )
     }
+
+    /**
+     * The CoR that advancing from [state] charges on a successful roll: the
+     * book's floor before full digestion, nothing at 100%.
+     *
+     * A function of the state and not of the roll, so the screen can print it
+     * beside the Drink button and [attempt] can charge the same number.
+     */
+    fun corCostFor(state: BeyonderState): Int =
+        if (state.isFullyDigested) 0 else earlyAdvancementCor()
 
     /**
      * The CoR floor for advancing before full digestion, read from the row
