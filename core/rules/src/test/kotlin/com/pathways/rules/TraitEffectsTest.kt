@@ -2368,9 +2368,9 @@ class TraitEffectsTest {
      */
     @Test
     fun `every catalogue row name resolves to itself`() {
-        for (row in ContentLoader.advantages() + ContentLoader.disadvantages()) {
-            assertEquals(row.name, TraitEffects.catalogueName(row.name))
-        }
+        val lost = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .map { it.name }.filter { TraitEffects.catalogueName(it) != it }
+        assertEquals(emptyList<String>(), lost)
         assertEquals("Alertness", TraitEffects.catalogueName("Alertness 1"))
     }
 
