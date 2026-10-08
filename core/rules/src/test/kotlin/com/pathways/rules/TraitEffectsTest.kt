@@ -2343,22 +2343,70 @@ class TraitEffectsTest {
     }
 
     /**
-     * ...and the three ways a row is NOT unread: applied in full with nothing
-     * left over, rolled from its own row ([SelfControl]), or printed by no
-     * catalogue, where there is no cell to make a claim about.
+     * ...and the two ways a row says nothing: applied in full with nothing
+     * left over, or printed by no catalogue, where there is no cell to make
+     * a claim about.
      */
     @Test
-    fun `a trait applied in full, rolled, or unprinted is not called unread`() {
+    fun `a trait applied in full or unprinted is not called unread`() {
         val quiet = listOf(
             "${TraitEffects.ALERTNESS} 1", TraitEffects.OUTDOORSMAN, TraitEffects.NIGHT_EYES,
             Corruption.FORTITUDE, "${TraitEffects.HARD_TO_KILL} 1",
-            // Outside known(), and its row is the roll.
-            "Curious", "Stubborn",
             "A Name No Catalogue Prints",
         )
         for (name in quiet) {
             assertEquals(emptyList<Any>(), TraitEffects.reported(listOf(advantage(name))), name)
         }
+    }
+
+    /**
+     * **A row's own name must resolve to that row.** The level strip read
+     * `Compulsive Behavior (Indulge Evil Desires) SC 6`'s trailing self-control
+     * number as a level, so the builder sold a drawback whose cell, roll and
+     * note the sheet then could not find (6ew's sweep, the one row that ends
+     * in a number).
+     */
+    @Test
+    fun `every catalogue row name resolves to itself`() {
+        for (row in ContentLoader.advantages() + ContentLoader.disadvantages()) {
+            assertEquals(row.name, TraitEffects.catalogueName(row.name))
+        }
+        assertEquals("Alertness", TraitEffects.catalogueName("Alertness 1"))
+    }
+
+    /**
+     * **A row that offers its roll was taken as applied in full**, and 28
+     * of the 30 self-control rows then said nothing beside cells such as
+     * Reckless's *"-1 to any roll where caution would be smarter"* and
+     * Reluctant Killer's *"-4 to hit recognizable people ... cannot Aim"*
+     * (6es's own successor). One sentence again, the roll excepted. Curious
+     * is in the sweep on purpose: its *"or investigate any mystery"* is the
+     * table's too, so the sentence is true of a row that prints only its roll.
+     */
+    @Test
+    fun `a self-control row nothing else reads says its roll is all that is applied`() {
+        val swept = ContentLoader.disadvantages()
+            .filter { it.selfControl != null && it.name !in TraitEffects.known() }
+        assertEquals(28, swept.size)
+        for (row in swept) {
+            val held = Trait(row.name, 5, TraitKind.DISADVANTAGE)
+            // The sentence says the roll is applied: the roll must be offered.
+            assertTrue(SelfControl.checksFor(listOf(held)).isNotEmpty(), row.name)
+            val note = TraitEffects.reported(listOf(held)).single()
+            assertEquals(row.notes, note.printed, row.name)
+            assertEquals(TraitEffects.ROLLED_ONLY, note.reason, row.name)
+        }
+        // A quirk of the same name is offered no roll, so it may not be told
+        // the roll is applied: `checksFor` rolls disadvantages alone.
+        val quirk = Trait("Reckless", 1, TraitKind.QUIRK)
+        assertEquals(emptyList<Any>(), SelfControl.checksFor(listOf(quirk)))
+        assertEquals(TraitEffects.UNREAD, TraitEffects.reported(listOf(quirk)).single().reason)
+        // A self-control row something else reads keeps its clauses: the
+        // whole-cell sentence would be false of Loner's applied -1.
+        assertEquals(
+            listOf("-1 to social rolls in crowds"),
+            TraitEffects.reported(listOf(advantage("Loner"))).map { it.printed },
+        )
     }
 
     /**

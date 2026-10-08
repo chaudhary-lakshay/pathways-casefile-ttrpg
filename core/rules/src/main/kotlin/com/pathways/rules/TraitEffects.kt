@@ -767,6 +767,10 @@ object TraitEffects {
      * names in the fixtures fail this test and stay unmatched.
      */
     fun catalogueName(printed: String): String {
+        // A row's own name is that row. `Compulsive Behavior (Indulge Evil
+        // Desires) SC 6` ends in its self-control number, and the level strip
+        // below lost the row the builder had sold (6ew).
+        if (printed.lowercase() in rowNames) return printed
         if (printed.substringAfterLast(' ').toIntOrNull() != null) {
             return printed.substringBeforeLast(' ')
         }
@@ -1064,6 +1068,8 @@ object TraitEffects {
      * cost column, so writing them into `advantages.json` would make that file
      * claim the book printed one (6v).
      */
+    private val rowNames: Set<String> by lazy { catalogue().keys }
+
     private fun catalogue(): Map<String, TraitDefinition> {
         val cost = ContentLoader.blessingCost()
         return (
@@ -1197,11 +1203,14 @@ object TraitEffects {
             val row = catalogue[bare.lowercase()] ?: return@flatMap emptyList()
             val printed = row.notes
             val shown = displayName(owned.name)
-            // No collection names it and its row offers no roll: nothing this
-            // cell prints is applied but its price, and saying nothing reads
-            // as counted.
-            if (bare !in known && row.selfControl == null) {
-                return@flatMap listOf(TraitNote(shown, printed, UNREAD))
+            // No collection names it: nothing this cell prints is applied but
+            // its price and, where the sheet offers one, its roll. Saying
+            // nothing reads as counted. Asked of the code that offers the
+            // roll, which refuses a quirk sharing a drawback's name.
+            if (bare !in known) {
+                val rolled = SelfControl.checksFor(listOf(owned)).isNotEmpty()
+                val reason = if (rolled) ROLLED_ONLY else UNREAD
+                return@flatMap listOf(TraitNote(shown, printed, reason))
             }
             val whole = UNAPPLIED[bare]?.let { listOf(TraitNote(shown, printed, it)) }.orEmpty()
             // A trait can be applied and still have rules left over, so the
@@ -1243,6 +1252,26 @@ object TraitEffects {
     const val UNREAD =
         "its price aside, this app applies nothing this row prints, so its " +
             "text is the table's to apply"
+
+    /**
+     * What [reported] says of a held trait outside [known] whose row offers
+     * a self-control roll: [UNREAD], the roll excepted.
+     *
+     * **6es exempted these rows whole**, on the reading that a row offering
+     * its roll is applied. 28 of the 30 self-control rows are outside
+     * [known] (the count is pinned by a sweep test), and their cells print
+     * rules beside the roll, among them Reckless's *"-1 to any roll where
+     * caution would be smarter"*, Reluctant Killer's *"-4 to hit ... cannot
+     * Aim"*, Absent-Mindedness's -3 and Nightmares' FP. None reached
+     * anything and the sheet said nothing. The same proviso as [UNREAD]: a
+     * new reader of one of these rows adds it to [known] in the same commit.
+     *
+     * Decided by [SelfControl.checksFor], the code that offers the roll, so
+     * a quirk sharing a drawback's name is not told its roll is applied.
+     */
+    const val ROLLED_ONLY =
+        "its price and its self-control roll aside, this app applies nothing " +
+            "this row prints, so the rest of its text is the table's to apply"
 
     /**
      * One held trait as the sheet prints it: the book's [cell] where the
