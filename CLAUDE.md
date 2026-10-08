@@ -179,9 +179,11 @@ Twenty-two mutations, twenty-two caught. On the SM-T570: `Parry (DX, bare
 hands) 7`, then `4` against a weapon and no row against a shot; Pickpocket's
 `Acrobatics (untrained, DX-6) 4 → 6`. **The tablet's save was left seeded**:
 a harness check refused the restore, and 6ev says where the backup is.
-**Successors**: whether a Warrior's weapon parries at DX, which is sharper
-now; the same missing trait term on the ATTACK roll; Warrior's *default
-+2*; and 6es's two lists.
+**Owed first: a Codex diff review of `5fe2b41..127532d`**, which only a
+sub-agent has read, and whose post-review fix no reviewer has. **Successors**:
+whether a Warrior's weapon parries at DX, which is sharper now; the same
+missing trait term on the ATTACK roll; Warrior's *default +2*; and 6es's
+two lists.
 
 **6eu is next, and it is 6et's second consumer: the Attack dialog takes
 an untrained skill.** A character without Brawling had no punch there, and
@@ -361,29 +363,10 @@ the right file can be the wrong rule; **6db** — a line the coverage filter
 cannot see leaves the denominator too, so an unread chapter reported 100%,
 and **percentages recorded before 6db must not be compared with ones after
 it**; **6da** — two careful exclusions hid one line between them, and an
-absolute names the corpus it was checked against; **6cz** — an unavailable review gate is a reason to reach for the next
-gate, not to record its absence and ship; **6cy** — `pts/level` named two
-different tables, so six constants billed every character with no tie to a
-printed line; **6cx** — a precedent travels by ROLE, not by shape; **6cw** —
-chapter 8 was at 21.2% with an equipment catalogue nobody had read; **6cv** —
-a predicate is a claim about what a null MEANS; **6cu** — a gap has a
-DIRECTION and the direction is the evidence; **6ct** — a grep for a key is not
-a count of a value; **6cs** — a refusal shipped instead of a feature, on a
-design review's NO-SHIP; **6cr** — a quotation and a restatement look
-identical in a grep; **6cq** — a comment is not a pin; **6cp** — a refusal can
-survive its author's stated reason and die of a fact none of its words
-mention; **6co** — a condition can outlive the question it stood in for;
-**6cn** — a spec that omits a label still gets one; **6cm** — a precedent
-travels with the condition that produced it; **6cl** — a recorded defect is
-evidence about the inputs it was measured on; **6ck** — one false sentence
-copied into three files reads as corroboration; **6cj** — a sweep cannot see
-the journal, and provenance cannot answer a mechanism objection; **6ci** — a
-census settles what an argument cannot; **6ch** — two reviews can contradict,
-and a LOW that would reintroduce a MEDIUM is not a LOW; **6cg** — a pin runs
-in one direction; **6cf** — sweep the API for callers, not just data for
-readers; **6ce** — one grep can decide a reading two other readings would have
-authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
-catalogue identity.
+absolute names the corpus it was checked against.
+**6cz back to 6cd** have one-line digests too, moved verbatim to
+[`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
+its 8,000-character cap (6ev).
 
 **Where to start next: the slice log, from the END — 6ev first.** The
 reading-order narrative for 6cc back to 6bf moved to

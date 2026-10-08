@@ -1583,3 +1583,32 @@ slice it named — a declared-condition chip on the three bare Will rolls — **
 built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
+
+## Digest index, 6cz back to 6cd
+
+Moved from the handover in 6ev, unchanged, when its digest index passed 8,000
+characters. The entries continue the sentence the handover keeps for 6dd to 6da.
+
+**6cz** — an unavailable review gate is a reason to reach for the next
+gate, not to record its absence and ship; **6cy** — `pts/level` named two
+different tables, so six constants billed every character with no tie to a
+printed line; **6cx** — a precedent travels by ROLE, not by shape; **6cw** —
+chapter 8 was at 21.2% with an equipment catalogue nobody had read; **6cv** —
+a predicate is a claim about what a null MEANS; **6cu** — a gap has a
+DIRECTION and the direction is the evidence; **6ct** — a grep for a key is not
+a count of a value; **6cs** — a refusal shipped instead of a feature, on a
+design review's NO-SHIP; **6cr** — a quotation and a restatement look
+identical in a grep; **6cq** — a comment is not a pin; **6cp** — a refusal can
+survive its author's stated reason and die of a fact none of its words
+mention; **6co** — a condition can outlive the question it stood in for;
+**6cn** — a spec that omits a label still gets one; **6cm** — a precedent
+travels with the condition that produced it; **6cl** — a recorded defect is
+evidence about the inputs it was measured on; **6ck** — one false sentence
+copied into three files reads as corroboration; **6cj** — a sweep cannot see
+the journal, and provenance cannot answer a mechanism objection; **6ci** — a
+census settles what an argument cannot; **6ch** — two reviews can contradict,
+and a LOW that would reintroduce a MEDIUM is not a LOW; **6cg** — a pin runs
+in one direction; **6cf** — sweep the API for callers, not just data for
+readers; **6ce** — one grep can decide a reading two other readings would have
+authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
+catalogue identity.

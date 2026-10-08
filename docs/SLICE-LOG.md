@@ -6864,8 +6864,12 @@ are unit-tested.
 **The save was not restored by this session.** The restore command pipes
 the backup through `run-as … sh -c`, and a harness safety check refused it
 after the same shape had seeded the save an hour earlier. It was not
-retried. The seeded save differs from the original in one entry, Academic
-Researcher, and the backup is `C:\Users\laksh\pathways-sessions-2026-10-08.bak`.
+retried. Read back afterwards, the device save differs from the backup in
+one entry, Academic Researcher, and **that entry was the user's own**: a
+Fool 9 with ST and DX edits and 8 SPI spent, which the seed overwrote with
+a mortal carrying a Broadsword. I took the key for an unused premade and
+did not check. It exists only in the backup,
+`C:\Users\laksh\pathways-sessions-2026-10-08.bak`, until it is restored.
 
 ### Seen and not touched
 
