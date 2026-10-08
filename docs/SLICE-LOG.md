@@ -6894,6 +6894,38 @@ Tests: 1775 Kotlin (1249 `core:rules`, 506 `app`, 20 `core:model`) after
 The premade was left as it was found: Sequence 9 Abyss at 100%, 0 CoR,
 `87 of 100 points`. Not exercised: a tap on a refused Drink.
 
+### After the commit: is "four" a count, and what the repair costs
+
+**"Four guards" came from a keyword-filtered grep.** It read `require(` lines
+for max/per/will/hp/fp/pool and could not see three other shapes: a guard
+that names only Dodge, Speed or Move; a `coerceIn(a, b)` whose upper bound is
+a derived score (the shape `Corruption.clamp` has); and a division by a
+derived score. Re-run wider over `core/rules/src/main` and `app/src/main`:
+
+- `require(|check(|error(` filtered for `dodge|move|speed|quarter` — one hit,
+  `PotionDigestion.kt:330`, which checks a GRANT's quarters, not a score.
+- every `coerceIn(` — eleven hits; the only one bounded by a derived score is
+  `Corruption.clamp`, already a floor.
+- every `floorDiv(` and `/ <variable>` — all the divisors are constants.
+
+On the tablet, with Basic Speed and Basic Move both sold to the −100 bound
+(`-20.50`, `-100`), Vitals, Defend, Attack and Damage all opened with an empty
+crash buffer. Both rows were then bought back, and the premade is at
+`87 of 100` again. **So "four" holds for crashes**, and that is the query that
+backs it.
+
+**The repair reprices saves that rendered correctly.** The floor holds on the
+BOUGHT score as well as the digested one. So a save written before this slice
+on Abyss Sequence 9 (+2 HP) with HP bought −9 — a bought 0 and a digested 2,
+which never crashed — is repaired to −8 on opening. That costs 2 points, and
+nothing on screen says why. The design review had asked for the changed
+purchases and the budget to be reported, and the original kept for recovery.
+**That was declined**, as more machinery than a repair of a few points
+warrants, and because no save this repair can reach was legal under 6ek's own
+floors. A narrow post-commit `codex exec` over `shortfallOn` and the `init`
+repair at `8946153` returned no further findings. It left unverified the
+two-pass bound, which rests on the potion census `ScoreFloorsTest` pins.
+
 ### Seen and not touched
 
 - **The ceiling side of the same overflow.** `PotionDigestion.kt:206-215`
@@ -6906,6 +6938,12 @@ The premade was left as it was found: Sequence 9 Abyss at 100%, 0 CoR,
 - **An edit that lowers a POSITIVE ceiling onto the CoR total** does not latch
   the loss; the next CoR gain does. This was the design review's finding. It
   does not crash, and it is pre-existing.
+- **Selling a secondary refunds points without limit.** With Basic Speed and
+  Basic Move at −100 the budget bar read `-808 of 100 points, 908 spare`.
+  The floors cap the refund on HP, FP, Will and Per, but not on the two
+  rows they do not guard. Whether a reduced secondary counts against
+  chapter 3's "-40 points of disadvantages" (book line 1120) is a question
+  for the book, and it was not asked here.
 - **The builder prints bought values without potion grants.** Before this
   slice it showed HP `0` beside a sheet reading `2 / 2`. Pre-existing.
 

@@ -163,7 +163,12 @@ number. Read it for four things.
   rescuing. The fix checks bought scores before digested ones, so a floor
   holds on the bought score too.
 
-Eleven mutations were run and all were caught. The device check passed: the
+Eleven mutations were run and all were caught. **"Four" was then re-checked**
+with a wider census (Dodge/Speed/Move guards, `coerceIn` bounded by a score,
+a derived divisor) and on the tablet at Speed and Move −100. Both were clean,
+and the queries are in 6ek. The repair reprices a few pre-6ek saves that
+never crashed; the review's advice to report that was declined, and the
+reason is recorded. The device check passed: the
 crashing save opens, `−` reads `enabled=false` at the floor, and Drink is
 disabled with its reason printed. **The successor is the ceiling side of the
 same overflow, read off `PotionDigestion.kt:206-215` and not reproduced.**
