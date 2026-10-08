@@ -190,7 +190,50 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6ee back to 6de
+## Retired lead paragraphs, 6ef back to 6de
+
+**6ef is next, and it builds the slice 6ee named: the GM picks inside a
+ritual cell that prints a span.** Six cells across chapter 7's three tables
+(`Good +1 to +2`, `Poor -1 to -2`, `None -4 or worse`, the quick table's
+`Poor / None -2 to -4`, the links `Strong +2 to +3` and `Weak +0 to -1`)
+showed the span on the chip and applied its near end. `RitualMode.valueFor`
+holds a pick to its OWN cell — +3 is Excellent's and is refused for Good —
+and the pick is threaded by name through `modifierTotal`, `targetFor` and
+`attempt`. **Unpicked is still the near end, and that is this app's default,
+not the book's rule.** Read it for four things. **Its warrant had named two
+precedents and neither held**: "the gentle reading the darkness row and the
+fright triggers already settled", where one has a picker and the other a
+stepper. **A third review, after the commit, found a throw two earlier reviews had
+cleared — and both had answered their question correctly**: the picks were
+`remember(mode, preparation)` under a note calling that key "load-bearing",
+the design review was asked whether pick and row can disagree *"for one
+composition"*, and they cannot. **A keyed `remember` resets one recomposition
+late while a click handler reads state as it stands**, so Good's +2, a tap on
+Excellent and a tap on Roll inside one frame hand the engine a pick it throws
+on. Read off the code, never reproduced. The pick is held WITH its row now
+and filtered on read (`pickInside`), which is 6dz's design — and the fix the
+design review had itself written down as its strongest objection; a pick
+therefore comes back when the GM returns to its row. **Ask a reviewer about
+the handlers by name, not the compositions.** **That finding indicts its
+model and the model is NOT repaired**: the Roll handler still passes
+`preparation`, `link` and `flourish` (`remember(mode)`) beside a fresh `mode`
+and a composition-time `declaration` beside a fresh `complexity`. Same
+two-finger window, no more or less reachable than the one fixed; the pick was
+fixed because its fix was one function. The query and the 43-hit census are
+in the slice log.
+**Six mutations were executed rather than predicted**, all caught — and the
+first baseline run failed on Gradle's file lock, which looked exactly like a
+caught mutation. The review's LOW (the golden test reaches `valueFor`, not
+`attempt`) is refused on the reviewer's own next clause. **Device-verified on
+an EMULATOR** (`Medium_Tablet`, API 35 — no hardware attached): Good at +2
+took `3d6 ≤ 13` to `≤ 15` and rolled **`15 vs 15`**, a success the unpicked
++1 misses; quick mode at -3 with a Strong +3 link printed `preparation -3,
++3 strong link` and rolled `15 vs 13`. **And this paragraph first said no
+decomposition review was on record**: it was checked against the commit body
+and the slice log, and `~/.codex/sessions` held a design review and a diff
+review from the hour before the commit. The nearest thing to a successor is
+the two handler windows — **which 6eg closed, by undoing this slice's
+click-time read.**
 
 **6ee is next, and it ran 6dl's own advice as a sweep: every diagnostic the
 toolchain gives for nothing.** Clean on eight instruments, each recorded with

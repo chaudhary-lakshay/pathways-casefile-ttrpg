@@ -135,7 +135,42 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ej is newest, and it is the thing 6ei saw on the way and did not touch:
+**6ek is newest, and it is 6ej's successor, which turned out to be the
+smallest of four: the builder sold every secondary a hundred steps, and four
+`core:rules` guards throw below HP/FP 1, a CoR ceiling of 1 and Per 0.**
+The HP one runs while the screen is drawn, and it was reproduced on the
+SM-T570. Antiquarian Dealer with HP sold 11 steps (Abyss 9 grants +2) crashed
+the sheet at `MainActivity.kt:374` on every open, because the save kept the
+number. Read it for four things.
+
+- **The book prints no floor** (lines 353-386), so `ScoreFloors` is the app's
+  bound. Its constants are the ones the guards read.
+- **There are four writers, and a builder floor reaches only the two
+  steppers**: secondary `−`, and attribute `−`, which moves Will, Per, HP and
+  FP. Selling Spiritual Fortitude drops the ceiling by three (the design
+  review's catch). Drink is the fourth: only
+  Abyss lowers anything (Will), a test pins that census, and Drink is now
+  refused before its roll. So half of 6ej's *"the builder's bound is where it
+  is answered"* has expired.
+- **A bad save is repaired once on opening and written back, not lifted on
+  every read.** The design review showed that lifting on read leaves two
+  purchase records.
+- **Two defects were in my own diff.** The first build crashed the builder on
+  the tablet: the screen built its own candidate, ST 8, and `Attributes`
+  throws on it. The session's `canSet*` now builds the same candidate as the
+  setter. The diff review's HIGH was that the repair overflowed
+  `SecondaryDelta` (Will −100 plus Abyss's −1 = −101) inside the save it was
+  rescuing. The fix checks bought scores before digested ones, so a floor
+  holds on the bought score too.
+
+Eleven mutations were run and all were caught. The device check passed: the
+crashing save opens, `−` reads `enabled=false` at the floor, and Drink is
+disabled with its reason printed. **The successor is the ceiling side of the
+same overflow, read off `PotionDigestion.kt:206-215` and not reproduced.**
+The builder buys up to +100 and to ST 30, and a potion's grant pushes past
+the `SecondaryDelta` and `Attributes` bounds.
+
+**6ej is next, and it is the thing 6ei saw on the way and did not touch:
 the Drink button printed nothing about its own roll.** *Drink and roll* is
 drawn on the NEXT Sequence's block (`drunk.canDrink(chosen)`), and the roll's
 target and early-advancement cost only in `DigestionTracker`, drawn where
@@ -263,52 +298,10 @@ commit, both through `codex exec`. **Device-verified on the emulator**: `3d6
 ≤ 15` then `8 vs 15`; `3d6 ≤ 16` then `9 vs 16`. **The successor is the
 seven pairs left and the Fright Check's inline sum** — built in 6eh.
 
-**6ef is next, and it builds the slice 6ee named: the GM picks inside a
-ritual cell that prints a span.** Six cells across chapter 7's three tables
-(`Good +1 to +2`, `Poor -1 to -2`, `None -4 or worse`, the quick table's
-`Poor / None -2 to -4`, the links `Strong +2 to +3` and `Weak +0 to -1`)
-showed the span on the chip and applied its near end. `RitualMode.valueFor`
-holds a pick to its OWN cell — +3 is Excellent's and is refused for Good —
-and the pick is threaded by name through `modifierTotal`, `targetFor` and
-`attempt`. **Unpicked is still the near end, and that is this app's default,
-not the book's rule.** Read it for four things. **Its warrant had named two
-precedents and neither held**: "the gentle reading the darkness row and the
-fright triggers already settled", where one has a picker and the other a
-stepper. **A third review, after the commit, found a throw two earlier reviews had
-cleared — and both had answered their question correctly**: the picks were
-`remember(mode, preparation)` under a note calling that key "load-bearing",
-the design review was asked whether pick and row can disagree *"for one
-composition"*, and they cannot. **A keyed `remember` resets one recomposition
-late while a click handler reads state as it stands**, so Good's +2, a tap on
-Excellent and a tap on Roll inside one frame hand the engine a pick it throws
-on. Read off the code, never reproduced. The pick is held WITH its row now
-and filtered on read (`pickInside`), which is 6dz's design — and the fix the
-design review had itself written down as its strongest objection; a pick
-therefore comes back when the GM returns to its row. **Ask a reviewer about
-the handlers by name, not the compositions.** **That finding indicts its
-model and the model is NOT repaired**: the Roll handler still passes
-`preparation`, `link` and `flourish` (`remember(mode)`) beside a fresh `mode`
-and a composition-time `declaration` beside a fresh `complexity`. Same
-two-finger window, no more or less reachable than the one fixed; the pick was
-fixed because its fix was one function. The query and the 43-hit census are
-in the slice log.
-**Six mutations were executed rather than predicted**, all caught — and the
-first baseline run failed on Gradle's file lock, which looked exactly like a
-caught mutation. The review's LOW (the golden test reaches `valueFor`, not
-`attempt`) is refused on the reviewer's own next clause. **Device-verified on
-an EMULATOR** (`Medium_Tablet`, API 35 — no hardware attached): Good at +2
-took `3d6 ≤ 13` to `≤ 15` and rolled **`15 vs 15`**, a success the unpicked
-+1 misses; quick mode at -3 with a Strong +3 link printed `preparation -3,
-+3 strong link` and rolled `15 vs 13`. **And this paragraph first said no
-decomposition review was on record**: it was checked against the commit body
-and the slice log, and `~/.codex/sessions` held a design review and a diff
-review from the hour before the commit. The nearest thing to a successor is
-the two handler windows — **which 6eg closed, by undoing this slice's
-click-time read.**
-
-**6ee back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6ef back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ef** — the GM picks inside a span cell; a keyed `remember` resets a frame late, so a pick lives with its row, and the click-time read was undone by 6eg;
 **6ee** — every free toolchain diagnostic run as a sweep: clean, and beside its hits an assertion that could not fail and a fourth inline copy of `endsBetween`;
 **6ed** — does a committed generated file reproduce from its tool: 81 of 81 do, and `build/extract/book.txt`, the citation anchor, had no writer (`coverage.py` writes it now);
 **6ec** — every `@Serializable` property checked for a key that sets it; two stat notes were cut at their wrap, and re-running `extract_pathways.py` silently reverted `b1c8c4e`;
@@ -373,7 +366,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: the slice log, from the END — 6ej first.** The
+**Where to start next: the slice log, from the END — 6ek first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -428,7 +421,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1761 Kotlin** (JUnit 5 — 1244 `core:rules`, 497 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1775 Kotlin** (JUnit 5 — 1249 `core:rules`, 506 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -550,6 +543,10 @@ PotionConsumption.corCostFor(state): Int      // 0 at 100%, else the book's floo
 Corruption.maxFor(c) / .maxFor(will, traits): Int          // Will, +3 with Spiritual Fortitude
 Corruption.clamp(cor, max) / .isLostAt(cor, max) / .isLostAfter(cor, delta, max)
 Corruption.ritualPenalty(cor) / .ritualThresholdsReached(cor)
+ScoreFloors.MIN_POOL_MAX / .MIN_COR_CEILING / .MIN_PER   // the app's, not the
+                                      // book's: the guards in Pools, Wounds,
+                                      // Corruption and Detection read these
+ScoreFloors.shortfall(secondaries, traits) / .holdsCeiling(ceiling)
 Pools.hp(current, max) / .fp(current, max) / .spi(current, max): PoolStatus
 Pools.thresholds(pool): List<PoolThreshold>   // empty for FP: prose only
 Conditions.forSkill(skill, hp, fp, spi, cor): List<Modifier>   // scoped per skill
@@ -915,10 +912,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6ej. The slice log
+## 6a-6ek. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6ej is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6ek is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

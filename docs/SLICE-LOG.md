@@ -6726,6 +6726,189 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ek. Four floors the builder could sell through
+
+6ej named its successor: *"every CoR-gaining TAP on such a character still
+throws"*. That was about a Will bought below 1. Checked before it was
+believed, it is true, and it is the smallest of four. The builder's `−` on
+every priced secondary runs to `-MAX_SECONDARY_DELTA_MAGNITUDE`, a hundred
+steps, which 6ej had already called an overflow bound and not a rule. Four
+guards in `core:rules` throw below a value the builder could sell past:
+
+| Guard | Throws below |
+|---|---|
+| `Pools.requireMax` (`Pools.hp`, `Pools.fp`) | an HP or FP maximum of 1 |
+| `Wounds` (`majorWoundThreshold`, `effectsAt`) | an HP maximum of 1 |
+| `Corruption.requireWillScore` | a CoR ceiling of 1 |
+| `Detection` | a Per of 0 |
+
+**The HP check runs while the screen is drawn, not on a tap.** Reproduced on
+the SM-T570 with Antiquarian Dealer: ST 9, Abyss Sequence 9 (which grants +2
+HP). HP sold nine steps read `HP 2 / 2`. At eleven steps, opening the sheet
+killed the app with `IllegalArgumentException: HP max must be at least 1; was
+0` at `MainActivity.kt:374`, in `SheetScreen`'s composition. The save kept the
+number, so that premade crashed on every open. The builder is reached from the
+sheet, so no tap could undo it.
+
+### What the book says, and what else writes a score
+
+The book prints no floor. Chapter 2's table (book lines 353-386) prices each
+row `±N pts per level` and says nothing more. GURPS Basic's limits are not
+this book's, and none is borrowed. So the floors are the app's: the lowest
+values the rules it models can compute on. `ScoreFloors` says so in a
+`ponytail:` comment.
+
+The writers, each checked rather than assumed:
+
+- **The builder's `−` on a secondary, and on an attribute.** Will and Per are
+  IQ plus what was bought, HP is ST plus what was bought, and FP is HT plus
+  what was bought.
+- **Selling a bought Spiritual Fortitude.** "Maximum CoR equal Will + 3"
+  (book line 1028), so the ceiling can drop by three with no stepper touched.
+  The design review found this one.
+- **Drink.** Of the 88 + 17 potion blocks, the only negative grants are
+  Abyss's Will −1, −1 and −2 (Sequences 9, 8 and 6). A mortal at Will 1 who
+  drinks Abyss Sequence 9 lands at a ceiling of 0. So half of 6ej's *"the
+  builder's bound is where it is answered"* has expired: no builder floor
+  reaches a potion.
+- **A save written before this slice**, such as the tablet's own.
+
+Not writers: `Derive` reads no trait for a secondary, and the fright table's
+"Permanent loss of −1 IQ and −1 Will" (book line 2989) is text the app prints
+and applies nowhere.
+
+### What shipped
+
+- **`ScoreFloors`.** Three constants: `MIN_POOL_MAX = 1`,
+  `MIN_COR_CEILING = 1` and `MIN_PER = 0`. The four guards above read them,
+  so the builder and the engine cannot disagree. It also has
+  `holdsCeiling(ceiling)`, and `shortfall(secondaries, traits)`, which gives
+  the steps each row needs back. The Will row is measured on the CoR CEILING.
+- **`SavedEdits.shortfallOn(sheet, state)`.** The shortfall of the BOUGHT
+  scores. When there is none, the shortfall of the scores with `state`'s
+  potions digested.
+- **`BeyonderSession(saved, sheet, onChange)`.** `setAttribute`,
+  `setSecondary` and `sellTrait` all go through one `edit`, which refuses an
+  edit that leaves a shortfall. `canSetAttribute` and `canSetSecondary` ask
+  the same question of the same candidate the setter builds. On opening, a
+  save below a floor is bought back to it and written back.
+- **`drink` refuses a ceiling below 1 BEFORE it rolls or moves any state**,
+  including on the first potion. The button is disabled. `drinkLine` is now
+  nullable, because a mortal's first potion prints nothing unless it is
+  refused, and it says *"CoR ceiling after this potion would be 0, and this
+  app keeps it at 1 or more — it cannot be drunk until the ceiling is
+  raised"*.
+- **The builder greys `−`** on an attribute or a secondary the session would
+  refuse. The trait list's remove is NOT greyed: the setter refuses it, and
+  the tap does nothing.
+
+`MainActivity` passes the selected premade into the session. That line is
+the call site, and it has no test (section 6).
+
+### The design review, before any code
+
+Run through `codex exec` with the three questions and "do not read CLAUDE.md
+or docs/SLICE-LOG.md". It changed three things:
+
+1. **Repair once, not on every read.** I had proposed lifting the bought
+   steps inside `characterFor`. Its strongest objection was two purchase
+   records. The builder's label and its next step read the raw save, while
+   the bill would read the lifted one, and a later potion could shrink the
+   lift and hand a refund back. The precedent was already in this repo:
+   `SessionStore.load` drops forbidden purchases at the boundary for the same
+   reason.
+2. **Spiritual Fortitude is a writer**, and the Will row is measured on the
+   ceiling, not on Will.
+3. **Check before anything changes, and on the first potion too.** `drink`'s
+   mortal branch persists immediately, and `drinkLine` was drawn only for
+   `drunk != null`.
+
+Its strongest case AGAINST refusing Drink: the book's arithmetic already
+describes the outcome (max CoR = Will, and reaching it is the end), so
+refusing forbids a choice instead of showing its result. I refused anyway,
+because `Corruption`'s contract rejects a non-positive ceiling, and giving it
+terminal handling is a larger change than the crash warrants. It is recorded
+as the app's bound, not the book's.
+
+### Two defects in my own diff
+
+**The first build crashed the builder on the tablet.** The screen built its
+own candidate, `edits.withAttribute(attr, level - 1)`, and so asked about ST 8
+when ST stood at the book's floor of 9. `Attributes` throws on an 8, during
+composition. The setter coerces first; the question did not. Fixed by
+`canSetAttribute` and `canSetSecondary`, which build the candidate exactly as
+the setter does. The regression test's mutation fails with the device's own
+exception. The same mismatch was the diff review's question 2, asked before I
+found it.
+
+**The diff review's HIGH: the repair could not repair the save it was for.**
+Will −100 bought, on Abyss Sequence 9, becomes `SecondaryDelta(will = -101)`
+inside `PotionDigestion`, whose constructor throws, inside the repair. Fixed
+by holding the floors on the bought scores first and on the digested ones
+after, and by repairing in passes. Two passes at most are needed, because a
+potion lowers only Will, and by four at most. **That moves a line**: a floor
+now holds on the bought score too, so HP cannot be sold to a bought 0 even
+under a +2 grant. The builder can therefore no longer print a negative HP; it
+had shown `-1` beside a sheet reading `1 / 1`.
+
+### Tests and mutations
+
+RED first in both modules (an unresolved `ScoreFloors`, unresolved `canSet*`
+and a missing constructor parameter), then GREEN. Eleven single mutations
+were run, each restored from a copy afterwards. Each was caught by the test
+aimed at it, named from the JUnit XML: `-q` prints no test names, and a
+failing exit code alone is also what a file lock looks like.
+
+| Mutation | Caught by |
+|---|---|
+| the Will row ignores traits | *the Will floor is a CoR ceiling, so Spiritual Fortitude moves it* |
+| no repair on opening | *a save already below a floor is bought back…* |
+| the repair is not written back | the same |
+| `edit` skips the check | *a step that would leave HP below one…*, the IQ test and the Fortitude test |
+| `sellTrait` bypasses `edit` | *selling Spiritual Fortitude is refused…* |
+| Drink checks advancements only | *Drink is refused before the roll…* |
+| a refused first potion prints nothing | *a first potion prints nothing unless it is refused* |
+| the shortfall ignores the potion | *a save already below a floor…* |
+| `canSetAttribute` skips the coercion | *the builder's question is asked of the edit the setter would make* |
+| digested scores checked before bought ones | both repair tests |
+| one repair pass | both repair tests |
+
+`ScoreFloorsTest` also pins the census: *no potion lowers anything but Will*.
+If a block ever lowers HP, FP, Per or an attribute, Drink needs the whole
+shortfall and not one row of it.
+
+Tests: 1775 Kotlin (1249 `core:rules`, 506 `app`, 20 `core:model`) after
+`--rerun-tasks`, and 357 Python.
+
+### On the SM-T570
+
+| State | Screen |
+|---|---|
+| before the fix, HP −11 bought | sheet: crash at `MainActivity.kt:374` on every open |
+| after the fix, the same save | opens; repaired and written back |
+| builder, HP at the floor | `−` reads `enabled=false`; eleven taps stop at `−8 bought`, value `1`; sheet `HP 3 / 3` |
+| builder, ST/DX/HT at 9 | `−` disabled; IQ 10 `−` live |
+| Will −8 bought (ceiling 1), Abyss Seq 8 block | `Drink and roll` `enabled=false`, with the line *"…would be 0…cannot be drunk until the ceiling is raised"* |
+| a ninth Will `−` tap | refused; stays at `−8 bought` |
+
+The premade was left as it was found: Sequence 9 Abyss at 100%, 0 CoR,
+`87 of 100 points`. Not exercised: a tap on a refused Drink.
+
+### Seen and not touched
+
+- **The ceiling side of the same overflow.** `PotionDigestion.kt:206-215`
+  adds the bought delta to the grants through the `SecondaryDelta` and
+  `Attributes` constructors, which throw past ±100 and past `MAX_ATTRIBUTE`
+  (30). The builder lets the + side go as far as the − side used to. HP +100
+  with any HP grant, or ST 29–30 with Abyss Sequence 8's ST +2, throws
+  wherever the digested character is built. This was read off the code, not
+  reproduced. **This is the successor.**
+- **An edit that lowers a POSITIVE ceiling onto the CoR total** does not latch
+  the loss; the next CoR gain does. This was the design review's finding. It
+  does not crash, and it is pre-existing.
+- **The builder prints bought values without potion grants.** Before this
+  slice it showed HP `0` beside a sheet reading `2 / 2`. Pre-existing.
+
 ## 6ej. The button that printed nothing about its own roll
 
 6ei ended on one thing seen and not touched: *"the block that carries the
