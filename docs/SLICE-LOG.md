@@ -6804,8 +6804,8 @@ test. The review could not see the handler under the rewritten comment at
 
 ### Tests and mutations
 
-RED first: unresolved references in all three test files. Then seven tests —
-two in `core:rules`, five in the new `PathwayScreenTest` — and six single
+RED first: unresolved references in all three test files. Then eight tests —
+two in `core:rules`, six in the new `PathwayScreenTest` — and six single
 mutations, each restored from a copy:
 
 | Mutation | Caught by |
@@ -6859,10 +6859,35 @@ shared device**; every dump after that one did.
 The premade this left changed on the tablet: Antiquarian Dealer is a
 Sequence 9 Criminal at 100% digestion and 0 CoR.
 
-Tests: 1760 Kotlin (1244 `core:rules`, 496 `app`, 20 `core:model`) after
-`--rerun-tasks`, and 357 Python.
+### The line that could crash its own block
 
-**No successor is named.** One thing seen on the way and not touched: the
+Found by the last review, after `b94a5fe`, and fixed in the commit after it,
+before either was pushed. `drinkLine` asks `Corruption.isLostAfter`, which
+goes through `requireWillScore` and THROWS for a ceiling below 1 — pinned by
+*a maximum below one is a bad call, not a lost character*. Before this slice
+`maxCorFor(chosen)` was evaluated only on the tap. Now it is evaluated while
+the next block is DRAWN, so such a character would have crashed the pathway
+screen by being browsed.
+
+**It is reachable.** `will` is a priced row in `secondary_costs.json`, and
+the builder's `−` is enabled down to `-MAX_SECONDARY_DELTA_MAGNITUDE`, a
+hundred steps — an overflow bound, not a rule. RED with the
+`IllegalArgumentException` itself; then `drinkLine` prints the state —
+*"Will after this potion is 0, which is no CoR ceiling"* — and asks nothing.
+Not a `maxOf`: that would print a ceiling the character does not have. Not
+run on a device: it needs a premade's Will bought down ten steps.
+
+Tests: 1761 Kotlin (1244 `core:rules`, 497 `app`, 20 `core:model`), the
+three modules counted after `--rerun-tasks`, and 357 Python.
+
+**The successor is what that exposed.** Every other caller that takes a
+ceiling to `Corruption` is a TAP, and each still throws for that character:
+the CoR steppers, a successful Drink, a ritual's CoR (`MainActivity.kt:1155`
+and `:1195`) and Soul Debt in `spend`. Whether a Will below 1 is a character
+the book allows is a question for the book, and the builder's bound is where
+it is answered or refused — not a coercion at each of those sites.
+
+One more thing seen on the way and not touched: the
 warning is plain `bodySmall`, the same weight as the sentence it ends, where
 `CorruptionTracker` turns its own total to the error colour one point short
 of the ceiling.
@@ -6948,7 +6973,8 @@ guard too, on the same predicate — and the diff review found that it then
 dropped a CoR step taken in the same frame as a digestion step, because
 state equality includes digestion. The steppers' question is narrower than
 Drink's: only a new potion moves their ceiling. **`onSamePotion` was written
-AFTER that review and no reviewer has read it**, nor the rewritten comment at
+AFTER that review and no reviewer has read it** (6ej: one has, and it is
+correct), nor the rewritten comment at
 `MainActivity.kt:1568`. What stands behind it is two mutations and one
 grep: the claim that a digestion step cannot move the ceiling was checked
 against `PotionDigestion.kt` and `Corruption.kt`, neither of which reads
@@ -7020,7 +7046,7 @@ Tests: 1753 Kotlin (1242 `core:rules`, 491 `app`, 20 `core:model`) after
 **No successor is named.** One thing seen on the way and not touched: the
 block that carries the Drink button prints nothing about the roll it is
 about to make — the target and the early-advancement cost are printed on the
-PREVIOUS block, beside the digestion tracker.
+PREVIOUS block, beside the digestion tracker. **(6ej built it.)**
 
 ## 6eh. Seven more targets, each composed once
 

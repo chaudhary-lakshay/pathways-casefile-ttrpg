@@ -161,7 +161,12 @@ test and is refused one** (section 6): passing `maxCor` for
 the pair that tells those apart — Antiquarian Dealer as an Abyss Criminal,
 tracker `0 / 9`, line *"Maximum CoR after this potion is 8; 10 CoR reaches
 it"*; at 100%, `3d6 ≤ 19` and no warning. Not exercised: a tap on *Drink and
-roll*. **No successor is named.**
+roll*. **The final review found the line could crash the block it is drawn
+on**: a Will bought below 1 makes `Corruption` throw, and composition now
+asked. `drinkLine` prints that state instead, RED first. **The successor is
+what that exposed**: the builder sells Will down a hundred steps, and every
+CoR-gaining TAP on such a character still throws — the steppers, Drink, a
+ritual's CoR, Soul Debt.
 
 **6ei is next, and it is the first claim in this chain produced on a
 device.** 6eh named a stale check on Drink because "the digestion stepper is
@@ -188,8 +193,9 @@ screen. Seven mutations, all caught. **Device-verified on the SM-T570**: the
 crash before, one clean drink after, two fast CoR taps both counted — and
 the ritual dialog and all seven of 6eh's at last on hardware (`3d6 ≤ 15`,
 then `14 vs 15`; the seven are tabled in the log). `onSamePotion` was written
-after the diff review and has two mutations and a grep behind it, no reviewer.
-**No successor is named.**
+after the diff review and has two mutations and a grep behind it, no reviewer
+**(6ej: reviewed, and correct). No successor is named** — 6ej built the thing
+it saw on the way.
 
 **6eh is next, and it is the slice 6eg's corrected census named: seven
 more rolls that printed a target and then composed it again.** Boon,
@@ -422,7 +428,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1760 Kotlin** (JUnit 5 — 1244 `core:rules`, 496 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1761 Kotlin** (JUnit 5 — 1244 `core:rules`, 497 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
