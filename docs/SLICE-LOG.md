@@ -6780,7 +6780,14 @@ The skill rows stay on bought levels. My draft left them unlabelled and
 recorded the omission; **the design review's MEDIUM was that an unlabelled
 "level 12" acquires a false meaning** beside attributes now shown as
 played. For a Beyonder each row now reads *"8 pts - level 12 before
-potions"*, and a study destination carries the same words.
+potions"*, and its study line is headed *"Study (before potions):"*.
+
+**The first build labelled only half of that.** The words were appended to
+a study DESTINATION (*"→ level 13"*), and every study line on the tablet
+was a refusal: *"Study alone cannot pass 11, and this skill is already
+12."* That names a bought level too, and carried no label. The final
+review caught it from this slice's own device dump. The label now sits on
+the line's heading, which both branches share.
 
 They are not re-levelled here for a reason in `PotionDigestion.digest`: a
 potion either lifts a bought skill with its attribute or supersedes it with
@@ -6816,8 +6823,9 @@ Two tests were written first and failed on unresolved references:
 | `digestedWith` ignores the potions drunk | *the builder reads the character the sheet plays*, and four session tests through `shortfallOn` and `corCeilingOn` |
 
 **The call sites have no test and are refused one** (section 6, and 6ej's
-precedent). Passing `level` for `played`, or the played value to
-`onChange`, survives the suite. The device pass below is what covers them.
+precedent). Printing `level` where the row prints `played` was run as a
+mutation and survives the suite (`BUILD SUCCESSFUL`). The device pass
+below is what covers them.
 
 Tests: 1797 Kotlin (1256 `core:rules`, 521 `app`, 20 `core:model`) after
 `--rerun-tasks`, and 357 Python.
@@ -6844,13 +6852,19 @@ Antiquarian Dealer, Abyss Sequence 9 at 100%, `87 of 100 points`.
 | after | ST `11` *"— 9 before potions"*, `−` `enabled=false`; HP `11` *"9 before potions"*; Will `9` *"10 before potions"*; Per `12` *"10 before potions"*; DX, IQ, HT, FP, Speed and Move unchanged and unlabelled |
 | ST `+` | ST `12`, *"10 pts spent here — next level costs 20 — sheet prints 9 — 10 before potions"*; HP `12` *"10 before potions"*; `97 of 100` |
 | ST `−` | back to `11`, `87 of 100` |
-| skill rows | *"8 pts - level 12 before potions"*, with the study line under each |
+| HP `−` × 10 | stops at `3`, *"−8 bought — 1 before potions"*, `−` `enabled=false`; `71 of 100` |
+| HP restored, Will `−` × 10 | stops at `1`, *"−8 bought — 2 before potions"*, `−` `enabled=false` |
+| skill rows | *"8 pts - level 12 before potions"*; *"Study (before potions): Study alone cannot pass 11, and this skill is already 12."* |
+
+The two floor rows are the case the design rests on, and they were run
+after the final review asked for them: one control greyed by the bought
+floor beside a played `3`, the other by the played floor beside a bought
+`2`. Each row carries the number at its floor.
 
 The premade was left as found: `87 of 100 points`, *"1 of 16 values
 differ"*, crash buffer empty. A stray tap opened and dismissed Academic
 Researcher's Fright dialog without rolling. Not exercised: a mortal's
-builder after this change (Academic Researcher is on Fool 9), and a row at
-a floor.
+builder after this change (Academic Researcher is on Fool 9).
 
 ### Seen and not touched
 

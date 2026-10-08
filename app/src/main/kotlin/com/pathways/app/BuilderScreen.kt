@@ -558,6 +558,9 @@ private fun studyLine(
         derived.secondaries,
         character.spi,
     )
+    // On the label, not after the level: a refusal names a level too
+    // ("...this skill is already 12"), and both are the bought one.
+    val label = if (isBeforePotions) "Study ($BEFORE_POTIONS)" else "Study"
     return Study.plan(
         points = purchased.points,
         difficulty = purchased.key.difficulty,
@@ -565,11 +568,8 @@ private fun studyLine(
         method = method,
         attr = purchased.key.attr,
     ).fold(
-        onSuccess = {
-            "Study: ${it.printed} for ${it.pointsNeeded} CP → level ${it.toLevel}" +
-                if (isBeforePotions) " $BEFORE_POTIONS" else ""
-        },
-        onFailure = { "Study: ${(it as StudyRefusedException).reason}" },
+        onSuccess = { "$label: ${it.printed} for ${it.pointsNeeded} CP → level ${it.toLevel}" },
+        onFailure = { "$label: ${(it as StudyRefusedException).reason}" },
     )
 }
 
