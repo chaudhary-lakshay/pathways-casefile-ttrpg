@@ -296,7 +296,7 @@ ritual's CoR, Soul Debt.
 **6ei back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
-**6ei** — Drink alone had no re-entrancy guard: two monkey taps in one frame crashed it on an SM-T570; `stillShows` guards Drink, the looser `onSamePotion` the CoR steppers;
+**6ei** — two taps milliseconds apart DO reach one composition's handler, so 6ef-6eh's "two frames" premise was false; Drink alone had no re-entrancy guard and crashed on an SM-T570;
 **6eh** — seven more engines roll the target they printed; `attempt` became test-only, and no test had rolled a Spirit Vision success through the engine;
 **6eg** — print a target, then roll it: a handler belongs to the composition that drew it, so `rollAgainst` takes the target on screen;
 **6ef** — the GM picks inside a span cell; a keyed `remember` resets a frame late, so a pick lives with its row, and the click-time read was undone by 6eg;

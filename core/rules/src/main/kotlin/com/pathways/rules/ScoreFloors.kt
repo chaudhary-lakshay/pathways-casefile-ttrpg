@@ -8,11 +8,13 @@ import com.pathways.model.Trait
  * falls short of them.
  *
  * ponytail: the app's bound, not the book's. Ch. 2 prices every secondary
- * "±N pts per level" (pp. 8-9) and prints no floor; these are the lowest
- * values the rules this app models can compute on -- a pool reported in
- * thirds, a CoR ceiling to reach -- and they are the constants those rules'
- * own guards read, so the builder and the engine cannot disagree. GURPS Basic
- * prints tighter limits; this book does not, so none is borrowed.
+ * "±N pts per level" (pp. 8-9) and prints no floor; the first three are the
+ * lowest values the rules this app models can compute on -- a pool reported
+ * in thirds, a CoR ceiling to reach -- and they are the constants those
+ * rules' own guards read, so the builder and the engine cannot disagree. The
+ * Speed and Move pair is policy with no guard behind it; its reason is on the
+ * constants. GURPS Basic prints tighter limits; this book does not, so none
+ * is borrowed.
  */
 object ScoreFloors {
     /** HP and FP maxima. */

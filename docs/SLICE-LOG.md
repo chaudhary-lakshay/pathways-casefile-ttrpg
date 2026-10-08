@@ -6863,11 +6863,17 @@ Academic Researcher (ST 9, DX 9, IQ 10, HT 9), `91 of 100 points`.
 The premade was left as found: `91 of 100 points`, *"1 of 17 values
 differ"*, crash buffer empty. The tablet was dozing behind the keyguard
 with another app's notification activity resumed, not the monitor app.
+Not exercised: opening a save already below either floor. The repair of one
+is unit-tested only.
 
 ### Seen and not touched
 
 - **6ek's last item stands**: the builder prints bought values without
   potion grants.
+- **An old save below either floor is repriced on opening, and nothing says
+  why.** That is the trade 6ek and 6em recorded, with one difference: none of
+  these saves ever crashed, so every such repair is a pure reprice. It costs
+  5 points a step, and it is declined a report for 6ek's reason.
 - **The refund is bounded, not small.** With HP, FP, Will and Per at their
   floors as well, a character at the book's 9s gets back 16 + 24 + 40 + 45 +
   90 = 215 points against a budget of 70. That is arithmetic on the printed
