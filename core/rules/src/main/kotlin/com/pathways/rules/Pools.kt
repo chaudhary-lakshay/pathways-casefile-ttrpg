@@ -308,5 +308,5 @@ object Pools {
         current <= Math.floorDiv(max, THIRD)
 
     private fun requireMax(max: Int, pool: Pool) =
-        require(max >= 1) { "$pool max must be at least 1; was $max" }
+        require(max >= ScoreFloors.MIN_POOL_MAX) { "$pool max must be at least ${ScoreFloors.MIN_POOL_MAX}; was $max" }
 }

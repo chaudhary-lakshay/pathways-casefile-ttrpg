@@ -10,6 +10,7 @@ import com.pathways.model.BeyonderState
 import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.model.Character
 import com.pathways.model.MAX_ATTRIBUTE
+import com.pathways.model.SecondaryDelta
 import com.pathways.model.canDrink
 import com.pathways.rules.Corruption
 import com.pathways.rules.PcrOutcome
@@ -17,6 +18,7 @@ import com.pathways.rules.Pool
 import com.pathways.rules.PotionConsumption
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.RandomSource
+import com.pathways.rules.ScoreFloors
 
 /**
  * One character's walk down a pathway, as the screens see it.
@@ -27,6 +29,13 @@ import com.pathways.rules.RandomSource
  */
 class BeyonderSession(
     saved: SavedSession = SavedSession(),
+    /**
+     * The premade this session edits, for the score floors: an edit that
+     * would leave a guarded score below [ScoreFloors] is refused, and a save
+     * already below one is bought back to it on opening. Null skips both --
+     * for a session whose edits nothing composes.
+     */
+    private val sheet: PremadeSheet? = null,
     private val onChange: (SavedSession) -> Unit = {},
 ) {
 
@@ -86,11 +95,50 @@ class BeyonderSession(
     private fun persist() =
         onChange(SavedSession(state, lost, cor, corrupted, hpLost, fpLost, spiSpent, edits))
 
-    /** Set [attr] to [level]; the point budget answers back through Derive. */
-    fun setAttribute(attr: Attr, level: Int) {
-        edits = edits.withAttribute(attr, level.coerceIn(BASE_ATTRIBUTE, MAX_ATTRIBUTE))
+    // A save written before the floors existed can hold a score the rules
+    // throw on -- HP sold to 0 killed the sheet screen while it was drawn, on
+    // every open. Bought back ONCE and written back, rather than lifted on
+    // every read: a lift-on-read would leave the builder's "-11 bought" and
+    // the bill disagreeing (Codex, on the design).
+    init {
+        if (sheet != null) {
+            // Bought scores, then digested ones: two passes at most, since a
+            // potion lowers only Will and by four at most.
+            val repaired = generateSequence(edits) { e ->
+                e.shortfallOn(sheet, state).takeIf { it != SecondaryDelta() }?.let(e::boughtBack)
+            }.last()
+            if (repaired != edits) {
+                edits = repaired
+                persist()
+            }
+        }
+    }
+
+    /**
+     * Whether [next] keeps every guarded score at its floor, digested through
+     * the potion this character is on. [edit] asks it of every edit that can
+     * lower a score; the builder asks it through [canSetAttribute] and
+     * [canSetSecondary], which build the SAME edit the setter would -- a
+     * candidate built on the screen asked about ST 8 itself, and `Attributes`
+     * throws on an 8 (SM-T570).
+     */
+    private fun allows(next: SavedEdits): Boolean =
+        sheet == null || next.shortfallOn(sheet, state) == SecondaryDelta()
+
+    private fun edit(next: SavedEdits) {
+        if (!allows(next)) return
+        edits = next
         persist()
     }
+
+    /** Set [attr] to [level]; the point budget answers back through Derive. */
+    fun setAttribute(attr: Attr, level: Int) = edit(withAttribute(attr, level))
+
+    /** Whether [setAttribute] would take [level], rather than refuse it. */
+    fun canSetAttribute(attr: Attr, level: Int): Boolean = allows(withAttribute(attr, level))
+
+    private fun withAttribute(attr: Attr, level: Int) =
+        edits.withAttribute(attr, level.coerceIn(BASE_ATTRIBUTE, MAX_ATTRIBUTE))
 
     /**
      * Carry the chapter-8 weapon [name] (p. 80).
@@ -126,12 +174,14 @@ class BeyonderSession(
      * looks edited forever. Coerced here as well as on the way back in: this
      * is the input boundary, and the file is the other one.
      */
-    fun setSecondary(key: String, steps: Int) {
+    fun setSecondary(key: String, steps: Int) = edit(withSecondary(key, steps))
+
+    /** Whether [setSecondary] would take [steps], rather than refuse them. */
+    fun canSetSecondary(key: String, steps: Int): Boolean = allows(withSecondary(key, steps))
+
+    private fun withSecondary(key: String, steps: Int): SavedEdits {
         val n = steps.coerceIn(-MAX_SECONDARY_DELTA_MAGNITUDE, MAX_SECONDARY_DELTA_MAGNITUDE)
-        edits = edits.copy(
-            secondaries = if (n == 0) edits.secondaries - key else edits.secondaries + (key to n),
-        )
-        persist()
+        return edits.copy(secondaries = if (n == 0) edits.secondaries - key else edits.secondaries + (key to n))
     }
 
     /**
@@ -179,8 +229,9 @@ class BeyonderSession(
      */
     fun sellTrait(name: String) {
         if (name !in edits.traits) return
-        edits = edits.copy(traits = edits.traits - name)
-        persist()
+        // Spiritual Fortitude is +3 to the CoR ceiling, so selling it can
+        // take the ceiling below its floor.
+        edit(edits.copy(traits = edits.traits - name))
     }
 
     /**
@@ -405,6 +456,14 @@ class BeyonderSession(
         val current = state
         require(!isLost) { "a lost character drinks nothing further" }
         require(current.canDrink(next)) { "$next is not the next potion after $current" }
+        // Before the roll and before any state moves, the first potion
+        // included: Abyss Sequence 9 lowers Will, and a ceiling below the
+        // floor has no CoR the rules can count towards. The CEILING alone,
+        // because no potion lowers any other guarded score (ScoreFloorsTest).
+        val ceilingAfter = maxCorAfter(next)
+        require(ScoreFloors.holdsCeiling(ceilingAfter)) {
+            "$next would leave a CoR ceiling of $ceilingAfter"
+        }
 
         if (current == null) {
             state = next
@@ -421,7 +480,7 @@ class BeyonderSession(
             // Called even when the potion costs nothing (a fully digested
             // advancement): a gain of 0 against the NEW ceiling is how a
             // Will-lowering potion latches the loss it just caused.
-            gainCor(outcome.minimumCorGained, maxCorAfter(next))
+            gainCor(outcome.minimumCorGained, ceilingAfter)
         } else {
             lost = true
         }

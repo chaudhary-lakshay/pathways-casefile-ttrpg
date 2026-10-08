@@ -122,5 +122,5 @@ object Corruption {
     }
 
     private fun requireWillScore(max: Int) =
-        require(max >= 1) { "maximum CoR is a Will score; was $max" }
+        require(ScoreFloors.holdsCeiling(max)) { "maximum CoR is a Will score; was $max" }
 }

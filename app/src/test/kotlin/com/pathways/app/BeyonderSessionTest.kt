@@ -1,8 +1,11 @@
 package com.pathways.app
 
+import com.pathways.model.Attr
 import com.pathways.model.BeyonderState
 import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.rules.Pool
+import com.pathways.rules.PremadeSheet
+import com.pathways.rules.PublishedValues
 import com.pathways.rules.RandomSource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -27,10 +30,20 @@ class BeyonderSessionTest {
     private val fool9 = BeyonderState("Fool", 9)
     private val fool8 = BeyonderState("Fool", 8)
 
-    private fun session(saved: SavedSession = SavedSession()): Pair<BeyonderSession, () -> SavedSession> {
+    private fun session(
+        saved: SavedSession = SavedSession(),
+        sheet: PremadeSheet? = null,
+    ): Pair<BeyonderSession, () -> SavedSession> {
         var last = saved
-        return BeyonderSession(saved) { last = it } to { last }
+        return BeyonderSession(saved, sheet) { last = it } to { last }
     }
+
+    /** Every attribute at the book's 9, and IQ at [iq]. */
+    private fun plain(iq: Int = 9) = PremadeSheet(
+        "plain",
+        Attr.entries.associateWith { if (it == Attr.IQ) iq else 9 },
+        PublishedValues(),
+    )
 
     @Test
     fun `a wealth level is stored as a choice and survives a save`() {
@@ -438,5 +451,113 @@ class BeyonderSessionTest {
         assertTrue(c.isLost)
         assertFalse(c.stillShows(c.state, c.cor))
         assertFalse(c.onSamePotion(c.state))
+    }
+
+    // --- score floors -------------------------------------------------------
+    //
+    // REGRESSION, reproduced on an SM-T570: the builder sold HP a hundred
+    // steps, and a maximum of 0 killed the sheet screen while it was DRAWN
+    // (`Pools.hp`). The save kept the number, so the premade died on every open.
+
+    @Test
+    fun `a step that would leave HP below one is refused`() {
+        val (s, saved) = session(sheet = plain())
+        s.setSecondary("hp", -8)
+        s.setSecondary("hp", -9)
+        assertEquals(mapOf("hp" to -8), s.edits.secondaries)
+        assertEquals(mapOf("hp" to -8), saved().edits.secondaries)
+        assertFalse(s.canSetSecondary("hp", -9))
+        assertTrue(s.canSetSecondary("hp", -8))
+    }
+
+    @Test
+    fun `the builder's question is asked of the edit the setter would make`() {
+        // REGRESSION (SM-T570, this slice's own first build): the builder
+        // built its candidate itself, asked about ST 8 at the book's floor of
+        // 9, and `Attributes` refuses an 8 by throwing -- in composition. The
+        // setter coerces to 9 first; the question must too.
+        val (s, _) = session(sheet = plain(iq = 10))
+        assertTrue(s.canSetAttribute(Attr.ST, 8), "coerced to 9: no change, nothing refused")
+        s.setSecondary("will", -9)
+        assertFalse(s.canSetAttribute(Attr.IQ, 9))
+        assertTrue(s.canSetSecondary("will", MAX_SECONDARY_DELTA_MAGNITUDE + 50), "coerced like the setter")
+    }
+
+    @Test
+    fun `lowering IQ is refused when it takes the CoR ceiling below one`() {
+        // Will is IQ plus the steps bought, so an attribute step moves it
+        // without the Will row ever being touched.
+        val (s, _) = session(sheet = plain(iq = 10))
+        s.setSecondary("will", -9)
+        s.setAttribute(Attr.IQ, 9)
+        assertNull(s.edits.iq, "Will 10 - 9 = 1; IQ 9 would leave a ceiling of 0")
+    }
+
+    @Test
+    fun `selling Spiritual Fortitude is refused when the ceiling rests on it`() {
+        // Fortitude: "Maximum CoR equal Will + 3", so Will -2 under it is a
+        // ceiling of 1 -- and of -2 the moment it is sold.
+        val (s, _) = session(sheet = plain())
+        s.buyTrait("Spiritual Fortitude")
+        s.setSecondary("will", -11)
+        assertEquals(mapOf("will" to -11), s.edits.secondaries)
+        s.sellTrait("Spiritual Fortitude")
+        assertTrue("Spiritual Fortitude" in s.edits.traits)
+    }
+
+    @Test
+    fun `a save already below a floor is bought back to it when the session opens`() {
+        // The tablet's own save: Abyss Sequence 9 grants +2 HP and -1 Will.
+        // The floors hold on the BOUGHT scores as well as the digested ones,
+        // so HP -11 (bought 9 - 11 = -2) comes back to -8, and Will -9 to -8
+        // and then -7 for the potion's -1.
+        val (s, saved) = session(
+            SavedSession(
+                beyonder = BeyonderState("Abyss", 9, 100),
+                edits = SavedEdits(secondaries = mapOf("hp" to -11, "will" to -9, "per" to -3)),
+            ),
+            sheet = plain(),
+        )
+        assertEquals(mapOf("hp" to -8, "will" to -7, "per" to -3), s.edits.secondaries)
+        assertEquals(s.edits, saved().edits, "the repair is written back, not recomputed on every read")
+    }
+
+    @Test
+    fun `a save at the bound is repaired, not overflowed by the potion`() {
+        // Codex, on the diff: Will -100 plus Abyss's -1 is a SecondaryDelta of
+        // -101, which its constructor refuses -- inside the repair meant to
+        // rescue that save.
+        val (s, _) = session(
+            SavedSession(
+                beyonder = BeyonderState("Abyss", 9, 100),
+                edits = SavedEdits(secondaries = mapOf("will" to -MAX_SECONDARY_DELTA_MAGNITUDE)),
+            ),
+            sheet = plain(),
+        )
+        assertEquals(mapOf("will" to -7), s.edits.secondaries)
+    }
+
+    @Test
+    fun `a save inside the floors is left alone`() {
+        var writes = 0
+        BeyonderSession(SavedSession(edits = SavedEdits(secondaries = mapOf("hp" to -8))), plain()) { writes++ }
+        assertEquals(0, writes)
+    }
+
+    @Test
+    fun `Drink is refused before the roll when the potion would take the ceiling below one`() {
+        // A mortal at Will 1 drinking Abyss Sequence 9 lands at Will 0. The
+        // book's arithmetic has no answer the engine can compute on, so the
+        // app refuses the potion -- and checks before anything is spent.
+        val untouched = RandomSource { error("rolled before refusing") }
+        val (mortal, saved) = session(SavedSession())
+        assertThrows<IllegalArgumentException> { mortal.drink(BeyonderState("Abyss", 9), untouched) { 0 } }
+        assertNull(mortal.state)
+        assertEquals(SavedSession(), saved())
+
+        val (walker, _) = session(SavedSession(beyonder = fool9))
+        assertThrows<IllegalArgumentException> { walker.drink(fool8, untouched) { 0 } }
+        assertEquals(fool9, walker.state)
+        assertFalse(walker.lost)
     }
 }

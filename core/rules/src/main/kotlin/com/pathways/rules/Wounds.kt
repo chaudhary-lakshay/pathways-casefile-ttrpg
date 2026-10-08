@@ -183,7 +183,7 @@ object Wounds {
      * here and pinned by a named test rather than left to be rediscovered.
      */
     fun majorWoundThreshold(maxHp: Int): Int {
-        require(maxHp >= 1) { "HP must be at least 1; was $maxHp" }
+        require(maxHp >= ScoreFloors.MIN_POOL_MAX) { "HP must be at least ${ScoreFloors.MIN_POOL_MAX}; was $maxHp" }
         return Math.floorDiv(maxHp, 2) + 1
     }
 
@@ -238,7 +238,7 @@ object Wounds {
      * answers 1: it fires on any damage that lands.
      */
     fun thresholdFor(location: HitLocation, outcome: String, maxHp: Int): Int? {
-        require(maxHp >= 1) { "HP must be at least 1; was $maxHp" }
+        require(maxHp >= ScoreFloors.MIN_POOL_MAX) { "HP must be at least ${ScoreFloors.MIN_POOL_MAX}; was $maxHp" }
         val row = location.thresholds.firstOrNull { it.outcome == outcome } ?: return null
         row.minDamage?.let { return it }
         // floorDiv, not `/`: rule 4.3, and the ceiling is reached by adding

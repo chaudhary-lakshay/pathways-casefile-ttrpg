@@ -182,7 +182,7 @@ fun App(
     // written back on every change.
     val session = remember(selected) {
         val name = selected?.name
-        BeyonderSession(saved[name] ?: SavedSession()) { updated ->
+        BeyonderSession(saved[name] ?: SavedSession(), selected) { updated ->
             if (name != null) {
                 saved[name] = updated
                 store.save(saved)

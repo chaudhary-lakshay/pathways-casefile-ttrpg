@@ -56,6 +56,7 @@ import com.pathways.rules.PotionConsumption
 import com.pathways.rules.RandomSource
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PremadeSheet
+import com.pathways.rules.ScoreFloors
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SequenceBlock
 
@@ -261,7 +262,11 @@ fun PathwayScreen(
                             // control that throws the choice away.
                             drunk.canDrink(chosen) ->
                                 Column(Modifier.weight(1f)) {
+                                    val ceilingAfter = maxCorFor(chosen)
                                     Button(
+                                        // `drink` refuses this too, before it
+                                        // rolls; the line below says why.
+                                        enabled = ScoreFloors.holdsCeiling(ceilingAfter),
                                         onClick = {
                                             // A second tap, or a CoR step, can
                                             // reach this handler before the
@@ -281,9 +286,9 @@ fun PathwayScreen(
                                     // PREVIOUS block. Built from what
                                     // stillShows compares, so it is the roll
                                     // the tap makes or the tap does nothing.
-                                    if (drunk != null) {
+                                    drinkLine(drunk, printedCor, ceilingAfter)?.let { line ->
                                         Text(
-                                            drinkLine(drunk, printedCor, maxCorFor(chosen)),
+                                            line,
                                             style = MaterialTheme.typography.bodySmall,
                                             modifier = Modifier.padding(top = 4.dp, end = 16.dp, bottom = 8.dp),
                                         )
@@ -425,16 +430,21 @@ internal fun pcrLine(state: BeyonderState): String {
  * lowers Will onto the total at no cost -- and this is the last screen that
  * can say so.
  *
- * A [ceilingAfter] below 1 is printed rather than asked about. The builder
- * sells Will down a hundred steps, [Corruption] refuses such a ceiling by
- * throwing, and this runs while the block is being DRAWN: asking would crash
- * a screen for being looked at. It is not coerced either -- a `maxOf` here
- * would print a ceiling the character does not have.
+ * A [ceilingAfter] below the floor is the reason Drink is greyed out, and is
+ * printed rather than asked about: [Corruption] throws on it, and this runs
+ * while the block is being DRAWN. Abyss Sequence 9 lowers Will, so a mortal's
+ * first potion can be refused too -- the one case a mortal ([state] null),
+ * who makes no roll, gets a line at all.
  */
-internal fun drinkLine(state: BeyonderState, cor: Int, ceilingAfter: Int): String {
+internal fun drinkLine(state: BeyonderState?, cor: Int, ceilingAfter: Int): String? {
+    val roll = state?.let { "at ${it.digestion}% digested, rolls ${pcrLine(it)}" }
+    if (!ScoreFloors.holdsCeiling(ceilingAfter)) {
+        val refused = "CoR ceiling after this potion would be $ceilingAfter, and this app keeps it at " +
+            "${ScoreFloors.MIN_COR_CEILING} or more — it cannot be drunk until the ceiling is raised"
+        return if (roll == null) refused else "$roll. $refused"
+    }
+    if (state == null) return null
     val cost = PotionConsumption.corCostFor(state)
-    val roll = "at ${state.digestion}% digested, rolls ${pcrLine(state)}"
-    if (ceilingAfter < 1) return "$roll. Will after this potion is $ceilingAfter, which is no CoR ceiling"
     return roll +
         if (Corruption.isLostAfter(cor, cost, ceilingAfter)) {
             ". Maximum CoR after this potion is $ceilingAfter; ${cor + cost} CoR reaches it — " +

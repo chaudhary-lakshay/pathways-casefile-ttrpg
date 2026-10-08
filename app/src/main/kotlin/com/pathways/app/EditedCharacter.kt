@@ -1,6 +1,9 @@
 package com.pathways.app
 
 import com.pathways.model.Attr
+import com.pathways.model.BeyonderState
+import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
+import com.pathways.model.SecondaryDelta
 import com.pathways.model.Character
 import com.pathways.model.PurchasedSkill
 import com.pathways.model.SkillKey
@@ -12,6 +15,7 @@ import com.pathways.rules.PremadeSheet
 import com.pathways.rules.SecondaryCharacteristics
 import com.pathways.rules.InstancedPurchase
 import com.pathways.rules.PurchasableTraits
+import com.pathways.rules.ScoreFloors
 import com.pathways.rules.SkillLadder
 import com.pathways.rules.Weapons
 import com.pathways.rules.Wealth
@@ -48,6 +52,42 @@ fun SavedEdits.applyTo(base: Character): Character {
         traits = chosenTraits(base.traits),
         skills = base.skills + purchases(base),
     )
+}
+
+/**
+ * How far these edits leave [sheet] below a score floor -- first as BOUGHT,
+ * then with the potions of [state] digested. All zero when both hold. See
+ * [ScoreFloors].
+ *
+ * Bought first, and only then digested: a save sold to the bound plus a
+ * potion's Will -1 is a [SecondaryDelta] of -101, which digestion would throw
+ * on building (Codex). A repair therefore takes two passes, and each one
+ * stays in bounds.
+ */
+fun SavedEdits.shortfallOn(sheet: PremadeSheet, state: BeyonderState?): SecondaryDelta {
+    val character = applyTo(sheet.toCharacter())
+    val bought = ScoreFloors.shortfall(Derive.of(character).secondaries, character.traits)
+    if (bought != SecondaryDelta()) return bought
+    val digested = PotionDigestion.of(character.copy(beyonder = state), ContentLoader.pathways())
+        ?: return bought
+    return ScoreFloors.shortfall(digested.secondaries, character.traits)
+}
+
+/**
+ * These edits with [gap] bought back on each row it names: how a save made
+ * before the floors existed is repaired. Starts from the step count
+ * [SecondaryCharacteristics.plusSteps] would read, coerced, so the repair is
+ * measured against the same number the shortfall was.
+ */
+fun SavedEdits.boughtBack(gap: SecondaryDelta): SavedEdits {
+    if (gap == SecondaryDelta()) return this
+    val repaired = ContentLoader.secondaryCosts().map { it.key }.fold(secondaries) { acc, key ->
+        val owed = SecondaryCharacteristics.stepsOf(gap, key)
+        if (owed == 0) return@fold acc
+        val bought = (acc[key] ?: 0).coerceIn(-MAX_SECONDARY_DELTA_MAGNITUDE, MAX_SECONDARY_DELTA_MAGNITUDE)
+        if (bought + owed == 0) acc - key else acc + (key to bought + owed)
+    }
+    return copy(secondaries = repaired)
 }
 
 /**

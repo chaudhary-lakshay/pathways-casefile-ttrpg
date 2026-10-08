@@ -97,7 +97,7 @@ object Detection {
         spiModifier: Int = 0,
     ): Int {
         require(spi >= 0) { "SPI is an attribute, not a pool balance; was $spi" }
-        require(per >= 0) { "Per is an attribute, not a pool balance; was $per" }
+        require(per >= ScoreFloors.MIN_PER) { "Per is an attribute, not a pool balance; was $per" }
         require(alertness >= 0) { "Alertness is a bonus, not a penalty; was $alertness" }
         return when (freeRoll?.uppercase()) {
             null -> if (takesPer(spi, per)) per + alertness else spi + spiModifier

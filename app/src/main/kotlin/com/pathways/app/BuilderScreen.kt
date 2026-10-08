@@ -153,6 +153,8 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     attr = attr,
                     level = character.attributes[attr],
                     startingLevel = start.attributes[attr],
+                    // A step the session would refuse: below a score floor (ScoreFloors).
+                    canLower = session.canSetAttribute(attr, character.attributes[attr] - 1),
                     onChange = { delta ->
                         session.setAttribute(attr, character.attributes[attr] + delta)
                     },
@@ -184,6 +186,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                         SecondaryCharacteristics.valueLabelOf(derived.secondaries, row.key),
                     ) { "${row.characteristic} is priced and has no value to show" },
                     steps = bought,
+                    canLower = session.canSetSecondary(row.key, bought - 1),
                     onChange = { delta -> session.setSecondary(row.key, bought + delta) },
                 )
                 HorizontalDivider()
@@ -395,7 +398,13 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
  * ladder doubles every step, so a running total alone hides the cliff.
  */
 @Composable
-private fun AttributeRow(attr: Attr, level: Int, startingLevel: Int, onChange: (Int) -> Unit) {
+private fun AttributeRow(
+    attr: Attr,
+    level: Int,
+    startingLevel: Int,
+    canLower: Boolean,
+    onChange: (Int) -> Unit,
+) {
     Row(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -418,7 +427,7 @@ private fun AttributeRow(attr: Attr, level: Int, startingLevel: Int, onChange: (
                 style = MaterialTheme.typography.bodySmall,
             )
         }
-        OutlinedIconButton(onClick = { onChange(-1) }, enabled = level > BASE_ATTRIBUTE) { Text("−") }
+        OutlinedIconButton(onClick = { onChange(-1) }, enabled = level > BASE_ATTRIBUTE && canLower) { Text("−") }
         Text(
             "$level",
             style = MaterialTheme.typography.titleLarge,
@@ -455,6 +464,7 @@ private fun SecondaryRow(
     row: SecondaryCost,
     value: String,
     steps: Int,
+    canLower: Boolean,
     onChange: (Int) -> Unit,
 ) {
     Row(
@@ -473,7 +483,7 @@ private fun SecondaryRow(
         }
         OutlinedIconButton(
             onClick = { onChange(-1) },
-            enabled = steps > -MAX_SECONDARY_DELTA_MAGNITUDE,
+            enabled = steps > -MAX_SECONDARY_DELTA_MAGNITUDE && canLower,
         ) { Text("−") }
         Text(
             value,

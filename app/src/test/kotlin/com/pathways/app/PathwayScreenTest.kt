@@ -3,6 +3,7 @@ package com.pathways.app
 import com.pathways.model.BeyonderState
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -28,7 +29,7 @@ class PathwayScreenTest {
         // The tracker is drawn on the potion being digested and Drink on the
         // next block, so the roll was printed everywhere except beside the
         // button that makes it.
-        val line = drinkLine(fool(40), cor = 0, ceilingAfter = 30)
+        val line = drinkLine(fool(40), cor = 0, ceilingAfter = 30)!!
         assertTrue(pcrLine(fool(40)) in line, line)
         assertTrue("40% digested" in line, line)
         assertFalse("lost to corruption" in line, line)
@@ -38,32 +39,43 @@ class PathwayScreenTest {
     fun `an advancement whose cost reaches the ceiling says it ends the character`() {
         // The book's floor of 10 CoR against a Will of 10: the roll can be
         // survived and the character lost on the same tap.
-        val line = drinkLine(fool(40), cor = 0, ceilingAfter = 10)
+        val line = drinkLine(fool(40), cor = 0, ceilingAfter = 10)!!
         assertTrue("Maximum CoR after this potion is 10" in line, line)
         assertTrue("lost to corruption" in line, line)
-        assertFalse("lost to corruption" in drinkLine(fool(40), cor = 0, ceilingAfter = 11))
+        assertFalse("lost to corruption" in drinkLine(fool(40), cor = 0, ceilingAfter = 11)!!)
         // The total it names is the one after the charge, not the one before.
-        assertTrue("; 13 CoR reaches it" in drinkLine(fool(40), cor = 3, ceilingAfter = 12))
+        assertTrue("; 13 CoR reaches it" in drinkLine(fool(40), cor = 3, ceilingAfter = 12)!!)
     }
 
     @Test
-    fun `a Will below one is printed, not thrown while the block is drawn`() {
-        // REGRESSION (review of 6ej): the builder sells Will down a hundred
-        // steps, `Corruption` refuses a ceiling below 1 by throwing, and this
-        // line is built during composition -- so BROWSING to the next block
-        // would have crashed a screen that used to wait for a tap to do it.
-        val line = drinkLine(fool(40), cor = 0, ceilingAfter = 0)
+    fun `a ceiling below one is printed as the reason the potion is refused`() {
+        // REGRESSION (review of 6ej): `Corruption` refuses a ceiling below 1
+        // by throwing, and this line is built during composition -- so
+        // BROWSING to the next block would crash. Drink refuses such a potion
+        // now, and this line is the reason the button gives.
+        val line = drinkLine(fool(40), cor = 0, ceilingAfter = 0)!!
         assertTrue(pcrLine(fool(40)) in line, line)
-        assertTrue("Will after this potion is 0, which is no CoR ceiling" in line, line)
+        assertTrue("CoR ceiling after this potion would be 0" in line, line)
+        assertTrue("cannot be drunk" in line, line)
         assertFalse("lost to corruption" in line, line)
-        assertTrue("is -3, which" in drinkLine(fool(100), cor = 0, ceilingAfter = -3))
+        assertTrue("would be -3," in drinkLine(fool(100), cor = 0, ceilingAfter = -3)!!)
+    }
+
+    @Test
+    fun `a first potion prints nothing unless it is refused`() {
+        // A mortal makes no roll, so there is nothing to print -- except why
+        // the button will not drink (Abyss Sequence 9 lowers Will).
+        assertNull(drinkLine(null, cor = 0, ceilingAfter = 9))
+        val refused = drinkLine(null, cor = 0, ceilingAfter = 0)!!
+        assertTrue("cannot be drunk" in refused, refused)
+        assertFalse("3d6" in refused, refused)
     }
 
     @Test
     fun `a potion that lowers the ceiling onto the total says so at no cost`() {
-        val line = drinkLine(fool(100), cor = 9, ceilingAfter = 9)
+        val line = drinkLine(fool(100), cor = 9, ceilingAfter = 9)!!
         assertTrue("3d6 ≤ 19" in line, line)
         assertTrue("lost to corruption" in line, line)
-        assertFalse("lost to corruption" in drinkLine(fool(100), cor = 8, ceilingAfter = 9))
+        assertFalse("lost to corruption" in drinkLine(fool(100), cor = 8, ceilingAfter = 9)!!)
     }
 }
