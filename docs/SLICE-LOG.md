@@ -6726,6 +6726,141 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ei. Two taps, one frame, on a device
+
+6eh named a stale check on Drink and gave its reason: the `±5%` digestion
+stepper and Drink are on the same screen, so a step and a drink inside one
+frame roll a Potion Consumption Roll off the printed target. **That reason
+was false, and the slice it named was real for a different one.**
+
+**The stepper and Drink are never on screen together.** `DigestionTracker`
+is drawn only where `isCurrentPotion` holds — on the block of the potion
+already drunk. Drink is drawn where `drunk.canDrink(chosen)` holds — on the
+NEXT block. The design review refuted the claim from `PathwayScreen.kt:280`
+and it is two lines to check; I had written it into the slice log and the
+handover from the layout in my head. **Third time in three slices that a
+sentence of mine about this screen's reachability went into the record
+unread**: 6ef's missing reviews, 6eg's census, this.
+
+**What the review found instead: Drink had no re-entrancy guard**, alone
+among the roll buttons in this app. `{ pcr = session.drink(chosen, dice,
+maxCorFor) }`, where every other one opens with `if (outcome != null)
+return`. The first call advances the session, and the second, from the same
+composition, hands `drink` the same `chosen` — which its own `require`
+refuses by throwing.
+
+### Reproduced
+
+This is the first claim in the 6ef–6ei chain to be produced on a device
+rather than read off the code. SM-T570, a build with the guard neutered, a
+mortal premade on *Drink this potion*:
+
+| Injector | Result |
+|---|---|
+| `input tap … & input tap … & wait` | no crash — two JVMs start too far apart |
+| one `cat` of eighteen raw events into `/dev/input/event1` | `Permission denied`; the shell is in group `input` and SELinux refuses anyway. Left alone |
+| `monkey --throttle 0 -f` a script of two `Tap(475,608,1)` | **`FATAL EXCEPTION: main`** |
+
+```
+java.lang.IllegalArgumentException: BeyonderState(pathway=Fool, sequence=9,
+  digestion=0) is not the next potion after BeyonderState(pathway=Fool,
+  sequence=9, digestion=0)
+    at com.pathways.app.BeyonderSession.drink(BeyonderSession.kt:388)
+    at com.pathways.app.PathwayScreenKt.PathwayScreen$lambda$…(PathwayScreen.kt:272)
+```
+
+The app died to the launcher; the first drink had already been persisted.
+The same script against the guarded build: one potion drunk, *"digesting:
+0%"*, no crash.
+
+**What that settles and what it does not.** Two taps a few milliseconds apart
+reach one composition's handler before the screen redraws — so the premise
+6ef, 6eg and 6eh all rested on is true on hardware, and the comment at
+`MainActivity.kt:1568` that said *"Compose recomposes on the state write, so
+the two taps are two frames"* is false. That comment's REFUSAL was right
+(do not recompute inside the handler — which is 6eg's whole direction) and
+only its second reason was wrong; it is rewritten to say so. What is not
+settled is a finger: monkey's taps are milliseconds apart and a human
+double-tap is on the order of a hundred. The crash is real and the guard is
+cheap; nobody has shown a person can cause it.
+
+### What shipped (`a33eb0b`)
+
+Two questions on the session, and the handlers ask before acting:
+
+- `stillShows(printed, printedCor)` — `!isLost && state == printed && cor ==
+  printedCor`. Drink asks it. A stale tap does nothing; the screen redraws
+  and the GM taps again, looking at what is true. `drink` itself, requires
+  and all, is unchanged: the session still takes no number from the screen
+  as authoritative, it only declines to act on a picture that has moved.
+- `onSamePotion(printed)` — pathway and Sequence only. The CoR steppers ask
+  it.
+
+**Two predicates because the design review and the diff review pulled one
+apart.** The design review's first HIGH was that CoR had to be compared: at
+9 of 20, a `+1` and a successful early advancement inside one frame charge
+10 and end the character, and CoR IS drawn beside Drink. Its second was the
+reverse order — a CoR step from the composition before a Drink applies
+against the ceiling that Drink may just have lowered, which is the
+Will-lowering-potion defect M4 already paid for once. So the steppers got a
+guard too, on the same predicate — and the diff review found that it then
+dropped a CoR step taken in the same frame as a digestion step, because
+state equality includes digestion. The steppers' question is narrower than
+Drink's: only a new potion moves their ceiling.
+
+`edits` is compared by neither. Nothing on the pathway screen changes it,
+and `maxCorFor` reads the live edits when it is called.
+
+### Tests and mutations
+
+Three tests on `BeyonderSession`, RED twice (unresolved reference, then a
+stub comparing `state` alone, which fails on the lost character and on the
+CoR step). Seven single mutations, each caught:
+
+| Mutation | Caught by |
+|---|---|
+| drop `!isLost` | *a lost character's screen shows nothing to act on* |
+| drop `state == printed` | *a screen drawn before the session moved…* |
+| drop `cor == printedCor` | the same |
+| add `printed != null &&` (a mortal can never drink) | *a mortal's screen shows the truth until the first potion* |
+| `!isLost` → `!lost` (lost to corruption slips through) | *a lost character's screen…* |
+| CoR steps compare the whole state | *a screen drawn before the session moved…* |
+| CoR steps ignore the Sequence | the same |
+
+The fourth and fifth are the diff review's, and both had survived its
+reading of my first two tests: nothing asserted the null picture a mortal
+has, and "lost" was only ever reached by a failed roll.
+
+### On the SM-T570
+
+- Unguarded build, two taps: the crash above. Guarded build, the same two
+  taps: one drink, no crash.
+- Two taps on Corruption `+1` from one script: `0 / 10` → `2 / 10`. Both
+  count, which is what `onSamePotion` is for.
+- **And the ritual dialog, which until now had only an emulator behind it.**
+  Good at +2 on the Academic Researcher as a Seer: `3d6 ≤ 15`, `preparation
+  +2`, then **`3d6: 14 vs 15` — "The ritual holds"**. That is 6ef's pick and
+  6eg's roll on the hardware the earlier slices used. The seven dialogs of
+  6eh are still emulator-only.
+- Not exercised: a *Drink and roll* through the guard. At 0% digestion the
+  roll is against 1, and it would have cost a saved character to watch a
+  dialog open. The first-potion path ran; the roll path is the same handler
+  and is covered by the session tests.
+
+The dialog's dump coordinates were off again on this tablet — Roll at dump
+`(120,1272)` is at pixel `(144,1680)` — so every tap came off a screencap.
+
+The premades this left changed on the tablet: Beat Cop, Dock Foreman and
+Academic Researcher are Sequence 9 Seers, and the last has spent 2 SPI.
+
+Tests: 1753 Kotlin (1242 `core:rules`, 491 `app`, 20 `core:model`) after
+`--rerun-tasks`.
+
+**No successor is named.** One thing seen on the way and not touched: the
+block that carries the Drink button prints nothing about the roll it is
+about to make — the target and the early-advancement cost are printed on the
+PREVIOUS block, beside the digestion tracker.
+
 ## 6eh. Seven more targets, each composed once
 
 6eg's corrected census named this: seven rolls still printed a target and
@@ -6795,15 +6930,13 @@ What actually differs is the layer. Everywhere else the dialog owns the
 inputs, so handing the engine the number it printed is handing it the truth.
 Here `BeyonderSession` owns state that is PERSISTED, and it must not take a
 number from the screen as authoritative — that is the one caller that has to
-re-read. So the window stays: the `±5%` digestion stepper is on the same
-screen as Drink, `digest` writes the session's state at once, and `drink`
-reads it at click. Two taps inside one frame roll a Potion Consumption Roll
-against a target one step away from the one printed — the true one, after
-the GM's own tap, but not the one on screen, and **a failed PCR ends the
-character.** Never reproduced, the same two-finger window as every other.
-The fix that needs neither a cache nor a trusted integer is a stale check:
-Drink carries the digestion the screen printed, and the session does nothing
-if it has moved. Not built; named below.
+re-read. **CORRECTION (6ei): the window this paragraph went on to describe
+does not exist.** It said the `±5%` digestion stepper is on the same screen
+as Drink. It is not — the tracker is drawn on the current potion's block and
+Drink on the next one — and the claim was never checked against
+`PathwayScreen.kt:280`. The stale check it named was worth building for a
+different reason, which 6ei found and reproduced: Drink had no re-entrancy
+guard, and CoR, which IS drawn beside it, prices the advancement.
 
 ### The mutations, and what "survives" turned out to mean
 
