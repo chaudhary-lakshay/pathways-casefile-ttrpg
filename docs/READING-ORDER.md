@@ -190,7 +190,35 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6eo back to 6de
+## Retired lead paragraphs, 6ep back to 6de
+
+**6ep is next, and it ran the check this file names for a state with no
+successor: 6dy's three refusals whose reason is a claim about the app.**
+Two hold on sharper reasons. No roll on the book's grappling table reads
+ST, and the CoR stepper already applies a month's abstinence. **The third
+split.** The HP recovery table was refused whole as *"clocks"*, and its
+first row is a ROLL: *"Natural Recovery (HT roll success)"*, *"the daily HT
+roll"*. Read it for four things.
+
+- **The roll is offered and nothing is restored.** The design review chose
+  that: the book does not say whether *"20–29 HP"* is maximum or current,
+  prints no band past 39, and names *"Very Rapid Healing"*, a trait in no
+  catalogue. The Vitals tab prints the three extracted rows under the HP
+  row, and the stepper applies them. The dead are not offered it.
+- **Rapid Healing's +5 has no carrier.** Chained Sequence 8 grants it as
+  prose, so the row takes a modifier by hand and says what it already
+  counts. My first wording, *"none is applied for you"*, sat beside a
+  target that includes the all-HT-roll traits.
+- **The diff review's HIGH was true of a mutant.** I ran the reviewer and
+  the mutation harness on one file in the same minute. Never do both at
+  once in one working tree.
+- **Two tested, mutated helpers had no caller**, and were deleted.
+
+Still refused, in `NaturalRecovery.UNMODELLED`: First Aid, Physician, the
+Healing advantage and Regeneration. Device-verified on the SM-T570: no row
+at `9 / 9`; at `8 / 9`, **Roll HT 9**, then `14` with `+5 entered`, `3d6: 12
+vs 14 - success`, HP unchanged. There are 82 content files now. **No
+successor is named.**
 
 **6eo is next, and it is the last of 6ek's items: the builder printed the
 purchase and the sheet printed the character.** One save on the SM-T570,

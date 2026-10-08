@@ -119,8 +119,9 @@ with the default as its skill: *"Acrobatics (untrained, DX-6)"*.
   Divination Arts is listed only with Ritualistic Magic at 12 or more.
 - The GM may rule that a skill cannot be attempted untrained at all. The app
   does not record that, so ask before you roll.
-- It is the skill roll alone. **Attack** and **Defend** take only skills the
-  sheet owns, so an untrained punch has no damage line there.
+- It is the skill roll alone. For an untrained punch, or a weapon you have no
+  skill with, use **Attack**, which lists those skills under your own and
+  carries the damage. **Defend** takes no untrained roll.
 
 ---
 
@@ -137,6 +138,17 @@ Deceptive Attack's -2 per -1 imposed (capped at half your skill), Rapid Strike's
 
 It will not let you buy an option the maneuver does not allow, and it charges FP
 once per purchase, not once per recomposition.
+
+Under your own skills the list carries on with the ones you can attack with
+**untrained**: a fist (Brawling at DX-2, Boxing at DX-5) and the weapons in the
+book's table (Knife, Axe/Mace, Broadsword and three Guns), each marked
+*"untrained, DX-4"* or the like. They roll and deal damage like any other.
+A weapon you have no skill with prints *"no parry offered without the skill"*.
+
+A **Warrior** or **Weapon Master** wields any weapon in hand at no less than
+DX, and the header says so. Put the weapon down and the skill is back at its
+own number, and a Deceptive Attack the lower number cannot afford goes to 0.
+The Warrior's *"default +2"* for a weapon used repeatedly is not counted.
 
 **At range**, tick the conditions the GM called. One of them prints a range
 rather than a number — *"Darkness or heavy fog: -3 to -9 depending on

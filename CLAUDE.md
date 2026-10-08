@@ -50,9 +50,11 @@ pricing pair) and cannot see the next one.
 
 **Every roll at a default takes Versatile's +1, and goes through
 `SkillDefaults`, or through `Divination.divinationLevelFor` for Divination
-Arts.** Two do: the Skills tab's untrained list and the Divine tile.
-Versatile's sheet note was removed on that count (6et), so a third
-consumer that skips the +1 leaves the trait silently short.
+Arts.** Three do: the Skills tab's untrained list, the Attack dialog's
+untrained rows (6eu) and the Divine tile. Versatile's sheet note was
+removed on that count (6et), so a fourth consumer that skips the +1 leaves
+the trait silently short. A Warrior's weapon at DX is not a default and
+takes none.
 
 **`defense_modifiers.json` is finished, and so is the round boundary behind
 it.** 6co applied Retreat — three numbers scoped per defence row (+3 Dodge / +1
@@ -149,7 +151,33 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6et is newest, and it is the successor three slices carried: the
+**6eu is newest, and it is 6et's second consumer: the Attack dialog takes
+an untrained skill.** A character without Brawling had no punch there, and
+one handed a revolver had no shot. Read it for four things.
+
+- **The list is "the attacks supported here"**, an app boundary: the eight
+  untrained skills with a fist or a weapon row. The book's COMBAT SKILLS
+  banner prints nineteen and does not decide it.
+- **6et's refusal lasted one slice.** It named three potion lines about
+  weapons and applied none, because a list of skills has no weapon. This
+  screen has one, so a Warrior or Weapon Master wields it at no less than
+  DX, with no Versatile +1.
+- **The level now depends on the hand**, so one `levelWith` feeds the
+  header, the stepper, the damage and the roll, and `Attacks.atLevel`
+  drops a Deceptive Attack the lower level cannot afford.
+- **The dialog's KDoc said "this book tags no skill as a combat skill"**
+  beside a banner in `skills.json`. Corrected, and in `TraitEffects` too.
+
+Codex answered both reviews: CHANGE on all three design questions, with
+two HIGHs on when the mastery applies, then FIX on the diff. Taken: the
+floor reaches a BOUGHT skill below DX too. **Declined**: a Compose test for
+the two `atLevel` call sites (section 6). Fourteen mutations, fourteen
+caught. On the SM-T570: `Brawling (untrained, DX-2, …) 7`, `1d-3 cr`; a
+seeded Warrior's `Knife (DX, Warrior's "no default penalty") 11`, then `7`
+and `Deceptive 0` with the knife down. **Successors**: the Defend dialog
+takes no default, Warrior's *default +2*, and 6es's two lists.
+
+**6et is next, and it is the successor three slices carried: the
 untrained roll.** `SkillLadder.defaultFor` had no production caller since
 M0, so chapter 2's table reached no roll, and three screens called an
 untrained roll *"the GM's call"*. Read it for four things.
@@ -284,37 +312,10 @@ printed number. Wiring it is a second roll at a default: it must take
 Versatile's +1, and it makes the sheet's *"no other roll at a default"*
 false in the same commit.
 
-**6ep is next, and it ran the check this file names for a state with no
-successor: 6dy's three refusals whose reason is a claim about the app.**
-Two hold on sharper reasons. No roll on the book's grappling table reads
-ST, and the CoR stepper already applies a month's abstinence. **The third
-split.** The HP recovery table was refused whole as *"clocks"*, and its
-first row is a ROLL: *"Natural Recovery (HT roll success)"*, *"the daily HT
-roll"*. Read it for four things.
-
-- **The roll is offered and nothing is restored.** The design review chose
-  that: the book does not say whether *"20–29 HP"* is maximum or current,
-  prints no band past 39, and names *"Very Rapid Healing"*, a trait in no
-  catalogue. The Vitals tab prints the three extracted rows under the HP
-  row, and the stepper applies them. The dead are not offered it.
-- **Rapid Healing's +5 has no carrier.** Chained Sequence 8 grants it as
-  prose, so the row takes a modifier by hand and says what it already
-  counts. My first wording, *"none is applied for you"*, sat beside a
-  target that includes the all-HT-roll traits.
-- **The diff review's HIGH was true of a mutant.** I ran the reviewer and
-  the mutation harness on one file in the same minute. Never do both at
-  once in one working tree.
-- **Two tested, mutated helpers had no caller**, and were deleted.
-
-Still refused, in `NaturalRecovery.UNMODELLED`: First Aid, Physician, the
-Healing advantage and Regeneration. Device-verified on the SM-T570: no row
-at `9 / 9`; at `8 / 9`, **Roll HT 9**, then `14` with `+5 entered`, `3d6: 12
-vs 14 - success`, HP unchanged. There are 82 content files now. **No
-successor is named.**
-
-**6eo back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6ep back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ep** — 6dy's three refusals re-asked; the HP recovery table's first row is a ROLL, so the daily HT roll is offered and nothing is restored;
 **6eo** — the builder printed bought values and the sheet the played ones; rows show the value as played, and every edit still reads the purchase;
 **6en** — Basic Speed and Basic Move sold a hundred steps each; both stand at zero in `ScoreFloors`, as policy, and Move is measured after Speed;
 **6em** — maximum CoR is a state the app checked only on a gain; a builder sale is refused where a potion latches, and the first potion never latched;
@@ -389,7 +390,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: the slice log, from the END — 6et first.** The
+**Where to start next: the slice log, from the END — 6eu first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -444,7 +445,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1846 Kotlin** (JUnit 5 — 1297 `core:rules`, 529 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1850 Kotlin** (JUnit 5 — 1301 `core:rules`, 529 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -552,6 +553,13 @@ SkillDefaults.offeredTo(character): List<Untrained>   // what a screen asks: the
                                       // none, and Divination Arts via Divination
 SkillDefaults.offered(owned, attributeLevel, defaultBonus) / .weaponNote(pathway, sequence)
 SkillDefaults.NOT_LISTED / .PLAIN_ROLL    // what the list withholds and does not carry
+SkillDefaults.attacks(untrained)      // the rows the Attack dialog can show an
+                                      // attack for: an app boundary, not a rule
+SkillDefaults.masteryFor(pathway, sequence) / .mastered(level, weaponInHand, mastery, dx)
+                                      // Warrior / Weapon Master: a weapon IN
+                                      // HAND is wielded at no less than DX
+Attacks.atLevel(plan, level)          // the hand changed the level: drop a
+                                      // Deceptive Attack it cannot afford
 SuccessRoll.against(target, source: RandomSource): RollResult
 ContentLoader.skills() / .advantages() / .disadvantages() / .thrustSwing()
 ContentLoader.pathways() / .actingMethod() / .potionConsumption()
@@ -970,10 +978,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6et. The slice log
+## 6a-6eu. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6et is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6eu is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

@@ -6726,6 +6726,133 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6eu. The attack a default can make
+
+6et shipped the untrained roll to one consumer and said so: a player could
+roll Brawling from the Skills tab and could not throw the punch. This slice
+is the second consumer. It also takes back a refusal 6et made an hour
+earlier, because the reason for it does not hold on this screen.
+
+### What the Attack dialog did
+
+It listed `skillLevels`, the skills a sheet owns. Picking one arms it:
+`Damage.attacksFor` gives the unarmed table, which only Brawling and Boxing
+have, and `Weapons.forSkill` gives chapter 8's weapons. So a character
+without Brawling had no punch, and one handed a revolver without Guns
+(Revolver) had no shot.
+
+### The design review
+
+Codex, through `codex exec`, on a written decomposition and no diff: CHANGE
+on all three questions.
+
+- **The list is "the attacks supported here".** I proposed offering the
+  untrained skills with a printed attack, and asked whether that criterion
+  was the book's or mine. It is this app's boundary. The book prints a
+  COMBAT SKILLS banner of nineteen, Fast-Draw and Shield among them, and a
+  default line for a Shield Bash (2537), and neither decides which skills
+  this dialog can show damage for. Eight can: Brawling, Boxing, Knife,
+  Axe/Mace, Broadsword and three Guns.
+- **Apply the mastery, to the weapon actually in hand.** 6et named three
+  potion lines and applied none, on the reason *"this list does not know
+  what is in hand"*. Here one is. Warrior (Twilight Giant 9): *"every
+  weapon is treated as known at effective DX (no default penalty) from the
+  moment it is picked up"*. Weapon Master (7): the same *"instantly"*, and
+  *"a strict upgrade to and replacement of the Warrior's Combat Mastery"*.
+  The review's two HIGHs were about WHEN: Brawling arms a truncheon and
+  opens on a fist, so *"this skill has a weapon"* would have given a punch
+  the weapon's level; and putting a weapon down lowers the level under a
+  Deceptive Attack already bought, which throws on Roll.
+- **Only the Warrior has a clause left over.** *"Weapons used repeatedly in
+  a session are treated as known at default +2"* is said as not applied,
+  since nothing here counts uses. The Weapon Master *"requires no
+  warm-up"*.
+- **A false sentence in the dialog's own KDoc**: *"this book tags no skill
+  as a combat skill"*. Line 1668 is the banner. `TraitEffects` cited the
+  same premise for a refusal of its own.
+
+### What was built
+
+- `SkillDefaults.attacks(untrained)`: the rows with an unarmed table or a
+  weapon row.
+- `SkillDefaults.WeaponMastery`, `masteryFor(pathway, sequence)` and
+  `mastered(level, weaponInHand, mastery, dx)`. With a weapon in a
+  master's hand a level below DX becomes DX. Versatile's +1 does not come
+  along: *"treated as known"* is not a roll at a default.
+- `SkillDefaults.toolNote`: the Harvest Priest's farming-tool line, which
+  stays unapplied because the weapon table marks no row as a tool.
+- `Attacks.atLevel(plan, level)`: a fourth plan transition. A Deceptive
+  Attack the new level cannot afford is dropped to zero, never trimmed.
+- **The dialog** lists the untrained rows after the owned ones, each with
+  *"untrained, DX-4"* under it. One `levelWith(weaponInHand)` feeds the
+  header, the stepper's ceiling, Boxing's bonus, the modifiers and the
+  roll. Both hand changes move the plan through `atLevel`. The weapon line
+  prints *"no parry offered without the skill"* where it printed a parry.
+- `PLAIN_ROLL`, the Skills list's caveat, now sends a punch to Attack.
+
+### The diff review
+
+Codex again: FIX, two MEDIUMs.
+
+- **Taken: the mastery lifted only an untrained skill.** One point in
+  Axe/Mace is DX-1. A Warrior who trained with the axe swung it at DX-1,
+  and one who never had swung it at DX. *"Every weapon"* is the book's
+  phrase, so the line is a floor at DX for a bought skill too.
+- **Declined: a dialog regression test** for the two `atLevel` call sites.
+  Composables are device-only in this repo (section 6), and one screen is
+  not the reason to add `androidx.compose.ui.test`. The transition is
+  unit-tested, and the device pass below drives the weapon-down path with
+  two Deceptive steps bought and then rolls. The fist path needs a master
+  whose Brawling sits below DX, which a potion's frozen grant can produce
+  and no premade does. It runs the same call and was not driven.
+
+### Verification
+
+1850 Kotlin (1301 `core:rules`, 529 `app`, 20 `core:model`), green from the
+JUnit XML after a full run. Python was not run: no tool changed.
+
+**Fourteen mutations, fourteen caught**: ten before the diff review
+(`ran=59`), and four of the floor after it. Never beside a review.
+
+On the SM-T570 (`R52TA076AEZ`). The save was copied off, seeded with one
+extra entry for the Warrior, and written back afterwards; `cmp` reports it
+identical to the copy.
+
+| Character | Step | Screen |
+|---|---|---|
+| Academic Researcher | Attack | owned skills, then `Guns (Revolver)` *untrained, DX-4* `5`, `Brawling` *untrained, DX-2, the book's own line for Brawling* `7`, `Boxing` `4`, `Knife` `5` |
+| | Brawling | header `… (untrained, DX-2, the book's own line for Brawling) 7`; Punch, `thr-1 cr`; `Deceptive … max 1`; `Damage on a hit: 1d-3 cr` |
+| | Truncheon/Baton | `no parry offered without the skill`; `1d-1 cr` |
+| | Roll | `3d6: 7 vs 7`, `success` |
+| University Librarian as a Warrior (DX 11) | Attack | `Knife` *untrained, DX-4* `7`; Brawling is owned, granted by the potion |
+| | Knife | `Knife (DX, Warrior's "no default penalty") 11`; the *default +2* line; `max 2` |
+| | Deceptive + twice, then the knife down | `Knife (untrained, DX-4) 7`, `Deceptive 0`, `max 1` |
+| | Roll | `3d6: 10 vs 7`, `failure`; the crash buffer stayed empty |
+
+Mathematics and History are on the Researcher's sheet and not offered
+back, which is 6et's late fix seen on a screen. **Not exercised on the
+tablet**: a Weapon Master, a bought skill below DX lifted by the floor, and
+the Harvest Priest's note. All three are unit-tested.
+
+### Seen and not touched
+
+- **The Defend dialog takes no default**: no untrained parry, and the
+  Acrobatic Dodge is still a Skills-tab roll with its ±2 applied by hand.
+  Whether a default parries needs a design review. A master's weapon
+  *"treated as known"* makes the question sharper, not smaller.
+- **Warrior's *default +2*** needs a declaration of repeated use.
+- **The Skills list still names the two Twilight Giant lines as not
+  applied.** True there: it has no weapon. It reads oddly beside a dialog
+  that applies them.
+- **No trait modifier reaches an attack roll.** The dialog sums conditions,
+  maneuver, range and location, and not `TraitEffects.modifiers`. No trait
+  row names an attack skill today, so nothing is lost yet.
+- **An owned skill's list is still every skill the sheet has**, Research
+  and Writing included. That is a recorded decision, and its stated reason
+  was the false sentence this slice removed. The decision may survive on
+  the reason the KDoc gives now. It has not been re-argued.
+- **6es's two lists stand**, and 6et's note on an owned Divination Arts.
+
 ## 6et. The roll nobody on the sheet could make
 
 6eq named this, and 6er and 6es each carried it forward: book 2540 prints
