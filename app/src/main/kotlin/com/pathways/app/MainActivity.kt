@@ -1565,9 +1565,13 @@ private fun SelfControlDialog(
     // recomputing it inside onClick against a stale capture between a chip
     // tap and a roll tap; refused, because that is a second call site for the
     // number the caption prints, which is the drift the same review certified
-    // absent. Compose recomposes on the state write, so the two taps are two
-    // frames -- and the re-entrancy that IS reachable (two taps on the ROLL
-    // button) is guarded inline below, the fix 6p needed.
+    // absent. The refusal stands and its second reason did not: this said
+    // "Compose recomposes on the state write, so the two taps are two
+    // frames", and two taps a few milliseconds apart reached one
+    // composition's handler on an SM-T570 (6ei). What makes a chip tap and a
+    // roll tap safe here is that the handler rolls the `target` printed
+    // below and reads nothing else (6eh). Two taps on the ROLL button are
+    // guarded inline, the fix 6p needed.
     val fromTraits = TraitEffects.clauseBonus(clauses, declared)
     val fromState = shock + hurt + fromTraits.total
     val target = SelfControl.targetFor(check.spec, will, iq, modifier + fromState)

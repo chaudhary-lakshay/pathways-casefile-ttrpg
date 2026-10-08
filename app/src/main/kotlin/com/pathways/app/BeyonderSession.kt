@@ -339,6 +339,41 @@ class BeyonderSession(
     }
 
     /**
+     * Whether a screen that drew [printed] -- and [printedCor], where the act
+     * is priced in it -- is still showing the truth.
+     *
+     * A click handler belongs to the composition that drew it, and this
+     * session can move before that composition is replaced: a second tap on
+     * Drink, a CoR step, a lost roll. [drink] is irreversible and refuses a
+     * state it was not offered by THROWING, so the handler asks this first
+     * and does nothing on a stale picture. The screen redraws; the GM taps
+     * again, looking at what is true.
+     *
+     * [isLost] is compared as well as [state], because a failed roll leaves
+     * [state] exactly where it was -- and it is [isLost], not [lost], because
+     * a character can be lost to corruption without failing any roll.
+     * [edits] is not compared: nothing on the pathway screen changes it.
+     *
+     * Reproduced on an SM-T570 before this existed: two taps on Drink a few
+     * milliseconds apart, and the second died in [drink]'s own `require`.
+     */
+    fun stillShows(printed: BeyonderState?, printedCor: Int): Boolean =
+        !isLost && state == printed && cor == printedCor
+
+    /**
+     * The looser question the CoR steppers ask: is this still the potion the
+     * screen drew a ceiling for?
+     *
+     * Pathway and Sequence only. A digestion step or an earlier CoR step
+     * moves neither the ceiling nor the meaning of the next tap, and
+     * comparing them would drop the second of two quick taps. A Drink does
+     * move the ceiling -- a potion can LOWER Will -- so a step from the
+     * composition before it waits for the screen to catch up.
+     */
+    fun onSamePotion(printed: BeyonderState?): Boolean =
+        !isLost && state?.pathway == printed?.pathway && state?.sequence == printed?.sequence
+
+    /**
      * Drink [next], rolling for it when it is an advancement, and charge the
      * CoR the advancement costs.
      *

@@ -100,6 +100,9 @@ fun PathwayScreen(
     onBack: () -> Unit,
 ) {
     val drunk = session.state
+    // What this composition drew, for the one button that cannot be undone:
+    // Drink acts only while the session still matches both (see stillShows).
+    val printedCor = session.cor
     var pcr by remember { mutableStateOf<PcrOutcome?>(null) }
     val blocks = remember { ContentLoader.pathways() }
     val pathways = remember(blocks) {
@@ -257,7 +260,19 @@ fun PathwayScreen(
                             // another pathway", weighted identically to the
                             // control that throws the choice away.
                             drunk.canDrink(chosen) ->
-                                Button(onClick = { pcr = session.drink(chosen, dice, maxCorFor) }) {
+                                Button(
+                                    onClick = {
+                                        // A second tap, or a CoR step, can
+                                        // reach this handler before the
+                                        // screen redraws. `drink` refuses a
+                                        // state it was not offered by
+                                        // throwing, so a stale tap does
+                                        // nothing instead.
+                                        if (session.stillShows(drunk, printedCor)) {
+                                            pcr = session.drink(chosen, dice, maxCorFor)
+                                        }
+                                    },
+                                ) {
                                     Text(if (drunk == null) "Drink this potion" else "Drink and roll")
                                 }
                             drunk?.pathway == chosen.pathway && drunk.sequence == chosen.sequence ->
@@ -283,7 +298,7 @@ fun PathwayScreen(
                 // CoR is not tied to the potion being browsed: it is the
                 // character's, so it shows whenever they have walked at all.
                 if (drunk != null) {
-                    item { CorruptionTracker(session, maxCor) }
+                    item { CorruptionTracker(session, drunk, maxCor) }
                 }
                 digestion(block, digested)
             }
@@ -392,20 +407,24 @@ private fun DigestionTracker(state: BeyonderState, onDigest: (Int) -> Unit) {
  * charged automatically when the potion is drunk.
  */
 @Composable
-private fun CorruptionTracker(session: BeyonderSession, max: Int) {
+private fun CorruptionTracker(session: BeyonderSession, drunk: BeyonderState, max: Int) {
+    // [max] is the ceiling of the potion this composition drew. A Drink that
+    // lands before the redraw can LOWER it, and a step taken against the old
+    // one would miss the loss -- so a step waits for the screen to catch up.
+    val step = { delta: Int -> if (session.onSamePotion(drunk)) session.gainCor(delta, max) }
     val cor = session.cor
     val atRisk = session.corrupted || cor >= max - 1
     Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Text("Corruption", style = MaterialTheme.typography.titleSmall)
         Row(verticalAlignment = Alignment.CenterVertically) {
-            OutlinedButton(onClick = { session.gainCor(-1, max) }, enabled = !session.isLost) { Text("−1") }
+            OutlinedButton(onClick = { step(-1) }, enabled = !session.isLost) { Text("−1") }
             Text(
                 "$cor / $max",
                 style = MaterialTheme.typography.titleLarge,
                 color = if (atRisk) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(horizontal = 8.dp),
             )
-            OutlinedButton(onClick = { session.gainCor(1, max) }, enabled = !session.isLost) { Text("+1") }
+            OutlinedButton(onClick = { step(1) }, enabled = !session.isLost) { Text("+1") }
         }
         Text(
             if (session.corrupted) {

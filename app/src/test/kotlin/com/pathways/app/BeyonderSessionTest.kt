@@ -369,4 +369,74 @@ class BeyonderSessionTest {
         s.dropWeapon("Combat Knife")
         assertTrue(s.edits.isEmpty)
     }
+
+    // --- acting on what the screen printed ----------------------------------
+
+    /**
+     * Drink is the one irreversible button, and its handler belongs to the
+     * composition that drew it. If the session has moved since -- a second
+     * tap, a CoR step, a lost roll -- the screen is showing a past the GM is
+     * no longer in, and the tap must do nothing rather than act on it.
+     */
+    @Test
+    fun `a screen drawn before the session moved no longer shows the truth`() {
+        val (s, _) = session(SavedSession(beyonder = fool9.digested(100)))
+        val printed = s.state
+        val printedCor = s.cor
+        assertTrue(s.stillShows(printed, printedCor))
+
+        // The potion's own tracker. Drink must notice; a CoR step must not,
+        // because the ceiling it was drawn against has not moved.
+        s.digest(-5)
+        assertFalse(s.stillShows(printed, printedCor))
+        assertTrue(s.onSamePotion(printed))
+        s.digest(5)
+        assertTrue(s.stillShows(printed, printedCor), "back where the screen drew it")
+
+        // CoR: it prices an early advancement, so Drink compares it. The CoR
+        // steppers do not, or the second of two quick taps would be dropped.
+        s.gainCor(1, 10)
+        assertFalse(s.stillShows(printed, printedCor))
+        assertTrue(s.onSamePotion(printed), "the second of two quick CoR taps still counts")
+        s.gainCor(-1, 10)
+
+        // The second of two taps on Drink: the first one advanced the state,
+        // and the second would be refused by drink itself -- by throwing.
+        assertTrue(s.drink(fool8, fixed(1)) { 10 }!!.integrated)
+        assertFalse(s.stillShows(printed, printedCor))
+        assertFalse(s.onSamePotion(printed), "the ceiling may have moved with the potion")
+        assertThrows<IllegalArgumentException> { s.drink(fool8, fixed(1)) { 10 } }
+    }
+
+    @Test
+    fun `a mortal's screen shows the truth until the first potion`() {
+        // `printed` is null for a character who has drunk nothing, and that
+        // is a picture like any other: refusing it would mean nobody could
+        // ever drink a first potion.
+        val (s, _) = session()
+        assertTrue(s.stillShows(null, s.cor))
+        s.drink(fool9, fixed(6)) { 10 }
+        assertFalse(s.stillShows(null, s.cor))
+    }
+
+    @Test
+    fun `a lost character's screen shows nothing to act on`() {
+        // A failed roll leaves `state` exactly where it was, so comparing the
+        // potion alone would let a second tap through to a require.
+        val (s, _) = session(SavedSession(beyonder = fool9))
+        val printed = s.state
+        assertFalse(s.drink(fool8, fixed(6)) { 10 }!!.integrated)
+        assertEquals(printed, s.state)
+        assertFalse(s.stillShows(printed, s.cor))
+        assertThrows<IllegalArgumentException> { s.drink(fool8, fixed(6)) { 10 } }
+
+        // Lost to corruption, with no roll failed: `lost` is false and the
+        // character is gone all the same.
+        val (c, _) = session(SavedSession(beyonder = fool9))
+        c.gainCor(10, 10)
+        assertFalse(c.lost)
+        assertTrue(c.isLost)
+        assertFalse(c.stillShows(c.state, c.cor))
+        assertFalse(c.onSamePotion(c.state))
+    }
 }
