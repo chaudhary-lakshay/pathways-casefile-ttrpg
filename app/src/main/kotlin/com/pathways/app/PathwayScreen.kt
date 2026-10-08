@@ -424,10 +424,18 @@ internal fun pcrLine(state: BeyonderState): String {
  * the same tap -- the floor of 10 against a Will of 10, or a potion that
  * lowers Will onto the total at no cost -- and this is the last screen that
  * can say so.
+ *
+ * A [ceilingAfter] below 1 is printed rather than asked about. The builder
+ * sells Will down a hundred steps, [Corruption] refuses such a ceiling by
+ * throwing, and this runs while the block is being DRAWN: asking would crash
+ * a screen for being looked at. It is not coerced either -- a `maxOf` here
+ * would print a ceiling the character does not have.
  */
 internal fun drinkLine(state: BeyonderState, cor: Int, ceilingAfter: Int): String {
     val cost = PotionConsumption.corCostFor(state)
-    return "at ${state.digestion}% digested, rolls ${pcrLine(state)}" +
+    val roll = "at ${state.digestion}% digested, rolls ${pcrLine(state)}"
+    if (ceilingAfter < 1) return "$roll. Will after this potion is $ceilingAfter, which is no CoR ceiling"
+    return roll +
         if (Corruption.isLostAfter(cor, cost, ceilingAfter)) {
             ". Maximum CoR after this potion is $ceilingAfter; ${cor + cost} CoR reaches it — " +
                 "lost to corruption even if the potion integrates"

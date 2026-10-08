@@ -47,6 +47,19 @@ class PathwayScreenTest {
     }
 
     @Test
+    fun `a Will below one is printed, not thrown while the block is drawn`() {
+        // REGRESSION (review of 6ej): the builder sells Will down a hundred
+        // steps, `Corruption` refuses a ceiling below 1 by throwing, and this
+        // line is built during composition -- so BROWSING to the next block
+        // would have crashed a screen that used to wait for a tap to do it.
+        val line = drinkLine(fool(40), cor = 0, ceilingAfter = 0)
+        assertTrue(pcrLine(fool(40)) in line, line)
+        assertTrue("Will after this potion is 0, which is no CoR ceiling" in line, line)
+        assertFalse("lost to corruption" in line, line)
+        assertTrue("is -3, which" in drinkLine(fool(100), cor = 0, ceilingAfter = -3))
+    }
+
+    @Test
     fun `a potion that lowers the ceiling onto the total says so at no cost`() {
         val line = drinkLine(fool(100), cor = 9, ceilingAfter = 9)
         assertTrue("3d6 ≤ 19" in line, line)
