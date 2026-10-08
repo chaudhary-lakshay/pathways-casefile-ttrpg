@@ -312,7 +312,8 @@ Edits are saved per character and survive a restart.
   a day has passed. A success restores nothing by itself: apply what the rows
   print with **+1** on the HP row, because which band applies to a large body
   is the GM's call. **Another day** clears it for the next one. First Aid,
-  Physician, the Healing advantage and Regeneration are not offered.
+  the Healing advantage and Regeneration are not offered; Physician is a
+  skill, rolled from **Skills** like any other.
 
 ---
 

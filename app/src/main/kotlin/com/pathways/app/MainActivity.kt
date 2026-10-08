@@ -1868,7 +1868,7 @@ private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int) {
             // all-HT-roll traits ARE applied and must not be entered twice.
             Text(
                 "Anything else that moves the daily HT roll - a potion's grant, say - is entered " +
-                    "above. Only what this line shows is applied for you.",
+                    "with −1 / +1. Only what the line above shows is applied for you.",
                 style = MaterialTheme.typography.bodySmall,
             )
             TextButton(

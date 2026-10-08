@@ -6801,12 +6801,19 @@ are prose, so no `Trait` holds the
 +5. Matching it out of prose at roll time is the parser-in-the-engine this
 repo refuses.
 
+**The 23 premades were searched too, after the final review asked which
+corpus the claim was checked against.** `advantages.json` holds none of
+these traits, so the builder cannot sell one, and that leaves a printed
+sheet as the only other way a character could hold a real `Trait`. A grep
+of `fixtures/*.json` for `Healing|Regenerat` returns nothing. So "no
+carrier" and two of `UNMODELLED`'s four reasons hold on all three corpora.
+
 So the row carries a `−1 / +1` modifier, unbounded as the Fright dialog's
 is, and says what it is for. The first wording was wrong, and the diff
 review caught it: *"none is applied for you"* sat beside a target that DOES
 include the all-HT-roll traits, which invites entering Fit twice. It now
-reads *"Only what this line shows is applied for you"*, under the line that
-shows it.
+reads *"Only what the line above shows is applied for you"*, under the
+line that shows it.
 
 ### What was built
 

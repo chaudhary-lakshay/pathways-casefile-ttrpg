@@ -278,7 +278,7 @@ three seen-and-not-touched items stand.
 **6ek back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
-**6ek** — the builder sold every secondary a hundred steps and four guards threw below HP/FP 1, a CoR ceiling of 1 and Per 0; `ScoreFloors`, one repair on opening, Drink refused before its roll;
+**6ek** — the builder sold a secondary a hundred steps and four guards threw below HP/FP 1, a CoR ceiling of 1 and Per 0; "four" came from a keyword grep and held, for crashes, on a wider one;
 **6ej** — the Drink button printed nothing about its own roll; `pcrLine` feeds both blocks, and the new line could crash the block it was drawn on, a Will below 1 throwing in composition;
 **6ei** — two taps milliseconds apart DO reach one composition's handler, so 6ef-6eh's "two frames" premise was false; Drink alone had no re-entrancy guard and crashed on an SM-T570;
 **6eh** — seven more engines roll the target they printed; `attempt` became test-only, and no test had rolled a Spirit Vision success through the engine;
