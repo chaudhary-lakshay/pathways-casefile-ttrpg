@@ -190,7 +190,47 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6ej back to 6de
+## Retired lead paragraphs, 6ek back to 6de
+
+**6ek is next, and it is 6ej's successor, which turned out to be the
+smallest of four: the builder sold every secondary a hundred steps, and four
+`core:rules` guards throw below HP/FP 1, a CoR ceiling of 1 and Per 0.**
+The HP one runs while the screen is drawn, and it was reproduced on the
+SM-T570. Antiquarian Dealer with HP sold 11 steps (Abyss 9 grants +2) crashed
+the sheet at `MainActivity.kt:374` on every open, because the save kept the
+number. Read it for four things.
+
+- **The book prints no floor** (lines 353-386), so `ScoreFloors` is the app's
+  bound. Its constants are the ones the guards read.
+- **There are four writers, and a builder floor reaches only the two
+  steppers**: secondary `−`, and attribute `−`, which moves Will, Per, HP and
+  FP. Selling Spiritual Fortitude drops the ceiling by three (the design
+  review's catch). Drink is the fourth: only
+  Abyss lowers anything (Will), a test pins that census, and Drink is now
+  refused before its roll. So half of 6ej's *"the builder's bound is where it
+  is answered"* has expired.
+- **A bad save is repaired once on opening and written back, not lifted on
+  every read.** The design review showed that lifting on read leaves two
+  purchase records.
+- **Two defects were in my own diff.** The first build crashed the builder on
+  the tablet: the screen built its own candidate, ST 8, and `Attributes`
+  throws on it. The session's `canSet*` now builds the same candidate as the
+  setter. The diff review's HIGH was that the repair overflowed
+  `SecondaryDelta` (Will −100 plus Abyss's −1 = −101) inside the save it was
+  rescuing. The fix checks bought scores before digested ones, so a floor
+  holds on the bought score too.
+
+Eleven mutations were run and all were caught. **"Four" was then re-checked**
+with a wider census (Dodge/Speed/Move guards, `coerceIn` bounded by a score,
+a derived divisor) and on the tablet at Speed and Move −100. Both were clean,
+and the queries are in 6ek. The repair reprices a few pre-6ek saves that
+never crashed; the review's advice to report that was declined, and the
+reason is recorded. The device check passed: the
+crashing save opens, `−` reads `enabled=false` at the floor, and Drink is
+disabled with its reason printed. **The successor is the ceiling side of the
+same overflow, read off `PotionDigestion.kt:206-215` and not reproduced.**
+The builder buys up to +100 and to ST 30, and a potion's grant pushes past
+the `SecondaryDelta` and `Attributes` bounds.
 
 **6ej is next, and it is the thing 6ei saw on the way and did not touch:
 the Drink button printed nothing about its own roll.** *Drink and roll* is

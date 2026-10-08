@@ -6726,6 +6726,172 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ep. Three refusals re-asked, and the one that was half a roll
+
+6eo named no successor and 6ek's list was empty. The handover names one
+cheap check for that state: 6dy's census of the 196 unclaimed mechanical
+lines is *"a claim with an expiry date — three of its rows are refusals
+whose reason is a claim about this app, and one grep per row is what
+checking it costs"*. This slice ran them.
+
+### The three rows
+
+| Book lines | Refusal as recorded | Query | Verdict |
+|---|---|---|---|
+| 2599-2601, Grappling ST bonus | *"needs an ST-for-grappling path and a trait (`Wrestling Master`) this app does not hold"* | every row of `unarmed_attacks.json` with an `opposedRoll`; a grep of the content files for the trait | **Holds, on a sharper reason.** The three grappling rows roll Wrestling against *"DX or Escape"* or *"DX or Wrestling"*. No roll on the book's own table reads ST, so the bonus has nothing to modify. The trait is in no content file. |
+| 4398, CoR by a month's abstinence | *"refused, the clock again"* | the CoR stepper | **Holds, and the reason was the wrong one.** The CoR `−1` stepper already applies it. What the app does not hold is the month, which is the GM's. |
+| 2861-2895, the recovery rates | *"they are clocks, and this app holds none"* (6dc) | the table itself, lines 2857-2900 | **Splits.** Below. |
+
+Two neighbours were read on the way and stand. Line 4161's wrong-timing
+penalty is refused for a reason about the BOOK (preparation already prices
+timing), pinned by `extract_ritual.py`. Line 2375's initiative roll is
+refused for *"no initiative, no map, no turn counter"*, and a grep for
+`initiative` over both source trees finds comments only.
+
+### The split
+
+The table's first row reads *"Natural Recovery (HT roll success) — 1 HP (2
+HP w/ Very Rapid Healing) — Per day; rest & food required"*, and line 2897
+calls it *"the daily HT roll used for Natural Recovery"*. 6dc's reason
+covers the RATE. It does not cover the roll, and this app already makes
+that split: `StunRecovery` offers *"roll HT each turn"* and leaves the turn
+to the GM, and the fright table's recovery rolls do the same (6dr, 6ds).
+The app had no way to roll a bare HT at all, so the row reached nothing.
+
+The player guide's *"Track a clock it does not hold"* bullet names FP
+recovery, stun duration and reload rates. It never named HP. The design
+review was asked whether that absence was a deliberate statement, and
+answered that an omission establishes no exclusion.
+
+### The design review: build it, and restore nothing
+
+Codex returned **A, with explicit limits on automatic healing**. Its
+strongest objection decided the shape: *"rolling and changing HP presents
+an authoritative result despite unresolved scaling and unrepresented
+healing abilities."* So the roll is offered and **nothing is restored by
+it**. The book's rows are printed, and the HP stepper applies them. Each of
+these would otherwise have been decided in silence:
+
+- *"Natural Recovery (20–29 HP) — 2× base rate"* does not say maximum or
+  current HP.
+- *"scales proportionally"* prints no band past 39, and the builder reaches
+  a maximum well past 100 (ST 19 and a hundred HP steps). `floor(max / 10)`
+  would be an extrapolation.
+- *"2 HP w/ Very Rapid Healing"* names a trait no catalogue prints. The
+  phrase occurs once in the book (6dc).
+
+Its other findings, all taken:
+
+- **The dead are not offered the roll.** My draft showed the row whenever
+  HP was below maximum, which includes *"Dead — no roll required"*.
+- **The result is not keyed on the target**, unlike `VitalRollRow`. The HP a
+  success restores can lift the pool penalty, and the result has to outlive
+  the taps that apply it. It prints the target it was rolled against.
+- **The row prints all three cells**, so *"rest & food required"* is on
+  screen.
+
+### Rapid Healing has no carrier
+
+*"Rapid Healing +5 to daily HT rolls to recover HP"* (6928-6930) is granted
+by Chained Sequence 8 and by nothing else: a search of both pathway
+catalogues and `advantages.json` for `Rapid Healing|daily HT|Regenerat|Very
+Rapid` finds that one grant, Chained 7 and 6's Regeneration, and two
+abilities that use the word (Moon 9, Everlasting 9). A potion's advantages
+are prose, so no `Trait` holds the
++5. Matching it out of prose at roll time is the parser-in-the-engine this
+repo refuses.
+
+So the row carries a `−1 / +1` modifier, unbounded as the Fright dialog's
+is, and says what it is for. The first wording was wrong, and the diff
+review caught it: *"none is applied for you"* sat beside a target that DOES
+include the all-HT-roll traits, which invites entering Fit twice. It now
+reads *"Only what this line shows is applied for you"*, under the line that
+shows it.
+
+### What was built
+
+- `tools/extract_recovery.py` reads lines 2860-2868 as three three-cell
+  rows into `hp_recovery.json`, verbatim. It refuses a cell count that is
+  not a multiple of three, and pins the three method names, so a widened
+  range fails.
+- `ContentLoader.hpRecovery()` and `HpRecoveryRow`.
+- `NaturalRecovery`: `isOffered(hp)`, `bonusFor(traits)` (the all-HT-roll
+  traits, NOT `VitalRolls.bonusFor`, whose two bonuses are scoped to death
+  and consciousness), `targetFor(ht, traits, poolPenalty, gmModifier)`, and
+  `UNMODELLED`: First Aid, Physician, the Healing advantage and
+  Regeneration, each with its own reason. Only the last is a clock.
+- `RecoveryRollRow` under the HP row in the Vitals tab.
+
+### Tests, mutations, and two functions with no caller
+
+Four Python tests and six Kotlin ones, each failing first (an unresolved
+import, an unresolved object).
+
+| Mutation | Caught by |
+|---|---|
+| offered to the dead | *the roll is offered to a hurt character who is not dead* |
+| offered at full HP | the same |
+| takes the death-roll bonus | *the bonuses scoped to the two threshold rolls stay with them* |
+| drops the GM modifier | *the target is HT, the pool penalty and what the GM adds* |
+| drops the pool penalty | the same |
+| drops the traits | *a trait that reaches every HT roll reaches this one* |
+| two more, on `rollRow` and `largerBodies` | caught, and then both functions were deleted |
+
+**`rollRow()` and `largerBodies()` were written, tested, mutated and
+called by nothing.** The composable prints `rows()` whole. That is 6cf's
+class, a tested function with no caller, in code an hour old. Both are
+gone, with their assertions.
+
+Tests: 1803 Kotlin (1262 `core:rules`, 521 `app`, 20 `core:model`) after
+`--rerun-tasks`, and 361 Python. Content files: 82. Chapter 5 reads 78.2%
+with 34 unclaimed mechanical lines, from 76.3% and 37, measured by moving
+the new file aside and back.
+
+### The diff review, and a finding about my own process
+
+Codex returned **FIX** with three findings.
+
+- **HIGH, refuted.** *"Recovery includes Hard to Kill through
+  `VitalRolls.bonusFor(SURVIVAL, …)`"*. `NaturalRecovery.kt:53` calls
+  `TraitEffects.htRollBonus(traits)`. The reviewer read the file while my
+  mutation harness held its third mutant in place, which is exactly that
+  line. **I started the review and the mutations in the same minute, on the
+  same file.** The finding was true of what it read. A reviewer and a
+  harness must not share a working tree at the same time.
+- **MEDIUM, taken.** The *"none is applied"* wording, above.
+- **LOW, taken.** *"The table's other four methods"* was three. Regeneration
+  is a separate table under its own heading (2879). A count in prose again.
+
+It verified by execution that lines 2860-2868 produce exactly the committed
+rows and that both guards fire. It could not run the Kotlin suite.
+
+### On the SM-T570
+
+Academic Researcher, HT 9, `HP 9 / 9`.
+
+| State | Vitals |
+|---|---|
+| `HP 9 / 9` | no recovery row |
+| HP `−1` → `8 / 9` | the three rows, verbatim; `−1` `0` `+1`; **Roll HT 9 — a day of rest and food** |
+| `+1` × 5 | *"HT 9, +5 entered"*; **Roll HT 14** |
+| the roll | `3d6: 12 vs 14 - success`; the HP row still reads `8 / 9`; **Another day** |
+| **Another day** | the button returns at `14`; the entered `+5` is kept |
+| HP `+1` → `9 / 9` | the row is gone |
+
+The premade was left as found at `HP 9 / 9`, and the crash buffer was
+empty. Not exercised: a pool penalty or a trait in the breakdown,
+and the dead state. Those three are unit-tested only.
+
+### Seen and not touched
+
+- **Rapid Healing's +5 is entered by hand** and will be until a potion's
+  advantages are rows.
+- **Line 2899**, *"a character with any level of Regeneration still makes
+  HT rolls to avoid unconsciousness"*, is still unread (6dc named it). No
+  catalogue prints Regeneration, so no character the app builds holds it.
+- **The entered modifier is kept across "Another day".** That suits a
+  Chained character and is one more thing to clear for anyone else.
+
 ## 6eo. The purchase on one screen, the character on the next
 
 6en left one of 6ek's items standing: *"The builder prints bought values

@@ -35,7 +35,7 @@ time.** A purchasable row is REACHABLE whether or not a premade prints it:
 catalogue minus Wealth, so the 23 fixtures alone are not a reachability
 corpus (6de). 6dy's census of the 196 unclaimed mechanical lines is a claim
 with an expiry date — three of its rows are refusals whose reason is a claim
-about this app, and one grep per row is what checking it costs (6dy). And on
+about this app, and one grep per row is what checking it costs (6dy; 6ep ran all three, and one split). And on
 a fresh clone the regeneration order is `extract_pdf.py`, then `coverage.py`,
 then the extractors, because `coverage.py` writes `build/extract/book.txt`,
 the anchor every `sourceLines` number is read against (6ed).
@@ -135,7 +135,35 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6eo is newest, and it is the last of 6ek's items: the builder printed the
+**6ep is newest, and it ran the check this file names for a state with no
+successor: 6dy's three refusals whose reason is a claim about the app.**
+Two hold on sharper reasons. No roll on the book's grappling table reads
+ST, and the CoR stepper already applies a month's abstinence. **The third
+split.** The HP recovery table was refused whole as *"clocks"*, and its
+first row is a ROLL: *"Natural Recovery (HT roll success)"*, *"the daily HT
+roll"*. Read it for four things.
+
+- **The roll is offered and nothing is restored.** The design review chose
+  that: the book does not say whether *"20–29 HP"* is maximum or current,
+  prints no band past 39, and names *"Very Rapid Healing"*, a trait in no
+  catalogue. The Vitals tab prints the three extracted rows under the HP
+  row, and the stepper applies them. The dead are not offered it.
+- **Rapid Healing's +5 has no carrier.** Chained Sequence 8 grants it as
+  prose, so the row takes a modifier by hand and says what it already
+  counts. My first wording, *"none is applied for you"*, sat beside a
+  target that includes the all-HT-roll traits.
+- **The diff review's HIGH was true of a mutant.** I ran the reviewer and
+  the mutation harness on one file in the same minute. Never do both at
+  once in one working tree.
+- **Two tested, mutated helpers had no caller**, and were deleted.
+
+Still refused, in `NaturalRecovery.UNMODELLED`: First Aid, Physician, the
+Healing advantage and Regeneration. Device-verified on the SM-T570: no row
+at `9 / 9`; at `8 / 9`, **Roll HT 9**, then `14` with `+5 entered`, `3d6: 12
+vs 14 - success`, HP unchanged. There are 82 content files now. **No
+successor is named.**
+
+**6eo is next, and it is the last of 6ek's items: the builder printed the
 purchase and the sheet printed the character.** One save on the SM-T570,
 Abyss Sequence 9 at 100%, read `HP 11 / 11` on the sheet and `HP 9` in the
 builder. The attribute and secondary rows now show the value as played, and
@@ -247,49 +275,10 @@ sub-agent each. Device-verified after the fix: the save opens at ST 19, `+`
 is `enabled=false`, and Seq 6 renders. **No successor is named**; 6ek's
 three seen-and-not-touched items stand.
 
-**6ek is next, and it is 6ej's successor, which turned out to be the
-smallest of four: the builder sold every secondary a hundred steps, and four
-`core:rules` guards throw below HP/FP 1, a CoR ceiling of 1 and Per 0.**
-The HP one runs while the screen is drawn, and it was reproduced on the
-SM-T570. Antiquarian Dealer with HP sold 11 steps (Abyss 9 grants +2) crashed
-the sheet at `MainActivity.kt:374` on every open, because the save kept the
-number. Read it for four things.
-
-- **The book prints no floor** (lines 353-386), so `ScoreFloors` is the app's
-  bound. Its constants are the ones the guards read.
-- **There are four writers, and a builder floor reaches only the two
-  steppers**: secondary `−`, and attribute `−`, which moves Will, Per, HP and
-  FP. Selling Spiritual Fortitude drops the ceiling by three (the design
-  review's catch). Drink is the fourth: only
-  Abyss lowers anything (Will), a test pins that census, and Drink is now
-  refused before its roll. So half of 6ej's *"the builder's bound is where it
-  is answered"* has expired.
-- **A bad save is repaired once on opening and written back, not lifted on
-  every read.** The design review showed that lifting on read leaves two
-  purchase records.
-- **Two defects were in my own diff.** The first build crashed the builder on
-  the tablet: the screen built its own candidate, ST 8, and `Attributes`
-  throws on it. The session's `canSet*` now builds the same candidate as the
-  setter. The diff review's HIGH was that the repair overflowed
-  `SecondaryDelta` (Will −100 plus Abyss's −1 = −101) inside the save it was
-  rescuing. The fix checks bought scores before digested ones, so a floor
-  holds on the bought score too.
-
-Eleven mutations were run and all were caught. **"Four" was then re-checked**
-with a wider census (Dodge/Speed/Move guards, `coerceIn` bounded by a score,
-a derived divisor) and on the tablet at Speed and Move −100. Both were clean,
-and the queries are in 6ek. The repair reprices a few pre-6ek saves that
-never crashed; the review's advice to report that was declined, and the
-reason is recorded. The device check passed: the
-crashing save opens, `−` reads `enabled=false` at the floor, and Drink is
-disabled with its reason printed. **The successor is the ceiling side of the
-same overflow, read off `PotionDigestion.kt:206-215` and not reproduced.**
-The builder buys up to +100 and to ST 30, and a potion's grant pushes past
-the `SecondaryDelta` and `Attributes` bounds.
-
-**6ej back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6ek back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ek** — the builder sold every secondary a hundred steps and four guards threw below HP/FP 1, a CoR ceiling of 1 and Per 0; `ScoreFloors`, one repair on opening, Drink refused before its roll;
 **6ej** — the Drink button printed nothing about its own roll; `pcrLine` feeds both blocks, and the new line could crash the block it was drawn on, a Will below 1 throwing in composition;
 **6ei** — two taps milliseconds apart DO reach one composition's handler, so 6ef-6eh's "two frames" premise was false; Drink alone had no re-entrancy guard and crashed on an SM-T570;
 **6eh** — seven more engines roll the target they printed; `attempt` became test-only, and no test had rolled a Spirit Vision success through the engine;
@@ -359,7 +348,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: the slice log, from the END — 6eo first.** The
+**Where to start next: the slice log, from the END — 6ep first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -414,7 +403,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1797 Kotlin** (JUnit 5 — 1256 `core:rules`, 521 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1803 Kotlin** (JUnit 5 — 1262 `core:rules`, 521 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -457,7 +446,7 @@ qa-findings/    free-model QA harness: batches.txt + two round scripts
 `PotionDigestion`,
 `Attacks`, `Damage`, `Ranged`, `Wounds`, `Premades`, `RitualResolution`,
 `RandomSource`, `SecondaryCharacteristics`, `SheetComparison`, `SkillLadder`,
-`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading all 81 JSON
+`SkillRoll`, `SuccessRoll`, plus `content/ContentLoader` reading all 82 JSON
 files from `core/rules/src/main/resources/content/` — **every one of them has
 a loader as of 6dh**, which closed `spirit_vision.json`, the last file no
 Kotlin named. Re-run that sweep rather than trusting this sentence; the query
@@ -465,7 +454,7 @@ is in 6dg: `skills.json` (158),
 `advantages.json` (99), `disadvantages.json` (99), `thrust_swing.json` (30),
 `pathways.json` (88), `acting_method.json` (5), `potion_consumption.json` (11),
 `cor_gained.json` (6), `ritual_cor_thresholds.json` (4),
-`pool_thresholds.json` (9), `fright_triggers.json` (5),
+`pool_thresholds.json` (9), `hp_recovery.json` (3), `fright_triggers.json` (5),
 `fright_effects.json` (9), `ritual_weights.json` (3),
 `ritual_failures.json` (4), `ritual_critical.json` (9), `defenses.json` (4),
 `defense_modifiers.json` (5), `maneuvers.json` (14),
@@ -521,6 +510,7 @@ SuccessRoll.against(target, source: RandomSource): RollResult
 ContentLoader.skills() / .advantages() / .disadvantages() / .thrustSwing()
 ContentLoader.pathways() / .actingMethod() / .potionConsumption()
 ContentLoader.corGained() / .ritualCorThresholds() / .poolThresholds()
+ContentLoader.hpRecovery()            // p. 42's three Natural Recovery rows
 ContentLoader.frightTriggers() / .frightEffects()
 ContentLoader.ritualWeights() / .ritualFailures() / .ritualCriticals()
 ContentLoader.defenses() / .defenseModifiers()
@@ -549,6 +539,13 @@ PurchaseCeilings.attribute(attr) / .secondarySteps(key)   // the highest a
 PotionDigestion.largestGrants(blocks): PotionGrants   // each row's peak
 Pools.hp(current, max) / .fp(current, max) / .spi(current, max): PoolStatus
 Pools.thresholds(pool): List<PoolThreshold>   // empty for FP: prose only
+NaturalRecovery.isOffered(hp) / .rows()       // hurt and not dead; the rows
+                                      // are PRINTED, nothing is restored
+NaturalRecovery.bonusFor(traits) / .targetFor(ht, traits, poolPenalty, gmModifier)
+                                      // all-HT-roll traits only, never
+                                      // VitalRolls.bonusFor's scoped two
+NaturalRecovery.UNMODELLED            // First Aid, Physician, Healing,
+                                      // Regeneration, each with its reason
 Conditions.forSkill(skill, hp, fp, spi, cor): List<Modifier>   // scoped per skill
 Conditions.penaltyFor(kind, hp, fp): Int      // the same two, for the rolls
                                               // outside SkillKey; throws on SKILL
@@ -724,7 +721,7 @@ real RNG in the app. Never call `Random` directly in rules code.
 **Do not enable release minification without adding `kotlinx.serialization`
 keep rules first.** `app/build.gradle.kts` sets no `minifyEnabled` and there are
 no `.pro` files, so R8 is off and every `@Serializable` content class is safe
-today. Turning it on strips the generated serializers and breaks all 81 content
+today. Turning it on strips the generated serializers and breaks all 82 content
 files at once, at runtime, on the first screen that loads one — a class of
 failure no test in this repo can reach (6cz).
 
@@ -912,10 +909,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6eo. The slice log
+## 6a-6ep. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6eo is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6ep is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
