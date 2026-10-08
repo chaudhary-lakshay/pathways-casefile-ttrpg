@@ -6726,6 +6726,141 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6eo. The purchase on one screen, the character on the next
+
+6en left one of 6ek's items standing: *"The builder prints bought values
+without potion grants. Before this slice it showed HP `0` beside a sheet
+reading `2 / 2`. Pre-existing."* Checked before it was believed, on the
+SM-T570: Antiquarian Dealer, Abyss Sequence 9 at 100%, read `HP 11 / 11` on
+the sheet's Vitals tab and `HP 9`, `ST 9`, `Will 10`, `Per 10` in the
+builder. Abyss 9 grants ST +2, Will −1 and Per +2.
+
+The cause was one line. The builder drew every number from
+`Derive.of(character)`, the PURCHASED character, which is the right source
+for the budget and the wrong one for a number the player reads as their
+score. The weapons row on the same screen had already been moved to the
+digested levels for this reason; `liveSkillLevels`' KDoc records it.
+
+### What changed, and what did not
+
+- **Attribute and secondary rows show the value as played**, the number the
+  sheet shows. Where a potion moved it, the small line appends *"N before
+  potions"*. A mortal, and a row no potion touched, print what they printed
+  before.
+- **Everything stepped, priced, bounded or refused stays on the purchase.**
+  In `AttributeRow`, `level` feeds six things: *"pts spent here"*, *"next
+  level costs"*, *"sheet prints"*, `> BASE_ATTRIBUTE`, `< ceiling` and
+  `onChange`. Only the big number has a new source, through a new `played`
+  parameter and not a repointed `level`. `SecondaryRow` takes the bought
+  label beside the played one; its steps were already the save's.
+- **One reading.** `Character.digestedWith(state)` in `EditedCharacter.kt`
+  replaces four inline `PotionDigestion.of(x.copy(beyonder = …), …)` calls:
+  the sheet's vitals and attributes, `shortfallOn` and `corCeilingOn`. The
+  builder is the fifth caller. `MainActivity` no longer imports
+  `PotionDigestion`.
+- **The label is a pure function**, `beforePotions(bought, played)`, null
+  when the two agree.
+
+### Why both numbers
+
+The builder's `−` can be greyed by a floor on EITHER score, and that
+decided the design. Under Abyss, HP bought to 1 plays as 3 and `−` is
+greyed by the bought floor. Will bought to 2 plays as 1 and `−` is greyed by
+the digested ceiling. Either number alone leaves a greyed control beside a
+value that is not at its floor. With both on the row, each floor has its
+number.
+
+The played value is the big one because it is the one the sheet prints, and
+because the secondary row's small line already carried the purchase
+(*"−8 bought"*).
+
+### Skills: labelled, not re-levelled
+
+The skill rows stay on bought levels. My draft left them unlabelled and
+recorded the omission; **the design review's MEDIUM was that an unlabelled
+"level 12" acquires a false meaning** beside attributes now shown as
+played. For a Beyonder each row now reads *"8 pts - level 12 before
+potions"*, and a study destination carries the same words.
+
+They are not re-levelled here for a reason in `PotionDigestion.digest`: a
+potion either lifts a bought skill with its attribute or supersedes it with
+a grant, and the grant's key can differ from the purchase's, because the
+match ignores the controlling attribute. Finding the played level of a
+bought row would take a second matcher on this screen. The sheet prints the
+levels actually rolled.
+
+### Declined
+
+**The design review's other MEDIUM: a printed reason for each refused
+`−`.** Its point is fair, that *"N before potions"* explains the difference
+and not the refusal. But `allows` answers yes or no, five different bounds
+can refuse a step, and a reason per bound is a second slice. Both numbers
+are now beside the control, which is what this slice set out to print.
+
+Its LOW asked whether digestion can throw in composition. It cannot for a
+character the builder holds: the opening repair and `allows` keep every
+save inside the floors (6ek) and ceilings (6el), and the weapons row
+already digests in composition on this screen.
+
+### Tests and mutations
+
+Two tests were written first and failed on unresolved references:
+`digestedWith` on Abyss 9 (ST 11, HP 11, Will 9; null for a mortal), and
+`beforePotions` in both directions and when nothing moved.
+
+| Mutation | Caught by |
+|---|---|
+| the note is never printed | *a number a potion moved…* |
+| the note's condition inverted | the same |
+| the note names the played number | the same |
+| `digestedWith` ignores the potions drunk | *the builder reads the character the sheet plays*, and four session tests through `shortfallOn` and `corCeilingOn` |
+
+**The call sites have no test and are refused one** (section 6, and 6ej's
+precedent). Passing `level` for `played`, or the played value to
+`onChange`, survives the suite. The device pass below is what covers them.
+
+Tests: 1797 Kotlin (1256 `core:rules`, 521 `app`, 20 `core:model`) after
+`--rerun-tasks`, and 357 Python.
+
+### Reviews
+
+Codex answered both, through `codex exec`.
+
+- **The design review returned CHANGE**: the two MEDIUMs and the LOW above.
+- **The diff review returned SHIP with no findings.** It listed thirteen
+  bought reads in `BuilderScreen.kt` and found none switched. It could not
+  verify that the weapons row's new expression equals `liveSkillLevels`,
+  whose body was outside its scope. Read here: both are
+  `PotionDigestion.of(…)?.skillLevels ?: Derive.of(…).skillLevels` on the
+  same character.
+
+### On the SM-T570
+
+Antiquarian Dealer, Abyss Sequence 9 at 100%, `87 of 100 points`.
+
+| State | Builder |
+|---|---|
+| before | ST `9`, HP `9`, Will `10`, Per `10`; the sheet reads `HP 11 / 11` |
+| after | ST `11` *"— 9 before potions"*, `−` `enabled=false`; HP `11` *"9 before potions"*; Will `9` *"10 before potions"*; Per `12` *"10 before potions"*; DX, IQ, HT, FP, Speed and Move unchanged and unlabelled |
+| ST `+` | ST `12`, *"10 pts spent here — next level costs 20 — sheet prints 9 — 10 before potions"*; HP `12` *"10 before potions"*; `97 of 100` |
+| ST `−` | back to `11`, `87 of 100` |
+| skill rows | *"8 pts - level 12 before potions"*, with the study line under each |
+
+The premade was left as found: `87 of 100 points`, *"1 of 16 values
+differ"*, crash buffer empty. A stray tap opened and dismissed Academic
+Researcher's Fright dialog without rolling. Not exercised: a mortal's
+builder after this change (Academic Researcher is on Fool 9), and a row at
+a floor.
+
+### Seen and not touched
+
+- **6ek's list is empty.** No successor is named.
+- **A refused `−` still prints no reason**, above.
+- **The sheet's Vitals tab prints `HP 11 / 11` above a comparison row
+  reading `HP | 9`.** That table is the engine against the published sheet
+  by design (spec section 6), so it was left. It is the same two numbers
+  this slice put on one row in the builder, and there they are labelled.
+
 ## 6en. Two rows the floors did not reach
 
 6em left two of 6ek's items standing. This is the first: *"Selling a

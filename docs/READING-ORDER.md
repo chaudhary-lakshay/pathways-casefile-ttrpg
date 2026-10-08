@@ -190,7 +190,40 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6ei back to 6de
+## Retired lead paragraphs, 6ej back to 6de
+
+**6ej is next, and it is the thing 6ei saw on the way and did not touch:
+the Drink button printed nothing about its own roll.** *Drink and roll* is
+drawn on the NEXT Sequence's block (`drunk.canDrink(chosen)`), and the roll's
+target and early-advancement cost only in `DigestionTracker`, drawn where
+`isCurrentPotion` holds — two conditions one block cannot meet, quoted by the
+design review before any code. So the one irreversible roll on that screen,
+3d6 ≤ 1 at 0% digestion, was made beside neither number. Read it for four
+things. **One line, two blocks**: `pcrLine(state)` feeds the tracker and the
+button, and `PotionConsumption.corCostFor(state)` is the `isFullyDigested`
+decision `attempt` and the tracker had each written for themselves. **The
+design review added the half that matters**: a target and a cost read as the
+whole risk, and at the book's floor of 10 CoR against a Will of 10 the roll
+can be survived and the character lost on the same tap — as it can to a
+zero-cost potion that lowers Will onto the total. `drinkLine` says so before
+the tap, from `Corruption.isLostAfter`, which `gainCor` asks too. **6eh's
+"the potion roll is left, and its window is open" is closed, by 6ei,
+unremarked**: `stillShows` compares the whole `BeyonderState`, digestion
+included, so the printed target is the rolled one or the tap does nothing.
+**`onSamePotion` has its reviewer now** — correct, and the CoR step it drops
+after a Drink is the design. Six mutations, all caught, the sixth
+(`${cor + cost}` → `$cor`) only after the diff review. **The call site has no
+test and is refused one** (section 6): passing `maxCor` for
+`maxCorFor(chosen)` survives the suite. **Device-verified on the SM-T570** on
+the pair that tells those apart — Antiquarian Dealer as an Abyss Criminal,
+tracker `0 / 9`, line *"Maximum CoR after this potion is 8; 10 CoR reaches
+it"*; at 100%, `3d6 ≤ 19` and no warning. Not exercised: a tap on *Drink and
+roll*. **The final review found the line could crash the block it is drawn
+on**: a Will bought below 1 makes `Corruption` throw, and composition now
+asked. `drinkLine` prints that state instead, RED first. **The successor is
+what that exposed**: the builder sells Will down a hundred steps, and every
+CoR-gaining TAP on such a character still throws — the steppers, Drink, a
+ritual's CoR, Soul Debt.
 
 **6ei is next, and it is the first claim in this chain produced on a
 device.** 6eh named a stale check on Drink because "the digestion stepper is
