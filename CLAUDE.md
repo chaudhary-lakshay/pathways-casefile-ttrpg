@@ -171,8 +171,10 @@ one handed a revolver had no shot. Read it for four things.
 Codex answered both reviews: CHANGE on all three design questions, with
 two HIGHs on when the mastery applies, then FIX on the diff. Taken: the
 floor reaches a BOUGHT skill below DX too. **Declined**: a Compose test for
-the two `atLevel` call sites (section 6). Fourteen mutations, fourteen
-caught. On the SM-T570: `Brawling (untrained, DX-2, …) 7`, `1d-3 cr`; a
+the two `atLevel` call sites (section 6). Twelve mutations of the code as
+it stands, twelve caught. **The floor then printed a parry of 9 in Attack
+beside Defend's 8**, found after both reviews: a fix for a review finding
+is code no review has read. On the SM-T570: `Brawling (untrained, DX-2, …) 7`, `1d-3 cr`; a
 seeded Warrior's `Knife (DX, Warrior's "no default penalty") 11`, then `7`
 and `Deceptive 0` with the knife down. **Successors**: the Defend dialog
 takes no default, Warrior's *default +2*, and 6es's two lists.

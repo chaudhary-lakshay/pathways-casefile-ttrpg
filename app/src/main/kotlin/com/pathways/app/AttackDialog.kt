@@ -323,6 +323,15 @@ fun AttackDialog(
                         listOfNotNull(mastery?.unapplied, toolNote.takeIf { chosen.untrained != null })
                     },
                     isUntrained = chosen.untrained != null,
+                    // The skill's OWN level, never the one a mastery lifted:
+                    // Defend prices the same weapon off the sheet's level
+                    // (`Weapons.levelFor`), and a parry of 9 here beside 8
+                    // there is two numbers for one fact. Whether a weapon
+                    // "treated as known at DX" parries at DX is the open
+                    // question, and it is answered on both screens or neither
+                    // (found by the final check, after both reviews).
+                    parryLevel = chosen.level,
+                    isMastered = isMastered,
                     plan = plan,
                     unarmed = unarmed,
                     // Two unrelated bonuses reach damage: All-Out Attack
@@ -464,6 +473,8 @@ private fun AttackOptions(
     skillLevel: Int,
     notes: List<String>,
     isUntrained: Boolean,
+    parryLevel: Int,
+    isMastered: Boolean,
     plan: AttackPlan,
     unarmed: UnarmedAttack?,
     damage: DamageRoll?,
@@ -522,7 +533,7 @@ private fun AttackOptions(
                 )
             }
         }
-        ArmedWith(weapons, armed, skillLevel, isUntrained, onArmed)
+        ArmedWith(weapons, armed, parryLevel, isUntrained, isMastered, onArmed)
         // Chips WRAP rather than scroll sideways: a horizontally scrolling Row
         // inside an AlertDialog never received the drag on a 1080px phone, so
         // three of the five maneuvers -- Strong, Double and Charge -- could not
@@ -755,8 +766,9 @@ private fun AttackResult(outcome: SkillRollOutcome) {
 private fun ArmedWith(
     weapons: List<CataloguedWeapon>,
     armed: Armed?,
-    skillLevel: Int,
+    parryLevel: Int,
     isUntrained: Boolean,
+    isMastered: Boolean,
     onArmed: (Armed?) -> Unit,
 ) {
     if (weapons.isEmpty()) return
@@ -801,8 +813,9 @@ private fun ArmedWith(
                     if (isUntrained) {
                         "no parry offered without the skill"
                     } else {
-                        Weapons.parryFor(held.weapon, skillLevel)
-                            ?.let { "parry $it" } ?: "cannot parry"
+                        Weapons.parryFor(held.weapon, parryLevel)
+                            ?.let { "parry $it" + if (isMastered) " (the skill's own, not lifted)" else "" }
+                            ?: "cannot parry"
                     }
                     ) +
                 " · ${held.weapon.cost}",

@@ -6806,13 +6806,38 @@ Codex again: FIX, two MEDIUMs.
   whose Brawling sits below DX, which a potion's frozen grant can produce
   and no premade does. It runs the same call and was not driven.
 
+### After both reviews: a parry of 9 on one screen and 8 on the other
+
+The final check traced what the diff review's own fix had done. The floor
+lifts a bought skill, the weapon line under the header read the lifted
+level, and `Weapons.parryFor` priced a parry from it. Defend prices the
+same weapon off the sheet's level, through `Weapons.levelFor`. A Warrior
+at DX 12 with one point in Axe/Mace would have read `parry 9` in Attack
+and `8` in Defend. Before the fix nothing could disagree, because every
+lifted row was untrained and printed no parry at all.
+
+- **The weapon line prices its parry from the skill's own level**, and
+  says so where a mastery lifted the attack: *"parry 8 (the skill's own,
+  not lifted)"*. Whether a weapon *"treated as known at DX"* parries at DX
+  is the open question, and it is answered on both screens or neither.
+- **My own device pass could not have shown it.** The seeded Librarian's
+  DX is 11, and at an odd DX the two parries coincide. The proof needs an
+  even one: Beat Cop as a Warrior, DX 12, Axe/Mace bought at 11, a Hand
+  Axe carried. Attack prints the line above, and Defend prints `Parry
+  (Hand Axe)` `8`.
+
+**A fix for a review finding is new code no review has read.** The parry
+line is a composable, so nothing but that device pass covers it.
+
 ### Verification
 
 1850 Kotlin (1301 `core:rules`, 529 `app`, 20 `core:model`), green from the
 JUnit XML after a full run. Python was not run: no tool changed.
 
-**Fourteen mutations, fourteen caught**: ten before the diff review
-(`ran=59`), and four of the floor after it. Never beside a review.
+**Twelve mutations of the code as it stands, twelve caught** (`ran=59`):
+eight before the diff review and four of the floor after it. Two more were
+caught against `wielded`, which the floor replaced, and count for nothing
+now. Never beside a review.
 
 On the SM-T570 (`R52TA076AEZ`). The save was copied off, seeded with one
 extra entry for the Warrior, and written back afterwards; `cmp` reports it
@@ -6831,8 +6856,10 @@ identical to the copy.
 
 Mathematics and History are on the Researcher's sheet and not offered
 back, which is 6et's late fix seen on a screen. **Not exercised on the
-tablet**: a Weapon Master, a bought skill below DX lifted by the floor, and
-the Harvest Priest's note. All three are unit-tested.
+tablet**: a Weapon Master, and the Harvest Priest's note. Both are
+unit-tested. The header of a lifted BOUGHT skill was not read back either:
+it is absent from the dump, which drops text holding a quotation, and I
+took no screenshot of that screen.
 
 ### Seen and not touched
 
