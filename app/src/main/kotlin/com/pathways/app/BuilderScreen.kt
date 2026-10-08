@@ -390,7 +390,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
 
     if (pickingLanguage) {
         LanguagePicker(
-            saved = session.edits.languages,
+            owned = session.edits.ownedLanguages(start.traits),
             priced = { session.edits.pricedWith(it, start.traits) },
             onBuy = {
                 session.buyLanguage(it)

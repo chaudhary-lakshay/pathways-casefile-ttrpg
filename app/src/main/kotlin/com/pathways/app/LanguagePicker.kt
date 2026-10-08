@@ -75,12 +75,14 @@ internal fun LanguagesRow(
  *
  * The proficiency and the form are plain state, not keyed on the language: a
  * keyed `remember` resets a frame late (6ef). Picking a language the
- * character owns loads what they own, in the tap itself.
+ * character owns loads what they own, in the tap itself -- from [owned], the
+ * RESOLVED list, never the raw save: a hand-edited row the book does not
+ * print would load a proficiency with no price and grey the button (Codex).
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun LanguagePicker(
-    saved: List<SavedLanguage>,
+    owned: List<OwnedLanguage>,
     priced: (SavedLanguage) -> OwnedLanguage?,
     onBuy: (SavedLanguage) -> Unit,
     onDismiss: () -> Unit,
@@ -90,7 +92,7 @@ internal fun LanguagePicker(
     var form by remember { mutableStateOf(Languages.BOTH_FORMS) }
     val candidate = name?.let { SavedLanguage(it, proficiency, form) }
     val price = candidate?.let(priced)
-    val isOwned = saved.any { it.language.equals(name, ignoreCase = true) }
+    val isOwned = owned.any { it.purchase.language == name }
 
     @Composable
     fun group(title: String, languages: List<LanguageEntry>) {
@@ -101,9 +103,9 @@ internal fun LanguagePicker(
                     selected = name == language.name,
                     onClick = {
                         name = language.name
-                        saved.firstOrNull { it.language.equals(language.name, ignoreCase = true) }?.let {
-                            proficiency = it.proficiency
-                            form = it.form
+                        owned.firstOrNull { it.purchase.language == language.name }?.let {
+                            proficiency = it.purchase.proficiency
+                            form = it.purchase.form
                         }
                     },
                     label = { Text(language.name) },
