@@ -6761,7 +6761,7 @@ after the first commit. A triage line in a write-up is a claim too.
 | Resistant: *"the one bare HT roll this app makes — a Major Wound's"* | `htRollBonus` callers and the HT rolls on screen | **Stale count.** Five now: major wound, consciousness, survival, stun recovery, daily recovery. The verdict holds and the count is gone. |
 | the Retreat note: *"the GM's to count; this screen keeps no round"* | `RoundState.newRound()`, the **New round** button | **False since 6cp.** The screen keeps a round and clears Retreat on it. Which attack is the one is still the GM's. |
 | First Aid: *"this app tracks a pool and no wounds, so it cannot say which wound was treated"*, and the guide's *"First Aid … not offered"* | `skills.json`, the fixtures, `TraitEffects.SKILL_BONUSES` | **The reason holds and its implication does not.** First Aid is a catalogue skill on nine premades, rolled from Skills with Healer's +3 applied. ae2f957 fixed the same sentence for Physician and missed its sibling. |
-| the builder, of `Language (specify)` and Reputation together: *"it prices itself by a procedure this app has not read"* | `language_proficiency.json`, `Languages.proficiencies` | **False of one of the two.** `Languages` loads the table and the ritual dialog reads it. Split, below. |
+| the builder, of `Language (specify)` and Reputation together: *"it prices itself by a procedure this app has not read"* | `language_proficiency.json`, `Languages.proficiencies` | **False of both.** `Languages` loads the language table and the ritual dialog reads it; for Reputation the book prints no procedure to read. Split, below. |
 | Iron Jaw: *"no knockdown for a hit location, and no bite"* | `unarmed_attacks.json` for `bite` | Holds. |
 | Eidetic Memory, Lightning Calculator, Natural Leader, Lord of Storms: no recall, numerical, morale or pressure roll | the roll engines | Hold. |
 | Fit, Very Fit, Unfit, Rapid Recovery: *"no clock"* | book 2838-2846, and the cell of Rapid Recovery | Hold. 6ep's split does not transfer: the FP table prints rates and no roll, and both of Rapid Recovery's halves are durations. |
@@ -6811,18 +6811,27 @@ written-only costs half"* and *"Language Talent halves all costs (rounded
 up)"* interact, and the book combines them in no worked example. That is a
 reason about the book. The builder printed a different one, about the app,
 and shared it with Reputation, which prints *"varies"* and no table at all.
-`unoffered()` now files the language row alone, under the book's sentence
-and *"the builder sells no language yet"*.
+`unoffered()` now files the language row alone.
+
+**My first rewording moved the false claim rather than removing it.** It
+led with the two halvings, and a second Codex pass over the changes made
+after its first returned a MEDIUM: book 638-639 states both, ordinary
+purchases need neither, and a missing worked example *"does not establish
+that pricing is unspecified"*. The row now reads *"buying a language is
+not built yet; the Languages section prices it by proficiency, and this
+app holds that table"*. Reputation's half of the old sentence went in the
+same pass, on the final review: the book prints *"varies"* and no
+procedure, so there was none for the app to have left unread.
 
 **Nothing is sold by this.** A language at full proficiency with no
-Language Talent is one printed number (6, 4 or 2; 30, 20 or 10), so the
-recorded reason refuses every case for an ambiguity two of them have. That
-is the successor.
+Language Talent is one printed number (6, 4 or 2; 30, 20 or 10). That is
+the successor.
 
 ### Tests and mutations
 
 Six tests. Five were RED first on an unresolved parameter and two
-unresolved names, and the sixth on its own assertion.
+unresolved names, and the sixth on its own assertion, three times: once
+for each rewording of the builder's two reasons.
 
 | Mutation | Caught by |
 |---|---|
@@ -6845,6 +6854,25 @@ before a survivor counts.
 
 1809 Kotlin (1268 `core:rules`, 521 `app`, 20 `core:model`) after
 `--rerun-tasks`, and 361 Python, which this slice did not touch.
+
+### The final review, and the pass it asked for
+
+Commit `4e0469c` and two rewordings of the Versatile note were made after
+the diff review and had been read by nobody. The final review named that,
+and four sentences:
+
+- The guide said *"Defaulted from"* sits *"under the target"*. On the
+  tablet it sits under the dialog's title, and the target is at the bottom
+  beside **Ask**. I wrote the sentence before taking the screenshot that
+  disproves it.
+- The guide's *"applies nothing for either"* is false of Healer's +3 on a
+  First Aid roll. It says *"restores no HP"* now.
+- Physician's entry still said *"a skill roll the sheet already offers"*
+  with no condition, the implication the design review's LOW was about.
+- Reputation, above.
+
+The second Codex pass confirmed by reading that no other roll at a default
+exists in either source tree, and found the language MEDIUM.
 
 ### The diff review
 

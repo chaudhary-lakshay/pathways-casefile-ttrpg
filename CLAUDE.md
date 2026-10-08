@@ -137,9 +137,10 @@ nothing new unless the batches change.
 
 **6eq is newest, and it ran 6ep's check where refusals actually live:
 every reason in production source whose subject is THIS APP.** 6ep re-asked
-three rows of a journal census. The query in the section returns 39 lines
-across `TraitEffects`, the four `UNMODELLED` / `UNPAYABLE` maps and the
-notes `DefenseDialog` prints. Six were false or stale. Read it for four
+three rows of a journal census. The query in the section returned 39 lines
+at `ae2f957`, across `TraitEffects`, the `UNMODELLED` / `UNPAYABLE` /
+`UNAPPLIED` maps, `PurchasableTraits.unoffered()` and the notes
+`DefenseDialog` prints. Seven were false or stale. Read it for four
 things.
 
 - **One changed a roll.** Versatile's *"+1 to defaults skill rolls"* was
@@ -153,21 +154,26 @@ things.
   Skills. Medical Training's Physician at IQ−2 is a gap and now says so.
   The builder refused `Language (specify)` for *"a procedure this app has
   not read"* while `Languages` held its table. I found that one checking
-  my own *"four are not refusals"*.
+  my own *"four are not refusals"*, and Reputation's half of the same
+  sentence fell to the final review: the book prints no procedure to read.
+  **My first rewording of the language row moved the false claim**, onto
+  two halvings book 638-639 states outright. It took a second review pass.
 - **The device caught what no test reads**: the sheet prefixes a clause
   note with *"Not applied here:"*, and my reason began *"applied where"*.
 - **The mutation harness printed eight SURVIVED lines twice** before it
   launched Gradle. A `ran=` column is what stopped them being read.
 
-Codex answered both reviews: SHIP on the design, FIX on the diff with two
-LOWs, both taken. On the SM-T570: `Divination Arts 11`, *"Defaulted from
+Codex answered three times: SHIP on the design, FIX on the diff with two
+LOWs, and a MEDIUM on what was changed after that. All taken. On the SM-T570: `Divination Arts 11`, *"Defaulted from
 Ritualistic Magic 12, +1 for Versatile"*, `Roll 3d6 ≤ 13`. **Two successors
 are named.** The builder sells no language, and the recorded reason (two
 halvings the book never combines) refuses every case for an ambiguity most
 do not have: review the design first. And 6dy calls the Brawling and
 Wrestling defaults implemented by `SkillLadder.defaultFor`, which has no
 production caller, while book 2540's *"Default: DX-2 if untrained"* is one
-printed number.
+printed number. Wiring it is a second roll at a default: it must take
+Versatile's +1, and it makes the sheet's *"no other roll at a default"*
+false in the same commit.
 
 **6ep is next, and it ran the check this file names for a state with no
 successor: 6dy's three refusals whose reason is a claim about the app.**
