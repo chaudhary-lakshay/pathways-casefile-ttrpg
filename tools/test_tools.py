@@ -5881,3 +5881,13 @@ def test_the_citation_anchor_is_what_coverage_writes_today():
     texts = {path.name: runs[-1] for path, runs in written.items()}
     for name in ("lines.json", "book.txt"):
         assert texts.get(name) == (OUT / name).read_text(encoding="utf-8"), name
+
+
+def test_the_handover_stays_inside_its_own_size_rule():
+    # CLAUDE.md's "Handover size and retention" paragraph caps it at 80,000
+    # decoded characters. It reached the loader's 150 k limit three times
+    # (6eb, 6eh, 2026-10-08) while that rule was prose only.
+    size = len((ROOT / "CLAUDE.md").read_text(encoding="utf-8"))
+    assert size <= 80_000, (
+        f"CLAUDE.md is {size} chars: retire the oldest leads to docs/READING-ORDER.md"
+    )
