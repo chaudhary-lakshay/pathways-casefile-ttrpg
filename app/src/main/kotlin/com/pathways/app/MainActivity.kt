@@ -301,14 +301,21 @@ fun SheetScreen(
     // "Absent-Minded" against the book's "Absent-Mindedness" and one prints
     // "Paranoia: Bodies of water" against a bare "Paranoia", and 4.1 says
     // those are recorded, not repaired. The blank effect line is the record.
+    //
+    // Through the one resolution, so a sheet that printed the effect beside
+    // the name still finds its row: Church Healer stores "Charity - <the
+    // book's own cell>" and got no effect line at all.
+    // A quirk gives points as a drawback does and prints with the same sign;
+    // nothing this app ships produces one, and one that arrives is not dropped.
     val drawbacks = remember(traits) {
-        val printed = ContentLoader.disadvantages().associateBy { it.name.lowercase() }
-        traits.filter { it.kind == TraitKind.DISADVANTAGE }
-            // Through the one resolution, so a sheet that printed the effect
-            // beside the name still finds its row: Church Healer stores
-            // "Charity - <the book's own cell>" and got no effect line at all.
-            .map { it to printed[TraitEffects.catalogueName(it.name).lowercase()]?.notes }
+        TraitEffects.held(traits, TraitKind.DISADVANTAGE) +
+            TraitEffects.held(traits, TraitKind.QUIRK)
     }
+    // The advantages, which had no list at all until 6es: the sheet printed
+    // `TraitEffects.reported` and the drawbacks, so an advantage with nothing
+    // to report was on no screen but the builder. 6am's finding, one list
+    // over, and 24 of the premades' 50 advantage rows.
+    val advantages = remember(traits) { TraitEffects.held(traits, TraitKind.ADVANTAGE) }
     // Damage rolls off ST, Boxing's bonus off DX and a Major Wound off HT, all
     // AFTER any potion that raised them -- the same digested character the
     // skill levels come from.
@@ -629,26 +636,19 @@ fun SheetScreen(
                 }
             }
 
-            // Traits whose printed effect is real and lands on nothing this
-            // app rolls. Shown with the reason rather than silently dropped:
-            // a GM who can read "no shock penalty to ignore" applies it
-            // themselves, one who sees nothing assumes it was counted. The
-            // call the artifact grade table (6af) already needed.
-            items(if (tab == SheetTab.TRAITS) TraitEffects.reported(traits) else emptyList()) { note ->
+            // Every advantage held, with the book's cell and, under it, what
+            // of that cell lands on nothing this app rolls. Shown with the
+            // reason rather than silently dropped: a GM who can read "no shock
+            // penalty to ignore" applies it themselves, one who sees nothing
+            // assumes it was counted. The call the artifact grade table (6af)
+            // already needed.
+            items(if (tab == SheetTab.TRAITS) advantages else emptyList()) { row ->
                 Column(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
                     Text(
-                        "${note.trait} — ${note.printed}",
+                        "${row.shown} — ${row.trait.cost} pts",
                         style = MaterialTheme.typography.bodySmall,
                     )
-                    Text(
-                        // Muted, not brass. This is a caveat about what the app
-                        // does NOT do; painting it the accent colour made every
-                        // trait row shout in the same voice as the Roll button
-                        // it is not (docs/DESIGN-DIRECTION.md).
-                        "Not applied here: ${note.reason}.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    HeldCell(row)
                 }
             }
 
@@ -662,12 +662,13 @@ fun SheetScreen(
             // own: WHEN to call for one is the GM's, exactly as a Fright Check
             // (6c) and a Major Wound's HT roll (6n) are, and both of those
             // ship as a button the GM presses.
-            items(if (tab == SheetTab.TRAITS) drawbacks else emptyList()) { (trait, printed) ->
+            items(if (tab == SheetTab.TRAITS) drawbacks else emptyList()) { row ->
+                val trait = row.trait
                 // The sheet's own name minus the effect cell shown below it,
                 // where the two were printed as one string. Keyed the same way
                 // `SelfControlCheck.trait` is, so the row and its roll cannot
                 // disagree about what the trait is called.
-                val shown = TraitEffects.displayName(trait.name)
+                val shown = row.shown
                 val check = selfControl[shown]
                 Column(
                     Modifier
@@ -703,9 +704,7 @@ fun SheetScreen(
                             MaterialTheme.colorScheme.onSurface
                         },
                     )
-                    if (printed != null) {
-                        Text(printed, style = MaterialTheme.typography.bodySmall)
-                    }
+                    HeldCell(row)
                 }
             }
 
@@ -1822,6 +1821,29 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
             )
             TextButton(onClick = { outcome = null }) { Text("Roll again") }
         }
+    }
+}
+
+/**
+ * The book's cell for one held trait and, under it, what of that cell is not
+ * applied. Shared by the advantage and drawback rows, so neither can print a
+ * caveat the other drops.
+ */
+@Composable
+private fun HeldCell(row: TraitEffects.HeldTrait) {
+    row.cell?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+    for (note in row.notes) {
+        Text(
+            // A note on the whole cell would print the cell twice; a note on
+            // one clause of it says which. Muted, not brass: this is a caveat
+            // about what the app does NOT do, and painting it the accent
+            // colour made every trait row shout in the same voice as the Roll
+            // button it is not (docs/DESIGN-DIRECTION.md).
+            (if (note.printed == row.cell) "" else "${note.printed}. ") +
+                "Not applied here: ${note.reason}.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
