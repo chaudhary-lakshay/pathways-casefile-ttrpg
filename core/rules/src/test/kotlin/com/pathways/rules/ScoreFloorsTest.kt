@@ -12,7 +12,8 @@ import org.junit.jupiter.api.assertThrows
 /**
  * The lowest score each guarded row may stand at. The book prices every
  * secondary "±N pts per level" and prints no floor (Ch. 2, pp. 8-9), so these
- * are the app's: the lowest values the rules it models can compute on.
+ * are the app's: the lowest values the rules it models can compute on, and a
+ * zero under Basic Speed and Basic Move that is policy.
  */
 class ScoreFloorsTest {
 
@@ -33,6 +34,29 @@ class ScoreFloorsTest {
         assertEquals(
             SecondaryDelta(hp = 1, fp = 3, will = 1, per = 1),
             at(SecondaryDelta(hp = -9, fp = -11, will = -9, per = -10)),
+        )
+    }
+
+    @Test
+    fun `Basic Speed and Basic Move stand at zero and no lower`() {
+        // Attributes of 9: Speed 18 quarters, Move 4. Speed sold to 0 takes
+        // Move's base to 0 with it, so nothing more can come off Move there.
+        assertEquals(SecondaryDelta(), at(SecondaryDelta(basicSpeedQuarters = -18)))
+        assertEquals(SecondaryDelta(), at(SecondaryDelta(basicMove = -4)))
+        assertEquals(SecondaryDelta(basicSpeedQuarters = 1), at(SecondaryDelta(basicSpeedQuarters = -19)))
+        assertEquals(SecondaryDelta(basicMove = 1), at(SecondaryDelta(basicMove = -5)))
+        // A Speed step that only Move feels: 3.75 is legal, a Move of -1 is not.
+        assertEquals(SecondaryDelta(basicMove = 1), at(SecondaryDelta(basicSpeedQuarters = -3, basicMove = -4)))
+    }
+
+    @Test
+    fun `Move is short by what is left after Speed is bought back`() {
+        // Speed -82 quarters drags Move's base to -21, so Move reads -121.
+        // Buying Speed back to 0 returns the 21; charging Move for them too
+        // would leave it at 21 -- and 121 is past what a SecondaryDelta holds.
+        assertEquals(
+            SecondaryDelta(basicSpeedQuarters = 82, basicMove = 100),
+            at(SecondaryDelta(basicSpeedQuarters = -100, basicMove = -100)),
         )
     }
 

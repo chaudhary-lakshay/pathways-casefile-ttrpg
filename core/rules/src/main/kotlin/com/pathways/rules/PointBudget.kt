@@ -35,6 +35,15 @@ data class BudgetReport(
  * That is why the term stays: the book prints the rule, the engine answers it
  * correctly for any caller who supplies one, and deleting it would drop a
  * printed rule to tidy away a branch the bundled data happens not to reach.
+ *
+ * **A sold secondary characteristic is not counted against the -40.** A
+ * reading, not a quotation: the book states the cap of "disadvantages" (line
+ * 1120, and "Take Disadvantages ... up to -40 pts worth", 455-456), which it
+ * goes on to list, and prices each secondary "+-N pts per level" (358-383)
+ * with no cap of its own. Nothing printed files a sold level under either
+ * heading, so a refund lowers [BudgetReport.spent] and leaves the budget
+ * alone. GURPS Basic counts it; that is not this book. What a sale can
+ * return is bounded by [ScoreFloors] alone.
  */
 object PointBudget {
 

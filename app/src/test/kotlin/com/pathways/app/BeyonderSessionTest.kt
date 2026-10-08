@@ -669,6 +669,55 @@ class BeyonderSessionTest {
     }
 
     @Test
+    fun `Basic Speed and Basic Move are not sold below zero`() {
+        // The tablet read Speed -20.50 and Move -100 with 908 points spare.
+        val (s, _) = session(sheet = plain())
+        s.setSecondary("basicMove", -4)
+        s.setSecondary("basicMove", -5)
+        assertEquals(mapOf("basicMove" to -4), s.edits.secondaries)
+        // 4.25 still rounds down to 4; 3.75 would leave Move at -1.
+        assertTrue(s.canSetSecondary("basicSpeed", -1))
+        assertFalse(s.canSetSecondary("basicSpeed", -3))
+        s.setSecondary("basicMove", 0)
+        s.setSecondary("basicSpeed", -18)
+        assertFalse(s.canSetSecondary("basicSpeed", -19))
+        assertFalse(s.canSetSecondary("basicMove", -1), "Move's base is 0 once Speed is")
+        // Speed has a floor of its own: Move bought back on top of a negative
+        // Speed stands at 0 and would otherwise carry the sale.
+        s.setSecondary("basicMove", 1)
+        assertFalse(s.canSetSecondary("basicSpeed", -19))
+    }
+
+    @Test
+    fun `lowering DX or HT is refused when it takes Basic Speed below zero`() {
+        val (s, _) = session(sheet = plain())
+        s.setAttribute(Attr.DX, 10)
+        s.setSecondary("basicSpeed", -19)
+        assertEquals(mapOf("basicSpeed" to -19), s.edits.secondaries)
+        assertFalse(s.canSetAttribute(Attr.DX, 9))
+        s.setAttribute(Attr.DX, 9)
+        assertEquals(10, s.edits.dx)
+    }
+
+    @Test
+    fun `a save with Speed and Move sold to the bound opens at zero and is not charged twice`() {
+        val (s, saved) = session(
+            SavedSession(
+                edits = SavedEdits(
+                    secondaries = mapOf(
+                        "basicSpeed" to -MAX_SECONDARY_DELTA_MAGNITUDE,
+                        "basicMove" to -MAX_SECONDARY_DELTA_MAGNITUDE,
+                    ),
+                ),
+            ),
+            sheet = plain(),
+        )
+        // Move comes back to what was bought on top of a base of 0: nothing.
+        assertEquals(mapOf("basicSpeed" to -18), s.edits.secondaries)
+        assertEquals(s.edits, saved().edits)
+    }
+
+    @Test
     fun `a save at the bound is repaired, not overflowed by the potion`() {
         // Codex, on the diff: Will -100 plus Abyss's -1 is a SecondaryDelta of
         // -101, which its constructor refuses -- inside the repair meant to
