@@ -304,7 +304,15 @@ Edits are saved per character and survive a restart.
   says so and leaves it to the GM.
 - **Track a clock it does not hold.** There is no initiative, no map, no turn
   counter beyond the defence screen's own round. FP recovery, stun duration and
-  reload rates are yours to run.
+  reload rates are yours to run. So is the *day* in HP recovery — but its roll
+  is offered: while a character is hurt, **Vitals** prints the book's three
+  Natural Recovery rows under the HP row, a **−1 / +1** for anything else that
+  moves the roll (a potion's grant, say — the line under it shows what is
+  already counted), and **Roll HT N — a day of rest and food**. You say when
+  a day has passed. A success restores nothing by itself: apply what the rows
+  print with **+1** on the HP row, because which band applies to a large body
+  is the GM's call. **Another day** clears it for the next one. First Aid,
+  Physician, the Healing advantage and Regeneration are not offered.
 
 ---
 

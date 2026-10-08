@@ -423,6 +423,25 @@ data class PoolThreshold(val pool: String, val level: String, val effect: String
 }
 
 /**
+ * One Natural Recovery row of the HP recovery table (Ch. 5, p. 42).
+ *
+ * Three printed cells, kept verbatim and never turned into arithmetic:
+ * "2× base rate" for "20–29 HP" does not say whether the band is read on
+ * maximum or current HP, and "scales proportionally" prints no band past 39.
+ * [com.pathways.rules.NaturalRecovery] offers the first row's roll and prints
+ * the rest beside it. See tools/extract_recovery.py for the three methods and
+ * the Regeneration table this file leaves out.
+ */
+@Serializable
+data class HpRecoveryRow(val method: String, val recovered: String, val notes: String) {
+    init {
+        require(method.isNotBlank() && recovered.isNotBlank() && notes.isNotBlank()) {
+            "recovery row '$method' has an empty cell"
+        }
+    }
+}
+
+/**
  * One row of the Fright Check trigger table (Ch. 5, p. 43).
  *
  * [modifier] is the gentler end of what the row prints, because that is the

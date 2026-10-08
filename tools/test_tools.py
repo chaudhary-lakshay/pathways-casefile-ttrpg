@@ -5891,3 +5891,51 @@ def test_the_handover_stays_inside_its_own_size_rule():
     assert size <= 80_000, (
         f"CLAUDE.md is {size} chars: retire the oldest leads to docs/READING-ORDER.md"
     )
+
+
+# --- the Natural Recovery rows (Ch. 5, p. 42) ------------------------------
+#
+# The HP recovery table was refused whole as "clocks". Its first row is also a
+# ROLL -- "Natural Recovery (HT roll success)" -- and those three rows are what
+# this reads. The other three methods and Regeneration stay out, by name.
+
+import extract_recovery
+
+
+def test_a_recovery_row_is_three_printed_cells():
+    rows = extract_recovery.parse([
+        "Natural Recovery (HT roll success)", "1 HP (2 HP w/ Very Rapid Healing)",
+        "Per day; rest & food required",
+        "Natural Recovery (20–29 HP)", "2× base rate", "Per day; scales proportionally",
+    ])
+    assert rows == [
+        {"method": "Natural Recovery (HT roll success)",
+         "recovered": "1 HP (2 HP w/ Very Rapid Healing)",
+         "notes": "Per day; rest & food required"},
+        {"method": "Natural Recovery (20–29 HP)", "recovered": "2× base rate",
+         "notes": "Per day; scales proportionally"},
+    ]
+
+
+def test_a_ragged_recovery_table_is_reported_not_recut():
+    """Cells are paired positionally, so a wrapped cell would shift every
+    later row into the wrong column and still look like a table."""
+    with pytest.raises(ValueError, match="not a multiple of 3"):
+        extract_recovery.parse(["Natural Recovery (HT roll success)", "1 HP"])
+
+
+def test_only_the_natural_recovery_rows_are_taken():
+    """First Aid needs wound tracking, Physician and Healing are other rolls,
+    and Regeneration is a rate. A widened range must fail, not ship them."""
+    with pytest.raises(ValueError, match="methods changed"):
+        extract_recovery.verify(extract_recovery.parse([
+            "Natural Recovery (HT roll success)", "1 HP", "Per day",
+            "First Aid", "1 HP + stops bleeding", "1 minute; once per wound",
+        ]))
+
+
+def test_committed_hp_recovery_matches_the_printed_rows():
+    payload = json.loads((CONTENT / "hp_recovery.json").read_text(encoding="utf-8"))
+    assert [e["method"] for e in payload["entries"]] == extract_recovery.EXPECTED
+    assert payload["sourceLines"] == {"5": [[2860, 2868]]}
+    assert "HT roll" in payload["entries"][0]["method"], "the row that makes this a roll"

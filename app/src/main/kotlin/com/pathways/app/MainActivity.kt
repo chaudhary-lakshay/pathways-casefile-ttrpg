@@ -96,6 +96,7 @@ import com.pathways.rules.FrightCheck
 import com.pathways.rules.FrightKind
 import com.pathways.rules.FrightOutcome
 import com.pathways.rules.PenaltyScope
+import com.pathways.rules.NaturalRecovery
 import com.pathways.rules.Pool
 import com.pathways.rules.PoolStatus
 import com.pathways.rules.Pools
@@ -1816,6 +1817,85 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
 }
 
 /**
+ * The recovery table's daily HT roll, offered while the character is hurt.
+ *
+ * The DAY is whoever taps the button's to declare, as a new round is: this app
+ * holds no clock, and the roll does not need one. Nothing is restored here --
+ * the book's rows are printed and the HP stepper above applies them, because
+ * the bands for a larger body and "Very Rapid Healing" are readings this
+ * screen would otherwise make in silence. See [NaturalRecovery].
+ *
+ * NOT keyed on the target, unlike [VitalRollRow]: the HP a success restores
+ * can lift the pool penalty, and the result has to outlive the taps that
+ * apply it. It prints the target it was rolled against, so it cannot be read
+ * against a later one.
+ */
+@Composable
+private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int) {
+    var modifier by remember { mutableIntStateOf(0) }
+    var outcome by remember { mutableStateOf<RollResult?>(null) }
+    val fromTraits = NaturalRecovery.bonusFor(traits)
+    val target = NaturalRecovery.targetFor(ht, traits, poolPenalty, modifier)
+    Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+        NaturalRecovery.rows().forEach {
+            Text("${it.method}: ${it.recovered}. ${it.notes}", style = MaterialTheme.typography.bodySmall)
+        }
+        val result = outcome
+        if (result == null) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TextButton(onClick = { modifier -= 1 }) { Text("−1") }
+                Text(
+                    (if (modifier > 0) "+" else "") + modifier,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                )
+                TextButton(onClick = { modifier += 1 }) { Text("+1") }
+            }
+            Text(
+                buildList {
+                    add("HT $ht")
+                    if (fromTraits > 0) add("+$fromTraits from traits")
+                    if (fromTraits < 0) add("$fromTraits from traits")
+                    if (poolPenalty != 0) add("$poolPenalty hurt or tired")
+                    if (modifier > 0) add("+$modifier entered")
+                    if (modifier < 0) add("$modifier entered")
+                }.joinToString(", "),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            // A potion's advantages are prose, so a grant that moves this
+            // roll is held by no trait. Said, or a zero reads as "none" --
+            // and scoped to what the line above does not show, because the
+            // all-HT-roll traits ARE applied and must not be entered twice.
+            Text(
+                "Anything else that moves the daily HT roll - a potion's grant, say - is entered " +
+                    "above. Only what this line shows is applied for you.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            TextButton(
+                onClick = {
+                    if (outcome != null) return@TextButton
+                    outcome = SuccessRoll.against(target, appDice)
+                },
+            ) { Text("Roll HT $target — a day of rest and food") }
+        } else {
+            Text(
+                "3d6: ${result.total} vs ${result.target} - ${result.outcome.name.lowercase()}",
+                style = MaterialTheme.typography.titleSmall,
+            )
+            Text(
+                if (result.outcome.isSuccess) {
+                    "Restore what the rows above print, with +1 on the HP row. Which band applies is the GM's."
+                } else {
+                    "Nothing is restored for this day."
+                },
+                style = MaterialTheme.typography.bodySmall,
+            )
+            TextButton(onClick = { outcome = null }) { Text("Another day") }
+        }
+    }
+}
+
+/**
  * HP, FP and SPI at the table (Ch. 5).
  *
  * SPI is shown only for a Beyonder: "Non-Beyonders (SPI 0) ... have no
@@ -1848,6 +1928,8 @@ private fun PoolTrackers(
                 poolPenalty = poolPenalty,
             )
         }
+        // The recovery table's one roll, under the pool it restores.
+        if (NaturalRecovery.isOffered(hp)) RecoveryRollRow(ht, traits, poolPenalty)
         PoolRow(Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp)) {
             session.spend(Pool.FP, it, vitals.maxFp, maxCor)
         }

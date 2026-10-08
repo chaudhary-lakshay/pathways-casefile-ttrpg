@@ -1,0 +1,27 @@
+{
+ "sourceLines": {
+  "5": [
+   [
+    2860,
+    2868
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "method": "Natural Recovery (HT roll success)",
+   "recovered": "1 HP (2 HP w/ Very Rapid Healing)",
+   "notes": "Per day; rest & food required"
+  },
+  {
+   "method": "Natural Recovery (20–29 HP)",
+   "recovered": "2× base rate",
+   "notes": "Per day; scales proportionally"
+  },
+  {
+   "method": "Natural Recovery (30–39 HP)",
+   "recovered": "3× base rate",
+   "notes": "Per day; scales proportionally"
+  }
+ ]
+}

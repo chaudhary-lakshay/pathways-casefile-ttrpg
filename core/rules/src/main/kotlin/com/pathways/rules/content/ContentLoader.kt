@@ -22,6 +22,7 @@ object ContentLoader {
     private val potionConsumptionLazy: List<PcrRow> by lazy { load("potion_consumption.json") }
     private val corGainedLazy: List<CorGain> by lazy { load("cor_gained.json") }
     private val poolThresholdsLazy: List<PoolThreshold> by lazy { load("pool_thresholds.json") }
+    private val hpRecoveryLazy: List<HpRecoveryRow> by lazy { load("hp_recovery.json") }
     private val ritualWeightsLazy: List<RitualWeight> by lazy { load("ritual_weights.json") }
     private val ritualFailuresLazy: List<RitualFailure> by lazy { load("ritual_failures.json") }
     private val ritualSuccessLazy: List<RitualSuccess> by lazy { load("ritual_success.json") }
@@ -238,6 +239,9 @@ object ContentLoader {
      * them -- worst last. FP has no rows; see [PoolThreshold].
      */
     fun poolThresholds(): List<PoolThreshold> = poolThresholdsLazy
+
+    /** The three Natural Recovery rows of the HP recovery table (Ch. 5, p. 42). */
+    fun hpRecovery(): List<HpRecoveryRow> = hpRecoveryLazy
 
     /** The Range Penalties bands (Ch. 5, p. 39), ascending by distance. */
     fun rangePenalties(): List<RangePenalty> = rangePenaltiesLazy
