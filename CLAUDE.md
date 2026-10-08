@@ -50,10 +50,11 @@ pricing pair) and cannot see the next one.
 
 **Every roll at a default takes Versatile's +1, and goes through
 `SkillDefaults`, or through `Divination.divinationLevelFor` for Divination
-Arts.** Three do: the Skills tab's untrained list, the Attack dialog's
-untrained rows (6eu) and the Divine tile. Versatile's sheet note was
-removed on that count (6et), so a fourth consumer that skips the +1 leaves
-the trait silently short. A Warrior's weapon at DX is not a default and
+Arts.** Four do: the Skills tab's untrained list, the Attack dialog's
+untrained rows (6eu), the Defend dialog's Acrobatic Dodge (6ev) and the
+Divine tile. Versatile's sheet note was removed on that count (6et), so a
+fifth consumer that skips the +1 leaves the trait silently short. A
+Warrior's weapon at DX is not a default and
 takes none.
 
 **`defense_modifiers.json` is finished, and so is the round boundary behind
@@ -151,7 +152,38 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6eu is newest, and it is 6et's second consumer: the Attack dialog takes
+**6ev is newest, and it is the successor 6eu named, asked the right way:
+the bare-hand parry was never a default.** Book line 2473, the Parry
+(Unarmed) formula cell, prints *"Brawling or DX ÷ 2 + 3"*, and the app had
+read the first operand alone since the row was extracted. Read it for four
+things.
+
+- **The DX row is one of the rows.** `ParryBlock.bareHandParry` is DX
+  itself, not Brawling's DX-2 halved, and it is withheld only where a held
+  Brawling parries as well. The cell says *"or"*, so my *"only without
+  Brawling"* was an unprinted gate. Its −3 against a weapon is a reading,
+  and the screen says so.
+- **An armed default stays out, on the cells' own difference**: *"Weapon
+  Skill ÷ 2 + 3"* prints no second operand. A carried weapon with no skill
+  is named in a note.
+- **The Acrobatic Dodge rolls its default here**, at the level
+  `SkillDefaults` composed: the fourth consumer.
+- **Offering that roll to more sheets made an old gap reachable.** Defend
+  passed the trackers' modifiers and never `TraitEffects.modifiers`. No
+  premade holds both Perfect Balance and Acrobatics, so nothing showed it
+  until Pickpocket rolled 4 here and 6 on Skills (the diff review's HIGH).
+
+**Codex ran out mid-review** (back Oct 9, 2:02 AM) and the free panel's
+gateway was down, so both reviews were one sub-agent each, the third gate.
+Twenty-two mutations, twenty-two caught. On the SM-T570: `Parry (DX, bare
+hands) 7`, then `4` against a weapon and no row against a shot; Pickpocket's
+`Acrobatics (untrained, DX-6) 4 → 6`. **The tablet's save was left seeded**:
+a harness check refused the restore, and 6ev says where the backup is.
+**Successors**: whether a Warrior's weapon parries at DX, which is sharper
+now; the same missing trait term on the ATTACK roll; Warrior's *default
++2*; and 6es's two lists.
+
+**6eu is next, and it is 6et's second consumer: the Attack dialog takes
 an untrained skill.** A character without Brawling had no punch there, and
 one handed a revolver had no shot. Read it for four things.
 
@@ -274,49 +306,10 @@ what else is in the complement of `TraitEffects.known()`. And 6eq's
 second stands: book 2540's *"Default: DX-2 if untrained"* against a
 `SkillLadder.defaultFor` with no production caller.
 
-**6eq is next, and it ran 6ep's check where refusals actually live:
-every reason in production source whose subject is THIS APP.** 6ep re-asked
-three rows of a journal census. The query in the section returned 39 lines
-at `ae2f957`, across `TraitEffects`, the `UNMODELLED` / `UNPAYABLE` /
-`UNAPPLIED` maps, `PurchasableTraits.unoffered()` and the notes
-`DefenseDialog` prints. Seven were false or stale. Read it for four
-things.
-
-- **One changed a roll.** Versatile's *"+1 to defaults skill rolls"* was
-  refused as *"no default is rolled here"* while the divination dialog
-  rolled Divination Arts at Ritualistic Magic −2 and printed *"Defaulted
-  from"*. The +1 goes INSIDE the pick: own 10 against a sibling of 12 is a
-  tie without it. The 12+ gate stays on the sibling's own level.
-- **Five were sentences.** Resistant's *"the one bare HT roll"* was five.
-  The Retreat note said *"this screen keeps no round"* beside **New
-  round**. First Aid was *"not offered"* while nine premades roll it from
-  Skills. Medical Training's Physician at IQ−2 is a gap and now says so.
-  The builder refused `Language (specify)` for *"a procedure this app has
-  not read"* while `Languages` held its table. I found that one checking
-  my own *"four are not refusals"*, and Reputation's half of the same
-  sentence fell to the final review: the book prints no procedure to read.
-  **My first rewording of the language row moved the false claim**, onto
-  two halvings book 638-639 states outright. It took a second review pass.
-- **The device caught what no test reads**: the sheet prefixes a clause
-  note with *"Not applied here:"*, and my reason began *"applied where"*.
-- **The mutation harness printed eight SURVIVED lines twice** before it
-  launched Gradle. A `ran=` column is what stopped them being read.
-
-Codex answered three times: SHIP on the design, FIX on the diff with two
-LOWs, and a MEDIUM on what was changed after that. All taken. On the SM-T570: `Divination Arts 11`, *"Defaulted from
-Ritualistic Magic 12, +1 for Versatile"*, `Roll 3d6 ≤ 13`. **Two successors
-are named.** The builder sells no language, and the recorded reason (two
-halvings the book never combines) refuses every case for an ambiguity most
-do not have: review the design first. And 6dy calls the Brawling and
-Wrestling defaults implemented by `SkillLadder.defaultFor`, which has no
-production caller, while book 2540's *"Default: DX-2 if untrained"* is one
-printed number. Wiring it is a second roll at a default: it must take
-Versatile's +1, and it makes the sheet's *"no other roll at a default"*
-false in the same commit.
-
-**6ep back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6eq back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6eq** — 39 refusals in production source whose subject is this app, seven false or stale; Versatile's +1 goes inside the pick between an owned level and a default;
 **6ep** — 6dy's three refusals re-asked; the HP recovery table's first row is a ROLL, so the daily HT roll is offered and nothing is restored;
 **6eo** — the builder printed bought values and the sheet the played ones; rows show the value as played, and every edit still reads the purchase;
 **6en** — Basic Speed and Basic Move sold a hundred steps each; both stand at zero in `ScoreFloors`, as policy, and Move is measured after Speed;
@@ -392,7 +385,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: the slice log, from the END — 6eu first.** The
+**Where to start next: the slice log, from the END — 6ev first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -447,7 +440,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1850 Kotlin** (JUnit 5 — 1301 `core:rules`, 529 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1864 Kotlin** (JUnit 5 — 1304 `core:rules`, 540 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -532,7 +525,10 @@ Derive.of(c: Character): DerivedCharacter
 Derive.controllingLevel(ca, attrs, secondaries, spi): Int
 ModifierResolver.resolve(base, mods, target, ctx): Resolution
 ParryBlock.parryFor(weapon, skillLevel): Int?
-ParryBlock.unarmedParry(style, skillLevel): Int
+ParryBlock.unarmedParry(style, skillLevel): Int   // BARE_HANDS takes DX
+ParryBlock.bareHandParry(dx, brawling): Int?      // p.37's "Brawling or DX":
+                                      // null only where a held Brawling
+                                      // parries at least as well
 ParryBlock.blockFor(shieldSkillLevel, shieldDb): Int
 PointBudget.report(...): BudgetReport
 SecondaryCharacteristics.of(a, d): Secondaries
@@ -980,10 +976,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6eu. The slice log
+## 6a-6ev. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6eu is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6ev is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

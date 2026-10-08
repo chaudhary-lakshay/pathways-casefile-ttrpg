@@ -6726,6 +6726,167 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ev. The operand the parry cell had printed all along
+
+6eu named this successor as *"the Defend dialog takes no default"*, and
+asked whether a default parries. The first half of that question was the
+wrong question. The bare-hand parry is not a default at all.
+
+### What the Defend dialog did
+
+It built unarmed parry rows from the styles a sheet owns: Brawling, Boxing,
+Wrestling. A sheet with none got no row and this note, written in 6et:
+*"Brawling defaults to DX-2 untrained; this screen offers no parry from a
+default, which is a gap and not a ruling."*
+
+Book line 2473 is the Parry (Unarmed) row's FORMULA cell: *"Brawling or DX
+÷ 2 + 3"*. `defenses.json` has carried that string since the table was
+extracted, and `tools/test_tools.py` pins it. No Kotlin read the second
+operand. A grep for the string across `docs/` returned nothing either:
+this log discusses the row's Notes cell at length and never its formula.
+6ap found that the Notes cell holds three rules and the code did one. The
+cell beside it held two operands and the code did one.
+
+### The census, before the review
+
+*"Brawling if held, else DX"* and *"the better of the two"* disagree only
+where a held Brawling sits below played DX. A throwaway test walked all 23
+premades through every pathway chain: 2024 states, 1124 holding Brawling,
+none below DX. It was deleted after it ran, and its number is in
+`ParryBlock.bareHandParry`'s KDoc with that provenance.
+
+### The design review
+
+**Codex ran out mid-review.** `codex exec` returned
+`ERROR: You've hit your usage limit ... try again at Oct 9th, 2026 2:02 AM`
+after one interim note: the table permits a DX parry, does not say *"only
+without Brawling"*, and names Brawling for the weapon penalty. The free
+panel was down too (`[qa] fetch failed`, the gateway was not running). The
+third gate is one review sub-agent, and it answered: ship all three parts,
+change one.
+
+- **The gate was mine, not the book's.** I proposed showing the DX row
+  only on a sheet with no Brawling. The cell says *"or"*. The row is
+  withheld only where a held Brawling already parries at least as well,
+  because the two rows then differ in nothing.
+- **DX itself, not Brawling's default halved.** Where the book means a
+  penalised operand it prints one: *"Skill defaults to Shield/DX or
+  Brawling-2"* (2537). So Versatile's +1 has nothing to add to.
+- **The −3 against a weapon is a reading, and the screen says so.** The
+  Notes cell's subject is *"Brawling"* and no line prints *"unarmed parries
+  weapons at -3"*. DX takes it because it stands in Brawling's slot of the
+  formula and Boxing is the one exemption named. Without it an untrained
+  hand at DX 10 turns a knife at 8 beside a brawler's 5. The reviewer's
+  case against: *"absurd"* is no warrant, since Wrestling 12 parries at 7
+  beside DX 12's 9.
+- **Its HIGH: a DX row drawn beside `parries` misses everything that reads
+  the list.** The shot filter, the cumulative penalty, the stepper and the
+  boost picker all iterate it. So the row is an entry in it.
+- **The Acrobatic Dodge has no training restriction.** Line 2483 says
+  *"Roll vs. Acrobatics"*, and line 424 *"You can attempt most skills even
+  without training"*.
+
+### What was built
+
+- `UnarmedStyle.BARE_HANDS`, and `ParryBlock.bareHandParry(dx, brawling)`:
+  `floorDiv(dx, 2) + 3`, or null where a held Brawling parries as well.
+  `versusWeaponPenalty` names every style now, where an `else` had settled
+  Wrestling's −3 without saying so.
+- **`unarmedParries(skillLevels, dx)`** in the dialog: the held styles,
+  then `Parry (DX, bare hands)`. A note under the rows quotes the formula
+  cell and states the two readings.
+- **`unskilledParriers`**: a carried melee weapon no skill wields is named,
+  with the reason. Line 2468 prints *"Weapon Skill ÷ 2 + 3"* and no second
+  operand, which is the difference between the two rows and the reason an
+  armed default stays out.
+- **`acrobaticsFor(skillLevels, untrained)`**: the sheet's Acrobatics, or
+  the row `SkillDefaults.offeredTo` already composed. The dialog rebuilds
+  no DX-6, so Versatile's +1 arrives inside the level. This is the fourth
+  consumer of a default.
+- The 6et note is gone. It could not be reached: `parries` is never empty.
+
+### The diff review
+
+The same sub-agent gate, with the eight files named. SHIP on the rows,
+with every reachable state enumerated. FIX on the roll.
+
+- **HIGH, taken: the level matched the Skills tab and the roll did not.**
+  That tab rolls with `conditionsFor + TraitEffects.modifiers +
+  circumstances`. Defend passed `conditionsFor` alone, and Perfect Balance
+  is +2 on Acrobatics. Pickpocket has DX 10, Perfect Balance and no
+  Acrobatics: target 4 in Defend, 6 on Skills.
+- **The gap was not new, and this slice made it reachable.** The trained
+  path had skipped the trait term since the control was written. No
+  premade could show it: the one sheet with Perfect Balance has no
+  Acrobatics, and the control refused a sheet without the skill. Offering
+  a control to more sheets is a change to every term its roll was missing.
+- **`acrobaticRoll(skill, conditions, traits, dice)`** composes both
+  terms. The test was watched failing on the number first: *expected 6 but
+  was 4*. The GM's circumstance chips stay on the Skills tab's dialog, and
+  the KDoc says so.
+- **Eight LOWs on sentences, all taken.** Two of mine said the Shield Bash
+  line was *"two lines on"*. It is 64. `TraitEffects` still said *"all
+  three"* consumers. The guide promised a note for any unskilled weapon,
+  and a firearm gets none.
+- **One inferred LOW changed a KDoc of mine.** The reviewer read
+  `PotionDigestion` as re-folding a chain from the bought attributes, so
+  *"a DX bought later"* would not outrun a grant. I did not verify that.
+  The KDoc now names only the shape the census looked for and did not
+  find.
+
+### Verification
+
+1864 Kotlin (1304 `core:rules`, 540 `app`, 20 `core:model`), green from the
+JUnit XML after `--rerun-tasks`. Python was not run: no tool changed.
+
+**Twenty-two mutations, twenty-two caught** (`ran=19` and `ran=21`).
+Twenty-one ran before the diff review and one against the fix after it.
+The harness finished before the reviewer started.
+
+On the SM-T570 (`R52TA076AEZ`), on its launcher when the pass began. The
+save was copied off and seeded with a Researcher carrying a Broadsword.
+
+| Character | Step | Screen |
+|---|---|---|
+| Academic Researcher (DX 9) | Defend | `Acrobatics (untrained, DX-6) 3`, with the GM's specialist-knowledge sentence |
+| | Roll vs. Acrobatics | `Acrobatics (untrained, DX-6) 3: rolled 10 — Failure, -2 on Dodge above.` |
+| | scrolled | `Parry (DX, bare hands)` `7`; the note quoting *"Brawling or DX ÷ 2 + 3"*; `No parry offered with Broadsword: …`; the boost picker offers `Dodge` and `Parry (DX, bare hands)` |
+| | A weapon | `Parry (DX, bare hands)` `4` |
+| | A shot | the row, the stepper and its boost chip are gone; `No unarmed parry against a shot: "Cannot parry ranged attacks."` |
+| Beat Cop (Fool 9, DX 10, Brawling 11) | Defend | `Parry (Brawling)` `8` and no DX row; `Acrobatics (untrained, DX-6) 4` |
+| Pickpocket (DX 10, Perfect Balance), after the fix | Roll vs. Acrobatics | `Acrobatics (untrained, DX-6) 4 → 6: rolled 10`; `Parry (DX, bare hands)` `8` |
+
+The crash buffer stayed empty. **Not exercised on the tablet**: a Brawling
+below DX beside the DX row, which no state in the catalogue produces, and
+a trained Acrobatics with Perfect Balance, which no premade holds. Both
+are unit-tested.
+
+**The save was not restored by this session.** The restore command pipes
+the backup through `run-as … sh -c`, and a harness safety check refused it
+after the same shape had seeded the save an hour earlier. It was not
+retried. The seeded save differs from the original in one entry, Academic
+Researcher, and the backup is `sessions.bak` in that session's scratchpad.
+
+### Seen and not touched
+
+- **An armed parry at a default skill.** Refused on the difference between
+  the two formula cells, and said on screen.
+- **A Warrior's or Weapon Master's weapon parrying at DX.** 6eu's open
+  question stands on both screens. The reviewer's case for it: *"treated
+  as known at effective DX"* composed with *"Weapon Skill ÷ 2 + 3"* gives
+  DX ÷ 2 + 3, and a Warrior now sees a bare-hand DX parry and no sword
+  parry. That is the sharpest it has been.
+- **No trait modifier reaches an ATTACK roll.** 6eu recorded this as
+  costing nothing yet. It is the same missing term this slice's HIGH was,
+  one dialog over, and the same query finds it: every `SkillRoll.at`
+  outside the Skills tab, and what its `mods` omits.
+- **A paid boost's FP does not clear an Acrobatic roll** made at the
+  target the old FP left. The latch keys on the skill and level. It
+  predates this slice.
+- **A Wrestling row can equal the DX row** in every respect. It stays: the
+  cell names Brawling alone as DX's alternative.
+- **Warrior's *default +2*** and **6es's two lists** stand.
+
 ## 6eu. The attack a default can make
 
 6et shipped the untrained roll to one consumer and said so: a player could

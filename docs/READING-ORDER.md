@@ -190,7 +190,47 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6ep back to 6de
+## Retired lead paragraphs, 6eq back to 6de
+
+**6eq is next, and it ran 6ep's check where refusals actually live:
+every reason in production source whose subject is THIS APP.** 6ep re-asked
+three rows of a journal census. The query in the section returned 39 lines
+at `ae2f957`, across `TraitEffects`, the `UNMODELLED` / `UNPAYABLE` /
+`UNAPPLIED` maps, `PurchasableTraits.unoffered()` and the notes
+`DefenseDialog` prints. Seven were false or stale. Read it for four
+things.
+
+- **One changed a roll.** Versatile's *"+1 to defaults skill rolls"* was
+  refused as *"no default is rolled here"* while the divination dialog
+  rolled Divination Arts at Ritualistic Magic −2 and printed *"Defaulted
+  from"*. The +1 goes INSIDE the pick: own 10 against a sibling of 12 is a
+  tie without it. The 12+ gate stays on the sibling's own level.
+- **Five were sentences.** Resistant's *"the one bare HT roll"* was five.
+  The Retreat note said *"this screen keeps no round"* beside **New
+  round**. First Aid was *"not offered"* while nine premades roll it from
+  Skills. Medical Training's Physician at IQ−2 is a gap and now says so.
+  The builder refused `Language (specify)` for *"a procedure this app has
+  not read"* while `Languages` held its table. I found that one checking
+  my own *"four are not refusals"*, and Reputation's half of the same
+  sentence fell to the final review: the book prints no procedure to read.
+  **My first rewording of the language row moved the false claim**, onto
+  two halvings book 638-639 states outright. It took a second review pass.
+- **The device caught what no test reads**: the sheet prefixes a clause
+  note with *"Not applied here:"*, and my reason began *"applied where"*.
+- **The mutation harness printed eight SURVIVED lines twice** before it
+  launched Gradle. A `ran=` column is what stopped them being read.
+
+Codex answered three times: SHIP on the design, FIX on the diff with two
+LOWs, and a MEDIUM on what was changed after that. All taken. On the SM-T570: `Divination Arts 11`, *"Defaulted from
+Ritualistic Magic 12, +1 for Versatile"*, `Roll 3d6 ≤ 13`. **Two successors
+are named.** The builder sells no language, and the recorded reason (two
+halvings the book never combines) refuses every case for an ambiguity most
+do not have: review the design first. And 6dy calls the Brawling and
+Wrestling defaults implemented by `SkillLadder.defaultFor`, which has no
+production caller, while book 2540's *"Default: DX-2 if untrained"* is one
+printed number. Wiring it is a second roll at a default: it must take
+Versatile's +1, and it makes the sheet's *"no other roll at a default"*
+false in the same commit.
 
 **6ep is next, and it ran the check this file names for a state with no
 successor: 6dy's three refusals whose reason is a claim about the app.**
