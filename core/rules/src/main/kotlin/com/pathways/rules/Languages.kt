@@ -34,9 +34,10 @@ import com.pathways.rules.content.LanguageProficiency
  *
  * **The cost rules stay sentences.** "Spoken-only or written-only costs half"
  * and "Language Talent halves all costs (rounded up)" interact, and the book
- * combines them in no worked example. Nothing buys a language yet -- the
- * builder edits attributes, skills, wealth and looks -- so a calculator here
- * would be arithmetic nobody can check against a printed total. See [notes].
+ * combines them in no worked example. Nothing buys a language yet, so a
+ * calculator here would be arithmetic nobody can check against a printed
+ * total. See [notes], and [PurchasableTraits.unoffered], which says the same
+ * to the player.
  */
 object Languages {
 

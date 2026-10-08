@@ -176,12 +176,29 @@ object PurchasableTraits {
      * would make this object report the same row as buyable and unsupported
      * at once (Codex).
      */
+    private const val LANGUAGE_ROW = "Language (specify)"
+
     fun unoffered(): List<UnofferedTraits> {
         val all = ContentLoader.advantages() + ContentLoader.disadvantages()
-        val unbounded = all.filter {
+        // The language row is priced, by a table [Languages] holds. It is
+        // split off because it used to share Reputation's reason, "a
+        // procedure this app has not read", which was false of it.
+        val (language, unbounded) = all.filter {
             it.cost == null && !isWealth(it) && (it.costMin == null || it.costMax == null)
-        }
+        }.partition { it.name == LANGUAGE_ROW }
         return buildList {
+            if (language.isNotEmpty()) {
+                add(
+                    UnofferedTraits(
+                        "the Languages section prices it by proficiency, and this " +
+                            "app holds that table; what the book never combines in an " +
+                            "example is \"Spoken-only or written-only costs half\" " +
+                            "with Language Talent's halving. The builder sells no " +
+                            "language yet",
+                        language.map { it.name },
+                    ),
+                )
+            }
             if (unbounded.isNotEmpty()) {
                 add(
                     UnofferedTraits(
@@ -233,11 +250,11 @@ object PurchasableTraits {
     /**
      * The rows a player instantiates: a printed interval, and what settles it.
      *
-     * A row printing NO bounds is deliberately absent. "Reputation" and
-     * "Language (specify)" price themselves by a procedure this app does not
-     * hold -- the language row points at a cost table of its own -- and an
-     * unbounded row is not an interval with no ceiling but a pricing rule
-     * nobody has read yet. Offering one would mean taking whatever number the
+     * A row printing NO bounds is deliberately absent. "Reputation" prices
+     * itself by a procedure this app does not hold, and "Language (specify)"
+     * by a cost table [Languages] does hold, whose two halvings the book
+     * never combines (see [unoffered]). An unbounded row is not an interval
+     * with no ceiling. Offering one would mean taking whatever number the
      * player typed, which makes the SAVE authoritative over the book and
      * inverts the rule the rest of this file follows (Codex, on the design).
      */

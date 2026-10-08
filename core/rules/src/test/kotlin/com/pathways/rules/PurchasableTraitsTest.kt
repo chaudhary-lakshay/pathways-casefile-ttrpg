@@ -454,4 +454,20 @@ class PurchasableTraitsTest {
         val checks = SelfControl.checksFor(traits)
         assertEquals(2, checks.size)
     }
+
+    /**
+     * The builder told a player the language row "prices itself by a
+     * procedure this app has not read". [Languages.proficiencies] has held
+     * that table since 6x. What is unsettled is the book's: two halvings
+     * that no printed example combines.
+     */
+    @Test
+    fun `the language row is not withheld for a table this app holds`() {
+        val language = PurchasableTraits.unoffered().single { "Language (specify)" in it.names }
+        assertFalse("has not read" in language.reason, language.reason)
+        assertTrue("costs half" in language.reason, language.reason)
+        // Reputation prints no table at all, and is not filed under this one.
+        assertEquals(listOf("Language (specify)"), language.names)
+        assertTrue(PurchasableTraits.unoffered().any { "Reputation" in it.names })
+    }
 }
