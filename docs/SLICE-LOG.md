@@ -6865,7 +6865,7 @@ are unit-tested.
 the backup through `run-as … sh -c`, and a harness safety check refused it
 after the same shape had seeded the save an hour earlier. It was not
 retried. The seeded save differs from the original in one entry, Academic
-Researcher, and the backup is `sessions.bak` in that session's scratchpad.
+Researcher, and the backup is `C:\Users\laksh\pathways-sessions-2026-10-08.bak`.
 
 ### Seen and not touched
 
