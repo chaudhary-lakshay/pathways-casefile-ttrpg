@@ -6726,6 +6726,168 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6el. The ceiling a browse could cross
+
+6ek named its successor as the ceiling side of its own overflow:
+`PotionDigestion.kt:206-215` adds a potion's grants to the bought score, and
+the sum goes through the `Attributes` (9..30) and `SecondaryDelta` (±100)
+constructors, which throw. Its two examples were *"HP +100 with any HP
+grant, or ST 29–30 with Abyss Sequence 8's ST +2"*. The first names nothing.
+**No standard block grants HP or FP**; Abyss's +2 HP comes through ST, which
+is what HP is built from. And the successor's frame — the potion this
+character DRINKS — is the narrow half.
+
+### The census, and the wider path
+
+Every walk of `pathways.json` (22 pathways × Seq 9–6), cumulative, at its
+peak:
+
+| Row | Largest walk | Pathway |
+|---|---|---|
+| ST | +11 | Twilight Giant |
+| HT | +5 | Twilight Giant |
+| DX | +4 | Demoness, Moon |
+| IQ | +4 | White Tower |
+| Will, Per, Basic Move | +2 | several |
+| Basic Speed | +4 quarters | Moon |
+| HP, FP | none | — |
+
+Only Abyss lowers anything (Will, −4 by Seq 6). No premade prints a
+secondary delta, and the highest printed attribute is 11. The 17
+non-standard blocks are displayed by the Boon dialog and never digested.
+
+**`PathwayScreen.kt:122-126` digests the BROWSED block while it draws**, not
+the drunk one. So a character who bought ST 20 — any character, a mortal
+included — crashed the pathway screen by tapping Twilight Giant, then Seq 6.
+No potion and no Drink were involved. Reproduced on the SM-T570 on the
+pre-fix build: Academic Researcher (Fool Seq 9), ST bought to 20 (20,470
+points), Twilight Giant, Seq 6, and the process died with
+`IllegalArgumentException: ST must be between 9 and 30 … was 31` at
+`PotionDigestion.kt:206`. A check scoped to a BeyonderState — the shape 6ek's
+floors take — cannot reach that path. Only a bound that holds for every walk
+can.
+
+### What shipped
+
+- **`PurchaseCeilings`** (core:rules). Each bound less the largest cumulative
+  grant on any walk: ST 19, DX 26, IQ 26, HT 25; Will, Per and Basic Move 98
+  steps, Basic Speed 96 quarters, HP and FP 100. It is DERIVED from
+  `ContentLoader.pathways()` through `PotionDigestion.largestGrants`, which
+  folds each walk with the same `statGrants`/`mergeStats` digestion uses and
+  takes each row's peak at every Sequence. Each row is maximised on its own,
+  because each constructor checks each field on its own. A `ponytail:`
+  comment records it as the app's bound, not the book's.
+- **`SavedEdits.withinCeilings()`**, the one statement of the range: each
+  bought attribute in 9..ceiling, each bought secondary in −100..ceiling.
+  `setAttribute` and `setSecondary` build through it, and so does
+  `BeyonderSession`'s opening repair. The repair runs BEFORE 6ek's floor pass
+  and is written back.
+- **The builder** greys `+` at the ceiling, and its *"next level costs"* label
+  stops at the same number.
+
+ST 19 already costs 10,230 points against characters built on about 100, so
+the cap takes nothing a legal character holds.
+
+### The design review, and why the alternative lost
+
+Codex was rate-limited (reset 15:26) and the 9router gateway refused the
+probe (`fetch failed`), so both reviews went to one general-purpose
+sub-agent, scoped to three questions with "do not read CLAUDE.md or
+docs/SLICE-LOG.md".
+
+Asked for the strongest case AGAINST a purchase cap, it made one: the
+attribute bound's own KDoc says it exists because `AttributeCosts`'s doubling
+ladder overflows, and digested scores are never priced. So the bound
+arguably belongs on purchases only, and a cap takes ST 20–30 from a Fool
+because of a walk the Fool will never take. **Then it found what kills that
+option**: ST has a second reader with the same ceiling. `Damage.rowFor`
+errors outside `thrust_swing.json`, which runs ST 1..30, and
+`MainActivity.kt:316-320` feeds it the DIGESTED ST. An unbounded effective
+type would only move the ST 31 crash from digestion to the damage dialog.
+
+It changed three things:
+
+1. **One ceiling function**, read by both setters, both builder controls and
+   the repair. My draft had a third copy in `SessionStore.load`.
+2. **The repair goes in `init`, not `load`.** `load` does not write back, a
+   test-built session bypasses it, and it would have been the third copy of
+   the bound. Order matters: lowering ST lowers HP (ST + steps), so the
+   ceiling must be applied before the floors are asked.
+3. **Pin the second reader**: the at-every-ceiling test rolls
+   `Damage.thrust` on each digested ST.
+
+It also named a digest site my census had missed, `liveSkillLevels`
+(`EditedCharacter.kt:199-201`). It reads the drunk state and is covered by
+the same cap.
+
+### Tests and mutations
+
+RED first in both modules. In app, a fix-agnostic reproduction (*"whatever
+the builder sells, every potion can be digested on top of it"*) failed with
+the device's own exception. The opening-repair test (*"…brought down to it
+on opening, before the floors"*) failed on its expected edits. In
+core:rules, `PurchaseCeilingsTest` did not compile. Then GREEN.
+
+| Mutation | Caught by |
+|---|---|
+| no ceiling in `init` | the opening-repair test |
+| ceilings applied after the floor pass | the opening-repair test (HP −20 kept, sheet HP −1) |
+| `setAttribute` holds to 30 only | the reproduction, **after a fix to the test** |
+| `setSecondary` holds to ±100 only | the reproduction |
+| `largestGrants` reads the walk's END, not its peak | *a walk is measured at its peak* — **after a new test** |
+| `atLeast` keeps the later pathway, not the max | all three census tests |
+| secondary ceiling ignores the grants | the literal pin and the at-every-ceiling test |
+| attribute ceiling one too strict | the tightness test and the literal pin |
+
+Two of those first SURVIVED, and both were test gaps:
+
+- **The `setAttribute` mutation survived** because the test bought
+  attributes and then secondaries on one session. `withinCeilings()` holds
+  the WHOLE save, so the secondary steps clamped the ST the attribute setter
+  had let through. Each setter now runs on its own session.
+- **The peak-versus-end mutation survived** because no standard walk lowers
+  a row after raising it. Abyss lowers Will, and Black Emperor's +2 dominates
+  that row anyway. `largestGrants` takes its blocks as a parameter, so a
+  two-block synthetic walk (ST +3, then −1) now separates the two.
+
+The diff review returned SHIP with four LOWs. Three were taken:
+
+- the tightness helper counted ANY throw as "over the ceiling", and now
+  rethrows anything that is not a bound on the sum;
+- its key list was hard-coded, and is now every row whose ceiling is under
+  100, pinned as a set;
+- a printed attribute (a null edit) is never held, so a test pins every
+  premade's printed attributes under the ceilings.
+
+The fourth asked for a guard that a ceiling stays ≥ 9. It was declined
+because the literal pin (ST 19 …) already fails first.
+
+Tests: 1782 Kotlin (1254 `core:rules`, 508 `app`, 20 `core:model`) after
+`--rerun-tasks`, and 357 Python.
+
+### On the SM-T570
+
+| Build | State | Screen |
+|---|---|---|
+| before | ST bought to 20, Twilight Giant → Seq 6 | crash, `PotionDigestion.kt:206`, `was 31` |
+| after | the same save, opened | builder reads ST 19, `10230 pts spent here`, no "next level costs" |
+| after | ST `+` | `enabled=false`; DX/IQ/HT and every secondary `+` live; a tap leaves 19 |
+| after | Twilight Giant → Seq 6 | *Sequence 6: Dawn Paladin* renders; crash buffer empty |
+
+The premade was left as found: ST 9, Fool Sequence 9, 0%, 0 CoR, *"1 of 17
+values differ"*. Not exercised on the device: a Drink, and the secondary
+ceilings, which are covered by the unit tests only.
+
+### Seen and not touched
+
+- **The ceiling is derived from content, so a re-extraction that raises a
+  grant lowers it**, and the next open clips a save bought to the old
+  ceiling. That is deliberate: the alternative is a crash. The literal pin
+  will fail first and name the row.
+- **6ek's three remaining items stand**: a positive ceiling lowered onto the
+  CoR total does not latch; selling Basic Speed and Basic Move refunds
+  without limit; the builder prints bought values without potion grants.
+
 ## 6ek. Four floors the builder could sell through
 
 6ej named its successor: *"every CoR-gaining TAP on such a character still

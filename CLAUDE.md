@@ -135,7 +135,37 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ek is newest, and it is 6ej's successor, which turned out to be the
+**6el is newest, and it is 6ek's successor, the ceiling side of the same
+overflow, which was wider than 6ek said.** A potion's grants are ADDED to the
+bought score, and the sum goes through `Attributes` (ST 30) and
+`SecondaryDelta` (±100). The builder sold up to both. **The pathway screen
+digests the BROWSED block while it draws**, so a character with ST bought to
+20 crashed it by tapping Twilight Giant, Seq 6 (+11 ST). No potion was drunk.
+This was reproduced on the SM-T570 at `PotionDigestion.kt:206`, `was 31`. Read
+it for four things.
+
+- **6ek's own example was false**: no standard block grants HP or FP. Abyss's
+  +2 HP comes through ST.
+- **`PurchaseCeilings`** is each bound less the largest walk, derived from
+  the catalogue: ST 19, DX 26, IQ 26, HT 25, and 98/96 steps on the rows a
+  potion raises. One `SavedEdits.withinCeilings()` serves both setters and
+  the opening repair. The repair runs BEFORE 6ek's floors, because lowering
+  ST lowers HP.
+- **The design review argued the alternative and killed it.** Digested
+  scores are never priced, but `Damage.rowFor` stops at ST 30 and reads the
+  digested ST, so an unbounded effective type moves the crash to the damage
+  dialog.
+- **Two mutations survived, and both were test gaps.** `withinCeilings()`
+  holds the WHOLE save, so a secondary step had laundered the attribute the
+  setter let through. And no standard walk lowers a row after raising it, so
+  a synthetic two-block walk now separates peak from end.
+
+Codex was rate-limited and the gateway down, so both reviews were one
+sub-agent each. Device-verified after the fix: the save opens at ST 19, `+`
+is `enabled=false`, and Seq 6 renders. **No successor is named**; 6ek's
+three seen-and-not-touched items stand.
+
+**6ek is next, and it is 6ej's successor, which turned out to be the
 smallest of four: the builder sold every secondary a hundred steps, and four
 `core:rules` guards throw below HP/FP 1, a CoR ceiling of 1 and Per 0.**
 The HP one runs while the screen is drawn, and it was reproduced on the
@@ -269,43 +299,10 @@ same number in each (`vs 6` → `11 vs 6`, `≤ 7` → `9 vs 7`, `≤ 10` → `5
 `12 vs 9`). **The successor is a stale check on Drink** — built in 6ei, for a
 different reason than the one given here.
 
-**6eg is next, and it reverses the fix 6ef shipped a day earlier.** 6ef
-closed one stale-state window in the ritual Roll handler by reading the pick
-at click time, and recorded two more beside it. **Reading state later cannot
-close them**: a handler belongs to the composition that drew it, so after a
-mode tap it reads the new `mode` beside the OLD composition's `remember(mode)`
-row, and no click-time read reaches the new objects. The consistent pairing
-runs the other way — roll what was printed. `RitualResolution.rollAgainst
-(target, source)` is what `attempt` did after composing its target, `attempt`
-is that roll with the target composed first, and the handler is one line
-passing the composition's own `target`. **The warrant is not the race**: the
-dialog composed its target at two call sites from the same fifteen arguments,
-and 6ef's device pass had written down that nothing but the screen pinned
-them together. Read it for three things. **The census**: eight rolls print
-a target and then compose it again to roll — Ritual, Divination,
-self-control, Boon, Detection, Concentration, Spirit Vision and the potion
-roll (whose two sites are in two FILES) — and the Fright Check writes its sum
-in the screen and again in the engine. Ritual was the only one that could
-throw. **Its first draft listed seven and called the rest "available, not
-owed"**: the header query returned two rows the table left out, and "a
-mismatch nobody has seen" is a drift argument the owner's own rule rejects —
-*the same predicate at two call sites is the defect.* **A comment at `MainActivity.kt:
-1566` says "the two taps are two frames"**, which is this slice's premise
-denied; neither is reproduced and the slice does not depend on which is
-right. And **the fix made its own test's equality blind**: `attempt ==
-rollAgainst(targetFor)` cannot see a draw-order change once one calls the
-other, so the literal numbers beside it are what pin the order — the review's
-LOW was that `scripted(…, 4, 4, 4)` repeats its last face and hides a
-discarded draw (4, 4, 3 now, RED-proved). One behaviour changes by contract:
-an unspeakable language tapped in the same frame as Roll used to throw and
-now rolls the number on screen. Design review before code, diff review before
-commit, both through `codex exec`. **Device-verified on the emulator**: `3d6
-≤ 15` then `8 vs 15`; `3d6 ≤ 16` then `9 vs 16`. **The successor is the
-seven pairs left and the Fright Check's inline sum** — built in 6eh.
-
-**6ef back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6eg back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6eg** — print a target, then roll it: a handler belongs to the composition that drew it, so `rollAgainst` takes the target on screen;
 **6ef** — the GM picks inside a span cell; a keyed `remember` resets a frame late, so a pick lives with its row, and the click-time read was undone by 6eg;
 **6ee** — every free toolchain diagnostic run as a sweep: clean, and beside its hits an assertion that could not fail and a fourth inline copy of `endsBetween`;
 **6ed** — does a committed generated file reproduce from its tool: 81 of 81 do, and `build/extract/book.txt`, the citation anchor, had no writer (`coverage.py` writes it now);
@@ -371,7 +368,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: the slice log, from the END — 6ek first.** The
+**Where to start next: the slice log, from the END — 6el first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -426,7 +423,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1775 Kotlin** (JUnit 5 — 1249 `core:rules`, 506 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1782 Kotlin** (JUnit 5 — 1254 `core:rules`, 508 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -552,6 +549,11 @@ ScoreFloors.MIN_POOL_MAX / .MIN_COR_CEILING / .MIN_PER   // the app's, not the
                                       // book's: the guards in Pools, Wounds,
                                       // Corruption and Detection read these
 ScoreFloors.shortfall(secondaries, traits) / .holdsCeiling(ceiling)
+PurchaseCeilings.attribute(attr) / .secondarySteps(key)   // the highest a
+                                      // purchase may reach so every potion
+                                      // fits on top: bound less the largest
+                                      // walk, derived from the catalogue (6el)
+PotionDigestion.largestGrants(blocks): PotionGrants   // each row's peak
 Pools.hp(current, max) / .fp(current, max) / .spi(current, max): PoolStatus
 Pools.thresholds(pool): List<PoolThreshold>   // empty for FP: prose only
 Conditions.forSkill(skill, hp, fp, spi, cor): List<Modifier>   // scoped per skill
@@ -917,10 +919,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6ek. The slice log
+## 6a-6el. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6ek is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6el is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
