@@ -6880,6 +6880,16 @@ ceilings, which are covered by the unit tests only.
 
 ### Seen and not touched
 
+- **SPI is the same sum on a row no purchase reaches, and it is clear.** The
+  largest walk is SPI +22 (Wheel of Fortune), the highest printed SPI is 9,
+  and `Character.spi` is bounded at `MAX_SPI` = 1000; `effectiveSpi` is a
+  plain `Int` that no reader puts back into a `Character`.
+- **Two bounds' own words had expired**, and were reworded in the same
+  commit as this entry: `MAX_ATTRIBUTE` called itself a purchase bound that
+  nothing came close to, and `SecondaryDelta` called ±100 well clear of any
+  delta. Bought ST 19 on Twilight Giant's walk is a legal ST 30. The
+  substrings `must be between` and `magnitude too large` are kept, because
+  the tightness test keys on them.
 - **The ceiling is derived from content, so a re-extraction that raises a
   grant lowers it**, and the next open clips a save bought to the old
   ceiling. That is deliberate: the alternative is a crash. The literal pin

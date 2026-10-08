@@ -12,11 +12,13 @@ const val MAX_SECONDARY_DELTA_MAGNITUDE = 100
  * Speed at 5 points per quarter. Storing it as an Int keeps the whole
  * engine in exact integer arithmetic.
  *
- * Each field is bounded to +-[MAX_SECONDARY_DELTA_MAGNITUDE], well clear of
- * the largest delta exercised anywhere in this codebase (a 25-quarter Basic
- * Speed swing) or in a published sheet, but tight enough to reject an
- * obviously malformed import (a stray extra digit) at construction rather
- * than let it silently distort [com.pathways.rules.SecondaryCharacteristics].
+ * Each field is bounded to +-[MAX_SECONDARY_DELTA_MAGNITUDE], tight enough to
+ * reject an obviously malformed import (a stray extra digit) at construction
+ * rather than let it silently distort
+ * [com.pathways.rules.SecondaryCharacteristics]. The bound holds on the
+ * DIGESTED sum too, where a potion's grant lands in this same type, so a
+ * purchase stops short of it by the largest grant
+ * ([com.pathways.rules.PurchaseCeilings]): 98 bought Per plus +2 is 100.
  */
 @Serializable
 data class SecondaryDelta(
