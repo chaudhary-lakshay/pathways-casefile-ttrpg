@@ -135,7 +135,41 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ep is newest, and it ran the check this file names for a state with no
+**6eq is newest, and it ran 6ep's check where refusals actually live:
+every reason in production source whose subject is THIS APP.** 6ep re-asked
+three rows of a journal census. The query in the section returns 39 lines
+across `TraitEffects`, the four `UNMODELLED` / `UNPAYABLE` maps and the
+notes `DefenseDialog` prints. Six were false or stale. Read it for four
+things.
+
+- **One changed a roll.** Versatile's *"+1 to defaults skill rolls"* was
+  refused as *"no default is rolled here"* while the divination dialog
+  rolled Divination Arts at Ritualistic Magic −2 and printed *"Defaulted
+  from"*. The +1 goes INSIDE the pick: own 10 against a sibling of 12 is a
+  tie without it. The 12+ gate stays on the sibling's own level.
+- **Five were sentences.** Resistant's *"the one bare HT roll"* was five.
+  The Retreat note said *"this screen keeps no round"* beside **New
+  round**. First Aid was *"not offered"* while nine premades roll it from
+  Skills. Medical Training's Physician at IQ−2 is a gap and now says so.
+  The builder refused `Language (specify)` for *"a procedure this app has
+  not read"* while `Languages` held its table. I found that one checking
+  my own *"four are not refusals"*.
+- **The device caught what no test reads**: the sheet prefixes a clause
+  note with *"Not applied here:"*, and my reason began *"applied where"*.
+- **The mutation harness printed eight SURVIVED lines twice** before it
+  launched Gradle. A `ran=` column is what stopped them being read.
+
+Codex answered both reviews: SHIP on the design, FIX on the diff with two
+LOWs, both taken. On the SM-T570: `Divination Arts 11`, *"Defaulted from
+Ritualistic Magic 12, +1 for Versatile"*, `Roll 3d6 ≤ 13`. **Two successors
+are named.** The builder sells no language, and the recorded reason (two
+halvings the book never combines) refuses every case for an ambiguity most
+do not have: review the design first. And 6dy calls the Brawling and
+Wrestling defaults implemented by `SkillLadder.defaultFor`, which has no
+production caller, while book 2540's *"Default: DX-2 if untrained"* is one
+printed number.
+
+**6ep is next, and it ran the check this file names for a state with no
 successor: 6dy's three refusals whose reason is a claim about the app.**
 Two hold on sharper reasons. No roll on the book's grappling table reads
 ST, and the CoR stepper already applies a month's abstinence. **The third
@@ -245,39 +279,10 @@ One mutation first survived, because its test's setup changed the edits
 anyway. Device-verified on the SM-T570: Will and IQ `−` greyed at 9 / 10,
 and *Give back* greyed at 12 / 13. **6ek's two remaining items stand.**
 
-**6el is next, and it is 6ek's successor, the ceiling side of the same
-overflow, which was wider than 6ek said.** A potion's grants are ADDED to the
-bought score, and the sum goes through `Attributes` (ST 30) and
-`SecondaryDelta` (±100). The builder sold up to both. **The pathway screen
-digests the BROWSED block while it draws**, so a character with ST bought to
-20 crashed it by tapping Twilight Giant, Seq 6 (+11 ST). No potion was drunk.
-This was reproduced on the SM-T570 at `PotionDigestion.kt:206`, `was 31`. Read
-it for four things.
-
-- **6ek's own example was false**: no standard block grants HP or FP. Abyss's
-  +2 HP comes through ST.
-- **`PurchaseCeilings`** is each bound less the largest walk, derived from
-  the catalogue: ST 19, DX 26, IQ 26, HT 25, and 98/96 steps on the rows a
-  potion raises. One `SavedEdits.withinCeilings()` serves both setters and
-  the opening repair. The repair runs BEFORE 6ek's floors, because lowering
-  ST lowers HP.
-- **The design review argued the alternative and killed it.** Digested
-  scores are never priced, but `Damage.rowFor` stops at ST 30 and reads the
-  digested ST, so an unbounded effective type moves the crash to the damage
-  dialog.
-- **Two mutations survived, and both were test gaps.** `withinCeilings()`
-  holds the WHOLE save, so a secondary step had laundered the attribute the
-  setter let through. And no standard walk lowers a row after raising it, so
-  a synthetic two-block walk now separates peak from end.
-
-Codex was rate-limited and the gateway down, so both reviews were one
-sub-agent each. Device-verified after the fix: the save opens at ST 19, `+`
-is `enabled=false`, and Seq 6 renders. **No successor is named**; 6ek's
-three seen-and-not-touched items stand.
-
-**6ek back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6el back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6el** — a potion's grants are added to the bought score, so browsing a block crashed a high-ST save; `PurchaseCeilings` bounds each purchase, and 6ek's own example was false;
 **6ek** — the builder sold a secondary a hundred steps and four guards threw below HP/FP 1, a CoR ceiling of 1 and Per 0; "four" came from a keyword grep and held, for crashes, on a wider one;
 **6ej** — the Drink button printed nothing about its own roll; `pcrLine` feeds both blocks, and the new line could crash the block it was drawn on, a Will below 1 throwing in composition;
 **6ei** — two taps milliseconds apart DO reach one composition's handler, so 6ef-6eh's "two frames" premise was false; Drink alone had no re-entrancy guard and crashed on an SM-T570;
@@ -348,7 +353,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: the slice log, from the END — 6ep first.** The
+**Where to start next: the slice log, from the END — 6eq first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -403,7 +408,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1803 Kotlin** (JUnit 5 — 1262 `core:rules`, 521 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1809 Kotlin** (JUnit 5 — 1268 `core:rules`, 521 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -570,6 +575,10 @@ StunRecovery.targetFor(ht, traits, poolPenalty)   // the Major Wound Failure
 TraitEffects.stunRecoveryHt(traits): MajorWoundHt
 TraitEffects.stunRecoveryBonus(traits): Int   // Combat Reflexes, any stun
 TraitEffects.deathRollBonus(traits): Int      // Hard to Kill, survival roll only
+TraitEffects.defaultBonus(traits): Int        // Versatile, on a roll AT A DEFAULT
+Divination.levelsFor(ownDivination, ownRitual, defaultBonus): CasterLevels
+                                      // the bonus goes inside the pick between
+                                      // owned and default; a ritual never defaults
                                               // both via BespokeBonus, which known() reads
 Attacks.modifiers(plan, skillLevel): List<Modifier>        // maneuver + options
 Attacks.attackCount(plan) / .fpCost(plan) / .maxDeceptive(skillLevel)
@@ -909,10 +918,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6ep. The slice log
+## 6a-6eq. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6ep is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6eq is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

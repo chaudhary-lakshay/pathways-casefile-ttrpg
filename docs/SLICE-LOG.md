@@ -6726,6 +6726,187 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6eq. The refusals in production source, re-asked
+
+6ep named no successor. It had re-asked three rows of a journal census,
+6dy's, for one reason: a refusal whose subject is THIS APP expires, and a
+refusal about the book does not. This slice ran the same check where the
+refusals actually live, which is production source (6cj put them there so a
+sweep over Kotlin could find them).
+
+### The query
+
+```bash
+grep -rnE '"[^"]*(this app|this engine|nothing here|no .* here|is rolled here|this dialog|this screen)[^"]*"' \
+  core/rules/src/main/kotlin app/src/main/kotlin --include=*.kt
+```
+
+39 lines, less comment lines. Three are not refusals (two `require`/`error`
+messages and the Drink refusal's label). The registries behind the rest are
+`TraitEffects.UNAPPLIED` and `PARTLY_APPLIED`, `Equipment.UNMODELLED`,
+`Pools.UNMODELLED`, `NaturalRecovery.UNMODELLED`, `Divination.UNAPPLIED`,
+`ActiveDefenses.UNPAYABLE`, `PurchasableTraits.unoffered()`, and the notes
+`DefenseDialog` prints.
+
+**I first wrote "four are not refusals" and counted the builder's note
+among them.** It is the sixth row below, found by checking that sentence
+after the first commit. A triage line in a write-up is a claim too.
+
+### The verdicts
+
+| Reason as written | Query | Verdict |
+|---|---|---|
+| Versatile: *"every skill on a sheet is bought, so no default is rolled here"* | callers of a default: `Divination.divinationLevelFor` | **False.** Below. |
+| Medical Training, *"Use Physician at IQ-2 without purchasing the skill"*: *"this app never shows an untrained level, so no default is rolled"* | the same | **False as a claim, true as a gap.** No row offers that level. Reworded. |
+| Resistant: *"the one bare HT roll this app makes — a Major Wound's"* | `htRollBonus` callers and the HT rolls on screen | **Stale count.** Five now: major wound, consciousness, survival, stun recovery, daily recovery. The verdict holds and the count is gone. |
+| the Retreat note: *"the GM's to count; this screen keeps no round"* | `RoundState.newRound()`, the **New round** button | **False since 6cp.** The screen keeps a round and clears Retreat on it. Which attack is the one is still the GM's. |
+| First Aid: *"this app tracks a pool and no wounds, so it cannot say which wound was treated"*, and the guide's *"First Aid … not offered"* | `skills.json`, the fixtures, `TraitEffects.SKILL_BONUSES` | **The reason holds and its implication does not.** First Aid is a catalogue skill on nine premades, rolled from Skills with Healer's +3 applied. ae2f957 fixed the same sentence for Physician and missed its sibling. |
+| the builder, of `Language (specify)` and Reputation together: *"it prices itself by a procedure this app has not read"* | `language_proficiency.json`, `Languages.proficiencies` | **False of one of the two.** `Languages` loads the table and the ritual dialog reads it. Split, below. |
+| Iron Jaw: *"no knockdown for a hit location, and no bite"* | `unarmed_attacks.json` for `bite` | Holds. |
+| Eidetic Memory, Lightning Calculator, Natural Leader, Lord of Storms: no recall, numerical, morale or pressure roll | the roll engines | Hold. |
+| Fit, Very Fit, Unfit, Rapid Recovery: *"no clock"* | book 2838-2846, and the cell of Rapid Recovery | Hold. 6ep's split does not transfer: the FP table prints rates and no roll, and both of Rapid Recovery's halves are durations. |
+| `Pools.UNMODELLED`, SPI recovery | p. 34's sentence | Holds. A rate and an interruption, no roll. |
+| `Equipment.UNMODELLED`, Armour: *"nothing in this app models DR"* | `\bDR\b` over both source trees | Holds. The only hit on screen is a shield row's printed cover DR. |
+| `ActiveDefenses.UNPAYABLE`: *"this dialog allocates no defence"* | `RoundState` | Holds. It counts parries and holds Retreat; it still picks no defence. |
+| Phobia: *"one declared all-rolls state (shock) and … no control for a second yet"* | not re-run | Stated as a gap already. |
+
+### Versatile, and why the +1 is inside the pick
+
+Book 612-615: *"+1 to defaults skill rolls — any time you use a skill at
+default, you are effectively one level better."* Book 3559: *"Default:
+Divination Arts defaults to Ritualistic Magic-2 and vice versa."* The book
+calls the number a default in its own word, the dialog prints *"Defaulted
+from"*, three premades carry Versatile and the builder sells it.
+
+The design review (Codex, through `codex exec`) returned SHIP on the
+application and gave the case that decided its shape: own 10 against a
+sibling of 12. The default is 10, a tie, and a tie keeps the owned skill.
+With Versatile the default is 11 and wins. Adding the +1 after the pick
+rolls 10 for that caster. So `divinationLevelFor(own, sibling,
+defaultBonus)` adds it before the comparison, the 12+ gate still reads the
+sibling's own level, and `SkillOrDefault` carries the bonus because
+`sourceLine` used to recover the sibling's level by subtracting from the
+chosen number, which would have printed it one too high.
+
+Its strongest objection was book 424-425, where a default is *"always worse
+than trained use"*. It answered that itself: 3559 conditions on the source
+skill and never on lacking the target.
+
+`defaultBonus` is a required parameter on both functions, not an optional
+one. 6dz is why: an optional parameter is one a caller can forget.
+
+### What was not built
+
+**Medical Training's Physician at IQ-2 has no row.** The review called it
+*"an explicit, implementable entitlement"* and accepted a disclosed gap. It
+also declined to say Versatile would lift it: *"without purchasing the
+skill"* does not make it a default. The reason now reads *"the Skills tab
+has no row for a level a trait grants, so this one is not offered — a gap,
+not a ruling"*. No premade carries the trait.
+
+### The language row
+
+`Languages`' own KDoc has the real reason: *"Spoken-only or
+written-only costs half"* and *"Language Talent halves all costs (rounded
+up)"* interact, and the book combines them in no worked example. That is a
+reason about the book. The builder printed a different one, about the app,
+and shared it with Reputation, which prints *"varies"* and no table at all.
+`unoffered()` now files the language row alone, under the book's sentence
+and *"the builder sells no language yet"*.
+
+**Nothing is sold by this.** A language at full proficiency with no
+Language Talent is one printed number (6, 4 or 2; 30, 20 or 10), so the
+recorded reason refuses every case for an ambiguity two of them have. That
+is the successor.
+
+### Tests and mutations
+
+Six tests. Five were RED first on an unresolved parameter and two
+unresolved names, and the sixth on its own assertion.
+
+| Mutation | Caught by |
+|---|---|
+| bonus added after the pick | *a bonus to defaults is counted before the better number is picked* |
+| bonus opens the 12+ gate | *a bonus to defaults does not open the gate at eleven* |
+| the source line recovers the sibling from the level | *the source line names the sibling's own level and the bonus* |
+| the chosen level forgets its bonus | the same |
+| `levelsFor` drops the bonus | *a bonus to defaults is counted…* |
+| `DEFAULT(VERSATILE, 0)` | *Versatile lifts a roll made at a default* |
+| the stale sentence returns under Medical Training | *no refusal says this app rolls no default* |
+| the sheet's note stops naming the skill | *Versatile lifts…* |
+| `DEFAULT_BONUS = 0` | *Versatile lifts…*, only after the diff review |
+
+**The harness printed eight SURVIVED lines twice before it ran once.** A
+Windows Python resolves `bash` to WSL, and `cmd /c gradlew.bat` did not
+find the wrapper either, which is 6en's error to the letter. The absolute
+path with `shell=True` ran it. What kept the false lines from being read as
+results was a `ran=` column: the log has to contain `Task :core:rules:test`
+before a survivor counts.
+
+1809 Kotlin (1268 `core:rules`, 521 `app`, 20 `core:model`) after
+`--rerun-tasks`, and 361 Python, which this slice did not touch.
+
+### The diff review
+
+Codex returned FIX with two LOWs, both taken.
+
+- The guide's *"apply the point"* covered Physician, whose row is *"1 HP (2
+  HP on critical success)"* behind *"skill 12+"* and *"requires
+  equipment"*. The guide now quotes both rows whole.
+- `assertEquals(TraitEffects.DEFAULT_BONUS, defaultBonus(…))` passes with
+  the constant at zero. It asserts the literal now, reads the +1 out of the
+  catalogue cell, and carries the trait's number through to a level of 11.
+  My sixth mutation had zeroed the enum entry and not the constant, so it
+  could not see this.
+
+It found no caster whose numbers fail to reconcile across own null, below,
+equal and above, siblings of 11, 12 and 14, and a bonus of 0 and 1.
+
+### On the SM-T570
+
+Private Investigator, who holds Versatile, with the Door Sequence 9 potion
+(Ritualistic Magic at IQ+2, no Divination Arts).
+
+| Where | Screen |
+|---|---|
+| Traits | *"Versatile — +1 to defaults skill rolls"*, and under it the note |
+| Divine | **Divination Arts 11**; *"Defaulted from Ritualistic Magic 12, +1 for Versatile. … This character has no Divination Arts of their own."*; `Roll 3d6 ≤ 13` at Trivial +2 |
+| Defend, **Stepped back** | Dodge 7 to 10; *"One melee attack this round — which one is the GM's to count. New round clears this."* beside the **New round** button |
+
+**The first note read *"Not applied here: applied where this app rolls a
+default…"*.** The sheet prefixes every clause note, and the reason was
+written without it. No test reads the prefix and the reason together. It
+now reads *"Not applied here: to any roll but Divination Arts defaulted
+from Ritualistic Magic 12+, which takes it"*.
+
+`sessions.json` was copied off before the potion and written back after,
+and `cmp` reports the two identical. The crash buffer was empty and the
+tablet was left on its launcher, where it was found. Not exercised: **New
+round** clearing the chip, and a caster who owns Divination Arts below the
+default. Both are unit-tested. The builder's reworded language note was not
+looked at on the tablet: its prefix, *"Not offered —"*, was read in
+`TraitPicker.kt` instead.
+
+### Seen and not touched
+
+- **The builder sells no language**, and the unambiguous cases are priced
+  by a table already loaded. The ritual dialog offers a mystical
+  proficiency to every caster as a picker, which is a recorded decision and
+  holds whether or not a language can be owned. Selling one needs a design
+  review first: an additive `SavedEdits` field, `PointBudget`, Multilingual's
+  two free common languages, and what to do with the two halvings.
+- **6dy's census calls the Brawling and Wrestling defaults implemented by
+  `SkillLadder.defaultFor`, and that function has no production caller.**
+  Neither has `ContentLoader.skillDefaults()`. Book 2540's *"Default: DX-2
+  if untrained"* is a single printed number, not the *"-4 to -6"* range
+  `DefenseDialog`'s KDoc refuses the general roll over, and the attack and
+  defence dialogs say *"the GM's call"* for a character with no unarmed
+  skill. An "implemented" verdict that points at uncalled code is the next
+  thing to ask.
+- **The First Aid and Physician rows are printed in the guide and nowhere
+  in the app.** `hp_recovery.json` holds the three Natural Recovery rows.
+- **Medical Training's Physician at IQ-2**, above.
+
 ## 6ep. Three refusals re-asked, and the one that was half a roll
 
 6eo named no successor and 6ek's list was empty. The handover names one

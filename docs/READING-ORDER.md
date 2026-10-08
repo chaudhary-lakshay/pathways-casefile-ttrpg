@@ -190,7 +190,37 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6ek back to 6de
+## Retired lead paragraphs, 6el back to 6de
+
+**6el is next, and it is 6ek's successor, the ceiling side of the same
+overflow, which was wider than 6ek said.** A potion's grants are ADDED to the
+bought score, and the sum goes through `Attributes` (ST 30) and
+`SecondaryDelta` (±100). The builder sold up to both. **The pathway screen
+digests the BROWSED block while it draws**, so a character with ST bought to
+20 crashed it by tapping Twilight Giant, Seq 6 (+11 ST). No potion was drunk.
+This was reproduced on the SM-T570 at `PotionDigestion.kt:206`, `was 31`. Read
+it for four things.
+
+- **6ek's own example was false**: no standard block grants HP or FP. Abyss's
+  +2 HP comes through ST.
+- **`PurchaseCeilings`** is each bound less the largest walk, derived from
+  the catalogue: ST 19, DX 26, IQ 26, HT 25, and 98/96 steps on the rows a
+  potion raises. One `SavedEdits.withinCeilings()` serves both setters and
+  the opening repair. The repair runs BEFORE 6ek's floors, because lowering
+  ST lowers HP.
+- **The design review argued the alternative and killed it.** Digested
+  scores are never priced, but `Damage.rowFor` stops at ST 30 and reads the
+  digested ST, so an unbounded effective type moves the crash to the damage
+  dialog.
+- **Two mutations survived, and both were test gaps.** `withinCeilings()`
+  holds the WHOLE save, so a secondary step had laundered the attribute the
+  setter let through. And no standard walk lowers a row after raising it, so
+  a synthetic two-block walk now separates peak from end.
+
+Codex was rate-limited and the gateway down, so both reviews were one
+sub-agent each. Device-verified after the fix: the save opens at ST 19, `+`
+is `enabled=false`, and Seq 6 renders. **No successor is named**; 6ek's
+three seen-and-not-touched items stand.
 
 **6ek is next, and it is 6ej's successor, which turned out to be the
 smallest of four: the builder sold every secondary a hundred steps, and four
