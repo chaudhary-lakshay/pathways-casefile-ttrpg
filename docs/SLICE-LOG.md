@@ -6745,9 +6745,14 @@ one. Three sentences move a price:
 - *"Multilingual (3 pts) grants fluency in two common languages without
   point cost — it does not apply to mystical languages."* (712-713)
 
-A grep for a free native tongue (`native language`, `mother tongue`,
-`native tongue`) returns nothing, so no language is free without
-Multilingual.
+No language is free without Multilingual. The first check for a free native
+tongue was three phrasings (`native language`, `mother tongue`, `native
+tongue`), which is a keyword looking for a named thing; the final review
+asked for `language|tongue|speak` over the whole book outside 628-713. It
+finds no starting language either, and it finds two traits that GRANT one:
+Official Beyonder's *"Hermes Language (Broken)"* (582) and Dead Language
+Fluency's *"one dead language (Ancient Hermes, Ancient Loen, etc.)"*
+(1059-1061).
 
 ### The design review
 
@@ -6804,14 +6809,15 @@ Codex, through `codex exec`, on a written decomposition and no diff.
 - `PurchasableTraits.unoffered()` now says *"bought in the Languages row
   above"*, the sentence Wealth's row already uses.
 
-### Potions grant languages, as prose
+### Potions and traits grant languages, as prose
 
 Two blocks print *"Ancient Hermes Fluent — can speak, read, and write
 this dead mystical language"* among their advantages, which are prose
 (`PotionDigestion.UNPARSED`'s neighbour: advantage rows are not structure).
 So the Ritual note is printed only when something was BOUGHT, and says *"A
-potion may grant others"*. A line reading *"owns no mystical language"*
-would have been false of those two Beyonders.
+trait or a potion may grant others"*. A line reading *"owns no mystical
+language"* would have been false of those two Beyonders, and of anyone
+holding either trait above.
 
 ### Tests and mutations
 
@@ -6838,14 +6844,30 @@ first on an unresolved name.
 | languages never reach the character | the same |
 | giving back removes nothing | *a language is changed in place and given back by name* |
 
-Sixteen of sixteen, with the `ran=` column 6eq added and the launcher that
+| the census cannot see the two language traits | *every trait the language prices read is one the census can see* |
+| Multilingual's second clause goes unreported | the same |
+
+Eighteen of eighteen, with the `ran=` column 6eq added and the launcher that
 worked there. One equivalent mutant was written and dropped before running:
 `costLine` returns early for a free language, so whether the Talent flag is
 set on one cannot be observed.
 
-1826 Kotlin (1277 `core:rules`, 529 `app`, 20 `core:model`) after
+1827 Kotlin (1278 `core:rules`, 529 `app`, 20 `core:model`) after
 `--rerun-tasks`. The 361 Python tests were not run: no tool or content file
 changed.
+
+### The final review: two traits applied where the census could not see
+
+`Languages.owned` read Language Talent and Multilingual through a matcher
+of its own, and neither name was in any collection `TraitEffects.known()`
+reads. That is the failure `VitalRollsTest` records three times, a fourth
+time, and the first where the reader is another object.
+`Languages.PRICING_TRAITS` is exported once and `known()` reads it; the
+names are matched through `TraitEffects.levelOf`, the matcher every other
+reader uses. Multilingual's cell prints a second clause, *"No penalty to
+language-dependent social skills in those languages"*, which became a
+clause of a handled trait the moment the first was applied (Very Fit's
+precedent, 6de) and is reported now.
 
 ### The diff review
 
@@ -6887,16 +6909,29 @@ a common language, and the hand-edited save the diff review described.
 Multilingual and the common table are unit-tested; the picker reading the
 resolved list is not tested at all, because it is a composable.
 
-**One dump lied.** The sheet's *"Not applied here"* line for the language
-was missing from the uiautomator dump and present in the screenshot. I did
-not find out why; the file was overwritten by the next dump. A dump that
-omits a node reads exactly like a node that did not render, so the
-screenshot is the evidence for that row.
+**One helper line was missing.** The sheet's *"Not applied here"* line for
+the language was absent from `adb-ui.sh`'s output and present in the
+screenshot. Whether the raw dump held it is not established: my check of
+the raw file could not have found it (a dump is one line, so `grep -c`
+answers 1 for any number of nodes, and the window I allowed before the
+match was shorter than the text). The screenshot is the evidence for that
+row. The reason contains a quotation; the next device pass should search
+the raw file for one.
 
 ### Seen and not touched
 
-- **A language a potion grants is prose.** A player can buy Ancient Hermes
-  beside a block that already grants it, and nothing says so.
+- **Official Beyonder is in no collection, no test and no slice.** A
+  15-point advantage the builder sells: *"Benefits: Revolver +2,
+  Ritualistic Magic +1, Hidden Lore (Beyonders) +3, Occultism +2, Hermes
+  Language (Broken)"*. None of the five reaches anything and the sheet
+  says nothing, because `reported` only emits what `known()` names and the
+  clause guards look for the word *roll* or a *"to X"*. A grep of both
+  source trees, the tools and this log for the name returned nothing
+  before this slice. No premade holds it. **Ask what else is in the
+  complement of `known()`.**
+- **A language a potion or a trait grants is prose.** A player can buy
+  Ancient Hermes beside a block that already grants it; the guide says not
+  to, and the app does not stop it.
 - **6eq's second successor stands**: 6dy calls the Brawling and Wrestling
   defaults implemented by `SkillLadder.defaultFor`, which has no production
   caller. Wiring it must take Versatile's +1.

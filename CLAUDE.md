@@ -151,18 +151,23 @@ loaded. Read it for four things.
 - **The placeholder matcher split on the last bracket**, and the book
   prints *Balam (Dutan)* and *Jotun (Giant's)*. A design review's MEDIUM,
   before any code.
-- **Potions grant languages as prose**, so the Ritual note is printed only
-  for what was BOUGHT. *"Owns no mystical language"* would have been false
-  of two Beyonders.
+- **Potions and two traits grant languages as prose**, so the Ritual note
+  is printed only for what was BOUGHT. *"Owns no mystical language"* would
+  have been false of two Beyonders.
 
 Codex answered both reviews: CHANGE on the shape, and one MEDIUM on the
 diff (the picker read the raw save where the budget reads the resolved
-list). Sixteen mutations of sixteen were caught. On the SM-T570, Occult
+list). The final review found the pricing read two traits the census
+could not see (`Languages.PRICING_TRAITS` now). Eighteen mutations of
+eighteen were caught. On the SM-T570, Occult
 Scholar, who prints Language Talent: *"Hermes, Accented, spoken only — 5
 pts (20 listed; half for one form; halved by Language Talent, rounded
-up)"*, `91` to `96 of 100`. **6eq's second successor is next**: book
-2540's *"Default: DX-2 if untrained"* against a `SkillLadder.defaultFor`
-with no production caller.
+up)"*, `91` to `96 of 100`. **Two successors.** Official Beyonder, a
+15-point advantage the builder sells, is in no collection, no test and no
+slice: five printed benefits reach nothing and the sheet is silent, so ask
+what else is in the complement of `TraitEffects.known()`. And 6eq's
+second stands: book 2540's *"Default: DX-2 if untrained"* against a
+`SkillLadder.defaultFor` with no production caller.
 
 **6eq is next, and it ran 6ep's check where refusals actually live:
 every reason in production source whose subject is THIS APP.** 6ep re-asked
@@ -421,7 +426,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1826 Kotlin** (JUnit 5 — 1277 `core:rules`, 529 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1827 Kotlin** (JUnit 5 — 1278 `core:rules`, 529 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
