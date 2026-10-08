@@ -6726,6 +6726,147 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6et. The roll nobody on the sheet could make
+
+6eq named this, and 6er and 6es each carried it forward: book 2540 prints
+*"Default: DX-2 if untrained"* for Brawling, and `SkillLadder.defaultFor`,
+which the journal called its implementation, has had no production caller
+since M0. This slice gives it one. It is wider than the sentence that named
+it, because the sentence was one row of a table the app never rolled.
+
+### What the book prints
+
+- **Chapter 2, lines 423-442.** *"You can attempt most skills even without
+  training. This is called using the default."* Easy is Attribute -4,
+  Average -5, Hard -6, and Very Hard is *"No default — cannot attempt
+  untrained"*. The worked example is Lockpicking at IQ 9: *"IQ - 5 = 4"*.
+- **Chapter 5 prints three lines of its own.** Brawling, DX/Easy:
+  *"Default: DX-2 if untrained"* (2540, and 2630 in the summary). Boxing,
+  DX/Average: *"Default DX-5"*, which agrees with the table. Wrestling,
+  DX/Average: *"No default"* (2642).
+- **Chapter 4, 3559.** *"Divination Arts defaults to Ritualistic Magic-2 and
+  vice versa. A character with one skill at 12+ can attempt the other at
+  -2."*
+- **Appendix A, 9738-9739**, restates the table as one row: *"Attribute -4
+  to -6"*.
+- **Line 440-441**: no default either for *"any skill the GM rules requires
+  specialist knowledge before you can even attempt it"*.
+
+### What the app did
+
+It rolled only what a sheet owned: published, bought or granted by a
+potion. Three screens said an untrained roll was *"the GM's call"*, and
+`DefenseDialog`'s KDoc gave the reason as the appendix's RANGE and called
+the fix *"a policy for 158 skills, not a branch for this one"*. The range
+is the table's two ends. The policy is this slice.
+
+### The design review
+
+Codex, through `codex exec`, on a written decomposition and no diff:
+CHANGE, SHIP, CHANGE.
+
+- **The table is chapter 2's**, and the appendix summarises it.
+- **Divination Arts is a reading, to be said as one.** I proposed reading
+  3559 as Brawling's line is read: a skill's own line replaces the table's,
+  so SPI-6 is not offered. The review's MEDIUM: the line does not say
+  *only*, so that is *"less conclusive than Wrestling's express refusal"*.
+  It is the reading `Divination.crossDefaultFor` has made since 6az, and
+  the list now says on screen that it makes it.
+- **Three potion blocks print "no default penalty" for a weapon**, which
+  my formula ignored: Warrior and Weapon Master (Twilight Giant 9 and 7)
+  and Harvest Priest (Mother 7). Apply them or name them.
+- **One consumer is enough for one slice**, with the objection said out
+  loud: a player can roll Brawling and cannot complete the attack.
+- **Ten sentences go stale**, listed by file and line. All ten are
+  corrected in the same commits.
+
+### What was built
+
+- `SkillDefaults`, a new rules object. `offered(owned, attributeLevel,
+  defaultBonus)` returns every printed skill the character does not hold
+  and the book gives a default, each with its level and where it came
+  from. `offeredTo(character)` asks it of the character as played. A
+  character who owns nothing is offered 149 of the 158: less the seven
+  Very Hard rows, Wrestling, and Divination Arts.
+- **Owned is the same name and specialization at any difficulty.** Five
+  potion grants disagree with chapter 3 about a difficulty, and the
+  catalogue prints no name and specialization twice, which a test pins.
+  An instance of an open row leaves the open row on offer.
+- **Divination Arts is asked of `Divination.divinationLevelFor`**, never
+  recomputed, so the Skills tab cannot offer what the Divine tile refuses.
+- **Versatile's +1 is inside every default.** Its sheet note, *"this app
+  offers no other roll at a default"*, is removed: the second false
+  sentence that one trait has carried.
+- **The three weapon lines are named and not applied**, each in its own
+  words. Which skill a weapon uses is a property of the weapon in hand.
+- **The screen.** One row at the foot of the Skills tab, *"Roll a skill
+  this sheet does not have"*, opens a list with a filter. A pick goes to
+  the sheet's own `RollDialog` through `SkillRoll.at`, labelled *"Acrobatics
+  (untrained, DX-6)"*, so it takes the trackers, the traits and the GM's
+  circumstances as any other skill does.
+- **The Defence dialog's two notes** say what is missing rather than whose
+  call it is: this screen takes no roll at a default.
+
+### The diff review
+
+Codex again: FIX, one MEDIUM and two LOWs, all taken.
+
+- **MEDIUM: the weapon note flattened three lines into one.** Harvest
+  Priest's is *"any farming or gardening tool as a weapon"*, and the note
+  said *"with a weapon"*. Each block carries its own scope now, and the
+  test quotes the block.
+- **LOW: I wrote that a mortal's SPI of 0 "does the gating"**, and it does
+  not. `SuccessRoll` gives a 3 or a 4 its critical success at any target,
+  so a mortal's Spiritual Perception at -5 succeeds one roll in 54. That
+  is this app's standing reading of the book's *"always succeeds"*, and
+  the comment says so.
+- **LOW: no test rolled a default.** One does: a negative target through
+  `SkillRoll.at`, and Perfect Balance lifting an untrained Acrobatics.
+
+### Verification
+
+1844 Kotlin (1295 `core:rules`, 529 `app`, 20 `core:model`), green from the
+JUnit XML after a full run. Python was not run: no tool changed.
+
+**Seventeen mutations, and two survived the first pass**: Versatile
+dropped from Brawling's branch, and dropped by `offeredTo`. Each got an
+assertion and was then caught, `ran=98`. They ran before the diff review,
+never beside it. The weapon-scope fix came after, and was RED first.
+
+On the SM-T570 (`R52TA076AEZ`), Beat Cop, who is a Seer in that save:
+
+| Step | Screen |
+|---|---|
+| Skills, scrolled to the foot | `Roll a skill this sheet does not have` |
+| Tap | `Guns (Revolver)`, `DX-4`, `6`; `Boxing`, `DX-5`, `5` |
+| Filter *Brawl* | no row, since the sheet owns it, and both caveats |
+| Filter *Acro* | `Acrobatics`, `DX-6`, `4` |
+| Tap it | `Acrobatics (untrained, DX-6)`, `Skill 4`, the circumstance chips |
+| **Roll** | `3d6: 14 vs 4`, `Critical failure`, `margin -10`, and the FP push |
+
+The save is byte-identical afterwards, the crash buffer was empty, and the
+tablet was on its launcher before and after. **Not exercised on the
+tablet**: Brawling's DX-2 row, since Beat Cop owns the skill; Versatile;
+the Divination Arts row; and the weapon note. All four are unit-tested.
+
+### Seen and not touched
+
+- **The Attack dialog lists only owned skills**, so an untrained punch has
+  no damage line, and a carried weapon with no skill has no roll. Its KDoc
+  says *"this book tags no skill as a combat skill"* beside a `COMBAT
+  SKILLS` banner in `skills.json`. That is a claim to check.
+- **The Acrobatic Dodge takes no untrained roll**, and says so.
+- **An untrained parry.** Brawling's paragraph prints the default and the
+  parry formula in adjacent sentences. Whether a default parries needs a
+  design review, not a branch.
+- **The three weapon lines are unapplied.**
+- **Shield Bash, 2537**: *"Skill defaults to Shield/DX or Brawling-2"* is
+  an attack's skill and reaches nothing.
+- **The list is in the catalogue's order**, which opens on the combat
+  skills. 149 rows and a filter.
+- **6es's successors stand**: six conditional skill rows, and the untriaged
+  rows naming a mechanic this app has a screen for.
+
 ## 6es. The complement of `known()`
 
 6er named this first of two successors: Official Beyonder, a 15-point

@@ -34,7 +34,7 @@ import com.pathways.rules.content.SkillDefinition
  * **Divination Arts is a reading, and it is the one the Divine tile already
  * made.** Line 3559 does not say "only", so SPI-6 beside it is not excluded
  * by any sentence; it is withheld here because [Divination.crossDefaultFor]
- * has refused it since 6aj -- "what the book declines to say is whether they
+ * has refused it since 6az -- "what the book declines to say is whether they
  * may attempt it at all" -- and a plain roll offering what the tile refuses
  * would be two answers to one question. Asked of that resolver, never
  * recomputed.

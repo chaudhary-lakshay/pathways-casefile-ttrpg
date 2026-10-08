@@ -190,7 +190,34 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6en back to 6de
+## Retired lead paragraphs, 6eo back to 6de
+
+**6eo is next, and it is the last of 6ek's items: the builder printed the
+purchase and the sheet printed the character.** One save on the SM-T570,
+Abyss Sequence 9 at 100%, read `HP 11 / 11` on the sheet and `HP 9` in the
+builder. The attribute and secondary rows now show the value as played, and
+the small line adds *"N before potions"* where a potion moved it. Read it
+for four things.
+
+- **Only the printed number moved.** Steps, *"pts spent here"*, *"next level
+  costs"*, *"sheet prints"*, the enabled conditions and `onChange` still
+  read the bought value, through a new parameter and not a repointed one.
+  The diff review listed thirteen bought reads and found none switched.
+- **Both numbers, because `−` is greyed by a floor on either.** Under Abyss,
+  bought HP 1 plays as 3 and bought Will 2 plays as 1. One number alone
+  sits beside a greyed control it does not explain.
+- **One reading.** `Character.digestedWith(state)` replaces four inline
+  `PotionDigestion.of` calls, the sheet's two among them.
+- **Skill rows stay on bought levels and say so**, on the design review's
+  MEDIUM. A potion lifts a bought skill or supersedes it with a grant under
+  a different key, and a lookup here would be a second matcher.
+
+**Declined**: the design review's other MEDIUM, a printed reason for each
+refused `−`. `allows` answers yes or no, and both numbers are now on the
+row. The call sites have no test (section 6); four mutations cover the two
+helpers and the device pass covers the rest. On the tablet: ST `11` *"9
+before potions"*, Will `9`, Per `12`; ST `+` reads `12`, *"10 pts spent
+here"*, `97 of 100`. **6ek's list is empty, and no successor is named.**
 
 **6en is next, and it is the second of 6ek's items: Basic Speed and Basic
 Move sold a hundred steps each.** Nothing crashed, which is why 6ek's floors

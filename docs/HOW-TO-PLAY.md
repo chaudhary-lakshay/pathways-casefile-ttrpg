@@ -105,6 +105,23 @@ Every row the table prints for that skill is shown, conditional ones included
 — so an empty list means the book prices no gear for it, not that your gear
 does nothing.
 
+### A skill you do not have
+
+The book lets you attempt most skills untrained, at a default. Scroll to the
+foot of **Skills** and tap **Roll a skill this sheet does not have**. Type a
+few letters in **Find a skill**, tap the row, and the usual roll dialog opens
+with the default as its skill: *"Acrobatics (untrained, DX-6)"*.
+
+- The number is your attribute less 4, 5 or 6 for an Easy, Average or Hard
+  skill. **Brawling** is DX-2, which is the book's own line for it.
+  **Versatile** adds 1 to every one of them.
+- Very Hard skills and Wrestling have no default and are not listed.
+  Divination Arts is listed only with Ritualistic Magic at 12 or more.
+- The GM may rule that a skill cannot be attempted untrained at all. The app
+  does not record that, so ask before you roll.
+- It is the skill roll alone. **Attack** and **Defend** take only skills the
+  sheet owns, so an untrained punch has no damage line there.
+
 ---
 
 ## 3. Combat
@@ -329,7 +346,7 @@ Edits are saved per character and survive a restart.
 - **Repair the book.** Where a published sheet disagrees with the rulebook, the
   book wins and the disagreement is shown, not smoothed over.
 - **Invent a rule to fill a gap.** Where the book prints nothing — the shield at
-  your side, an untrained parry, the value of a Secret nobody named — the app
+  your side, the value of a Secret nobody named — the app
   says so and leaves it to the GM.
 - **Track a clock it does not hold.** There is no initiative, no map, no turn
   counter beyond the defence screen's own round. FP recovery, stun duration and

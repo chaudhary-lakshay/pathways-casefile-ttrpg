@@ -48,6 +48,11 @@ beside a rule that is applied. Nothing enforces this: the census tests name
 the readers that were found (Night Eyes, Spiritual Fortitude, the language
 pricing pair) and cannot see the next one.
 
+**Every roll at a default asks `SkillDefaults` and takes Versatile's +1.**
+Two do: the Divine tile and the Skills tab's untrained list. Versatile's
+sheet note was removed on that count (6et), so a third consumer that
+skips the +1 leaves the trait silently short.
+
 **`defense_modifiers.json` is finished, and so is the round boundary behind
 it.** 6co applied Retreat — three numbers scoped per defence row (+3 Dodge / +1
 Block / +1 Parry vs. 1 melee attack per round) — after 6cm's Dive! and 6cn's
@@ -143,7 +148,35 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6es is newest, and it is 6er's first successor: it lists the complement
+**6et is newest, and it is the successor three slices carried: the
+untrained roll.** `SkillLadder.defaultFor` had no production caller since
+M0, so chapter 2's table reached no roll, and three screens called an
+untrained roll *"the GM's call"*. Read it for four things.
+
+- **A skill's own line beats the table.** Brawling is DX-2 where Easy says
+  -4, Wrestling has *"No default"* where Average says -5, and Boxing
+  agrees. `SkillDefaults` holds the two overrides. `defaultFor` is the
+  table alone.
+- **Divination Arts is asked of `Divination`, not recomputed.** Line 3559
+  does not say *only*, so withholding SPI-6 is a reading (the design
+  review's MEDIUM). It is the one the Divine tile already made, and the
+  list says so on screen.
+- **One consumer.** A row at the foot of the Skills tab opens a filtered
+  list of 149 skills, and a pick goes to the sheet's own roll dialog. The
+  Attack and Defence dialogs take no default, and now say that.
+- **Versatile's +1 is inside every default**, and its sheet note is gone:
+  the second false sentence that trait has carried.
+
+Codex answered both reviews: CHANGE, SHIP, CHANGE on the design, with ten
+stale sentences listed, then FIX on the diff. Its MEDIUM: one note
+flattened three potion lines about weapons, and Harvest Priest's covers
+farming tools only. Seventeen mutations, two of which survived until they
+got an assertion. On the SM-T570: `Acrobatics (untrained, DX-6)`, `Skill
+4`, `3d6: 14 vs 4`. **Successors**: an untrained punch and a carried weapon
+in the Attack dialog, the Acrobatic Dodge, whether a default parries, and
+6es's two lists.
+
+**6es is next, and it is 6er's first successor: it lists the complement
 of `TraitEffects.known()`, which nothing had.** 148 of the 198 catalogue
 rows, by a throwaway test at `c3011e6`. Read it for four things.
 
@@ -275,36 +308,10 @@ at `9 / 9`; at `8 / 9`, **Roll HT 9**, then `14` with `+5 entered`, `3d6: 12
 vs 14 - success`, HP unchanged. There are 82 content files now. **No
 successor is named.**
 
-**6eo is next, and it is the last of 6ek's items: the builder printed the
-purchase and the sheet printed the character.** One save on the SM-T570,
-Abyss Sequence 9 at 100%, read `HP 11 / 11` on the sheet and `HP 9` in the
-builder. The attribute and secondary rows now show the value as played, and
-the small line adds *"N before potions"* where a potion moved it. Read it
-for four things.
-
-- **Only the printed number moved.** Steps, *"pts spent here"*, *"next level
-  costs"*, *"sheet prints"*, the enabled conditions and `onChange` still
-  read the bought value, through a new parameter and not a repointed one.
-  The diff review listed thirteen bought reads and found none switched.
-- **Both numbers, because `−` is greyed by a floor on either.** Under Abyss,
-  bought HP 1 plays as 3 and bought Will 2 plays as 1. One number alone
-  sits beside a greyed control it does not explain.
-- **One reading.** `Character.digestedWith(state)` replaces four inline
-  `PotionDigestion.of` calls, the sheet's two among them.
-- **Skill rows stay on bought levels and say so**, on the design review's
-  MEDIUM. A potion lifts a bought skill or supersedes it with a grant under
-  a different key, and a lookup here would be a second matcher.
-
-**Declined**: the design review's other MEDIUM, a printed reason for each
-refused `−`. `allows` answers yes or no, and both numbers are now on the
-row. The call sites have no test (section 6); four mutations cover the two
-helpers and the device pass covers the rest. On the tablet: ST `11` *"9
-before potions"*, Will `9`, Per `12`; ST `+` reads `12`, *"10 pts spent
-here"*, `97 of 100`. **6ek's list is empty, and no successor is named.**
-
-**6en back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6eo back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6eo** — the builder printed bought values and the sheet the played ones; rows show the value as played, and every edit still reads the purchase;
 **6en** — Basic Speed and Basic Move sold a hundred steps each; both stand at zero in `ScoreFloors`, as policy, and Move is measured after Speed;
 **6em** — maximum CoR is a state the app checked only on a gain; a builder sale is refused where a potion latches, and the first potion never latched;
 **6el** — a potion's grants are added to the bought score, so browsing a block crashed a high-ST save; `PurchaseCeilings` bounds each purchase, and 6ek's own example was false;
@@ -378,7 +385,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: the slice log, from the END — 6es first.** The
+**Where to start next: the slice log, from the END — 6et first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -433,7 +440,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1832 Kotlin** (JUnit 5 — 1283 `core:rules`, 529 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1844 Kotlin** (JUnit 5 — 1295 `core:rules`, 529 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -535,7 +542,12 @@ SecondaryCharacteristics.valueLabelOf(s, key): String?
                                       // null for spi/cor/digestion: the three
                                       // rows the table refuses to price
 SkillLadder.levelFor(points, difficulty, attributeLevel): Int
-SkillLadder.defaultFor(difficulty, attributeLevel): Int?
+SkillLadder.defaultFor(difficulty, attributeLevel): Int?   // ch.2's table ALONE
+SkillDefaults.offeredTo(character): List<Untrained>   // what a screen asks: the
+                                      // table, Brawling's DX-2, Wrestling's
+                                      // none, and Divination Arts via Divination
+SkillDefaults.offered(owned, attributeLevel, defaultBonus) / .weaponNote(pathway, sequence)
+SkillDefaults.NOT_LISTED / .PLAIN_ROLL    // what the list withholds and does not carry
 SuccessRoll.against(target, source: RandomSource): RollResult
 ContentLoader.skills() / .advantages() / .disadvantages() / .thrustSwing()
 ContentLoader.pathways() / .actingMethod() / .potionConsumption()
@@ -954,10 +966,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6es. The slice log
+## 6a-6et. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6es is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6et is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
