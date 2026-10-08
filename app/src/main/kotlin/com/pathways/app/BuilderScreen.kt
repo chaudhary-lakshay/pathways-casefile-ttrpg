@@ -36,13 +36,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material3.AlertDialog
 import com.pathways.model.Attr
 import com.pathways.model.BASE_ATTRIBUTE
-import com.pathways.model.MAX_ATTRIBUTE
 import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.rules.AttributeCosts
 import com.pathways.rules.Derive
 import com.pathways.rules.InstantiableTrait
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.PurchasableTraits
+import com.pathways.rules.PurchaseCeilings
 import com.pathways.rules.SecondaryCharacteristics
 import com.pathways.rules.SkillLadder
 import com.pathways.rules.Study
@@ -405,6 +405,8 @@ private fun AttributeRow(
     canLower: Boolean,
     onChange: (Int) -> Unit,
 ) {
+    // Room left for every potion on top of what is bought (PurchaseCeilings).
+    val ceiling = PurchaseCeilings.attribute(attr)
     Row(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -417,7 +419,7 @@ private fun AttributeRow(
             // IQ 11 the cumulative figure for 12 is 140, but the click costs
             // 80.
             val spent = AttributeCosts.costOf(attr, level)
-            val next = if (level < MAX_ATTRIBUTE) AttributeCosts.costOf(attr, level + 1) - spent else null
+            val next = if (level < ceiling) AttributeCosts.costOf(attr, level + 1) - spent else null
             Text(
                 buildString {
                     append("$spent pts spent here")
@@ -434,7 +436,7 @@ private fun AttributeRow(
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 8.dp),
         )
-        OutlinedIconButton(onClick = { onChange(1) }, enabled = level < MAX_ATTRIBUTE) { Text("+") }
+        OutlinedIconButton(onClick = { onChange(1) }, enabled = level < ceiling) { Text("+") }
     }
 }
 
@@ -493,7 +495,7 @@ private fun SecondaryRow(
         )
         OutlinedIconButton(
             onClick = { onChange(1) },
-            enabled = steps < MAX_SECONDARY_DELTA_MAGNITUDE,
+            enabled = steps < PurchaseCeilings.secondarySteps(row.key),
         ) { Text("+") }
     }
 }

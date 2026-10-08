@@ -1,6 +1,7 @@
 package com.pathways.app
 
 import com.pathways.model.Attr
+import com.pathways.model.BASE_ATTRIBUTE
 import com.pathways.model.BeyonderState
 import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.model.SecondaryDelta
@@ -15,6 +16,7 @@ import com.pathways.rules.PremadeSheet
 import com.pathways.rules.SecondaryCharacteristics
 import com.pathways.rules.InstancedPurchase
 import com.pathways.rules.PurchasableTraits
+import com.pathways.rules.PurchaseCeilings
 import com.pathways.rules.ScoreFloors
 import com.pathways.rules.SkillLadder
 import com.pathways.rules.Weapons
@@ -71,6 +73,27 @@ fun SavedEdits.shortfallOn(sheet: PremadeSheet, state: BeyonderState?): Secondar
     val digested = PotionDigestion.of(character.copy(beyonder = state), ContentLoader.pathways())
         ?: return bought
     return ScoreFloors.shortfall(digested.secondaries, character.traits)
+}
+
+/**
+ * These edits held inside what a purchase may reach: each bought attribute
+ * between the book's 9 and its [PurchaseCeilings] ceiling, and each bought
+ * secondary between -100 steps and its ceiling. The one statement of that
+ * range: the setters build through it, and a save made before the ceilings
+ * existed is brought inside it on opening -- BEFORE the floors are asked,
+ * because lowering ST lowers HP.
+ */
+fun SavedEdits.withinCeilings(): SavedEdits {
+    fun Int?.held(attr: Attr) = this?.coerceIn(BASE_ATTRIBUTE, PurchaseCeilings.attribute(attr))
+    return copy(
+        st = st.held(Attr.ST),
+        dx = dx.held(Attr.DX),
+        iq = iq.held(Attr.IQ),
+        ht = ht.held(Attr.HT),
+        secondaries = secondaries.mapValues { (key, steps) ->
+            steps.coerceIn(-MAX_SECONDARY_DELTA_MAGNITUDE, PurchaseCeilings.secondarySteps(key))
+        },
+    )
 }
 
 /**

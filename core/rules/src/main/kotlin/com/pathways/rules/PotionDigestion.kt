@@ -282,6 +282,31 @@ object PotionDigestion {
     private fun SkillKey.matches(other: SkillKey) =
         name == other.name && specialization == other.specialization && difficulty == other.difficulty
 
+    /**
+     * The most any walk of [blocks] adds to each attribute and secondary row,
+     * at whichever Sequence it peaks: what a purchase must leave room for
+     * ([PurchaseCeilings]). Each row is maximised on its own, so the answer
+     * may combine two pathways no one character walks.
+     */
+    fun largestGrants(blocks: List<SequenceBlock>): PotionGrants =
+        blocks.groupBy { it.pathway }.values.fold(PotionGrants()) { highest, pathway ->
+            pathway.sortedByDescending { it.sequence }
+                .runningFold(PotionGrants()) { walked, block -> walked.mergeStats(statGrants(block.stats)) }
+                .fold(highest) { acc, walked -> acc.atLeast(walked) }
+        }
+
+    private fun PotionGrants.atLeast(other: PotionGrants) = copy(
+        attributes = Attr.entries.associateWith { maxOf(attributes[it] ?: 0, other.attributes[it] ?: 0) },
+        secondary = SecondaryDelta(
+            hp = maxOf(secondary.hp, other.secondary.hp),
+            fp = maxOf(secondary.fp, other.secondary.fp),
+            will = maxOf(secondary.will, other.secondary.will),
+            per = maxOf(secondary.per, other.secondary.per),
+            basicSpeedQuarters = maxOf(secondary.basicSpeedQuarters, other.secondary.basicSpeedQuarters),
+            basicMove = maxOf(secondary.basicMove, other.secondary.basicMove),
+        ),
+    )
+
     private fun PotionGrants.mergeStats(other: PotionGrants) = copy(
         attributes = (attributes.keys + other.attributes.keys).associateWith {
             (attributes[it] ?: 0) + (other.attributes[it] ?: 0)

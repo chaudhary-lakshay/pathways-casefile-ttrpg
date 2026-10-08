@@ -2,8 +2,11 @@ package com.pathways.app
 
 import com.pathways.model.Attr
 import com.pathways.model.BeyonderState
+import com.pathways.model.MAX_ATTRIBUTE
 import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.rules.Pool
+import com.pathways.rules.PotionDigestion
+import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.PublishedValues
 import com.pathways.rules.RandomSource
@@ -359,6 +362,42 @@ class BeyonderSessionTest {
         assertEquals(MAX_SECONDARY_DELTA_MAGNITUDE, s.edits.secondaries["hp"])
         s.setSecondary("will", -10_000)
         assertEquals(-MAX_SECONDARY_DELTA_MAGNITUDE, s.edits.secondaries["will"])
+    }
+
+    @Test
+    fun `whatever the builder sells, every potion can be digested on top of it`() {
+        // The pathway screen digests the BROWSED block while it draws, potion
+        // or not, and a potion ADDS to what was bought: Twilight Giant's walk
+        // is ST +11, so a bought ST 20 was an ST 31 the model cannot hold.
+        // Each setter on its own session: both hold the WHOLE save to the
+        // ceilings, so a secondary step after an attribute step would hide an
+        // attribute setter that held nothing.
+        val sheet = plain()
+        val blocks = ContentLoader.pathways()
+        val buys = listOf<(BeyonderSession) -> Unit>(
+            { s -> Attr.entries.forEach { s.setAttribute(it, MAX_ATTRIBUTE) } },
+            { s -> ContentLoader.secondaryCosts().forEach { s.setSecondary(it.key, MAX_SECONDARY_DELTA_MAGNITUDE) } },
+        )
+        for (buy in buys) {
+            val (s, _) = session(sheet = sheet)
+            buy(s)
+            for (b in blocks) {
+                PotionDigestion.digestThrough(s.characterFor(sheet), b.pathway, b.sequence, blocks)
+            }
+        }
+    }
+
+    @Test
+    fun `a save bought past a ceiling is brought down to it on opening, before the floors`() {
+        // Written before the ceilings existed: ST 25 is ST 36 on Twilight
+        // Giant's walk. Bringing ST down to 19 takes HP (ST + steps) from 5 to
+        // -1, so the floors must be asked AFTER the ceilings, or the repair
+        // leaves a save the sheet throws on.
+        val saved = SavedSession(edits = SavedEdits(st = 25, secondaries = mapOf("hp" to -20, "per" to 100)))
+        val (s, last) = session(saved, plain())
+        val expected = SavedEdits(st = 19, secondaries = mapOf("hp" to -18, "per" to 98))
+        assertEquals(expected, s.edits)
+        assertEquals(expected, last().edits, "the repair is written back, not redone on every open")
     }
 
     @Test

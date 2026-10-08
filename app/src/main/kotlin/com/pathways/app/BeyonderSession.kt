@@ -5,11 +5,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.pathways.model.Attr
-import com.pathways.model.BASE_ATTRIBUTE
 import com.pathways.model.BeyonderState
-import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.model.Character
-import com.pathways.model.MAX_ATTRIBUTE
 import com.pathways.model.SecondaryDelta
 import com.pathways.model.canDrink
 import com.pathways.rules.Corruption
@@ -100,11 +97,14 @@ class BeyonderSession(
     // every open. Bought back ONCE and written back, rather than lifted on
     // every read: a lift-on-read would leave the builder's "-11 bought" and
     // the bill disagreeing (Codex, on the design).
+    // A save bought past a ceiling throws wherever a potion is digested on
+    // top of it -- browsing included. Held to the ceilings FIRST: lowering ST
+    // lowers HP, and the floors must see the HP that results.
     init {
         if (sheet != null) {
             // Bought scores, then digested ones: two passes at most, since a
             // potion lowers only Will and by four at most.
-            val repaired = generateSequence(edits) { e ->
+            val repaired = generateSequence(edits.withinCeilings()) { e ->
                 e.shortfallOn(sheet, state).takeIf { it != SecondaryDelta() }?.let(e::boughtBack)
             }.last()
             if (repaired != edits) {
@@ -137,8 +137,7 @@ class BeyonderSession(
     /** Whether [setAttribute] would take [level], rather than refuse it. */
     fun canSetAttribute(attr: Attr, level: Int): Boolean = allows(withAttribute(attr, level))
 
-    private fun withAttribute(attr: Attr, level: Int) =
-        edits.withAttribute(attr, level.coerceIn(BASE_ATTRIBUTE, MAX_ATTRIBUTE))
+    private fun withAttribute(attr: Attr, level: Int) = edits.withAttribute(attr, level).withinCeilings()
 
     /**
      * Carry the chapter-8 weapon [name] (p. 80).
@@ -180,8 +179,8 @@ class BeyonderSession(
     fun canSetSecondary(key: String, steps: Int): Boolean = allows(withSecondary(key, steps))
 
     private fun withSecondary(key: String, steps: Int): SavedEdits {
-        val n = steps.coerceIn(-MAX_SECONDARY_DELTA_MAGNITUDE, MAX_SECONDARY_DELTA_MAGNITUDE)
-        return edits.copy(secondaries = if (n == 0) edits.secondaries - key else edits.secondaries + (key to n))
+        val held = edits.copy(secondaries = edits.secondaries + (key to steps)).withinCeilings()
+        return if (steps == 0) held.copy(secondaries = held.secondaries - key) else held
     }
 
     /**
