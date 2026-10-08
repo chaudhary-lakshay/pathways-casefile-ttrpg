@@ -180,7 +180,9 @@ Go to **Pathways**. Pick your pathway, then the Sequence you are drinking.
 - **Drink this potion** applies the grants.
 - **Drink and roll** runs the Potion Consumption Roll — whose own table
   overrides the general critical rules at both ends (1 always fails, 19 always
-  succeeds).
+  succeeds). The line under the button prints the roll before you make it: the
+  target, what advancing before full digestion costs, and a warning when that
+  cost would end the character even on a success.
 
 You walk a pathway one potion at a time: only the first potion for a mortal, or
 the next Sequence of the pathway you already walk. Digestion is tracked, and

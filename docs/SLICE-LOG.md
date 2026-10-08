@@ -6726,6 +6726,147 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ej. The button that printed nothing about its own roll
+
+6ei ended on one thing seen and not touched: *"the block that carries the
+Drink button prints nothing about the roll it is about to make — the target
+and the early-advancement cost are printed on the PREVIOUS block."* 6ei also
+recorded that three sentences of that kind about this screen had gone into
+the record unread, so this one was checked before it was believed.
+
+**It is true, and the design review quoted both conditions.** *Drink and roll*
+is drawn in the branch `drunk.canDrink(chosen)`, and `canDrink` admits only
+the NEXT Sequence. The target and the cost were printed by `DigestionTracker`
+alone, drawn under `if (isCurrentPotion && !session.isLost)` — the CURRENT
+Sequence. One block cannot be both. So the one irreversible roll on the
+pathway screen — 3d6 ≤ 1 at 0% digestion — was made beside neither number,
+in an app where every other roll prints its target before it rolls.
+
+### What shipped
+
+- `PotionConsumption.corCostFor(state)` — the floor before full digestion,
+  nothing at 100%. `attempt` charges it. That decision was written twice
+  before: once in `attempt`, and once as a choice of string in the tracker.
+- `Corruption.isLostAfter(cor, delta, max)` — whether a gain ends the
+  character. `BeyonderSession.gainCor` asks it, and so does the screen.
+- `pcrLine(state)` — `3d6 ≤ T`, and ` — on success +N CoR minimum; the GM may
+  charge more` when there is a cost. The tracker prints `next potion rolls` in
+  front of it; the Drink block prints `at D% digested, rolls` in front of it.
+- `drinkLine(state, cor, ceilingAfter)` — that line, and when the charge
+  reaches the ceiling of the potion being drunk INTO: *"Maximum CoR after this
+  potion is M; C CoR reaches it — lost to corruption even if the potion
+  integrates."*
+
+`drink` and `stillShows` are unchanged, and no number from the screen goes to
+the session. A mortal's *Drink this potion* prints no line: it makes no roll.
+
+### The half the design review added
+
+My sketch printed the target and the cost and left the landing ceiling out,
+and asked whether that made the line misleading. **MEDIUM: it does.** A line
+with a target and a cost reads as a complete account of the risk, and the
+book's own arithmetic makes the commonest early advancement unsurvivable: a
+floor of 10 CoR against a Will of 10. The session has reported that since M4
+— `PcrDialog` titles it *"The potion integrates — and takes them"* — but only
+AFTER the tap. And the zero-cost case is the Will-lowering potion that M4
+paid for once already: nothing charged, and the ceiling lands on the total.
+Both are one predicate, so the warning is `isLostAfter` with whatever the
+cost is. Its LOW was the wording: "advancing now also costs 10+ CoR" left it
+implicit that the charge is on success only and that the app charges the
+floor.
+
+### Two things this settles about 6eh and 6ei
+
+**6eh's "the potion roll is left, and its window is open" is closed, and
+6ei closed it without saying so.** 6ei corrected the REASON that paragraph
+gave (the stepper and Drink do not share a screen) and left the verdict
+standing. The input list, checked by the review rather than written by it:
+the printed target is `targetFor(drunk.digestion)`; the rolled one is
+`targetFor(session.state.digestion)` at the tap; and `stillShows` lets the
+tap through only when `state == drunk`, on a data class whose equality
+includes `digestion`. The cost reads the same field. What is outside that
+equality is the dice and `maxCorFor(next)`, and neither is an input to the
+target. So the potion roll is the ninth of 6eg's nine pairs, closed from the
+other side: the screen does not hand over the number it printed, the session
+declines to act unless it would compose the same one.
+
+**`onSamePotion` has a reviewer now.** 6ei shipped it with two mutations and
+a grep. The review's answers: no sequence of taps inside one frame applies a
+CoR step against a ceiling that is no longer the session's; the KDoc's claim
+that a digestion step cannot move the ceiling is true (`maxCorFor` →
+`PotionDigestion.of` → `Corruption.maxFor`, none reading `digestion`); and one
+legal tap IS dropped — a CoR step after a successful Drink, before the
+redraw, even when the ceiling did not move — which is the design, and has a
+test. The review could not see the handler under the rewritten comment at
+`MainActivity.kt:1564` because my file range stopped short of it; it is
+`if (outcome != null) return@TextButton` and then `SelfControl.rollAgainst
+(check, target, appDice)`, read here, which is what the comment says.
+
+### Tests and mutations
+
+RED first: unresolved references in all three test files. Then seven tests —
+two in `core:rules`, five in the new `PathwayScreenTest` — and six single
+mutations, each restored from a copy:
+
+| Mutation | Caught by |
+|---|---|
+| the cost charged at 100% too | *what advancing costs can be asked before the roll is made* |
+| `isLostAfter` ignores the gain | *a gain that reaches the maximum ends the character* |
+| `gainCor` latches on the old total | *reaching the maximum latches the loss*, and two more |
+| `drinkLine` warns on the total before the cost | *an advancement whose cost reaches the ceiling…* |
+| `pcrLine` drops the cost clause | *the roll is printed with what advancing early costs* |
+| the warning names `$cor`, not `${cor + cost}` | the same test, after the diff review |
+
+The sixth is the diff review's: it survived my first five assertions, which
+only ever started from 0 CoR, where the two totals differ by exactly the
+cost and the sentence was matched on its other words.
+
+**What no test catches, and is refused one.** The call site: `drinkLine
+(drunk, printedCor, maxCorFor(chosen))`. Passing `maxCor` — the ceiling of
+the potion being digested — survives the suite, and so does removing the
+`Text`. The review asked for a Compose test. Section 6 already answers that:
+composables are device-only until there is a reason better than coverage.
+The device pass below was chosen to tell those two ceilings apart.
+
+### On the SM-T570
+
+Antiquarian Dealer, a mortal with Will 10, down the Abyss pathway — because
+Sequence 9 lowers Will and Sequence 8 lowers it again, so the two ceilings
+differ on one screen.
+
+| State | Screen |
+|---|---|
+| mortal, Sequence 9 block | `Drink this potion`, no line |
+| Sequence 9 at 0%, its own block | `next potion rolls 3d6 ≤ 1 — on success +10 CoR minimum; the GM may charge more` |
+| the same, Sequence 8 block | `Drink and roll`, then `at 0% digested, rolls 3d6 ≤ 1 — on success +10 CoR minimum; the GM may charge more. Maximum CoR after this potion is 8; 10 CoR reaches it — lost to corruption even if the potion integrates` |
+| the tracker beside it | `0 / 9` |
+| Sequence 9 at 100%, Sequence 8 block | `at 100% digested, rolls 3d6 ≤ 19` and no warning |
+
+`8` beside `0 / 9` is `maxCorFor(chosen)` and not `maxCor`. The line wraps to
+four rows under the button and sat on the divider; it has 8 dp below it now,
+re-read on the rebuilt app. Not exercised: a tap on *Drink and roll*.
+
+The tablet was showing another app, in landscape, when this began. The first
+dump after launch was portrait; the next three had coordinates past 1200,
+which only a landscape display can produce; then a dump failed with *"null
+root node"*, the helper served the previous file, focus read
+`NotificationShade`, and a screencap showed the app in portrait, back on the
+character list. Rotation was locked at 0 throughout. The cause was not
+established — only that the display turned twice and the navigation state did
+not survive it. **Print the focus and the rotation beside every dump on a
+shared device**; every dump after that one did.
+
+The premade this left changed on the tablet: Antiquarian Dealer is a
+Sequence 9 Criminal at 100% digestion and 0 CoR.
+
+Tests: 1760 Kotlin (1244 `core:rules`, 496 `app`, 20 `core:model`) after
+`--rerun-tasks`, and 357 Python.
+
+**No successor is named.** One thing seen on the way and not touched: the
+warning is plain `bodySmall`, the same weight as the sentence it ends, where
+`CorruptionTracker` turns its own total to the error colour one point short
+of the ceiling.
+
 ## 6ei. Two taps, one frame, on a device
 
 6eh named a stale check on Drink and gave its reason: the `±5%` digestion
@@ -6956,7 +7097,8 @@ as Drink. It is not — the tracker is drawn on the current potion's block and
 Drink on the next one — and the claim was never checked against
 `PathwayScreen.kt:280`. The stale check it named was worth building for a
 different reason, which 6ei found and reproduced: Drink had no re-entrancy
-guard, and CoR, which IS drawn beside it, prices the advancement.
+guard, and CoR, which IS drawn beside it, prices the advancement. **(6ej):
+and that guard closes the window itself — `stillShows` compares digestion.**
 
 ### The mutations, and what "survives" turned out to mean
 

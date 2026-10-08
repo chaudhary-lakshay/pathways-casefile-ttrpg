@@ -190,7 +190,37 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6ed back to 6de
+## Retired lead paragraphs, 6ee back to 6de
+
+**6ee is next, and it ran 6dl's own advice as a sweep: every diagnostic the
+toolchain gives for nothing.** Clean on eight instruments, each recorded with
+its control — and **the compiler's zero had to be earned twice**: the first
+run restored one compile task FROM-CACHE, which prints nothing, and a planted
+control showed this compiler reports `x is Int` and a doubled null check but
+**not `val unused = 1`**, so its silence says nothing about a value computed
+and dropped. Two crude scanners cover that blind spot (1160 parameters, 1736
+locals, every hit a false positive or a documented choice). **Nothing an
+instrument flagged was a defect; two things beside their hits were.** Four
+lines above a dead binding, `assert "0.0%" in report` sat under a comment
+false since M1 — and `"100.0%"` contains `"0.0%"`, so it could not fail. And
+one of the local scan's false positives was a **fourth inline copy of
+`endsBetween`** in `RollDialog`, under a KDoc saying *"Three of this book's
+modifier tables print a span"*: the same list by a different spelling, one
+call now. **A count in a KDoc is a claim about every other file** — and I
+then corrected "three" to "four" by counting CALLERS, which was the same
+mistake: **eight content files store a second bound**, and a span the screen
+collapses leaves no inline copy for a grep to find. Read it
+also for the Gradle lock's third costume (`Failed to load cache entry`), for
+why deleting the module's whole `build/` beats deleting the named directory,
+and for a harness line reading `exited with code 0` over `BUILD FAILED` —
+grep the log for `BUILD SUCCESSFUL`. **The successor is named with its
+evidence: chapter 7's three ritual tables print five spans (`Good +1 to +2`,
+`Poor / None -2 to -4`, `Strong +2 to +3`…) and `RitualDialog` applies the
+near end of each with no picker.** `RitualMode.modifierTotal` takes no
+override, so 6dz's parameter sweep could not see it; its warrant (6q: "the
+same gentle reading as the darkness row") died when 6dz gave darkness a
+picker; and `GoldenRitualTest` already accepts the book's worked rituals at
+`it.best`, values this dialog cannot produce. **6ef built it.**
 
 **6ed is next, and it is the sweep 6ec named: does a committed generated
 file still reproduce from the tool that writes it?** Clean, with its control —

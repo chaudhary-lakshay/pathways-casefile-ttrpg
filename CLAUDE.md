@@ -135,7 +135,35 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ei is newest, and it is the first claim in this chain produced on a
+**6ej is newest, and it is the thing 6ei saw on the way and did not touch:
+the Drink button printed nothing about its own roll.** *Drink and roll* is
+drawn on the NEXT Sequence's block (`drunk.canDrink(chosen)`), and the roll's
+target and early-advancement cost only in `DigestionTracker`, drawn where
+`isCurrentPotion` holds — two conditions one block cannot meet, quoted by the
+design review before any code. So the one irreversible roll on that screen,
+3d6 ≤ 1 at 0% digestion, was made beside neither number. Read it for four
+things. **One line, two blocks**: `pcrLine(state)` feeds the tracker and the
+button, and `PotionConsumption.corCostFor(state)` is the `isFullyDigested`
+decision `attempt` and the tracker had each written for themselves. **The
+design review added the half that matters**: a target and a cost read as the
+whole risk, and at the book's floor of 10 CoR against a Will of 10 the roll
+can be survived and the character lost on the same tap — as it can to a
+zero-cost potion that lowers Will onto the total. `drinkLine` says so before
+the tap, from `Corruption.isLostAfter`, which `gainCor` asks too. **6eh's
+"the potion roll is left, and its window is open" is closed, by 6ei,
+unremarked**: `stillShows` compares the whole `BeyonderState`, digestion
+included, so the printed target is the rolled one or the tap does nothing.
+**`onSamePotion` has its reviewer now** — correct, and the CoR step it drops
+after a Drink is the design. Six mutations, all caught, the sixth
+(`${cor + cost}` → `$cor`) only after the diff review. **The call site has no
+test and is refused one** (section 6): passing `maxCor` for
+`maxCorFor(chosen)` survives the suite. **Device-verified on the SM-T570** on
+the pair that tells those apart — Antiquarian Dealer as an Abyss Criminal,
+tracker `0 / 9`, line *"Maximum CoR after this potion is 8; 10 CoR reaches
+it"*; at 100%, `3d6 ≤ 19` and no warning. Not exercised: a tap on *Drink and
+roll*. **No successor is named.**
+
+**6ei is next, and it is the first claim in this chain produced on a
 device.** 6eh named a stale check on Drink because "the digestion stepper is
 on the same screen" — **false, and never checked**: the tracker is drawn on
 the current potion's block and Drink on the next. The design review refuted
@@ -178,7 +206,7 @@ session-held prepared target is a cache and is refused, but my first reason
 for leaving the pair ("one predicate, in the engine") was equally true of
 Divination before this slice. What differs is that the session owns PERSISTED
 state and must not trust a number from the screen. **This paragraph then
-claimed the `±5%` stepper and Drink shared a screen; they do not (6ei).** **`attempt` is test-only API in eight engines now**, and
+claimed the `±5%` stepper and Drink shared a screen; they do not (6ei).** **`stillShows` closes the window itself (6ej).** **`attempt` is test-only API in eight engines now**, and
 that is what the mutations found: the diff review proposed seven by reading,
 **five survived the whole suite when run**, three of them forwarding bugs in
 wrappers production no longer calls — which mislead only the suite, and the
@@ -272,39 +300,10 @@ review from the hour before the commit. The nearest thing to a successor is
 the two handler windows — **which 6eg closed, by undoing this slice's
 click-time read.**
 
-**6ee is next, and it ran 6dl's own advice as a sweep: every diagnostic the
-toolchain gives for nothing.** Clean on eight instruments, each recorded with
-its control — and **the compiler's zero had to be earned twice**: the first
-run restored one compile task FROM-CACHE, which prints nothing, and a planted
-control showed this compiler reports `x is Int` and a doubled null check but
-**not `val unused = 1`**, so its silence says nothing about a value computed
-and dropped. Two crude scanners cover that blind spot (1160 parameters, 1736
-locals, every hit a false positive or a documented choice). **Nothing an
-instrument flagged was a defect; two things beside their hits were.** Four
-lines above a dead binding, `assert "0.0%" in report` sat under a comment
-false since M1 — and `"100.0%"` contains `"0.0%"`, so it could not fail. And
-one of the local scan's false positives was a **fourth inline copy of
-`endsBetween`** in `RollDialog`, under a KDoc saying *"Three of this book's
-modifier tables print a span"*: the same list by a different spelling, one
-call now. **A count in a KDoc is a claim about every other file** — and I
-then corrected "three" to "four" by counting CALLERS, which was the same
-mistake: **eight content files store a second bound**, and a span the screen
-collapses leaves no inline copy for a grep to find. Read it
-also for the Gradle lock's third costume (`Failed to load cache entry`), for
-why deleting the module's whole `build/` beats deleting the named directory,
-and for a harness line reading `exited with code 0` over `BUILD FAILED` —
-grep the log for `BUILD SUCCESSFUL`. **The successor is named with its
-evidence: chapter 7's three ritual tables print five spans (`Good +1 to +2`,
-`Poor / None -2 to -4`, `Strong +2 to +3`…) and `RitualDialog` applies the
-near end of each with no picker.** `RitualMode.modifierTotal` takes no
-override, so 6dz's parameter sweep could not see it; its warrant (6q: "the
-same gentle reading as the darkness row") died when 6dz gave darkness a
-picker; and `GoldenRitualTest` already accepts the book's worked rituals at
-`it.best`, values this dialog cannot produce. **6ef built it.**
-
-**6ed back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6ee back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ee** — every free toolchain diagnostic run as a sweep: clean, and beside its hits an assertion that could not fail and a fourth inline copy of `endsBetween`;
 **6ed** — does a committed generated file reproduce from its tool: 81 of 81 do, and `build/extract/book.txt`, the citation anchor, had no writer (`coverage.py` writes it now);
 **6ec** — every `@Serializable` property checked for a key that sets it; two stat notes were cut at their wrap, and re-running `extract_pathways.py` silently reverted `b1c8c4e`;
 **6eb** — the defence screen read `Character.weapons`, which nothing fills; carried weapons are catalogue names in `SavedEdits.weapons`, priced by `Weapons.parryFor`;
@@ -368,7 +367,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: the slice log, from the END — 6ei first.** The
+**Where to start next: the slice log, from the END — 6ej first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -423,7 +422,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1753 Kotlin** (JUnit 5 — 1242 `core:rules`, 491 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1760 Kotlin** (JUnit 5 — 1244 `core:rules`, 496 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -540,8 +539,10 @@ PotionDigestion.digestThrough(c, pathway, sequence, blocks): DigestedCharacter
 PotionDigestion.of(c, blocks): DigestedCharacter?     // from c.beyonder
 PotionConsumption.attempt(state, source): PcrOutcome
 PotionConsumption.targetFor(digestion): Int
+PotionConsumption.corCostFor(state): Int      // 0 at 100%, else the book's floor;
+                                      // what attempt charges AND the screen prints
 Corruption.maxFor(c) / .maxFor(will, traits): Int          // Will, +3 with Spiritual Fortitude
-Corruption.clamp(cor, max) / .isLostAt(cor, max)
+Corruption.clamp(cor, max) / .isLostAt(cor, max) / .isLostAfter(cor, delta, max)
 Corruption.ritualPenalty(cor) / .ritualThresholdsReached(cor)
 Pools.hp(current, max) / .fp(current, max) / .spi(current, max): PoolStatus
 Pools.thresholds(pool): List<PoolThreshold>   // empty for FP: prose only
@@ -908,10 +909,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6ei. The slice log
+## 6a-6ej. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6ei is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6ej is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---
