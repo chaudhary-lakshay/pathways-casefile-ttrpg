@@ -37,6 +37,7 @@ import com.pathways.rules.DarknessCause
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.RandomSource
 import com.pathways.rules.Ranged
+import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.Weapons
@@ -58,10 +59,18 @@ private const val BOXING = "Boxing"
  * against the best skill on the sheet or trimming the choice afterwards, and
  * [Attacks] refuses a trimmed plan rather than silently obeying it.
  *
- * Every skill is offered, not a curated combat list: this book tags no skill
- * as a combat skill, so which of them can attack is the GM's call, and
- * inventing the list here would be inventing content. Chapter 8's weapon
- * table names only seven of them, and [Weapons.forSkill] arms those.
+ * Every OWNED skill is offered, not a curated combat list. The book does
+ * print a COMBAT SKILLS banner -- nineteen rows, Fast-Draw and Shield among
+ * them -- but a banner is where a skill is filed, not a rule about which
+ * skill may make an attack, so which of a character's skills can is the GM's
+ * call. (This KDoc said "this book tags no skill as a combat skill" until
+ * 6eu, which line 1668 of the book contradicts.) Chapter 8's weapon table
+ * names seven skills, and [Weapons.forSkill] arms those.
+ *
+ * **Untrained skills are offered too, where this dialog can show an attack
+ * for one** ([SkillDefaults.attacks]): a fist, or a weapon off the table.
+ * That is this screen's boundary. Any other skill is rolled untrained from
+ * the Skills tab, where a to-hit number is all there is.
  */
 @Composable
 fun AttackDialog(
@@ -104,10 +113,23 @@ fun AttackDialog(
      * the book charges them (a design review's blocking finding).
      */
     darknessReduction: Int = 0,
+    /**
+     * The skills this character does NOT own and can still attack with here,
+     * already filtered by [SkillDefaults.attacks]. Listed after the owned
+     * ones and rolled through the same path.
+     */
+    untrained: List<SkillDefaults.Untrained> = emptyList(),
+    /** Warrior's or Weapon Master's weapon line, where the chain holds one. */
+    mastery: SkillDefaults.WeaponMastery? = null,
+    /** The Harvest Priest's farming-tool line, as the sentence to print. */
+    toolNote: String? = null,
     onDismiss: () -> Unit,
 ) {
-    val skills = remember(skillLevels) { skillLevels.entries.sortedBy { it.key.name } }
-    var picked by remember { mutableStateOf<Map.Entry<SkillKey, Int>?>(null) }
+    val skills = remember(skillLevels, untrained) {
+        skillLevels.entries.sortedBy { it.key.name }.map { OfferedSkill(it.key, it.value) } +
+            untrained.map { OfferedSkill(it.key, it.level, it) }
+    }
+    var picked by remember { mutableStateOf<OfferedSkill?>(null) }
     var plan by remember { mutableStateOf(AttackPlan()) }
     // Null for every skill with no attack table -- Wrestling included, which
     // the book gives "None (grapple only)".
@@ -159,6 +181,24 @@ fun AttackDialog(
     var burned by remember { mutableStateOf<Map<Int, Int>>(emptyMap()) }
 
     val chosen = picked
+    // What the chosen skill is rolled at NOW. Its own level, owned or
+    // default -- unless a weapon is in a Warrior's or Weapon Master's hand,
+    // which is wielded at no less than DX. So the level depends on the hand,
+    // and it is derived here, once, so the header, the stepper's ceiling, the
+    // damage and the roll cannot read four different numbers.
+    fun levelWith(weaponInHand: Boolean): Int {
+        val own = chosen?.level ?: 0
+        return SkillDefaults.mastered(own, weaponInHand, mastery, dx) ?: own
+    }
+    val level = levelWith(armed != null)
+    val isMastered = chosen != null && level != chosen.level
+    val label = chosen?.let {
+        it.key.label() + when {
+            isMastered -> " (${mastery?.source})"
+            it.untrained != null -> " (untrained, ${it.untrained.source})"
+            else -> ""
+        }
+    }.orEmpty()
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
@@ -256,14 +296,33 @@ fun AttackDialog(
                                 }
                                 .padding(vertical = 6.dp),
                         ) {
-                            Text(entry.key.label(), Modifier.weight(1f))
-                            Text("${entry.value}", style = MaterialTheme.typography.titleMedium)
+                            Column(Modifier.weight(1f)) {
+                                Text(entry.key.label())
+                                entry.untrained?.let {
+                                    Text(
+                                        "untrained, ${it.source}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
+                            Text("${entry.level}", style = MaterialTheme.typography.titleMedium)
                         }
                     }
                 }
                 else -> AttackOptions(
-                    label = chosen.key.label(),
-                    skillLevel = chosen.value,
+                    label = label,
+                    skillLevel = level,
+                    // Said under the header with a weapon in hand: what of a
+                    // weapon line is still not applied here. The Warrior's
+                    // repeated-use clause is about any weapon they hold; the
+                    // Harvest Priest's is about a skill they lack.
+                    notes = if (armed == null) {
+                        emptyList()
+                    } else {
+                        listOfNotNull(mastery?.unapplied, toolNote.takeIf { chosen.untrained != null })
+                    },
+                    isUntrained = chosen.untrained != null,
                     plan = plan,
                     unarmed = unarmed,
                     // Two unrelated bonuses reach damage: All-Out Attack
@@ -273,7 +332,7 @@ fun AttackDialog(
                     // the maneuver's.
                     damage = armed?.let { Weapons.damageFor(it.weapon, it.mode, st, Attacks.damageBonus(plan, 0)) }
                         ?: unarmed?.let {
-                            val fromSkill = if (it.skill == BOXING) Damage.boxingBonus(dx, chosen.value) else 0
+                            val fromSkill = if (it.skill == BOXING) Damage.boxingBonus(dx, level) else 0
                             Damage.forAttack(it, st, Attacks.damageBonus(plan, fromSkill))
                         },
                     attacks = Damage.attacksFor(chosen.key.name),
@@ -294,7 +353,9 @@ fun AttackDialog(
                         // Shove rolls no damage, so a Strong Blow ticked on
                         // the fist cannot come along -- Attacks refuses the
                         // pair rather than charging 1 FP for nothing (Codex).
-                        plan = Attacks.withAttack(plan, it)
+                        // A fist puts the weapon down, so a master's level
+                        // drops to the default and the plan goes with it.
+                        plan = Attacks.atLevel(Attacks.withAttack(plan, it), levelWith(false))
                         circumstances = circumstances - AIM_ROWS
                     },
                     onArmed = { held ->
@@ -310,7 +371,12 @@ fun AttackDialog(
                         }
                         // A firearm is fired at range and a sword is not
                         // thrown; the toggle still overrides either way.
-                        plan = Attacks.atRange(plan, held.isFired)
+                        // And to the level the new hand is rolled at, which
+                        // for an untrained master differs with and without.
+                        plan = Attacks.atLevel(
+                            Attacks.atRange(plan, held.isFired),
+                            levelWith(held != null),
+                        )
                         // Aim is worth the WEAPON's Acc, and distance belongs
                         // to a shot. Carrying either into reach asks
                         // Ranged.modifiers for a number nothing can supply --
@@ -369,7 +435,7 @@ fun AttackDialog(
                         // they are in the middle of making. The cost still
                         // lands, so the NEXT turn feels it.
                         val mods = conditions(chosen.key) +
-                            Attacks.modifiers(plan, chosen.value, unarmed) +
+                            Attacks.modifiers(plan, level, unarmed) +
                             rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled, darknessCause, darknessReduction, darknessSeverity) +
                             meleeModifiers(plan, circumstances) +
                             listOfNotNull(location?.let(Wounds::modifier))
@@ -377,8 +443,8 @@ fun AttackDialog(
                         burned = emptyMap()
                         outcomes = List(Attacks.attackCount(plan)) {
                             SkillRoll.at(
-                                label = chosen.key.label(),
-                                base = chosen.value,
+                                label = label,
+                                base = level,
                                 key = chosen.key,
                                 source = dice,
                                 mods = mods,
@@ -396,6 +462,8 @@ fun AttackDialog(
 private fun AttackOptions(
     label: String,
     skillLevel: Int,
+    notes: List<String>,
+    isUntrained: Boolean,
     plan: AttackPlan,
     unarmed: UnarmedAttack?,
     damage: DamageRoll?,
@@ -426,6 +494,13 @@ private fun AttackOptions(
     // An AlertDialog does not scroll its own text slot. Found on device.
     Column(Modifier.verticalScroll(rememberScrollState())) {
         Text("$label $skillLevel", style = MaterialTheme.typography.titleMedium)
+        notes.forEach {
+            Text(
+                it,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         if (attacks.isNotEmpty()) {
             FlowRow {
                 attacks.forEach { option ->
@@ -447,7 +522,7 @@ private fun AttackOptions(
                 )
             }
         }
-        ArmedWith(weapons, armed, skillLevel, onArmed)
+        ArmedWith(weapons, armed, skillLevel, isUntrained, onArmed)
         // Chips WRAP rather than scroll sideways: a horizontally scrolling Row
         // inside an AlertDialog never received the drag on a 1080px phone, so
         // three of the five maneuvers -- Strong, Double and Charge -- could not
@@ -681,6 +756,7 @@ private fun ArmedWith(
     weapons: List<CataloguedWeapon>,
     armed: Armed?,
     skillLevel: Int,
+    isUntrained: Boolean,
     onArmed: (Armed?) -> Unit,
 ) {
     if (weapons.isEmpty()) return
@@ -719,8 +795,16 @@ private fun ArmedWith(
             // with no weapon to apply it to. A firearm gets "cannot parry"
             // rather than a 0: parrying at nothing is not parrying badly.
             "Acc ${held.weapon.acc} · reach/range ${held.weapon.range} · " +
-                (Weapons.parryFor(held.weapon, skillLevel)
-                    ?.let { "parry $it" } ?: "cannot parry") +
+                (
+                    // Whether a default parries is not settled, and Defend
+                    // offers none, so this line must not print one either.
+                    if (isUntrained) {
+                        "no parry offered without the skill"
+                    } else {
+                        Weapons.parryFor(held.weapon, skillLevel)
+                            ?.let { "parry $it" } ?: "cannot parry"
+                    }
+                    ) +
                 " · ${held.weapon.cost}",
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(vertical = 4.dp),
@@ -997,6 +1081,16 @@ private fun causeLabel(cause: DarknessCause) = when (cause) {
  * the Combat Knife's cut before its thrust -- matching how an unarmed skill
  * defaults to its first listed attack.
  */
+/**
+ * One row of the skill list: a skill the sheet owns at [level], or one it
+ * does not, at its default, with [untrained] saying where the number is from.
+ */
+private data class OfferedSkill(
+    val key: SkillKey,
+    val level: Int,
+    val untrained: SkillDefaults.Untrained? = null,
+)
+
 internal data class Armed(val weapon: CataloguedWeapon, val mode: WeaponMode) {
     constructor(weapon: CataloguedWeapon) : this(weapon, weapon.damage.first())
 }

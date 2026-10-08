@@ -1053,6 +1053,12 @@ fun SheetScreen(
             spiAvailable = vitals.maxSpi - session.spiSpent,
             onBurn = burn,
             darknessReduction = TraitEffects.darknessReduction(traits),
+            // The untrained skills this dialog can show an attack for, off
+            // the same list the Skills tab offers -- one source, so the two
+            // screens agree on a default wherever no weapon line applies.
+            untrained = SkillDefaults.attacks(untrained),
+            mastery = drunk?.let { SkillDefaults.masteryFor(it.pathway, it.sequence) },
+            toolNote = drunk?.let { SkillDefaults.toolNote(it.pathway, it.sequence) },
             onDismiss = { attacking = false },
         )
     }
