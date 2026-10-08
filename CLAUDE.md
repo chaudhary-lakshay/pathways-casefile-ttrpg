@@ -80,15 +80,14 @@ focus text at all** — it answers *"/codex:review now maps directly to the
 built-in reviewer and does not support custom focus text"* — so naming the
 target, which is the fix 6dd found, is no longer possible through that
 subcommand. Both the design review and the diff review now go through
-`task --effort high`, which takes the target list, the three questions and the
-"do not read CLAUDE.md or docs/SLICE-LOG.md" instruction in one prompt.
+`codex exec` called directly (6eg; the invocation is in `~/.claude/CLAUDE.md`),
+which takes the target list, the three questions and the "do not read
+CLAUDE.md or docs/SLICE-LOG.md" instruction in one prompt.
 
-**When Codex is out and the free panel is also silent, go to
-`ecc:kotlin-reviewer` rather than shipping self-checked** — 6cz is what two
-slices of not doing that cost. **When the free panel is also silent, go to
-`ecc:kotlin-reviewer` rather than shipping self-checked** — 6cz is what two
-slices of not doing that cost. Every pass since 6cd has been the documented
-`ecc:kotlin-reviewer` fallback, scoped to three questions and the files needed
+**When Codex is out and the free panel is also silent, go to one review
+sub-agent rather than shipping self-checked** — 6cz is what two slices of not
+doing that cost. From 6cd that fallback was `ecc:kotlin-reviewer` (the `ecc`
+plugin is disabled as of 2026-10-08, so the agent no longer loads), scoped to three questions and the files needed
 to answer them — 6cg's returned a HIGH in under two minutes, and 6ch ran two
 (decomposition, then diff). The scoping budget keeps paying (6af, 6cb). Check
 the CLOCK and not just the date (6am, 6as).
@@ -424,7 +423,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1753 Kotlin** (JUnit 5 — 1242 `core:rules`, 491 `app`, 20 `core:model`) + **356 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1753 Kotlin** (JUnit 5 — 1242 `core:rules`, 491 `app`, 20 `core:model`) + **357 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -721,7 +720,7 @@ real RNG in the app. Never call `Random` directly in rules code.
 **Do not enable release minification without adding `kotlinx.serialization`
 keep rules first.** `app/build.gradle.kts` sets no `minifyEnabled` and there are
 no `.pro` files, so R8 is off and every `@Serializable` content class is safe
-today. Turning it on strips the generated serializers and breaks all 77 content
+today. Turning it on strips the generated serializers and breaks all 81 content
 files at once, at runtime, on the first screen that loads one — a class of
 failure no test in this repo can reach (6cz).
 
@@ -948,16 +947,6 @@ not transfer to Codex** — marked below.
 
 ### Claude Code-specific — ignore or adapt
 
-- *Route all file edits through the opencode MCP* (`mcp__opencode__opencode_run`,
-  provider `opencode`, model `deepseek-v4-flash-free`). Codex has no such MCP;
-  edit directly.
-- *Use the sequential-thinking MCP before acting.* No equivalent; reason
-  normally.
-- *Sub-agent debate:* for any decision, design, plan, or trade-off, spawn 3
-  parallel agents with distinct stances (proposer / skeptic / pragmatist), read
-  their outputs, converge in at most one more round, then act. Skip for trivial
-  or mechanical prompts. Adapt to whatever parallelism Codex offers, or take
-  the multiple perspectives yourself in one pass.
 - *Named agent roster* (`planner`, `architect`, `tdd-guide`, `code-reviewer`,
   `security-reviewer`, `build-error-resolver`, `kotlin-reviewer`, ...) —
   Claude Code's `~/.claude/agents/`. Not portable.
@@ -995,7 +984,7 @@ are not portable.
 | `subagent-driven-development` | fresh implementer per task, review gate after each, broad whole-branch review at the end |
 | `finishing-a-development-branch` | verify tests -> present merge options -> execute -> clean up |
 
-**Codex is the review gate now** (section 7 lists the invocation). In M4 it
+**Codex is the review gate now** (`~/.claude/CLAUDE.md` lists the invocation). In M4 it
 found one P2 per slice, both in app wiring rather than in rules: a
 Will-lowering potion that never latched the corruption loss it caused, and an
 FP row that printed "every point below 0 costs 1 HP" without charging it.
