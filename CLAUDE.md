@@ -135,7 +135,37 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6er is newest, and it is the first of 6eq's two successors: the builder
+**6es is newest, and it is 6er's first successor: it lists the complement
+of `TraitEffects.known()`, which nothing had.** 148 of the 198 catalogue
+rows, by a throwaway test at `c3011e6`. Read it for four things.
+
+- **Two rows in it were applied by name**: Night Eyes, from the same
+  object, and Spiritual Fortitude, in `Corruption`. Both are in `known()`
+  now. The census is a grep for name matches diffed against the set.
+- **Three cells name printed skills and no circumstance**, and lifted
+  nothing: Acute Social Awareness, Former Military Officer, Photographic
+  Instinct. Every guard on `SKILL_BONUSES` walks the map.
+- **Official Beyonder is refused whole.** I favoured applying its *+N* to
+  an owned skill, where both readings agree. The design review's HIGH:
+  chapter 6 says that of a potion's entry, and agreement between two
+  proposed readings does not establish the rule.
+- **The sheet listed no advantages.** It printed `reported()` and the
+  drawbacks, so 24 of the premades' 50 advantage rows were on no screen
+  but the builder. Each held trait is one row now, with its cell and its
+  notes, and a row nothing reads says `TraitEffects.UNREAD`.
+
+Codex answered both reviews: CHANGE on all three design questions, then
+FIX on the diff. Its MEDIUM was that `UNREAD`'s first wording, *"reads no
+rule from this row"*, was false of five rows whose PRICE the app reads; it
+begins *"its price aside"* now. Ten mutations of ten were caught. On the
+SM-T570, Beat Cop's Traits tab: `Legal Enforcement Powers — 5 pts`, its
+cell, and the line; neither was there before. **The helper drops any line
+holding a quotation** (6er's open question): read it from the raw dump.
+**Successors, none ranked**: six conditional skill rows, a list of rows
+naming a mechanic this app has a screen for (untriaged), and 6eq's second,
+book 2540's *"Default: DX-2 if untrained"*.
+
+**6er is next, and it is the first of 6eq's two successors: the builder
 sells a language.** The row was withheld while both of its tables sat
 loaded. Read it for four things.
 
@@ -264,41 +294,10 @@ helpers and the device pass covers the rest. On the tablet: ST `11` *"9
 before potions"*, Will `9`, Per `12`; ST `+` reads `12`, *"10 pts spent
 here"*, `97 of 100`. **6ek's list is empty, and no successor is named.**
 
-**6en is next, and it is the second of 6ek's items: Basic Speed and Basic
-Move sold a hundred steps each.** Nothing crashed, which is why 6ek's floors
-never reached them. The tablet read Speed `-20.50`, Move `-100` and *"-808
-of 100 points, 908 spare"*. Both rows now stand at zero in `ScoreFloors`,
-and no session code changed. Read it for four things.
-
-- **The existing warrant did not transfer.** `ScoreFloors` says "the lowest
-  values the rules can compute on", and both rows compute at −100. The two
-  constants carry their own reason, labelled policy. Move is a distance.
-  Speed is held because Move alone bounds nothing: Speed sold 100 quarters
-  and Move bought back 21 on top kept 395 points. The design review removed
-  my third reason, since the book's two roundings disagree only on a
-  negative FRACTION.
-- **Move's shortfall is measured after Speed's repair.** In one pass a
-  −100 / −100 save owes Move 121 steps, which a `SecondaryDelta` cannot
-  hold, so the opening repair would have thrown.
-- **The −40 is not applied to a sold secondary.** That is a reading, kept
-  in `PointBudget`'s KDoc: the book states the cap of disadvantages and
-  prices secondaries with none. The pair can still refund 5 × (HT + DX), 90
-  at the book's 9s.
-- **Six mutations "survived" a harness that never ran Gradle**
-  (`gradlew.bat` not found, exit 1, no test named). With the path fixed all
-  six were caught, and one assertion was added where the session tests had
-  caught the Speed floor only through Move.
-
-Codex answered both reviews, SHIP and SHIP. Device-verified on the SM-T570:
-Move `−` stops at 0, Speed `−` at 4.00 while Move is 0 and at 0.00
-otherwise, DX `−` greyed at Speed 0.00, `1 of 100 points` at the floor.
-**6ek's last item stands**: the builder prints bought values without potion
-grants. **The refund is bounded, not small**: with the other four floors, a
-character at the book's 9s gets back 215 points on a budget of 70.
-
-**6em back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6en back to 6de had lead paragraphs here until 2026-10-08. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6en** — Basic Speed and Basic Move sold a hundred steps each; both stand at zero in `ScoreFloors`, as policy, and Move is measured after Speed;
 **6em** — maximum CoR is a state the app checked only on a gain; a builder sale is refused where a potion latches, and the first potion never latched;
 **6el** — a potion's grants are added to the bought score, so browsing a block crashed a high-ST save; `PurchaseCeilings` bounds each purchase, and 6ek's own example was false;
 **6ek** — the builder sold a secondary a hundred steps and four guards threw below HP/FP 1, a CoR ceiling of 1 and Per 0; "four" came from a keyword grep and held, for crashes, on a wider one;
@@ -371,7 +370,7 @@ readers; **6ce** — one grep can decide a reading two other readings would have
 authored; **6cd** — cost-inside-bounds corroborates pricing validity, not
 catalogue identity.
 
-**Where to start next: the slice log, from the END — 6er first.** The
+**Where to start next: the slice log, from the END — 6es first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -426,7 +425,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1827 Kotlin** (JUnit 5 — 1278 `core:rules`, 529 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1832 Kotlin** (JUnit 5 — 1283 `core:rules`, 529 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -594,6 +593,11 @@ TraitEffects.stunRecoveryHt(traits): MajorWoundHt
 TraitEffects.stunRecoveryBonus(traits): Int   // Combat Reflexes, any stun
 TraitEffects.deathRollBonus(traits): Int      // Hard to Kill, survival roll only
 TraitEffects.defaultBonus(traits): Int        // Versatile, on a roll AT A DEFAULT
+TraitEffects.held(traits, kind): List<HeldTrait>   // one row per held trait:
+                                      // the book's cell and what of it is not
+                                      // applied. What the Traits tab prints
+TraitEffects.UNREAD                   // reported() says it of a row outside
+                                      // known() that prints no self-control roll
 Divination.levelsFor(ownDivination, ownRitual, defaultBonus): CasterLevels
                                       // the bonus goes inside the pick between
                                       // owned and default; a ritual never defaults
@@ -942,10 +946,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 
 ---
 
-## 6a-6er. The slice log
+## 6a-6es. The slice log
 
 **Moved to [`docs/SLICE-LOG.md`](docs/SLICE-LOG.md)** — 454 KB of it, which put this
-file over the 150 k-char limit. Every slice from 6a to 6er is there unchanged,
+file over the 150 k-char limit. Every slice from 6a to 6es is there unchanged,
 and the reading order is the one at the top of this file: **from the END**.
 
 ---

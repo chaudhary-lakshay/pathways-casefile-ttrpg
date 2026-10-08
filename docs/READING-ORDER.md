@@ -190,7 +190,39 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6em back to 6de
+## Retired lead paragraphs, 6en back to 6de
+
+**6en is next, and it is the second of 6ek's items: Basic Speed and Basic
+Move sold a hundred steps each.** Nothing crashed, which is why 6ek's floors
+never reached them. The tablet read Speed `-20.50`, Move `-100` and *"-808
+of 100 points, 908 spare"*. Both rows now stand at zero in `ScoreFloors`,
+and no session code changed. Read it for four things.
+
+- **The existing warrant did not transfer.** `ScoreFloors` says "the lowest
+  values the rules can compute on", and both rows compute at −100. The two
+  constants carry their own reason, labelled policy. Move is a distance.
+  Speed is held because Move alone bounds nothing: Speed sold 100 quarters
+  and Move bought back 21 on top kept 395 points. The design review removed
+  my third reason, since the book's two roundings disagree only on a
+  negative FRACTION.
+- **Move's shortfall is measured after Speed's repair.** In one pass a
+  −100 / −100 save owes Move 121 steps, which a `SecondaryDelta` cannot
+  hold, so the opening repair would have thrown.
+- **The −40 is not applied to a sold secondary.** That is a reading, kept
+  in `PointBudget`'s KDoc: the book states the cap of disadvantages and
+  prices secondaries with none. The pair can still refund 5 × (HT + DX), 90
+  at the book's 9s.
+- **Six mutations "survived" a harness that never ran Gradle**
+  (`gradlew.bat` not found, exit 1, no test named). With the path fixed all
+  six were caught, and one assertion was added where the session tests had
+  caught the Speed floor only through Move.
+
+Codex answered both reviews, SHIP and SHIP. Device-verified on the SM-T570:
+Move `−` stops at 0, Speed `−` at 4.00 while Move is 0 and at 0.00
+otherwise, DX `−` greyed at Speed 0.00, `1 of 100 points` at the floor.
+**6ek's last item stands**: the builder prints bought values without potion
+grants. **The refund is bounded, not small**: with the other four floors, a
+character at the book's 9s gets back 215 points on a budget of 70.
 
 **6em is next, and it is the first of 6ek's three seen-and-not-touched
 items: maximum CoR is a STATE, and the app checked it only on a gain.**

@@ -6726,6 +6726,179 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6es. The complement of `known()`
+
+6er named this first of two successors: Official Beyonder, a 15-point
+advantage the builder sells, was in no collection, no test and no slice,
+and the instruction was to **ask what else is in the complement of
+`TraitEffects.known()`**. This slice lists that complement for the first
+time and acts on four things in it.
+
+### The census
+
+The query is every row of `advantages.json` and `disadvantages.json` whose
+name is not in `TraitEffects.known()`, run as a throwaway test at `c3011e6`.
+**148 of the 198 rows**: 65 advantages and 83 disadvantages. 28 of the 83
+print a self-control roll, which `SelfControl` offers from the row itself.
+47 of the remaining 120 print a signed number.
+
+Two readings of that list were wrong before they were recorded.
+
+- **"24 of the premades' 50 advantage rows say nothing" is not 24 gaps.**
+  Most of them are applied in full and correctly have nothing to report
+  (Alertness, Hard to Kill, Outdoorsman). What the number does measure is
+  the sheet: those 24 rows were printed nowhere on it.
+- **A skill-name pass found ten rows and is too narrow to be a census.** It
+  needs a catalogue skill name in the cell, so it cannot see *"rural
+  navigation rolls"*, *"Vision rolls"* or *"Perception rolls while
+  sleeping"*, and one of its ten was *Acting* inside *"Acting Method"*.
+
+### Four things in the complement
+
+- **Two rows production applies by name.** Night Eyes, which
+  `TraitEffects.darknessReduction` applies from the same object, and
+  Spiritual Fortitude, which `Corruption.maxFor` has read since M4. Found
+  by grepping both source trees for `levelOf(`, `catalogueName(` and a name
+  equality, then diffing against `known()`. Both are in it now. Both
+  clauses of Night Eyes are applied already (`DarknessCause.DIM_LIGHT`).
+  This is the shape of `c0b65f3`, and the fifth and sixth instance of the
+  failure `known()`'s own KDoc records.
+- **Three cells that name printed skills and no circumstance.** Acute
+  Social Awareness (*"+2 to all Body Language and Detect Lies rolls"*),
+  Former Military Officer (*"Leadership and Tactics at +1"*) and
+  Photographic Instinct (*"Photography rolls at +2"*). All three are
+  `SKILL_BONUSES` rows now. Every guard on that map walks the map, so a
+  cell no map names was checked by nothing. The clause guard then demanded
+  their leftovers, and three are reported: the officer's contacts and
+  courtesies, and the photographer's instinct.
+- **Official Beyonder, refused whole.** See the design review.
+- **Everything else, which said nothing.** See *the sheet*.
+
+### The design review
+
+Codex, through `codex exec`, on a written decomposition and no diff. Three
+questions, three verdicts.
+
+- **CHANGE: Official Beyonder is refused, all four skills.** I favoured
+  applying each *+N* to a skill the character already owns, on the argument
+  that both readings agree there: chapter 3 writes a roll bonus as *"+N to
+  X"*, and chapter 6 (5449-5462) reads a bare *+N* as *"Attribute + N"*, or
+  *"skill level + N"* for a skill already known. The review's HIGH: 5458
+  says that of a potion's entry and requires the same name and difficulty,
+  so borrowing it for an advantage cell is a hypothesis. **Agreement
+  between two proposed readings does not establish the rule.** The phrase
+  *"<Skill> +N"* as a list item occurs nowhere else outside the potion
+  tables. Priced as grants on this book's ladder the four skills are
+  4 + 16 + 16 + 8 = 44 points against the row's 15, which discriminates
+  nothing (6cd). The row is in `UNAPPLIED` with that reason.
+- **Both name joins are sound and wait on the reading.** *"Revolver"* is
+  `Guns (Revolver)` and *"Hidden Lore (Beyonders)"* is a name with a
+  specialization. `SKILL_BONUSES` joins on the name alone, so a later
+  slice that applies them must match the specialization too.
+- **CHANGE: list every advantage, and say something of the unread ones.**
+  A cell that prints a number with no caveat reads as counted. The review
+  asked for one reusable line rather than a reason per row.
+- **SHIP the three skill bonuses.** *"in formal settings"* qualifies the
+  courtesies, not the +1.
+
+### What was built
+
+- `known()` gains `NIGHT_EYES` and `Corruption.FORTITUDE`.
+- Three `SKILL_BONUSES` rows, two `PARTLY_APPLIED` entries, one line of
+  prose named in the clause guard.
+- `UNAPPLIED["Official Beyonder"]`.
+- `TraitEffects.UNREAD`, which `reported` returns for a held trait whose
+  row is outside `known()` and prints no self-control roll. It fires on
+  114 rows: 59 advantages and 55 disadvantages.
+- `TraitEffects.held(traits, kind)`: one `HeldTrait` per trait, with the
+  book's cell and its notes.
+- **The sheet.** The Traits tab printed `reported(traits)` and then every
+  drawback. An advantage with nothing to report was on no screen but the
+  builder, which is 6am's finding one list over. It prints one row per
+  held advantage now (*"name — N pts"*, the cell), then the drawbacks as
+  before, and each row carries its own notes under it. A note on the
+  whole cell prints the caveat alone. A note on one clause quotes the
+  clause first.
+
+### The diff review
+
+Codex again, on the uncommitted diff: FIX, one MEDIUM and two LOWs, all
+taken.
+
+- **MEDIUM: the first wording of `UNREAD` was false of five rows.** It
+  said *"this app reads no rule from this row"*. `Wealth` resolves the four
+  `Wealth:` rows and the builder shows their starting money, and
+  `pricedVariants` takes Social Stigma's two prices out of its cell. The
+  sentence now begins *"its price aside"* and claims only that nothing the
+  row prints is applied. **A sentence true by construction is true of what
+  the construction counts**, and `known()` counts readers of an effect.
+- **LOW: a `QUIRK` note was dropped**, since the tab moved from one list
+  of notes to two lists by kind. Nothing this app ships produces a quirk
+  (6dp). The drawback list takes them.
+- **LOW: one assertion asked `reported` what `held` should hold**, which
+  checks delegation. Two expectations are stated outright beside it.
+
+### Verification
+
+1832 Kotlin (1283 `core:rules`, 529 `app`, 20 `core:model`), green from the
+JUnit XML after a full run. Python was not run: no tool changed.
+
+**Ten mutations of ten caught**, `ran=87` on each, launched by absolute
+path and restored from a copy: the refusal removed, the fallback switched
+off, the fallback blind to self-control, `held` returning no cell, the
+wrong kind and no notes, the census losing its two names, and one wrong
+value or skill in each new bonus row. They were run before the diff
+review, never beside it. The four tests added with the fallback were green
+on their first run, so these mutations are the only proof they can fail.
+
+On the SM-T570 (`R52TA076AEZ`), Beat Cop, Traits tab, from the raw dump of
+the final build:
+
+| Row | Under it |
+|---|---|
+| `Legal Enforcement Powers — 5 pts` | the cell, then *"Not applied here: its price aside, this app applies nothing this row prints, so its text is the table's to apply."* |
+| `Alertness 1 — 5 pts` | the cell and nothing else |
+| `Fit — 5 pts` | the cell, then *"recover FP at twice the normal rate. Not applied here: this app holds no clock to recover against."* |
+| `Duty (PMC) — −10 pts` | the cell, then its existing refusal |
+
+Before this slice the first two rows were not on the screen. The save was
+copied off first and `cmp` reports it identical afterwards, the crash
+buffer was empty, and the tablet was on its launcher before and after. Not
+exercised on the tablet: a bought Official Beyonder, and a roll of one of
+the three new bonuses. Both are unit-tested, and the rows and the roll go
+through wiring this slice did not change.
+
+**6er's open question about the helper is answered.** A line whose text
+holds a quotation is in the raw dump and missing from `adb-ui.sh`'s
+output: uiautomator writes the `"` unescaped, and the helper's attribute
+regex stops at it. Duty's refusal quotes *"roll 9 or less"* and was dropped
+exactly that way, beside a screenshot that shows it. Read such a line from
+the raw file with a lazy match up to `" resource-id=`.
+
+### Seen and not touched
+
+- **Official Beyonder's reading is open**, and so is a language a trait
+  grants (6er).
+- **Six conditional skill rows are under `UNREAD` and could carry a
+  declared circumstance**, as the social clauses do: Class Mobility,
+  Fearsome Reputation, Safecracker, Alcohol Tolerance, Famous Face and
+  Navigator's Eye.
+- **Rows that name something this app has a screen for, not triaged**:
+  Knows the Acting Method (*"all Digestion Gain Per Session is doubled"*),
+  Cleansed Spirit (*"CoR gained from passive exposure are halved"*), Fast
+  Healer (*"1 additional HP per day of rest"*, beside 6ep's recovery rows),
+  Thinned Veil (*"Concentration ... at -2"*), Luck's rerolls, Acute Vision
+  and Acute Hearing. Each is a claim to check, not a finding.
+- **A self-control row's other clauses are unsaid.** Reckless prints *"-1
+  to any roll where caution would be smarter"* beside its Will roll, and
+  the row offers the roll and nothing about the -1.
+- **Duty's refusal ends *"in SelfControl (6am)"*** on a player's screen.
+- **`Corruption.maxFor` matches Spiritual Fortitude by raw name equality**,
+  not through `catalogueName`, so a sheet that glued the cell to the name
+  would lose the +3. No premade holds the trait.
+- **6eq's second successor stands**: book 2540's *"Default: DX-2 if
+  untrained"* against a `SkillLadder.defaultFor` with no production caller.
+
 ## 6er. The row the builder would not sell
 
 6eq named this first of two successors: the builder withheld `Language

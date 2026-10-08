@@ -39,6 +39,9 @@ silently "fix" them. If a number surprises you, the book is the authority.
 
 - **The bottom bar** switches what the list below shows: **Vitals**, **Skills**,
   **Traits**. It is a footer, not a screen change — the action tiles stay put.
+- **Traits** lists every advantage and drawback with the book's own text. A
+  grey *"Not applied here"* line under a row says what the app does not
+  count for you.
 - **The action tiles** are one wrapping grid of twelve, colour-coded by what
   they are for: neutral = a roll the GM called, red = combat, purple = a
   Beyonder power, green = managing the character. The three Beyonder tiles

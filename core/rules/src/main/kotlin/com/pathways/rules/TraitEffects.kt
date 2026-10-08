@@ -1203,7 +1203,7 @@ object TraitEffects {
      * What [reported] says of a held trait no collection here names.
      *
      * **One sentence for the whole complement of [known]**, which was 148 of
-     * the 198 rows when it was first listed (6es) and had never been: 66
+     * the 198 rows when it was first listed (6es) and had never been: 65
      * advantages printed nowhere on the sheet, and the drawbacks printed
      * their cell with no word on whether it was counted. A reason per row
      * would be the honest-looking alternative and is the one that rots --

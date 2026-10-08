@@ -2310,7 +2310,7 @@ class TraitEffectsTest {
 
     /**
      * **A held trait no collection names said nothing at all.** `reported`
-     * answered only for [TraitEffects.known], so 66 of the 99 advantages --
+     * answered only for [TraitEffects.known], so 65 of the 99 advantages --
      * `Legal Enforcement Powers` on three premades among them -- printed
      * nowhere on the sheet, and a drawback such as `Unsettling Appearance`
      * printed its "-1 to all reaction rolls" with nothing to say whether it
