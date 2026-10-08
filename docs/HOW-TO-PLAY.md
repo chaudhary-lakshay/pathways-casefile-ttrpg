@@ -222,6 +222,11 @@ Clarity is read off the result. Divining a Beyonder stronger than you is harder
 per their Sequence, and at the top of the ladder only a critical success can
 work at all — the app demotes the roll rather than pretending.
 
+A caster with Ritualistic Magic at 12 or more may divine at that skill -2, and
+the app uses it where it beats their own Divination Arts, saying *"Defaulted
+from"* under the target. **Versatile**'s +1 to a roll at default is counted
+there, before the two numbers are compared.
+
 Four of the circumstance rows print a **range** — *"Method match +0 to +2"*,
 *"Target link +0 to +4"*, *"Unfavourable timing -1 to -2"*, *"Quiet, dedicated
 space +0 to +1"* — and ticking one opens a second row of chips to pick inside
@@ -311,9 +316,13 @@ Edits are saved per character and survive a restart.
   already counted), and **Roll HT N — a day of rest and food**. You say when
   a day has passed. A success restores nothing by itself: apply what the rows
   print with **+1** on the HP row, because which band applies to a large body
-  is the GM's call. **Another day** clears it for the next one. First Aid,
-  the Healing advantage and Regeneration are not offered; Physician is a
-  skill, rolled from **Skills** like any other.
+  is the GM's call. **Another day** clears it for the next one. The Healing
+  advantage and Regeneration are not offered. First Aid and Physician are
+  skills, rolled from **Skills** like any other by a character who has them,
+  and the app applies nothing for either. The book's rows are *"First Aid: 1
+  HP + stops bleeding; 1 minute; once per wound"* and *"Physician (skill 12+):
+  1 HP (2 HP on critical success); per day of bed rest; requires equipment"*.
+  Add the HP with **+1**; the rest is yours to count.
 
 ---
 

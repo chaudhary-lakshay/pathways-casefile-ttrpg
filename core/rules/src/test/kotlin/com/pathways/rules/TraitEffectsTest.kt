@@ -1736,9 +1736,9 @@ class TraitEffectsTest {
     /**
      * Resolving a row is not applying it. "Resistant (specify)" reads "HT
      * rolls to resist a specific category at +3 (3 pts) or +8 (5 pts)", and
-     * the one bare HT roll this app makes -- a Major Wound's -- resists
-     * neither disease nor poison nor temperature, so it must NOT pick this
-     * bonus up beside Fit's and Unfit's. Church Healer owns it, so the day it
+     * no roll this app offers resists disease, poison or temperature, so
+     * the Major Wound's HT roll must NOT pick this bonus up beside Fit's and
+     * Unfit's. Church Healer owns it, so the day it
      * leaked the number would be on a real character's screen.
      */
     @Test
@@ -2206,5 +2206,48 @@ class TraitEffectsTest {
             FrightCheck.against(will = 12, modifier = 0, source = fixed(10)).target + bonus,
             FrightCheck.against(will = 12, modifier = bonus, source = fixed(10)).target,
         )
+    }
+
+    // ---- Versatile ---------------------------------------------------------
+
+    /**
+     * **This was an UNAPPLIED entry reading "every skill on a sheet is bought,
+     * so no default is rolled here".** `Divination.divinationLevelFor` rolls
+     * Divination Arts at Ritualistic Magic-2 and the dialog prints "Defaulted
+     * from", so that was a claim about the app and a false one.
+     */
+    @Test
+    fun `Versatile lifts a roll made at a default`() {
+        val versatile = listOf(advantage(TraitEffects.VERSATILE))
+        // The literal, and the cell it was read from: asserting the
+        // constant against itself passes with the constant at zero.
+        val printed = ContentLoader.advantages().first { it.name == TraitEffects.VERSATILE }.notes
+        assertTrue(printed.startsWith("+1 to defaults skill rolls"), printed)
+        assertEquals(1, TraitEffects.defaultBonus(versatile))
+        assertEquals(0, TraitEffects.defaultBonus(emptyList()))
+        // Through to the roll: own 10 ties a plain default and loses to this one.
+        val lifted = Divination.divinationLevelFor(
+            own = 10, sibling = 12, defaultBonus = TraitEffects.defaultBonus(versatile),
+        )!!
+        assertEquals(11, lifted.level)
+        assertTrue(TraitEffects.VERSATILE !in TraitEffects.unappliedNames())
+        assertTrue(TraitEffects.VERSATILE in TraitEffects.known())
+        // Applied on one roll is not applied everywhere: the sheet still says
+        // where it lands, because this app offers no general untrained roll.
+        val notes = TraitEffects.reported(versatile)
+        assertTrue(notes.any { Divination.SKILL in it.reason }, notes.toString())
+    }
+
+    /**
+     * The same false sentence sat under Medical Training's Physician clause.
+     * Swept over both catalogues, so a third copy reddens rather than ships.
+     */
+    @Test
+    fun `no refusal says this app rolls no default`() {
+        val stale = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .flatMap { TraitEffects.reported(listOf(advantage(it.name))) }
+            .filter { "no default is rolled" in it.reason }
+            .map { it.trait }
+        assertEquals(emptyList<String>(), stale, "Divination Arts is rolled at a default")
     }
 }

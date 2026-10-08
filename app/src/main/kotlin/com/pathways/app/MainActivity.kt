@@ -348,6 +348,7 @@ fun SheetScreen(
     val levels = Divination.levelsFor(
         ownDivination = ownedDivination,
         ownRitual = ownedRitual,
+        defaultBonus = TraitEffects.defaultBonus(traits),
     )
     val divination = levels.divination
     val ritual = levels.ritual

@@ -155,6 +155,12 @@ object Divination {
          * their own" at a character who has it.
          */
         val own: Int? = null,
+        /**
+         * What a trait added to the DEFAULT, already inside [level]; zero
+         * when [isDefault] is false. Carried so [sourceLine] can print the
+         * sibling's true level rather than recover it from [level].
+         */
+        val defaultBonus: Int = 0,
     )
 
     /**
@@ -168,13 +174,18 @@ object Divination {
      */
     fun sourceLine(chosen: SkillOrDefault, skill: String, sibling: String): String? {
         if (!chosen.isDefault) return null
-        val from = chosen.level - CROSS_DEFAULT_PENALTY
+        val from = chosen.level - CROSS_DEFAULT_PENALTY - chosen.defaultBonus
+        val lift = if (chosen.defaultBonus == 0) {
+            ""
+        } else {
+            ", +${chosen.defaultBonus} for ${TraitEffects.VERSATILE}"
+        }
         val quote = "\"Divination Arts defaults to $SIBLING_SKILL" +
             "$CROSS_DEFAULT_PENALTY and vice versa.\""
         return if (chosen.own == null) {
-            "Defaulted from $sibling $from. $quote This character has no $skill of their own."
+            "Defaulted from $sibling $from$lift. $quote This character has no $skill of their own."
         } else {
-            "Defaulted from $sibling $from. $quote Better than their own " +
+            "Defaulted from $sibling $from$lift. $quote Better than their own " +
                 "$skill ${chosen.own}, and the book conditions the default on " +
                 "the other skill's level, not on lacking this one."
         }
@@ -207,13 +218,20 @@ object Divination {
      *
      * A tie keeps the owned skill, because the default adds nothing there and
      * a caster who has the skill should be shown as having it.
+     *
+     * [defaultBonus] is [TraitEffects.defaultBonus]: Versatile's "any time you
+     * use a skill at default, you are effectively one level better". It is
+     * added BEFORE the comparison, because own 10 against a sibling of 12 is
+     * a tie without it and a default of 11 with it. The 12+ gate is the
+     * sibling's own level and the bonus does not open it.
      */
-    fun divinationLevelFor(own: Int?, sibling: Int?): SkillOrDefault? {
-        val defaulted = sibling?.let(::crossDefaultFor)
+    fun divinationLevelFor(own: Int?, sibling: Int?, defaultBonus: Int): SkillOrDefault? {
+        val defaulted = sibling?.let(::crossDefaultFor)?.plus(defaultBonus)
         return when {
             own != null && (defaulted == null || defaulted <= own) ->
                 SkillOrDefault(own, isDefault = false, own = own)
-            defaulted != null -> SkillOrDefault(defaulted, isDefault = true, own = own)
+            defaulted != null ->
+                SkillOrDefault(defaulted, isDefault = true, own = own, defaultBonus = defaultBonus)
             else -> null
         }
     }
@@ -239,8 +257,8 @@ object Divination {
      * divination away to the other chapter, "Divination (1-2 SPI via
      * Divination Arts, see Ch 6.5)" (p. 67).
      */
-    fun levelsFor(ownDivination: Int?, ownRitual: Int?) = CasterLevels(
-        divination = divinationLevelFor(own = ownDivination, sibling = ownRitual),
+    fun levelsFor(ownDivination: Int?, ownRitual: Int?, defaultBonus: Int) = CasterLevels(
+        divination = divinationLevelFor(ownDivination, ownRitual, defaultBonus),
         ritual = ownRitual?.let { SkillOrDefault(it, isDefault = false, own = it) },
     )
 

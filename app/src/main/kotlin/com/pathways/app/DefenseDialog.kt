@@ -993,7 +993,7 @@ private fun RetreatControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
         )
         return
     }
-    Note("One melee attack this round — the GM's to count; this screen keeps no round.")
+    Note("One melee attack this round — which one is the GM's to count. New round clears this.")
 }
 
 /**

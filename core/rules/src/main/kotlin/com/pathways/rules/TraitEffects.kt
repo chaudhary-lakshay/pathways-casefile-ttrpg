@@ -232,6 +232,11 @@ object TraitEffects {
     /** "+3 on HT rolls to avoid knockdown." */
     const val KNOCKDOWN_BONUS = 3
 
+    const val VERSATILE = "Versatile"
+
+    /** "+1 to defaults skill rolls" (p. 13). */
+    const val DEFAULT_BONUS = 1
+
     /**
      * The three skills both Balance rows name: "+2 to Acrobatics, Climbing,
      * Piloting".
@@ -517,6 +522,9 @@ object TraitEffects {
 
         /** "+3 on HT rolls to avoid knockdown" — the Major Wound's own roll. */
         KNOCKDOWN(HIGH_PAIN_THRESHOLD, KNOCKDOWN_BONUS),
+
+        /** "any time you use a skill at default" — [Divination.divinationLevelFor]. */
+        DEFAULT(VERSATILE, DEFAULT_BONUS),
         ;
 
         fun of(traits: List<Trait>): Int {
@@ -541,6 +549,19 @@ object TraitEffects {
      * a sweep verdict (6ba, 6bl).
      */
     fun deathRollBonus(traits: List<Trait>): Int = BespokeBonus.DEATH.of(traits)
+
+    /**
+     * What [traits] add to a skill rolled AT A DEFAULT: Versatile's "+1 to
+     * defaults skill rolls -- any time you use a skill at default, you are
+     * effectively one level better".
+     *
+     * **This was an UNAPPLIED entry reading "every skill on a sheet is bought,
+     * so no default is rolled here".** [Divination.divinationLevelFor] rolls
+     * Divination Arts at Ritualistic Magic-2, and p. 54 calls that number a
+     * default in its own word. It is the only default this app rolls, which
+     * is what the entry left in [PARTLY_APPLIED] says on the sheet.
+     */
+    fun defaultBonus(traits: List<Trait>): Int = BespokeBonus.DEFAULT.of(traits)
 
     /**
      * What [traits] add to a roll made to REMAIN CONSCIOUS, the other of the
@@ -1483,6 +1504,15 @@ object TraitEffects {
      * pinned by a test in `ActiveDefensesTest` rather than by this comment.
      */
     private val PARTLY_APPLIED: Map<String, List<Pair<String, String>>> = mapOf(
+        // Applied, and to one roll. The sheet says which, because a holder
+        // with no Ritualistic Magic would otherwise read the trait as live.
+        VERSATILE to listOf(
+            "+1 to defaults skill rolls" to
+                // Read after the sheet's own "Not applied here:" prefix.
+                "to any roll but ${Divination.SKILL} defaulted from " +
+                "${Divination.SIBLING_SKILL} 12+, which takes it — this app " +
+                "offers no other roll at a default",
+        ),
         FIT to listOf(
             "recover FP at twice the normal rate" to
                 "this app holds no clock to recover against",
@@ -1554,7 +1584,8 @@ object TraitEffects {
         ),
         "Medical Training (Informal)" to listOf(
             "Use Physician at IQ-2 without purchasing the skill" to
-                "this app never shows an untrained level, so no default is rolled",
+                "the Skills tab has no row for a level a trait grants, so this " +
+                    "one is not offered — a gap, not a ruling",
         ),
         "Absolute Direction" to listOf(
             "Always know which way is north; never become lost in natural terrain" to
@@ -1666,7 +1697,6 @@ object TraitEffects {
         "Eidetic Memory" to "this app models no recall roll",
         "Single-Minded" to "which tasks count as extended concentration is the GM's call",
         "Lightning Calculator" to "this app models no numerical-puzzle roll",
-        "Versatile" to "every skill on a sheet is bought, so no default is rolled here",
         // Scoped to "the head", which only a hit-location roll could supply --
         // and those print no attribute (see KNOCKDOWN_UNREACHED). Its second
         // clause is a bite nothing here rolls. Glass Jaw is the disadvantage
@@ -1737,8 +1767,8 @@ object TraitEffects {
         // who owns them -- Church Healer's Resistant, and three premades' Duty.
         "Resistant (specify)" to
             "the bonus is scoped to a category the GM names (Disease, Poison, " +
-            "Temperature Extremes), and the one bare HT roll this app makes — " +
-            "a Major Wound's — resists none of them",
+            "Temperature Extremes), and this app offers no roll to resist any " +
+            "of them",
         "Duty (specify)" to
             "its \"roll 9 or less\" is how often the duty comes up rather than " +
             "a roll this character makes, the same refusal Phobia's Fright " +
