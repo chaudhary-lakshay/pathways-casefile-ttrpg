@@ -147,8 +147,8 @@ book's table (Knife, Axe/Mace, Broadsword and three Guns), each marked
 A weapon you have no skill with prints *"no parry offered without the skill"*.
 
 A **Warrior**, **Pugilist** or **Weapon Master** wields any weapon in hand at no
-less than DX, and the header says so. It parries at no less than DX too, on this
-screen and in Defend, which says it is a reading. Put the weapon down and the
+less than DX, and the header says so. For its parry, the weapon skill is floored at
+DX before the halving, on this screen and in Defend, which says it is a reading. Put the weapon down and the
 skill is back at its own number, and a Deceptive Attack the lower number cannot
 afford goes to 0. The Warrior's *"default +2"* for a weapon used repeatedly is
 not counted; a Pugilist needs no warm-up with a melee weapon, so for one of

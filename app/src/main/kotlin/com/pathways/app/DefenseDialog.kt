@@ -702,10 +702,10 @@ fun DefenseDialog(
                     // reading that carries the line to a parry (6ey).
                     if (mastery != null && lifted.isNotEmpty()) {
                         Note(
-                            "${lifted.joinToString(", ")} parr${if (lifted.size == 1) "ies" else "y"} " +
-                                "at no less than DX: ${mastery.quoted}'s \"treated as " +
+                            "${lifted.joinToString(", ")}: Weapon Skill no less than DX " +
+                                "before the halving, from ${mastery.quoted}'s \"treated as " +
                                 "known at effective DX\", read as the Parry (Armed) " +
-                                "row's Weapon Skill. A reading: the book's examples are attacks.",
+                                "row's operand. A reading: the book's examples are attacks.",
                         )
                     }
                     // A refusal, not a penalty, so the rows are withdrawn and

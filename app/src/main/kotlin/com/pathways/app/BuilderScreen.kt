@@ -246,7 +246,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     // Beyonder whose potion granted the weapon's skill would
                     // read one number here and another on the defence screen.
                     skillLevels = played?.skillLevels ?: derived.skillLevels,
-                    // A master's weapon parries at no less than DX as played,
+                    // A master's weapon parries off a skill floored at DX as played,
                     // the same reading Defend applies (6ey).
                     mastery = session.state?.let { SkillDefaults.masteryFor(it.pathway, it.sequence) },
                     dx = played?.effectiveAttributes?.get(Attr.DX) ?: character.attributes[Attr.DX],
