@@ -152,7 +152,27 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fc is newest: Fast Healer on the daily recovery roll.** *"Recover 1
+**6fd is newest: what Cleansed Spirit halves.** Nothing, and the CoR
+stepper says why. *"CoR gained from passive exposure are halved"* names a
+category the book never fills in. Read it for two things.
+
+- **"Soul Debt is reported, not applied" had been false since
+  `ea6ae38`.** `spend` charges it, and damage taken on SPI reaches it,
+  so not every automatic charge follows a deliberate act. The design
+  sub-agent caught my draft line saying they all did. Two KDocs are
+  corrected.
+- **A near-miss guard that could not fire shipped in `74b0a6e`.**
+  Spiritual Fortitude reports nothing, so a loose filter passed. I did
+  not stop the commit chain on the mutation's exit 0. The guard now uses
+  Spirit Tongue (`46c7914`).
+
+Codex was out until 00:52 and the gateway was down, so one sub-agent
+reviewed the design (CHANGE) and one the diff (SHIP, three LOWs taken).
+On the SM-T570 the line sits under the CoR table. **Owed: a Codex review
+of `466e3d7..HEAD`.** **Successors**: Luck, Acute Vision and Acute
+Hearing; 6es's first list; Warrior's *default +2*.
+
+**6fc is next: Fast Healer on the daily recovery roll.** *"Recover 1
 additional HP per day of rest"* is said on the recovery row's result.
 Read it for two things.
 
@@ -219,31 +239,10 @@ it (Codex out, gateway down). On the SM-T570 the tracker read `Exemplary
 +30-40%` and the quoted note. **Successors**: the other six rows of
 6es's second list, its first list, and Warrior's *default +2*.
 
-**6ey is next: a master's weapon parries at DX.** Line 2468 prints
-Parry (Armed) as *"Weapon Skill ÷ 2 + 3"*, and the Twilight Giant lines
-treat every weapon *"as known at effective DX"*. Read it for three things.
-
-- **One level, three screens.** `SkillDefaults.wieldedAt` is the best
-  skill arming the weapon, floored at DX in a master's hand. Defend, the
-  Attack dialog's weapon line and the builder's carried line all print
-  it. Attack used to price the CHOSEN skill, so two Knife skills printed
-  8 there and 9 in Defend (Codex's design CHANGE).
-- **The builder was the third screen, and my design question named
-  two.** The diff review's MEDIUM: it still printed *"no parry"* for a
-  Warrior's broadsword.
-- **The Pugilist was invisible to a keyword.** Its Combat Mastery never
-  says *"no default penalty"*, so `masteryFor` answered WARRIOR at Seq 8.
-  It is note-only: a melee weapon needs no warm-up.
-
-Codex ran out mid-diff-review (back 4:13 PM) and the gateway was down,
-so one sub-agent reviewed the diff and then the fixes: SHIP. The emulator
-failed twice on Vulkan. On the SM-T570, a Warrior's Hand Axe with no skill
-read `parry 8` on all three screens, and the pass caught a doubled "DX" in
-the note. Codex then reviewed `8b033d6..3481690` (see 6fa). **Successors**: Warrior's *default +2*, and 6es's two lists.
-
-**6ex back to 6de had lead paragraphs here until 2026-10-09. Each is in
+**6ey back to 6de had lead paragraphs here until 2026-10-09. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ey** — a master's weapon parries at DX: `SkillDefaults.wieldedAt` floors the skill, and Attack, Defend and the builder all print it; the Pugilist was invisible to a keyword;
 **6ex** — a Reluctant Killer's target is the GM's to declare (-4, or -2 with the face hidden); "cannot Aim" is unconditional, and the Attack roll takes the general trait term;
 **6ew** — a self-control row's other clauses were unsaid; `ROLLED_ONLY` says the roll alone is applied, and `catalogueName` had cut `SC 6` to `SC` as if 6 were a level;
 **6ev** — the bare-hand parry cell prints "Brawling or DX", so DX is a row of its own; the Acrobatic Dodge rolls its default, and Defend gained the missing trait term;
@@ -308,7 +307,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fc first.** The
+**Where to start next: the slice log, from the END — 6fd first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -363,7 +362,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1882 Kotlin** (JUnit 5 — 1318 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1883 Kotlin** (JUnit 5 — 1319 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -567,6 +566,8 @@ TraitEffects.concentrationClauses(traits)   // Will clauses + Thinned Veil and
 TraitEffects.actingGains(traits) / .doublesActingGains(traits)
                                       // ch.6's Acting Method table, doubled for
                                       // Knows the Acting Method (6ez)
+TraitEffects.corruptionNotes(traits)   // Cleansed Spirit beside the CoR stepper:
+                                      // nothing halved, and why (6fd)
 Divination.levelsFor(ownDivination, ownRitual, defaultBonus): CasterLevels
                                       // the bonus goes inside the pick between
                                       // owned and default; a ritual never defaults

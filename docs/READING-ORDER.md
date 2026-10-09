@@ -190,7 +190,29 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6ex back to 6de
+## Retired lead paragraphs, 6ey back to 6de
+
+**6ey is next: a master's weapon parries at DX.** Line 2468 prints
+Parry (Armed) as *"Weapon Skill ÷ 2 + 3"*, and the Twilight Giant lines
+treat every weapon *"as known at effective DX"*. Read it for three things.
+
+- **One level, three screens.** `SkillDefaults.wieldedAt` is the best
+  skill arming the weapon, floored at DX in a master's hand. Defend, the
+  Attack dialog's weapon line and the builder's carried line all print
+  it. Attack used to price the CHOSEN skill, so two Knife skills printed
+  8 there and 9 in Defend (Codex's design CHANGE).
+- **The builder was the third screen, and my design question named
+  two.** The diff review's MEDIUM: it still printed *"no parry"* for a
+  Warrior's broadsword.
+- **The Pugilist was invisible to a keyword.** Its Combat Mastery never
+  says *"no default penalty"*, so `masteryFor` answered WARRIOR at Seq 8.
+  It is note-only: a melee weapon needs no warm-up.
+
+Codex ran out mid-diff-review (back 4:13 PM) and the gateway was down,
+so one sub-agent reviewed the diff and then the fixes: SHIP. The emulator
+failed twice on Vulkan. On the SM-T570, a Warrior's Hand Axe with no skill
+read `parry 8` on all three screens, and the pass caught a doubled "DX" in
+the note. Codex then reviewed `8b033d6..3481690` (see 6fa). **Successors**: Warrior's *default +2*, and 6es's two lists.
 
 **6ex is next, and it is 6ew's successor: a Reluctant Killer's target
 is the GM's to declare.** The Attack dialog offers the cell's two to-hit

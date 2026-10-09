@@ -6726,6 +6726,102 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fd. The corruption a cleansed spirit halves
+
+**Cleansed Spirit** (5) prints *"CoR gained from passive exposure are
+halved. Active corruption from deliberate acts is unaffected"* (book
+lines 1012-1013). Neither phrase occurs anywhere else in the book. The
+CoR table (3061-3074) prints six sources and labels none of them
+passive. Until now the trait was read by nothing.
+
+### Gates
+
+Codex hit its usage limit on the design prompt (back at 00:52 on
+2026-10-10), and `qa.mjs probe` answered `fetch failed`. Each review was
+therefore one scoped sub-agent, the third gate.
+
+### The design review: CHANGE, and the reason is in the app
+
+My proposal said the app's automatic charges "follow deliberate acts":
+drinking early, and a ritual's or a boon's critical failure. **The
+reviewer found a fourth charge.** `BeyonderSession.spend(Pool.SPI, ...)`
+charges Soul Debt (*"+1 CoR per 1 point below 0"*) through `gainCor`,
+and has since `ea6ae38`. The Damage dialog's `onApply` reaches it with a
+hit absorbed on SPI (`MainActivity.kt:981`), which is not a deliberate
+act on any reading. So the line cannot classify the charges either. It
+says the app halves nothing, Soul Debt included, and the GM halves what
+is passive with the stepper. Its other two verdicts:
+
+- **Row 17's "Soul Exposure"** is the strongest keyword case, and it is
+  weaker than it looks: the caster chose to cast the ritual. The app
+  still classifies nothing.
+- **Mark no rows.** 6ez could double a table because its cell named the
+  whole table. This cell names a category the book leaves empty, and
+  *"1-3"* halved needs a rounding the book does not print.
+
+**And a disclaimer had expired.** `PoolRow`'s KDoc still said *"Soul
+Debt is REPORTED, not applied ... The GM adds it on the pathway screen"*,
+two commits after `ea6ae38` began charging it. `CorruptionTracker`'s
+KDoc called early advancement *"the one CoR cost the rules DO
+compute"*. Both are corrected.
+
+### What was built
+
+- `TraitEffects.CLEANSED_SPIRIT` in `UNAPPLIED`, with the reason.
+- `TraitEffects.corruptionNotes(traits)`: that row's `reported` note, for
+  a holder only.
+- The pathway screen's `CorruptionTracker` takes `traits` and prints the
+  note under the CoR table: *"Not halved here: ..."*.
+
+### The diff review: SHIP, three LOWs, all taken
+
+- *"Soul Debt from a hit taken on SPI"* named one route of several:
+  burns, ritual fuel, divination and the SPI stepper also charge it. It
+  now reads *"Soul Debt from SPI spent below 0"*.
+- The near-miss check needed a near miss. One was added.
+- `CorruptionTracker`'s *"Every row ... is a range or an open floor"* was
+  false of two rows: one is 1 per use, the other a 1d roll.
+
+### A guard that could not fire shipped, and was fixed one commit later
+
+The near-miss I added first was **Spiritual Fortitude**. A mutation that
+loosened the filter to `name.contains("Spirit")` **exited 0**. My
+command chained the full suite and the commit after it, so `74b0a6e`
+shipped the vacuous guard. The cause: Spiritual Fortitude is applied in
+full, so `reported()` returns nothing for it, and a filter that let it
+through still produced an empty list. `46c7914` uses **Spirit Tongue**,
+asserts that it reports something, and the same mutation now fails.
+**Run a mutation, read its exit, and only then commit.**
+
+### Verification
+
+1883 Kotlin (1319 `core:rules`, 544 `app`, 20 `core:model`), green from
+the JUnit XML after `--rerun-tasks`. RED first: `List is empty`. Three
+mutations were caught (unfiltered `reported`, the Soul Debt words
+dropped, the loose filter), the last only after `46c7914`.
+
+**On the SM-T570**, starting from its launcher with the save backed up,
+Church Healer bought the trait, then drank the Sun's Sequence 9. The
+pathway screen read `Corruption`, `0 / 11`, the table, and then
+*"Cleansed Spirit: CoR gained from passive exposure are halved. Active
+corruption from deliberate acts is unaffected. Not halved here: the book
+lists no CoR source as passive exposure, so this app halves nothing it
+charges, Soul Debt from SPI spent below 0 included; the GM halves what
+is passive with the CoR stepper."* The crash buffer was empty. The save
+was restored (`cmp` identical), and the tablet went back to its
+launcher.
+
+### Owed
+
+A Codex review of `466e3d7..HEAD` (6fc's fix and this slice): only
+sub-agents have read 6fd, and Codex read 6fc before its MEDIUM fix.
+
+### Successors
+
+- **Luck, Acute Vision, Acute Hearing**: each needs a reason that is true
+  of this app, or a roll it already makes.
+- 6es's first list, and Warrior's *default +2*.
+
 ## 6fc. The extra point a fast healer's day restores
 
 This is the next of 6es's second list. **Fast Healer** (5) prints
