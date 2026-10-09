@@ -152,7 +152,24 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ez is newest: the Acting Method table a holder reads.** Knows the
+**6fa is newest: Thinned Veil on the Concentrate roll.** Its *"Concentration
+in spiritually active environments at -2"* is a declared clause on the
+app's one concentration check, and reaches no Fright Check or
+self-control roll. Read it for two things.
+
+- **Codex's owed review of 6ey found a false sentence about a true
+  number.** *"Parries at no less than DX"* claimed a minimum parry. The
+  floor applies to the SKILL before the halving (`5caf3ca`).
+- **The verbatim guard on reported clauses named two traits.** My
+  qualifier rendered as book text on the Traits tab (Codex's MEDIUM). The
+  guard now checks every partly-applied row, and mine was the only
+  paraphrase.
+
+On the SM-T570: `3d6 ≤ 4 — Will 9-3, Thinned Veil -2`, and no row in
+Fright. **Successors**: the other five of 6es's second list, Chronic
+Insomnia on the same roll, 6es's first list, and Warrior's *default +2*.
+
+**6ez is next: the Acting Method table a holder reads.** Knows the
 Acting Method prints *"all Digestion Gain Per Session is doubled (e.g.
 Exemplary +15–20% becomes +30–40%)"*, and the digestion tracker printed
 the book's ranges to everyone. `TraitEffects.actingGains` doubles them
@@ -185,7 +202,7 @@ Codex ran out mid-diff-review (back 4:13 PM) and the gateway was down,
 so one sub-agent reviewed the diff and then the fixes: SHIP. The emulator
 failed twice on Vulkan. On the SM-T570, a Warrior's Hand Axe with no skill
 read `parry 8` on all three screens, and the pass caught a doubled "DX" in
-the note. **Owed first: a Codex review of `8b033d6..HEAD`.** **Successors**: Warrior's *default +2*, and 6es's two lists.
+the note. Codex then reviewed `8b033d6..3481690` (see 6fa). **Successors**: Warrior's *default +2*, and 6es's two lists.
 
 **6ex is next, and it is 6ew's successor: a Reluctant Killer's target
 is the GM's to declare.** The Attack dialog offers the cell's two to-hit
@@ -215,7 +232,9 @@ self-control roll, so 28 of the 30 rows with one said nothing beside
 Reckless's -1 and Reluctant Killer's *"-4 to hit ... cannot Aim"*. Read
 it for three things.
 
-- **`TraitEffects.actingGains(traits) / .doublesActingGains(traits)
+- **`TraitEffects.concentrationClauses(traits)   // Will clauses + Thinned Veil:
+                                      // the Concentrate roll ALONE (6fa)
+TraitEffects.actingGains(traits) / .doublesActingGains(traits)
                                       // ch.6's Acting Method table, doubled for
                                       // Knows the Acting Method (6ez)
 TraitEffects.ROLLED_ONLY`** is one sentence for all 28, the roll
@@ -238,43 +257,10 @@ as a declared clause in the Attack dialog (-4, -2 with the face hidden,
 and no Aim), a Warrior's weapon parrying at DX, Warrior's *default +2*,
 and 6es's two lists.
 
-**6ev is next, and it is the successor 6eu named, asked the right way:
-the bare-hand parry was never a default.** Book line 2473, the Parry
-(Unarmed) formula cell, prints *"Brawling or DX ÷ 2 + 3"*, and the app had
-read the first operand alone since the row was extracted. Read it for four
-things.
-
-- **The DX row is one of the rows.** `ParryBlock.bareHandParry` is DX
-  itself, not Brawling's DX-2 halved, and it is withheld only where a held
-  Brawling parries as well. The cell says *"or"*, so my *"only without
-  Brawling"* was an unprinted gate. Its −3 against a weapon is a reading,
-  and the screen says so.
-- **An armed default stays out, on the cells' own difference**: *"Weapon
-  Skill ÷ 2 + 3"* prints no second operand. A carried weapon with no skill
-  is named in a note.
-- **The Acrobatic Dodge rolls its default here**, at the level
-  `SkillDefaults` composed: the fourth consumer.
-- **Offering that roll to more sheets made an old gap reachable.** Defend
-  passed the trackers' modifiers and never `TraitEffects.modifiers`. No
-  premade holds both Perfect Balance and Acrobatics, so nothing showed it
-  until Pickpocket rolled 4 here and 6 on Skills (the diff review's HIGH).
-
-**Codex ran out mid-review** (back Oct 9, 2:02 AM) and the free panel's
-gateway was down, so both reviews were one sub-agent each, the third gate.
-Twenty-two mutations, twenty-two caught. On the SM-T570: `Parry (DX, bare
-hands) 7`, then `4` against a weapon and no row against a shot; Pickpocket's
-`Acrobatics (untrained, DX-6) 4 → 6`. **The tablet's save was left seeded**:
-a harness check refused the restore, and the owner ran it on 2026-10-09
-(verified byte-identical to the backup).
-**Owed first: a Codex diff review of `5fe2b41..127532d`**, which only a
-sub-agent has read, and whose post-review fix no reviewer has. **Successors**:
-whether a Warrior's weapon parries at DX, which is sharper now; the same
-missing trait term on the ATTACK roll; Warrior's *default +2*; and 6es's
-two lists.
-
-**6eu back to 6de had lead paragraphs here until 2026-10-09. Each is in
+**6ev back to 6de had lead paragraphs here until 2026-10-09. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ev** — the bare-hand parry cell prints "Brawling or DX", so DX is a row of its own; the Acrobatic Dodge rolls its default, and Defend gained the missing trait term;
 **6eu** — the Attack dialog takes an untrained skill with a fist or weapon row; a Warrior's weapon is wielded at no less than DX, and one `levelWith` feeds the header, damage and roll;
 **6et** — the untrained roll: `defaultFor` had no caller since M0; a skill's own line (Brawling DX-2, Wrestling none) beats the table, and Versatile's +1 sits inside every default;
 **6es** — the complement of `known()`, listed: 148 rows nothing read; `UNREAD` says so, and the sheet lists every held advantage with its cell;
@@ -336,7 +322,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ez first.** The
+**Where to start next: the slice log, from the END — 6fa first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -391,7 +377,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1878 Kotlin** (JUnit 5 — 1314 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1879 Kotlin** (JUnit 5 — 1315 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |

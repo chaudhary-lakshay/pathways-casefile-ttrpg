@@ -190,7 +190,41 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6eu back to 6de
+## Retired lead paragraphs, 6ev back to 6de
+
+**6ev is next, and it is the successor 6eu named, asked the right way:
+the bare-hand parry was never a default.** Book line 2473, the Parry
+(Unarmed) formula cell, prints *"Brawling or DX ÷ 2 + 3"*, and the app had
+read the first operand alone since the row was extracted. Read it for four
+things.
+
+- **The DX row is one of the rows.** `ParryBlock.bareHandParry` is DX
+  itself, not Brawling's DX-2 halved, and it is withheld only where a held
+  Brawling parries as well. The cell says *"or"*, so my *"only without
+  Brawling"* was an unprinted gate. Its −3 against a weapon is a reading,
+  and the screen says so.
+- **An armed default stays out, on the cells' own difference**: *"Weapon
+  Skill ÷ 2 + 3"* prints no second operand. A carried weapon with no skill
+  is named in a note.
+- **The Acrobatic Dodge rolls its default here**, at the level
+  `SkillDefaults` composed: the fourth consumer.
+- **Offering that roll to more sheets made an old gap reachable.** Defend
+  passed the trackers' modifiers and never `TraitEffects.modifiers`. No
+  premade holds both Perfect Balance and Acrobatics, so nothing showed it
+  until Pickpocket rolled 4 here and 6 on Skills (the diff review's HIGH).
+
+**Codex ran out mid-review** (back Oct 9, 2:02 AM) and the free panel's
+gateway was down, so both reviews were one sub-agent each, the third gate.
+Twenty-two mutations, twenty-two caught. On the SM-T570: `Parry (DX, bare
+hands) 7`, then `4` against a weapon and no row against a shot; Pickpocket's
+`Acrobatics (untrained, DX-6) 4 → 6`. **The tablet's save was left seeded**:
+a harness check refused the restore, and the owner ran it on 2026-10-09
+(verified byte-identical to the backup).
+**Owed first: a Codex diff review of `5fe2b41..127532d`**, which only a
+sub-agent has read, and whose post-review fix no reviewer has. **Successors**:
+whether a Warrior's weapon parries at DX, which is sharper now; the same
+missing trait term on the ATTACK roll; Warrior's *default +2*; and 6es's
+two lists.
 
 **6eu is next, and it is 6et's second consumer: the Attack dialog takes
 an untrained skill.** A character without Brawling had no punch there, and

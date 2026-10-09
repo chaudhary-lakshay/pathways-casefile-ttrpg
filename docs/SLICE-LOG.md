@@ -6726,6 +6726,89 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fa. The concentration check a thinned veil reaches
+
+This is the second of 6es's seven untriaged rows. **Thinned Veil** (−10)
+prints *"Concentration in spiritually active environments at -2"* (book
+line 1472). This app makes one concentration check: the Concentrate
+maneuver's *"Roll Will-3 if injured or defending"*. Its dialog already
+takes declared trait clauses.
+
+### The owed review came first
+
+Codex returned at 19:52 and read `8b033d6..3481690`: **FIX, one
+MEDIUM**. *"Parries at no less than DX"*, in Defend's note and in the
+guide, states a minimum PARRY of DX. A Warrior at DX 12 with no Knife
+skill parries 9. The floor applies to the weapon skill, before the
+halving. Both texts now say that (`5caf3ca`). Nothing else was found in
+the range. **A sentence can be wrong about a correct number**, and three
+reviews and a device pass read past this one: each checked the number
+and not the sentence.
+
+### The design review
+
+- **SHIP: the declared clause, with a note.** Codex corrected my warrant.
+  I had cited the capital C, but *"Concentration"* is capitalised only
+  because it starts the sentence. The strongest case against the
+  reading: the cell names neither Will-3 nor the maneuver, and Ritual
+  Cogitation requires focus too (book line 4177). Choosing the
+  Concentrate check follows the app's boundary, and it is not the book's
+  only meaning. The note says so.
+- **SHIP: the injured-or-defending gate stays.** The ritual's skill roll
+  and Spirit Vision's Perception roll are not this check.
+- **CHANGE: keep the siblings apart.** Absent-Mindedness names
+  everyday-life SKILL rolls, Chronic Insomnia names *"sustained
+  concentration"*, and Single-Minded requires uninterrupted focus. None
+  of them joins this clause.
+
+### What was built
+
+`CONCENTRATION_CLAUSES` holds Thinned Veil's conditional −2.
+`concentrationClauses(traits)` is `willClauses` plus those, and only the
+Concentrate dialog reads it. The Fright Check and self-control still
+read `willClauses`. A `PARTLY_APPLIED` entry quotes the cell and says
+every other roll is the GM's call.
+
+### The diff review found an invented quotation, and a guard too narrow to see it
+
+**Codex: FIX, MEDIUM.** My `PARTLY_APPLIED` clause read *"Concentration
+in spiritually active environments at -2, on any roll but the
+Concentrate maneuver's"*. The Traits tab prints that clause as the
+book's words, so my qualifier rendered as rule text. The invariant that
+forbids this, `every reported clause is one the book actually prints`,
+checked two named traits, Combat Reflexes and Fit. **It now checks
+every partly-applied row the catalogue prints.** It failed on mine
+before the fix, and with the fix it passes over all of them: mine was
+the only paraphrase. The qualifier moved into the reason.
+
+### Verification
+
+1879 Kotlin (1315 `core:rules`, 544 `app`, 20 `core:model`), green from
+the JUnit XML after `--rerun-tasks`. The test failed against a stub that
+had no clause. Two mutations were caught, each restored from a copy: one
+dropped the Will clauses from the concentration list, the other removed
+the GM note.
+
+**On the SM-T570**, Docks Bouncer (6ey's seed) bought the trait (`105 of
+110 points, 5 spare`). The tablet had locked; `deviceLocked=0`, so it
+was a swipe lock, and `wm dismiss-keyguard` cleared it. In Concentrate,
+after ticking *Injured or defending*, the dialog offered `Thinned Veil:
+Concentration in spiritually active environments at -2`. Declaring it
+gave `3d6 ≤ 4 — Will 9-3, Thinned Veil -2`. The Fright Check showed no
+Thinned Veil row. The Traits tab read the cell, then *"Not applied here:
+beyond the Concentrate roll, where it is declared; which other rolls
+need concentration, a ritual's included, is the GM's call."* The crash
+buffer stayed empty, and only Docks Bouncer's entry changed.
+
+### Successors
+
+- **The rest of 6es's second list**: Cleansed Spirit, Fast Healer,
+  Luck, Acute Vision and Acute Hearing.
+- **Chronic Insomnia's *"sustained concentration at -1"*** could be a
+  declaration on this roll, as Codex noted. Absent-Mindedness and
+  Single-Minded cannot.
+- 6es's first list, and Warrior's *default +2*, stand.
+
 ## 6ez. The table a holder of the Acting Method reads
 
 6es left two lists untriaged. The second named seven rows *"that name
