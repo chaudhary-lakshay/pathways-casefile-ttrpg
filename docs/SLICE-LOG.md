@@ -6807,7 +6807,11 @@ physical points read off a screencap.
 lead paragraph. That bullet began with a backticked name, and the
 entries landed inside the backticks. 6ew retired here, so its lead went
 to `docs/READING-ORDER.md` as it stood before `6023899`, compared
-exactly. The two entries are in section 3.
+exactly. The two entries are in section 3. **The sweep for more found
+none.** I searched for lines indented 30 or more spaces before `//`,
+and for `` `X.y(…)   // `` spans. Neither shape appears in `CLAUDE.md`
+outside section 3's kotlin block, or anywhere in `docs/READING-ORDER.md`,
+which holds the leads retired by 6ez and 6fa.
 
 ### Successors
 
