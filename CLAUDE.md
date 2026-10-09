@@ -169,8 +169,9 @@ three things.
   `ANDROID_SERIAL` unset, and `installDebug` picked the SM-T570. Its save
   is byte-identical. Gate an install on a non-empty serial.
 
-Codex reviewed the design, the diff and the fix, ending in SHIP. **Not
-device-verified.** **Successors**: that device pass, a Warrior's weapon
+Codex reviewed the design, the diff and the fix, ending in SHIP. On the
+SM-T570, Military Police with the drawback bought: `cannot Aim` with no Aim rows,
+`Traits: -4`, `3d6: 8 vs 8`. **Successors**: a Warrior's weapon
 parrying at DX, Warrior's *default +2*, and 6es's two lists.
 
 **6ew is next, and it is 6es's successor: a self-control row's other

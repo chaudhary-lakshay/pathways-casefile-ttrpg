@@ -6799,7 +6799,7 @@ test passed at once, because it pins existing behaviour. Two mutations
 (drop the kind check, swallow the unoffered key) were caught, each
 restored from a copy.
 
-**Not device-verified.** The emulator crashed twice: first `Failed to
+**The emulator could not run it.** It crashed twice: first `Failed to
 allocate ColorBuffer with Vulkan backing`, then again under
 `-gpu swiftshader_indirect`, with about 1.4 GB of RAM free. The SM-T570
 had Settings in the foreground, so it was left alone. **One slip:** my
@@ -6809,11 +6809,28 @@ unset, and `installDebug` installed this build on the tablet at
 It is the same app upgraded in place. **Gate an install on a non-empty
 serial, not on the loop finishing.**
 
+**Then device-verified on the SM-T570**, at the owner's word. The save was
+backed up first (`C:\Users\laksh\pathways-sessions-2026-10-09-pre6ex.bak`).
+Military Police, which had no save entry, bought Reluctant Killer in the
+builder (`94 of 100 points, 6 spare`), then went to Attack and Guns (Rifle) 12,
+with the Bolt-Action Rifle and At range:
+
+| Step | Screen |
+|---|---|
+| At range | `Reluctant Killer: "cannot Aim"`; no "Since taking aim" chip and no `Shooter used Aim` row (0 in the raw dump) |
+| | `Target (Reluctant Killer)`: `-4 to hit recognizable people with deadly force`, `-2 if face hidden` |
+| Tap -4, then -2, then -4 | the selection moves each time; `Traits: -4`, `Traits: -2`, `Traits: -4` |
+| Roll | `3d6: 8 vs 8`, success: 12 - 4 |
+
+The crash buffer stayed empty. Read back afterwards, the save differs from
+the backup by the new Military Police entry and by `edits.languages: []`
+written onto the seven existing entries. That is 6er's additive field
+serialised on the first save by this build, and no value changed.
+**Not exercised:** the `Traits: +2` on an Acrobatics attack, because no
+premade holds Perfect Balance beside Acrobatics. A unit test pins it.
+
 ### Successors
 
-- A device pass. Buy Reluctant Killer in the builder on a premade with
-  no save entry, then Attack: the chips, the *"Traits"* line, and no Aim
-  rows at range.
 - A Warrior's weapon parrying at DX, Warrior's *default +2*, and 6es's
   two lists stand.
 
