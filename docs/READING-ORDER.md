@@ -190,7 +190,29 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6ew back to 6de
+## Retired lead paragraphs, 6ex back to 6de
+
+**6ex is next, and it is 6ew's successor: a Reluctant Killer's target
+is the GM's to declare.** The Attack dialog offers the cell's two to-hit
+clauses as one declaration (-4, or -2 with the face hidden). Read it for
+three things.
+
+- **"cannot Aim" is unconditional.** I scoped it to the declared target.
+  Codex's design MEDIUM was that the clause prints no qualifier, so a
+  holder never gets the Aim rows. That is 6ev's gate-that-was-mine, again.
+- **The Attack roll takes the general trait term now**, and 6ew's census
+  that it "costs nothing" had the wrong corpus. The dialog offers EVERY
+  owned skill, so Perfect Balance's +2 reaches an Acrobatics attack.
+  Codex's diff MEDIUM; the term is printed as "Traits" above Roll.
+- **An install went to the tablet by accident.** The emulator crashed
+  twice (Vulkan, then low RAM), an empty serial loop left
+  `ANDROID_SERIAL` unset, and `installDebug` picked the SM-T570. Its save
+  is byte-identical. Gate an install on a non-empty serial.
+
+Codex reviewed the design, the diff and the fix, ending in SHIP. On the
+SM-T570, Military Police with the drawback bought: `cannot Aim` with no Aim rows,
+`Traits: -4`, `3d6: 8 vs 8`. **Successors**: a Warrior's weapon
+parrying at DX, Warrior's *default +2*, and 6es's two lists.
 
 **6ew is next, and it is 6es's successor: a self-control row's other
 clauses were unsaid.** `reported` gave `UNREAD` only to a row with no

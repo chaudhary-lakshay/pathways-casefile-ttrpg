@@ -381,7 +381,9 @@ Edits are saved per character and survive a restart.
   already counted), and **Roll HT N — a day of rest and food**. You say when
   a day has passed. A success restores nothing by itself: apply what the rows
   print with **+1** on the HP row, because which band applies to a large body
-  is the GM's call. **Another day** clears it for the next one. The Healing
+  is the GM's call. A Fast Healer is told of one more HP on a success; on a
+  failure, whether that point still comes is the GM's call, and the line
+  says so. **Another day** clears it for the next one. The Healing
   advantage and Regeneration are not offered. First Aid and Physician are
   skills, rolled from **Skills** like any other by a character who has them,
   and the app restores no HP for either. The book's rows are *"First Aid: 1

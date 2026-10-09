@@ -6726,6 +6726,106 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fc. The extra point a fast healer's day restores
+
+This is the next of 6es's second list. **Fast Healer** (5) prints
+*"Recover 1 additional HP per day of rest. Injuries that would leave
+others bedridden leave you functional in half the time"* (book lines
+894-895). The app has offered the recovery table's daily HT roll since
+6ep. It restores nothing itself: it prints the rows and says to apply
+them on the HP stepper. A holder's extra point was said nowhere.
+
+### Triage of the five
+
+- **Fast Healer**: the recovery row is where its first clause lands.
+  This slice.
+- **Cleansed Spirit** (*"CoR gained from passive exposure are halved"*):
+  the CoR table is printed beside a GM stepper on the pathway screen
+  (`PathwayScreen.CorruptionTracker`), the shape 6ez used. Which rows are
+  *passive* is a reading the book does not print per row, so it needs
+  its own design question.
+- **Luck** (*"1 reroll per session"*), **Acute Vision** and **Acute
+  Hearing** (*"+2 to Vision / Hearing rolls"*): the app makes no Vision
+  or Hearing roll by that name, and keeps no session. Each needs a
+  reason that is true of this app before it leaves `UNREAD`. Is Spirit
+  Vision a Vision roll? That is a question to ask, not assume.
+
+### The design review
+
+Codex, `codex exec`, no diff. **SHIP on all three.**
+
+- **The split.** The strongest case against it: *"per day of rest"*
+  favours the point even after a failed roll, and the cell states no
+  success requirement. But *"additional"* leaves its relation to the
+  success-gated recovery open. On a success both readings give +1, so
+  the line states it. On a failure they disagree (0 or 1), so the line
+  says it is the GM's.
+- **The bedridden clause's reason is true.** `Wounds` keeps no injury,
+  crippled or bedridden state and no duration.
+- **No reachable state makes the wording false.** `isOffered` excludes
+  the dead and the unhurt.
+
+### What was built
+
+- `TraitEffects.FAST_HEALER` and `healsFast(traits)`, read through
+  `levelOf`.
+- `NaturalRecovery.dayLine(success, traits)`. The row's two result
+  sentences moved out of the composable and into rules, so they can be
+  tested. A non-holder sees them unchanged.
+- `PARTLY_APPLIED[Fast Healer]`, which reports the bedridden clause:
+  *"this app tracks no wounds and holds no clock to halve"*. That puts
+  the trait in `known()`.
+- One sentence in `docs/HOW-TO-PLAY.md`'s recovery paragraph.
+
+### The diff review
+
+Codex: **FIX, one MEDIUM, which was right.** The non-holder case used
+`emptyList()` alone, so `healsFast = traits.isNotEmpty()` passed. The
+test now checks both outcomes with an unrelated trait (`Fit`), and
+checks a holder printed with a trailing level (`Fast Healer 1`, as eight
+fixtures print `Alertness 1`). **Its suggested example, `Fast Healer
+(5)`, failed against the correct code.** A bracket after a name resolves
+for no trait, by design: `TraitEffects.kt`'s quotation-only instance set
+records why the general rule is refused (6by). So the test uses the
+shape sheets actually print. Both the reviewer's mutation and a
+raw-name-equality mutation are caught.
+
+### Verification
+
+1882 Kotlin (1318 `core:rules`, 544 `app`, 20 `core:model`), green from
+the JUnit XML after `--rerun-tasks`. Both tests failed against stubs
+before the change (`dayLine` returning today's strings, and `healsFast`
+false). Five mutations were each restored from a copy, and all five
+were caught: holder false, failure branch dropped, the *"1 more"* words
+dropped, `isNotEmpty()`, and raw name equality.
+
+**On the SM-T570**, starting from its launcher with the save backed up,
+Church Healer bought the trait, and took 1 HP (`HP 8 / 9`). Its
+`Roll HT 9` gave:
+
+| Roll | Line |
+|---|---|
+| `3d6: 9 vs 9 - success` | *"Restore what the rows above print, with +1 on the HP row, and 1 more for Fast Healer ("Recover 1 additional HP per day of rest"). Which band applies, and whether it scales that point, is the GM's."* |
+| `3d6: 11 vs 9 - failure` | *"Nothing is restored by the roll. Whether Fast Healer's "Recover 1 additional HP per day of rest" reaches a day the roll failed is the GM's call."* |
+
+The Traits tab printed the bedridden clause and its reason. Both result
+lines hold a quotation, so `adb-ui.sh` drops them. They were read with
+`uiautomator dump /dev/tty` through `exec-out`, which also avoids Git
+Bash's `/sdcard` path translation (`MSYS_NO_PATHCONV=1` breaks the
+helper instead). The crash buffer was empty. The save was restored (`cmp`
+identical), and the tablet went back to its launcher.
+
+**A section-3 insert of mine split a two-line comment**, the defect 6fb
+found. It was caught by printing the region, and moved below
+`UNMODELLED`'s second line before commit.
+
+### Successors
+
+- **Cleansed Spirit**: which CoR rows are passive exposure, asked first.
+- **Luck, Acute Vision, Acute Hearing**: each needs a reason true of this
+  app, or a roll it already makes.
+- 6es's first list, and Warrior's *default +2*.
+
 ## 6fb. The concentration an insomniac cannot sustain
 
 6fa named this: **Chronic Insomnia** (−5) prints *"Lose 1 FP each

@@ -152,7 +152,25 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fb is newest: Chronic Insomnia on the Concentrate roll.** Its
+**6fc is newest: Fast Healer on the daily recovery roll.** *"Recover 1
+additional HP per day of rest"* is said on the recovery row's result.
+Read it for two things.
+
+- **The line says what the two readings agree on, and nothing more.** On
+  a success, "additional" and "per day of rest" both give one more HP. On
+  a failure they disagree, so the line says it is the GM's call. Codex
+  SHIPped that split.
+- **The diff review's MEDIUM was right, and its example was not.** A test
+  using `emptyList()` passed with `traits.isNotEmpty()`. It now covers an
+  unrelated trait and a trailing level (`Fast Healer 1`). The suggested
+  `Fast Healer (5)` resolves for no trait, and that is deliberate, per 6by.
+
+On the SM-T570: both result lines, with a success at `9 vs 9` and a
+failure at `11 vs 9`, and the bedridden clause reported on the Traits
+tab. **Successors**: Cleansed Spirit, Luck, Acute Vision and Acute
+Hearing, then 6es's first list and Warrior's *default +2*.
+
+**6fb is next: Chronic Insomnia on the Concentrate roll.** Its
 *"rolls requiring sustained concentration at -1"* sits beside Thinned
 Veil's -2 as a declaration. Read it for two things.
 
@@ -223,31 +241,10 @@ failed twice on Vulkan. On the SM-T570, a Warrior's Hand Axe with no skill
 read `parry 8` on all three screens, and the pass caught a doubled "DX" in
 the note. Codex then reviewed `8b033d6..3481690` (see 6fa). **Successors**: Warrior's *default +2*, and 6es's two lists.
 
-**6ex is next, and it is 6ew's successor: a Reluctant Killer's target
-is the GM's to declare.** The Attack dialog offers the cell's two to-hit
-clauses as one declaration (-4, or -2 with the face hidden). Read it for
-three things.
-
-- **"cannot Aim" is unconditional.** I scoped it to the declared target.
-  Codex's design MEDIUM was that the clause prints no qualifier, so a
-  holder never gets the Aim rows. That is 6ev's gate-that-was-mine, again.
-- **The Attack roll takes the general trait term now**, and 6ew's census
-  that it "costs nothing" had the wrong corpus. The dialog offers EVERY
-  owned skill, so Perfect Balance's +2 reaches an Acrobatics attack.
-  Codex's diff MEDIUM; the term is printed as "Traits" above Roll.
-- **An install went to the tablet by accident.** The emulator crashed
-  twice (Vulkan, then low RAM), an empty serial loop left
-  `ANDROID_SERIAL` unset, and `installDebug` picked the SM-T570. Its save
-  is byte-identical. Gate an install on a non-empty serial.
-
-Codex reviewed the design, the diff and the fix, ending in SHIP. On the
-SM-T570, Military Police with the drawback bought: `cannot Aim` with no Aim rows,
-`Traits: -4`, `3d6: 8 vs 8`. **Successors**: a Warrior's weapon
-parrying at DX, Warrior's *default +2*, and 6es's two lists.
-
-**6ew back to 6de had lead paragraphs here until 2026-10-09. Each is in
+**6ex back to 6de had lead paragraphs here until 2026-10-09. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ex** — a Reluctant Killer's target is the GM's to declare (-4, or -2 with the face hidden); "cannot Aim" is unconditional, and the Attack roll takes the general trait term;
 **6ew** — a self-control row's other clauses were unsaid; `ROLLED_ONLY` says the roll alone is applied, and `catalogueName` had cut `SC 6` to `SC` as if 6 were a level;
 **6ev** — the bare-hand parry cell prints "Brawling or DX", so DX is a row of its own; the Acrobatic Dodge rolls its default, and Defend gained the missing trait term;
 **6eu** — the Attack dialog takes an untrained skill with a fist or weapon row; a Warrior's weapon is wielded at no less than DX, and one `levelWith` feeds the header, damage and roll;
@@ -311,7 +308,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fb first.** The
+**Where to start next: the slice log, from the END — 6fc first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -366,7 +363,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1880 Kotlin** (JUnit 5 — 1316 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1882 Kotlin** (JUnit 5 — 1318 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -529,6 +526,9 @@ NaturalRecovery.bonusFor(traits) / .targetFor(ht, traits, poolPenalty, gmModifie
                                       // VitalRolls.bonusFor's scoped two
 NaturalRecovery.UNMODELLED            // First Aid, Physician, Healing,
                                       // Regeneration, each with its reason
+NaturalRecovery.dayLine(success, traits)   // what a day's roll restores, said;
+                                      // Fast Healer's +1 on a success, the
+                                      // GM's on a failure (6fc)
 Conditions.forSkill(skill, hp, fp, spi, cor): List<Modifier>   // scoped per skill
 Conditions.penaltyFor(kind, hp, fp): Int      // the same two, for the rolls
                                               // outside SkillKey; throws on SKILL
