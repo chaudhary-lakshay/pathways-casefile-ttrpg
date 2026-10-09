@@ -2577,7 +2577,7 @@ class TraitEffectsTest {
      * says so beside the CoR stepper, where the GM can.
      */
     @Test
-    fun `Cleansed Spirit is said beside the CoR stepper and halves nothing`() {
+    fun `the Cleansed Spirit note is its own row, for a holder alone`() {
         val cell = ContentLoader.advantages().single { it.name == TraitEffects.CLEANSED_SPIRIT }.notes
         val held = advantage(TraitEffects.CLEANSED_SPIRIT)
 
