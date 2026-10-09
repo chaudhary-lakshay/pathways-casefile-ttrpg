@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.ModEffect
 import com.pathways.model.SkillKey
+import com.pathways.model.Trait
 import com.pathways.rules.AttackManeuver
 import com.pathways.rules.AttackPlan
 import com.pathways.rules.Attacks
@@ -34,6 +35,7 @@ import com.pathways.rules.EffortBurn
 import com.pathways.rules.Damage
 import com.pathways.rules.DamageRoll
 import com.pathways.rules.DarknessCause
+import com.pathways.rules.TraitClause
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.RandomSource
 import com.pathways.rules.Ranged
@@ -123,6 +125,8 @@ fun AttackDialog(
     mastery: SkillDefaults.WeaponMastery? = null,
     /** The Harvest Priest's farming-tool line, as the sentence to print. */
     toolNote: String? = null,
+    /** The sheet's traits, for the trait term and Reluctant Killer's clauses. */
+    traits: List<Trait> = emptyList(),
     onDismiss: () -> Unit,
 ) {
     val skills = remember(skillLevels, untrained) {
@@ -150,6 +154,14 @@ fun AttackDialog(
     // app holds no turn to remember an aim across and the GM does. See
     // [Ranged.offeredConditions].
     var aimCancelled by remember { mutableStateOf(false) }
+    // Reluctant Killer's to-hit clause, declared by the GM: the TARGET, so it
+    // lives beside the circumstances and survives the reach/range toggle.
+    // One key, because the -2 is the same clause with the face hidden.
+    var killerTarget by remember { mutableStateOf<String?>(null) }
+    // "cannot Aim", unconditional: the Aim rows are withdrawn for a holder
+    // whatever is declared, and kept apart from "Defended or was hurt".
+    val killerClauses = TraitEffects.attackClauses(traits)
+    val aimRefused = TraitEffects.refusesAim(traits)
     // What is behind "Darkness or heavy fog", which only Night Eyes can care
     // about. It starts on DARKNESS because that is the trait's general clause
     // ("reduce ALL darkness penalties by 2") and the row's own first-named
@@ -191,6 +203,9 @@ fun AttackDialog(
         return SkillDefaults.mastered(own, weaponInHand, mastery, dx) ?: own
     }
     val level = levelWith(armed != null)
+    // What the traits add, composed ONCE: printed above Roll and rolled by
+    // the handler drawn beside it, so the two cannot disagree (6eg).
+    val traitMods = chosen?.let { traitTerms(traits, it.key, killerTarget) }.orEmpty()
     val isMastered = chosen != null && level != chosen.level
     val label = chosen?.let {
         it.key.label() + when {
@@ -222,6 +237,8 @@ fun AttackDialog(
                         // A cancelled aim belongs to the turn that cancelled
                         // it, like the distance and the cover above.
                         aimCancelled = false
+                        // And who the target was.
+                        killerTarget = null
                         // So does what the scene was lit by.
                         darknessCause = DarknessCause.DARKNESS
                         // And how bad it was. The same GM declares it about
@@ -350,6 +367,11 @@ fun AttackDialog(
                     band = band,
                     circumstances = circumstances,
                     aimCancelled = aimCancelled,
+                    aimRefusedBy = killerClauses.firstOrNull()?.shown?.takeIf { aimRefused },
+                    killerClauses = killerClauses,
+                    killerTarget = killerTarget,
+                    onKillerTarget = { killerTarget = if (it == killerTarget) null else it },
+                    fromTraits = traitMods.sumOf { (it.effect as ModEffect.Flat).n },
                     darknessCause = darknessCause,
                     darknessReduction = darknessReduction,
                     darknessSeverity = darknessSeverity,
@@ -445,8 +467,9 @@ fun AttackDialog(
                         // lands, so the NEXT turn feels it.
                         val mods = conditions(chosen.key) +
                             Attacks.modifiers(plan, level, unarmed) +
-                            rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled, darknessCause, darknessReduction, darknessSeverity) +
+                            rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled || aimRefused, darknessCause, darknessReduction, darknessSeverity) +
                             meleeModifiers(plan, circumstances) +
+                            traitMods +
                             listOfNotNull(location?.let(Wounds::modifier))
                         // A fresh roll starts with a fresh +5 budget per roll.
                         burned = emptyMap()
@@ -484,6 +507,11 @@ private fun AttackOptions(
     band: RangePenalty?,
     circumstances: Set<String>,
     aimCancelled: Boolean,
+    aimRefusedBy: String?,
+    killerClauses: List<TraitClause>,
+    killerTarget: String?,
+    onKillerTarget: (String) -> Unit,
+    fromTraits: Int,
     darknessCause: DarknessCause,
     darknessReduction: Int,
     darknessSeverity: Int?,
@@ -569,6 +597,7 @@ private fun AttackOptions(
                 circumstances,
                 armed,
                 aimCancelled,
+                aimRefusedBy,
                 darknessCause,
                 darknessReduction,
                 darknessSeverity,
@@ -607,6 +636,7 @@ private fun AttackOptions(
             }
         }
         CalledShot(location, onLocation)
+        KillerTarget(killerClauses, killerTarget, onKillerTarget)
         // "Regular melee attacks only", and an attack that rolls damage for
         // the +2 to land on. Withheld rather than offered and refused: a chip
         // that takes the dialog down on Roll is not a choice (6t). The whole
@@ -654,7 +684,7 @@ private fun AttackOptions(
         val total = Attacks.modifiers(plan, skillLevel, unarmed)
             .sumOf { (it.effect as ModEffect.Flat).n }
         val count = Attacks.attackCount(plan)
-        val fromRange = rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled, darknessCause, darknessReduction, darknessSeverity)
+        val fromRange = rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled || aimRefusedBy != null, darknessCause, darknessReduction, darknessSeverity)
             .sumOf { (it.effect as ModEffect.Flat).n }
         Text(
             "Attack options: ${if (total == 0) "no modifier" else signed(total)}" +
@@ -678,6 +708,12 @@ private fun AttackOptions(
                 "Target: ${signed(fromMelee)}",
                 style = MaterialTheme.typography.bodySmall,
             )
+        }
+        if (fromTraits != 0) {
+            // Its own line, like "Target": a trait term the breakdown left
+            // out would make the roll's total a number nothing above it adds
+            // up to (the diff review's MEDIUM).
+            Text("Traits: ${signed(fromTraits)}", style = MaterialTheme.typography.bodySmall)
         }
         location?.let {
             Text(
@@ -843,6 +879,7 @@ private fun RangedOptions(
     circumstances: Set<String>,
     armed: Armed?,
     aimCancelled: Boolean,
+    aimRefusedBy: String?,
     darknessCause: DarknessCause,
     darknessReduction: Int,
     darknessSeverity: Int?,
@@ -855,7 +892,9 @@ private fun RangedOptions(
     val bands = remember { Ranged.bands() }
     // What the book still allows, decided in rules: a screen filtering its own
     // list is a second copy of the refusal (6ag, 6ai, 6be).
-    val conditions = remember(aimCancelled) { Ranged.offeredConditions(aimCancelled) }
+    val conditions = remember(aimCancelled, aimRefusedBy) {
+        Ranged.offeredConditions(aimCancelled || aimRefusedBy != null)
+    }
     Text("Distance", style = MaterialTheme.typography.titleSmall)
     FlowRow {
         bands.forEach { option ->
@@ -928,6 +967,15 @@ private fun RangedOptions(
             style = MaterialTheme.typography.bodySmall,
         )
     }
+    if (aimRefusedBy != null) {
+        // Withdrawn with the cell's own words, like a cancelled aim (6bj),
+        // and no chip: there is no aim to cancel.
+        Text(
+            "$aimRefusedBy: \"${TraitEffects.AIM_REFUSAL}\"",
+            style = MaterialTheme.typography.bodySmall,
+        )
+        return
+    }
     Text("Since taking aim", style = MaterialTheme.typography.titleSmall)
     FlowRow {
         FilterChip(
@@ -964,6 +1012,35 @@ private fun RangedOptions(
                 // would break the second row's own "max Acc +2 total".
                 onClick = { onCircumstance(option.condition) },
                 label = { Text("${option.condition} ${signed(acc + option.accBonus)}") },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
+    }
+}
+
+/**
+ * Reluctant Killer's to-hit clauses, offered to a holder alone. The GM says
+ * whether the target is a recognizable person met with deadly force; tapping
+ * the chosen clause again takes the declaration back.
+ */
+@Composable
+private fun KillerTarget(
+    clauses: List<TraitClause>,
+    declared: String?,
+    onDeclare: (String) -> Unit,
+) {
+    if (clauses.isEmpty()) return
+    Text(
+        "Target (${clauses.first().shown})",
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(top = 8.dp),
+    )
+    FlowRow {
+        clauses.forEach { clause ->
+            FilterChip(
+                selected = clause.key == declared,
+                onClick = { onDeclare(clause.key) },
+                label = { Text(clause.printed) },
                 modifier = Modifier.padding(end = 8.dp),
             )
         }
@@ -1143,3 +1220,20 @@ private fun signed(n: Int) = if (n >= 0) "+$n" else "$n"
 /** "Guns (Pistol)" where the book specialises, "Brawling" where it does not. */
 internal fun SkillKey.label(): String =
     if (specialization == null) name else "$name ($specialization)"
+
+/**
+ * What the character's traits add to an attack: the general term every
+ * other roll on the sheet takes, and the to-hit clause the GM declared.
+ *
+ * The Attack roll was the one roll that took no trait term (6ev). A census
+ * found [TraitEffects.modifiers] empty for every COMBAT skill, and that was
+ * the wrong corpus: this dialog offers every owned skill, so Perfect
+ * Balance's +2 reaches an Acrobatics attack here as it does on the Skills tab
+ * (the diff review). Composed once per composition, printed and rolled.
+ */
+internal fun traitTerms(
+    traits: List<Trait>,
+    key: SkillKey,
+    killerTarget: String?,
+): List<com.pathways.model.Modifier> =
+    TraitEffects.modifiers(traits, key) + TraitEffects.attackModifiers(traits, killerTarget)

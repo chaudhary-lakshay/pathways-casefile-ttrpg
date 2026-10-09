@@ -2398,7 +2398,8 @@ class TraitEffectsTest {
     fun `a self-control row nothing else reads says its roll is all that is applied`() {
         val swept = ContentLoader.disadvantages()
             .filter { it.selfControl != null && it.name !in TraitEffects.known() }
-        assertEquals(28, swept.size)
+        // 28 when written (6ew); Reluctant Killer left for the Attack dialog.
+        assertEquals(27, swept.size)
         for (row in swept) {
             val held = Trait(row.name, 5, TraitKind.DISADVANTAGE)
             // The sentence says the roll is applied: the roll must be offered.

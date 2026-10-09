@@ -1,8 +1,15 @@
 package com.pathways.app
 
+import com.pathways.model.ControllingAttribute
+import com.pathways.model.Attr
+import com.pathways.model.Difficulty
 import com.pathways.model.ModEffect
+import com.pathways.model.SkillKey
+import com.pathways.model.Trait
+import com.pathways.model.TraitKind
 import com.pathways.rules.AttackPlan
 import com.pathways.rules.DarknessCause
+import com.pathways.rules.TraitEffects
 import com.pathways.rules.Ranged
 import com.pathways.rules.Weapons
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -145,5 +152,33 @@ class AttackDialogTest {
                 ),
             ),
         )
+    }
+
+    /**
+     * **The attack roll took no trait term**, the one roll on the sheet that
+     * skipped it (6ev). Reluctant Killer's to-hit clause is the first that
+     * reaches it, and only once the GM declares the target.
+     */
+    @Test
+    fun `the attack roll takes the trait terms and the declared to-hit clause`() {
+        val killer = listOf(Trait(TraitEffects.RELUCTANT_KILLER, 5, TraitKind.DISADVANTAGE))
+        val guns = SkillKey("Guns", "Pistol", ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
+        assertEquals(emptyList<Int>(), flats(traitTerms(killer, guns, killerTarget = null)))
+        val clauses = TraitEffects.attackClauses(killer)
+        assertEquals(listOf(-4), flats(traitTerms(killer, guns, clauses[0].key)))
+        assertEquals(listOf(-2), flats(traitTerms(killer, guns, clauses[1].key)))
+    }
+
+    /**
+     * **The dialog offers every owned skill, not the combat banner** (the
+     * diff review's MEDIUM). The census behind "costs nothing yet" read the
+     * 19 COMBAT SKILLS keys, so it could not see Perfect Balance's +2 reach
+     * an Acrobatics attack here, as it does on the Skills tab.
+     */
+    @Test
+    fun `a trait bonus on a non-combat skill reaches the attack too`() {
+        val balance = listOf(Trait(TraitEffects.PERFECT_BALANCE, 15, TraitKind.ADVANTAGE))
+        val acrobatics = SkillKey("Acrobatics", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.HARD)
+        assertEquals(listOf(2), flats(traitTerms(balance, acrobatics, killerTarget = null)))
     }
 }

@@ -1259,8 +1259,9 @@ object TraitEffects {
      * a self-control roll: [UNREAD], the roll excepted.
      *
      * **6es exempted these rows whole**, on the reading that a row offering
-     * its roll is applied. 28 of the 30 self-control rows are outside
-     * [known] (the count is pinned by a sweep test), and their cells print
+     * its roll is applied. 28 of the 30 self-control rows were outside
+     * [known] (27 since 6ex applied Reluctant Killer's; a sweep test pins
+     * the count), and their cells print
      * rules beside the roll, among them Reckless's *"-1 to any roll where
      * caution would be smarter"*, Reluctant Killer's *"-4 to hit ... cannot
      * Aim"*, Absent-Mindedness's -3 and Nightmares' FP. None reached
@@ -1521,6 +1522,66 @@ object TraitEffects {
     /** The printed rows, for the pin tests. */
     fun socialClauseRows(): List<TraitClause> = SOCIAL_CLAUSES.map { it.second }
 
+    const val RELUCTANT_KILLER = "Reluctant Killer"
+
+    /**
+     * Reluctant Killer's two to-hit clauses, book line 1313: *"-4 to hit
+     * recognizable people with deadly force (-2 if face hidden)"*.
+     *
+     * **"To hit" names the attack roll, not a skill banner**, so these are
+     * not emitted by [modifiers]: COMBAT SKILLS also holds Fast-Draw and
+     * Shield, which make no attack (the design review). Whether this target
+     * is a recognizable person and the force deadly is the GM's declaration,
+     * the reading [socialClauses] makes of a circumstance.
+     */
+    private val ATTACK_CLAUSES: List<TraitClause> = listOf(
+        TraitClause(
+            RELUCTANT_KILLER, RELUCTANT_KILLER,
+            "-4 to hit recognizable people with deadly force", -4, conditional = true,
+        ),
+        TraitClause(RELUCTANT_KILLER, RELUCTANT_KILLER, "-2 if face hidden", -2, conditional = true),
+    )
+
+    /** The to-hit clauses [traits] offer the GM, in the cell's order. */
+    fun attackClauses(traits: List<Trait>): List<TraitClause> = traits.flatMap { owned ->
+        if (owned.kind != TraitKind.DISADVANTAGE) return@flatMap emptyList()
+        val bare = catalogueName(owned.name)
+        ATTACK_CLAUSES.filter { it.trait.equals(bare, ignoreCase = true) }
+            .map { it.copy(shown = displayName(owned.name)) }
+    }
+
+    /**
+     * The term the [declared] clause adds to an attack, or none.
+     *
+     * **One declaration, not a set**: the parenthetical is the same penalty
+     * at a lower value, since a hidden face is still a recognizable person,
+     * and two keys would let one attack take -6. A key [attackClauses] did
+     * not offer [traits] is refused, so a stale or foreign declaration
+     * cannot reach the dice (the design review).
+     */
+    fun attackModifiers(traits: List<Trait>, declared: String?): List<Modifier> {
+        if (declared == null) return emptyList()
+        val clause = attackClauses(traits).firstOrNull { it.key == declared }
+        requireNotNull(clause) { "no to-hit clause offered for '$declared'" }
+        return listOf(bonus(clause.trait, clause.value, suffix = clause.printed))
+    }
+
+    /**
+     * Whether [traits] take the Aim rows away: *"cannot Aim"*, book lines
+     * 1313-1314.
+     *
+     * **Unconditional, the literal reading.** The clause follows the
+     * semicolon with no qualifier of its own. I proposed scoping it to the
+     * declared target, and the design review's MEDIUM was that the cell
+     * prints no such gate (6ev's lesson about a gate that was mine). The
+     * drawback alone: a quirk sharing the name is not it.
+     */
+    fun refusesAim(traits: List<Trait>): Boolean =
+        attackClauses(traits).isNotEmpty()
+
+    /** The cell's own words for [refusesAim], for the screen. */
+    const val AIM_REFUSAL = "cannot Aim"
+
     /** The traits whose cell penalises a social roll conditionally. */
     fun socialClauseNames(): Set<String> = SOCIAL_CLAUSES.map { it.second.trait }.toSet()
 
@@ -1579,6 +1640,7 @@ object TraitEffects {
     fun known(): Set<String> =
         UNAPPLIED.keys + PARTLY_APPLIED.keys + SKILL_BONUSES.keys +
             CATEGORY_BONUSES.keys + frightClauseNames() + socialClauseNames() +
+            ATTACK_CLAUSES.map { it.trait } +
             willClauseNames() +
             // [HT_ROLL_TRAITS].keys, not FIT alone. The map has held three
             // traits since 6de and this set named one -- and the guard still
@@ -1652,6 +1714,12 @@ object TraitEffects {
         FIT to listOf(
             "recover FP at twice the normal rate" to
                 "this app holds no clock to recover against",
+        ),
+        // The to-hit clauses are declared in the Attack dialog and the Aim
+        // rows withdrawn; the Will roll is the row's own self-control check.
+        RELUCTANT_KILLER to listOf(
+            "become morose for 3d days" to
+                "this app holds no clock to count the days against",
         ),
         // The moment Very Fit's HT clause was applied (6de), its other two
         // became clauses of a HANDLED trait -- which is what the guard test
