@@ -790,7 +790,10 @@ class TraitEffectsTest {
         val applied = TraitEffects.skillBonusNames() +
             TraitEffects.htRollNames() +
             TraitEffects.spiRollNames() +
-            TraitEffects.categoryBonusNames()
+            TraitEffects.categoryBonusNames() +
+            // The named-skill declarations (6ff): a cell nothing walks is a
+            // cell nothing checks.
+            TraitEffects.skillClauseNames()
         for (trait in applied) {
             val cell = catalogue.first { it.name == trait }.notes
             val reported = TraitEffects.reported(listOf(advantage(trait))).map { it.printed }
@@ -818,6 +821,10 @@ class TraitEffectsTest {
                     TraitEffects.categoryFor(trait)?.let { banner ->
                         segment.lowercase().contains(banner.substringBefore(' ').lowercase())
                     } == true ||
+                    // ...and a declared clause on one skill's roll.
+                    TraitEffects.skillClauseRows().any {
+                        it.trait == trait && (segment.contains(it.printed) || it.printed.contains(segment))
+                    } ||
                     reported.any { it.contains(segment) || segment.contains(it) }
                 assertTrue(handled, "$trait drops the clause \"$segment\"")
             }
@@ -2595,5 +2602,62 @@ class TraitEffectsTest {
         assertEquals(2, TraitEffects.alertnessBonus(listOf(advantage("Alertness 2"))))
         assertEquals(1, TraitEffects.alertnessBonus(listOf(advantage(TraitEffects.ALERTNESS))))
         assertEquals(0, TraitEffects.alertnessBonus(listOf(advantage("Fit"))))
+    }
+
+    /**
+     * Six rows that name one skill (6es's first list; 6ff). Five print a
+     * circumstance and are declarations on that skill's roll; Famous Face's
+     * "Disguise attempts at -2" prints none and applies flat. Navigator's
+     * Eye is "rural", so Navigation (Sea) is not offered it.
+     */
+    @Test
+    fun `six rows that name one skill reach that skill's roll`() {
+        val iq = ControllingAttribute.Buyable(Attr.IQ)
+        fun key(name: String, spec: String? = null) = SkillKey(name, spec, iq, Difficulty.AVERAGE)
+        val catalogue = (ContentLoader.advantages() + ContentLoader.disadvantages()).associateBy { it.name }
+        val offered = listOf(
+            Triple("Class Mobility", key("Savoir-Faire"), 2),
+            Triple("Fearsome Reputation", key("Intimidation"), 2),
+            Triple("Safecracker", key("Lockpicking"), 3),
+            Triple("Alcohol Tolerance", key("Carousing"), 3),
+            Triple("Navigator's Eye", key("Navigation"), 2),
+            Triple("Navigator's Eye", key("Navigation", "Land"), 2),
+        )
+        for ((trait, skill, value) in offered) {
+            val held = listOf(advantage(trait))
+            val clause = TraitEffects.skillRollClauses(held, skill).single()
+            assertTrue(clause.conditional, trait)
+            assertEquals(value, clause.value, trait)
+            assertTrue(clause.printed in catalogue.getValue(trait).notes, clause.printed)
+            // Nothing until declared, then exactly the clause.
+            assertEquals(emptyList<Any>(), TraitEffects.modifiers(held, skill), trait)
+            val mods = TraitEffects.modifiers(held, skill, setOf(clause.key))
+            assertEquals(ModEffect.Flat(value), mods.single().effect, trait)
+            assertTrue(trait in TraitEffects.known(), trait)
+            // ...and no other skill is offered it.
+            assertTrue(TraitEffects.skillRollClauses(held, key("Stealth")).isEmpty(), trait)
+        }
+        assertTrue(
+            TraitEffects.skillRollClauses(listOf(advantage("Navigator's Eye")), key("Navigation", "Sea")).isEmpty(),
+        )
+        // A sheet's spelling resolves to the row, is shown as the sheet
+        // prints it, and its key reaches the dice (the diff review).
+        val sheet = listOf(advantage("Safecracker 1"))
+        val spelt = TraitEffects.skillRollClauses(sheet, key("Lockpicking")).single()
+        assertEquals("Safecracker 1", spelt.shown)
+        assertEquals(
+            ModEffect.Flat(3),
+            TraitEffects.modifiers(sheet, key("Lockpicking"), setOf(spelt.key)).single().effect,
+        )
+
+        val face = listOf(Trait("Famous Face", 5, TraitKind.DISADVANTAGE))
+        assertEquals(ModEffect.Flat(-2), TraitEffects.modifiers(face, key("Disguise")).single().effect)
+        assertTrue(TraitEffects.skillRollClauses(face, key("Disguise")).isEmpty())
+
+        // The social rows still come through the same list, once.
+        val callous = listOf(Trait("Callous", 5, TraitKind.DISADVANTAGE))
+        val social = TraitEffects.skillRollClauses(callous, key("Savoir-Faire"))
+        assertEquals(TraitEffects.socialClauses(callous), social)
+        assertEquals(1, TraitEffects.modifiers(callous, key("Savoir-Faire"), social.map { it.key }.toSet()).size)
     }
 }

@@ -378,6 +378,10 @@ object TraitEffects {
         "Acute Social Awareness" to flat(2, setOf("Body Language", "Detect Lies")),
         "Former Military Officer" to flat(1, setOf("Leadership", "Tactics")),
         "Photographic Instinct" to flat(2, setOf("Photography")),
+        // "Disguise attempts at -2" prints no qualifier; "Recognizable in the
+        // city" explains it and is not referred back to, as Fearsome
+        // Reputation's "these circles" is (6ff's design review).
+        "Famous Face" to flat(-2, setOf("Disguise")),
         CHARISMA to perLevel(
             1,
             setOf(
@@ -1191,16 +1195,17 @@ object TraitEffects {
         // trait modifier and NOT as Situational: a cancel budget is measured
         // by SourceKind, and a drawback the character permanently has is not
         // something a GM said about this turn.
-        if (category == SOCIAL_SKILLS) {
-            for (clause in socialClauses(traits)) {
-                if (clause.key !in declared) continue
-                // Keyed by CLAUSE, not by trait: Social Anxiety prints two
-                // circumstances that can both hold, and two modifiers sharing
-                // a ModifierId is a collision the resolver should never be
-                // handed -- the same reason the declaration key is trait
-                // plus clause (6r).
-                add(bonus(clause.trait, clause.value, suffix = clause.printed))
-            }
+        // One loop over the one list the dialog offers (6ff): a social row
+        // and a named-skill row both reach a social skill, and two loops
+        // would emit a clause twice the day one sits in both.
+        for (clause in skillRollClauses(traits, skill)) {
+            if (clause.key !in declared) continue
+            // Keyed by CLAUSE, not by trait: Social Anxiety prints two
+            // circumstances that can both hold, and two modifiers sharing
+            // a ModifierId is a collision the resolver should never be
+            // handed -- the same reason the declaration key is trait
+            // plus clause (6r).
+            add(bonus(clause.trait, clause.value, suffix = clause.printed))
         }
     }
 
@@ -1716,6 +1721,69 @@ object TraitEffects {
             .map { (_, row) -> row.copy(shown = displayName(owned.name)) }
     }
 
+    /**
+     * The rows that name ONE skill and a circumstance this app cannot compute
+     * (6es's first list; 6ff), so each is a declaration on that skill's roll.
+     * [NamedSkillClause.specializations] null is every row of the name;
+     * Navigator's Eye is "rural", so it leaves out Navigation (Sea).
+     */
+    private data class NamedSkillClause(
+        val skill: String,
+        val specializations: Set<String?>?,
+        val clause: TraitClause,
+    )
+
+    private val SKILL_CLAUSES: List<NamedSkillClause> = listOf(
+        // "in either" is the Savoir-Faire of either class, and the row
+        // records neither class, so the GM says which this is.
+        skillClause("Class Mobility", "Savoir-Faire", "+2 to Savoir-Faire in either", 2),
+        skillClause("Fearsome Reputation", "Intimidation", "Intimidation in these circles is at +2", 2),
+        skillClause(
+            "Safecracker", "Lockpicking",
+            "+3 to Lockpicking for combination locks and mechanical safes specifically", 3,
+        ),
+        skillClause("Alcohol Tolerance", "Carousing", "Carousing rolls to appear sober at +3", 3),
+        skillClause(
+            "Navigator's Eye", "Navigation", "rural navigation rolls at +2", 2,
+            specializations = setOf(null, "Land"),
+        ),
+    )
+
+    private fun skillClause(
+        trait: String,
+        skill: String,
+        printed: String,
+        value: Int,
+        specializations: Set<String?>? = null,
+    ) = NamedSkillClause(skill, specializations, TraitClause(trait, trait, printed, value, conditional = true))
+
+    /** The traits whose cell names one skill and a circumstance, for [known]. */
+    fun skillClauseNames(): Set<String> = SKILL_CLAUSES.map { it.clause.trait }.toSet()
+
+    /** The printed rows, for the clause guard. */
+    fun skillClauseRows(): List<TraitClause> = SKILL_CLAUSES.map { it.clause }
+
+    /**
+     * Every clause a roll of [skill] asks the GM about: the social rows on a
+     * social skill, then the rows naming this skill. The one list the dialog
+     * offers and [modifiers] reads, so the two cannot disagree (6ff).
+     */
+    fun skillRollClauses(traits: List<Trait>, skill: SkillKey): List<TraitClause> {
+        val social = if (categoryOf(skill) == SOCIAL_SKILLS) socialClauses(traits) else emptyList()
+        val named = traits.flatMap { owned ->
+            val bare = catalogueName(owned.name)
+            SKILL_CLAUSES
+                .filter { row ->
+                    row.clause.trait.equals(bare, ignoreCase = true) &&
+                        row.skill == skill.name &&
+                        (row.specializations == null || skill.specialization in row.specializations)
+                }
+                .map { it.clause.copy(shown = displayName(owned.name)) }
+        }
+        return social + named
+    }
+
+
     /** A row of [SOCIAL_CLAUSES]: always conditional, never counted unasked. */
     private fun socialClause(trait: String, printed: String, value: Int) =
         TraitClause(trait, trait, printed, value, conditional = true)
@@ -1743,7 +1811,7 @@ object TraitEffects {
         UNAPPLIED.keys + PARTLY_APPLIED.keys + SKILL_BONUSES.keys +
             CATEGORY_BONUSES.keys + frightClauseNames() + socialClauseNames() +
             ATTACK_CLAUSES.map { it.trait } +
-            willClauseNames() + concentrationClauseNames() +
+            willClauseNames() + concentrationClauseNames() + skillClauseNames() +
             // [HT_ROLL_TRAITS].keys, not FIT alone. The map has held three
             // traits since 6de and this set named one -- and the guard still
             // covered all three, because `Very Fit` and `Unfit` are also
@@ -1830,6 +1898,28 @@ object TraitEffects {
             "rolls requiring sustained concentration at -1" to
                 "beyond the Concentrate roll, where it is declared; which other " +
                 "rolls need sustained concentration, a ritual's included, is the GM's call",
+        ),
+        // The rest of the five rows [SKILL_CLAUSES] reads and of Famous Face, whose -2 is a [SKILL_BONUSES] row (6ff).
+        "Class Mobility" to listOf(
+            "Move believably across two social classes" to "the book hands this to the GM, not to a roll",
+            "NPCs rarely question your presence" to "the book hands this to the GM, not to a roll",
+        ),
+        "Fearsome Reputation" to listOf(
+            "Known in criminal circles" to "the book hands this to the GM, not to a roll",
+            "Relevant NPCs start cautious" to "the book hands this to the GM, not to a roll",
+        ),
+        "Alcohol Tolerance" to listOf(
+            "Never suffer social penalties from moderate drinking" to
+                "this app applies no drinking penalty, so there is none to lift",
+        ),
+        "Navigator's Eye" to listOf(
+            "Never become lost in any city previously visited" to
+                "the book hands this to the GM, not to a roll",
+        ),
+        "Famous Face" to listOf(
+            "Recognizable in the city" to "the book hands this to the GM, not to a roll",
+            "surveillance harder" to "the book prints no number for it, so it is the GM's",
+            "strangers approach you, sometimes dangerously" to "the book hands this to the GM, not to a roll",
         ),
         // Its first clause is said on the recovery row ([NaturalRecovery.dayLine], 6fc).
         FAST_HEALER to listOf(

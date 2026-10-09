@@ -128,7 +128,6 @@ import com.pathways.rules.ClauseBonus
 import com.pathways.rules.content.FrightRecovery
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.content.CommonModifier
-import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.FrightTrigger
 import com.pathways.rules.content.SenseModifier
 import com.pathways.rules.content.SpiritualSense
@@ -878,18 +877,11 @@ fun SheetScreen(
             // grants. Rules decides which rows the sentence names.
             equipment = Equipment.referenceFor(skill.key),
             // Offered only where the book's own cells apply: a social skill,
-            // on a character carrying a row that names a circumstance. Rules
-            // decides both, so the chips cannot disagree with the modifiers.
-            socialClauses = if (
-                ContentLoader.skills()
-                    .firstOrNull { it.name == skill.key.name }?.category ==
-                TraitEffects.SOCIAL_SKILLS
-            ) {
-                TraitEffects.socialClauses(traits)
-            } else {
-                emptyList()
-            },
-            onRoll = { circumstances, declaredSocial ->
+            // or the one skill a row names, on a character carrying a row
+            // that names a circumstance. One rules list, which `modifiers`
+            // also reads, so the chips cannot disagree with the dice (6ff).
+            declarableClauses = TraitEffects.skillRollClauses(traits, skill.key),
+            onRoll = { circumstances, declaredClauses ->
                 // The trackers reach the dice here: a reeling, fatigued or
                 // corrupted character no longer rolls at full skill. The GM's
                 // circumstances are a separate source and simply join the list.
@@ -903,7 +895,7 @@ fun SheetScreen(
                     // Per roll, Fit on an HT one), and what the GM says the
                     // situation is.
                     mods = conditionsFor(skill.key) +
-                        TraitEffects.modifiers(traits, skill.key, declaredSocial) +
+                        TraitEffects.modifiers(traits, skill.key, declaredClauses) +
                         circumstances,
                 )
             },
@@ -2255,12 +2247,13 @@ private fun RollDialog(
     // one of its penalties is aimed at whoever is looking FOR the wearer.
     // Shown for the same reason the conditional push above is shown.
     equipment: List<String> = emptyList(),
-    // The character's own conditional social rows, offered only on a skill
-    // whose category the book's cells name. The screen asks which hold and
+    // The character's own conditional rows for this roll: the social ones on
+    // a social skill and the ones naming this skill
+    // ([TraitEffects.skillRollClauses]). The screen asks which hold and
     // hands the keys back; it never turns one into a modifier, because a
     // rules-authored list is the only thing that keeps one decision in one
     // place (6ag, 6ai, 6be, 6bp, 6bs, 6bv).
-    socialClauses: List<TraitClause> = emptyList(),
+    declarableClauses: List<TraitClause> = emptyList(),
     onBurn: (BurnKind, Int) -> Unit = { _, _ -> },
     onRoll: (List<com.pathways.model.Modifier>, Set<String>) -> SkillRollOutcome,
     onDismiss: () -> Unit,
@@ -2275,7 +2268,7 @@ private fun RollDialog(
     val senseChosen = remember { mutableStateListOf<SenseModifier>() }
     // Which of this character's social circumstances the GM says hold. Keyed
     // on the clause, because Social Anxiety prints two that can both hold.
-    val declaredSocial = remember { mutableStateListOf<String>() }
+    val declaredClauses = remember { mutableStateListOf<String>() }
     // Appendix A rows this sense's own price supersedes. Recomputed rather
     // than stored, so a chip turned back off cannot leave a withheld row
     // hidden -- the stale-state defect the boon dialog was fixed for.
@@ -2315,7 +2308,7 @@ private fun RollDialog(
                                     chosen = senseChosen.toList(),
                                     common = chosen.toList(),
                                 ),
-                            declaredSocial.toSet(),
+                            declaredClauses.toSet(),
                         )
                     }
                 },
@@ -2328,24 +2321,24 @@ private fun RollDialog(
                 if (shownOut == null) {
                     Text("Skill $base", style = MaterialTheme.typography.titleLarge)
                     if (sense != null) SenseRow(sense, senseChosen, chosen, gmValue)
-                    if (socialClauses.isNotEmpty()) {
+                    if (declarableClauses.isNotEmpty()) {
                         Text(
                             "Does any of this hold?",
                             style = MaterialTheme.typography.labelMedium,
                             modifier = Modifier.padding(top = 8.dp),
                         )
                         FlowRow {
-                            socialClauses.forEach { clause ->
+                            declarableClauses.forEach { clause ->
                                 TextButton(onClick = {
-                                    if (clause.key in declaredSocial) {
-                                        declaredSocial.remove(clause.key)
+                                    if (clause.key in declaredClauses) {
+                                        declaredClauses.remove(clause.key)
                                     } else {
-                                        declaredSocial.add(clause.key)
+                                        declaredClauses.add(clause.key)
                                     }
                                 }) {
                                     Text(
                                         "${clause.shown}: ${clause.printed}",
-                                        color = if (clause.key in declaredSocial) {
+                                        color = if (clause.key in declaredClauses) {
                                             MaterialTheme.colorScheme.primary
                                         } else {
                                             MaterialTheme.colorScheme.onSurfaceVariant
