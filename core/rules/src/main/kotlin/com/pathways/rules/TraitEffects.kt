@@ -1496,6 +1496,45 @@ object TraitEffects {
             .map { it.copy(shown = displayName(owned.name)) }
     }
 
+    const val THINNED_VEIL = "Thinned Veil"
+
+    /**
+     * The clauses that reach the Concentrate maneuver's roll and no other
+     * ([Concentration], "Roll Will-3 if injured or defending").
+     *
+     * Thinned Veil prints "Concentration in spiritually active environments
+     * at -2" (6fa). That is a concentration check, which the Fright Check and
+     * a self-control roll are not, so it stays out of [WILL_CLAUSES]. The
+     * environment is the GM's to declare. **A reading, not the book's only
+     * meaning** (the design review): a ritual's focus could claim the same
+     * sentence, so [PARTLY_APPLIED] says every other roll is the GM's call.
+     * The capital C is not a warrant, because the word begins its sentence.
+     */
+    private val CONCENTRATION_CLAUSES: List<TraitClause> = listOf(
+        TraitClause(
+            THINNED_VEIL,
+            THINNED_VEIL,
+            "Concentration in spiritually active environments at -2",
+            -2,
+            conditional = true,
+        ),
+    )
+
+    /** The traits whose cell reaches the Concentrate roll alone, for [known]. */
+    fun concentrationClauseNames(): Set<String> = CONCENTRATION_CLAUSES.map { it.trait }.toSet()
+
+    /**
+     * What [traits] bring to the Concentrate roll: every bare Will clause
+     * ([willClauses]), plus the ones that name concentration itself.
+     */
+    fun concentrationClauses(traits: List<Trait>): List<TraitClause> =
+        willClauses(traits) + traits.flatMap { owned ->
+            val bare = catalogueName(owned.name)
+            CONCENTRATION_CLAUSES
+                .filter { it.trait.equals(bare, ignoreCase = true) }
+                .map { it.copy(shown = displayName(owned.name)) }
+        }
+
     /** A row of [WILL_CLAUSES]: every one names a circumstance, so all are conditional. */
     private fun willClause(trait: String, printed: String, value: Int) =
         TraitClause(trait, trait, printed, value, conditional = true)
@@ -1666,7 +1705,7 @@ object TraitEffects {
         UNAPPLIED.keys + PARTLY_APPLIED.keys + SKILL_BONUSES.keys +
             CATEGORY_BONUSES.keys + frightClauseNames() + socialClauseNames() +
             ATTACK_CLAUSES.map { it.trait } +
-            willClauseNames() +
+            willClauseNames() + concentrationClauseNames() +
             // [HT_ROLL_TRAITS].keys, not FIT alone. The map has held three
             // traits since 6de and this set named one -- and the guard still
             // covered all three, because `Very Fit` and `Unfit` are also
@@ -1737,6 +1776,13 @@ object TraitEffects {
             "No penalty to language-dependent social skills in those languages" to
                 "this book tags no skill as language-dependent, so which rolls " +
                 "that reaches is the GM's call",
+        ),
+        // Declared on the Concentrate roll ([CONCENTRATION_CLAUSES]); this is
+        // the reach the design review said the note must disclaim (6fa).
+        THINNED_VEIL to listOf(
+            "Concentration in spiritually active environments at -2" to
+                "beyond the Concentrate roll, where it is declared; which other " +
+                "rolls need concentration, a ritual's included, is the GM's call",
         ),
         FIT to listOf(
             "recover FP at twice the normal rate" to

@@ -296,6 +296,8 @@ fun SheetScreen(
     // is two chances to key them differently, which is the drift this file
     // records against every re-derived value (6ai).
     val willClauses = remember(traits) { TraitEffects.willClauses(traits) }
+    // The Will clauses plus the ones naming concentration itself (6fa).
+    val concentrationClauses = remember(traits) { TraitEffects.concentrationClauses(traits) }
     // Every disadvantage the character carries, in sheet order, with the
     // book's own effect cell where the two spellings meet. A sheet name that
     // matches nothing gets its name alone -- three sheets print
@@ -957,7 +959,7 @@ fun SheetScreen(
         ) { frightening = false }
     }
     if (focusing) {
-        ConcentrateDialog(vitals.will, willClauses, shockOnAttribute, hurtOnAttribute) {
+        ConcentrateDialog(vitals.will, concentrationClauses, shockOnAttribute, hurtOnAttribute) {
             focusing = false
         }
     }
@@ -1723,7 +1725,7 @@ private fun SelfControlDialog(
 @Composable
 private fun ConcentrateDialog(
     will: Int,
-    /** The character's own Will clauses ([TraitEffects.willClauses]). */
+    /** The character's clauses for this roll ([TraitEffects.concentrationClauses]). */
     clauses: List<TraitClause> = emptyList(),
     shock: Int = 0,
     hurt: Int = 0,

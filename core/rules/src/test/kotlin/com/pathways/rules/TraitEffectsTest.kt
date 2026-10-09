@@ -964,7 +964,11 @@ class TraitEffectsTest {
     fun `every reported clause is one the book actually prints`() {
         val catalogue =
             (ContentLoader.advantages() + ContentLoader.disadvantages()).associateBy { it.name }
-        for (trait in listOf("Combat Reflexes", "Fit")) {
+        // Every partly-applied row the catalogue prints, not two named ones:
+        // the two-name list let a paraphrase through (6fa, Codex).
+        val rows = TraitEffects.partlyAppliedNames().filter { it in catalogue }
+        assertTrue(rows.size >= 2, rows.toString())
+        for (trait in rows) {
             val printed = catalogue.getValue(trait).notes
             for (note in TraitEffects.reported(listOf(advantage(trait)))) {
                 assertTrue(printed.contains(note.printed), "${note.printed} not in: $printed")
@@ -2481,5 +2485,36 @@ class TraitEffectsTest {
         assertTrue(TraitEffects.ACTING_METHOD in TraitEffects.known())
         assertTrue(TraitEffects.doublesActingGains(listOf(advantage(TraitEffects.ACTING_METHOD))))
         assertTrue(!TraitEffects.doublesActingGains(emptyList()))
+    }
+
+    /**
+     * Thinned Veil: "Concentration in spiritually active environments at -2"
+     * (book line 1472; 6fa). It reaches the Concentrate maneuver's roll, the
+     * app's one concentration check, as a declaration the GM makes, and never
+     * a Fright Check or a self-control roll, which a Will clause would reach.
+     * Capitalisation is no warrant, because the word starts a sentence (the
+     * design review). Every other roll that needs focus is said to be the
+     * GM's call.
+     */
+    @Test
+    fun `Thinned Veil reaches the Concentrate roll alone, as a declaration`() {
+        val cell = ContentLoader.disadvantages().single { it.name == TraitEffects.THINNED_VEIL }.notes
+        assertTrue("Concentration in spiritually active environments at -2" in cell, cell)
+
+        val veil = Trait(TraitEffects.THINNED_VEIL, 10, TraitKind.DISADVANTAGE)
+        val clause = TraitEffects.concentrationClauses(listOf(veil)).single()
+        assertEquals(-2, clause.value)
+        assertTrue(clause.conditional)
+        assertTrue(clause.printed in cell, clause.printed)
+        assertTrue(TraitEffects.willClauses(listOf(veil)).isEmpty())
+
+        // The bare Will clauses still reach the Concentrate roll.
+        val grief = Trait("Grief-Stricken", 5, TraitKind.DISADVANTAGE)
+        assertEquals(TraitEffects.willClauses(listOf(grief)), TraitEffects.concentrationClauses(listOf(grief)))
+
+        assertTrue(TraitEffects.THINNED_VEIL in TraitEffects.known())
+        val note = TraitEffects.reported(listOf(veil)).single()
+        assertTrue("GM" in note.reason, note.reason)
+        assertEquals(clause.printed, note.printed)
     }
 }
