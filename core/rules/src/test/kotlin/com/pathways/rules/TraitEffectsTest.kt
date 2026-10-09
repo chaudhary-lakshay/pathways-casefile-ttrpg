@@ -2580,8 +2580,12 @@ class TraitEffectsTest {
         assertEquals(note, TraitEffects.reported(listOf(held)).single())
 
         assertTrue(TraitEffects.corruptionNotes(listOf(advantage("Fit"))).isEmpty())
-        // A near miss on the name is not the trait (the diff review).
-        assertTrue(TraitEffects.corruptionNotes(listOf(advantage("Spiritual Fortitude"))).isEmpty())
+        // A near miss on the name is not the trait (the diff review). It must
+        // report something, or a loose filter passes through reported() empty:
+        // Spiritual Fortitude is applied in full and could not catch one.
+        val nearMiss = listOf(advantage("Spirit Tongue"))
+        assertTrue(TraitEffects.reported(nearMiss).isNotEmpty())
+        assertTrue(TraitEffects.corruptionNotes(nearMiss).isEmpty())
         assertTrue(TraitEffects.corruptionNotes(emptyList()).isEmpty())
     }
 }
