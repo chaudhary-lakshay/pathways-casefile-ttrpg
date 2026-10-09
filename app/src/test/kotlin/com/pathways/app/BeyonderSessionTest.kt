@@ -778,4 +778,55 @@ class BeyonderSessionTest {
         s.sellLanguage("Hermes")
         assertEquals(listOf(loen), saved().edits.languages)
     }
+
+    /**
+     * Luck: "may reroll any one failed roll" (book line 1039; 6fg). A failed
+     * PCR is the one failed roll this session makes permanent, so the potion
+     * it attempted is SAVED, and a restart does not strand the reroll.
+     */
+    @Test
+    fun `a failed roll can be rerolled once, from the save`() {
+        val (s, saved) = session(SavedSession(beyonder = fool9.digested(90)))
+        assertFalse(s.drink(fool8, fixed(6)) { 20 }!!.integrated)  // 18 vs 9
+        assertEquals(fool8, saved().pendingPcr)
+
+        val (back, savedBack) = session(saved())
+        val again = back.rerollPcr(fixed(1)) { 20 }  // 3 vs 9
+        assertTrue(again.integrated)
+        assertFalse(back.lost)
+        assertEquals(fool8, back.state)
+        assertEquals(10, back.cor, "the same floor a first success charges")
+        assertNull(savedBack().pendingPcr)
+        assertFalse(savedBack().lost)
+        assertThrows<IllegalArgumentException> { back.rerollPcr(fixed(1)) { 20 } }
+    }
+
+    @Test
+    fun `a reroll that fails changes nothing, and is spent`() {
+        val (s, saved) = session(SavedSession(beyonder = fool9.digested(90)))
+        s.drink(fool8, fixed(6)) { 20 }
+        assertFalse(s.rerollPcr(fixed(6)) { 20 }.integrated)
+        assertTrue(s.lost)
+        assertEquals(fool9.digested(90), s.state)
+        assertEquals(0, s.cor)
+        assertNull(saved().pendingPcr)
+        assertThrows<IllegalArgumentException> { s.rerollPcr(fixed(1)) { 20 } }
+    }
+
+    @Test
+    fun `nothing is rerolled without a failed roll to reroll`() {
+        val (s, _) = session(SavedSession(beyonder = fool9))
+        assertThrows<IllegalArgumentException> { s.rerollPcr(fixed(1)) { 20 } }
+    }
+
+    /** A ceiling lowered since the failure refuses the reroll and keeps it (Codex). */
+    @Test
+    fun `a reroll the ceiling refuses is kept for later`() {
+        val (s, saved) = session(SavedSession(beyonder = fool9.digested(90)))
+        s.drink(fool8, fixed(6)) { 20 }
+        assertThrows<IllegalArgumentException> { s.rerollPcr(fixed(1)) { 0 } }
+        assertEquals(fool8, s.pendingPcr)
+        assertEquals(fool8, saved().pendingPcr)
+        assertTrue(s.rerollPcr(fixed(1)) { 20 }.integrated)
+    }
 }

@@ -218,6 +218,7 @@ data class SavedSession(
     val fpLost: Int = 0,
     val spiSpent: Int = 0,
     val edits: SavedEdits = SavedEdits(),
+    val pendingPcr: BeyonderState? = null,
 )
 
 /**

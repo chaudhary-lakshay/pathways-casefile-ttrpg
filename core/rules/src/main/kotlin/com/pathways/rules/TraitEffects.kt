@@ -649,6 +649,36 @@ object TraitEffects {
 
     const val CLEANSED_SPIRIT = "Cleansed Spirit"
 
+    const val LUCK = "Luck"
+    const val BECKONING_LUCK = "Beckoning Luck"
+    const val FATE_DEBT = "Fate Debt"
+    const val LUCKY_ONE = "Lucky One"
+    private const val WHEEL_OF_FORTUNE = "Wheel of Fortune"
+    private const val LUCKY_ONE_SEQUENCE = 7
+
+    /** What a Luck reroll reaches here, for both rows' reports. */
+    private const val LUCK_REACH =
+        "offered on a failed Potion Consumption Roll, which would end the character; " +
+            "any other reroll is the table's, and a ritual's or boon's critical-failure " +
+            "CoR is charged before it and not undone"
+
+    /**
+     * What lets [traits], walking [state], reroll a failed roll, or null (6fg).
+     *
+     * Luck ("may reroll any one failed roll"); Beckoning Luck, unless Fate
+     * Debt is held ("Beckoning Luck never applies", line 1449, which names
+     * no other source); and the Lucky One's "5 rerolls per session" (line
+     * 7766), a pathway grant no trait carries, from Sequence 7 down because
+     * sequences are cumulative. Which source a GM spends, and how many are
+     * left this session, is the table's.
+     */
+    fun rerollSource(traits: List<Trait>, state: com.pathways.model.BeyonderState?): String? = when {
+        levelOf(traits, LUCK) != null -> LUCK
+        levelOf(traits, BECKONING_LUCK) != null && levelOf(traits, FATE_DEBT) == null -> BECKONING_LUCK
+        state?.pathway == WHEEL_OF_FORTUNE && state.sequence <= LUCKY_ONE_SEQUENCE -> LUCKY_ONE
+        else -> null
+    }
+
     /**
      * What the CoR stepper says to a holder of [CLEANSED_SPIRIT]: its row in
      * [reported], refused whole in [UNAPPLIED] (6fd). The book lists no CoR
@@ -1898,6 +1928,24 @@ object TraitEffects {
             "rolls requiring sustained concentration at -1" to
                 "beyond the Concentrate roll, where it is declared; which other " +
                 "rolls need sustained concentration, a ritual's included, is the GM's call",
+        ),
+        // Offered on a failed PCR, the one failed roll the session makes
+        // permanent ([rerollSource], 6fg). A ritual's or boon's critical
+        // failure charges CoR before any reroll, and a table reroll does not
+        // take it back (Codex, on the design).
+        LUCK to listOf(
+            "1 reroll per session" to "this app keeps no session, so the GM counts them",
+            "may reroll any one failed roll" to LUCK_REACH,
+        ),
+        BECKONING_LUCK to listOf(
+            "2 rerolls per session" to "this app keeps no session, so the GM counts them",
+            "reroll any failed roll, usable at any time" to LUCK_REACH,
+            "and fate may balance later" to "the book hands this to the GM, not to a roll",
+        ),
+        FATE_DEBT to listOf(
+            "You owe fate something" to "the book hands this to the GM, not to a roll",
+            "The GM holds a narrative debt to be called in at a dramatically significant moment" to
+                "the book hands this to the GM, not to a roll",
         ),
         // The rest of the five rows [SKILL_CLAUSES] reads and of Famous Face, whose -2 is a [SKILL_BONUSES] row (6ff).
         "Class Mobility" to listOf(

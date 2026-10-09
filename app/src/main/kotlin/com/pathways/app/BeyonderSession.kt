@@ -44,9 +44,19 @@ class BeyonderSession(
      * True once a Potion Consumption Roll has been failed. The book is blunt
      * about it: "the character is lost -- they transform into an NPC Rampager
      * immediately, permanently under the GM's control" (p. 45). Nothing here
-     * un-loses them; that is the point.
+     * un-loses them; that is the point -- save one roll the book itself
+     * reaches: a Luck reroll of the failed PCR ([rerollPcr], 6fg).
      */
     var lost by mutableStateOf(saved.lost)
+        private set
+
+    /**
+     * The potion a failed PCR attempted, while a reroll of it is unspent.
+     * SAVED, not remembered: a restart between the failure and the reroll
+     * would otherwise strand a Lucky character as a Rampager (Codex's HIGH).
+     * Who may spend it is [com.pathways.rules.TraitEffects.rerollSource]'s.
+     */
+    var pendingPcr by mutableStateOf(saved.pendingPcr)
         private set
 
     /** Running CoR (Ch. 6, p. 45). Table state, so it lives here, not on Character. */
@@ -90,8 +100,38 @@ class BeyonderSession(
     var edits by mutableStateOf(saved.edits)
         private set
 
+    /**
+     * Luck's "may reroll any one failed roll", spent on the failed PCR
+     * [pendingPcr] holds: the same potion, from the same digestion. A success
+     * replaces the failure -- the character advances and pays the same CoR
+     * floor a first success pays; a failure changes nothing ("If the re-roll
+     * also fails there is no additional effect"). Spent either way: one
+     * reroll per failure is this app's, and the session's count is the GM's.
+     */
+    fun rerollPcr(dice: RandomSource, maxCorAfter: (BeyonderState) -> Int): PcrOutcome {
+        val next = pendingPcr
+        val current = state
+        require(lost && !corrupted && next != null && current != null) { "no failed PCR to reroll" }
+        val ceilingAfter = maxCorAfter(next)
+        // The guard [drink] makes before its roll, made again: the ceiling
+        // is the CURRENT Will's, which an edit since the failure can move.
+        require(ScoreFloors.holdsCeiling(ceilingAfter)) {
+            "$next would leave a CoR ceiling of $ceilingAfter"
+        }
+        val outcome = PotionConsumption.attempt(current, dice)
+        pendingPcr = null
+        if (outcome.integrated) {
+            // Cleared FIRST: gainCor does nothing for a lost character.
+            lost = false
+            state = next
+            gainCor(outcome.minimumCorGained, ceilingAfter)
+        }
+        persist()
+        return outcome
+    }
+
     private fun persist() =
-        onChange(SavedSession(state, lost, cor, corrupted, hpLost, fpLost, spiSpent, edits))
+        onChange(SavedSession(state, lost, cor, corrupted, hpLost, fpLost, spiSpent, edits, pendingPcr))
 
     // A save written before the floors existed can hold a score the rules
     // throw on -- HP sold to 0 killed the sheet screen while it was drawn, on
@@ -531,6 +571,7 @@ class BeyonderSession(
             gainCor(outcome.minimumCorGained, ceilingAfter)
         } else {
             lost = true
+            pendingPcr = next
         }
         persist()
         return outcome

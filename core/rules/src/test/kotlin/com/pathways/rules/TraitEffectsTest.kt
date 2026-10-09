@@ -2660,4 +2660,28 @@ class TraitEffectsTest {
         assertEquals(TraitEffects.socialClauses(callous), social)
         assertEquals(1, TraitEffects.modifiers(callous, key("Savoir-Faire"), social.map { it.key }.toSet()).size)
     }
+
+    /**
+     * Who may reroll a failed roll (6fg): Luck, Beckoning Luck unless Fate
+     * Debt is held ("Beckoning Luck never applies", line 1449), and the
+     * Lucky One's "5 rerolls per session" (line 7766) from Sequence 7 of
+     * Wheel of Fortune down, since sequences are cumulative.
+     */
+    @Test
+    fun `a reroll comes from Luck, Beckoning Luck or the Lucky One`() {
+        val debt = Trait("Fate Debt", 15, TraitKind.DISADVANTAGE)
+        val wheel = { seq: Int -> com.pathways.model.BeyonderState("Wheel of Fortune", seq) }
+        assertEquals("Luck", TraitEffects.rerollSource(listOf(advantage("Luck")), null))
+        assertEquals("Luck", TraitEffects.rerollSource(listOf(advantage("Luck"), debt), null))
+        assertEquals("Beckoning Luck", TraitEffects.rerollSource(listOf(advantage("Beckoning Luck")), null))
+        assertNull(TraitEffects.rerollSource(listOf(advantage("Beckoning Luck"), debt), null))
+        assertEquals("Lucky One", TraitEffects.rerollSource(emptyList(), wheel(7)))
+        assertEquals("Lucky One", TraitEffects.rerollSource(listOf(debt), wheel(6)))
+        assertNull(TraitEffects.rerollSource(emptyList(), wheel(8)))
+        assertNull(TraitEffects.rerollSource(emptyList(), com.pathways.model.BeyonderState("Fool", 7)))
+        assertNull(TraitEffects.rerollSource(listOf(advantage("Fit")), null))
+        for (name in listOf("Luck", "Beckoning Luck", "Fate Debt")) {
+            assertTrue(name in TraitEffects.known(), name)
+        }
+    }
 }

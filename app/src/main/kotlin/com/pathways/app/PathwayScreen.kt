@@ -122,6 +122,9 @@ fun PathwayScreen(
     // The traits as bought, builder edits included: the expression the sheet
     // screen reads. Read here for Knows the Acting Method (6ez).
     val traits = remember(sheet, session.edits) { session.characterFor(sheet).traits }
+    // Who may reroll a failed PCR: read against the potion the failure left
+    // the character on, which is the one a Lucky One's grant comes from (6fg).
+    val rerollSource = TraitEffects.rerollSource(traits, drunk)
     // Cumulative, not one potion in isolation: a Sequence 8 Fool drank the
     // Sequence 9 potion first and carries its SPI +9.
     val digested = remember(sheet, block, session.edits) {
@@ -254,6 +257,37 @@ fun PathwayScreen(
                         ) { Text("Another pathway") }
                         val chosen = BeyonderState(block.pathway, block.sequence)
                         when {
+                            // Luck's reroll of the failed PCR, on the block
+                            // it attempted (6fg). Saved, so it survives a
+                            // restart; who may spend it is the rules'.
+                            session.lost && session.pendingPcr == chosen && rerollSource != null ->
+                                Column(Modifier.weight(1f)) {
+                                    // Drink's gate, because it is Drink's roll:
+                                    // Will lowered since the failure can leave
+                                    // this potion no ceiling, and rerollPcr
+                                    // refuses that by throwing (Codex's HIGH).
+                                    val ceilingAfter = maxCorFor(chosen)
+                                    val rerollable = ScoreFloors.holdsCeiling(ceilingAfter)
+                                    Button(
+                                        enabled = rerollable,
+                                        onClick = {
+                                            // A second tap finds nothing pending.
+                                            if (session.pendingPcr == chosen &&
+                                                ScoreFloors.holdsCeiling(maxCorFor(chosen))
+                                            ) {
+                                                pcr = session.rerollPcr(dice, maxCorFor)
+                                            }
+                                        },
+                                    ) { Text("Reroll the PCR ($rerollSource)") }
+                                    drinkLine(drunk, session.cor, ceilingAfter)?.let { line ->
+                                        Text(
+                                            line,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            modifier = Modifier.padding(top = 4.dp, end = 16.dp),
+                                        )
+                                    }
+                                    Note("lost to the Rampager, unless the reroll succeeds; the GM counts the session's rerolls")
+                                }
                             session.lost -> Note("lost to the Rampager")
                             session.corrupted -> Note("lost to corruption at ${session.cor} CoR")
                             // Filled, because this is what the screen is FOR.
@@ -326,7 +360,7 @@ fun PathwayScreen(
         }
     }
 
-    pcr?.let { PcrDialog(it, session.corrupted) { pcr = null } }
+    pcr?.let { PcrDialog(it, session.corrupted, if (session.pendingPcr != null) rerollSource else null) { pcr = null } }
 }
 
 /**
@@ -475,7 +509,8 @@ internal fun drinkLine(state: BeyonderState?, cor: Int, ceilingAfter: Int): Stri
  * ponytail: a +1/-1 stepper, same reasoning as the digestion tracker. Most
  * rows of the book's CoR table are a range the GM picks inside ("1-3 CoR per
  * session") or an open floor ("10+"), so a button per row would have to
- * invent the figure; the other two are 1 per use and a 1d roll. The table is printed beside the stepper instead. The
+ * invent the figure; the other two are 1 per use and a 1d roll. The table
+ * is printed beside the stepper instead. The
  * costs the rules DO compute are charged where they happen: advancing before
  * full digestion, a ritual's or a boon's critical failure, and Soul Debt.
  *
@@ -544,7 +579,13 @@ private fun CorruptionTracker(
 
 /** The Potion Consumption Roll, and what it cost. */
 @Composable
-private fun PcrDialog(outcome: PcrOutcome, corrupted: Boolean, onDismiss: () -> Unit) {
+private fun PcrDialog(
+    outcome: PcrOutcome,
+    corrupted: Boolean,
+    /** What may reroll this failure, while one is unspent ([TraitEffects.rerollSource]). */
+    rerollSource: String?,
+    onDismiss: () -> Unit,
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("OK") } },
@@ -580,6 +621,13 @@ private fun PcrDialog(outcome: PcrOutcome, corrupted: Boolean, onDismiss: () -> 
                         "The character transforms into an NPC Rampager, permanently under the GM's control.",
                         modifier = Modifier.padding(top = 8.dp),
                     )
+                    rerollSource?.let {
+                        Text(
+                            "$it may reroll this failed roll: the potion's block offers it. " +
+                                "How many rerolls are left this session is the GM's count.",
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                    }
                 }
             }
         },
