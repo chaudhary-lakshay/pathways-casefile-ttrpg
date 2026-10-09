@@ -7079,6 +7079,7 @@ Fool 9 with ST and DX edits and 8 SPI spent, which the seed overwrote with
 a mortal carrying a Broadsword. I took the key for an unused premade and
 did not check. It exists only in the backup,
 `C:\Users\laksh\pathways-sessions-2026-10-08.bak`, until it is restored.
+**Restored by the owner on 2026-10-09; read back, byte-identical to it.**
 
 ### Seen and not touched
 

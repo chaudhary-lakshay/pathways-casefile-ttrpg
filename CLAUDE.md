@@ -226,7 +226,8 @@ gateway was down, so both reviews were one sub-agent each, the third gate.
 Twenty-two mutations, twenty-two caught. On the SM-T570: `Parry (DX, bare
 hands) 7`, then `4` against a weapon and no row against a shot; Pickpocket's
 `Acrobatics (untrained, DX-6) 4 → 6`. **The tablet's save was left seeded**:
-a harness check refused the restore, and 6ev says where the backup is.
+a harness check refused the restore, and the owner ran it on 2026-10-09
+(verified byte-identical to the backup).
 **Owed first: a Codex diff review of `5fe2b41..127532d`**, which only a
 sub-agent has read, and whose post-review fix no reviewer has. **Successors**:
 whether a Warrior's weapon parries at DX, which is sharper now; the same
