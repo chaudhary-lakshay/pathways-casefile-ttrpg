@@ -1497,6 +1497,7 @@ object TraitEffects {
     }
 
     const val THINNED_VEIL = "Thinned Veil"
+    const val CHRONIC_INSOMNIA = "Chronic Insomnia"
 
     /**
      * The clauses that reach the Concentrate maneuver's roll and no other
@@ -1509,6 +1510,12 @@ object TraitEffects {
      * meaning** (the design review): a ritual's focus could claim the same
      * sentence, so [PARTLY_APPLIED] says every other roll is the GM's call.
      * The capital C is not a warrant, because the word begins its sentence.
+     *
+     * Chronic Insomnia prints "rolls requiring sustained concentration at -1"
+     * (6fb). The book sets no duration that makes concentration sustained,
+     * and never says every Concentrate roll is, so it is the GM's to declare
+     * like the environment above. Single-Minded and Absent-Mindedness stay
+     * out by their own words (6fa).
      */
     private val CONCENTRATION_CLAUSES: List<TraitClause> = listOf(
         TraitClause(
@@ -1516,6 +1523,13 @@ object TraitEffects {
             THINNED_VEIL,
             "Concentration in spiritually active environments at -2",
             -2,
+            conditional = true,
+        ),
+        TraitClause(
+            CHRONIC_INSOMNIA,
+            CHRONIC_INSOMNIA,
+            "rolls requiring sustained concentration at -1",
+            -1,
             conditional = true,
         ),
     )
@@ -1783,6 +1797,15 @@ object TraitEffects {
             "Concentration in spiritually active environments at -2" to
                 "beyond the Concentrate roll, where it is declared; which other " +
                 "rolls need concentration, a ritual's included, is the GM's call",
+        ),
+        // The -1 as Thinned Veil's -2 (6fb); the FP has no morning to fall on.
+        CHRONIC_INSOMNIA to listOf(
+            "Lose 1 FP each morning that cannot be recovered through rest" to
+                "this app counts no mornings, so the table lowers FP on the FP " +
+                "row, and keeps it from rest",
+            "rolls requiring sustained concentration at -1" to
+                "beyond the Concentrate roll, where it is declared; which other " +
+                "rolls need sustained concentration, a ritual's included, is the GM's call",
         ),
         FIT to listOf(
             "recover FP at twice the normal rate" to

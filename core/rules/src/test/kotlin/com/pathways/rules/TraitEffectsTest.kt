@@ -2517,4 +2517,40 @@ class TraitEffectsTest {
         assertTrue("GM" in note.reason, note.reason)
         assertEquals(clause.printed, note.printed)
     }
+
+    /**
+     * Chronic Insomnia: "rolls requiring sustained concentration at -1"
+     * (book lines 1255-1256; 6fb). Declared on the Concentrate roll, because
+     * whether THIS concentration is sustained is the GM's to say; the book
+     * sets no duration. Its other clause, the FP lost each morning, is the
+     * table's to enter on the FP row.
+     */
+    @Test
+    fun `Chronic Insomnia reaches the Concentrate roll alone, as a declaration`() {
+        val cell = ContentLoader.disadvantages().single { it.name == TraitEffects.CHRONIC_INSOMNIA }.notes
+        val insomnia = Trait(TraitEffects.CHRONIC_INSOMNIA, 5, TraitKind.DISADVANTAGE)
+
+        val clause = TraitEffects.concentrationClauses(listOf(insomnia)).single()
+        assertEquals(-1, clause.value)
+        assertTrue(clause.conditional)
+        assertEquals("rolls requiring sustained concentration at -1", clause.printed)
+        assertTrue(clause.printed in cell, cell)
+        assertTrue(TraitEffects.willClauses(listOf(insomnia)).isEmpty())
+
+        // Held beside Thinned Veil, each is its own declaration.
+        val veil = Trait(TraitEffects.THINNED_VEIL, 10, TraitKind.DISADVANTAGE)
+        assertEquals(
+            listOf(-1, -2),
+            TraitEffects.concentrationClauses(listOf(insomnia, veil)).map { it.value },
+        )
+
+        assertTrue(TraitEffects.CHRONIC_INSOMNIA in TraitEffects.known())
+        val notes = TraitEffects.reported(listOf(insomnia)).associateBy { it.printed }
+        assertEquals(
+            setOf(clause.printed, "Lose 1 FP each morning that cannot be recovered through rest"),
+            notes.keys,
+        )
+        assertTrue("GM" in notes.getValue(clause.printed).reason)
+        assertTrue("FP row" in notes.getValue("Lose 1 FP each morning that cannot be recovered through rest").reason)
+    }
 }
