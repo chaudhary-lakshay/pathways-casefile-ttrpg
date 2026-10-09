@@ -6726,6 +6726,95 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fb. The concentration an insomniac cannot sustain
+
+6fa named this: **Chronic Insomnia** (−5) prints *"Lose 1 FP each
+morning that cannot be recovered through rest; rolls requiring sustained
+concentration at -1"* (book lines 1255-1256). The second clause can be
+declared on the Concentrate roll, as Thinned Veil's is. Absent-Mindedness
+and Single-Minded still cannot.
+
+### The question that decided the slice
+
+Is the clause conditional? Thinned Veil's qualifier names an
+environment. Insomnia's names a kind of roll. If every Concentrate roll
+is sustained, a declaration gates an unconditional clause, which is
+6ex's *"cannot Aim"* mistake again. The book prints *"Maneuvers (Choose
+One Per Turn)"* (2384), and abilities that need more ask for it
+themselves (*"Concentrate maneuver for 3 turns"*, 3458). A single
+Concentrate can be one turn, so whether this one is sustained is a fact
+about the use.
+
+### The design review
+
+Codex, through `codex exec`, before any code. **SHIP on all three
+questions.**
+
+- **The declaration.** The strongest case against it is that the Will-3
+  roll is how focus survives injury or defence, so *"sustained"* could
+  mean *kept through interruption*, even within one turn. The book sets
+  no minimum duration, and it never says every Concentrate roll is
+  sustained. **Keep the qualifier as a GM declaration, and do not turn
+  the turn count into a rule.** The KDoc gives that reason, not the
+  turn count.
+- **The FP reason is true.** `NaturalRecovery` offers a GM-declared HP
+  roll and restores nothing. No file counts days or restores FP through
+  rest. The FP row's stepper can restore FP, so withholding rest is the
+  table's to do, and the reason says so.
+- **Nothing double-applies.** Insomnia is not in `WILL_CLAUSES`.
+
+### What was built
+
+`CONCENTRATION_CLAUSES` has a second row: Insomnia's −1, conditional.
+`PARTLY_APPLIED[Chronic Insomnia]` has one pair per clause. The FP pair
+says *"this app counts no mornings, so the table lowers FP on the FP
+row, and keeps it from rest"*. The −1 pair uses Thinned Veil's reach
+sentence, with *sustained* added.
+
+### The diff review
+
+Codex, `codex exec` on the uncommitted diff: **SHIP, no findings.** It
+noted that `associateBy` leaves a duplicated report unchecked, and that
+no defect is exposed by it.
+
+### Verification
+
+1880 Kotlin (1316 `core:rules`, 544 `app`, 20 `core:model`), green from
+the JUnit XML after `--rerun-tasks`. RED first: with only the constant
+stubbed, the test failed on `List is empty`. Two mutations, each
+restored from a copy, were caught. One set the clause to unconditional.
+The other dropped the FP pair.
+
+**On the SM-T570**, starting from its launcher with the save backed up,
+Church Healer bought the trait (`102 of 110 points, 8 spare`). With
+*Injured or defending* ticked, Concentrate asked *"Does any of this
+hold?"* and offered `Chronic Insomnia: rolls requiring sustained
+concentration at -1`. Declaring it gave `3d6 ≤ 7 — Will 11-3, Chronic
+Insomnia -1`. Fright showed no Insomnia row. On the Traits tab, both
+clauses were read from the raw dump, each followed by its *"Not applied
+here"* reason. The crash buffer was empty. The save was restored
+(`cmp` identical), and the tablet went back to its launcher.
+
+**The helper's tap coordinates are dump-space.** `adb-ui.sh tap`, given
+the sheet's dump centre for Spend points, landed on Fright. That is
+4/3 again (see the bounds memory). Taps went through `input tap` at the
+physical points read off a screencap.
+
+### Found on the way: two API lines inside a lead
+
+6ez's and 6fa's doc commits had pasted their section-3 entries
+(`concentrationClauses`, `actingGains`) into the first bullet of 6ew's
+lead paragraph. That bullet began with a backticked name, and the
+entries landed inside the backticks. 6ew retired here, so its lead went
+to `docs/READING-ORDER.md` as it stood before `6023899`, compared
+exactly. The two entries are in section 3.
+
+### Successors
+
+- **The rest of 6es's second list**: Cleansed Spirit, Fast Healer, Luck,
+  Acute Vision and Acute Hearing.
+- 6es's first list, and Warrior's *default +2*, stand.
+
 ## 6fa. The concentration check a thinned veil reaches
 
 This is the second of 6es's seven untriaged rows. **Thinned Veil** (−10)

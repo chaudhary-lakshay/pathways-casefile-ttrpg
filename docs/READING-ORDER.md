@@ -190,7 +190,33 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6ev back to 6de
+## Retired lead paragraphs, 6ew back to 6de
+
+**6ew is next, and it is 6es's successor: a self-control row's other
+clauses were unsaid.** `reported` gave `UNREAD` only to a row with no
+self-control roll, so 28 of the 30 rows with one said nothing beside
+Reckless's -1 and Reluctant Killer's *"-4 to hit ... cannot Aim"*. Read
+it for three things.
+
+- **`TraitEffects.ROLLED_ONLY`** is one sentence for all 28, the roll
+  excepted, and `SelfControl.checksFor` decides it, so a quirk of the
+  same name is not told its roll is applied (the review's MEDIUM).
+- **The sweep the review asked for found a row that could not find
+  itself.** `catalogueName` cut `Compulsive Behavior (Indulge Evil
+  Desires) SC 6` to `... SC` as if 6 were a level. The builder sold it,
+  and the sheet showed no cell, no roll and no note. A row's own name
+  now resolves to itself.
+- **6ev's attack-roll successor is answered by census**: with every row
+  held, `TraitEffects.modifiers` returns nothing for all 19 combat
+  skills, so the missing term costs nothing yet.
+
+Codex was out and the gateway down. One sub-agent reviewed the diff, and
+the `catalogueName` line came after its review. **Codex then SHIPped
+6ev and found one MEDIUM in 6ew**: that line returned the sheet's casing,
+and `reported` checks `known()` case-sensitively. It returns the row's spelling now. **Successors**: Reluctant Killer
+as a declared clause in the Attack dialog (-4, -2 with the face hidden,
+and no Aim), a Warrior's weapon parrying at DX, Warrior's *default +2*,
+and 6es's two lists.
 
 **6ev is next, and it is the successor 6eu named, asked the right way:
 the bare-hand parry was never a default.** Book line 2473, the Parry

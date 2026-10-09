@@ -152,7 +152,26 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fa is newest: Thinned Veil on the Concentrate roll.** Its *"Concentration
+**6fb is newest: Chronic Insomnia on the Concentrate roll.** Its
+*"rolls requiring sustained concentration at -1"* sits beside Thinned
+Veil's -2 as a declaration. Read it for two things.
+
+- **"Sustained" is the GM's to say, and the reason is not a duration.**
+  One Concentrate maneuver is one turn, but the book sets no length that
+  makes concentration sustained. Codex's design review warned against
+  writing "multi-turn" in as a rule.
+- **6ez's and 6fa's doc commits had put two API lines inside 6ew's
+  lead.** The `concentrationClauses` and `actingGains` entries sat in
+  6ew's first bullet. They are in section 3 now, and 6ew retired from its
+  text before that edit.
+
+The FP lost each morning is the table's to enter: nothing here counts
+days. Codex SHIPped the design and the diff. On the SM-T570: `3d6 ≤ 7 —
+Will 11-3, Chronic Insomnia -1`, and no row in Fright. **Successors**:
+Cleansed Spirit, Fast Healer, Luck, Acute Vision and Acute Hearing;
+6es's first list; Warrior's *default +2*.
+
+**6fa is next: Thinned Veil on the Concentrate roll.** Its *"Concentration
 in spiritually active environments at -2"* is a declared clause on the
 app's one concentration check, and reaches no Fright Check or
 self-control roll. Read it for two things.
@@ -226,40 +245,10 @@ SM-T570, Military Police with the drawback bought: `cannot Aim` with no Aim rows
 `Traits: -4`, `3d6: 8 vs 8`. **Successors**: a Warrior's weapon
 parrying at DX, Warrior's *default +2*, and 6es's two lists.
 
-**6ew is next, and it is 6es's successor: a self-control row's other
-clauses were unsaid.** `reported` gave `UNREAD` only to a row with no
-self-control roll, so 28 of the 30 rows with one said nothing beside
-Reckless's -1 and Reluctant Killer's *"-4 to hit ... cannot Aim"*. Read
-it for three things.
-
-- **`TraitEffects.concentrationClauses(traits)   // Will clauses + Thinned Veil:
-                                      // the Concentrate roll ALONE (6fa)
-TraitEffects.actingGains(traits) / .doublesActingGains(traits)
-                                      // ch.6's Acting Method table, doubled for
-                                      // Knows the Acting Method (6ez)
-TraitEffects.ROLLED_ONLY`** is one sentence for all 28, the roll
-  excepted, and `SelfControl.checksFor` decides it, so a quirk of the
-  same name is not told its roll is applied (the review's MEDIUM).
-- **The sweep the review asked for found a row that could not find
-  itself.** `catalogueName` cut `Compulsive Behavior (Indulge Evil
-  Desires) SC 6` to `... SC` as if 6 were a level. The builder sold it,
-  and the sheet showed no cell, no roll and no note. A row's own name
-  now resolves to itself.
-- **6ev's attack-roll successor is answered by census**: with every row
-  held, `TraitEffects.modifiers` returns nothing for all 19 combat
-  skills, so the missing term costs nothing yet.
-
-Codex was out and the gateway down. One sub-agent reviewed the diff, and
-the `catalogueName` line came after its review. **Codex then SHIPped
-6ev and found one MEDIUM in 6ew**: that line returned the sheet's casing,
-and `reported` checks `known()` case-sensitively. It returns the row's spelling now. **Successors**: Reluctant Killer
-as a declared clause in the Attack dialog (-4, -2 with the face hidden,
-and no Aim), a Warrior's weapon parrying at DX, Warrior's *default +2*,
-and 6es's two lists.
-
-**6ev back to 6de had lead paragraphs here until 2026-10-09. Each is in
+**6ew back to 6de had lead paragraphs here until 2026-10-09. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ew** — a self-control row's other clauses were unsaid; `ROLLED_ONLY` says the roll alone is applied, and `catalogueName` had cut `SC 6` to `SC` as if 6 were a level;
 **6ev** — the bare-hand parry cell prints "Brawling or DX", so DX is a row of its own; the Acrobatic Dodge rolls its default, and Defend gained the missing trait term;
 **6eu** — the Attack dialog takes an untrained skill with a fist or weapon row; a Warrior's weapon is wielded at no less than DX, and one `levelWith` feeds the header, damage and roll;
 **6et** — the untrained roll: `defaultFor` had no caller since M0; a skill's own line (Brawling DX-2, Wrestling none) beats the table, and Versatile's +1 sits inside every default;
@@ -322,7 +311,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fa first.** The
+**Where to start next: the slice log, from the END — 6fb first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -377,7 +366,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1879 Kotlin** (JUnit 5 — 1315 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1880 Kotlin** (JUnit 5 — 1316 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -572,6 +561,12 @@ TraitEffects.UNREAD                   // reported() says it of a row outside
                                       // known() that prints no self-control roll
 TraitEffects.ROLLED_ONLY              // ...and this of one that does: the
                                       // roll is applied, nothing else (6ew)
+TraitEffects.concentrationClauses(traits)   // Will clauses + Thinned Veil and
+                                      // Chronic Insomnia: the Concentrate roll
+                                      // ALONE (6fa, 6fb)
+TraitEffects.actingGains(traits) / .doublesActingGains(traits)
+                                      // ch.6's Acting Method table, doubled for
+                                      // Knows the Acting Method (6ez)
 Divination.levelsFor(ownDivination, ownRitual, defaultBonus): CasterLevels
                                       // the bonus goes inside the pick between
                                       // owned and default; a ritual never defaults
