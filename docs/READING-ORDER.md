@@ -1824,6 +1824,25 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
+## Digest index, 6dq back to 6de
+
+Moved from the handover in 6ff, unchanged, when its digest index neared
+8,000 characters. The last entry kept there is 6dr.
+
+**6dq** — the SPI-recovery refusal cited the appendix summary, not p. 34; it lives in `Pools.UNMODELLED` now, and chapter 4 deliberately claims nothing;
+**6dp** — `MAX_QUIRKS` was asserted nowhere; it is pinned to book lines 1121-1122, and nothing this app ships produces a quirk;
+**6do** — Wrestling was kept out by a reason true of the damage column only; its maneuver table is extracted, and the held character's `Escape-2` row is a gap;
+**6dn** — "all seven costed rituals" was nine; the filter had excluded the two template ranges that could contradict the assertion;
+**6dm** — the detection ward chip prints the book's cost, and `AntiDivinationTechniques.spiFor` still has no caller on purpose;
+**6dl** — Appendix A's Major Wound row disagrees with chapter 5's (15 min against 1d hours), recorded in `SUMMARY_DISAGREEMENTS` and never repaired; read the build's own warnings;
+**6dk** — a claimed sentence pointed at an unclaimed reference, so the incantation structures ship as `incantations.json`; never redirect an extractor's stderr;
+**6dj** — the skill-boundary table's -4 is not the difficulty band's -4; it ships as `divination_scope.json` behind a disjointness guard;
+**6di** — the Crippling paragraph sat in a three-line seam the coverage filter cannot see; `Wounds.effectsAt` reads it, and claiming it moved no percentage;
+**6dh** — `spirit_vision.json` got its loader; chapter 7.6's summary table is wrong in both directions at once, so grants are read from the BLOCKS;
+**6dg** — the glossary extractor's guard could not pass (25 entries, not 26), and the sweep of every content FILE for a loader;
+**6df** — three Will-roll clauses joined nothing; they are GM declarations on all three bare Will rolls, and a count needs its query;
+**6de** — `VitalRolls` gave the HP table's two rolls their first reader, and its "no fixture carries one" verdict was wrong within the hour.
+
 ## Digest index, 6cz back to 6cd
 
 Moved from the handover in 6ev, unchanged, when its digest index passed 8,000
