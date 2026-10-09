@@ -68,4 +68,42 @@ class NaturalRecoveryTest {
         assertTrue("clock" in NaturalRecovery.UNMODELLED.getValue("Regeneration"))
         assertFalse("clock" in NaturalRecovery.UNMODELLED.getValue("First Aid"))
     }
+
+    /**
+     * Fast Healer: "Recover 1 additional HP per day of rest" (book line 894;
+     * 6fc). On a success both readings give one more HP, so the line says so.
+     * On a failure they part -- "additional" to a recovery that did not
+     * happen, or one HP for every day of rest -- and the GM decides.
+     */
+    @Test
+    fun `a Fast Healer's extra point is said after the roll`() {
+        assertEquals(
+            "Restore what the rows above print, with +1 on the HP row. Which band applies is the GM's.",
+            NaturalRecovery.dayLine(success = true, traits = emptyList()),
+        )
+        assertEquals("Nothing is restored for this day.", NaturalRecovery.dayLine(success = false, traits = emptyList()))
+        // Holding something else is not holding Fast Healer (the diff review).
+        val other = listOf(trait("Fit"))
+        for (success in listOf(true, false)) {
+            assertEquals(
+                NaturalRecovery.dayLine(success, emptyList()),
+                NaturalRecovery.dayLine(success, other),
+            )
+        }
+        // A sheet's trailing level ("Alertness 1") still holds it.
+        assertTrue("1 more for Fast Healer" in NaturalRecovery.dayLine(true, listOf(trait("Fast Healer 1"))))
+
+        val healer = listOf(trait(TraitEffects.FAST_HEALER))
+        val cell = com.pathways.rules.content.ContentLoader.advantages()
+            .single { it.name == TraitEffects.FAST_HEALER }.notes
+        val clause = "Recover 1 additional HP per day of rest"
+        assertTrue(clause in cell, cell)
+
+        val won = NaturalRecovery.dayLine(success = true, traits = healer)
+        assertTrue("+1 on the HP row, and 1 more for Fast Healer" in won, won)
+        assertTrue(clause in won, won)
+        val lost = NaturalRecovery.dayLine(success = false, traits = healer)
+        assertTrue("Nothing is restored by the roll" in lost, lost)
+        assertTrue("GM" in lost && "Fast Healer" in lost, lost)
+    }
 }

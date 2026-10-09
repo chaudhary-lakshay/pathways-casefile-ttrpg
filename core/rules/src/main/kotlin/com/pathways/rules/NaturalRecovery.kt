@@ -79,6 +79,29 @@ object NaturalRecovery {
      */
     fun bonusFor(traits: List<Trait>): Int = TraitEffects.htRollBonus(traits)
 
+    /**
+     * What a day's roll restores, said after it. A holder of Fast Healer
+     * ("Recover 1 additional HP per day of rest", 6fc) is told of one more HP
+     * on a success, where "additional" and "per day of rest" agree. On a
+     * failure the two readings part, so the GM is told it is theirs.
+     */
+    fun dayLine(success: Boolean, traits: List<Trait>): String {
+        val healer = TraitEffects.healsFast(traits)
+        return when {
+            success && healer ->
+                "Restore what the rows above print, with +1 on the HP row, and 1 more for Fast " +
+                    "Healer (\"$FAST_HEALER_CLAUSE\"). Which band applies, and whether it scales " +
+                    "that point, is the GM's."
+            success -> "Restore what the rows above print, with +1 on the HP row. Which band applies is the GM's."
+            healer ->
+                "Nothing is restored by the roll. Whether Fast Healer's \"$FAST_HEALER_CLAUSE\" " +
+                    "reaches a day the roll failed is the GM's call."
+            else -> "Nothing is restored for this day."
+        }
+    }
+
+    private const val FAST_HEALER_CLAUSE = "Recover 1 additional HP per day of rest"
+
     /** [poolPenalty] is [Conditions.penaltyFor]'s, as it is for the other bare HT rolls. */
     fun targetFor(ht: Int, traits: List<Trait>, poolPenalty: Int, gmModifier: Int): Int =
         ht + bonusFor(traits) + poolPenalty + gmModifier

@@ -2553,4 +2553,13 @@ class TraitEffectsTest {
         assertTrue("GM" in notes.getValue(clause.printed).reason)
         assertTrue("FP row" in notes.getValue("Lose 1 FP each morning that cannot be recovered through rest").reason)
     }
+
+    /** Fast Healer's other clause has no wound to halve (6fc). */
+    @Test
+    fun `Fast Healer reports the clause the recovery row cannot reach`() {
+        assertTrue(TraitEffects.FAST_HEALER in TraitEffects.known())
+        val note = TraitEffects.reported(listOf(advantage(TraitEffects.FAST_HEALER))).single()
+        assertEquals("Injuries that would leave others bedridden leave you functional in half the time", note.printed)
+        assertTrue("wounds" in note.reason, note.reason)
+    }
 }

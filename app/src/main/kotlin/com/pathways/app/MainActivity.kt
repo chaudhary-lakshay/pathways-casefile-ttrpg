@@ -1972,11 +1972,7 @@ private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int) {
                 style = MaterialTheme.typography.titleSmall,
             )
             Text(
-                if (result.outcome.isSuccess) {
-                    "Restore what the rows above print, with +1 on the HP row. Which band applies is the GM's."
-                } else {
-                    "Nothing is restored for this day."
-                },
+                NaturalRecovery.dayLine(result.outcome.isSuccess, traits),
                 style = MaterialTheme.typography.bodySmall,
             )
             TextButton(onClick = { outcome = null }) { Text("Another day") }

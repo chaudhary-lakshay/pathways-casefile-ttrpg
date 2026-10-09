@@ -633,6 +633,11 @@ object TraitEffects {
 
     const val ACTING_METHOD = "Knows the Acting Method"
 
+    const val FAST_HEALER = "Fast Healer"
+
+    /** Whether [traits] hold [FAST_HEALER]: the recovery row asks before saying so (6fc). */
+    fun healsFast(traits: List<Trait>): Boolean = levelOf(traits, FAST_HEALER) != null
+
     /** Whether [traits] hold [ACTING_METHOD]: the question a screen asks before saying so. */
     fun doublesActingGains(traits: List<Trait>): Boolean = levelOf(traits, ACTING_METHOD) != null
 
@@ -1806,6 +1811,11 @@ object TraitEffects {
             "rolls requiring sustained concentration at -1" to
                 "beyond the Concentrate roll, where it is declared; which other " +
                 "rolls need sustained concentration, a ritual's included, is the GM's call",
+        ),
+        // Its first clause is said on the recovery row ([NaturalRecovery.dayLine], 6fc).
+        FAST_HEALER to listOf(
+            "Injuries that would leave others bedridden leave you functional in half the time" to
+                "this app tracks no wounds and holds no clock to halve",
         ),
         FIT to listOf(
             "recover FP at twice the normal rate" to
