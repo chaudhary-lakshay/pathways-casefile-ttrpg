@@ -169,10 +169,10 @@ treat every weapon *"as known at effective DX"*. Read it for three things.
   It is note-only: a melee weapon needs no warm-up.
 
 Codex ran out mid-diff-review (back 4:13 PM) and the gateway was down,
-so one sub-agent reviewed the diff and then the fixes: SHIP. **Not
-device-verified**: the emulator failed twice on Vulkan, and the SM-T570
-was left alone. **Owed first: a device pass, and a Codex review of
-`8b033d6`.** **Successors**: Warrior's *default +2*, and 6es's two lists.
+so one sub-agent reviewed the diff and then the fixes: SHIP. The emulator
+failed twice on Vulkan. On the SM-T570, a Warrior's Hand Axe with no skill
+read `parry 8` on all three screens, and the pass caught a doubled "DX" in
+the note. **Owed first: a Codex review of `8b033d6..HEAD`.** **Successors**: Warrior's *default +2*, and 6es's two lists.
 
 **6ex is next, and it is 6ew's successor: a Reluctant Killer's target
 is the GM's to declare.** The Attack dialog offers the cell's two to-hit

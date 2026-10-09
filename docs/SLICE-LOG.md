@@ -6805,19 +6805,37 @@ were caught, each restored from a copy: no floor over a bought skill, a
 Pugilist with a melee warm-up, and `unskilledParriers` ignoring the
 mastery.
 
-**Not device-verified.** The emulator failed twice with `Failed to
-allocate ColorBuffer with Vulkan backing`, the second time under `-gpu
-angle_indirect -feature -Vulkan` with about 3.8 GB free. No serial
-appeared either time, and nothing was installed. The SM-T570 was
-attached and was left alone, because it needs the owner's word. The
-three parry strings and the Pugilist's note are reachable only on a
-device.
+**The emulator failed twice** with `Failed to allocate ColorBuffer with
+Vulkan backing`, the second time under `-gpu angle_indirect -feature
+-Vulkan` with about 3.8 GB free, so RAM was not the cause. No serial
+appeared and nothing was installed.
+
+**Then device-verified on the SM-T570**, at the owner's word, with the
+serial pinned. The save was backed up first
+(`C:\Users\laksh\pathways-sessions-2026-10-09-pre6ey.bak`). Docks
+Bouncer had no save entry. It drank the Warrior potion (played DX 11)
+and carried a Broadsword and a Hand Axe:
+
+| Screen | Broadsword (potion-granted skill 14) | Hand Axe (no Axe/Mace skill) |
+|---|---|---|
+| Builder | `Broadsword 14 — parry 10` | `Axe/Mace 11 — parry 8` |
+| Defend | `Parry (Broadsword) 10` | `Parry (Hand Axe) 8`, with the reading note |
+| Attack | | `Axe/Mace (DX, Warrior's "no default penalty") 11`, `parry 8` |
+
+**The pass found one defect.** The note read *"at no less than DX: DX,
+Warrior's "no default penalty", "treated as known..."*, because it
+printed `source`, which already begins with "DX". It now names
+`quoted`: *"Hand Axe parries at no less than DX: Warrior's "treated as
+known at effective DX", ..."*. This was re-checked on the tablet. The
+Broadsword is not named in the note, because its granted 14 is above
+DX. The crash buffer stayed empty. Read back afterwards, the save
+differs from the backup by the new Docks Bouncer entry and by
+`edits.languages: []` written onto the seven existing entries, as in
+6ex. No value changed.
 
 ### Successors
 
-- **A device pass**: a Twilight Giant Warrior carrying a Broadsword with
-  no skill. Expect `Broadsword 9` in Defend with the reading note, `parry
-  9` in Attack, and `parry 9` in the builder.
+- **A Codex review of `8b033d6..HEAD`.** Only a sub-agent has read it.
 - Warrior's *default +2* and 6es's two lists stand.
 - **Seen, not touched:** a Pugilist's ranged *"one use to reach full
   proficiency"* has no coherent number. The Warrior block already grants
