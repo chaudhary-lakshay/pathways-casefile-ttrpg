@@ -6726,6 +6726,104 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ey. The parry a master's weapon was owed
+
+6eu, 6ev and 6ex all named this successor: a Warrior's weapon is
+*"treated as known at effective DX"* (book lines 5796-5799), the Attack
+dialog lifted the attack to DX, and the parry stayed at the skill's own
+level, or at nothing for an untrained weapon. Line 2468 prints Parry
+(Armed) as *"Weapon Skill ÷ 2 + 3"*. A Warrior saw a bare-hand DX parry
+and no sword parry.
+
+### The design review
+
+Codex, three questions, before any code:
+
+- **SHIP: the line supplies the operand.** *"Known"* is exactly what
+  separates a skill from a default, so 6ev's refusal of an armed default
+  parry does not reach a master and stands for everyone else. The
+  strongest case against it: the book's examples are all attacks. Defend
+  says so in a note wherever the mastery changed a number.
+- **CHANGE: Attack priced the CHOSEN skill and Defend the highest.** A
+  Barmaid Brawler at Abyss Seq 6 holds Knife/Easy 12 and Knife/Average
+  11. Attacking with the Average one printed parry 8 beside Defend's 9,
+  with no mastery involved. 6eu's "parry 9 in Attack beside 8 in Defend"
+  fix had closed one cause of the split and not this one.
+- **SHIP, note-only: the Pugilist.** Seq 8's reinforced Combat Mastery
+  (lines 6595-6598) gives melee weapons *"no warm-up"* and leaves ranged
+  ones needing *"one use"*. It never says *"no default penalty"*, so the
+  keyword census behind `WEAPON_LINES` never saw it, and `masteryFor`
+  answered WARRIOR at Seq 8. It changes no number. It changes where the
+  Warrior's *default +2* is said to be unapplied.
+
+### What was built
+
+- **`SkillDefaults.wieldedAt(weapon, skillLevels, mastery, dx)`**: the
+  highest skill arming the weapon (`Weapons.levelFor`), floored at DX in
+  a master's hand. Null for a non-master with no skill. Three screens
+  print a weapon's parry and all three call it.
+- **`WeaponMastery.PUGILIST`**, with `unappliedFor(isRanged)` in place of
+  the `unapplied` field. Its `source` quotes the Warrior, because the
+  Pugilist prints no *"no default penalty"*. `masteryFor` reads every
+  walked block of the pathway, not `weaponLinesFor`.
+- **Defend** takes `mastery`. `armedParries` and `unskilledParriers`
+  call `wieldedAt`, and a `lifted` note names each weapon whose parry
+  the mastery changed. The old *"or a weapon a Warrior holds as known at
+  DX, is a gap"* clause is gone.
+- **Attack**'s weapon line takes a `wieldedAt` lambda, so it uses the
+  highest skill. *"(the skill's own, not lifted)"* is gone.
+
+### The diff review
+
+**Codex hit its usage limit mid-review** (back 4:13 PM) after 74k tokens
+and gave no verdict. The 9router gateway was down (`[qa] fetch failed`).
+So one sub-agent did the review, scoped to three questions:
+
+- **MEDIUM: a third screen.** The builder's carried-weapon line
+  (`WeaponPicker.carriedLine`) still used `Weapons.levelFor` with no
+  mastery. It printed *"not a skill this character has, so no parry"*
+  for the broadsword Defend parried at 9. My design question had asked
+  about two screens. **A count of consumers is a claim with a query, and
+  mine was "the two dialogs".** Fixed: `carriedLine` takes the mastery
+  and the played DX, and a test pins it.
+- **LOW:** a firearm with no skill printed *"no parry offered without
+  the skill"* rather than *"cannot parry"*. `canParry` is now asked
+  first.
+
+The same sub-agent re-read both fixes: SHIP. It traced the builder's
+`session.state` and played DX to the same walk and the same expression
+the sheet screen passes to Defend.
+
+### Verification
+
+1877 Kotlin (1313 `core:rules`, 544 `app`, 20 `core:model`), green from
+the JUnit XML after `--rerun-tasks`. Stubs that kept the old behaviour
+failed the three new tests on the expected assertions (`PUGILIST` vs
+`WARRIOR`, `12` vs `null`, `[(Broadsword, 9)]` vs `[]`), and the
+builder test failed the same way against its stub. Three more mutations
+were caught, each restored from a copy: no floor over a bought skill, a
+Pugilist with a melee warm-up, and `unskilledParriers` ignoring the
+mastery.
+
+**Not device-verified.** The emulator failed twice with `Failed to
+allocate ColorBuffer with Vulkan backing`, the second time under `-gpu
+angle_indirect -feature -Vulkan` with about 3.8 GB free. No serial
+appeared either time, and nothing was installed. The SM-T570 was
+attached and was left alone, because it needs the owner's word. The
+three parry strings and the Pugilist's note are reachable only on a
+device.
+
+### Successors
+
+- **A device pass**: a Twilight Giant Warrior carrying a Broadsword with
+  no skill. Expect `Broadsword 9` in Defend with the reading note, `parry
+  9` in Attack, and `parry 9` in the builder.
+- Warrior's *default +2* and 6es's two lists stand.
+- **Seen, not touched:** a Pugilist's ranged *"one use to reach full
+  proficiency"* has no coherent number. The Warrior block already grants
+  DX at first pickup, and *"default +2"* is usually below DX. Codex
+  called this the strongest objection to its own SHIP.
+
 ## 6ex. The target a Reluctant Killer has to be told about
 
 6ew named this successor: Reluctant Killer's cell prints *"-4 to hit

@@ -152,7 +152,29 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ex is newest, and it is 6ew's successor: a Reluctant Killer's target
+**6ey is newest: a master's weapon parries at DX.** Line 2468 prints
+Parry (Armed) as *"Weapon Skill ÷ 2 + 3"*, and the Twilight Giant lines
+treat every weapon *"as known at effective DX"*. Read it for three things.
+
+- **One level, three screens.** `SkillDefaults.wieldedAt` is the best
+  skill arming the weapon, floored at DX in a master's hand. Defend, the
+  Attack dialog's weapon line and the builder's carried line all print
+  it. Attack used to price the CHOSEN skill, so two Knife skills printed
+  8 there and 9 in Defend (Codex's design CHANGE).
+- **The builder was the third screen, and my design question named
+  two.** The diff review's MEDIUM: it still printed *"no parry"* for a
+  Warrior's broadsword.
+- **The Pugilist was invisible to a keyword.** Its Combat Mastery never
+  says *"no default penalty"*, so `masteryFor` answered WARRIOR at Seq 8.
+  It is note-only: a melee weapon needs no warm-up.
+
+Codex ran out mid-diff-review (back 4:13 PM) and the gateway was down,
+so one sub-agent reviewed the diff and then the fixes: SHIP. **Not
+device-verified**: the emulator failed twice on Vulkan, and the SM-T570
+was left alone. **Owed first: a device pass, and a Codex review of
+`8b033d6`.** **Successors**: Warrior's *default +2*, and 6es's two lists.
+
+**6ex is next, and it is 6ew's successor: a Reluctant Killer's target
 is the GM's to declare.** The Attack dialog offers the cell's two to-hit
 clauses as one declaration (-4, or -2 with the face hidden). Read it for
 three things.
@@ -262,40 +284,10 @@ seeded Warrior's `Knife (DX, Warrior's "no default penalty") 11`, then `7`
 and `Deceptive 0` with the knife down. **Successors**: the Defend dialog
 takes no default, Warrior's *default +2*, and 6es's two lists.
 
-**6et is next, and it is the successor three slices carried: the
-untrained roll.** `SkillLadder.defaultFor` had no production caller since
-M0, so chapter 2's table reached no roll, and three screens called an
-untrained roll *"the GM's call"*. Read it for four things.
-
-- **A skill's own line beats the table.** Brawling is DX-2 where Easy says
-  -4, Wrestling has *"No default"* where Average says -5, and Boxing
-  agrees. `SkillDefaults` holds the two overrides. `defaultFor` is the
-  table alone.
-- **Divination Arts is asked of `Divination`, not recomputed.** Line 3559
-  does not say *only*, so withholding SPI-6 is a reading (the design
-  review's MEDIUM). It is the one the Divine tile already made, and the
-  list says so on screen.
-- **One consumer.** A row at the foot of the Skills tab opens a filtered
-  list of 149 skills, and a pick goes to the sheet's own roll dialog. The
-  Attack and Defence dialogs take no default, and now say that.
-- **Versatile's +1 is inside every default**, and its sheet note is gone:
-  the second false sentence that trait has carried.
-
-Codex answered both reviews: CHANGE, SHIP, CHANGE on the design, with ten
-stale sentences listed, then FIX on the diff. Its MEDIUM: one note
-flattened three potion lines about weapons, and Harvest Priest's covers
-farming tools only. Seventeen mutations, two of which survived until they
-got an assertion. On the SM-T570: `Acrobatics (untrained, DX-6)`, `Skill
-4`, `3d6: 14 vs 4`. **Both reviews passed a list that offered five premades
-their own skill back**: a sheet prints *"Mathematics"* where the book
-prints *"Mathematics (Applied)"*. A probe of every premade through every
-potion found it, after the commit. **Successors**: an untrained punch and a carried weapon
-in the Attack dialog, the Acrobatic Dodge, whether a default parries, and
-6es's two lists.
-
-**6es back to 6de had lead paragraphs here until 2026-10-09. Each is in
+**6et back to 6de had lead paragraphs here until 2026-10-09. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6et** — the untrained roll: `defaultFor` had no caller since M0; a skill's own line (Brawling DX-2, Wrestling none) beats the table, and Versatile's +1 sits inside every default;
 **6es** — the complement of `known()`, listed: 148 rows nothing read; `UNREAD` says so, and the sheet lists every held advantage with its cell;
 **6er** — the builder sells a language; the two halvings combine with one ceiling, and a Language Talent bought later reprices what is owned;
 **6eq** — 39 refusals in production source whose subject is this app, seven false or stale; Versatile's +1 goes inside the pick between an owned level and a default;
@@ -355,7 +347,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ex first.** The
+**Where to start next: the slice log, from the END — 6ey first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -410,7 +402,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1873 Kotlin** (JUnit 5 — 1311 `core:rules`, 542 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1877 Kotlin** (JUnit 5 — 1313 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -526,6 +518,11 @@ SkillDefaults.attacks(untrained)      // the rows the Attack dialog can show an
 SkillDefaults.masteryFor(pathway, sequence) / .mastered(level, weaponInHand, mastery, dx)
                                       // Warrior / Weapon Master: a weapon IN
                                       // HAND is wielded at no less than DX
+SkillDefaults.wieldedAt(weapon, skillLevels, mastery, dx): Int?
+                                      // the level a CARRIED weapon parries at:
+                                      // its best skill, floored at DX for a
+                                      // master. Attack, Defend and the builder
+                                      // all print it (6ey)
 Attacks.atLevel(plan, level)          // the hand changed the level: drop a
                                       // Deceptive Attack it cannot afford
 SuccessRoll.against(target, source: RandomSource): RollResult

@@ -190,7 +190,38 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6es back to 6de
+## Retired lead paragraphs, 6et back to 6de
+
+**6et is next, and it is the successor three slices carried: the
+untrained roll.** `SkillLadder.defaultFor` had no production caller since
+M0, so chapter 2's table reached no roll, and three screens called an
+untrained roll *"the GM's call"*. Read it for four things.
+
+- **A skill's own line beats the table.** Brawling is DX-2 where Easy says
+  -4, Wrestling has *"No default"* where Average says -5, and Boxing
+  agrees. `SkillDefaults` holds the two overrides. `defaultFor` is the
+  table alone.
+- **Divination Arts is asked of `Divination`, not recomputed.** Line 3559
+  does not say *only*, so withholding SPI-6 is a reading (the design
+  review's MEDIUM). It is the one the Divine tile already made, and the
+  list says so on screen.
+- **One consumer.** A row at the foot of the Skills tab opens a filtered
+  list of 149 skills, and a pick goes to the sheet's own roll dialog. The
+  Attack and Defence dialogs take no default, and now say that.
+- **Versatile's +1 is inside every default**, and its sheet note is gone:
+  the second false sentence that trait has carried.
+
+Codex answered both reviews: CHANGE, SHIP, CHANGE on the design, with ten
+stale sentences listed, then FIX on the diff. Its MEDIUM: one note
+flattened three potion lines about weapons, and Harvest Priest's covers
+farming tools only. Seventeen mutations, two of which survived until they
+got an assertion. On the SM-T570: `Acrobatics (untrained, DX-6)`, `Skill
+4`, `3d6: 14 vs 4`. **Both reviews passed a list that offered five premades
+their own skill back**: a sheet prints *"Mathematics"* where the book
+prints *"Mathematics (Applied)"*. A probe of every premade through every
+potion found it, after the commit. **Successors**: an untrained punch and a carried weapon
+in the Attack dialog, the Acrobatic Dodge, whether a default parries, and
+6es's two lists.
 
 **6es is next, and it is 6er's first successor: it lists the complement
 of `TraitEffects.known()`, which nothing had.** 148 of the 198 catalogue
