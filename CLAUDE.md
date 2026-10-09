@@ -152,7 +152,20 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ey is newest: a master's weapon parries at DX.** Line 2468 prints
+**6ez is newest: the Acting Method table a holder reads.** Knows the
+Acting Method prints *"all Digestion Gain Per Session is doubled (e.g.
+Exemplary +15–20% becomes +30–40%)"*, and the digestion tracker printed
+the book's ranges to everyone. `TraitEffects.actingGains` doubles them
+for a holder, and the tracker says why. The GM still moves the stepper.
+It is the first of 6es's seven untriaged rows. Read it for one thing.
+**The note first compared tables to ask whether the trait was held.** The
+review's LOW: that proxy stops meaning its question when a second gain
+modifier lands. It asks `doublesActingGains` now. One sub-agent reviewed
+it (Codex out, gateway down). On the SM-T570 the tracker read `Exemplary
++30-40%` and the quoted note. **Successors**: the other six rows of
+6es's second list, its first list, and Warrior's *default +2*.
+
+**6ey is next: a master's weapon parries at DX.** Line 2468 prints
 Parry (Armed) as *"Weapon Skill ÷ 2 + 3"*, and the Twilight Giant lines
 treat every weapon *"as known at effective DX"*. Read it for three things.
 
@@ -202,7 +215,10 @@ self-control roll, so 28 of the 30 rows with one said nothing beside
 Reckless's -1 and Reluctant Killer's *"-4 to hit ... cannot Aim"*. Read
 it for three things.
 
-- **`TraitEffects.ROLLED_ONLY`** is one sentence for all 28, the roll
+- **`TraitEffects.actingGains(traits) / .doublesActingGains(traits)
+                                      // ch.6's Acting Method table, doubled for
+                                      // Knows the Acting Method (6ez)
+TraitEffects.ROLLED_ONLY`** is one sentence for all 28, the roll
   excepted, and `SelfControl.checksFor` decides it, so a quirk of the
   same name is not told its roll is applied (the review's MEDIUM).
 - **The sweep the review asked for found a row that could not find
@@ -256,37 +272,10 @@ whether a Warrior's weapon parries at DX, which is sharper now; the same
 missing trait term on the ATTACK roll; Warrior's *default +2*; and 6es's
 two lists.
 
-**6eu is next, and it is 6et's second consumer: the Attack dialog takes
-an untrained skill.** A character without Brawling had no punch there, and
-one handed a revolver had no shot. Read it for four things.
-
-- **The list is "the attacks supported here"**, an app boundary: the eight
-  untrained skills with a fist or a weapon row. The book's COMBAT SKILLS
-  banner prints nineteen and does not decide it.
-- **6et's refusal lasted one slice.** It named three potion lines about
-  weapons and applied none, because a list of skills has no weapon. This
-  screen has one, so a Warrior or Weapon Master wields it at no less than
-  DX, with no Versatile +1.
-- **The level now depends on the hand**, so one `levelWith` feeds the
-  header, the stepper, the damage and the roll, and `Attacks.atLevel`
-  drops a Deceptive Attack the lower level cannot afford.
-- **The dialog's KDoc said "this book tags no skill as a combat skill"**
-  beside a banner in `skills.json`. Corrected, and in `TraitEffects` too.
-
-Codex answered both reviews: CHANGE on all three design questions, with
-two HIGHs on when the mastery applies, then FIX on the diff. Taken: the
-floor reaches a BOUGHT skill below DX too. **Declined**: a Compose test for
-the two `atLevel` call sites (section 6). Twelve mutations of the code as
-it stands, twelve caught. **The floor then printed a parry of 9 in Attack
-beside Defend's 8**, found after both reviews: a fix for a review finding
-is code no review has read. On the SM-T570: `Brawling (untrained, DX-2, …) 7`, `1d-3 cr`; a
-seeded Warrior's `Knife (DX, Warrior's "no default penalty") 11`, then `7`
-and `Deceptive 0` with the knife down. **Successors**: the Defend dialog
-takes no default, Warrior's *default +2*, and 6es's two lists.
-
-**6et back to 6de had lead paragraphs here until 2026-10-09. Each is in
+**6eu back to 6de had lead paragraphs here until 2026-10-09. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6eu** — the Attack dialog takes an untrained skill with a fist or weapon row; a Warrior's weapon is wielded at no less than DX, and one `levelWith` feeds the header, damage and roll;
 **6et** — the untrained roll: `defaultFor` had no caller since M0; a skill's own line (Brawling DX-2, Wrestling none) beats the table, and Versatile's +1 sits inside every default;
 **6es** — the complement of `known()`, listed: 148 rows nothing read; `UNREAD` says so, and the sheet lists every held advantage with its cell;
 **6er** — the builder sells a language; the two halvings combine with one ceiling, and a Language Talent bought later reprices what is owned;
@@ -347,7 +336,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ey first.** The
+**Where to start next: the slice log, from the END — 6ez first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -402,7 +391,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1877 Kotlin** (JUnit 5 — 1313 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1878 Kotlin** (JUnit 5 — 1314 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |

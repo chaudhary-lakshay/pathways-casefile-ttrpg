@@ -6726,6 +6726,82 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ez. The table a holder of the Acting Method reads
+
+6es left two lists untriaged. The second named seven rows *"that name
+something this app has a screen for"*, each with a claim to check, and
+none of them had a reader. I started with the most mechanical one.
+**Knows the Acting Method** prints *"Doubles your digestion speed — all
+Digestion Gain Per Session is doubled (e.g. Exemplary +15–20% becomes
++30–40%)"*. The pathway screen's digestion tracker is a ±5% stepper that
+the GM moves, and beside it the screen prints the Acting Method table
+(chapter 6, `acting_method.json`). A holder saw the undoubled ranges.
+
+### What was built
+
+- **`TraitEffects.actingGains(traits)`** returns the table, with every
+  gain range doubled for a holder. **`doublesActingGains`** is the
+  question a screen asks before it says so. "None" loses progress, which
+  is not a gain, so it stays as printed. The test checks the cell's own
+  example: Exemplary 30-40.
+- **The tracker** prints the doubled table and one line that quotes the
+  cell. A doubled range reads like a misprint of the book's unless the
+  screen says why. The app still moves nothing by itself: the GM picks
+  inside the range, and the printed table is the only thing the app does
+  with chapter 6's gains. So the doubled table is the whole application.
+- `ACTING_METHOD` is in `known()`, and nothing it prints is left to
+  report. The first sentence of its cell, *"You innately understand the
+  Acting Method"*, is knowledge, not a mechanic.
+
+### Review
+
+Codex was out until 4:13 PM and the gateway was down, so one sub-agent
+reviewed the diff: SHIP on all three questions, with three LOWs, all
+taken.
+
+- **The note compared tables** (`gains != actingMethod()`) to answer
+  *"does this character hold the trait"*. That proxy stops meaning its
+  question the day a second gain modifier lands. It now asks
+  `doublesActingGains`.
+- **`traits` is remembered once on the screen**, keyed the way the sheet
+  keys it.
+- **The trait is in the quiet list** of
+  `a trait applied in full or unprinted is not called unread`, so
+  `reported` is pinned empty for it.
+
+The reviewer also checked three other things. The traits passed are the
+sheet's own expression, builder purchases included. No potion grants
+the trait. Every doubled range is a multiple of 5, so the stepper can
+reach each one.
+
+### Verification
+
+1878 Kotlin (1314 `core:rules`, 544 `app`, 20 `core:model`), green from
+the JUnit XML after `--rerun-tasks`. The test failed against a stub on
+`(30, 40)` vs `(15, 20)`. Two mutations were caught, each restored from
+a copy: the max not doubled, and the trait missing from `known()`.
+
+**On the SM-T570**: Docks Bouncer is 6ey's seeded entry and the only
+entry this changed. It bought the trait in the builder (`105 of 100
+points — over budget`; the builder warns and allows it). The tracker
+read `Exemplary +30-40%   Good +20-30%   Adequate +10-20%   Poor +0-10%
+None 0 or lose`, then `Knows the Acting Method: "all Digestion Gain Per
+Session is doubled".` The crash buffer stayed empty.
+
+### Successors
+
+- **The rest of 6es's second list, each still a claim to check:**
+  - Cleansed Spirit (*"CoR gained from passive exposure are halved"*).
+    The CoR table's rows would need a passive/active reading.
+  - Fast Healer, beside 6ep's recovery rows, which restore nothing.
+  - Thinned Veil (Concentration *"in spiritually active environments
+    at -2"*), a declared circumstance on a dialog that exists.
+  - Luck's reroll.
+  - Acute Vision and Acute Hearing.
+- **6es's first list** (six conditional skill rows) stands, and so does
+  Warrior's *default +2*.
+- **Owed: a Codex review of `8b033d6..HEAD`.**
+
 ## 6ey. The parry a master's weapon was owed
 
 6eu, 6ev and 6ex all named this successor: a Warrior's weapon is

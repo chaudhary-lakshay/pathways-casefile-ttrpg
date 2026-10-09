@@ -190,7 +190,35 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6et back to 6de
+## Retired lead paragraphs, 6eu back to 6de
+
+**6eu is next, and it is 6et's second consumer: the Attack dialog takes
+an untrained skill.** A character without Brawling had no punch there, and
+one handed a revolver had no shot. Read it for four things.
+
+- **The list is "the attacks supported here"**, an app boundary: the eight
+  untrained skills with a fist or a weapon row. The book's COMBAT SKILLS
+  banner prints nineteen and does not decide it.
+- **6et's refusal lasted one slice.** It named three potion lines about
+  weapons and applied none, because a list of skills has no weapon. This
+  screen has one, so a Warrior or Weapon Master wields it at no less than
+  DX, with no Versatile +1.
+- **The level now depends on the hand**, so one `levelWith` feeds the
+  header, the stepper, the damage and the roll, and `Attacks.atLevel`
+  drops a Deceptive Attack the lower level cannot afford.
+- **The dialog's KDoc said "this book tags no skill as a combat skill"**
+  beside a banner in `skills.json`. Corrected, and in `TraitEffects` too.
+
+Codex answered both reviews: CHANGE on all three design questions, with
+two HIGHs on when the mastery applies, then FIX on the diff. Taken: the
+floor reaches a BOUGHT skill below DX too. **Declined**: a Compose test for
+the two `atLevel` call sites (section 6). Twelve mutations of the code as
+it stands, twelve caught. **The floor then printed a parry of 9 in Attack
+beside Defend's 8**, found after both reviews: a fix for a review finding
+is code no review has read. On the SM-T570: `Brawling (untrained, DX-2, …) 7`, `1d-3 cr`; a
+seeded Warrior's `Knife (DX, Warrior's "no default penalty") 11`, then `7`
+and `Deceptive 0` with the knife down. **Successors**: the Defend dialog
+takes no default, Warrior's *default +2*, and 6es's two lists.
 
 **6et is next, and it is the successor three slices carried: the
 untrained roll.** `SkillLadder.defaultFor` had no production caller since
