@@ -152,7 +152,28 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fd is newest: what Cleansed Spirit halves.** Nothing, and the CoR
+**6fe is newest: Alertness on the Spirit Vision roll.** 6al passed
+Alertness to Detection by hand because it was *"the one bare Per roll"*.
+Spirit Vision's *"Perception-based roll to interpret"* came later and
+got nothing. Read it for two things.
+
+- **A recorded reason expired when a second roll arrived.** No sweep
+  re-asks a census like that one. `TraitEffects.alertnessBonus` now
+  serves both rolls, and each call site used to build its own copy.
+- **I was going to refuse Acute Vision and Hearing, and my reason was
+  false.** I said the book prints no Vision roll, but line 8688 defines
+  one: *"vision-based Perception rolls"*. The design sub-agent also
+  found ten Per skills (Lip Reading, Search) that my sentence left out.
+  Both rows stay `UNREAD`.
+
+Codex was still out and the gateway down, so sub-agents reviewed the
+design (Q2 CHANGE) and the diff (SHIP). On the SM-T570: `Roll 12 or
+under (Per 11, +1 Alertness)`, `rolled 6 vs 12`. **Owed: a Codex review
+of `466e3d7..HEAD`.** **Successors**: Acute Vision and Hearing, asked
+with line 8688; Luck against the PCR's `lost` latch; 6es's first list;
+Warrior's *default +2*.
+
+**6fd is next: what Cleansed Spirit halves.** Nothing, and the CoR
 stepper says why. *"CoR gained from passive exposure are halved"* names a
 category the book never fills in. Read it for two things.
 
@@ -226,22 +247,10 @@ On the SM-T570: `3d6 ≤ 4 — Will 9-3, Thinned Veil -2`, and no row in
 Fright. **Successors**: the other five of 6es's second list, Chronic
 Insomnia on the same roll, 6es's first list, and Warrior's *default +2*.
 
-**6ez is next: the Acting Method table a holder reads.** Knows the
-Acting Method prints *"all Digestion Gain Per Session is doubled (e.g.
-Exemplary +15–20% becomes +30–40%)"*, and the digestion tracker printed
-the book's ranges to everyone. `TraitEffects.actingGains` doubles them
-for a holder, and the tracker says why. The GM still moves the stepper.
-It is the first of 6es's seven untriaged rows. Read it for one thing.
-**The note first compared tables to ask whether the trait was held.** The
-review's LOW: that proxy stops meaning its question when a second gain
-modifier lands. It asks `doublesActingGains` now. One sub-agent reviewed
-it (Codex out, gateway down). On the SM-T570 the tracker read `Exemplary
-+30-40%` and the quoted note. **Successors**: the other six rows of
-6es's second list, its first list, and Warrior's *default +2*.
-
-**6ey back to 6de had lead paragraphs here until 2026-10-09. Each is in
+**6ez back to 6de had lead paragraphs here until 2026-10-09. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ez** — Knows the Acting Method doubles the digestion ranges the tracker prints for a holder; the note asks `doublesActingGains`, not whether two tables differ;
 **6ey** — a master's weapon parries at DX: `SkillDefaults.wieldedAt` floors the skill, and Attack, Defend and the builder all print it; the Pugilist was invisible to a keyword;
 **6ex** — a Reluctant Killer's target is the GM's to declare (-4, or -2 with the face hidden); "cannot Aim" is unconditional, and the Attack roll takes the general trait term;
 **6ew** — a self-control row's other clauses were unsaid; `ROLLED_ONLY` says the roll alone is applied, and `catalogueName` had cut `SC 6` to `SC` as if 6 were a level;
@@ -307,7 +316,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fd first.** The
+**Where to start next: the slice log, from the END — 6fe first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -362,7 +371,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1883 Kotlin** (JUnit 5 — 1319 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1885 Kotlin** (JUnit 5 — 1321 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -590,7 +599,9 @@ Wounds.majorWoundFor(roll): MajorWound / .majorWounds()
 ContentLoader.hitLocations() / .woundingMultipliers() / .spiritDamage()
 ContentLoader.glossary()               // p.167-168, reference only; no rule
 SpiritVision.grantedTo(pathway, sequence) / .formFor(pathway)  // the BLOCKS, never ch.7.6's table
-SpiritVision.targetFor(per, shock, hurt) / .attempt(...) / .partsFor(...)
+SpiritVision.targetFor(per, shock, hurt, alertness) / .attempt(...) / .partsFor(...)
+TraitEffects.alertnessBonus(traits)   // "all Per rolls" for the two bare ones:
+                                      // Detection and Spirit Vision (6fe)
 SpiritVision.rowFor(margin) / .rowForOutcome(outcome) / .isMisleading(row)
 SpiritVision.astralColors() / .etherBody() / .pathwayDifferences() / .grants()
 ContentLoader.spiritVision()          // loadWhole: six sections, not `entries`

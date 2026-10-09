@@ -6726,6 +6726,110 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fe. The Per roll a census missed
+
+6fd left three rows: Luck, Acute Vision and Acute Hearing. Triaging them
+found a gap in a fourth row, which was applied in part.
+
+### The triage
+
+- **Luck** (*"1 reroll per session — may reroll any one failed roll"*)
+  and **Beckoning Luck** (*"2 rerolls per session"*) are not
+  bookkeeping. A failed Potion Consumption Roll sets
+  `BeyonderSession.lost` (`BeyonderSession.kt:533`), and *"Nothing here
+  un-loses them; that is the point"*. The book's rule offers a reroll of
+  exactly that roll, and the app forbids it. That is a design question
+  with real weight, so it waits for Codex.
+- **Acute Vision / Acute Hearing**: what is a *"Vision roll"*? While
+  answering that, I listed every bare Per roll the app makes. There are
+  two, and only one of them takes Alertness.
+
+### The gap
+
+Alertness prints *"+1 per level to all Per rolls"*. 6al passed it to
+Detection's Per branch by hand, on the ground that *"the detection roll
+(6ah) is the one bare Per roll this app makes"*. Then 6dh added Spirit
+Vision, whose book line 4840 reads *"Make a Perception-based roll to
+interpret correctly"*. Its `targetFor` was `per + shock + hurt`, and
+its KDoc said *"Nothing modifies this roll"*. **The census behind a
+recorded reason expired when a second instance arrived, and no sweep
+re-asks it.** The only two bare Per rolls (`MainActivity.kt:1154`,
+`:1165`) were found with one grep for `vitals.per`.
+
+### The design review
+
+Codex was at its usage limit until 00:52, and the gateway answered
+`fetch failed`, so one sub-agent did the review.
+
+- **Q1 SHIP.** The strongest case against: *"The spirit sees what the eye
+  cannot"* (4770), and the book's SPI skill *Spiritual Perception*
+  suggests that "Per rolls" means mundane rolls only. It fails on 4840's
+  own words: the book chose *Perception-based*, not the SPI skill.
+  Alertness's gloss describes; it does not narrow.
+- **Q2 CHANGE: my refusal of the Acute rows rested on a false premise.**
+  I wrote *"the book prints no Vision or Hearing roll"*. Line 8688
+  prints *"+2 to vision-based Perception rolls"*, and 6381 *"vision-based
+  Per rolls"*, so the book defines one. My second clause, *"this app's
+  Per rolls are a spiritual sight and a sense of being divined"*, also
+  left out ten Per-controlled skills, which `TraitEffects.modifiers`
+  already reaches. Two of them are Lip Reading and Search, the very
+  things Acute Vision's gloss names. **The refusal was dropped**, and
+  both rows stay `UNREAD`, which is true.
+- **Q3**: no other bare Per roll exists. The LOW was to build the
+  Alertness bonus once, for both sites.
+
+### What was built
+
+- `TraitEffects.alertnessBonus(traits)`: level × `ALERTNESS_PER_LEVEL`,
+  0 for a non-holder. Detection's call site uses it now, replacing an
+  inline copy.
+- `SpiritVision.targetFor` / `.partsFor` / `.attempt` take `alertness`
+  (`require >= 0`). The parts print `+N Alertness`.
+- `SpiritVisionDialog` takes `alertness` as a **required** parameter, so
+  no caller can omit it, and its one caller passes it.
+- KDocs corrected: SpiritVision's *"Nothing modifies this roll"*, the
+  dialog's `per + shock + hurt`, and `TraitEffects`' list of bare rolls
+  (the diff review's LOW).
+
+### The diff review
+
+One sub-agent: **SHIP**. The caption, target and roll come from one
+composition and one `rollAgainst`, *Look again* included. Detection's
+value is unchanged: `(levelOf ?: 0) * 1` equals `levelOf?.times(1) ?:
+0`. One LOW was taken.
+
+### Verification
+
+1885 Kotlin (1321 `core:rules`, 544 `app`, 20 `core:model`), green from
+the JUnit XML after `--rerun-tasks`. RED first: `expected 12 but was 10`
+and `expected 2 but was 0`. Three mutations were caught, each restored
+from a copy: the target dropping Alertness, `attempt` dropping it from
+`targetFor`, and the bonus ignoring the level. The `attempt` equality
+test runs at alertness 2, because at 0 it could not see a dropped
+argument.
+
+**On the SM-T570**, starting from its launcher with the save backed up,
+Church Healer bought Alertness and drank the Fool's Sequence 9 (Seer).
+Spirit Vision read `Roll 12 or under (Per 11, +1 Alertness)`, and *Look
+(1 SPI)* gave `rolled 6 vs 12 · margin 6`. The crash buffer was empty.
+The save was restored (`cmp` identical), and the tablet went back to its
+launcher.
+
+### Owed
+
+A Codex review of `466e3d7..HEAD`: 6fc's fix, 6fd and 6fe have been
+read only by sub-agents.
+
+### Successors
+
+- **Acute Vision and Acute Hearing, asked with line 8688**: is a
+  Per-based skill (Lip Reading, Search, Observation) a vision-based
+  Perception roll, and is Spirit Vision's?
+- **Luck and Beckoning Luck against the PCR's `lost` latch.**
+- 6es's first list, and Warrior's *default +2*.
+- **The digest index is at 7,595 of its 8,000 characters**: archive its
+  oldest entries before the next retirement.
+
 ## 6fd. The corruption a cleansed spirit halves
 
 **Cleansed Spirit** (5) prints *"CoR gained from passive exposure are

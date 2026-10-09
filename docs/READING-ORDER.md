@@ -190,7 +190,20 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6ey back to 6de
+## Retired lead paragraphs, 6ez back to 6de
+
+**6ez is next: the Acting Method table a holder reads.** Knows the
+Acting Method prints *"all Digestion Gain Per Session is doubled (e.g.
+Exemplary +15–20% becomes +30–40%)"*, and the digestion tracker printed
+the book's ranges to everyone. `TraitEffects.actingGains` doubles them
+for a holder, and the tracker says why. The GM still moves the stepper.
+It is the first of 6es's seven untriaged rows. Read it for one thing.
+**The note first compared tables to ask whether the trait was held.** The
+review's LOW: that proxy stops meaning its question when a second gain
+modifier lands. It asks `doublesActingGains` now. One sub-agent reviewed
+it (Codex out, gateway down). On the SM-T570 the tracker read `Exemplary
++30-40%` and the quoted note. **Successors**: the other six rows of
+6es's second list, its first list, and Warrior's *default +2*.
 
 **6ey is next: a master's weapon parries at DX.** Line 2468 prints
 Parry (Armed) as *"Weapon Skill ÷ 2 + 3"*, and the Twilight Giant lines
