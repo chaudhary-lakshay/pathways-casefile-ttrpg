@@ -2034,9 +2034,10 @@ private fun PoolTrackers(
  * ponytail: -1/+1 only. Damage is rolled at the table off dice this app does
  * not own, and a "take N damage" field is a keyboard in the middle of a sheet.
  *
- * Soul Debt is REPORTED, not applied: SPI below zero is "+1 CoR per 1 point
- * below 0" (p. 35), but CoR is permanent and this stepper is not -- stepping
- * back up would have to un-charge it. The GM adds it on the pathway screen.
+ * Soul Debt, "+1 CoR per 1 point below 0" (p. 35), is CHARGED by
+ * [BeyonderSession.spend] since `ea6ae38`, one way: stepping back up refunds
+ * no CoR, because CoR from Soul Debt is permanent (p. 41). This said
+ * "reported, not applied" until 6fd.
  */
 @Composable
 private fun PoolRow(status: PoolStatus, onSpend: (Int) -> Unit) {

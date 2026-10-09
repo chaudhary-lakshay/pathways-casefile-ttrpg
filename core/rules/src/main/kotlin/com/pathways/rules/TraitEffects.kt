@@ -635,6 +635,17 @@ object TraitEffects {
 
     const val FAST_HEALER = "Fast Healer"
 
+    const val CLEANSED_SPIRIT = "Cleansed Spirit"
+
+    /**
+     * What the CoR stepper says to a holder of [CLEANSED_SPIRIT]: its row in
+     * [reported], refused whole in [UNAPPLIED] (6fd). The book lists no CoR
+     * source as "passive exposure", so nothing is classified, and nothing is
+     * halved.
+     */
+    fun corruptionNotes(traits: List<Trait>): List<TraitNote> =
+        reported(traits.filter { catalogueName(it.name).equals(CLEANSED_SPIRIT, ignoreCase = true) })
+
     /** Whether [traits] hold [FAST_HEALER]: the recovery row asks before saying so (6fc). */
     fun healsFast(traits: List<Trait>): Boolean = levelOf(traits, FAST_HEALER) != null
 
@@ -2014,6 +2025,14 @@ object TraitEffects {
      */
     private val UNAPPLIED = mapOf(
         "Danger Sense" to "the book hands this to the GM, not to a roll",
+        // Said beside the CoR stepper too ([corruptionNotes]). "Passive
+        // exposure" occurs once in the book, and Soul Debt -- a hit taken on
+        // SPI among its routes -- is charged automatically, so no charge is called
+        // deliberate either (the design review's MEDIUM, 6fd).
+        CLEANSED_SPIRIT to
+            "the book lists no CoR source as passive exposure, so this app " +
+            "halves nothing it charges, Soul Debt from SPI spent below 0 " +
+            "included; the GM halves what is passive with the CoR stepper",
         // The only cell that lists "<Skill> +N". Chapter 3 writes a roll
         // bonus as "+N to X" and chapter 6 defines a bare +N for a potion's
         // entry, so this is neither idiom's own table. Refused whole on the

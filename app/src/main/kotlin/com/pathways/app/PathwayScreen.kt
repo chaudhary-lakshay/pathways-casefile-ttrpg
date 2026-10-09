@@ -319,7 +319,7 @@ fun PathwayScreen(
                 // CoR is not tied to the potion being browsed: it is the
                 // character's, so it shows whenever they have walked at all.
                 if (drunk != null) {
-                    item { CorruptionTracker(session, drunk, maxCor) }
+                    item { CorruptionTracker(session, drunk, maxCor, traits) }
                 }
                 digestion(block, digested)
             }
@@ -472,15 +472,23 @@ internal fun drinkLine(state: BeyonderState?, cor: Int, ceilingAfter: Int): Stri
 /**
  * CoR, its ceiling, and how close the character is to it (Ch. 6, p. 45).
  *
- * ponytail: a +1/-1 stepper, same reasoning as the digestion tracker. Every
- * row of the book's CoR table is a range the GM picks inside ("1-3 CoR per
+ * ponytail: a +1/-1 stepper, same reasoning as the digestion tracker. Most
+ * rows of the book's CoR table are a range the GM picks inside ("1-3 CoR per
  * session") or an open floor ("10+"), so a button per row would have to
- * invent the figure. The table is printed beside the stepper instead, and the
- * one CoR cost the rules DO compute -- advancing before full digestion -- is
- * charged automatically when the potion is drunk.
+ * invent the figure; the other two are 1 per use and a 1d roll. The table is printed beside the stepper instead. The
+ * costs the rules DO compute are charged where they happen: advancing before
+ * full digestion, a ritual's or a boon's critical failure, and Soul Debt.
+ *
+ * A holder of Cleansed Spirit is told here that none of those is halved
+ * ([TraitEffects.corruptionNotes], 6fd): the book lists no source as passive.
  */
 @Composable
-private fun CorruptionTracker(session: BeyonderSession, drunk: BeyonderState, max: Int) {
+private fun CorruptionTracker(
+    session: BeyonderSession,
+    drunk: BeyonderState,
+    max: Int,
+    traits: List<Trait>,
+) {
     // [max] is the ceiling of the potion this composition drew. A Drink that
     // lands before the redraw can LOWER it, and a step taken against the old
     // one would miss the loss -- so a step waits for the screen to catch up.
@@ -524,6 +532,13 @@ private fun CorruptionTracker(session: BeyonderSession, drunk: BeyonderState, ma
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp),
         )
+        TraitEffects.corruptionNotes(traits).forEach {
+            Text(
+                "${it.trait}: ${it.printed} Not halved here: ${it.reason}.",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
     }
 }
 

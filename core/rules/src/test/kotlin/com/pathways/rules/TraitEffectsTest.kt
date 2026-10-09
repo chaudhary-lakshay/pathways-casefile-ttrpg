@@ -2562,4 +2562,26 @@ class TraitEffectsTest {
         assertEquals("Injuries that would leave others bedridden leave you functional in half the time", note.printed)
         assertTrue("wounds" in note.reason, note.reason)
     }
+
+    /**
+     * Cleansed Spirit: "CoR gained from passive exposure are halved" (book
+     * lines 1012-1013; 6fd). The book lists no CoR source as passive, and this
+     * app charges Soul Debt for SPI spent below 0, so it halves nothing and
+     * says so beside the CoR stepper, where the GM can.
+     */
+    @Test
+    fun `Cleansed Spirit is said beside the CoR stepper and halves nothing`() {
+        val cell = ContentLoader.advantages().single { it.name == TraitEffects.CLEANSED_SPIRIT }.notes
+        val held = advantage(TraitEffects.CLEANSED_SPIRIT)
+
+        val note = TraitEffects.corruptionNotes(listOf(held, advantage("Fit"))).single()
+        assertEquals(cell, note.printed)
+        assertTrue("Soul Debt" in note.reason && "GM" in note.reason, note.reason)
+        assertEquals(note, TraitEffects.reported(listOf(held)).single())
+
+        assertTrue(TraitEffects.corruptionNotes(listOf(advantage("Fit"))).isEmpty())
+        // A near miss on the name is not the trait (the diff review).
+        assertTrue(TraitEffects.corruptionNotes(listOf(advantage("Spiritual Fortitude"))).isEmpty())
+        assertTrue(TraitEffects.corruptionNotes(emptyList()).isEmpty())
+    }
 }
