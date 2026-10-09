@@ -1142,8 +1142,7 @@ fun SheetScreen(
             // Ch. 3's Alertness. This is a Per roll made outside SkillKey, so
             // TraitEffects.modifiers cannot reach it; passed explicitly rather
             // than left a silent gap (found in review).
-            alertness = TraitEffects.levelOf(traits, TraitEffects.ALERTNESS)
-                ?.times(TraitEffects.ALERTNESS_PER_LEVEL) ?: 0,
+            alertness = TraitEffects.alertnessBonus(traits),
             // The ATTRIBUTE, not what is left in the pool. The book rolls
             // "SPI or Per, whichever is higher" the way any attribute roll
             // goes; passing the remaining pool made a caster who had spent
@@ -1163,6 +1162,8 @@ fun SheetScreen(
             // wounded Detection roll already needed. Per is the roll; SPI is
             // only what it costs.
             per = vitals.per,
+            // "+1 per level to all Per rolls": this is one, as Detection is (6fe).
+            alertness = TraitEffects.alertnessBonus(traits),
             spiAvailable = vitals.maxSpi - session.spiSpent,
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,

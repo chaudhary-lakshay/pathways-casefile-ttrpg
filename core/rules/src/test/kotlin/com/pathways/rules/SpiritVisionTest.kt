@@ -221,4 +221,24 @@ class SpiritVisionTest {
         assertNotEquals(SpiritVision.rowForOutcome(Outcome.SUCCESS), SpiritVision.rowFor(5))
         assertEquals(SpiritVision.rowFor(5), SpiritVision.rollAgainst(11, fixed(2), parts).row)
     }
+
+    /**
+     * Alertness, "+1 per level to all Per rolls", and Spirit Vision's
+     * "Perception-based roll to interpret" (book 4840; 6fe). Detection took
+     * it on the ground that it was the one bare Per roll; this one came later.
+     */
+    @Test
+    fun `Alertness reaches the Perception roll that reads Spirit Vision`() {
+        assertEquals(12, SpiritVision.targetFor(10, alertness = 2))
+        assertEquals(listOf("Per 10", "+2 Alertness"), SpiritVision.partsFor(10, alertness = 2))
+        assertEquals(listOf("Per 10"), SpiritVision.partsFor(10))
+        // At 0 the equality below could not see a dropped argument.
+        val composed = SpiritVision.rollAgainst(
+            SpiritVision.targetFor(10, shock = -4, alertness = 2),
+            fixed(3),
+            SpiritVision.partsFor(10, shock = -4, alertness = 2),
+        )
+        assertEquals(composed, SpiritVision.attempt(10, fixed(3), shock = -4, alertness = 2))
+        assertFailsWith<IllegalArgumentException> { SpiritVision.targetFor(10, alertness = -1) }
+    }
 }

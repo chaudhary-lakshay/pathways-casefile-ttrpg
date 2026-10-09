@@ -56,7 +56,8 @@ import com.pathways.rules.SpiritVisionResult
  * recomposes the caller and this dialog is handed the new figure.
  *
  * Nothing about spending SPI moves the target. [SpiritVision.targetFor] is
- * `per + shock + hurt`, and those read the ATTRIBUTE and the HP/FP pools --
+ * `per + alertness + shock + hurt`, and those read the ATTRIBUTE, a trait and
+ * the HP/FP pools --
  * the reading `DetectionDialog` already needed, after passing a remaining
  * pool there made a caster who had spent SPI worse at noticing.
  */
@@ -68,16 +69,18 @@ fun SpiritVisionDialog(
     spiAvailable: Int,
     shock: Int,
     hurt: Int,
+    /** [com.pathways.rules.TraitEffects.alertnessBonus]; required, so no caller forgets it. */
+    alertness: Int,
     dice: RandomSource,
     onSpendSpi: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var result by remember { mutableStateOf<SpiritVisionResult?>(null) }
     val activation = SpiritVision.activation()
-    val target = SpiritVision.targetFor(per, shock, hurt)
+    val target = SpiritVision.targetFor(per, shock, hurt, alertness)
     // Composed once, beside the target: the caption prints these and the
     // result carries them, and a second call would be a second answer.
-    val parts = SpiritVision.partsFor(per, shock, hurt)
+    val parts = SpiritVision.partsFor(per, shock, hurt, alertness)
     val affordable = spiAvailable >= activation
 
     AlertDialog(

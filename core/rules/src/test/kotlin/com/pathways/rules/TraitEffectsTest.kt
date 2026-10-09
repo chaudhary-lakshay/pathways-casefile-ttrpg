@@ -2588,4 +2588,12 @@ class TraitEffectsTest {
         assertTrue(TraitEffects.corruptionNotes(nearMiss).isEmpty())
         assertTrue(TraitEffects.corruptionNotes(emptyList()).isEmpty())
     }
+
+    /** One answer for the two bare Per rolls, Detection and Spirit Vision (6fe). */
+    @Test
+    fun `the Alertness bonus is its level times one`() {
+        assertEquals(2, TraitEffects.alertnessBonus(listOf(advantage("Alertness 2"))))
+        assertEquals(1, TraitEffects.alertnessBonus(listOf(advantage(TraitEffects.ALERTNESS))))
+        assertEquals(0, TraitEffects.alertnessBonus(listOf(advantage("Fit"))))
+    }
 }

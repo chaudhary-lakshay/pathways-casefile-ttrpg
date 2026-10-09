@@ -205,6 +205,14 @@ object TraitEffects {
     /** "+1 per level to all Per rolls." */
     const val ALERTNESS_PER_LEVEL = 1
 
+    /**
+     * Alertness's "+1 per level to all Per rolls", for the two bare Per rolls
+     * no [SkillKey] reaches: Detection's and Spirit Vision's (6fe). One answer,
+     * where each call site used to build its own.
+     */
+    fun alertnessBonus(traits: List<Trait>): Int =
+        (levelOf(traits, ALERTNESS) ?: 0) * ALERTNESS_PER_LEVEL
+
     /** "+1 to all HT rolls; recover FP at twice the normal rate." */
     const val FIT_BONUS = 1
 
@@ -746,7 +754,7 @@ object TraitEffects {
      *
      * Deliberately NOT a general attribute-roll bonus. The app's other bare
      * rolls are Will, IQ, Per and SPI (fright, self-control, concentration,
-     * detection). **A sweep in 6de asked whether any trait names those**, and
+     * detection, Spirit Vision). **A sweep in 6de asked whether any trait names those**, and
      * the Will half of its answer expired in 6df: the query is `Will rolls`
      * (plural, which is what excludes `Compulsive Gambling`'s singular
      * "requires Will roll at -2"), it returns four rows, and three of them

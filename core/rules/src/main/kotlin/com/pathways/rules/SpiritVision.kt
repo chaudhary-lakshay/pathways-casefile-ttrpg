@@ -48,9 +48,10 @@ data class SpiritVisionResult(
  * this object a second authority on what the book grants, competing with the
  * content files. What ships is structure; what parses English is the tool.
  *
- * **Nothing modifies this roll.** The chapter prints no bonus, no penalty and
- * no situational table, so [targetFor] adds only what "all rolls" already
- * reaches -- shock, and reeling or fatigue. A circumstance beyond those is
+ * **The chapter modifies nothing in this roll.** It prints no bonus, no
+ * penalty and no situational table, so [targetFor] adds only what reaches
+ * every roll -- shock, and reeling or fatigue -- and Alertness, whose "all Per
+ * rolls" reaches this "Perception-based roll" (6fe). A circumstance beyond those is
  * Appendix A's business ([CommonModifiers]), as it is for [Concentration].
  *
  * **This table prints a FAILURE row, which its chapter 4 siblings do not.**
@@ -129,9 +130,13 @@ object SpiritVision {
      * The number to roll 3d6 under.
      *
      * The bare Perception, plus the two penalties that reach every roll in the
-     * book. The chapter itself prints no modifier at all.
+     * book, plus [alertness] ([TraitEffects.alertnessBonus]). The chapter
+     * itself prints no modifier at all.
      */
-    fun targetFor(per: Int, shock: Int = 0, hurt: Int = 0): Int = per + shock + hurt
+    fun targetFor(per: Int, shock: Int = 0, hurt: Int = 0, alertness: Int = 0): Int {
+        require(alertness >= 0) { "Alertness is a bonus, not a penalty; was $alertness" }
+        return per + alertness + shock + hurt
+    }
 
     /**
      * The row a successful reading of [margin] lands on.
@@ -180,8 +185,9 @@ object SpiritVision {
      * defect this repo has produced three times over -- the answer is
      * returned once, in the form both callers consume.
      */
-    fun partsFor(per: Int, shock: Int = 0, hurt: Int = 0): List<String> = buildList {
+    fun partsFor(per: Int, shock: Int = 0, hurt: Int = 0, alertness: Int = 0): List<String> = buildList {
         add("Per $per")
+        if (alertness > 0) add("+$alertness Alertness")
         if (shock != 0) add("shock $shock")
         if (hurt != 0) add("hurt or tired $hurt")
     }
@@ -194,10 +200,11 @@ object SpiritVision {
         source: RandomSource,
         shock: Int = 0,
         hurt: Int = 0,
+        alertness: Int = 0,
     ): SpiritVisionResult =
         // Through [targetFor], never re-derived: the caption above the button
         // and the roll under it take the same terms or they disagree.
-        rollAgainst(targetFor(per, shock, hurt), source, partsFor(per, shock, hurt))
+        rollAgainst(targetFor(per, shock, hurt, alertness), source, partsFor(per, shock, hurt, alertness))
 
     /**
      * The roll itself, against a [target] already composed by [targetFor],
