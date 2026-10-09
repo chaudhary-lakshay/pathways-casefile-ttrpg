@@ -703,7 +703,7 @@ fun DefenseDialog(
                     if (mastery != null && lifted.isNotEmpty()) {
                         Note(
                             "${lifted.joinToString(", ")} parr${if (lifted.size == 1) "ies" else "y"} " +
-                                "at no less than DX: ${mastery.source}, \"treated as " +
+                                "at no less than DX: ${mastery.quoted}'s \"treated as " +
                                 "known at effective DX\", read as the Parry (Armed) " +
                                 "row's Weapon Skill. A reading: the book's examples are attacks.",
                         )

@@ -133,7 +133,7 @@ object SkillDefaults {
     enum class WeaponMastery(
         val block: String,
         /** The block whose "no default penalty" the DX floor quotes. */
-        private val quoted: String,
+        val quoted: String,
         private val meleeWarmUp: Boolean,
         private val rangedWarmUp: Boolean,
     ) {
