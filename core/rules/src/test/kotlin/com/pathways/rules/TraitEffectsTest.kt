@@ -2351,7 +2351,7 @@ class TraitEffectsTest {
     fun `a trait applied in full or unprinted is not called unread`() {
         val quiet = listOf(
             "${TraitEffects.ALERTNESS} 1", TraitEffects.OUTDOORSMAN, TraitEffects.NIGHT_EYES,
-            Corruption.FORTITUDE, "${TraitEffects.HARD_TO_KILL} 1",
+            Corruption.FORTITUDE, "${TraitEffects.HARD_TO_KILL} 1", TraitEffects.ACTING_METHOD,
             "A Name No Catalogue Prints",
         )
         for (name in quiet) {
@@ -2457,5 +2457,29 @@ class TraitEffectsTest {
             listOf("recover FP at twice the normal rate"),
             cop.single { it.shown == TraitEffects.FIT }.notes.map { it.printed },
         )
+    }
+
+    /**
+     * Knows the Acting Method: "all Digestion Gain Per Session is doubled
+     * (e.g. Exemplary +15-20% becomes +30-40%)" (6ez). The tracker prints
+     * the Acting Method table beside its stepper, so a holder sees the
+     * doubled ranges, and the cell's own example is the check. Losing
+     * progress is not a gain, so "None" stays a loss.
+     */
+    @Test
+    fun `Knows the Acting Method doubles every printed gain and not a loss`() {
+        val cell = ContentLoader.advantages().single { it.name == TraitEffects.ACTING_METHOD }.notes
+        assertTrue("all Digestion Gain Per Session is doubled" in cell, cell)
+        assertEquals(ContentLoader.actingMethod(), TraitEffects.actingGains(emptyList()))
+
+        val holder = TraitEffects.actingGains(listOf(advantage(TraitEffects.ACTING_METHOD)))
+        val exemplary = holder.single { it.quality == "Exemplary" }
+        assertEquals(30 to 40, exemplary.minGain to exemplary.maxGain)
+        val none = holder.single { it.quality == "None" }
+        assertTrue(none.losesProgress)
+        assertNull(none.maxGain)
+        assertTrue(TraitEffects.ACTING_METHOD in TraitEffects.known())
+        assertTrue(TraitEffects.doublesActingGains(listOf(advantage(TraitEffects.ACTING_METHOD))))
+        assertTrue(!TraitEffects.doublesActingGains(emptyList()))
     }
 }

@@ -11,6 +11,7 @@ import com.pathways.model.ModifierSource
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
+import com.pathways.rules.content.ActingQuality
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.TraitDefinition
 
@@ -629,6 +630,30 @@ object TraitEffects {
      */
     fun darknessReduction(traits: List<Trait>): Int =
         if (levelOf(traits, NIGHT_EYES) != null) NIGHT_EYES_REDUCTION else 0
+
+    const val ACTING_METHOD = "Knows the Acting Method"
+
+    /** Whether [traits] hold [ACTING_METHOD]: the question a screen asks before saying so. */
+    fun doublesActingGains(traits: List<Trait>): Boolean = levelOf(traits, ACTING_METHOD) != null
+
+    /** "all Digestion Gain Per Session is doubled". */
+    private const val ACTING_GAIN_FACTOR = 2
+
+    /**
+     * The Acting Method table (Ch. 6) as [traits] digest by it: every gain
+     * range doubled for a holder of [ACTING_METHOD], whose cell prints its own
+     * example -- "Exemplary +15-20% becomes +30-40%" (6ez).
+     *
+     * The GM still picks the figure inside a range and moves the tracker; the
+     * app moves nothing on its own, so the doubled table IS the application.
+     * "None" loses progress, which is not a gain, and stays as printed.
+     */
+    fun actingGains(traits: List<Trait>): List<ActingQuality> {
+        if (!doublesActingGains(traits)) return ContentLoader.actingMethod()
+        return ContentLoader.actingMethod().map {
+            it.copy(minGain = it.minGain?.times(ACTING_GAIN_FACTOR), maxGain = it.maxGain?.times(ACTING_GAIN_FACTOR))
+        }
+    }
 
     /** Night Eyes' cell, quoted rather than paraphrased. */
     fun printedNightEyes(): String =
@@ -1664,7 +1689,9 @@ object TraitEffects {
             // one from this object, and [Corruption.maxFor] has read the
             // other since M4. Both clauses of Night Eyes are applied
             // ([DarknessCause]), so neither has anything to report.
-            setOf(NIGHT_EYES, Corruption.FORTITUDE)
+            setOf(NIGHT_EYES, Corruption.FORTITUDE) +
+            // The seventh, from 6es's untriaged list: [actingGains] (6ez).
+            setOf(ACTING_METHOD)
 
     /** The traits reported whole, for the disjointness test. */
     fun unappliedNames(): Set<String> = UNAPPLIED.keys

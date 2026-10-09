@@ -48,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.BeyonderState
+import com.pathways.model.Trait
 import com.pathways.model.canDrink
 import com.pathways.rules.Corruption
 import com.pathways.rules.DigestedCharacter
@@ -55,6 +56,7 @@ import com.pathways.rules.PcrOutcome
 import com.pathways.rules.PotionConsumption
 import com.pathways.rules.RandomSource
 import com.pathways.rules.PotionDigestion
+import com.pathways.rules.TraitEffects
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.ScoreFloors
 import com.pathways.rules.content.ContentLoader
@@ -117,6 +119,9 @@ fun PathwayScreen(
     val block = pathway?.let { chosen ->
         blocks.single { it.pathway == chosen && it.sequence == sequence }
     }
+    // The traits as bought, builder edits included: the expression the sheet
+    // screen reads. Read here for Knows the Acting Method (6ez).
+    val traits = remember(sheet, session.edits) { session.characterFor(sheet).traits }
     // Cumulative, not one potion in isolation: a Sequence 8 Fool drank the
     // Sequence 9 potion first and carries its SPI +9.
     val digested = remember(sheet, block, session.edits) {
@@ -307,7 +312,9 @@ fun PathwayScreen(
                     drunk.pathway == block.pathway &&
                     drunk.sequence == block.sequence
                 if (isCurrentPotion && !session.isLost) {
-                    item { DigestionTracker(drunk!!, session::digest) }
+                    item {
+                        DigestionTracker(drunk!!, traits, session::digest)
+                    }
                 }
                 // CoR is not tied to the potion being browsed: it is the
                 // character's, so it shows whenever they have walked at all.
@@ -375,7 +382,13 @@ private fun PathwayTile(name: String, modifier: Modifier = Modifier, onClick: ()
  * beside the stepper so the judgement stays informed and stays theirs.
  */
 @Composable
-private fun DigestionTracker(state: BeyonderState, onDigest: (Int) -> Unit) {
+private fun DigestionTracker(
+    state: BeyonderState,
+    /** Read for Knows the Acting Method, which doubles the table (6ez). */
+    traits: List<Trait>,
+    onDigest: (Int) -> Unit,
+) {
+    val gains = remember(traits) { TraitEffects.actingGains(traits) }
     Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Text("Digesting this potion", style = MaterialTheme.typography.titleSmall)
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -392,13 +405,20 @@ private fun DigestionTracker(state: BeyonderState, onDigest: (Int) -> Unit) {
         }
         Text("next potion rolls ${pcrLine(state)}", style = MaterialTheme.typography.bodySmall)
         Text(
-            ContentLoader.actingMethod().joinToString("   ") { quality ->
+            gains.joinToString("   ") { quality ->
                 val gain = if (quality.losesProgress) "0 or lose" else "+${quality.minGain}-${quality.maxGain}%"
                 "${quality.quality} $gain"
             },
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp),
         )
+        // Said, because a doubled range reads as a misprint of the book's.
+        if (TraitEffects.doublesActingGains(traits)) {
+            Text(
+                "${TraitEffects.ACTING_METHOD}: \"all Digestion Gain Per Session is doubled\".",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
 }
 
