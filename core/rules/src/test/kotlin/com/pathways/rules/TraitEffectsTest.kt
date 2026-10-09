@@ -2371,6 +2371,17 @@ class TraitEffectsTest {
         val lost = (ContentLoader.advantages() + ContentLoader.disadvantages())
             .map { it.name }.filter { TraitEffects.catalogueName(it) != it }
         assertEquals(emptyList<String>(), lost)
+        // ...in the ROW's spelling, whatever the sheet's casing: `reported`
+        // checks `known()` case-sensitively, so a name returned as printed
+        // told `PHOBIA (SPECIFY)` that a rule it applies was unread (Codex).
+        val recased = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .map { it.name }.filter { TraitEffects.catalogueName(it.uppercase()) != it }
+        assertEquals(emptyList<String>(), recased)
+        assertEquals(
+            TraitEffects.reported(listOf(advantage("Phobia (specify)"))),
+            TraitEffects.reported(listOf(advantage("PHOBIA (SPECIFY)")))
+                .map { it.copy(trait = "Phobia (specify)") },
+        )
         assertEquals("Alertness", TraitEffects.catalogueName("Alertness 1"))
     }
 

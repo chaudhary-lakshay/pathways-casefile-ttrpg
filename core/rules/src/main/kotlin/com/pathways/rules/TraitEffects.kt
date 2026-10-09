@@ -769,8 +769,9 @@ object TraitEffects {
     fun catalogueName(printed: String): String {
         // A row's own name is that row. `Compulsive Behavior (Indulge Evil
         // Desires) SC 6` ends in its self-control number, and the level strip
-        // below lost the row the builder had sold (6ew).
-        if (printed.lowercase() in rowNames) return printed
+        // below lost the row the builder had sold (6ew). Returned in the ROW's
+        // spelling: [reported] checks [known] case-sensitively (Codex).
+        rowNames[printed.lowercase()]?.let { return it }
         if (printed.substringAfterLast(' ').toIntOrNull() != null) {
             return printed.substringBeforeLast(' ')
         }
@@ -1068,7 +1069,7 @@ object TraitEffects {
      * cost column, so writing them into `advantages.json` would make that file
      * claim the book printed one (6v).
      */
-    private val rowNames: Set<String> by lazy { catalogue().keys }
+    private val rowNames: Map<String, String> by lazy { catalogue().mapValues { it.value.name } }
 
     private fun catalogue(): Map<String, TraitDefinition> {
         val cost = ContentLoader.blessingCost()

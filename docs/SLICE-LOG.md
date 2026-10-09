@@ -6791,6 +6791,18 @@ verdicts were CHANGE, SHIP, CHANGE: the MEDIUM above, the miscount, a
 the sample. All were taken. **The `catalogueName` fix came after the
 review and no reviewer has read it.**
 
+**Codex then answered (Oct 9, 11:15)**, on `5fe2b41..127532d` and on
+`63e6290..a50baed` in one `codex exec`. **6ev: SHIP** on every question.
+Its strongest objection to the DX row is that *"Brawling or DX"* could
+mean DX only when untrained. The cell does not settle that, and the
+screen states the reading. **6ew: one MEDIUM, taken.** The exact-match line
+returned the SHEET's casing, and `reported` checks `known()`
+case-sensitively, so `PHOBIA (SPECIFY)` was told that a rule it applies
+was unread. The line now returns the row's own spelling. The guard
+upper-cases every row name, and its RED listed every row in the
+catalogue. Codex SHIPped the `checksFor` predicate and found no
+initialisation cycle between the two objects.
+
 ### Verification
 
 1866 Kotlin (1306 `core:rules`, 540 `app`, 20 `core:model`), green from
@@ -6804,8 +6816,7 @@ asserts.
 
 ### Successors
 
-- **Owed first: Codex on `5fe2b41..127532d` (6ev) and on `63e6290`**,
-  the second because its `catalogueName` line has no reviewer.
+- **Codex has reviewed both** (above). The casing fix after it has not been reviewed.
 - **Reluctant Killer in the Attack dialog.** A GM declaration (a
   recognizable target, with deadly force) carrying -4, or -2 with the
   face hidden, and withdrawing Aim. The Aim refusal is scoped by that

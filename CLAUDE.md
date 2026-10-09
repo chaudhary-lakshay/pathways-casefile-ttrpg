@@ -171,8 +171,9 @@ it for three things.
   skills, so the missing term costs nothing yet.
 
 Codex was out and the gateway down. One sub-agent reviewed the diff, and
-the `catalogueName` line came after its review. **Owed first: Codex on
-`5fe2b41..127532d` and on `63e6290`.** **Successors**: Reluctant Killer
+the `catalogueName` line came after its review. **Codex then SHIPped
+6ev and found one MEDIUM in 6ew**: that line returned the sheet's casing,
+and `reported` checks `known()` case-sensitively. It returns the row's spelling now. **Successors**: Reluctant Killer
 as a declared clause in the Attack dialog (-4, -2 with the face hidden,
 and no Aim), a Warrior's weapon parrying at DX, Warrior's *default +2*,
 and 6es's two lists.
