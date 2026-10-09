@@ -6726,6 +6726,106 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ff. The rows that name one skill
+
+These are 6es's first list: *"six conditional skill rows are under
+`UNREAD` and could carry a declared circumstance, as the social clauses
+do"*. Each names one skill:
+
+| Row | Cell clause | Read as |
+|---|---|---|
+| Class Mobility | *"+2 to Savoir-Faire in either"* | declared |
+| Fearsome Reputation | *"Intimidation in these circles is at +2"* | declared |
+| Safecracker | *"+3 to Lockpicking for combination locks and mechanical safes specifically"* | declared |
+| Alcohol Tolerance | *"Carousing rolls to appear sober at +3"* | declared |
+| Navigator's Eye | *"rural navigation rolls at +2"* | declared, Navigation and (Land) |
+| Famous Face | *"Disguise attempts at -2"* | flat |
+
+The slice also archived the digest index's 13 oldest entries (6dq back to
+6de) to `docs/READING-ORDER.md`, verbatim, so the index stands at 6,056
+of its 8,000 characters.
+
+### The design review
+
+Codex was out until 00:52 and the gateway was down, so one sub-agent
+reviewed the design.
+
+- **Famous Face is flat: SHIP.** The strongest case for a scope is that
+  *"Recognizable in the city"* explains the -2. It loses to the table's
+  own pattern: a cell whose first sentence scopes its bonus refers back
+  to it (Fearsome Reputation's *"these circles"*, Local Legend's
+  *"there"*). Famous Face's clause does not refer back. 6es ruled the
+  same way on *"in formal settings"*. This is 6ex's *"cannot Aim"*
+  lesson applied before review rather than after.
+- **Class Mobility is declared: SHIP.** Savoir-Faire is specializable
+  ("(specify class)"), so *"in either"* means the Savoir-Faire of either
+  of two classes the row never records.
+- **MEDIUM: "rural" is not the sea.** I had offered Navigator's Eye on
+  every Navigation row. Navigation (Sea) is *"Determine course by stars
+  and charts at sea"*, so the clause joins on name **and**
+  specialization: bare and (Land). The name-only join stays right for
+  Absolute Direction's *"+3 to Navigation"*.
+- **MEDIUM: one loop.** `modifiers()` must read the unified list once.
+  If a social loop and a named-skill loop sat side by side, a clause
+  that ever sits in both would be emitted twice.
+- **MEDIUM: `known()`** must name the new rows, or `reported` prints
+  `UNREAD` beside an applied clause.
+- **LOW: one of my leftover reasons was false.** I wrote *"no roll"* for
+  *"Never become lost in any city previously visited"*, but the app
+  offers a Navigation roll. It now carries Absolute Direction's reason.
+
+### What was built
+
+- `TraitEffects.SKILL_CLAUSES`: five conditional clauses, keyed by skill
+  name and, for Navigator's Eye, by specialization.
+- `TraitEffects.skillRollClauses(traits, skill)`: the social rows on a
+  social skill, then the rows naming this skill. `modifiers()` emits the
+  declared ones from this list.
+- The roll dialog reads that one list. `MainActivity`'s copy of
+  `categoryOf` is gone, along with its now-unused `ContentLoader`
+  import, and the dialog's `socialClauses` / `declaredSocial` are now
+  `declarableClauses` / `declaredClauses` (the diff review's LOW).
+- `SKILL_BONUSES["Famous Face"] = -2` on Disguise.
+- `PARTLY_APPLIED` entries for every leftover clause of the six. The
+  guard *"no clause of a handled trait goes unmentioned"* now walks
+  `skillClauseNames()` too.
+
+### The diff review
+
+One sub-agent: **SHIP, three LOWs, all taken.** Its behaviour check
+holds: `categoryOf` is the removed predicate, and no other caller passes
+`declared`. One LOW: no test spelt a trait the way a sheet prints it, so
+a resolver that skipped `catalogueName` survived. `Safecracker 1` now
+pins both the resolver and the shown name, and the mutation fails.
+
+### Verification
+
+1886 Kotlin (1322 `core:rules`, 544 `app`, 20 `core:model`), green from
+the JUnit XML after `--rerun-tasks`. RED first: `List is empty`. Six
+mutations were caught, each restored from a copy: Navigation offered at
+every specialization, the declaration ignored, Famous Face's row
+removed, a leftover reason removed, the rows missing from `known()`,
+and the sheet spelling unresolved.
+
+**On the SM-T570**, starting from its launcher with the save backed up,
+Church Healer bought Safecracker. *Roll a skill this sheet does not
+have* → `Lockpicking (untrained, IQ-5)`, `Skill 6`, *"Does any of this
+hold? Safecracker: +3 to Lockpicking for combination locks and
+mechanical safes specifically"*. Declared, it gave `3d6: 8 vs 9`, with
+the term `trait:safecracker:+3 to Lockpicking ...: 3`. The crash buffer
+was empty. The save was restored (`cmp` identical), and the tablet went
+back to its launcher.
+
+### Owed
+
+A Codex review of `466e3d7..HEAD`.
+
+### Successors
+
+- **Acute Vision and Acute Hearing, asked with line 8688.**
+- **Luck and Beckoning Luck against the PCR's `lost` latch.**
+- Warrior's *default +2*.
+
 ## 6fe. The Per roll a census missed
 
 6fd left three rows: Luck, Acute Vision and Acute Hearing. Triaging them

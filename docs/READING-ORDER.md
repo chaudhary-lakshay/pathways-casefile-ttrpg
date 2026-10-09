@@ -190,7 +190,24 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6ez back to 6de
+## Retired lead paragraphs, 6fa back to 6de
+
+**6fa is next: Thinned Veil on the Concentrate roll.** Its *"Concentration
+in spiritually active environments at -2"* is a declared clause on the
+app's one concentration check, and reaches no Fright Check or
+self-control roll. Read it for two things.
+
+- **Codex's owed review of 6ey found a false sentence about a true
+  number.** *"Parries at no less than DX"* claimed a minimum parry. The
+  floor applies to the SKILL before the halving (`5caf3ca`).
+- **The verbatim guard on reported clauses named two traits.** My
+  qualifier rendered as book text on the Traits tab (Codex's MEDIUM). The
+  guard now checks every partly-applied row, and mine was the only
+  paraphrase.
+
+On the SM-T570: `3d6 ≤ 4 — Will 9-3, Thinned Veil -2`, and no row in
+Fright. **Successors**: the other five of 6es's second list, Chronic
+Insomnia on the same roll, 6es's first list, and Warrior's *default +2*.
 
 **6ez is next: the Acting Method table a holder reads.** Knows the
 Acting Method prints *"all Digestion Gain Per Session is doubled (e.g.

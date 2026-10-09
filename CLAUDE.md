@@ -152,7 +152,28 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fe is newest: Alertness on the Spirit Vision roll.** 6al passed
+**6ff is newest: six rows that name one skill.** These are 6es's first
+list. Five print a circumstance on one skill's roll and are declared
+there: Class Mobility, Fearsome Reputation, Safecracker, Alcohol
+Tolerance and Navigator's Eye. Famous Face's *"Disguise attempts at
+-2"* prints no qualifier and applies flat. Read it for two things.
+
+- **One list feeds the chips and the dice.** `skillRollClauses` replaced
+  a category predicate the screen had copied. `modifiers()` loops over it
+  once, because separate loops would emit a clause twice the day it is
+  both social and named.
+- **"Rural" excludes the sea.** Navigator's Eye is offered on bare
+  Navigation and on (Land). The existing name-only join, which is right
+  for Absolute Direction's *"+3 to Navigation"*, would have offered it on
+  (Sea) too.
+
+Sub-agents reviewed the design and the diff (Codex was out). On the
+SM-T570: untrained Lockpicking offered Safecracker's clause, and
+declaring it gave `3d6: 8 vs 9`. **Owed: a Codex review of
+`466e3d7..HEAD`.** **Successors**: Acute Vision and Hearing (line
+8688), Luck against the PCR latch, and Warrior's *default +2*.
+
+**6fe is next: Alertness on the Spirit Vision roll.** 6al passed
 Alertness to Detection by hand because it was *"the one bare Per roll"*.
 Spirit Vision's *"Perception-based roll to interpret"* came later and
 got nothing. Read it for two things.
@@ -230,26 +251,10 @@ Will 11-3, Chronic Insomnia -1`, and no row in Fright. **Successors**:
 Cleansed Spirit, Fast Healer, Luck, Acute Vision and Acute Hearing;
 6es's first list; Warrior's *default +2*.
 
-**6fa is next: Thinned Veil on the Concentrate roll.** Its *"Concentration
-in spiritually active environments at -2"* is a declared clause on the
-app's one concentration check, and reaches no Fright Check or
-self-control roll. Read it for two things.
-
-- **Codex's owed review of 6ey found a false sentence about a true
-  number.** *"Parries at no less than DX"* claimed a minimum parry. The
-  floor applies to the SKILL before the halving (`5caf3ca`).
-- **The verbatim guard on reported clauses named two traits.** My
-  qualifier rendered as book text on the Traits tab (Codex's MEDIUM). The
-  guard now checks every partly-applied row, and mine was the only
-  paraphrase.
-
-On the SM-T570: `3d6 ≤ 4 — Will 9-3, Thinned Veil -2`, and no row in
-Fright. **Successors**: the other five of 6es's second list, Chronic
-Insomnia on the same roll, 6es's first list, and Warrior's *default +2*.
-
-**6ez back to 6de had lead paragraphs here until 2026-10-09. Each is in
+**6fa back to 6de had lead paragraphs here until 2026-10-09. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fa** — Thinned Veil's "Concentration ... at -2" is a declaration on the Concentrate roll alone; the verbatim guard checked two traits, and now checks every partly-applied row;
 **6ez** — Knows the Acting Method doubles the digestion ranges the tracker prints for a holder; the note asks `doublesActingGains`, not whether two tables differ;
 **6ey** — a master's weapon parries at DX: `SkillDefaults.wieldedAt` floors the skill, and Attack, Defend and the builder all print it; the Pugilist was invisible to a keyword;
 **6ex** — a Reluctant Killer's target is the GM's to declare (-4, or -2 with the face hidden); "cannot Aim" is unconditional, and the Attack roll takes the general trait term;
@@ -306,7 +311,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fe first.** The
+**Where to start next: the slice log, from the END — 6ff first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -361,7 +366,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1885 Kotlin** (JUnit 5 — 1321 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1886 Kotlin** (JUnit 5 — 1322 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -567,6 +572,10 @@ TraitEffects.actingGains(traits) / .doublesActingGains(traits)
                                       // Knows the Acting Method (6ez)
 TraitEffects.corruptionNotes(traits)   // Cleansed Spirit beside the CoR stepper:
                                       // nothing halved, and why (6fd)
+TraitEffects.skillRollClauses(traits, skill)   // every clause a skill roll asks
+                                      // the GM about: social rows on a social skill,
+                                      // and rows naming this skill (6ff). The
+                                      // dialog's chips and modifiers() read it
 Divination.levelsFor(ownDivination, ownRitual, defaultBonus): CasterLevels
                                       // the bonus goes inside the pick between
                                       // owned and default; a ritual never defaults
