@@ -92,6 +92,8 @@ class DefenseDialogTest {
         val parries = armedParries(
             weapons = listOf(Weapons.named("Broadsword")),
             skillLevels = mapOf(broadswordKey to 13),
+            mastery = null,
+            dx = 10,
         )
         assertEquals(listOf("Broadsword" to 9), parries) // floor(13/2) + 3
     }
@@ -104,6 +106,8 @@ class DefenseDialogTest {
         val parries = armedParries(
             weapons = listOf(Weapons.named("Revolver (.38 cal)")),
             skillLevels = mapOf(revolverKey to 12),
+            mastery = null,
+            dx = 10,
         )
         assertTrue(parries.isEmpty())
     }
@@ -115,8 +119,48 @@ class DefenseDialogTest {
         val parries = armedParries(
             weapons = listOf(Weapons.named("Broadsword")),
             skillLevels = emptyMap(),
+            mastery = null,
+            dx = 10,
         )
         assertTrue(parries.isEmpty())
+    }
+
+    /**
+     * A master's weapon is "treated as known at effective DX" (6ey): DX is
+     * the Weapon Skill operand, so the broadsword parries untrained and is no
+     * longer named as carried without its skill. A firearm still parries at
+     * nothing, mastery or not.
+     */
+    @Test
+    fun `a master's carried weapon parries at DX without the skill`() {
+        val carried = listOf(Weapons.named("Broadsword"), Weapons.named("Revolver (.38 cal)"))
+        val warrior = SkillDefaults.WeaponMastery.WARRIOR
+        assertEquals(
+            listOf("Broadsword" to 9), // floor(12/2) + 3
+            armedParries(carried, emptyMap(), mastery = warrior, dx = 12),
+        )
+        assertEquals(
+            listOf("Broadsword" to 9),
+            armedParries(carried, mapOf(broadswordKey to 10), mastery = warrior, dx = 12),
+        )
+        assertTrue(unskilledParriers(carried, emptyMap(), mastery = warrior, dx = 12).isEmpty())
+    }
+
+    /**
+     * The builder's carried line is the third screen that prints a weapon's
+     * parry (the diff review's MEDIUM): it said "no parry" for a Warrior's
+     * broadsword that Defend parried at 9.
+     */
+    @Test
+    fun `the builder prints the parry Defend rolls, mastery included`() {
+        val broadsword = Weapons.named("Broadsword")
+        val warrior = SkillDefaults.WeaponMastery.WARRIOR
+        assertEquals("Broadsword 12 — parry 9", carriedLine(broadsword, emptyMap(), warrior, dx = 12))
+        assertEquals("Broadsword 12 — parry 9", carriedLine(broadsword, mapOf(broadswordKey to 10), warrior, dx = 12))
+        assertEquals(
+            "Broadsword — not a skill this character has, so no parry",
+            carriedLine(broadsword, emptyMap(), mastery = null, dx = 12),
+        )
     }
 
     @Test
@@ -124,6 +168,8 @@ class DefenseDialogTest {
         val parries = armedParries(
             weapons = listOf(Weapons.named("Broadsword"), Weapons.named("Combat Knife")),
             skillLevels = mapOf(broadswordKey to 12, knifeKey to 11),
+            mastery = null,
+            dx = 10,
         )
         assertEquals(listOf("Broadsword" to 9, "Combat Knife" to 8), parries)
     }
@@ -347,7 +393,7 @@ class DefenseDialogTest {
             Weapons.named("Combat Knife"),
             Weapons.named("Revolver (.38 cal)"),
         )
-        assertEquals(listOf("Broadsword"), unskilledParriers(carried, mapOf(knifeKey to 11)))
-        assertTrue(unskilledParriers(carried, mapOf(knifeKey to 11, broadswordKey to 9)).isEmpty())
+        assertEquals(listOf("Broadsword"), unskilledParriers(carried, mapOf(knifeKey to 11), mastery = null, dx = 10))
+        assertTrue(unskilledParriers(carried, mapOf(knifeKey to 11, broadswordKey to 9), mastery = null, dx = 10).isEmpty())
     }
 }

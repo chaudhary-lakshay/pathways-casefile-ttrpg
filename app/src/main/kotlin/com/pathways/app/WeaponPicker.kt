@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.SkillKey
+import com.pathways.rules.SkillDefaults
 import com.pathways.rules.Weapons
 import com.pathways.rules.content.CataloguedWeapon
 
@@ -37,6 +38,8 @@ import com.pathways.rules.content.CataloguedWeapon
 internal fun WeaponsRow(
     carried: List<CataloguedWeapon>,
     skillLevels: Map<SkillKey, Int>,
+    mastery: SkillDefaults.WeaponMastery?,
+    dx: Int,
     onAdd: () -> Unit,
     onRemove: (String) -> Unit,
 ) {
@@ -66,7 +69,7 @@ internal fun WeaponsRow(
             ) {
                 Column(Modifier.weight(1f)) {
                     Text(weapon.name, style = MaterialTheme.typography.bodyLarge)
-                    Text(carriedLine(weapon, skillLevels), style = MaterialTheme.typography.bodySmall)
+                    Text(carriedLine(weapon, skillLevels, mastery, dx), style = MaterialTheme.typography.bodySmall)
                 }
                 TextButton(onClick = { onRemove(weapon.name) }) { Text("Put down") }
             }
@@ -78,13 +81,19 @@ internal fun WeaponsRow(
  * What this weapon is worth to the character holding it.
  *
  * Both numbers come from the rules rather than from arithmetic here: the
- * level is the highest among the skills that arm it, and the parry is
+ * level is [SkillDefaults.wieldedAt]'s -- the highest skill that arms it,
+ * no less than DX in a master's hand, which is what Defend parries at -- and the parry is
  * chapter 5's `skill / 2 + 3`. The three cases are three different facts --
  * no skill, no parry, and a number -- and a screen that printed one line for
  * all three would be saying the character can parry when they cannot.
  */
-private fun carriedLine(weapon: CataloguedWeapon, skillLevels: Map<SkillKey, Int>): String {
-    val level = Weapons.levelFor(weapon, skillLevels)
+internal fun carriedLine(
+    weapon: CataloguedWeapon,
+    skillLevels: Map<SkillKey, Int>,
+    mastery: SkillDefaults.WeaponMastery?,
+    dx: Int,
+): String {
+    val level = SkillDefaults.wieldedAt(weapon, skillLevels, mastery, dx)
         ?: return "${weapon.skill} — not a skill this character has, so no parry"
     val parry = Weapons.parryFor(weapon, level)
         ?: return "${weapon.skill} $level — cannot parry"

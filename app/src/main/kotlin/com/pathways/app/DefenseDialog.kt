@@ -92,15 +92,17 @@ internal fun unarmedParries(
 
 /**
  * The carried weapons that could parry and have no skill behind them, by
- * name. [armedParries] skips them, and a row that is simply absent reads as
+ * name -- none in a master's hand, which wields every one at DX. [armedParries] skips them, and a row that is simply absent reads as
  * an oversight beside a hand that now parries at DX -- so the screen names
  * them and says why.
  */
 internal fun unskilledParriers(
     weapons: List<CataloguedWeapon>,
     skillLevels: Map<SkillKey, Int>,
+    mastery: SkillDefaults.WeaponMastery?,
+    dx: Int,
 ): List<String> = weapons
-    .filter { Weapons.canParry(it) && Weapons.levelFor(it, skillLevels) == null }
+    .filter { Weapons.canParry(it) && SkillDefaults.wieldedAt(it, skillLevels, mastery, dx) == null }
     .map { it.name }
 
 /**
@@ -294,6 +296,11 @@ fun DefenseDialog(
      */
     untrained: List<SkillDefaults.Untrained>,
     weapons: List<CataloguedWeapon> = emptyList(),
+    /**
+     * A Twilight Giant's weapon line, or null. Required: a carried weapon in
+     * a master's hand parries at DX, and a silent default would drop that.
+     */
+    mastery: SkillDefaults.WeaponMastery?,
     /** The dice an Acrobatic Dodge is rolled with. */
     dice: RandomSource,
     /**
@@ -375,8 +382,13 @@ fun DefenseDialog(
     // half a bullet is in, so the two cannot disagree.
     val modifiers = remember { ActiveDefenses.unappliedModifiers() }
     val parries = remember(skillLevels, dx) { unarmedParries(skillLevels, dx) }
-    val armed = remember(weapons, skillLevels) { armedParries(weapons, skillLevels) }
-    val unskilled = remember(weapons, skillLevels) { unskilledParriers(weapons, skillLevels) }
+    val armed = remember(weapons, skillLevels, mastery, dx) { armedParries(weapons, skillLevels, mastery, dx) }
+    val unskilled = remember(weapons, skillLevels, mastery, dx) { unskilledParriers(weapons, skillLevels, mastery, dx) }
+    // The weapons whose parry the mastery changed: the rows a master gets
+    // that a non-master with these skills would not, or would get lower.
+    val lifted = remember(armed, weapons, skillLevels, dx) {
+        (armed - armedParries(weapons, skillLevels, mastery = null, dx = dx).toSet()).map { it.first }
+    }
     val shieldSkill = remember(skillLevels) {
         skillLevels.entries.firstOrNull { it.key.name == SHIELD_SKILL }?.value
     }
@@ -682,8 +694,18 @@ fun DefenseDialog(
                             "No parry offered with ${unskilled.joinToString(", ")}: no " +
                                 "skill on this sheet wields it, and the Parry (Armed) " +
                                 "row prints Weapon Skill ÷ 2 + 3 with no second operand. " +
-                                "Whether a default parries, or a weapon a Warrior holds " +
-                                "as known at DX, is a gap here and not a ruling.",
+                                "Whether a default parries is a gap here and not a ruling.",
+                        )
+                    }
+                    // Said wherever the mastery changed a number, because
+                    // the book's own examples are attacks and this is the
+                    // reading that carries the line to a parry (6ey).
+                    if (mastery != null && lifted.isNotEmpty()) {
+                        Note(
+                            "${lifted.joinToString(", ")} parr${if (lifted.size == 1) "ies" else "y"} " +
+                                "at no less than DX: ${mastery.source}, \"treated as " +
+                                "known at effective DX\", read as the Parry (Armed) " +
+                                "row's Weapon Skill. A reading: the book's examples are attacks.",
                         )
                     }
                     // A refusal, not a penalty, so the rows are withdrawn and
@@ -1381,7 +1403,8 @@ private fun parryScore(base: Int, penalty: Int, boost: Int, retreat: Int, vsWeap
     base + penalty + vsWeapon + boost + retreat
 
 /**
- * Each carried weapon's parry, at the level of the skill that wields it.
+ * Each carried weapon's parry, at the level [SkillDefaults.wieldedAt] wields
+ * it: the best skill that arms it, and no less than DX in a master's hand.
  *
  * Chapter 8's catalogue, never [com.pathways.model.Weapon]: the book prints
  * one formula for every weapon and no per-weapon modifier (see
@@ -1390,15 +1413,17 @@ private fun parryScore(base: Int, penalty: Int, boost: Int, retreat: Int, vsWeap
  * the only provenance that prints one -- see its own KDoc.
  *
  * Two rows are skipped, for two different reasons. A weapon no skill of
- * theirs arms has no level to halve, and it stays CARRIED -- possession is
+ * theirs arms, out of a master's hand, has no level to halve, and it stays CARRIED -- possession is
  * not training, and a borrowed broadsword is still in hand. A firearm cannot
  * parry at all, which is not the same as parrying at +0.
  */
 internal fun armedParries(
     weapons: List<CataloguedWeapon>,
     skillLevels: Map<SkillKey, Int>,
+    mastery: SkillDefaults.WeaponMastery?,
+    dx: Int,
 ): List<Pair<String, Int>> = weapons.mapNotNull { weapon ->
-    val level = Weapons.levelFor(weapon, skillLevels) ?: return@mapNotNull null
+    val level = SkillDefaults.wieldedAt(weapon, skillLevels, mastery, dx) ?: return@mapNotNull null
     Weapons.parryFor(weapon, level)?.let { weapon.name to it }
 }
 

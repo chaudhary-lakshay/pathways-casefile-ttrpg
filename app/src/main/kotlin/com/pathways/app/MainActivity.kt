@@ -340,6 +340,8 @@ fun SheetScreen(
         SkillDefaults.offeredTo(session.characterFor(sheet).copy(beyonder = drunk))
     }
     var pickingUntrained by remember(sheet) { mutableStateOf(false) }
+    // A Twilight Giant's weapon line, read once for both combat dialogs.
+    val mastery = drunk?.let { SkillDefaults.masteryFor(it.pathway, it.sequence) }
     // Only a caster can cast. No premade prints either skill, so both are
     // null until a potion grants one -- ch. 9 p. 85 forbids buying Divination
     // Arts with points, so a potion is its only route (6aq).
@@ -1021,6 +1023,9 @@ fun SheetScreen(
             // weapon rows and no sheet prints one, so reading it here showed
             // an armed parry to nobody (see SavedEdits.weapons).
             weapons = session.edits.carriedWeapons(),
+            // The same line the Attack dialog lifts a weapon with, so a
+            // master's weapon parries at DX on both screens (6ey).
+            mastery = mastery,
             dice = appDice,
             // What the trackers cost, the first term of the sheet's own skill
             // rolls. An Acrobatic Dodge is a skill roll like any other, and
@@ -1063,7 +1068,7 @@ fun SheetScreen(
             // the same list the Skills tab offers -- one source, so the two
             // screens agree on a default wherever no weapon line applies.
             untrained = SkillDefaults.attacks(untrained),
-            mastery = drunk?.let { SkillDefaults.masteryFor(it.pathway, it.sequence) },
+            mastery = mastery,
             toolNote = drunk?.let { SkillDefaults.toolNote(it.pathway, it.sequence) },
             onDismiss = { attacking = false },
         )

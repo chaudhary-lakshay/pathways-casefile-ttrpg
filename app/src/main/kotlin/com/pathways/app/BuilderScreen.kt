@@ -44,6 +44,7 @@ import com.pathways.rules.PremadeSheet
 import com.pathways.rules.PurchasableTraits
 import com.pathways.rules.PurchaseCeilings
 import com.pathways.rules.SecondaryCharacteristics
+import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillLadder
 import com.pathways.rules.Study
 import com.pathways.rules.StudyMethod
@@ -245,6 +246,10 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     // Beyonder whose potion granted the weapon's skill would
                     // read one number here and another on the defence screen.
                     skillLevels = played?.skillLevels ?: derived.skillLevels,
+                    // A master's weapon parries at no less than DX as played,
+                    // the same reading Defend applies (6ey).
+                    mastery = session.state?.let { SkillDefaults.masteryFor(it.pathway, it.sequence) },
+                    dx = played?.effectiveAttributes?.get(Attr.DX) ?: character.attributes[Attr.DX],
                     onAdd = { pickingWeapon = true },
                     onRemove = { session.dropWeapon(it) },
                 )

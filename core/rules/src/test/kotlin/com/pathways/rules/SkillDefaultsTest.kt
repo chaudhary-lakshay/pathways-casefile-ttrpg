@@ -440,10 +440,62 @@ class SkillDefaultsTest {
             assertNull(SkillDefaults.mastered(15, weaponInHand = true, mastery = mastery, dx = 12))
             // The fist.
             assertNull(SkillDefaults.mastered(knife.level, weaponInHand = false, mastery = mastery, dx = 12))
-            assertTrue(mastery.block in mastery.source && mastery.source.startsWith("DX"), mastery.source)
+            assertTrue(mastery.source.startsWith("DX, ") && "no default penalty" in mastery.source, mastery.source)
             assertTrue(TraitEffects.VERSATILE !in mastery.source, mastery.source)
         }
         assertNull(SkillDefaults.mastered(knife.level, weaponInHand = true, mastery = null, dx = 12))
+    }
+
+    /**
+     * **The level a carried weapon is wielded at, for its PARRY** (6ey). Line
+     * 2468 prints "Weapon Skill ÷ 2 + 3", and a master's weapon is "treated as
+     * known at effective DX": DX is the Weapon Skill operand, so a master's
+     * broadsword parries untrained. A non-master's still needs a skill -- the
+     * armed cell prints no "or DX" -- and with two skills arming one weapon
+     * the higher wields it, on every screen that asks.
+     */
+    @Test
+    fun `a carried weapon is wielded at its best skill, floored at DX in a master's hand`() {
+        val broadsword = Weapons.named("Broadsword")
+        val key = SkillKey("Broadsword", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)
+        val w = SkillDefaults.WeaponMastery.WARRIOR
+        assertNull(SkillDefaults.wieldedAt(broadsword, emptyMap(), mastery = null, dx = 12))
+        assertEquals(9, SkillDefaults.wieldedAt(broadsword, mapOf(key to 9), mastery = null, dx = 12))
+        for (mastery in SkillDefaults.WeaponMastery.entries) {
+            assertEquals(12, SkillDefaults.wieldedAt(broadsword, emptyMap(), mastery, dx = 12))
+            assertEquals(12, SkillDefaults.wieldedAt(broadsword, mapOf(key to 9), mastery, dx = 12))
+            assertEquals(14, SkillDefaults.wieldedAt(broadsword, mapOf(key to 14), mastery, dx = 12))
+        }
+        val knife = Weapons.named("Combat Knife")
+        val easy = SkillKey("Knife", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
+        val average = easy.copy(difficulty = Difficulty.AVERAGE)
+        assertEquals(12, SkillDefaults.wieldedAt(knife, mapOf(easy to 12, average to 11), mastery = null, dx = 10))
+        assertEquals(9, Weapons.parryFor(broadsword, SkillDefaults.wieldedAt(broadsword, emptyMap(), w, dx = 12)!!))
+    }
+
+    /**
+     * The Pugilist's reinforced Combat Mastery (book lines 6595-6598): melee
+     * weapons "known at effective DX immediately (no warm-up needed)", and
+     * "Ranged weapons still need one use to reach full proficiency (as the
+     * Warrior's original ability)". Its text never says "no default
+     * penalty", which is why the keyword census behind WEAPON_LINES missed
+     * it. It changes no number -- the Warrior already wields at DX -- only
+     * where the repeated-use clause is still said to be unapplied.
+     */
+    @Test
+    fun `a Pugilist's melee weapon needs no warm-up and a ranged one still does`() {
+        val pugilist = ContentLoader.pathways().single { it.name == "Pugilist" }.reinforcedAbilities
+        assertTrue("limited to melee weapons only" in pugilist, pugilist)
+        assertTrue("Ranged weapons still need one use" in pugilist, pugilist)
+
+        val p = SkillDefaults.WeaponMastery.PUGILIST
+        assertEquals(p, SkillDefaults.masteryFor("Twilight Giant", 8))
+        assertNull(p.unappliedFor(isRanged = false))
+        assertTrue("default +2" in p.unappliedFor(isRanged = true)!!)
+        assertTrue("Warrior" in p.source, p.source)
+        val w = SkillDefaults.WeaponMastery.WARRIOR
+        assertEquals(w.unappliedFor(isRanged = false), w.unappliedFor(isRanged = true))
+        assertNull(SkillDefaults.WeaponMastery.WEAPON_MASTER.unappliedFor(isRanged = true))
     }
 
     /**
@@ -464,13 +516,13 @@ class SkillDefaultsTest {
         val w = SkillDefaults.WeaponMastery.WARRIOR
         val m = SkillDefaults.WeaponMastery.WEAPON_MASTER
         assertEquals(w, SkillDefaults.masteryFor("Twilight Giant", 9))
-        assertEquals(w, SkillDefaults.masteryFor("Twilight Giant", 8))
         assertEquals(m, SkillDefaults.masteryFor("Twilight Giant", 7))
         assertEquals(m, SkillDefaults.masteryFor("Twilight Giant", 6))
         assertNull(SkillDefaults.masteryFor("Fool", 9))
         assertNull(SkillDefaults.masteryFor("Mother", 7))
-        assertTrue("default +2" in w.unapplied!! && w.unapplied!!.startsWith("Not applied here"), w.unapplied)
-        assertNull(m.unapplied)
+        val note = w.unappliedFor(isRanged = false)!!
+        assertTrue("default +2" in note && note.startsWith("Not applied here"), note)
+        assertNull(m.unappliedFor(isRanged = false))
         // The Harvest Priest's line is about a tool the weapon table does not mark.
         assertNull(SkillDefaults.toolNote("Twilight Giant", 7))
         assertTrue("farming or gardening tool" in SkillDefaults.toolNote("Mother", 7)!!)

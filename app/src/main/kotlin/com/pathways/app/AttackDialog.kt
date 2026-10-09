@@ -332,23 +332,21 @@ fun AttackDialog(
                     skillLevel = level,
                     // Said under the header with a weapon in hand: what of a
                     // weapon line is still not applied here. The Warrior's
-                    // repeated-use clause is about any weapon they hold; the
-                    // Harvest Priest's is about a skill they lack.
-                    notes = if (armed == null) {
-                        emptyList()
-                    } else {
-                        listOfNotNull(mastery?.unapplied, toolNote.takeIf { chosen.untrained != null })
-                    },
-                    isUntrained = chosen.untrained != null,
-                    // The skill's OWN level, never the one a mastery lifted:
-                    // Defend prices the same weapon off the sheet's level
-                    // (`Weapons.levelFor`), and a parry of 9 here beside 8
-                    // there is two numbers for one fact. Whether a weapon
-                    // "treated as known at DX" parries at DX is the open
-                    // question, and it is answered on both screens or neither
-                    // (found by the final check, after both reviews).
-                    parryLevel = chosen.level,
-                    isMastered = isMastered,
+                    // repeated-use clause is about any weapon they hold, and a
+                    // Pugilist's ranged one only; the Harvest Priest's is
+                    // about a skill they lack.
+                    notes = armed?.let { held ->
+                        listOfNotNull(
+                            mastery?.unappliedFor(Weapons.isRanged(held.weapon)),
+                            toolNote.takeIf { chosen.untrained != null },
+                        )
+                    }.orEmpty(),
+                    // The level Defend parries the same weapon at, never the
+                    // chosen skill's: the best skill that arms it, floored at
+                    // DX in a master's hand. Two skills can arm one knife, and
+                    // the chosen one printed 8 here beside Defend's 9 (6ey's
+                    // design review).
+                    wieldedAt = { SkillDefaults.wieldedAt(it, skillLevels, mastery, dx) },
                     plan = plan,
                     unarmed = unarmed,
                     // Two unrelated bonuses reach damage: All-Out Attack
@@ -495,9 +493,7 @@ private fun AttackOptions(
     label: String,
     skillLevel: Int,
     notes: List<String>,
-    isUntrained: Boolean,
-    parryLevel: Int,
-    isMastered: Boolean,
+    wieldedAt: (CataloguedWeapon) -> Int?,
     plan: AttackPlan,
     unarmed: UnarmedAttack?,
     damage: DamageRoll?,
@@ -561,7 +557,7 @@ private fun AttackOptions(
                 )
             }
         }
-        ArmedWith(weapons, armed, parryLevel, isUntrained, isMastered, onArmed)
+        ArmedWith(weapons, armed, wieldedAt, onArmed)
         // Chips WRAP rather than scroll sideways: a horizontally scrolling Row
         // inside an AlertDialog never received the drag on a 1080px phone, so
         // three of the five maneuvers -- Strong, Double and Charge -- could not
@@ -802,9 +798,7 @@ private fun AttackResult(outcome: SkillRollOutcome) {
 private fun ArmedWith(
     weapons: List<CataloguedWeapon>,
     armed: Armed?,
-    parryLevel: Int,
-    isUntrained: Boolean,
-    isMastered: Boolean,
+    wieldedAt: (CataloguedWeapon) -> Int?,
     onArmed: (Armed?) -> Unit,
 ) {
     if (weapons.isEmpty()) return
@@ -847,12 +841,12 @@ private fun ArmedWith(
                     // Whether a default parries is not settled, and Defend
                     // offers none with a weapon (its bare-hand row is DX, a
                     // printed operand), so this line must not print one either.
-                    if (isUntrained) {
-                        "no parry offered without the skill"
+                    // A firearm first: it parries at nothing, skill or not.
+                    if (!Weapons.canParry(held.weapon)) {
+                        "cannot parry"
                     } else {
-                        Weapons.parryFor(held.weapon, parryLevel)
-                            ?.let { "parry $it" + if (isMastered) " (the skill's own, not lifted)" else "" }
-                            ?: "cannot parry"
+                        wieldedAt(held.weapon)?.let { "parry ${Weapons.parryFor(held.weapon, it)}" }
+                            ?: "no parry offered without the skill"
                     }
                     ) +
                 " · ${held.weapon.cost}",

@@ -3,6 +3,7 @@ package com.pathways.rules
 import com.pathways.model.Character
 import com.pathways.model.ControllingAttribute
 import com.pathways.model.SkillKey
+import com.pathways.rules.content.CataloguedWeapon
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SkillDefinition
 
@@ -124,32 +125,75 @@ object SkillDefaults {
     }
 
     /**
-     * The Twilight Giant's two weapon lines, which a walked chain holds one
-     * of: Weapon Master's block calls itself "a strict upgrade to and
-     * replacement of the Warrior's Combat Mastery".
-     *
-     * [unapplied] is the clause of the block this app does not apply, as the
-     * sentence a screen prints. Only the Warrior has one -- "Weapons used
-     * repeatedly in a session are treated as known at default +2" -- and the
-     * Weapon Master "requires no warm-up".
+     * The Twilight Giant's weapon line, which a walked chain holds one stage
+     * of: the Pugilist "upgrades" the Warrior's, and Weapon Master's block
+     * calls itself "a strict upgrade to and replacement of the Warrior's
+     * Combat Mastery". The Weapon Master "requires no warm-up".
      */
-    enum class WeaponMastery(val block: String, val unapplied: String?) {
-        WARRIOR(
-            "Warrior",
-            "Not applied here: Warrior's \"default +2\" for a weapon used " +
-                "repeatedly in a session. This app does not count uses.",
-        ),
-        WEAPON_MASTER("Weapon Master", null),
+    enum class WeaponMastery(
+        val block: String,
+        /** The block whose "no default penalty" the DX floor quotes. */
+        private val quoted: String,
+        private val meleeWarmUp: Boolean,
+        private val rangedWarmUp: Boolean,
+    ) {
+        WARRIOR("Warrior", "Warrior", meleeWarmUp = true, rangedWarmUp = true),
+
+        /**
+         * Seq 8's reinforced Combat Mastery: "treats any weapon as known at
+         * effective DX immediately (no warm-up needed) ... limited to melee
+         * weapons only. Ranged weapons still need one use to reach full
+         * proficiency (as the Warrior's original ability)". It changes no
+         * number -- the Warrior's line already wields at DX -- so the floor
+         * still quotes the Warrior, and only the melee warm-up goes. Its text
+         * never says "no default penalty", which is how the keyword census
+         * behind [WEAPON_LINES] missed it (6ey).
+         */
+        PUGILIST("Pugilist", "Warrior", meleeWarmUp = false, rangedWarmUp = true),
+        WEAPON_MASTER("Weapon Master", "Weapon Master", meleeWarmUp = false, rangedWarmUp = false),
         ;
 
         /** Where a level [mastered] lifted came from, for the roll's label. */
-        val source: String get() = "DX, $block's \"no default penalty\""
+        val source: String get() = "DX, $quoted's \"no default penalty\""
+
+        /**
+         * The clause of the line this app does not apply to the weapon in
+         * hand, as the sentence a screen prints, or null. Only the Warrior's
+         * "Weapons used repeatedly in a session are treated as known at
+         * default +2" is left, and the Pugilist keeps it for a ranged weapon.
+         */
+        fun unappliedFor(isRanged: Boolean): String? =
+            WARM_UP.takeIf { if (isRanged) rangedWarmUp else meleeWarmUp }
     }
+
+    private const val WARM_UP =
+        "Not applied here: Warrior's \"default +2\" for a weapon used " +
+            "repeatedly in a session. This app does not count uses."
 
     /** The mastery a character at [sequence] of [pathway] holds, or null. */
     fun masteryFor(pathway: String, sequence: Int): WeaponMastery? {
-        val walked = weaponLinesFor(pathway, sequence)
+        val walked = ContentLoader.pathways()
+            .filter { it.pathway == pathway && it.sequence >= sequence }
+            .map { it.name }
         return WeaponMastery.entries.lastOrNull { it.block in walked }
+    }
+
+    /**
+     * The level [weapon] is wielded at for its PARRY, or null where nothing
+     * wields it: the highest skill of [skillLevels] that arms it
+     * ([Weapons.levelFor]), floored at [dx] in a master's hand.
+     *
+     * Line 2468 prints "Weapon Skill ÷ 2 + 3", and a master's weapon is
+     * "treated as known at effective DX", so DX is that operand and a
+     * master's weapon parries untrained (6ey; the design review: SHIP). A
+     * non-master's still needs a skill, because the armed cell prints no
+     * "or DX". The highest skill, not the one an attack picked, so the
+     * Attack and Defend dialogs print one parry for one weapon.
+     */
+    fun wieldedAt(weapon: CataloguedWeapon, skillLevels: Map<SkillKey, Int>, mastery: WeaponMastery?, dx: Int): Int? {
+        val own = Weapons.levelFor(weapon, skillLevels)
+        if (mastery == null) return own
+        return maxOf(own ?: dx, dx)
     }
 
     /**
