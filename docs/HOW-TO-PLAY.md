@@ -227,6 +227,12 @@ Go to **Pathways**. Pick your pathway, then the Sequence you are drinking.
   succeeds). The line under the button prints the roll before you make it: the
   target, what advancing before full digestion costs, and a warning when
   drinking it would end the character even on a success.
+- **Reroll the PCR (Luck)** appears on the potion's block after a failed roll,
+  for a character with Luck, Beckoning Luck (unless they carry Fate Debt), or
+  the Lucky One's rerolls (Wheel of Fortune, Sequence 7 and deeper). It is
+  saved, so closing the app does not lose it. A success replaces the failure; a
+  second failure changes nothing. The app keeps no session, so how many rerolls
+  are left is yours to count.
 
 You walk a pathway one potion at a time: only the first potion for a mortal, or
 the next Sequence of the pathway you already walk. Digestion is tracked, and

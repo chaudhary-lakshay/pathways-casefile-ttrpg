@@ -6726,6 +6726,109 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fg. The failed roll Luck was owed
+
+### First: the owed review
+
+Codex returned at 03:10 and read `git diff 466e3d7~1..HEAD -- core app`.
+That covers 6fc's fix, 6fd, 6fe and 6ff, which only sub-agents had read.
+**SHIP**, with one LOW: *"Cleansed Spirit is said beside the CoR stepper
+and halves nothing"* checks the note strings, so the test's name claimed
+coverage of the tracker and the charging that it does not have. It was
+renamed (`ad8b4e1`). Codex also checked all ten new `PARTLY_APPLIED`
+clauses as catalogue substrings. **The prompt was 44 KB, and passing it
+as an argument exited 126** (the Windows command-line limit). Passing it
+on stdin with `codex exec ... -` works.
+
+### The gap
+
+Luck (*"1 reroll per session — may reroll any one failed roll"*),
+Beckoning Luck (*"2 rerolls per session — reroll any failed roll, usable
+at any time. If the re-roll also fails there is no additional effect"*)
+and the Lucky One's *"5 rerolls per session"* (Wheel of Fortune Seq 7,
+line 7766) all give a reroll of a failed roll. In this app a failed PCR
+sets `BeyonderSession.lost`, whose KDoc read *"Nothing here un-loses
+them; that is the point."* A Lucky character's failed PCR had no
+recourse.
+
+### The design review
+
+Codex: **SHIP the replacement-roll reading, CHANGE four things.**
+
+- **HIGH: in-memory pending state.** `lost` is saved, but my proposed
+  record of the attempted potion was not, so a restart would strand the
+  reroll. `SavedSession.pendingPcr` is now saved (an additive field with
+  a default, so old saves still decode).
+- **MEDIUM: my report claimed the PCR is "the one failed roll this app
+  makes permanent".** A ritual's or boon's critical failure charges CoR
+  on close, and that can latch `corrupted`. The report now says so.
+- **MEDIUM: the Lucky One.** It is a pathway grant that no trait
+  carries, and Wheel of Fortune is walkable (Seq 9-6). It counts from
+  Sequence 7 down, since sequences are cumulative.
+- **MEDIUM: Fate Debt** (*"Beckoning Luck never applies"*) becomes a
+  reader, so its other clauses are reported too.
+- The book's timing (*"immediately, permanently"*) against *"any failed
+  roll"*: the reroll resolves the attempt before its consequence lands.
+  That is a reading, and so is one reroll per failure. The session count
+  is the GM's.
+
+### What was built
+
+- `TraitEffects.rerollSource(traits, state)`: `Luck`, `Beckoning Luck`
+  unless Fate Debt is held, `Lucky One`, or null.
+- `BeyonderSession.pendingPcr` (saved): set by `drink` on a failed PCR.
+- `BeyonderSession.rerollPcr(dice, maxCorAfter)`: the same potion from
+  the same state, with `drink`'s ceiling guard. The pending reroll is
+  spent either way. On a success it clears `lost` *before* `gainCor`
+  (which does nothing for a lost character), advances, and charges the
+  same CoR floor.
+- `PathwayScreen`: the attempted block shows *Reroll the PCR (source)*,
+  `drinkLine` under it, and a note. `PcrDialog`'s failure says where the
+  reroll is.
+- `PARTLY_APPLIED` entries for Luck, Beckoning Luck and Fate Debt.
+- One paragraph in `docs/HOW-TO-PLAY.md`.
+
+### The diff review
+
+**Codex: FIX, one HIGH.** Lower Will after a failure, and the attempted
+potion's CoR ceiling can fall below `ScoreFloors.MIN_COR_CEILING`. The
+button stayed enabled, and `rerollPcr`'s `require` threw on tap. Drink
+had always gated on `holdsCeiling`. The reroll now uses the same gate,
+re-checks in the handler, and prints `drinkLine`, which explains the
+refusal. A session test shows that a refused reroll stays pending.
+
+**Codex then hit its limit until 2026-10-14 16:44**, so one sub-agent
+reviewed the fix: **SHIP**. Every `require` in `rerollPcr` is covered by
+the caller or by an invariant: a lost character cannot be corrupted,
+cannot digest, and cannot move CoR. `drinkLine`'s state and cost are
+the reroll's own. Its LOW, that the refusal says *"cannot be drunk"*
+under a reroll, was refused: the reroll *is* drinking that potion again.
+
+### Verification
+
+1891 Kotlin (1323 `core:rules`, 548 `app`, 20 `core:model`), green from
+the JUnit XML after `--rerun-tasks`. RED first: `stub` and
+`expected Fool 8 but was null`. Six mutations were caught, each restored
+from a copy: the failure not recording the potion, `gainCor` before
+`lost` is cleared, the pending reroll not spent, `persist` dropping the
+field, Fate Debt ignored, and the Lucky One from Seq 6 only.
+
+**On the SM-T570**, starting from its launcher with the save backed up,
+Church Healer bought Luck and drank Fool 9. At 50% digested, Fool 8
+integrated (`3d6: 9 vs 10`, +10 CoR). At 0%, Fool 7 failed (`11 vs 1`),
+and the dialog said *"Luck may reroll this failed roll"*. The Seq 7
+block offered `Reroll the PCR (Luck)`. **After a force-stop and a
+relaunch, the button was still there.** At target 1 the reroll failed
+too (`11 vs 1`). The second dialog had no Luck line, and the block then
+read only *"lost to the Rampager"*. The success path is unit-tested. The
+crash buffer was empty. The save was restored (`cmp` identical), and the
+tablet went back to its launcher.
+
+### Successors
+
+- **Acute Vision and Acute Hearing, asked with line 8688.**
+- Warrior's *default +2*.
+
 ## 6ff. The rows that name one skill
 
 These are 6es's first list: *"six conditional skill rows are under

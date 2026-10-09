@@ -152,7 +152,27 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ff is newest: six rows that name one skill.** These are 6es's first
+**6fg is newest: a Luck reroll of a failed PCR.** A failed PCR set
+`lost`, and *"Nothing here un-loses them"*. But Luck says *"may reroll
+any one failed roll"*. The attempted potion is now SAVED
+(`SavedSession.pendingPcr`), and its block offers *Reroll the PCR*. A
+success advances and pays the same CoR floor; a failure is spent. Read it
+for three things.
+
+- **Codex's HIGH on the design: in-memory was not enough.** A restart
+  between the failure and the reroll would strand the character. On the
+  SM-T570 the button survived a force-stop.
+- **Codex's HIGH on the diff: Drink's ceiling gate.** Will lowered since
+  the failure made `rerollPcr` throw on tap.
+- **The owed review of `466e3d7..HEAD` came back SHIP**, with one LOW: a
+  test's name claimed more than it checked (`ad8b4e1`). A prompt over
+  ~32 KB must reach `codex exec` on stdin (`-`), or it exits 126.
+
+**Codex is out until 2026-10-14 16:44**, so a sub-agent reviewed the
+fix. **Successors**: Acute Vision and Hearing (line 8688), and Warrior's
+*default +2*.
+
+**6ff is next: six rows that name one skill.** These are 6es's first
 list. Five print a circumstance on one skill's roll and are declared
 there: Class Mobility, Fearsome Reputation, Safecracker, Alcohol
 Tolerance and Navigator's Eye. Famous Face's *"Disguise attempts at
@@ -169,8 +189,8 @@ Tolerance and Navigator's Eye. Famous Face's *"Disguise attempts at
 
 Sub-agents reviewed the design and the diff (Codex was out). On the
 SM-T570: untrained Lockpicking offered Safecracker's clause, and
-declaring it gave `3d6: 8 vs 9`. **Owed: a Codex review of
-`466e3d7..HEAD`.** **Successors**: Acute Vision and Hearing (line
+declaring it gave `3d6: 8 vs 9`. Codex then reviewed `466e3d7..HEAD`
+(see 6fg). **Successors**: Acute Vision and Hearing (line
 8688), Luck against the PCR latch, and Warrior's *default +2*.
 
 **6fe is next: Alertness on the Spirit Vision roll.** 6al passed
@@ -232,28 +252,10 @@ failure at `11 vs 9`, and the bedridden clause reported on the Traits
 tab. **Successors**: Cleansed Spirit, Luck, Acute Vision and Acute
 Hearing, then 6es's first list and Warrior's *default +2*.
 
-**6fb is next: Chronic Insomnia on the Concentrate roll.** Its
-*"rolls requiring sustained concentration at -1"* sits beside Thinned
-Veil's -2 as a declaration. Read it for two things.
-
-- **"Sustained" is the GM's to say, and the reason is not a duration.**
-  One Concentrate maneuver is one turn, but the book sets no length that
-  makes concentration sustained. Codex's design review warned against
-  writing "multi-turn" in as a rule.
-- **6ez's and 6fa's doc commits had put two API lines inside 6ew's
-  lead.** The `concentrationClauses` and `actingGains` entries sat in
-  6ew's first bullet. They are in section 3 now, and 6ew retired from its
-  text before that edit.
-
-The FP lost each morning is the table's to enter: nothing here counts
-days. Codex SHIPped the design and the diff. On the SM-T570: `3d6 ≤ 7 —
-Will 11-3, Chronic Insomnia -1`, and no row in Fright. **Successors**:
-Cleansed Spirit, Fast Healer, Luck, Acute Vision and Acute Hearing;
-6es's first list; Warrior's *default +2*.
-
-**6fa back to 6de had lead paragraphs here until 2026-10-09. Each is in
+**6fb back to 6de had lead paragraphs here until 2026-10-10. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fb** — Chronic Insomnia's "sustained concentration at -1" is declared on the Concentrate roll; two API lines had been pasted inside 6ew's lead;
 **6fa** — Thinned Veil's "Concentration ... at -2" is a declaration on the Concentrate roll alone; the verbatim guard checked two traits, and now checks every partly-applied row;
 **6ez** — Knows the Acting Method doubles the digestion ranges the tracker prints for a holder; the note asks `doublesActingGains`, not whether two tables differ;
 **6ey** — a master's weapon parries at DX: `SkillDefaults.wieldedAt` floors the skill, and Attack, Defend and the builder all print it; the Pugilist was invisible to a keyword;
@@ -311,7 +313,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ff first.** The
+**Where to start next: the slice log, from the END — 6fg first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -366,7 +368,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1886 Kotlin** (JUnit 5 — 1322 `core:rules`, 544 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1891 Kotlin** (JUnit 5 — 1323 `core:rules`, 548 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -572,6 +574,9 @@ TraitEffects.actingGains(traits) / .doublesActingGains(traits)
                                       // Knows the Acting Method (6ez)
 TraitEffects.corruptionNotes(traits)   // Cleansed Spirit beside the CoR stepper:
                                       // nothing halved, and why (6fd)
+TraitEffects.rerollSource(traits, state)   // Luck / Beckoning Luck (not with
+                                      // Fate Debt) / the Lucky One: who may
+                                      // reroll a failed PCR (6fg)
 TraitEffects.skillRollClauses(traits, skill)   // every clause a skill roll asks
                                       // the GM about: social rows on a social skill,
                                       // and rows naming this skill (6ff). The

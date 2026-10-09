@@ -190,7 +190,26 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fa back to 6de
+## Retired lead paragraphs, 6fb back to 6de
+
+**6fb is next: Chronic Insomnia on the Concentrate roll.** Its
+*"rolls requiring sustained concentration at -1"* sits beside Thinned
+Veil's -2 as a declaration. Read it for two things.
+
+- **"Sustained" is the GM's to say, and the reason is not a duration.**
+  One Concentrate maneuver is one turn, but the book sets no length that
+  makes concentration sustained. Codex's design review warned against
+  writing "multi-turn" in as a rule.
+- **6ez's and 6fa's doc commits had put two API lines inside 6ew's
+  lead.** The `concentrationClauses` and `actingGains` entries sat in
+  6ew's first bullet. They are in section 3 now, and 6ew retired from its
+  text before that edit.
+
+The FP lost each morning is the table's to enter: nothing here counts
+days. Codex SHIPped the design and the diff. On the SM-T570: `3d6 ≤ 7 —
+Will 11-3, Chronic Insomnia -1`, and no row in Fright. **Successors**:
+Cleansed Spirit, Fast Healer, Luck, Acute Vision and Acute Hearing;
+6es's first list; Warrior's *default +2*.
 
 **6fa is next: Thinned Veil on the Concentrate roll.** Its *"Concentration
 in spiritually active environments at -2"* is a declared clause on the
