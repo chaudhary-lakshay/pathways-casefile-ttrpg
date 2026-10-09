@@ -190,7 +190,37 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6er back to 6de
+## Retired lead paragraphs, 6es back to 6de
+
+**6es is next, and it is 6er's first successor: it lists the complement
+of `TraitEffects.known()`, which nothing had.** 148 of the 198 catalogue
+rows, by a throwaway test at `c3011e6`. Read it for four things.
+
+- **Two rows in it were applied by name**: Night Eyes, from the same
+  object, and Spiritual Fortitude, in `Corruption`. Both are in `known()`
+  now. The census is a grep for name matches diffed against the set.
+- **Three cells name printed skills and no circumstance**, and lifted
+  nothing: Acute Social Awareness, Former Military Officer, Photographic
+  Instinct. Every guard on `SKILL_BONUSES` walks the map.
+- **Official Beyonder is refused whole.** I favoured applying its *+N* to
+  an owned skill, where both readings agree. The design review's HIGH:
+  chapter 6 says that of a potion's entry, and agreement between two
+  proposed readings does not establish the rule.
+- **The sheet listed no advantages.** It printed `reported()` and the
+  drawbacks, so 24 of the premades' 50 advantage rows were nowhere on it.
+  Each held trait is one row now, with its cell and its notes, and a row
+  nothing reads says `TraitEffects.UNREAD`.
+
+Codex answered both reviews: CHANGE on all three design questions, then
+FIX on the diff. Its MEDIUM was that `UNREAD`'s first wording, *"reads no
+rule from this row"*, was false of five rows whose PRICE the app reads; it
+begins *"its price aside"* now. Ten mutations of ten were caught. On the
+SM-T570, Beat Cop's Traits tab: `Legal Enforcement Powers — 5 pts`, its
+cell, and the line; neither was there before. **The helper drops any line
+holding a quotation** (6er's open question): read it from the raw dump.
+**Successors, none ranked**: six conditional skill rows, a list of rows
+naming a mechanic this app has a screen for (untriaged), and 6eq's second,
+book 2540's *"Default: DX-2 if untrained"*.
 
 **6er is next, and it is the first of 6eq's two successors: the builder
 sells a language.** The row was withheld while both of its tables sat

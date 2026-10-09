@@ -152,7 +152,28 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ew is newest, and it is 6es's successor: a self-control row's other
+**6ex is newest, and it is 6ew's successor: a Reluctant Killer's target
+is the GM's to declare.** The Attack dialog offers the cell's two to-hit
+clauses as one declaration (-4, or -2 with the face hidden). Read it for
+three things.
+
+- **"cannot Aim" is unconditional.** I scoped it to the declared target.
+  Codex's design MEDIUM was that the clause prints no qualifier, so a
+  holder never gets the Aim rows. That is 6ev's gate-that-was-mine, again.
+- **The Attack roll takes the general trait term now**, and 6ew's census
+  that it "costs nothing" had the wrong corpus. The dialog offers EVERY
+  owned skill, so Perfect Balance's +2 reaches an Acrobatics attack.
+  Codex's diff MEDIUM; the term is printed as "Traits" above Roll.
+- **An install went to the tablet by accident.** The emulator crashed
+  twice (Vulkan, then low RAM), an empty serial loop left
+  `ANDROID_SERIAL` unset, and `installDebug` picked the SM-T570. Its save
+  is byte-identical. Gate an install on a non-empty serial.
+
+Codex reviewed the design, the diff and the fix, ending in SHIP. **Not
+device-verified.** **Successors**: that device pass, a Warrior's weapon
+parrying at DX, Warrior's *default +2*, and 6es's two lists.
+
+**6ew is next, and it is 6es's successor: a self-control row's other
 clauses were unsaid.** `reported` gave `UNREAD` only to a row with no
 self-control roll, so 28 of the 30 rows with one said nothing beside
 Reckless's -1 and Reluctant Killer's *"-4 to hit ... cannot Aim"*. Read
@@ -270,39 +291,10 @@ potion found it, after the commit. **Successors**: an untrained punch and a carr
 in the Attack dialog, the Acrobatic Dodge, whether a default parries, and
 6es's two lists.
 
-**6es is next, and it is 6er's first successor: it lists the complement
-of `TraitEffects.known()`, which nothing had.** 148 of the 198 catalogue
-rows, by a throwaway test at `c3011e6`. Read it for four things.
-
-- **Two rows in it were applied by name**: Night Eyes, from the same
-  object, and Spiritual Fortitude, in `Corruption`. Both are in `known()`
-  now. The census is a grep for name matches diffed against the set.
-- **Three cells name printed skills and no circumstance**, and lifted
-  nothing: Acute Social Awareness, Former Military Officer, Photographic
-  Instinct. Every guard on `SKILL_BONUSES` walks the map.
-- **Official Beyonder is refused whole.** I favoured applying its *+N* to
-  an owned skill, where both readings agree. The design review's HIGH:
-  chapter 6 says that of a potion's entry, and agreement between two
-  proposed readings does not establish the rule.
-- **The sheet listed no advantages.** It printed `reported()` and the
-  drawbacks, so 24 of the premades' 50 advantage rows were nowhere on it.
-  Each held trait is one row now, with its cell and its notes, and a row
-  nothing reads says `TraitEffects.UNREAD`.
-
-Codex answered both reviews: CHANGE on all three design questions, then
-FIX on the diff. Its MEDIUM was that `UNREAD`'s first wording, *"reads no
-rule from this row"*, was false of five rows whose PRICE the app reads; it
-begins *"its price aside"* now. Ten mutations of ten were caught. On the
-SM-T570, Beat Cop's Traits tab: `Legal Enforcement Powers — 5 pts`, its
-cell, and the line; neither was there before. **The helper drops any line
-holding a quotation** (6er's open question): read it from the raw dump.
-**Successors, none ranked**: six conditional skill rows, a list of rows
-naming a mechanic this app has a screen for (untriaged), and 6eq's second,
-book 2540's *"Default: DX-2 if untrained"*.
-
-**6er back to 6de had lead paragraphs here until 2026-10-08. Each is in
+**6es back to 6de had lead paragraphs here until 2026-10-09. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6es** — the complement of `known()`, listed: 148 rows nothing read; `UNREAD` says so, and the sheet lists every held advantage with its cell;
 **6er** — the builder sells a language; the two halvings combine with one ceiling, and a Language Talent bought later reprices what is owned;
 **6eq** — 39 refusals in production source whose subject is this app, seven false or stale; Versatile's +1 goes inside the pick between an owned level and a default;
 **6ep** — 6dy's three refusals re-asked; the HP recovery table's first row is a ROLL, so the daily HT roll is offered and nothing is restored;
@@ -361,7 +353,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ew first.** The
+**Where to start next: the slice log, from the END — 6ex first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -416,7 +408,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1866 Kotlin** (JUnit 5 — 1306 `core:rules`, 540 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1873 Kotlin** (JUnit 5 — 1311 `core:rules`, 542 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |

@@ -6726,6 +6726,97 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ex. The target a Reluctant Killer has to be told about
+
+6ew named this successor: Reluctant Killer's cell prints *"-4 to hit
+recognizable people with deadly force (-2 if face hidden); cannot Aim. If
+you kill a recognizable person, become morose for 3d days — Will rolls
+required to use violence again"* (book lines 1311-1314, and nothing
+else in the book). The Will roll was offered. Nothing else was applied,
+although the builder sells the row. No premade holds it.
+
+### The design review moved the Aim refusal
+
+I proposed scoping *"cannot Aim"* to a declared target. My argument was
+that it follows the semicolon with the same subject. **Codex: CHANGE.**
+The clause prints no qualifier of its own, and a shared subject does
+not establish a conditional scope. That is 6ev's lesson about a gate
+that was mine and not the book's, so I took it. **A holder never gets
+the two Aim rows**, declared or not. The cost of this reading: against
+a monster, the GM has no control in this app that gives the aim back.
+
+Its other findings, all taken:
+
+- One nullable declaration makes the -4 and the -2 exclusive, but not
+  eligible. A key the character was not offered is refused.
+- Keep the refusal apart from "Defended or was hurt", and key
+  `offeredConditions`' `remember` on both. Leaving the OR inside the old
+  key would have served stale rows.
+- The declaration sits beside the circumstances, survives the
+  reach/range toggle, and clears on "Another turn".
+- SHIP on a separate `attackModifiers`: *"to hit"* names the attack
+  roll, and the COMBAT SKILLS banner also holds Fast-Draw and Shield,
+  which make no attack.
+
+### What was built
+
+- `TraitEffects.attackClauses / attackModifiers / refusesAim`, plus
+  `RELUCTANT_KILLER` and `AIM_REFUSAL`. A quirk of the same name offers
+  no clause. `known()` takes the clause names, and `PARTLY_APPLIED`
+  names *"become morose for 3d days"*, which has no clock to run
+  against.
+- **The Attack dialog**: a "Target (Reluctant Killer)" chip row on both
+  sides of the toggle. For a holder, the Aim section is replaced with
+  *"Reluctant Killer: "cannot Aim""*. The roll and the preview both pass
+  the refusal to `rangedModifiers`.
+- **`traitTerms(traits, key, killerTarget)`**: the general
+  `TraitEffects.modifiers` term plus the declared clause. It is composed
+  once per composition, printed as *"Traits: ±N"* above Roll, and rolled
+  from the same list.
+
+### The diff review found my census had the wrong corpus
+
+6ew's census, and this slice's KDoc, said the general trait term costs
+the Attack roll nothing, because `modifiers` is empty for all 19 COMBAT
+SKILLS. **Codex: the dialog offers every owned skill**
+(`skillLevels = skillLevels` at the caller). So Perfect Balance's +2
+reached an Acrobatics attack the moment the term went in, and the
+screen printed nothing for it before the roll. The census was right
+about its query and the query was wrong about the dialog. *"A count
+without its query"* again, and this time the query was stated and was
+still not the screen's. The fix is the *"Traits"* line, and a test pins
+the reach. Codex re-read the fix: SHIP on the display, and SHIP on the
+`requireNotNull` now reached during composition. `killerTarget` only
+ever holds an offered key, and leaving for the trait editor disposes
+the dialog.
+
+### Verification
+
+1873 Kotlin (1311 `core:rules`, 542 `app`, 20 `core:model`), green from
+the JUnit XML after `--rerun-tasks`. The rules tests and the app test
+for the declared clause were watched failing on stubs first. The reach
+test passed at once, because it pins existing behaviour. Two mutations
+(drop the kind check, swallow the unoffered key) were caught, each
+restored from a copy.
+
+**Not device-verified.** The emulator crashed twice: first `Failed to
+allocate ColorBuffer with Vulkan backing`, then again under
+`-gpu swiftshader_indirect`, with about 1.4 GB of RAM free. The SM-T570
+had Settings in the foreground, so it was left alone. **One slip:** my
+serial loop returned empty after the first crash, `ANDROID_SERIAL` was
+unset, and `installDebug` installed this build on the tablet at
+11:37:58. Its save was compared before and after and is byte-identical.
+It is the same app upgraded in place. **Gate an install on a non-empty
+serial, not on the loop finishing.**
+
+### Successors
+
+- A device pass. Buy Reluctant Killer in the builder on a premade with
+  no save entry, then Attack: the chips, the *"Traits"* line, and no Aim
+  rows at range.
+- A Warrior's weapon parrying at DX, Warrior's *default +2*, and 6es's
+  two lists stand.
+
 ## 6ew. The rows whose roll was taken for the whole cell
 
 6es recorded this as a successor: *"A self-control row's other clauses
