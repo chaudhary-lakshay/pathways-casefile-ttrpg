@@ -37,8 +37,9 @@ dialog at the printed level (Research 13, Ritualistic Magic 13, Guns
 read 3d6 ≤ 12; and Fright plus Concentrate tapped in one monkey frame
 open both, stacked, closing one per BACK, as the eleven flags did.
 **Not verified on device**: the shock latch and Clear, and a spend
-moving a pool, because each writes the save. Step 8 has not been
-started.
+moving a pool, because each writes the save. The diff review (sonnet,
+`ca33f90..ea5665d`) said SHIP; its one LOW, five imports named only in
+comments, is removed. Step 8 has not been started.
 
 | File | Was | Now | Moved to |
 |---|---|---|---|

@@ -1,7 +1,5 @@
 package com.pathways.app
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.pathways.model.Attr
@@ -25,7 +23,6 @@ import com.pathways.rules.PremadeSheet
 import com.pathways.rules.RitualMode
 import com.pathways.rules.RollKind
 import com.pathways.rules.SelfControlCheck
-import com.pathways.rules.SheetComparison
 import com.pathways.rules.Shock
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
