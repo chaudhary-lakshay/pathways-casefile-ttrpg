@@ -174,6 +174,10 @@ face printed its name alone on the Traits tab, having no catalogue row;
 `held()` now gives it the table's reaction cell (`Appearance.cellFor`) and
 `UNREAD`. The review caught that my test computed its expectation with
 `cellFor`'s own formula; it now pins the book's eight strings.
+**Next (6fr)**: sweep `held()` for every other row that prints no cell --
+wealth levels, languages, blessings, anything held that is not a
+catalogue row -- by running `held()` over every fixture plus each table's
+rows and listing `cell == null`. Count first; 6fq found one by eye.
 
 **6fn is next: the face a potion grants.** Demoness 7 and 6 print
 *"Appearance (Beautiful)"* and *"(Very Beautiful)"*, rungs of the
