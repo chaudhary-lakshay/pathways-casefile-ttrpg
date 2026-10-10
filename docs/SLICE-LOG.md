@@ -6726,6 +6726,106 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fh. The sense a Per roll was never asked about
+
+Acute Vision (*"+2 to Vision rolls; notice details at a distance, read
+lips, spot hidden objects"*, book 936) and Acute Hearing (*"+2 to Hearing
+rolls; ..."*, 940) were `UNREAD`. 6fe left the question: is a Per skill,
+or Spirit Vision's roll, a vision-based Perception roll?
+
+### The answer
+
+The book never lists its Vision or Hearing rolls. The potion rows print
+the same bonus as *"+2 to vision-based Perception rolls"* (8688, 5816,
+9386), so a Vision roll is a kind of Per roll. That makes "controlled by
+Per" the book's own boundary. Which sense a given roll uses is the GM's
+call, so both rows are **declarations** on every Per-controlled skill (ten
+of them, Lip Reading and Search among them), through 6ff's
+`skillRollClauses`. Non-Per skills are offered neither.
+
+### The design review
+
+Codex was out until 2026-10-14 16:44 and the gateway answered `fetch
+failed`, so one sub-agent did the review.
+
+- **Q1 SHIP.** Strongest case against: too wide. Fishing, Scrounging and
+  Detect Lies get chips that rarely apply. The GM declares, so the cost is
+  noise, not a wrong number. Lip Reading (*"Understand speech without
+  hearing it"*) offers a Hearing chip that its own note contradicts. That
+  is accepted rather than blocklisted.
+- **Q2 CHANGE: I had refused Spirit Vision on 4770's *"The spirit sees
+  what the eye cannot"*.** That reused the spiritual-sense argument 6fe's
+  Q1 had already rejected, on the one roll the book itself names *Vision*.
+  The roll now offers Acute Vision as a declaration, and never offers
+  Hearing. Detection stays out: *"SPI or Per roll"* (3810) names no sense.
+- **Q3 MEDIUM, taken.** A row held twice emitted two modifiers under one
+  `ModifierId`, in all three clause lists. `skillRollClauses` is now
+  distinct.
+
+### What was built
+
+- `TraitEffects.SENSE_CLAUSES`: two flat, conditional rows (neither cell
+  says "per level"), offered when `skill.attr == ControllingAttribute.Per`.
+  `skillClauseRows()` and `skillClauseNames()` include them, so `known()`
+  and the verbatim guard both see them. The two glosses are
+  `PARTLY_APPLIED`: *"says what a Vision roll is for; on a Per roll the GM
+  declares whether this is one"*.
+- `TraitEffects.visionClause(traits)`: Acute Vision's clause or null.
+  `SpiritVision.targetFor` / `partsFor` / `attempt` take `vision:
+  TraitClause?`. `SpiritVisionDialog` takes `visionClause` as a
+  **required** parameter, like `alertness`, and toggles it as a chip.
+- The UNREAD census test used Acute Vision as its example. It now uses
+  Mentor, which no rules source names.
+- One paragraph in `docs/HOW-TO-PLAY.md`.
+
+### The diff review
+
+One sub-agent: **SHIP**, with one LOW that was taken. The dedupe key was
+`shown / printed`, but `ModifierId` reads the catalogue name. So *Acute
+Vision* and *Acute Vision 2* both got past the dedupe and collided. It
+now dedupes on `trait to printed`, and the test holds those two
+spellings. RED first: `List has more than one element`. Two cosmetic
+LOWs were left: the result line does not reprint the parts, and the
+chip's state shows only as colour, as the existing chips do.
+
+### Verification
+
+1893 Kotlin (1325 `core:rules`, 548 `app`, 20 `core:model`), green from
+the JUnit XML after `--rerun-tasks`. RED first: `List is empty`, then
+the Spirit Vision test failing to compile. Five mutations were caught,
+each restored from a copy: the Per predicate made `true`, the dedupe
+dropped, `visionClause` taking any sense, the target dropping the term,
+and the parts dropping it.
+
+**On the SM-T570**, starting from its launcher with the save backed up,
+Beat Cop (Fool 9, Alertness 1) bought Acute Vision. Spirit Vision showed
+the chip under `Roll 10 or under (Per 9, +1 Alertness)`. Declaring it
+gave `Roll 12 or under (Per 9, +1 Alertness, +2 Acute Vision)`, and
+*Look* gave `rolled 9 vs 12`. The Search dialog asked *"Does any of this
+hold?"* with the Acute Vision line. Declared, it rolled `3d6: 12 vs 12`
+(`trait:alertness, trait:acute vision:+2 to Vision rolls: 3`). The crash
+buffer was empty. The save was restored (`cmp` identical), and the
+tablet went back to its launcher.
+
+### Not done
+
+- **A potion's Acute Vision, Acute Hearing and Greater Acute Vision (+4)
+  reach no roll.** Pathway advantages are prose and never become
+  `traits`, the recorded gap in section 6 of `CLAUDE.md`. These rows
+  are in `pathways.json`: Visionary 9, Demoness 9 and Red Priest 9
+  (Vision and Hearing; Visionary has Vision only), Hanged Man 8
+  (Hearing), Demoness 6 (Greater Acute Vision) and Red Priest 6 (all four
+  senses, line 8687). Second Law's blocks (9335, 9386) are non-standard.
+  Reading them from state, as `rerollSource` reads the Lucky One, is the
+  successor.
+- The gloss's first task, *"notice details at a distance"*, is a bare
+  Vision roll with no skill, and this app makes no such roll.
+
+### Successors
+
+- Potion-granted Acute rows, read from Beyonder state.
+- Warrior's *default +2*.
+
 ## 6fg. The failed roll Luck was owed
 
 ### First: the owed review

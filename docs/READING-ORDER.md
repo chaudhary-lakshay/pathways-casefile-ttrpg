@@ -190,7 +190,25 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fb back to 6de
+## Retired lead paragraphs, 6fc back to 6de
+
+**6fc is next: Fast Healer on the daily recovery roll.** *"Recover 1
+additional HP per day of rest"* is said on the recovery row's result.
+Read it for two things.
+
+- **The line says what the two readings agree on, and nothing more.** On
+  a success, "additional" and "per day of rest" both give one more HP. On
+  a failure they disagree, so the line says it is the GM's call. Codex
+  SHIPped that split.
+- **The diff review's MEDIUM was right, and its example was not.** A test
+  using `emptyList()` passed with `traits.isNotEmpty()`. It now covers an
+  unrelated trait and a trailing level (`Fast Healer 1`). The suggested
+  `Fast Healer (5)` resolves for no trait, and that is deliberate, per 6by.
+
+On the SM-T570: both result lines, with a success at `9 vs 9` and a
+failure at `11 vs 9`, and the bedridden clause reported on the Traits
+tab. **Successors**: Cleansed Spirit, Luck, Acute Vision and Acute
+Hearing, then 6es's first list and Warrior's *default +2*.
 
 **6fb is next: Chronic Insomnia on the Concentrate roll.** Its
 *"rolls requiring sustained concentration at -1"* sits beside Thinned

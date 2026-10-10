@@ -152,7 +152,27 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fg is newest: a Luck reroll of a failed PCR.** A failed PCR set
+**6fh is newest: Acute Vision and Hearing on a Per roll.** The book
+never lists its Vision rolls, but the potion rows print the same +2 as
+*"vision-based Perception rolls"* (8688). So every Per-controlled skill
+offers both rows as GM declarations, through `skillRollClauses`. Read it
+for two things.
+
+- **My refusal of Spirit Vision reused an argument 6fe had already
+  rejected.** It rested on 4770's *"sees what the eye cannot"*. The
+  design sub-agent said CHANGE, so that roll now offers Acute Vision
+  alone (`visionClause`).
+- **A row held twice gave two modifiers under one id**, in all three
+  clause lists. The fix deduped on the shown key, and the diff review
+  caught that `ModifierId` reads the catalogue name, so *Acute Vision 2*
+  still collided. It now dedupes on `trait to printed`.
+
+Codex was out and the gateway down, so sub-agents reviewed the design
+and the diff. On the SM-T570, Beat Cop's Search rolled `3d6: 12 vs 12`
+with the clause declared. **Successors**: potion-granted Acute rows,
+which never become `traits`, and Warrior's *default +2*.
+
+**6fg is next: a Luck reroll of a failed PCR.** A failed PCR set
 `lost`, and *"Nothing here un-loses them"*. But Luck says *"may reroll
 any one failed roll"*. The attempted potion is now SAVED
 (`SavedSession.pendingPcr`), and its block offers *Reroll the PCR*. A
@@ -234,27 +254,10 @@ On the SM-T570 the line sits under the CoR table. **Owed: a Codex review
 of `466e3d7..HEAD`.** **Successors**: Luck, Acute Vision and Acute
 Hearing; 6es's first list; Warrior's *default +2*.
 
-**6fc is next: Fast Healer on the daily recovery roll.** *"Recover 1
-additional HP per day of rest"* is said on the recovery row's result.
-Read it for two things.
-
-- **The line says what the two readings agree on, and nothing more.** On
-  a success, "additional" and "per day of rest" both give one more HP. On
-  a failure they disagree, so the line says it is the GM's call. Codex
-  SHIPped that split.
-- **The diff review's MEDIUM was right, and its example was not.** A test
-  using `emptyList()` passed with `traits.isNotEmpty()`. It now covers an
-  unrelated trait and a trailing level (`Fast Healer 1`). The suggested
-  `Fast Healer (5)` resolves for no trait, and that is deliberate, per 6by.
-
-On the SM-T570: both result lines, with a success at `9 vs 9` and a
-failure at `11 vs 9`, and the bedridden clause reported on the Traits
-tab. **Successors**: Cleansed Spirit, Luck, Acute Vision and Acute
-Hearing, then 6es's first list and Warrior's *default +2*.
-
-**6fb back to 6de had lead paragraphs here until 2026-10-10. Each is in
+**6fc back to 6de had lead paragraphs here until 2026-10-10. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fc** — Fast Healer's +1 is said on the recovery row's result; on a failure the two readings disagree, so the line says it is the GM's;
 **6fb** — Chronic Insomnia's "sustained concentration at -1" is declared on the Concentrate roll; two API lines had been pasted inside 6ew's lead;
 **6fa** — Thinned Veil's "Concentration ... at -2" is a declaration on the Concentrate roll alone; the verbatim guard checked two traits, and now checks every partly-applied row;
 **6ez** — Knows the Acting Method doubles the digestion ranges the tracker prints for a holder; the note asks `doublesActingGains`, not whether two tables differ;
@@ -313,7 +316,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fg first.** The
+**Where to start next: the slice log, from the END — 6fh first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -368,7 +371,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1891 Kotlin** (JUnit 5 — 1323 `core:rules`, 548 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1893 Kotlin** (JUnit 5 — 1325 `core:rules`, 548 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
 | Branch | everything on `master`; working tree clean |
@@ -579,8 +582,12 @@ TraitEffects.rerollSource(traits, state)   // Luck / Beckoning Luck (not with
                                       // reroll a failed PCR (6fg)
 TraitEffects.skillRollClauses(traits, skill)   // every clause a skill roll asks
                                       // the GM about: social rows on a social skill,
-                                      // and rows naming this skill (6ff). The
-                                      // dialog's chips and modifiers() read it
+                                      // and rows naming this skill (6ff), and
+                                      // Acute Vision/Hearing on a Per skill
+                                      // (6fh). The dialog's chips and
+                                      // modifiers() read it
+TraitEffects.visionClause(traits)     // Acute Vision alone, for Spirit
+                                      // Vision's roll: a GM declaration (6fh)
 Divination.levelsFor(ownDivination, ownRitual, defaultBonus): CasterLevels
                                       // the bonus goes inside the pick between
                                       // owned and default; a ritual never defaults
@@ -603,7 +610,7 @@ Wounds.majorWoundFor(roll): MajorWound / .majorWounds()
 ContentLoader.hitLocations() / .woundingMultipliers() / .spiritDamage()
 ContentLoader.glossary()               // p.167-168, reference only; no rule
 SpiritVision.grantedTo(pathway, sequence) / .formFor(pathway)  // the BLOCKS, never ch.7.6's table
-SpiritVision.targetFor(per, shock, hurt, alertness) / .attempt(...) / .partsFor(...)
+SpiritVision.targetFor(per, shock, hurt, alertness, vision) / .attempt(...) / .partsFor(...)
 TraitEffects.alertnessBonus(traits)   // "all Per rolls" for the two bare ones:
                                       // Detection and Spirit Vision (6fe)
 SpiritVision.rowFor(margin) / .rowForOutcome(outcome) / .isMisleading(row)
