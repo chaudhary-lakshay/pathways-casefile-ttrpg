@@ -159,7 +159,7 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fv is newest (rotation), with 6fu and 6ft before it: a sheet's printed SPI 9 is not played.** Four sheets
+**6fw is newest (the gallery row), with 6fv, 6fu and 6ft before it: a sheet's printed SPI 9 is not played.** Four sheets
 (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police) print SPI 9
 and no sheet prints a pathway. `toCharacter` carried the 9 and digestion
 ADDED a potion's grant, so an Apothecary on Hermit 9 played SPI 18; 6dy's
@@ -174,9 +174,9 @@ the owner's call (`MORTAL_SPI`'s KDoc). Read it for two things.
   "is this a Beyonder" and disagreed on 10 of 22 characters. The gallery
   asks the save now (`walkOf`); "has a pool" stays the sheet's
   `maxSpi > 0`, a different question, since Chained 9 grants no SPI.
-- **The gallery digests nothing**: `digestedWith` throws on a save
-  outside the floors, and this is the launch screen. A row is the
-  published sheet plus the walk. The design review asked for it played.
+- **The gallery digested nothing until 6fw**: `digestedWith` throws on
+  a save outside the floors, and 6ft held that only a session could
+  repair one. The design review had asked for the row played.
 
 The carried SPI's reason predated the pathway model and expired when it
 landed. Design and diff review said SHIP. Device-verified, save
@@ -191,8 +191,22 @@ character list (reproduced; same pid). The manifest's `configChanges`
 handles a turn now, so a rolled result survives one; a dark-mode
 switch and process death still lose the screen, never the save.
 Device-verified, and the Apothecary was stepped back to SPI 0 / 9 on
-the owner's word. **Next (6fw)**: the gallery row prints the sheet's
-attributes, not the played ones; read whether that is wrong today.
+the owner's word.
+
+**6fw: a gallery row prints the character played.** It printed the
+sheet's attributes and skill count beside the walk: 16 of 22 Sequence 9
+potions raise an attribute, and a builder edit never reached the row,
+so a Docks Bouncer on Twilight Giant 9 read ST 11 and opened at ST 14.
+6ft's refusal rested on *"a session repairs on opening and the launch
+screen cannot"*; the repair writes nothing, so it is one pure function
+now, `SavedSession.repairedEdits`, which `init` and the gallery both
+call. **Repair a save there and nowhere else.** A walk the catalogue
+lacks costs a row its played numbers (logged), never the launch
+screen. The two trait chips stay the sheet's, and the KDoc says so. The
+diff review said SHIP; device-verified, save untouched. **Next (6fx)**:
+a builder pick replaces a wealth or appearance row in place, so a chip
+can name a trait no longer held; read whether any sheet's first two is
+such a row.
 
 **6fs is next, a device pass for 6fr: every held row prints a cell.** A census ran `held()`
 over every fixture, every wealth and appearance level, every offered and
@@ -338,7 +352,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fv first.** The
+**Where to start next: the slice log, from the END — 6fw first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -393,7 +407,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1915 Kotlin** (JUnit 5 — 1341 `core:rules`, 554 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1921 Kotlin** (JUnit 5 — 1341 `core:rules`, 560 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |

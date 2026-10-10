@@ -6726,6 +6726,128 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fw. The row printed a character nobody plays
+
+6fv asked whether the gallery row, which prints the sheet's attributes,
+is wrong today. It is, on two counts, and the second is one 6fv's
+question did not name.
+
+**A potion.** 16 of the 22 Sequence 9 blocks raise ST, DX, IQ or HT
+(counted from `pathways.json`; the six that do not are Fool, Door,
+Hanged Man, Darkness, Hermit and Wheel of Fortune). The row printed the
+sheet's four beside the walk, and the tap opened a character who rolled
+others.
+
+**A builder edit.** The gallery never called `applyTo`, so a bought ST
+never reached the row either, for a mortal as much as for a Beyonder.
+
+**On the owner's own save**, read from the tablet: eight entries, seven
+walked. Three rows printed attributes the character does not play,
+Journalist on Error 9 (ST and DX 9 where 10 is played), Antiquarian
+Dealer on Abyss 9 (ST 9 for 11) and Docks Bouncer on Twilight Giant 9
+(ST 11, DX 9, HT 10 for 14, 11, 11). The other four walked rows are on
+Fool and Hermit, which raise no attribute, and every bought attribute in
+the save is a 9 on a sheet that prints 9. All seven walked rows printed
+the sheet's skill count, short by what the potion granted.
+
+**6ft's refusal had a reason, and half of it was false.** *"`digestedWith`
+throws on a save outside the floors, which a session repairs on opening
+and the launch screen cannot."* The first half holds: ST bought to 30
+before the ceilings existed, or Will sold to the bound under Abyss 9's
+Will -1, does not build. The second half does not: the repair is
+`withinCeilings`, the `shortfallOn` and `boughtBack` loop and the CoR
+buy-back, and none of it writes. What the launch screen could not do was
+call it, because it lived inside `BeyonderSession.init` beside the
+`persist()`.
+
+What changed:
+
+- **`SavedSession.repairedEdits(sheet)`**, the repair as one pure
+  function. `init` calls it, then latches `corrupted` and persists as
+  before; the gallery calls it and writes nothing. One copy, on the
+  rule this file records against a predicate at two call sites.
+- **`playedNumbers(sheet, saved)`**: the repaired edits applied, then the
+  walk digested, giving the four attributes and the count of
+  `liveSkillLevels`, which is the map the sheet rolls from. A row is now
+  what a tap opens.
+- **`Character.attributesWith(state)`** replaces the four lines
+  `MainActivity` held for the same reading, so the sheet and the row ask
+  one function.
+- **`rowNumbers`** catches an `Exception` from `playedNumbers`, logs it
+  and prints the sheet's numbers. See the next paragraph for why that is
+  not a swallow.
+- **The KDoc and the player guide** said every number on the row was the
+  sheet's. They now say which are played (attributes, skill count) and
+  which are not (the two trait chips, which are the sheet's first two).
+
+**A walk the catalogue does not hold.** `digestThrough` refuses a
+pathway or Sequence with no block, and no repair fixes that. It is not
+reachable through the app: `drink` asks `maxCorAfter(next)` before it
+stores anything, and that digests `next`, so a stored walk digested
+under the catalogue that stored it. A content rename between two builds
+would reach it. On the sheet that throw costs one character; on the
+launch screen it would cost every save at once, so there it costs the
+row its played numbers. The sheet screen still throws for that
+character, as it does today.
+
+**Tests, each watched failing first** against a stub that returned what
+the row printed before: a mortal's bought ST (12 expected, 9 printed),
+Twilight Giant 9 on Docks Bouncer (14/11/9/11 against 11/9/9/10), the
+skill count for Journalist on Error 9 (15 against 11: five granted, and
+Observation is one the sheet holds), a save outside both bounds (ST 21
+against 9; it also asserts the save throws as stored, and that the row
+equals what a `BeyonderSession` opened on it reads) and the unknown
+walk. A sixth passed under the stub on purpose: with nothing saved,
+all 22 rows equal the sheet as printed, attributes and skill count, so
+the new path cannot move a mortal's row.
+
+**Mutants, one at a time, from fresh XML, all compiled.** No floor pass
+(5 failed, four of them `BeyonderSessionTest`'s existing repair tests,
+which is the evidence the lift preserved `init`); no ceilings (2); the
+row reading the save unrepaired (1); the skill count as printed (1); no
+containment (1). **The first containment mutant was mine and was wrong**:
+it changed the argument inside the catch to the fallback's own, which
+returns the expected value, and read as a survivor. Rewritten to remove
+the catch, it failed the one test written for it.
+
+**Review, one ecc sub-agent on the working-tree diff: SHIP.** It read
+the old `init` against the new function and found the same computation
+on the same values, each property being initialised from `saved` before
+`init` runs. One MEDIUM, taken as a correction to a comment: a
+`remember` inside a lazy `items` block is dropped when its row scrolls
+off, so my *"once per save entry"* was false. The comment now says each
+time a row scrolls into view, and names hoisting one map above the list
+as the upgrade. Two LOWs: `runCatching` catches `Error` too (taken, it
+is `catch (failure: Exception)` now), and a fallback row still shows its
+walk beside unraised numbers (refused: the state takes a content change
+to reach, and it is logged).
+
+**Device, SM-T570, on its launcher, no save write.** Fresh install
+(`lastUpdateTime` 14:44:14, after the last edit). The gallery read
+`All (22) / Mortal (15) / Beyonders (7)` and:
+
+| Row | Before | Now |
+|---|---|---|
+| Docks Bouncer, Twilight Giant 9 | ST 11 DX 9 IQ 9 HT 10, 9 skills | ST 14 DX 11 IQ 9 HT 11, 13 skills |
+| Journalist, Error 9 | ST 9 DX 9 IQ 10 HT 9, 11 skills | ST 10 DX 10 IQ 10 HT 9, 15 skills |
+| Antiquarian Dealer, Abyss 9 | ST 9, 9 skills | ST 11, 17 skills |
+| Church Healer, mortal (control) | ST 9 DX 9 IQ 11 HT 9, 9 skills | the same |
+
+The "Before" column is the fixture, not a screenshot of the old build.
+`cmp` against the backup taken before the install: unchanged. The tablet
+was left on its launcher. Not run on the device: a save outside the
+bounds, which would need a seed written; the test covers it.
+
+1921 Kotlin (1341 `core:rules`, 560 `app`, 20 `core:model`), green after
+`--rerun-tasks`. The Python suite was not touched or re-run.
+
+**Next (6fx)**: the row's two chips are the last thing on it read from
+the sheet (`chipTraits`). A builder pick replaces a wealth or an
+appearance row in place, so a chip can name a trait the character no
+longer holds. Read whether any sheet's first two traits is such a row
+before deciding anything; four app readers of a sheet's printed fields
+remain, and the other three are the Skills tab's own row list.
+
 ## 6fv. A turn of the tablet took the sheet away
 
 6fu recorded it from source and did not reproduce it. With the owner's
