@@ -204,8 +204,8 @@ screen. The diff review said SHIP; device-verified, save untouched.
 6fx: the row's two chips were the sheet's first two traits, so a
 Fortune Teller who picked a wealth still read *"Wealth: Comfortable"*,
 and one on Demoness 8 read *"Charisma 2"* for a played 4. They are the
-first two of `traitsInPlay`'s list now; nothing on the row reads the
-sheet. One sheet on two paths, and the second came from counting what
+first two of `traitsInPlay`'s list now; every number and chip is
+played, save `rowFor`'s fallback. One sheet on two paths, and the second came from counting what
 can change a held trait, not from the question asked. SHIP; a device
 control only. **Next (6fy)**: no successor in code; with the owner
 present, pick a wealth on Fortune Teller and read its row.

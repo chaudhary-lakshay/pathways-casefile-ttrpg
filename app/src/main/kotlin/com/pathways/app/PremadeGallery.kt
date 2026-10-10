@@ -82,8 +82,9 @@ import com.pathways.rules.TraitEffects
  * the list, so the sheet's own leaves the chips; a level a potion added is
  * printed at the sum (6fx). Both reach one sheet today, Fortune Teller.
  * A bought face a potion beat is held and not played, and is not
- * filtered here: it joins the end of a list, and no sheet prints fewer than
- * five traits, so it cannot reach the first two.
+ * filtered here: it joins the end of the list, behind every printed row,
+ * and each sheet prints at least four traits a chip can show with its wealth
+ * and face rows set aside, so it cannot reach the first two.
  *
  * Until 6fw nothing here was digested, because a save from before the
  * floors existed throws where a potion is digested on top of it

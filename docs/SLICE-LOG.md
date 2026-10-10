@@ -6735,7 +6735,8 @@ the one asked.
 **What can change a held trait, counted.** The builder appends (bought,
 instanced, languages) and replaces two rows in place, wealth and
 appearance (`traitsBeforeInstanced`); nothing in `SavedEdits` removes a
-printed trait. A potion appends its granted rows and replaces one kind
+printed trait, and none can be bought up a level, because
+`PurchasableTraits.canBuy` refuses a row already held. A potion appends its granted rows and replaces one kind
 in place: a levelled row at the sum (6fm).
 
 - **Wealth or appearance in a sheet's first two traits**: one row.
@@ -6759,7 +6760,9 @@ repaired edits. A replaced wealth joins the end of the list, so the
 sheet's row leaves the chips and the next trait takes its place; a
 raised Charisma stays first at its sum. `RowNumbers`, `playedNumbers`
 and `rowNumbers` became `PlayedRow`, `playedRow` and `rowFor`, since the
-type carries names now. Nothing on the row is read from the sheet.
+type carries names now. Every number and chip on the row is played; the
+sheet still gives the name, the monogram and `rowFor`'s fallback for a
+save that does not digest.
 
 **Tests.** Two watched failing against a stub that kept the sheet's
 chips: `wealth = "Wealthy"` (*"Secret (Racist Sympathizer)"* expected
@@ -6781,8 +6784,10 @@ sheet's printed traits: 1 failed (the wealth test).
 source is the session's own composition over the same edits and walk.
 Two LOWs. A bought face a potion beat stays in the held list and is not
 played, and could be a chip: refused in code and recorded in the KDoc,
-because such a row joins the end of a list and no sheet prints fewer
-than five traits (counted). And the 22-sheet test computes its
+because such a row joins the end of the list, and every sheet prints at
+least four traits a chip can show once its wealth and face rows are set
+aside (counted; the raw trait count, five, is not the condition, since
+names over 32 characters are dropped before the first two are taken). And the 22-sheet test computes its
 expectation with `chipTraits`, so it pins order and not munging; the
 literal pairs beside it pin the munging, on two sheets.
 
