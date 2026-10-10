@@ -69,6 +69,28 @@ different goal, and needs its own decision. Two files remain on
 `OVER_CAP`, and neither has a step: `TraitEffects.kt` 1190 and
 `BeyonderSessionTest.kt` 863.
 
+**Step 9 is done**, on the owner's call, in two commits:
+- `d6e70f4` moves the sheet report into `TraitReport` (195 lines).
+- `f17d4ad` moves the attribute-roll bonuses into `TraitAttributeRolls`
+  (308 lines).
+
+`TraitEffects.kt` is 729 lines and is off `OVER_CAP`.
+- Each commit was RED-first: the rewritten tests failed to compile
+  against the old tree, with 195 errors and then 45.
+- 1950 Kotlin and 362 Python tests pass, from fresh XML.
+- `TraitEffects.known()`'s sorted output is byte-identical before and
+  after each commit.
+- The line-multiset diff shows only the planned edits: three
+  `private` → `internal`, the qualified KDoc links and
+  `TraitEffects.known()`.
+- A grep for `TraitEffects.` followed by any moved name, over `.kt`,
+  `.py`, `.yml`, `CLAUDE.md` and `HOW-TO-PLAY.md`, returns nothing.
+
+The diff review (sonnet, `48e4ec0..f17d4ad`) said SHIP with no findings.
+
+One file is still over the cap: `BeyonderSessionTest.kt`, 863 lines,
+which no step gives a seam.
+
 | File | Was | Now | Moved to |
 |---|---|---|---|
 | `Content.kt` | 2106 | 56 | `ContentCharacter` 441, `ContentCombat` 345, `ContentRitual` 322, `ContentPathways` 263, `ContentDivination` 248, `ContentVitals` 227, `ContentSenses` 131, `ContentGear` 102 |
@@ -85,8 +107,8 @@ three refusal tables' KDoc links were qualified with `TraitEffects.`;
 Defend's `Note` became `DefenseNote`, because PathwayScreen's `Note` pads
 16 dp where Defend's pads 4.
 
-Two files are still over the cap: `TraitEffects.kt` 1190 and
-`BeyonderSessionTest.kt` 863.
+Step 9 then took `TraitEffects.kt` to 729; only `BeyonderSessionTest.kt`
+863 is still over the cap.
 
 ## Step 5: the decomposition (2026-10-10, against `f472f3f`)
 
