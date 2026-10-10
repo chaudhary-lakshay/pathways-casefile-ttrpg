@@ -325,6 +325,95 @@ started; a support chip toggles on and off; a mode switch still resets
 preparation, link and flourish; Roll double-tapped charges once; Close
 charges a critical row's CoR once; Ask double-tapped rolls once.
 
+## Step 9: the decomposition of `TraitEffects.kt` (2026-10-10, against `cb38548`)
+
+The owner chose to split `TraitEffects.kt` (1190 lines). The option as
+put to them named three objects: `held, reported, known, UNREAD`, then
+luck and acting, then the HT rolls. This plan differs in two places.
+
+- **`known()` stays in `TraitEffects`.** It is the census of every reader
+  in this object. The load-time instruction "a new production reader adds
+  it to `TraitEffects.known()`" stays true word for word.
+- **Two objects, not three.** Luck and acting are 73 lines that share
+  nothing. The bare attribute-roll bonuses are a theme of their own, and
+  they are what brings the file under the cap.
+
+Kind B, as in step 5: one commit per object, the smaller first. Every
+call site is rewritten, with no facade left behind. Each commit is
+RED-first: the rewritten tests fail to compile against the old tree.
+
+| Object | Spans at `cb38548` | Members |
+|---|---|---|
+| `TraitReport`, with top-level `TraitNote` (31-32) beside it in `TraitReport.kt` | 699-706, 926-1076, 1094-1102 | `reported`, `UNREAD`, `ROLLED_ONLY`, `HeldTrait`, `held`, `corruptionNotes`; private `unrowed`, `SENSE_ROW_REST`, `SENSE_REST` |
+| `TraitAttributeRolls`, with top-level `MajorWoundHt` (34-47) beside it | 225-231, 281-357, 499-532, 575-590, 617-641, 737-823, 908-924 | `alertnessBonus`, `htRollNames`, `spiRollNames`, `spiRollBonus`, `htRollBonus`, `majorWoundHt`, `stunRecoveryHt`, `knockdownBonus`, `deathRollBonus`, `consciousnessRollBonus`, `stunRecoveryBonus`; `HT_ROLL_TRAITS` and `SPI_ROLL_TRAITS` become `internal` |
+
+**The second object's theme is a roll of an attribute itself, never of a
+skill.** Every member answers that question. Alertness answers it for
+Per, Ether Body Damage for SPI, and the rest for HT, including the HP
+table's death and consciousness rolls, the Major Wound's knockdown and
+stun recovery. Three bare-roll members stay in `TraitEffects`, because
+none of them is an attribute roll:
+- `defenseBonus` is an active defence.
+- `darknessReduction` is a darkness penalty.
+- `defaultBonus` is added to a skill level.
+
+`BespokeBonus` stays in `TraitEffects` too, as `internal`. Its KDoc is
+about `known()`, and it holds `DEFAULT`. The three moved functions read
+it by name.
+
+**Who reads what across the new boundary.**
+- `TraitEffects.modifiers` reads `HT_ROLL_TRAITS` and `SPI_ROLL_TRAITS`.
+- `known()` reads both, plus `BespokeBonus.entries`.
+- `TraitReport.reported` calls `TraitEffects.known()`.
+- The trait-name constants (`FIT`, `UNFIT`, `ETHER_BODY_DAMAGE`,
+  `HARD_TO_KILL`, `ACUTE_SMELL`, ...) stay in `TraitEffects`. The moved
+  code imports them.
+
+**Init order.** The moved non-`const` `val`s are `HT_ROLL_TRAITS`,
+`SPI_ROLL_TRAITS` and `SENSE_ROW_REST`, and each reads only `const`
+values, which are inlined. The non-`const` `val`s that stay are
+`BALANCE_SKILLS`, `SKILL_BONUSES` and `CATEGORY_BONUSES`. They read
+nothing that moves. Neither object's initialiser touches the other.
+
+**Every reference form, counted at `cb38548`.**
+- `TraitEffects.<member>`: `reported` 7 main / 43 test, `held` 3 / 12,
+  `UNREAD` 0 / 8, `ROLLED_ONLY` 0 / 1, `HeldTrait` 2 / 0,
+  `corruptionNotes` 3 / 4, `majorWoundHt` 4 / 14, `htRollBonus` 5 / 2,
+  `knockdownBonus` 2 / 6, `stunRecoveryBonus` 4 / 0, `stunRecoveryHt` 1 / 3,
+  `htRollNames` 0 / 3, `deathRollBonus` 1 / 0,
+  `consciousnessRollBonus` 1 / 0, `alertnessBonus` 4 / 3, `spiRollBonus`
+  1 / 3, `spiRollNames` 0 / 2.
+- Member imports: one, `HeldTrait` in `SheetTabs.kt`.
+- Callable references and star imports: none.
+- KDoc links of the form `[TraitEffects.x]` to a moving member: 19.
+- Unqualified KDoc links inside the moved spans, such as `[known]`,
+  `[UNAPPLIED]` and `[modifiers]`, would dangle in silence. Each is
+  qualified in the commit that moves it.
+- Readers by path: `tools/test_tools_regeneration.py` names the file in
+  `OVER_CAP`, and nothing else does. Commit 2 removes it there.
+- `CLAUDE.md`:
+  - line 51, the load-time `TraitEffects.UNREAD`;
+  - section 3's `held`, `UNREAD`, `ROLLED_ONLY`, `corruptionNotes`,
+    `consciousnessRollBonus`, `stunRecoveryHt`, `stunRecoveryBonus`,
+    `deathRollBonus` and `alertnessBonus`.
+
+  Each is rewritten in the commit that moves the member.
+
+**Exit criterion, per commit.** A grep for `TraitEffects\.` followed by
+any moved name, over `*.kt`, `CLAUDE.md` and `docs/HOW-TO-PLAY.md`,
+returns nothing.
+
+**Proof.**
+- `known()` is snapshotted as a sorted list before the first commit and
+  diffed after each one. The census tests compare it against sets built
+  from the same collections, so an entry lost in the move could pass
+  them.
+- 1950 Kotlin and 362 Python tests, from fresh XML.
+- `TraitEffectsTest.kt` (780) is re-measured after its rewrites.
+- `OVER_CAP` drops `TraitEffects.kt` in commit 2, at about 735 lines.
+- No device pass is needed: no composable changes, and the app's call
+  sites change only in their qualifier.
+
 ## Three kinds of split, and they are not the same risk
 
 **A. A pure move.** A top-level declaration goes to a new file in the same
