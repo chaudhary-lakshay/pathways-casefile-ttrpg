@@ -42,7 +42,7 @@ Read it before designing anything.
 ```bash
 ./gradlew test                    # all Kotlin tests
 ./gradlew :core:rules:test        # one module
-py -m pytest tools/test_tools.py -q   # Python tooling tests (Windows: `py`, not `python`)
+py -m pytest tools -q                # Python tooling tests (Windows: `py`, not `python`)
 ```
 
 Note: on this machine `python` is not on PATH. Use the `py` launcher. Gradle's

@@ -1,4 +1,4 @@
-traits|core/rules/src/test/kotlin/com/pathways/rules/TraitEffectsTest.kt
+traits|core/rules/src/test/kotlin/com/pathways/rules/TraitEffectsTest.kt core/rules/src/test/kotlin/com/pathways/rules/TraitNamesTest.kt core/rules/src/test/kotlin/com/pathways/rules/TraitClausesTest.kt core/rules/src/test/kotlin/com/pathways/rules/TraitGrantsTest.kt core/rules/src/test/kotlin/com/pathways/rules/TraitReportedTest.kt
 attacks|core/rules/src/test/kotlin/com/pathways/rules/AttacksTest.kt core/rules/src/test/kotlin/com/pathways/rules/DamageTest.kt
 defenses|core/rules/src/test/kotlin/com/pathways/rules/ActiveDefensesTest.kt core/rules/src/test/kotlin/com/pathways/rules/ParryBlockTest.kt core/rules/src/test/kotlin/com/pathways/rules/ShieldsTest.kt
 ranged|core/rules/src/test/kotlin/com/pathways/rules/RangedTest.kt core/rules/src/test/kotlin/com/pathways/rules/WeaponsTest.kt

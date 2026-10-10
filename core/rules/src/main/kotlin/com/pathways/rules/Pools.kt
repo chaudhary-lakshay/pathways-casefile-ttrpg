@@ -92,7 +92,7 @@ object Pools {
      * KDoc cited *"Appendix A's SPI recovery"*, which is the SUMMARY (p. 160,
      * three cells: Rest / 1 SPI per hour / the requirement). p. 34 prints the
      * rule and carries two clauses that row drops, and the exclusivity one is
-     * what a reader needs. Pinned by `test_tools.py`.
+     * what a reader needs. Pinned by `test_tools_book_checks.py`.
      */
     val UNMODELLED = mapOf(
         "Spirituality Recovery" to

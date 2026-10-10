@@ -215,7 +215,7 @@ class GoldenStudyPointsTest {
         // (minor personality traits at -1 pt each) are allowed" -- and
         // `additional` is what makes the budget 70 + min(dis, 40) +
         // min(quirks, 5) rather than quirks coming out of the -40. The
-        // sentence itself is pinned in test_tools.py, which can read the book.
+        // sentence itself is pinned in test_tools_ritual_modes.py, which can read the book.
         assertEquals(5, PointBudget.MAX_QUIRKS)
         // "each level doubles the previous: ST: 10 -> 20 -> 40 |
         //  DX/IQ: 20 -> 40 -> 80 | HT: 10 -> 20 -> 40"

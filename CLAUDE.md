@@ -470,7 +470,7 @@ player-facing guide to all four and is verified against the labels in source.
 ```bash
 ./gradlew test                    # all Kotlin tests, app module included
 ./gradlew :core:rules:test        # one module
-py -m pytest tools/test_tools.py -q   # Python tooling tests (Windows: `py`, not `python`)
+py -m pytest tools -q                # Python tooling tests (Windows: `py`, not `python`)
 ast-grep scan                     # 4.3's division rule; silent and exit 0 when clean
 ast-grep scan --rule tools/sg-census/session-mutator-in-lambda.yml --report-style short
                                   # 6gb's census: 34 lines, one per call site
@@ -482,9 +482,9 @@ ast-grep run -l kotlin -p 'SkillRoll.targetFor($$$)' app core   # call sites
 `ast-grep scan --inline-rules '{id: s, language: kotlin, rule: {kind: function_declaration, has: {kind: simple_identifier, regex: "^RollDialog$"}}}' app`.
 A `fun $N($$$): $R { $$$ }` pattern misses every `@Composable`, which has no
 return type. Nothing runs `ast-grep scan` for you: it is not in the Gradle
-build. Seven files are over the 800-line cap, and `OVER_CAP` in
-`tools/test_tools.py` fails on an eighth; [`docs/SPLIT-PLAN.md`](docs/SPLIT-PLAN.md)
-has steps 0-4 done and 5-8 open. `graphify-out/` was rebuilt 2026-10-10 with `python -m graphify
+build. Five files are over the 800-line cap, and `OVER_CAP` in
+`tools/test_tools_regeneration.py` fails on a sixth; [`docs/SPLIT-PLAN.md`](docs/SPLIT-PLAN.md)
+has steps 0-5 done, 6 under way and 7-8 open. `graphify-out/` was rebuilt 2026-10-10 with `python -m graphify
 update .` (no LLM; the interpreter is named in `graphify-out/.graphify_python`,
 and the `graphify.exe` shim is refused by Git Bash). Its call edges are
 heuristic: asked what calls `SkillRoll.targetFor` it returned none of the

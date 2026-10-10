@@ -3,7 +3,7 @@
 Output goes to build/extract/book.md and is gitignored, exactly like
 `coverage.py`'s book.txt. It is a SECOND rendering, never a replacement:
 `book.txt`'s global line numbers are this repo's citation anchor (coverage.py
-compares line sets; test_tools.py pins verbatim book lines by number), and
+compares line sets; the test_tools_*.py suite pins verbatim book lines by number), and
 this file's line numbering is different and must never be cited as those.
 
 Why it exists: pdfplumber recovers ruled tables as pipe rows that pypdf

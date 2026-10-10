@@ -193,7 +193,7 @@ data class RitualCritical(
      * none -- the book charging no corruption is not the same as charging
      * zero. Scanning rule text for numbers at render time would be a parser
      * nobody tests; doing it once, in the extractor, is checked by verify()
-     * and by test_tools.py.
+     * and by test_tools_corruption_ritual.py.
      */
     val corGained: Int? = null,
 )

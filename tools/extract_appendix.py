@@ -89,7 +89,7 @@ exclusions, each correct about its own corpus, between them hid one line.
 It is STILL not extracted, and the reason is now the right one rather than
 the absent one: the line carries no noun -- neither "defense" nor "defenses"
 -- so it cannot widen chapter 5's singular, and a summary may define but not
-overrule. `test_tools.py` pins its wording and its nounlessness, because the
+overrule. `test_tools_core_equipment.py` pins its wording and its nounlessness, because the
 KDoc now cites it as evidence.
 """
 import json, pathlib, re, sys

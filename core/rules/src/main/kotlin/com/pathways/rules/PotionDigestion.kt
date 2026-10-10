@@ -100,7 +100,7 @@ object PotionDigestion {
      * this app models (`grappled`, and `mentally Stunned` twice), and TWO
      * name a term printed exactly once in the whole book: `Shaken` and
      * 7348's `suffocates`. A refusal filed against `Shaken` alone would be
-     * a blocklist of one with its twin a chapter away. `test_tools.py` pins
+     * a blocklist of one with its twin a chapter away. `test_tools_book_checks.py` pins
      * the census and both single printings, so a second printing of either
      * reddens rather than quietly widening this.
      *
