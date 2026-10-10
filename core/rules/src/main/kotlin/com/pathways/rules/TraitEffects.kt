@@ -13,7 +13,6 @@ import com.pathways.model.Trait
 import com.pathways.model.TraitKind
 import com.pathways.rules.content.ActingQuality
 import com.pathways.rules.content.ContentLoader
-import com.pathways.rules.content.TraitDefinition
 import com.pathways.rules.TraitClauses.GRANTED_ONLY_SENSES
 import com.pathways.rules.TraitClauses.attackClauseNames
 import com.pathways.rules.TraitClauses.concentrationClauseNames

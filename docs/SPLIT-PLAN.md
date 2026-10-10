@@ -12,7 +12,9 @@ XML (`b245394`, `f4d20f3`, `c36e90a`, `7192fb5`; step 0 is `9cc865d`,
 rewritten tests failed to compile against the old tree) and 1950 Kotlin
 green from fresh XML; Python 362. `TraitEffects.kt` is 1191 lines, beside
 `TraitClauses` 527, `TraitNames` 374 and `TraitGrants` 181, so it stays in
-`OVER_CAP`. Steps 6-8 have not been started.
+`OVER_CAP`. The diff review (sonnet, `kotlin-reviewer.md`, `2ea72df..c7a7814`)
+found no behaviour change and no init-order read; its one LOW, an import
+the move left unused, is removed. Steps 6-8 have not been started.
 
 | File | Was | Now | Moved to |
 |---|---|---|---|
