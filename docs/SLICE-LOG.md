@@ -6726,6 +6726,49 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fy. The device pass for 6fx
+
+No code changed. Asked for at the end of 6fx as a save write; the owner
+answered "continue".
+
+**The backup from two hours earlier was no longer the save.** `cmp`
+against it failed at byte 1099: Beat Cop's `fpLost` had gone from 0 to
+5, so the tablet had been played on in between. A fresh copy was taken
+and that one was restored. Restoring the earlier file would have taken
+those five points back.
+
+**The tablet was asleep.** `mCurrentFocus` read `NotificationShade` with
+`mWakefulness=Dozing` and `deviceLocked=0`, so `dismiss-keyguard` alone
+did nothing; `KEYCODE_WAKEUP` first. What came up was a full-screen
+advertisement (`com.lenovo.anyshare.gps`), left untouched and put behind
+with HOME.
+
+**The pass**, on a build installed at 15:55:56, after the last change to
+`app` (15:07:29), the save unchanged by the install:
+
+| Step | Fortune Teller's row |
+|---|---|
+| As saved (no entry) | `Charisma 2`, `Wealth: Comfortable`, 11 skills |
+| Builder, Wealth, **Poor** (*"80 of 105 points, 25 spare"*) | `Charisma 2`, `Secret (Racist Sympathizer)`, 11 skills |
+
+The second pair is the one `PremadeGalleryTest` pins for a wealth pick.
+The save held `"wealth": "Poor"` for the entry in between, read back
+through `run-as`. Poor is not the level the test picks (Wealthy); any
+level drops the sheet's row from the first two.
+
+**Restored and compared.** `force-stop`, the fresh backup written back
+through `run-as`, `cmp` clean, tablet left on its launcher. The write
+went through from Claude on the first try.
+
+**Not run on the device**: the other path, a Fortune Teller walked onto
+Demoness 8 reading *"Charisma 4"*. It needs a seeded walk, since a first
+potion is Sequence 9 and the advancement to 8 rolls a PCR. The test and
+the 88-block census cover it.
+
+**Next**: nothing is queued from 6ft to 6fy. The one open item is the
+owner's: whether the four sheets that print SPI 9 are Beyonders, and on
+which pathway (6ft, `MORTAL_SPI`'s KDoc).
+
 ## 6fx. The chips named a wealth the character no longer has
 
 6fw left the row's two trait chips reading the sheet and asked whether a

@@ -159,7 +159,7 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fx is newest (the gallery chips), with 6fw, 6fv, 6fu and 6ft before it: a sheet's printed SPI 9 is not played.** Four sheets
+**6fy is newest (6fx's device pass), with 6fx, 6fw, 6fv, 6fu and 6ft before it: a sheet's printed SPI 9 is not played.** Four sheets
 (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police) print SPI 9
 and no sheet prints a pathway. `toCharacter` carried the 9 and digestion
 ADDED a potion's grant, so an Apothecary on Hermit 9 played SPI 18; 6dy's
@@ -206,9 +206,12 @@ Fortune Teller who picked a wealth still read *"Wealth: Comfortable"*,
 and one on Demoness 8 read *"Charisma 2"* for a played 4. They are the
 first two of `traitsInPlay`'s list now; every number and chip is
 played, save `rowFor`'s fallback. One sheet on two paths, and the second came from counting what
-can change a held trait, not from the question asked. SHIP; a device
-control only. **Next (6fy)**: no successor in code; with the owner
-present, pick a wealth on Fortune Teller and read its row.
+can change a held trait, not from the question asked. SHIP. 6fy: on
+the SM-T570 a Fortune Teller who picked Poor read *"Charisma 2"*,
+*"Secret (Racist Sympathizer)"*; the save was restored. **Back up the
+save at the start of every pass**: the copy from two hours earlier was
+stale by a Beat Cop's five FP. **Next**: nothing is queued; the open
+item is the owner's, the four SPI 9 sheets.
 
 **6fs is next, a device pass for 6fr: every held row prints a cell.** A census ran `held()`
 over every fixture, every wealth and appearance level, every offered and
@@ -354,7 +357,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fx first.** The
+**Where to start next: the slice log, from the END — 6fy first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
