@@ -304,6 +304,21 @@ class BeyonderSessionTest {
         assertEquals(60, s.hpLost, "-50 HP is dead, and the tracker must be able to say so")
     }
 
+    @Test
+    fun `a second Give back of the same picture sells nothing`() {
+        // Two taps reach the handler of the list as drawn (6ei), and by then
+        // position 0 holds the neighbour: it was sold too.
+        val (s, saved) = session()
+        val patients = SavedInstancedTrait("Sense of Duty", instance = "Patients", cost = 10)
+        val coworkers = SavedInstancedTrait("Sense of Duty", instance = "Coworkers", cost = 5)
+        s.buyInstancedTrait(patients)
+        s.buyInstancedTrait(coworkers)
+
+        s.sellInstancedTrait(0, patients)
+        s.sellInstancedTrait(0, patients)
+        assertEquals(listOf(coworkers), saved().edits.instanced)
+    }
+
     /**
      * **Given back by INDEX, never by name.** Two purchases of one row are
      * legal, and a bare ranged row composes to the book's own name for both,
@@ -321,9 +336,9 @@ class BeyonderSessionTest {
         s.buyInstancedTrait(patients)
         assertEquals(listOf(patients, coworkers), saved().edits.instanced)
 
-        s.sellInstancedTrait(0)
+        s.sellInstancedTrait(0, patients)
         assertEquals(listOf(coworkers), saved().edits.instanced)
-        s.sellInstancedTrait(7)
+        s.sellInstancedTrait(7, coworkers)
         assertEquals(
             listOf(coworkers),
             saved().edits.instanced,

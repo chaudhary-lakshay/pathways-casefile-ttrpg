@@ -148,6 +148,10 @@ fun DamageDialog(
     // about it. Only HP carries these -- every threshold in that column is
     // written against HP.
     var landed by remember { mutableStateOf<HitLocation?>(null) }
+    // Apply dismisses, and a second tap of the same picture still reaches its
+    // handler (6ei): the hit landed twice, and on SPI the second one is Soul
+    // Debt. Nothing clears this; the dialog is gone once it is set.
+    var applied by remember { mutableStateOf(false) }
 
     // Only HP has a Major Wound threshold: the rule is written against "half
     // your HP", and FP and SPI print no equivalent.
@@ -158,6 +162,8 @@ fun DamageDialog(
         confirmButton = {
             TextButton(
                 onClick = {
+                    if (applied) return@TextButton
+                    applied = true
                     // Latched with the hit, never with the roll (Codex): a GM
                     // who rolls the table and then cancels, changes the pool
                     // or drops the damage below the threshold has applied no

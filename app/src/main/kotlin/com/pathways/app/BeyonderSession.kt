@@ -341,9 +341,13 @@ class BeyonderSession(
      * -- Monastery Scholar carries two Vows -- and a bare ranged row composes
      * to the book's own name for both, so "Sense of Duty" can name two rows on
      * screen and could not say which to remove.
+     *
+     * [drawn] is the row the button was drawn beside. A second tap of the
+     * same picture arrives with the first's index, which by then holds the
+     * neighbour (6gb): nothing is sold unless the row is still there.
      */
-    fun sellInstancedTrait(index: Int) {
-        if (index !in edits.instanced.indices) return
+    fun sellInstancedTrait(index: Int, drawn: SavedInstancedTrait) {
+        if (edits.instanced.getOrNull(index) != drawn) return
         edits = edits.copy(
             instanced = edits.instanced.filterIndexed { at, _ -> at != index },
         )

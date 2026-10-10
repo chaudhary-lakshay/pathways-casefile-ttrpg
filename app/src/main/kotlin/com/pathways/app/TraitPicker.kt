@@ -37,7 +37,7 @@ internal fun TraitsRow(
     onAdd: () -> Unit,
     onRemove: (String) -> Unit,
     canRemove: (String) -> Boolean,
-    onRemoveInstanced: (Int) -> Unit,
+    onRemoveInstanced: (Int, SavedInstancedTrait) -> Unit,
 ) {
     Column {
         Row(
@@ -87,7 +87,7 @@ internal fun TraitsRow(
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
-                TextButton(onClick = { onRemoveInstanced(index) }) { Text("Give back") }
+                TextButton(onClick = { onRemoveInstanced(index, purchase) }) { Text("Give back") }
             }
         }
         bought.forEach { name ->
