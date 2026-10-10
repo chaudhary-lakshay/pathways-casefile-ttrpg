@@ -239,6 +239,64 @@ row opens its dialog at its printed target; Damage's Major Wound latches
 shock and the Vitals tab's Clear removes it; a ritual, a divination and
 an artifact spend move the pools on the Vitals tab.
 
+## Step 8a: the decomposition of `RitualDialog` (2026-10-10, against `07396b1`)
+
+`RitualDialog.kt` is 1042 lines: `RITUAL_SKILL` and three private helpers
+(46-109), then one composable (129-1042) whose state is 165-336 and whose
+`AlertDialog` text slot is 346-1040. The helpers alone are 65 lines, so the
+composable itself has to be cut.
+
+**Move views, never reads.** Every `remember` stays in `RitualDialog` with
+its keys unchanged: one moved into a gated child would change its lifetime
+(`heldLinkPick` would reset whenever `if (mode.usesTargetLink)` left the
+tree). So do `target`, `cost`, `spiOwed`, `hpOwed`, the two picks, both
+effects, `settle` and `finish`: `targetFor` throws in composition, and these
+are what the Roll handler and the breakdown read.
+
+**A child receives a setter only for an absolute value.** `{ pacing =
+option }` becomes the child's `onPacing(option)`. Every handler that reads
+state does so in a lambda DEFINED in `RitualDialog` and handed down whole,
+because a child computing `onSuspended(!suspended)` from its parameter would
+make two taps in one frame both write `true` where today they flip twice --
+a behaviour change no line-multiset diff shows. Moved this way:
+`suspended = !suspended` (`onToggleSuspended`) and the support toggle
+`support - name / + name` (`onToggleSupport(name)`). Every guarded handler
+stays where it is, unmoved: Roll's `outcome != null`, Ask's `answer !=
+null`, the push's `outcome ?: return` and `burned + points`, the link's
+re-tap-clears, Flourish's toggle and the two `CellValueChips` picks.
+
+**One new file, `RitualControls.kt`, each block a verbatim move.**
+
+| Declaration | From | Reads | Writes, by callback |
+|---|---|---|---|
+| `spiChoices`, `hpChoices`, `CellValueChips` | 49-109 | their parameters | -- (`private` → `internal` for `CellValueChips`, which stays called from `RitualDialog`) |
+| `RitualPowerSourceChips` | 392-589: Complexity, Fuel, HP, Pacing, Assistants, External sacrifice + Sentient beings, Catalyst, Suspended | `complexity`, `spiChoice`, `cost`, `hpSacrificed`, `pacing`, `assistants`, `sacrifice`, `sentientBeings`, `catalyst`, `suspended` | `onComplexity`, `onSpiChoice`, `onHpSacrificed`, `onPacing`, `onAssistants`, `onSacrifice`, `onSentientBeings`, `onCatalyst` (absolute); `onToggleSuspended` (defined in the parent) |
+| `RitualSupportAndLanguage` | 766-839: Supporting skills, Mystical language, the bought/granted note | `ownedSupportSkills`, `support`, `language`, `boughtLanguages`, `grantedLanguages` | `onLanguage` (absolute); `onToggleSupport` (defined in the parent) |
+
+Inside each moved body the only edit is the assignment: `complexity =
+option` becomes `onComplexity(option)`, and so on, one per chip. Both
+children are plain `Column`-less emitters called inside the existing
+scrolling `Column`, as `CellValueChips` is today, so the layout is the
+same tree.
+
+`RITUAL_SKILL` stays: three other files read it. The result branch
+(984-1038) and the breakdown string (862-920) do not move. The push
+handler is the most sensitive lambda in the file and the breakdown
+would take 23 parameters; with the two blocks above the file is about
+730 lines, under the cap. `RitualDialog.kt` leaves `OVER_CAP` in the
+same commit.
+
+**Proof.** The line-multiset diff, old file against both new ones, apart
+from `import`, the `private`/`internal` change, the assignments turned
+into callbacks and the two call sites. Kotlin 1950 and Python 362 from
+fresh XML. Device pass on the SM-T570, `sessions.json` backed up and
+`cmp`-restored, every case a spend because spends are this dialog's
+point: each moved chip row moves the printed `3d6 ≤` and the breakdown
+together; Suspended double-tapped in one monkey frame ends where it
+started; a support chip toggles on and off; a mode switch still resets
+preparation, link and flourish; Roll double-tapped charges once; Close
+charges a critical row's CoR once; Ask double-tapped rolls once.
+
 ## Three kinds of split, and they are not the same risk
 
 **A. A pure move.** A top-level declaration goes to a new file in the same
