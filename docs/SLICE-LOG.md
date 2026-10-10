@@ -6726,6 +6726,103 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gi. "×1.5 there", with no place named
+
+Found on the tablet during 6gh's device pass, not by a sweep.
+Hunter-Tracker, Bolt-Action Rifle, nothing else touched: the dialog
+read *"Damage on a hit: 5d pi+, ×1.5 there"* under a row of nine
+location chips with none lit and no *Called shot* line. The word
+pointed at nothing on the screen. 6bi's device pass recorded the same
+string on the same rifle and passed it, because it was checking the
+number.
+
+The number is right. `Wounds.multiplierFor(null, type)` is the damage
+type's own multiplier, which is what an uncalled hit takes. Only the
+word was wrong, and only in that state: with a shot called, the chip is
+lit and the line above names the place.
+
+### Where the slice came from
+
+Nothing was queued, so the two standing queries were run first.
+
+- The click-handler census (`session-mutator-in-lambda.yml`): 34, as
+  recorded. `ast-grep scan`: clean.
+- The complement of `TraitEffects.known()` (6es), by a throwaway test:
+  **125 rows, down from 148.** 27 carry a `selfControl` field, so
+  `SelfControl` rolls them and they read `ROLLED_ONLY`. Of the other
+  98, 32 print a signed number. Each was asked whether it names a roll
+  this app makes and a group the book prints. None is a slice without
+  a new reading:
+
+| Rows | Why not now |
+|---|---|
+| Local Legend, Respectable Address, Illegitimate Birth, Dead-Eyed | *"social rolls"*, the phrase `CATEGORY_BONUSES`' KDoc refuses |
+| Unsettling Appearance, Reputation: Troublemaker, Social Stigma | reactions; the book prints no reaction roll (6w) |
+| Addiction: Tobacco, Guilt, Bound to a Place | *"-1 to Will"*, the attribute. Evil Eye Fear, 1504, prints *"-1 to Will rolls"*, so they are two things. Read as the score it reaches `Corruption.maxFor`. Never triaged before this slice, and all three read `UNREAD`, which is true |
+| Addiction: Laudanum, Superstitious (mundane), Entity Fixation | *"to all rolls"* under a state the GM declares. The reach exists (`Conditions.forSkill`, `.penaltyFor`), but the screens that take that number print it under the trackers' own label, *"hurt or tired"*. No premade and no potion holds one |
+| Voice | Justiciar 9 grants it. *"rolls to influence others through speech"* matches neither of the book's two lists of *Influence skills* (563-564, 7645) |
+| Light Sleeper, Marked by Ritual, Skinny | each names a roll loosely (*"Perception rolls while sleeping"*, *"one type of SPI roll"*, *"rolls to escape bonds"*); a reading apiece |
+| the rest | a roll this app does not make (hypothermia, airborne toxins) or someone else's roll against the holder |
+
+6dy's census of unclaimed book lines was read again and not re-run:
+6ep re-asked its three refusals.
+
+### What changed
+
+The inline string is `woundingNote(location, type)` in
+`AttackOptions.kt`. It says *"there"* only where a location was chosen.
+
+Lighting the Torso chip when nothing is called was the other fix, and
+the row's own cell reads *"Default location. No special effect."* It
+was not taken: it needs a way to name the default row that is not a
+literal or a parse of that cell, which is an extractor flag, for one
+word.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| the damage line says there only where a shot was called | the extracted function with the old wording: *expected: <, ×1.5> but was: <, ×1.5 there>* |
+
+The extraction went in first with the wording unchanged, so the test
+failed on an assertion and not on a missing symbol.
+
+### Device pass
+
+SM-T570, Hunter-Tracker, Guns (Rifle) 10, Bolt-Action Rifle.
+
+- Nothing called: *"Damage on a hit: 5d pi+, ×1.5"*, *"3d6 ≤ 10"*.
+- *Skull*: *"Called shot: Skull -7, ×4 — Knockdown at -10; DR 2 (skull
+  bone, stacks with helmet)"*, *"Damage on a hit: 5d pi+, ×6 there"*,
+  *"3d6 ≤ 3"*.
+- *Torso*: its *Called shot* line, then *"5d pi+, ×1.5 there"*.
+
+No FATAL in logcat. Nothing was rolled; the save was `cmp`-identical
+to its backup.
+
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on the working-tree diff of the two
+files: SHIP, one LOW, taken. A comment in my test said a called Torso
+is *"named on the line above"*, which the test does not check. The
+device pass does; the comment now claims less.
+
+It confirmed that a chosen location prints what it printed before,
+that `woundingNote` has one caller and it sits behind the
+`knowsType` guard, and that the Skull carries no per-type override.
+The test leans on three printed figures it does not pin (Skull ×4,
+`cr` ×1, `pi+` ×1.5); other tests pin them, and it advised leaving
+that. Asked for the strongest case against dropping the word, it gave
+a bare *"×1.5"* reading as a multiplier on the whole hit, and judged
+that too weak under a line that begins *"Damage on a hit"*.
+
+1955 Kotlin (1353 `core:rules`, 582 `app`, 20 `core:model`), after
+`--rerun-tasks` from deleted results. The Python suite was not touched
+or re-run.
+
+**Next**: nothing is queued. The table above is the state of the trait
+backlog. The two LOWs 6gh left stand.
+
 ## 6gh. One answer to which rows exclude each other
 
 6gg's diff review left a LOW: *"the `require` counts the flag and the
