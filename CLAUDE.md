@@ -159,7 +159,33 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fs is newest, a device pass for 6fr: every held row prints a cell.** A census ran `held()`
+**6ft is newest: a sheet's printed SPI 9 is not played.** Four sheets
+(Apothecary, Barmaid Brawler, Docks Bouncer, Military Police) print SPI 9
+and no sheet prints a pathway. `toCharacter` carried the 9 and digestion
+ADDED a potion's grant, so an Apothecary on Hermit 9 played SPI 18; 6dy's
+device pass recorded that number as its proof. The book starts every
+mortal at 0 (2268) and 9 is `BASE_ATTRIBUTE`, so a premade plays 0 and
+the 9 stays in the fixture behind a guard. The other reading (Beyonders
+whose pathway the sheet omits) is refused in `MORTAL_SPI`'s KDoc. Read it
+for two things.
+
+- **6eb's gallery question was a symptom.** Three predicates answered
+  "is this a Beyonder" and disagreed on 10 of 22 characters. The gallery
+  asks the save now (`walkOf`); "has a pool" stays the sheet's
+  `maxSpi > 0`, a different question, since Chained 9 grants no SPI.
+- **The gallery digests nothing**: `digestedWith` throws on a save
+  outside the floors, and this is the launch screen. A row is the
+  published sheet plus the walk. The design review asked for it played.
+
+The carried SPI's reason predated the pathway model and expired when it
+landed. Design and diff review said SHIP. Device-verified, save
+untouched. **One save entry is left wrong**: the tablet's Apothecary
+spent 17 of 18, so it reads *"SPI -8 / 9 ... 8 CoR charged"* with CoR 0;
+`+1` eight times clears it and charges nothing. **Next (6fu)**: 62
+Kotlin comment lines name a milestone; read each for a reason that has
+expired.
+
+**6fs is next, a device pass for 6fr: every held row prints a cell.** A census ran `held()`
 over every fixture, every wealth and appearance level, every offered and
 instanced purchase, every language and every potion grant: 495 rows, 29
 with no cell. Wealthy and Very Wealthy have no trait-list row, so they
@@ -173,9 +199,7 @@ traits must be added to the census by hand. Read it for one thing:
 **the sense chips were cut**, so a chip's text is not a row's cell. The
 diff review said SHIP. 6fs: 6fq and 6fr are device-verified on the
 SM-T570, from a fresh install, because the APK on it predated both
-fixes; the save was restored. **Next (6ft)**: the gallery's tabs read
-the published SPI, so a saved Beyonder sits under Mortal (6eb). It
-wants its own reading before anyone calls it a defect.
+fixes; the save was restored.
 
 **6fo is next: the language a potion grants.** Mother 8 and
 Justiciar 6 print *"Ancient Hermes Fluent — can speak, read, and
@@ -235,28 +259,10 @@ refuses. On the SM-T570 Fortune Teller at Demoness 8 printed
 *"Charisma 4 — 10 pts, +2 from the potion"*, and a Hermit 8's Dodge took
 Combat Reflexes, so 6fk is device-verified too.
 
-**6fk is next: the rows a potion granted.** A Hermit 8's Combat
-Reflexes reached no defence, because potion rows are prose. One
-(pathway, sequence) table now grants every catalogue row a block prints
-with the catalogue's numbers, and refusals carry their reasons. It is
-pinned both ways against the prose. `BeyonderSession.traitsInPlay` is
-the one list the sheet's rolls and the builder's "already held" read.
-Read it for two things.
-
-- **My census dropped names under four characters, so it lost Fit.**
-  The design sub-agent found Sun 9's.
-- **The builder would have sold a granted row**, because it read the
-  purchased list. The diff review caught it.
-
-**Not device-verified**: the harness refused the tablet save write, and
-the emulator's Vulkan crash recurred. **Successors**: a device pass with
-the owner present, and Charisma's levels. 6fl: ecc reviewed
-`ad8b4e1..HEAD` (APPROVE, five LOWs) in place of Codex, on the owner's
-word.
-
-**6fj back to 6de had lead paragraphs here until 2026-10-10. Each is in
+**6fk back to 6de had lead paragraphs here until 2026-10-10. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fk** — a potion's catalogue rows are granted through one table pinned both ways; a census that dropped names under four characters lost Fit, and the builder would have sold a granted row;
 **6fj** — the Warrior's default +2 stays refused, on the book's reason: no number fits both the Warrior's example and the Weapon Master's DX ceiling;
 **6fi** — a potion's senses reach the Per roll through one table; the census took its names from my list, not the prose, and a non-compiling mutant read stale XML as a catch;
 **6fh** — Acute Vision and Hearing are declared on every Per skill; Spirit Vision takes Vision alone, and a row held twice is deduped on `trait to printed`;
@@ -323,7 +329,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fs first.** The
+**Where to start next: the slice log, from the END — 6ft first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -378,7 +384,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1908 Kotlin** (JUnit 5 — 1339 `core:rules`, 549 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1914 Kotlin** (JUnit 5 — 1341 `core:rules`, 553 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -806,6 +812,7 @@ Do not "fix" these into passing. They exist to make silent repair impossible:
 - `the excluded sheets really do disagree - guard against silent repair`
 - `the excluded advantage and disadvantage sheets really do disagree - guard against silent repair`
 - `most sheets floor Basic Speed and the book does not` — asserts `offenders >= 19`
+- `four sheets print SPI 9 and none plays it - guard against silent repair` (6ft)
 
 If one of these starts failing, the *data* changed, and that is the finding.
 

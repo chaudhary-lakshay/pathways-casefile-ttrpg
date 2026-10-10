@@ -6726,6 +6726,101 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ft. The SPI four sheets print and nobody drank
+
+6fs named the gallery's Beyonder tab for "its own reading" (6eb). The
+reading went one level down and found the defect there.
+
+**Four sheets print SPI 9 and no sheet prints a pathway.** Apothecary,
+Barmaid Brawler, Docks Bouncer and Military Police; the other 19 print 0.
+All 23 source spreadsheets were opened: cell `C11` is a typed number, and
+no sheet holds a pathway, a sequence or a potion anywhere. The book:
+*"All mortals begin at SPI 0, fixed. SPI increases only through Beyonder
+potions, supernatural events, or certain rituals"* (2268-2269), and
+*"Non-Beyonders (SPI 0)"* (2737). And 9 is `BASE_ATTRIBUTE`, what every
+attribute cell on a sheet holds at zero cost.
+
+**The app played them as both.** `Premades.spiOf` carried the 9 into
+`Character.spi`, and `PotionDigestion` computes `character.spi +
+grants.spi`. So an Apothecary on the Hermit's Sequence 9 played **SPI 18**,
+where the largest Sequence 9 grant in the book is 12. 6dy's device pass
+recorded *"Divination Arts 20, SPI 18"* as its proof and nobody read the
+number. With no session, the same four were offered *"Drink a potion"* as
+a mortal is, beside an SPI pool of 9.
+
+**The carried SPI had a reason, and it had expired.** `GoldenSheetTest`
+pinned it: *"an import that drops it silently turns a Beyonder into a
+mortal"*. That was written before M3; a Beyonder is `Character.beyonder`
+now, and the app's own comment at the sheet's vitals says *"SPI is
+entirely a potion's gift"*.
+
+**The census, not the argument.** Three predicates answered "is this a
+Beyonder": the gallery's `published.spi > 0`, the sheet's played
+`maxSpi > 0`, and the session's `state != null`. Over the 22 people and the
+save as seeded in 6fs they disagreed on **10**: eight walked characters
+under *Mortal, SPI 0*, and Barmaid Brawler and Military Police tagged
+BEYONDER with no pathway. Apothecary and Docks Bouncer agreed on all three
+by coincidence, at SPI 18 and 10.
+
+What changed:
+
+- **A premade plays SPI 0** (`MORTAL_SPI`, read by `toCharacter` and by
+  `attributeLevelFor`, so the sheet diff computes an SPI-keyed skill from
+  the SPI the character plays). `published.spi` stays in the fixture. The
+  pin became a guard against silent repair: exactly those four print
+  `BASE_ATTRIBUTE` and each plays 0.
+- **The other reading is refused in source**, in `MORTAL_SPI`'s KDoc: 9 is
+  what the Fool, Hermit and Darkness potions grant at Sequence 9, so the
+  four could be Beyonders whose pathway the sheet omits. Nothing on a
+  sheet says which, and the app offers each a first potion.
+- **The gallery asks the save** (`walkOf`, `rosterOf`): the tabs, their
+  counts, the BEYONDER mark and a new cell printing the pathway and
+  Sequence. The SPI cell is gone. "Has a pool" stays the sheet's
+  `maxSpi > 0`, which is a different question: the Chained potion grants
+  0 SPI at Sequence 9.
+- **The gallery digests nothing.** The design review asked for the whole
+  row played through the sheet's own computation. Refused, on a line it
+  had not read: `digestedWith` throws on a save outside the floors, which
+  a session repairs on opening and the launch screen cannot. A row is the
+  published sheet plus the walk, and its KDoc says so.
+
+No `SheetComparison` row for SPI: that diff is computed from the bought
+character alone, so a walked Beyonder would read *"0"* beside a pool of
+9/9. The record is the fixture, the guard and the player guide.
+
+**Reviews, both by one ecc sub-agent.** Design: agreed on all four parts,
+and asked that the guard assert the divergence, not only the zero. Diff:
+**SHIP**, three LOWs. Two taken (the stat row is a `FlowRow` so a long
+pathway wraps; a comment pins when the plain save map changes). One
+refused: `rosterOf(ALL) == people` is weak but it is the assertion that
+fails if ALL ever filters.
+
+**Device, SM-T570, fresh install, no save write.** The gallery read
+`All (22) / Mortal (15) / Beyonders (7)` over the owner's save, each
+Beyonder row ending in its walk (*"Twilight Giant 9"*); Barmaid Brawler
+carried no mark and its sheet no SPI pool; Docks Bouncer read
+`SPI 1 / 1`. `cmp` against the backup after: unchanged.
+
+**One save entry is left wrong, and no code can tell.** The tablet's
+Apothecary had spent 17 of 18. It now reads *"SPI -8 / 9 — Below 0 SPI —
+-3 to SPI rolls and ability checks — 8 CoR charged"*, and its CoR is 0:
+that line reports every point below zero as charged, which was true
+while `spend` was the only way down. A repair on opening cannot tell
+this from a Soul Debt that was charged. `+1` eight times clears it and
+charges nothing, since recovery gives nothing back.
+
+1914 Kotlin (1341 `core:rules`, 553 `app`, 20 `core:model`), green after
+`--rerun-tasks`; the Python suite was not touched or re-run. Each of the
+three rules tests was watched failing against the old code (9, 18 and 9
+where 0, 9 and 0 were expected). The four gallery tests were written
+against a function that did not exist, so one mutant put the printed-SPI
+predicate back, compiled, and failed all four from fresh XML.
+
+**Next (6fu)**: this defect's class is a recorded decision whose reason
+names a milestone that has since landed. 62 comment lines in the Kotlin
+name one (`\b(M[0-4]|milestone)\b`); read each for a reason that has
+expired.
+
 ## 6fs. The device pass for 6fq and 6fr
 
 No code changed. SM-T570, on its launcher, run on the owner's one word

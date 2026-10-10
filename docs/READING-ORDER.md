@@ -190,7 +190,26 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fj back to 6de
+## Retired lead paragraphs, 6fk back to 6de
+
+**6fk is next: the rows a potion granted.** A Hermit 8's Combat
+Reflexes reached no defence, because potion rows are prose. One
+(pathway, sequence) table now grants every catalogue row a block prints
+with the catalogue's numbers, and refusals carry their reasons. It is
+pinned both ways against the prose. `BeyonderSession.traitsInPlay` is
+the one list the sheet's rolls and the builder's "already held" read.
+Read it for two things.
+
+- **My census dropped names under four characters, so it lost Fit.**
+  The design sub-agent found Sun 9's.
+- **The builder would have sold a granted row**, because it read the
+  purchased list. The diff review caught it.
+
+**Not device-verified**: the harness refused the tablet save write, and
+the emulator's Vulkan crash recurred. **Successors**: a device pass with
+the owner present, and Charisma's levels. 6fl: ecc reviewed
+`ad8b4e1..HEAD` (APPROVE, five LOWs) in place of Codex, on the owner's
+word.
 
 **6fj is next: why the Warrior's default +2 is out.** The refusal
 said *"This app does not count uses"*. That is a claim about this app,
