@@ -716,8 +716,6 @@ private fun Result(outcome: DivinationOutcome, backlash: String?) {
 private fun spiLabel(method: DivinationMethod): String =
     method.spiMax?.let { "${method.spi}-$it" } ?: "${method.spi}"
 
-private fun signed(n: Int) = if (n >= 0) "+$n" else "$n"
-
 /**
  * A target with techniques up but no Sequence declared.
  *

@@ -1,274 +1,35 @@
 package com.pathways.app
 
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.model.Weapon
 import com.pathways.rules.ActiveDefenses
-import com.pathways.rules.DefenseBoost
-import com.pathways.rules.DefenseRefusal
 import com.pathways.rules.Facing
 import com.pathways.rules.ParryBlock
-import com.pathways.rules.Weapons
 import com.pathways.rules.content.CataloguedWeapon
 import com.pathways.rules.RandomSource
-import com.pathways.rules.ShieldCoverage
 import com.pathways.rules.Shields
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
-import com.pathways.rules.SkillRollOutcome
-import com.pathways.rules.SkillTarget
-import com.pathways.rules.TraitEffects
 import com.pathways.rules.UnarmedStyle
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.Shield
-
-/**
- * The skills the book gives a parry formula of their own (Ch. 5, p. 39).
- *
- * Brawling and Boxing parry at skill/2 + 3 like a weapon; Wrestling is
- * (skill - 3)/2 + 3, with the -3 INSIDE the halving, which is why the three
- * cannot share one branch.
- */
-private val UNARMED = mapOf(
-    "Brawling" to UnarmedStyle.BRAWLING,
-    "Boxing" to UnarmedStyle.BOXING,
-    "Wrestling" to UnarmedStyle.WRESTLING,
-)
-
-/**
- * The name of the row for the Parry (Unarmed) formula's other operand:
- * "Brawling or DX ÷ 2 + 3". Rendered as "Parry (DX, bare hands)".
- */
-internal const val BARE_HANDS = "DX, bare hands"
-
-/**
- * Every unarmed parry row, as (name, style, parry): the styles the sheet
- * holds, then the hand at DX wherever [ParryBlock.bareHandParry] offers it.
- *
- * The STYLE travels with the row, because the Notes cell's rules are
- * per-style: Boxing alone ignores the weapon penalty, and Wrestling's own -3
- * is already inside the number.
- *
- * [dx] is the character's DX as played. The DX row is one of the rows and
- * not a line drawn beside them, so the shot filter, the cumulative penalty
- * and the boost picker reach it without being told to (the design review's
- * HIGH, on a decomposition that built it apart).
- */
-internal fun unarmedParries(
-    skillLevels: Map<SkillKey, Int>,
-    dx: Int,
-): List<Triple<String, UnarmedStyle, Int>> {
-    val held = skillLevels.entries
-        .mapNotNull { (key, level) -> UNARMED[key.name]?.let { Triple(key.name, it, level) } }
-        .sortedBy { it.first }
-    val brawling = held.filter { it.second == UnarmedStyle.BRAWLING }.maxOfOrNull { it.third }
-    val bare = ParryBlock.bareHandParry(dx, brawling)
-        ?.let { Triple(BARE_HANDS, UnarmedStyle.BARE_HANDS, it) }
-    return held.map { (name, style, level) ->
-        Triple(name, style, ParryBlock.unarmedParry(style, level))
-    } + listOfNotNull(bare)
-}
-
-/**
- * The carried weapons that could parry and have no skill behind them, by
- * name -- none in a master's hand, which wields every one at DX. [armedParries] skips them, and a row that is simply absent reads as
- * an oversight beside a hand that now parries at DX -- so the screen names
- * them and says why.
- */
-internal fun unskilledParriers(
-    weapons: List<CataloguedWeapon>,
-    skillLevels: Map<SkillKey, Int>,
-    mastery: SkillDefaults.WeaponMastery?,
-    dx: Int,
-): List<String> = weapons
-    .filter { Weapons.canParry(it) && SkillDefaults.wieldedAt(it, skillLevels, mastery, dx) == null }
-    .map { it.name }
-
-/**
- * What an Acrobatic Dodge is rolled against: the sheet's own Acrobatics, or
- * the default [com.pathways.rules.SkillDefaults] composed for a sheet without
- * it. [untrainedSource] is null for a trained skill and the default's own
- * account of itself otherwise ("DX-6, +1 Versatile").
- */
-internal data class AcrobaticSkill(val key: SkillKey, val level: Int, val untrainedSource: String?) {
-    /** What the roll is called, so a default says it is one and which. */
-    val label: String
-        get() = untrainedSource?.let { "${key.name} (untrained, $it)" } ?: key.name
-}
-
-/**
- * The key and level together: the key is what the modifier ledger is asked
- * about, and the level is what is rolled against.
- *
- * **The default is taken from [untrained], never rebuilt here.** Every roll
- * at a default carries Versatile's +1 and that lives in `SkillDefaults`; a
- * second DX-6 written on this screen is the one that would forget it.
- */
-internal fun acrobaticsFor(
-    skillLevels: Map<SkillKey, Int>,
-    untrained: List<SkillDefaults.Untrained>,
-): AcrobaticSkill? =
-    skillLevels.entries
-        .firstOrNull { it.key.name == ActiveDefenses.ACROBATIC_SKILL }
-        ?.let { AcrobaticSkill(it.key, it.value, null) }
-        ?: untrained
-            .firstOrNull { it.key.name == ActiveDefenses.ACROBATIC_SKILL }
-            ?.let { AcrobaticSkill(it.key, it.level, it.source) }
-
-/**
- * The Acrobatic Dodge's target, with what the Skills tab gives the same skill:
- * what the trackers cost ([conditions]) and what the character is
- * ([TraitEffects.modifiers] -- Perfect Balance's +2 on Acrobatics).
- *
- * **The second term was missing until 6ev**, on the trained path too. No
- * premade could show it: the one sheet with Perfect Balance has no
- * Acrobatics, and this control refused a sheet without the skill. Offering
- * the default is what made Pickpocket roll 4 here and 6 on the Skills tab
- * (the diff review's HIGH).
- *
- * NOT the GM's circumstance chips: those belong to the Skills tab's roll
- * dialog, and this screen has none, so a circumstance is still the GM's to
- * apply by hand.
- *
- * **Resolved while the dialog is drawn, and rolled as printed** (6gd). It
- * was resolved inside the tap, so a trained sheet saw no number before the
- * dice at all.
- */
-internal fun acrobaticTarget(
-    skill: AcrobaticSkill,
-    conditions: (SkillKey) -> List<com.pathways.model.Modifier>,
-    traits: List<Trait>,
-): SkillTarget = SkillRoll.targetFor(
-    label = skill.label,
-    base = skill.level,
-    key = skill.key,
-    mods = conditions(skill.key) + TraitEffects.modifiers(traits, skill.key),
-)
-
-/** The shield skill Block is rolled off (Ch. 5, p. 37). */
-private const val SHIELD_SKILL = "Shield"
-
-/**
- * A defence with the shield's DB shown as the conditional it is: "7 → 10".
- *
- * The bonus applies only "against attacks from the front or shield side". This
- * KDoc used to add "and this app does not model facing -- the book prints no
- * arc to test against", which was false: the arc is printed in the modifier
- * list this same dialog renders. Facing is now declared and
- * [Shields.coverageAt] decides -- [shield] arrives null when the DB is
- * withheld, so no caller adds it by hand.
- *
- * Both numbers are still shown wherever it is not withheld, because at the
- * SIDE the book settles nothing: baking the total into one number would let a
- * GM roll a shielded Dodge against a backstab (Codex), and hiding it would
- * withhold a bonus the book may well grant.
- */
-private fun shielded(base: Int, shield: Shield?, everyDefence: Int = 0): String {
-    // What lands on EVERY row is unconditional -- Combat Reflexes' "+1 to all
-    // active defenses" and the stun's "-4 to Active Defense" -- so it is
-    // folded into the base, where the shield's conditional DB cannot be. Every
-    // row goes through this one function for exactly that reason: two places
-    // adding the same figure is how these numbers stop reconciling (6ai).
-    val own = base + everyDefence
-    return if (shield == null) "$own" else "$own → ${Shields.withBonus(own, shield)}"
-}
-
-/**
- * Which shield is Readied, if any.
- *
- * Chips WRAP rather than scroll sideways: a horizontally scrolling Row inside
- * an AlertDialog never receives the drag on a 1080px phone, which cost the
- * attack dialog three of its five maneuvers before it was found on device.
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun ShieldPicker(
-    shields: List<Shield>,
-    carried: Shield?,
-    coverage: ShieldCoverage,
-    onPick: (Shield) -> Unit,
-) {
-    Text("Shield Readied", style = MaterialTheme.typography.titleSmall)
-    // One note per coverage state, because the old single note told the GM to
-    // hand-check the rear -- which the app now does -- while saying nothing
-    // about the side, which it still cannot decide. A disclaimer that outlives
-    // the thing it disclaims is the defect 6bl found on this very screen.
-    if (carried != null) {
-        Note(
-            when (coverage) {
-                ShieldCoverage.COUNTS ->
-                    "Arrow shows the DB applied: the book grants it from the front."
-                // Deliberately NOT the COUNTS lead-in. Both states began
-                // "Arrow shows the DB applied", and a GM who stops after the
-                // first sentence reads the app as having decided a side the
-                // book leaves open (a review's finding). The verb carries the
-                // difference, in the clause a skimmer actually reaches.
-                ShieldCoverage.GM_DECIDES ->
-                    "Arrow OFFERS the DB — it is not applied. From the side it " +
-                        "counts only if that is your shield side, and the book " +
-                        "names no hand, so the call is yours."
-                ShieldCoverage.WITHHELD ->
-                    "No DB from behind: \"${Shields.PRINTED_ARC}\". The rows below " +
-                        "are the unshielded numbers."
-            },
-        )
-    }
-    FlowRow {
-        shields.forEach { option ->
-            FilterChip(
-                selected = option == carried,
-                onClick = { onPick(option) },
-                // The parenthesised examples are what makes the row long;
-                // the word before them is what the GM says out loud.
-                label = { Text("${option.type.substringBefore(" ")} +${option.db}") },
-                modifier = Modifier.padding(end = 8.dp),
-            )
-        }
-    }
-}
-
-/**
- * The round boundary p. 36 names, offered only once there is something to end.
- *
- * Hidden while nothing is spent, because a control that clears nothing invites
- * the tap that later clears something -- and what it clears includes a boost
- * the GM has already paid FP for, which no refund rule in this book undoes.
- */
-@Composable
-private fun NewRoundControl(round: RoundState, onNewRound: () -> Unit) {
-    if (!round.isSpent()) return
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-        Text(
-            "Free actions, parries and any paid +${ActiveDefenses.BOOST_BONUS} " +
-                "are spent for this round.",
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(end = 8.dp),
-        )
-        TextButton(onClick = onNewRound) { Text("New round") }
-    }
-}
 
 /**
  * Active defenses for the character as they stand (Ch. 5, p. 36-37).
@@ -517,13 +278,13 @@ fun DefenseDialog(
                     // The book's narrower printing of the same rule, with its
                     // scope said out loud rather than quoted as if general.
                     refusal.narrower?.let {
-                        Note("Page 37 prints it narrowly — \"$it\" — and names only the All-Out Attacks.")
+                        DefenseNote("Page 37 prints it narrowly — \"$it\" — and names only the All-Out Attacks.")
                     }
                     // A cancelled cause is SAID, not silently dropped: a GM who
                     // ticks "surprised" and sees nothing change would fairly
                     // conclude the tick failed.
                     refusal.negated?.let {
-                        Note("${refusal.negatedBy} — \"never freeze in surprise\", so the defences stand.")
+                        DefenseNote("${refusal.negatedBy} — \"never freeze in surprise\", so the defences stand.")
                     }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 }
@@ -542,10 +303,8 @@ fun DefenseDialog(
                     // moves without the screen saying why is how these numbers
                     // stopped reconciling in 6ag and 6ai.
                     if (poolPenalty != 0) {
-                        Note(
-                            "Hurt or tired: $poolPenalty to every defence below, " +
-                                "from the HP and FP thresholds on the sheet (pp. 40 and 42).",
-                        )
+                        DefenseNote("Hurt or tired: $poolPenalty to every defence below, " +
+                            "from the HP and FP thresholds on the sheet (pp. 40 and 42).",)
                     }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     // Above the rows it changes, unlike the parry stepper: it
@@ -592,16 +351,14 @@ fun DefenseDialog(
                             everyDefence,
                         ),
                     )
-                    printed.firstOrNull { it.defense == "Dodge" }?.let { Note(it.notes) }
+                    printed.firstOrNull { it.defense == "Dodge" }?.let { DefenseNote(it.notes) }
                     // Under the row it moved, like the Acrobatic Dodge's own
                     // bullet: a halved number with no reason beside it reads as
                     // a bug. The rounding is named because the book does not
                     // print one for this row.
                     if (fatigued) {
-                        Note(
-                            "At 1/3 FP or below: \"Move and Dodge halved\" (p. 42). " +
-                                "Halved above, rounded up — the book prints no direction.",
-                        )
+                        DefenseNote("At 1/3 FP or below: \"Move and Dodge halved\" (p. 42). " +
+                            "Halved above, rounded up — the book prints no direction.",)
                     }
                     // Directly under the only row it moves. The bullet itself
                     // is quoted here rather than left in the Modifiers list at
@@ -641,7 +398,7 @@ fun DefenseDialog(
                 }
                 item {
                     if (armed.isNotEmpty()) {
-                        printed.firstOrNull { it.defense == "Parry (Armed)" }?.let { Note(it.notes) }
+                        printed.firstOrNull { it.defense == "Parry (Armed)" }?.let { DefenseNote(it.notes) }
                         HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     }
                 }
@@ -682,43 +439,37 @@ fun DefenseDialog(
                         val formula = printed
                             .firstOrNull { it.defense.startsWith("Parry (Unarmed)") }
                             ?.formula
-                        Note(
-                            "Parry ($BARE_HANDS) is the formula cell's other operand" +
-                                (formula?.let { ", \"$it\"" } ?: "") +
-                                ": DX itself, not a default, so nothing is taken off " +
-                                "and Versatile adds nothing. Against a weapon it takes " +
-                                "Brawling's −3. That is a reading: the cell names " +
-                                "Brawling and exempts Boxing alone.",
-                        )
+                        DefenseNote("Parry ($BARE_HANDS) is the formula cell's other operand" +
+                            (formula?.let { ", \"$it\"" } ?: "") +
+                            ": DX itself, not a default, so nothing is taken off " +
+                            "and Versatile adds nothing. Against a weapon it takes " +
+                            "Brawling's −3. That is a reading: the cell names " +
+                            "Brawling and exempts Boxing alone.",)
                     }
                     // What is still not offered, named rather than absent.
                     if (unskilled.isNotEmpty()) {
-                        Note(
-                            "No parry offered with ${unskilled.joinToString(", ")}: no " +
-                                "skill on this sheet wields it, and the Parry (Armed) " +
-                                "row prints Weapon Skill ÷ 2 + 3 with no second operand. " +
-                                "Whether a default parries is a gap here and not a ruling.",
-                        )
+                        DefenseNote("No parry offered with ${unskilled.joinToString(", ")}: no " +
+                            "skill on this sheet wields it, and the Parry (Armed) " +
+                            "row prints Weapon Skill ÷ 2 + 3 with no second operand. " +
+                            "Whether a default parries is a gap here and not a ruling.",)
                     }
                     // Said wherever the mastery changed a number, because
                     // the book's own examples are attacks and this is the
                     // reading that carries the line to a parry (6ey).
                     if (mastery != null && lifted.isNotEmpty()) {
-                        Note(
-                            "${lifted.joinToString(", ")}: Weapon Skill no less than DX " +
-                                "before the halving, from ${mastery.quoted}'s \"treated as " +
-                                "known at effective DX\", read as the Parry (Armed) " +
-                                "row's operand. A reading: the book's examples are attacks.",
-                        )
+                        DefenseNote("${lifted.joinToString(", ")}: Weapon Skill no less than DX " +
+                            "before the halving, from ${mastery.quoted}'s \"treated as " +
+                            "known at effective DX\", read as the Parry (Armed) " +
+                            "row's operand. A reading: the book's examples are attacks.",)
                     }
                     // A refusal, not a penalty, so the rows are withdrawn and
                     // the reason is SAID -- a GM who picks "a shot" and sees
                     // the parries simply vanish would think the app lost them.
                     if (standing.isEmpty() && parries.isNotEmpty()) {
-                        Note("No unarmed parry against a shot: \"Cannot parry ranged attacks.\"")
+                        DefenseNote("No unarmed parry against a shot: \"Cannot parry ranged attacks.\"")
                     }
                     printed.firstOrNull { it.defense.startsWith("Parry (Unarmed)") }
-                        ?.let { Note(it.notes) }
+                        ?.let { DefenseNote(it.notes) }
                     // The stepper sits UNDER the parry rows, because it moves
                     // them and a control above them would read as applying to
                     // Dodge too -- which takes no such penalty ("May be used
@@ -747,13 +498,11 @@ fun DefenseDialog(
                             // Two ways to have no DB, and they are different
                             // facts: nothing Readied, or something Readied
                             // that the book withholds from behind.
-                            Note(
-                                if (carried == null) {
-                                    "Pick a shield above; Block needs one Readied."
-                                } else {
-                                    "No DB from behind: \"${Shields.PRINTED_ARC}\"."
-                                },
-                            )
+                            DefenseNote(if (carried == null) {
+                                "Pick a shield above; Block needs one Readied."
+                            } else {
+                                "No DB from behind: \"${Shields.PRINTED_ARC}\"."
+                            },)
                         } else {
                             // Shields.blockFor already folds the DB in, so the
                             // arrow is built by hand here rather than through
@@ -781,15 +530,15 @@ fun DefenseDialog(
                             // on this same screen.
                             val differsVsShot = Shields.blockPenalty(held, isRanged = true) !=
                                 Shields.blockPenalty(held, isRanged = false)
-                            if (differsVsShot) Note("Against ranged attacks: $shot")
+                            if (differsVsShot) DefenseNote("Against ranged attacks: $shot")
                         }
-                        printed.firstOrNull { it.defense == "Block" }?.let { Note(it.notes) }
+                        printed.firstOrNull { it.defense == "Block" }?.let { DefenseNote(it.notes) }
                         HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     }
                     carried?.let {
-                        Note("${it.type}: DB +${it.db}, Cover DR ${it.coverDr}, HP ${it.hp} — ${it.notes}")
+                        DefenseNote("${it.type}: DB +${it.db}, Cover DR ${it.coverDr}, HP ${it.hp} — ${it.notes}")
                     }
-                    Shields.rules().forEach { Note(it.rule) }
+                    Shields.rules().forEach { DefenseNote(it.rule) }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
 
                     // UNDER the rows, because it names one of them: a picker
@@ -811,11 +560,9 @@ fun DefenseDialog(
                         block = shieldSkill != null && carried != null,
                     )
                     if (round.boost != null && round.boost?.second !in payable) {
-                        Note(
-                            "The defence you paid for is not available against this attack, " +
-                                "so the +${ActiveDefenses.BOOST_BONUS} lands on nothing. " +
-                                "The FP stays spent.",
-                        )
+                        DefenseNote("The defence you paid for is not available against this attack, " +
+                            "so the +${ActiveDefenses.BOOST_BONUS} lands on nothing. " +
+                            "The FP stays spent.",)
                     }
                     BoostPicker(
                         rows = payable,
@@ -843,618 +590,8 @@ fun DefenseDialog(
                         modifier = Modifier.padding(top = 8.dp),
                     )
                 }
-                items(modifiers) { Note(it) }
+                items(modifiers) { DefenseNote(it) }
             }
         },
     )
-}
-
-/**
- * The values a round boundary clears, held together because the boundary has
- * to move all of them at once.
- *
- * p. 36 scopes two rules to a round over this screen: "Each type may be used
- * multiple times per round, but Parry accumulates a -4 cumulative penalty after
- * the first" (line 2454), and "Free Actions: Retreat, Acrobatic Dodge, and
- * Dive! ... Each can be used once per round unless stated otherwise" (2456-
- * 2457). The paid boost is priced "until next turn" by its own maneuver row,
- * and the three refusals each print a scope of one turn or less -- surprise is
- * the "first turn", the All-Out Attack is the turn it was taken, and an unaware
- * shot is one attack.
- *
- * **6bf and 6co both refused this boundary, and the reason was about REACH.**
- * Latching one control while `priorParries` and a paid boost stayed put would
- * claim a round the screen could not keep for the rest. Reach is what changed:
- * every value the paragraph governs is local to one composable, so a single
- * assignment honours it for all of them -- with no global combat state, which
- * is what 6bf actually refused.
- *
- * **Membership is the rule: a field here is a value a new round CLEARS.**
- * `stunned` is deliberately not one -- the book gives it its own clock,
- * "Stunned for 1d6 seconds (roll HT each turn to recover early)" (2826) -- and
- * the shield carried, the facing and the incoming attack are not per-round
- * facts at all, which is a second reason rather than the same one.
- */
-internal data class RoundState(
-    /**
-     * What the GM says is true of this character right now: none of the three
-     * is computable, because the app holds no turn, no initiative and no line
-     * of sight. See ActiveDefenses.
-     */
-    val declared: Set<DefenseRefusal> = emptySet(),
-    /**
-     * The Acrobatic Dodge as it came out, or null for "not taken". The whole
-     * outcome rather than the ±2 it produces, because the note under the button
-     * reports the target the trackers left and the total rolled against it --
-     * a number on screen with no way to reconcile it is what 6be found.
-     */
-    val acrobatic: SkillRollOutcome? = null,
-    /** Whether the character threw themselves flat: the second free action. */
-    val dived: Boolean = false,
-    /** Whether the character gave ground: the third. */
-    val retreated: Boolean = false,
-    /**
-     * Parries already made THIS ROUND. The book's cumulative penalty was
-     * committed in defenses.json's own notes cell from 6g onward, shown to the
-     * GM, and applied by nothing -- the class 6h, 6m and 6ai each found. Zero
-     * is the honest default: a round starts with the free parry.
-     */
-    val priorParries: Int = 0,
-    /**
-     * Which boost was paid for, and WHICH ROW it was spent on. Both printed
-     * sentences say "+2 to ONE defence", so the row is part of the choice --
-     * folding it into every row would buy Dodge, each Parry and Block for one
-     * payment. Null is the ordinary case: nothing bought. Both price it "until
-     * next turn", which is why the boundary clears it.
-     */
-    val boost: Pair<DefenseBoost, String>? = null,
-) {
-    /** A fresh round: every value the two sentences govern, back to default. */
-    fun newRound(): RoundState = RoundState()
-
-    /**
-     * Whether anything the boundary would clear has actually been set.
-     *
-     * Compared against a fresh instance rather than field by field, so a value
-     * added to this class is covered the day it is added -- the same reason
-     * [newRound] is not six assignments.
-     */
-    fun isSpent(): Boolean = this != RoundState()
-}
-
-/**
- * The shield whose DB the rows may add, which is not always the one Readied.
- *
- * One function rather than the predicate written at each site: the Dodge and
- * Parry rows go through `shielded()` and the Block row builds its arrow by
- * hand, so the same test written twice is how this codebase's numbers stopped
- * reconciling three times (6ag, 6ai, 6be). A design review named the Block row
- * specifically -- gating only `shielded()` would have left the bonus standing
- * on the row the change exists for.
- *
- * Null means "add no DB", which the caller must not read as "no shield
- * Readied": at the rear both are null and only [carried] tells them apart.
- */
-internal fun shieldForDb(carried: Shield?, facing: Facing): Shield? =
-    carried?.takeIf { Shields.coverageAt(facing) != ShieldCoverage.WITHHELD }
-
-/**
- * What a paid boost adds to the row named [label], and nothing to the rest.
- *
- * Both printed sentences say "+2 to ONE defence", so the bonus is keyed on
- * the row the GM named rather than folded into [shielded] with Combat
- * Reflexes -- which really does say "all active defenses" (6al).
- */
-internal fun boostOn(label: String, boost: Pair<DefenseBoost, String>?): Int =
-    if (boost?.second == label) ActiveDefenses.BOOST_BONUS else 0
-
-/**
- * The rows a boost may be spent on: exactly the ones rendered above it.
- *
- * A parry withdrawn against a shot is not offered here either, so no payment
- * can buy a defence the book has already refused.
- */
-internal fun defenceLabels(
-    dodge: Boolean,
-    armed: List<Pair<String, Int>>,
-    unarmed: List<Triple<String, UnarmedStyle, Int>>,
-    block: Boolean,
-): List<String> = buildList {
-    if (dodge) add("Dodge")
-    armed.forEach { add("Parry (${it.first})") }
-    unarmed.forEach { add("Parry (${it.first})") }
-    if (block) add("Block")
-}
-
-/**
- * The Acrobatic Dodge: a roll this app can actually make (Ch. 5, p. 37).
- *
- * "[Free Action] [Acrobatic Dodge] Roll vs. Acrobatics: success gives +2 Dodge;
- * failure gives -2 Dodge." Extracted since 6g and applied by nothing -- the
- * only one of the five Defense Modifiers bullets with a die behind it.
- *
- * **Rolled through [SkillRoll], not [com.pathways.rules.SuccessRoll].** Every
- * other skill roll in this app carries what the trackers cost
- * ([com.pathways.rules.Conditions]); a bare 3d6 against the printed level would
- * have a reeling character roll Acrobatics at one number here and another on
- * the sheet screen.
- *
- * **A sheet without Acrobatics rolls its default here** (6ev). The bullet
- * says "Roll vs. Acrobatics" and names no training, and p. 10 opens "You can
- * attempt most skills even without training". The level is the one
- * `SkillDefaults` composed for the Skills tab ([acrobaticsFor]), and
- * [acrobaticTarget] adds the same tracker and trait modifiers that roll takes.
- *
- * **Re-rollable on purpose.** See the state's own comment: the "once per round"
- * limit lives in a paragraph governing all three free actions, which this app
- * neither extracts nor enforces for the other two.
- */
-@Composable
-private fun AcrobaticDodge(
-    skill: AcrobaticSkill?,
-    standing: SkillTarget?,
-    rolled: SkillRollOutcome?,
-    onRoll: () -> Unit,
-    onClear: () -> Unit,
-) {
-    Note(ActiveDefenses.printedAcrobaticDodge())
-    if (skill == null || standing == null) {
-        // Not reachable from a printed sheet: Acrobatics is DX/Hard and the
-        // table gives Hard a default. Said rather than left blank all the same.
-        Note("No ${ActiveDefenses.ACROBATIC_SKILL} on this sheet, and no default for it.")
-        return
-    }
-    if (standing.forbidden) {
-        // Said before the tap, not only after it (6gd's design review).
-        Note("Something forbids this roll, so the Dodge row above is unchanged.")
-        return
-    }
-    if (skill.untrainedSource != null) {
-        // p. 10's own caveat, which this app records no ruling for.
-        Note(
-            "${skill.label} ${skill.level}. The GM may rule that a skill needs " +
-                "specialist knowledge before it can be attempted at all.",
-        )
-    }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        TextButton(onClick = onRoll) {
-            // The number this tap rolls, with the level beside it wherever
-            // the trackers or a trait moved it.
-            val against = if (standing.target == standing.baseTarget) {
-                "3d6 ≤ ${standing.target}"
-            } else {
-                "3d6 ≤ ${standing.target} (${standing.baseTarget} → ${standing.target})"
-            }
-            Text(
-                (if (rolled == null) "Roll vs. ${ActiveDefenses.ACROBATIC_SKILL}" else "Roll again") +
-                    " — $against",
-            )
-        }
-        // The way back, which a latched roll needs as much as a paid boost does
-        // (6u): the GM who rolled for the wrong attack has to be able to say so.
-        if (rolled != null) {
-            TextButton(onClick = onClear) { Text("Clear") }
-        }
-    }
-    rolled?.let { outcome ->
-        val roll = outcome.roll
-        if (roll == null) {
-            // A forbidden roll is not rolled at all, and the Dodge row above
-            // is unmoved -- ActiveDefenses.acrobaticDodge answers 0 for it.
-            Note("Something forbids this roll, so the Dodge row above is unchanged.")
-            return@let
-        }
-        // Both targets, whenever they differ: the printed level and what the
-        // trackers left of it. One number the GM cannot reconcile against the
-        // sheet is the defect 6be found on this screen's neighbour.
-        val target = if (outcome.target == outcome.baseTarget) {
-            "${outcome.baseTarget}"
-        } else {
-            "${outcome.baseTarget} → ${outcome.target}"
-        }
-        // Non-null wherever the roll is: `effectiveOutcome` is null exactly when
-        // nothing was rolled, which the branch above has already answered.
-        val effective = outcome.effectiveOutcome ?: return@let
-        val swing = ActiveDefenses.acrobaticDodge(effective)
-        Note(
-            "${skill.label} $target: rolled ${roll.total} — " +
-                "${label(effective, outcome.degree)}, " +
-                "${if (swing > 0) "+" else ""}$swing on Dodge above.",
-        )
-    }
-}
-
-/**
- * The Dive!: the second Defense Modifiers bullet with a number this app can
- * reach (Ch. 5, p. 37).
- *
- * "[Free Action] [Dive!] +3 Dodge vs. ranged only. Spend 1 turn getting back up
- * (Change Posture)." Extracted since 6g and applied by nothing until now.
- *
- * A chip rather than a roll, unlike its neighbour: this bullet asks for no die,
- * only for the GM to say the character went flat. Both of its scopes are
- * decided in [ActiveDefenses.dive]; what arrives here is [bonus], the answer.
- *
- * **[bonus] is read rather than [taken] re-tested against the attack.** A zero
- * while the chip is on means the rule refused it, which is exactly the sentence
- * the note needs — and asking `incoming` a second time here is how one rule
- * becomes two disagreeing copies (6ag, 6ai, 6be).
- *
- * The turn spent getting back up is SAID and not enforced: this app holds no
- * clock (6bf), the same split [StunPicker] takes on recovering from a stun.
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun DiveControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
-    Note(ActiveDefenses.printedDive())
-    FlowRow {
-        FilterChip(
-            selected = taken,
-            onClick = { onToggle() },
-            label = { Text("Dived") },
-            modifier = Modifier.padding(end = 8.dp),
-        )
-    }
-    if (!taken) return
-    // A chip that is on while the row above it has not moved would read as a
-    // tick that failed -- the reason a cancelled refusal is SAID rather than
-    // silently dropped two controls up.
-    if (bonus == 0) {
-        Note(
-            "Not against this attack: the bullet is \"vs. ranged only\", so the " +
-                "+${ActiveDefenses.DIVE_BONUS} lands on nothing. Pick \"A shot\" above.",
-        )
-    }
-    Note(
-        "Getting back up costs a turn (Change Posture) — the GM's to spend; " +
-            "this app holds no clock to run it against.",
-    )
-}
-
-/**
- * The Retreat: the third Defense Modifiers bullet with a number, and the first
- * that moves more than the Dodge row (Ch. 5, p. 37).
- *
- * "[Free Action] [Retreat] Step back 1 hex: +3 Dodge / +1 Block / +1 Parry vs.
- * 1 melee attack per round." Extracted since 6g and applied by nothing until
- * now.
- *
- * A chip rather than a roll, like [DiveControl]: the bullet asks for no die,
- * only for the GM to say the character gave ground. Its scope is decided in
- * [ActiveDefenses.retreat], and what arrives here is [bonus] -- the answer on
- * the Dodge row, which answers for all three, because one melee test allows or
- * refuses every one of them.
- *
- * **[bonus] is read rather than the attack re-tested here**, for the reason
- * [DiveControl] states: a zero while the chip is on is exactly the sentence the
- * note needs, and asking `incoming` a second time is how one rule becomes two
- * disagreeing copies (6ag, 6ai, 6be).
- *
- * The "1 melee attack per round" limit is SAID and not enforced, the split
- * [DiveControl] takes on the turn spent standing up: this screen keeps no
- * round, and the parry stepper below is the GM's for the same reason.
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun RetreatControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
-    Note(ActiveDefenses.printedRetreat())
-    FlowRow {
-        FilterChip(
-            selected = taken,
-            onClick = { onToggle() },
-            // Named from the bullet's own verb, not from the rule's effect: the
-            // GM ticks what the character DID, and every other chip on this
-            // screen is worded that way.
-            label = { Text("Stepped back") },
-            modifier = Modifier.padding(end = 8.dp),
-        )
-    }
-    if (!taken) return
-    // A chip that is on while no row has moved would read as a tick that failed
-    // -- the reason a cancelled refusal is SAID rather than silently dropped.
-    if (bonus == 0) {
-        Note(
-            "Not against this attack: the bullet is \"vs. 1 melee attack\", so " +
-                "nothing lands. Pick a bare hand or a weapon above.",
-        )
-        return
-    }
-    Note("One melee attack this round — which one is the GM's to count. New round clears this.")
-}
-
-/**
- * Which +2 was paid for, and on which row.
- *
- * Two chips rather than one, because the book prints two rules at different
- * prices with different drawbacks, and a GM has to say which they paid. The
- * ROW is part of the same choice for the same reason the option is: "+2 to
- * one defence" is meaningless without naming the one.
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun BoostPicker(
-    rows: List<String>,
-    chosen: Pair<DefenseBoost, String>?,
-    onPick: (Pair<DefenseBoost, String>?) -> Unit,
-) {
-    // Nothing to buy when no defence stands -- but a boost already paid for
-    // still needs its clear button, so an empty row list is not an early exit
-    // when one is held.
-    if (rows.isEmpty() && chosen == null) return
-    Text("Buy +${ActiveDefenses.BOOST_BONUS} on one defence", style = MaterialTheme.typography.titleSmall)
-    DefenseBoost.entries.forEach { boost ->
-        val fp = ActiveDefenses.fpCostOf(boost)
-        Text(
-            "${boost.printed} — $fp FP: ${ActiveDefenses.printedBoost(boost)}",
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 4.dp),
-        )
-        FlowRow {
-            rows.forEach { row ->
-                val isChosen = chosen == boost to row
-                FilterChip(
-                    selected = isChosen,
-                    // Tapping the chosen chip clears it, which is the only way
-                    // back -- a choice with no way out is the defect the
-                    // wealth picker was fixed for (6u).
-                    onClick = { onPick(if (isChosen) null else boost to row) },
-                    // While one is paid for, the others are DISABLED rather
-                    // than swapping: swapping charged twice and showed one +2
-                    // (Codex), and nothing here can refund the first payment,
-                    // because the book spends the FP on the declaration.
-                    // Clearing first is the honest way to change your mind.
-                    enabled = chosen == null || isChosen,
-                    label = { Text(row) },
-                    modifier = Modifier.padding(end = 8.dp),
-                )
-            }
-        }
-    }
-    chosen?.let { (boost, row) ->
-        Note("Paid ${ActiveDefenses.fpCostOf(boost)} FP: +${ActiveDefenses.BOOST_BONUS} on $row this turn.")
-        // Always reachable, even when the paid row is not on screen: declaring
-        // a shot withdraws an unarmed parry, and with only the chips to clear
-        // with, a boost bought on that row left every control disabled
-        // (Codex). The FP stays spent -- clearing is a correction, not a
-        // refund, and the label says so.
-        TextButton(onClick = { onPick(null) }) {
-            Text("Clear the +${ActiveDefenses.BOOST_BONUS} (the FP stays spent)")
-        }
-    }
-}
-
-/**
- * What is coming at the defender.
- *
- * Three values because the Parry (Unarmed) row draws exactly these lines:
- * a bare hand is the plain formula, a weapon costs -3 unless you box, and a
- * shot cannot be parried at all. A declaration rather than something derived,
- * because this dialog holds one sheet and the attacker is not on it — the
- * same reason the three refusals are chips (6bg).
- */
-private enum class Incoming(val label: String) {
-    BARE_HAND("A bare hand"),
-    WEAPON("A weapon"),
-    SHOT("A shot"),
-}
-
-/**
- * Where the attack is coming from.
- *
- * A declaration, like [Incoming] and the three refusals: this app holds no map
- * and no facing, and the GM does (6bf).
- *
- * **The -2 and -4 the book prints beside these positions are NOT applied**, and
- * [com.pathways.rules.ActiveDefenses.everyDefence] carries the reason. What
- * this control reaches is the shield's DB, whose own sentence is conditional on
- * the same arc and says "all active defenses (Dodge, Parry, and Block)" in as
- * many words. The rows below therefore change on REAR only because the shield
- * bonus does.
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun FacingPicker(chosen: Facing, onPick: (Facing) -> Unit) {
-    Text("Where the attack comes from", style = MaterialTheme.typography.titleSmall)
-    FlowRow {
-        Facing.entries.forEach { option ->
-            FilterChip(
-                selected = option == chosen,
-                onClick = { onPick(option) },
-                label = { Text(FACING_LABELS.getValue(option)) },
-                modifier = Modifier.padding(end = 8.dp),
-            )
-        }
-    }
-    // The penalty is SHOWN and not applied, so the GM can still use it. Saying
-    // which half the screen did is the honest version of a rule that is partly
-    // outside the model -- the same split ActiveDefenses takes on surprise.
-    if (chosen != Facing.FRONT) {
-        Note(
-            "The book also prints a defence penalty for this position. It is " +
-                "listed under Modifiers below and is NOT in the numbers above: " +
-                "it prints \"to defense\" in the singular, and this app only " +
-                "takes a penalty to every row when a second printing says so.",
-        )
-    }
-}
-
-/** What the GM says out loud, per printed position. */
-private val FACING_LABELS = mapOf(
-    Facing.FRONT to "Front",
-    Facing.SIDE to "Side",
-    Facing.REAR to "Rear",
-)
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun IncomingPicker(chosen: Incoming, onPick: (Incoming) -> Unit) {
-    Text("The attack coming in", style = MaterialTheme.typography.titleSmall)
-    FlowRow {
-        Incoming.entries.forEach { option ->
-            FilterChip(
-                selected = option == chosen,
-                onClick = { onPick(option) },
-                label = { Text(option.label) },
-                modifier = Modifier.padding(end = 8.dp),
-            )
-        }
-    }
-}
-
-/**
- * Whether the character is stunned, and the book's own cell for what it costs.
- *
- * The cell is quoted WHOLE. Its second clause is a rest that recovers FP,
- * which needs a clock this app does not hold (6bf) -- cutting the sentence at
- * render time to hide it would be a parser nobody tests (6f), and a GM reading
- * the row can see for themselves which half the screen applied.
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun StunPicker(stunned: Boolean, onToggle: () -> Unit) {
-    Text("Stunned", style = MaterialTheme.typography.titleSmall)
-    FlowRow {
-        FilterChip(
-            selected = stunned,
-            onClick = { onToggle() },
-            label = { Text("Stunned") },
-            modifier = Modifier.padding(end = 8.dp),
-        )
-    }
-    if (stunned) {
-        Note("Do Nothing (p. 37): \"${ActiveDefenses.printedStun()}\"")
-        Note(
-            "Every defence below already includes it. Recovering is the GM's " +
-                "roll — this app holds no clock to run the duration against.",
-        )
-    }
-}
-
-/** What the GM declares about this character's ability to defend at all. */
-private val REFUSAL_LABELS = mapOf(
-    DefenseRefusal.SURPRISE to "Surprised",
-    // Not "All-out last turn": the book forfeits the defence for a Charge and
-    // for Feverish Defense too, and a label naming one table would make the
-    // other two look like a different rule.
-    DefenseRefusal.ALL_OUT_ATTACK to "Forfeited last turn",
-    DefenseRefusal.UNAWARE_RANGED to "Never saw the shot",
-)
-
-/**
- * The three declarations that withdraw every active defence.
- *
- * Offered as chips rather than enforced from state: the app holds no turn, so
- * it cannot know that a Charge happened last turn any more than it can know a
- * shot came from concealment. The GM does.
- *
- * [forfeiting] names everything whose own row forfeits the defence, read from
- * the book's tables rather than restated -- five, where p. 37's parenthetical
- * names three.
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun RefusalPicker(
-    declared: Set<DefenseRefusal>,
-    forfeiting: List<String>,
-    onToggle: (DefenseRefusal) -> Unit,
-) {
-    Text("Can this character defend?", style = MaterialTheme.typography.titleSmall)
-    FlowRow {
-        REFUSAL_LABELS.forEach { (cause, label) ->
-            FilterChip(
-                selected = cause in declared,
-                onClick = { onToggle(cause) },
-                label = { Text(label) },
-                modifier = Modifier.padding(end = 4.dp),
-            )
-        }
-    }
-    if (DefenseRefusal.ALL_OUT_ATTACK in declared) {
-        Note("Forfeits the next turn's defence: ${forfeiting.joinToString(", ")}.")
-    }
-}
-
-/**
- * How many parries this character has already made this round.
- *
- * A stepper rather than a counter the app increments, because nothing here
- * knows a round has passed -- the same reason a Fright Check and a Major
- * Wound's HT roll are buttons the GM presses (6c, 6n). The penalty is shown
- * beside it so the number on the rows above can be reconciled.
- */
-@Composable
-private fun ParriesThisRound(prior: Int, penalty: Int, onChange: (Int) -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text("Parries already this round", style = MaterialTheme.typography.bodySmall)
-        TextButton(onClick = { onChange((prior - 1).coerceAtLeast(0)) }) { Text("−1") }
-        Text("$prior", style = MaterialTheme.typography.titleMedium)
-        TextButton(onClick = { onChange(prior + 1) }) { Text("+1") }
-    }
-    Note(
-        if (penalty == 0) {
-            "The first parry of a round is free."
-        } else {
-            // The minus sign is normalised: `penalty` is an Int and prints
-            // ASCII "-", while the two tiers beside it are typed. One line
-            // with two different dashes reads as two different rules.
-            "Parry rows above include ${"$penalty".replace('-', '−')}. " +
-                "Chapter 8 prints no fencing weapon or rapier, whose tiers are −2 and −1."
-        },
-    )
-}
-
-/**
- * What a parry row prints: the weapon's or the style's own number, plus every
- * term that moves it.
- *
- * ONE function for both row types on purpose. They differ by exactly one
- * term -- an unarmed style parries a WEAPON at its own penalty, and a
- * catalogue weapon does not -- and a term added to one composition and left
- * out of the other is this project's most repeated defect: one question
- * answered at two sites, taught at one. A reviewer found that deleting
- * `parryPenalty` from the armed rows alone left every test green.
- *
- * No test pins the sum, because a test of `a + b + c` restates it. What
- * stops the drift is that there is one expression; whether the screen calls
- * it with the right arguments is only reachable on a device.
- */
-private fun parryScore(base: Int, penalty: Int, boost: Int, retreat: Int, vsWeapon: Int = 0) =
-    base + penalty + vsWeapon + boost + retreat
-
-/**
- * Each carried weapon's parry, at the level [SkillDefaults.wieldedAt] wields
- * it: the best skill that arms it, and no less than DX in a master's hand.
- *
- * Chapter 8's catalogue, never [com.pathways.model.Weapon]: the book prints
- * one formula for every weapon and no per-weapon modifier (see
- * [Weapons.parryFor]), so a catalogue row has nothing a `parryMod` could be
- * set from. [ParryBlock.parryFor] stays for the published sheets, which is
- * the only provenance that prints one -- see its own KDoc.
- *
- * Two rows are skipped, for two different reasons. A weapon no skill of
- * theirs arms, out of a master's hand, has no level to halve, and it stays CARRIED -- possession is
- * not training, and a borrowed broadsword is still in hand. A firearm cannot
- * parry at all, which is not the same as parrying at +0.
- */
-internal fun armedParries(
-    weapons: List<CataloguedWeapon>,
-    skillLevels: Map<SkillKey, Int>,
-    mastery: SkillDefaults.WeaponMastery?,
-    dx: Int,
-): List<Pair<String, Int>> = weapons.mapNotNull { weapon ->
-    val level = SkillDefaults.wieldedAt(weapon, skillLevels, mastery, dx) ?: return@mapNotNull null
-    Weapons.parryFor(weapon, level)?.let { weapon.name to it }
-}
-
-@Composable
-private fun DefenseRow(label: String, value: String) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-        Text(value, style = MaterialTheme.typography.titleMedium)
-    }
-}
-
-@Composable
-private fun Note(text: String) {
-    Text(text, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(bottom = 4.dp))
 }

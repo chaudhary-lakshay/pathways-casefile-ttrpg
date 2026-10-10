@@ -32,8 +32,6 @@ import com.pathways.rules.SuccessRoll
 import com.pathways.rules.content.BoonModifier
 import com.pathways.rules.content.SequenceBlock
 
-private fun signed(n: Int) = if (n >= 0) "+$n" else "$n"
-
 /**
  * The number to roll under, and -- when the boon-level doubling has driven it
  * below what 3d6 can show -- the exception that still gives it a chance.

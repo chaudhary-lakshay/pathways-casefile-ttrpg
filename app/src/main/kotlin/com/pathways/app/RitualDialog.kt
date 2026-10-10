@@ -75,8 +75,6 @@ private fun spiChoices(complexity: RitualComplexity): List<Int> {
 private fun hpChoices(cost: Int): List<Int> =
     (0..minOf(cost, 4)).map { PowerSources.hpFor(it) }
 
-private fun signed(n: Int) = if (n >= 0) "+$n" else "$n"
-
 /**
  * The GM's pick inside one cell, when the cell prints more than a number.
  *
