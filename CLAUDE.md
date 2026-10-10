@@ -170,7 +170,7 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6gg, 6gf, 6ge and 6gd: a ledger roll prints its target first, in words.** The skill
+**6gh, 6gg, 6gf, 6ge and 6gd: a ledger roll prints its target first, in words.** The skill
 roll, the attack and the Acrobatic Dodge printed a level and resolved
 their target inside the click: 6eg's third category, named in its
 census and neither fixed nor refused for forty-odd slices. A reeling
@@ -210,7 +210,11 @@ marks them, `Ranged.modifiers` refuses two and the chip swaps through
 `Ranged.alternativesTo`. A reading from bounds that do not meet, not a
 printed sentence; Fit beside Very Fit (6fk) is two held traits and does
 not transfer. Design review changed three things, one of them 6gf's own
-plans. Device-verified. **Next**: nothing is queued.
+plans. Device-verified. 6gh: the refusal counted a flag and the swap
+filtered on it, 6gg's LOW, a defect by the owner's own rule. One
+`Ranged.oneOf` answers both now; one mutant reddens both sides. Review:
+"behaviour-preserving" was false for a row with both flags; none
+exists. The Aim swap is device-verified. **Next**: nothing is queued.
 
 **6gc (its device pass) and 6gb: the second tap of one picture.** 6ga left the dialogs
 to 6eh, and ten slices had moved a dialog's target since, so they were
@@ -411,7 +415,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6gg first.** The
+**Where to start next: the slice log, from the END — 6gh first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -739,7 +743,7 @@ Damage.thrust(st) / .swing(st) / .attacksFor(skill) / .boxingBonus(dx, level)
 Ranged.bandFor(meters): RangePenalty / .penaltyFor(meters): Int
 Ranged.modifiers(band, conditions, gmValue): List<Modifier>
 Ranged.alternativesTo(condition): Set<String>   // the other Aim row, or the
-                                      // target's other speeds; the chip swaps (6gg)
+                                      // target's other speeds; the chip swaps (6gg, 6gh)
 Ranged.meleeConditions() / .meleeModifiers(rows)   // the one row priced in reach
 Wounds.locationNamed(target): HitLocation / .locations() / .damageTypes()
 Wounds.multiplierFor(location, type): Double   // both tables, composed

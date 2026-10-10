@@ -6726,6 +6726,104 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gh. One answer to which rows exclude each other
+
+6gg's diff review left a LOW: *"the `require` counts the flag and the
+swap asks `alternativesTo`, two expressions over the same two fields."*
+I recorded it and pointed at the `toggled` test as the thing that would
+notice them part. That was the same move 6gg caught 6gf making: a
+defect written down as a note. The owner's rule is that the same
+predicate at two call sites is the defect, not the drift it produces.
+
+There were three sites, not two. `Ranged.modifiers` held one `require`
+per group, each counting its own flag, and `Ranged.alternativesTo`
+filtered on `(row.weaponAcc && it.weaponAcc) || (row.targetSpeed &&
+it.targetSpeed)`. A third exclusive group would have needed a third
+`require` and a third clause, and the test that taps every row would
+have seen only one direction of a mistake: a swap that takes off too
+little throws, and one that takes off too much does not.
+
+### What changed
+
+`Ranged.oneOf(row)` answers once: the one thing a row is a reading of,
+or null for a fact of its own. Its value is the refusal's opening
+words, *"a shot is aimed for one length of time"* or *"a target moves
+at one speed"*. `modifiers` groups the rows it is handed by it and
+refuses a group of two; `alternativesTo` returns the other rows with
+the same answer. For the nine rows the book prints, nothing a caller
+can see changed: the same pairs refused, the same words. The two
+reasons, the Acc paid twice against a printed ceiling and the bounds
+that do not meet, sit on `oneOf`'s KDoc.
+
+`weaponAcc` still has other readers: `offeredConditions`, the cancelled
+aim's own `require`, the Acc itself, the dialog's layout filters and
+`AIM_ROWS`. They ask which rows are an aim or need a weapon's Acc, a
+different question, and were left alone.
+
+### Tests
+
+No new test: 6gg's three already pin both sides, and each was watched
+failing then. What this slice owes is proof that they now read one
+place. One mutant, `row.targetSpeed -> null` in `oneOf`, run alone
+from deleted results with no `e:` line, and restored from its copy:
+
+| Test | Module | What it said |
+|---|---|---|
+| a target moves at one speed, not two | `core:rules` | *nothing was thrown* |
+| a row's alternatives are the other speeds or the other aim, and nothing else | `core:rules` | expected the two other speeds |
+| a second speed or a second aim replaces the first | `app` | walking beside running |
+| range, circumstances, darkness and the traits add up too | `app` | 9 terms for 8 |
+
+Before the change the same edit to one site would have reddened one
+side and left the other green.
+
+### Device pass
+
+SM-T570, Hunter-Tracker, Guns (Rifle) 10. The dialog arms a Guns skill
+from the catalogue, so a Bolt-Action Rifle (Acc 4) is in hand with no
+edit to the save. This is the check 6gg recorded as not verified.
+
+- *Aim last turn*: lit, *"Range and cover: +4"*, *"3d6 ≤ 14"*.
+- *Aim for 3+ turns*: it lit and *last turn* went out, *"+6"*,
+  *"3d6 ≤ 16"*. Not +10.
+- *Walking*, then *running*, with the aim still held: running alone,
+  *"Range and cover: +4"*, *"3d6 ≤ 14"*.
+
+No FATAL in logcat. Nothing was rolled, and the save was
+`cmp`-identical to its backup.
+
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on the working-tree diff of the one
+file: SHIP WITH CHANGES, two LOWs. It did not read the two test files
+and said so.
+
+- **"Behaviour-preserving" was false for the type's whole domain.** A
+  row carrying both flags was in both groups before and is an aim row
+  only now. No row does (9 rows: 2 aim, 3 speed, 0 both, counted from
+  the JSON), and the KDoc says which way it would fall. Its other
+  offer, an `init` guard on `RangedModifier`, was not taken: a guard
+  for a row that is a weapon's Acc and a speed at once.
+- A plan with BOTH violations used to name the aim first and now names
+  whichever pair comes first in the list. Refused either way; no
+  reachable plan has even one.
+
+It confirmed the rest row by row: a row twice, a row with neither
+flag, a name outside the catalogue, the null group, the cancelled
+aim's `require` still first. And that nothing else in `Ranged.kt` or
+`RangedOptions.kt` decides exclusion. Asked for the strongest case
+against a string that is both the group's key and its message, it gave
+a typo making a second group, and judged that too weak for a private
+four-line `when`.
+
+1954 Kotlin (1353 `core:rules`, 581 `app`, 20 `core:model`), from
+deleted results. The Python suite was not touched or re-run.
+
+**Next**: nothing is queued. Still open, and neither against an owner
+rule: `Potion`'s branch of `ModifierSource.label()` has no test and
+nothing builds one (6ge), and a stale push tap that outlived *Another
+turn* and a fresh Roll would pass its guard (6gb).
+
 ## 6gg. A target moves at one speed
 
 6gf's diff review noted, in passing, that the Attack dialog lets *Target
