@@ -44,22 +44,24 @@ internal fun ShieldPicker(
     // about the side, which it still cannot decide. A disclaimer that outlives
     // the thing it disclaims is the defect 6bl found on this very screen.
     if (carried != null) {
-        DefenseNote(when (coverage) {
-            ShieldCoverage.COUNTS ->
-                "Arrow shows the DB applied: the book grants it from the front."
-            // Deliberately NOT the COUNTS lead-in. Both states began
-            // "Arrow shows the DB applied", and a GM who stops after the
-            // first sentence reads the app as having decided a side the
-            // book leaves open (a review's finding). The verb carries the
-            // difference, in the clause a skimmer actually reaches.
-            ShieldCoverage.GM_DECIDES ->
-                "Arrow OFFERS the DB — it is not applied. From the side it " +
-                    "counts only if that is your shield side, and the book " +
-                    "names no hand, so the call is yours."
-            ShieldCoverage.WITHHELD ->
-                "No DB from behind: \"${Shields.PRINTED_ARC}\". The rows below " +
-                    "are the unshielded numbers."
-        },)
+        DefenseNote(
+            when (coverage) {
+                ShieldCoverage.COUNTS ->
+                    "Arrow shows the DB applied: the book grants it from the front."
+                // Deliberately NOT the COUNTS lead-in. Both states began
+                // "Arrow shows the DB applied", and a GM who stops after the
+                // first sentence reads the app as having decided a side the
+                // book leaves open (a review's finding). The verb carries the
+                // difference, in the clause a skimmer actually reaches.
+                ShieldCoverage.GM_DECIDES ->
+                    "Arrow OFFERS the DB — it is not applied. From the side it " +
+                        "counts only if that is your shield side, and the book " +
+                        "names no hand, so the call is yours."
+                ShieldCoverage.WITHHELD ->
+                    "No DB from behind: \"${Shields.PRINTED_ARC}\". The rows below " +
+                        "are the unshielded numbers."
+            },
+        )
     }
     FlowRow {
         shields.forEach { option ->
@@ -132,11 +134,15 @@ internal fun DiveControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
     // tick that failed -- the reason a cancelled refusal is SAID rather than
     // silently dropped two controls up.
     if (bonus == 0) {
-        DefenseNote("Not against this attack: the bullet is \"vs. ranged only\", so the " +
-            "+${ActiveDefenses.DIVE_BONUS} lands on nothing. Pick \"A shot\" above.",)
+        DefenseNote(
+            "Not against this attack: the bullet is \"vs. ranged only\", so the " +
+                "+${ActiveDefenses.DIVE_BONUS} lands on nothing. Pick \"A shot\" above.",
+        )
     }
-    DefenseNote("Getting back up costs a turn (Change Posture) — the GM's to spend; " +
-        "this app holds no clock to run it against.",)
+    DefenseNote(
+        "Getting back up costs a turn (Change Posture) — the GM's to spend; " +
+            "this app holds no clock to run it against.",
+    )
 }
 
 /**
@@ -181,8 +187,10 @@ internal fun RetreatControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
     // A chip that is on while no row has moved would read as a tick that failed
     // -- the reason a cancelled refusal is SAID rather than silently dropped.
     if (bonus == 0) {
-        DefenseNote("Not against this attack: the bullet is \"vs. 1 melee attack\", so " +
-            "nothing lands. Pick a bare hand or a weapon above.",)
+        DefenseNote(
+            "Not against this attack: the bullet is \"vs. 1 melee attack\", so " +
+                "nothing lands. Pick a bare hand or a weapon above.",
+        )
         return
     }
     DefenseNote("One melee attack this round — which one is the GM's to count. New round clears this.")
@@ -295,10 +303,12 @@ internal fun FacingPicker(chosen: Facing, onPick: (Facing) -> Unit) {
     // which half the screen did is the honest version of a rule that is partly
     // outside the model -- the same split ActiveDefenses takes on surprise.
     if (chosen != Facing.FRONT) {
-        DefenseNote("The book also prints a defence penalty for this position. It is " +
-            "listed under Modifiers below and is NOT in the numbers above: " +
-            "it prints \"to defense\" in the singular, and this app only " +
-            "takes a penalty to every row when a second printing says so.",)
+        DefenseNote(
+            "The book also prints a defence penalty for this position. It is " +
+                "listed under Modifiers below and is NOT in the numbers above: " +
+                "it prints \"to defense\" in the singular, and this app only " +
+                "takes a penalty to every row when a second printing says so.",
+        )
     }
 }
 
@@ -347,8 +357,10 @@ internal fun StunPicker(stunned: Boolean, onToggle: () -> Unit) {
     }
     if (stunned) {
         DefenseNote("Do Nothing (p. 37): \"${ActiveDefenses.printedStun()}\"")
-        DefenseNote("Every defence below already includes it. Recovering is the GM's " +
-            "roll — this app holds no clock to run the duration against.",)
+        DefenseNote(
+            "Every defence below already includes it. Recovering is the GM's " +
+                "roll — this app holds no clock to run the duration against.",
+        )
     }
 }
 
@@ -412,15 +424,17 @@ internal fun ParriesThisRound(prior: Int, penalty: Int, onChange: (Int) -> Unit)
         Text("$prior", style = MaterialTheme.typography.titleMedium)
         TextButton(onClick = { onChange(prior + 1) }) { Text("+1") }
     }
-    DefenseNote(if (penalty == 0) {
-        "The first parry of a round is free."
-    } else {
-        // The minus sign is normalised: `penalty` is an Int and prints
-        // ASCII "-", while the two tiers beside it are typed. One line
-        // with two different dashes reads as two different rules.
-        "Parry rows above include ${"$penalty".replace('-', '−')}. " +
-            "Chapter 8 prints no fencing weapon or rapier, whose tiers are −2 and −1."
-    },)
+    DefenseNote(
+        if (penalty == 0) {
+            "The first parry of a round is free."
+        } else {
+            // The minus sign is normalised: `penalty` is an Int and prints
+            // ASCII "-", while the two tiers beside it are typed. One line
+            // with two different dashes reads as two different rules.
+            "Parry rows above include ${"$penalty".replace('-', '−')}. " +
+                "Chapter 8 prints no fencing weapon or rapier, whose tiers are −2 and −1."
+        },
+    )
 }
 
 @Composable

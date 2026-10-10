@@ -123,8 +123,10 @@ internal fun AcrobaticDodge(
     }
     if (skill.untrainedSource != null) {
         // p. 10's own caveat, which this app records no ruling for.
-        DefenseNote("${skill.label} ${skill.level}. The GM may rule that a skill needs " +
-            "specialist knowledge before it can be attempted at all.",)
+        DefenseNote(
+            "${skill.label} ${skill.level}. The GM may rule that a skill needs " +
+                "specialist knowledge before it can be attempted at all.",
+        )
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         TextButton(onClick = onRoll) {
@@ -166,8 +168,10 @@ internal fun AcrobaticDodge(
         // nothing was rolled, which the branch above has already answered.
         val effective = outcome.effectiveOutcome ?: return@let
         val swing = ActiveDefenses.acrobaticDodge(effective)
-        DefenseNote("${skill.label} $target: rolled ${roll.total} — " +
-            "${label(effective, outcome.degree)}, " +
-            "${if (swing > 0) "+" else ""}$swing on Dodge above.",)
+        DefenseNote(
+            "${skill.label} $target: rolled ${roll.total} — " +
+                "${label(effective, outcome.degree)}, " +
+                "${if (swing > 0) "+" else ""}$swing on Dodge above.",
+        )
     }
 }

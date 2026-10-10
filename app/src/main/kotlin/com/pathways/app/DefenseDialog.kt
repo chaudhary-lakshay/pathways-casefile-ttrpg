@@ -303,8 +303,10 @@ fun DefenseDialog(
                     // moves without the screen saying why is how these numbers
                     // stopped reconciling in 6ag and 6ai.
                     if (poolPenalty != 0) {
-                        DefenseNote("Hurt or tired: $poolPenalty to every defence below, " +
-                            "from the HP and FP thresholds on the sheet (pp. 40 and 42).",)
+                        DefenseNote(
+                            "Hurt or tired: $poolPenalty to every defence below, " +
+                                "from the HP and FP thresholds on the sheet (pp. 40 and 42).",
+                        )
                     }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     // Above the rows it changes, unlike the parry stepper: it
@@ -357,8 +359,10 @@ fun DefenseDialog(
                     // a bug. The rounding is named because the book does not
                     // print one for this row.
                     if (fatigued) {
-                        DefenseNote("At 1/3 FP or below: \"Move and Dodge halved\" (p. 42). " +
-                            "Halved above, rounded up — the book prints no direction.",)
+                        DefenseNote(
+                            "At 1/3 FP or below: \"Move and Dodge halved\" (p. 42). " +
+                                "Halved above, rounded up — the book prints no direction.",
+                        )
                     }
                     // Directly under the only row it moves. The bullet itself
                     // is quoted here rather than left in the Modifiers list at
@@ -439,28 +443,34 @@ fun DefenseDialog(
                         val formula = printed
                             .firstOrNull { it.defense.startsWith("Parry (Unarmed)") }
                             ?.formula
-                        DefenseNote("Parry ($BARE_HANDS) is the formula cell's other operand" +
-                            (formula?.let { ", \"$it\"" } ?: "") +
-                            ": DX itself, not a default, so nothing is taken off " +
-                            "and Versatile adds nothing. Against a weapon it takes " +
-                            "Brawling's −3. That is a reading: the cell names " +
-                            "Brawling and exempts Boxing alone.",)
+                        DefenseNote(
+                            "Parry ($BARE_HANDS) is the formula cell's other operand" +
+                                (formula?.let { ", \"$it\"" } ?: "") +
+                                ": DX itself, not a default, so nothing is taken off " +
+                                "and Versatile adds nothing. Against a weapon it takes " +
+                                "Brawling's −3. That is a reading: the cell names " +
+                                "Brawling and exempts Boxing alone.",
+                        )
                     }
                     // What is still not offered, named rather than absent.
                     if (unskilled.isNotEmpty()) {
-                        DefenseNote("No parry offered with ${unskilled.joinToString(", ")}: no " +
-                            "skill on this sheet wields it, and the Parry (Armed) " +
-                            "row prints Weapon Skill ÷ 2 + 3 with no second operand. " +
-                            "Whether a default parries is a gap here and not a ruling.",)
+                        DefenseNote(
+                            "No parry offered with ${unskilled.joinToString(", ")}: no " +
+                                "skill on this sheet wields it, and the Parry (Armed) " +
+                                "row prints Weapon Skill ÷ 2 + 3 with no second operand. " +
+                                "Whether a default parries is a gap here and not a ruling.",
+                        )
                     }
                     // Said wherever the mastery changed a number, because
                     // the book's own examples are attacks and this is the
                     // reading that carries the line to a parry (6ey).
                     if (mastery != null && lifted.isNotEmpty()) {
-                        DefenseNote("${lifted.joinToString(", ")}: Weapon Skill no less than DX " +
-                            "before the halving, from ${mastery.quoted}'s \"treated as " +
-                            "known at effective DX\", read as the Parry (Armed) " +
-                            "row's operand. A reading: the book's examples are attacks.",)
+                        DefenseNote(
+                            "${lifted.joinToString(", ")}: Weapon Skill no less than DX " +
+                                "before the halving, from ${mastery.quoted}'s \"treated as " +
+                                "known at effective DX\", read as the Parry (Armed) " +
+                                "row's operand. A reading: the book's examples are attacks.",
+                        )
                     }
                     // A refusal, not a penalty, so the rows are withdrawn and
                     // the reason is SAID -- a GM who picks "a shot" and sees
@@ -498,11 +508,13 @@ fun DefenseDialog(
                             // Two ways to have no DB, and they are different
                             // facts: nothing Readied, or something Readied
                             // that the book withholds from behind.
-                            DefenseNote(if (carried == null) {
-                                "Pick a shield above; Block needs one Readied."
-                            } else {
-                                "No DB from behind: \"${Shields.PRINTED_ARC}\"."
-                            },)
+                            DefenseNote(
+                                if (carried == null) {
+                                    "Pick a shield above; Block needs one Readied."
+                                } else {
+                                    "No DB from behind: \"${Shields.PRINTED_ARC}\"."
+                                },
+                            )
                         } else {
                             // Shields.blockFor already folds the DB in, so the
                             // arrow is built by hand here rather than through
@@ -560,9 +572,11 @@ fun DefenseDialog(
                         block = shieldSkill != null && carried != null,
                     )
                     if (round.boost != null && round.boost?.second !in payable) {
-                        DefenseNote("The defence you paid for is not available against this attack, " +
-                            "so the +${ActiveDefenses.BOOST_BONUS} lands on nothing. " +
-                            "The FP stays spent.",)
+                        DefenseNote(
+                            "The defence you paid for is not available against this attack, " +
+                                "so the +${ActiveDefenses.BOOST_BONUS} lands on nothing. " +
+                                "The FP stays spent.",
+                        )
                     }
                     BoostPicker(
                         rows = payable,
