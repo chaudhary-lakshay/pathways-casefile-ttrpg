@@ -6726,6 +6726,82 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ga. The sweep 6fz named, run
+
+6fz ended by naming a sweep it had not run. What found 6fz was a grep
+for four derivation calls; the question it implied is wider: **every
+number a screen prints beside a control, asked whether the control uses
+that number.** Dialogs that print a target and roll it are 6eg's and
+6eh's and were not re-read. What was read is every row outside a dialog:
+
+| Printed | The control | One value? |
+|---|---|---|
+| A published skill's level (Skills) | its Roll | yes, since 6fz: one `level` |
+| A bought skill's level | its Roll | yes: one `level` to the row and `RollableSkill` |
+| A granted skill's level | its Roll | yes, the same |
+| An untrained row's level (the picker) | picking it | yes: `row.level` printed and passed |
+| A pool, *"HP 14 / 14"* | -1 / +1 | yes: both read `vitals` |
+| *"Roll HT 9"* under a pool | the button | yes: one `target` on the label and in the roll |
+| The recovery row's target | its Roll | yes: computed in the composable that rolls it |
+| *"next potion rolls 3d6 ≤ N"* (Pathway) | Drink | the same function of the same state, twice |
+| A gallery row | opening it | yes, since 6fw and 6fx |
+| **A self-control row, *"3d6 ≤ 12"*** (Traits) | **the dialog it opens** | **no** |
+
+`MainActivity` called a `targetFor` in six places; this was the only
+one whose number was printed outside the composable that rolls it.
+
+**The row and its dialog disagreed when the character was hurt.** The
+row printed `SelfControl.targetFor(spec, will, iq)`. The dialog it opens
+prints and rolls `targetFor(spec, will, iq, modifier + shock + hurt +
+clauses)`. With nothing declared the clauses add 0, all three Will
+clauses being conditional, so the two agree for a healthy character and
+part by the shock and by *"-1 to all rolls"* for one who is reeling or
+fatigued: 12 on the row, 11 in the dialog. Docks Bouncer alone holds two
+such rows. The dialog took reeling and fatigue in 6bo (`854d9b7`) and
+the row kept its own computation.
+
+**One number, two readers.** `standingTargets(checks, will, iq, state)`
+gives each check the target it stands at, the book's number with shock
+and reeling or fatigue on it. The row prints it. `SelfControlDialog`
+takes it as `standing` in place of `will`, `iq`, `shock` and `hurt`, and
+adds only what is asked inside it: the GM's stepper and the declared
+clauses. Same terms as before, regrouped.
+
+**Tests.** One watched failing against a stub that ignored `state`
+(Docks Bouncer's Overconfidence and Bully at 11 expected, 12 returned);
+one control at state 0. Both rows are flat targets; the Will-or-IQ
+choice is `SelfControlTest`'s.
+
+**Review, one ecc sub-agent on the diff: SHIP**, LOWs only, three
+taken.
+
+- The target is now computed when the sheet is drawn, on every tab, and
+  `targetFor` throws on an attribute the book does not key on. Already
+  answered: `SelfControlTest` pins that such a row is *"refused at LOAD,
+  not at render"* and that *"every printed row survives the loader"*.
+- `standing.getValue` at the dialog would throw if a trait left the list
+  under an open dialog. No path does that; it is a `?.let` now, so there
+  is no roll to show and no crash.
+- A comment block above the dialog's target still said it was *"the ONE
+  place the number is computed"* and spoke of shock inside the dialog.
+  Rewritten.
+- The dialog's KDoc said Conditions are *"deliberately NOT layered on"*,
+  false since 6bo. It says what is true: no skill-roll ledger, and shock
+  and reeling arrive inside `standing`.
+
+**Device: a control only.** SM-T570, fresh install (16:32:10), Docks
+Bouncer unhurt: the row reads *"Overconfidence — −5 pts — 3d6 ≤
+12"* and its dialog *"3d6 ≤ 12"*; `cmp` against a backup taken at the start,
+unchanged. **The hurt case is not device-verified**: nobody in the save
+is reeling, and stepping HP down writes the save.
+
+1940 Kotlin (1344 `core:rules`, 576 `app`, 20 `core:model`), green after
+`--rerun-tasks`. The Python suite was not touched or re-run.
+
+**Next**: nothing is queued. The Pathway row above is the one pair that
+is two calls and not one value; it has held since 6ej and a state that
+changed between them would have to change inside one composition.
+
 ## 6fz. The sheet printed a level it did not roll
 
 Nothing was queued after 6fy, so 6fw's defect was run as a sweep: every
@@ -6810,14 +6886,14 @@ against 11, 10, 9, 9, 4.75, 4, 7). Three passed under the stub on
 purpose: an unmoved agreed row, an unmoved disputed row, and all 23
 sheets unwalked reading on Vitals what they always did.
 
-**Eight mutants, one at a time, fresh XML, all compiled; six caught on
-the first run and the seventh, Basic Move reading Dodge, too.** The
-eighth, **the Will row reading Per, failed nothing in 1937 tests**,
+**Eight mutants, one at a time, fresh XML, all compiled.** The first
+run held seven and caught six. The seventh, **the Will row reading Per,
+failed nothing in 1937 tests**,
 and not because of this slice: no fixture prints Will different from Per
 (counted, zero of 23), so the two rows of the diff have been
 indistinguishable to every test since M2. Pinned on a walked character,
-Antiquarian Dealer on Abyss 9, Will 9 and Per 12; both swaps then fail,
-and a no-op control passes.
+Antiquarian Dealer on Abyss 9, Will 9 and Per 12; that mutant and its
+mirror, the eighth, then fail, and a no-op control passes.
 
 **Diff review, the same reviewer: SHIP**, four LOWs and no change. Red
 can sit beside an equal number when a character is moved onto the
@@ -6847,9 +6923,10 @@ every published skill level matches (`SheetComparisonTest`).
 1938 Kotlin (1344 `core:rules`, 574 `app`, 20 `core:model`), green after
 `--rerun-tasks`. The Python suite was not touched or re-run.
 
-**Next**: nothing is queued. The sweep that found this is the one to
-re-run after any new screen: every number a screen prints beside a
-control, asked whether the control uses that number.
+**Next (6ga)**: what found this was a grep for derivation calls, which
+cannot see a number computed inline. The sweep it implies was not run:
+every number a screen prints beside a control, asked whether the control
+uses that number.
 
 ## 6fy. The device pass for 6fx
 

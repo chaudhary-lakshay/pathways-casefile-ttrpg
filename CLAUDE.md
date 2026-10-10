@@ -159,7 +159,7 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fz is newest: a sheet row prints the number played.** The Vitals
+**6ga is newest, with 6fz before it: a sheet row prints the number played.** The Vitals
 and Skills tabs render `SheetComparison`'s rows as the character, and
 each printed the engine's number for the UNEDITED sheet. On the tablet a
 Docks Bouncer on Twilight Giant 9 read Brawling 12 beside a Roll that
@@ -183,9 +183,14 @@ does not roll. Read it for three things.
   survives may be measuring the fixtures.
 
 Design and diff review said SHIP; device-verified, save untouched.
-**Next**: nothing is queued. After any new screen, re-run the sweep:
-every number printed beside a control, asked whether the control uses
-it.
+6ga ran the sweep 6fz named and had not run: every number printed
+beside a control, asked whether the control uses it. Ten pairs, one
+defect. A self-control row on Traits printed *"3d6 ≤ 12"* and the
+dialog it opens rolled 11 for a reeling character, because the row left
+out the shock and the *"-1 to all rolls"*. One `standingTargets` number
+feeds both now. SHIP; a device control only. **Next**: nothing is
+queued. Re-run that sweep after any new screen; a grep for derivation
+calls is not it.
 
 **6fy (6fx's device pass), 6fx, 6fw, 6fv, 6fu and 6ft: a sheet's printed SPI 9 is not played.** Four sheets
 (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police) print SPI 9
@@ -366,7 +371,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fz first.** The
+**Where to start next: the slice log, from the END — 6ga first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -421,7 +426,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1938 Kotlin** (JUnit 5 — 1344 `core:rules`, 574 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1940 Kotlin** (JUnit 5 — 1344 `core:rules`, 576 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |
