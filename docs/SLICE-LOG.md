@@ -6726,6 +6726,29 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fp. The face the builder sells beside a granted one
+
+6fn's last successor. The builder's Appearance row read the bought face
+alone, so a Demoness 7 could pay for a face the potion had already given
+without being told. The row now appends *"— the potion grants <level>;
+<face> is played"*, where the granted face is `Appearance.played` over
+`TraitEffects.grantedTraits(session.state)` (remembered on
+`session.state`) and the played one is `Appearance.played` over the bought
+and granted pair, so the comparison lives in one function. Billing does
+not change; the picker stays ungated.
+
+**Diff review (one sub-agent): SHIP**, with one nit taken: the first text,
+*"the better face is played"*, named no winner, so a bought Very Beautiful
+under Demoness 7 could be read as playing the potion's. The `!!` on
+`played` is safe: the list holds the granted face, so it is never empty.
+
+1905 Kotlin, green (`app` re-run after the nit). No test: a composable,
+built from `played` and `grantedTraits`, which 6fn's tests and mutants
+cover. Not device-verified.
+
+**6fn's census is closed**: the faces (6fn), Ancient Hermes (6fo) and this
+row. Wealth printed nothing.
+
 ## 6fo. The language a potion grants
 
 6fn's census over the three named-level tables found Mother 8 and

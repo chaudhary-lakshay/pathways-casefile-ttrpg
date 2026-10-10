@@ -166,8 +166,9 @@ both forms, held from that rung down. `Languages.grantedBy` feeds the
 ritual dialog's note (*"From the potion: Ancient Hermes, Native."*);
 the proficiency picker stays the player's, so no roll changes. A census
 pins the table both ways against the prose. The diff review said SHIP.
-**Successor**: the builder's face row, which does not say a potion
-grants one (6fn).
+6fp: the builder's Appearance row now says *"the potion grants
+Handsome / Beautiful; <face> is played"*, through `Appearance.played`.
+That closes 6fn's census; nothing it found is outstanding.
 
 **6fn is next: the face a potion grants.** Demoness 7 and 6 print
 *"Appearance (Beautiful)"* and *"(Very Beautiful)"*, rungs of the
@@ -308,7 +309,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fo first.** The
+**Where to start next: the slice log, from the END — 6fp first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
