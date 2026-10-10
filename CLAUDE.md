@@ -478,7 +478,7 @@ ast-grep run -l kotlin -p 'SkillRoll.targetFor($$$)' app core   # call sites
 ```
 
 **Read a span, not a file.** This prints where one function starts and ends
-(`RollDialog`: 2271-2503), and Read takes it from there with an offset:
+(`RollDialog`: `RollDialog.kt` 50-282), and Read takes it from there with an offset:
 `ast-grep scan --inline-rules '{id: s, language: kotlin, rule: {kind: function_declaration, has: {kind: simple_identifier, regex: "^RollDialog$"}}}' app`.
 A `fun $N($$$): $R { $$$ }` pattern misses every `@Composable`, which has no
 return type. Nothing runs `ast-grep scan` for you: it is not in the Gradle

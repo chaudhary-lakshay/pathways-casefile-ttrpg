@@ -76,7 +76,7 @@ class AttackDialogTest {
         // two helpers read the SAME plan, so exactly one of them may speak.
         //
         // Reachable in two taps: select the chip in reach, then tap "At range".
-        // onPlan (AttackDialog.kt:337) clears the set only when going the other
+        // AttackDialog's onPlan lambda clears the set only when going the other
         // way, so the selection survives; without the guard both helpers fire
         // and the roll takes -6, which is nowhere in the book.
         val prone = setOf("Target is prone")
