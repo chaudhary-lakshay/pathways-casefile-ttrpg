@@ -44,7 +44,10 @@ silently "fix" them. If a number surprises you, the book is the authority.
   count for you. A row your potions gave you (a Hermit's Combat Reflexes, an
   Abyss Beyonder's drawbacks) is listed too, marked *"from the potion"*
   instead of its points, and counts in every roll; the builder will not sell
-  it to you again.
+  it to you again. A potion's Charisma adds to a bought level (*"Charisma 4 —
+  10 pts, +2 from the potion"*). A potion's face beside a bought one: the
+  better face is played, and a worse bought face says *"not played: the
+  potion's face is better"*.
 - **The action tiles** are one wrapping grid of twelve, colour-coded by what
   they are for: neutral = a roll the GM called, red = combat, purple = a
   Beyonder power, green = managing the character. The three Beyonder tiles
@@ -255,8 +258,9 @@ any supporting skills. The dialog composes the target, subtracts the Corruption
 penalty at the thresholds the book prints, and prices the SPI. Quick and Full
 preparation are two different tables with two different link rules. The
 language is yours to state per ritual; under the chips the dialog lists the
-mystical languages the character bought in the builder, and does not pick one
-for you. A language granted by a trait or a potion is not in that list.
+mystical languages the character bought in the builder, then any a potion
+granted (*"From the potion: Ancient Hermes, Native."*), and does not pick one
+for you. A language granted by a trait is not in that list.
 
 Six of those cells print a span or a floor rather than a number — *Good +1 to
 +2*, *Poor -1 to -2*, *None -4 or worse*, the quick table's *Poor / None -2 to
@@ -327,7 +331,8 @@ grade is *not* a gate on use, deliberately.
 budget, and skills bought at the ladder's own cost. **Add a skill** buys one.
 **Wealth** and **Appearance** each have a row with a **Change** button (the
 wealth one opens a picker titled *Economic status*), and picking a level
-replaces the one you had rather than stacking a second.
+replaces the one you had rather than stacking a second. Where a potion granted
+a face, the Appearance row says so and names the face that is played.
 
 Under the attributes, **Secondary characteristics** has a stepper for each of
 the six the book prices — HP, Will, Perception, FP, Basic Speed and Basic Move

@@ -6744,7 +6744,24 @@ under Demoness 7 could be read as playing the potion's. The `!!` on
 
 1905 Kotlin, green (`app` re-run after the nit). No test: a composable,
 built from `played` and `grantedTraits`, which 6fn's tests and mutants
-cover. Not device-verified.
+cover.
+
+**Device-verified on the SM-T570 with 6fn and 6fo**, two new save
+entries seeded and the save restored byte for byte afterwards:
+- **Pickpocket at Demoness 7 with a bought Ugly**: the Traits tab printed
+  *"Handsome / Beautiful — from the potion"*, *"Ugly — −8 pts, not played:
+  the potion's face is better"* and *"Charisma 3 — from the potion"*
+  (6fm). The builder printed *"Ugly — −8 pts, reaction −2 — the potion
+  grants Handsome / Beautiful; Handsome / Beautiful is played"*.
+- **Occult Scholar at Mother 7**: the ritual dialog printed *"From the
+  potion: Ancient Hermes, Native. A trait may grant others, and which
+  language this ritual uses is yours to say."* **Mother 8 has no Ritual
+  tile**: the tile is gated on Ritualistic Magic, which Mother first grants
+  at 7, so Mother 8's grant reaches the note only through a bought skill.
+  Justiciar 6 likewise.
+- `docs/HOW-TO-PLAY.md` had said *"A language granted by a trait or a
+  potion is not in that list"*; it now names the potion's, and the
+  Traits and builder paragraphs say what 6fm, 6fn and 6fp print.
 
 **6fn's census is closed**: the faces (6fn), Ancient Hermes (6fo) and this
 row. Wealth printed nothing.

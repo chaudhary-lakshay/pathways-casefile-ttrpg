@@ -168,7 +168,8 @@ the proficiency picker stays the player's, so no roll changes. A census
 pins the table both ways against the prose. The diff review said SHIP.
 6fp: the builder's Appearance row now says *"the potion grants
 Handsome / Beautiful; <face> is played"*, through `Appearance.played`.
-That closes 6fn's census; nothing it found is outstanding.
+That closes 6fn's census; nothing it found is outstanding. 6fm-6fp are
+device-verified on the SM-T570, and the save was restored.
 
 **6fn is next: the face a potion grants.** Demoness 7 and 6 print
 *"Appearance (Beautiful)"* and *"(Very Beautiful)"*, rungs of the
