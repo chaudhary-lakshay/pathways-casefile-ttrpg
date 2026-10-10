@@ -6726,6 +6726,166 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gb. The second tap of one picture
+
+6ga read every number printed beside a control outside a dialog and left
+the dialogs to 6eg and 6eh. Ten slices have moved a dialog's target since
+6eh (6eu, 6ev, 6ex, 6ey, 6fa, 6fb, 6fe, 6ff, 6fg, 6fh), so that verdict
+was run again and not inherited.
+
+**The query.** `rollAgainst(`, `SkillRoll.at(`, `.attempt(`,
+`SuccessRoll.against(` and `.pushed(` over `app/src/main`: 21 lines, 18
+rolls and 3 pushes. A second grep, for where dice are passed, added the
+entity's table roll. A third, for `onSpend`, `.spend(`, `onBurn(` and
+`onApply(`, gave the charges, and the two pushes the first query could
+not see because they went through `EffortBurn.applied`.
+
+**Printed against rolled: nothing split.**
+
+| Roll | Printed before the dice | One value? |
+|---|---|---|
+| Fright Check | *"3d6 vs N"* | yes: one `target` |
+| Fright recovery | *"Roll Will N to recover now"* | yes; the result prints its own |
+| Self-control | *"3d6 ≤ N"* | yes (6ga) |
+| Concentrate | *"3d6 ≤ N"* | yes |
+| The 0 HP and -HP rolls | *"Roll HT N"* | yes; the result is keyed on it |
+| A day's recovery | *"Roll HT N"* | yes; the result prints its own |
+| Major Wound | *"Roll HT N"* | yes; see below |
+| Stun recovery | *"Roll HT N to recover now"* | yes; the result prints its own |
+| Ritual, boon | *"3d6 ≤ N"* | yes: `rollAgainst(target)` |
+| Divination | *"Roll 3d6 ≤ N"* | yes |
+| Spirit Vision, detection | the target and its parts | yes: both passed |
+| The entity's response | no target; a table roll | the shift printed is the flag passed |
+| PCR, Drink | 6ga's row | the same function of the same state |
+| PCR, Luck's reroll (6fg) | `drinkLine` | the same, and frozen: see below |
+| **Skill roll, attack, Acrobatic Dodge** | **a level** | the level, yes; no target |
+
+- **The Major Wound's result line reprinted the live parameter**, *"3d6:
+  11 vs $ht"*, where the recovery line under it prints `recovery.target`
+  (6ds). Equal on every path: the dialog is modal and Apply dismisses
+  it. It prints `shock.target` now, so it does not rest on that.
+- **Luck's reroll was not in 6ga's table**, which lists Drink. Its line
+  reads `session.cor` and its roll `state`, and neither can move under
+  the button: the reroll exists only while `lost`, where `digest` and
+  `gainCor` return at once, the CoR stepper is disabled and the
+  digestion tracker is not drawn. The ceiling is read again by the
+  handler. A second tap finds nothing pending.
+- **Three rolls print a level and no target before the dice.** 6eg named
+  the category (*"One call site, nothing printed before the dice —
+  three"*), 6eh fixed the other eight, and these were neither fixed nor
+  refused in the forty-odd slices since. Under 6ga's question they pass:
+  *"Skill 12"* is the base `SkillRoll.at` is handed, one `level` in the
+  attack dialog since 6eu. The result reconciles (*"base 12, modified to
+  8"*, *"12 → 8"*). Attack says so beforehand, *"Injury, fatigue and
+  attrition are added when it is rolled"*; the skill dialog and the
+  Acrobatic Dodge say nothing. Not changed here: a target before the
+  dice means splitting `SkillRoll.at` into a resolution and a roll and
+  resolving while the dialog is drawn, which is a design, not a guard.
+
+**Printed against charged: every cost is one value.** The artifact's
+`cost`, Spirit Vision's `activation`, the ritual's `spiOwed` and
+`hpOwed`, the divination's and the boon's `cost`, the Defend boost's
+`fpCostOf`, the attack plan's `fpCost`, *"Apply 5 to HP"*. The pushes
+are where it stopped being true.
+
+### What a second tap does
+
+6ei reproduced it on the SM-T570: two taps a few milliseconds apart
+both reach the handler of ONE composition. That handler's captured
+values are the picture as drawn. 6ei then wrote that Drink had no
+re-entrancy guard, *"alone among the roll buttons in this app"*. **A
+count in prose.** Asked of every handler that rolls or charges:
+
+| Handler | A second tap of the same picture |
+|---|---|
+| Skill dialog, FP push | **threw**: the chips were offered against 0 burned, `applied` was handed the live 3, and `bonusFor` requires `already + points ≤ 5`. *+3* twice took the app down, 3 FP already charged |
+| Skill dialog, SPI push | **overdrew**: no cap to throw on, and `spiAvailable` is the balance as drawn. With 3 SPI left, *+3* twice spent 6. SPI below 0 is Soul Debt, and `spend` charges it as CoR, which is permanent |
+| Attack push | the same throw, and it pushed `outcome`, the list item it was drawn with: *+1* twice charged 2 FP and moved the target by 1 |
+| Attack's Roll | rolled again and charged the plan's FP again |
+| Major Wound, its recovery, fright recovery | rolled again; the second was kept |
+| Spirit Vision's Look | repeatable on purpose, and `enabled` is the pool as drawn: with 1 SPI left the second tap bought Soul Debt |
+| Ritual, divination, boon pushes | guarded: live outcome, `canAffordSpi(burned + points, …)`, and they charge on closing |
+| Every other Roll, Drink, the reroll, the artifact, the Defend boost | guarded |
+| Acrobatic Dodge | re-rollable on purpose (its KDoc), and charges nothing |
+
+The skill dialog's own comment describes the attack row's defect in
+full, *"the second push would overwrite the first while the pool paid
+for both"*, and the fix it records was made at one of two sites.
+
+### The design, reviewed before the screens
+
+The rules test and `pushed` were written while it ran; no screen was
+touched until it answered. One ecc sub-agent, no diff, three questions, each with the answer I
+favoured and a request for the case against it. **SHIP WITH CHANGE, and
+the change was to my proposal.**
+
+I proposed honouring a second tap wherever it was still affordable, as
+the three SPI dialogs do: a rules function asked of the live count and
+of a live pool worked out as `spiAvailable - (burned - drawn)`. The
+review's answer:
+
+- Those three dialogs charge on closing, so their pool does not move
+  while they are open. These two charge AT the tap. The precedent
+  travels by role, and its role here is different.
+- The arithmetic holds only while `session.spend` and `burned +=` land
+  in one snapshot. If they ever split, it undercounts and overdraws.
+- A double tap is a bounce far more often than a decision, and on the
+  SPI row what it buys never comes back.
+
+**So a stale tap is dropped.** `val drawn = burned` beside the row;
+the handler returns if the live `burned` is no longer `drawn`. The row
+redraws and the GM taps again, which is what Drink does (6ei). The
+attack row compares the whole map, because a push on a Rapid Strike's
+other attack moves the pool this one was drawn against.
+
+`EffortBurn.pushed(outcome, kind, points, alreadyBurned, spiAvailable)`
+stays, as the review allowed: `applied`, or null where `points` is not
+a chip `affordable` would still offer. Both screens call it and charge
+only on a non-null. With the drop in front of it, its null is not
+reachable from either; it is the rule's own refusal for a caller whose
+guard is wrong, and it is the part a unit test can reach.
+
+### What changed
+
+- `EffortBurn.pushed`, two tests.
+- `RollDialog` and the attack row: the drop, the live outcome,
+  `pushed`.
+- Attack's Roll returns if `outcomes` is not empty. The Major Wound's
+  two rolls and the fright recovery roll only when theirs is null.
+- Spirit Vision's Look returns if the live `result` is not the one the
+  button was drawn beside. By identity: two readings can be equal.
+- The Major Wound result prints `shock.target`.
+
+**Tests.** Both watched failing against a `pushed` that only called
+`applied`, which is what the two handlers did: the FP one with
+*"IllegalArgumentException: FP buys at most +5 per roll; 3 already
+spent plus 3 is more than that"*, the crash itself; the SPI one with a
+pushed outcome where null was expected. **The screen guards have no
+test.** They are one comparison each inside a composable, and nothing
+in this repo reaches a click handler.
+
+**Diff review, the same reviewer: SHIP**, LOWs only and no change. It
+quoted the declaration behind every value the handlers treat as drawn
+or as live, and traced that no path charges without moving the roll.
+One LOW is worth keeping: a stale push tap that outlived *Another turn*
+and a fresh Roll would find an empty `burned` equal to its own and
+pass. Two other buttons would have to be pressed inside the same few
+milliseconds.
+
+**Device: not verified.** 6ei's method is the check that fits, a
+`monkey --throttle 0` script of two taps on one chip, against a build
+with the guard neutered and then this one. Predicted for the old build,
+a failed DX skill roll and *+3* twice: the `IllegalArgumentException`
+above, from `EffortBurn.bonusFor` through `RollDialog`. It writes FP to
+the save, so it wants the tablet's foreground and a backup first. 6ga's
+hurt case is still open beside it.
+
+1942 Kotlin (1346 `core:rules`, 576 `app`, 20 `core:model`), green
+after `--rerun-tasks`. The Python suite was not touched or re-run.
+
+**Next**: that device pass. After it, the three rolls that print no
+target before the dice, decomposition first.
+
 ## 6ga. The sweep 6fz named, run
 
 6fz ended by naming a sweep it had not run. What found 6fz was a grep

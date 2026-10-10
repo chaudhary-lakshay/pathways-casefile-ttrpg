@@ -159,7 +159,34 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ga is newest, with 6fz before it: a sheet row prints the number played.** The Vitals
+**6gb is newest: the second tap of one picture.** 6ga left the dialogs
+to 6eh, and ten slices had moved a dialog's target since, so they were
+read again: 18 rolls and every charge. Each prints the number it rolls
+or charges. What did not hold was 6ei's count, *"Drink alone had no
+re-entrancy guard"*: seven more handlers had none. Read it for three
+things.
+
+- **The push rows.** A chip is offered against the count as drawn. In
+  the skill dialog *+3* twice threw past the FP cap, and on the SPI row
+  spent a pool the first tap had emptied: Soul Debt, permanent CoR. The
+  attack's also pushed the outcome it was drawn with, 2 FP for +1.
+- **A stale tap is dropped, not honoured**, the design review's change
+  to my proposal: these two charge AT the tap and hold the balance as
+  drawn, where the ritual's push charges on closing. `EffortBurn.pushed`
+  is the rule's refusal behind the drop. **A new push row calls it,
+  never `applied`, and every handler that rolls or charges opens with
+  its guard.**
+- Attack's Roll, the Major Wound's two rolls, fright recovery and
+  Spirit Vision's Look carry one now. The screen guards have no test.
+
+The diff review said SHIP. **Not device-verified**: 6ei's
+two-tap `monkey` script against a neutered build, which writes FP, so
+it wants the tablet and a backup. **Next**: that pass, with 6ga's hurt
+case. Then the three rolls that print a level and no target before the
+dice (skill, attack, Acrobatic Dodge): 6eg's category, never fixed or
+refused. Decomposition first.
+
+**6ga, with 6fz before it: a sheet row prints the number played.** The Vitals
 and Skills tabs render `SheetComparison`'s rows as the character, and
 each printed the engine's number for the UNEDITED sheet. On the tablet a
 Docks Bouncer on Twilight Giant 9 read Brawling 12 beside a Roll that
@@ -188,9 +215,8 @@ beside a control, asked whether the control uses it. Ten pairs, one
 defect. A self-control row on Traits printed *"3d6 ≤ 12"* and the
 dialog it opens rolled 11 for a reeling character, because the row left
 out the shock and the *"-1 to all rolls"*. One `standingTargets` number
-feeds both now. SHIP; a device control only. **Next**: nothing is
-queued. Re-run that sweep after any new screen; a grep for derivation
-calls is not it.
+feeds both now. SHIP; a device control only. Re-run that sweep after any new screen;
+a grep for derivation calls is not it.
 
 **6fy (6fx's device pass), 6fx, 6fw, 6fv, 6fu and 6ft: a sheet's printed SPI 9 is not played.** Four sheets
 (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police) print SPI 9
@@ -279,30 +305,10 @@ face printed its name alone on the Traits tab, having no catalogue row;
 `cellFor`'s own formula; it now pins the book's eight strings.
 6fr ran the sweep 6fq named.
 
-**6fn is next: the face a potion grants.** Demoness 7 and 6 print
-*"Appearance (Beautiful)"* and *"(Very Beautiful)"*, rungs of the
-appearance table, which 6fk's census over the trait catalogue could not
-see. A character has one face: the chain keeps Sequence 6's, and beside
-a bought face the better is played (`Appearance.played`), since *"the
-potion perfects the Witch's features"* (7597) never lowers one. A worse
-bought face stays billed, and the Traits tab says it is not played.
-Read it for two things.
-
-- **Adding Demoness 7's face made its key appear twice** in
-  `GRANTED_TRAITS`. `mapOf` keeps the later entry silently, so
-  Charisma's would have been lost.
-- **`Appearance.levelOf` was first-match**, which on a list holding two
-  faces reads the worse. It now asks `played`, per the design review.
-
-The same census found **Mother 8 and Justiciar 6's Ancient Hermes
-(Fluent)**: no roll changes, because the ritual dialog's proficiency
-picker is ungated, but its "Bought by this character" note omits it.
-**Successors**: that note, and the builder's face row, which does not say
-the potion grants one.
-
-**6fm back to 6de had lead paragraphs here until 2026-10-10. Each is in
+**6fn back to 6de had lead paragraphs here until 2026-10-10. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fn** — a potion's face: the chain keeps Sequence 6's and the better of bought and granted is played; a second `mapOf` key would have silently dropped Charisma's grant;
 **6fm** — a potion's Charisma levels add down the chain and onto a bought level, capped at 4; the label first said the grant's level, not what it added;
 **6fk** — a potion's catalogue rows are granted through one table pinned both ways; a census that dropped names under four characters lost Fit, and the builder would have sold a granted row;
 **6fj** — the Warrior's default +2 stays refused, on the book's reason: no number fits both the Warrior's example and the Weapon Master's DX ceiling;
@@ -332,7 +338,7 @@ slice log.** One line each:
 **6el** — a potion's grants are added to the bought score, so browsing a block crashed a high-ST save; `PurchaseCeilings` bounds each purchase, and 6ek's own example was false;
 **6ek** — the builder sold a secondary a hundred steps and four guards threw below HP/FP 1, a CoR ceiling of 1 and Per 0; "four" came from a keyword grep and held, for crashes, on a wider one;
 **6ej** — the Drink button printed nothing about its own roll; `pcrLine` feeds both blocks, and the new line could crash the block it was drawn on, a Will below 1 throwing in composition;
-**6ei** — two taps milliseconds apart DO reach one composition's handler, so 6ef-6eh's "two frames" premise was false; Drink alone had no re-entrancy guard and crashed on an SM-T570;
+**6ei** — two taps milliseconds apart DO reach one composition's handler, so 6ef-6eh's "two frames" premise was false; Drink had no re-entrancy guard (nor seven more: 6gb) and crashed on an SM-T570;
 **6eh** — seven more engines roll the target they printed; `attempt` became test-only, and no test had rolled a Spirit Vision success through the engine;
 **6eg** — print a target, then roll it: a handler belongs to the composition that drew it, so `rollAgainst` takes the target on screen;
 **6ef** — the GM picks inside a span cell; a keyed `remember` resets a frame late, so a pick lives with its row, and the click-time read was undone by 6eg;
@@ -347,12 +353,10 @@ slice log.** One line each:
 **6dw** — chapter 8's gear reference rendered only after the roll; it sits in the pre-roll branch now, below the modifier chips;
 **6dv** — `extract_equipment.skill_index()` dropped the open-row skills `isTemplate` matched, one flag at two sites; and a dump's tap scale is per WINDOW;
 **6du** — claimed lines checked for numbers their file never holds (clean); the fright table's `25 − HT` durations are computed, and the operand is not the attribute the cell rolls;
-**6dt** — `Hard to Subdue` reached nothing beside an applied `Hard to Kill`; two gaps cancelled into silence, and `BespokeBonus` feeds `known()` now;
-**6ds** — fright recovery rolls for the three bands that print one, anchored on the cell's own `roll vs. X`; `RollResult` carries its own target and outcome;
-**6dr** — "this app models no stun recovery roll" was false the day it was written; `StunRecovery` answers for the Major Wound row alone.
-**6dq back to 6de** have one-line digests too, moved verbatim to
+**6dt** — `Hard to Subdue` reached nothing beside an applied `Hard to Kill`; two gaps cancelled into silence, and `BespokeBonus` feeds `known()` now.
+**6ds back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
-its 8,000-character cap (6ff).
+its 8,000-character cap (6ff, 6gb).
 
 **6dd back to 6cd had lead paragraphs here and they have been cut, because
 this file keeps reaching the 150 k-char limit (6eb: 152,583; 6eh cut 6dd to
@@ -371,7 +375,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ga first.** The
+**Where to start next: the slice log, from the END — 6gb first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -426,7 +430,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1940 Kotlin** (JUnit 5 — 1344 `core:rules`, 576 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1942 Kotlin** (JUnit 5 — 1346 `core:rules`, 576 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |

@@ -190,7 +190,28 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fm back to 6de
+## Retired lead paragraphs, 6fn back to 6de
+
+**6fn is next: the face a potion grants.** Demoness 7 and 6 print
+*"Appearance (Beautiful)"* and *"(Very Beautiful)"*, rungs of the
+appearance table, which 6fk's census over the trait catalogue could not
+see. A character has one face: the chain keeps Sequence 6's, and beside
+a bought face the better is played (`Appearance.played`), since *"the
+potion perfects the Witch's features"* (7597) never lowers one. A worse
+bought face stays billed, and the Traits tab says it is not played.
+Read it for two things.
+
+- **Adding Demoness 7's face made its key appear twice** in
+  `GRANTED_TRAITS`. `mapOf` keeps the later entry silently, so
+  Charisma's would have been lost.
+- **`Appearance.levelOf` was first-match**, which on a list holding two
+  faces reads the worse. It now asks `played`, per the design review.
+
+The same census found **Mother 8 and Justiciar 6's Ancient Hermes
+(Fluent)**: no roll changes, because the ritual dialog's proficiency
+picker is ungated, but its "Bought by this character" note omits it.
+**Successors**: that note, and the builder's face row, which does not say
+the potion grants one.
 
 **6fm is next: a potion's Charisma levels add up.** 6fk refused
 Charisma at Error 8 and Demoness 8, 7 and 6. Charisma sits in the
@@ -2049,11 +2070,14 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6dq back to 6de
+## Digest index, 6ds back to 6de
 
 Moved from the handover in 6ff, unchanged, when its digest index neared
-8,000 characters. The last entry kept there is 6dr.
+8,000 characters. 6ds and 6dr followed in 6gb, for the same reason; the
+last entry kept there is 6dt.
 
+**6ds** — fright recovery rolls for the three bands that print one, anchored on the cell's own `roll vs. X`; `RollResult` carries its own target and outcome;
+**6dr** — "this app models no stun recovery roll" was false the day it was written; `StunRecovery` answers for the Major Wound row alone.
 **6dq** — the SPI-recovery refusal cited the appendix summary, not p. 34; it lives in `Pools.UNMODELLED` now, and chapter 4 deliberately claims nothing;
 **6dp** — `MAX_QUIRKS` was asserted nowhere; it is pinned to book lines 1121-1122, and nothing this app ships produces a quirk;
 **6do** — Wrestling was kept out by a reason true of the damage column only; its maneuver table is extracted, and the held character's `Escape-2` row is a gap;
