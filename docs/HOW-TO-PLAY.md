@@ -186,7 +186,9 @@ Master, *"a strict upgrade"* of that line, stops at DX, so the book gives no
 number that fits both. A Pugilist needs no warm-up with a melee weapon, so for
 one of those nothing is left over.
 
-**At range**, tick the conditions the GM called. One of them prints a range
+**At range**, tick the conditions the GM called. Two sets replace each other
+rather than add: the target's speed (stationary, walking, running) and the two
+Aim rows. A target moves at one speed. One of the conditions prints a range
 rather than a number — *"Darkness or heavy fog: -3 to -9 depending on
 severity"* — so ticking it opens a **How bad is it?** row and you pick where in
 that span the scene sits. Until you do, the app applies the gentlest figure the

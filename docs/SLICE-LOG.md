@@ -6726,6 +6726,117 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gg. A target moves at one speed
+
+6gf's diff review noted, in passing, that the Attack dialog lets *Target
+walking* and *Target running* both be ticked. The roll then took -3. I
+recorded it as *"a screen choice this slice did not touch"* and moved on,
+and that sentence was the finding.
+
+The book's table (lines 2665-2685) opens with three rows: *Target is
+stationary +0*, *Target walking (up to 3 meters/sec) -1*, *Target running
+(4+ meters/sec) -2*. They are bounds on one quantity and they do not
+meet, so no target is in two of them, and -3 is a number no speed
+produces. Applying it is applying a rule the book does not print (4.1).
+
+**This is a reading, not a printed sentence.** The book says nothing
+about combining rows. Two precedents pull apart, and the closer one by
+role decides:
+
+- The range band is one pick because a target stands at one distance.
+  The speed rows are the same shape; they only arrive as a list.
+- Fit beside Very Fit was refused as an exclusivity the book does not
+  print (6fk). Those are two traits a character can hold at once. A
+  target cannot hold two speeds.
+
+The Aim rows' own warrant, the Acc paid twice against a printed
+ceiling, is a different reason and is not borrowed here. *Shooter moved
+this turn* is the shooter's fact and stays independent, as do prone,
+darkness and cover. Stationary is in the group: its +0 moves no roll,
+but lit beside *running* it is a declaration that contradicts itself.
+
+### What changed
+
+- `tools/extract_ranged.py` marks the three rows `targetSpeed` from
+  their own words, the bound in `meters/sec` or the word *stationary*,
+  never from a list of names. `verify_speeds` fails unless there are
+  three and their bounds are disjoint. It does not ask for contiguous:
+  the book leaves a gap between 3 and 4.
+- `Ranged.modifiers` refuses two speed rows, naming both.
+- `Ranged.alternativesTo(condition)` answers for both groups, the other
+  Aim row or the other speeds, and the dialog's chip handler is one
+  pure function over it, `toggled`. The inline `when` that swapped the
+  Aim rows is gone, so there is one predicate and not two.
+
+`rangedModifiers` runs while the dialog is drawn, so a reachable pair
+would throw on sight. `toggled` is the only writer of `circumstances`
+that adds; the other five clear the set or take the Aim rows off.
+
+### The design review changed three things
+
+Sonnet, `kotlin-reviewer.md`, before any code: BUILD WITH CHANGES.
+
+- I proposed asserting in the extractor that the three printed bounds
+  are disjoint. *Stationary* prints no bound, only the word, so it is a
+  ceiling of 0 by name and the other two are parsed.
+- One helper for both groups, where I had planned a second `when`
+  branch beside Aim's.
+- **It found that 6gf's plans, pushed an hour earlier, tick all three
+  speed rows.** The guard would have thrown in my own test. Each
+  together plan now ticks *running* alone and has 8 terms where it had
+  9, counted by hand: the band, six rows and the Eye, then the band,
+  five rows, the Eye and the clause.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| a row that prints the target's speed is marked (Python) | the extractor before the marker |
+| speeds that overlap are refused (Python) | the same: no `verify_speeds` |
+| committed speed rows are the three the book prints (Python) | the JSON before regeneration |
+| a target moves at one speed, not two | the engine before the guard: *"nothing was thrown"* |
+| a row's alternatives are the other speeds or the other aim, and nothing else | `alternativesTo` without the speed clause: `[]` |
+| a second speed or a second aim replaces the first | a `toggled` that only adds: walking and running both |
+
+6gf's two `supersedes` mutants were re-run against the new plans and
+both still fail it. Every mutant ran alone from deleted XML with no
+`e:` line and went back from its copy. The regenerated JSON differs
+from the committed one by the three new keys and nothing else.
+
+My first patch for the extractor wrote two backspace bytes where the
+regex needed `\b`, through a Python string inside a heredoc. *Stationary*
+went unmarked and the test said so. That trap is in the memory index
+already; a patch file written with the Write tool does not have it.
+
+### Device pass
+
+SM-T570, Beat Cop, Guns (Pistol) 11, *At range*, no weapon in hand. The
+save was `cmp`-identical to its backup afterwards.
+
+- *Walking*, then *running*: running lit, walking not.
+- *Shooter moved* added beside it: *"Range and cover: -4"*, *"3d6 ≤ 7"*.
+- *Stationary*: running went out, *"Range and cover: -2"*, *"3d6 ≤ 9"*.
+- *Walking* and *running* tapped from one monkey script: running alone,
+  *"3d6 ≤ 7"*, no FATAL in logcat. The end state is the same whether
+  one tap landed or both, so this shows no crash and not that both
+  landed.
+
+**Not verified on device**: the Aim rows' swap through the new
+function, which needs a firearm in hand. The unit test covers it.
+
+### The diff review
+
+The same reviewer, on the staged diff: SHIP, no HIGH or MEDIUM. It
+traced every writer of `circumstances` again and compared `toggled`
+with the old inline `when` case by case: the same set in each. One LOW
+left: the `require` counts the flag and the swap asks
+`alternativesTo`, two expressions over the same two fields. The
+`toggled` test taps every row forwards and back through
+`rangedModifiers`, which throws if they ever part.
+
+1954 Kotlin (1353 `core:rules`, 581 `app`, 20 `core:model`) and 365
+Python, all from fresh results.
+
 ## 6gf. The attack's add-up test, for the terms it left out
 
 6gd's last open item: its matrix proved the level and the printed terms
@@ -6749,7 +6860,7 @@ shot is the furthest band, eight rows (one Aim, since `Ranged.modifiers`
 refuses two) and an Eye shot. A Reluctant Killer's is the band, the
 seven rows that are not an Aim, the declared clause and the Eye.
 Stationary is among the rows and prints nothing, so each plan has nine
-terms. Each
+terms. (Eight since 6gg: a plan ticks one speed row, not three.) Each
 plan runs hurt and unhurt, the trackers' -5 written out.
 
 **My first version had one together plan, and the screen cannot draw
@@ -6774,7 +6885,7 @@ cannot draw, since `RangedOptions` asks the cause only when the trait's
 reduction is above 0. They were numerically the darkness plans; they
 are gone, and 52 became 38. The reviewer also noted that walking and
 running can both be ticked and sum to -3, a screen choice this slice
-did not touch.
+did not touch. 6gg is that note taken up: it was a defect.
 
 | Mutant | Old matrix | New test |
 |---|---|---|

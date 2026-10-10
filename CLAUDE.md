@@ -170,7 +170,7 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6gf, 6ge and 6gd: a ledger roll prints its target first, in words.** The skill
+**6gg, 6gf, 6ge and 6gd: a ledger roll prints its target first, in words.** The skill
 roll, the attack and the Acrobatic Dodge printed a level and resolved
 their target inside the click: 6eg's third category, named in its
 census and neither fixed nor refused for forty-odd slices. A reeling
@@ -204,7 +204,13 @@ resolver is untouched. SHIP, prose only; device-verified: *"1/3 HP
 remaining: -1"*, *"Pushed with FP: +1"*. 6gf: the attack's
 add-up test now runs the range band, each circumstance, darkness and
 the trait terms, alone and together. It never reads what `AttackOptions`
-prints. **Next**: nothing is queued.
+prints. 6gg: *walking* and *running* could both be ticked, a -3 no
+speed produces. The three speed rows are one pick now: the extractor
+marks them, `Ranged.modifiers` refuses two and the chip swaps through
+`Ranged.alternativesTo`. A reading from bounds that do not meet, not a
+printed sentence; Fit beside Very Fit (6fk) is two held traits and does
+not transfer. Design review changed three things, one of them 6gf's own
+plans. Device-verified. **Next**: nothing is queued.
 
 **6gc (its device pass) and 6gb: the second tap of one picture.** 6ga left the dialogs
 to 6eh, and ten slices had moved a dialog's target since, so they were
@@ -405,7 +411,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6gf first.** The
+**Where to start next: the slice log, from the END — 6gg first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -460,7 +466,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1951 Kotlin** (JUnit 5 — 1351 `core:rules`, 580 `app`, 20 `core:model`) + **362 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1954 Kotlin** (JUnit 5 — 1353 `core:rules`, 581 `app`, 20 `core:model`) + **365 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, and then `123d68c..4e9ab4e`, the file splits (SHIP, no findings); nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -732,6 +738,8 @@ Damage.forAttack(attack, st, bonus): DamageRoll?           // null = Shove
 Damage.thrust(st) / .swing(st) / .attacksFor(skill) / .boxingBonus(dx, level)
 Ranged.bandFor(meters): RangePenalty / .penaltyFor(meters): Int
 Ranged.modifiers(band, conditions, gmValue): List<Modifier>
+Ranged.alternativesTo(condition): Set<String>   // the other Aim row, or the
+                                      // target's other speeds; the chip swaps (6gg)
 Ranged.meleeConditions() / .meleeModifiers(rows)   // the one row priced in reach
 Wounds.locationNamed(target): HitLocation / .locations() / .damageTypes()
 Wounds.multiplierFor(location, type): Double   // both tables, composed
