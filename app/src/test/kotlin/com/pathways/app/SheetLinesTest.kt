@@ -2,6 +2,7 @@ package com.pathways.app
 
 import com.pathways.model.BeyonderState
 import com.pathways.rules.Premades
+import com.pathways.rules.SelfControl
 import com.pathways.rules.SheetComparison
 import com.pathways.rules.SheetRow
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -83,5 +84,20 @@ class SheetLinesTest {
             assertEquals(rows.take(7).map { it.computed }, lines.map { it.number }, sheet.name)
             assertEquals(List(7) { null }, lines.map { it.basis }, sheet.name)
         }
+    }
+
+    // A self-control row prints the target its dialog opens on. Until 6ga
+    // the row left out the shock and the reeling its dialog rolled with.
+
+    private val bouncer = SelfControl.checksFor(Premades.byName("Docks Bouncer").toCharacter().traits)
+
+    @Test
+    fun `with nothing weighing on the roll a self-control row prints the book's number`() {
+        assertEquals(mapOf("Overconfidence" to 12, "Bully" to 12), standingTargets(bouncer, will = 9, iq = 9, state = 0))
+    }
+
+    @Test
+    fun `a reeling character's self-control row takes the -1 its dialog rolls with`() {
+        assertEquals(mapOf("Overconfidence" to 11, "Bully" to 11), standingTargets(bouncer, will = 9, iq = 9, state = -1))
     }
 }

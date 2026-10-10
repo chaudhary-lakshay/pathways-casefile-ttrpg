@@ -2,6 +2,8 @@ package com.pathways.app
 
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.Secondaries
+import com.pathways.rules.SelfControl
+import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.SheetComparison
 import com.pathways.rules.SheetRow
 
@@ -55,3 +57,17 @@ internal fun playedLine(row: SheetRow, played: String): PlayedLine {
 internal fun vitalLines(sheet: PremadeSheet, rows: List<SheetRow>, played: Secondaries): List<PlayedLine> =
     SheetComparison.secondaryRows(played, sheet.published)
         .map { now -> playedLine(rows.first { it.label == now.label }, now.computed) }
+
+/**
+ * What each self-control roll stands at before the GM has said anything, by
+ * the check's trait: the book's number, with [state] on it -- the shock and
+ * the reeling or fatigue a bare attribute roll takes.
+ *
+ * ONE number for two readers. The Traits tab prints it on the row and the
+ * dialog that row opens starts from it, adding only what is asked there (a
+ * declared clause, the GM's stepper). Until 6ga the row computed its own
+ * without [state], so a reeling character read "3d6 ≤ 12" on the row and
+ * "3d6 ≤ 11" in the dialog it opened.
+ */
+internal fun standingTargets(checks: Collection<SelfControlCheck>, will: Int, iq: Int, state: Int): Map<String, Int> =
+    checks.associate { it.trait to SelfControl.targetFor(it.spec, will, iq, state) }

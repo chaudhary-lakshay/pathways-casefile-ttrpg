@@ -447,6 +447,14 @@ fun SheetScreen(
     // decision (Codex, 6bo). Named separately from the shock beside it: a
     // breakdown that has to sum must say which state moved the target.
     val hurtOnAttribute = Conditions.penaltyFor(RollKind.ATTRIBUTE, hpNow, fpNow)
+    // What each self-control roll stands at, for the Traits row that prints
+    // it and the dialog that opens on it ([standingTargets]).
+    val standing = standingTargets(
+        selfControl.values,
+        vitals.will,
+        attributes.iq,
+        shockOnAttribute + hurtOnAttribute,
+    )
     // The same number the ledger would have carried, for the three dialogs
     // that reduce it to an Int and print their own breakdown.
     val shockOnSkill = Shock.penaltyFor(RollKind.SKILL, shocked, traits)
@@ -719,16 +727,7 @@ fun SheetScreen(
                         // gives a disadvantage, never negated in the data.
                         (if (trait in grantedTraits) "$shown — from the potion" else "$shown — −${trait.cost} pts") +
                             superseded(trait, traits) +
-                            (
-                                check?.let {
-                                    " — 3d6 ≤ " +
-                                        SelfControl.targetFor(
-                                            it.spec,
-                                            vitals.will,
-                                            attributes.iq,
-                                        )
-                                } ?: ""
-                                ),
+                            (check?.let { " — 3d6 ≤ ${standing.getValue(it.trait)}" } ?: ""),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (check != null) {
                             MaterialTheme.colorScheme.primary
@@ -931,14 +930,11 @@ fun SheetScreen(
         )
     }
     controlling?.let { check ->
-        SelfControlDialog(
-            check = check,
-            will = vitals.will,
-            iq = attributes.iq,
-            clauses = willClauses,
-            shock = shockOnAttribute,
-            hurt = hurtOnAttribute,
-        ) { controlling = null }
+        // Null only if the trait left the list under an open dialog, which
+        // no path does today: then there is no roll to show.
+        standing[check.trait]?.let { target ->
+            SelfControlDialog(check = check, standing = target, clauses = willClauses) { controlling = null }
+        }
     }
 
     if (frightening) {
@@ -1611,21 +1607,23 @@ private fun ClauseChips(
  * undertake any sustained effort" -- mean a paraphrase would get one of them
  * backwards, so the book's own cell is quoted and nothing is generated.
  *
- * ponytail: one stepper, the [FrightDialog] idiom. [Conditions] are
- * deliberately NOT layered on, because a Fright Check takes a GM modifier and
- * no ledger either, and two Will rolls behaving differently in one app is
- * worse than either choice on its own.
+ * ponytail: one stepper, the [FrightDialog] idiom, and no skill-roll ledger,
+ * because a Fright Check takes a GM modifier and no ledger either, and two
+ * Will rolls behaving differently in one app is worse than either choice on
+ * its own. Shock and reeling or fatigue do reach it, as they reach a Fright
+ * Check: they arrive inside [standing].
  */
 @Composable
 private fun SelfControlDialog(
     check: SelfControlCheck,
-    will: Int,
-    iq: Int,
+    /**
+     * The target the row that opened this printed ([standingTargets]): the
+     * book's number, with shock and reeling or fatigue ("-1 to all rolls")
+     * already on it.
+     */
+    standing: Int,
     /** The character's own Will clauses ([TraitEffects.willClauses]). */
     clauses: List<TraitClause> = emptyList(),
-    shock: Int = 0,
-    /** Reeling and fatigue: "-1 to all rolls", the phrase shock is read by. */
-    hurt: Int = 0,
     onDismiss: () -> Unit,
 ) {
     // Keyed on the check: a modifier left over from another disadvantage
@@ -1639,12 +1637,9 @@ private fun SelfControlDialog(
     // changed trait list can retire the key one names -- the stale-state
     // family 6k, 6y and 6af each found once (Codex).
     var declared by remember(check, clauses) { mutableStateOf(emptySet<String>()) }
-    // The ONE place the number is computed. A caption that re-derived the
-    // will/iq choice beside it is 6ai's defect exactly.
-    // The GM's stepper and the shock are one number by the time the roll is
-    // made, so the caption and the dice cannot disagree.
-    // Both states in one term, so the target above and the roll below cannot
-    // take different subsets of what the character is carrying.
+    // The book's number, the shock and the reeling are in [standing], which
+    // the row that opened this printed. What is added here is only what is
+    // asked here: the GM's stepper and the clauses declared below.
     // The trait total comes from rules, not from summing the chips here: a
     // screen that added them up would be the second copy of a rule that
     // already has one (6ag, 6ai).
@@ -1661,8 +1656,8 @@ private fun SelfControlDialog(
     // below and reads nothing else (6eh). Two taps on the ROLL button are
     // guarded inline, the fix 6p needed.
     val fromTraits = TraitEffects.clauseBonus(clauses, declared)
-    val fromState = shock + hurt + fromTraits.total
-    val target = SelfControl.targetFor(check.spec, will, iq, modifier + fromState)
+    // On top of the row's own number, so the two cannot open apart.
+    val target = standing + modifier + fromTraits.total
 
     AlertDialog(
         onDismissRequest = onDismiss,
