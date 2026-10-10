@@ -88,8 +88,33 @@ different goal, and needs its own decision. Two files remain on
 
 The diff review (sonnet, `48e4ec0..f17d4ad`) said SHIP with no findings.
 
-One file is still over the cap: `BeyonderSessionTest.kt`, 863 lines,
-which no step gives a seam.
+**Step 10 is done**: `BeyonderSessionTest.kt`, the last file on
+`OVER_CAP`, is 418 lines beside `BeyonderSessionEditsTest.kt` 441 and
+`SessionFixtures.kt` 28. `OVER_CAP` is empty, so the ratchet now fails on
+the first file over 800.
+
+This plan said no step gave the file a seam. That was true of steps 1-9
+and was never asked of the file. `BeyonderSession` has two sets of
+members: the builder's setters and their `can` questions, and the ones
+used in play. A test moved when its code calls none of `drink`, `spend`,
+`gainCor`, `digest`, `rerollPcr`, `stillShows`, `onSamePotion` or
+`traitsInPlay`. That regex put 27 tests in the new class and left 32. The
+file's own section comments were not the seam: 16 of the 27 sat under
+*pools* or above every header, and Drink's refusal and the four reroll
+tests sat under *score floors*.
+
+- The five private helpers both classes use are one `internal` copy in
+  `SessionFixtures.kt`; no other test or main file declares those names.
+- The line-multiset diff, leading whitespace ignored, shows only the new
+  class's KDoc, its `class` line and brace, the repeated `package` and
+  `import` lines, and five `private` → `internal`. No old line is missing.
+- The multiset of test names in fresh XML is identical before and after:
+  579 `app`, 59 of them in the two classes (32 + 27). `core` is untouched.
+- Python 362 green, the ratchet among them.
+
+Kind A, test-only: no device pass.
+The diff review (sonnet,
+`kotlin-reviewer.md`, the staged diff) said SHIP with no findings.
 
 | File | Was | Now | Moved to |
 |---|---|---|---|
@@ -107,8 +132,9 @@ three refusal tables' KDoc links were qualified with `TraitEffects.`;
 Defend's `Note` became `DefenseNote`, because PathwayScreen's `Note` pads
 16 dp where Defend's pads 4.
 
-Step 9 then took `TraitEffects.kt` to 729; only `BeyonderSessionTest.kt`
-863 is still over the cap.
+Step 9 then took `TraitEffects.kt` to 729, and step 10 took
+`BeyonderSessionTest.kt` from 863 to 418. No tracked `.kt` or `.py` file
+is over the cap.
 
 ## Step 5: the decomposition (2026-10-10, against `f472f3f`)
 
@@ -494,8 +520,8 @@ Steps 1-4 touch no behaviour. After them the largest main file is
   slice log already holds. Trimming it is a separate decision: a refusal's
   reason in production source is what 6eq's sweep reads.
 - **`docs/SLICE-LOG.md`** (1.17 MB). It is never loaded whole; grep it.
-- **`BeyonderSessionTest.kt`** (863): over the cap, and no step above makes
-  a seam for it. It stays on the allowlist until one does.
+- **`BeyonderSessionTest.kt`** (863) was listed here as having no seam.
+  Step 10 found one in `BeyonderSession`'s own members (Status).
 
 ## Unverified
 
