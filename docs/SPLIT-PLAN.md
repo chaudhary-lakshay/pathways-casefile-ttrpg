@@ -14,7 +14,15 @@ green from fresh XML; Python 362. `TraitEffects.kt` is 1191 lines, beside
 `TraitClauses` 527, `TraitNames` 374 and `TraitGrants` 181, so it stays in
 `OVER_CAP`. The diff review (sonnet, `kotlin-reviewer.md`, `2ea72df..c7a7814`)
 found no behaviour change and no init-order read; its one LOW, an import
-the move left unused, is removed. Steps 6-8 have not been started.
+the move left unused, is removed.
+
+**Step 6 is done**, every move verbatim against a line-multiset diff:
+`TraitEffectsTest.kt` into five classes by the object each test exercises
+(`ee6423c`, 107 tests); `test_tools.py` into eleven `test_tools_*.py` and
+`testsupport.py` (`c29ce61`, the same 362 collected names, run as
+`py -m pytest tools -q`); `extract_content.py`'s self-control reading into
+`content_self_control.py`, which reads nothing else of it (589 + 358).
+Steps 7-8 have not been started.
 
 | File | Was | Now | Moved to |
 |---|---|---|---|
@@ -32,9 +40,8 @@ three refusal tables' KDoc links were qualified with `TraitEffects.`;
 Defend's `Note` became `DefenseNote`, because PathwayScreen's `Note` pads
 16 dp where Defend's pads 4.
 
-Seven files are still over the cap: `test_tools.py` 5978,
-`TraitEffectsTest.kt` 3080, `TraitEffects.kt` 2187, `MainActivity.kt` 1235,
-`RitualDialog.kt` 1042, `extract_content.py` 938, `BeyonderSessionTest.kt` 863.
+Four files are still over the cap: `MainActivity.kt` 1237,
+`TraitEffects.kt` 1190, `RitualDialog.kt` 1042, `BeyonderSessionTest.kt` 863.
 
 ## Step 5: the decomposition (2026-10-10, against `f472f3f`)
 
@@ -108,8 +115,8 @@ not the ~850 the table below estimated. It stays in `OVER_CAP`.
 **Proof per commit.** Kotlin test counts from fresh XML (all three
 modules, `testDebugUnitTest/` included) equal before and after; the
 ratchet passes. `known()`'s body changes only by qualification. The
-census tests that read it (`TraitEffectsTest` 1029, 1075, and 6es's
-complement at 2300) assert subsets, not the whole set, so they check
+census tests that read it (now in `TraitReportedTest`, with 6es's
+complement) assert subsets, not the whole set, so they check
 reach, not equality.
 
 The point is read cost. An agent that needs one dialog reads 2815 lines of

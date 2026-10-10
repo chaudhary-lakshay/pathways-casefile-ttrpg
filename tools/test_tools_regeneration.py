@@ -170,7 +170,6 @@ OVER_CAP = {
     "core/rules/src/main/kotlin/com/pathways/rules/TraitEffects.kt",
     "app/src/main/kotlin/com/pathways/app/RitualDialog.kt",
     "app/src/main/kotlin/com/pathways/app/MainActivity.kt",
-    "tools/extract_content.py",
     "app/src/test/kotlin/com/pathways/app/BeyonderSessionTest.kt",
 }
 
