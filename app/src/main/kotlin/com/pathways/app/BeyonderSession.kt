@@ -9,6 +9,7 @@ import com.pathways.model.BeyonderState
 import com.pathways.model.Character
 import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.model.SecondaryDelta
+import com.pathways.model.Trait
 import com.pathways.model.canDrink
 import com.pathways.rules.Corruption
 import com.pathways.rules.PcrOutcome
@@ -17,6 +18,7 @@ import com.pathways.rules.PotionConsumption
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.RandomSource
 import com.pathways.rules.ScoreFloors
+import com.pathways.rules.TraitEffects
 
 /**
  * One character's walk down a pathway, as the screens see it.
@@ -386,6 +388,15 @@ class BeyonderSession(
 
     /** The premade as it is actually being played: published sheet plus edits. */
     fun characterFor(sheet: PremadeSheet): Character = edits.applyTo(sheet.toCharacter())
+
+    /**
+     * The traits in play: [characterFor]'s plus every row the potions drunk
+     * granted ([TraitEffects.withGrantedTraits], 6fk). One answer for the
+     * sheet's rolls and the builder's "already held", so a granted row is
+     * never sold again. Never the character: the budget prices that.
+     */
+    fun traitsInPlay(sheet: PremadeSheet): List<Trait> =
+        TraitEffects.withGrantedTraits(characterFor(sheet).traits, state)
 
     /**
      * Spend or restore [pool] by [delta] points against a maximum of [max],

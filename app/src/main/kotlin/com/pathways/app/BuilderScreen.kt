@@ -364,7 +364,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
 
     if (pickingTrait) {
         TraitPicker(
-            held = character.traits,
+            // In play, not bought: a potion's row is held and is not sold
+            // again (6fk's diff review).
+            held = session.traitsInPlay(sheet),
             bought = session.edits.traits,
             onBuy = { session.buyTrait(it.name); pickingTrait = false },
             // The picker closes behind the settle dialog rather than stacking

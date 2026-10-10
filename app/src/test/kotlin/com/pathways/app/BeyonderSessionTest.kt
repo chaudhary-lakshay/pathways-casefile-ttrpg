@@ -50,6 +50,22 @@ class BeyonderSessionTest {
         PublishedValues(),
     )
 
+    /**
+     * One answer to "what does this character hold" for the sheet AND the
+     * builder (6fk's diff review): a Hermit 8's potion gave Combat Reflexes,
+     * so the builder must not sell it again, and the sheet applies it.
+     */
+    @Test
+    fun `a potion's rows are in play and cannot be bought again`() {
+        val (s, _) = session(SavedSession(beyonder = BeyonderState("Hermit", 8)))
+        val held = s.traitsInPlay(plain())
+        assertTrue(held.any { it.name == "Combat Reflexes" && it.cost == 0 }, held.toString())
+        val row = com.pathways.rules.PurchasableTraits.offered().single { it.name == "Combat Reflexes" }
+        assertFalse(com.pathways.rules.PurchasableTraits.canBuy(row, held))
+        // ...and the character itself, which the budget prices, never holds it.
+        assertTrue(s.characterFor(plain()).traits.none { it.name == "Combat Reflexes" })
+    }
+
     @Test
     fun `a wealth level is stored as a choice and survives a save`() {
         // Only the CHOICE is stored, never the trait it resolves to: the

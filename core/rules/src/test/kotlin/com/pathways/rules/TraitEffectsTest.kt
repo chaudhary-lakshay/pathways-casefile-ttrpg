@@ -2725,21 +2725,100 @@ class TraitEffectsTest {
             if (found.isEmpty()) null else (block.pathway to block.sequence) to found
         }.toMap()
         assertEquals(8, printed.size, printed.toString())
-        assertEquals(printed, TraitEffects.grantedSenseTable().mapValues { it.value.toSet() })
+        // The senses in the one granted-row table (6fk folded 6fi's into it).
+        val senseName = Regex(".*(Vision|Hearing|Smell|Touch)")
+        val table = TraitEffects.grantedTraitTable()
+            .mapValues { (_, rows) -> rows.map { it.name }.filter { senseName.matches(it) }.toSet() }
+            .filterValues { it.isNotEmpty() }
+        assertEquals(printed, table)
         // Every row no catalogue prints says what its OWN block prints
         // (the diff review's LOW: Greater Acute Vision had no such check).
         val search = SkillKey("Search", null, ControllingAttribute.Per, Difficulty.AVERAGE)
         val catalogued = ContentLoader.advantages().map { it.name }.toSet()
-        for ((key, names) in TraitEffects.grantedSenseTable()) {
+        for ((key, names) in table) {
             val (pathway, sequence) = key
             val block = ContentLoader.pathways().single { it.pathway == pathway && it.sequence == sequence }
-            val held = TraitEffects.withGrantedSenses(emptyList(), com.pathways.model.BeyonderState(pathway, sequence))
+            val held = TraitEffects.withGrantedTraits(emptyList(), com.pathways.model.BeyonderState(pathway, sequence))
             val clauses = TraitEffects.skillRollClauses(held, search)
             for (name in names.filter { it !in catalogued }) {
                 val printed = clauses.single { it.trait == name }.printed
                 assertTrue("$name $printed" in block.advantages, "$key: $name $printed")
             }
         }
+    }
+
+    /**
+     * Every catalogue row a walkable block prints (6fk) is granted or refused
+     * with a reason, both ways. Names are matched whole and longest first, so
+     * "Healer" is never found inside "Fast Healer". "Greater Acute Vision"
+     * is its own row: the lookbehind names that one word, because a general
+     * "preceded by a capitalised word" would also hide a real row that
+     * follows a previous row's last word (the diff review's LOW).
+     */
+    @Test
+    fun `every catalogue row a potion prints is granted or refused`() {
+        val catalogue = (ContentLoader.advantages() + ContentLoader.disadvantages()).associateBy { it.name }
+        val names = catalogue.keys.sortedByDescending { it.length }
+        val printed = mutableSetOf<Pair<Pair<String, Int>, String>>()
+        for (block in ContentLoader.pathways()) {
+            for (text in listOf(block.advantages, block.drawbacks)) {
+                val taken = mutableListOf<IntRange>()
+                for (name in names) {
+                    val pattern = Regex("(?<![A-Za-z])(?<!Greater )${Regex.escape(name)}(?![A-Za-z])")
+                    for (m in pattern.findAll(text)) {
+                        if (taken.any { m.range.first in it }) continue
+                        taken += m.range
+                        printed += (block.pathway to block.sequence) to name
+                    }
+                }
+            }
+        }
+        val granted = TraitEffects.grantedTraitTable()
+            .flatMap { (key, rows) -> rows.filter { it.name in catalogue }.map { key to it.name } }
+            .toSet()
+        val refused = TraitEffects.refusedGrants().keys
+        assertEquals(printed, granted + refused)
+        assertTrue((granted intersect refused).isEmpty(), (granted intersect refused).toString())
+        // Every granted catalogue row is unlevelled: the merge keeps one copy
+        // by name, and a bought level must never hide a granted one.
+        for ((_, name) in granted) assertTrue(catalogue.getValue(name).perLevel != true, name)
+        // A refusal carries a reason.
+        assertTrue(TraitEffects.refusedGrants().values.all { it.isNotBlank() })
+    }
+
+    /**
+     * What the granted rows reach (6fk): Hermit 8's Combat Reflexes reaches
+     * every defence, Sun 9's Fit the HT rolls, Fool 8's Perfect Balance its
+     * skills, Abyss 8's Compulsive Behavior its self-control roll. A row the
+     * sheet already holds is not added twice, and Charisma is not granted.
+     */
+    @Test
+    fun `a potion's catalogue rows reach the rolls that read them`() {
+        fun walk(pathway: String, seq: Int, held: List<Trait> = emptyList()) =
+            TraitEffects.withGrantedTraits(held, com.pathways.model.BeyonderState(pathway, seq))
+        assertEquals(0, TraitEffects.defenseBonus(walk("Hermit", 9)))
+        assertEquals(1, TraitEffects.defenseBonus(walk("Hermit", 8)))
+        assertEquals(1, TraitEffects.htRollBonus(walk("Sun", 9)))
+        val acrobatics = SkillKey("Acrobatics", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.HARD)
+        assertEquals(ModEffect.Flat(2), TraitEffects.modifiers(walk("Fool", 8), acrobatics).single().effect)
+        assertTrue(TraitEffects.modifiers(walk("Fool", 9), acrobatics).isEmpty())
+        // Named, not counted: Abyss 8 prints other drawbacks, and a bare
+        // non-empty check passed with this one removed (mutation, 6fk).
+        assertTrue(
+            SelfControl.checksFor(walk("Abyss", 8)).any { it.trait.startsWith("Compulsive Behavior") },
+            SelfControl.checksFor(walk("Abyss", 8)).toString(),
+        )
+
+        val callous = Trait("Callous", 5, TraitKind.DISADVANTAGE)
+        val abyss = walk("Abyss", 8, listOf(callous))
+        assertEquals(1, abyss.count { it.name == "Callous" })
+        assertEquals(callous, abyss.first { it.name == "Callous" })
+        assertTrue(walk("Demoness", 8).none { it.name.startsWith("Charisma") })
+        // The merge is the bought list plus the grants it does not already hold.
+        val grants = TraitEffects.grantedTraits(com.pathways.model.BeyonderState("Abyss", 8))
+        assertEquals(listOf(callous) + grants.filter { it.name != "Callous" }, abyss)
+        assertTrue(grants.all { it.cost == 0 })
+        assertTrue(TraitEffects.grantedTraits(null).isEmpty())
     }
 
     /**
@@ -2752,7 +2831,7 @@ class TraitEffectsTest {
         fun state(pathway: String, seq: Int) = com.pathways.model.BeyonderState(pathway, seq)
         val search = SkillKey("Search", null, ControllingAttribute.Per, Difficulty.AVERAGE)
         fun offered(state: com.pathways.model.BeyonderState?) =
-            TraitEffects.skillRollClauses(TraitEffects.withGrantedSenses(emptyList(), state), search)
+            TraitEffects.skillRollClauses(TraitEffects.withGrantedTraits(emptyList(), state), search)
         assertTrue(offered(null).isEmpty())
         assertTrue(offered(state("Fool", 9)).isEmpty())
         assertEquals(setOf("Acute Vision", "Acute Hearing"), offered(state("Red Priest", 8)).map { it.trait }.toSet())
@@ -2761,7 +2840,7 @@ class TraitEffectsTest {
             listOf("Acute Vision", "Acute Hearing", "Acute Taste & Smell", "Acute Touch").sorted(),
             conspirer.map { it.trait }.sorted(),
         )
-        val held = TraitEffects.withGrantedSenses(emptyList(), state("Red Priest", 6))
+        val held = TraitEffects.withGrantedTraits(emptyList(), state("Red Priest", 6))
         for (clause in conspirer) {
             assertEquals(
                 ModEffect.Flat(2),
@@ -2777,7 +2856,7 @@ class TraitEffectsTest {
             }
         }
         // The Spirit Vision a Red Priest 8 is granted takes the Vision row.
-        assertEquals("Acute Vision", TraitEffects.visionClause(TraitEffects.withGrantedSenses(emptyList(), state("Red Priest", 8)))?.trait)
+        assertEquals("Acute Vision", TraitEffects.visionClause(TraitEffects.withGrantedTraits(emptyList(), state("Red Priest", 8)))?.trait)
         // Granted rows never enter the catalogue census.
         assertTrue("Acute Touch" !in TraitEffects.known())
     }
@@ -2791,7 +2870,7 @@ class TraitEffectsTest {
     @Test
     fun `a potion's sense rows stack by row, never by grant`() {
         val search = SkillKey("Search", null, ControllingAttribute.Per, Difficulty.AVERAGE)
-        val visionary = TraitEffects.withGrantedSenses(emptyList(), com.pathways.model.BeyonderState("Visionary", 7))
+        val visionary = TraitEffects.withGrantedTraits(emptyList(), com.pathways.model.BeyonderState("Visionary", 7))
         val offered = TraitEffects.skillRollClauses(visionary, search)
         assertEquals(mapOf("Acute Vision" to 2, "Incisive Vision" to 4, "Acute Smell" to 2), offered.associate { it.trait to it.value })
         val incisive = offered.single { it.trait == TraitEffects.INCISIVE_VISION }
@@ -2804,7 +2883,7 @@ class TraitEffectsTest {
         }
 
         val bought = listOf(advantage("Acute Vision"))
-        val conspirer = TraitEffects.withGrantedSenses(bought, com.pathways.model.BeyonderState("Red Priest", 6))
+        val conspirer = TraitEffects.withGrantedTraits(bought, com.pathways.model.BeyonderState("Red Priest", 6))
         assertEquals(1, TraitEffects.skillRollClauses(conspirer, search).count { it.trait == "Acute Vision" })
     }
 

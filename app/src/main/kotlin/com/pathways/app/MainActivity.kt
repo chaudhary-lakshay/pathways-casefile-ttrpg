@@ -278,12 +278,13 @@ fun SheetScreen(
     // The traits actually in play -- the sheet's, plus anything the edit
     // layer changed. Hoisted because two readers need them: a skill roll and
     // the active defences.
-    val traits = remember(sheet, session.edits) { session.characterFor(sheet).traits }
-    // The same traits plus the senses a potion granted (6fi), from the walk
-    // the stat grants come from. For the rolls that read a sense only -- the
-    // skill dialog's chips and dice, and Spirit Vision -- so the Traits tab
-    // and the budget still see what was bought.
-    val senseTraits = remember(traits, drunk) { TraitEffects.withGrantedSenses(traits, drunk) }
+    //
+    // Plus every row the potions drunk granted (6fk), from the walk the stat
+    // grants come from: a potion's Combat Reflexes is held as surely as a
+    // bought one. Every reader on this screen takes the merged list; the
+    // budget never sees it, because it prices `characterFor` itself.
+    val grantedTraits = remember(drunk) { TraitEffects.grantedTraits(drunk) }
+    val traits = remember(sheet, session.edits, drunk) { session.traitsInPlay(sheet) }
     // The CoR ceiling: the CURRENT Will, which a potion can move, +3 with
     // Spiritual Fortitude. Computed once: the ritual dialog and the SPI
     // tracker's Soul Debt both charge against it, and it is the same reading
@@ -662,7 +663,8 @@ fun SheetScreen(
             items(if (tab == SheetTab.TRAITS) advantages else emptyList()) { row ->
                 Column(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
                     Text(
-                        "${row.shown} — ${row.trait.cost} pts",
+                        // A granted row costs nothing and was not bought (6fk).
+                        if (row.trait in grantedTraits) "${row.shown} — from the potion" else "${row.shown} — ${row.trait.cost} pts",
                         style = MaterialTheme.typography.bodySmall,
                     )
                     HeldCell(row)
@@ -703,7 +705,7 @@ fun SheetScreen(
                         // `Trait.cost` is a MAGNITUDE and the sign lives in
                         // the kind (6u). Printed back with the minus the book
                         // gives a disadvantage, never negated in the data.
-                        "$shown — −${trait.cost} pts" +
+                        (if (trait in grantedTraits) "$shown — from the potion" else "$shown — −${trait.cost} pts") +
                             (
                                 check?.let {
                                     " — 3d6 ≤ " +
@@ -885,7 +887,7 @@ fun SheetScreen(
             // or the one skill a row names, on a character carrying a row
             // that names a circumstance. One rules list, which `modifiers`
             // also reads, so the chips cannot disagree with the dice (6ff).
-            declarableClauses = TraitEffects.skillRollClauses(senseTraits, skill.key),
+            declarableClauses = TraitEffects.skillRollClauses(traits, skill.key),
             onRoll = { circumstances, declaredClauses ->
                 // The trackers reach the dice here: a reeling, fatigued or
                 // corrupted character no longer rolls at full skill. The GM's
@@ -900,7 +902,7 @@ fun SheetScreen(
                     // Per roll, Fit on an HT one), and what the GM says the
                     // situation is.
                     mods = conditionsFor(skill.key) +
-                        TraitEffects.modifiers(senseTraits, skill.key, declaredClauses) +
+                        TraitEffects.modifiers(traits, skill.key, declaredClauses) +
                         circumstances,
                 )
             },
@@ -1163,7 +1165,7 @@ fun SheetScreen(
             alertness = TraitEffects.alertnessBonus(traits),
             // A sight by its own name: the GM says whether the eye's acuity
             // reaches it (6fh).
-            visionClause = TraitEffects.visionClause(senseTraits),
+            visionClause = TraitEffects.visionClause(traits),
             spiAvailable = vitals.maxSpi - session.spiSpent,
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,
