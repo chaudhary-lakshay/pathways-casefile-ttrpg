@@ -159,7 +159,7 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6ft is newest: a sheet's printed SPI 9 is not played.** Four sheets
+**6fu is newest, a comment sweep; 6ft before it: a sheet's printed SPI 9 is not played.** Four sheets
 (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police) print SPI 9
 and no sheet prints a pathway. `toCharacter` carried the 9 and digestion
 ADDED a potion's grant, so an Apothecary on Hermit 9 played SPI 18; 6dy's
@@ -182,9 +182,13 @@ The carried SPI's reason predated the pathway model and expired when it
 landed. Design and diff review said SHIP. Device-verified, save
 untouched. **One save entry is left wrong**: the tablet's Apothecary
 spent 17 of 18, so it reads *"SPI -8 / 9 ... 8 CoR charged"* with CoR 0;
-`+1` eight times clears it and charges nothing. **Next (6fu)**: 62
-Kotlin comment lines name a milestone; read each for a reason that has
-expired.
+`+1` eight times clears it and charges nothing. 6fu ran the sweep 6ft
+named, and the milestone regex was the wrong query: the `ponytail:`
+comments and absence wording found six present-tense claims that had
+expired, corrected in place, section 5's *"zero production callers"*
+among them. **Next (6fv)**: nothing survives a recreated activity but
+the save (no `configChanges`, no `rememberSaveable`). Reproduce a
+rotation on the tablet with the owner, then choose the fix.
 
 **6fs is next, a device pass for 6fr: every held row prints a cell.** A census ran `held()`
 over every fixture, every wealth and appearance level, every offered and
@@ -330,7 +334,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ft first.** The
+**Where to start next: the slice log, from the END — 6fu first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -890,8 +894,11 @@ so; three `ModifierResolverTest` cases pin it.
   expires at n turns; `Minutes(n)` at n*60 (one turn = one second);
   `Permanent`/`Scene` never expire on a turn count.
 
-`ModifierResolver` has **zero production callers today**. M2 is where that
-changes.
+`ModifierResolver` has **one production caller, `SkillRoll.at`**
+(`SkillRoll.kt:88`), so every skill roll runs through it. This paragraph
+said *"zero production callers today. M2 is where that changes"* until 6fu.
+`ModTarget.RollClass`, `SkillTag` and `DamageSlot` are still constructed by
+nothing in production.
 
 ---
 

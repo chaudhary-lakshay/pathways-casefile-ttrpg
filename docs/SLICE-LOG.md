@@ -6726,6 +6726,66 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fu. Six comments whose claim had expired, and one that is behaviour
+
+6ft named this sweep and **named the wrong query**. Its regex,
+`\b(M[0-4]|milestone)\b`, matched 62 comment lines in the Kotlin, and
+nearly all are dated history that is still true: *"since M0"*, *"until
+6am"*, *"grew twice in one milestone"*. 6ft's own defect was a comment
+that said *"the moment a Beyonder sheet does (M3)"*, a forward
+conditional that happened to carry a milestone. Two wider queries found
+the rest: the 26 `ponytail:` comments in production source, each of
+which names a ceiling and the condition that lifts it, and a grep for
+absence and deferral wording (`not yet`, `yet;`, `nothing else`,
+`read-only`, `never a trait`, `no production reader`).
+
+Left alone: dated history, and a deferral whose condition has not been
+met. Corrected: a present-tense claim about this app that is now false.
+Each with the grep that disproves it.
+
+| Where | It said | What is true |
+|---|---|---|
+| `CLAUDE.md` section 5 | `ModifierResolver` has *"zero production callers today. M2 is where that changes"* | `SkillRoll.kt:88` calls it, so every skill roll runs through it |
+| `BuilderScreen` KDoc | *"ponytail: attributes only ... Add them when a character is worth saving"* | it sells eight kinds of purchase, all in `SavedEdits` |
+| `BeyonderSession` KDoc | *"this holds the walk and nothing else. Add one [a ViewModel] when there is a character worth editing"* | it holds `edits`, the pools and CoR; none was added |
+| `TraitEffects` KDoc | the catalogue *"has had no production reader since M0"*; *"Only three traits are applied"* | history, now in the past tense; `known()` is what is read |
+| `PurchasableTraits` KDoc | *"a potion ... never a trait"* | since 6fk a potion grants catalogue rows; Ether Body Damage is not among them, so the sentence's point survives |
+| `Character` KDoc | Beyonder state *"arrives at M3 and M4"*; `spi` *"the one piece of table state"* | it arrived; since 6ft nothing in production sets `spi` above 0, and digestion adds to it |
+| `Modifier.kt`, twice | `DamageSlot` and `SkillTag` become enums *"once Phase B's content reveals the real members"* | the content landed; no production code constructs either, nor `ModTarget.RollClass` |
+
+The first row matters most. It sat in the paragraph that calls
+`ModifierResolver` the highest-risk file, and told a reader that an edit
+there reaches nothing.
+
+**`Character.spi` is a field with readers and no writer.** `Derive`,
+`SkillDefaults`, the builder and digestion read it; after 6ft every
+production path leaves it 0. Kept, and said so in its KDoc: it is the
+base digestion adds to, and where an award from *"supernatural events,
+or certain rituals"* (2269) would go.
+
+**One finding is behaviour, recorded and not built.** Two ponytails
+deferred a ViewModel on a condition: *"when the sheet screen needs state
+that survives rotation"* (`MainActivity.kt:150`) and *"when there is a
+character worth editing"* (`BeyonderSession`). The second has been met
+since the builder. For the first: the manifest declares no
+`configChanges`, `rememberSaveable` appears nowhere in `app/src/main`, and
+`selected` and `screen` are plain `remember`. So a recreated activity
+returns to the character list with every dialog, picked modifier and
+rolled result gone, and the save intact. This log has paid for that
+twice: 6dy's rotation *"dropped both the pushed SPI and the CoR the roll
+owed"* and was fixed per dialog with `onDispose`, and 6ej's device pass
+lost its place when the display turned. Not reproduced in this slice.
+
+Comment-only in source, so the proof is a compile and the suite: 1914
+Kotlin (1341 `core:rules`, 553 `app`, 20 `core:model`), green after
+`--rerun-tasks`, and a filter over the diff found no changed line that is
+not a comment. No review was run on a comments diff.
+
+**Next (6fv)**: rotation. Reproduce it on the tablet with the owner,
+then decide between `configChanges` in the manifest (one line, and the
+activity is never recreated for a turn) and `rememberSaveable` for the
+navigation alone.
+
 ## 6ft. The SPI four sheets print and nobody drank
 
 6fs named the gallery's Beyonder tab for "its own reading" (6eb). The
