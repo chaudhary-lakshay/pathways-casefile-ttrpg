@@ -150,6 +150,31 @@ object Ranged {
         if (cancelled) conditions().filterNot { it.weaponAcc } else conditions()
 
     /**
+     * The rows that cannot stand beside [condition]: the other Aim row, or
+     * the target's other speeds. Empty for a row that is a fact of its own.
+     * [modifiers] refuses the same pairs, and a screen swaps on this.
+     *
+     * **The speeds are a reading, not a printed sentence.** The book says
+     * nothing about combining rows (lines 2665-2685). "Target is stationary",
+     * "up to 3 meters/sec" and "4+ meters/sec" are bounds on one quantity
+     * that do not meet, so no target is in two of them, and walking with
+     * running is a -3 no speed produces. That is why the range band is one
+     * pick: a target stands at one distance. It is not Fit beside Very Fit,
+     * two traits a character can hold at once, which this app leaves
+     * stackable because the book prints no exclusivity for them (6fk).
+     * tools/extract_ranged.py marks the three rows from their own words and
+     * fails if the bounds ever meet.
+     */
+    fun alternativesTo(condition: String): Set<String> {
+        val row = conditions().firstOrNull { it.condition == condition } ?: return emptySet()
+        return conditions()
+            .filter { it.condition != condition }
+            .filter { (row.weaponAcc && it.weaponAcc) || (row.targetSpeed && it.targetSpeed) }
+            .map { it.condition }
+            .toSet()
+    }
+
+    /**
      * The band [meters] falls in.
      *
      * **The book's bands overlap.** "51-100 meters" is -5 and "100+ meters" is
@@ -214,6 +239,12 @@ object Ranged {
         require(conditions.count { it.weaponAcc } <= 1) {
             "a shot is aimed for one length of time; " +
                 conditions.filter { it.weaponAcc }.joinToString { it.condition } +
+                " cannot both apply"
+        }
+        // One quantity in three rows; see [alternativesTo] for the reading.
+        require(conditions.count { it.targetSpeed } <= 1) {
+            "a target moves at one speed; " +
+                conditions.filter { it.targetSpeed }.joinToString { it.condition } +
                 " cannot both apply"
         }
         if (band != null) {

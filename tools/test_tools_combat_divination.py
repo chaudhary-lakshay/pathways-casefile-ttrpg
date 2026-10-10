@@ -378,6 +378,38 @@ def test_a_printed_range_keeps_both_ends():
     assert rows[0]["worstCase"] == -9
 
 
+SPEED_ROWS = [
+    "Target is stationary", "+0",
+    "Target walking (up to 3 meters/sec)", "-1",
+    "Target running (4+ meters/sec)", "-2",
+]
+
+
+def test_a_row_that_prints_the_targets_speed_is_marked():
+    """Three rows are intervals of ONE quantity, by the bounds they print and
+    by the word "stationary". A target has one speed, so Ranged.modifiers
+    refuses two of them. The shooter's own movement is a separate fact."""
+    rows = extract_ranged.parse_modifiers(SPEED_ROWS + ["Shooter moved this turn", "-2"])
+    assert [r.get("targetSpeed") for r in rows] == [True, True, True, None]
+
+
+def test_speeds_that_overlap_are_refused():
+    """The reading rests on the printed bounds being disjoint: no speed is
+    both "up to 3" and "4+". A re-extraction where they meet takes the
+    warrant away, and that is the finding."""
+    extract_ranged.verify_speeds(extract_ranged.parse_modifiers(SPEED_ROWS))
+    met = [c.replace("up to 3", "up to 4") for c in SPEED_ROWS]
+    with pytest.raises(ValueError, match="disjoint"):
+        extract_ranged.verify_speeds(extract_ranged.parse_modifiers(met))
+    with pytest.raises(ValueError, match="three rows"):
+        extract_ranged.verify_speeds(extract_ranged.parse_modifiers(SPEED_ROWS[:4]))
+
+
+def test_committed_speed_rows_are_the_three_the_book_prints():
+    entries = json.loads((CONTENT / "ranged_modifiers.json").read_text(encoding="utf-8"))["entries"]
+    assert [e["condition"] for e in entries if e.get("targetSpeed")] == SPEED_ROWS[::2]
+
+
 def test_committed_bands_still_overlap_at_a_hundred_metres():
     """The book's own arithmetic: "51-100" is -5 and "100+" is -6, so exactly
     100 matches both. Recorded, never repaired -- Ranged.penaltyFor documents

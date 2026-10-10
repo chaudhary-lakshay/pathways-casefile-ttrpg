@@ -65,6 +65,10 @@ WEAPON_ACC = "weapon's Acc"
 # second bonus.
 ACC_BONUS = re.compile(rf"{WEAPON_ACC}\s*([+-]\d+)")
 GM_DISCRETION = "GM discretion"
+# The target's speed, as three rows print it: the word "stationary", and a
+# bound in metres a second on the two that move.
+STATIONARY = re.compile(r"\bstationary\b")
+SPEED = re.compile(r"\((?:up to (?P<to>\d+)|(?P<from>\d+)\+)\s*meters/sec\)")
 
 EXPECTED_BANDS = 7
 EXPECTED_MODIFIERS = [
@@ -132,10 +136,25 @@ def parse_bands(lines):
     return out
 
 
+def speed_of(condition):
+    """The interval of target speed [condition] prints, or None.
+
+    "stationary" is a ceiling of 0; "up to 3" a ceiling of 3; "4+" a floor of
+    4. Read from the row's own words, never from a list of row names."""
+    if STATIONARY.search(condition):
+        return {"to": 0}
+    bound = SPEED.search(condition)
+    if not bound:
+        return None
+    return {k: int(v) for k, v in bound.groupdict().items() if v is not None}
+
+
 def parse_modifiers(lines):
     out = []
     for condition, cell in pair(lines):
         entry = {"condition": condition, "printed": cell}
+        if speed_of(condition) is not None:
+            entry["targetSpeed"] = True
         if WEAPON_ACC in cell:
             # The number is the chosen weapon's, so the row carries no plain
             # modifier -- only what it adds on top of that Acc.
@@ -157,6 +176,22 @@ def parse_modifiers(lines):
             entry["melee"] = int(melee.group(1))
         out.append(entry)
     return out
+
+
+def verify_speeds(modifiers):
+    """Three rows print the target's speed, and no speed is in two of them.
+
+    That is the whole warrant for Ranged.modifiers refusing two together: the
+    book prints no sentence about combining rows, only bounds that do not
+    meet. The book leaves a gap between 3 and 4, so this asks for disjoint
+    and not for contiguous."""
+    speeds = [speed_of(m["condition"]) for m in modifiers if m.get("targetSpeed")]
+    if len(speeds) != 3:
+        raise ValueError(f"expected three rows to print the target's speed, got {len(speeds)}")
+    ceilings = sorted(s["to"] for s in speeds if "to" in s)
+    floors = [s["from"] for s in speeds if "from" in s]
+    if len(floors) != 1 or ceilings[0] != 0 or not ceilings[0] < ceilings[1] < floors[0]:
+        raise ValueError(f"the target's speeds are no longer disjoint: {speeds}")
 
 
 def verify(bands, modifiers):
@@ -195,6 +230,7 @@ def verify(bands, modifiers):
         raise ValueError(f"the Aim rows' bonuses over Acc changed: {bonuses} != [0, 2]")
     if not any("melee" in m for m in modifiers):
         raise ValueError("no row carries a separate melee value; prone used to")
+    verify_speeds(modifiers)
 
 
 def write(name, entries, spans):

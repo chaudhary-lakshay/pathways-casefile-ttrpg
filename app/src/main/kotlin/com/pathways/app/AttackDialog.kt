@@ -464,17 +464,7 @@ fun AttackDialog(
                             // throw rather than merely mislead (6k, 6y, 6af).
                             if (aimCancelled) circumstances = circumstances - AIM_ROWS
                         },
-                        onCircumstance = { name ->
-                            circumstances = when {
-                                name in circumstances -> circumstances - name
-                                // Aiming is one act held for one length of time.
-                                // Ranged.modifiers refuses both rows together, so
-                                // picking the second must REPLACE the first rather
-                                // than build a plan that throws on Roll.
-                                name in AIM_ROWS -> circumstances - AIM_ROWS + name
-                                else -> circumstances + name
-                            }
-                        },
+                        onCircumstance = { circumstances = toggled(circumstances, it) },
                         onPlan = {
                             // Range and circumstances describe a shot; going back
                             // into reach drops them rather than applying a

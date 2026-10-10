@@ -251,7 +251,7 @@ class AttackDialogTest {
      * alone, then together, because a term that supersedes another only
      * shows beside the one it removes. Together is two plans: a Reluctant
      * Killer "cannot Aim", so the screen never draws the clause beside an
-     * Aim row.
+     * Aim row. Each has one speed row, since a target has one speed.
      *
      * 38 alone: 6 bands (the +0 band prints nothing), 8 rows (stationary
      * prints nothing), 21 of darkness (7 without Night Eyes; with it 7 fog
@@ -294,13 +294,15 @@ class AttackDialogTest {
             severity = darkness.worstCase,
             aimRefused = aimRefused,
         ) + listOfNotNull(Wounds.modifier(Wounds.locations().last()))
-        // One aim, one length of time: Ranged.modifiers refuses both rows.
-        val aimed = together(rows.toSet() - AIM_ROWS.first(), aimRefused = false)
-        val refused = together(rows.toSet() - AIM_ROWS, aimRefused = true) +
+        // One speed and one aim: Ranged.modifiers refuses two of either.
+        val running = rows.toSet() - Ranged.alternativesTo("Target running (4+ meters/sec)")
+        val aimed = together(running - AIM_ROWS.first(), aimRefused = false)
+        val refused = together(running - AIM_ROWS, aimRefused = true) +
             traitTerms(killer, guns, declared.first())
         assertEquals(ALONE_TERMS, alone.count { it.isNotEmpty() }, "plans that print a term")
-        // The band, the rows less stationary's +0, and the Eye: 1 + 7 + 1,
-        // then 1 + 6 + 1 and the clause.
+        // The band, six rows (running, shooter moved, the long aim, prone,
+        // darkness, cover) and the Eye: 1 + 6 + 1. Then 1 + 5 + 1 with no
+        // aim, and the clause.
         assertEquals(TOGETHER_TERMS, aimed.size, "an aimed shot's terms")
         assertEquals(TOGETHER_TERMS, refused.size, "a Reluctant Killer's terms")
 
@@ -317,8 +319,33 @@ class AttackDialogTest {
         }
     }
 
+    /**
+     * The chip handler, as a function: a second speed or a second aim takes
+     * the first one's place, since `Ranged.modifiers` refuses the pair while
+     * the dialog is drawn. Every other row is a fact of its own.
+     */
+    @Test
+    fun `a second speed or a second aim replaces the first`() {
+        val walking = "Target walking (up to 3 meters/sec)"
+        val running = "Target running (4+ meters/sec)"
+        val moved = "Shooter moved this turn"
+        val (brief, long) = AIM_ROWS.toList()
+        assertEquals(setOf(running), toggled(setOf(walking), running))
+        assertEquals(setOf(moved, "Target is stationary"), toggled(setOf(moved, running), "Target is stationary"))
+        assertEquals(setOf(long, running), toggled(setOf(brief, running), long))
+        assertEquals(setOf(running, moved), toggled(setOf(running), moved), "an independent row adds")
+        assertEquals(emptySet<String>(), toggled(setOf(running), running), "a second tap takes it off")
+        // Whatever is tapped, in whatever order, the set stays one the roll accepts.
+        val names = Ranged.conditions().map { it.condition }
+        var picked = emptySet<String>()
+        for (name in names + names.reversed().drop(1)) {
+            picked = toggled(picked, name)
+            rangedModifiers(AttackPlan(isRanged = true), null, picked, 2, false, DarknessCause.DARKNESS, 0, null)
+        }
+    }
+
     private companion object {
         const val ALONE_TERMS = 38
-        const val TOGETHER_TERMS = 9
+        const val TOGETHER_TERMS = 8
     }
 }

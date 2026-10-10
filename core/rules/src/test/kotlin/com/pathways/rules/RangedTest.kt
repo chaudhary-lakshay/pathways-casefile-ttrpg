@@ -362,6 +362,55 @@ class RangedTest {
         assertTrue(ex.message!!.contains("one length of time"))
     }
 
+    /**
+     * Three rows print one quantity, the target's speed, in bounds that do
+     * not meet: stationary, "up to 3 meters/sec", "4+ meters/sec". Walking
+     * and running together is -3, a number no speed produces.
+     */
+    @Test
+    fun `a target moves at one speed, not two`() {
+        val ex = assertThrows<IllegalArgumentException> {
+            Ranged.modifiers(
+                conditions = listOf(
+                    row("Target walking (up to 3 meters/sec)"),
+                    row("Target running (4+ meters/sec)"),
+                ),
+            )
+        }
+        assertTrue(ex.message!!.contains("one speed"), ex.message)
+        assertTrue(ex.message!!.contains("Target walking") && ex.message!!.contains("Target running"), ex.message)
+        // Stationary prints +0, changes no roll, and is still a speed.
+        assertThrows<IllegalArgumentException> {
+            Ranged.modifiers(
+                conditions = listOf(row("Target is stationary"), row("Target running (4+ meters/sec)")),
+            )
+        }
+    }
+
+    @Test
+    fun `a row's alternatives are the other speeds or the other aim, and nothing else`() {
+        assertEquals(
+            setOf("Target is stationary", "Target walking (up to 3 meters/sec)"),
+            Ranged.alternativesTo("Target running (4+ meters/sec)"),
+        )
+        assertEquals(
+            setOf("Target walking (up to 3 meters/sec)", "Target running (4+ meters/sec)"),
+            Ranged.alternativesTo("Target is stationary"),
+        )
+        assertEquals(setOf("Shooter used Aim for 3+ turns"), Ranged.alternativesTo("Shooter used Aim last turn"))
+        // The shooter's own movement is not the target's speed.
+        val alone = listOf(
+            "Shooter moved this turn",
+            "Target is prone",
+            "Darkness or heavy fog",
+            "Target has cover (half body)",
+        )
+        for (condition in alone) {
+            assertEquals(emptySet<String>(), Ranged.alternativesTo(condition), condition)
+        }
+        assertEquals(emptySet<String>(), Ranged.alternativesTo("no such row"))
+    }
+
     @Test
     fun `the second Aim row is not read as plus two`() {
         // "+ weapon's Acc +2 (max Acc +2 total)" -- the first signed integer

@@ -171,6 +171,16 @@ internal fun RangedOptions(
     }
 }
 
+/**
+ * A circumstance chip, tapped: off if it was on, and otherwise on IN PLACE
+ * of the rows it cannot stand beside -- the other Aim row (one aim, held for
+ * one length of time) or the target's other speeds. Ranged.modifiers refuses
+ * those pairs, and it runs while the dialog is drawn, so a chip that merely
+ * added would throw on sight rather than mislead.
+ */
+internal fun toggled(circumstances: Set<String>, name: String): Set<String> =
+    if (name in circumstances) circumstances - name else circumstances - Ranged.alternativesTo(name) + name
+
 internal fun rangedModifiers(
     plan: AttackPlan,
     band: RangePenalty?,

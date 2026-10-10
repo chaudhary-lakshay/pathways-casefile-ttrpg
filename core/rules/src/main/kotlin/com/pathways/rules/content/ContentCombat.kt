@@ -275,6 +275,8 @@ data class RangedModifier(
     val weaponAcc: Boolean = false,
     /** What the row adds ON TOP of the weapon's Acc; 0 for the bare Aim row. */
     val accBonus: Int = 0,
+    /** One of the three rows that print the target's speed; a target has one. */
+    val targetSpeed: Boolean = false,
 )
 
 /**

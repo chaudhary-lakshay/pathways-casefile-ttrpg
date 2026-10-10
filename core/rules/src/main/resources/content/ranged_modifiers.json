@@ -11,16 +11,19 @@
   {
    "condition": "Target is stationary",
    "printed": "+0",
+   "targetSpeed": true,
    "modifier": 0
   },
   {
    "condition": "Target walking (up to 3 meters/sec)",
    "printed": "-1",
+   "targetSpeed": true,
    "modifier": -1
   },
   {
    "condition": "Target running (4+ meters/sec)",
    "printed": "-2",
+   "targetSpeed": true,
    "modifier": -2
   },
   {
