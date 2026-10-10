@@ -65,7 +65,7 @@ import com.pathways.rules.PremadeSheet
  * This app is a reference tool used mid-game, so the metric is information per
  * screenful, not atmosphere (docs/DESIGN-DIRECTION.md). Hence full-width rows:
  * a small monogram, the name, the two traits that characterise the person, and
- * all five stats. Four to five characters per screen, and the row carries more
+ * the four attributes. Four to five characters per screen, and the row carries more
  * than the tile did.
  *
  * The filters exist because 23 near-identical ordinary people is the actual
@@ -319,7 +319,7 @@ private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, onClick: () ->
             // Beyonder, and under a rotated preset it sat next to an identical
             // pill in the nav bar. Bare `secondary` is the accent chrome never
             // touches, which is why the other three Beyonder cues (the label,
-            // the SPI value, ActionGroup's tint) already use it.
+            // the walk, ActionGroup's tint) already use it.
             Surface(
                 shape = MaterialTheme.shapes.small,
                 color = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -359,8 +359,8 @@ private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, onClick: () ->
                 }
 
                 // The four numbers the sheet prints, in one monospaced-feeling
-                // row, then the walk. Not SPI: a sheet's is 0 by the book,
-                // and a walked character's needs the potions digested. A
+                // row, then the walk. Not SPI: a sheet plays 0, and a
+                // walked character's needs the potions digested. A
                 // FlowRow, so "Wheel of Fortune 9" wraps on a narrow screen.
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     for (attr in listOf(Attr.ST, Attr.DX, Attr.IQ, Attr.HT)) {

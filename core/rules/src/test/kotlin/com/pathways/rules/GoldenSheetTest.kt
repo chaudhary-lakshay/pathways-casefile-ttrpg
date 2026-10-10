@@ -2,7 +2,6 @@ package com.pathways.rules
 
 import com.pathways.model.Attr
 import com.pathways.model.Attributes
-import com.pathways.model.BASE_ATTRIBUTE
 import com.pathways.model.BeyonderState
 import com.pathways.model.Difficulty
 import com.pathways.model.SecondaryDelta
@@ -138,15 +137,14 @@ class GoldenSheetTest {
 
     /**
      * Four sheets print SPI 9 and no sheet prints a pathway, a sequence or a
-     * potion. "All mortals begin at SPI 0, fixed. SPI increases only through
-     * Beyonder potions, supernatural events, or certain rituals" (book lines
-     * 2268-2269), and 9 is what every attribute cell holds at zero cost. So
-     * the book wins and the 9 is recorded, never played (4.1; 6ft).
+     * potion. The 9 is recorded, never played (6ft): a Beyonder with no
+     * pathway is a state this app cannot hold, and a carried 9 had a first
+     * potion's grant added to it.
      *
-     * **The other reading, refused**: 9 is what the Fool, Hermit and Darkness
-     * potions grant at Sequence 9 (2270-2276), so the four could be Beyonders
-     * whose pathway the sheet omits. Nothing on a sheet says which, and this
-     * app offers each of them a first potion as it does a mortal.
+     * **The other reading is not refuted**: 9 is what the Fool, Hermit and
+     * Darkness potions grant at Sequence 9 (2270-2276), and the blank sheet's
+     * cell holds 0, so the 9 was typed. Naming a pathway for each of the
+     * four is the owner's. See `MORTAL_SPI` in Premades.kt.
      */
     @Test
     fun `four sheets print SPI 9 and none plays it - guard against silent repair`() {
@@ -156,7 +154,7 @@ class GoldenSheetTest {
             printed.map { it.name }.toSet(),
         )
         printed.forEach {
-            assertEquals(BASE_ATTRIBUTE, it.published.spi, "${it.name}: printed")
+            assertEquals(9, it.published.spi, "${it.name}: printed")
             assertEquals(0, it.toCharacter().spi, "${it.name}: played")
         }
     }

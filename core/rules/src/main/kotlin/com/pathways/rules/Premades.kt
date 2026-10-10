@@ -95,25 +95,28 @@ data class PremadeSheet(
 }
 
 /**
- * What a published sheet plays for SPI, whatever it prints. "All mortals
- * begin at SPI 0, fixed. SPI increases only through Beyonder potions,
- * supernatural events, or certain rituals" (book lines 2268-2269), and no
- * sheet prints a pathway, a sequence or a potion. Four print SPI 9, which is
- * [com.pathways.model.BASE_ATTRIBUTE], what every attribute cell holds at
- * zero cost. The book wins and the 9 stays in [PublishedValues.spi],
- * recorded and never played (6ft).
+ * What a published sheet plays for SPI, whatever it prints. Four sheets
+ * print SPI 9, typed on purpose: the blank sheet's cell holds 0. No sheet
+ * prints a pathway, a sequence or a potion, and "SPI increases only through
+ * Beyonder potions, supernatural events, or certain rituals" (book lines
+ * 2268-2269). So the four are Beyonders whose pathway the sheet omits -- 9
+ * is the Fool, Hermit and Darkness grant at Sequence 9 (2270-2276) -- or
+ * they are sheet errors, and nothing printed settles which.
+ *
+ * **They play as mortals because that is all this app can hold of them.**
+ * A Beyonder here is [com.pathways.model.Character.beyonder]: a pathway and
+ * a sequence, from which every grant is derived. With no pathway there is no
+ * block to grant from and no next potion to offer. The carried 9 was a pool
+ * with nothing behind it, and [PotionDigestion] ADDED the first potion's
+ * grant to it: an Apothecary on the Hermit's Sequence 9 played SPI 18, more
+ * than any Sequence 9 block grants, which neither reading allows. The 9
+ * stays in [PublishedValues.spi], recorded and never played (6ft). Playing
+ * the four as Beyonders needs a pathway named for each, and that is the
+ * owner's to name.
  *
  * Until 6ft the 9 was carried, on a reason written before the app had a
  * pathway: "an import that drops it silently turns a Beyonder into a
- * mortal". A Beyonder is [com.pathways.model.Character.beyonder] now, and
- * [PotionDigestion] adds each grant to this, so an Apothecary on the
- * Hermit's Sequence 9 played SPI 18, more than any Sequence 9 block grants.
- *
- * **The other reading, refused**: 9 is the Fool, Hermit and Darkness grant
- * at Sequence 9 (2270-2276), so the four could be Beyonders whose pathway
- * the sheet omits. Nothing on a sheet says which, and this app offers each
- * a first potion as it does a mortal, so it cannot also play them as
- * having drunk one.
+ * mortal".
  */
 private const val MORTAL_SPI = 0
 

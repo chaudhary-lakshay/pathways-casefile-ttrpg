@@ -6737,8 +6737,11 @@ All 23 source spreadsheets were opened: cell `C11` is a typed number, and
 no sheet holds a pathway, a sequence or a potion anywhere. The book:
 *"All mortals begin at SPI 0, fixed. SPI increases only through Beyonder
 potions, supernatural events, or certain rituals"* (2268-2269), and
-*"Non-Beyonders (SPI 0)"* (2737). And 9 is `BASE_ATTRIBUTE`, what every
-attribute cell on a sheet holds at zero cost.
+*"Non-Beyonders (SPI 0)"* (2737). **The 9 was typed on purpose**: the
+blank sheet's `C11` holds 0. This entry first cited 9 being
+`BASE_ATTRIBUTE` as evidence of a default; the blank sheet says it is a
+coincidence, and the citation came out of the KDoc, the guard and the
+handover on the advisor's reading.
 
 **The app played them as both.** `Premades.spiOf` carried the 9 into
 `Character.spi`, and `PotionDigestion` computes `character.spi +
@@ -6767,12 +6770,17 @@ What changed:
 - **A premade plays SPI 0** (`MORTAL_SPI`, read by `toCharacter` and by
   `attributeLevelFor`, so the sheet diff computes an SPI-keyed skill from
   the SPI the character plays). `published.spi` stays in the fixture. The
-  pin became a guard against silent repair: exactly those four print
-  `BASE_ATTRIBUTE` and each plays 0.
-- **The other reading is refused in source**, in `MORTAL_SPI`'s KDoc: 9 is
-  what the Fool, Hermit and Darkness potions grant at Sequence 9, so the
-  four could be Beyonders whose pathway the sheet omits. Nothing on a
-  sheet says which, and the app offers each a first potion.
+  pin became a guard against silent repair: exactly those four print 9
+  and each plays 0.
+- **The other reading is not refuted, and source says so**, in
+  `MORTAL_SPI`'s KDoc: 9 is what the Fool, Hermit and Darkness potions
+  grant at Sequence 9, and the 9 was typed, so the four may be Beyonders
+  whose pathway the sheet omits. Book line 2268 governs mortals, which is
+  the open question, and *"the app offers each a first potion"* is this
+  app's behaviour, not a reason (6eq's shape). They play as mortals
+  because a Beyonder with no pathway is a state this app cannot hold: no
+  block to grant from, no next potion to offer. SPI 18 was wrong under
+  both readings. Naming a pathway for each is the owner's call.
 - **The gallery asks the save** (`walkOf`, `rosterOf`): the tabs, their
   counts, the BEYONDER mark and a new cell printing the pathway and
   Sequence. The SPI cell is gone. "Has a pool" stays the sheet's

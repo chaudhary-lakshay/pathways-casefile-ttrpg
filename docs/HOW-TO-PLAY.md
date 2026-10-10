@@ -40,8 +40,9 @@ University Librarian's disadvantage total), and the app is built so nobody can
 silently "fix" them. If a number surprises you, the book is the authority.
 
 Four sheets (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police)
-print SPI 9 and no pathway. The book starts every mortal at SPI 0, so the app
-plays them at 0 until they drink a potion, and then at what the potion grants.
+print SPI 9 and no pathway. The app cannot play a Beyonder without a pathway,
+so it plays them at SPI 0 until they drink a potion, and then at what the
+potion grants.
 
 ### How the sheet is laid out
 

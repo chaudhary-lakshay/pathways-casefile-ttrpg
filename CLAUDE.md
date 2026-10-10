@@ -163,11 +163,12 @@ nothing new unless the batches change.
 (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police) print SPI 9
 and no sheet prints a pathway. `toCharacter` carried the 9 and digestion
 ADDED a potion's grant, so an Apothecary on Hermit 9 played SPI 18; 6dy's
-device pass recorded that number as its proof. The book starts every
-mortal at 0 (2268) and 9 is `BASE_ATTRIBUTE`, so a premade plays 0 and
-the 9 stays in the fixture behind a guard. The other reading (Beyonders
-whose pathway the sheet omits) is refused in `MORTAL_SPI`'s KDoc. Read it
-for two things.
+device pass recorded that number as its proof. A Beyonder with no
+pathway is a state this app cannot hold, so a premade plays 0 and the 9
+stays in the fixture behind a guard. **The other reading is not
+refuted**: the blank sheet's cell is 0, so the 9 was typed, and the four
+may be Beyonders whose pathway the sheet omits. Naming one for each is
+the owner's call (`MORTAL_SPI`'s KDoc). Read it for two things.
 
 - **6eb's gallery question was a symptom.** Three predicates answered
   "is this a Beyonder" and disagreed on 10 of 22 characters. The gallery
