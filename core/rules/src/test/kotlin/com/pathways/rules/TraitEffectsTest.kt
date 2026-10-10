@@ -180,10 +180,10 @@ class TraitEffectsTest {
      */
     @Test
     fun `a level printed in the name is read, and its absence means one`() {
-        assertEquals(1, TraitEffects.levelOf(listOf(advantage("Alertness 1")), "Alertness"))
-        assertEquals(3, TraitEffects.levelOf(listOf(advantage("Alertness 3")), "Alertness"))
-        assertEquals(1, TraitEffects.levelOf(listOf(advantage("Fit")), "Fit"))
-        assertNull(TraitEffects.levelOf(listOf(advantage("Fit")), "Alertness"))
+        assertEquals(1, TraitNames.levelOf(listOf(advantage("Alertness 1")), "Alertness"))
+        assertEquals(3, TraitNames.levelOf(listOf(advantage("Alertness 3")), "Alertness"))
+        assertEquals(1, TraitNames.levelOf(listOf(advantage("Fit")), "Fit"))
+        assertNull(TraitNames.levelOf(listOf(advantage("Fit")), "Alertness"))
     }
 
     /**
@@ -193,8 +193,8 @@ class TraitEffectsTest {
     @Test
     fun `a trailing word that is not a number is part of the name`() {
         val poverty = Trait("Poverty: Struggling", 10, TraitKind.DISADVANTAGE)
-        assertEquals(1, TraitEffects.levelOf(listOf(poverty), "Poverty: Struggling"))
-        assertNull(TraitEffects.levelOf(listOf(poverty), "Poverty"))
+        assertEquals(1, TraitNames.levelOf(listOf(poverty), "Poverty: Struggling"))
+        assertNull(TraitNames.levelOf(listOf(poverty), "Poverty"))
     }
 
     // ---- reaching a roll --------------------------------------------------
@@ -324,11 +324,11 @@ class TraitEffectsTest {
     fun `a name printed beside the book's own effect resolves to that row`() {
         val healer = ContentLoader.advantages().first { it.name == "Healer" }
         val glued = Trait("Healer - ${healer.notes}", 15, TraitKind.ADVANTAGE)
-        assertEquals("Healer", TraitEffects.catalogueName(glued.name))
-        assertEquals(1, TraitEffects.levelOf(listOf(glued), "Healer"))
+        assertEquals("Healer", TraitNames.catalogueName(glued.name))
+        assertEquals(1, TraitNames.levelOf(listOf(glued), "Healer"))
         // ...and the whitespace the sheet wrapped it with does not matter.
         val wrapped = Trait("Healer - ${healer.notes.replace(" ", "\n")}", 15, TraitKind.ADVANTAGE)
-        assertEquals("Healer", TraitEffects.catalogueName(wrapped.name))
+        assertEquals("Healer", TraitNames.catalogueName(wrapped.name))
     }
 
     /**
@@ -349,12 +349,12 @@ class TraitEffectsTest {
             // licenses it, so a partial one is a disagreement to record.
             "Sense of Duty (Flock) - Must help/protect certain groups",
         )) {
-            assertEquals(name, TraitEffects.catalogueName(name), name)
+            assertEquals(name, TraitNames.catalogueName(name), name)
         }
         // A level in the name is still a level, not a glued effect.
-        assertEquals("Alertness", TraitEffects.catalogueName("Alertness 2"))
+        assertEquals("Alertness", TraitNames.catalogueName("Alertness 2"))
         // And a colon-suffixed name is part of the name (6al).
-        assertEquals("Poverty: Struggling", TraitEffects.catalogueName("Poverty: Struggling"))
+        assertEquals("Poverty: Struggling", TraitNames.catalogueName("Poverty: Struggling"))
     }
 
     /**
@@ -374,7 +374,7 @@ class TraitEffectsTest {
         // show, since every assertion about lookup and clause was already
         // green. The sheet's own name survives; its effect does not.
         assertEquals(TraitEffects.RAPID_RECOVERY, notes.single().trait)
-        assertEquals(glued.name, TraitEffects.displayName(glued.name) + " - " + row.notes)
+        assertEquals(glued.name, TraitNames.displayName(glued.name) + " - " + row.notes)
         assertEquals(row.notes, notes.single().printed)
     }
 
@@ -1205,10 +1205,10 @@ class TraitEffectsTest {
         for (sheet in carriers) {
             val printed = sheet.disadvantages.first { it.name.startsWith("Clueless") }.name
             assertTrue(printed.length > 40, "not the glued spelling: $printed")
-            assertEquals("Clueless", TraitEffects.catalogueName(printed), printed)
+            assertEquals("Clueless", TraitNames.catalogueName(printed), printed)
             // ...and the sheet shows the name alone, because the row prints
             // the cell underneath anyway (6br's device-only defect).
-            assertEquals("Clueless", TraitEffects.displayName(printed), printed)
+            assertEquals("Clueless", TraitNames.displayName(printed), printed)
         }
     }
 
@@ -1254,7 +1254,7 @@ class TraitEffectsTest {
             .flatMap { it.advantages + it.disadvantages }
             .map { it.name }
             .filter { it.length >= 40 }
-        val unmatched = glued.filter { TraitEffects.catalogueName(it) !in printed }
+        val unmatched = glued.filter { TraitNames.catalogueName(it) !in printed }
         assertEquals(
             listOf("Blacklisted: Specific Industry org or church"),
             unmatched,
@@ -1262,7 +1262,7 @@ class TraitEffectsTest {
         )
         // An unmatched name is shown whole: collapsing it would hide the
         // disagreement, and there is no verified cell to collapse it to.
-        for (name in unmatched) assertEquals(name, TraitEffects.displayName(name))
+        for (name in unmatched) assertEquals(name, TraitNames.displayName(name))
     }
 
     /**
@@ -1294,7 +1294,7 @@ class TraitEffectsTest {
         val unmatched = Premades.all()
             .flatMap { it.advantages + it.disadvantages }
             .map { it.name }
-            .filter { TraitEffects.catalogueName(it) !in printed }
+            .filter { TraitNames.catalogueName(it) !in printed }
             .distinct()
         assertEquals(
             UNRESOLVED_SHEET_SPELLINGS.keys,
@@ -1304,7 +1304,7 @@ class TraitEffectsTest {
         // Every one of them is shown whole. Collapsing an unresolved name to
         // the row it resembles is the repair 4.1 forbids, and there is no
         // verified cell to collapse it to.
-        for (name in unmatched) assertEquals(name, TraitEffects.displayName(name))
+        for (name in unmatched) assertEquals(name, TraitNames.displayName(name))
     }
 
     /**
@@ -1428,7 +1428,7 @@ class TraitEffectsTest {
             .flatMap { sheet -> (sheet.advantages + sheet.disadvantages).map { sheet.name to it } }
             .mapNotNull { (sheet, owned) ->
                 val head = owned.name.substringBefore(" (").substringBefore(" - ")
-                val row = ranged[head] ?: ranged["$head${TraitEffects.PLACEHOLDER}"]
+                val row = ranged[head] ?: ranged["$head${TraitNames.PLACEHOLDER}"]
                     ?: return@mapNotNull null
                 assertTrue(
                     owned.cost >= row.costMin!! && owned.cost <= row.costMax!!,
@@ -1485,13 +1485,13 @@ class TraitEffectsTest {
             .toSet()
         for ((printed, row) in expected) {
             assertTrue(printed in owned, "$printed is on no sheet any more")
-            assertEquals(row, TraitEffects.catalogueName(printed), printed)
+            assertEquals(row, TraitNames.catalogueName(printed), printed)
         }
         // The row itself is not an instance of itself.
-        assertEquals("Phobia (specify)", TraitEffects.catalogueName("Phobia (specify)"))
+        assertEquals("Phobia (specify)", TraitNames.catalogueName("Phobia (specify)"))
         // The instantiation is CONTENT, so the name a screen prints keeps it:
         // "Phobia" alone would drop which fear this character has.
-        assertEquals("Phobia (Cities)", TraitEffects.displayName("Phobia (Cities)"))
+        assertEquals("Phobia (Cities)", TraitNames.displayName("Phobia (Cities)"))
     }
 
     /**
@@ -1507,7 +1507,7 @@ class TraitEffectsTest {
     fun `a qualifier the book never asked for stays unmatched`() {
         val placeholders = (ContentLoader.advantages() + ContentLoader.disadvantages())
             .map { it.name }
-            .filter { it.endsWith(TraitEffects.PLACEHOLDER) }
+            .filter { it.endsWith(TraitNames.PLACEHOLDER) }
         assertEquals(
             listOf(
                 "Language (specify)", "Resistant (specify)",
@@ -1528,7 +1528,7 @@ class TraitEffectsTest {
             "Absent-Minded",                 // "Absent-Mindedness" in the book
             "Pacifism (Cannot Kill)",        // no such row at all
         )) {
-            assertEquals(name, TraitEffects.catalogueName(name), name)
+            assertEquals(name, TraitNames.catalogueName(name), name)
         }
     }
 
@@ -1556,11 +1556,11 @@ class TraitEffectsTest {
      */
     @Test
     fun `a qualifier the cell itself prices resolves to that row`() {
-        assertEquals("Shyness", TraitEffects.catalogueName("Shyness (Mild)"))
-        assertEquals("Social Stigma", TraitEffects.catalogueName("Social Stigma (Criminal)"))
+        assertEquals("Shyness", TraitNames.catalogueName("Shyness (Mild)"))
+        assertEquals("Social Stigma", TraitNames.catalogueName("Social Stigma (Criminal)"))
         // The sheet's own spelling is what a screen prints: which variant was
         // bought is content, and it is also what decides Shyness's value.
-        assertEquals("Shyness (Mild)", TraitEffects.displayName("Shyness (Mild)"))
+        assertEquals("Shyness (Mild)", TraitNames.displayName("Shyness (Mild)"))
     }
 
     /**
@@ -1576,19 +1576,19 @@ class TraitEffectsTest {
     @Test
     fun `only the rows that print a choice enumerate variants`() {
         val enumerating = (ContentLoader.advantages() + ContentLoader.disadvantages())
-            .filter { TraitEffects.pricedVariants(it.notes).isNotEmpty() }
+            .filter { TraitNames.pricedVariants(it.notes).isNotEmpty() }
             .map { it.name }
         assertEquals(listOf("Social Stigma", "Shyness"), enumerating)
         assertEquals(
             listOf("Mild" to 5, "Severe" to 10),
-            TraitEffects.pricedVariants(
+            TraitNames.pricedVariants(
                 ContentLoader.disadvantages().single { it.name == "Shyness" }.notes,
             ),
         )
         // A lone number in prose is not a choice: Stubborn's "Will-3" would
         // otherwise read as a variant named "Will" costing 3.
         assertTrue(
-            TraitEffects.pricedVariants(
+            TraitNames.pricedVariants(
                 ContentLoader.disadvantages().single { it.name == "Stubborn" }.notes,
             ).isEmpty(),
         )
@@ -1633,11 +1633,11 @@ class TraitEffectsTest {
      */
     @Test
     fun `a bracket resolves only on the row a sheet proved it instantiates`() {
-        assertEquals("Sense of Duty", TraitEffects.catalogueName("Sense of Duty (Patients)"))
-        assertEquals("Sense of Duty", TraitEffects.catalogueName("Sense of Duty (Workers)"))
+        assertEquals("Sense of Duty", TraitNames.catalogueName("Sense of Duty (Patients)"))
+        assertEquals("Sense of Duty", TraitNames.catalogueName("Sense of Duty (Workers)"))
         assertEquals(
             "Sense of Duty",
-            TraitEffects.catalogueName(
+            TraitNames.catalogueName(
                 "Sense of Duty (Flock) - Must help/protect certain groups even at personal risk",
             ),
             "the glued spelling that carries the quotation",
@@ -1647,20 +1647,20 @@ class TraitEffectsTest {
         // would print the effect cell as a title and repeat it underneath.
         assertEquals(
             "Sense of Duty (Patients)",
-            TraitEffects.displayName("Sense of Duty (Patients)"),
+            TraitNames.displayName("Sense of Duty (Patients)"),
         )
         assertEquals(
             "Sense of Duty (Flock)",
-            TraitEffects.displayName(
+            TraitNames.displayName(
                 "Sense of Duty (Flock) - Must help/protect certain groups even at personal risk",
             ),
         )
         // ...and the row nothing quoted keeps its recorded gap.
         assertEquals(
             "Secret (Courier network)",
-            TraitEffects.catalogueName("Secret (Courier network)"),
+            TraitNames.catalogueName("Secret (Courier network)"),
         )
-        assertEquals("Obsession (A rival)", TraitEffects.catalogueName("Obsession (A rival)"))
+        assertEquals("Obsession (A rival)", TraitNames.catalogueName("Obsession (A rival)"))
     }
 
     /**
@@ -1697,7 +1697,7 @@ class TraitEffectsTest {
         for (name in scales) {
             val row = catalogue.single { it.name == name }
             assertTrue(
-                TraitEffects.pricedVariants(row.notes).isEmpty(),
+                TraitNames.pricedVariants(row.notes).isEmpty(),
                 "$name prints a scale, not a set of named variants",
             )
         }
@@ -1711,7 +1711,7 @@ class TraitEffectsTest {
         // ...against a real enumeration, whose members are names.
         assertEquals(
             listOf("Mild" to 5, "Severe" to 10),
-            TraitEffects.pricedVariants(
+            TraitNames.pricedVariants(
                 ContentLoader.disadvantages().single { it.name == "Shyness" }.notes,
             ),
         )
@@ -1733,13 +1733,13 @@ class TraitEffectsTest {
      */
     @Test
     fun `a qualifier naming no option or several is refused`() {
-        assertEquals("Shyness (Crippling)", TraitEffects.catalogueName("Shyness (Crippling)"))
+        assertEquals("Shyness (Crippling)", TraitNames.catalogueName("Shyness (Crippling)"))
         // "S" prefixes both "Servant Class" and nothing else here, but on
         // Shyness it would prefix "Severe" alone; the guard is the count, so
         // a cell whose options shared a prefix could not answer at all.
         assertEquals(
             listOf("Criminal Record" to 5, "Servant Class" to 5),
-            TraitEffects.pricedVariants(
+            TraitNames.pricedVariants(
                 ContentLoader.disadvantages().single { it.name == "Social Stigma" }.notes,
             ),
         )
@@ -1747,7 +1747,7 @@ class TraitEffectsTest {
 
     /**
      * **The WARRANT, checked over every sheet rather than asserted.** The join
-     * itself runs on the qualifier alone, because [TraitEffects.catalogueName]
+     * itself runs on the qualifier alone, because [TraitNames.catalogueName]
      * is handed a name and threading a cost through it would give this
      * decision a second matcher -- the failure this file records six times
      * (6ag, 6ai, 6be, 6bp, 6bs, 6bv). What licenses reading the qualifier at
@@ -1765,8 +1765,8 @@ class TraitEffectsTest {
         val checked = Premades.all()
             .flatMap { it.advantages + it.disadvantages }
             .mapNotNull { owned ->
-                val row = catalogue[TraitEffects.catalogueName(owned.name)] ?: return@mapNotNull null
-                val variants = TraitEffects.pricedVariants(row.notes)
+                val row = catalogue[TraitNames.catalogueName(owned.name)] ?: return@mapNotNull null
+                val variants = TraitNames.pricedVariants(row.notes)
                 if (variants.isEmpty() || owned.name == row.name) return@mapNotNull null
                 val qualifier = owned.name.substringAfterLast('(').removeSuffix(")")
                 val named = variants.single { it.first.startsWith(qualifier, ignoreCase = true) }
@@ -2381,20 +2381,20 @@ class TraitEffectsTest {
     @Test
     fun `every catalogue row name resolves to itself`() {
         val lost = (ContentLoader.advantages() + ContentLoader.disadvantages())
-            .map { it.name }.filter { TraitEffects.catalogueName(it) != it }
+            .map { it.name }.filter { TraitNames.catalogueName(it) != it }
         assertEquals(emptyList<String>(), lost)
         // ...in the ROW's spelling, whatever the sheet's casing: `reported`
         // checks `known()` case-sensitively, so a name returned as printed
         // told `PHOBIA (SPECIFY)` that a rule it applies was unread (Codex).
         val recased = (ContentLoader.advantages() + ContentLoader.disadvantages())
-            .map { it.name }.filter { TraitEffects.catalogueName(it.uppercase()) != it }
+            .map { it.name }.filter { TraitNames.catalogueName(it.uppercase()) != it }
         assertEquals(emptyList<String>(), recased)
         assertEquals(
             TraitEffects.reported(listOf(advantage("Phobia (specify)"))),
             TraitEffects.reported(listOf(advantage("PHOBIA (SPECIFY)")))
                 .map { it.copy(trait = "Phobia (specify)") },
         )
-        assertEquals("Alertness", TraitEffects.catalogueName("Alertness 1"))
+        assertEquals("Alertness", TraitNames.catalogueName("Alertness 1"))
     }
 
     /**
@@ -2452,7 +2452,7 @@ class TraitEffectsTest {
             assertEquals(traits.filter { it.kind == TraitKind.ADVANTAGE }, boons.map { it.trait })
             assertEquals(
                 traits.filter { it.kind == TraitKind.DISADVANTAGE }.map { owned ->
-                    val row = drawbacks[TraitEffects.catalogueName(owned.name).lowercase()]?.notes
+                    val row = drawbacks[TraitNames.catalogueName(owned.name).lowercase()]?.notes
                     owned to (row ?: struggling.takeIf { owned == poverty })
                 },
                 banes.map { it.trait to it.cell },
@@ -2823,7 +2823,7 @@ class TraitEffectsTest {
         }
         val granted = TraitGrants.grantedTraitTable()
             .flatMap { (key, rows) ->
-                rows.map { TraitEffects.catalogueName(it.name) }.filter { it in catalogue }.map { key to it }
+                rows.map { TraitNames.catalogueName(it.name) }.filter { it in catalogue }.map { key to it }
             }
             .toSet()
         val refused = TraitGrants.refusedGrants().keys

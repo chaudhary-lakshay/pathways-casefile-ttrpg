@@ -14,9 +14,9 @@ import com.pathways.rules.TraitEffects.GREATER_ACUTE_VISION
 import com.pathways.rules.TraitEffects.HIGH_PAIN_THRESHOLD
 import com.pathways.rules.TraitEffects.INCISIVE_VISION
 import com.pathways.rules.TraitEffects.PERFECT_BALANCE
-import com.pathways.rules.TraitEffects.catalogueName
-import com.pathways.rules.TraitEffects.levelOf
 import com.pathways.rules.TraitEffects.maxLevelsFor
+import com.pathways.rules.TraitNames.catalogueName
+import com.pathways.rules.TraitNames.levelOf
 import com.pathways.rules.content.ContentLoader
 
 /**

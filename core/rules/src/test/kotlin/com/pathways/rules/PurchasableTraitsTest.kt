@@ -212,7 +212,7 @@ class PurchasableTraitsTest {
      * The three composition rules, and the third is the load-bearing one.
      *
      * A "(specify)" row takes the instance and an enumerating row takes the
-     * variant, because [TraitEffects.catalogueName] already resolves both
+     * variant, because [TraitNames.catalogueName] already resolves both
      * spellings. **Anything else composes the book's own bare name**: "Sense
      * of Duty (Patients)" resolves to nothing here, so composing it would hand
      * the engine an identity it cannot match and the trait would silently do
@@ -224,19 +224,19 @@ class PurchasableTraitsTest {
             InstancedPurchase("Phobia (specify)", instance = "Cities", cost = 10),
         )
         assertEquals("Phobia (Cities)", phobia!!.name)
-        assertEquals("Phobia (specify)", TraitEffects.catalogueName(phobia.name))
+        assertEquals("Phobia (specify)", TraitNames.catalogueName(phobia.name))
 
         val shy = PurchasableTraits.instanced(
             InstancedPurchase("Shyness", variant = "Mild", cost = 5),
         )
         assertEquals("Shyness (Mild)", shy!!.name)
-        assertEquals("Shyness", TraitEffects.catalogueName(shy.name))
+        assertEquals("Shyness", TraitNames.catalogueName(shy.name))
 
         val duty = PurchasableTraits.instanced(
             InstancedPurchase("Sense of Duty", instance = "Patients", cost = 10),
         )
         assertEquals("Sense of Duty", duty!!.name, "the instance is display, not identity")
-        assertEquals("Sense of Duty", TraitEffects.catalogueName(duty.name))
+        assertEquals("Sense of Duty", TraitNames.catalogueName(duty.name))
     }
 
     /**

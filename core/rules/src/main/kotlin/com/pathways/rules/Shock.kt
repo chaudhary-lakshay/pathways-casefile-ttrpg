@@ -107,7 +107,7 @@ object Shock {
      * ("Knockdown roll at -5"), print no attribute to roll against, so this
      * app shows those cells rather than rolling them.
      */
-    fun ignoredBy(traits: List<Trait>): Boolean = TraitEffects.levelOf(traits, IGNORED_BY) != null
+    fun ignoredBy(traits: List<Trait>): Boolean = TraitNames.levelOf(traits, IGNORED_BY) != null
 
     /**
      * What shock costs a roll of [kind], which is 0 unless it is in force.

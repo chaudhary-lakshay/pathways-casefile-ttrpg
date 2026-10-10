@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import com.pathways.model.Attributes
 import com.pathways.model.BeyonderState
 import com.pathways.rules.PremadeSheet
-import com.pathways.rules.TraitEffects
 import com.pathways.rules.TraitGrants
 
 /**

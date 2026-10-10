@@ -601,5 +601,5 @@ object ActiveDefenses {
      * refused when chapter 4 printed none of Appendix A's words.
      */
     private fun cancels(cause: DefenseRefusal, traits: List<Trait>): Boolean =
-        cause == DefenseRefusal.SURPRISE && TraitEffects.levelOf(traits, NEVER_FREEZES) != null
+        cause == DefenseRefusal.SURPRISE && TraitNames.levelOf(traits, NEVER_FREEZES) != null
 }

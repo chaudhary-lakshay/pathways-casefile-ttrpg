@@ -14,6 +14,7 @@ import com.pathways.rules.Languages
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.Premades
 import com.pathways.rules.TraitEffects
+import com.pathways.rules.TraitNames
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -677,7 +678,7 @@ class EditedCharacterTest {
         SavedLanguage(name, proficiency, form)
 
     private fun languageCosts(edits: SavedEdits) = edits.applyTo(mortal).traits
-        .filter { TraitEffects.catalogueName(it.name) == Languages.ROW }
+        .filter { TraitNames.catalogueName(it.name) == Languages.ROW }
         .map { it.cost }
 
     /**

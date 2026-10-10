@@ -107,10 +107,10 @@ object SelfControl {
         val byName = catalogue.associateBy { it.name.lowercase() }
         return traits.mapNotNull { owned ->
             if (owned.kind != TraitKind.DISADVANTAGE) return@mapNotNull null
-            val row = byName[TraitEffects.catalogueName(owned.name).lowercase()]
+            val row = byName[TraitNames.catalogueName(owned.name).lowercase()]
                 ?: return@mapNotNull null
             val spec = row.selfControl ?: return@mapNotNull null
-            SelfControlCheck(TraitEffects.displayName(owned.name), spec, row.notes)
+            SelfControlCheck(TraitNames.displayName(owned.name), spec, row.notes)
         }
     }
 

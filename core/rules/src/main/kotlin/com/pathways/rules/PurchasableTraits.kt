@@ -47,7 +47,7 @@ data class InstantiableTrait(
     val variants: List<Pair<String, Int>>,
 ) {
     /** True when the book puts "(specify)" in the name and wants it filled. */
-    val needsInstance: Boolean get() = name.endsWith(TraitEffects.PLACEHOLDER)
+    val needsInstance: Boolean get() = name.endsWith(TraitNames.PLACEHOLDER)
 }
 
 /**
@@ -222,13 +222,13 @@ object PurchasableTraits {
      * level is a different feature and needs the levelled rows this slice does
      * not offer.
      *
-     * Matched through [TraitEffects.catalogueName], so a sheet's own spelling
+     * Matched through [TraitNames.catalogueName], so a sheet's own spelling
      * counts as holding it: two premades print "Clueless" glued to the book's
      * own effect cell, and offering them a second Clueless because the strings
      * differ would be the two-matchers failure this file keeps finding.
      */
     fun canBuy(trait: PurchasableTrait, held: List<Trait>): Boolean =
-        held.none { TraitEffects.catalogueName(it.name).equals(trait.name, ignoreCase = true) }
+        held.none { TraitNames.catalogueName(it.name).equals(trait.name, ignoreCase = true) }
 
     /**
      * The row called [name], or null when the book no longer prints one.
@@ -271,12 +271,12 @@ object PurchasableTraits {
      * -- a second vow is a second vow -- and what repeats there is the
      * instance, which [InstancedPurchase.key] is what refuses.
      *
-     * Matched through [TraitEffects.catalogueName], so the sheet's own
+     * Matched through [TraitNames.catalogueName], so the sheet's own
      * spelling counts as holding it.
      */
     fun canInstantiate(row: InstantiableTrait, held: List<Trait>): Boolean {
         if (row.variants.isEmpty()) return true
-        return held.none { TraitEffects.catalogueName(it.name).equals(row.name, ignoreCase = true) }
+        return held.none { TraitNames.catalogueName(it.name).equals(row.name, ignoreCase = true) }
     }
 
     /**
@@ -286,7 +286,7 @@ object PurchasableTraits {
      * **The name is composed here and stored nowhere**, by three rules:
      *
      *  - a "(specify)" row takes the instance -- "Phobia (Cities)" -- which is
-     *    the spelling [TraitEffects.catalogueName] already resolves;
+     *    the spelling [TraitNames.catalogueName] already resolves;
      *  - a row whose cell enumerates variants takes the variant -- "Shyness
      *    (Mild)" -- likewise already resolved, and the variant names the cost;
      *  - **anything else composes the BOOK'S OWN bare name**, keeping the
@@ -324,7 +324,7 @@ object PurchasableTraits {
         if (variant != null && purchase.cost != variant.second) return null
         if (variant == null && row.variants.isNotEmpty()) return null
         if (purchase.cost < row.costMin || purchase.cost > row.costMax) return null
-        val head = row.name.removeSuffix(TraitEffects.PLACEHOLDER)
+        val head = row.name.removeSuffix(TraitNames.PLACEHOLDER)
         val name = when {
             row.needsInstance -> "$head (${purchase.instance!!.trim()})"
             variant != null -> "${row.name} (${variant.first})"
@@ -400,7 +400,7 @@ object PurchasableTraits {
                 notes = it.notes,
                 costMin = it.costMin!!,
                 costMax = it.costMax!!,
-                variants = TraitEffects.pricedVariants(it.notes),
+                variants = TraitNames.pricedVariants(it.notes),
             )
         }
         .sortedBy { it.name }

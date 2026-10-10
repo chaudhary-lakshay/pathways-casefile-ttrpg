@@ -87,7 +87,7 @@ data class OwnedLanguage(
 
     /**
      * The purchase as an instance of [Languages.ROW], which is the spelling
-     * [TraitEffects.catalogueName] resolves for any "(specify)" row.
+     * [TraitNames.catalogueName] resolves for any "(specify)" row.
      */
     fun toTrait(): Trait =
         Trait("${Languages.ROW.removeSuffix(" (specify)")} ($label)", cost, TraitKind.ADVANTAGE)
@@ -186,7 +186,7 @@ object Languages {
 
     /** Through the one matcher every other trait reader uses. */
     private fun holds(held: List<Trait>, name: String): Boolean =
-        TraitEffects.levelOf(held, name) != null
+        TraitNames.levelOf(held, name) != null
 
     const val COMMON = "Common"
     const val MYSTICAL = "Mystical"

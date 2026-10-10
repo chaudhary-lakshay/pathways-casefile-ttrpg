@@ -4,7 +4,7 @@ import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
 import com.pathways.rules.Premades
 import com.pathways.rules.SkillLadder
-import com.pathways.rules.TraitEffects
+import com.pathways.rules.TraitNames
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.jsonObject
@@ -270,7 +270,7 @@ class ContentLoaderTest {
      *
      * That is 6ba's lesson pointed at a TEST's own exclusion: a verdict
      * expires, and an exclusion cannot notice when it stops being needed. It
-     * is gone now, and delegating to [TraitEffects.catalogueName] first is
+     * is gone now, and delegating to [TraitNames.catalogueName] first is
      * what stops the next one outliving its reason.
      */
 
@@ -303,7 +303,7 @@ class ContentLoaderTest {
      */
     private fun candidateNames(name: String): List<String> {
         val aliased = TRAIT_NAME_ALIASES[name] ?: name
-        val out = mutableListOf(TraitEffects.catalogueName(name), aliased)
+        val out = mutableListOf(TraitNames.catalogueName(name), aliased)
         for (pattern in listOf(PAREN, TRAILING_LEVEL_NUMBER, DASH_DESCRIPTION, COLON_DESCRIPTION)) {
             pattern.matchEntire(aliased)?.let { out += it.groupValues[1].trim() }
         }
@@ -448,13 +448,13 @@ class ContentLoaderTest {
         assertEquals(
             emptyList<String>(),
             fixtureNames.filter {
-                TraitEffects.catalogueName(it) in printed && findBookTrait(entries, it) == null
+                TraitNames.catalogueName(it) in printed && findBookTrait(entries, it) == null
             },
             "production resolves a name this audit skips, so its cost goes unchecked",
         )
 
         val onlyTheAudit = fixtureNames
-            .filter { TraitEffects.catalogueName(it) !in printed && findBookTrait(entries, it) != null }
+            .filter { TraitNames.catalogueName(it) !in printed && findBookTrait(entries, it) != null }
             .toSortedSet()
         assertEquals(
             AUDIT_ONLY.keys,

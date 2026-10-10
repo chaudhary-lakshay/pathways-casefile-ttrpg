@@ -38,7 +38,6 @@ import com.pathways.rules.SkillDefaults
 import com.pathways.rules.Study
 import com.pathways.rules.StudyMethod
 import com.pathways.rules.Appearance
-import com.pathways.rules.TraitEffects
 import com.pathways.rules.TraitGrants
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.ContentLoader

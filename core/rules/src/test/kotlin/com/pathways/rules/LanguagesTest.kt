@@ -222,7 +222,7 @@ class LanguagesTest {
                 val owned = Languages.owned(listOf(buy(language.name, "Accented", form)), emptyList())
                     .single().second!!
                 val trait = owned.toTrait()
-                assertEquals("Language (specify)", TraitEffects.catalogueName(trait.name), trait.name)
+                assertEquals("Language (specify)", TraitNames.catalogueName(trait.name), trait.name)
                 assertEquals(TraitKind.ADVANTAGE, trait.kind)
                 assertEquals(owned.cost, trait.cost)
                 assertTrue(language.name in trait.name && "Accented" in trait.name, trait.name)

@@ -707,6 +707,9 @@ TraitEffects.skillRollClauses(traits, skill)   // every clause a skill roll asks
                                       // modifiers() read it
 TraitEffects.visionClause(traits)     // Acute Vision alone, for Spirit
                                       // Vision's roll: a GM declaration (6fh)
+TraitNames.catalogueName(printed) / .displayName(printed) / .levelOf(traits, name)
+                                      // the ONE resolution of a sheet's spelling
+                                      // to a catalogue row, and its level
 TraitGrants.grantedTraits(state) / .withGrantedTraits(traits, state)
 TraitGrants.grantedLevelsIn(merged, bought)   // the levels a potion ADDED
                                       // to a bought levelled row (6fm)

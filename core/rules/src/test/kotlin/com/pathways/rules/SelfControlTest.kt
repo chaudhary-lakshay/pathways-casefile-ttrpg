@@ -24,7 +24,7 @@ class SelfControlTest {
      * the name, and `checksFor` matched the raw string against the catalogue --
      * so the character whose defining drawback is a Will roll had no Will roll.
      *
-     * The resolution is [TraitEffects.catalogueName], shared with the applied
+     * The resolution is [TraitNames.catalogueName], shared with the applied
      * and reported paths rather than repeated here (6ag, 6ai, 6be, 6bp).
      */
     @Test
