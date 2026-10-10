@@ -53,6 +53,7 @@ import com.pathways.model.Character
 import com.pathways.model.PurchasedSkill
 import com.pathways.rules.DerivedCharacter
 import com.pathways.rules.Appearance
+import com.pathways.rules.TraitEffects
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.AppearanceLevel
 import com.pathways.rules.content.ContentLoader
@@ -220,6 +221,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     // leaves a trait behind to read back.
                     level = Appearance.levelOf(character.traits),
                     printed = Appearance.levelOf(start.traits),
+                    // The face a potion granted (6fn), so a face is not bought
+                    // blind: the better of the two is played.
+                    granted = remember(session.state) { Appearance.played(TraitEffects.grantedTraits(session.state)) },
                     onPick = { pickingLooks = true },
                 )
                 HorizontalDivider()
@@ -770,6 +774,7 @@ private fun WealthPicker(
 private fun AppearanceRow(
     level: AppearanceLevel?,
     printed: AppearanceLevel?,
+    granted: AppearanceLevel?,
     onPick: () -> Unit,
 ) {
     Row(
@@ -790,6 +795,10 @@ private fun AppearanceRow(
                         if (printed != null && printed.level != level.level) {
                             append(" — sheet prints ${printed.level}")
                         }
+                    }
+                    if (granted != null) {
+                        val played = Appearance.played(listOfNotNull(level, granted).map(Appearance::traitFor))!!
+                        append(" — the potion grants ${granted.level}; ${played.level} is played")
                     }
                 },
                 style = MaterialTheme.typography.bodySmall,
