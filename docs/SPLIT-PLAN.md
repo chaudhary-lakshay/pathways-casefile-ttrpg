@@ -29,6 +29,82 @@ Seven files are still over the cap: `test_tools.py` 5978,
 `TraitEffectsTest.kt` 3080, `TraitEffects.kt` 2187, `MainActivity.kt` 1235,
 `RitualDialog.kt` 1042, `extract_content.py` 938, `BeyonderSessionTest.kt` 863.
 
+## Step 5: the decomposition (2026-10-10, against `f472f3f`)
+
+Reviewed before the code (sonnet, `kotlin-reviewer.md`): CHANGE, three
+gaps, each folded in below; no init-order hazard and no structural
+objection.
+
+Three objects, one commit each, smallest first: `TraitGrants`, then
+`TraitNames`, then `TraitClauses`. Line spans are `TraitEffects.kt` at
+`f472f3f` (2187 lines).
+
+| Object | Spans | Public members | Main / test call sites |
+|---|---|---|---|
+| `TraitGrants` | 1893-1945, 1947-2045 | `grantedTraitTable`, `refusedGrants`, `grantedTraits`, `withGrantedTraits`, `grantedLevelsIn` | 7 / 21 |
+| `TraitNames` | 810-1174 | `levelOf`, `catalogueName`, `pricedVariants`, `PLACEHOLDER`, `displayName` | 14 / 61 |
+| `TraitClauses` | 1429-1883 (less 1593-1594, 1697, 1825-1826, 1846-1850), 2047-2099 | the fright, Will, concentration, social, attack, skill and sense clause functions, `clauseBonus`, `refusesAim`, `AIM_REFUSAL` (20), and a new `attackClauseNames()` | 21 / 83 |
+
+Counts are textual `TraitEffects.<member>` matches over `.kt`, so KDoc
+links count with code. No `TraitEffects::` reference exists anywhere, and
+the only member imports are `TraitRefusals.kt`'s, all of constants.
+
+**Where the shared pieces live.**
+
+- **Trait-name constants stay in `TraitEffects`**: `THINNED_VEIL`,
+  `CHRONIC_INSOMNIA`, `RELUCTANT_KILLER`, the `ACUTE_*` names,
+  `GREATER_ACUTE_VISION`, `INCISIVE_VISION`. Grants and clauses both name
+  them, and `TraitRefusals` imports them from there today. The three
+  private ones (`ACUTE_TASTE_SMELL`, `ACUTE_TOUCH`, `ACUTE_SMELL`) become
+  `internal`. `EIDETIC_MEMORY` and `advantages(vararg)` move with grants,
+  their only reader.
+- **`catalogue()` moves to `TraitNames` as `internal`**, with `rowNames`,
+  `squashed`, `quoted`, `SHEET_SEPARATOR` and the four `*Row` resolvers,
+  which no other group reads. `reported`, `held` and `unrowed` keep calling
+  it, once each, from function bodies.
+- **`bonus()` and `categoryOf()` become `internal` in `TraitEffects`**:
+  `attackModifiers` and `skillRollClauses` read them. `maxLevelsFor` is
+  already public; `levelled` reads it.
+- **`GRANTED_ONLY_SENSES` moves to `TraitClauses` as `internal`**, beside
+  `SENSE_CLAUSES`; `unrowed` reads it. `SENSE_ROW_REST` and `SENSE_REST`
+  stay in `TraitEffects`, read by `unrowed` alone.
+- **`known()` reads the private `ATTACK_CLAUSES`** (2123), so
+  `TraitClauses` gains `attackClauseNames()`, the shape its five
+  siblings already have.
+- **No helper is copied.** Each has one home.
+
+**Direction.** Every cross-object reference is inside a function body:
+`known()` reads the clause name sets, `modifiers` calls
+`skillRollClauses`, and the rest are `levelOf`/`catalogueName` calls. No
+object's `val` initializer reads another object's non-`const` member, so
+no JVM static-init order can see a half-built table. The moved tables are
+built from `TraitClause`/`Trait` constructors and `const` names, which the
+compiler inlines.
+
+**How call sites change.** Inside the four objects, member imports
+(`import com.pathways.rules.TraitNames.catalogueName`), the precedent
+`TraitRefusals` set, so `TraitEffects`' 45 internal `levelOf` and
+`catalogueName` calls are not rewritten. Outside, a textual rewrite of
+`TraitEffects.<member>\b` over `.kt` files, which reaches KDoc links and
+constants as well as calls. Unqualified KDoc links inside moved code that
+name a member left behind (`[reported]`, `[known]`, `[majorWoundHt]`)
+are qualified with `TraitEffects.`, as step 3 did, and three links
+to the moved tables are requalified the other way (`TraitRefusals.kt` 70
+and 104, `TraitEffects.kt` ~801). The rewrite runs over an explicit list
+of the moved object's public names, taken from its declarations, never a
+glob: `frightClauses` prefixes `frightClauseNames`. Section 3 of
+`CLAUDE.md` is updated in the same commits.
+
+**Size.** About 1030 lines leave, so `TraitEffects.kt` lands near 1160,
+not the ~850 the table below estimated. It stays in `OVER_CAP`.
+
+**Proof per commit.** Kotlin test counts from fresh XML (all three
+modules, `testDebugUnitTest/` included) equal before and after; the
+ratchet passes. `known()`'s body changes only by qualification. The
+census tests that read it (`TraitEffectsTest` 1029, 1075, and 6es's
+complement at 2300) assert subsets, not the whole set, so they check
+reach, not equality.
+
 The point is read cost. An agent that needs one dialog reads 2815 lines of
 `MainActivity.kt` to get it. Section 7's own rule is 800 lines a file.
 
