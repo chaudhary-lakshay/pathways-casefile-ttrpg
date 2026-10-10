@@ -153,10 +153,12 @@ fun RitualDialog(
      * The mystical languages this character BOUGHT, each as "Hermes, Native,
      * written only". Printed beside the picker and never fed to it: owning a
      * language does not say which one this ritual is cast in, and a trait
-     * (Official Beyonder, Dead Language Fluency) or a potion can grant one
-     * this list cannot see.
+     * (Official Beyonder, Dead Language Fluency) can grant one this list
+     * cannot see.
      */
     boughtLanguages: List<String>,
+    /** The languages a potion drunk granted, the same way (6fo). */
+    grantedLanguages: List<String>,
     dice: RandomSource,
     onCorGained: (Int) -> Unit,
     onSpendSpi: (Int) -> Unit,
@@ -822,10 +824,15 @@ fun RitualDialog(
                         }
                     }
                     language?.let { Text(it.effect, style = MaterialTheme.typography.bodySmall) }
-                    if (boughtLanguages.isNotEmpty()) {
+                    if (boughtLanguages.isNotEmpty() || grantedLanguages.isNotEmpty()) {
                         Text(
-                            "Bought by this character: ${boughtLanguages.joinToString("; ")}. " +
-                                "A trait or a potion may grant others, and which " +
+                            listOfNotNull(
+                                boughtLanguages.takeIf { it.isNotEmpty() }
+                                    ?.let { "Bought by this character: ${it.joinToString("; ")}." },
+                                grantedLanguages.takeIf { it.isNotEmpty() }
+                                    ?.let { "From the potion: ${it.joinToString("; ")}." },
+                            ).joinToString(" ") +
+                                " A trait may grant others, and which " +
                                 "language this ritual uses is yours to say.",
                             style = MaterialTheme.typography.bodySmall,
                         )

@@ -1212,6 +1212,7 @@ fun SheetScreen(
                     .filter { it.type == Languages.MYSTICAL }
                     .map { it.label }
             },
+            grantedLanguages = remember(drunk) { Languages.grantedBy(drunk).map { it.label } },
             // cor = 0 here on purpose: RitualResolution applies the CoR
             // ladder itself, so including it would charge the caster twice
             // for the same rule.

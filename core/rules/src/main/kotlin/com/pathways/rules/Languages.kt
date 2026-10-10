@@ -42,7 +42,15 @@ import com.pathways.rules.content.LanguageProficiency
  * which no unprinted rounding ever arises (a design review's reading).
  */
 /** One language as a player bought it: three names, and no price. */
-data class LanguagePurchase(val language: String, val proficiency: String, val form: String)
+data class LanguagePurchase(val language: String, val proficiency: String, val form: String) {
+    /** "Hermes, Accented, spoken only" -- the form is said only when it is one. */
+    val label: String
+        get() = listOfNotNull(
+            language,
+            proficiency,
+            form.lowercase().takeIf { form != Languages.BOTH_FORMS },
+        ).joinToString(", ")
+}
 
 /** A purchase the book licenses, and what the budget bills for it. */
 data class OwnedLanguage(
@@ -73,13 +81,9 @@ data class OwnedLanguage(
             return if (moved.isEmpty()) points else "$points ($listed listed; ${moved.joinToString("; ")})"
         }
 
-    /** "Hermes, Accented, spoken only" -- the form is said only when it is one. */
+    /** The purchase's own label: "Hermes, Accented, spoken only". */
     val label: String
-        get() = listOfNotNull(
-            purchase.language,
-            purchase.proficiency,
-            purchase.form.lowercase().takeIf { purchase.form != Languages.BOTH_FORMS },
-        ).joinToString(", ")
+        get() = purchase.label
 
     /**
      * The purchase as an instance of [Languages.ROW], which is the spelling
@@ -195,6 +199,26 @@ object Languages {
 
     /** The six that carry supernatural power. */
     fun mystical(): List<LanguageEntry> = all().filter { it.type == MYSTICAL }
+
+    /**
+     * The languages a potion printed (6fo): Mother 8 and Justiciar 6, "Ancient
+     * Hermes Fluent -- can speak, read, and write" (book 6783, 8165), which is
+     * the [FLUENT] row, whose cell opens "Fluent.", in [BOTH_FORMS]. Free, as
+     * every grant is (p. 85), so never a purchase the budget bills.
+     */
+    private val GRANTED: Map<Pair<String, Int>, LanguagePurchase> = mapOf(
+        ("Mother" to 8) to LanguagePurchase("Ancient Hermes", FLUENT, BOTH_FORMS),
+        ("Justiciar" to 6) to LanguagePurchase("Ancient Hermes", FLUENT, BOTH_FORMS),
+    )
+
+    /** What the walked chain granted, from Sequence 9 down to [state]'s. */
+    fun grantedBy(state: com.pathways.model.BeyonderState?): List<LanguagePurchase> =
+        if (state == null) {
+            emptyList()
+        } else {
+            GRANTED.filterKeys { (pathway, sequence) -> pathway == state.pathway && sequence >= state.sequence }
+                .values.distinct()
+        }
 
     /** One table's three rows, best first. */
     fun proficiencies(type: String): List<LanguageProficiency> =

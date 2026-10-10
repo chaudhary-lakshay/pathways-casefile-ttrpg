@@ -303,4 +303,48 @@ class LanguagesTest {
             com.pathways.model.Attributes(9, 9, 9, 9), com.pathways.model.SecondaryDelta(), emptyList(), emptyList(),
         ).spent)
     }
+
+    /**
+     * Mother 8 and Justiciar 6 print "Ancient Hermes Fluent -- can speak,
+     * read, and write" (6fo): the mystical Native row, whose cell opens
+     * "Fluent.", in both forms. Held down the chain from that rung.
+     */
+    @Test
+    fun `a potion's language is held down the chain`() {
+        fun at(pathway: String, seq: Int) = Languages.grantedBy(com.pathways.model.BeyonderState(pathway, seq))
+        val hermes = LanguagePurchase("Ancient Hermes", Languages.FLUENT, Languages.BOTH_FORMS)
+        assertEquals(emptyList<LanguagePurchase>(), at("Mother", 9))
+        assertEquals(listOf(hermes), at("Mother", 8))
+        assertEquals(listOf(hermes), at("Mother", 6))
+        assertEquals(emptyList<LanguagePurchase>(), at("Justiciar", 7))
+        assertEquals(listOf(hermes), at("Justiciar", 6))
+        assertEquals(emptyList<LanguagePurchase>(), Languages.grantedBy(null))
+        // The row it names is printed, mystical, and fit for a ritual.
+        assertTrue(Languages.mystical().any { it.name == hermes.language })
+        assertTrue(Languages.proficiency(Languages.MYSTICAL, hermes.proficiency)!!.effect.startsWith("Fluent."))
+    }
+
+    @Test
+    fun `the potion language table is every block that prints a language`() {
+        val names = Languages.all().map { it.name }.sortedByDescending { it.length }
+        val printed = ContentLoader.pathways().mapNotNull { block ->
+            val text = block.advantages + " " + block.drawbacks
+            val taken = mutableListOf<IntRange>()
+            val found = mutableSetOf<String>()
+            for (name in names) {
+                for (m in Regex("(?<![A-Za-z])${Regex.escape(name)}(?![A-Za-z])").findAll(text)) {
+                    if (taken.any { m.range.first in it }) continue
+                    taken += m.range
+                    found += name
+                }
+            }
+            if (found.isEmpty()) null else (block.pathway to block.sequence) to found
+        }.toMap()
+        val table = printed.keys.associateWith { (pathway, sequence) ->
+            Languages.grantedBy(com.pathways.model.BeyonderState(pathway, sequence))
+                .map { it.language }.toSet()
+        }
+        assertEquals(printed, table)
+        assertEquals(setOf("Mother" to 8, "Justiciar" to 6), printed.keys)
+    }
 }
