@@ -895,8 +895,11 @@ so; three `ModifierResolverTest` cases pin it.
   `Permanent`/`Scene` never expire on a turn count.
 
 `ModifierResolver` has **one production caller, `SkillRoll.at`**
-(`SkillRoll.kt:88`), so every skill roll runs through it. This paragraph
-said *"zero production callers today. M2 is where that changes"* until 6fu.
+(`SkillRoll.kt:88`), which three screens call: the sheet's skill roll
+(`MainActivity.kt:905`), the Attack dialog and the Defend dialog. Rituals,
+divinations, boons and the bare attribute rolls compose their own targets
+and never reach it. This paragraph said *"zero production callers today.
+M2 is where that changes"* until 6fu.
 `ModTarget.RollClass`, `SkillTag` and `DamageSlot` are still constructed by
 nothing in production.
 

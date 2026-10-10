@@ -6745,7 +6745,7 @@ Each with the grep that disproves it.
 
 | Where | It said | What is true |
 |---|---|---|
-| `CLAUDE.md` section 5 | `ModifierResolver` has *"zero production callers today. M2 is where that changes"* | `SkillRoll.kt:88` calls it, so every skill roll runs through it |
+| `CLAUDE.md` section 5 | `ModifierResolver` has *"zero production callers today. M2 is where that changes"* | `SkillRoll.kt:88` calls it, and the sheet's skill roll, the Attack dialog and the Defend dialog call `SkillRoll.at`; rituals, divinations and boons compose their own targets |
 | `BuilderScreen` KDoc | *"ponytail: attributes only ... Add them when a character is worth saving"* | it sells eight kinds of purchase, all in `SavedEdits` |
 | `BeyonderSession` KDoc | *"this holds the walk and nothing else. Add one [a ViewModel] when there is a character worth editing"* | it holds `edits`, the pools and CoR; none was added |
 | `TraitEffects` KDoc | the catalogue *"has had no production reader since M0"*; *"Only three traits are applied"* | history, now in the past tense; `known()` is what is read |
@@ -6771,10 +6771,12 @@ since the builder. For the first: the manifest declares no
 `configChanges`, `rememberSaveable` appears nowhere in `app/src/main`, and
 `selected` and `screen` are plain `remember`. So a recreated activity
 returns to the character list with every dialog, picked modifier and
-rolled result gone, and the save intact. This log has paid for that
-twice: 6dy's rotation *"dropped both the pushed SPI and the CoR the roll
-owed"* and was fixed per dialog with `onDispose`, and 6ej's device pass
-lost its place when the display turned. Not reproduced in this slice.
+rolled result gone, and the save intact. This log holds one established
+case and one that is only consistent with it: 6dy's rotation *"dropped
+both the pushed SPI and the CoR the roll owed"* and was fixed per dialog
+with `onDispose`; 6ej's device pass lost its place when the display
+turned, with rotation locked at 0 and the cause *"not established"*.
+Not reproduced in this slice.
 
 Comment-only in source, so the proof is a compile and the suite: 1914
 Kotlin (1341 `core:rules`, 553 `app`, 20 `core:model`), green after
