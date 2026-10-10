@@ -190,7 +190,24 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fn back to 6de
+## Retired lead paragraphs, 6fq back to 6de
+
+**6fo is next: the language a potion grants.** Mother 8 and
+Justiciar 6 print *"Ancient Hermes Fluent — can speak, read, and
+write"*: the mystical Native row, whose cell opens *"Fluent."* (702), in
+both forms, held from that rung down. `Languages.grantedBy` feeds the
+ritual dialog's note (*"From the potion: Ancient Hermes, Native."*);
+the proficiency picker stays the player's, so no roll changes. A census
+pins the table both ways against the prose. The diff review said SHIP.
+6fp: the builder's Appearance row now says *"the potion grants
+Handsome / Beautiful; <face> is played"*, through `Appearance.played`.
+That closes 6fn's census; nothing it found is outstanding. 6fm-6fp are
+device-verified on the SM-T570, and the save was restored. 6fq: a held
+face printed its name alone on the Traits tab, having no catalogue row;
+`held()` now gives it the table's reaction cell (`Appearance.cellFor`) and
+`UNREAD`. The review caught that my test computed its expectation with
+`cellFor`'s own formula; it now pins the book's eight strings.
+6fr ran the sweep 6fq named.
 
 **6fn is next: the face a potion grants.** Demoness 7 and 6 print
 *"Appearance (Beautiful)"* and *"(Very Beautiful)"*, rungs of the
@@ -2070,12 +2087,15 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6ds back to 6de
+## Digest index, 6dv back to 6de
 
 Moved from the handover in 6ff, unchanged, when its digest index neared
-8,000 characters. 6ds and 6dr followed in 6gb, for the same reason; the
-last entry kept there is 6dt.
+8,000 characters. 6ds and 6dr followed in 6gb, and 6dv back to 6dt in
+6gd, for the same reason; the last entry kept there is 6dw.
 
+**6dv** — `extract_equipment.skill_index()` dropped the open-row skills `isTemplate` matched, one flag at two sites; and a dump's tap scale is per WINDOW;
+**6du** — claimed lines checked for numbers their file never holds (clean); the fright table's `25 − HT` durations are computed, and the operand is not the attribute the cell rolls;
+**6dt** — `Hard to Subdue` reached nothing beside an applied `Hard to Kill`; two gaps cancelled into silence, and `BespokeBonus` feeds `known()` now.
 **6ds** — fright recovery rolls for the three bands that print one, anchored on the cell's own `roll vs. X`; `RollResult` carries its own target and outcome;
 **6dr** — "this app models no stun recovery roll" was false the day it was written; `StunRecovery` answers for the Major Wound row alone.
 **6dq** — the SPI-recovery refusal cited the appendix summary, not p. 34; it lives in `Pools.UNMODELLED` now, and chapter 4 deliberately claims nothing;

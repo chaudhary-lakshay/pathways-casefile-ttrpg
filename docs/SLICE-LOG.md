@@ -6726,6 +6726,139 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gd. A ledger roll prints its target first
+
+6eg's census named three rolls with *"nothing printed before the dice"*:
+the skill roll, the attack and the Acrobatic Dodge. 6eh fixed the other
+eight and these were neither fixed nor refused. 6gb read them again and
+left them, as a design and not a guard. This is the design.
+
+**What a player saw.** All three go through `SkillRoll.at`, which
+resolved the modifier ledger and rolled in one call, inside the click.
+A reeling Docks Bouncer opened Brawling, read *"Skill 16"*, picked
+circumstances, rolled, and learned from *"base 16, modified to 15"* what
+the roll had been against. The attack dialog printed every term it
+could price and then one sentence, *"Injury, fatigue and attrition are
+added when it is rolled"*. A trained sheet's Acrobatic Dodge printed no
+number at all. Every other roll in the app prints *"3d6 ≤ N"* and rolls
+that N.
+
+### The decomposition, reviewed before the screens
+
+One ecc sub-agent, no diff, three questions. The rules half was written
+while it ran, test first; no screen was touched until it answered.
+
+- **Q1, the shape: SHIP.** A separate `SkillTarget`, not a
+  `SkillRollOutcome` with a null roll: null there already MEANS
+  forbidden, and `degree` and `effectiveOutcome` key off it.
+- **Q2, throws at draw time: SHIP.** Resolving while the dialog is
+  drawn moves `CommonModifiers.modifiers`, `SpiritualSenses.modifiers`
+  and the attack's builders from the tap to the screen, and each has
+  `require`s. A throw on Roll loses a tap; a throw on draw has no way
+  out. The review traced every chip handler and did not guess: each
+  writes `chosen` and `gmValue` in one handler, a displaced row is
+  hidden and purged together, the range steps stay inside the printed
+  span, and the one row with no modifier is withheld. The attack's
+  three builders already ran at draw time, for its term lines.
+- **Q3, what is printed: SHIP WITH CHANGE**, four taken.
+  - After the dice, render from the outcome, never from the live
+    target: a push moves the trackers and the target recomposes.
+  - *"Skill 16 / 3d6 ≤ 15 / base 16, modified to 15"* says one number
+    twice. Before the dice the *"base"* line is dropped; *"Skill 16"* is
+    the base.
+  - The attack handler must capture only what was drawn. It read
+    `plan` for the count and the FP cost at click time; both are `val`s
+    of the composition now.
+  - The trackers' line is read off the ledger by id. As a remainder,
+    target less everything else printed, it would absorb a term the
+    screen forgot and still add up.
+
+One LOW not taken: let `SkillRollOutcome` hold a `SkillTarget` in place
+of the six fields they share. `EffortBurn.applied` copies those fields,
+and ~40 call sites read them.
+
+### What shipped (`2a24dd0`)
+
+- **`SkillRoll.targetFor(label, base, key, mods, ctx): SkillTarget`**
+  and **`rollAgainst(target, source)`**. `at` is the two composed.
+  `at` and `of` have no production caller now; they are the tests'
+  convenience, as `attempt` is in the other engines (6eh).
+- **The skill dialog** takes `targetFor` and `roll` where it took
+  `onRoll`. `standing` is resolved above the dialog from the expression
+  the click used to build. *"3d6 ≤ N"* sits under *"Skill N"*, one line
+  whatever is picked, so the chips do not move under a finger; what
+  made it is under the chips, through `LedgerLines`, the composable the
+  result now prints the same lines with.
+- **The attack dialog**: `attackStanding(label, level, key, trackers,
+  picked)` in the options branch, so it is never resolved while results
+  or the skill list are on screen. *"Injury, fatigue and attrition:
+  -1"* where the sentence was, then *"3d6 ≤ N"*, *", each"* for two
+  attacks. Roll is disabled on a forbidden target, because the handler
+  charges the plan's FP whatever the dice do.
+- **The Acrobatic Dodge**: `acrobaticRoll(…, dice)` became
+  `acrobaticTarget(…)`. The button reads *"Roll vs. Acrobatics — 3d6 ≤
+  4 (5 → 4)"*, and says so before the tap where something forbids it.
+- `docs/HOW-TO-PLAY.md`, sections 2 and 3.
+
+No production modifier that reaches these three rolls is anything but a
+plain signed number: `group =` and `supersedes =` appear nowhere in
+`core/rules` outside the resolver, and `RequireCrit` is built for
+divinations alone. That is what lets the attack's lines add up to its
+target, and a test pins it.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| a roll is its target resolved and then rolled | a `targetFor` that ignored its modifiers: 13 for 10 |
+| the dice are judged against the target the roll was handed | a `rollAgainst` that judged `target - 1`: 8 for 9 |
+| a forbidden target draws no die | one that drew: *"a forbidden roll drew a die"* |
+| the tracker line is what the ledger applied for the trackers alone | a sum of every contribution: -9 for -5 |
+| the level and the printed terms add up to the attack's target | the same: 14 for 12 |
+
+The last runs every maneuver, every Deceptive step and every hit
+location, hurt and unhurt. The three Acrobatic Dodge tests were moved
+onto `acrobaticTarget` with their assertions unchanged.
+
+**Diff review, the same reviewer: SHIP**, two LOWs taken.
+
+- **My matrix test took the trackers' number from the function under
+  test**, so both sides of its equality moved together. It is a literal
+  now, -5 hurt and 0 not. A guard must not derive its own expectation;
+  that lesson is in this project's memory under that name.
+- Roll stayed enabled on a forbidden attack and would have charged FP
+  for no die. Disabled.
+
+It also said what the tests cannot: a remainder and a by-id sum agree
+wherever every term is a plain number, which is everywhere today. The
+by-id reading is the KDoc's claim and no test separates the two.
+
+### On the device
+
+SM-T570, the committed build (18:38:31 against a commit at 18:38:24), a
+fresh backup first. Docks Bouncer on Twilight Giant 9.
+
+| Where | Before the dice | The roll |
+|---|---|---|
+| Brawling, unhurt | *"Skill 16"*, *"3d6 ≤ 16"* | |
+| the same, *Adverse conditions -4* picked | *"3d6 ≤ 12"*, *"common:adverse conditions (dark, noisy, dangerous): -4"* | *"3d6: 10 vs 12"*, *"base 16, modified to 12"* |
+| Brawling, reeling at HP 4 / 14 | *"Skill 16"*, *"3d6 ≤ 15"*, *"state:hp: -1"* | *"3d6: 7 vs 15"* |
+| Attack, reeling, nothing picked | *"Attack options: no modifier"*, *"Injury, fatigue and attrition: -1"*, *"3d6 ≤ 15"* | |
+| Attack, one Deceptive step, Neck, one Rapid Strike | *"Attack options: -8, 2 attacks"*, *"Called shot: Neck -5"*, *"…attrition: -1"*, *"3d6 ≤ 2, each"* | *"3d6: 13 vs 2"* and *"3d6: 7 vs 2"* |
+| Defend, reeling | *"Roll vs. Acrobatics — 3d6 ≤ 4 (5 → 4)"* | *"Acrobatics (untrained, DX-6) 5 → 4: rolled 10 — Failure, -2 on Dodge above."* |
+
+16 less 8, 5 and 1 is 2. No crash in the log. The save was written back
+and `cmp` says it is the backup; the tablet is on its launcher.
+
+1948 Kotlin (1349 `core:rules`, 579 `app`, 20 `core:model`), green
+after `--rerun-tasks`. The Python suite was not touched or re-run.
+
+**Next**: nothing is queued. One thing this slice made more visible
+and did not change: the ledger's lines print the modifier's id,
+*"state:hp: -1"*, *"common:adverse conditions (dark, noisy, dangerous):
+-4"*. They always did, after the dice. They are on screen before them
+now.
+
 ## 6gc. The device pass for 6gb, and 6ga's hurt case
 
 6gb's crash was a prediction and two of its guards had no test. SM-T570,

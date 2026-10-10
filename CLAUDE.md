@@ -170,6 +170,32 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
+**6gd is newest: a ledger roll prints its target first.** The skill
+roll, the attack and the Acrobatic Dodge printed a level and resolved
+their target inside the click: 6eg's third category, named in its
+census and neither fixed nor refused for forty-odd slices. A reeling
+character read *"Skill 16"*, rolled, and learned from the result that it
+had been 15. `SkillRoll.at` is split: `targetFor` gives a `SkillTarget`
+and `rollAgainst` rolls the one it is handed. Each dialog resolves while
+it is drawn. Read it for two things.
+
+- **Resolving in the draw moves every `require` behind the chips from
+  the tap to the screen**, where a throw has no way out. The design
+  review traced each chip handler before any screen was touched: none
+  can fire.
+- **Attack's tracker line is read off the ledger by id**, never as a
+  remainder, which would absorb a term the screen forgot and still add
+  up. The diff review then found my matrix test took that number from
+  the function under test. It is a literal now.
+
+`SkillRoll.at` and `.of` have no production caller. The design review
+changed four things; the diff review said SHIP. Device-verified,
+reeling Docks Bouncer: *"Skill 16"*, *"3d6 ≤ 15"*, *"state:hp: -1"*,
+then *"3d6: 7 vs 15"*; the attack *"3d6 ≤ 2, each"* and two rolls *"vs
+2"*; *"Roll vs. Acrobatics — 3d6 ≤ 4 (5 → 4)"*. Save restored.
+**Next**: nothing is queued. The ledger's lines print raw ids
+(*"state:hp: -1"*), before the dice now as well as after.
+
 **6gc (its device pass) and 6gb: the second tap of one picture.** 6ga left the dialogs
 to 6eh, and ten slices had moved a dialog's target since, so they were
 read again: 18 rolls and every charge. Each prints the number it rolls
@@ -195,10 +221,7 @@ held the build before the fix, and two taps on *+3* gave the FATAL in
 `EffortBurn.bonusFor` that 6gb had written down, 3 FP already charged;
 two on *Apply 1 to HP* cost 2. On this build, one push and one hit.
 6ga's hurt case with it: reeling, the Traits row and its dialog both
-read *"3d6 ≤ 11"*. The save was restored. **Next**: the three rolls
-that print a level and no target before the dice (skill, attack,
-Acrobatic Dodge): 6eg's category, never fixed or refused. Decomposition
-first.
+read *"3d6 ≤ 11"*. The save was restored.
 
 **6ga, with 6fz before it: a sheet row prints the number played.** The Vitals
 and Skills tabs render `SheetComparison`'s rows as the character, and
@@ -302,26 +325,12 @@ diff review said SHIP. 6fs: 6fq and 6fr are device-verified on the
 SM-T570, from a fresh install, because the APK on it predated both
 fixes; the save was restored.
 
-**6fo is next: the language a potion grants.** Mother 8 and
-Justiciar 6 print *"Ancient Hermes Fluent — can speak, read, and
-write"*: the mystical Native row, whose cell opens *"Fluent."* (702), in
-both forms, held from that rung down. `Languages.grantedBy` feeds the
-ritual dialog's note (*"From the potion: Ancient Hermes, Native."*);
-the proficiency picker stays the player's, so no roll changes. A census
-pins the table both ways against the prose. The diff review said SHIP.
-6fp: the builder's Appearance row now says *"the potion grants
-Handsome / Beautiful; <face> is played"*, through `Appearance.played`.
-That closes 6fn's census; nothing it found is outstanding. 6fm-6fp are
-device-verified on the SM-T570, and the save was restored. 6fq: a held
-face printed its name alone on the Traits tab, having no catalogue row;
-`held()` now gives it the table's reaction cell (`Appearance.cellFor`) and
-`UNREAD`. The review caught that my test computed its expectation with
-`cellFor`'s own formula; it now pins the book's eight strings.
-6fr ran the sweep 6fq named.
-
-**6fn back to 6de had lead paragraphs here until 2026-10-10. Each is in
+**6fq back to 6de had lead paragraphs here until 2026-10-10. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fq** — a held face printed its name alone on Traits; `held()` gives it the table's reaction cell, and my test had computed its expectation with `cellFor`'s own formula;
+**6fp** — the builder's Appearance row says what the potion grants and which face is played, through `Appearance.played`; that closed 6fn's census;
+**6fo** — Mother 8 and Justiciar 6 grant Ancient Hermes, Native, both forms; `Languages.grantedBy` feeds the ritual dialog's note and no roll changes;
 **6fn** — a potion's face: the chain keeps Sequence 6's and the better of bought and granted is played; a second `mapOf` key would have silently dropped Charisma's grant;
 **6fm** — a potion's Charisma levels add down the chain and onto a bought level, capped at 4; the label first said the grant's level, not what it added;
 **6fk** — a potion's catalogue rows are granted through one table pinned both ways; a census that dropped names under four characters lost Fit, and the builder would have sold a granted row;
@@ -364,13 +373,10 @@ slice log.** One line each:
 **6dz** — every optional parameter checked for a non-default argument; span rows (`+0 to +2`) applied their near end because only `BoonDialog` passed `gmValue`;
 **6dy** — the post-roll SPI push reached the plain skill roll alone; ritual, divination and boon take it now, and the 196 unclaimed mechanical lines are tabled as a census;
 **6dx** — `Shaken` needed no refusal, its carrier being a recorded GAP in `PotionDigestion.UNPARSED`; a line-local regex had dropped a wrapped `p. B229`;
-**6dw** — chapter 8's gear reference rendered only after the roll; it sits in the pre-roll branch now, below the modifier chips;
-**6dv** — `extract_equipment.skill_index()` dropped the open-row skills `isTemplate` matched, one flag at two sites; and a dump's tap scale is per WINDOW;
-**6du** — claimed lines checked for numbers their file never holds (clean); the fright table's `25 − HT` durations are computed, and the operand is not the attribute the cell rolls;
-**6dt** — `Hard to Subdue` reached nothing beside an applied `Hard to Kill`; two gaps cancelled into silence, and `BespokeBonus` feeds `known()` now.
-**6ds back to 6de** have one-line digests too, moved verbatim to
+**6dw** — chapter 8's gear reference rendered only after the roll; it sits in the pre-roll branch now, below the modifier chips.
+**6dv back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
-its 8,000-character cap (6ff, 6gb).
+its 8,000-character cap (6ff, 6gb, 6gd).
 
 **6dd back to 6cd had lead paragraphs here and they have been cut, because
 this file keeps reaching the 150 k-char limit (6eb: 152,583; 6eh cut 6dd to
@@ -389,7 +395,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6gc first.** The
+**Where to start next: the slice log, from the END — 6gd first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -444,7 +450,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1943 Kotlin** (JUnit 5 — 1346 `core:rules`, 577 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1948 Kotlin** (JUnit 5 — 1349 `core:rules`, 579 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -715,7 +721,12 @@ Divination.scopes() / .scopeNamed(name) / .penaltyFor(scope): Int
                                       // Sec. I's skill boundary; -4 for Complex,
                                       // NOT the question's difficulty band
 ContentLoader.divinationScopes()
-SkillRoll.at(label, base, key, source, mods, ctx): SkillRollOutcome
+SkillRoll.targetFor(label, base, key, mods, ctx): SkillTarget
+SkillRoll.rollAgainst(target: SkillTarget, source): SkillRollOutcome
+                                      // what the three ledger dialogs call:
+                                      // resolved while drawn, rolled as
+                                      // printed (6gd). `at` and `of` are the
+                                      // two composed, for the tests
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
 RitualResolution.attempt(skill, weight, cor, source): RitualOutcome
@@ -953,9 +964,10 @@ so; three `ModifierResolverTest` cases pin it.
   expires at n turns; `Minutes(n)` at n*60 (one turn = one second);
   `Permanent`/`Scene` never expire on a turn count.
 
-`ModifierResolver` has **one production caller, `SkillRoll.at`**
-(`SkillRoll.kt:88`), which three screens call: the sheet's skill roll
-(`MainActivity.kt:905`), the Attack dialog and the Defend dialog. Rituals,
+`ModifierResolver` has **one production caller, `SkillRoll.targetFor`**
+(`SkillRoll.kt:125`; it was `SkillRoll.at` until 6gd), which three screens
+call: the sheet's skill roll (`MainActivity.kt:916`), the Attack dialog
+and the Defend dialog. Rituals,
 divinations, boons and the bare attribute rolls compose their own targets
 and never reach it. This paragraph said *"zero production callers today.
 M2 is where that changes"* until 6fu.

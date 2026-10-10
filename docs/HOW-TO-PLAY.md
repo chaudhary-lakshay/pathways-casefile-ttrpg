@@ -79,7 +79,9 @@ Switch to **Skills** and tap any row. A dialog opens **before** the roll,
 because the modifiers come first:
 
 1. State the circumstances the GM called (the dialog shows what applies).
-2. Press **Roll**.
+   Under **Skill N** it prints the target as it stands, *3d6 ≤ N*, and that
+   number moves as you pick. What made it is listed under the chips.
+2. Press **Roll**. It rolls the number that was on screen.
 3. You get 3d6, the target, the margin, and the degree of success.
 
 The target already includes what the app can prove: your level, the trackers
@@ -163,6 +165,9 @@ Deceptive Attack's -2 per -1 imposed (capped at half your skill), Rapid Strike's
 
 It will not let you buy an option the maneuver does not allow, and it charges FP
 once per purchase, not once per recomposition.
+
+Above **Roll** it adds the terms up: what injury, fatigue and attrition take,
+then the target, *3d6 ≤ N* (*", each"* when the plan makes two attacks).
 
 Under your own skills the list carries on with the ones you can attack with
 **untrained**: a fist (Brawling at DX-2, Boxing at DX-5) and the weapons in the
