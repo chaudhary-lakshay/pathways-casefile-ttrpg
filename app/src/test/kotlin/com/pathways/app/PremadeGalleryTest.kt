@@ -4,6 +4,7 @@ import com.pathways.model.Attr
 import com.pathways.model.Attributes
 import com.pathways.model.BeyonderState
 import com.pathways.rules.Premades
+import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -115,5 +116,21 @@ class PremadeGalleryTest {
         val nowhere = SavedSession(beyonder = BeyonderState("Nowhere", 9, 0), edits = SavedEdits(st = 12))
         assertThrows(IllegalArgumentException::class.java) { playedNumbers(church, nowhere) }
         assertEquals(playedNumbers(church, null), rowNumbers(church, nowhere))
+    }
+
+    @Test
+    fun `the row counts the skills the Skills tab lists, on every walk`() {
+        // The tab lists the sheet's rows, then the bought, then
+        // [grantedSkills]; the row counts the map all three are read from.
+        // Two computations of one number, so every premade on every block.
+        val splits = people.flatMap { sheet ->
+            ContentLoader.pathways().map { block ->
+                val walk = BeyonderState(block.pathway, block.sequence, 0)
+                val levels = liveSkillLevels(sheet.toCharacter().copy(beyonder = walk))
+                val listed = sheet.skills.size + grantedSkills(sheet, SavedEdits(), levels).size
+                Triple("${sheet.name} on ${block.pathway} ${block.sequence}", listed, playedNumbers(sheet, SavedSession(beyonder = walk)).skills)
+            }
+        }.filter { it.second != it.third }
+        assertEquals(emptyList<Triple<String, Int, Int>>(), splits)
     }
 }

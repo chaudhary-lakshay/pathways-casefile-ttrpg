@@ -6801,6 +6801,16 @@ walk. A sixth passed under the stub on purpose: with nothing saved,
 all 22 rows equal the sheet as printed, attributes and skill count, so
 the new path cannot move a mortal's row.
 
+**The skill count is computed twice, so it is pinned by a census.** The
+attributes cannot split from the sheet's, both asking `attributesWith`.
+The count can: the row takes the size of `liveSkillLevels`, and the
+Skills tab lists the sheet's rows and then `grantedSkills`, which
+suppresses on name, specialization and difficulty. Over the 22 people
+on each of the 88 blocks, nothing bought, the two agree everywhere. It
+passed on its first run, so one mutant (the count taken before the walk)
+was run against it and failed it. Its reach stops at bought skills: a
+purchase the tab cannot level prints no row there and none was seeded.
+
 **Mutants, one at a time, from fresh XML, all compiled.** No floor pass
 (5 failed, four of them `BeyonderSessionTest`'s existing repair tests,
 which is the evidence the lift preserved `init`); no ceilings (2); the
@@ -6809,6 +6819,10 @@ containment (1). **The first containment mutant was mine and was wrong**:
 it changed the argument inside the catch to the fallback's own, which
 returns the expected value, and read as a survivor. Rewritten to remove
 the catch, it failed the one test written for it.
+
+**No decomposition review ran**, and this slice overturned a recorded
+refusal, which is the case the two-gate rule names. The advisor read the
+plan before any code; the reviewer read only the diff.
 
 **Review, one ecc sub-agent on the working-tree diff: SHIP.** It read
 the old `init` against the new function and found the same computation
@@ -6838,7 +6852,7 @@ The "Before" column is the fixture, not a screenshot of the old build.
 was left on its launcher. Not run on the device: a save outside the
 bounds, which would need a seed written; the test covers it.
 
-1921 Kotlin (1341 `core:rules`, 560 `app`, 20 `core:model`), green after
+1922 Kotlin (1341 `core:rules`, 561 `app`, 20 `core:model`), green after
 `--rerun-tasks`. The Python suite was not touched or re-run.
 
 **Next (6fx)**: the row's two chips are the last thing on it read from
