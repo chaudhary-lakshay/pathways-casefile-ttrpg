@@ -2481,8 +2481,10 @@ class TraitEffectsTest {
      * spellings 4.1 records** (6fr). Run over every fixture, every wealth
      * and appearance level, every offered and instanced purchase, every
      * language and every potion grant. 6fq found a face by eye; this found
-     * two wealth levels, nine sheets' Poverty and five potion senses, and
-     * the next producer that prints nothing fails here.
+     * two wealth levels, nine sheets' Poverty and five potion senses. A new
+     * row in one of these sources fails here; a new SOURCE of held traits
+     * (the app's composition is `chosenTraits` plus `withGrantedTraits`)
+     * does not, and must be added to this list by hand.
      */
     @Test
     fun `no reachable held row prints without a cell but a recorded sheet spelling`() {

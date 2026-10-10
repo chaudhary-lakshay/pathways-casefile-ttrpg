@@ -6757,8 +6757,20 @@ an enumerating one): **495 held rows, 29 with no cell, 17 names.**
 The 13 left are the sheet spellings 4.1 records (Absent-Minded, two
 Pacifisms, two Secrets, No Sense of Humour, Wierdness Magnet, Paranoia:
 Bodies of water, Blacklisted, the Librarian's Poverty). A test pins that
-set by name, both ways, so the next producer that prints no cell fails.
-The instanced purchases found none, which is a result, not a skip.
+set by name, both ways, so a new bare row in one of those sources fails.
+**A new SOURCE does not**: the census lists its producers by hand, and
+the composition it mirrors (`chosenTraits` plus `withGrantedTraits`)
+lives in `app/`, out of a `core:rules` test's reach. A new producer is
+added to the census by hand. The instanced purchases found none, which
+is a result, not a skip.
+
+Wealth prints in two styles, deliberately: where the trait list prints a
+level as a row, that prose wins, as the catalogue wins over a face's
+table; only the two levels the list omits print the table's line. The
+census sees nulls only, so a wrong non-null cell passes it: `Wealth:
+Average` would reach `cellFor` and print *"0 to reaction rolls"* where
+4975 says Status 0 grants none. `traitFor` never makes it and no fixture
+prints it (grepped), so it is unreachable today.
 
 **Diff review (one sub-agent, ecc's kotlin-reviewer): SHIP**, four LOWs.
 Two taken (the branch read as nested `let`s, and a dense test

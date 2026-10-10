@@ -168,7 +168,8 @@ print the wealth table's (`Wealth.cellFor`, 4965-4972). Nine sheets'
 two agreements, so it prints that row. Five potion sense rows print
 their whole row, and two run past the bonus, a rest the note says is
 unapplied. The 13 left are sheet spellings 4.1 records, pinned by name,
-so the next producer with no cell fails a test. Read it for one thing:
+so a new bare row in those sources fails a test; a new SOURCE of held
+traits must be added to the census by hand. Read it for one thing:
 **the sense chips were cut**, so a chip's text is not a row's cell. The
 diff review said SHIP. Not device-verified. **Next (6fs)**: a device
 pass for 6fq and 6fr with the owner present.
