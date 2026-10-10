@@ -6726,6 +6726,51 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gc. The device pass for 6gb, and 6ga's hurt case
+
+6gb's crash was a prediction and two of its guards had no test. SM-T570,
+Docks Bouncer on Twilight Giant 9, a fresh backup of the save first.
+
+**The APK on the tablet was the build before the fix** (16:32:10, 6ga's),
+so the RED needed no neutered build. 6ei's method: one `monkey
+--throttle 0` script of two taps on one point.
+
+| Two taps on | The old build (16:32:10) | This one (18:22:24) |
+|---|---|---|
+| *+3* on Brawling's push row | `FATAL EXCEPTION: main`, the app back on the launcher, `fpLost` 0 to 3 | no crash; *"3d6: 11 vs 19"*, *"burn:fp: 3"*, *"Spent so far: 3"*, chips *+1 +2*; `fpLost` 3 to 6 |
+| *Apply 1 to HP* | `hpLost` 0 to 2 | `hpLost` 2 to 3 |
+
+```
+java.lang.IllegalArgumentException: FP buys at most +5 per roll; 3 already
+  spent plus 3 is more than that
+    at com.pathways.rules.EffortBurn.bonusFor(EffortBurn.kt:141)
+    at com.pathways.rules.EffortBurn.applied(EffortBurn.kt:218)
+    at com.pathways.app.MainActivityKt.RollDialog$lambda$…(MainActivity.kt:2438)
+```
+
+The stack 6gb wrote down before it was run, frame for frame.
+
+**6ga's hurt case.** 7 more HP through the Damage dialog: *"HP 4 /
+14"*, *"1/3 HP remaining — -1 to all rolls — Reeling: -1 to all
+rolls"*. Traits reads *"Overconfidence — −5 pts — 3d6 ≤ 11"*, 12
+unhurt, and the dialog it opens reads *"3d6 ≤ 11"*.
+
+**Not produced on the device**: the SPI push's overdraft, the attack
+row, Attack's Roll, the Major Wound's rolls, fright recovery, Spirit
+Vision's Look and Give back. The push and Apply are the two shapes the
+others share, a count compared with the one drawn and a result already
+there, and Give back has its unit test.
+
+The save was written back and `cmp` says it is the backup; the tablet
+is on its launcher, where it was found. One thing about driving it: a
+tap chained three seconds after the launch landed before the gallery
+did, and the next one opened Antiquarian Dealer. Nothing was written to
+it. Read the title off a dump before tapping into a sheet.
+
+No code changed. **Next**: the three rolls that print a level and no
+target before the dice (skill, attack, Acrobatic Dodge), decomposition
+first.
+
 ## 6gb. The second tap of one picture
 
 6ga read every number printed beside a control outside a dialog and left

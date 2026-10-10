@@ -170,7 +170,7 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6gb is newest: the second tap of one picture.** 6ga left the dialogs
+**6gc (its device pass) and 6gb: the second tap of one picture.** 6ga left the dialogs
 to 6eh, and ten slices had moved a dialog's target since, so they were
 read again: 18 rolls and every charge. Each prints the number it rolls
 or charges. What did not hold was 6ei's count, *"Drink alone had no
@@ -179,8 +179,7 @@ re-entrancy guard"*. Read it for three things.
 - **The push rows.** A chip is offered against the count as drawn. In
   the skill dialog *+3* twice throws past the FP cap, and on the SPI row
   spends a pool the first tap emptied: Soul Debt, permanent CoR. The
-  attack's also pushed the outcome it was drawn with, 2 FP for +1. Read
-  off the code and one test; the crash itself is a prediction.
+  attack's also pushed the outcome it was drawn with, 2 FP for +1.
 - **A stale tap is dropped, not honoured**, the design review's change
   to my proposal: these two charge AT the tap and hold the balance as
   drawn, where the ritual's push charges on closing. `EffortBurn.pushed`
@@ -191,12 +190,15 @@ re-entrancy guard"*. Read it for three things.
   builder's Give back, which sold the neighbour. The slice log gives
   tables and no count.
 
-Both diff reviews said SHIP. **Not device-verified**: 6ei's
-two-tap `monkey` script against a neutered build, which writes FP, so
-it wants the tablet and a backup. **Next**: that pass, with 6ga's hurt
-case. Then the three rolls that print a level and no target before the
-dice (skill, attack, Acrobatic Dodge): 6eg's category, never fixed or
-refused. Decomposition first.
+Both diff reviews said SHIP. 6gc, on the SM-T570: the tablet still
+held the build before the fix, and two taps on *+3* gave the FATAL in
+`EffortBurn.bonusFor` that 6gb had written down, 3 FP already charged;
+two on *Apply 1 to HP* cost 2. On this build, one push and one hit.
+6ga's hurt case with it: reeling, the Traits row and its dialog both
+read *"3d6 ≤ 11"*. The save was restored. **Next**: the three rolls
+that print a level and no target before the dice (skill, attack,
+Acrobatic Dodge): 6eg's category, never fixed or refused. Decomposition
+first.
 
 **6ga, with 6fz before it: a sheet row prints the number played.** The Vitals
 and Skills tabs render `SheetComparison`'s rows as the character, and
@@ -387,7 +389,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6gb first.** The
+**Where to start next: the slice log, from the END — 6gc first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
