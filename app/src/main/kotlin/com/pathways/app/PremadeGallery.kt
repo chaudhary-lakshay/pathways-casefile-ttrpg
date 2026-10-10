@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,7 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.pathways.model.Attr
+import com.pathways.model.Attributes
 import com.pathways.model.BeyonderState
 import com.pathways.rules.PremadeSheet
 
@@ -72,11 +73,17 @@ import com.pathways.rules.PremadeSheet
  * problem this screen has, and "which of these is already supernatural" is the
  * one question the save can answer instantly ([walkOf]).
  *
- * **A row is the published sheet plus the walk.** Every number on it is the
- * sheet's, as printed; the pathway is the save's, because no sheet prints one.
- * Nothing here is digested: a save from before the floors existed throws
- * where a potion is digested on top of it ([digestedWith]), and this is the
- * launch screen.
+ * **A row's numbers are the character as played** ([playedNumbers]): the
+ * attributes and the skill count are what a tap opens, bought and digested,
+ * and the pathway is the save's, because no sheet prints one. The two trait
+ * chips are NOT played: they are the sheet's first two, which say who the
+ * person is, and a trait bought or granted since is on the Traits tab.
+ *
+ * Until 6fw nothing here was digested, because a save from before the
+ * floors existed throws where a potion is digested on top of it
+ * ([digestedWith]) and this is the launch screen. That reason named a repair
+ * only a session could make; the repair writes nothing and is read here
+ * ([repairedEdits]).
  */
 
 /** The filter across the top. `TEMPLATE` is not a person; see [isTemplate]. */
@@ -112,6 +119,42 @@ private fun isTemplate(sheet: PremadeSheet): Boolean =
  */
 internal fun walkOf(sheet: PremadeSheet, saved: Map<String, SavedSession>): BeyonderState? =
     saved[sheet.name]?.beyonder
+
+/** The numbers a row prints: the four attributes and how many skills are held. */
+internal data class RowNumbers(val attributes: Attributes, val skills: Int)
+
+/**
+ * [sheet]'s row as PLAYED: what was bought in the builder, then the potions
+ * of the walk digested on top, which is the character a tap opens. Until 6fw
+ * the row printed the sheet's own numbers beside the walk, so a Docks Bouncer
+ * on Twilight Giant 9 read ST 11 here and rolled damage off ST 14 a tap later.
+ *
+ * Through [repairedEdits], the repair a session makes on opening: a save
+ * from before the floors and ceilings throws where it is digested as saved.
+ * Nothing is written from here.
+ */
+internal fun playedNumbers(sheet: PremadeSheet, saved: SavedSession?): RowNumbers {
+    val walk = saved?.beyonder
+    val bought = saved?.repairedEdits(sheet)?.applyTo(sheet.toCharacter()) ?: sheet.toCharacter()
+    return RowNumbers(bought.attributesWith(walk), liveSkillLevels(bought.copy(beyonder = walk)).size)
+}
+
+/**
+ * [playedNumbers], or the sheet as printed for a save that does not digest.
+ *
+ * [BeyonderSession.drink] digests a potion before it stores one, so a stored
+ * walk digested under the catalogue that stored it; a walk this catalogue
+ * lacks takes a content change between two builds. On the sheet that throw
+ * costs one character. Here it would cost the launch screen and with it
+ * every other save, so it costs the row its played numbers and is logged.
+ */
+internal fun rowNumbers(sheet: PremadeSheet, saved: SavedSession?): RowNumbers =
+    try {
+        playedNumbers(sheet, saved)
+    } catch (failure: Exception) {
+        Log.w("PremadeGallery", "${sheet.name}'s save does not digest; its row is the sheet's", failure)
+        playedNumbers(sheet, null)
+    }
 
 /**
  * Who a tab holds. Its size is printed on the tab: one labelled "Beyonders"
@@ -262,7 +305,13 @@ fun PremadeGallery(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(shown, key = { it.name }) { sheet ->
-                PremadeRow(sheet, walkOf(sheet, saved)) { onSelect(sheet) }
+                // ponytail: two digestions a row, on the main thread, each
+                // time the row scrolls into view (a lazy item's `remember`
+                // goes with it). 22 rows of a few potions each; hoist one
+                // map above the list when a profiler says so.
+                val entry = saved[sheet.name]
+                val numbers = remember(sheet, entry) { rowNumbers(sheet, entry) }
+                PremadeRow(sheet, walkOf(sheet, saved), numbers) { onSelect(sheet) }
             }
 
             // Below the people, not among them.
@@ -293,7 +342,7 @@ fun PremadeGallery(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, onClick: () -> Unit) {
+private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, numbers: RowNumbers, onClick: () -> Unit) {
     val beyonder = walk != null
     Card(
         onClick = onClick,
@@ -358,14 +407,16 @@ private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, onClick: () ->
                     }
                 }
 
-                // The four numbers the sheet prints, in one monospaced-feeling
-                // row, then the walk. Not SPI: a sheet plays 0, and a
-                // walked character's needs the potions digested. A
-                // FlowRow, so "Wheel of Fortune 9" wraps on a narrow screen.
+                // The four attributes as played, in one monospaced-feeling
+                // row, then the walk. Not SPI: a pool is the sheet screen's
+                // to print, beside what is left of it. A FlowRow, so
+                // "Wheel of Fortune 9" wraps on a narrow screen.
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    for (attr in listOf(Attr.ST, Attr.DX, Attr.IQ, Attr.HT)) {
-                        StatCell(attr.name, "${sheet.attributes[attr] ?: 10}")
-                    }
+                    val played = numbers.attributes
+                    StatCell("ST", "${played.st}")
+                    StatCell("DX", "${played.dx}")
+                    StatCell("IQ", "${played.iq}")
+                    StatCell("HT", "${played.ht}")
                     if (walk != null) StatCell(walk.pathway, "${walk.sequence}", accent = true)
                 }
 
@@ -386,7 +437,7 @@ private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, onClick: () ->
                             }
                         }
                         Text(
-                            "${sheet.skills.size} skills",
+                            "${numbers.skills} skills",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(start = 2.dp, top = 2.dp),

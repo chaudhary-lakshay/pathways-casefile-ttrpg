@@ -334,10 +334,7 @@ fun SheetScreen(
     // AFTER any potion that raised them -- the same digested character the
     // skill levels come from.
     val attributes = remember(sheet, drunk, session.edits) {
-        val played = session.characterFor(sheet)
-        played.digestedWith(drunk)
-            ?.effectiveAttributes
-            ?: played.attributes
+        session.characterFor(sheet).attributesWith(drunk)
     }
     // The levels actually rolled: a potion's grants are in here, the sheet's
     // printed column is not. Computed once for defence, attack and the ritual

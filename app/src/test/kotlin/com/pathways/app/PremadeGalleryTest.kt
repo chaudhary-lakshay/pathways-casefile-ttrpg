@@ -1,9 +1,12 @@
 package com.pathways.app
 
+import com.pathways.model.Attr
+import com.pathways.model.Attributes
 import com.pathways.model.BeyonderState
 import com.pathways.rules.Premades
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
 /**
@@ -44,5 +47,73 @@ class PremadeGalleryTest {
     @Test
     fun `with nothing saved every character is a mortal`() {
         assertEquals(emptyList<String>(), rosterOf(Roster.BEYONDER, people, emptyMap()).map { it.name })
+    }
+
+    // What a row prints (6fw). Until then every number was the sheet's, and
+    // the tap led to a character who rolled different ones.
+
+    @Test
+    fun `a mortal's bought ST is the row's`() {
+        val church = Premades.byName("Church Healer")
+        val row = playedNumbers(church, SavedSession(edits = SavedEdits(st = 12)))
+        assertEquals(Attributes(st = 12, dx = 9, iq = 11, ht = 9), row.attributes)
+    }
+
+    @Test
+    fun `a walked row prints the attributes its potion raised`() {
+        // Twilight Giant 9: ST +3, DX +2, HT +1 on a sheet printing 11/9/9/10.
+        val bouncer = Premades.byName("Docks Bouncer")
+        val row = playedNumbers(bouncer, SavedSession(beyonder = BeyonderState("Twilight Giant", 9, 0)))
+        assertEquals(Attributes(st = 14, dx = 11, iq = 9, ht = 11), row.attributes)
+    }
+
+    @Test
+    fun `a walked row counts the skills its potion granted`() {
+        // Journalist prints 11. Error 9 grants five; Observation is one the
+        // sheet already holds, so four are new.
+        val row = playedNumbers(Premades.byName("Journalist"), SavedSession(beyonder = error))
+        assertEquals(15, row.skills)
+    }
+
+    @Test
+    fun `with nothing saved every row is its sheet as printed`() {
+        for (sheet in people) {
+            val row = playedNumbers(sheet, null)
+            val printed = listOf(Attr.ST, Attr.DX, Attr.IQ, Attr.HT).map { sheet.attributes.getValue(it) }
+            assertEquals(printed, row.attributes.run { listOf(st, dx, iq, ht) }, sheet.name)
+            assertEquals(sheet.skills.size, row.skills, sheet.name)
+        }
+    }
+
+    @Test
+    fun `a save outside the bounds reads on the row what its sheet opens to`() {
+        // ST bought to the model's 30 before the ceilings existed, and Will
+        // sold to the bound under Abyss 9's Will -1: digesting it as saved
+        // throws twice over. A session repairs both on opening; the row
+        // reads the same repair and writes nothing.
+        val dealer = Premades.byName("Antiquarian Dealer")
+        val abyss = BeyonderState("Abyss", 9, 0)
+        val saved = SavedSession(
+            beyonder = abyss,
+            edits = SavedEdits(st = 30, secondaries = mapOf("will" to -100)),
+        )
+        assertThrows(IllegalArgumentException::class.java) {
+            saved.edits.applyTo(dealer.toCharacter()).digestedWith(abyss)
+        }
+
+        val row = playedNumbers(dealer, saved)
+
+        // The purchase ceiling for ST is 19; Abyss 9 adds 2.
+        assertEquals(21, row.attributes.st)
+        val opened = BeyonderSession(saved, dealer)
+        assertEquals(opened.characterFor(dealer).attributesWith(abyss), row.attributes)
+    }
+
+    @Test
+    fun `a walk the catalogue does not hold costs one row its numbers, not the launch screen`() {
+        val church = Premades.byName("Church Healer")
+        val nowhere = SavedSession(beyonder = BeyonderState("Nowhere", 9, 0), edits = SavedEdits(st = 12))
+        assertThrows(IllegalArgumentException::class.java) { playedNumbers(church, nowhere) }
+        assertEquals(playedNumbers(church, null), rowNumbers(church, nowhere))
     }
 }

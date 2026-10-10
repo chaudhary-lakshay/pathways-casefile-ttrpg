@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import com.pathways.model.Attr
 import com.pathways.model.BeyonderState
 import com.pathways.model.Character
-import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.model.SecondaryDelta
 import com.pathways.model.Trait
 import com.pathways.model.canDrink
@@ -150,20 +149,9 @@ class BeyonderSession(
     // lowers HP, and the floors must see the HP that results.
     init {
         if (sheet != null) {
-            // Bought scores, then digested ones: two passes at most, since a
-            // potion lowers only Will and by four at most.
-            val floored = generateSequence(edits.withinCeilings()) { e ->
-                e.shortfallOn(sheet, state).takeIf { it != SecondaryDelta() }?.let(e::boughtBack)
-            }.last()
-            // Then the CoR ceiling, which the builder used to sell onto the
-            // total: Will bought back to one above it. Buying Will only
-            // raises the ceiling, so no floor moves. Should the purchase
-            // ceiling stop the buy-back short, the character stands at
-            // maximum CoR and is lost, which is the book's answer.
-            val owed = if (isLost) 0 else cor + 1 - floored.corCeilingOn(sheet, state)
-            val repaired = if (owed <= 0) floored else floored
-                .boughtBack(SecondaryDelta(will = owed.coerceAtMost(MAX_SECONDARY_DELTA_MAGNITUDE)))
-                .withinCeilings()
+            // The repair itself is [repairedEdits], which the gallery reads
+            // too; writing it back and latching the loss are this session's.
+            val repaired = saved.repairedEdits(sheet)
             if (!isLost && repaired.corCeilingOn(sheet, state) <= cor) corrupted = true
             if (repaired != edits || corrupted != saved.corrupted) {
                 edits = repaired

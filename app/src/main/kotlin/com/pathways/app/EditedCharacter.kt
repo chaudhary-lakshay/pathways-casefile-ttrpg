@@ -1,6 +1,7 @@
 package com.pathways.app
 
 import com.pathways.model.Attr
+import com.pathways.model.Attributes
 import com.pathways.model.BASE_ATTRIBUTE
 import com.pathways.model.BeyonderState
 import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
@@ -72,6 +73,14 @@ fun SavedEdits.applyTo(base: Character): Character {
  */
 fun Character.digestedWith(state: BeyonderState?): DigestedCharacter? =
     PotionDigestion.of(copy(beyonder = state), ContentLoader.pathways())
+
+/**
+ * ST, DX, IQ and HT as played: after any potion that raised them. Damage,
+ * Boxing's bonus and a Major Wound roll off these, and the gallery row
+ * prints them.
+ */
+fun Character.attributesWith(state: BeyonderState?): Attributes =
+    digestedWith(state)?.effectiveAttributes ?: attributes
 
 /**
  * What the builder prints under a number a potion moved: the builder steps,
@@ -153,6 +162,30 @@ fun SavedEdits.boughtBack(gap: SecondaryDelta): SavedEdits {
         if (bought + owed == 0) acc - key else acc + (key to bought + owed)
     }
     return copy(secondaries = repaired)
+}
+
+/**
+ * These edits as a session opening [sheet] holds them: inside the ceilings,
+ * at every floor, and with Will bought back to one above the CoR total.
+ * Reads the save and writes nothing: [BeyonderSession] persists the result
+ * on opening, and the gallery reads it for a row without opening anything.
+ *
+ * Bought scores, then digested ones: two passes at most, since a potion
+ * lowers only Will and by four at most. Then the CoR ceiling, which the
+ * builder used to sell onto the total. Buying Will only raises the ceiling,
+ * so no floor moves. Should the purchase ceiling stop the buy-back short,
+ * the character stands at maximum CoR and is lost, which is the book's
+ * answer and the session's to latch.
+ */
+fun SavedSession.repairedEdits(sheet: PremadeSheet): SavedEdits {
+    val floored = generateSequence(edits.withinCeilings()) { e ->
+        e.shortfallOn(sheet, beyonder).takeIf { it != SecondaryDelta() }?.let(e::boughtBack)
+    }.last()
+    val owed = if (lost || corrupted) 0 else cor + 1 - floored.corCeilingOn(sheet, beyonder)
+    if (owed <= 0) return floored
+    return floored
+        .boughtBack(SecondaryDelta(will = owed.coerceAtMost(MAX_SECONDARY_DELTA_MAGNITUDE)))
+        .withinCeilings()
 }
 
 /**
