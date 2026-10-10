@@ -471,12 +471,18 @@ player-facing guide to all four and is verified against the labels in source.
 ./gradlew test                    # all Kotlin tests, app module included
 ./gradlew :core:rules:test        # one module
 py -m pytest tools/test_tools.py -q   # Python tooling tests (Windows: `py`, not `python`)
-ast-grep scan                     # the structural sweeps in tools/sg/, as rules
+ast-grep scan                     # 4.3's division rule; silent and exit 0 when clean
+ast-grep scan --rule tools/sg-census/session-mutator-in-lambda.yml --report-style short
+                                  # 6gb's census: 34 lines, one per call site
 ast-grep run -l kotlin -p 'SkillRoll.targetFor($$$)' app core   # call sites
 ```
 
-**Read a symbol, not a file.** `ast-grep run -l kotlin -p 'fun wieldedAt($$$A): $R { $$$B }' core`
-prints one function. Eleven files are over the 800-line cap;
+**Read a span, not a file.** This prints where one function starts and ends
+(`RollDialog`: 2271-2503), and Read takes it from there with an offset:
+`ast-grep scan --inline-rules '{id: s, language: kotlin, rule: {kind: function_declaration, has: {kind: simple_identifier, regex: "^RollDialog$"}}}' app`.
+A `fun $N($$$): $R { $$$ }` pattern misses every `@Composable`, which has no
+return type. Nothing runs `ast-grep scan` for you: it is not in the Gradle
+build. Eleven files are over the 800-line cap;
 [`docs/SPLIT-PLAN.md`](docs/SPLIT-PLAN.md) is the plan for them, not yet
 started. `graphify-out/` was rebuilt 2026-10-10 with `python -m graphify
 update .` (no LLM; the interpreter is named in `graphify-out/.graphify_python`,
