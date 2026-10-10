@@ -236,11 +236,15 @@ fun DamageDialog(
                     // RollKind.MAJOR_WOUND_HT for that reason. Reeling and
                     // fatigue are inside [htTarget], because the character was
                     // already carrying those when the blow landed.
-                    onRoll = { shock = SuccessRoll.against(htTarget, dice) },
+                    // One roll a wound: a second tap of the same picture
+                    // would roll again and keep the second (6p).
+                    onRoll = { if (shock == null) shock = SuccessRoll.against(htTarget, dice) },
                     recoveryTarget = recoveryTarget,
                     recoveryLine = stunRecoveryHt.line,
                     recovery = recovery,
-                    onRecoveryRoll = { recovery = SuccessRoll.against(recoveryTarget, dice) },
+                    onRecoveryRoll = {
+                        if (recovery == null) recovery = SuccessRoll.against(recoveryTarget, dice)
+                    },
                 )
                 if (pool == Pool.HP) {
                     WhereItLanded(
@@ -295,7 +299,8 @@ private fun MajorWoundPanel(
         }
         return
     }
-    Text("3d6: ${shock.total} vs $ht", style = MaterialTheme.typography.titleMedium)
+    // The roll's own target, as the recovery line below prints its own.
+    Text("3d6: ${shock.total} vs ${shock.target}", style = MaterialTheme.typography.titleMedium)
     val row = Wounds.majorWoundFor(shock)
     Text(
         "${row.result} — ${row.effect}",

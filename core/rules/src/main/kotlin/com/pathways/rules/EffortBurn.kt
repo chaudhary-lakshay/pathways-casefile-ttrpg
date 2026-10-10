@@ -225,6 +225,34 @@ object EffortBurn {
         )
     }
 
+    /**
+     * [applied], or null where [points] is not a chip [affordable] would
+     * still offer.
+     *
+     * What a screen calls. A push row is drawn against one count and can be
+     * tapped against another: two taps a few milliseconds apart both reach
+     * the handler of the row drawn before the first (6ei). [applied] throws
+     * past the cap and knows no pool, so the second tap took the app down on
+     * the FP row and bought Soul Debt on the SPI one. Null means nothing was
+     * bought, and the caller charges nothing.
+     *
+     * The skill and attack dialogs drop that second tap themselves, because
+     * they charge at the tap and hold only the balance they were drawn with.
+     * This is the rule's own refusal, for a caller whose guard is wrong.
+     */
+    fun pushed(
+        outcome: SkillRollOutcome,
+        kind: BurnKind,
+        points: Int,
+        alreadyBurned: Int,
+        spiAvailable: Int,
+    ): SkillRollOutcome? =
+        if (!canPush(outcome) || points !in 1..affordable(kind, alreadyBurned, spiAvailable)) {
+            null
+        } else {
+            applied(outcome, kind, points, alreadyBurned)
+        }
+
     /** The ledger name a burned point appears under. */
     fun idFor(kind: BurnKind) = ModifierId("burn:${pool(kind).pool.lowercase()}")
 

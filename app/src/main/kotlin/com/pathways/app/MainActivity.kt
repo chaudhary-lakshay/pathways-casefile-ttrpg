@@ -1487,7 +1487,11 @@ private fun FrightDialog(
                                 shock = shock,
                                 hurt = hurt,
                                 rolled = recovery,
-                                onRoll = { target -> recovery = SuccessRoll.against(target, appDice) },
+                                onRoll = { target ->
+                                    // One roll a tap: a second from the same
+                                    // picture would roll again (6p).
+                                    if (recovery == null) recovery = SuccessRoll.against(target, appDice)
+                                },
                             )
                         }
                     }
@@ -2426,6 +2430,8 @@ private fun RollDialog(
                 // never happened, or one only a critical can win, where the
                 // total decides and raising the target changes nothing.
                 if (burnKind != null && EffortBurn.canPush(shownOut)) {
+                    // The count this row's chips are offered against.
+                    val drawn = burned
                     BurnRow(burnKind, burned, spiAvailable) { points ->
                         // The LIVE outcome, never the `shownOut` captured when
                         // this lambda was composed: two taps before a
@@ -2433,7 +2439,17 @@ private fun RollDialog(
                         // second push would overwrite the first while the pool
                         // paid for both. Bail rather than guess if it is gone.
                         val live = out ?: return@BurnRow
-                        out = EffortBurn.applied(live, burnKind, points, burned)
+                        // And the live count. A second tap of the same
+                        // picture buys nothing: its chip was offered against
+                        // `drawn`, so +3 twice threw past the FP cap, and on
+                        // the SPI row it spent a pool the first tap had
+                        // emptied, which is permanent CoR. Dropped, not
+                        // honoured: the pool moves at the tap here, and
+                        // `spiAvailable` is the balance this row was drawn
+                        // with (the design review). The row redraws.
+                        if (burned != drawn) return@BurnRow
+                        out = EffortBurn.pushed(live, burnKind, points, burned, spiAvailable)
+                            ?: return@BurnRow
                         onBurn(burnKind, points)
                         burned += points
                     }

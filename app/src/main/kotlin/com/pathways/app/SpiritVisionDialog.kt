@@ -174,9 +174,18 @@ fun SpiritVisionDialog(
             }
         },
         confirmButton = {
+            // The reading this button was drawn beside.
+            val drawn = result
             TextButton(
                 enabled = affordable,
                 onClick = {
+                    // Looking again is the rule, so the button stays; a
+                    // second tap of the same picture does not. `affordable`
+                    // is the pool as drawn, and the first tap may have
+                    // emptied it: the second spent into Soul Debt, which
+                    // is permanent CoR. By identity, since two readings can
+                    // be equal.
+                    if (result !== drawn) return@TextButton
                     // Charged before the roll, like every other SPI-priced
                     // action here: the book spends to activate, and a reading
                     // that failed still cost the point.

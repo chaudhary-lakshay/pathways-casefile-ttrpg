@@ -275,11 +275,23 @@ fun AttackDialog(
                         // would break that silently (a design review).
                         val kind = chosen?.key?.let(EffortBurn::kindFor)
                         if (kind != null && EffortBurn.canPush(outcome)) {
-                            BurnRow(kind, burned[index] ?: 0, spiAvailable) { points ->
+                            // Every count the chips below are offered against.
+                            val drawn = burned
+                            BurnRow(kind, drawn[index] ?: 0, spiAvailable) { points ->
+                                // The skill dialog's two guards, which this
+                                // row had neither of. A second tap of the
+                                // same picture pushed the `outcome` this item
+                                // was drawn with, so +1 twice charged 2 FP for
+                                // +1, and +3 twice threw past the cap. The
+                                // whole map, because a push on the other
+                                // attack moves the pool this one is drawn
+                                // against.
+                                if (burned != drawn) return@BurnRow
+                                val live = outcomes.getOrNull(index) ?: return@BurnRow
                                 val already = burned[index] ?: 0
-                                outcomes = outcomes.toMutableList().also {
-                                    it[index] = EffortBurn.applied(outcome, kind, points, already)
-                                }
+                                val next = EffortBurn.pushed(live, kind, points, already, spiAvailable)
+                                    ?: return@BurnRow
+                                outcomes = outcomes.toMutableList().also { it[index] = next }
                                 burned = burned + (index to already + points)
                                 onBurn(kind, points)
                             }
@@ -458,7 +470,11 @@ fun AttackDialog(
                         }
                         plan = it
                     },
-                    onRoll = {
+                    onRoll = onRoll@{
+                        // The guard every roll button here carries (6p), and
+                        // this one did not: a second tap of the same picture
+                        // rolled again and charged the plan's FP again.
+                        if (outcomes.isNotEmpty()) return@onRoll
                         // Rolled at the level the exertion started from, then
                         // charged: a character is not yet tired by an effort
                         // they are in the middle of making. The cost still

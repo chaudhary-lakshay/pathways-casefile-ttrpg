@@ -319,6 +319,36 @@ class EffortBurnTest {
     }
 
     /**
+     * Two taps a few milliseconds apart both reach the handler of the row
+     * that was drawn before the first (6ei), so the second asks for a chip
+     * the row would no longer offer. The skill and attack dialogs handed
+     * that to [EffortBurn.applied], whose cap check throws: +3 twice took the
+     * app down with the first three FP already charged.
+     */
+    @Test
+    fun `a second push past the cap buys nothing instead of throwing`() {
+        val first = EffortBurn.pushed(rolled(total = 14, target = 10), BurnKind.PHYSICAL, 3, alreadyBurned = 0, spiAvailable = 0)
+        assertEquals(13, first!!.target)
+        assertNull(EffortBurn.pushed(first, BurnKind.PHYSICAL, 3, alreadyBurned = 3, spiAvailable = 0))
+        // What the cap still allows is still sold, and lands on the first.
+        assertEquals(15, EffortBurn.pushed(first, BurnKind.PHYSICAL, 2, alreadyBurned = 3, spiAvailable = 0)!!.target)
+    }
+
+    /**
+     * The same second tap on the uncapped row. Nothing threw there, so it
+     * spent: 3 SPI left, +3 twice, and the second three were Soul Debt,
+     * which is permanent CoR. [EffortBurn.affordable] is what offered the
+     * chip; it is asked again of the pool as it stands.
+     */
+    @Test
+    fun `a mystical push the pool no longer holds buys nothing`() {
+        val before = rolled(total = 14, target = 10)
+        assertEquals(13, EffortBurn.pushed(before, BurnKind.MYSTICAL, 3, alreadyBurned = 0, spiAvailable = 3)!!.target)
+        assertNull(EffortBurn.pushed(before, BurnKind.MYSTICAL, 3, alreadyBurned = 3, spiAvailable = 0))
+        assertNull(EffortBurn.pushed(before, BurnKind.MYSTICAL, 0, alreadyBurned = 0, spiAvailable = 3))
+    }
+
+    /**
      * **The two chapters that already burn SPI agree with this one exactly**,
      * and that agreement is the whole warrant for adopting the general rule
      * (6ad's per-table standard). If either ever printed a different rate,
