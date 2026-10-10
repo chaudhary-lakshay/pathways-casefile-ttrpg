@@ -106,6 +106,13 @@ object Appearance {
         return traits.mapNotNull { byName[it.name.lowercase()] }.maxByOrNull { it.reactionModifier }
     }
 
+    /**
+     * [level]'s reaction cell as the book words every row: "+2 to reaction
+     * rolls", "-2 to reaction rolls" (722-743). What a held face prints (6fq).
+     */
+    fun cellFor(level: AppearanceLevel): String =
+        "${if (level.reactionModifier > 0) "+" else ""}${level.reactionModifier} to reaction rolls"
+
     /** Whether [trait] is a face [traits] hold and do not play (6fn): a bought one a potion beat. */
     fun isSuperseded(trait: Trait, traits: List<Trait>): Boolean =
         played(listOf(trait)) != null && played(traits)?.level?.equals(trait.name, ignoreCase = true) != true

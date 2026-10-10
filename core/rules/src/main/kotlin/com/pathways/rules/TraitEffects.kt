@@ -1382,11 +1382,16 @@ object TraitEffects {
     fun held(traits: List<Trait>, kind: TraitKind): List<HeldTrait> {
         val catalogue = catalogue()
         return traits.filter { it.kind == kind }.map { owned ->
+            // A face is a rung of the appearance table, never a catalogue row
+            // (the two are disjoint): its cell is the reaction column, which
+            // nothing applies (6fq).
+            val face = Appearance.played(listOf(owned))?.let(Appearance::cellFor)
             HeldTrait(
                 trait = owned,
                 shown = displayName(owned.name),
-                cell = catalogue[catalogueName(owned.name).lowercase()]?.notes,
-                notes = reported(listOf(owned)),
+                cell = catalogue[catalogueName(owned.name).lowercase()]?.notes ?: face,
+                notes = reported(listOf(owned)) +
+                    listOfNotNull(face?.let { TraitNote(displayName(owned.name), it, UNREAD) }),
             )
         }
     }

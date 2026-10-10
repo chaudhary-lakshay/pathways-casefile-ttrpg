@@ -170,4 +170,30 @@ class AppearanceTest {
         assertFalse(Appearance.isSuperseded(ugly.copy(name = "ugly"), listOf(ugly.copy(name = "ugly"))))
         assertFalse(Appearance.isSuperseded(Trait("Luck", 15, TraitKind.ADVANTAGE), listOf(ugly, beautiful)))
     }
+
+    /**
+     * A face has no catalogue row, so the Traits tab printed its name alone
+     * (6fq). Its cell is the table's own reaction column, worded as the book
+     * words every row ("-2 to reaction rolls", 722-743), and nothing applies
+     * it, so it carries [TraitEffects.UNREAD] like any row nothing reads.
+     */
+    @Test
+    fun `a held face prints its reaction cell and says it is not applied`() {
+        // The book's own column, copied from lines 722-743, never computed.
+        val printed = listOf(
+            "+1 to reaction rolls", "+2 to reaction rolls", "+3 to reaction rolls",
+            "-1 to reaction rolls", "-2 to reaction rolls", "-4 to reaction rolls",
+            "-5 to reaction rolls", "-6 to reaction rolls",
+        )
+        assertEquals(printed.size, Appearance.all().size)
+        for ((level, cell) in Appearance.all().zip(printed)) {
+            val face = Appearance.traitFor(level)
+            val held = TraitEffects.held(listOf(face), face.kind).single()
+            assertEquals(cell, held.cell, level.level)
+            assertEquals(listOf(TraitEffects.UNREAD), held.notes.map { it.reason }, level.level)
+        }
+        // A catalogue row is untouched.
+        val luck = TraitEffects.held(listOf(Trait("Luck", 15, TraitKind.ADVANTAGE)), TraitKind.ADVANTAGE).single()
+        assertTrue(luck.cell!!.isNotBlank())
+    }
 }
