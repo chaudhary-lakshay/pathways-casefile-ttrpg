@@ -471,7 +471,18 @@ player-facing guide to all four and is verified against the labels in source.
 ./gradlew test                    # all Kotlin tests, app module included
 ./gradlew :core:rules:test        # one module
 py -m pytest tools/test_tools.py -q   # Python tooling tests (Windows: `py`, not `python`)
+ast-grep scan                     # the structural sweeps in tools/sg/, as rules
+ast-grep run -l kotlin -p 'SkillRoll.targetFor($$$)' app core   # call sites
 ```
+
+**Read a symbol, not a file.** `ast-grep run -l kotlin -p 'fun wieldedAt($$$A): $R { $$$B }' core`
+prints one function. Eleven files are over the 800-line cap;
+[`docs/SPLIT-PLAN.md`](docs/SPLIT-PLAN.md) is the plan for them, not yet
+started. `graphify-out/` was rebuilt 2026-10-10 with `python -m graphify
+update .` (no LLM; the interpreter is named in `graphify-out/.graphify_python`,
+and the `graphify.exe` shim is refused by Git Bash). Its call edges are
+heuristic: asked what calls `SkillRoll.targetFor` it returned none of the
+three the pattern above finds.
 
 Note: on this machine `python` is not on PATH. Use the `py` launcher. Gradle's
 `--console=plain -q` prints nothing on success; check the exit code.
