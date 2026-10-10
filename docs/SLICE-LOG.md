@@ -6733,9 +6733,10 @@ go-ahead, on the SM-T570:
 
 **Reproduced.** Apothecary's sheet open on Vitals; `settings put system
 accelerometer_rotation 0` then `user_rotation 1`. The dump after read
-*"Characters"* and `All (22)`: the character list. Same pid before and
-after (9050), a new window: the activity was recreated and the process
-was not. Every screen's state is plain `remember`, so nothing on screen
+*"Characters"* and `All (22)`: the character list, in a new window. The
+pid was the same before and after (9050), and it is the same after the
+fix too, so the pid tells nothing: the evidence is what the screen
+shows. Every screen's state is plain `remember`, so nothing on screen
 survived, and the save did.
 
 **The fix is one manifest attribute**, `android:configChanges=
@@ -6758,12 +6759,17 @@ comment now says which recreation it is for.
 **Verified on the same tablet, fresh install** (`lastUpdateTime` moved):
 
 - Sheet open, turned to landscape and back: still Apothecary, still on
-  Vitals, same pid. The landscape screenshot lays out correctly, tiles
-  eight to a row.
+  Vitals. The landscape screenshot lays out correctly, tiles eight to a
+  row.
 - Fright dialog with *"Witnessing a supernatural death"* picked: the
   pick and *"3d6 vs 6"* survived both turns.
 - Rolled: *"Held their nerve — 3d6: 6 vs 6"* read the same in portrait,
   landscape and portrait again. Navigation alone could not have kept it.
+- **A window made in portrait now lives into landscape**, which no
+  build before this one could do, so both popup kinds were screenshotted
+  after a turn. The Fright `AlertDialog` re-centred at landscape width,
+  nothing clipped. The Glossary `ModalBottomSheet` sat at the same
+  coordinates as one opened fresh in landscape, and dragged closed.
 - Not run: 6dy's ritual push through a rotation. It writes the save, and
   its code is unchanged; a turn now never reaches it.
 
