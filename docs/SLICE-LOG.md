@@ -6798,15 +6798,22 @@ count in prose.** Asked of every handler that rolls or charges:
 
 | Handler | A second tap of the same picture |
 |---|---|
-| Skill dialog, FP push | **threw**: the chips were offered against 0 burned, `applied` was handed the live 3, and `bonusFor` requires `already + points ≤ 5`. *+3* twice took the app down, 3 FP already charged |
-| Skill dialog, SPI push | **overdrew**: no cap to throw on, and `spiAvailable` is the balance as drawn. With 3 SPI left, *+3* twice spent 6. SPI below 0 is Soul Debt, and `spend` charges it as CoR, which is permanent |
-| Attack push | the same throw, and it pushed `outcome`, the list item it was drawn with: *+1* twice charged 2 FP and moved the target by 1 |
-| Attack's Roll | rolled again and charged the plan's FP again |
-| Major Wound, its recovery, fright recovery | rolled again; the second was kept |
-| Spirit Vision's Look | repeatable on purpose, and `enabled` is the pool as drawn: with 1 SPI left the second tap bought Soul Debt |
+| Skill dialog, FP push | **throws**: the chips were offered against 0 burned, `applied` was handed the live 3, and `bonusFor` requires `already + points ≤ 5`. *+3* twice, with the first 3 FP already charged |
+| Skill dialog, SPI push | **overdraws**: no cap to throw on, and `spiAvailable` is the balance as drawn. With 3 SPI left, *+3* twice spends 6. SPI below 0 is Soul Debt, and `spend` charges it as CoR, which is permanent |
+| Attack push | the same throw, and it pushed `outcome`, the list item it was drawn with: *+1* twice charges 2 FP and moves the target by 1 |
+| Attack's Roll | rolls again and charges the plan's FP again |
+| Major Wound, its recovery, fright recovery | rolls again; the second is kept |
+| Spirit Vision's Look | repeatable on purpose, and `enabled` is the pool as drawn: with 1 SPI left the second tap buys Soul Debt |
+| Damage's Apply | puts the same hit into `spend` twice; on SPI the second is Soul Debt. Found second: see below |
+| The builder's *Give back* on an instanced trait | sold by index, and by then the index holds the neighbour: both are sold. Found second |
 | Ritual, divination, boon pushes | guarded: live outcome, `canAffordSpi(burned + points, …)`, and they charge on closing |
 | Every other Roll, Drink, the reroll, the artifact, the Defend boost | guarded |
 | Acrobatic Dodge | re-rollable on purpose (its KDoc), and charges nothing |
+
+**The unguarded rows are read off the code, not seen.** They say what
+the handlers did before this slice. `bonusFor`'s throw is pinned by a
+test and the two-tap reach by 6ei's device run; the crash that joins
+them has not been produced.
 
 The skill dialog's own comment describes the attack row's defect in
 full, *"the second push would overwrite the first while the pool paid
@@ -6856,7 +6863,7 @@ guard is wrong, and it is the part a unit test can reach.
   button was drawn beside. By identity: two readings can be equal.
 - The Major Wound result prints `shock.target`.
 
-**Tests.** Both watched failing against a `pushed` that only called
+**Tests.** Both of `pushed`'s watched failing against one that only called
 `applied`, which is what the two handlers did: the FP one with
 *"IllegalArgumentException: FP buys at most +5 per roll; 3 already
 spent plus 3 is more than that"*, the crash itself; the SPI one with a
@@ -6872,15 +6879,55 @@ and a fresh Roll would find an empty `burned` equal to its own and
 pass. Two other buttons would have to be pressed inside the same few
 milliseconds.
 
+### The count was wrong a second time
+
+The first commit (`69143b6`) says seven handlers. That came from the
+greps above, which look for a roll or a pool charge, and I then wrote
+into the handover that *"every handler that rolls or charges opens with
+its guard"*. That sentence was questioned before the slice closed, and
+the question found an eighth: `onApply(` was in the third grep's output
+and I had read it only for whether the amount printed is the amount
+applied.
+
+So the query was run as the sentence needs it: every click lambda in
+`app/src/main` that reaches a session mutator.
+
+| Class | Members | A second tap of the same picture |
+|---|---|---|
+| Steppers | the pool and CoR ±1, digestion ±5%, a skill's points | applies again, as meant |
+| Absolute setters | `setAttribute(printed + delta)`, `setSecondary`, wealth, appearance | sets the same value again |
+| Bought or sold by name or key | `buyTrait`, `buySkill`, `buyInstancedTrait`, `carryWeapon`, `sellTrait`, `sellLanguage`, `dropWeapon` | returns: already held, or already gone |
+| The dialogs' rolls and charges | the table above | guarded, as of this slice |
+| **Damage's Apply** | | **the hit twice** |
+| **`sellInstancedTrait(index)`** | | **the neighbour too** |
+
+- **Apply** sets a flag before it charges and returns if the flag is
+  set. `onDismiss` was never a guard: it is 6ei's Drink again, a state
+  change that leaves the old handler reachable.
+- **Give back** is by index on purpose, two purchases of one row being
+  legal. `sellInstancedTrait(index, drawn)` sells only if that index
+  still holds the row the button was drawn beside. `TraitPicker` passes
+  the purchase it drew, which is the saved object itself:
+  `instancedRows` zips the saved list. Watched failing with `drawn`
+  ignored, `[Coworkers]` expected and `[]` returned.
+
+Committed apart, as `95a76a4`. **Its diff review: SHIP WITH CHANGE**,
+one LOW taken: my new test had landed between a KDoc and the test the
+KDoc describes. It confirmed the dialog's state is recreated on every
+open, so the flag cannot block a later Apply.
+
+No count of handlers is given here. The tables are the claim.
+
 **Device: not verified.** 6ei's method is the check that fits, a
 `monkey --throttle 0` script of two taps on one chip, against a build
-with the guard neutered and then this one. Predicted for the old build,
-a failed DX skill roll and *+3* twice: the `IllegalArgumentException`
+with the guard neutered and then this one, on a push chip and on
+Apply. Predicted for the old build, a failed DX skill roll and *+3*
+twice: the `IllegalArgumentException`
 above, from `EffortBurn.bonusFor` through `RollDialog`. It writes FP to
 the save, so it wants the tablet's foreground and a backup first. 6ga's
 hurt case is still open beside it.
 
-1942 Kotlin (1346 `core:rules`, 576 `app`, 20 `core:model`), green
+1943 Kotlin (1346 `core:rules`, 577 `app`, 20 `core:model`), green
 after `--rerun-tasks`. The Python suite was not touched or re-run.
 
 **Next**: that device pass. After it, the three rolls that print no

@@ -53,6 +53,17 @@ beside a rule that is applied. Nothing enforces this: the census tests name
 the readers that were found (Night Eyes, Spiritual Fortitude, the language
 pricing pair) and cannot see the next one.
 
+**A handler that rolls, charges or sells guards its own second tap.**
+Two taps a few milliseconds apart both reach the handler of the
+composition drawn before the first (6ei), so what it captured is the
+picture as drawn. A one-shot returns if its result is already there. A
+repeatable one returns if the live state is not what it was drawn with.
+A push row calls `EffortBurn.pushed`, never `applied`. A stepper is
+meant to repeat, and a setter handed an absolute value is safe. Nothing
+enforces this: 6gb found the unguarded ones by grepping every click
+lambda that reaches a session mutator, and its screen guards have no
+test.
+
 **Every roll at a default takes Versatile's +1, and goes through
 `SkillDefaults`, or through `Divination.divinationLevelFor` for Divination
 Arts.** Four do: the Skills tab's untrained list, the Attack dialog's
@@ -163,23 +174,24 @@ nothing new unless the batches change.
 to 6eh, and ten slices had moved a dialog's target since, so they were
 read again: 18 rolls and every charge. Each prints the number it rolls
 or charges. What did not hold was 6ei's count, *"Drink alone had no
-re-entrancy guard"*: seven more handlers had none. Read it for three
-things.
+re-entrancy guard"*. Read it for three things.
 
 - **The push rows.** A chip is offered against the count as drawn. In
-  the skill dialog *+3* twice threw past the FP cap, and on the SPI row
-  spent a pool the first tap had emptied: Soul Debt, permanent CoR. The
-  attack's also pushed the outcome it was drawn with, 2 FP for +1.
+  the skill dialog *+3* twice throws past the FP cap, and on the SPI row
+  spends a pool the first tap emptied: Soul Debt, permanent CoR. The
+  attack's also pushed the outcome it was drawn with, 2 FP for +1. Read
+  off the code and one test; the crash itself is a prediction.
 - **A stale tap is dropped, not honoured**, the design review's change
   to my proposal: these two charge AT the tap and hold the balance as
   drawn, where the ritual's push charges on closing. `EffortBurn.pushed`
-  is the rule's refusal behind the drop. **A new push row calls it,
-  never `applied`, and every handler that rolls or charges opens with
-  its guard.**
-- Attack's Roll, the Major Wound's two rolls, fright recovery and
-  Spirit Vision's Look carry one now. The screen guards have no test.
+  is the rule's refusal behind the drop.
+- **My own count was wrong within the hour.** The first commit says
+  seven handlers. A sentence I wrote here about *"every handler"* was
+  questioned, and the query it needed found Damage's Apply and the
+  builder's Give back, which sold the neighbour. The slice log gives
+  tables and no count.
 
-The diff review said SHIP. **Not device-verified**: 6ei's
+Both diff reviews said SHIP. **Not device-verified**: 6ei's
 two-tap `monkey` script against a neutered build, which writes FP, so
 it wants the tablet and a backup. **Next**: that pass, with 6ga's hurt
 case. Then the three rolls that print a level and no target before the
@@ -338,7 +350,7 @@ slice log.** One line each:
 **6el** — a potion's grants are added to the bought score, so browsing a block crashed a high-ST save; `PurchaseCeilings` bounds each purchase, and 6ek's own example was false;
 **6ek** — the builder sold a secondary a hundred steps and four guards threw below HP/FP 1, a CoR ceiling of 1 and Per 0; "four" came from a keyword grep and held, for crashes, on a wider one;
 **6ej** — the Drink button printed nothing about its own roll; `pcrLine` feeds both blocks, and the new line could crash the block it was drawn on, a Will below 1 throwing in composition;
-**6ei** — two taps milliseconds apart DO reach one composition's handler, so 6ef-6eh's "two frames" premise was false; Drink had no re-entrancy guard (nor seven more: 6gb) and crashed on an SM-T570;
+**6ei** — two taps milliseconds apart DO reach one composition's handler, so 6ef-6eh's "two frames" premise was false; Drink had no re-entrancy guard (not alone: 6gb) and crashed on an SM-T570;
 **6eh** — seven more engines roll the target they printed; `attempt` became test-only, and no test had rolled a Spirit Vision success through the engine;
 **6eg** — print a target, then roll it: a handler belongs to the composition that drew it, so `rollAgainst` takes the target on screen;
 **6ef** — the GM picks inside a span cell; a keyed `remember` resets a frame late, so a pick lives with its row, and the click-time read was undone by 6eg;
@@ -430,7 +442,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1942 Kotlin** (JUnit 5 — 1346 `core:rules`, 576 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1943 Kotlin** (JUnit 5 — 1346 `core:rules`, 577 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |
