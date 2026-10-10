@@ -484,7 +484,7 @@ A `fun $N($$$): $R { $$$ }` pattern misses every `@Composable`, which has no
 return type. Nothing runs `ast-grep scan` for you: it is not in the Gradle
 build. Two files are over the 800-line cap, and `OVER_CAP` in
 `tools/test_tools_regeneration.py` fails on a third; [`docs/SPLIT-PLAN.md`](docs/SPLIT-PLAN.md)
-has steps 0-7 and 8a done, 8b and 8c open. `graphify-out/` was rebuilt 2026-10-10 with `python -m graphify
+has steps 0-8a done and 8b-8c retired (both files under the cap). `graphify-out/` was rebuilt 2026-10-10 with `python -m graphify
 update .` (no LLM; the interpreter is named in `graphify-out/.graphify_python`,
 and the `graphify.exe` shim is refused by Git Bash). Its call edges are
 heuristic: asked what calls `SkillRoll.targetFor` it returned none of the

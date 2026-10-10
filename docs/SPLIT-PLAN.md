@@ -57,7 +57,17 @@ SM-T570 with a Beat Cop on Fool 9 (save `cmp`-identical after):
 - A +1 push was charged on Close, not before.
 
 **Not verified on device**: Ask and the mode resets, whose code did not
-move. Step 8b, `DefenseDialog`, is next.
+move.
+
+**Steps 8b and 8c are retired, not done.** Their reason was the cap, and
+it expired at step 4: measured at `55e2d01`, `DefenseDialog.kt` is 597
+lines and `AttackDialog.kt` 581. A Kind C cut is the riskiest split this
+plan has, where 6eg, 6ei and 6gb found their defects, and with no cap to
+clear it buys nothing a line count can show. All three dialogs, Ritual
+included, still break section 7's 50-line function rule. That is a
+different goal, and needs its own decision. Two files remain on
+`OVER_CAP`, and neither has a step: `TraitEffects.kt` 1190 and
+`BeyonderSessionTest.kt` 863.
 
 | File | Was | Now | Moved to |
 |---|---|---|---|
@@ -348,7 +358,7 @@ with a design review before the code and a device pass after.
 | 5 | `TraitEffects.kt`: clauses (19 public members, 14 main call sites, 83 test), name parsing (5; 10; 57) and potion grants (5; 5; 21) to an object each | B | ~2180 → ~850 + 3 files |
 | 6 | `TraitEffectsTest.kt` splits along the seams steps 3 and 5 made; `test_tools.py` and `extract_content.py` by extractor. Test names do not change, so the counts are the check | A | 3080, 5941, 938 → under cap |
 | 7 | `SheetScreen`: the fourteen dialog call sites (lines 866-1264) and the three tabs become composables | C | 1070 → ~300 |
-| 8 | `RitualDialog`, then `DefenseDialog`, then `AttackDialog` | C | one slice each |
+| 8 | `RitualDialog`, then `DefenseDialog`, then `AttackDialog` | C | one slice each; 8b and 8c retired (Status) |
 
 Steps 1-4 touch no behaviour. After them the largest main file is
 `TraitEffects.kt` at about 2180, where today five exceed 1300, and
