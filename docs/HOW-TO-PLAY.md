@@ -28,9 +28,9 @@ it does the arithmetic. Nothing is hidden and nothing is invented.
 The premade list shows all 23 sheets. Tap one. The palette icon in its top bar
 opens the theme picker — presets, plus light / dark / follow-system.
 
-A row prints the four attributes and the skill count as you play them: what
-you bought in the builder, then what your potions raised. Its two trait chips
-are the sheet's own first two. The **Beyonders** tab
+A row prints the four attributes, the skill count and the first two traits
+as you play them: what you bought in the builder, then what your potions
+raised. The **Beyonders** tab
 holds the characters you have walked onto a pathway, each marked with its
 pathway and Sequence; everyone else is under **Mortal**.
 

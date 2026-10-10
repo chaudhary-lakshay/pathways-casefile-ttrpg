@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import com.pathways.model.Attributes
 import com.pathways.model.BeyonderState
 import com.pathways.rules.PremadeSheet
+import com.pathways.rules.TraitEffects
 
 /**
  * The character gallery: the app's launch screen.
@@ -73,11 +74,16 @@ import com.pathways.rules.PremadeSheet
  * problem this screen has, and "which of these is already supernatural" is the
  * one question the save can answer instantly ([walkOf]).
  *
- * **A row's numbers are the character as played** ([playedNumbers]): the
- * attributes and the skill count are what a tap opens, bought and digested,
- * and the pathway is the save's, because no sheet prints one. The two trait
- * chips are NOT played: they are the sheet's first two, which say who the
- * person is, and a trait bought or granted since is on the Traits tab.
+ * **A row is the character as played** ([playedRow]): the attributes, the
+ * skill count and the two trait chips are what a tap opens, bought and
+ * digested, and the pathway is the save's, because no sheet prints one.
+ * The chips are the first two traits HELD, in sheet order. A wealth or a
+ * face picked in the builder replaces the sheet's row and joins the end of
+ * the list, so the sheet's own leaves the chips; a level a potion added is
+ * printed at the sum (6fx). Both reach one sheet today, Fortune Teller.
+ * A bought face a potion beat is held and not played, and is not
+ * filtered here: it joins the end of a list, and no sheet prints fewer than
+ * five traits, so it cannot reach the first two.
  *
  * Until 6fw nothing here was digested, because a save from before the
  * floors existed throws where a potion is digested on top of it
@@ -120,8 +126,8 @@ private fun isTemplate(sheet: PremadeSheet): Boolean =
 internal fun walkOf(sheet: PremadeSheet, saved: Map<String, SavedSession>): BeyonderState? =
     saved[sheet.name]?.beyonder
 
-/** The numbers a row prints: the four attributes and how many skills are held. */
-internal data class RowNumbers(val attributes: Attributes, val skills: Int)
+/** What a row prints of the character: the four attributes, how many skills are held, and two traits. */
+internal data class PlayedRow(val attributes: Attributes, val skills: Int, val chips: List<String>)
 
 /**
  * [sheet]'s row as PLAYED: what was bought in the builder, then the potions
@@ -133,14 +139,19 @@ internal data class RowNumbers(val attributes: Attributes, val skills: Int)
  * from before the floors and ceilings throws where it is digested as saved.
  * Nothing is written from here.
  */
-internal fun playedNumbers(sheet: PremadeSheet, saved: SavedSession?): RowNumbers {
+internal fun playedRow(sheet: PremadeSheet, saved: SavedSession?): PlayedRow {
     val walk = saved?.beyonder
     val bought = saved?.repairedEdits(sheet)?.applyTo(sheet.toCharacter()) ?: sheet.toCharacter()
-    return RowNumbers(bought.attributesWith(walk), liveSkillLevels(bought.copy(beyonder = walk)).size)
+    return PlayedRow(
+        bought.attributesWith(walk),
+        liveSkillLevels(bought.copy(beyonder = walk)).size,
+        // The list the sheet's rolls read ([BeyonderSession.traitsInPlay]).
+        chipTraits(TraitEffects.withGrantedTraits(bought.traits, walk).map { it.name }),
+    )
 }
 
 /**
- * [playedNumbers], or the sheet as printed for a save that does not digest.
+ * [playedRow], or the sheet as printed for a save that does not digest.
  *
  * [BeyonderSession.drink] digests a potion before it stores one, so a stored
  * walk digested under the catalogue that stored it; a walk this catalogue
@@ -148,12 +159,12 @@ internal fun playedNumbers(sheet: PremadeSheet, saved: SavedSession?): RowNumber
  * costs one character. Here it would cost the launch screen and with it
  * every other save, so it costs the row its played numbers and is logged.
  */
-internal fun rowNumbers(sheet: PremadeSheet, saved: SavedSession?): RowNumbers =
+internal fun rowFor(sheet: PremadeSheet, saved: SavedSession?): PlayedRow =
     try {
-        playedNumbers(sheet, saved)
+        playedRow(sheet, saved)
     } catch (failure: Exception) {
         Log.w("PremadeGallery", "${sheet.name}'s save does not digest; its row is the sheet's", failure)
-        playedNumbers(sheet, null)
+        playedRow(sheet, null)
     }
 
 /**
@@ -186,7 +197,7 @@ private fun initialsOf(name: String): String =
         .ifEmpty { "?" }
 
 /**
- * The trait names worth showing on a row.
+ * The trait names worth showing on a row, from [names] in held order.
  *
  * Seven fixtures store the trait's name and the book's whole effect cell as one
  * string (6br), which would render a paragraph inside a chip. Those are cut at
@@ -210,10 +221,10 @@ private fun initialsOf(name: String): String =
  * Duty (Coworkers)" and "Pacifism (Cannot Harm Innocents)" -- precisely the
  * characterful names the chip exists to show.
  */
-private fun chipTraits(sheet: PremadeSheet): List<String> =
-    (sheet.advantages + sheet.disadvantages)
+internal fun chipTraits(names: List<String>): List<String> =
+    names
         .map {
-            it.name.substringBefore(" - ")
+            it.substringBefore(" - ")
                 .substringBefore(" — ")
                 .substringBefore(" −")
                 .trim()
@@ -310,7 +321,7 @@ fun PremadeGallery(
                 // goes with it). 22 rows of a few potions each; hoist one
                 // map above the list when a profiler says so.
                 val entry = saved[sheet.name]
-                val numbers = remember(sheet, entry) { rowNumbers(sheet, entry) }
+                val numbers = remember(sheet, entry) { rowFor(sheet, entry) }
                 PremadeRow(sheet, walkOf(sheet, saved), numbers) { onSelect(sheet) }
             }
 
@@ -342,7 +353,7 @@ fun PremadeGallery(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, numbers: RowNumbers, onClick: () -> Unit) {
+private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, numbers: PlayedRow, onClick: () -> Unit) {
     val beyonder = walk != null
     Card(
         onClick = onClick,
@@ -420,7 +431,7 @@ private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, numbers: RowNu
                     if (walk != null) StatCell(walk.pathway, "${walk.sequence}", accent = true)
                 }
 
-                val traits = chipTraits(sheet)
+                val traits = numbers.chips
                 if (traits.isNotEmpty()) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         for (trait in traits) {
