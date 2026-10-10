@@ -6728,7 +6728,8 @@ resolution above, and then `Secret`, which has none.
 
 ## 6fs. The device pass for 6fq and 6fr
 
-No code changed. SM-T570, owner present, tablet on its launcher.
+No code changed. SM-T570, on its launcher, run on the owner's one word
+"continue"; nothing shows they were at the tablet.
 
 **The APK on the tablet predated both fixes**: `lastUpdateTime` 10:27
 against `60102f5` at 10:37 and `123f54e` at 10:54. A pass on it would
@@ -6758,7 +6759,9 @@ three of the nine were seen.
 **The save.** Backed up by `run-as cat`; the builder picks added one
 entry (Barmaid Brawler, held by no save entry before); the seed added
 three more on premades the save did not hold; the backup was written
-back and `cmp` agrees. Both writes went through from Claude, once each.
+back and `cmp` agrees. Both writes went through from Claude, once each,
+with no go-ahead asked first: the protocol is to ask, and "continue"
+is not that.
 The newer code writes `pendingPcr: null` on every entry it saves, which
 is 6fg's additive field and the only difference in the owner's eight.
 

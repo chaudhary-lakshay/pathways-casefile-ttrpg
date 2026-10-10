@@ -159,7 +159,7 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fr is newest: every held row prints a cell.** A census ran `held()`
+**6fs is newest, a device pass for 6fr: every held row prints a cell.** A census ran `held()`
 over every fixture, every wealth and appearance level, every offered and
 instanced purchase, every language and every potion grant: 495 rows, 29
 with no cell. Wealthy and Very Wealthy have no trait-list row, so they
