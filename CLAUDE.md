@@ -159,7 +159,35 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fy is newest (6fx's device pass), with 6fx, 6fw, 6fv, 6fu and 6ft before it: a sheet's printed SPI 9 is not played.** Four sheets
+**6fz is newest: a sheet row prints the number played.** The Vitals
+and Skills tabs render `SheetComparison`'s rows as the character, and
+each printed the engine's number for the UNEDITED sheet. On the tablet a
+Docks Bouncer on Twilight Giant 9 read Brawling 12 beside a Roll that
+rolled 16, *"HP 11 (sheet: 9)"* under a pool of 14 / 14, and a Speed,
+Move and Dodge it no longer had, the played ones on no screen: 1734 of
+1936 premade-and-block pairs print such a row. 6e kept that number
+because *"that comparison is the engine against the book and a potion
+is neither"*. True of the diff, never a reason to print a level the Roll
+does not roll. Read it for three things.
+
+- **Two differences, one disagreement.** Sheet against engine is the
+  diff: the unedited sheet's, what the header counts, the only red.
+  Played against sheet is a potion or an edit and is never red
+  (`PlayedLine`). A moved row the sheet disputes says which figure in
+  grey: *"HP 14 · 11 from the sheet's points (sheet: 9)"*.
+- **The design was reviewed before the code**, and both of its changes
+  were to my proposal: a red note that read as the app disputing
+  itself, and a positional list where the label is the link.
+- **A Will row reading Per failed nothing in 1937 tests**: no fixture
+  prints Will different from Per. Pinned on Abyss 9. A mutant that
+  survives may be measuring the fixtures.
+
+Design and diff review said SHIP; device-verified, save untouched.
+**Next**: nothing is queued. After any new screen, re-run the sweep:
+every number printed beside a control, asked whether the control uses
+it.
+
+**6fy (6fx's device pass), 6fx, 6fw, 6fv, 6fu and 6ft: a sheet's printed SPI 9 is not played.** Four sheets
 (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police) print SPI 9
 and no sheet prints a pathway. `toCharacter` carried the 9 and digestion
 ADDED a potion's grant, so an Apothecary on Hermit 9 played SPI 18; 6dy's
@@ -210,8 +238,8 @@ can change a held trait, not from the question asked. SHIP. 6fy: on
 the SM-T570 a Fortune Teller who picked Poor read *"Charisma 2"*,
 *"Secret (Racist Sympathizer)"*; the save was restored. **Back up the
 save at the start of every pass**: the copy from two hours earlier was
-stale by a Beat Cop's five FP. **Next**: nothing is queued; the open
-item is the owner's, the four SPI 9 sheets.
+stale by a Beat Cop's five FP. The open item is the owner's, the four
+SPI 9 sheets.
 
 **6fs is next, a device pass for 6fr: every held row prints a cell.** A census ran `held()`
 over every fixture, every wealth and appearance level, every offered and
@@ -267,29 +295,10 @@ picker is ungated, but its "Bought by this character" note omits it.
 **Successors**: that note, and the builder's face row, which does not say
 the potion grants one.
 
-**6fm is next: a potion's Charisma levels add up.** 6fk refused
-Charisma at Error 8 and Demoness 8, 7 and 6. Charisma sits in the
-Stat/Advantage column beside *"DX +1"*, which *"goes up by 1
-permanently"* (5446), so the chain adds: Demoness 8, 7 and 6 hold 2, 3
-and 4, the cell's own *"[max 4 levels]"*. A bought level folds with a
-granted one into one row at the sum, capped at 4, keeping its cost,
-because `levelOf` reads one row per trait. Read it for two things.
-
-- **"Levelled" is the catalogue's `perLevel`, never a number in the
-  name**: Abyss 8's *"Compulsive Behavior (...) SC 6"* ends in one.
-- **The label first said the grant's level, not what it added.** A
-  bought Charisma 3 under Demoness 8's +2 printed *"+2 from the
-  potion"*; the cap let it add one. The diff review caught it.
-
-**Successors**: Demoness 7's and 6's Appearance (Beautiful, Very
-Beautiful), which the appearance table owns and nothing grants or
-refuses. On the SM-T570 Fortune Teller at Demoness 8 printed
-*"Charisma 4 — 10 pts, +2 from the potion"*, and a Hermit 8's Dodge took
-Combat Reflexes, so 6fk is device-verified too.
-
-**6fk back to 6de had lead paragraphs here until 2026-10-10. Each is in
+**6fm back to 6de had lead paragraphs here until 2026-10-10. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fm** — a potion's Charisma levels add down the chain and onto a bought level, capped at 4; the label first said the grant's level, not what it added;
 **6fk** — a potion's catalogue rows are granted through one table pinned both ways; a census that dropped names under four characters lost Fit, and the builder would have sold a granted row;
 **6fj** — the Warrior's default +2 stays refused, on the book's reason: no number fits both the Warrior's example and the Weapon Master's DX ceiling;
 **6fi** — a potion's senses reach the Per roll through one table; the census took its names from my list, not the prose, and a non-compiling mutant read stale XML as a catch;
@@ -357,7 +366,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fy first.** The
+**Where to start next: the slice log, from the END — 6fz first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -412,7 +421,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1927 Kotlin** (JUnit 5 — 1341 `core:rules`, 566 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1938 Kotlin** (JUnit 5 — 1344 `core:rules`, 574 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -503,6 +512,10 @@ ParryBlock.bareHandParry(dx, brawling): Int?      // p.37's "Brawling or DX":
                                       // parries at least as well
 ParryBlock.blockFor(shieldSkillLevel, shieldDb): Int
 PointBudget.report(...): BudgetReport
+SheetComparison.of(sheet): List<SheetRow>     // the diff: the UNEDITED sheet's
+SheetComparison.secondaryRows(s, published)   // the seven rows for any
+                                      // Secondaries; a screen asks it of the
+                                      // PLAYED ones and pairs by label (6fz)
 SecondaryCharacteristics.of(a, d): Secondaries
 SecondaryCharacteristics.costOf(d): Int            // what PointBudget bills
 SecondaryCharacteristics.stepsOf(d, key) / .withSteps(d, key, steps)

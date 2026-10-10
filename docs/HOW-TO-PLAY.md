@@ -41,6 +41,13 @@ quietly repair the sheet. Four sheets really are wrong in their own arithmetic
 University Librarian's disadvantage total), and the app is built so nobody can
 silently "fix" them. If a number surprises you, the book is the authority.
 
+The number on a **Vitals** or **Skills** row is the one you play: what you
+bought in the builder, then what your potions raised, and it is the level
+**Roll** rolls. The red *(sheet: 9)* is still about the sheet as printed.
+Where you have moved off the sheet and it disputes a figure, the grey note
+says which: *"HP 14 · 11 from the sheet's points (sheet: 9)"* is a played
+14, on a sheet whose own points give 11 and which prints 9.
+
 Four sheets (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police)
 print SPI 9 and no pathway. The app cannot play a Beyonder without a pathway,
 so it plays them at SPI 0 until they drink a potion, and then at what the

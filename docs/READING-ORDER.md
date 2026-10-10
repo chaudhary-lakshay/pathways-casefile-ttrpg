@@ -190,7 +190,27 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fk back to 6de
+## Retired lead paragraphs, 6fm back to 6de
+
+**6fm is next: a potion's Charisma levels add up.** 6fk refused
+Charisma at Error 8 and Demoness 8, 7 and 6. Charisma sits in the
+Stat/Advantage column beside *"DX +1"*, which *"goes up by 1
+permanently"* (5446), so the chain adds: Demoness 8, 7 and 6 hold 2, 3
+and 4, the cell's own *"[max 4 levels]"*. A bought level folds with a
+granted one into one row at the sum, capped at 4, keeping its cost,
+because `levelOf` reads one row per trait. Read it for two things.
+
+- **"Levelled" is the catalogue's `perLevel`, never a number in the
+  name**: Abyss 8's *"Compulsive Behavior (...) SC 6"* ends in one.
+- **The label first said the grant's level, not what it added.** A
+  bought Charisma 3 under Demoness 8's +2 printed *"+2 from the
+  potion"*; the cap let it add one. The diff review caught it.
+
+**Successors**: Demoness 7's and 6's Appearance (Beautiful, Very
+Beautiful), which the appearance table owns and nothing grants or
+refuses. On the SM-T570 Fortune Teller at Demoness 8 printed
+*"Charisma 4 — 10 pts, +2 from the potion"*, and a Hermit 8's Dodge took
+Combat Reflexes, so 6fk is device-verified too.
 
 **6fk is next: the rows a potion granted.** A Hermit 8's Combat
 Reflexes reached no defence, because potion rows are prose. One

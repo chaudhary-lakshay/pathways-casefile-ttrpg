@@ -6726,6 +6726,131 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fz. The sheet printed a level it did not roll
+
+Nothing was queued after 6fy, so 6fw's defect was run as a sweep: every
+app site that derives from the bought or the printed character where
+the played one might be meant (`Derive.of(`, `.toCharacter()`,
+`sheet.levelFor(`, `.published`). Thirteen sites, and two of them, both
+on the sheet screen, led to its own stat list.
+
+**The rows are `SheetComparison`'s, and they printed its number.** The
+Vitals and Skills tabs render the spec's `computed vs asPublished` diff
+as the character: `ComparisonRow` printed `row.computed`, the engine's
+number for the UNEDITED sheet. On the SM-T570, Docks Bouncer on Twilight
+Giant 9, before any change:
+
+| Where | Printed | Played |
+|---|---|---|
+| Skills: Brawling, Knife, Forced Entry | 12, 10, 10 | their roll dialogs read *"Skill 16"*, *"12"*, *"12"* |
+| Skills: Broadsword, the row below | *"14 (potion)"* | 14 |
+| Vitals: the HP row, under a pool of *"HP 14 / 14"* | *"11 (sheet: 9)"* | 14 |
+| Vitals: the FP row, under *"FP 11 / 11"* | *"10 (sheet: 9)"* | 11 |
+| Vitals: Basic Speed, Basic Move, Dodge | 4.75, 4, 7 | 5.50, 5, 8, printed on no screen |
+
+**The census.** 22 premades on each of the 88 blocks: 1734 of 1936 pairs
+print at least one row that is not the played value, 363 of 484 at the
+first potion alone; 9177 of 20416 skill rows; by secondary, Basic Speed
+1364, HP 1276, Per 1232, Basic Move 967, Dodge 967, Will 836, FP 748. A
+mortal who buys DX in the builder keeps Basic Speed 4.50 for a played
+4.75. Run as a throwaway test and deleted; the numbers are this entry's.
+
+**6e decided this, and its reason is half right.** The comment read
+*"The row SHOWS the sheet's own number, because that comparison is the
+engine against the book and a potion is neither. What it ROLLS is the
+character in front of the player."* The first clause is true of the
+DIFF and still is. It was never a reason to print, as the character's
+level, a number the Roll beside it does not roll. The memory written
+when the roll was fixed warns that *"two numbers on one screen that
+disagree may both be right (a comparison row vs. a live row)"*; here
+they were, and the stale one was the only one on the screen.
+
+**Two differences, and only one is a disagreement.** The sheet against
+the engine is the spec's diff: the unedited sheet's, what the header
+counts, the only thing in red. The character played against the sheet is
+what a potion or an edit makes, and a potion is not a disagreement with
+the book. Every part of the design keeps the second out of the first.
+
+**The design was reviewed before any code** (one ecc sub-agent, no
+diff, three questions, asked for the strongest case for keeping 6e):
+SHIP-THE-DESIGN with two changes, both taken.
+
+- I proposed a red *" (sheet computes 11, prints 9)"* for a moved row
+  the sheet disputes. Red beside a main number of 14 reads as the app
+  disputing itself. The red note stays the string it always was,
+  *" (sheet: 9)"*, and the figure it is about goes beside it in grey:
+  *" · 11 from the sheet's points"*.
+- I proposed one positional `List<String>` shared by `of` and the
+  screen. Order would have been the only link between a label and its
+  value. `SheetComparison.secondaryRows(s, published)` returns rows, `of`
+  calls it for the unedited sheet, the screen calls it for the played
+  secondaries, and the two are paired by label.
+
+What changed:
+
+- **`PlayedLine` and `playedLine(row, played)`** (`SheetLines.kt`): the
+  number is the played one. `disagreement` is `row.matches`'s alone.
+  `basis` appears only where the character has moved off the engine's
+  figure AND the sheet disputes it. A moved row the sheet agrees with
+  prints its number and nothing else.
+- **`vitalLines(sheet, rows, played)`** pairs the seven by label.
+  `Character.secondariesWith(state)` is the played reading, by
+  `attributesWith`'s rule.
+- **On Skills, one `level`** goes to the row and to `RollableSkill`.
+- **`SheetComparison.of` is unchanged in what it returns**, and the
+  header still counts it: *"3 of 16 values differ"* before and after.
+- `liveLevelOf`'s KDoc and three comments said the row displays the
+  unedited number; they say what is true now and what 6e's reason still
+  covers.
+
+**Tests.** Five watched failing against a stub that printed
+`row.computed`: the four cells of moved by disputed that change, and
+Docks Bouncer's seven played secondaries (14, 11, 9, 9, 5.50, 5, 8
+against 11, 10, 9, 9, 4.75, 4, 7). Three passed under the stub on
+purpose: an unmoved agreed row, an unmoved disputed row, and all 23
+sheets unwalked reading on Vitals what they always did.
+
+**Eight mutants, one at a time, fresh XML, all compiled; six caught on
+the first run and the seventh, Basic Move reading Dodge, too.** The
+eighth, **the Will row reading Per, failed nothing in 1937 tests**,
+and not because of this slice: no fixture prints Will different from Per
+(counted, zero of 23), so the two rows of the diff have been
+indistinguishable to every test since M2. Pinned on a walked character,
+Antiquarian Dealer on Abyss 9, Will 9 and Per 12; both swaps then fail,
+and a no-op control passes.
+
+**Diff review, the same reviewer: SHIP**, four LOWs and no change. Red
+can sit beside an equal number when a character is moved onto the
+sheet's own figure (*"9 · 11 from the sheet's points (sheet: 9)"*): the
+dispute is 11 against 9 and is not settled by a potion; pinned.
+`rows.first { label }` throws on a missing label: kept, because a
+fallback would print a wrong row in silence and the labels have one
+source. The skill rows are still paired by position: both lists are
+`sheet.skills` mapped. No JVM test reaches the Skills wiring: it is one
+expression in a composable, and the device read it.
+
+**Device, SM-T570, the same character, fresh install (16:21:01), no
+save write.** Skills: Brawling 16 and its dialog *"Skill 16"*; Wrestling
+12, Knife 12, Carousing 13, Forced Entry 12, Lifting 11; Broadsword
+*"14 (potion)"* as before. Vitals: *"HP 14 · 11 from the sheet's points
+(sheet: 9)"*, *"FP 11 · 10 from the sheet's points (sheet: 9)"*, Will 9,
+Per 9, *"Basic Speed 5.50 · 4.75 from the sheet's points (sheet:
+4.00)"*, Basic Move 5, Dodge 8. The header still reads *"3 of 16 values
+differ from the published sheet"*. `cmp` against a backup taken at the
+start of the pass: unchanged; tablet left on its launcher.
+
+**Not device-verified**: a mortal's builder edit moving a row, which
+writes the save; `SheetLinesTest` covers the function and the wiring is
+the same expression. No skill row can show the grey note today, since
+every published skill level matches (`SheetComparisonTest`).
+
+1938 Kotlin (1344 `core:rules`, 574 `app`, 20 `core:model`), green after
+`--rerun-tasks`. The Python suite was not touched or re-run.
+
+**Next**: nothing is queued. The sweep that found this is the one to
+re-run after any new screen: every number a screen prints beside a
+control, asked whether the control uses that number.
+
 ## 6fy. The device pass for 6fx
 
 No code changed. Asked for at the end of 6fx as a save write; the owner
