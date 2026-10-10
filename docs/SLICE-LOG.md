@@ -6726,6 +6726,88 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fm. The Charisma a potion grants, level by level
+
+6fk refused Charisma at Error 8 and Demoness 8, 7 and 6 (`CHARISMA_DEFERRED`):
+*"levelled: the merge keeps one copy by name, so a bought level would
+hide a granted one; the highest single level is the reading every
+combination agrees on, and is not built"*. That floor is not a value:
+under the additive reading it under-applies Demoness 6 by two.
+
+### The reading
+
+- **5446**: *"Stats: Listed as "DX +1" — this means your Dexterity goes
+  up by 1 permanently"*. Charisma is printed in the same Stat/Advantage
+  column with the same notation (6302, 6606, 7592, 8346), and its effect
+  cell repeats the increment (*"+2 to reaction rolls"* at 6607). So each
+  block adds: Error 8 holds 1; Demoness 8, 7 and 6 hold 2, 3 and 4.
+- **2 + 1 + 1 = 4**, the catalogue's *"[max 4 levels]"* (564). This
+  corroborates and does not prove.
+- **5458's skill stacking is not cited**: it is scoped to skills (6fi).
+- The design review's strongest case against: the book does reprint
+  no-ops (Sun 9 and 7 both print Fit). That holds for a binary row; a
+  "+N" on a levelled row is an increment, and "highest single" would
+  make Demoness 7 and 6 inert. SHIP.
+
+### What was built
+
+- `GRANTED_TRAITS` carries each block's own increment
+  (`Charisma 1`/`2`/`1`/`1`); the four refusals and `CHARISMA_DEFERRED`
+  are gone.
+- `grantedTraits` groups by catalogue name; a levelled row sums its
+  levels, capped at the catalogue ceiling (`maxLevelsFor`).
+- `withGrantedTraits` folds a levelled grant into a held row of the same
+  name: one row at the sum, capped, keeping the bought cost and kind.
+  An unlevelled grant is still dropped when held.
+- **Levelled means the catalogue's `perLevel`**, not a trailing integer:
+  Abyss 8's *"Compulsive Behavior (Indulge Evil Desires) SC 6"* ends in
+  one, and a trailing-integer test renamed it (mutant 3).
+- `grantedLevelsIn(merged, bought)`: the levels the potion ADDED. The
+  Traits tab prints *"Charisma 4 — 10 pts, +2 from the potion"*.
+- The census test resolves granted names through `catalogueName`, and
+  its "every granted row is unlevelled" line names Charisma as the one
+  exception.
+
+### The reviews
+
+One sub-agent in the `kotlin-reviewer` role for each, Codex being out.
+- **Design: SHIP on the reading; CHANGE on three readers.** Build the
+  merged level from `levelOf`, not the name (a bare bought "Charisma" is
+  level 1); clamp the printed level, not only the bonus; label a fold.
+  All taken.
+- **Diff: SHIP on the merge; FIX (LOW) on the label.** It printed the
+  grant's level, so a bought Charisma 3 under Demoness 8 said *"+2 from
+  the potion"* where the cap let it add one. It now subtracts the bought
+  level, and the test pins 1. Taken, with the KDoc it had misplaced.
+- **No change, recorded:** two bought Charisma rows would both fold the
+  grant; the app holds one row per trait. The builder still sells
+  Charisma as one 5-point row, and refuses it once held, granted or
+  bought; buying levels is the feature `PurchasableTraits.canBuy`
+  already defers.
+
+### Verification
+
+1900 Kotlin (1331 `core:rules`, 549 `app`, 20 `core:model`), green
+after `--rerun-tasks`. RED first for both tests (Demoness 8 gave 0; the
+capped label gave 3). Five mutants, each restored from a copy, `e:`
+counted:
+- no chain sum
+- no fold into a bought row
+- "levelled" as a trailing integer
+- no clamp
+- `grantedLevelsIn` without the subtraction
+
+**Not device-verified**, for 6fk's reasons.
+
+### Successors
+
+- **Demoness 7's Appearance (Beautiful) and 6's (Very Beautiful).** The
+  appearance table owns them, not the trait catalogue, so 6fk's census
+  could not see them; nothing grants or refuses them.
+- **A device pass for 6fk and 6fm**, with the owner present: Fortune
+  Teller (bought Charisma 2) walking Demoness 9 to 8 should show
+  *"Charisma 4 — 10 pts, +2 from the potion"*.
+
 ## 6fl. The owed review, by ecc
 
 The owner said **"use ecc instead of codex"**. The `ecc` plugin is

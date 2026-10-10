@@ -152,7 +152,25 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fk is newest: the rows a potion granted.** A Hermit 8's Combat
+**6fm is newest: a potion's Charisma levels add up.** 6fk refused
+Charisma at Error 8 and Demoness 8, 7 and 6. Charisma sits in the
+Stat/Advantage column beside *"DX +1"*, which *"goes up by 1
+permanently"* (5446), so the chain adds: Demoness 8, 7 and 6 hold 2, 3
+and 4, the cell's own *"[max 4 levels]"*. A bought level folds with a
+granted one into one row at the sum, capped at 4, keeping its cost,
+because `levelOf` reads one row per trait. Read it for two things.
+
+- **"Levelled" is the catalogue's `perLevel`, never a number in the
+  name**: Abyss 8's *"Compulsive Behavior (...) SC 6"* ends in one.
+- **The label first said the grant's level, not what it added.** A
+  bought Charisma 3 under Demoness 8's +2 printed *"+2 from the
+  potion"*; the cap let it add one. The diff review caught it.
+
+**Successors**: Demoness 7's and 6's Appearance (Beautiful, Very
+Beautiful), which the appearance table owns and nothing grants or
+refuses; and the device pass 6fk owes.
+
+**6fk is next: the rows a potion granted.** A Hermit 8's Combat
 Reflexes reached no defence, because potion rows are prose. One
 (pathway, sequence) table now grants every catalogue row a block prints
 with the catalogue's numbers, and refusals carry their reasons. It is
@@ -221,29 +239,10 @@ with the clause declared. **Owed: a Codex review of `ad8b4e1..HEAD --
 core app`** once Codex returns. **Successors**: potion-granted Acute rows,
 which never become `traits`, and Warrior's *default +2*.
 
-**6fg is next: a Luck reroll of a failed PCR.** A failed PCR set
-`lost`, and *"Nothing here un-loses them"*. But Luck says *"may reroll
-any one failed roll"*. The attempted potion is now SAVED
-(`SavedSession.pendingPcr`), and its block offers *Reroll the PCR*. A
-success advances and pays the same CoR floor; a failure is spent. Read it
-for three things.
-
-- **Codex's HIGH on the design: in-memory was not enough.** A restart
-  between the failure and the reroll would strand the character. On the
-  SM-T570 the button survived a force-stop.
-- **Codex's HIGH on the diff: Drink's ceiling gate.** Will lowered since
-  the failure made `rerollPcr` throw on tap.
-- **The owed review of `466e3d7..HEAD` came back SHIP**, with one LOW: a
-  test's name claimed more than it checked (`ad8b4e1`). A prompt over
-  ~32 KB must reach `codex exec` on stdin (`-`), or it exits 126.
-
-**Codex is out until 2026-10-14 16:44**, so a sub-agent reviewed the
-fix. **Successors**: Acute Vision and Hearing (line 8688), and Warrior's
-*default +2*.
-
-**6ff back to 6de had lead paragraphs here until 2026-10-10. Each is in
+**6fg back to 6de had lead paragraphs here until 2026-10-10. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fg** — Luck may reroll a failed PCR, so the attempted potion is saved; a restart would strand it, and a Will lowered since made the reroll throw;
 **6ff** — six rows that name one skill are declared on its roll; one list, `skillRollClauses`, feeds the chips and the dice, and "rural" excludes the sea;
 **6fe** — Alertness reaches Spirit Vision's Per roll; a recorded census ("the one bare Per roll") expired when a second roll arrived;
 **6fd** — Cleansed Spirit halves nothing, and the CoR stepper says why; "Soul Debt is reported, not applied" had been false since `ea6ae38`;
@@ -306,7 +305,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fl first.** The
+**Where to start next: the slice log, from the END — 6fm first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -361,7 +360,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1899 Kotlin** (JUnit 5 — 1330 `core:rules`, 549 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1900 Kotlin** (JUnit 5 — 1331 `core:rules`, 549 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -579,6 +578,8 @@ TraitEffects.skillRollClauses(traits, skill)   // every clause a skill roll asks
 TraitEffects.visionClause(traits)     // Acute Vision alone, for Spirit
                                       // Vision's roll: a GM declaration (6fh)
 TraitEffects.grantedTraits(state) / .withGrantedTraits(traits, state)
+TraitEffects.grantedLevelsIn(merged, bought)   // the levels a potion ADDED
+                                      // to a bought levelled row (6fm)
 TraitEffects.grantedTraitTable() / .refusedGrants()
                                       // every catalogue row (and 6fi's sense
                                       // rows) a walked potion chain printed,
@@ -931,7 +932,8 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
   `tools/extract_pathways.py`'s docstring before trying again. **A row that
   names a catalogue trait is now granted anyway** (6fk): a hand-written
   `GRANTED_TRAITS` table pinned both ways against the prose, with
-  `REFUSED_GRANTS` for variants, a choose-one and Charisma's levels.
+  `REFUSED_GRANTS` for variants and a choose-one. Charisma's levels add
+  down the chain and onto a bought level (6fm).
 - **The screens themselves are still device-only.** `app/src/test` now covers
   `BeyonderSession` and `SessionStore` (22 tests), which is where both
   app-level defects have landed so far. Composables are not tested; that

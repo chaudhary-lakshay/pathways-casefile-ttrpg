@@ -190,7 +190,27 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6ff back to 6de
+## Retired lead paragraphs, 6fg back to 6de
+
+**6fg is next: a Luck reroll of a failed PCR.** A failed PCR set
+`lost`, and *"Nothing here un-loses them"*. But Luck says *"may reroll
+any one failed roll"*. The attempted potion is now SAVED
+(`SavedSession.pendingPcr`), and its block offers *Reroll the PCR*. A
+success advances and pays the same CoR floor; a failure is spent. Read it
+for three things.
+
+- **Codex's HIGH on the design: in-memory was not enough.** A restart
+  between the failure and the reroll would strand the character. On the
+  SM-T570 the button survived a force-stop.
+- **Codex's HIGH on the diff: Drink's ceiling gate.** Will lowered since
+  the failure made `rerollPcr` throw on tap.
+- **The owed review of `466e3d7..HEAD` came back SHIP**, with one LOW: a
+  test's name claimed more than it checked (`ad8b4e1`). A prompt over
+  ~32 KB must reach `codex exec` on stdin (`-`), or it exits 126.
+
+**Codex is out until 2026-10-14 16:44**, so a sub-agent reviewed the
+fix. **Successors**: Acute Vision and Hearing (line 8688), and Warrior's
+*default +2*.
 
 **6ff is next: six rows that name one skill.** These are 6es's first
 list. Five print a circumstance on one skill's roll and are declared
