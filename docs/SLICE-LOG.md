@@ -6726,6 +6726,40 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fl. The owed review, by ecc
+
+The owner said **"use ecc instead of codex"**. The `ecc` plugin is
+disabled in `~/.claude/settings.json`, so `ecc:kotlin-reviewer` cannot
+be spawned by name. A sonnet sub-agent read its definition
+(`~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md`) as
+its role. Two of its steps were overridden: the explicit range instead
+of `git diff`, and no CLAUDE.md. It also got three domain questions. It
+reviewed the owed `ad8b4e1..HEAD -- core app`, which covers 6fg's fix
+and 6fh-6fk.
+
+**APPROVE: 0 CRITICAL, HIGH or MEDIUM, and 5 LOW.** It traced
+`rerollPcr`'s mutations: every throwing check runs before any write,
+and a spent reroll is never unsaved. It also traced every `remember`
+key against what `traitsInPlay` reads.
+
+- **LOW, taken:** `PathwayScreen` read the purchased traits. That made
+  it a second answer to "what is held", the divergence 6fk removed. It
+  now reads `traitsInPlay`, keyed on `drunk`. No potion grants Luck or
+  the Acting Method, so no number changes.
+- **LOW, refused:** *"the PcrDialog hint sits above a disabled button
+  with no reason given"*. `drinkLine` prints the refusal under that
+  button (`PathwayScreen.kt:282`), which is 6fg's own fix.
+- **LOW x3, no change:**
+  - the "from the potion" label matches by data-class equality, and no
+    fixture prints a 0-pt potion row
+  - `BuilderScreen` calls `traitsInPlay` unremembered, which is cheap
+    and cannot go stale
+  - `TraitClause` is unstable as a composable parameter, in a dialog
+    that is already non-skippable
+
+1899 Kotlin, green after `--rerun-tasks`. **The owed review is paid.**
+6fk is still not device-verified.
+
 ## 6fk. The rows a potion granted that the catalogue prints
 
 6fi made a potion's SENSES reach the roll. The same gap held for every

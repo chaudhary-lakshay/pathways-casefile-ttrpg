@@ -167,7 +167,9 @@ Read it for two things.
 
 **Not device-verified**: the harness refused the tablet save write, and
 the emulator's Vulkan crash recurred. **Successors**: a device pass with
-the owner present, the owed Codex review, and Charisma's levels.
+the owner present, and Charisma's levels. 6fl: ecc reviewed
+`ad8b4e1..HEAD` (APPROVE, five LOWs) in place of Codex, on the owner's
+word.
 
 **6fj is next: why the Warrior's default +2 is out.** The refusal
 said *"This app does not count uses"*. That is a claim about this app,
@@ -304,7 +306,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fk first.** The
+**Where to start next: the slice log, from the END — 6fl first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -361,7 +363,7 @@ player-facing guide to all four and is verified against the labels in source.
 |---|---|
 | Tests | **1899 Kotlin** (JUnit 5 — 1330 `core:rules`, 549 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **Codex is out until 2026-10-14 16:44.** 6fg's post-HIGH fix and 6fh-6fk were read by sub-agents only (6fk changes defences); a Codex review of `ad8b4e1..HEAD -- core app` is owed |
+| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 

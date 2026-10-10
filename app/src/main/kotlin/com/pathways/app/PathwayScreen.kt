@@ -119,9 +119,11 @@ fun PathwayScreen(
     val block = pathway?.let { chosen ->
         blocks.single { it.pathway == chosen && it.sequence == sequence }
     }
-    // The traits as bought, builder edits included: the expression the sheet
-    // screen reads. Read here for Knows the Acting Method (6ez).
-    val traits = remember(sheet, session.edits) { session.characterFor(sheet).traits }
+    // The traits in play, the list the sheet screen reads (6fk): bought, with
+    // builder edits, plus what the potions granted. Read here for Knows the
+    // Acting Method (6ez) and Luck (6fg); no potion grants either today, and
+    // one list means none has to be noticed the day one does (ecc review).
+    val traits = remember(sheet, session.edits, drunk) { session.traitsInPlay(sheet) }
     // Who may reroll a failed PCR: read against the potion the failure left
     // the character on, which is the one a Lucky One's grant comes from (6fg).
     val rerollSource = TraitEffects.rerollSource(traits, drunk)
