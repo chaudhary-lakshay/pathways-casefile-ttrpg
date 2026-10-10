@@ -159,7 +159,7 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fw is newest (the gallery row), with 6fv, 6fu and 6ft before it: a sheet's printed SPI 9 is not played.** Four sheets
+**6fx is newest (the gallery chips), with 6fw, 6fv, 6fu and 6ft before it: a sheet's printed SPI 9 is not played.** Four sheets
 (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police) print SPI 9
 and no sheet prints a pathway. `toCharacter` carried the 9 and digestion
 ADDED a potion's grant, so an Apothecary on Hermit 9 played SPI 18; 6dy's
@@ -200,11 +200,15 @@ screen cannot"*; the repair writes nothing, so it is one pure function
 now, `SavedSession.repairedEdits`, which `init` and the gallery both
 call. **Repair a save there and nowhere else.** A walk the catalogue
 lacks costs a row its played numbers (logged), never the launch
-screen. The two trait chips stay the sheet's, and the KDoc says so. The
-diff review said SHIP; device-verified, save untouched. **Next (6fx)**:
-a builder pick replaces a wealth or appearance row in place, so a chip
-can name a trait no longer held; read whether any sheet's first two is
-such a row.
+screen. The diff review said SHIP; device-verified, save untouched.
+6fx: the row's two chips were the sheet's first two traits, so a
+Fortune Teller who picked a wealth still read *"Wealth: Comfortable"*,
+and one on Demoness 8 read *"Charisma 2"* for a played 4. They are the
+first two of `traitsInPlay`'s list now; nothing on the row reads the
+sheet. One sheet on two paths, and the second came from counting what
+can change a held trait, not from the question asked. SHIP; a device
+control only. **Next (6fy)**: no successor in code; with the owner
+present, pick a wealth on Fortune Teller and read its row.
 
 **6fs is next, a device pass for 6fr: every held row prints a cell.** A census ran `held()`
 over every fixture, every wealth and appearance level, every offered and
@@ -350,7 +354,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fw first.** The
+**Where to start next: the slice log, from the END — 6fx first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -405,7 +409,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1922 Kotlin** (JUnit 5 — 1341 `core:rules`, 561 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1927 Kotlin** (JUnit 5 — 1341 `core:rules`, 566 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |

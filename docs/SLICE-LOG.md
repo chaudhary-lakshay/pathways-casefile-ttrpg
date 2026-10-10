@@ -6726,6 +6726,79 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fx. The chips named a wealth the character no longer has
+
+6fw left the row's two trait chips reading the sheet and asked whether a
+builder pick makes one stale. The census answered a wider question than
+the one asked.
+
+**What can change a held trait, counted.** The builder appends (bought,
+instanced, languages) and replaces two rows in place, wealth and
+appearance (`traitsBeforeInstanced`); nothing in `SavedEdits` removes a
+printed trait. A potion appends its granted rows and replaces one kind
+in place: a levelled row at the sum (6fm).
+
+- **Wealth or appearance in a sheet's first two traits**: one row.
+  Fortune Teller's second chip is *"Wealth: Comfortable"*. No sheet
+  prints an appearance level there, and Street Acrobat's *"Poverty:
+  Struggling"* is its third trait.
+- **Levelled rows on a chip**: nine. *"Charisma 2"* (Fortune Teller),
+  *"Hard to Kill 1"* (three sheets), *"Alertness 1"* (five). Of those
+  only Charisma is granted by any potion (`GRANTED_TRAITS`: Error 8,
+  Demoness 8, 7 and 6), which 6fw's question did not name.
+
+So one sheet, on two paths: a Fortune Teller who picks any wealth still
+read *"Wealth: Comfortable"*, and one walked onto Demoness 8 read
+*"Charisma 2"* for a played 4. Nobody in the owner's save is a Fortune
+Teller, so no row on the tablet was wrong.
+
+**The fix is the list the sheet already reads.** The chips are the first
+two names of `TraitEffects.withGrantedTraits(bought.traits, walk)`,
+which is `BeyonderSession.traitsInPlay`'s own expression over the same
+repaired edits. A replaced wealth joins the end of the list, so the
+sheet's row leaves the chips and the next trait takes its place; a
+raised Charisma stays first at its sum. `RowNumbers`, `playedNumbers`
+and `rowNumbers` became `PlayedRow`, `playedRow` and `rowFor`, since the
+type carries names now. Nothing on the row is read from the sheet.
+
+**Tests.** Two watched failing against a stub that kept the sheet's
+chips: `wealth = "Wealthy"` (*"Secret (Racist Sympathizer)"* expected
+second, *"Wealth: Comfortable"* printed) and Demoness 8 (*"Charisma 4"*
+against *"Charisma 2"*). Three passed under the stub on purpose: two
+literal pairs for the name munging, all 22 chips unchanged with nothing
+saved, and a census over the 22 people on the 88 blocks.
+
+**That census first failed on its own expectation.** I listed the six
+moved rows, Fortune Teller on Error 8, 7, 6 and Demoness 8, 7, 6, in
+pathway order; the catalogue yields them by Sequence. The same six, so
+it compares sets, and the comment says block order is not the claim.
+
+**Mutants, fresh XML, both compiled.** Chips off the bought list with no
+grants: 2 failed (the Demoness test and the census). Chips off the
+sheet's printed traits: 1 failed (the wealth test).
+
+**Review, one ecc sub-agent on the diff: SHIP.** It confirmed the chip
+source is the session's own composition over the same edits and walk.
+Two LOWs. A bought face a potion beat stays in the held list and is not
+played, and could be a chip: refused in code and recorded in the KDoc,
+because such a row joins the end of a list and no sheet prints fewer
+than five traits (counted). And the 22-sheet test computes its
+expectation with `chipTraits`, so it pins order and not munging; the
+literal pairs beside it pin the munging, on two sheets.
+
+**Device: a control only.** Fresh install on the SM-T570; Docks Bouncer
+on Twilight Giant 9 still reads *"Hard to Kill 1"*, *"Fit"*,
+*"13 skills"*; `cmp` against the backup, unchanged; tablet left on its
+launcher. **The fix itself is not device-verified**: both paths need a
+Fortune Teller entry written to the save.
+
+1927 Kotlin (1341 `core:rules`, 566 `app`, 20 `core:model`), green after
+`--rerun-tasks`. The Python suite was not touched or re-run.
+
+**Next (6fy)**: no successor in code. With the owner present, pick a
+wealth on Fortune Teller and read its row; the save must be backed up
+and restored around it.
+
 ## 6fw. The row printed a character nobody plays
 
 6fv asked whether the gallery row, which prints the sheet's attributes,
