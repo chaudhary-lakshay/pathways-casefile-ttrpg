@@ -19,6 +19,7 @@ import com.pathways.rules.DarknessCause
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.Ranged
 import com.pathways.rules.Weapons
+import com.pathways.rules.content.RangePenalty
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
@@ -241,5 +242,83 @@ class AttackDialogTest {
             }
         }
         assertTrue(plans > 100, "the matrix ran $plans plans")
+    }
+
+    /**
+     * The same sum over the terms the matrix above leaves out (6gd's open
+     * item): the range band, every circumstance row, the darkness row at each
+     * severity and relief, the prone row in reach, and the trait terms. Each
+     * alone, then together, because a term that supersedes another only
+     * shows beside the one it removes. Together is two plans: a Reluctant
+     * Killer "cannot Aim", so the screen never draws the clause beside an
+     * Aim row.
+     *
+     * 38 alone: 6 bands (the +0 band prints nothing), 8 rows (stationary
+     * prints nothing), 21 of darkness (7 without Night Eyes; with it 7 fog
+     * and 7 darkness, and dim light leaves nothing), 2 clauses and the prone
+     * row in reach.
+     */
+    @Test
+    fun `range, circumstances, darkness and the traits add up too`() {
+        val level = 16
+        val guns = SkillKey("Guns", "Pistol", ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
+        val killer = listOf(Trait(TraitEffects.RELUCTANT_KILLER, 5, TraitKind.DISADVANTAGE))
+        val declared = TraitClauses.attackClauses(killer).map { it.key }
+        val darkness = Ranged.conditions().single { it.worstCase != null }
+        val rows = Ranged.conditions().map { it.condition }
+        fun shot(
+            band: RangePenalty? = null,
+            picked: Set<String> = emptySet(),
+            cause: DarknessCause = DarknessCause.HEAVY_FOG,
+            reduction: Int = 0,
+            severity: Int? = null,
+            aimRefused: Boolean = false,
+        ) = rangedModifiers(AttackPlan(isRanged = true), band, picked, 2, aimRefused, cause, reduction, severity)
+
+        val alone = Ranged.bands().map { shot(band = it) } +
+            rows.map { shot(picked = setOf(it)) } +
+            (darkness.worstCase!!..darkness.modifier!!).flatMap { severity ->
+                // The cause is asked only of a holder of Night Eyes, which
+                // takes 2 off; without the trait it stays DARKNESS.
+                (DarknessCause.entries.map { it to 2 } + (DarknessCause.DARKNESS to 0)).map { (cause, reduction) ->
+                    shot(picked = setOf(darkness.condition), cause = cause, reduction = reduction, severity = severity)
+                }
+            } +
+            declared.map { traitTerms(killer, guns, it) } +
+            listOf(meleeModifiers(AttackPlan(), Ranged.meleeConditions().map { it.condition }.toSet()))
+        fun together(picked: Set<String>, aimRefused: Boolean) = shot(
+            band = Ranged.bands().last(),
+            picked = picked,
+            cause = DarknessCause.DARKNESS,
+            reduction = 2,
+            severity = darkness.worstCase,
+            aimRefused = aimRefused,
+        ) + listOfNotNull(Wounds.modifier(Wounds.locations().last()))
+        // One aim, one length of time: Ranged.modifiers refuses both rows.
+        val aimed = together(rows.toSet() - AIM_ROWS.first(), aimRefused = false)
+        val refused = together(rows.toSet() - AIM_ROWS, aimRefused = true) +
+            traitTerms(killer, guns, declared.first())
+        assertEquals(ALONE_TERMS, alone.count { it.isNotEmpty() }, "plans that print a term")
+        // The band, the rows less stationary's +0, and the Eye: 1 + 7 + 1,
+        // then 1 + 6 + 1 and the clause.
+        assertEquals(TOGETHER_TERMS, aimed.size, "an aimed shot's terms")
+        assertEquals(TOGETHER_TERMS, refused.size, "a Reluctant Killer's terms")
+
+        val reeling = Conditions.forSkill(guns, Pools.hp(4, 14), Pools.fp(11, 11)) +
+            Shock.modifiers(shocked = true, traits = emptyList())
+        for (picked in alone + listOf(aimed, refused)) {
+            // -5 written out, as above: reeling -1 and shock -4.
+            for ((trackers, cost) in listOf(emptyList<com.pathways.model.Modifier>() to 0, reeling to -5)) {
+                val standing = attackStanding("Guns (Pistol)", level, guns, trackers, picked)
+                val plan = picked.joinToString { it.id.toString() }
+                assertEquals(cost, standing.fromTrackers, plan)
+                assertEquals(level + flats(picked).sum() + cost, standing.target.target, plan)
+            }
+        }
+    }
+
+    private companion object {
+        const val ALONE_TERMS = 38
+        const val TOGETHER_TERMS = 9
     }
 }
