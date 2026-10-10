@@ -169,7 +169,8 @@ for two things.
 
 Codex was out and the gateway down, so sub-agents reviewed the design
 and the diff. On the SM-T570, Beat Cop's Search rolled `3d6: 12 vs 12`
-with the clause declared. **Successors**: potion-granted Acute rows,
+with the clause declared. **Owed: a Codex review of `ad8b4e1..HEAD --
+core app`** once Codex returns. **Successors**: potion-granted Acute rows,
 which never become `traits`, and Warrior's *default +2*.
 
 **6fg is next: a Luck reroll of a failed PCR.** A failed PCR set
@@ -373,7 +374,7 @@ player-facing guide to all four and is verified against the labels in source.
 |---|---|
 | Tests | **1893 Kotlin** (JUnit 5 — 1325 `core:rules`, 548 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **Codex is answering again.** The 26-slice refusal ended in 6as; every slice since has been reviewed before commit |
+| Review gate | **Codex is out until 2026-10-14 16:44.** 6fg's post-HIGH fix and 6fh were read by sub-agents only; a Codex review of `ad8b4e1..HEAD -- core app` is owed |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 

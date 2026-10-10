@@ -6821,6 +6821,12 @@ tablet went back to its launcher.
 - The gloss's first task, *"notice details at a distance"*, is a bare
   Vision roll with no skill, and this app makes no such roll.
 
+### Owed
+
+A Codex review of `ad8b4e1..HEAD -- core app` once Codex returns
+(2026-10-14 16:44): 6fg's post-HIGH fix and all of 6fh were read only by
+sub-agents.
+
 ### Successors
 
 - Potion-granted Acute rows, read from Beyonder state.

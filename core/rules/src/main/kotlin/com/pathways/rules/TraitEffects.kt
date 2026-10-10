@@ -1796,6 +1796,12 @@ object TraitEffects {
      * bonus as "+2 to vision-based Perception rolls" (8688), so a Vision roll
      * is a Per roll. Every Per-controlled skill offers both, and the GM
      * declares which sense this roll is. Flat: neither cell says "per level".
+     *
+     * Detection is offered neither: its "SPI or Per roll" (3810) senses a
+     * divination and names no sense. Lip Reading ("Understand speech without
+     * hearing it") still offers Hearing, which its note contradicts; accepted
+     * rather than blocklisted, since the GM declares and an unticked chip
+     * changes nothing (6fh's design review).
      */
     private val SENSE_CLAUSES: List<TraitClause> = listOf(
         TraitClause(ACUTE_VISION, ACUTE_VISION, "+2 to Vision rolls", 2, conditional = true),
