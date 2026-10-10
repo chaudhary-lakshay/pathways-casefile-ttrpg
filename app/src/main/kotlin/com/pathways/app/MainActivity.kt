@@ -116,7 +116,6 @@ import com.pathways.rules.SelfControl
 import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.SelfControlOutcome
 import com.pathways.rules.SheetComparison
-import com.pathways.rules.SheetRow
 import com.pathways.rules.Shock
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
@@ -277,6 +276,11 @@ fun SheetScreen(
             secondaries.per,
             secondaries.dodge,
         )
+    }
+    // The seven secondaries as PLAYED, each beside its row of the diff
+    // (6fz). Keyed as the pools above are: a potion or an edit moves both.
+    val secondaryLines = remember(sheet, rows, drunk, session.edits) {
+        vitalLines(sheet, rows, session.characterFor(sheet).secondariesWith(drunk))
     }
     // The traits actually in play -- the sheet's, plus anything the edit
     // layer changed. Hoisted because two readers need them: a skill roll and
@@ -738,9 +742,10 @@ fun SheetScreen(
 
             // The derived secondaries (HP, Will, Per, Basic Speed...) sit with
             // the pools rather than the skills: they are what the character IS,
-            // and the disagreement with the published sheet is printed here.
+            // so each prints the number PLAYED, and the disagreement with the
+            // published sheet is printed beside it ([PlayedLine]).
             items(
-                if (tab == SheetTab.VITALS) rows.take(SECONDARY_ROWS) else emptyList(),
+                if (tab == SheetTab.VITALS) secondaryLines else emptyList(),
             ) { ComparisonRow(it) }
 
             // Row order past the secondaries is one per purchased skill, in
@@ -751,28 +756,34 @@ fun SheetScreen(
             ) { i, skill ->
                 val row = rows.getOrNull(SECONDARY_ROWS + i)
                 if (row != null) {
-                    // The row SHOWS the sheet's own number, because that
-                    // comparison is the engine against the book and a potion is
-                    // neither (6e). What it ROLLS is the character in front of
-                    // the player: a Paragon Seq 9 potion takes this sheet's
-                    // Research from 13 to 17, and rolling the printed figure
-                    // rolls a character who no longer exists.
-                    val roll = {
-                        rolling = RollableSkill(
-                            skill.label,
-                            liveLevelOf(skill.key(), skillLevels, sheet.levelFor(skill)),
-                            skill.key(),
-                        )
-                    }
-                    ComparisonRow(row, Modifier.clickable(onClick = roll), onRoll = roll)
+                    // ONE level, printed and rolled: the character in front
+                    // of the player. A Paragon Seq 9 potion takes this sheet's
+                    // Research from 13 to 17, and the printed figure is a
+                    // character who no longer exists.
+                    //
+                    // Until 6fz the row SHOWED the unedited sheet's level, on
+                    // 6e's reasoning that the comparison is the engine
+                    // against the book and a potion is neither. That is true
+                    // of the diff, which is still the unedited sheet's and
+                    // still the only thing in red. It was never a reason to
+                    // print a level the Roll beside it does not roll: a Docks
+                    // Bouncer on Twilight Giant 9 read Brawling 12 above a
+                    // potion's Broadsword 14, and rolled Brawling at 16.
+                    val level = liveLevelOf(skill.key(), skillLevels, sheet.levelFor(skill))
+                    val roll = { rolling = RollableSkill(skill.label, level, skill.key()) }
+                    ComparisonRow(
+                        playedLine(row, level.toString()),
+                        Modifier.clickable(onClick = roll),
+                        onRoll = roll,
+                    )
                 }
             }
 
             // Every row on the screen, so a label can be checked against the
             // others before it is shown. Only the rows BELOW the comparison
             // table are ever suffixed: the published rows render the sheet's
-            // own label and the sheet's own number, and rewriting either would
-            // edit the diff that is the engine against the book (6e).
+            // own label, and rewriting it would edit the diff that is the
+            // engine against the book (6e).
             val granted = grantedSkills(sheet, session.edits, skillLevels)
             val addedKeys = sheet.skills.map { it.key() } +
                 session.edits.purchasedKeys() + granted.map { it.first }
@@ -2190,7 +2201,7 @@ private fun AddedSkillRow(label: String, level: Int, provenance: String, onClick
 
 @Composable
 private fun ComparisonRow(
-    row: SheetRow,
+    line: PlayedLine,
     modifier: Modifier = Modifier,
     // Present only on a row that can be rolled. The secondaries above the
     // skills share this composable and are not rollable, so the button is
@@ -2202,11 +2213,19 @@ private fun ComparisonRow(
         modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(row.label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-        Text(row.computed, style = MaterialTheme.typography.bodyMedium)
-        if (!row.matches) {
+        Text(line.label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+        Text(line.number, style = MaterialTheme.typography.bodyMedium)
+        // Neutral: the character having moved is not a disagreement.
+        line.basis?.let {
             Text(
-                " (sheet: ${row.published})",
+                it,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        line.disagreement?.let {
+            Text(
+                it,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,
             )

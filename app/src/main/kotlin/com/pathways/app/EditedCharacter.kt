@@ -24,6 +24,7 @@ import com.pathways.rules.OwnedLanguage
 import com.pathways.rules.PurchasableTraits
 import com.pathways.rules.PurchaseCeilings
 import com.pathways.rules.ScoreFloors
+import com.pathways.rules.Secondaries
 import com.pathways.rules.SkillLadder
 import com.pathways.rules.Weapons
 import com.pathways.rules.Wealth
@@ -81,6 +82,10 @@ fun Character.digestedWith(state: BeyonderState?): DigestedCharacter? =
  */
 fun Character.attributesWith(state: BeyonderState?): Attributes =
     digestedWith(state)?.effectiveAttributes ?: attributes
+
+/** The secondaries as played, by the same rule as [attributesWith]. */
+fun Character.secondariesWith(state: BeyonderState?): Secondaries =
+    digestedWith(state)?.secondaries ?: Derive.of(this).secondaries
 
 /**
  * What the builder prints under a number a potion moved: the builder steps,
@@ -425,11 +430,11 @@ fun skillLevelOf(name: String, levels: Map<SkillKey, Int>): Int? =
 /**
  * What [key] is rolled at NOW, falling back to [fallback].
  *
- * The published rows are comparison rows, and their displayed numbers come
- * from the unedited sheet on purpose -- that diff is the engine against the
- * book (6e). The number ROLLED is a different question, and until now it was
- * answered from the same place: a Paragon Sequence 9 Academic Researcher
- * rolled Research at the printed 13 while the digested character stood at 17.
+ * The published rows carry the diff of the unedited sheet -- the engine
+ * against the book (6e). The level ROLLED is a different question, and it
+ * was once answered from the same place: a Paragon Sequence 9 Academic
+ * Researcher rolled Research at the printed 13 while the digested character
+ * stood at 17. Since 6fz the row PRINTS this level too ([PlayedLine]).
  * A potion that raises IQ re-levels every bought IQ skill (M3), so the sheet's
  * own figure is the level of a character who no longer exists.
  *
@@ -445,10 +450,10 @@ fun skillLevelOf(name: String, levels: Map<SkillKey, Int>): Int? =
  * different levels -- and a lookup that stops at the first would answer the
  * published row with the potion's skill (Codex).
  *
- * [fallback] is the sheet's printed level, which is also the number the row
- * DISPLAYS, so falling back is never a figure from nowhere. No premade needs
- * it: a test walks all 23 down every pathway to Sequence 6 and finds no
- * published skill missing from the digested map.
+ * [fallback] is the level the sheet's own points buy, which is the row's
+ * computed side of the diff, so falling back is never a figure from
+ * nowhere. No premade needs it: a test walks all 23 down every pathway to
+ * Sequence 6 and finds no published skill missing from the digested map.
  */
 fun liveLevelOf(key: SkillKey, levels: Map<SkillKey, Int>, fallback: Int): Int =
     liveLevelOrNull(key, levels) ?: fallback

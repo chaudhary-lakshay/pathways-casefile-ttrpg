@@ -31,19 +31,26 @@ data class SheetRow(
  */
 object SheetComparison {
 
-    fun of(sheet: PremadeSheet): List<SheetRow> {
-        val s = Derive.of(sheet.toCharacter()).secondaries
-        val p = sheet.published
-        return listOf(
-            row("HP", s.maxHp, p.hp),
-            row("FP", s.maxFp, p.fp),
-            row("Will", s.will, p.will),
-            row("Per", s.per, p.per),
-            SheetRow("Basic Speed", s.basicSpeed, p.basicSpeed?.let(::formatSpeed)),
-            row("Basic Move", s.basicMove, p.basicMove),
-            row("Dodge", s.dodge, p.dodge),
-        ) + sheet.skills.map { skillRow(sheet, it) }
-    }
+    fun of(sheet: PremadeSheet): List<SheetRow> =
+        secondaryRows(Derive.of(sheet.toCharacter()).secondaries, sheet.published) +
+            sheet.skills.map { skillRow(sheet, it) }
+
+    /**
+     * The seven secondary rows for [s] against what a sheet printed. [of]
+     * asks it of the unedited sheet, which is the diff. A screen asks it of
+     * the character as PLAYED for the number to print beside that diff, and
+     * pairs the two by [SheetRow.label], so the list has one order and one
+     * set of labels (6fz).
+     */
+    fun secondaryRows(s: Secondaries, p: PublishedValues): List<SheetRow> = listOf(
+        row("HP", s.maxHp, p.hp),
+        row("FP", s.maxFp, p.fp),
+        row("Will", s.will, p.will),
+        row("Per", s.per, p.per),
+        SheetRow("Basic Speed", s.basicSpeed, p.basicSpeed?.let(::formatSpeed)),
+        row("Basic Move", s.basicMove, p.basicMove),
+        row("Dodge", s.dodge, p.dodge),
+    )
 
     /**
      * Levels come from [PremadeSheet.levelFor] rather than out of
