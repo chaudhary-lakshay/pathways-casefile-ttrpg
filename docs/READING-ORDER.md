@@ -190,7 +190,28 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fg back to 6de
+## Retired lead paragraphs, 6fh back to 6de
+
+**6fh is next: Acute Vision and Hearing on a Per roll.** The book
+never lists its Vision rolls, but the potion rows print the same +2 as
+*"vision-based Perception rolls"* (8688). So every Per-controlled skill
+offers both rows as GM declarations, through `skillRollClauses`. Read it
+for two things.
+
+- **My refusal of Spirit Vision reused an argument 6fe had already
+  rejected.** It rested on 4770's *"sees what the eye cannot"*. The
+  design sub-agent said CHANGE, so that roll now offers Acute Vision
+  alone (`visionClause`).
+- **A row held twice gave two modifiers under one id**, in all three
+  clause lists. The fix deduped on the shown key, and the diff review
+  caught that `ModifierId` reads the catalogue name, so *Acute Vision 2*
+  still collided. It now dedupes on `trait to printed`.
+
+Codex was out and the gateway down, so sub-agents reviewed the design
+and the diff. On the SM-T570, Beat Cop's Search rolled `3d6: 12 vs 12`
+with the clause declared. **Owed: a Codex review of `ad8b4e1..HEAD --
+core app`** once Codex returns. **Successors**: potion-granted Acute rows,
+which never become `traits`, and Warrior's *default +2*.
 
 **6fg is next: a Luck reroll of a failed PCR.** A failed PCR set
 `lost`, and *"Nothing here un-loses them"*. But Luck says *"may reroll

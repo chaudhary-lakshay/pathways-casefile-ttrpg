@@ -154,7 +154,28 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fm is newest: a potion's Charisma levels add up.** 6fk refused
+**6fn is newest: the face a potion grants.** Demoness 7 and 6 print
+*"Appearance (Beautiful)"* and *"(Very Beautiful)"*, rungs of the
+appearance table, which 6fk's census over the trait catalogue could not
+see. A character has one face: the chain keeps Sequence 6's, and beside
+a bought face the better is played (`Appearance.played`), since *"the
+potion perfects the Witch's features"* (7597) never lowers one. A worse
+bought face stays billed, and the Traits tab says it is not played.
+Read it for two things.
+
+- **Adding Demoness 7's face made its key appear twice** in
+  `GRANTED_TRAITS`. `mapOf` keeps the later entry silently, so
+  Charisma's would have been lost.
+- **`Appearance.levelOf` was first-match**, which on a list holding two
+  faces reads the worse. It now asks `played`, per the design review.
+
+The same census found **Mother 8 and Justiciar 6's Ancient Hermes
+(Fluent)**: no roll changes, because the ritual dialog's proficiency
+picker is ungated, but its "Bought by this character" note omits it.
+**Successors**: that note, and the builder's face row, which does not say
+the potion grants one.
+
+**6fm is next: a potion's Charisma levels add up.** 6fk refused
 Charisma at Error 8 and Demoness 8, 7 and 6. Charisma sits in the
 Stat/Advantage column beside *"DX +1"*, which *"goes up by 1
 permanently"* (5446), so the chain adds: Demoness 8, 7 and 6 hold 2, 3
@@ -222,30 +243,10 @@ chips, so whether they add is the GM's. On the SM-T570, Red Priest 9
 Tracking rolled `12 vs 18` with Hearing declared. **Owed: Codex on
 `ad8b4e1..HEAD -- core app`.** **Successors**: Warrior's *default +2*.
 
-**6fh is next: Acute Vision and Hearing on a Per roll.** The book
-never lists its Vision rolls, but the potion rows print the same +2 as
-*"vision-based Perception rolls"* (8688). So every Per-controlled skill
-offers both rows as GM declarations, through `skillRollClauses`. Read it
-for two things.
-
-- **My refusal of Spirit Vision reused an argument 6fe had already
-  rejected.** It rested on 4770's *"sees what the eye cannot"*. The
-  design sub-agent said CHANGE, so that roll now offers Acute Vision
-  alone (`visionClause`).
-- **A row held twice gave two modifiers under one id**, in all three
-  clause lists. The fix deduped on the shown key, and the diff review
-  caught that `ModifierId` reads the catalogue name, so *Acute Vision 2*
-  still collided. It now dedupes on `trait to printed`.
-
-Codex was out and the gateway down, so sub-agents reviewed the design
-and the diff. On the SM-T570, Beat Cop's Search rolled `3d6: 12 vs 12`
-with the clause declared. **Owed: a Codex review of `ad8b4e1..HEAD --
-core app`** once Codex returns. **Successors**: potion-granted Acute rows,
-which never become `traits`, and Warrior's *default +2*.
-
-**6fg back to 6de had lead paragraphs here until 2026-10-10. Each is in
+**6fh back to 6de had lead paragraphs here until 2026-10-10. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fh** — Acute Vision and Hearing are declared on every Per skill; Spirit Vision takes Vision alone, and a row held twice is deduped on `trait to printed`;
 **6fg** — Luck may reroll a failed PCR, so the attempted potion is saved; a restart would strand it, and a Will lowered since made the reroll throw;
 **6ff** — six rows that name one skill are declared on its roll; one list, `skillRollClauses`, feeds the chips and the dice, and "rural" excludes the sea;
 **6fe** — Alertness reaches Spirit Vision's Per roll; a recorded census ("the one bare Per roll") expired when a second roll arrived;
@@ -309,7 +310,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fm first.** The
+**Where to start next: the slice log, from the END — 6fn first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -364,7 +365,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1900 Kotlin** (JUnit 5 — 1331 `core:rules`, 549 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1903 Kotlin** (JUnit 5 — 1334 `core:rules`, 549 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -698,6 +699,8 @@ ContentLoader.equipment()
 Appearance.all() / .named(level): AppearanceLevel  // throws for an unprinted level
 Appearance.traitFor(level): Trait                 // never null; no level is free
 Appearance.levelOf(traits) / .applied(traits, level) / .without(traits)
+Appearance.played(traits) / .isSuperseded(trait, traits)   // one face: the
+                                      // better of bought and granted (6fn)
 ContentLoader.appearance()
 Languages.all() / .common() / .mystical(): List<LanguageEntry>
 Languages.proficiencies(type) / .proficiency(type, name)   // type is REQUIRED

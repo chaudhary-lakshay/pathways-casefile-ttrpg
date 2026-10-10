@@ -6726,6 +6726,73 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fn. The face a potion grants
+
+6fk's census matched the trait catalogue alone, so it could not see a
+row from another named-level table. The census over all three (appearance,
+wealth, languages) against every walkable block's advantages and drawbacks
+found:
+- **Appearance**: Demoness 7 *"Appearance (Beautiful) the potion perfects
+  the Witch's features; +2 to reaction rolls"* (7595-7599) and Demoness 6
+  *"Appearance (Very Beautiful) +3 to social reaction rolls"* (8358-8360).
+- **Wealth**: none.
+- **Languages**: Mother 8 and Justiciar 6 *"Ancient Hermes Fluent"* (6783,
+  8165). Not this slice: the ritual dialog's proficiency picker is ungated
+  (`RitualDialog.kt`, "Mystical language"), so no roll changes; only its
+  *"Bought by this character"* note omits it.
+
+### The reading
+
+- Demoness 7's face is the table's *Handsome / Beautiful* (+2, 723-725) and
+  Demoness 6's *Very Handsome / Very Beautiful* (+3, 726-728). "Social" is a
+  clause nothing applies (the reaction column is shown, never applied:
+  `Appearance` KDoc), so 6fk's rule makes it the same row.
+- **A face is a rung, not an increment** (contrast 6fm's Charisma): the
+  chain holds one, Sequence 6's.
+- **Bought against granted, the better is played.** The deciding case is a
+  bought Very Beautiful drinking Demoness 7: "granted replaces" would lower
+  it, against *"the potion perfects the Witch's features"* (7597). The eight
+  printed modifiers are distinct, so there is no tie.
+- **Billing is unchanged** (M3: `Character` stays purchased-only). A bought
+  Ugly under a granted Beautiful still bills -8; a refund is the GM's.
+
+### What was built
+
+- `Appearance.played(traits)`: the face with the highest reaction modifier.
+  `levelOf` delegates to it, so no caller can read the worse of two faces.
+- `Appearance.isSuperseded(trait, traits)`: a held face that is not played.
+- `GRANTED_TRAITS`: the two faces. **Adding Demoness 7's made its key
+  appear twice**, and `mapOf` keeps the later silently, which would have
+  lost its Charisma; the old line is gone.
+- `grantedTraits` keeps the chain's played face; `withGrantedTraits` adds a
+  granted face only where it is played over the bought one. A worse bought
+  face stays in the list, because the budget bills it.
+- The Traits tab says *", not played: the potion's face is better"* on
+  either list, since a bought Ugly is a disadvantage.
+
+### The reviews
+
+- **Design: CHANGE.** Make `levelOf` delegate to `played`; put the note on
+  the disadvantages list too; one better-face function; cut the builder
+  note. All taken; the builder note is a successor.
+- **Diff: SHIP.** One nit taken: `isSuperseded` compared case-sensitively
+  while `played` matches case-insensitively. The fix's first form used
+  `!!`, which would throw while composing for a list with no face; it is
+  null-safe now.
+
+### Verification
+
+1903 Kotlin (1334 `core:rules`, 549 `app`, 20 `core:model`), green after
+`--rerun-tasks`. Four mutants caught, each restored from a copy: first face
+rather than best; the chain keeping both faces; a grant beside a better
+bought face; any trait superseded. Not device-verified.
+
+### Successors
+
+- The ritual dialog's note omits a potion's Ancient Hermes (Mother 8,
+  Justiciar 6).
+- The builder's face row does not say the potion grants one.
+
 ## 6fm. The Charisma a potion grants, level by level
 
 6fk refused Charisma at Error 8 and Demoness 8, 7 and 6 (`CHARISMA_DEFERRED`):
