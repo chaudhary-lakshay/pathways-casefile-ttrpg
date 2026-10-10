@@ -6726,6 +6726,33 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fq. The face the Traits tab printed bare
+
+6fn's design advisor named it and the slice left it: a face (bought, or a
+potion's) is held as a `Trait` but is no catalogue row, so `held()` gave it
+`cell = null` and `reported()` returned nothing. The Traits tab printed
+*"Handsome / Beautiful — from the potion"* with nothing under it, where
+every other row prints the book's cell and, where true, *"Not applied
+here"*. Seen on the tablet in 6fp's pass: no line between the face and
+the next row.
+
+- `Appearance.cellFor(level)`: the reaction column as the book words every
+  row, *"+2 to reaction rolls"*, *"-2 to reaction rolls"* (722-743).
+- `held()`: a face takes that cell, and a `TraitNote` with `UNREAD`,
+  because the reaction column is shown and never applied (`Appearance`
+  KDoc). `HeldCell` already drops a note whose text equals the cell, so it
+  prints *"Not applied here: ..."* once.
+- `reported()` is unchanged: its only other caller is Cleansed Spirit's.
+
+**Diff review (one sub-agent): SHIP**, with a point taken: **the test built
+its expected cell with the same formula as `cellFor`**, so a wrong formula
+would pass it. It now pins the eight strings copied from the book, checked
+byte for byte against 722-743, and a mutant dropping the plus sign fails.
+
+1906 Kotlin (1337 `core:rules`, 549 `app`, 20 `core:model`), green after
+`--rerun-tasks`. Three mutants caught: no cell, no note, no sign. Not
+device-verified.
+
 ## 6fp. The face the builder sells beside a granted one
 
 6fn's last successor. The builder's Appearance row read the bought face
