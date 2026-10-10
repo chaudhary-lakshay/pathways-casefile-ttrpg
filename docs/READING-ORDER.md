@@ -190,7 +190,28 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fd back to 6de
+## Retired lead paragraphs, 6fe back to 6de
+
+**6fe is next: Alertness on the Spirit Vision roll.** 6al passed
+Alertness to Detection by hand because it was *"the one bare Per roll"*.
+Spirit Vision's *"Perception-based roll to interpret"* came later and
+got nothing. Read it for two things.
+
+- **A recorded reason expired when a second roll arrived.** No sweep
+  re-asks a census like that one. `TraitEffects.alertnessBonus` now
+  serves both rolls, and each call site used to build its own copy.
+- **I was going to refuse Acute Vision and Hearing, and my reason was
+  false.** I said the book prints no Vision roll, but line 8688 defines
+  one: *"vision-based Perception rolls"*. The design sub-agent also
+  found ten Per skills (Lip Reading, Search) that my sentence left out.
+  Both rows stay `UNREAD`.
+
+Codex was still out and the gateway down, so sub-agents reviewed the
+design (Q2 CHANGE) and the diff (SHIP). On the SM-T570: `Roll 12 or
+under (Per 11, +1 Alertness)`, `rolled 6 vs 12`. **Owed: a Codex review
+of `466e3d7..HEAD`.** **Successors**: Acute Vision and Hearing, asked
+with line 8688; Luck against the PCR's `lost` latch; 6es's first list;
+Warrior's *default +2*.
 
 **6fd is next: what Cleansed Spirit halves.** Nothing, and the CoR
 stepper says why. *"CoR gained from passive exposure are halved"* names a

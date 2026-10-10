@@ -6726,6 +6726,68 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fj. The number the Warrior's warm-up never had
+
+Warrior's *"default +2"* has been named as a successor since 6eu. 6ey's
+record said it *"needs a declaration of repeated use"*. The Attack
+dialog said *"This app does not count uses"*. Both treat counting as the
+obstacle, which is a claim about this app. A GM could declare repeated
+use, as other circumstances are already declared. So the query is
+whether a declaration would have a number to apply.
+
+### It would not
+
+- The Warrior's own example fires *"at DX level immediately, but needs
+  several shots before reaching full proficiency (default +2 after
+  repeated use)"* (5800-5801). *"But ... before reaching"* puts default +2
+  ABOVE the DX he starts at. Reading it as the weapon skill's own default
+  (DX-4) +2 is ruled out by the same sentence. Codex had raised that
+  reading in 6ew as *"usually below DX"*.
+- The Weapon Master is *"a strict upgrade to and replacement of the
+  Warrior's Combat Mastery"* (7569-7570). That names the ability, not the
+  potion. It stops at *"effective DX (no default penalty)"* (7564, 7566).
+  A warmed-up Warrior at DX+2 would outdo the line that replaces his.
+- Reading the Weapon Master's *"full mastery from the first swing"* as
+  DX+2 would invent a number that block never prints.
+
+So the refusal stands, and its reason changes: from a claim about this
+app to the contradiction in the book. That is the 6eq shape.
+
+### The design review
+
+Codex is out until 2026-10-14 16:44, so one sub-agent did the review:
+**CHANGE (small).** I had listed three readings. The default-minus-4
+reading is not one the Warrior's text allows, so the contradiction has
+two sides. **Q2 SHIP**: the DX floor at first use stays. The Warrior's
+block says so twice. The Pugilist's *"as the Warrior's original
+ability"* and the Weapon Master's *"Unlike the Warrior"* mention the
+Warrior only in passing and print no lower number. The reviewer also
+supplied the screen sentence.
+
+### What changed
+
+- `SkillDefaults.WARM_UP` now reads: *"Not applied here: Warrior's
+  "default +2" after repeated use. Its own example puts that above DX;
+  the Weapon Master, "a strict upgrade", stops at DX."*
+- The `unappliedFor` KDoc carries the full reason.
+- The test now pins the reason and the two book quotes it rests on.
+  RED first: the old sentence failed the "above DX" assertion.
+- The `docs/HOW-TO-PLAY.md` paragraph was changed to match.
+
+No number changed. No review of the diff was run: it changes one string,
+one KDoc and one test. 1896 Kotlin, green after `--rerun-tasks`. **Not
+device-checked.** The Attack dialog prints `unappliedFor` through
+unchanged wiring, which 6ey verified on the SM-T570.
+
+### Successors
+
+- **The owed Codex review of `ad8b4e1..HEAD -- core app`** once Codex
+  returns. It now covers 6fg's fix and 6fh-6fj.
+- **The other potion advantages**: Night Vision (Demoness 9, Visionary
+  7), Danger Sense (Red Priest 9), Demoness 6's Charisma +1 and the
+  rest. Each is prose. Run the census 6fi ran, and ask of each row
+  whether anything reads it.
+
 ## 6fi. The senses a potion granted
 
 6fh made a BOUGHT Acute Vision or Hearing reach the Per roll. A potion's

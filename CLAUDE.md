@@ -152,7 +152,18 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fi is newest: the senses a potion granted.** Pathway advantages are
+**6fj is newest: why the Warrior's default +2 is out.** The refusal
+said *"This app does not count uses"*. That is a claim about this app,
+and a false one as a reason, because a GM could declare repeated use.
+The real obstacle is the number. The Warrior's example puts default +2
+ABOVE the DX he starts at (5800-5801). The Weapon Master, *"a strict
+upgrade to and replacement of the Warrior's Combat Mastery"*, stops at
+DX (7564-7570). No number fits both, so the refusal stands with the
+book's reason, and the DX floor stays. **Successors**: the owed Codex
+review, and the other potion advantages (Night Vision, Danger Sense,
+Charisma), each prose that nothing may read.
+
+**6fi is next: the senses a potion granted.** Pathway advantages are
 prose, so a potion's Acute Vision never reached a roll. A
 (pathway, sequence) table now feeds the skill dialog and Spirit Vision
 through one screen value, `senseTraits`. Read it for two things.
@@ -232,30 +243,10 @@ declaring it gave `3d6: 8 vs 9`. Codex then reviewed `466e3d7..HEAD`
 (see 6fg). **Successors**: Acute Vision and Hearing (line
 8688), Luck against the PCR latch, and Warrior's *default +2*.
 
-**6fe is next: Alertness on the Spirit Vision roll.** 6al passed
-Alertness to Detection by hand because it was *"the one bare Per roll"*.
-Spirit Vision's *"Perception-based roll to interpret"* came later and
-got nothing. Read it for two things.
-
-- **A recorded reason expired when a second roll arrived.** No sweep
-  re-asks a census like that one. `TraitEffects.alertnessBonus` now
-  serves both rolls, and each call site used to build its own copy.
-- **I was going to refuse Acute Vision and Hearing, and my reason was
-  false.** I said the book prints no Vision roll, but line 8688 defines
-  one: *"vision-based Perception rolls"*. The design sub-agent also
-  found ten Per skills (Lip Reading, Search) that my sentence left out.
-  Both rows stay `UNREAD`.
-
-Codex was still out and the gateway down, so sub-agents reviewed the
-design (Q2 CHANGE) and the diff (SHIP). On the SM-T570: `Roll 12 or
-under (Per 11, +1 Alertness)`, `rolled 6 vs 12`. **Owed: a Codex review
-of `466e3d7..HEAD`.** **Successors**: Acute Vision and Hearing, asked
-with line 8688; Luck against the PCR's `lost` latch; 6es's first list;
-Warrior's *default +2*.
-
-**6fd back to 6de had lead paragraphs here until 2026-10-10. Each is in
+**6fe back to 6de had lead paragraphs here until 2026-10-10. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fe** — Alertness reaches Spirit Vision's Per roll; a recorded census ("the one bare Per roll") expired when a second roll arrived;
 **6fd** — Cleansed Spirit halves nothing, and the CoR stepper says why; "Soul Debt is reported, not applied" had been false since `ea6ae38`;
 **6fc** — Fast Healer's +1 is said on the recovery row's result; on a failure the two readings disagree, so the line says it is the GM's;
 **6fb** — Chronic Insomnia's "sustained concentration at -1" is declared on the Concentrate roll; two API lines had been pasted inside 6ew's lead;
@@ -316,7 +307,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fi first.** The
+**Where to start next: the slice log, from the END — 6fj first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -373,7 +364,7 @@ player-facing guide to all four and is verified against the labels in source.
 |---|---|
 | Tests | **1896 Kotlin** (JUnit 5 — 1328 `core:rules`, 548 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **Codex is out until 2026-10-14 16:44.** 6fg's post-HIGH fix, 6fh and 6fi were read by sub-agents only; a Codex review of `ad8b4e1..HEAD -- core app` is owed |
+| Review gate | **Codex is out until 2026-10-14 16:44.** 6fg's post-HIGH fix and 6fh-6fj were read by sub-agents only; a Codex review of `ad8b4e1..HEAD -- core app` is owed |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
