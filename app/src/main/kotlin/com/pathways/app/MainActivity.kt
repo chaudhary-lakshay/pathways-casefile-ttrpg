@@ -279,6 +279,11 @@ fun SheetScreen(
     // layer changed. Hoisted because two readers need them: a skill roll and
     // the active defences.
     val traits = remember(sheet, session.edits) { session.characterFor(sheet).traits }
+    // The same traits plus the senses a potion granted (6fi), from the walk
+    // the stat grants come from. For the rolls that read a sense only -- the
+    // skill dialog's chips and dice, and Spirit Vision -- so the Traits tab
+    // and the budget still see what was bought.
+    val senseTraits = remember(traits, drunk) { TraitEffects.withGrantedSenses(traits, drunk) }
     // The CoR ceiling: the CURRENT Will, which a potion can move, +3 with
     // Spiritual Fortitude. Computed once: the ritual dialog and the SPI
     // tracker's Soul Debt both charge against it, and it is the same reading
@@ -880,7 +885,7 @@ fun SheetScreen(
             // or the one skill a row names, on a character carrying a row
             // that names a circumstance. One rules list, which `modifiers`
             // also reads, so the chips cannot disagree with the dice (6ff).
-            declarableClauses = TraitEffects.skillRollClauses(traits, skill.key),
+            declarableClauses = TraitEffects.skillRollClauses(senseTraits, skill.key),
             onRoll = { circumstances, declaredClauses ->
                 // The trackers reach the dice here: a reeling, fatigued or
                 // corrupted character no longer rolls at full skill. The GM's
@@ -895,7 +900,7 @@ fun SheetScreen(
                     // Per roll, Fit on an HT one), and what the GM says the
                     // situation is.
                     mods = conditionsFor(skill.key) +
-                        TraitEffects.modifiers(traits, skill.key, declaredClauses) +
+                        TraitEffects.modifiers(senseTraits, skill.key, declaredClauses) +
                         circumstances,
                 )
             },
@@ -1158,7 +1163,7 @@ fun SheetScreen(
             alertness = TraitEffects.alertnessBonus(traits),
             // A sight by its own name: the GM says whether the eye's acuity
             // reaches it (6fh).
-            visionClause = TraitEffects.visionClause(traits),
+            visionClause = TraitEffects.visionClause(senseTraits),
             spiAvailable = vitals.maxSpi - session.spiSpent,
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,

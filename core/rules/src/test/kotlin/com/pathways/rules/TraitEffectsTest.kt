@@ -2710,6 +2710,105 @@ class TraitEffectsTest {
     }
 
     /**
+     * The potion blocks that grant a sense (6fi), against every block's own
+     * prose in both directions. The names come from the PROSE -- any
+     * capitalised row ending in a sense word and followed by "+N" -- never
+     * from the table, which is how the first census missed Incisive Vision
+     * and Acute Smell (the design review). The whole name is captured, so
+     * "Greater Acute Vision" is never also read as an Acute Vision.
+     */
+    @Test
+    fun `the granted-sense table is every block that prints one`() {
+        val row = Regex("((?:[A-Z][a-z]+ (?:& )?)*(?:Vision|Hearing|Smell|Touch)) \\+\\d")
+        val printed = ContentLoader.pathways().mapNotNull { block ->
+            val found = row.findAll(block.advantages).map { it.groupValues[1] }.toSet()
+            if (found.isEmpty()) null else (block.pathway to block.sequence) to found
+        }.toMap()
+        assertEquals(8, printed.size, printed.toString())
+        assertEquals(printed, TraitEffects.grantedSenseTable().mapValues { it.value.toSet() })
+        // Every row no catalogue prints says what its OWN block prints
+        // (the diff review's LOW: Greater Acute Vision had no such check).
+        val search = SkillKey("Search", null, ControllingAttribute.Per, Difficulty.AVERAGE)
+        val catalogued = ContentLoader.advantages().map { it.name }.toSet()
+        for ((key, names) in TraitEffects.grantedSenseTable()) {
+            val (pathway, sequence) = key
+            val block = ContentLoader.pathways().single { it.pathway == pathway && it.sequence == sequence }
+            val held = TraitEffects.withGrantedSenses(emptyList(), com.pathways.model.BeyonderState(pathway, sequence))
+            val clauses = TraitEffects.skillRollClauses(held, search)
+            for (name in names.filter { it !in catalogued }) {
+                val printed = clauses.single { it.trait == name }.printed
+                assertTrue("$name $printed" in block.advantages, "$key: $name $printed")
+            }
+        }
+    }
+
+    /**
+     * A walked chain carries every sense its blocks granted (6fi), so a Red
+     * Priest 8 still holds Sequence 9's, and a mortal holds none. Each reaches
+     * a Per skill's roll as a declaration, the bought rows' shape (6fh).
+     */
+    @Test
+    fun `a potion's senses reach a Per skill's roll`() {
+        fun state(pathway: String, seq: Int) = com.pathways.model.BeyonderState(pathway, seq)
+        val search = SkillKey("Search", null, ControllingAttribute.Per, Difficulty.AVERAGE)
+        fun offered(state: com.pathways.model.BeyonderState?) =
+            TraitEffects.skillRollClauses(TraitEffects.withGrantedSenses(emptyList(), state), search)
+        assertTrue(offered(null).isEmpty())
+        assertTrue(offered(state("Fool", 9)).isEmpty())
+        assertEquals(setOf("Acute Vision", "Acute Hearing"), offered(state("Red Priest", 8)).map { it.trait }.toSet())
+        val conspirer = offered(state("Red Priest", 6))
+        assertEquals(
+            listOf("Acute Vision", "Acute Hearing", "Acute Taste & Smell", "Acute Touch").sorted(),
+            conspirer.map { it.trait }.sorted(),
+        )
+        val held = TraitEffects.withGrantedSenses(emptyList(), state("Red Priest", 6))
+        for (clause in conspirer) {
+            assertEquals(
+                ModEffect.Flat(2),
+                TraitEffects.modifiers(held, search, setOf(clause.key)).single().effect,
+                clause.trait,
+            )
+        }
+        // The two rows no catalogue prints are pinned to their block's own words.
+        val block = ContentLoader.pathways().single { it.pathway == "Red Priest" && it.sequence == 6 }
+        for (clause in conspirer) {
+            if (clause.trait in setOf("Acute Taste & Smell", "Acute Touch")) {
+                assertTrue(clause.printed in block.advantages, clause.printed)
+            }
+        }
+        // The Spirit Vision a Red Priest 8 is granted takes the Vision row.
+        assertEquals("Acute Vision", TraitEffects.visionClause(TraitEffects.withGrantedSenses(emptyList(), state("Red Priest", 8)))?.trait)
+        // Granted rows never enter the catalogue census.
+        assertTrue("Acute Touch" !in TraitEffects.known())
+    }
+
+    /**
+     * Stacking (6fi). A different row is a different chip: a Visionary 7 is
+     * offered Acute Vision's +2 and Incisive Vision's +4 apart, and the GM
+     * says whether both apply. The same row twice is one chip: a bought
+     * Acute Vision beside Red Priest 9's and 6's.
+     */
+    @Test
+    fun `a potion's sense rows stack by row, never by grant`() {
+        val search = SkillKey("Search", null, ControllingAttribute.Per, Difficulty.AVERAGE)
+        val visionary = TraitEffects.withGrantedSenses(emptyList(), com.pathways.model.BeyonderState("Visionary", 7))
+        val offered = TraitEffects.skillRollClauses(visionary, search)
+        assertEquals(mapOf("Acute Vision" to 2, "Incisive Vision" to 4, "Acute Smell" to 2), offered.associate { it.trait to it.value })
+        val incisive = offered.single { it.trait == TraitEffects.INCISIVE_VISION }
+        assertEquals(ModEffect.Flat(4), TraitEffects.modifiers(visionary, search, setOf(incisive.key)).single().effect)
+        assertEquals(2, TraitEffects.modifiers(visionary, search, offered.map { it.key }.toSet() - incisive.key).size)
+        // Each printed text is its own block's.
+        val blocks = ContentLoader.pathways().filter { it.pathway == "Visionary" }
+        for (clause in offered.filter { it.trait != "Acute Vision" }) {
+            assertTrue(blocks.any { clause.printed in it.advantages }, clause.printed)
+        }
+
+        val bought = listOf(advantage("Acute Vision"))
+        val conspirer = TraitEffects.withGrantedSenses(bought, com.pathways.model.BeyonderState("Red Priest", 6))
+        assertEquals(1, TraitEffects.skillRollClauses(conspirer, search).count { it.trait == "Acute Vision" })
+    }
+
+    /**
      * Who may reroll a failed roll (6fg): Luck, Beckoning Luck unless Fate
      * Debt is held ("Beckoning Luck never applies", line 1449), and the
      * Lucky One's "5 rerolls per session" (line 7766) from Sequence 7 of

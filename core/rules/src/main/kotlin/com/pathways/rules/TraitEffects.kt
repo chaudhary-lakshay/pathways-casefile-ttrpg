@@ -1808,9 +1808,82 @@ object TraitEffects {
         TraitClause(ACUTE_HEARING, ACUTE_HEARING, "+2 to Hearing rolls", 2, conditional = true),
     )
 
+    const val GREATER_ACUTE_VISION = "Greater Acute Vision"
+    private const val ACUTE_TASTE_SMELL = "Acute Taste & Smell"
+    private const val ACUTE_TOUCH = "Acute Touch"
+    private const val ACUTE_SMELL = "Acute Smell"
+    const val INCISIVE_VISION = "Incisive Vision"
+
+    /**
+     * The sense rows no catalogue prints: a potion's alone (6fi), each as its
+     * block prints it. Pinned against that prose, never against [known],
+     * which is the advantage catalogue's census. Incisive Vision prints a
+     * name and "+4" and nothing else (line 6334), so its chip says exactly
+     * that and the GM says what it reaches.
+     *
+     * **A different row is a different chip.** Greater Acute Vision (Demoness
+     * 6) and Incisive Vision (Visionary 8) follow an Acute Vision their
+     * pathway's Sequence 9 granted, and neither cell says "Replaces" (as 8887
+     * and 9456 do) or prints a total (as 7257 and 8005 do). So both chips are
+     * offered: the +4 alone is what either reading gives, and whether the
+     * +2 adds is the GM's, as Fast Healer's failure is (6fc). **The same row
+     * twice is one chip**: a bought and a granted Acute Vision, or Red Priest
+     * 9's and 6's. Its cell is a flat "+2", not per level, and the stacking
+     * rule at 5458 is scoped to skills by its own words.
+     */
+    private val GRANTED_ONLY_SENSES: List<TraitClause> = listOf(
+        TraitClause(
+            GREATER_ACUTE_VISION, GREATER_ACUTE_VISION,
+            "+4 to all vision-based Perception rolls", 4, conditional = true,
+        ),
+        TraitClause(
+            ACUTE_TASTE_SMELL, ACUTE_TASTE_SMELL,
+            "+2 to taste/smell-based Perception rolls", 2, conditional = true,
+        ),
+        TraitClause(ACUTE_TOUCH, ACUTE_TOUCH, "+2 to touch-based Perception rolls", 2, conditional = true),
+        TraitClause(ACUTE_SMELL, ACUTE_SMELL, "+2 sharper sense of smell", 2, conditional = true),
+        TraitClause(INCISIVE_VISION, INCISIVE_VISION, "+4", 4, conditional = true),
+    )
+
+    /**
+     * The walkable blocks that grant a sense (6fi). Pathway advantages are
+     * prose and never become traits, so the table is written here, as the
+     * Lucky One is ([rerollSource]), and a census test reads it against
+     * every block's prose both ways. Second Law's and Sublunary Eye's blocks
+     * print Acute rows too (9335, 9386), but they are non-standard pathways,
+     * which are never drunk and are not in [ContentLoader.pathways].
+     */
+    private val GRANTED_SENSES: Map<Pair<String, Int>, List<String>> = mapOf(
+        ("Visionary" to 9) to listOf(ACUTE_VISION),
+        ("Visionary" to 8) to listOf(INCISIVE_VISION),
+        ("Visionary" to 7) to listOf(ACUTE_SMELL),
+        ("Demoness" to 9) to listOf(ACUTE_VISION, ACUTE_HEARING),
+        ("Demoness" to 6) to listOf(GREATER_ACUTE_VISION),
+        ("Red Priest" to 9) to listOf(ACUTE_VISION, ACUTE_HEARING),
+        ("Red Priest" to 6) to listOf(ACUTE_VISION, ACUTE_HEARING, ACUTE_TASTE_SMELL, ACUTE_TOUCH),
+        ("Hanged Man" to 8) to listOf(ACUTE_HEARING),
+    )
+
+    /** The table, for its census. */
+    fun grantedSenseTable(): Map<Pair<String, Int>, List<String>> = GRANTED_SENSES
+
+    /**
+     * [traits] plus a zero-cost row for every sense the walked chain granted,
+     * from Sequence 9 down to [state]'s, because sequences are cumulative.
+     * For the rolls that read a sense ONLY: the skill dialog's chips and dice
+     * and Spirit Vision. Never the character, which stays purchased-only.
+     */
+    fun withGrantedSenses(traits: List<Trait>, state: com.pathways.model.BeyonderState?): List<Trait> {
+        if (state == null) return traits
+        val granted = GRANTED_SENSES
+            .filterKeys { (pathway, sequence) -> pathway == state.pathway && sequence >= state.sequence }
+            .values.flatten().distinct()
+        return traits + granted.map { Trait(it, 0, TraitKind.ADVANTAGE) }
+    }
+
     private fun senseClauses(traits: List<Trait>): List<TraitClause> = traits.flatMap { owned ->
         val bare = catalogueName(owned.name)
-        SENSE_CLAUSES
+        (SENSE_CLAUSES + GRANTED_ONLY_SENSES)
             .filter { it.trait.equals(bare, ignoreCase = true) }
             .map { it.copy(shown = displayName(owned.name)) }
     }
@@ -1819,7 +1892,10 @@ object TraitEffects {
      * Acute Vision's clause, for Spirit Vision's Perception-based roll (book
      * 4840), which is a sight by its own name: the GM declares whether the
      * eye's acuity reaches it. Hearing is never offered there. Null for a
-     * character who does not hold it.
+     * character who does not hold it. Acute Vision alone, because the potion
+     * rows above it (Greater, Incisive) are Demoness's and Visionary's, and
+     * neither pathway is granted Spirit Vision; Red Priest 8 is, and holds
+     * Sequence 9's Acute Vision (6fi).
      */
     fun visionClause(traits: List<Trait>): TraitClause? =
         senseClauses(traits).firstOrNull { it.trait == ACUTE_VISION }
