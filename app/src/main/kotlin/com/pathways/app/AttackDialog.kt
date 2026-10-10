@@ -28,6 +28,7 @@ import com.pathways.rules.BurnKind
 import com.pathways.rules.EffortBurn
 import com.pathways.rules.Damage
 import com.pathways.rules.DarknessCause
+import com.pathways.rules.TraitClauses
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.RandomSource
 import com.pathways.rules.SkillDefaults
@@ -150,8 +151,8 @@ fun AttackDialog(
     var killerTarget by remember { mutableStateOf<String?>(null) }
     // "cannot Aim", unconditional: the Aim rows are withdrawn for a holder
     // whatever is declared, and kept apart from "Defended or was hurt".
-    val killerClauses = TraitEffects.attackClauses(traits)
-    val aimRefused = TraitEffects.refusesAim(traits)
+    val killerClauses = TraitClauses.attackClauses(traits)
+    val aimRefused = TraitClauses.refusesAim(traits)
     // What is behind "Darkness or heavy fog", which only Night Eyes can care
     // about. It starts on DARKNESS because that is the trait's general clause
     // ("reduce ALL darkness penalties by 2") and the row's own first-named
@@ -550,7 +551,7 @@ internal fun traitTerms(
     key: SkillKey,
     killerTarget: String?,
 ): List<com.pathways.model.Modifier> =
-    TraitEffects.modifiers(traits, key) + TraitEffects.attackModifiers(traits, killerTarget)
+    TraitEffects.modifiers(traits, key) + TraitClauses.attackModifiers(traits, killerTarget)
 
 /**
  * The attack roll as the picks stand: the target printed above Roll and

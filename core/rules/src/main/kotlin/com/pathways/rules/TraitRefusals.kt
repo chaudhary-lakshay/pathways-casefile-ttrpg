@@ -67,7 +67,7 @@ internal object TraitRefusals {
                 "this book tags no skill as language-dependent, so which rolls " +
                 "that reaches is the GM's call",
         ),
-        // Declared on the Concentrate roll ([TraitEffects.CONCENTRATION_CLAUSES]); this is
+        // Declared on the Concentrate roll ([TraitClauses.CONCENTRATION_CLAUSES]); this is
         // the reach the design review said the note must disclaim (6fa).
         THINNED_VEIL to listOf(
             "Concentration in spiritually active environments at -2" to
@@ -101,7 +101,7 @@ internal object TraitRefusals {
             "The GM holds a narrative debt to be called in at a dramatically significant moment" to
                 "the book hands this to the GM, not to a roll",
         ),
-        // The rest of the five rows [TraitEffects.SKILL_CLAUSES] reads and of Famous Face, whose -2 is a [TraitEffects.SKILL_BONUSES] row (6ff).
+        // The rest of the five rows [TraitClauses.SKILL_CLAUSES] reads and of Famous Face, whose -2 is a [TraitEffects.SKILL_BONUSES] row (6ff).
         "Class Mobility" to listOf(
             "Move believably across two social classes" to "the book hands this to the GM, not to a roll",
             "NPCs rarely question your presence" to "the book hands this to the GM, not to a roll",
@@ -448,7 +448,7 @@ internal object TraitRefusals {
         // Three of the five are wholly applied now; the other two keep the
         // sibling clause their cell prints, in [PARTLY_APPLIED].
         // The three conditional social rows were HERE, each saying "this app
-        // has no control to declare it yet". [TraitEffects.SOCIAL_CLAUSES] is that control,
+        // has no control to declare it yet". [TraitClauses.SOCIAL_CLAUSES] is that control,
         // so the disclaimers went with it rather than outliving their own
         // truth (6ba, and 6bl found one that had by a slice).
     )

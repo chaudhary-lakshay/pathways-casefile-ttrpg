@@ -81,6 +81,7 @@ import com.pathways.rules.Shock
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SpiritualSenses
+import com.pathways.rules.TraitClauses
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.TraitGrants
 import java.io.File
@@ -261,9 +262,9 @@ fun SheetScreen(
     // Derived once for both bare Will rolls. Two `remember`s over one input
     // is two chances to key them differently, which is the drift this file
     // records against every re-derived value (6ai).
-    val willClauses = remember(traits) { TraitEffects.willClauses(traits) }
+    val willClauses = remember(traits) { TraitClauses.willClauses(traits) }
     // The Will clauses plus the ones naming concentration itself (6fa).
-    val concentrationClauses = remember(traits) { TraitEffects.concentrationClauses(traits) }
+    val concentrationClauses = remember(traits) { TraitClauses.concentrationClauses(traits) }
     // Every disadvantage the character carries, in sheet order, with the
     // book's own effect cell where the two spellings meet. A sheet name that
     // matches nothing gets its name alone -- three sheets print
@@ -858,7 +859,7 @@ fun SheetScreen(
             // or the one skill a row names, on a character carrying a row
             // that names a circumstance. One rules list, which `modifiers`
             // also reads, so the chips cannot disagree with the dice (6ff).
-            declarableClauses = TraitEffects.skillRollClauses(traits, skill.key),
+            declarableClauses = TraitClauses.skillRollClauses(traits, skill.key),
             targetFor = { circumstances, declaredClauses ->
                 // The trackers reach the dice here: a reeling, fatigued or
                 // corrupted character no longer rolls at full skill. The GM's
@@ -914,7 +915,7 @@ fun SheetScreen(
             // and HT is bought.
             ht = attributes.ht,
             clauses = remember(traits) {
-                TraitEffects.frightClauses(traits) + TraitEffects.willClauses(traits)
+                TraitClauses.frightClauses(traits) + TraitClauses.willClauses(traits)
             },
             // The recovery roll is a bare Will roll a second later, so the
             // rows that name one reach it and the ones scoped to the Fright
@@ -1133,7 +1134,7 @@ fun SheetScreen(
             alertness = TraitEffects.alertnessBonus(traits),
             // A sight by its own name: the GM says whether the eye's acuity
             // reaches it (6fh).
-            visionClause = TraitEffects.visionClause(traits),
+            visionClause = TraitClauses.visionClause(traits),
             spiAvailable = vitals.maxSpi - session.spiSpent,
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,

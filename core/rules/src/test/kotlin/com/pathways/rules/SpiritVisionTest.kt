@@ -253,9 +253,9 @@ class SpiritVisionTest {
             com.pathways.model.Trait("Acute Vision", 2, com.pathways.model.TraitKind.ADVANTAGE),
             com.pathways.model.Trait("Acute Hearing", 2, com.pathways.model.TraitKind.ADVANTAGE),
         )
-        val vision = TraitEffects.visionClause(held)!!
+        val vision = TraitClauses.visionClause(held)!!
         assertEquals("Acute Vision", vision.trait)
-        assertNull(TraitEffects.visionClause(held.drop(1)))
+        assertNull(TraitClauses.visionClause(held.drop(1)))
         assertEquals(14, SpiritVision.targetFor(10, alertness = 2, vision = vision))
         assertEquals(
             listOf("Per 10", "+2 Alertness", "+2 Acute Vision"),

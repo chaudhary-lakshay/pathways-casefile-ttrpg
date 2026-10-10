@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.AttackPlan
 import com.pathways.rules.DarknessCause
+import com.pathways.rules.TraitClauses
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.Ranged
 import com.pathways.rules.content.RangePenalty
@@ -123,7 +124,7 @@ internal fun RangedOptions(
         // Withdrawn with the cell's own words, like a cancelled aim (6bj),
         // and no chip: there is no aim to cancel.
         Text(
-            "$aimRefusedBy: \"${TraitEffects.AIM_REFUSAL}\"",
+            "$aimRefusedBy: \"${TraitClauses.AIM_REFUSAL}\"",
             style = MaterialTheme.typography.bodySmall,
         )
         return

@@ -35,6 +35,7 @@ import com.pathways.rules.SkillTarget
 import com.pathways.rules.SpiritualSenses
 import com.pathways.rules.SuccessDegree
 import com.pathways.rules.TraitClause
+import com.pathways.rules.TraitClauses
 import com.pathways.rules.content.CommonModifier
 import com.pathways.rules.content.SenseModifier
 import com.pathways.rules.content.SpiritualSense
@@ -69,7 +70,7 @@ internal fun RollDialog(
     equipment: List<String> = emptyList(),
     // The character's own conditional rows for this roll: the social ones on
     // a social skill and the ones naming this skill
-    // ([TraitEffects.skillRollClauses]). The screen asks which hold and
+    // ([TraitClauses.skillRollClauses]). The screen asks which hold and
     // hands the keys back; it never turns one into a modifier, because a
     // rules-authored list is the only thing that keeps one decision in one
     // place (6ag, 6ai, 6be, 6bp, 6bs, 6bv).

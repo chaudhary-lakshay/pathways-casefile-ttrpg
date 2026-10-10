@@ -688,7 +688,7 @@ TraitEffects.UNREAD                   // reported() says it of a row outside
                                       // known() that prints no self-control roll
 TraitEffects.ROLLED_ONLY              // ...and this of one that does: the
                                       // roll is applied, nothing else (6ew)
-TraitEffects.concentrationClauses(traits)   // Will clauses + Thinned Veil and
+TraitClauses.concentrationClauses(traits)   // Will clauses + Thinned Veil and
                                       // Chronic Insomnia: the Concentrate roll
                                       // ALONE (6fa, 6fb)
 TraitEffects.actingGains(traits) / .doublesActingGains(traits)
@@ -699,13 +699,13 @@ TraitEffects.corruptionNotes(traits)   // Cleansed Spirit beside the CoR stepper
 TraitEffects.rerollSource(traits, state)   // Luck / Beckoning Luck (not with
                                       // Fate Debt) / the Lucky One: who may
                                       // reroll a failed PCR (6fg)
-TraitEffects.skillRollClauses(traits, skill)   // every clause a skill roll asks
+TraitClauses.skillRollClauses(traits, skill)   // every clause a skill roll asks
                                       // the GM about: social rows on a social skill,
                                       // and rows naming this skill (6ff), and
                                       // Acute Vision/Hearing on a Per skill
                                       // (6fh). The dialog's chips and
                                       // modifiers() read it
-TraitEffects.visionClause(traits)     // Acute Vision alone, for Spirit
+TraitClauses.visionClause(traits)     // Acute Vision alone, for Spirit
                                       // Vision's roll: a GM declaration (6fh)
 TraitNames.catalogueName(printed) / .displayName(printed) / .levelOf(traits, name)
                                       // the ONE resolution of a sheet's spelling

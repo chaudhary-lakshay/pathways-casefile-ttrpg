@@ -13,6 +13,7 @@ import com.pathways.rules.Attacks
 import com.pathways.rules.Conditions
 import com.pathways.rules.Pools
 import com.pathways.rules.Shock
+import com.pathways.rules.TraitClauses
 import com.pathways.rules.Wounds
 import com.pathways.rules.DarknessCause
 import com.pathways.rules.TraitEffects
@@ -170,7 +171,7 @@ class AttackDialogTest {
         val killer = listOf(Trait(TraitEffects.RELUCTANT_KILLER, 5, TraitKind.DISADVANTAGE))
         val guns = SkillKey("Guns", "Pistol", ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
         assertEquals(emptyList<Int>(), flats(traitTerms(killer, guns, killerTarget = null)))
-        val clauses = TraitEffects.attackClauses(killer)
+        val clauses = TraitClauses.attackClauses(killer)
         assertEquals(listOf(-4), flats(traitTerms(killer, guns, clauses[0].key)))
         assertEquals(listOf(-2), flats(traitTerms(killer, guns, clauses[1].key)))
     }

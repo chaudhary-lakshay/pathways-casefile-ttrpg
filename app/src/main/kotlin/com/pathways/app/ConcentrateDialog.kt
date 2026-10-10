@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.pathways.rules.Concentration
 import com.pathways.rules.ConcentrationOutcome
 import com.pathways.rules.TraitClause
-import com.pathways.rules.TraitEffects
+import com.pathways.rules.TraitClauses
 
 /**
  * The Concentrate maneuver's own roll (Ch. 5, p. 36).
@@ -35,7 +35,7 @@ import com.pathways.rules.TraitEffects
 @Composable
 internal fun ConcentrateDialog(
     will: Int,
-    /** The character's clauses for this roll ([TraitEffects.concentrationClauses]). */
+    /** The character's clauses for this roll ([TraitClauses.concentrationClauses]). */
     clauses: List<TraitClause> = emptyList(),
     shock: Int = 0,
     hurt: Int = 0,
@@ -79,7 +79,7 @@ internal fun ConcentrateDialog(
                         // From rules, and read by BOTH the caption and the
                         // roll below -- the two call sites this dialog has
                         // always had are why the term is computed once (6ai).
-                        val fromTraits = TraitEffects.clauseBonus(clauses, declared)
+                        val fromTraits = TraitClauses.clauseBonus(clauses, declared)
                         val target = Concentration.targetFor(will, shock, hurt, fromTraits.total)
                         Text(
                             "3d6 ≤ $target" +

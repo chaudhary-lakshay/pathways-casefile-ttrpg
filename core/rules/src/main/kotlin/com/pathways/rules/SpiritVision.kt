@@ -131,7 +131,7 @@ object SpiritVision {
      *
      * The bare Perception, plus the two penalties that reach every roll in the
      * book, plus [alertness] ([TraitEffects.alertnessBonus]) and an Acute
-     * Vision the GM has declared ([TraitEffects.visionClause], 6fh). The
+     * Vision the GM has declared ([TraitClauses.visionClause], 6fh). The
      * chapter itself prints no modifier at all.
      */
     fun targetFor(

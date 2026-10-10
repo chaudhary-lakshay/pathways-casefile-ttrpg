@@ -21,14 +21,14 @@ import com.pathways.rules.SelfControl
 import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.SelfControlOutcome
 import com.pathways.rules.TraitClause
-import com.pathways.rules.TraitEffects
+import com.pathways.rules.TraitClauses
 
 /**
  * The conditional clauses a character carries, each one a chip the GM turns on.
  *
  * One composable for all three bare Will rolls (self-control, Concentrate, the
  * Fright Check) plus the Fright Check's own rows. Unconditional clauses never
- * appear: they are what the character always is, so [TraitEffects.clauseBonus]
+ * appear: they are what the character always is, so [TraitClauses.clauseBonus]
  * counts them whether or not anyone declared them, and a chip that changed
  * nothing would read as one that did.
  */
@@ -88,7 +88,7 @@ internal fun SelfControlDialog(
      * already on it.
      */
     standing: Int,
-    /** The character's own Will clauses ([TraitEffects.willClauses]). */
+    /** The character's own Will clauses ([TraitClauses.willClauses]). */
     clauses: List<TraitClause> = emptyList(),
     onDismiss: () -> Unit,
 ) {
@@ -121,7 +121,7 @@ internal fun SelfControlDialog(
     // roll tap safe here is that the handler rolls the `target` printed
     // below and reads nothing else (6eh). Two taps on the ROLL button are
     // guarded inline, the fix 6p needed.
-    val fromTraits = TraitEffects.clauseBonus(clauses, declared)
+    val fromTraits = TraitClauses.clauseBonus(clauses, declared)
     // On top of the row's own number, so the two cannot open apart.
     val target = standing + modifier + fromTraits.total
 

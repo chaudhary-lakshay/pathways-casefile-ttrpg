@@ -793,7 +793,7 @@ class TraitEffectsTest {
             TraitEffects.categoryBonusNames() +
             // The named-skill declarations (6ff): a cell nothing walks is a
             // cell nothing checks.
-            TraitEffects.skillClauseNames()
+            TraitClauses.skillClauseNames()
         for (trait in applied) {
             val cell = catalogue.first { it.name == trait }.notes
             val reported = TraitEffects.reported(listOf(advantage(trait))).map { it.printed }
@@ -822,7 +822,7 @@ class TraitEffectsTest {
                         segment.lowercase().contains(banner.substringBefore(' ').lowercase())
                     } == true ||
                     // ...and a declared clause on one skill's roll.
-                    TraitEffects.skillClauseRows().any {
+                    TraitClauses.skillClauseRows().any {
                         it.trait == trait && (segment.contains(it.printed) || it.printed.contains(segment))
                     } ||
                     reported.any { it.contains(segment) || segment.contains(it) }
@@ -1797,7 +1797,7 @@ class TraitEffectsTest {
     // ---- the five rows that modify a Fright Check --------------------------
 
     private fun frightOf(vararg names: String) =
-        TraitEffects.frightClauses(names.map { Trait(it, 5, TraitKind.ADVANTAGE) })
+        TraitClauses.frightClauses(names.map { Trait(it, 5, TraitKind.ADVANTAGE) })
 
     /**
      * **Five catalogue rows modify a roll this app has made since 6c**, and
@@ -1812,7 +1812,7 @@ class TraitEffectsTest {
     fun `every fright number is still the one its row prints`() {
         val byName =
             (ContentLoader.advantages() + ContentLoader.disadvantages()).associateBy { it.name }
-        for (clause in TraitEffects.frightClauseRows()) {
+        for (clause in TraitClauses.frightClauseRows()) {
             val notes = byName.getValue(clause.trait).notes
             assertTrue(clause.printed in notes, "${clause.trait}: ${clause.printed}")
             // The clause names its own number, so the two cannot drift apart.
@@ -1832,7 +1832,7 @@ class TraitEffectsTest {
      */
     @Test
     fun `only the row that names no circumstance is unconditional`() {
-        val unconditional = TraitEffects.frightClauseRows()
+        val unconditional = TraitClauses.frightClauseRows()
             .filter { !it.conditional }
             .map { it.trait }
         assertEquals(listOf("Fearlessness"), unconditional)
@@ -1842,7 +1842,7 @@ class TraitEffectsTest {
     @Test
     fun `fearlessness scales with its level`() {
         assertEquals(1, frightOf("Fearlessness").single().value)
-        assertEquals(3, TraitEffects.frightClauses(
+        assertEquals(3, TraitClauses.frightClauses(
             listOf(Trait("Fearlessness 3", 6, TraitKind.ADVANTAGE)),
         ).single().value)
         assertNull(TraitEffects.maxLevelsFor("Fearlessness"))
@@ -1865,7 +1865,7 @@ class TraitEffectsTest {
         assertEquals(2, clauses.map { it.key }.toSet().size)
         assertEquals(
             -3,
-            TraitEffects.clauseBonus(clauses, clauses.map { it.key }.toSet()).total,
+            TraitClauses.clauseBonus(clauses, clauses.map { it.key }.toSet()).total,
         )
     }
 
@@ -1882,7 +1882,7 @@ class TraitEffectsTest {
         // Every subset of the declarable clauses.
         for (mask in 0 until (1 shl keys.size)) {
             val declared = keys.filterIndexed { i, _ -> (mask shr i) and 1 == 1 }.toSet()
-            val bonus = TraitEffects.clauseBonus(clauses, declared)
+            val bonus = TraitClauses.clauseBonus(clauses, declared)
             val line = bonus.line
             if (bonus.total == 0 && line == null) continue
             val summed = Regex("[+−-]\\d+").findAll(line.orEmpty())
@@ -1899,11 +1899,11 @@ class TraitEffectsTest {
     @Test
     fun `an unconditional clause needs no declaration`() {
         val clauses = frightOf("Fearlessness")
-        assertEquals(1, TraitEffects.clauseBonus(clauses, emptySet()).total)
+        assertEquals(1, TraitClauses.clauseBonus(clauses, emptySet()).total)
         // ...and a conditional one is worth nothing until it is declared.
         val phobia = frightOf("Phobia (Cities)")
-        assertEquals(0, TraitEffects.clauseBonus(phobia, emptySet()).total)
-        assertEquals(-2, TraitEffects.clauseBonus(phobia, setOf(phobia.single().key)).total)
+        assertEquals(0, TraitClauses.clauseBonus(phobia, emptySet()).total)
+        assertEquals(-2, TraitClauses.clauseBonus(phobia, setOf(phobia.single().key)).total)
     }
 
     /**
@@ -1915,10 +1915,10 @@ class TraitEffectsTest {
     @Test
     fun `the one premade carrying a fright row reaches it`() {
         val carriers = Premades.all().filter {
-            TraitEffects.frightClauses(it.toCharacter().traits).isNotEmpty()
+            TraitClauses.frightClauses(it.toCharacter().traits).isNotEmpty()
         }
         assertEquals(listOf("Hunter-Tracker"), carriers.map { it.name })
-        val clause = TraitEffects.frightClauses(carriers.single().toCharacter().traits).single()
+        val clause = TraitClauses.frightClauses(carriers.single().toCharacter().traits).single()
         assertEquals("Phobia (specify)", clause.trait)
         // The screen names the sheet's own spelling, not the placeholder row:
         // which fear this character has is content the GM needs.
@@ -1959,13 +1959,13 @@ class TraitEffectsTest {
     @Test
     fun `every social number is still the one its row prints`() {
         val byName = ContentLoader.disadvantages().associateBy { it.name }
-        for (clause in TraitEffects.socialClauseRows()) {
+        for (clause in TraitClauses.socialClauseRows()) {
             val notes = byName.getValue(clause.trait).notes
             assertTrue(clause.printed in notes, "${clause.trait}: ${clause.printed}")
             assertTrue("-${-clause.value}" in clause.printed, clause.printed)
         }
         // All three rows are conditional; none may ever be counted unasked.
-        assertTrue(TraitEffects.socialClauseRows().all { it.conditional })
+        assertTrue(TraitClauses.socialClauseRows().all { it.conditional })
     }
 
     /**
@@ -1977,7 +1977,7 @@ class TraitEffectsTest {
     fun `a social penalty needs its circumstance declared`() {
         val callous = social("Callous")
         assertEquals(emptyList<Any>(), TraitEffects.modifiers(callous, intimidation))
-        val clause = TraitEffects.socialClauses(callous).single()
+        val clause = TraitClauses.socialClauses(callous).single()
         val applied = TraitEffects.modifiers(callous, intimidation, setOf(clause.key))
         assertEquals(ModEffect.Flat(-3), applied.single().effect)
         // ...and only on a SOCIAL skill: the cell says "social skill rolls".
@@ -1997,10 +1997,10 @@ class TraitEffectsTest {
      */
     @Test
     fun `a priced variant decides which clause is on offer`() {
-        val mild = TraitEffects.socialClauses(social("Shyness (Mild)", 5)).single()
+        val mild = TraitClauses.socialClauses(social("Shyness (Mild)", 5)).single()
         assertEquals(-1, mild.value)
         assertTrue("Mild" in mild.printed)
-        val severe = TraitEffects.socialClauses(social("Shyness (Severe)", 10)).single()
+        val severe = TraitClauses.socialClauses(social("Shyness (Severe)", 10)).single()
         assertEquals(-2, severe.value)
         // The sheet's own spelling is what the GM sees.
         assertEquals("Shyness (Mild)", mild.shown)
@@ -2008,7 +2008,7 @@ class TraitEffectsTest {
         // empty qualifier prefixes every option, which would put Mild and
         // Severe on screen together and let a GM declare both -- and severity
         // is the sheet's to state, not a choice (Codex, on the diff).
-        assertEquals(emptyList<Any>(), TraitEffects.socialClauses(social("Shyness", 5)))
+        assertEquals(emptyList<Any>(), TraitClauses.socialClauses(social("Shyness", 5)))
     }
 
     /**
@@ -2021,7 +2021,7 @@ class TraitEffectsTest {
     @Test
     fun `two circumstances on one social cell sum and stay distinct`() {
         val anxious = social("Social Anxiety")
-        val keys = TraitEffects.socialClauses(anxious).map { it.key }.toSet()
+        val keys = TraitClauses.socialClauses(anxious).map { it.key }.toSet()
         assertEquals(2, keys.size)
         val mods = TraitEffects.modifiers(anxious, intimidation, keys)
         assertEquals(2, mods.map { it.id }.toSet().size, "two clauses shared one id")
@@ -2038,7 +2038,7 @@ class TraitEffectsTest {
     @Test
     fun `a declared social penalty is sourced from the trait`() {
         val callous = social("Callous")
-        val key = TraitEffects.socialClauses(callous).single().key
+        val key = TraitClauses.socialClauses(callous).single().key
         val mod = TraitEffects.modifiers(callous, intimidation, setOf(key)).single()
         val source = mod.source
         assertTrue(source is ModifierSource.FromTrait, source.toString())
@@ -2053,7 +2053,7 @@ class TraitEffectsTest {
     @Test
     fun `the premades carrying a social row reach it`() {
         val carriers = Premades.all()
-            .filter { TraitEffects.socialClauses(it.toCharacter().traits).isNotEmpty() }
+            .filter { TraitClauses.socialClauses(it.toCharacter().traits).isNotEmpty() }
             .map { it.name }
         assertEquals(
             listOf("Academic Researcher", "Barmaid Brawler", "Docks Bouncer"),
@@ -2061,7 +2061,7 @@ class TraitEffectsTest {
         )
         // Social Anxiety is on no sheet and ships anyway: the list is every
         // conditional social clause the book prints, not a premade census.
-        assertTrue("Social Anxiety" in TraitEffects.socialClauseNames())
+        assertTrue("Social Anxiety" in TraitClauses.socialClauseNames())
     }
 
     @Test
@@ -2077,7 +2077,7 @@ class TraitEffectsTest {
     // ---- the three rows that modify a bare Will roll -----------------------
 
     private fun willOf(vararg names: String) =
-        TraitEffects.willClauses(names.map { Trait(it, 5, TraitKind.ADVANTAGE) })
+        TraitClauses.willClauses(names.map { Trait(it, 5, TraitKind.ADVANTAGE) })
 
     /**
      * **The census, with the query that reproduces it.** 6de recorded "four
@@ -2101,11 +2101,11 @@ class TraitEffectsTest {
         val gambling = ContentLoader.disadvantages().single { it.name == "Compulsive Gambling" }
         assertTrue("Will roll at -2" in gambling.notes.orEmpty())
         assertTrue("Will rolls" !in gambling.notes.orEmpty())
-        assertTrue("Compulsive Gambling" !in TraitEffects.willClauseNames())
+        assertTrue("Compulsive Gambling" !in TraitClauses.willClauseNames())
         // Reluctant Killer IS returned by the plural query and still carries
         // no number, so it is read as a self-control check and not as a
         // clause. A row NAMING a roll is not a row MODIFYING one.
-        assertTrue("Reluctant Killer" !in TraitEffects.willClauseNames())
+        assertTrue("Reluctant Killer" !in TraitClauses.willClauseNames())
         // ...and "already read" is asserted, not asserted-about: both rows
         // still produce a self-control check, at the offset their cell prints
         // (Codex -- the name claimed a reader the test never called).
@@ -2127,8 +2127,8 @@ class TraitEffectsTest {
     fun `every will number is still the one its row prints`() {
         val byName =
             (ContentLoader.advantages() + ContentLoader.disadvantages()).associateBy { it.name }
-        assertEquals(3, TraitEffects.willClauseRows().size)
-        for (clause in TraitEffects.willClauseRows()) {
+        assertEquals(3, TraitClauses.willClauseRows().size)
+        for (clause in TraitClauses.willClauseRows()) {
             val notes = byName.getValue(clause.trait).notes.orEmpty()
             assertTrue(clause.printed in notes, "${clause.trait}: ${clause.printed}")
             val sign = if (clause.value < 0) "-" else "+"
@@ -2147,10 +2147,10 @@ class TraitEffectsTest {
      */
     @Test
     fun `no will clause may be counted without a declaration`() {
-        assertTrue(TraitEffects.willClauseRows().all { it.conditional })
+        assertTrue(TraitClauses.willClauseRows().all { it.conditional })
         val carrier = willOf("Incorruptible Will", "Evil Eye Fear")
-        assertEquals(0, TraitEffects.clauseBonus(carrier, emptySet()).total)
-        assertNull(TraitEffects.clauseBonus(carrier, emptySet()).line)
+        assertEquals(0, TraitClauses.clauseBonus(carrier, emptySet()).total)
+        assertNull(TraitClauses.clauseBonus(carrier, emptySet()).line)
     }
 
     /**
@@ -2165,14 +2165,14 @@ class TraitEffectsTest {
         assertEquals(2, clauses.size)
         val incorruptible = clauses.single { it.trait == "Incorruptible Will" }
         val evilEye = clauses.single { it.trait == "Evil Eye Fear" }
-        assertEquals(3, TraitEffects.clauseBonus(clauses, setOf(incorruptible.key)).total)
-        assertEquals(-1, TraitEffects.clauseBonus(clauses, setOf(evilEye.key)).total)
+        assertEquals(3, TraitClauses.clauseBonus(clauses, setOf(incorruptible.key)).total)
+        assertEquals(-1, TraitClauses.clauseBonus(clauses, setOf(evilEye.key)).total)
         assertEquals(
             2,
-            TraitEffects.clauseBonus(clauses, setOf(incorruptible.key, evilEye.key)).total,
+            TraitClauses.clauseBonus(clauses, setOf(incorruptible.key, evilEye.key)).total,
         )
         // The sentence and the number come from one call, so they cannot drift.
-        val both = TraitEffects.clauseBonus(clauses, clauses.map { it.key }.toSet())
+        val both = TraitClauses.clauseBonus(clauses, clauses.map { it.key }.toSet())
         assertTrue("Incorruptible Will +3" in both.line.orEmpty(), both.line.orEmpty())
         assertTrue("Evil Eye Fear -1" in both.line.orEmpty(), both.line.orEmpty())
     }
@@ -2188,14 +2188,14 @@ class TraitEffectsTest {
     fun `the row a test routed here is now collected`() {
         val grief = Trait("Grief-Stricken", 5, TraitKind.DISADVANTAGE)
         assertTrue(SelfControl.checksFor(listOf(grief)).isEmpty())
-        val clause = TraitEffects.willClauses(listOf(grief)).single()
+        val clause = TraitClauses.willClauses(listOf(grief)).single()
         assertEquals(-2, clause.value)
         // Its qualifier names no roll this book prints, which is why it
         // reaches every bare Will roll rather than one of them: contrast
         // Hard to Kill's "to avoid death", which picks one of the HP table's
         // PRINTED pair.
         assertTrue("to act clearly" in clause.printed)
-        assertEquals(3, TraitEffects.willClauseNames().size)
+        assertEquals(3, TraitClauses.willClauseNames().size)
     }
 
     /**
@@ -2206,7 +2206,7 @@ class TraitEffectsTest {
     @Test
     fun `one clause list answers every bare will roll`() {
         val clauses = willOf("Grief-Stricken")
-        val bonus = TraitEffects.clauseBonus(clauses, clauses.map { it.key }.toSet()).total
+        val bonus = TraitClauses.clauseBonus(clauses, clauses.map { it.key }.toSet()).total
         assertEquals(-2, bonus)
         assertEquals(
             Concentration.targetFor(will = 12) + bonus,
@@ -2236,14 +2236,14 @@ class TraitEffectsTest {
         // list would break.
         assertEquals(
             emptySet<String>(),
-            TraitEffects.frightClauseNames() intersect TraitEffects.willClauseNames(),
+            TraitClauses.frightClauseNames() intersect TraitClauses.willClauseNames(),
         )
-        val fright = TraitEffects.frightClauses(listOf(advantage("Fearlessness"))) + clauses
+        val fright = TraitClauses.frightClauses(listOf(advantage("Fearlessness"))) + clauses
         assertEquals(fright.size, fright.map { it.key }.toSet().size)
         val declaredAll = clauses.map { it.key }.toSet()
         assertEquals(
             1 + bonus,
-            TraitEffects.clauseBonus(fright, declaredAll).total,
+            TraitClauses.clauseBonus(fright, declaredAll).total,
         )
         assertEquals(
             FrightCheck.against(will = 12, modifier = 0, source = fixed(10)).target + bonus,
@@ -2558,15 +2558,15 @@ class TraitEffectsTest {
         assertTrue("Concentration in spiritually active environments at -2" in cell, cell)
 
         val veil = Trait(TraitEffects.THINNED_VEIL, 10, TraitKind.DISADVANTAGE)
-        val clause = TraitEffects.concentrationClauses(listOf(veil)).single()
+        val clause = TraitClauses.concentrationClauses(listOf(veil)).single()
         assertEquals(-2, clause.value)
         assertTrue(clause.conditional)
         assertTrue(clause.printed in cell, clause.printed)
-        assertTrue(TraitEffects.willClauses(listOf(veil)).isEmpty())
+        assertTrue(TraitClauses.willClauses(listOf(veil)).isEmpty())
 
         // The bare Will clauses still reach the Concentrate roll.
         val grief = Trait("Grief-Stricken", 5, TraitKind.DISADVANTAGE)
-        assertEquals(TraitEffects.willClauses(listOf(grief)), TraitEffects.concentrationClauses(listOf(grief)))
+        assertEquals(TraitClauses.willClauses(listOf(grief)), TraitClauses.concentrationClauses(listOf(grief)))
 
         assertTrue(TraitEffects.THINNED_VEIL in TraitEffects.known())
         val note = TraitEffects.reported(listOf(veil)).single()
@@ -2586,18 +2586,18 @@ class TraitEffectsTest {
         val cell = ContentLoader.disadvantages().single { it.name == TraitEffects.CHRONIC_INSOMNIA }.notes
         val insomnia = Trait(TraitEffects.CHRONIC_INSOMNIA, 5, TraitKind.DISADVANTAGE)
 
-        val clause = TraitEffects.concentrationClauses(listOf(insomnia)).single()
+        val clause = TraitClauses.concentrationClauses(listOf(insomnia)).single()
         assertEquals(-1, clause.value)
         assertTrue(clause.conditional)
         assertEquals("rolls requiring sustained concentration at -1", clause.printed)
         assertTrue(clause.printed in cell, cell)
-        assertTrue(TraitEffects.willClauses(listOf(insomnia)).isEmpty())
+        assertTrue(TraitClauses.willClauses(listOf(insomnia)).isEmpty())
 
         // Held beside Thinned Veil, each is its own declaration.
         val veil = Trait(TraitEffects.THINNED_VEIL, 10, TraitKind.DISADVANTAGE)
         assertEquals(
             listOf(-1, -2),
-            TraitEffects.concentrationClauses(listOf(insomnia, veil)).map { it.value },
+            TraitClauses.concentrationClauses(listOf(insomnia, veil)).map { it.value },
         )
 
         assertTrue(TraitEffects.CHRONIC_INSOMNIA in TraitEffects.known())
@@ -2674,7 +2674,7 @@ class TraitEffectsTest {
         )
         for ((trait, skill, value) in offered) {
             val held = listOf(advantage(trait))
-            val clause = TraitEffects.skillRollClauses(held, skill).single()
+            val clause = TraitClauses.skillRollClauses(held, skill).single()
             assertTrue(clause.conditional, trait)
             assertEquals(value, clause.value, trait)
             assertTrue(clause.printed in catalogue.getValue(trait).notes, clause.printed)
@@ -2684,15 +2684,15 @@ class TraitEffectsTest {
             assertEquals(ModEffect.Flat(value), mods.single().effect, trait)
             assertTrue(trait in TraitEffects.known(), trait)
             // ...and no other skill is offered it.
-            assertTrue(TraitEffects.skillRollClauses(held, key("Stealth")).isEmpty(), trait)
+            assertTrue(TraitClauses.skillRollClauses(held, key("Stealth")).isEmpty(), trait)
         }
         assertTrue(
-            TraitEffects.skillRollClauses(listOf(advantage("Navigator's Eye")), key("Navigation", "Sea")).isEmpty(),
+            TraitClauses.skillRollClauses(listOf(advantage("Navigator's Eye")), key("Navigation", "Sea")).isEmpty(),
         )
         // A sheet's spelling resolves to the row, is shown as the sheet
         // prints it, and its key reaches the dice (the diff review).
         val sheet = listOf(advantage("Safecracker 1"))
-        val spelt = TraitEffects.skillRollClauses(sheet, key("Lockpicking")).single()
+        val spelt = TraitClauses.skillRollClauses(sheet, key("Lockpicking")).single()
         assertEquals("Safecracker 1", spelt.shown)
         assertEquals(
             ModEffect.Flat(3),
@@ -2701,12 +2701,12 @@ class TraitEffectsTest {
 
         val face = listOf(Trait("Famous Face", 5, TraitKind.DISADVANTAGE))
         assertEquals(ModEffect.Flat(-2), TraitEffects.modifiers(face, key("Disguise")).single().effect)
-        assertTrue(TraitEffects.skillRollClauses(face, key("Disguise")).isEmpty())
+        assertTrue(TraitClauses.skillRollClauses(face, key("Disguise")).isEmpty())
 
         // The social rows still come through the same list, once.
         val callous = listOf(Trait("Callous", 5, TraitKind.DISADVANTAGE))
-        val social = TraitEffects.skillRollClauses(callous, key("Savoir-Faire"))
-        assertEquals(TraitEffects.socialClauses(callous), social)
+        val social = TraitClauses.skillRollClauses(callous, key("Savoir-Faire"))
+        assertEquals(TraitClauses.socialClauses(callous), social)
         assertEquals(1, TraitEffects.modifiers(callous, key("Savoir-Faire"), social.map { it.key }.toSet()).size)
     }
 
@@ -2726,7 +2726,7 @@ class TraitEffectsTest {
             val held = listOf(advantage(trait))
             for (row in perSkills) {
                 val skill = SkillKey(row.name, row.specialization, row.attr, row.difficulty)
-                val clause = TraitEffects.skillRollClauses(held, skill).single()
+                val clause = TraitClauses.skillRollClauses(held, skill).single()
                 assertTrue(clause.conditional, trait)
                 assertEquals(2, clause.value, trait)
                 assertTrue(clause.printed in catalogue.getValue(trait).notes, clause.printed)
@@ -2736,7 +2736,7 @@ class TraitEffectsTest {
             }
             assertTrue(trait in TraitEffects.known(), trait)
             val stealth = SkillKey("Stealth", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)
-            assertTrue(TraitEffects.skillRollClauses(held, stealth).isEmpty(), trait)
+            assertTrue(TraitClauses.skillRollClauses(held, stealth).isEmpty(), trait)
         }
         // Observation is a social skill as well: both senses and a social
         // row come through the one list, each once, under distinct keys.
@@ -2745,15 +2745,15 @@ class TraitEffectsTest {
             advantage("Acute Vision"), advantage("Acute Hearing"),
             Trait("Callous", 5, TraitKind.DISADVANTAGE),
         )
-        val clauses = TraitEffects.skillRollClauses(both, observation)
-        assertEquals(TraitEffects.socialClauses(both).size + 2, clauses.size)
+        val clauses = TraitClauses.skillRollClauses(both, observation)
+        assertEquals(TraitClauses.socialClauses(both).size + 2, clauses.size)
         assertEquals(clauses.size, clauses.map { it.key }.toSet().size)
         assertEquals(clauses.size, TraitEffects.modifiers(both, observation, clauses.map { it.key }.toSet()).size)
         // A trait held twice is one declaration and one modifier (the review).
         // Two spellings of one row are one too: the modifier's id reads the
         // catalogue name, never the sheet's (the diff review's LOW).
         val twice = listOf(advantage("Acute Vision"), advantage("Acute Vision 2"))
-        val once = TraitEffects.skillRollClauses(twice, observation).single()
+        val once = TraitClauses.skillRollClauses(twice, observation).single()
         assertEquals(1, TraitEffects.modifiers(twice, observation, setOf(once.key)).size)
     }
 
@@ -2787,7 +2787,7 @@ class TraitEffectsTest {
             val (pathway, sequence) = key
             val block = ContentLoader.pathways().single { it.pathway == pathway && it.sequence == sequence }
             val held = TraitGrants.withGrantedTraits(emptyList(), com.pathways.model.BeyonderState(pathway, sequence))
-            val clauses = TraitEffects.skillRollClauses(held, search)
+            val clauses = TraitClauses.skillRollClauses(held, search)
             for (name in names.filter { it !in catalogued }) {
                 val printed = clauses.single { it.trait == name }.printed
                 assertTrue("$name $printed" in block.advantages, "$key: $name $printed")
@@ -2978,7 +2978,7 @@ class TraitEffectsTest {
         fun state(pathway: String, seq: Int) = com.pathways.model.BeyonderState(pathway, seq)
         val search = SkillKey("Search", null, ControllingAttribute.Per, Difficulty.AVERAGE)
         fun offered(state: com.pathways.model.BeyonderState?) =
-            TraitEffects.skillRollClauses(TraitGrants.withGrantedTraits(emptyList(), state), search)
+            TraitClauses.skillRollClauses(TraitGrants.withGrantedTraits(emptyList(), state), search)
         assertTrue(offered(null).isEmpty())
         assertTrue(offered(state("Fool", 9)).isEmpty())
         assertEquals(setOf("Acute Vision", "Acute Hearing"), offered(state("Red Priest", 8)).map { it.trait }.toSet())
@@ -3003,7 +3003,7 @@ class TraitEffectsTest {
             }
         }
         // The Spirit Vision a Red Priest 8 is granted takes the Vision row.
-        assertEquals("Acute Vision", TraitEffects.visionClause(TraitGrants.withGrantedTraits(emptyList(), state("Red Priest", 8)))?.trait)
+        assertEquals("Acute Vision", TraitClauses.visionClause(TraitGrants.withGrantedTraits(emptyList(), state("Red Priest", 8)))?.trait)
         // Granted rows never enter the catalogue census.
         assertTrue("Acute Touch" !in TraitEffects.known())
     }
@@ -3018,7 +3018,7 @@ class TraitEffectsTest {
     fun `a potion's sense rows stack by row, never by grant`() {
         val search = SkillKey("Search", null, ControllingAttribute.Per, Difficulty.AVERAGE)
         val visionary = TraitGrants.withGrantedTraits(emptyList(), com.pathways.model.BeyonderState("Visionary", 7))
-        val offered = TraitEffects.skillRollClauses(visionary, search)
+        val offered = TraitClauses.skillRollClauses(visionary, search)
         assertEquals(mapOf("Acute Vision" to 2, "Incisive Vision" to 4, "Acute Smell" to 2), offered.associate { it.trait to it.value })
         val incisive = offered.single { it.trait == TraitEffects.INCISIVE_VISION }
         assertEquals(ModEffect.Flat(4), TraitEffects.modifiers(visionary, search, setOf(incisive.key)).single().effect)
@@ -3051,7 +3051,7 @@ class TraitEffectsTest {
 
         val bought = listOf(advantage("Acute Vision"))
         val conspirer = TraitGrants.withGrantedTraits(bought, com.pathways.model.BeyonderState("Red Priest", 6))
-        assertEquals(1, TraitEffects.skillRollClauses(conspirer, search).count { it.trait == "Acute Vision" })
+        assertEquals(1, TraitClauses.skillRollClauses(conspirer, search).count { it.trait == "Acute Vision" })
     }
 
     /**

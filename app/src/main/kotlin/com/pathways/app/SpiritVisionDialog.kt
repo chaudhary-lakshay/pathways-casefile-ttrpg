@@ -24,6 +24,7 @@ import com.pathways.rules.RandomSource
 import com.pathways.rules.SpiritVision
 import com.pathways.rules.SpiritVisionResult
 import com.pathways.rules.TraitClause
+import com.pathways.rules.TraitClauses
 
 /**
  * Reading a soul (Ch. 7.6, p. 77-78).
@@ -73,7 +74,7 @@ fun SpiritVisionDialog(
     /** [com.pathways.rules.TraitEffects.alertnessBonus]; required, so no caller forgets it. */
     alertness: Int,
     /**
-     * [com.pathways.rules.TraitEffects.visionClause]: Acute Vision, which the
+     * [com.pathways.rules.TraitClauses.visionClause]: Acute Vision, which the
      * GM declares on this roll or not (6fh). Required, like [alertness].
      */
     visionClause: TraitClause?,

@@ -93,7 +93,7 @@ object Concentration {
         hurt: Int = 0,
         /**
          * What the character's own Will clauses add once the GM has declared
-         * which circumstances hold ([TraitEffects.willClauses]).
+         * which circumstances hold ([TraitClauses.willClauses]).
          *
          * Its own parameter rather than folded into [hurt]: that one is named
          * for reeling and fatigue and prints as "hurt or tired", so a trait

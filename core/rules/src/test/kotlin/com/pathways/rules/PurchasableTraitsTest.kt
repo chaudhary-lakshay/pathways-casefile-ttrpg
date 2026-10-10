@@ -420,14 +420,14 @@ class PurchasableTraitsTest {
                 InstancedPurchase("Phobia (specify)", instance = "Spiders", cost = 10),
             ),
         )
-        val clauses = TraitEffects.frightClauses(traits)
+        val clauses = TraitClauses.frightClauses(traits)
         assertEquals(2, clauses.size)
         assertEquals(2, clauses.map { it.key }.distinct().size, "one key each")
         val cities = clauses.single { it.shown == "Phobia (Cities)" }
-        assertEquals(-2, TraitEffects.clauseBonus(clauses, setOf(cities.key)).total)
+        assertEquals(-2, TraitClauses.clauseBonus(clauses, setOf(cities.key)).total)
         assertEquals(
             -4,
-            TraitEffects.clauseBonus(clauses, clauses.map { it.key }.toSet()).total,
+            TraitClauses.clauseBonus(clauses, clauses.map { it.key }.toSet()).total,
             "both fears in play cost both penalties",
         )
     }

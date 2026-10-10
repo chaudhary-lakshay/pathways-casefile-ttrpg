@@ -27,6 +27,7 @@ import com.pathways.rules.Shock
 import com.pathways.rules.TraitClause
 import com.pathways.rules.StunRecovery
 import com.pathways.rules.ClauseBonus
+import com.pathways.rules.TraitClauses
 import com.pathways.rules.content.FrightRecovery
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.content.FrightTrigger
@@ -129,7 +130,7 @@ internal fun FrightDialog(
                     // these numbers stopped reconciling (6ag, 6ai). The trait
                     // total comes from rules for the same reason -- a screen
                     // that summed its own chips would be the second copy.
-                    val fromTraits = TraitEffects.clauseBonus(clauses, declared)
+                    val fromTraits = TraitClauses.clauseBonus(clauses, declared)
                     val effective = modifier + shock + hurt + fromTraits.total
                     // Composed once: the caption and the roll are this value.
                     val target = FrightCheck.targetFor(will, effective)
@@ -228,7 +229,7 @@ internal fun FrightDialog(
                                 attributeLevel = FrightCheck.levelFor(out, will, iq),
                                 bonus = if (StunRecovery.isStun(out)) stunRecoveryBonus else 0,
                                 clauseBonus = if (FrightCheck.takesWillClauses(out)) {
-                                    TraitEffects.clauseBonus(willOnlyClauses, declared)
+                                    TraitClauses.clauseBonus(willOnlyClauses, declared)
                                 } else {
                                     ClauseBonus(0, null)
                                 },

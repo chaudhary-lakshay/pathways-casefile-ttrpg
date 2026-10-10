@@ -7,7 +7,12 @@ the status is from that commit; re-measure before starting a step.
 
 **Steps 0-4 are done**, each a commit with 1950 Kotlin tests green from fresh
 XML (`b245394`, `f4d20f3`, `c36e90a`, `7192fb5`; step 0 is `9cc865d`,
-`OVER_CAP` in `tools/test_tools.py`). Steps 5-8 have not been started.
+`OVER_CAP` in `tools/test_tools.py`). **Step 5 is done** in three commits
+(`c6ae498` grants, `ee1a39e` names, then clauses), each RED-first (the
+rewritten tests failed to compile against the old tree) and 1950 Kotlin
+green from fresh XML; Python 362. `TraitEffects.kt` is 1191 lines, beside
+`TraitClauses` 527, `TraitNames` 374 and `TraitGrants` 181, so it stays in
+`OVER_CAP`. Steps 6-8 have not been started.
 
 | File | Was | Now | Moved to |
 |---|---|---|---|

@@ -25,13 +25,13 @@ class ReluctantKillerTest {
 
     @Test
     fun `the two to-hit clauses are offered to a holder alone, as printed`() {
-        val clauses = TraitEffects.attackClauses(killer)
+        val clauses = TraitClauses.attackClauses(killer)
         assertEquals(listOf(-4, -2), clauses.map { it.value })
         for (clause in clauses) {
             assertTrue(cell.contains(clause.printed), clause.printed)
             assertTrue(clause.conditional)
         }
-        assertEquals(emptyList<Any>(), TraitEffects.attackClauses(emptyList()))
+        assertEquals(emptyList<Any>(), TraitClauses.attackClauses(emptyList()))
     }
 
     /**
@@ -41,9 +41,9 @@ class ReluctantKillerTest {
      */
     @Test
     fun `a declared clause is the one term on the attack, and nothing undeclared is`() {
-        assertEquals(emptyList<Any>(), TraitEffects.attackModifiers(killer, declared = null))
-        for (clause in TraitEffects.attackClauses(killer)) {
-            val mod = TraitEffects.attackModifiers(killer, clause.key).single()
+        assertEquals(emptyList<Any>(), TraitClauses.attackModifiers(killer, declared = null))
+        for (clause in TraitClauses.attackClauses(killer)) {
+            val mod = TraitClauses.attackModifiers(killer, clause.key).single()
             assertEquals(ModEffect.Flat(clause.value), mod.effect)
             assertTrue(mod.source is ModifierSource.FromTrait, "${mod.source}")
         }
@@ -51,9 +51,9 @@ class ReluctantKillerTest {
 
     @Test
     fun `a declaration the character was not offered is refused`() {
-        val key = TraitEffects.attackClauses(killer).first().key
-        assertThrows<IllegalArgumentException> { TraitEffects.attackModifiers(emptyList(), key) }
-        assertThrows<IllegalArgumentException> { TraitEffects.attackModifiers(killer, "not a clause") }
+        val key = TraitClauses.attackClauses(killer).first().key
+        assertThrows<IllegalArgumentException> { TraitClauses.attackModifiers(emptyList(), key) }
+        assertThrows<IllegalArgumentException> { TraitClauses.attackModifiers(killer, "not a clause") }
     }
 
     /**
@@ -65,10 +65,10 @@ class ReluctantKillerTest {
     @Test
     fun `a holder cannot aim, declared or not`() {
         assertTrue(cell.contains("cannot Aim"))
-        assertTrue(TraitEffects.refusesAim(killer))
-        assertFalse(TraitEffects.refusesAim(emptyList()))
+        assertTrue(TraitClauses.refusesAim(killer))
+        assertFalse(TraitClauses.refusesAim(emptyList()))
         assertFalse(
-            TraitEffects.refusesAim(listOf(Trait(TraitEffects.RELUCTANT_KILLER, 1, TraitKind.QUIRK))),
+            TraitClauses.refusesAim(listOf(Trait(TraitEffects.RELUCTANT_KILLER, 1, TraitKind.QUIRK))),
         )
     }
 
