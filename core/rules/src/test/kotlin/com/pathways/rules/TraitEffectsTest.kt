@@ -2871,6 +2871,56 @@ class TraitEffectsTest {
     }
 
     /**
+     * Demoness 7 and 6 grant a face (6fn). The chain holds one, Sequence 6's;
+     * a bought face as good keeps the grant out, and a worse one stays in the
+     * list because the budget bills it, while the better face is played.
+     */
+    @Test
+    fun `a potion's face is held once, and the better face is played`() {
+        fun walk(pathway: String, seq: Int, held: List<Trait> = emptyList()) =
+            TraitEffects.withGrantedTraits(held, com.pathways.model.BeyonderState(pathway, seq))
+        fun faces(traits: List<Trait>) = traits.map { it.name }.filter { n -> Appearance.all().any { it.level == n } }
+        val beautiful = "Handsome / Beautiful"
+        val very = "Very Handsome / Very Beautiful"
+        assertEquals(emptyList<String>(), faces(walk("Demoness", 8)))
+        assertEquals(listOf(beautiful), faces(walk("Demoness", 7)))
+        assertEquals(listOf(very), faces(walk("Demoness", 6)))
+
+        val boughtVery = Appearance.traitFor(Appearance.named(very))
+        assertEquals(listOf(boughtVery), walk("Demoness", 7, listOf(boughtVery)).filter { it.name == very || it.name == beautiful })
+        val ugly = Appearance.traitFor(Appearance.named("Ugly"))
+        val played = walk("Demoness", 7, listOf(ugly))
+        assertEquals(listOf("Ugly", beautiful), faces(played))
+        assertEquals(beautiful, Appearance.played(played)!!.level)
+    }
+
+    @Test
+    fun `the face table is every block that prints a face`() {
+        // Each level's own words, longest first, so "Very Beautiful" is never
+        // also read as "Beautiful".
+        val words = Appearance.all().flatMap { level -> level.level.split(" / ").map { it to level.level } }
+            .sortedByDescending { it.first.length }
+        val printed = ContentLoader.pathways().mapNotNull { block ->
+            val text = block.advantages + " " + block.drawbacks
+            val taken = mutableListOf<IntRange>()
+            val found = mutableSetOf<String>()
+            for ((word, level) in words) {
+                for (m in Regex("(?<![A-Za-z])${Regex.escape(word)}(?![A-Za-z])").findAll(text)) {
+                    if (taken.any { m.range.first in it }) continue
+                    taken += m.range
+                    found += level
+                }
+            }
+            if (found.isEmpty()) null else (block.pathway to block.sequence) to found
+        }.toMap()
+        val table = TraitEffects.grantedTraitTable()
+            .mapValues { (_, rows) -> rows.map { it.name }.filter { n -> Appearance.all().any { it.level == n } }.toSet() }
+            .filterValues { it.isNotEmpty() }
+        assertEquals(printed, table)
+        assertEquals(setOf("Demoness" to 7, "Demoness" to 6), table.keys)
+    }
+
+    /**
      * A walked chain carries every sense its blocks granted (6fi), so a Red
      * Priest 8 still holds Sequence 9's, and a mortal holds none. Each reaches
      * a Per skill's roll as a declaration, the bought rows' shape (6fh).

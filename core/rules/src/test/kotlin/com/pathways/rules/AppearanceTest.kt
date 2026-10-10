@@ -146,4 +146,28 @@ class AppearanceTest {
         assertEquals(PointBudget.STARTING_TOTAL, report(handsome).budget)
         assertEquals(4, report(handsome).spent)
     }
+
+    /**
+     * A character has one face, and the better one is played (6fn): a potion
+     * that "perfects the Witch's features" never lowers a bought face, so the
+     * comparison is the reaction column, the one thing the rows order on.
+     */
+    @Test
+    fun `the better face is the one played`() {
+        fun face(level: String) = Appearance.traitFor(Appearance.named(level))
+        val ugly = face("Ugly")
+        val beautiful = face("Handsome / Beautiful")
+        val very = face("Very Handsome / Very Beautiful")
+        assertNull(Appearance.played(listOf(Trait("Luck", 15, TraitKind.ADVANTAGE))))
+        assertEquals("Handsome / Beautiful", Appearance.played(listOf(ugly, beautiful))!!.level)
+        assertEquals("Very Handsome / Very Beautiful", Appearance.played(listOf(very, beautiful))!!.level)
+        assertEquals("Ugly", Appearance.played(listOf(ugly))!!.level)
+        // The face held and not played, which the Traits tab says of it.
+        assertTrue(Appearance.isSuperseded(ugly, listOf(ugly, beautiful)))
+        assertFalse(Appearance.isSuperseded(beautiful, listOf(ugly, beautiful)))
+        assertFalse(Appearance.isSuperseded(ugly, listOf(ugly)))
+        // Matched as played() matches: a face spelt in another case is the same face.
+        assertFalse(Appearance.isSuperseded(ugly.copy(name = "ugly"), listOf(ugly.copy(name = "ugly"))))
+        assertFalse(Appearance.isSuperseded(Trait("Luck", 15, TraitKind.ADVANTAGE), listOf(ugly, beautiful)))
+    }
 }

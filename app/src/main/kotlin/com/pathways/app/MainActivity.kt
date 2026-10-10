@@ -83,6 +83,7 @@ import com.pathways.model.RollResult
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
+import com.pathways.rules.Appearance
 import com.pathways.rules.BurnKind
 import com.pathways.rules.CommonModifiers
 import com.pathways.rules.Concentration
@@ -672,7 +673,7 @@ fun SheetScreen(
                             else -> "${row.shown} — ${row.trait.cost} pts" +
                                 TraitEffects.grantedLevelsIn(row.trait, bought)
                                     ?.let { ", +$it from the potion" }.orEmpty()
-                        },
+                        } + superseded(row.trait, traits),
                         style = MaterialTheme.typography.bodySmall,
                     )
                     HeldCell(row)
@@ -714,6 +715,7 @@ fun SheetScreen(
                         // the kind (6u). Printed back with the minus the book
                         // gives a disadvantage, never negated in the data.
                         (if (trait in grantedTraits) "$shown — from the potion" else "$shown — −${trait.cost} pts") +
+                            superseded(trait, traits) +
                             (
                                 check?.let {
                                     " — 3d6 ≤ " +
@@ -2728,3 +2730,10 @@ private fun colorFor(outcome: Outcome) = when (outcome) {
     Outcome.CRITICAL_FAILURE, Outcome.FAILURE -> MaterialTheme.colorScheme.error
     else -> MaterialTheme.colorScheme.primary
 }
+
+/**
+ * What a bought face a potion beat says beside its points (6fn): the budget
+ * still bills it, and the better face is the one played.
+ */
+private fun superseded(trait: Trait, traits: List<Trait>): String =
+    if (Appearance.isSuperseded(trait, traits)) ", not played: the potion's face is better" else ""

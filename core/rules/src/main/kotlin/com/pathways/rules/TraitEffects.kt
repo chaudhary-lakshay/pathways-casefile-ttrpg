@@ -1890,8 +1890,10 @@ object TraitEffects {
         // Each block's own increment; [grantedTraits] adds them down the chain.
         ("Error" to 8) to advantages("$CHARISMA 1"),
         ("Demoness" to 8) to advantages("$CHARISMA 2"),
-        ("Demoness" to 7) to advantages("$CHARISMA 1"),
-        ("Demoness" to 6) to advantages(GREATER_ACUTE_VISION, "$CHARISMA 1"),
+        // A face is a rung of the appearance table, not a catalogue row:
+        // [grantedTraits] keeps the chain's better one (6fn).
+        ("Demoness" to 7) to advantages("$CHARISMA 1", "Handsome / Beautiful"),
+        ("Demoness" to 6) to advantages(GREATER_ACUTE_VISION, "$CHARISMA 1", "Very Handsome / Very Beautiful"),
         ("Abyss" to 8) to listOf(
             "Compulsive Behavior (Indulge Evil Desires) SC 6", "Unsettling Appearance", "Bloodlust", "Callous",
         ).map { Trait(it, 0, TraitKind.DISADVANTAGE) },
@@ -1943,6 +1945,7 @@ object TraitEffects {
                 val first = rows.first()
                 if (!isLevelled(first)) first else levelled(first, rows.sumOf { levelOf(listOf(it), catalogueName(it.name))!! })
             }
+            .let { rows -> rows.filter { !isFace(it) || it.name == Appearance.played(rows)?.level } }
     }
 
     /**
@@ -1962,8 +1965,13 @@ object TraitEffects {
             val grant = granted[name.lowercase()]?.takeIf { isLevelled(it) } ?: return@map owned
             levelled(owned, levelOf(listOf(owned), name)!! + levelOf(listOf(grant), name)!!)
         }
+        // A face is played only when it beats the bought one (6fn); a worse
+        // bought face stays, because the budget bills it.
         return merged + granted.filterKeys { it !in held }.values
+            .filter { !isFace(it) || Appearance.played(traits + it)?.level == it.name }
     }
+
+    private fun isFace(trait: Trait): Boolean = Appearance.played(listOf(trait)) != null
 
     /**
      * The levels a potion ADDED to [merged], a row of [withGrantedTraits],

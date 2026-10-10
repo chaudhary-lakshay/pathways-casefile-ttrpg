@@ -90,10 +90,25 @@ object Appearance {
      * on the bare level name is safe precisely because chapter 3's trait lists
      * carry none of them -- see this object's KDoc.
      */
-    fun levelOf(traits: List<Trait>): AppearanceLevel? {
+    fun levelOf(traits: List<Trait>): AppearanceLevel? = played(traits)
+
+    /**
+     * The face [traits] play: of the levels they name, the one with the
+     * highest reaction modifier, or null for none. Two arrive together only
+     * when a potion grants one beside a bought one (6fn), and "the potion
+     * perfects the Witch's features" (book 7597) never lowers a face, so the
+     * better is played; the eight printed modifiers are distinct, so there is
+     * never a tie. Granted-replaces-bought is refused on the same line: it
+     * would lower a bought Very Beautiful.
+     */
+    fun played(traits: List<Trait>): AppearanceLevel? {
         val byName = all().associateBy { it.level.lowercase() }
-        return traits.firstNotNullOfOrNull { byName[it.name.lowercase()] }
+        return traits.mapNotNull { byName[it.name.lowercase()] }.maxByOrNull { it.reactionModifier }
     }
+
+    /** Whether [trait] is a face [traits] hold and do not play (6fn): a bought one a potion beat. */
+    fun isSuperseded(trait: Trait, traits: List<Trait>): Boolean =
+        played(listOf(trait)) != null && played(traits)?.level?.equals(trait.name, ignoreCase = true) != true
 
     /**
      * [traits] with its appearance level replaced by [level].
