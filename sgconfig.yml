@@ -1,0 +1,4 @@
+# ast-grep (https://ast-grep.github.io). `ast-grep scan` runs every rule below;
+# `ast-grep run -l kotlin -p '<pattern>' <dir>` is the ad-hoc structural grep.
+ruleDirs:
+  - tools/sg

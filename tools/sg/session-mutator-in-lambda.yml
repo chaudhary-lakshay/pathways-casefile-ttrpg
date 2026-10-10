@@ -1,0 +1,19 @@
+id: session-mutator-in-lambda
+language: kotlin
+severity: hint
+message: "A lambda reaches a session mutator: does it guard its own second tap? (CLAUDE.md, 6gb)"
+note: |
+  A census, not a verdict: 6gb's query, kept so it is re-run rather than
+  re-derived. The names excluded are the session's readers, so a mutator added
+  later is listed by default. It sees the receiver spelled `session` only.
+files:
+  - app/src/main/**/*.kt
+rule:
+  pattern: session.$M($$$ARGS)
+  inside:
+    kind: lambda_literal
+    stopBy: end
+constraints:
+  M:
+    not:
+      regex: ^(can[A-Z]\w*|characterFor|traitsInPlay|stillShows|onSamePotion|copy)$

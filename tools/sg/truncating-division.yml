@@ -1,0 +1,13 @@
+id: truncating-division
+language: kotlin
+severity: error
+message: "CLAUDE.md 4.3: `/` truncates toward zero and the rulebook floors. Use Math.floorDiv."
+note: A real-literal divisor is double arithmetic and is not this defect.
+files:
+  - core/rules/src/main/**/*.kt
+rule:
+  pattern: $A / $B
+constraints:
+  B:
+    not:
+      kind: real_literal
