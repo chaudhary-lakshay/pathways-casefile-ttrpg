@@ -284,6 +284,8 @@ fun SheetScreen(
     // bought one. Every reader on this screen takes the merged list; the
     // budget never sees it, because it prices `characterFor` itself.
     val grantedTraits = remember(drunk) { TraitEffects.grantedTraits(drunk) }
+    // What was bought, for the levels a potion added to it (6fm).
+    val bought = remember(sheet, session.edits) { session.characterFor(sheet).traits }
     val traits = remember(sheet, session.edits, drunk) { session.traitsInPlay(sheet) }
     // The CoR ceiling: the CURRENT Will, which a potion can move, +3 with
     // Spiritual Fortitude. Computed once: the ritual dialog and the SPI
@@ -663,8 +665,14 @@ fun SheetScreen(
             items(if (tab == SheetTab.TRAITS) advantages else emptyList()) { row ->
                 Column(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
                     Text(
-                        // A granted row costs nothing and was not bought (6fk).
-                        if (row.trait in grantedTraits) "${row.shown} — from the potion" else "${row.shown} — ${row.trait.cost} pts",
+                        // A granted row costs nothing and was not bought (6fk);
+                        // a bought level a potion added to says both (6fm).
+                        when {
+                            row.trait in grantedTraits -> "${row.shown} — from the potion"
+                            else -> "${row.shown} — ${row.trait.cost} pts" +
+                                TraitEffects.grantedLevelsIn(row.trait, bought)
+                                    ?.let { ", +$it from the potion" }.orEmpty()
+                        },
                         style = MaterialTheme.typography.bodySmall,
                     )
                     HeldCell(row)

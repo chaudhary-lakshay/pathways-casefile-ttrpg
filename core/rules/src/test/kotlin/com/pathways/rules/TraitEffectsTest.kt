@@ -2774,14 +2774,19 @@ class TraitEffectsTest {
             }
         }
         val granted = TraitEffects.grantedTraitTable()
-            .flatMap { (key, rows) -> rows.filter { it.name in catalogue }.map { key to it.name } }
+            .flatMap { (key, rows) ->
+                rows.map { TraitEffects.catalogueName(it.name) }.filter { it in catalogue }.map { key to it }
+            }
             .toSet()
         val refused = TraitEffects.refusedGrants().keys
         assertEquals(printed, granted + refused)
         assertTrue((granted intersect refused).isEmpty(), (granted intersect refused).toString())
-        // Every granted catalogue row is unlevelled: the merge keeps one copy
-        // by name, and a bought level must never hide a granted one.
-        for ((_, name) in granted) assertTrue(catalogue.getValue(name).perLevel != true, name)
+        // Every granted catalogue row is unlevelled but Charisma, whose levels
+        // the merge adds (6fm): an unlevelled row is kept once by name, which
+        // would let a bought level hide a granted one.
+        for ((_, name) in granted) {
+            assertTrue(catalogue.getValue(name).perLevel != true || name == TraitEffects.CHARISMA, name)
+        }
         // A refusal carries a reason.
         assertTrue(TraitEffects.refusedGrants().values.all { it.isNotBlank() })
     }
@@ -2790,7 +2795,7 @@ class TraitEffectsTest {
      * What the granted rows reach (6fk): Hermit 8's Combat Reflexes reaches
      * every defence, Sun 9's Fit the HT rolls, Fool 8's Perfect Balance its
      * skills, Abyss 8's Compulsive Behavior its self-control roll. A row the
-     * sheet already holds is not added twice, and Charisma is not granted.
+     * sheet already holds is not added twice.
      */
     @Test
     fun `a potion's catalogue rows reach the rolls that read them`() {
@@ -2813,12 +2818,56 @@ class TraitEffectsTest {
         val abyss = walk("Abyss", 8, listOf(callous))
         assertEquals(1, abyss.count { it.name == "Callous" })
         assertEquals(callous, abyss.first { it.name == "Callous" })
-        assertTrue(walk("Demoness", 8).none { it.name.startsWith("Charisma") })
         // The merge is the bought list plus the grants it does not already hold.
         val grants = TraitEffects.grantedTraits(com.pathways.model.BeyonderState("Abyss", 8))
         assertEquals(listOf(callous) + grants.filter { it.name != "Callous" }, abyss)
         assertTrue(grants.all { it.cost == 0 })
         assertTrue(TraitEffects.grantedTraits(null).isEmpty())
+    }
+
+    /**
+     * Charisma is a Stat/Advantage gain like "DX +1", which "goes up by 1
+     * permanently" (5446), so a walked chain ADDS its blocks' levels (6fm):
+     * Demoness 8's +2, 7's +1 and 6's +1 make 4, the catalogue's own ceiling.
+     * A bought level and a granted one are one row at their sum, keeping the
+     * bought cost, and the skill half stays capped at four levels.
+     */
+    @Test
+    fun `a potion's Charisma adds to the chain and to a bought level`() {
+        fun walk(pathway: String, seq: Int, held: List<Trait> = emptyList()) =
+            TraitEffects.withGrantedTraits(held, com.pathways.model.BeyonderState(pathway, seq))
+        val leadership = SkillKey("Leadership", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.AVERAGE)
+        fun bonus(traits: List<Trait>) =
+            TraitEffects.modifiers(traits, leadership).sumOf { (it.effect as ModEffect.Flat).n }
+        assertEquals(0, bonus(walk("Demoness", 9)))
+        assertEquals(2, bonus(walk("Demoness", 8)))
+        assertEquals(3, bonus(walk("Demoness", 7)))
+        assertEquals(4, bonus(walk("Demoness", 6)))
+        assertEquals(1, bonus(walk("Error", 8)))
+        assertEquals(listOf("Charisma 4"), walk("Demoness", 6).map { it.name }.filter { it.startsWith("Charisma") })
+
+        val bought = Trait("Charisma 2", 10, TraitKind.ADVANTAGE)
+        val teller = walk("Demoness", 8, listOf(bought))
+        assertEquals(listOf(Trait("Charisma 4", 10, TraitKind.ADVANTAGE)), teller.filter { it.name.startsWith("Charisma") })
+        assertEquals(4, bonus(teller))
+        // The Traits tab says which levels the potion ADDED to a bought row.
+        fun charisma(traits: List<Trait>) = traits.first { it.name.startsWith("Charisma") }
+        assertEquals(2, TraitEffects.grantedLevelsIn(charisma(teller), listOf(bought)))
+        assertEquals(null, TraitEffects.grantedLevelsIn(charisma(walk("Demoness", 8)), emptyList()))
+        assertEquals(null, TraitEffects.grantedLevelsIn(bought, listOf(bought)))
+        // A bare bought "Charisma" is level one, so Demoness 8 adds two.
+        val bare = Trait("Charisma", 5, TraitKind.ADVANTAGE)
+        assertEquals(Trait("Charisma 3", 5, TraitKind.ADVANTAGE), charisma(walk("Demoness", 8, listOf(bare))))
+        // Bought 3 under a granted 2 is capped at 4: the potion added one, not two.
+        val three = Trait("Charisma 3", 15, TraitKind.ADVANTAGE)
+        assertEquals(1, TraitEffects.grantedLevelsIn(charisma(walk("Demoness", 8, listOf(three))), listOf(three)))
+        // Bought 2 and granted 4 hold six levels; the cell's ceiling is four.
+        assertEquals(4, bonus(walk("Demoness", 6, listOf(bought))))
+        // ...and the row says four too, not a level past the cell's ceiling.
+        val four = Trait("Charisma 4", 20, TraitKind.ADVANTAGE)
+        assertEquals(listOf(four), walk("Demoness", 8, listOf(four)).filter { it.name.startsWith("Charisma") })
+        // A number that is not a level stays as printed: Abyss 8's SC 6.
+        assertTrue(walk("Abyss", 8).any { it.name == "Compulsive Behavior (Indulge Evil Desires) SC 6" })
     }
 
     /**

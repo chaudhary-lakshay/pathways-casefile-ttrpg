@@ -1887,6 +1887,11 @@ object TraitEffects {
         ("Hermit" to 8) to advantages(COMBAT_REFLEXES),
         ("Wheel of Fortune" to 8) to advantages("Danger Sense"),
         ("Error" to 7) to advantages(EIDETIC_MEMORY),
+        // Each block's own increment; [grantedTraits] adds them down the chain.
+        ("Error" to 8) to advantages("$CHARISMA 1"),
+        ("Demoness" to 8) to advantages("$CHARISMA 2"),
+        ("Demoness" to 7) to advantages("$CHARISMA 1"),
+        ("Demoness" to 6) to advantages(GREATER_ACUTE_VISION, "$CHARISMA 1"),
         ("Abyss" to 8) to listOf(
             "Compulsive Behavior (Indulge Evil Desires) SC 6", "Unsettling Appearance", "Bloodlust", "Callous",
         ).map { Trait(it, 0, TraitKind.DISADVANTAGE) },
@@ -1910,15 +1915,7 @@ object TraitEffects {
             "\"Perfect Balance (Enhanced)\" is a variant; Tyrant 9's own Perfect Balance is granted",
         (("Hanged Man" to 9) to "Paranoia") to "\"Choose one of these three drawbacks\", and this app records no choice",
         (("Hanged Man" to 9) to "Hallucinations") to "\"Choose one of these three drawbacks\", and this app records no choice",
-        (("Error" to 8) to CHARISMA) to CHARISMA_DEFERRED,
-        (("Demoness" to 8) to CHARISMA) to CHARISMA_DEFERRED,
-        (("Demoness" to 7) to CHARISMA) to CHARISMA_DEFERRED,
-        (("Demoness" to 6) to CHARISMA) to CHARISMA_DEFERRED,
     )
-
-    private const val CHARISMA_DEFERRED =
-        "levelled: the merge keeps one copy by name, so a bought level would hide a granted one; " +
-            "the highest single level is the reading every combination agrees on, and is not built"
 
     /** The table, for its census. */
     fun grantedTraitTable(): Map<Pair<String, Int>, List<Trait>> = GRANTED_TRAITS
@@ -1929,22 +1926,69 @@ object TraitEffects {
     /**
      * Every row the walked chain granted, from Sequence 9 down to [state]'s,
      * because sequences are cumulative. Zero cost: the potion paid (p. 85).
+     *
+     * A row granted twice is held once, except a LEVELLED one, whose blocks'
+     * levels add (6fm): Charisma sits in the Stat/Advantage column beside
+     * "DX +1", which "goes up by 1 permanently" (5446), so Demoness 8's +2,
+     * 7's +1 and 6's +1 hold Charisma 4 -- the catalogue's own "[max 4
+     * levels]", which [levelled] also caps the printed level at.
      */
     fun grantedTraits(state: com.pathways.model.BeyonderState?): List<Trait> {
         if (state == null) return emptyList()
         return GRANTED_TRAITS
             .filterKeys { (pathway, sequence) -> pathway == state.pathway && sequence >= state.sequence }
-            .values.flatten().distinctBy { it.name }
+            .values.flatten()
+            .groupBy { catalogueName(it.name).lowercase() }.values
+            .map { rows ->
+                val first = rows.first()
+                if (!isLevelled(first)) first else levelled(first, rows.sumOf { levelOf(listOf(it), catalogueName(it.name))!! })
+            }
     }
 
     /**
      * [traits] plus every granted row they do not already hold, by catalogue
      * name, so a row bought and granted is one row and a bonus once. What a
      * sheet's rolls read; never the character, which stays purchased-only.
+     *
+     * A levelled grant ADDS to a bought level instead (6fm): the held row is
+     * replaced in place by one at the sum, keeping its cost and kind, because
+     * [levelOf] reads one row per trait and a second copy would be hidden.
      */
     fun withGrantedTraits(traits: List<Trait>, state: com.pathways.model.BeyonderState?): List<Trait> {
+        val granted = grantedTraits(state).associateBy { catalogueName(it.name).lowercase() }
         val held = traits.map { catalogueName(it.name).lowercase() }.toSet()
-        return traits + grantedTraits(state).filter { catalogueName(it.name).lowercase() !in held }
+        val merged = traits.map { owned ->
+            val name = catalogueName(owned.name)
+            val grant = granted[name.lowercase()]?.takeIf { isLevelled(it) } ?: return@map owned
+            levelled(owned, levelOf(listOf(owned), name)!! + levelOf(listOf(grant), name)!!)
+        }
+        return merged + granted.filterKeys { it !in held }.values
+    }
+
+    /**
+     * The levels a potion ADDED to [merged], a row of [withGrantedTraits],
+     * over what [bought] holds of it; null when it added none, or the row was
+     * not bought. Never the grant's own level: a bought Charisma 3 under
+     * Demoness 8's +2 stops at the cell's 4, so the potion added one (6fm).
+     * What the Traits tab says beside the points.
+     */
+    fun grantedLevelsIn(merged: Trait, bought: List<Trait>): Int? {
+        val name = catalogueName(merged.name)
+        val had = levelOf(bought, name) ?: return null
+        return (levelOf(listOf(merged), name)!! - had).takeIf { it > 0 }
+    }
+
+    /**
+     * Whether the catalogue prices [trait] per level: never a number in the
+     * name, which Abyss 8's "Compulsive Behavior (...) SC 6" carries too.
+     */
+    private fun isLevelled(trait: Trait): Boolean =
+        ContentLoader.advantages().any { it.perLevel && it.name.equals(catalogueName(trait.name), ignoreCase = true) }
+
+    /** [trait] at [level], no higher than its catalogue row's printed ceiling. */
+    private fun levelled(trait: Trait, level: Int): Trait {
+        val name = catalogueName(trait.name)
+        return trait.copy(name = "$name ${minOf(level, maxLevelsFor(name) ?: level)}")
     }
 
     private fun senseClauses(traits: List<Trait>): List<TraitClause> = traits.flatMap { owned ->
