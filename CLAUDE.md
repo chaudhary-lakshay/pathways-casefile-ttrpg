@@ -171,8 +171,11 @@ unapplied. The 13 left are sheet spellings 4.1 records, pinned by name,
 so a new bare row in those sources fails a test; a new SOURCE of held
 traits must be added to the census by hand. Read it for one thing:
 **the sense chips were cut**, so a chip's text is not a row's cell. The
-diff review said SHIP. Not device-verified. **Next (6fs)**: a device
-pass for 6fq and 6fr with the owner present.
+diff review said SHIP. 6fs: 6fq and 6fr are device-verified on the
+SM-T570, from a fresh install, because the APK on it predated both
+fixes; the save was restored. **Next (6ft)**: the gallery's tabs read
+the published SPI, so a saved Beyonder sits under Mortal (6eb). It
+wants its own reading before anyone calls it a defect.
 
 **6fo is next: the language a potion grants.** Mother 8 and
 Justiciar 6 print *"Ancient Hermes Fluent — can speak, read, and
@@ -320,7 +323,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fr first.** The
+**Where to start next: the slice log, from the END — 6fs first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 

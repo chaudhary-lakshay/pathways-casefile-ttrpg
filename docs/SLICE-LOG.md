@@ -6726,6 +6726,54 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fs. The device pass for 6fq and 6fr
+
+No code changed. SM-T570, owner present, tablet on its launcher.
+
+**The APK on the tablet predated both fixes**: `lastUpdateTime` 10:27
+against `60102f5` at 10:37 and `123f54e` at 10:54. A pass on it would
+have verified the defects. `:app:installDebug` first, and `cmp` showed
+the save survived it. Compare that timestamp with the fix's commit time
+before any pass.
+
+What the Traits tab printed, each checked against the literal its test
+pins (`WealthTest`, `AppearanceTest`, `TraitEffectsTest`), not against
+`cellFor`:
+
+| Character | Row | Cell |
+|---|---|---|
+| Docks Bouncer, as saved | `Poverty: Struggling — −10 pts` | *"Start with 15 soli; modest room; occasional luxuries"*, then `UNREAD` |
+| University Librarian (control) | `Poverty: Struggling — −5 pts` | bare, beside Blacklisted, Absent-Minded and No Sense of Humour, as recorded |
+| Barmaid Brawler, builder pick | `Wealth: Wealthy — 15 pts` | *"Starting money £50. +2 to reaction rolls. Nice townhouse; fine clothes; a servant"*, then `UNREAD` |
+| Barmaid Brawler, builder pick | `Ugly — −8 pts` | *"-2 to reaction rolls"*, then `UNREAD` |
+| Fortune Teller seeded Demoness 6 | `Greater Acute Vision — from the potion` | the whole row, then *"allows the Pleasure to see their own Spider's Threads. Not applied here: its bonus aside, …"* |
+| the same | `Very Handsome / Very Beautiful — from the potion` | *"+3 to reaction rolls"*, then `UNREAD` |
+| Pickpocket seeded Visionary 7 | `Incisive Vision — from the potion` | *"+4"*, no note |
+| the same | `Acute Smell — from the potion` | *"+2 sharper sense of smell; detect subtle scents and emotional cues"*, then the rest as a note |
+| Night Watchman seeded Red Priest 6 | `Acute Taste & Smell`, `Acute Touch` | each its one-clause row, no note |
+
+Pickpocket and Night Watchman print the sheet's Struggling row too, so
+three of the nine were seen.
+
+**The save.** Backed up by `run-as cat`; the builder picks added one
+entry (Barmaid Brawler, held by no save entry before); the seed added
+three more on premades the save did not hold; the backup was written
+back and `cmp` agrees. Both writes went through from Claude, once each.
+The newer code writes `pendingPcr: null` on every entry it saves, which
+is 6fg's additive field and the only difference in the owner's eight.
+
+**Two things seen outside the slice, recorded and not repaired.**
+
+- A granted face's note opens *"its price aside"* under a header that
+  prints *"from the potion"* and no price. Nothing it says is false, and
+  the sentence is `UNREAD`'s one wording for every row.
+- 6eb's observation again: the gallery's tabs read the PUBLISHED SPI, so
+  it printed `Beyonders (4)` over a save holding ten (seven the owner's), and a Journalist
+  at Error 9 sits under Mortal. 6eb said it wants its own reading before
+  anyone calls it a defect. It has not had one.
+
+**Next (6ft)**: that reading.
+
 ## 6fr. Every held row the Traits tab printed bare
 
 6fq named it: `held()` over every fixture plus each table's rows, listing
