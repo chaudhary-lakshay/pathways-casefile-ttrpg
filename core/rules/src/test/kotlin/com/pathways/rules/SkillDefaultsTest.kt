@@ -522,6 +522,14 @@ class SkillDefaultsTest {
         assertNull(SkillDefaults.masteryFor("Mother", 7))
         val note = w.unappliedFor(isRanged = false)!!
         assertTrue("default +2" in note && note.startsWith("Not applied here"), note)
+        // The reason is the book's, not the app's (6fj): counting uses was
+        // never the obstacle, since a GM could declare them. The Warrior's
+        // own example puts "default +2" above the DX it starts at, and the
+        // Weapon Master, "a strict upgrade", stops at DX.
+        assertTrue("count uses" !in note, note)
+        assertTrue("above DX" in note && "strict upgrade" in note, note)
+        assertTrue("but needs several shots before reaching full proficiency" in warrior, warrior)
+        assertTrue("treated as known at effective DX (no default penalty) instantly" in master, master)
         assertNull(m.unappliedFor(isRanged = false))
         // The Harvest Priest's line is about a tool the weapon table does not mark.
         assertNull(SkillDefaults.toolNote("Twilight Giant", 7))

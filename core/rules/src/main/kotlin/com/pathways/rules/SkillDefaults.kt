@@ -161,14 +161,28 @@ object SkillDefaults {
          * hand, as the sentence a screen prints, or null. Only the Warrior's
          * "Weapons used repeatedly in a session are treated as known at
          * default +2" is left, and the Pugilist keeps it for a ranged weapon.
+         *
+         * **Refused for a reason in the book, not in this app** (6fj). The
+         * old reason, "this app does not count uses", was false as a
+         * reason: a GM could declare repeated use, as other circumstances
+         * are declared. What no declaration fixes is the number. The
+         * Warrior's example fires "at DX level immediately, but needs
+         * several shots before reaching full proficiency (default +2 after
+         * repeated use)", which puts it ABOVE DX (5800-5801). The Weapon
+         * Master, "a strict upgrade to and replacement of the Warrior's
+         * Combat Mastery" (7569-7570), stops at "effective DX (no default
+         * penalty)" (7564). A warmed-up Warrior at DX+2 would outdo the line
+         * that replaces his. The DX floor stays: the Warrior's block says DX
+         * at first use twice, and the later blocks print no lower number.
          */
         fun unappliedFor(isRanged: Boolean): String? =
             WARM_UP.takeIf { if (isRanged) rangedWarmUp else meleeWarmUp }
     }
 
     private const val WARM_UP =
-        "Not applied here: Warrior's \"default +2\" for a weapon used " +
-            "repeatedly in a session. This app does not count uses."
+        "Not applied here: Warrior's \"default +2\" after repeated use. " +
+            "Its own example puts that above DX; the Weapon Master, " +
+            "\"a strict upgrade\", stops at DX."
 
     /** The mastery a character at [sequence] of [pathway] holds, or null. */
     fun masteryFor(pathway: String, sequence: Int): WeaponMastery? {

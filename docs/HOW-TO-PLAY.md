@@ -151,8 +151,10 @@ less than DX, and the header says so. For its parry, the weapon skill is floored
 DX before the halving, on this screen and in Defend, which says it is a reading. Put the weapon down and the
 skill is back at its own number, and a Deceptive Attack the lower number cannot
 afford goes to 0. The Warrior's *"default +2"* for a weapon used repeatedly is
-not counted; a Pugilist needs no warm-up with a melee weapon, so for one of
-those nothing is left uncounted.
+not applied: the Warrior's own example puts it above DX, and the Weapon
+Master, *"a strict upgrade"* of that line, stops at DX, so the book gives no
+number that fits both. A Pugilist needs no warm-up with a melee weapon, so for
+one of those nothing is left over.
 
 **At range**, tick the conditions the GM called. One of them prints a range
 rather than a number — *"Darkness or heavy fog: -3 to -9 depending on
