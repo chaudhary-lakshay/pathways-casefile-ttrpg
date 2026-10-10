@@ -2493,7 +2493,7 @@ class TraitEffectsTest {
         held += Wealth.all().mapNotNull(Wealth::traitFor)
         held += Appearance.all().map(Appearance::traitFor)
         held += PurchasableTraits.offered().map { it.toTrait() }
-        held += TraitEffects.grantedTraitTable().values.flatten()
+        held += TraitGrants.grantedTraitTable().values.flatten()
         for (lang in Languages.all()) for (p in Languages.proficiencies(lang.type)) for (form in Languages.forms()) {
             held += Languages.traits(listOf(LanguagePurchase(lang.name, p.proficiency, form)), emptyList())
         }
@@ -2775,7 +2775,7 @@ class TraitEffectsTest {
         assertEquals(8, printed.size, printed.toString())
         // The senses in the one granted-row table (6fk folded 6fi's into it).
         val senseName = Regex(".*(Vision|Hearing|Smell|Touch)")
-        val table = TraitEffects.grantedTraitTable()
+        val table = TraitGrants.grantedTraitTable()
             .mapValues { (_, rows) -> rows.map { it.name }.filter { senseName.matches(it) }.toSet() }
             .filterValues { it.isNotEmpty() }
         assertEquals(printed, table)
@@ -2786,7 +2786,7 @@ class TraitEffectsTest {
         for ((key, names) in table) {
             val (pathway, sequence) = key
             val block = ContentLoader.pathways().single { it.pathway == pathway && it.sequence == sequence }
-            val held = TraitEffects.withGrantedTraits(emptyList(), com.pathways.model.BeyonderState(pathway, sequence))
+            val held = TraitGrants.withGrantedTraits(emptyList(), com.pathways.model.BeyonderState(pathway, sequence))
             val clauses = TraitEffects.skillRollClauses(held, search)
             for (name in names.filter { it !in catalogued }) {
                 val printed = clauses.single { it.trait == name }.printed
@@ -2821,12 +2821,12 @@ class TraitEffectsTest {
                 }
             }
         }
-        val granted = TraitEffects.grantedTraitTable()
+        val granted = TraitGrants.grantedTraitTable()
             .flatMap { (key, rows) ->
                 rows.map { TraitEffects.catalogueName(it.name) }.filter { it in catalogue }.map { key to it }
             }
             .toSet()
-        val refused = TraitEffects.refusedGrants().keys
+        val refused = TraitGrants.refusedGrants().keys
         assertEquals(printed, granted + refused)
         assertTrue((granted intersect refused).isEmpty(), (granted intersect refused).toString())
         // Every granted catalogue row is unlevelled but Charisma, whose levels
@@ -2836,7 +2836,7 @@ class TraitEffectsTest {
             assertTrue(catalogue.getValue(name).perLevel != true || name == TraitEffects.CHARISMA, name)
         }
         // A refusal carries a reason.
-        assertTrue(TraitEffects.refusedGrants().values.all { it.isNotBlank() })
+        assertTrue(TraitGrants.refusedGrants().values.all { it.isNotBlank() })
     }
 
     /**
@@ -2848,7 +2848,7 @@ class TraitEffectsTest {
     @Test
     fun `a potion's catalogue rows reach the rolls that read them`() {
         fun walk(pathway: String, seq: Int, held: List<Trait> = emptyList()) =
-            TraitEffects.withGrantedTraits(held, com.pathways.model.BeyonderState(pathway, seq))
+            TraitGrants.withGrantedTraits(held, com.pathways.model.BeyonderState(pathway, seq))
         assertEquals(0, TraitEffects.defenseBonus(walk("Hermit", 9)))
         assertEquals(1, TraitEffects.defenseBonus(walk("Hermit", 8)))
         assertEquals(1, TraitEffects.htRollBonus(walk("Sun", 9)))
@@ -2867,10 +2867,10 @@ class TraitEffectsTest {
         assertEquals(1, abyss.count { it.name == "Callous" })
         assertEquals(callous, abyss.first { it.name == "Callous" })
         // The merge is the bought list plus the grants it does not already hold.
-        val grants = TraitEffects.grantedTraits(com.pathways.model.BeyonderState("Abyss", 8))
+        val grants = TraitGrants.grantedTraits(com.pathways.model.BeyonderState("Abyss", 8))
         assertEquals(listOf(callous) + grants.filter { it.name != "Callous" }, abyss)
         assertTrue(grants.all { it.cost == 0 })
-        assertTrue(TraitEffects.grantedTraits(null).isEmpty())
+        assertTrue(TraitGrants.grantedTraits(null).isEmpty())
     }
 
     /**
@@ -2883,7 +2883,7 @@ class TraitEffectsTest {
     @Test
     fun `a potion's Charisma adds to the chain and to a bought level`() {
         fun walk(pathway: String, seq: Int, held: List<Trait> = emptyList()) =
-            TraitEffects.withGrantedTraits(held, com.pathways.model.BeyonderState(pathway, seq))
+            TraitGrants.withGrantedTraits(held, com.pathways.model.BeyonderState(pathway, seq))
         val leadership = SkillKey("Leadership", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.AVERAGE)
         fun bonus(traits: List<Trait>) =
             TraitEffects.modifiers(traits, leadership).sumOf { (it.effect as ModEffect.Flat).n }
@@ -2900,15 +2900,15 @@ class TraitEffectsTest {
         assertEquals(4, bonus(teller))
         // The Traits tab says which levels the potion ADDED to a bought row.
         fun charisma(traits: List<Trait>) = traits.first { it.name.startsWith("Charisma") }
-        assertEquals(2, TraitEffects.grantedLevelsIn(charisma(teller), listOf(bought)))
-        assertEquals(null, TraitEffects.grantedLevelsIn(charisma(walk("Demoness", 8)), emptyList()))
-        assertEquals(null, TraitEffects.grantedLevelsIn(bought, listOf(bought)))
+        assertEquals(2, TraitGrants.grantedLevelsIn(charisma(teller), listOf(bought)))
+        assertEquals(null, TraitGrants.grantedLevelsIn(charisma(walk("Demoness", 8)), emptyList()))
+        assertEquals(null, TraitGrants.grantedLevelsIn(bought, listOf(bought)))
         // A bare bought "Charisma" is level one, so Demoness 8 adds two.
         val bare = Trait("Charisma", 5, TraitKind.ADVANTAGE)
         assertEquals(Trait("Charisma 3", 5, TraitKind.ADVANTAGE), charisma(walk("Demoness", 8, listOf(bare))))
         // Bought 3 under a granted 2 is capped at 4: the potion added one, not two.
         val three = Trait("Charisma 3", 15, TraitKind.ADVANTAGE)
-        assertEquals(1, TraitEffects.grantedLevelsIn(charisma(walk("Demoness", 8, listOf(three))), listOf(three)))
+        assertEquals(1, TraitGrants.grantedLevelsIn(charisma(walk("Demoness", 8, listOf(three))), listOf(three)))
         // Bought 2 and granted 4 hold six levels; the cell's ceiling is four.
         assertEquals(4, bonus(walk("Demoness", 6, listOf(bought))))
         // ...and the row says four too, not a level past the cell's ceiling.
@@ -2926,7 +2926,7 @@ class TraitEffectsTest {
     @Test
     fun `a potion's face is held once, and the better face is played`() {
         fun walk(pathway: String, seq: Int, held: List<Trait> = emptyList()) =
-            TraitEffects.withGrantedTraits(held, com.pathways.model.BeyonderState(pathway, seq))
+            TraitGrants.withGrantedTraits(held, com.pathways.model.BeyonderState(pathway, seq))
         fun faces(traits: List<Trait>) = traits.map { it.name }.filter { n -> Appearance.all().any { it.level == n } }
         val beautiful = "Handsome / Beautiful"
         val very = "Very Handsome / Very Beautiful"
@@ -2961,7 +2961,7 @@ class TraitEffectsTest {
             }
             if (found.isEmpty()) null else (block.pathway to block.sequence) to found
         }.toMap()
-        val table = TraitEffects.grantedTraitTable()
+        val table = TraitGrants.grantedTraitTable()
             .mapValues { (_, rows) -> rows.map { it.name }.filter { n -> Appearance.all().any { it.level == n } }.toSet() }
             .filterValues { it.isNotEmpty() }
         assertEquals(printed, table)
@@ -2978,7 +2978,7 @@ class TraitEffectsTest {
         fun state(pathway: String, seq: Int) = com.pathways.model.BeyonderState(pathway, seq)
         val search = SkillKey("Search", null, ControllingAttribute.Per, Difficulty.AVERAGE)
         fun offered(state: com.pathways.model.BeyonderState?) =
-            TraitEffects.skillRollClauses(TraitEffects.withGrantedTraits(emptyList(), state), search)
+            TraitEffects.skillRollClauses(TraitGrants.withGrantedTraits(emptyList(), state), search)
         assertTrue(offered(null).isEmpty())
         assertTrue(offered(state("Fool", 9)).isEmpty())
         assertEquals(setOf("Acute Vision", "Acute Hearing"), offered(state("Red Priest", 8)).map { it.trait }.toSet())
@@ -2987,7 +2987,7 @@ class TraitEffectsTest {
             listOf("Acute Vision", "Acute Hearing", "Acute Taste & Smell", "Acute Touch").sorted(),
             conspirer.map { it.trait }.sorted(),
         )
-        val held = TraitEffects.withGrantedTraits(emptyList(), state("Red Priest", 6))
+        val held = TraitGrants.withGrantedTraits(emptyList(), state("Red Priest", 6))
         for (clause in conspirer) {
             assertEquals(
                 ModEffect.Flat(2),
@@ -3003,7 +3003,7 @@ class TraitEffectsTest {
             }
         }
         // The Spirit Vision a Red Priest 8 is granted takes the Vision row.
-        assertEquals("Acute Vision", TraitEffects.visionClause(TraitEffects.withGrantedTraits(emptyList(), state("Red Priest", 8)))?.trait)
+        assertEquals("Acute Vision", TraitEffects.visionClause(TraitGrants.withGrantedTraits(emptyList(), state("Red Priest", 8)))?.trait)
         // Granted rows never enter the catalogue census.
         assertTrue("Acute Touch" !in TraitEffects.known())
     }
@@ -3017,7 +3017,7 @@ class TraitEffectsTest {
     @Test
     fun `a potion's sense rows stack by row, never by grant`() {
         val search = SkillKey("Search", null, ControllingAttribute.Per, Difficulty.AVERAGE)
-        val visionary = TraitEffects.withGrantedTraits(emptyList(), com.pathways.model.BeyonderState("Visionary", 7))
+        val visionary = TraitGrants.withGrantedTraits(emptyList(), com.pathways.model.BeyonderState("Visionary", 7))
         val offered = TraitEffects.skillRollClauses(visionary, search)
         assertEquals(mapOf("Acute Vision" to 2, "Incisive Vision" to 4, "Acute Smell" to 2), offered.associate { it.trait to it.value })
         val incisive = offered.single { it.trait == TraitEffects.INCISIVE_VISION }
@@ -3050,7 +3050,7 @@ class TraitEffectsTest {
         }
 
         val bought = listOf(advantage("Acute Vision"))
-        val conspirer = TraitEffects.withGrantedTraits(bought, com.pathways.model.BeyonderState("Red Priest", 6))
+        val conspirer = TraitGrants.withGrantedTraits(bought, com.pathways.model.BeyonderState("Red Priest", 6))
         assertEquals(1, TraitEffects.skillRollClauses(conspirer, search).count { it.trait == "Acute Vision" })
     }
 

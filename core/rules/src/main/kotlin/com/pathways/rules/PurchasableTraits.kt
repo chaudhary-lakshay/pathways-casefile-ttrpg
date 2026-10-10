@@ -96,7 +96,7 @@ data class InstancedPurchase(
  * [TraitEffects.ETHER_BODY_DAMAGE] reachable at all -- no premade carries it
  * and no potion grants it. (This said "a potion ... never a trait" until
  * 6fu. Since 6fk a potion grants the catalogue rows its block prints,
- * [TraitEffects.grantedTraitTable], and this row is not among them.)
+ * [TraitGrants.grantedTraitTable], and this row is not among them.)
  *
  * **Three earlier slices deferred this on a blocker that does not apply.** The
  * stated reason was that a Seven Orthodox Gods Blessing costs 75 points AND

@@ -39,6 +39,7 @@ import com.pathways.rules.Study
 import com.pathways.rules.StudyMethod
 import com.pathways.rules.Appearance
 import com.pathways.rules.TraitEffects
+import com.pathways.rules.TraitGrants
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.WealthLevel
@@ -205,7 +206,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     printed = Appearance.levelOf(start.traits),
                     // The face a potion granted (6fn), so a face is not bought
                     // blind: the better of the two is played.
-                    granted = remember(session.state) { Appearance.played(TraitEffects.grantedTraits(session.state)) },
+                    granted = remember(session.state) { Appearance.played(TraitGrants.grantedTraits(session.state)) },
                     onPick = { pickingLooks = true },
                 )
                 HorizontalDivider()

@@ -52,6 +52,7 @@ import com.pathways.model.Attributes
 import com.pathways.model.BeyonderState
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.TraitEffects
+import com.pathways.rules.TraitGrants
 
 /**
  * The character gallery: the app's launch screen.
@@ -147,7 +148,7 @@ internal fun playedRow(sheet: PremadeSheet, saved: SavedSession?): PlayedRow {
         bought.attributesWith(walk),
         liveSkillLevels(bought.copy(beyonder = walk)).size,
         // The list the sheet's rolls read ([BeyonderSession.traitsInPlay]).
-        chipTraits(TraitEffects.withGrantedTraits(bought.traits, walk).map { it.name }),
+        chipTraits(TraitGrants.withGrantedTraits(bought.traits, walk).map { it.name }),
     )
 }
 

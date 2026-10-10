@@ -82,6 +82,7 @@ import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SpiritualSenses
 import com.pathways.rules.TraitEffects
+import com.pathways.rules.TraitGrants
 import java.io.File
 import kotlin.random.Random
 
@@ -241,7 +242,7 @@ fun SheetScreen(
     // grants come from: a potion's Combat Reflexes is held as surely as a
     // bought one. Every reader on this screen takes the merged list; the
     // budget never sees it, because it prices `characterFor` itself.
-    val grantedTraits = remember(drunk) { TraitEffects.grantedTraits(drunk) }
+    val grantedTraits = remember(drunk) { TraitGrants.grantedTraits(drunk) }
     // What was bought, for the levels a potion added to it (6fm).
     val bought = remember(sheet, session.edits) { session.characterFor(sheet).traits }
     val traits = remember(sheet, session.edits, drunk) { session.traitsInPlay(sheet) }
@@ -633,7 +634,7 @@ fun SheetScreen(
                         when {
                             row.trait in grantedTraits -> "${row.shown} — from the potion"
                             else -> "${row.shown} — ${row.trait.cost} pts" +
-                                TraitEffects.grantedLevelsIn(row.trait, bought)
+                                TraitGrants.grantedLevelsIn(row.trait, bought)
                                     ?.let { ", +$it from the potion" }.orEmpty()
                         } + superseded(row.trait, traits),
                         style = MaterialTheme.typography.bodySmall,

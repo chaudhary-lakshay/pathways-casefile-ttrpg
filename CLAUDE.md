@@ -707,10 +707,10 @@ TraitEffects.skillRollClauses(traits, skill)   // every clause a skill roll asks
                                       // modifiers() read it
 TraitEffects.visionClause(traits)     // Acute Vision alone, for Spirit
                                       // Vision's roll: a GM declaration (6fh)
-TraitEffects.grantedTraits(state) / .withGrantedTraits(traits, state)
-TraitEffects.grantedLevelsIn(merged, bought)   // the levels a potion ADDED
+TraitGrants.grantedTraits(state) / .withGrantedTraits(traits, state)
+TraitGrants.grantedLevelsIn(merged, bought)   // the levels a potion ADDED
                                       // to a bought levelled row (6fm)
-TraitEffects.grantedTraitTable() / .refusedGrants()
+TraitGrants.grantedTraitTable() / .refusedGrants()
                                       // every catalogue row (and 6fi's sense
                                       // rows) a walked potion chain printed,
                                       // zero cost; refusals with reasons (6fk)

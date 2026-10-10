@@ -18,6 +18,7 @@ import com.pathways.rules.PremadeSheet
 import com.pathways.rules.RandomSource
 import com.pathways.rules.ScoreFloors
 import com.pathways.rules.TraitEffects
+import com.pathways.rules.TraitGrants
 
 /**
  * One character in play, as the screens see it: the walk down a pathway,
@@ -388,12 +389,12 @@ class BeyonderSession(
 
     /**
      * The traits in play: [characterFor]'s plus every row the potions drunk
-     * granted ([TraitEffects.withGrantedTraits], 6fk). One answer for the
+     * granted ([TraitGrants.withGrantedTraits], 6fk). One answer for the
      * sheet's rolls and the builder's "already held", so a granted row is
      * never sold again. Never the character: the budget prices that.
      */
     fun traitsInPlay(sheet: PremadeSheet): List<Trait> =
-        TraitEffects.withGrantedTraits(characterFor(sheet).traits, state)
+        TraitGrants.withGrantedTraits(characterFor(sheet).traits, state)
 
     /**
      * Spend or restore [pool] by [delta] points against a maximum of [max],
