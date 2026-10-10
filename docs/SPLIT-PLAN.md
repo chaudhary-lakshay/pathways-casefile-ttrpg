@@ -22,7 +22,8 @@ the move left unused, is removed.
 `testsupport.py` (`c29ce61`, the same 362 collected names, run as
 `py -m pytest tools -q`); `extract_content.py`'s self-control reading into
 `content_self_control.py`, which reads nothing else of it (589 + 358).
-Steps 7-8 have not been started.
+The diff review (sonnet, `4d0ce5e..b35ab36`) said SHIP; its one
+stale count is gone. Steps 7-8 have not been started.
 
 | File | Was | Now | Moved to |
 |---|---|---|---|

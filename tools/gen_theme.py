@@ -5,7 +5,7 @@ Run by hand when the preset list or the accent offsets change:
     py -m pip install materialyoucolor        # once; NOT a test dependency
     py tools/gen_theme.py
 
-Deliberately not wired into `tools/test_tools_*.py`. That suite has 268 tests and
+Deliberately not wired into `tools/test_tools_*.py`. That suite has
 no third-party colour dependency, and an authoring tool run four times a year
 should not add one to it. What guards the OUTPUT is the Kotlin compiler plus
 `ThemeSchemesTest`, which re-checks the two invariants this file enforces.
