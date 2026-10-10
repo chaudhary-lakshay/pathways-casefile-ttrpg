@@ -89,6 +89,7 @@ import com.pathways.rules.CommonModifiers
 import com.pathways.rules.Concentration
 import com.pathways.rules.ConcentrationOutcome
 import com.pathways.rules.Conditions
+import com.pathways.rules.Contribution
 import com.pathways.rules.Derive
 import com.pathways.rules.Divination
 import com.pathways.rules.EffortBurn
@@ -120,6 +121,7 @@ import com.pathways.rules.Shock
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
+import com.pathways.rules.SkillTarget
 import com.pathways.rules.SpiritualSenses
 import com.pathways.rules.SuccessDegree
 import com.pathways.rules.TraitClause
@@ -907,15 +909,14 @@ fun SheetScreen(
             // that names a circumstance. One rules list, which `modifiers`
             // also reads, so the chips cannot disagree with the dice (6ff).
             declarableClauses = TraitEffects.skillRollClauses(traits, skill.key),
-            onRoll = { circumstances, declaredClauses ->
+            targetFor = { circumstances, declaredClauses ->
                 // The trackers reach the dice here: a reeling, fatigued or
                 // corrupted character no longer rolls at full skill. The GM's
                 // circumstances are a separate source and simply join the list.
-                SkillRoll.at(
+                SkillRoll.targetFor(
                     label = skill.label,
                     base = skill.base,
                     key = skill.key,
-                    source = appDice,
                     // Three sources now: what the trackers cost (Conditions),
                     // what the character IS (TraitEffects -- Alertness on a
                     // Per roll, Fit on an HT one), and what the GM says the
@@ -925,6 +926,7 @@ fun SheetScreen(
                         circumstances,
                 )
             },
+            roll = { SkillRoll.rollAgainst(it, appDice) },
             onBurn = burn,
             onDismiss = { rolling = null },
         )
@@ -1049,7 +1051,7 @@ fun SheetScreen(
             // rolling it bare would have a reeling character roll Acrobatics at
             // two different targets depending on which screen asked (a design
             // review's finding). The dialog adds the trait term itself, from
-            // `traits` below -- see acrobaticRoll.
+            // `traits` below -- see acrobaticTarget.
             conditions = { conditionsFor(it) },
             // The traits themselves: Combat Reflexes both adds +1 to every
             // defence and cancels the surprise refusal, and one trait's two
@@ -2293,7 +2295,11 @@ private fun RollDialog(
     // place (6ag, 6ai, 6be, 6bp, 6bs, 6bv).
     declarableClauses: List<TraitClause> = emptyList(),
     onBurn: (BurnKind, Int) -> Unit = { _, _ -> },
-    onRoll: (List<com.pathways.model.Modifier>, Set<String>) -> SkillRollOutcome,
+    // The roll in two steps (6gd): the target for the circumstances picked
+    // and the clauses declared, resolved while the dialog is drawn so it can
+    // be printed, and the dice against that same value.
+    targetFor: (List<com.pathways.model.Modifier>, Set<String>) -> SkillTarget,
+    roll: (SkillTarget) -> SkillRollOutcome,
     onDismiss: () -> Unit,
 ) {
     var out by remember { mutableStateOf<SkillRollOutcome?>(null) }
@@ -2315,6 +2321,28 @@ private fun RollDialog(
     // current picks on every roll, so dropping a chip cannot leave its value
     // behind -- the stale-state defect the boon dialog was fixed for.
     val gmValue = remember { mutableStateMapOf<String, Int>() }
+    // The roll as the chips stand: printed under the level, and what Roll
+    // rolls. This is the expression the click used to build, moved into the
+    // draw, so every `require` behind it now runs while the dialog is on
+    // screen. None can fire: each chip writes `chosen` and `gmValue` in one
+    // handler, a displaced row is hidden and purged, and the steps stay
+    // inside the printed span (traced by the design review).
+    val standing = targetFor(
+        CommonModifiers.modifiers(
+            chosen = chosen.toList(),
+            gmValue = gmValue.filterKeys { key ->
+                chosen.any { it.situation == key }
+            },
+        ) +
+            // Passed the general picks as well, so the double-charge is
+            // refused in rules even though the chips cannot produce it.
+            if (sense == null) emptyList() else SpiritualSenses.modifiers(
+                sense = sense,
+                chosen = senseChosen.toList(),
+                common = chosen.toList(),
+            ),
+        declaredClauses.toSet(),
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -2330,25 +2358,10 @@ private fun RollDialog(
                     // Belt to the disabled state's braces: two taps in the same
                     // frame could otherwise roll twice and show the second, the
                     // guard the divination and ritual dialogs also needed.
-                    if (out == null) {
-                        out = onRoll(
-                            CommonModifiers.modifiers(
-                                chosen = chosen.toList(),
-                                gmValue = gmValue.filterKeys { key ->
-                                    chosen.any { it.situation == key }
-                                },
-                            ) +
-                                // Passed the general picks as well, so the
-                                // double-charge is refused in rules even
-                                // though the chips above cannot produce it.
-                                if (sense == null) emptyList() else SpiritualSenses.modifiers(
-                                    sense = sense,
-                                    chosen = senseChosen.toList(),
-                                    common = chosen.toList(),
-                                ),
-                            declaredClauses.toSet(),
-                        )
-                    }
+                    // `standing` as this button was drawn beside it, never
+                    // resolved again here: the number printed is the number
+                    // rolled (6eg).
+                    if (out == null) out = roll(standing)
                 },
             ) { Text("Roll") }
         },
@@ -2358,6 +2371,13 @@ private fun RollDialog(
                 val shownOut = out
                 if (shownOut == null) {
                     Text("Skill $base", style = MaterialTheme.typography.titleLarge)
+                    // One line whatever is picked, so the chips below it do
+                    // not move under a finger. What made it is listed under
+                    // the chips, where it can grow.
+                    Text(
+                        if (standing.forbidden) FORBIDDEN_ROLL else "3d6 ≤ ${standing.target}",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
                     if (sense != null) SenseRow(sense, senseChosen, chosen, gmValue)
                     if (declarableClauses.isNotEmpty()) {
                         Text(
@@ -2387,6 +2407,10 @@ private fun RollDialog(
                         }
                     }
                     CircumstanceRow(chosen, gmValue, withheld)
+                    // What the target above is made of: the trackers and
+                    // traits as well as the chips. The lines the result
+                    // prints, from the same composable.
+                    LedgerLines(standing.applied, standing.requiresCritical)
                     // Every row the table prints for this skill, conditions
                     // and all. Showing only the unconditional ones would teach
                     // the player that a skill with no line here has no gear --
@@ -2687,7 +2711,7 @@ private fun RollResult(out: SkillRollOutcome, sense: SpiritualSense? = null) {
     Column {
         val roll = out.roll
         if (roll == null) {
-            Text("Forbidden — this roll cannot be attempted.")
+            Text(FORBIDDEN_ROLL)
         } else {
             Text(
                 "3d6: ${roll.total} vs ${roll.target}",
@@ -2722,19 +2746,32 @@ private fun RollResult(out: SkillRollOutcome, sense: SpiritualSense? = null) {
                 style = MaterialTheme.typography.bodySmall,
             )
         }
-        out.applied.forEach { contribution ->
-            Text(
-                "${contribution.ids.joinToString { it.value }}: ${contribution.delta}",
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-        if (out.requiresCritical) {
-            Text(
-                "Only a critical success counts.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-            )
-        }
+        LedgerLines(out.applied, out.requiresCritical)
+    }
+}
+
+/** What a ledger roll says where nothing may be rolled, before the dice or after. */
+internal const val FORBIDDEN_ROLL = "Forbidden — this roll cannot be attempted."
+
+/**
+ * One line for each thing that moved a ledger roll's target, and the
+ * critical-only rule. The same lines before the dice and after, so the two
+ * cannot be two renderings of one breakdown (6eh, on Detection).
+ */
+@Composable
+internal fun LedgerLines(applied: List<Contribution>, requiresCritical: Boolean) {
+    applied.forEach { contribution ->
+        Text(
+            "${contribution.ids.joinToString { it.value }}: ${contribution.delta}",
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
+    if (requiresCritical) {
+        Text(
+            "Only a critical success counts.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+        )
     }
 }
 

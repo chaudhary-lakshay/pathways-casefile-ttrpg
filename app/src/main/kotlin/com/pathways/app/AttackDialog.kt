@@ -42,6 +42,7 @@ import com.pathways.rules.Ranged
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
+import com.pathways.rules.SkillTarget
 import com.pathways.rules.Weapons
 import com.pathways.rules.Wounds
 import com.pathways.rules.content.CataloguedWeapon
@@ -339,166 +340,178 @@ fun AttackDialog(
                         }
                     }
                 }
-                else -> AttackOptions(
-                    label = label,
-                    skillLevel = level,
-                    // Said under the header with a weapon in hand: what of a
-                    // weapon line is still not applied here. The Warrior's
-                    // repeated-use clause is about any weapon they hold, and a
-                    // Pugilist's ranged one only; the Harvest Priest's is
-                    // about a skill they lack.
-                    notes = armed?.let { held ->
-                        listOfNotNull(
-                            mastery?.unappliedFor(Weapons.isRanged(held.weapon)),
-                            toolNote.takeIf { chosen.untrained != null },
-                        )
-                    }.orEmpty(),
-                    // The level Defend parries the same weapon at, never the
-                    // chosen skill's: the best skill that arms it, floored at
-                    // DX in a master's hand. Two skills can arm one knife, and
-                    // the chosen one printed 8 here beside Defend's 9 (6ey's
-                    // design review).
-                    wieldedAt = { SkillDefaults.wieldedAt(it, skillLevels, mastery, dx) },
-                    plan = plan,
-                    unarmed = unarmed,
-                    // Two unrelated bonuses reach damage: All-Out Attack
-                    // (Strong)'s +2 and Boxing's for skill above DX. Attacks
-                    // composes them so neither can be dropped here. Boxing's
-                    // is a property of the bare fist, so a weapon takes only
-                    // the maneuver's.
-                    damage = armed?.let { Weapons.damageFor(it.weapon, it.mode, st, Attacks.damageBonus(plan, 0)) }
-                        ?: unarmed?.let {
-                            val fromSkill = if (it.skill == BOXING) Damage.boxingBonus(dx, level) else 0
-                            Damage.forAttack(it, st, Attacks.damageBonus(plan, fromSkill))
-                        },
-                    attacks = Damage.attacksFor(chosen.key.name),
-                    armed = armed,
-                    weapons = Weapons.forSkill(chosen.key),
-                    band = band,
-                    circumstances = circumstances,
-                    aimCancelled = aimCancelled,
-                    aimRefusedBy = killerClauses.firstOrNull()?.shown?.takeIf { aimRefused },
-                    killerClauses = killerClauses,
-                    killerTarget = killerTarget,
-                    onKillerTarget = { killerTarget = if (it == killerTarget) null else it },
-                    fromTraits = traitMods.sumOf { (it.effect as ModEffect.Flat).n },
-                    darknessCause = darknessCause,
-                    darknessReduction = darknessReduction,
-                    darknessSeverity = darknessSeverity,
-                    onDarknessCause = { darknessCause = it },
-                    onDarknessSeverity = { darknessSeverity = it },
-                    location = location,
-                    onAttack = {
-                        unarmed = it
-                        armed = null
-                        // Shove rolls no damage, so a Strong Blow ticked on
-                        // the fist cannot come along -- Attacks refuses the
-                        // pair rather than charging 1 FP for nothing (Codex).
-                        // A fist puts the weapon down, so a master's level
-                        // drops to the default and the plan goes with it.
-                        plan = Attacks.atLevel(Attacks.withAttack(plan, it), levelWith(false))
-                        circumstances = circumstances - AIM_ROWS
-                    },
-                    onArmed = { held ->
-                        armed = held
-                        // Putting the weapon down goes back to the skill's own
-                        // first attack, not to nothing: for Brawling that is
-                        // the fist, and leaving both null showed no damage
-                        // line at all until Punch was tapped by hand (Codex).
-                        unarmed = if (held == null) {
-                            Damage.attacksFor(chosen.key.name).firstOrNull()
-                        } else {
-                            null
-                        }
-                        // A firearm is fired at range and a sword is not
-                        // thrown; the toggle still overrides either way.
-                        // And to the level the new hand is rolled at, which
-                        // for an untrained master differs with and without.
-                        plan = Attacks.atLevel(
-                            Attacks.atRange(plan, held.isFired),
-                            levelWith(held != null),
-                        )
-                        // Aim is worth the WEAPON's Acc, and distance belongs
-                        // to a shot. Carrying either into reach asks
-                        // Ranged.modifiers for a number nothing can supply --
-                        // the same shape as the distance and cover that
-                        // "Another turn" used to leave behind.
-                        //
-                        // Now OVER-BROAD by one row, and recorded rather than
-                        // narrowed: picking up a sword while already in reach
-                        // also drops a ticked prone chip, which the reason
-                        // above does not cover -- the plan was melee and stays
-                        // melee. Narrowing it would put meleeConditions' own
-                        // predicate at a second call site, which is the third
-                        // copy the maneuver chip's comment warns about. The
-                        // cost is a lost declaration the player can see go.
-                        if (!held.isFired) {
-                            band = null
-                            circumstances = emptySet()
-                        }
-                    },
-                    onBand = { band = it },
-                    // Tapping the chosen location again goes back to the torso
-                    // rather than leaving the player stuck with a -9 eye shot.
-                    onLocation = { location = if (it == location) null else it },
-                    onAimCancelled = {
-                        aimCancelled = !aimCancelled
-                        // The rows go with the declaration. Left selected they
-                        // would still be summed on Roll -- and Ranged.modifiers
-                        // now refuses that pairing, so the stale chip would
-                        // throw rather than merely mislead (6k, 6y, 6af).
-                        if (aimCancelled) circumstances = circumstances - AIM_ROWS
-                    },
-                    onCircumstance = { name ->
-                        circumstances = when {
-                            name in circumstances -> circumstances - name
-                            // Aiming is one act held for one length of time.
-                            // Ranged.modifiers refuses both rows together, so
-                            // picking the second must REPLACE the first rather
-                            // than build a plan that throws on Roll.
-                            name in AIM_ROWS -> circumstances - AIM_ROWS + name
-                            else -> circumstances + name
-                        }
-                    },
-                    onPlan = {
-                        // Range and circumstances describe a shot; going back
-                        // into reach drops them rather than applying a
-                        // distance penalty to a punch.
-                        if (!it.isRanged) {
-                            band = null
-                            circumstances = emptySet()
-                        }
-                        plan = it
-                    },
-                    onRoll = onRoll@{
-                        // The guard every roll button here carries (6p), and
-                        // this one did not: a second tap of the same picture
-                        // rolled again and charged the plan's FP again.
-                        if (outcomes.isNotEmpty()) return@onRoll
-                        // Rolled at the level the exertion started from, then
-                        // charged: a character is not yet tired by an effort
-                        // they are in the middle of making. The cost still
-                        // lands, so the NEXT turn feels it.
-                        val mods = conditions(chosen.key) +
-                            Attacks.modifiers(plan, level, unarmed) +
+                else -> {
+                    // The roll as the picks stand, composed while the options are
+                    // drawn so it can be printed above Roll, and handed to Roll
+                    // as it was printed. Rolled at the level the exertion started
+                    // from, then charged: a character is not yet tired by an
+                    // effort they are in the middle of making. The cost still
+                    // lands, so the NEXT turn feels it.
+                    //
+                    // The three option calls below already ran at draw time, for
+                    // the lines AttackOptions prints; the trackers, the traits
+                    // and the called shot refuse nothing.
+                    val standing = attackStanding(
+                        label = label,
+                        level = level,
+                        key = chosen.key,
+                        trackers = conditions(chosen.key),
+                        picked = Attacks.modifiers(plan, level, unarmed) +
                             rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled || aimRefused, darknessCause, darknessReduction, darknessSeverity) +
                             meleeModifiers(plan, circumstances) +
                             traitMods +
-                            listOfNotNull(location?.let(Wounds::modifier))
-                        // A fresh roll starts with a fresh +5 budget per roll.
-                        burned = emptyMap()
-                        outcomes = List(Attacks.attackCount(plan)) {
-                            SkillRoll.at(
-                                label = label,
-                                base = level,
-                                key = chosen.key,
-                                source = dice,
-                                mods = mods,
+                            listOfNotNull(location?.let(Wounds::modifier)),
+                    )
+                    val attacks = Attacks.attackCount(plan)
+                    val fp = Attacks.fpCost(plan)
+                    AttackOptions(
+                        label = label,
+                        skillLevel = level,
+                        // Said under the header with a weapon in hand: what of a
+                        // weapon line is still not applied here. The Warrior's
+                        // repeated-use clause is about any weapon they hold, and a
+                        // Pugilist's ranged one only; the Harvest Priest's is
+                        // about a skill they lack.
+                        notes = armed?.let { held ->
+                            listOfNotNull(
+                                mastery?.unappliedFor(Weapons.isRanged(held.weapon)),
+                                toolNote.takeIf { chosen.untrained != null },
                             )
-                        }
-                        Attacks.fpCost(plan).takeIf { it > 0 }?.let(onSpendFp)
-                    },
-                )
+                        }.orEmpty(),
+                        // The level Defend parries the same weapon at, never the
+                        // chosen skill's: the best skill that arms it, floored at
+                        // DX in a master's hand. Two skills can arm one knife, and
+                        // the chosen one printed 8 here beside Defend's 9 (6ey's
+                        // design review).
+                        wieldedAt = { SkillDefaults.wieldedAt(it, skillLevels, mastery, dx) },
+                        plan = plan,
+                        unarmed = unarmed,
+                        // Two unrelated bonuses reach damage: All-Out Attack
+                        // (Strong)'s +2 and Boxing's for skill above DX. Attacks
+                        // composes them so neither can be dropped here. Boxing's
+                        // is a property of the bare fist, so a weapon takes only
+                        // the maneuver's.
+                        damage = armed?.let { Weapons.damageFor(it.weapon, it.mode, st, Attacks.damageBonus(plan, 0)) }
+                            ?: unarmed?.let {
+                                val fromSkill = if (it.skill == BOXING) Damage.boxingBonus(dx, level) else 0
+                                Damage.forAttack(it, st, Attacks.damageBonus(plan, fromSkill))
+                            },
+                        attacks = Damage.attacksFor(chosen.key.name),
+                        armed = armed,
+                        weapons = Weapons.forSkill(chosen.key),
+                        band = band,
+                        circumstances = circumstances,
+                        aimCancelled = aimCancelled,
+                        aimRefusedBy = killerClauses.firstOrNull()?.shown?.takeIf { aimRefused },
+                        killerClauses = killerClauses,
+                        killerTarget = killerTarget,
+                        onKillerTarget = { killerTarget = if (it == killerTarget) null else it },
+                        fromTraits = traitMods.sumOf { (it.effect as ModEffect.Flat).n },
+                        darknessCause = darknessCause,
+                        darknessReduction = darknessReduction,
+                        darknessSeverity = darknessSeverity,
+                        onDarknessCause = { darknessCause = it },
+                        onDarknessSeverity = { darknessSeverity = it },
+                        location = location,
+                        onAttack = {
+                            unarmed = it
+                            armed = null
+                            // Shove rolls no damage, so a Strong Blow ticked on
+                            // the fist cannot come along -- Attacks refuses the
+                            // pair rather than charging 1 FP for nothing (Codex).
+                            // A fist puts the weapon down, so a master's level
+                            // drops to the default and the plan goes with it.
+                            plan = Attacks.atLevel(Attacks.withAttack(plan, it), levelWith(false))
+                            circumstances = circumstances - AIM_ROWS
+                        },
+                        onArmed = { held ->
+                            armed = held
+                            // Putting the weapon down goes back to the skill's own
+                            // first attack, not to nothing: for Brawling that is
+                            // the fist, and leaving both null showed no damage
+                            // line at all until Punch was tapped by hand (Codex).
+                            unarmed = if (held == null) {
+                                Damage.attacksFor(chosen.key.name).firstOrNull()
+                            } else {
+                                null
+                            }
+                            // A firearm is fired at range and a sword is not
+                            // thrown; the toggle still overrides either way.
+                            // And to the level the new hand is rolled at, which
+                            // for an untrained master differs with and without.
+                            plan = Attacks.atLevel(
+                                Attacks.atRange(plan, held.isFired),
+                                levelWith(held != null),
+                            )
+                            // Aim is worth the WEAPON's Acc, and distance belongs
+                            // to a shot. Carrying either into reach asks
+                            // Ranged.modifiers for a number nothing can supply --
+                            // the same shape as the distance and cover that
+                            // "Another turn" used to leave behind.
+                            //
+                            // Now OVER-BROAD by one row, and recorded rather than
+                            // narrowed: picking up a sword while already in reach
+                            // also drops a ticked prone chip, which the reason
+                            // above does not cover -- the plan was melee and stays
+                            // melee. Narrowing it would put meleeConditions' own
+                            // predicate at a second call site, which is the third
+                            // copy the maneuver chip's comment warns about. The
+                            // cost is a lost declaration the player can see go.
+                            if (!held.isFired) {
+                                band = null
+                                circumstances = emptySet()
+                            }
+                        },
+                        onBand = { band = it },
+                        // Tapping the chosen location again goes back to the torso
+                        // rather than leaving the player stuck with a -9 eye shot.
+                        onLocation = { location = if (it == location) null else it },
+                        onAimCancelled = {
+                            aimCancelled = !aimCancelled
+                            // The rows go with the declaration. Left selected they
+                            // would still be summed on Roll -- and Ranged.modifiers
+                            // now refuses that pairing, so the stale chip would
+                            // throw rather than merely mislead (6k, 6y, 6af).
+                            if (aimCancelled) circumstances = circumstances - AIM_ROWS
+                        },
+                        onCircumstance = { name ->
+                            circumstances = when {
+                                name in circumstances -> circumstances - name
+                                // Aiming is one act held for one length of time.
+                                // Ranged.modifiers refuses both rows together, so
+                                // picking the second must REPLACE the first rather
+                                // than build a plan that throws on Roll.
+                                name in AIM_ROWS -> circumstances - AIM_ROWS + name
+                                else -> circumstances + name
+                            }
+                        },
+                        onPlan = {
+                            // Range and circumstances describe a shot; going back
+                            // into reach drops them rather than applying a
+                            // distance penalty to a punch.
+                            if (!it.isRanged) {
+                                band = null
+                                circumstances = emptySet()
+                            }
+                            plan = it
+                        },
+                        standing = standing.target,
+                        fromTrackers = standing.fromTrackers,
+                        onRoll = onRoll@{
+                            // The guard every roll button here carries (6p), and
+                            // this one did not: a second tap of the same picture
+                            // rolled again and charged the plan's FP again.
+                            if (outcomes.isNotEmpty()) return@onRoll
+                            // A fresh roll starts with a fresh +5 budget per roll.
+                            burned = emptyMap()
+                            // The target printed above the button, the count and
+                            // the cost as they were drawn. Nothing the plan is
+                            // made of is read again here (6eg).
+                            outcomes = List(attacks) { SkillRoll.rollAgainst(standing.target, dice) }
+                            fp.takeIf { it > 0 }?.let(onSpendFp)
+                        },
+                    )
+                }
             }
         },
     )
@@ -537,6 +550,8 @@ private fun AttackOptions(
     onAimCancelled: () -> Unit,
     onLocation: (HitLocation) -> Unit,
     onPlan: (AttackPlan) -> Unit,
+    standing: SkillTarget,
+    fromTrackers: Int,
     onRoll: () -> Unit,
 ) {
     val maxDeceptive = Attacks.maxDeceptive(skillLevel)
@@ -767,11 +782,30 @@ private fun AttackOptions(
             }.orEmpty(),
             style = MaterialTheme.typography.bodySmall,
         )
+        // The last term, and then what they all come to. This line used to
+        // read "...are added when it is rolled", the only word of the target
+        // this dialog gave before the dice.
+        if (fromTrackers != 0) {
+            Text(
+                "Injury, fatigue and attrition: ${signed(fromTrackers)}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
         Text(
-            "Injury, fatigue and attrition are added when it is rolled.",
-            style = MaterialTheme.typography.bodySmall,
+            if (standing.forbidden) {
+                FORBIDDEN_ROLL
+            } else {
+                "3d6 ≤ ${standing.target}" + if (count > 1) ", each" else ""
+            },
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(top = 4.dp),
         )
-        TextButton(onClick = onRoll) { Text("Roll") }
+        if (standing.requiresCritical) {
+            Text("Only a critical success counts.", style = MaterialTheme.typography.bodySmall)
+        }
+        // Nothing to roll is nothing to pay for: the handler charges the
+        // plan's FP whatever the dice do.
+        TextButton(onClick = onRoll, enabled = !standing.forbidden) { Text("Roll") }
     }
 }
 
@@ -1247,3 +1281,31 @@ internal fun traitTerms(
     killerTarget: String?,
 ): List<com.pathways.model.Modifier> =
     TraitEffects.modifiers(traits, key) + TraitEffects.attackModifiers(traits, killerTarget)
+
+/**
+ * The attack roll as the picks stand: the target printed above Roll and
+ * rolled by it, and what of that target the trackers took.
+ */
+internal class AttackStanding(val target: SkillTarget, val fromTrackers: Int)
+
+/**
+ * [trackers] is what the character walked in with (reeling, fatigue,
+ * attrition, shock) and [picked] everything chosen in the dialog, which its
+ * own lines already print. The trackers' line is read off the ledger by id,
+ * never taken as the remainder: a remainder would absorb a term the screen
+ * forgot to print and still add up (6gd's design review).
+ */
+internal fun attackStanding(
+    label: String,
+    level: Int,
+    key: SkillKey,
+    trackers: List<com.pathways.model.Modifier>,
+    picked: List<com.pathways.model.Modifier>,
+): AttackStanding {
+    val target = SkillRoll.targetFor(label, level, key, trackers + picked)
+    val ids = trackers.map { it.id }.toSet()
+    return AttackStanding(
+        target,
+        target.applied.filter { applied -> applied.ids.any { it in ids } }.sumOf { it.delta },
+    )
+}

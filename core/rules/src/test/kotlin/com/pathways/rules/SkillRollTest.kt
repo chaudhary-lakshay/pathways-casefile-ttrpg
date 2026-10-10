@@ -137,4 +137,53 @@ class SkillRollTest {
         assertTrue(specialized.label.endsWith(")"), "expected 'Name (Spec)', got ${specialized.label}")
         assertTrue(specialized.label.startsWith(specialized.name))
     }
+
+    /**
+     * The roll in two steps, so a screen can print the target and then roll
+     * the number it printed (6eg's rule, which the three ledger rolls were
+     * the last to break). [SkillRoll.at] is the two composed.
+     */
+    @Test
+    fun `a roll is its target resolved and then rolled`() {
+        val dark = situational("darkness", ModEffect.Flat(-3), ModTarget.Skill(skill.key()))
+        val level = sheet.levelFor(skill)
+
+        val target = SkillRoll.targetFor(skill.label, level, skill.key(), listOf(dark))
+
+        assertEquals(level, target.baseTarget)
+        assertEquals(level - 3, target.target)
+        assertEquals(-3, target.applied.single().delta)
+        assertEquals(
+            SkillRoll.at(skill.label, level, skill.key(), always(4), listOf(dark)),
+            SkillRoll.rollAgainst(target, always(4)),
+        )
+    }
+
+    /**
+     * Against the number HANDED over, never one resolved again: what moves
+     * between the draw and the tap must not move the roll.
+     */
+    @Test
+    fun `the dice are judged against the target the roll was handed`() {
+        val printed = SkillTarget("Stealth", baseTarget = 12, target = 9, applied = emptyList(), forbidden = false, requiresCritical = false)
+
+        val out = SkillRoll.rollAgainst(printed, always(3))
+
+        assertEquals(9, out.roll?.total)
+        assertEquals(9, out.roll?.target)
+        assertEquals(Outcome.SUCCESS, out.roll?.outcome)
+        assertEquals(0, out.roll?.margin)
+        assertEquals(12, out.baseTarget)
+        assertEquals(9, out.target)
+    }
+
+    @Test
+    fun `a forbidden target draws no die`() {
+        val sealed = SkillTarget("Stealth", baseTarget = 12, target = 12, applied = emptyList(), forbidden = true, requiresCritical = false)
+
+        val out = SkillRoll.rollAgainst(sealed) { error("a forbidden roll drew a die") }
+
+        assertTrue(out.forbidden)
+        assertNull(out.roll)
+    }
 }

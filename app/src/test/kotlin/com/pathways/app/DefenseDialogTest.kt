@@ -361,10 +361,10 @@ class DefenseDialogTest {
     @Test
     fun `an Acrobatic Dodge takes the trait bonus the Skills tab gives the same roll`() {
         val untrained = AcrobaticSkill(acrobaticsKey, 4, "DX-6")
-        val rolled = acrobaticRoll(untrained, { emptyList() }, listOf(perfectBalance), RandomSource { 3 })
-        assertEquals(4, rolled.baseTarget)
-        assertEquals(6, rolled.target)
-        assertEquals(4, acrobaticRoll(untrained, { emptyList() }, emptyList(), RandomSource { 3 }).target)
+        val standing = acrobaticTarget(untrained, { emptyList() }, listOf(perfectBalance))
+        assertEquals(4, standing.baseTarget)
+        assertEquals(6, standing.target)
+        assertEquals(4, acrobaticTarget(untrained, { emptyList() }, emptyList()).target)
     }
 
     /** The trackers' half still arrives: the ledger is added to, not replaced. */
@@ -372,7 +372,7 @@ class DefenseDialogTest {
     fun `an Acrobatic Dodge still takes what the ledger passes in`() {
         val untrained = AcrobaticSkill(acrobaticsKey, 4, "DX-6")
         val ledger = { key: SkillKey -> TraitEffects.modifiers(listOf(perfectBalance), key) }
-        assertEquals(6, acrobaticRoll(untrained, ledger, emptyList(), RandomSource { 3 }).target)
+        assertEquals(6, acrobaticTarget(untrained, ledger, emptyList()).target)
     }
 
     @Test

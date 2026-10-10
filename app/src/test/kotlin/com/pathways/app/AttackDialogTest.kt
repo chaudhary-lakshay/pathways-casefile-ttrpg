@@ -7,7 +7,13 @@ import com.pathways.model.ModEffect
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
+import com.pathways.rules.AttackManeuver
 import com.pathways.rules.AttackPlan
+import com.pathways.rules.Attacks
+import com.pathways.rules.Conditions
+import com.pathways.rules.Pools
+import com.pathways.rules.Shock
+import com.pathways.rules.Wounds
 import com.pathways.rules.DarknessCause
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.Ranged
@@ -180,5 +186,59 @@ class AttackDialogTest {
         val balance = listOf(Trait(TraitEffects.PERFECT_BALANCE, 15, TraitKind.ADVANTAGE))
         val acrobatics = SkillKey("Acrobatics", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.HARD)
         assertEquals(listOf(2), flats(traitTerms(balance, acrobatics, killerTarget = null)))
+    }
+
+    private val brawling =
+        SkillKey("Brawling", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
+
+    /** Reeling at 4 of 14 HP, and shocked: the two tracker rows a brawler meets. */
+    private val hurt = Conditions.forSkill(brawling, Pools.hp(4, 14), Pools.fp(11, 11)) +
+        Shock.modifiers(shocked = true, traits = emptyList())
+
+    /**
+     * The attack dialog prints its target before the dice now (6gd), with the
+     * trackers on a line of their own. That line is read off the ledger by
+     * id: a remainder (target less everything else printed) would hide a term
+     * the screen forgot.
+     */
+    @Test
+    fun `the tracker line is what the ledger applied for the trackers alone`() {
+        val deceptive = Attacks.modifiers(AttackPlan(deceptive = 2), 16)
+
+        val standing = attackStanding("Brawling", 16, brawling, hurt, deceptive)
+
+        assertEquals(-5, standing.fromTrackers, "reeling -1 and shock -4")
+        assertEquals(16 - 4 - 5, standing.target.target)
+        assertEquals(0, attackStanding("Brawling", 16, brawling, emptyList(), deceptive).fromTrackers)
+    }
+
+    /**
+     * What makes the lines above Roll add up to the target under them: every
+     * term is a plain signed number. A grouped or superseding modifier in any
+     * of these lists would move the target by less than its line prints.
+     */
+    @Test
+    fun `the level and the printed terms add up to the attack's target`() {
+        val level = 16
+        var plans = 0
+        for (maneuver in AttackManeuver.entries) {
+            for (deceptive in 0..Attacks.maxDeceptive(level)) {
+                for (location in listOf(null) + Wounds.locations()) {
+                    // The trackers' own number, written out: taking it from
+                    // the function under test would let both sides move
+                    // together (the diff review).
+                    for ((trackers, cost) in listOf(emptyList<com.pathways.model.Modifier>() to 0, hurt to -5)) {
+                        val picked = Attacks.modifiers(AttackPlan(maneuver, deceptive = deceptive), level) +
+                            listOfNotNull(location?.let(Wounds::modifier))
+                        val standing = attackStanding("Brawling", level, brawling, trackers, picked)
+                        val plan = "$maneuver, deceptive $deceptive, ${location?.target}"
+                        assertEquals(cost, standing.fromTrackers, plan)
+                        assertEquals(level + flats(picked).sum() + cost, standing.target.target, plan)
+                        plans++
+                    }
+                }
+            }
+        }
+        assertTrue(plans > 100, "the matrix ran $plans plans")
     }
 }

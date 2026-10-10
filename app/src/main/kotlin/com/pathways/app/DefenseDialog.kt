@@ -38,6 +38,7 @@ import com.pathways.rules.Shields
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
+import com.pathways.rules.SkillTarget
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.UnarmedStyle
 import com.pathways.rules.content.ContentLoader
@@ -137,7 +138,7 @@ internal fun acrobaticsFor(
             ?.let { AcrobaticSkill(it.key, it.level, it.source) }
 
 /**
- * The Acrobatic Dodge's roll, with what the Skills tab gives the same skill:
+ * The Acrobatic Dodge's target, with what the Skills tab gives the same skill:
  * what the trackers cost ([conditions]) and what the character is
  * ([TraitEffects.modifiers] -- Perfect Balance's +2 on Acrobatics).
  *
@@ -150,17 +151,19 @@ internal fun acrobaticsFor(
  * NOT the GM's circumstance chips: those belong to the Skills tab's roll
  * dialog, and this screen has none, so a circumstance is still the GM's to
  * apply by hand.
+ *
+ * **Resolved while the dialog is drawn, and rolled as printed** (6gd). It
+ * was resolved inside the tap, so a trained sheet saw no number before the
+ * dice at all.
  */
-internal fun acrobaticRoll(
+internal fun acrobaticTarget(
     skill: AcrobaticSkill,
     conditions: (SkillKey) -> List<com.pathways.model.Modifier>,
     traits: List<Trait>,
-    dice: RandomSource,
-): SkillRollOutcome = SkillRoll.at(
+): SkillTarget = SkillRoll.targetFor(
     label = skill.label,
     base = skill.level,
     key = skill.key,
-    source = dice,
     mods = conditions(skill.key) + TraitEffects.modifiers(traits, skill.key),
 )
 
@@ -605,14 +608,14 @@ fun DefenseDialog(
                     // the bottom, which now shows only what this app does NOT
                     // apply -- one sentence printed in both places, with
                     // neither marked, is 6bl's defect on this same screen.
+                    val acrobaticStanding = acrobatics?.let { acrobaticTarget(it, conditions, traits) }
                     AcrobaticDodge(
                         skill = acrobatics,
+                        standing = acrobaticStanding,
                         rolled = round.acrobatic,
                         onRoll = {
-                            acrobatics?.let { skill ->
-                                round = round.copy(
-                                    acrobatic = acrobaticRoll(skill, conditions, traits, dice),
-                                )
+                            acrobaticStanding?.let { printed ->
+                                round = round.copy(acrobatic = SkillRoll.rollAgainst(printed, dice))
                             }
                         },
                         onClear = { round = round.copy(acrobatic = null) },
@@ -980,7 +983,7 @@ internal fun defenceLabels(
  * says "Roll vs. Acrobatics" and names no training, and p. 10 opens "You can
  * attempt most skills even without training". The level is the one
  * `SkillDefaults` composed for the Skills tab ([acrobaticsFor]), and
- * [acrobaticRoll] adds the same tracker and trait modifiers that roll takes.
+ * [acrobaticTarget] adds the same tracker and trait modifiers that roll takes.
  *
  * **Re-rollable on purpose.** See the state's own comment: the "once per round"
  * limit lives in a paragraph governing all three free actions, which this app
@@ -989,15 +992,21 @@ internal fun defenceLabels(
 @Composable
 private fun AcrobaticDodge(
     skill: AcrobaticSkill?,
+    standing: SkillTarget?,
     rolled: SkillRollOutcome?,
     onRoll: () -> Unit,
     onClear: () -> Unit,
 ) {
     Note(ActiveDefenses.printedAcrobaticDodge())
-    if (skill == null) {
+    if (skill == null || standing == null) {
         // Not reachable from a printed sheet: Acrobatics is DX/Hard and the
         // table gives Hard a default. Said rather than left blank all the same.
         Note("No ${ActiveDefenses.ACROBATIC_SKILL} on this sheet, and no default for it.")
+        return
+    }
+    if (standing.forbidden) {
+        // Said before the tap, not only after it (6gd's design review).
+        Note("Something forbids this roll, so the Dodge row above is unchanged.")
         return
     }
     if (skill.untrainedSource != null) {
@@ -1009,7 +1018,17 @@ private fun AcrobaticDodge(
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         TextButton(onClick = onRoll) {
-            Text(if (rolled == null) "Roll vs. ${ActiveDefenses.ACROBATIC_SKILL}" else "Roll again")
+            // The number this tap rolls, with the level beside it wherever
+            // the trackers or a trait moved it.
+            val against = if (standing.target == standing.baseTarget) {
+                "3d6 ≤ ${standing.target}"
+            } else {
+                "3d6 ≤ ${standing.target} (${standing.baseTarget} → ${standing.target})"
+            }
+            Text(
+                (if (rolled == null) "Roll vs. ${ActiveDefenses.ACROBATIC_SKILL}" else "Roll again") +
+                    " — $against",
+            )
         }
         // The way back, which a latched roll needs as much as a paid boost does
         // (6u): the GM who rolled for the wrong attack has to be able to say so.

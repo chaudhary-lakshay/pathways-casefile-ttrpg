@@ -47,6 +47,22 @@ data class SkillRollOutcome(
         roll?.let { DegreeOfSuccess.of(effectiveOutcome, it.margin) }
 }
 
+/**
+ * A skill roll resolved and not yet rolled: the level, the modifier stack
+ * applied to it, and what the stack said about the roll itself.
+ *
+ * What a screen prints BEFORE the dice. The fields are
+ * [SkillRollOutcome]'s, less the roll.
+ */
+data class SkillTarget(
+    val label: String,
+    val baseTarget: Int,
+    val target: Int,
+    val applied: List<Contribution>,
+    val forbidden: Boolean,
+    val requiresCritical: Boolean,
+)
+
 object SkillRoll {
 
     /**
@@ -69,6 +85,10 @@ object SkillRoll {
      * A roll of a skill known only by its key and level -- the shape a
      * Beyonder's digested skill levels come in, where there is no
      * [PremadeSkill] to hand because a potion granted the skill.
+     *
+     * [targetFor] and then [rollAgainst], in one call. No screen calls this
+     * or [of] since 6gd: each prints the target first. They are the composed
+     * convenience the tests use, as `attempt` is in the other engines (6eh).
      */
     fun at(
         label: String,
@@ -77,7 +97,24 @@ object SkillRoll {
         source: RandomSource,
         mods: List<Modifier> = emptyList(),
         ctx: Context = Context(),
-    ): SkillRollOutcome {
+    ): SkillRollOutcome = rollAgainst(targetFor(label, base, key, mods, ctx), source)
+
+    /**
+     * The first half of [at]: the modifier stack resolved against [base], no
+     * die drawn.
+     *
+     * A screen prints this and hands it to [rollAgainst], so the number on
+     * the button is the number rolled (6eg). Until 6gd the three rolls that
+     * go through the ledger, the skill roll, the attack and the Acrobatic
+     * Dodge, printed a level and resolved their target inside the click.
+     */
+    fun targetFor(
+        label: String,
+        base: Int,
+        key: SkillKey,
+        mods: List<Modifier> = emptyList(),
+        ctx: Context = Context(),
+    ): SkillTarget {
         val target = ModTarget.Skill(key)
         // ModifierResolver matches targets by exact equality, so a modifier
         // aimed at AllRolls would silently miss this one. Retarget it here
@@ -86,14 +123,27 @@ object SkillRoll {
         // carries no SkillTag yet, so there is nothing to match it against.
         val aimed = mods.map { if (it.target == ModTarget.AllRolls) it.copy(target = target) else it }
         val resolved = ModifierResolver.resolve(base, aimed, target, ctx)
-        return SkillRollOutcome(
+        return SkillTarget(
             label = label,
             baseTarget = base,
             target = resolved.value,
             applied = resolved.applied,
             forbidden = resolved.forbidden,
             requiresCritical = resolved.requiresCritical,
-            roll = if (resolved.forbidden) null else SuccessRoll.against(resolved.value, source),
         )
     }
+
+    /**
+     * The second half: 3d6 against [target] as it was handed over, never
+     * resolved again. A forbidden target draws no die.
+     */
+    fun rollAgainst(target: SkillTarget, source: RandomSource): SkillRollOutcome = SkillRollOutcome(
+        label = target.label,
+        baseTarget = target.baseTarget,
+        target = target.target,
+        applied = target.applied,
+        forbidden = target.forbidden,
+        requiresCritical = target.requiresCritical,
+        roll = if (target.forbidden) null else SuccessRoll.against(target.target, source),
+    )
 }
