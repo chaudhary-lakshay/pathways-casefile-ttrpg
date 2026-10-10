@@ -190,7 +190,28 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fe back to 6de
+## Retired lead paragraphs, 6ff back to 6de
+
+**6ff is next: six rows that name one skill.** These are 6es's first
+list. Five print a circumstance on one skill's roll and are declared
+there: Class Mobility, Fearsome Reputation, Safecracker, Alcohol
+Tolerance and Navigator's Eye. Famous Face's *"Disguise attempts at
+-2"* prints no qualifier and applies flat. Read it for two things.
+
+- **One list feeds the chips and the dice.** `skillRollClauses` replaced
+  a category predicate the screen had copied. `modifiers()` loops over it
+  once, because separate loops would emit a clause twice the day it is
+  both social and named.
+- **"Rural" excludes the sea.** Navigator's Eye is offered on bare
+  Navigation and on (Land). The existing name-only join, which is right
+  for Absolute Direction's *"+3 to Navigation"*, would have offered it on
+  (Sea) too.
+
+Sub-agents reviewed the design and the diff (Codex was out). On the
+SM-T570: untrained Lockpicking offered Safecracker's clause, and
+declaring it gave `3d6: 8 vs 9`. Codex then reviewed `466e3d7..HEAD`
+(see 6fg). **Successors**: Acute Vision and Hearing (line
+8688), Luck against the PCR latch, and Warrior's *default +2*.
 
 **6fe is next: Alertness on the Spirit Vision roll.** 6al passed
 Alertness to Detection by hand because it was *"the one bare Per roll"*.

@@ -41,7 +41,10 @@ silently "fix" them. If a number surprises you, the book is the authority.
   **Traits**. It is a footer, not a screen change — the action tiles stay put.
 - **Traits** lists every advantage and drawback with the book's own text. A
   grey *"Not applied here"* line under a row says what the app does not
-  count for you.
+  count for you. A row your potions gave you (a Hermit's Combat Reflexes, an
+  Abyss Beyonder's drawbacks) is listed too, marked *"from the potion"*
+  instead of its points, and counts in every roll; the builder will not sell
+  it to you again.
 - **The action tiles** are one wrapping grid of twelve, colour-coded by what
   they are for: neutral = a roll the GM called, red = combat, purple = a
   Beyonder power, green = managing the character. The three Beyonder tiles

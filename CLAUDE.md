@@ -152,7 +152,24 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fj is newest: why the Warrior's default +2 is out.** The refusal
+**6fk is newest: the rows a potion granted.** A Hermit 8's Combat
+Reflexes reached no defence, because potion rows are prose. One
+(pathway, sequence) table now grants every catalogue row a block prints
+with the catalogue's numbers, and refusals carry their reasons. It is
+pinned both ways against the prose. `BeyonderSession.traitsInPlay` is
+the one list the sheet's rolls and the builder's "already held" read.
+Read it for two things.
+
+- **My census dropped names under four characters, so it lost Fit.**
+  The design sub-agent found Sun 9's.
+- **The builder would have sold a granted row**, because it read the
+  purchased list. The diff review caught it.
+
+**Not device-verified**: the harness refused the tablet save write, and
+the emulator's Vulkan crash recurred. **Successors**: a device pass with
+the owner present, the owed Codex review, and Charisma's levels.
+
+**6fj is next: why the Warrior's default +2 is out.** The refusal
 said *"This app does not count uses"*. That is a claim about this app,
 and a false one as a reason, because a GM could declare repeated use.
 The real obstacle is the number. The Warrior's example puts default +2
@@ -222,30 +239,10 @@ for three things.
 fix. **Successors**: Acute Vision and Hearing (line 8688), and Warrior's
 *default +2*.
 
-**6ff is next: six rows that name one skill.** These are 6es's first
-list. Five print a circumstance on one skill's roll and are declared
-there: Class Mobility, Fearsome Reputation, Safecracker, Alcohol
-Tolerance and Navigator's Eye. Famous Face's *"Disguise attempts at
--2"* prints no qualifier and applies flat. Read it for two things.
-
-- **One list feeds the chips and the dice.** `skillRollClauses` replaced
-  a category predicate the screen had copied. `modifiers()` loops over it
-  once, because separate loops would emit a clause twice the day it is
-  both social and named.
-- **"Rural" excludes the sea.** Navigator's Eye is offered on bare
-  Navigation and on (Land). The existing name-only join, which is right
-  for Absolute Direction's *"+3 to Navigation"*, would have offered it on
-  (Sea) too.
-
-Sub-agents reviewed the design and the diff (Codex was out). On the
-SM-T570: untrained Lockpicking offered Safecracker's clause, and
-declaring it gave `3d6: 8 vs 9`. Codex then reviewed `466e3d7..HEAD`
-(see 6fg). **Successors**: Acute Vision and Hearing (line
-8688), Luck against the PCR latch, and Warrior's *default +2*.
-
-**6fe back to 6de had lead paragraphs here until 2026-10-10. Each is in
+**6ff back to 6de had lead paragraphs here until 2026-10-10. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ff** — six rows that name one skill are declared on its roll; one list, `skillRollClauses`, feeds the chips and the dice, and "rural" excludes the sea;
 **6fe** — Alertness reaches Spirit Vision's Per roll; a recorded census ("the one bare Per roll") expired when a second roll arrived;
 **6fd** — Cleansed Spirit halves nothing, and the CoR stepper says why; "Soul Debt is reported, not applied" had been false since `ea6ae38`;
 **6fc** — Fast Healer's +1 is said on the recovery row's result; on a failure the two readings disagree, so the line says it is the GM's;
@@ -307,7 +304,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fj first.** The
+**Where to start next: the slice log, from the END — 6fk first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -362,9 +359,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1896 Kotlin** (JUnit 5 — 1328 `core:rules`, 548 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1899 Kotlin** (JUnit 5 — 1330 `core:rules`, 549 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **Codex is out until 2026-10-14 16:44.** 6fg's post-HIGH fix and 6fh-6fj were read by sub-agents only; a Codex review of `ad8b4e1..HEAD -- core app` is owed |
+| Review gate | **Codex is out until 2026-10-14 16:44.** 6fg's post-HIGH fix and 6fh-6fk were read by sub-agents only (6fk changes defences); a Codex review of `ad8b4e1..HEAD -- core app` is owed |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
@@ -579,10 +576,14 @@ TraitEffects.skillRollClauses(traits, skill)   // every clause a skill roll asks
                                       // modifiers() read it
 TraitEffects.visionClause(traits)     // Acute Vision alone, for Spirit
                                       // Vision's roll: a GM declaration (6fh)
-TraitEffects.withGrantedSenses(traits, state) / .grantedSenseTable()
-                                      // a potion's senses, as zero-cost rows
-                                      // for the skill dialog and Spirit
-                                      // Vision ONLY; never the character (6fi)
+TraitEffects.grantedTraits(state) / .withGrantedTraits(traits, state)
+TraitEffects.grantedTraitTable() / .refusedGrants()
+                                      // every catalogue row (and 6fi's sense
+                                      // rows) a walked potion chain printed,
+                                      // zero cost; refusals with reasons (6fk)
+BeyonderSession.traitsInPlay(sheet)   // THE list the sheet's rolls and the
+                                      // builder's "already held" read; never
+                                      // the character, which the budget prices
 Divination.levelsFor(ownDivination, ownRitual, defaultBonus): CasterLevels
                                       // the bonus goes inside the pick between
                                       // owned and default; a ritual never defaults
@@ -925,7 +926,10 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 - **Advantage and drawback rows are prose, not structure.** The flattened PDF
   gives no boundary between a wrapped effect line and the next row's name, and
   this PDF reports x=0 for every glyph so column geometry is unavailable. See
-  `tools/extract_pathways.py`'s docstring before trying again.
+  `tools/extract_pathways.py`'s docstring before trying again. **A row that
+  names a catalogue trait is now granted anyway** (6fk): a hand-written
+  `GRANTED_TRAITS` table pinned both ways against the prose, with
+  `REFUSED_GRANTS` for variants, a choose-one and Charisma's levels.
 - **The screens themselves are still device-only.** `app/src/test` now covers
   `BeyonderSession` and `SessionStore` (22 tests), which is where both
   app-level defects have landed so far. Composables are not tested; that

@@ -6726,6 +6726,144 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fk. The rows a potion granted that the catalogue prints
+
+6fi made a potion's SENSES reach the roll. The same gap held for every
+other row a potion prints. A Hermit 8's Combat Reflexes reached no
+defence. A Twilight Giant 8's High Pain Threshold reached no shock. A
+Sun 9's Fit reached no HT roll, and an Abyss 8's Compulsive Behavior
+offered no self-control roll. Pathway advantages and drawbacks are
+prose and never became traits.
+
+### The census
+
+Catalogue names were matched whole and longest first against every
+walkable block's advantages and drawbacks.
+**My first pass missed Fit**: I had filtered out names under four
+characters to dodge noise, and Fit is three. The design sub-agent found
+it. Its second finding is that "rows the app reads" was the wrong scope.
+`known()` includes `UNAPPLIED`, so Danger Sense and Eidetic Memory sat
+on both sides of it. The rule became: **grant every catalogue row a
+block prints with the catalogue's own numbers, and refuse the rest with
+a reason.** `held()` already says `UNREAD` of a row nothing reads.
+
+- **Granted:**
+  - Eidetic Memory: Visionary 9, White Tower 9, Justiciar 8, Error 7,
+    Tyrant 7
+  - Fit: Sun 9 and 7
+  - Perfect Balance: Tyrant 9, Fool 8
+  - Voice: Justiciar 9
+  - Cold Resistance: Death 9
+  - High Pain Threshold: Twilight Giant 8
+  - Combat Reflexes: Hermit 8
+  - Danger Sense: Wheel of Fortune 8
+  - Absolute Direction: Tyrant 7
+  - all four of Abyss 8's drawbacks: Compulsive Behavior SC 6,
+    Unsettling Appearance, Bloodlust, Callous
+  - plus 6fi's senses, folded into the same table
+- **Refused** (`REFUSED_GRANTS`, each with its reason):
+  - Fool 9's Eidetic Memory ("continuously grows" prints no number)
+  - Red Priest 9's Danger Sense (partial)
+  - Red Priest 8's Fast Healer (Limited)
+  - Moon 8's Empathy (animals)
+  - Tyrant 7's Perfect Balance (Enhanced)
+  - Hanged Man 9's "Choose one of these three drawbacks"
+  - Charisma at Error 8 and Demoness 8, 7 and 6: it is levelled, and the
+    merge keeps one copy by name, so a bought level would hide a granted
+    one
+
+**High Pain Threshold's "+3 to HT rolls to avoid knockdown/stun"** is
+the Major Wound roll, whose failure stuns. The catalogue row already
+reaches that roll through `majorWoundHt`. Recovering FROM stun is Combat
+Reflexes's, a different verb in the same table (Hermit 8). Wording
+that differs only in a clause nothing applies counts as the same row:
+Tyrant 7's "at sea or on land" and Death 9's "cold environments".
+
+### The design review
+
+One sub-agent, since Codex is out until 2026-10-14 16:44: **CHANGE.**
+- Grant a block's drawbacks all or none. Once the Traits tab lists
+  granted rows, a two/two split asserts half a block.
+- Key the merge on `drunk`.
+- Mark a granted row by membership in the granted list, not by cost 0.
+- Dedupe only unlevelled rows; the census asserts every granted
+  catalogue row is unlevelled.
+- Add Fit.
+- Make the census scope "every row printed", not "rows read".
+- Match whole names longest first, so "Healer" is never found inside
+  "Fast Healer (Limited)".
+
+### What was built
+
+- `TraitEffects.GRANTED_TRAITS` and `REFUSED_GRANTS`, read through
+  `grantedTraitTable()` and `refusedGrants()`.
+- `grantedTraits(state)`: the walked chain's rows, zero cost.
+- `withGrantedTraits(traits, state)`: the traits plus each granted row
+  they do not already hold by catalogue name.
+- `BeyonderSession.traitsInPlay(sheet)`: **the one list** the sheet
+  reads for every roll (defences, shock, fright, skill rolls,
+  self-control, the Traits tab) and that the builder reads for "already
+  held". The budget never sees it, because it prices `characterFor`.
+  6fi's `senseTraits` is gone.
+- The Traits tab prints *"— from the potion"* for a granted row instead
+  of its points.
+
+### The diff review
+
+One sub-agent: rules SHIP, screen FIX.
+- **MEDIUM, taken: the builder would sell a granted row.**
+  `TraitPicker(held = character.traits)` was purchased-only, so a Hermit
+  8 could pay 15 points for Combat Reflexes and the dedupe kept the
+  bought copy. Both screens now ask `traitsInPlay`. A session test pins
+  it, and RED-proved it by handing the merge a null state.
+- **MEDIUM, refused with a reason: Sun 9's Fit stacks with a bought Very
+  Fit to +3.** A BOUGHT Fit and Very Fit already sum to +3. The builder
+  makes them exclusive nowhere, and the book (809-815) prints no
+  exclusivity. A granted row behaves exactly as a bought one; making it
+  exclusive would be a new rule.
+- **LOW, taken:** the census lookbehind was any capitalised word. It
+  could hide a real row that follows a previous row's last word, so it
+  now names only `Greater `.
+- **LOW, taken:** the outer `granted` was renamed `grantedTraits`, so an
+  inner `granted` cannot shadow it.
+
+### Verification
+
+1899 Kotlin (1330 `core:rules`, 549 `app`, 20 `core:model`), green
+after `--rerun-tasks`. Six mutations were caught, each restored from a
+copy, with the XML deleted and `e:` counted first:
+- Sun 7 dropped
+- the Paranoia refusal dropped
+- the merge's dedupe dropped
+- Abyss 8's Compulsive Behavior dropped
+- Hermit 8 dropped
+- `traitsInPlay` given no state
+
+**The Compulsive Behavior mutant first passed the behaviour test.**
+`checksFor(...).isNotEmpty()` was satisfied by Bloodlust's IQ roll. The
+assertion now names the row.
+
+**Not device-verified.**
+- The harness refused the tablet save seed (`run-as ... sh -c 'cat >
+  files/sessions.json'`) without running it. Nothing was written.
+- The emulator failed as on 10-09 (*"Failed to allocate ColorBuffer with
+  Vulkan backing"*), and its processes were killed.
+- No premade in the tablet's save stands on a granting block, and an
+  in-app drink cannot be undone without the same refused write.
+
+What would verify it: Apothecary (Hermit 9) drinking Hermit 8, Defend
+showing +1 from Combat Reflexes and the Traits tab saying *"from the
+potion"*.
+
+### Successors
+
+- **A device pass for 6fk**, with the owner present to approve the save
+  restore.
+- **The owed Codex review of `ad8b4e1..HEAD -- core app`.** It now holds
+  a defence-affecting change.
+- **Charisma's levels**: the highest single level is what every reading
+  agrees on.
+
 ## 6fj. The number the Warrior's warm-up never had
 
 Warrior's *"default +2"* has been named as a successor since 6eu. 6ey's
