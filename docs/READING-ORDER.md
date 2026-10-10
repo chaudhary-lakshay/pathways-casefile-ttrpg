@@ -190,7 +190,18 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fi back to 6de
+## Retired lead paragraphs, 6fj back to 6de
+
+**6fj is next: why the Warrior's default +2 is out.** The refusal
+said *"This app does not count uses"*. That is a claim about this app,
+and a false one as a reason, because a GM could declare repeated use.
+The real obstacle is the number. The Warrior's example puts default +2
+ABOVE the DX he starts at (5800-5801). The Weapon Master, *"a strict
+upgrade to and replacement of the Warrior's Combat Mastery"*, stops at
+DX (7564-7570). No number fits both, so the refusal stands with the
+book's reason, and the DX floor stays. **Successors**: the owed Codex
+review, and the other potion advantages (Night Vision, Danger Sense,
+Charisma), each prose that nothing may read.
 
 **6fi is next: the senses a potion granted.** Pathway advantages are
 prose, so a potion's Acute Vision never reached a roll. A

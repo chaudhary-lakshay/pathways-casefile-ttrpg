@@ -159,7 +159,21 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fo is newest: the language a potion grants.** Mother 8 and
+**6fr is newest: every held row prints a cell.** A census ran `held()`
+over every fixture, every wealth and appearance level, every offered and
+instanced purchase, every language and every potion grant: 495 rows, 29
+with no cell. Wealthy and Very Wealthy have no trait-list row, so they
+print the wealth table's (`Wealth.cellFor`, 4965-4972). Nine sheets'
+*"Poverty: Struggling"* is the book's Struggling by `Wealth.levelOf`'s
+two agreements, so it prints that row. Five potion sense rows print
+their whole row, and two run past the bonus, a rest the note says is
+unapplied. The 13 left are sheet spellings 4.1 records, pinned by name,
+so the next producer with no cell fails a test. Read it for one thing:
+**the sense chips were cut**, so a chip's text is not a row's cell. The
+diff review said SHIP. Not device-verified. **Next (6fs)**: a device
+pass for 6fq and 6fr with the owner present.
+
+**6fo is next: the language a potion grants.** Mother 8 and
 Justiciar 6 print *"Ancient Hermes Fluent — can speak, read, and
 write"*: the mystical Native row, whose cell opens *"Fluent."* (702), in
 both forms, held from that rung down. `Languages.grantedBy` feeds the
@@ -174,10 +188,7 @@ face printed its name alone on the Traits tab, having no catalogue row;
 `held()` now gives it the table's reaction cell (`Appearance.cellFor`) and
 `UNREAD`. The review caught that my test computed its expectation with
 `cellFor`'s own formula; it now pins the book's eight strings.
-**Next (6fr)**: sweep `held()` for every other row that prints no cell --
-wealth levels, languages, blessings, anything held that is not a
-catalogue row -- by running `held()` over every fixture plus each table's
-rows and listing `cell == null`. Count first; 6fq found one by eye.
+6fr ran the sweep 6fq named.
 
 **6fn is next: the face a potion grants.** Demoness 7 and 6 print
 *"Appearance (Beautiful)"* and *"(Very Beautiful)"*, rungs of the
@@ -239,20 +250,10 @@ the owner present, and Charisma's levels. 6fl: ecc reviewed
 `ad8b4e1..HEAD` (APPROVE, five LOWs) in place of Codex, on the owner's
 word.
 
-**6fj is next: why the Warrior's default +2 is out.** The refusal
-said *"This app does not count uses"*. That is a claim about this app,
-and a false one as a reason, because a GM could declare repeated use.
-The real obstacle is the number. The Warrior's example puts default +2
-ABOVE the DX he starts at (5800-5801). The Weapon Master, *"a strict
-upgrade to and replacement of the Warrior's Combat Mastery"*, stops at
-DX (7564-7570). No number fits both, so the refusal stands with the
-book's reason, and the DX floor stays. **Successors**: the owed Codex
-review, and the other potion advantages (Night Vision, Danger Sense,
-Charisma), each prose that nothing may read.
-
-**6fi back to 6de had lead paragraphs here until 2026-10-10. Each is in
+**6fj back to 6de had lead paragraphs here until 2026-10-10. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fj** — the Warrior's default +2 stays refused, on the book's reason: no number fits both the Warrior's example and the Weapon Master's DX ceiling;
 **6fi** — a potion's senses reach the Per roll through one table; the census took its names from my list, not the prose, and a non-compiling mutant read stale XML as a catch;
 **6fh** — Acute Vision and Hearing are declared on every Per skill; Spirit Vision takes Vision alone, and a row held twice is deduped on `trait to printed`;
 **6fg** — Luck may reroll a failed PCR, so the attempted potion is saved; a restart would strand it, and a Will lowered since made the reroll throw;
@@ -318,7 +319,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fq first.** The
+**Where to start next: the slice log, from the END — 6fr first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -373,7 +374,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1906 Kotlin** (JUnit 5 — 1337 `core:rules`, 549 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1908 Kotlin** (JUnit 5 — 1339 `core:rules`, 549 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |

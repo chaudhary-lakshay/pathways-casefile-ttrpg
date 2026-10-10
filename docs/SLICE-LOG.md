@@ -6726,6 +6726,51 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fr. Every held row the Traits tab printed bare
+
+6fq named it: `held()` over every fixture plus each table's rows, listing
+`cell == null`, counted first. The sources were the 23 fixtures, the six
+priced wealth levels, the eight faces, `PurchasableTraits.offered()`, every
+language x proficiency x form, the granted-trait table, and, added on the
+design advisor's word, one purchase per instantiable row (every variant of
+an enumerating one): **495 held rows, 29 with no cell, 17 names.**
+
+- **Wealthy and Very Wealthy** have no trait-list row; the list prints four
+  levels (Comfortable, Struggling, Poor, Dead Broke). `Wealth.cellFor` prints
+  the table's row (4965-4972), the reaction column worded as 4973 words it:
+  *"Starting money £50. +2 to reaction rolls. Nice townhouse; fine clothes;
+  a servant"*. `UNREAD`, as a face's is.
+- **Nine sheets' "Poverty: Struggling"** is the book's Struggling through
+  `Wealth.levelOf`, whose second door needs price and kind to agree. The
+  budget and builder already read it so; the Traits tab printed it bare.
+  6fq's face defect again, so it now prints the `Wealth: Struggling` row and
+  that row's notes under the sheet's name. University Librarian's charges 5,
+  names no level, and stays recorded.
+- **Five potion sense rows** (6fi's `GRANTED_ONLY_SENSES`) printed nothing,
+  though each carried its text as a chip. **Two chips were cut**: Acute
+  Smell's row continues *"detect subtle scents and emotional cues"*
+  (7196-7198) and Greater Acute Vision's *"allows the Pleasure to see their
+  own Spider's Threads"* (8355-8357). The cell is the whole row, checked
+  against the block's prose, and the rest is a note saying nothing applies
+  it.
+
+The 13 left are the sheet spellings 4.1 records (Absent-Minded, two
+Pacifisms, two Secrets, No Sense of Humour, Wierdness Magnet, Paranoia:
+Bodies of water, Blacklisted, the Librarian's Poverty). A test pins that
+set by name, both ways, so the next producer that prints no cell fails.
+The instanced purchases found none, which is a result, not a skip.
+
+**Diff review (one sub-agent, ecc's kotlin-reviewer): SHIP**, four LOWs.
+Two taken (the branch read as nested `let`s, and a dense test
+expectation). Two refused: a disadvantage named like a sense row, and a
+negative wealth level with no row, are both unreachable, and
+`Appearance.cellFor` makes the same two choices.
+
+1908 Kotlin (1339 `core:rules`, 549 `app`, 20 `core:model`), green after
+`--rerun-tasks`. Four mutants caught from fresh XML: no wealth branch (3
+failures), no sense rest, no sign, no rename. The first wealth mutant did
+not compile and was rerun as one that did. Not device-verified.
+
 ## 6fq. The face the Traits tab printed bare
 
 6fn's design advisor named it and the slice left it: a face (bought, or a
