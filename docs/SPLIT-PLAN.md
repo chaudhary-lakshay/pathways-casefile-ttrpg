@@ -137,6 +137,74 @@ The point is read cost. An agent that needs one dialog reads 2815 lines of
 | `tools/extract_content.py` | 938 | — |
 | `app/src/test/.../BeyonderSessionTest.kt` | 863 | — |
 
+## Step 7: the decomposition (2026-10-10, against `f9ee692`)
+
+`SheetScreen` is `MainActivity.kt` 179-1237: the derived values (186-420),
+a `Scaffold` whose `LazyColumn` holds the action hub (500-580) and three
+tabs (585-796), and the dialog call sites (800-1236).
+
+**What does not move: the state, and every value more than one part
+reads.** `tab`, `rolling`, `controlling`, `pickingUntrained` and `shocked`
+stay `remember(sheet)` in `SheetScreen`, and so do the derived values a
+tab or the hub reads (`vitals`, `traits`, `selfControl`, `standing`,
+`hpNow`, `fpNow`, `shockOnAttribute`, `hurtOnAttribute`, the two caster
+levels, `spiritVisionForm`, the trait lists). Nothing below changes a
+`remember` key, and the values written as live expressions on purpose
+(`fpNow`, `spiAvailable`; 6dc, a design review in M4) stay live.
+
+**One state change: eleven flags become one.** `frightening`, `focusing`,
+`casting`, `defending`, `attacking`, `damaging`, `divining`,
+`supplicating`, `handling`, `sensing` and `looking` are each set only by
+a hub tile and cleared only by their own dialog's dismiss, and every
+dialog is modal, so no reachable state has two true. They become
+`var open by remember(sheet) { mutableStateOf<SheetDialog?>(null) }`, an
+eleven-entry enum, which makes that structural. `rolling` and
+`controlling` carry data and keep their own vars, as does
+`pickingUntrained`, which hands off to `rolling`.
+
+**Three new files, each a verbatim move of its block.**
+
+| File | What | Reads | Writes, by callback |
+|---|---|---|---|
+| `SheetActions.kt` | the hub, as `SheetActions(drunk, ritualLevel, divinationLevel, spiritVisionForm, onPathways, onBuild, onOpen: (SheetDialog) -> Unit)` | its parameters | `open` |
+| `SheetTabs.kt` | `LazyListScope.vitalsTab`, `.traitsTab`, `.skillsTab`: extension functions, not composables, each emitting the items its tab emits today in today's order | its parameters | `shocked = false`, `controlling`, `rolling`, `pickingUntrained` |
+| `SheetDialogs.kt` | every dialog call site, as one `@Composable SheetDialogs(...)` | its parameters, plus `session`'s observable fields read live | `open = null`, `rolling`, `controlling`, `pickingUntrained`, `shocked = true` |
+
+**Values read by the dialogs alone move into `SheetDialogs`, beside their
+only reader**: `conditionsFor` (six call sites, all dialogs), `burn`,
+`willClauses`, `concentrationClauses`, `untrained`, `mastery`,
+`shockOnSkill` and `spiTrait`, each with its `remember` keys unchanged.
+A grep of 179-1237 found no reader of any of them outside 800-1236 and
+their own definitions.
+
+**The tabs.** Today every tab's `items(...)` is emitted on every tab with
+an empty list, so the hidden tabs contribute zero items. The extension
+functions are called inside `when (tab)`, so a hidden tab emits nothing,
+which is the same visible sequence at the same indices (the header item
+is index 0 either way, and no item has a key).
+
+**Why the handlers are safe.** 6ei/6gb's rule is that a handler acts on
+the picture its composition drew. Each dialog keeps its own parameters
+and handlers verbatim; what changes is that `SheetDialogs` is a
+composition boundary between `SheetScreen` and the dialogs. Its
+parameters are the values `SheetScreen` drew, and its own reads of
+`session` (`spiSpent`, `cor`, `edits`) make it recompose when those
+change, as `SheetScreen` does today. Under strong skipping (Kotlin 2.2's
+Compose compiler) a call with the same instances skips, which is correct
+because nothing it was handed changed.
+
+**Size.** `MainActivity.kt` about 500 lines, `SheetDialogs.kt` about 480,
+`SheetTabs.kt` about 230, `SheetActions.kt` about 100.
+
+**Proof.** Kotlin tests from fresh XML, same 1950. No composable is
+unit-tested (section 6), so the behaviour proof is a device pass on the
+SM-T570, save backed up first: every hub tile opens its dialog and
+dismisses; a skill row, a bought and a granted row and the untrained
+picker each open the roll dialog at the printed level; a self-control
+row opens its dialog at its printed target; Damage's Major Wound latches
+shock and the Vitals tab's Clear removes it; a ritual, a divination and
+an artifact spend move the pools on the Vitals tab.
+
 ## Three kinds of split, and they are not the same risk
 
 **A. A pure move.** A top-level declaration goes to a new file in the same
