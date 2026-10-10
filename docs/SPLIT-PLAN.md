@@ -327,6 +327,18 @@ charges a critical row's CoR once; Ask double-tapped rolls once.
 
 ## Step 9: the decomposition of `TraitEffects.kt` (2026-10-10, against `cb38548`)
 
+Reviewed before the code (sonnet, `kotlin-reviewer.md`): SHIP. Its notes
+are folded in below:
+- `ETHER_BODY_DAMAGE` (306) is a trait-name constant, so it stays.
+- `BespokeBonus` goes from `private` to `internal`.
+- `stunRecoveryBonus`'s clause names a condition, not an attribute. It is
+  in the object because the one roll this app applies it to is HT.
+- The "deliberately NOT a general attribute-roll accessor" KDocs stay
+  verbatim. They mean that each function covers one attribute, and that
+  stays true.
+- The ~735 estimate ignored blank lines, so the file is recounted after
+  the move.
+
 The owner chose to split `TraitEffects.kt` (1190 lines). The option as
 put to them named three objects: `held, reported, known, UNREAD`, then
 luck and acting, then the HT rolls. This plan differs in two places.
@@ -345,7 +357,7 @@ RED-first: the rewritten tests fail to compile against the old tree.
 | Object | Spans at `cb38548` | Members |
 |---|---|---|
 | `TraitReport`, with top-level `TraitNote` (31-32) beside it in `TraitReport.kt` | 699-706, 926-1076, 1094-1102 | `reported`, `UNREAD`, `ROLLED_ONLY`, `HeldTrait`, `held`, `corruptionNotes`; private `unrowed`, `SENSE_ROW_REST`, `SENSE_REST` |
-| `TraitAttributeRolls`, with top-level `MajorWoundHt` (34-47) beside it | 225-231, 281-357, 499-532, 575-590, 617-641, 737-823, 908-924 | `alertnessBonus`, `htRollNames`, `spiRollNames`, `spiRollBonus`, `htRollBonus`, `majorWoundHt`, `stunRecoveryHt`, `knockdownBonus`, `deathRollBonus`, `consciousnessRollBonus`, `stunRecoveryBonus`; `HT_ROLL_TRAITS` and `SPI_ROLL_TRAITS` become `internal` |
+| `TraitAttributeRolls`, with top-level `MajorWoundHt` (34-47) beside it | 225-231, 281-304, 307-357, 499-532, 575-590, 617-641, 737-823, 908-924 | `alertnessBonus`, `htRollNames`, `spiRollNames`, `spiRollBonus`, `htRollBonus`, `majorWoundHt`, `stunRecoveryHt`, `knockdownBonus`, `deathRollBonus`, `consciousnessRollBonus`, `stunRecoveryBonus`; `HT_ROLL_TRAITS` and `SPI_ROLL_TRAITS` become `internal` |
 
 **The second object's theme is a roll of an attribute itself, never of a
 skill.** Every member answers that question. Alertness answers it for
