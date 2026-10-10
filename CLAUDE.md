@@ -170,7 +170,7 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6gd is newest: a ledger roll prints its target first.** The skill
+**6ge and 6gd: a ledger roll prints its target first, in words.** The skill
 roll, the attack and the Acrobatic Dodge printed a level and resolved
 their target inside the click: 6eg's third category, named in its
 census and neither fixed nor refused for forty-odd slices. A reeling
@@ -193,8 +193,17 @@ changed four things; the diff review said SHIP. Device-verified,
 reeling Docks Bouncer: *"Skill 16"*, *"3d6 ≤ 15"*, *"state:hp: -1"*,
 then *"3d6: 7 vs 15"*; the attack *"3d6 ≤ 2, each"* and two rolls *"vs
 2"*; *"Roll vs. Acrobatics — 3d6 ≤ 4 (5 → 4)"*. Save restored.
-**Next**: nothing is queued. The ledger's lines print raw ids
-(*"state:hp: -1"*), before the dice now as well as after.
+
+6ge: those lines printed each modifier's ID, *"state:hp: -1"*. Every
+`ModifierSource` has carried words for itself since the model was
+written and no screen read one. `ModifierSource.label()` is the one
+place a source becomes text; `lines()` on a target or an outcome gives
+them, and a push names itself. Before the dice the skill dialog leaves
+out the circumstances picked in it, already lit chips above. The
+resolver is untouched. SHIP, prose only; device-verified: *"1/3 HP
+remaining: -1"*, *"Pushed with FP: +1"*. **Next**: nothing is queued.
+The attack's add-up test does not vary range, darkness or the trait
+term.
 
 **6gc (its device pass) and 6gb: the second tap of one picture.** 6ga left the dialogs
 to 6eh, and ten slices had moved a dialog's target since, so they were
@@ -395,7 +404,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6gd first.** The
+**Where to start next: the slice log, from the END — 6ge first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -450,7 +459,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1948 Kotlin** (JUnit 5 — 1349 `core:rules`, 579 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1950 Kotlin** (JUnit 5 — 1351 `core:rules`, 579 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -727,6 +736,9 @@ SkillRoll.rollAgainst(target: SkillTarget, source): SkillRollOutcome
                                       // resolved while drawn, rolled as
                                       // printed (6gd). `at` and `of` are the
                                       // two composed, for the tests
+SkillTarget.lines() / SkillRollOutcome.lines(): List<LedgerLine>
+ModifierSource.label()                // what moved the target, in the
+                                      // modifier's own words, never its id (6ge)
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
 RitualResolution.attempt(skill, weight, cor, source): RitualOutcome

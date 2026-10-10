@@ -6726,6 +6726,100 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ge. A ledger line names what moved the roll
+
+6gd ended on something it had made more visible and not changed: the
+breakdown under a ledger roll printed each modifier's ID. *"state:hp:
+-1"*. *"common:adverse conditions (dark, noisy, dangerous): -4"*.
+*"burn:fp: 3"*. After the dice since M2, and before them since 6gd, on
+the most-used dialog in the app, where its siblings say *"includes -1
+from the HP and FP trackers"*.
+
+**No earlier slice decided this.** The log and
+`docs/DESIGN-DIRECTION.md` hold no word on printing ids; the line is
+the resolver's audit trail put on screen as it came.
+
+**The words were already there.** Every `Modifier` carries a
+`ModifierSource`, and every source carries text: the common-modifier
+row's situation, the pool threshold's level, the trait's name. A census
+of every producer that reaches `SkillRoll.targetFor`, run as a throwaway
+test and deleted:
+
+| Producer | id | The source's own text |
+|---|---|---|
+| `Conditions`, HP | `state:hp` | *1/3 HP remaining*, *0 HP*, *-HP* |
+| `Conditions`, FP | `state:fp` | *1/3 FP or below*, *below 0 FP* |
+| `Conditions`, SPI and CoR | `state:spi`, `state:cor` | *<= 1/3 Max SPI*, *0 SPI*, *Below 0 SPI*, *6 CoR* |
+| `Shock` | `state:shock` | *shock*, the one lower-case entry |
+| `CommonModifiers` | `common:…` | *Adverse conditions (dark, noisy, dangerous)* |
+| `Attacks` | `attack:deceptive`, `:maneuver`, `:rapid` | *Deceptive Attack -1 to their defence*, *All-Out Attack (Determined)*, *Rapid Strike x1* |
+| `Wounds` | `wounds:neck` | *Neck (called shot)* |
+| `TraitEffects` | `trait:perfect balance` | *Perfect Balance* |
+
+`grep` for a read of `.description` or `.tracker` on a source, outside
+one test: none. Extracted, stored and read by nothing, the shape this
+project's memory files under *grep every extracted field for a
+consumer*.
+
+### What shipped (`13113c6`)
+
+- **`ModifierSource.label()`**, in rules: the one place a source
+  becomes text.
+- **`SkillTarget.sources` and `SkillRollOutcome.sources`**, each
+  modifier's source by id, filled by `targetFor` and copied by
+  `rollAgainst`; and **`lines(): List<LedgerLine>`**, a label, a delta
+  and the source's kind. A contribution nothing explains keeps its id,
+  so it still prints and still adds up.
+- **A push names itself.** No `Modifier` stands behind
+  `EffortBurn.applied`'s contribution, so it adds its own source:
+  *"Pushed with FP: +3"*.
+- **`Shock`'s source reads *Shock*.**
+- **`LedgerLines`** prints the lines, signed.
+- **Before the dice the skill dialog leaves out the circumstances
+  picked in it.** They are lit chips directly above, and printing them
+  again said one -4 twice. The result lists every line, the chips
+  being gone by then.
+
+`ModifierResolver`, `Contribution` and `core/model` are untouched: the
+label rides beside the ledger, not through it.
+
+**Tests.** `a ledger line names its source, never its id` and the push
+assertion were watched failing against a `ledgerLines` that printed ids
+(*"burn:fp"* for *"Pushed with FP"*). `a line with no source falls back
+to its id` passed under that stub on purpose.
+
+**Diff review, one ecc sub-agent: SHIP WITH CHANGE**, prose only.
+
+- Two comments of mine said the sources had held their text *"since
+  M2"*. `Modifier.kt` is older than that, and a comment in
+  `TraitEffects` says *"both existed from M0"*. They say *"since the
+  model was written"*.
+- It confirmed nothing reads the string *"shock"*, that the defaulted
+  map changes no equality assertion, and that every `Situational`
+  source reaching the skill dialog is one of its own chips, so the
+  filter hides nothing a player needs.
+- Left: `Potion`'s branch of `label()` has no test, and nothing builds
+  a `Potion` source. Its KDoc says so.
+
+**On the device.** SM-T570, Docks Bouncer reeling at HP 4 / 14,
+Brawling with *Adverse conditions -4* picked.
+
+| When | The lines |
+|---|---|
+| before the dice | *"Skill 16"*, *"3d6 ≤ 11"*, the chip lit, *"1/3 HP remaining: -1"* |
+| after | *"3d6: 11 vs 11"*, *"base 16, modified to 11"*, *"Adverse conditions (dark, noisy, dangerous): -4"*, *"1/3 HP remaining: -1"* |
+| after *+1* | *"3d6: 11 vs 12"*, and *"Pushed with FP: +1"* under the other two |
+
+The build on the tablet (18:51:49) differs from the commit by the two
+comments the review changed. The save was written back and `cmp` says
+it is the backup.
+
+1950 Kotlin (1351 `core:rules`, 579 `app`, 20 `core:model`), green
+after `--rerun-tasks`. The Python suite was not touched or re-run.
+
+**Next**: nothing is queued. Open from 6gd: the attack's add-up test
+does not vary range, darkness or the trait term.
+
 ## 6gd. A ledger roll prints its target first
 
 6eg's census named three rolls with *"nothing printed before the dice"*:
