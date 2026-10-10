@@ -5939,3 +5939,40 @@ def test_committed_hp_recovery_matches_the_printed_rows():
     assert [e["method"] for e in payload["entries"]] == extract_recovery.EXPECTED
     assert payload["sourceLines"] == {"5": [[2860, 2868]]}
     assert "HT roll" in payload["entries"][0]["method"], "the row that makes this a roll"
+
+
+# The 800-line cap (CLAUDE.md section 7), held as a ratchet. A file over it must
+# be listed here; a listed file that drops under it must leave the list, so the
+# list only shrinks. docs/SPLIT-PLAN.md is the plan for the rest.
+LINE_CAP = 800
+OVER_CAP = {
+    "tools/test_tools.py",
+    "core/rules/src/test/kotlin/com/pathways/rules/TraitEffectsTest.kt",
+    "core/rules/src/main/kotlin/com/pathways/rules/TraitEffects.kt",
+    "app/src/main/kotlin/com/pathways/app/RitualDialog.kt",
+    "app/src/main/kotlin/com/pathways/app/MainActivity.kt",
+    "tools/extract_content.py",
+    "app/src/test/kotlin/com/pathways/app/BeyonderSessionTest.kt",
+}
+
+
+def _source_line_counts():
+    listed = subprocess.run(
+        ["git", "ls-files", "-co", "--exclude-standard", "*.kt", "*.py"],
+        cwd=ROOT, capture_output=True, text=True, check=True,
+    ).stdout.split()
+    assert listed, "git listed no source files"
+    return {
+        p: len((ROOT / p).read_text(encoding="utf-8").splitlines())
+        for p in listed if (ROOT / p).exists()
+    }
+
+
+def test_no_source_file_grows_past_the_line_cap_unlisted():
+    counts = _source_line_counts()
+    over = {p for p, n in counts.items() if n > LINE_CAP}
+    assert over - OVER_CAP == set(), (
+        f"over {LINE_CAP} lines and not in OVER_CAP: split it, don't list it: "
+        + ", ".join(f"{p} ({counts[p]})" for p in sorted(over - OVER_CAP)))
+    assert OVER_CAP - over == set(), (
+        "under the cap now, so remove from OVER_CAP: " + ", ".join(sorted(OVER_CAP - over)))
