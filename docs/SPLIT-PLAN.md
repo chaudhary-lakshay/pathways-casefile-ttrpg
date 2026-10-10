@@ -139,6 +139,12 @@ The point is read cost. An agent that needs one dialog reads 2815 lines of
 
 ## Step 7: the decomposition (2026-10-10, against `f9ee692`)
 
+Reviewed before the code (sonnet, `kotlin-reviewer.md`): CHANGE. A single
+nullable dialog would have dropped a second tap, so it is a set; the
+`shocked` read and the live `session` reads are stated rules below. Its
+other notes: keep `SheetDialogs` unconditional, pass `shocked` with a
+callback, and a `SheetPlay` holder is a later cleanup, not this step.
+
 `SheetScreen` is `MainActivity.kt` 179-1237: the derived values (186-420),
 a `Scaffold` whose `LazyColumn` holds the action hub (500-580) and three
 tabs (585-796), and the dialog call sites (800-1236).
@@ -152,15 +158,17 @@ levels, `spiritVisionForm`, the trait lists). Nothing below changes a
 `remember` key, and the values written as live expressions on purpose
 (`fpNow`, `spiAvailable`; 6dc, a design review in M4) stay live.
 
-**One state change: eleven flags become one.** `frightening`, `focusing`,
-`casting`, `defending`, `attacking`, `damaging`, `divining`,
-`supplicating`, `handling`, `sensing` and `looking` are each set only by
-a hub tile and cleared only by their own dialog's dismiss, and every
-dialog is modal, so no reachable state has two true. They become
-`var open by remember(sheet) { mutableStateOf<SheetDialog?>(null) }`, an
-eleven-entry enum, which makes that structural. `rolling` and
-`controlling` carry data and keep their own vars, as does
-`pickingUntrained`, which hands off to `rolling`.
+**One state change: eleven flags become one set.** `frightening`,
+`focusing`, `casting`, `defending`, `attacking`, `damaging`, `divining`,
+`supplicating`, `handling`, `sensing` and `looking` are each set by one
+hub tile and cleared by their own dialog's dismiss (two writers each,
+checked). They become `var open by remember(sheet) {
+mutableStateOf(emptySet<SheetDialog>()) }`: a tile adds its entry, a
+dismiss removes its own. A SET, not one nullable value, because the
+design review showed two tiles tapped milliseconds apart (6ei) open two
+dialogs today, and a single value would drop the first tap. Each `if`
+keeps its gate (`ritualLevel != null`, `divinationLevel != null`,
+`spiritVisionForm != null`) beside its membership test.
 
 **Three new files, each a verbatim move of its block.**
 
@@ -176,6 +184,16 @@ only reader**: `conditionsFor` (six call sites, all dialogs), `burn`,
 `shockOnSkill` and `spiTrait`, each with its `remember` keys unchanged.
 A grep of 179-1237 found no reader of any of them outside 800-1236 and
 their own definitions.
+
+**Two reads change place, and the rule that keeps them right.**
+`conditionsFor` reads `shocked` from `SheetDialogs`' parameter rather than
+the delegate, so it is the value as drawn; `SheetScreen` passes a new one
+when the latch moves, so no roll differs. And every read of `session`'s
+observable fields that a dialog parameter takes (`spiSpent`, `cor`,
+`edits`) stays INSIDE `SheetDialogs`' body, never hoisted into
+`SheetScreen` and passed down: under strong skipping a hoisted read of a
+`session` the screen did not re-read would go stale. `SheetDialogs` is
+called unconditionally, as the derivations it now holds were.
 
 **The tabs.** Today every tab's `items(...)` is emitted on every tab with
 an empty list, so the hidden tabs contribute zero items. The extension
