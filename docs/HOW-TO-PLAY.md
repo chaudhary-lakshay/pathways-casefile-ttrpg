@@ -28,12 +28,20 @@ it does the arithmetic. Nothing is hidden and nothing is invented.
 The premade list shows all 23 sheets. Tap one. The palette icon in its top bar
 opens the theme picker — presets, plus light / dark / follow-system.
 
+A row prints the sheet's four attributes as published. The **Beyonders** tab
+holds the characters you have walked onto a pathway, each marked with its
+pathway and Sequence; everyone else is under **Mortal**.
+
 The sheet screen opens with a **computed vs. as-published** comparison. Where
 the two disagree, the app shows both and *keeps the disagreement* — it does not
 quietly repair the sheet. Four sheets really are wrong in their own arithmetic
 (Docks Bouncer's HP, three sheets' FP, Monastery Scholar's advantage total,
 University Librarian's disadvantage total), and the app is built so nobody can
 silently "fix" them. If a number surprises you, the book is the authority.
+
+Four sheets (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police)
+print SPI 9 and no pathway. The book starts every mortal at SPI 0, so the app
+plays them at 0 until they drink a potion, and then at what the potion grants.
 
 ### How the sheet is laid out
 

@@ -192,7 +192,7 @@ fun App(
     }
 
     when (val sheet = selected) {
-        null -> PremadeGallery(sheets, themePrefs) { selected = it }
+        null -> PremadeGallery(sheets, saved, themePrefs) { selected = it }
         else -> {
             BackHandler {
                 if (screen == Screen.SHEET) selected = null else screen = Screen.SHEET

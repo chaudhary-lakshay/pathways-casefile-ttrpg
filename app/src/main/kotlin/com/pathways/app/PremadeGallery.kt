@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attr
+import com.pathways.model.BeyonderState
 import com.pathways.rules.PremadeSheet
 
 /**
@@ -69,11 +70,17 @@ import com.pathways.rules.PremadeSheet
  *
  * The filters exist because 23 near-identical ordinary people is the actual
  * problem this screen has, and "which of these is already supernatural" is the
- * one question the data can answer instantly.
+ * one question the save can answer instantly ([walkOf]).
+ *
+ * **A row is the published sheet plus the walk.** Every number on it is the
+ * sheet's, as printed; the pathway is the save's, because no sheet prints one.
+ * Nothing here is digested: a save from before the floors existed throws
+ * where a potion is digested on top of it ([digestedWith]), and this is the
+ * launch screen.
  */
 
 /** The filter across the top. `TEMPLATE` is not a person; see [isTemplate]. */
-private enum class Roster(val label: String, val icon: ImageVector) {
+internal enum class Roster(val label: String, val icon: ImageVector) {
     ALL("All", Icons.Filled.Groups),
     MORTAL("Mortal", Icons.Filled.Person),
     // An eye: what a Beyonder has that a mortal does not is Spirit Vision, and
@@ -91,19 +98,34 @@ private enum class Roster(val label: String, val icon: ImageVector) {
 private fun isTemplate(sheet: PremadeSheet): Boolean =
     sheet.name.contains("Blank", ignoreCase = true)
 
-private fun isBeyonder(sheet: PremadeSheet): Boolean = (sheet.published.spi ?: 0) > 0
+/**
+ * The pathway [sheet] has been walked onto in play, or null for a mortal.
+ * The gallery's one answer to "is this a Beyonder": the tabs, their counts,
+ * the row's mark and its pathway cell all ask here.
+ *
+ * Until 6ft the answer was the sheet's printed SPI, which filed every
+ * character walked in the app under Mortal and two who had drunk nothing
+ * under Beyonders: four sheets print SPI 9 and none plays it
+ * ([PremadeSheet.toCharacter]). SPI is not the question either way -- the
+ * Chained potion grants none at Sequence 9. Whether a character has a pool
+ * to spend is the sheet screen's, asked of the played maximum.
+ */
+internal fun walkOf(sheet: PremadeSheet, saved: Map<String, SavedSession>): BeyonderState? =
+    saved[sheet.name]?.beyonder
 
 /**
- * How many characters a tab holds, printed on the tab itself.
- *
- * A tab labelled "Beyonders" is a question; one labelled "Beyonders (4)" is an
- * answer, and it tells the player how much list is behind it before they spend
- * a tap finding out.
+ * Who a tab holds. Its size is printed on the tab: one labelled "Beyonders"
+ * is a question; one labelled "Beyonders (4)" is an answer, and it tells the
+ * player how much list is behind it before they spend a tap finding out.
  */
-private fun countIn(roster: Roster, people: List<PremadeSheet>): Int = when (roster) {
-    Roster.ALL -> people.size
-    Roster.MORTAL -> people.count { !isBeyonder(it) }
-    Roster.BEYONDER -> people.count(::isBeyonder)
+internal fun rosterOf(
+    roster: Roster,
+    people: List<PremadeSheet>,
+    saved: Map<String, SavedSession>,
+): List<PremadeSheet> = when (roster) {
+    Roster.ALL -> people
+    Roster.MORTAL -> people.filter { walkOf(it, saved) == null }
+    Roster.BEYONDER -> people.filter { walkOf(it, saved) != null }
 }
 
 /**
@@ -160,6 +182,7 @@ private fun chipTraits(sheet: PremadeSheet): List<String> =
 @Composable
 fun PremadeGallery(
     sheets: List<PremadeSheet>,
+    saved: Map<String, SavedSession>,
     themePrefs: MutableState<ThemePrefs>,
     onSelect: (PremadeSheet) -> Unit,
 ) {
@@ -168,13 +191,10 @@ fun PremadeGallery(
     var glossaryOpen by remember { mutableStateOf(false) }
     val people = remember(sheets) { sheets.filterNot(::isTemplate) }
     val templates = remember(sheets) { sheets.filter(::isTemplate) }
-    val shown = remember(people, roster) {
-        when (roster) {
-            Roster.ALL -> people
-            Roster.MORTAL -> people.filterNot(::isBeyonder)
-            Roster.BEYONDER -> people.filter(::isBeyonder)
-        }
-    }
+    // Not remembered: the save is a plain map, not snapshot state, and 22
+    // lookups cost nothing. It changes only while a sheet is selected, when
+    // this screen is not composed, so each return reads it fresh.
+    val shown = rosterOf(roster, people, saved)
 
     Scaffold(
         topBar = {
@@ -230,7 +250,7 @@ fun PremadeGallery(
                         selected = roster == option,
                         onClick = { roster = option },
                         icon = { Icon(option.icon, contentDescription = null) },
-                        label = { Text("${option.label} (${countIn(option, people)})") },
+                        label = { Text("${option.label} (${rosterOf(option, people, saved).size})") },
                     )
                 }
             }
@@ -242,7 +262,7 @@ fun PremadeGallery(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(shown, key = { it.name }) { sheet ->
-                PremadeRow(sheet) { onSelect(sheet) }
+                PremadeRow(sheet, walkOf(sheet, saved)) { onSelect(sheet) }
             }
 
             // Below the people, not among them.
@@ -273,8 +293,8 @@ fun PremadeGallery(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PremadeRow(sheet: PremadeSheet, onClick: () -> Unit) {
-    val beyonder = isBeyonder(sheet)
+private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, onClick: () -> Unit) {
+    val beyonder = walk != null
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(
@@ -338,14 +358,15 @@ private fun PremadeRow(sheet: PremadeSheet, onClick: () -> Unit) {
                     }
                 }
 
-                // The five numbers, in one monospaced-feeling row. SPI is
-                // included because it is the stat the whole Beyonder half of
-                // the app turns on, and the first gallery left it out.
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                // The four numbers the sheet prints, in one monospaced-feeling
+                // row, then the walk. Not SPI: a sheet's is 0 by the book,
+                // and a walked character's needs the potions digested. A
+                // FlowRow, so "Wheel of Fortune 9" wraps on a narrow screen.
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     for (attr in listOf(Attr.ST, Attr.DX, Attr.IQ, Attr.HT)) {
                         StatCell(attr.name, "${sheet.attributes[attr] ?: 10}")
                     }
-                    StatCell("SPI", "${sheet.published.spi ?: 0}", accent = beyonder)
+                    if (walk != null) StatCell(walk.pathway, "${walk.sequence}", accent = true)
                 }
 
                 val traits = chipTraits(sheet)

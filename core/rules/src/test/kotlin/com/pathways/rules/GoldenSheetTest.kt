@@ -2,8 +2,11 @@ package com.pathways.rules
 
 import com.pathways.model.Attr
 import com.pathways.model.Attributes
+import com.pathways.model.BASE_ATTRIBUTE
+import com.pathways.model.BeyonderState
 import com.pathways.model.Difficulty
 import com.pathways.model.SecondaryDelta
+import com.pathways.rules.content.ContentLoader
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.DynamicTest
@@ -133,34 +136,71 @@ class GoldenSheetTest {
             }
         }
 
+    /**
+     * Four sheets print SPI 9 and no sheet prints a pathway, a sequence or a
+     * potion. "All mortals begin at SPI 0, fixed. SPI increases only through
+     * Beyonder potions, supernatural events, or certain rituals" (book lines
+     * 2268-2269), and 9 is what every attribute cell holds at zero cost. So
+     * the book wins and the 9 is recorded, never played (4.1; 6ft).
+     *
+     * **The other reading, refused**: 9 is what the Fool, Hermit and Darkness
+     * potions grant at Sequence 9 (2270-2276), so the four could be Beyonders
+     * whose pathway the sheet omits. Nothing on a sheet says which, and this
+     * app offers each of them a first potion as it does a mortal.
+     */
     @Test
-    fun `toCharacter carries published SPI rather than defaulting to mortal`() {
-        // SPI is table state, never derivable from attributes (section 4.4),
-        // so an import that drops it silently turns a Beyonder into a mortal.
-        // No fixture skill is SPI-controlled today, which is exactly why
-        // nothing else here would notice.
-        val beyonders = Premades.all().filter { (it.published.spi ?: 0) > 0 }
-        assertEquals(4, beyonders.size, "expected 4 sheets to print a nonzero SPI")
-        beyonders.forEach {
-            assertEquals(it.published.spi, it.toCharacter().spi, "${it.name}: SPI")
+    fun `four sheets print SPI 9 and none plays it - guard against silent repair`() {
+        val printed = Premades.all().filter { (it.published.spi ?: 0) != 0 }
+        assertEquals(
+            setOf("Apothecary", "Barmaid Brawler", "Docks Bouncer", "Military Police"),
+            printed.map { it.name }.toSet(),
+        )
+        printed.forEach {
+            assertEquals(BASE_ATTRIBUTE, it.published.spi, "${it.name}: printed")
+            assertEquals(0, it.toCharacter().spi, "${it.name}: played")
         }
+    }
+
+    /**
+     * Carried into play, the printed 9 was ADDED to a potion's grant: an
+     * Apothecary on the Hermit's Sequence 9 played SPI 18, which no block
+     * prints (the largest Sequence 9 grant is 12). The Hermit block's own
+     * "SPI +9" is the whole of it, as it is for a sheet that prints 0.
+     */
+    @Test
+    fun `a sheet that prints SPI 9 gains what the potion grants and no more`() {
+        val hermit = BeyonderState("Hermit", 9, 0)
+        fun walked(name: String) =
+            PotionDigestion.of(Premades.byName(name).toCharacter().copy(beyonder = hermit), ContentLoader.pathways())!!
+        assertEquals(9, walked("Apothecary").effectiveSpi)
+        assertEquals(9, walked("Beat Cop").effectiveSpi)
+    }
+
+    /**
+     * The sheet diff's computed level reads the same SPI the character
+     * plays. No fixture keys a skill off SPI, hence a built sheet.
+     */
+    @Test
+    fun `a sheet skill keyed off SPI is computed from the played SPI`() {
+        val skill = PremadeSkill("Spiritual Intuition", null, "SPI", "H", points = 4, publishedLevel = 9)
+        val sheet = Premades.byName("Apothecary").copy(skills = listOf(skill))
+        assertEquals(SkillLadder.levelFor(4, Difficulty.HARD, 0), sheet.levelFor(skill))
     }
 
     @Test
     fun `no sheet prints a starting corruption, which is why nothing carries it`() {
-        // The last published field with no reader at all. Unlike SPI above,
-        // there is nothing to carry: `Character` has no corruption at all,
+        // A published field with no reader at all. Like SPI above, nothing
+        // carries it, but for another reason: `Character` has no corruption,
         // because CoR is session state (SavedSession.cor) rather than a
         // property of the character. That is correct while every sheet prints
         // 0 -- and silently wrong the moment one does not, since the sheet's
         // value would be dropped and the character would start clean.
         // The elvis is deliberate, and it was briefly removed for a wrong
-        // reason. `Premades.spiOf` sets this file's convention one field over
-        // -- "Absent means mortal" -- so a null CoR means zero, not a missing
-        // reading, and failing on it would report a state this repo already
-        // calls correct. What this guards is a NONZERO printed value, which is
-        // the only kind that gets dropped (a review's finding, checked against
-        // Premades.kt:80).
+        // reason. An absent SPI is read as a mortal's 0 one test up, so a
+        // null CoR means zero, not a missing reading, and failing on it would
+        // report a state this repo already calls correct. What this guards is
+        // a NONZERO printed value, which is the only kind that gets dropped
+        // (a review's finding).
         assertEquals(
             23,
             Premades.all().count { (it.published.cor ?: 0) == 0 },
