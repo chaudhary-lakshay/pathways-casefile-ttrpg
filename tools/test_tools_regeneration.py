@@ -168,7 +168,6 @@ def test_committed_hp_recovery_matches_the_printed_rows():
 LINE_CAP = 800
 OVER_CAP = {
     "core/rules/src/main/kotlin/com/pathways/rules/TraitEffects.kt",
-    "app/src/main/kotlin/com/pathways/app/RitualDialog.kt",
     "app/src/test/kotlin/com/pathways/app/BeyonderSessionTest.kt",
 }
 
