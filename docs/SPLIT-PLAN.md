@@ -39,7 +39,25 @@ open both, stacked, closing one per BACK, as the eleven flags did.
 **Not verified on device**: the shock latch and Clear, and a spend
 moving a pool, because each writes the save. The diff review (sonnet,
 `ca33f90..ea5665d`) said SHIP; its one LOW, five imports named only in
-comments, is removed. Step 8 has not been started.
+comments, is removed.
+
+**Step 8a is done** (`c59e8c6`): `RitualDialog.kt` 748, beside
+`RitualControls.kt` 395, and off `OVER_CAP`. The line-multiset diff
+differs only in the planned assignment-to-callback edits. 1950 Kotlin
+and 362 Python green from fresh XML. Design review and diff review
+(sonnet, `cdbab7f..c59e8c6`) both said SHIP. Device-verified on the
+SM-T570 with a Beat Cop on Fool 9 (save `cmp`-identical after):
+- One chip in each moved row moved the printed target and the breakdown
+  together, `3d6 ≤ 12` to `≤ 18` (+1 extended, +2 assisting, +4
+  sacrifice, +1 catalyst, -2 suspended), costing 2 SPI and 2 HP.
+- Occultism took 12 to 13, and Accented took it to 10.
+- A one-frame double tap flipped twice on Suspended and on Occultism. A
+  single monkey tap deselected Occultism, so the double tap did land.
+- Roll double-tapped in one frame charged once.
+- A +1 push was charged on Close, not before.
+
+**Not verified on device**: Ask and the mode resets, whose code did not
+move. Step 8b, `DefenseDialog`, is next.
 
 | File | Was | Now | Moved to |
 |---|---|---|---|
@@ -57,8 +75,8 @@ three refusal tables' KDoc links were qualified with `TraitEffects.`;
 Defend's `Note` became `DefenseNote`, because PathwayScreen's `Note` pads
 16 dp where Defend's pads 4.
 
-Three files are still over the cap: `TraitEffects.kt` 1190,
-`RitualDialog.kt` 1042, `BeyonderSessionTest.kt` 863.
+Two files are still over the cap: `TraitEffects.kt` 1190 and
+`BeyonderSessionTest.kt` 863.
 
 ## Step 5: the decomposition (2026-10-10, against `f472f3f`)
 
