@@ -6726,6 +6726,77 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gf. The attack's add-up test, for the terms it left out
+
+6gd's last open item: its matrix proved the level and the printed terms
+add up to the attack's target for the maneuver, the Deceptive steps, the
+called shot and the trackers, and for nothing a shot adds. Test-only; no
+production line changed.
+
+`range, circumstances, darkness and the traits add up too`
+(`AttackDialogTest`) builds its terms through the screen's own
+`rangedModifiers`, `meleeModifiers` and `traitTerms`:
+
+- each of the seven range bands;
+- each of the nine circumstance rows, an Acc of 2 behind the two Aim rows;
+- the darkness row at every severity from -9 to -3: without Night Eyes,
+  and with its 2 under each `DarknessCause`;
+- the prone row in reach;
+- both of Reluctant Killer's declared to-hit clauses.
+
+Each stands alone, and then they stand together, in two plans. An aimed
+shot is the furthest band, eight rows (one Aim, since `Ranged.modifiers`
+refuses two) and an Eye shot. A Reluctant Killer's is the band, the
+seven rows that are not an Aim, the declared clause and the Eye.
+Stationary is among the rows and prints nothing, so each plan has nine
+terms. Each
+plan runs hurt and unhurt, the trackers' -5 written out.
+
+**My first version had one together plan, and the screen cannot draw
+it.** It put the declared clause beside *Aim for 3+ turns*. 6ex made a
+Reluctant Killer's "cannot Aim" unconditional: `AttackDialog` passes
+`aimCancelled || aimRefused` and the chips are withdrawn. The test was
+green and both mutants failed it, and its KDoc said *"every one that can
+stand together"*. A final read against the dialog's own branch found
+it, not a run.
+
+The counts are pinned exactly, so a row that stops producing a term
+fails rather than thinning the matrix. 38 plans alone print a term: 6
+bands (the +0 band prints nothing), 8 rows (stationary prints nothing),
+21 of darkness (7 without Night Eyes; with it 7 fog and 7 darkness, and
+dim light leaves nothing), 2 clauses and the prone row. Each together
+plan has 9 terms. All were counted by hand before a run printed them.
+
+**Diff review (sonnet, `kotlin-reviewer.md`, the staged diff): SHIP**,
+both counts reproduced from the JSON. One LOW taken: the matrix ran fog
+and dim light for a character without Night Eyes, 14 plans the screen
+cannot draw, since `RangedOptions` asks the cause only when the trait's
+reduction is above 0. They were numerically the darkness plans; they
+are gone, and 52 became 38. The reviewer also noted that walking and
+running can both be ticked and sum to -3, a screen choice this slice
+did not touch.
+
+| Mutant | Old matrix | New test |
+|---|---|---|
+| every `ranged:` term but the band supersedes `ranged:range` | green | red |
+| the declared to-hit clause supersedes `ranged:range` | green | red |
+
+Each ran alone from deleted XML, with no `e:` line, and each file went
+back from its copy. The first fails on the aimed plan and the second on
+the Reluctant Killer's, each on no plan that stands alone, which is why
+the two are there. Both were re-run after the plan was split. The first mutant's patch missed
+twice on a CRLF pattern and both of those runs were green; an unapplied
+mutant reads as a survivor, so check `git diff --stat` before the run.
+
+1951 Kotlin (1351 `core:rules`, 580 `app`, 20 `core:model`): the `app`
+count is from fresh XML, and `core` was not re-run because nothing in it
+changed. No device pass: no screen changed.
+
+**Still open**: the test never reads what `AttackOptions` prints, so a
+line the composable forgot is invisible to it. A ranged plan's Deceptive
+step and maneuver are not crossed with the rows above. **Next**: nothing
+is queued.
+
 ## 6ge. A ledger line names what moved the roll
 
 6gd ended on something it had made more visible and not changed: the
