@@ -99,7 +99,9 @@ target, which is the fix 6dd found, is no longer possible through that
 subcommand. Both the design review and the diff review now go through
 `codex exec` called directly (6eg; the invocation is in `~/.claude/CLAUDE.md`),
 which takes the target list, the three questions and the "do not read
-CLAUDE.md or docs/SLICE-LOG.md" instruction in one prompt.
+CLAUDE.md or docs/SLICE-LOG.md" instruction in one prompt. A prompt over ~32 KB must
+reach `codex exec` on stdin (`-`), or it exits 126 (6fg). **Codex is out
+until 2026-10-14 16:44** (6fg); check the clock before trusting that.
 
 **When Codex is out and the free panel is also silent, go to one review
 sub-agent rather than shipping self-checked** — 6cz is what two slices of not
