@@ -169,7 +169,6 @@ LINE_CAP = 800
 OVER_CAP = {
     "core/rules/src/main/kotlin/com/pathways/rules/TraitEffects.kt",
     "app/src/main/kotlin/com/pathways/app/RitualDialog.kt",
-    "app/src/main/kotlin/com/pathways/app/MainActivity.kt",
     "app/src/test/kotlin/com/pathways/app/BeyonderSessionTest.kt",
 }
 

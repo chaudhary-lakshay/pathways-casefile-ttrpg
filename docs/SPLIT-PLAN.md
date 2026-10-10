@@ -23,7 +23,22 @@ the move left unused, is removed.
 `py -m pytest tools -q`); `extract_content.py`'s self-control reading into
 `content_self_control.py`, which reads nothing else of it (589 + 358).
 The diff review (sonnet, `4d0ce5e..b35ab36`) said SHIP; its one
-stale count is gone. Steps 7-8 have not been started.
+stale count is gone.
+
+**Step 7 is done**: `SheetScreen` keeps its state and derivations, and the
+hub, the three tabs and the dialog call sites moved to `SheetActions.kt`
+119, `SheetTabs.kt` 271 and `SheetDialogs.kt` 568; `MainActivity.kt` is
+483. Every old line is accounted for by a line-multiset diff. 1950
+Kotlin and 362 Python green. Device-verified on the SM-T570 (save
+`cmp`-identical after): all eleven hub dialogs open and dismiss; a
+sheet row, a potion row and the untrained picker each open the roll
+dialog at the printed level (Research 13, Ritualistic Magic 13, Guns
+(Pistol) untrained DX-4 at 5); Overconfidence's row and dialog both
+read 3d6 ≤ 12; and Fright plus Concentrate tapped in one monkey frame
+open both, stacked, closing one per BACK, as the eleven flags did.
+**Not verified on device**: the shock latch and Clear, and a spend
+moving a pool, because each writes the save. Step 8 has not been
+started.
 
 | File | Was | Now | Moved to |
 |---|---|---|---|
@@ -41,8 +56,8 @@ three refusal tables' KDoc links were qualified with `TraitEffects.`;
 Defend's `Note` became `DefenseNote`, because PathwayScreen's `Note` pads
 16 dp where Defend's pads 4.
 
-Four files are still over the cap: `MainActivity.kt` 1237,
-`TraitEffects.kt` 1190, `RitualDialog.kt` 1042, `BeyonderSessionTest.kt` 863.
+Three files are still over the cap: `TraitEffects.kt` 1190,
+`RitualDialog.kt` 1042, `BeyonderSessionTest.kt` 863.
 
 ## Step 5: the decomposition (2026-10-10, against `f472f3f`)
 
