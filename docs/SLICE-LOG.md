@@ -6797,16 +6797,23 @@ counted:
 - no clamp
 - `grantedLevelsIn` without the subtraction
 
-**Not device-verified**, for 6fk's reasons.
+**Device-verified on the SM-T570**, with the owner present, together
+with 6fk. The harness refused the seed write again (*"passes a shell -c
+script that runs rm"*); the owner ran it with `!`. Two new entries were
+seeded and nothing already in the save was touched:
+- **Fortune Teller at Demoness 8** (bought Charisma 2): the Traits tab
+  printed *"Charisma 4 — 10 pts, +2 from the potion"*, beside Demoness
+  9's *"Acute Vision — from the potion"*. Savoir-Faire rolled *"base 12,
+  modified to 16"* with *"trait:charisma: 4"*.
+- **Night Watchman at Hermit 8** (6fk): Dodge 9. Hermit 8's DX +2 makes
+  Basic Speed (11+10)/4 = 5.25, so 5 + 3 = 8, and Combat Reflexes gives
+  the ninth.
 
 ### Successors
 
 - **Demoness 7's Appearance (Beautiful) and 6's (Very Beautiful).** The
   appearance table owns them, not the trait catalogue, so 6fk's census
   could not see them; nothing grants or refuses them.
-- **A device pass for 6fk and 6fm**, with the owner present: Fortune
-  Teller (bought Charisma 2) walking Demoness 9 to 8 should show
-  *"Charisma 4 — 10 pts, +2 from the potion"*.
 
 ## 6fl. The owed review, by ecc
 

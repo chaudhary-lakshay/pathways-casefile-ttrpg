@@ -170,7 +170,9 @@ because `levelOf` reads one row per trait. Read it for two things.
 
 **Successors**: Demoness 7's and 6's Appearance (Beautiful, Very
 Beautiful), which the appearance table owns and nothing grants or
-refuses; and the device pass 6fk owes.
+refuses. On the SM-T570 Fortune Teller at Demoness 8 printed
+*"Charisma 4 — 10 pts, +2 from the potion"*, and a Hermit 8's Dodge took
+Combat Reflexes, so 6fk is device-verified too.
 
 **6fk is next: the rows a potion granted.** A Hermit 8's Combat
 Reflexes reached no defence, because potion rows are prose. One
