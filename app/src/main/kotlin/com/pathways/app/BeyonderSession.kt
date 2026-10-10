@@ -29,7 +29,8 @@ import com.pathways.rules.TraitEffects
  * and nothing else. Add one when there is a character worth editing", has
  * expired on both counts (6fu): it holds [edits], and none was added. The
  * save is written on every change, so what a recreated activity loses is
- * the screen and whatever was only on it, never the character.
+ * the screen and whatever was only on it, never the character. A rotation
+ * no longer recreates it (the manifest's `configChanges`, 6fv).
  */
 class BeyonderSession(
     saved: SavedSession = SavedSession(),

@@ -324,11 +324,13 @@ fun RitualDialog(
             outcome?.critical?.corGained?.let(onCorGained)
         }
     }
-    // Close is the usual way out, but not the only one: a rotation destroys
-    // this composable without a dismiss request, and `remember` goes with it.
-    // Settling on disposal is what makes the deferral safe -- without it, a
-    // rotated ritual lost the CoR it owed, which the pre-deferral version
-    // charged at the roll and never lost.
+    // Close is the usual way out, but not the only one: a recreated activity
+    // destroys this composable without a dismiss request, and `remember` goes
+    // with it. Settling on disposal is what makes the deferral safe --
+    // without it, a rotated ritual lost the CoR it owed, which the
+    // pre-deferral version charged at the roll and never lost. A rotation no
+    // longer recreates the activity (the manifest, 6fv); a dark-mode switch
+    // still does, so this stays.
     DisposableEffect(Unit) { onDispose { settle() } }
     val finish = {
         settle()

@@ -148,9 +148,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // ponytail: loaded on the main thread. 23 small JSONs off the APK
-        // classpath; move behind a ViewModel when the sheet screen needs state
-        // that survives rotation, not before. 6fu read that condition as met
-        // (6dy lost a pushed roll to a rotation); choosing the fix is 6fv's.
+        // classpath. It said to move behind a ViewModel "when the sheet screen
+        // needs state that survives rotation"; it did (6dy lost a pushed roll
+        // to one), and 6fv answered in the manifest instead: a rotation no
+        // longer recreates the activity, so no state has to survive one.
         val store = SessionStore(File(filesDir, "sessions.json"))
         // Draw behind the system bars. Every screen already pads from
         // Scaffold's inset parameter, so this needs no per-screen change.

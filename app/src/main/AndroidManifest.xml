@@ -6,8 +6,21 @@
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.Pathways">
+        <!--
+            A turn of the tablet is handled here and not by recreating the
+            activity (6fv). Every screen's state is plain `remember`: recreated,
+            the app returned to the character list and the open dialog went
+            with its roll. Compose re-lays out on the new size by itself, and
+            no resource here is qualified by orientation or size.
+
+            ponytail: rotation and resizing only. A dark-mode switch, a font
+            scale change and process death still recreate the activity and
+            lose the screen, never the save. Upgrade: `rememberSaveable` for
+            the selected premade (by name) and the screen.
+        -->
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
