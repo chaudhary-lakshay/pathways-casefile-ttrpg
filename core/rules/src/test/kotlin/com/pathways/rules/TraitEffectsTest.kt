@@ -2442,18 +2442,23 @@ class TraitEffectsTest {
     @Test
     fun `every held advantage and drawback is a row with its cell`() {
         val drawbacks = ContentLoader.disadvantages().associateBy { it.name.lowercase() }
+        // Nine sheets' spelling of the book's Struggling, which has its row's cell (6fr).
+        val poverty = Trait("Poverty: Struggling", 10, TraitKind.DISADVANTAGE)
+        val struggling = "Start with 15 soli; modest room; occasional luxuries"
         for (sheet in Premades.all()) {
             val traits = sheet.toCharacter().traits
             val boons = TraitEffects.held(traits, TraitKind.ADVANTAGE)
             val banes = TraitEffects.held(traits, TraitKind.DISADVANTAGE)
             assertEquals(traits.filter { it.kind == TraitKind.ADVANTAGE }, boons.map { it.trait })
             assertEquals(
-                traits.filter { it.kind == TraitKind.DISADVANTAGE }
-                    .map { it to drawbacks[TraitEffects.catalogueName(it.name).lowercase()]?.notes },
+                traits.filter { it.kind == TraitKind.DISADVANTAGE }.map { owned ->
+                    val row = drawbacks[TraitEffects.catalogueName(owned.name).lowercase()]?.notes
+                    owned to (row ?: struggling.takeIf { owned == poverty })
+                },
                 banes.map { it.trait to it.cell },
                 sheet.name,
             )
-            for (row in boons + banes) {
+            for (row in (boons + banes).filter { it.trait != poverty }) {
                 assertEquals(TraitEffects.reported(listOf(row.trait)), row.notes, row.shown)
             }
         }
@@ -2469,6 +2474,47 @@ class TraitEffectsTest {
             listOf("recover FP at twice the normal rate"),
             cop.single { it.shown == TraitEffects.FIT }.notes.map { it.printed },
         )
+    }
+
+    /**
+     * **Every held row a character can reach prints a cell, but the sheet
+     * spellings 4.1 records** (6fr). Run over every fixture, every wealth
+     * and appearance level, every offered and instanced purchase, every
+     * language and every potion grant. 6fq found a face by eye; this found
+     * two wealth levels, nine sheets' Poverty and five potion senses, and
+     * the next producer that prints nothing fails here.
+     */
+    @Test
+    fun `no reachable held row prints without a cell but a recorded sheet spelling`() {
+        val held = mutableListOf<Trait>()
+        Premades.all().forEach { held += it.toCharacter().traits }
+        held += Wealth.all().mapNotNull(Wealth::traitFor)
+        held += Appearance.all().map(Appearance::traitFor)
+        held += PurchasableTraits.offered().map { it.toTrait() }
+        held += TraitEffects.grantedTraitTable().values.flatten()
+        for (lang in Languages.all()) for (p in Languages.proficiencies(lang.type)) for (form in Languages.forms()) {
+            held += Languages.traits(listOf(LanguagePurchase(lang.name, p.proficiency, form)), emptyList())
+        }
+        for (row in PurchasableTraits.instantiable()) {
+            val purchases = row.variants.map { (v, cost) -> InstancedPurchase(row.name, variant = v, cost = cost) }
+                .ifEmpty { listOf(InstancedPurchase(row.name, instance = "Census", cost = row.costMin)) }
+            // One at a time: a row's variants are severities, and it admits one.
+            held += purchases.map { PurchasableTraits.resolved(listOf(it)).single().second!! }
+        }
+        val bare = held.filter { TraitEffects.held(listOf(it), it.kind).single().cell == null }
+        assertEquals(
+            setOf(
+                // Resemblance only, recorded: the book prints the row under another name.
+                "Absent-Minded", "No Sense of Humour", "Wierdness Magnet", "Paranoia: Bodies of water",
+                "Blacklisted: Specific Industry org or church", "Pacifism (Cannot Kill)", "Pacifism (Cannot Harm Innocents)",
+                // No sheet quotes Secret's cell, so a bracket instantiates nothing (6by).
+                "Secret (Racist Sympathizer)", "Secret (Courier network)",
+                // University Librarian's, at 5 pts: no level's price, so no level (Wealth.levelOf).
+                "Poverty: Struggling",
+            ),
+            bare.map { it.name }.toSet(),
+        )
+        assertEquals(listOf(5), bare.filter { it.name == "Poverty: Struggling" }.map { it.cost })
     }
 
     /**
@@ -2979,6 +3025,26 @@ class TraitEffectsTest {
         val blocks = ContentLoader.pathways().filter { it.pathway == "Visionary" }
         for (clause in offered.filter { it.trait != "Acute Vision" }) {
             assertTrue(blocks.any { clause.printed in it.advantages }, clause.printed)
+        }
+
+        // Held, each prints its whole row, copied from its block (6fr), and
+        // what of it the chip does not carry. Two rows run past the bonus.
+        val rows = mapOf(
+            "Incisive Vision" to ("+4" to null),
+            "Acute Smell" to ("+2 sharper sense of smell; detect subtle scents and emotional cues" to
+                "detect subtle scents and emotional cues"),
+            "Greater Acute Vision" to ("+4 to all vision-based Perception rolls; allows the Pleasure to see their own Spider's Threads" to
+                "allows the Pleasure to see their own Spider's Threads"),
+            "Acute Taste & Smell" to ("+2 to taste/smell-based Perception rolls" to null),
+            "Acute Touch" to ("+2 to touch-based Perception rolls" to null),
+        )
+        val prose = ContentLoader.pathways().map { it.advantages }
+        for ((name, expected) in rows) {
+            val (cell, rest) = expected
+            assertTrue(prose.any { "$name $cell" in it }, name)
+            val held = TraitEffects.held(listOf(advantage(name)), TraitKind.ADVANTAGE).single()
+            assertEquals(cell, held.cell, name)
+            assertEquals(listOfNotNull(rest), held.notes.map { it.printed }, name)
         }
 
         val bought = listOf(advantage("Acute Vision"))

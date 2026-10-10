@@ -1382,18 +1382,42 @@ object TraitEffects {
     fun held(traits: List<Trait>, kind: TraitKind): List<HeldTrait> {
         val catalogue = catalogue()
         return traits.filter { it.kind == kind }.map { owned ->
-            // A face is a rung of the appearance table, never a catalogue row
-            // (the two are disjoint): its cell is the reaction column, which
-            // nothing applies (6fq).
-            val face = Appearance.played(listOf(owned))?.let(Appearance::cellFor)
-            HeldTrait(
-                trait = owned,
-                shown = displayName(owned.name),
-                cell = catalogue[catalogueName(owned.name).lowercase()]?.notes ?: face,
-                notes = reported(listOf(owned)) +
-                    listOfNotNull(face?.let { TraitNote(displayName(owned.name), it, UNREAD) }),
-            )
+            val shown = displayName(owned.name)
+            val row = catalogue[catalogueName(owned.name).lowercase()]
+            val (cell, notes) = if (row != null) row.notes to reported(listOf(owned)) else unrowed(owned, shown)
+            HeldTrait(owned, shown, cell, notes)
         }
+    }
+
+    /**
+     * The cell and notes of a held trait no catalogue row prints, from the
+     * table that owns it; (null, none) where none does, which is 4.1's record.
+     * A census over every fixture and table row found three owners (6fr).
+     */
+    private fun unrowed(owned: Trait, shown: String): Pair<String?, List<TraitNote>> {
+        // A face: the appearance table's reaction column, which nothing applies (6fq).
+        val face = Appearance.played(listOf(owned))
+        if (face != null) {
+            val cell = Appearance.cellFor(face)
+            return cell to listOf(TraitNote(shown, cell, UNREAD))
+        }
+        // A wealth level by another name ("Poverty: Struggling", nine sheets)
+        // prints the book's row; Wealthy and Very Wealthy have none, so the table's.
+        val level = Wealth.levelOf(listOf(owned))
+        if (level != null) {
+            val book = Wealth.traitFor(level)
+            val row = book?.let { catalogue()[it.name.lowercase()] }
+            if (row != null) return row.notes to reported(listOf(book)).map { it.copy(trait = shown) }
+            val cell = Wealth.cellFor(level)
+            return cell to listOf(TraitNote(shown, cell, UNREAD))
+        }
+        // A potion's sense row: its chip is declared on Per rolls (6fi), and
+        // two rows print more than the chip carries.
+        val name = catalogueName(owned.name)
+        val sense = GRANTED_ONLY_SENSES.firstOrNull { it.trait.equals(name, ignoreCase = true) }
+            ?: return null to emptyList()
+        val rest = SENSE_ROW_REST[sense.trait] ?: return sense.printed to emptyList()
+        return "${sense.printed}; $rest" to listOf(TraitNote(shown, rest, SENSE_REST))
     }
 
     // ---- the five rows that modify a Fright Check --------------------------
@@ -1849,6 +1873,16 @@ object TraitEffects {
         TraitClause(ACUTE_SMELL, ACUTE_SMELL, "+2 sharper sense of smell", 2, conditional = true),
         TraitClause(INCISIVE_VISION, INCISIVE_VISION, "+4", 4, conditional = true),
     )
+
+    /** What two of those rows print past their bonus (7196-7198, 8355-8357), which nothing reads (6fr). */
+    private val SENSE_ROW_REST: Map<String, String> = mapOf(
+        ACUTE_SMELL to "detect subtle scents and emotional cues",
+        GREATER_ACUTE_VISION to "allows the Pleasure to see their own Spider's Threads",
+    )
+
+    private const val SENSE_REST =
+        "its bonus aside, declared on Perception rolls, this app applies nothing this row prints, " +
+            "so the rest is the table's to apply"
 
     /**
      * What a walkable potion block grants that the trait catalogue, or a

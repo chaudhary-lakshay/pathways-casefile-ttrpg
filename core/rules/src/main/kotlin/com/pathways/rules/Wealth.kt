@@ -71,6 +71,16 @@ object Wealth {
     }
 
     /**
+     * [level]'s row of the table (4938-4972), its reaction column worded as
+     * 4973 words it. What a held level prints where the trait list prints no
+     * row for it: Wealthy and Very Wealthy (6fr).
+     */
+    fun cellFor(level: WealthLevel): String =
+        "Starting money ${level.startingMoney}. " +
+            "${if (level.reactionModifier > 0) "+" else ""}${level.reactionModifier} to reaction rolls. " +
+            level.lifestyle
+
+    /**
      * The wealth level [traits] carries, or null when it names none.
      *
      * Null is not Average. A sheet that prints no wealth row has said nothing

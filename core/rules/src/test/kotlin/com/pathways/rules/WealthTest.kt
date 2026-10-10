@@ -286,4 +286,35 @@ class WealthTest {
             "a row this object does not understand is left where it was",
         )
     }
+
+    /**
+     * A held wealth level prints a cell (6fr). The trait list prints four
+     * levels as rows; Wealthy and Very Wealthy are printed only in the table
+     * (4965-4972), so their cell is its three columns, the reaction column
+     * worded as 4973 words it. Nothing applies any of it.
+     */
+    @Test
+    fun `a held wealth level prints its cell, whatever the sheet called it`() {
+        // Copied from the table, never computed.
+        val printed = mapOf(
+            "Wealthy" to "Starting money £50. +2 to reaction rolls. Nice townhouse; fine clothes; a servant",
+            "Very Wealthy" to "Starting money £100. +3 to reaction rolls. Large house; multiple servants; carriage",
+        )
+        for ((status, cell) in printed) {
+            val held = TraitEffects.held(listOf(Wealth.traitFor(Wealth.named(status))!!), TraitKind.ADVANTAGE).single()
+            assertEquals(cell, held.cell, status)
+            assertEquals(listOf(TraitEffects.UNREAD), held.notes.map { it.reason }, status)
+        }
+        // Nine sheets' "Poverty: Struggling" IS the book's Struggling
+        // ([Wealth.levelOf]), so it prints that row's cell and notes.
+        val book = TraitEffects.held(listOf(Trait("Wealth: Struggling", 10, TraitKind.DISADVANTAGE)), TraitKind.DISADVANTAGE).single()
+        val sheet = TraitEffects.held(listOf(Trait("Poverty: Struggling", 10, TraitKind.DISADVANTAGE)), TraitKind.DISADVANTAGE).single()
+        assertEquals("Start with 15 soli; modest room; occasional luxuries", sheet.cell)
+        assertEquals(book.cell, sheet.cell)
+        assertEquals(book.notes.map { it.printed to it.reason }, sheet.notes.map { it.printed to it.reason })
+        assertEquals(listOf("Poverty: Struggling"), sheet.notes.map { it.trait })
+        // The tenth charges 5, so it names no level and stays recorded (4.1).
+        val librarian = Premades.byName("University Librarian").toCharacter().traits
+        assertNull(TraitEffects.held(librarian, TraitKind.DISADVANTAGE).single { it.shown == "Poverty: Struggling" }.cell)
+    }
 }
