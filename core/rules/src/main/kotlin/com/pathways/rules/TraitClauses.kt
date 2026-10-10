@@ -203,7 +203,7 @@ object TraitClauses {
      * a self-control roll are not, so it stays out of [WILL_CLAUSES]. The
      * environment is the GM's to declare. **A reading, not the book's only
      * meaning** (the design review): a ritual's focus could claim the same
-     * sentence, so [TraitEffects.PARTLY_APPLIED] says every other roll is the GM's call.
+     * sentence, so [TraitRefusals.PARTLY_APPLIED] says every other roll is the GM's call.
      * The capital C is not a warrant, because the word begins its sentence.
      *
      * Chronic Insomnia prints "rolls requiring sustained concentration at -1"
