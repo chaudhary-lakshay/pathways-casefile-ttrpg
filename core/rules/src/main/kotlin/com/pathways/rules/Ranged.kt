@@ -166,12 +166,32 @@ object Ranged {
      * fails if the bounds ever meet.
      */
     fun alternativesTo(condition: String): Set<String> {
-        val row = conditions().firstOrNull { it.condition == condition } ?: return emptySet()
+        val one = conditions().firstOrNull { it.condition == condition }?.let(::oneOf) ?: return emptySet()
         return conditions()
-            .filter { it.condition != condition }
-            .filter { (row.weaponAcc && it.weaponAcc) || (row.targetSpeed && it.targetSpeed) }
+            .filter { it.condition != condition && oneOf(it) == one }
             .map { it.condition }
             .toSet()
+    }
+
+    /**
+     * The one thing [row] is a reading of, in the words [modifiers] refuses a
+     * second reading with; null for a row that is a fact of its own. The ONE
+     * answer to "which rows exclude each other": the refusal and
+     * [alternativesTo] both ask it, so a screen's swap and the engine's guard
+     * cannot part (6gh).
+     *
+     * "Aim last turn" and "Aim for 3+ turns" are the same aim, held for
+     * different lengths. Both at once would pay the Acc twice and break the
+     * second row's own printed ceiling ("max Acc +2 total"). The speeds are
+     * one quantity in three rows; see [alternativesTo] for that reading.
+     *
+     * A row is in one group. None of the nine carries both flags; one that
+     * did would be an aim row here and no speed.
+     */
+    private fun oneOf(row: RangedModifier): String? = when {
+        row.weaponAcc -> "a shot is aimed for one length of time"
+        row.targetSpeed -> "a target moves at one speed"
+        else -> null
     }
 
     /**
@@ -233,19 +253,11 @@ object Ranged {
         require(!aimCancelled || conditions.none { it.weaponAcc }) {
             "the aim was cancelled: " + printedAim()
         }
-        // "Aim last turn" and "Aim for 3+ turns" are the same aim, held for
-        // different lengths. Both at once would pay the Acc twice and break
-        // the second row's own printed ceiling ("max Acc +2 total").
-        require(conditions.count { it.weaponAcc } <= 1) {
-            "a shot is aimed for one length of time; " +
-                conditions.filter { it.weaponAcc }.joinToString { it.condition } +
-                " cannot both apply"
-        }
-        // One quantity in three rows; see [alternativesTo] for the reading.
-        require(conditions.count { it.targetSpeed } <= 1) {
-            "a target moves at one speed; " +
-                conditions.filter { it.targetSpeed }.joinToString { it.condition } +
-                " cannot both apply"
+        // One aim, one speed: see [oneOf], which [alternativesTo] also asks.
+        conditions.groupBy(::oneOf).forEach { (one, rows) ->
+            require(one == null || rows.size <= 1) {
+                "$one; " + rows.joinToString { it.condition } + " cannot both apply"
+            }
         }
         if (band != null) {
             situational("range", band.penalty, band.printed)?.let(::add)
