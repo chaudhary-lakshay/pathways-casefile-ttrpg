@@ -64,11 +64,11 @@ import com.pathways.rules.content.WealthLevel
 /**
  * Spend points and watch the budget answer back (M3).
  *
- * ponytail: attributes only. They are the whole of the cost curve worth
- * seeing live -- the ladder doubles every level, so ST 9 -> 12 is the
- * difference between affordable and impossible -- while skills and traits are
- * list editing, which is a bigger screen for a smaller lesson. Add them when
- * a character is worth saving.
+ * It began as attributes only, under a ponytail that deferred the rest until
+ * "a character is worth saving". That was met long ago: this screen sells
+ * attributes, secondary characteristics, wealth, appearance, languages,
+ * traits, weapons and skills, each stored in [SavedEdits]. The comment went
+ * on saying "attributes only" until 6fu.
  *
  * The budget is [com.pathways.rules.PointBudget]'s, unchanged: 70 + capped
  * disadvantages + capped quirks, and surplus is normal. It validates

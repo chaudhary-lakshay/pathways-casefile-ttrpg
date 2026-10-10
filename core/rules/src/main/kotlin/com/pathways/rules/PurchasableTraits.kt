@@ -93,9 +93,10 @@ data class InstancedPurchase(
  * the four attributes, bought skills, and the two point-costed LEVELS (wealth
  * and appearance), each of which has its own picker because each is a single
  * choice from a printed ladder. This is the general case, and it is what makes
- * [TraitEffects.ETHER_BODY_DAMAGE] reachable at all -- no premade carries it,
- * and a potion in this codebase grants attributes, SPI, secondaries and skill
- * levels, never a trait.
+ * [TraitEffects.ETHER_BODY_DAMAGE] reachable at all -- no premade carries it
+ * and no potion grants it. (This said "a potion ... never a trait" until
+ * 6fu. Since 6fk a potion grants the catalogue rows its block prints,
+ * [TraitEffects.grantedTraitTable], and this row is not among them.)
  *
  * **Three earlier slices deferred this on a blocker that does not apply.** The
  * stated reason was that a Seven Orthodox Gods Blessing costs 75 points AND

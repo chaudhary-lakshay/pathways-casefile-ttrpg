@@ -44,19 +44,21 @@ enum class Pool { SPI, FP, HP }
 
 /**
  * Type-distinct wrapper over a damage-slot identifier. The closed set of
- * valid slots is not yet known — it becomes an enum once Phase B's content
- * reveals the real members. Until then this at least prevents crossing a
- * damage slot with a bare String or with [SkillTag].
+ * valid slots was to become an enum "once Phase B's content reveals the real
+ * members"; the content landed and no production code constructs one
+ * (grepped in 6fu), so it is still a wrapper. It at least prevents crossing
+ * a damage slot with a bare String or with [SkillTag].
  */
 @JvmInline
 @Serializable
 value class DamageSlot(val value: String)
 
 /**
- * Type-distinct wrapper over a skill-tag identifier. The closed set of
- * valid tags is not yet known — it becomes an enum once Phase B's content
- * reveals the real members. Until then this at least prevents crossing a
- * skill tag with a bare String or with [DamageSlot].
+ * Type-distinct wrapper over a skill-tag identifier. Like [DamageSlot], it
+ * was to become an enum once the content named its members, and no
+ * production code constructs one (6fu): `SkillKey` carries no tag, which is
+ * why `Conditions` scopes its penalties per skill. It at least prevents
+ * crossing a skill tag with a bare String or with [DamageSlot].
  */
 @JvmInline
 @Serializable

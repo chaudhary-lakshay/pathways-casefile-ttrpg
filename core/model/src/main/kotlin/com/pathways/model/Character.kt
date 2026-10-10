@@ -11,12 +11,18 @@ import kotlinx.serialization.Serializable
 const val MAX_SPI = 1000
 
 /**
- * Mostly purchased state, plus [spi] - the one piece of table state that
- * already needs to exist this early (SPI-controlled skills like Spiritual
- * Intuition need a live SPI value to resolve against, even though SPI itself
- * is never bought with points). Nothing here is derived, and no OTHER table
- * state - current HP/FP, conditions, active situational modifiers - is
- * stored yet; that (and the rest of Beyonder state) arrives at M3 and M4.
+ * Purchased state, plus two things nobody buys: [beyonder], the pathway
+ * walked, and [spi]. Nothing here is derived, and table state -- pools
+ * spent, CoR -- is the session's, never the character's.
+ *
+ * [spi] is the SPI held BEFORE any potion: digestion adds each grant to it,
+ * and the played value is `DigestedCharacter.effectiveSpi`. Since 6ft no
+ * production path sets it above 0 -- a premade plays 0 whatever its sheet
+ * prints -- so it is where an award from "supernatural events, or certain
+ * rituals" (book line 2269) would go, and nothing writes one.
+ *
+ * Until 6fu this said the rest of Beyonder state "arrives at M3 and M4".
+ * It arrived.
  */
 @Serializable
 data class Character(

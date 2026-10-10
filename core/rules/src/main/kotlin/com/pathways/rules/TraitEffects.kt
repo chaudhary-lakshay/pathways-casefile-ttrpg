@@ -85,15 +85,19 @@ data class ClauseBonus(val total: Int, val line: String?)
 /**
  * Ch. 3's advantages, where their printed effects reach a roll.
  *
- * The 198-row trait catalogue has had no production reader since M0. The
+ * **How this object began, kept as history** (put in the past tense in 6fu,
+ * when each sentence had become false of the app). The 198-row trait
+ * catalogue had no production reader from M0 until this object. The
  * repo-wide field sweep (6ai) recorded that as legitimate on the grounds that
- * "traits are not editable yet" -- which is true of BUYING one and irrelevant
- * to the 23 premades, every one of which prints traits the book gives numbers
- * to. **`Alertness 1` is on eight of them and says "+1 per level to all Per
- * rolls"**, and every Per roll in this app has been made at flat skill.
+ * "traits are not editable yet" -- which was true then of BUYING one
+ * ([PurchasableTraits] sells them now) and irrelevant to the 23 premades,
+ * every one of which prints traits the book gives numbers to. **`Alertness
+ * 1` is on eight of them and says "+1 per level to all Per rolls"**, and
+ * every Per roll in this app was being made at flat skill.
  * Exactly the defect class 6h fixed for the trackers, one source over.
  *
- * **Only three traits are applied, and the scope is what decides.** A printed
+ * **Three traits were applied at first ([known] is what is read now), and
+ * the scope is what decides.** A printed
  * number is not enough: it also has to name a roll this app can identify.
  * [ControllingAttribute] distinguishes a Per skill from an HT skill, and
  * [ParryBlock] computes the active defences, so those joins are real.

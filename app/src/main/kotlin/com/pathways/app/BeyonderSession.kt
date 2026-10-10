@@ -21,11 +21,15 @@ import com.pathways.rules.ScoreFloors
 import com.pathways.rules.TraitEffects
 
 /**
- * One character's walk down a pathway, as the screens see it.
+ * One character in play, as the screens see it: the walk down a pathway,
+ * the pools, CoR and everything bought since the sheet was printed ([edits]).
  *
- * ponytail: plain Compose state over [SessionStore]'s JSON. No ViewModel: the
- * 23 premades are read-only, so this holds the walk and nothing else. Add one
- * when there is a character worth editing.
+ * ponytail: plain Compose state over [SessionStore]'s JSON, and no ViewModel.
+ * The reason it gave, "the 23 premades are read-only, so this holds the walk
+ * and nothing else. Add one when there is a character worth editing", has
+ * expired on both counts (6fu): it holds [edits], and none was added. The
+ * save is written on every change, so what a recreated activity loses is
+ * the screen and whatever was only on it, never the character.
  */
 class BeyonderSession(
     saved: SavedSession = SavedSession(),
