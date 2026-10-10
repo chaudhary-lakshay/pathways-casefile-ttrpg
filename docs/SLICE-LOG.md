@@ -6774,9 +6774,6 @@ from deleted results with no `e:` line, and restored from its copy:
 | a second speed or a second aim replaces the first | `app` | walking beside running |
 | range, circumstances, darkness and the traits add up too | `app` | 9 terms for 8 |
 
-Before the change the same edit to one site would have reddened one
-side and left the other green.
-
 ### Device pass
 
 SM-T570, Hunter-Tracker, Guns (Rifle) 10. The dialog arms a Guns skill

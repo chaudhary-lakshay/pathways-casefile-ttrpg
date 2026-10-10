@@ -185,8 +185,8 @@ object Ranged {
      * second row's own printed ceiling ("max Acc +2 total"). The speeds are
      * one quantity in three rows; see [alternativesTo] for that reading.
      *
-     * A row is in one group. None of the nine carries both flags; one that
-     * did would be an aim row here and no speed.
+     * A row is in one group: one carrying both flags would be an aim row
+     * here and no speed.
      */
     private fun oneOf(row: RangedModifier): String? = when {
         row.weaponAcc -> "a shot is aimed for one length of time"
