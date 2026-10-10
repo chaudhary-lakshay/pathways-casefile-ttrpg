@@ -284,9 +284,7 @@ internal fun AttackOptions(
                     "Damage on a hit: ${roll.render()} — this book prints no " +
                         "wounding multiplier for \"${roll.type}\""
                 } else {
-                    val times = Wounds.multiplierFor(location, roll.type)
-                    "Damage on a hit: ${roll.render()}" +
-                        if (times == 1.0) "" else ", ${Wounds.render(times)} there"
+                    "Damage on a hit: ${roll.render()}" + woundingNote(location, roll.type)
                 }
             } ?: unarmed?.let { row ->
                 // The grappling rows print an Opposed Roll column the two
@@ -434,6 +432,17 @@ private fun KillerTarget(
             )
         }
     }
+}
+
+/**
+ * What a hit of [type] is multiplied by at [location], as the damage line
+ * says it. "there" only where a shot was called: with none, no chip is lit
+ * and no line names a place, so the word pointed at nothing (6gi).
+ */
+internal fun woundingNote(location: HitLocation?, type: String): String {
+    val times = Wounds.multiplierFor(location, type)
+    if (times == 1.0) return ""
+    return ", ${Wounds.render(times)}" + if (location == null) "" else " there"
 }
 
 /**

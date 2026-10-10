@@ -344,6 +344,21 @@ class AttackDialogTest {
         }
     }
 
+    /**
+     * "×1.5 there" under a row of unlit location chips pointed at nothing:
+     * with no shot called the screen names no place. The multiplier is the
+     * damage type's own and is still printed.
+     */
+    @Test
+    fun `the damage line says there only where a shot was called`() {
+        assertEquals(", ×1.5", woundingNote(null, "pi+"))
+        assertEquals("", woundingNote(null, "cr"))
+        val skull = Wounds.locationNamed("Skull")
+        assertEquals(", ×4 there", woundingNote(skull, "cr"))
+        // A called Torso is a location like any other.
+        assertEquals(", ×1.5 there", woundingNote(Wounds.locationNamed("Torso"), "pi+"))
+    }
+
     private companion object {
         const val ALONE_TERMS = 38
         const val TOGETHER_TERMS = 8
