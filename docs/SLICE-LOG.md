@@ -6726,6 +6726,38 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fo. The language a potion grants
+
+6fn's census over the three named-level tables found Mother 8 and
+Justiciar 6 printing *"Ancient Hermes Fluent — can speak, read, and write
+this dead mystical language"* (6783-6786, 8165-8168).
+
+- **The row:** the mystical table's Native, whose cell opens *"Fluent. No
+  penalty. Can perform rituals..."* (702); "speak, read, and write" is both
+  forms. `Languages.FLUENT` already named that row for the same reason.
+- **The chain:** held from that rung down, as every grant is.
+- **What it reaches:** nothing rolled. The ritual dialog's proficiency
+  picker is ungated (a picker asks), so the player already says which
+  language a ritual uses. What was missing was its note, which listed only
+  BOUGHT mystical languages and said *"a potion may grant others"*. It now
+  prints *"From the potion: Ancient Hermes, Native."*, also when nothing
+  was bought, and says only that a trait may grant others.
+- `label` moved from `OwnedLanguage` to `LanguagePurchase`, so a bought and
+  a granted language print through one formatter; `OwnedLanguage.label`
+  delegates, unchanged.
+
+**Diff review (one sub-agent, `kotlin-reviewer` role): SHIP**, no FIX. It
+checked the reading against 655-712, the four note cases (bought, granted,
+both, neither) and every `label` caller.
+
+**Verification:** 1905 Kotlin (1336 `core:rules`, 549 `app`, 20
+`core:model`), green after `--rerun-tasks`. RED first (no `grantedBy`;
+then a test bug, Sequence 5 does not exist). Two mutants caught, restored
+from a copy: Justiciar's row dropped (both tests), the chain cut to the
+rung (Mother 6). Not device-verified.
+
+**Successor:** the builder's face row (6fn).
+
 ## 6fn. The face a potion grants
 
 6fk's census matched the trait catalogue alone, so it could not see a

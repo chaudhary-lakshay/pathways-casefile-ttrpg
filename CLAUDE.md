@@ -40,6 +40,11 @@ a fresh clone the regeneration order is `extract_pdf.py`, then `coverage.py`,
 then the extractors, because `coverage.py` writes `build/extract/book.txt`,
 the anchor every `sourceLines` number is read against (6ed).
 
+**A mutant's catch is read from fresh XML.** Delete the test-results
+directory before each mutant and count `e:` in the log: one that did not
+compile left the previous mutant's failures in place, and read as a catch
+(6fi).
+
 **A new production reader of a trait by name must add it to
 `TraitEffects.known()` in the same commit.** Before 6es a trait missing
 from that set made the sheet silent. Now `reported()` prints
@@ -154,7 +159,17 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fn is newest: the face a potion grants.** Demoness 7 and 6 print
+**6fo is newest: the language a potion grants.** Mother 8 and
+Justiciar 6 print *"Ancient Hermes Fluent — can speak, read, and
+write"*: the mystical Native row, whose cell opens *"Fluent."* (702), in
+both forms, held from that rung down. `Languages.grantedBy` feeds the
+ritual dialog's note (*"From the potion: Ancient Hermes, Native."*);
+the proficiency picker stays the player's, so no roll changes. A census
+pins the table both ways against the prose. The diff review said SHIP.
+**Successor**: the builder's face row, which does not say a potion
+grants one (6fn).
+
+**6fn is next: the face a potion grants.** Demoness 7 and 6 print
 *"Appearance (Beautiful)"* and *"(Very Beautiful)"*, rungs of the
 appearance table, which 6fk's census over the trait catalogue could not
 see. A character has one face: the chain keeps Sequence 6's, and beside
@@ -225,27 +240,10 @@ book's reason, and the DX floor stays. **Successors**: the owed Codex
 review, and the other potion advantages (Night Vision, Danger Sense,
 Charisma), each prose that nothing may read.
 
-**6fi is next: the senses a potion granted.** Pathway advantages are
-prose, so a potion's Acute Vision never reached a roll. A
-(pathway, sequence) table now feeds the skill dialog and Spirit Vision
-through one screen value, `senseTraits`. Read it for two things.
-
-- **My census searched the prose for my own names**, so it could not
-  see Visionary 8's *"Incisive Vision +4"* or Visionary 7's *"Acute
-  Smell +2"*. The design sub-agent found both. The census now takes its
-  names from the prose.
-- **A mutation's "catch" was stale XML.** It did not compile, and the
-  results directory still held the previous mutant's failures. Delete
-  the XML before each mutant.
-
-A row granted twice is one chip. Greater's +4 and Acute's +2 are two
-chips, so whether they add is the GM's. On the SM-T570, Red Priest 9
-Tracking rolled `12 vs 18` with Hearing declared. **Owed: Codex on
-`ad8b4e1..HEAD -- core app`.** **Successors**: Warrior's *default +2*.
-
-**6fh back to 6de had lead paragraphs here until 2026-10-10. Each is in
+**6fi back to 6de had lead paragraphs here until 2026-10-10. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fi** — a potion's senses reach the Per roll through one table; the census took its names from my list, not the prose, and a non-compiling mutant read stale XML as a catch;
 **6fh** — Acute Vision and Hearing are declared on every Per skill; Spirit Vision takes Vision alone, and a row held twice is deduped on `trait to printed`;
 **6fg** — Luck may reroll a failed PCR, so the attempted potion is saved; a restart would strand it, and a Will lowered since made the reroll throw;
 **6ff** — six rows that name one skill are declared on its roll; one list, `skillRollClauses`, feeds the chips and the dice, and "rural" excludes the sea;
@@ -310,7 +308,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fn first.** The
+**Where to start next: the slice log, from the END — 6fo first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -365,7 +363,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1903 Kotlin** (JUnit 5 — 1334 `core:rules`, 549 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1905 Kotlin** (JUnit 5 — 1336 `core:rules`, 549 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -712,6 +710,8 @@ Languages.owned(purchases, held): List<Pair<LanguagePurchase, OwnedLanguage?>>
                                       // Multilingual frees the first two that
                                       // are common, Native and in both forms
 Languages.traits(purchases, held) / .forms() / OwnedLanguage.costLine
+Languages.grantedBy(state)            // a potion's language: Ancient Hermes,
+                                      // Native, both forms (6fo)
 ContentLoader.languages() / .languageProficiencies() / .languageNotes()
 RitualResolution.targetFor(skill, weight, cor, preparation, language, mode, link, support)
 RitualMode.valueFor(preparation, chosen) / .valueFor(link, chosen)

@@ -190,7 +190,25 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fh back to 6de
+## Retired lead paragraphs, 6fi back to 6de
+
+**6fi is next: the senses a potion granted.** Pathway advantages are
+prose, so a potion's Acute Vision never reached a roll. A
+(pathway, sequence) table now feeds the skill dialog and Spirit Vision
+through one screen value, `senseTraits`. Read it for two things.
+
+- **My census searched the prose for my own names**, so it could not
+  see Visionary 8's *"Incisive Vision +4"* or Visionary 7's *"Acute
+  Smell +2"*. The design sub-agent found both. The census now takes its
+  names from the prose.
+- **A mutation's "catch" was stale XML.** It did not compile, and the
+  results directory still held the previous mutant's failures. Delete
+  the XML before each mutant.
+
+A row granted twice is one chip. Greater's +4 and Acute's +2 are two
+chips, so whether they add is the GM's. On the SM-T570, Red Priest 9
+Tracking rolled `12 vs 18` with Hearing declared. **Owed: Codex on
+`ad8b4e1..HEAD -- core app`.** **Successors**: Warrior's *default +2*.
 
 **6fh is next: Acute Vision and Hearing on a Per roll.** The book
 never lists its Vision rolls, but the potion rows print the same +2 as
