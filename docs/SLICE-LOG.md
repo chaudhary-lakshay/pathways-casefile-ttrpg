@@ -6792,8 +6792,8 @@ and ~40 call sites read them.
 - **The attack dialog**: `attackStanding(label, level, key, trackers,
   picked)` in the options branch, so it is never resolved while results
   or the skill list are on screen. *"Injury, fatigue and attrition:
-  -1"* where the sentence was, then *"3d6 ≤ N"*, *", each"* for two
-  attacks. Roll is disabled on a forbidden target, because the handler
+  -1"* where the sentence was, then *"3d6 ≤ N"*, *", each"* for more
+  than one attack. Roll is disabled on a forbidden target, because the handler
   charges the plan's FP whatever the dice do.
 - **The Acrobatic Dodge**: `acrobaticRoll(…, dice)` became
   `acrobaticTarget(…)`. The button reads *"Roll vs. Acrobatics — 3d6 ≤
@@ -6804,7 +6804,9 @@ No production modifier that reaches these three rolls is anything but a
 plain signed number: `group =` and `supersedes =` appear nowhere in
 `core/rules` outside the resolver, and `RequireCrit` is built for
 divinations alone. That is what lets the attack's lines add up to its
-target, and a test pins it.
+target. A test pins it for the maneuver, the Deceptive steps, the called
+shot and the trackers; range, darkness and the trait term are not in
+its matrix, and it never reads what `AttackOptions` prints.
 
 ### Tests
 

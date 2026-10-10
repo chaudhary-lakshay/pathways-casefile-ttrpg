@@ -167,7 +167,8 @@ It will not let you buy an option the maneuver does not allow, and it charges FP
 once per purchase, not once per recomposition.
 
 Above **Roll** it adds the terms up: what injury, fatigue and attrition take,
-then the target, *3d6 ≤ N* (*", each"* when the plan makes two attacks).
+then the target, *3d6 ≤ N* (*", each"* when the plan makes more than one
+attack).
 
 Under your own skills the list carries on with the ones you can attack with
 **untrained**: a fist (Brawling at DX-2, Boxing at DX-5) and the weapons in the
