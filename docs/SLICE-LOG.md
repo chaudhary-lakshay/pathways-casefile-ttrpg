@@ -6733,8 +6733,8 @@ Hunter-Tracker, Bolt-Action Rifle, nothing else touched: the dialog
 read *"Damage on a hit: 5d pi+, ×1.5 there"* under a row of nine
 location chips with none lit and no *Called shot* line. The word
 pointed at nothing on the screen. 6bi's device pass recorded the same
-string on the same rifle and passed it, because it was checking the
-number.
+string on the same rifle and passed it, because it was checking for a
+chip.
 
 The number is right. `Wounds.multiplierFor(null, type)` is the damage
 type's own multiplier, which is what an uncalled hit takes. Only the
@@ -6759,8 +6759,8 @@ Nothing was queued, so the two standing queries were run first.
 | Local Legend, Respectable Address, Illegitimate Birth, Dead-Eyed | *"social rolls"*, the phrase `CATEGORY_BONUSES`' KDoc refuses |
 | Unsettling Appearance, Reputation: Troublemaker, Social Stigma | reactions; the book prints no reaction roll (6w) |
 | Addiction: Tobacco, Guilt, Bound to a Place | *"-1 to Will"*, the attribute. Evil Eye Fear, 1504, prints *"-1 to Will rolls"*, so they are two things. Read as the score it reaches `Corruption.maxFor`. Never triaged before this slice, and all three read `UNREAD`, which is true |
-| Addiction: Laudanum, Superstitious (mundane), Entity Fixation | *"to all rolls"* under a state the GM declares. The reach exists (`Conditions.forSkill`, `.penaltyFor`), but the screens that take that number print it under the trackers' own label, *"hurt or tired"*. No premade and no potion holds one |
-| Voice | Justiciar 9 grants it. *"rolls to influence others through speech"* matches neither of the book's two lists of *Influence skills* (563-564, 7645) |
+| Addiction: Laudanum, Superstitious (mundane), Entity Fixation | *"to all rolls"* under a state the GM declares. The reach exists (`Conditions.forSkill`, `.penaltyFor`), but the screens that take that number print it under the trackers' own label, *"hurt or tired"*. The builder sells all three |
+| Voice | Justiciar 9 grants it (`TraitGrants.kt:63`), so it is the one row here a potion puts on a sheet. *"rolls to influence others through speech"* matches neither of the book's two lists of *Influence skills* (563-564, 7645) |
 | Light Sleeper, Marked by Ritual, Skinny | each names a roll loosely (*"Perception rolls while sleeping"*, *"one type of SPI roll"*, *"rolls to escape bonds"*); a reading apiece |
 | the rest | a roll this app does not make (hypothermia, airborne toxins) or someone else's roll against the holder |
 
