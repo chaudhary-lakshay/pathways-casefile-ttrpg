@@ -6726,6 +6726,124 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fi. The senses a potion granted
+
+6fh made a BOUGHT Acute Vision or Hearing reach the Per roll. A potion's
+never did, because pathway advantages are prose and never become
+`traits`. That holds even on blocks that print the 8688 wording.
+
+### The census, and what my first one missed
+
+My first table had six blocks, and its test searched the prose for my own
+five names. So it could not see a row I had not named. The design
+sub-agent found two: **Visionary 8's "Incisive Vision +4"** (line 6334,
+which prints a name and a number and nothing else) and **Visionary 7's
+"Acute Smell +2 sharper sense of smell"** (7195). The census now takes
+its names from the PROSE. It captures any capitalised row ending in
+Vision, Hearing, Smell or Touch and followed by "+N". Run against the
+six-block table, it went RED for exactly those two. The whole name is
+captured, so "Greater Acute Vision" is never also read as an Acute
+Vision. Line 9386's Acute Vision belongs to Sublunary Eye, not Second
+Law. Both are non-standard and outside `ContentLoader.pathways()`.
+
+The eight blocks:
+- Visionary 9, 8 and 7
+- Demoness 9 and 6
+- Red Priest 9 and 6
+- Hanged Man 8
+
+### The design review
+
+Codex was out and the gateway answered `fetch failed`, so one sub-agent
+did the review.
+
+- **Q1, a row granted twice:** Red Priest 9 and 6, or bought plus
+  granted. **SHIP "applies once".** Strongest case for stacking:
+  Demoness's Charisma is re-granted at Seq 8, 7 and 6 with no "stacks"
+  wording. Against it: where the book accumulates, it says so and prints
+  the total (7257 *"stacks with Seq 8 — total DR 3"*, 8005 *"stacks with
+  base potion bonus for +2 total"*). Red Priest 6 does neither, and the
+  skill stacking rule at 5458 is scoped to skills by its own words.
+- **Q2, Greater Acute Vision against Acute Vision:** the reviewer said
+  ship the +4 and print the split. I built that split from the chips
+  themselves. A different row is its own chip, so a Demoness 6 is
+  offered +2 and +4 separately. The +4 alone is what either reading
+  gives, and ticking both gives the literal reading's +6, which is the
+  GM's call (6fc's shape). Neither cell says "Replaces" (8887, 9456) or
+  prints a total. Incisive Vision gets the same ruling.
+- **Q3 CHANGE, REFUSED: pass `state` instead of synthesising Traits.**
+  One screen value, `senseTraits`, feeds both the chips and the dice.
+  A `state` parameter would have to be passed at both call sites, and
+  leaving it out at the dice drops a declared key in silence. The diff
+  review checked that refusal and upheld it: `senseTraits` appears at
+  exactly three sites, and its names are read by nothing else.
+
+### What was built
+
+- `TraitEffects.GRANTED_SENSES`: a (pathway, sequence) table, the shape
+  `rerollSource` uses for the Lucky One. `grantedSenseTable()` exposes
+  it for its census.
+- `TraitEffects.withGrantedSenses(traits, state)`: the traits plus a
+  zero-cost row for each sense from Seq 9 down to `state.sequence`.
+  `state` is `session.state`, the same input the stat grants come from.
+  A failed or pending PCR leaves it unchanged, so the senses follow the
+  stats.
+- `GRANTED_ONLY_SENSES`: Greater Acute Vision (+4), Acute Taste & Smell,
+  Acute Touch, Acute Smell, and Incisive Vision ("+4"). Each is printed
+  as its block prints it and kept out of `known()`. The census checks
+  every one of them verbatim against the block that grants it.
+- `MainActivity`'s `senseTraits` reaches only the skill dialog's chips,
+  its dice and Spirit Vision. The Traits tab, the builder and the budget
+  still see what was bought.
+
+### The diff review
+
+One sub-agent: **SHIP**.
+- **One LOW, taken.** No test checked Greater Acute Vision's text. The
+  census now checks every row no catalogue prints against its own
+  block. Mutating Greater's text to drop "all" goes RED there.
+- **One LOW, accepted.** Red Priest's Acute Vision prints "+2 to
+  vision-based Perception rolls", but its chip shows the catalogue's
+  "+2 to Vision rolls". The trait is the catalogue row, and so is the
+  value.
+
+### Verification
+
+1896 Kotlin (1328 `core:rules`, 548 `app`, 20 `core:model`), green from
+the JUnit XML after `--rerun-tasks`. RED first: the census at eight
+against six. Five mutations were caught, each restored from a copy:
+- the chain made non-cumulative
+- Visionary 8 dropped from the table
+- the grants dropped
+- the potion-only rows dropped
+- Greater's text drifted
+
+**One mutation's first "catch" was stale XML.** `if (true) return
+traits` did not compile, and the test-results directory still held the
+previous mutant's failures. Its output was word for word the one before
+it. Re-run with a mutation that compiles, and with the XML deleted
+first, it was caught for real.
+
+**On the SM-T570**, starting from its launcher with the save backed up,
+the mortal Church Healer drank Red Priest 9. Tracking (16, from the
+potion, controlled by Per) offered *Acute Vision* and *Acute Hearing*,
+once each. Declaring Hearing rolled `3d6: 12 vs 18` (`trait:acute
+hearing:+2 to Hearing rolls: 2`). The crash buffer was empty. The save
+was restored (`cmp` identical), and the tablet went back to its
+launcher.
+
+### Owed
+
+A Codex review of `ad8b4e1..HEAD -- core app` once Codex returns
+(2026-10-14 16:44). It now covers 6fg's fix, 6fh and 6fi.
+
+### Successors
+
+- Warrior's *default +2*.
+- The other potion advantages share the prose gap, for example Night
+  Vision (Demoness 9, Visionary 7), Danger Sense (Red Priest 9) and
+  Demoness 6's Charisma +1. None was checked for a reader in this slice.
+
 ## 6fh. The sense a Per roll was never asked about
 
 Acute Vision (*"+2 to Vision rolls; notice details at a distance, read

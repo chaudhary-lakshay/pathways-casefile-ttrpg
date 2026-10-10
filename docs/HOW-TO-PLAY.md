@@ -306,7 +306,10 @@ response table.
 anti-divination counters applied where a target has them. A character with
 Acute Vision sees *Acute Vision: +2 to Vision rolls* above the Spirit Vision
 roll; tap it if the GM rules that the eye's acuity helps this reading. The
-same line, and Acute Hearing's, sits on every Perception-based skill roll.
+same line, and Acute Hearing's, sits on every Perception-based skill roll,
+whether the sense was bought or granted by a potion (a Red Priest's, a
+Demoness's, a Visionary's). A potion's stronger row, such as Greater Acute
+Vision's +4, is a line of its own; tick both only if the GM rules they add.
 **Artifacts** lists
 sealed artifacts, their grades, and what each ability costs in SPI or HP — the
 grade is *not* a gate on use, deliberately.

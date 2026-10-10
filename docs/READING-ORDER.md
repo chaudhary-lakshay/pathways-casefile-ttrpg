@@ -190,7 +190,27 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fc back to 6de
+## Retired lead paragraphs, 6fd back to 6de
+
+**6fd is next: what Cleansed Spirit halves.** Nothing, and the CoR
+stepper says why. *"CoR gained from passive exposure are halved"* names a
+category the book never fills in. Read it for two things.
+
+- **"Soul Debt is reported, not applied" had been false since
+  `ea6ae38`.** `spend` charges it, and damage taken on SPI reaches it,
+  so not every automatic charge follows a deliberate act. The design
+  sub-agent caught my draft line saying they all did. Two KDocs are
+  corrected.
+- **A near-miss guard that could not fire shipped in `74b0a6e`.**
+  Spiritual Fortitude reports nothing, so a loose filter passed. I did
+  not stop the commit chain on the mutation's exit 0. The guard now uses
+  Spirit Tongue (`46c7914`).
+
+Codex was out until 00:52 and the gateway was down, so one sub-agent
+reviewed the design (CHANGE) and one the diff (SHIP, three LOWs taken).
+On the SM-T570 the line sits under the CoR table. **Owed: a Codex review
+of `466e3d7..HEAD`.** **Successors**: Luck, Acute Vision and Acute
+Hearing; 6es's first list; Warrior's *default +2*.
 
 **6fc is next: Fast Healer on the daily recovery roll.** *"Recover 1
 additional HP per day of rest"* is said on the recovery row's result.

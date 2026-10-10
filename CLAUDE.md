@@ -152,7 +152,25 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fh is newest: Acute Vision and Hearing on a Per roll.** The book
+**6fi is newest: the senses a potion granted.** Pathway advantages are
+prose, so a potion's Acute Vision never reached a roll. A
+(pathway, sequence) table now feeds the skill dialog and Spirit Vision
+through one screen value, `senseTraits`. Read it for two things.
+
+- **My census searched the prose for my own names**, so it could not
+  see Visionary 8's *"Incisive Vision +4"* or Visionary 7's *"Acute
+  Smell +2"*. The design sub-agent found both. The census now takes its
+  names from the prose.
+- **A mutation's "catch" was stale XML.** It did not compile, and the
+  results directory still held the previous mutant's failures. Delete
+  the XML before each mutant.
+
+A row granted twice is one chip. Greater's +4 and Acute's +2 are two
+chips, so whether they add is the GM's. On the SM-T570, Red Priest 9
+Tracking rolled `12 vs 18` with Hearing declared. **Owed: Codex on
+`ad8b4e1..HEAD -- core app`.** **Successors**: Warrior's *default +2*.
+
+**6fh is next: Acute Vision and Hearing on a Per roll.** The book
 never lists its Vision rolls, but the potion rows print the same +2 as
 *"vision-based Perception rolls"* (8688). So every Per-controlled skill
 offers both rows as GM declarations, through `skillRollClauses`. Read it
@@ -235,29 +253,10 @@ of `466e3d7..HEAD`.** **Successors**: Acute Vision and Hearing, asked
 with line 8688; Luck against the PCR's `lost` latch; 6es's first list;
 Warrior's *default +2*.
 
-**6fd is next: what Cleansed Spirit halves.** Nothing, and the CoR
-stepper says why. *"CoR gained from passive exposure are halved"* names a
-category the book never fills in. Read it for two things.
-
-- **"Soul Debt is reported, not applied" had been false since
-  `ea6ae38`.** `spend` charges it, and damage taken on SPI reaches it,
-  so not every automatic charge follows a deliberate act. The design
-  sub-agent caught my draft line saying they all did. Two KDocs are
-  corrected.
-- **A near-miss guard that could not fire shipped in `74b0a6e`.**
-  Spiritual Fortitude reports nothing, so a loose filter passed. I did
-  not stop the commit chain on the mutation's exit 0. The guard now uses
-  Spirit Tongue (`46c7914`).
-
-Codex was out until 00:52 and the gateway was down, so one sub-agent
-reviewed the design (CHANGE) and one the diff (SHIP, three LOWs taken).
-On the SM-T570 the line sits under the CoR table. **Owed: a Codex review
-of `466e3d7..HEAD`.** **Successors**: Luck, Acute Vision and Acute
-Hearing; 6es's first list; Warrior's *default +2*.
-
-**6fc back to 6de had lead paragraphs here until 2026-10-10. Each is in
+**6fd back to 6de had lead paragraphs here until 2026-10-10. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fd** — Cleansed Spirit halves nothing, and the CoR stepper says why; "Soul Debt is reported, not applied" had been false since `ea6ae38`;
 **6fc** — Fast Healer's +1 is said on the recovery row's result; on a failure the two readings disagree, so the line says it is the GM's;
 **6fb** — Chronic Insomnia's "sustained concentration at -1" is declared on the Concentrate roll; two API lines had been pasted inside 6ew's lead;
 **6fa** — Thinned Veil's "Concentration ... at -2" is a declaration on the Concentrate roll alone; the verbatim guard checked two traits, and now checks every partly-applied row;
@@ -317,7 +316,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fh first.** The
+**Where to start next: the slice log, from the END — 6fi first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -372,9 +371,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1893 Kotlin** (JUnit 5 — 1325 `core:rules`, 548 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1896 Kotlin** (JUnit 5 — 1328 `core:rules`, 548 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **Codex is out until 2026-10-14 16:44.** 6fg's post-HIGH fix and 6fh were read by sub-agents only; a Codex review of `ad8b4e1..HEAD -- core app` is owed |
+| Review gate | **Codex is out until 2026-10-14 16:44.** 6fg's post-HIGH fix, 6fh and 6fi were read by sub-agents only; a Codex review of `ad8b4e1..HEAD -- core app` is owed |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
@@ -589,6 +588,10 @@ TraitEffects.skillRollClauses(traits, skill)   // every clause a skill roll asks
                                       // modifiers() read it
 TraitEffects.visionClause(traits)     // Acute Vision alone, for Spirit
                                       // Vision's roll: a GM declaration (6fh)
+TraitEffects.withGrantedSenses(traits, state) / .grantedSenseTable()
+                                      // a potion's senses, as zero-cost rows
+                                      // for the skill dialog and Spirit
+                                      // Vision ONLY; never the character (6fi)
 Divination.levelsFor(ownDivination, ownRitual, defaultBonus): CasterLevels
                                       // the bonus goes inside the pick between
                                       // owned and default; a ritual never defaults
