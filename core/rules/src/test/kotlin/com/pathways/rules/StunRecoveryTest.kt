@@ -60,7 +60,7 @@ class StunRecoveryTest {
     /**
      * The guard for the one assumption `bonusFor` makes structurally.
      *
-     * It adds `TraitEffects.htRollBonus` unconditionally, which is right only
+     * It adds `TraitAttributeRolls.htRollBonus` unconditionally, which is right only
      * while this row's recovery roll IS an HT roll — the Fright Effects
      * table's is Will in two columns and IQ in the third. A KDoc saying so
      * cannot fail, so the claim is read off the row itself: if an
@@ -79,12 +79,12 @@ class StunRecoveryTest {
 
     @Test
     fun `High Pain Threshold does not, because its clause names knockdown`() {
-        // Its +3 reaches the Major Wound roll itself (TraitEffects.knockdownBonus),
+        // Its +3 reaches the Major Wound roll itself (TraitAttributeRolls.knockdownBonus),
         // whose fail-by-5 row IS a knockdown. Recovering from the stun that row
         // above it avoids no knockdown, so widening the clause would be 6ck's
         // refused move.
         assertEquals(0, StunRecovery.bonusFor(painThreshold))
-        assertEquals(3, TraitEffects.knockdownBonus(painThreshold))
+        assertEquals(3, TraitAttributeRolls.knockdownBonus(painThreshold))
     }
 
     @Test
@@ -95,21 +95,21 @@ class StunRecoveryTest {
 
     @Test
     fun `the credit names every trait in the number, and nothing else`() {
-        val credit = TraitEffects.stunRecoveryHt(reflexes + fit)
+        val credit = TraitAttributeRolls.stunRecoveryHt(reflexes + fit)
         assertEquals(StunRecovery.bonusFor(reflexes + fit), credit.bonus)
         assertTrue(credit.line!!.contains("Combat Reflexes"), credit.line)
         assertTrue(credit.line!!.contains("Fit"), credit.line)
         // High Pain Threshold moves the table's OWN roll and not this one, so
         // it must not appear in this roll's credit while it does in that one.
-        val painCredit = TraitEffects.stunRecoveryHt(painThreshold)
+        val painCredit = TraitAttributeRolls.stunRecoveryHt(painThreshold)
         assertEquals(0, painCredit.bonus)
         assertEquals(null, painCredit.line)
-        assertTrue(TraitEffects.majorWoundHt(painThreshold).line!!.contains("High Pain Threshold"))
+        assertTrue(TraitAttributeRolls.majorWoundHt(painThreshold).line!!.contains("High Pain Threshold"))
     }
 
     @Test
     fun `no credit is printed for a roll nothing moved`() {
-        val none = TraitEffects.stunRecoveryHt(emptyList())
+        val none = TraitAttributeRolls.stunRecoveryHt(emptyList())
         assertEquals(0, none.bonus)
         assertEquals(null, none.line)
     }

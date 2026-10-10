@@ -31,7 +31,7 @@ import com.pathways.rules.content.RecoveryState
  * SOURCE's, never the stun's: the Fright Effects table's rows 4-9 and 10-11
  * roll Will in two columns and IQ in the third, and two pathway abilities
  * (p. 128) disagree with each other about the same stun, one saying HT and
- * one saying Will. [bonusFor] composes [TraitEffects.htRollBonus] because
+ * one saying Will. [bonusFor] composes [TraitAttributeRolls.htRollBonus] because
  * THIS roll is an HT roll; a caller with a Will stun that reused it would
  * quietly collect `Fit`'s HT bonus. The fright rows are a gap rather than a
  * refusal — they carry their recovery attribute in prose, so structuring them
@@ -80,7 +80,7 @@ object StunRecovery {
      * Two clauses reach it and they are different rules. Combat Reflexes says
      * "to recover from stun", which names the condition and not the attribute,
      * so it would reach a Will or IQ recovery roll too — see this object's
-     * KDoc for why none is offered here. [TraitEffects.htRollBonus] is "all HT
+     * KDoc for why none is offered here. [TraitAttributeRolls.htRollBonus] is "all HT
      * rolls", which this one is.
      *
      * `High Pain Threshold` is NOT among them. Its "+3 on HT rolls to avoid
@@ -89,7 +89,7 @@ object StunRecovery {
      * and widening a clause that names its own scope is the move 6ck refused.
      */
     fun bonusFor(traits: List<Trait>): Int =
-        TraitEffects.htRollBonus(traits) + TraitEffects.stunRecoveryBonus(traits)
+        TraitAttributeRolls.htRollBonus(traits) + TraitAttributeRolls.stunRecoveryBonus(traits)
 
     /**
      * The number 3d6 is rolled against.

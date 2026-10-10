@@ -78,7 +78,7 @@ object VitalRolls {
      *    It names negative HP, where BOTH checks are due, and still does not
      *    reach the survival roll: that row's own words are "or die".
      *  - `High Pain Threshold` says "to avoid knockdown", so neither. Its roll
-     *    is the Major Wound's ([TraitEffects.knockdownBonus]).
+     *    is the Major Wound's ([TraitAttributeRolls.knockdownBonus]).
      *
      * **This said THREE traits until 6dt and there were four.** `Hard to
      * Subdue`'s cell never contains the words "HT roll", so every census that
@@ -89,9 +89,9 @@ object VitalRolls {
      * apart in a composable nothing tests.
      */
     fun bonusFor(check: VitalCheck, traits: List<Trait>): Int =
-        TraitEffects.htRollBonus(traits) + when (check) {
-            VitalCheck.SURVIVAL -> TraitEffects.deathRollBonus(traits)
-            VitalCheck.CONSCIOUSNESS -> TraitEffects.consciousnessRollBonus(traits)
+        TraitAttributeRolls.htRollBonus(traits) + when (check) {
+            VitalCheck.SURVIVAL -> TraitAttributeRolls.deathRollBonus(traits)
+            VitalCheck.CONSCIOUSNESS -> TraitAttributeRolls.consciousnessRollBonus(traits)
         }
 
     /**

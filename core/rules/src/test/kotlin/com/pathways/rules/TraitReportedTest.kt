@@ -66,8 +66,8 @@ class TraitReportedTest {
         // slice was one commit from shipping a fresh excuse in place of the
         // one it removed.
         assertEquals(emptyList<TraitNote>(), notes)
-        assertEquals(3, TraitEffects.knockdownBonus(tough))
-        assertEquals(0, TraitEffects.knockdownBonus(emptyList()))
+        assertEquals(3, TraitAttributeRolls.knockdownBonus(tough))
+        assertEquals(0, TraitAttributeRolls.knockdownBonus(emptyList()))
         val cell = ContentLoader.advantages()
             .first { it.name == TraitEffects.HIGH_PAIN_THRESHOLD }.notes
         assertTrue(cell.contains("+3 on HT rolls to avoid knockdown"), cell)
@@ -199,8 +199,8 @@ class TraitReportedTest {
         // and Clueless's cells went unchecked, which is why four lead-ins had
         // to be named above the moment this line was corrected.
         val applied = TraitEffects.skillBonusNames() +
-            TraitEffects.htRollNames() +
-            TraitEffects.spiRollNames() +
+            TraitAttributeRolls.htRollNames() +
+            TraitAttributeRolls.spiRollNames() +
             TraitEffects.categoryBonusNames() +
             // The named-skill declarations (6ff): a cell nothing walks is a
             // cell nothing checks.
@@ -216,11 +216,11 @@ class TraitReportedTest {
                     TraitEffects.skillsFor(trait).any { segment.contains(it) } ||
                     // ...or, for Fit and Unfit, names the roll class instead:
                     // "to all HT rolls" is the clause htRollBonus applies.
-                    (trait in TraitEffects.htRollNames() && segment.contains("HT rolls")) ||
+                    (trait in TraitAttributeRolls.htRollNames() && segment.contains("HT rolls")) ||
                     // ...and the same for the SPI map, whose applied clause
                     // names its roll class rather than a skill.
                     (
-                        trait in TraitEffects.spiRollNames() &&
+                        trait in TraitAttributeRolls.spiRollNames() &&
                             segment.contains("SPI-based rolls")
                         ) ||
                     // ...and a levelled row's own ceiling, which is applied
@@ -264,8 +264,8 @@ class TraitReportedTest {
         // The applied half is NOT disclaimed, or the report would be false.
         assertTrue(notes.none { it.printed.contains("Acrobatics") }, "$notes")
         // And it reaches the one knockdown roll this app makes: nothing.
-        assertEquals(0, TraitEffects.knockdownBonus(perfect))
-        assertEquals(0, TraitEffects.knockdownBonus(listOf(advantage(TraitEffects.GREAT_BALANCE))))
+        assertEquals(0, TraitAttributeRolls.knockdownBonus(perfect))
+        assertEquals(0, TraitAttributeRolls.knockdownBonus(listOf(advantage(TraitEffects.GREAT_BALANCE))))
     }
 
     /**
@@ -291,13 +291,13 @@ class TraitReportedTest {
      */
     @Test
     fun `the knockdown line names the trait that paid for it`() {
-        val effect = TraitEffects.majorWoundHt(listOf(advantage("High Pain Threshold")))
+        val effect = TraitAttributeRolls.majorWoundHt(listOf(advantage("High Pain Threshold")))
         assertTrue(effect.line!!.contains(TraitEffects.HIGH_PAIN_THRESHOLD), effect.line!!)
         assertTrue(effect.line!!.contains("+3"), effect.line!!)
         // The Balance rows print their own knockdown clause and reach this
         // roll with nothing, because it names no attribute (6bp).
-        assertNull(TraitEffects.majorWoundHt(listOf(advantage(TraitEffects.PERFECT_BALANCE))).line)
-        assertNull(TraitEffects.majorWoundHt(emptyList()).line)
+        assertNull(TraitAttributeRolls.majorWoundHt(listOf(advantage(TraitEffects.PERFECT_BALANCE))).line)
+        assertNull(TraitAttributeRolls.majorWoundHt(emptyList()).line)
     }
 
     /**

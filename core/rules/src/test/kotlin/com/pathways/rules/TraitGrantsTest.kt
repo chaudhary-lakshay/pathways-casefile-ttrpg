@@ -110,7 +110,7 @@ class TraitGrantsTest {
             TraitGrants.withGrantedTraits(held, com.pathways.model.BeyonderState(pathway, seq))
         assertEquals(0, TraitEffects.defenseBonus(walk("Hermit", 9)))
         assertEquals(1, TraitEffects.defenseBonus(walk("Hermit", 8)))
-        assertEquals(1, TraitEffects.htRollBonus(walk("Sun", 9)))
+        assertEquals(1, TraitAttributeRolls.htRollBonus(walk("Sun", 9)))
         val acrobatics = SkillKey("Acrobatics", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.HARD)
         assertEquals(ModEffect.Flat(2), TraitEffects.modifiers(walk("Fool", 8), acrobatics).single().effect)
         assertTrue(TraitEffects.modifiers(walk("Fool", 9), acrobatics).isEmpty())

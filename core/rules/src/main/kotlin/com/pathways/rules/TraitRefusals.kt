@@ -164,7 +164,7 @@ internal object TraitRefusals {
         // Wound's Failure row prints one and `DamageDialog` had rendered its
         // sentence since 6n, so the reason was a claim about the app that had
         // stopped being true. All three of that cell's clauses are applied
-        // now ([TraitEffects.defenseBonus], [TraitEffects.stunRecoveryBonus], and the surprise refusal
+        // now ([TraitEffects.defenseBonus], [TraitAttributeRolls.stunRecoveryBonus], and the surprise refusal
         // pinned in `ActiveDefensesTest`), which is why no entry is left.
         // Both Balance rows are the Fit shape: one clause reaches a roll and
         // one does not. The clause sweep (6bh) DID flag these two cells --
@@ -321,7 +321,7 @@ internal object TraitRefusals {
      *
      * The three hit-location rolls print a modifier and no attribute, and this
      * repo refuses rather than defaulting one (a design review's blocking
-     * finding). See [TraitEffects.knockdownBonus] for why these rows do not join the one
+     * finding). See [TraitAttributeRolls.knockdownBonus] for why these rows do not join the one
      * knockdown roll the app does make.
      */
     private const val KNOCKDOWN_UNREACHED =

@@ -28,6 +28,7 @@ import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SpiritualSenses
 import com.pathways.rules.TraitClauses
+import com.pathways.rules.TraitAttributeRolls
 import com.pathways.rules.TraitEffects
 
 /**
@@ -121,7 +122,7 @@ internal fun SheetDialogs(
     // its target through Divination.targetFor -- so they are handed the number
     // here. Decided ONCE, for the same reason shock is: an adapter left
     // unwired looks like an oversight rather than a decision (Codex, 6bo).
-    val spiTrait = TraitEffects.spiRollBonus(traits)
+    val spiTrait = TraitAttributeRolls.spiRollBonus(traits)
 
     // Ch. 2's burn, charged the moment it is bought. The book allows it after
     // the result is seen, so the pool moves when the player pushes -- printing
@@ -249,7 +250,7 @@ internal fun SheetDialogs(
             // rows that name one reach it and the ones scoped to the Fright
             // Check do not — that check is over by then.
             willOnlyClauses = willClauses,
-            stunRecoveryBonus = TraitEffects.stunRecoveryBonus(traits),
+            stunRecoveryBonus = TraitAttributeRolls.stunRecoveryBonus(traits),
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,
         ) { onClose(SheetDialog.FRIGHT) }
@@ -277,8 +278,8 @@ internal fun SheetDialogs(
                 session.spend(pool, amount, max, maxCor)
             },
             onShocked = onShocked,
-            majorWoundHt = TraitEffects.majorWoundHt(traits),
-            stunRecoveryHt = TraitEffects.stunRecoveryHt(traits),
+            majorWoundHt = TraitAttributeRolls.majorWoundHt(traits),
+            stunRecoveryHt = TraitAttributeRolls.stunRecoveryHt(traits),
             // The kind is named at the call site because the two states answer
             // differently for it: shock refuses this roll (the roll creates
             // it) and the pools do not (the character carried them in).
@@ -438,7 +439,7 @@ internal fun SheetDialogs(
             // Ch. 3's Alertness. This is a Per roll made outside SkillKey, so
             // TraitEffects.modifiers cannot reach it; passed explicitly rather
             // than left a silent gap (found in review).
-            alertness = TraitEffects.alertnessBonus(traits),
+            alertness = TraitAttributeRolls.alertnessBonus(traits),
             // The ATTRIBUTE, not what is left in the pool. The book rolls
             // "SPI or Per, whichever is higher" the way any attribute roll
             // goes; passing the remaining pool made a caster who had spent
@@ -459,7 +460,7 @@ internal fun SheetDialogs(
             // only what it costs.
             per = vitals.per,
             // "+1 per level to all Per rolls": this is one, as Detection is (6fe).
-            alertness = TraitEffects.alertnessBonus(traits),
+            alertness = TraitAttributeRolls.alertnessBonus(traits),
             // A sight by its own name: the GM says whether the eye's acuity
             // reaches it (6fh).
             visionClause = TraitClauses.visionClause(traits),

@@ -77,7 +77,7 @@ object NaturalRecovery {
      * Hard to Kill is scoped "to avoid death" and Hard to Subdue "to stay
      * conscious", and this roll is neither.
      */
-    fun bonusFor(traits: List<Trait>): Int = TraitEffects.htRollBonus(traits)
+    fun bonusFor(traits: List<Trait>): Int = TraitAttributeRolls.htRollBonus(traits)
 
     /**
      * What a day's roll restores, said after it. A holder of Fast Healer

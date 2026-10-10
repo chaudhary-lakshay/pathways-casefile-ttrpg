@@ -223,7 +223,7 @@ object FrightCheck {
      * and the caller supplies them, on the Will columns only.
      */
     fun recoveryBonus(recovery: FrightRecovery, traits: List<Trait>): Int =
-        if (StunRecovery.isStun(recovery)) TraitEffects.stunRecoveryBonus(traits) else 0
+        if (StunRecovery.isStun(recovery)) TraitAttributeRolls.stunRecoveryBonus(traits) else 0
 
     /**
      * The attribute level [recovery] is rolled against.

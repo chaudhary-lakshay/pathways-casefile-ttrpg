@@ -13,6 +13,7 @@ import com.pathways.rules.Derive
 import com.pathways.rules.Languages
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.Premades
+import com.pathways.rules.TraitAttributeRolls
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.TraitNames
 import com.pathways.rules.Wealth
@@ -447,7 +448,7 @@ class EditedCharacterTest {
             .applyTo(mortal)
         assertTrue(edited.traits.any { it.name == TraitEffects.ETHER_BODY_DAMAGE })
         assertEquals(TraitKind.DISADVANTAGE, edited.traits.first().kind)
-        assertEquals(-1, TraitEffects.spiRollBonus(edited.traits))
+        assertEquals(-1, TraitAttributeRolls.spiRollBonus(edited.traits))
     }
 
     /**

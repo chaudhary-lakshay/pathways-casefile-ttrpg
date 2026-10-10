@@ -37,7 +37,7 @@ object TraitGrants {
      * (Tyrant 7's "never become lost at sea or on land") is the same row.
      * High Pain Threshold's "+3 to HT rolls to avoid knockdown/stun" is the
      * Major Wound roll, whose failure stuns, and which the catalogue row
-     * already reaches ([TraitEffects.majorWoundHt]); recovering FROM stun is Combat
+     * already reaches ([TraitAttributeRolls.majorWoundHt]); recovering FROM stun is Combat
      * Reflexes's, a different verb in the same table (Hermit 8).
      *
      * A drawback is granted like an advantage: the book makes it part of

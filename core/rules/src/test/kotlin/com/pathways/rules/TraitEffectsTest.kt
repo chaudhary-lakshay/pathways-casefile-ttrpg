@@ -71,8 +71,8 @@ class TraitEffectsTest {
      */
     @Test
     fun `the bare SPI rolls take it through their own accessor`() {
-        assertEquals(-1, TraitEffects.spiRollBonus(listOf(etherBodyDamage())))
-        assertEquals(0, TraitEffects.spiRollBonus(listOf(advantage("Fit"))))
+        assertEquals(-1, TraitAttributeRolls.spiRollBonus(listOf(etherBodyDamage())))
+        assertEquals(0, TraitAttributeRolls.spiRollBonus(listOf(advantage("Fit"))))
     }
 
     /**
@@ -312,12 +312,12 @@ class TraitEffectsTest {
     @Test
     fun `Fit lifts the one bare HT roll this app makes`() {
         val fit = listOf(advantage(TraitEffects.FIT))
-        assertEquals(TraitEffects.FIT_BONUS, TraitEffects.majorWoundHt(fit).bonus)
-        assertEquals(0, TraitEffects.majorWoundHt(emptyList()).bonus)
+        assertEquals(TraitEffects.FIT_BONUS, TraitAttributeRolls.majorWoundHt(fit).bonus)
+        assertEquals(0, TraitAttributeRolls.majorWoundHt(emptyList()).bonus)
         // ...and it composes with the knockdown bonus rather than replacing
         // it: one roll, two traits, and a breakdown that has to sum.
         val both = fit + advantage(TraitEffects.HIGH_PAIN_THRESHOLD)
-        val effect = TraitEffects.majorWoundHt(both)
+        val effect = TraitAttributeRolls.majorWoundHt(both)
         assertEquals(TraitEffects.FIT_BONUS + TraitEffects.KNOCKDOWN_BONUS, effect.bonus)
         assertTrue(effect.line!!.contains(TraitEffects.FIT), effect.line!!)
         assertTrue(effect.line!!.contains(TraitEffects.HIGH_PAIN_THRESHOLD), effect.line!!)
@@ -336,7 +336,7 @@ class TraitEffectsTest {
     @Test
     fun `Very Fit lifts the Major Wound roll too, and by two`() {
         val veryFit = listOf(advantage(TraitEffects.VERY_FIT))
-        val effect = TraitEffects.majorWoundHt(veryFit)
+        val effect = TraitAttributeRolls.majorWoundHt(veryFit)
         assertEquals(TraitEffects.VERY_FIT_BONUS, effect.bonus)
         assertTrue(effect.line!!.contains(TraitEffects.VERY_FIT), effect.line!!)
         // Not the same number as Fit's: a test asserting "some bonus" would
@@ -360,8 +360,8 @@ class TraitEffectsTest {
     @Test
     fun `Unfit lowers an HT roll the way Fit raises it`() {
         val unfit = listOf(Trait(TraitEffects.UNFIT, 5, TraitKind.DISADVANTAGE))
-        assertEquals(-TraitEffects.UNFIT_PENALTY, TraitEffects.majorWoundHt(unfit).bonus)
-        assertTrue(TraitEffects.majorWoundHt(unfit).line!!.contains(TraitEffects.UNFIT))
+        assertEquals(-TraitEffects.UNFIT_PENALTY, TraitAttributeRolls.majorWoundHt(unfit).bonus)
+        assertTrue(TraitAttributeRolls.majorWoundHt(unfit).line!!.contains(TraitEffects.UNFIT))
         // The HT-skill path takes it too, so the two rolls cannot disagree.
         val mod = TraitEffects.modifiers(unfit, ht).single()
         assertEquals(ModEffect.Flat(-TraitEffects.UNFIT_PENALTY), mod.effect)
@@ -396,7 +396,7 @@ class TraitEffectsTest {
             listOf(advantage(TraitEffects.FIT), advantage(TraitEffects.HIGH_PAIN_THRESHOLD)),
         )
         for (traits in cases) {
-            val effect = TraitEffects.majorWoundHt(traits)
+            val effect = TraitAttributeRolls.majorWoundHt(traits)
             val named = traits.count { effect.line!!.contains(it.name) }
             assertEquals(traits.size, named, "${effect.line} for $traits")
             // Every contribution is explicitly signed "+n" or "−n", so an
@@ -407,7 +407,7 @@ class TraitEffectsTest {
                 .sum()
             assertEquals(effect.bonus, signed, effect.line)
         }
-        assertNull(TraitEffects.majorWoundHt(emptyList()).line)
+        assertNull(TraitAttributeRolls.majorWoundHt(emptyList()).line)
     }
 
     /**
@@ -682,8 +682,8 @@ class TraitEffectsTest {
     @Test
     fun `a category-scoped HT bonus does not reach the major wound roll`() {
         val resistant = listOf(Trait("Resistant (Disease +3)", 3, TraitKind.ADVANTAGE))
-        assertEquals(0, TraitEffects.majorWoundHt(resistant).bonus)
-        assertNull(TraitEffects.majorWoundHt(resistant).line)
+        assertEquals(0, TraitAttributeRolls.majorWoundHt(resistant).bonus)
+        assertNull(TraitAttributeRolls.majorWoundHt(resistant).line)
         assertEquals(emptyList<Any>(), TraitEffects.modifiers(resistant, ht))
         // ...and it says so on the sheet rather than going quiet.
         assertTrue(TraitReport.reported(resistant).any { "+3 (3 pts)" in it.printed })
@@ -749,9 +749,9 @@ class TraitEffectsTest {
     /** One answer for the two bare Per rolls, Detection and Spirit Vision (6fe). */
     @Test
     fun `the Alertness bonus is its level times one`() {
-        assertEquals(2, TraitEffects.alertnessBonus(listOf(advantage("Alertness 2"))))
-        assertEquals(1, TraitEffects.alertnessBonus(listOf(advantage(TraitEffects.ALERTNESS))))
-        assertEquals(0, TraitEffects.alertnessBonus(listOf(advantage("Fit"))))
+        assertEquals(2, TraitAttributeRolls.alertnessBonus(listOf(advantage("Alertness 2"))))
+        assertEquals(1, TraitAttributeRolls.alertnessBonus(listOf(advantage(TraitEffects.ALERTNESS))))
+        assertEquals(0, TraitAttributeRolls.alertnessBonus(listOf(advantage("Fit"))))
     }
 
     /**

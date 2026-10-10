@@ -71,7 +71,7 @@ fun SpiritVisionDialog(
     spiAvailable: Int,
     shock: Int,
     hurt: Int,
-    /** [com.pathways.rules.TraitEffects.alertnessBonus]; required, so no caller forgets it. */
+    /** [com.pathways.rules.TraitAttributeRolls.alertnessBonus]; required, so no caller forgets it. */
     alertness: Int,
     /**
      * [com.pathways.rules.TraitClauses.visionClause]: Acute Vision, which the

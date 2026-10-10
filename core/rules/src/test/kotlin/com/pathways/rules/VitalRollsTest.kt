@@ -148,7 +148,7 @@ class VitalRollsTest {
             .map { it.name }
             .toSet()
         assertTrue(printed.isNotEmpty(), "the phrase should occur at all")
-        assertEquals(printed, TraitEffects.htRollNames())
+        assertEquals(printed, TraitAttributeRolls.htRollNames())
     }
 
     @Test

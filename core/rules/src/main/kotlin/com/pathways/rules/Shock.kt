@@ -97,7 +97,7 @@ object Shock {
      *
      * Its cell reads "Ignore shock penalties from injury; +3 on HT rolls to
      * avoid knockdown". The first clause is this; the second is applied by
-     * [TraitEffects.majorWoundHt], because the Major Wound's own HT roll
+     * [TraitAttributeRolls.majorWoundHt], because the Major Wound's own HT roll
      * decides knockdown on its fail-by-5 row. **This sentence used to say
      * that clause reached nothing**, which stopped being true in the commit
      * that made it reach something -- a report of what is not applied expires

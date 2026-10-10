@@ -662,7 +662,7 @@ Conditions.penaltyFor(kind, hp, fp): Int      // the same two, for the rolls
 ActiveDefenses.everyDefence(traits, stunned, shocked, poolPenalty): Int
 VitalRolls.due(hp): List<VitalCheck>          // the HP table's own two rolls
 VitalRolls.bonusFor(check, traits) / .targetFor(check, ht, traits, poolPenalty)
-TraitEffects.consciousnessRollBonus(traits): Int   // Hard to Subdue, 0 HP roll
+TraitAttributeRolls.consciousnessRollBonus(traits): Int   // Hard to Subdue, 0 HP roll
 VitalRolls.printed(check): String             // CONSCIOUSNESS at 0 HP, SURVIVAL at -HP
 StunRecovery.stunsOn(row) / .printed() / .bonusFor(traits)
 StunRecovery.isStun(recovery)                 // the one authority on the word
@@ -677,9 +677,9 @@ Outcome.isSuccess: Boolean                    // print a roll's OWN verdict
 StunRecovery.targetFor(ht, traits, poolPenalty)   // the Major Wound Failure
                                               // row's own roll; the fright
                                               // table's Will/IQ ones are a GAP
-TraitEffects.stunRecoveryHt(traits): MajorWoundHt
-TraitEffects.stunRecoveryBonus(traits): Int   // Combat Reflexes, any stun
-TraitEffects.deathRollBonus(traits): Int      // Hard to Kill, survival roll only
+TraitAttributeRolls.stunRecoveryHt(traits): MajorWoundHt
+TraitAttributeRolls.stunRecoveryBonus(traits): Int   // Combat Reflexes, any stun
+TraitAttributeRolls.deathRollBonus(traits): Int      // Hard to Kill, survival roll only
 TraitEffects.defaultBonus(traits): Int        // Versatile, on a roll AT A DEFAULT
 TraitReport.held(traits, kind): List<HeldTrait>   // one row per held trait:
                                       // the book's cell and what of it is not
@@ -743,7 +743,7 @@ ContentLoader.hitLocations() / .woundingMultipliers() / .spiritDamage()
 ContentLoader.glossary()               // p.167-168, reference only; no rule
 SpiritVision.grantedTo(pathway, sequence) / .formFor(pathway)  // the BLOCKS, never ch.7.6's table
 SpiritVision.targetFor(per, shock, hurt, alertness, vision) / .attempt(...) / .partsFor(...)
-TraitEffects.alertnessBonus(traits)   // "all Per rolls" for the two bare ones:
+TraitAttributeRolls.alertnessBonus(traits)   // "all Per rolls" for the two bare ones:
                                       // Detection and Spirit Vision (6fe)
 SpiritVision.rowFor(margin) / .rowForOutcome(outcome) / .isMisleading(row)
 SpiritVision.astralColors() / .etherBody() / .pathwayDifferences() / .grants()

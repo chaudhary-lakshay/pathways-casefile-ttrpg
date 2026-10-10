@@ -130,7 +130,7 @@ object SpiritVision {
      * The number to roll 3d6 under.
      *
      * The bare Perception, plus the two penalties that reach every roll in the
-     * book, plus [alertness] ([TraitEffects.alertnessBonus]) and an Acute
+     * book, plus [alertness] ([TraitAttributeRolls.alertnessBonus]) and an Acute
      * Vision the GM has declared ([TraitClauses.visionClause], 6fh). The
      * chapter itself prints no modifier at all.
      */
