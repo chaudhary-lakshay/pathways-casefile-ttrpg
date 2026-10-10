@@ -166,9 +166,7 @@ def test_committed_hp_recovery_matches_the_printed_rows():
 # be listed here; a listed file that drops under it must leave the list, so the
 # list only shrinks. docs/SPLIT-PLAN.md is the plan for the rest.
 LINE_CAP = 800
-OVER_CAP = {
-    "app/src/test/kotlin/com/pathways/app/BeyonderSessionTest.kt",
-}
+OVER_CAP = set()   # empty since split step 10; `{}` would be a dict
 
 
 def _source_line_counts():
