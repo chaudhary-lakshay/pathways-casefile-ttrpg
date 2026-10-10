@@ -1787,18 +1787,53 @@ object TraitEffects {
         specializations: Set<String?>? = null,
     ) = NamedSkillClause(skill, specializations, TraitClause(trait, trait, printed, value, conditional = true))
 
-    /** The traits whose cell names one skill and a circumstance, for [known]. */
-    fun skillClauseNames(): Set<String> = SKILL_CLAUSES.map { it.clause.trait }.toSet()
+    const val ACUTE_VISION = "Acute Vision"
+    const val ACUTE_HEARING = "Acute Hearing"
+
+    /**
+     * "+2 to Vision rolls" and "+2 to Hearing rolls" (book 936, 940; 6fh).
+     * The book never lists those rolls, but the potion rows print the same
+     * bonus as "+2 to vision-based Perception rolls" (8688), so a Vision roll
+     * is a Per roll. Every Per-controlled skill offers both, and the GM
+     * declares which sense this roll is. Flat: neither cell says "per level".
+     */
+    private val SENSE_CLAUSES: List<TraitClause> = listOf(
+        TraitClause(ACUTE_VISION, ACUTE_VISION, "+2 to Vision rolls", 2, conditional = true),
+        TraitClause(ACUTE_HEARING, ACUTE_HEARING, "+2 to Hearing rolls", 2, conditional = true),
+    )
+
+    private fun senseClauses(traits: List<Trait>): List<TraitClause> = traits.flatMap { owned ->
+        val bare = catalogueName(owned.name)
+        SENSE_CLAUSES
+            .filter { it.trait.equals(bare, ignoreCase = true) }
+            .map { it.copy(shown = displayName(owned.name)) }
+    }
+
+    /**
+     * Acute Vision's clause, for Spirit Vision's Perception-based roll (book
+     * 4840), which is a sight by its own name: the GM declares whether the
+     * eye's acuity reaches it. Hearing is never offered there. Null for a
+     * character who does not hold it.
+     */
+    fun visionClause(traits: List<Trait>): TraitClause? =
+        senseClauses(traits).firstOrNull { it.trait == ACUTE_VISION }
+
+    /** The traits whose cell names one skill, or one sense, and a circumstance, for [known]. */
+    fun skillClauseNames(): Set<String> = skillClauseRows().map { it.trait }.toSet()
 
     /** The printed rows, for the clause guard. */
-    fun skillClauseRows(): List<TraitClause> = SKILL_CLAUSES.map { it.clause }
+    fun skillClauseRows(): List<TraitClause> = SKILL_CLAUSES.map { it.clause } + SENSE_CLAUSES
 
     /**
      * Every clause a roll of [skill] asks the GM about: the social rows on a
-     * social skill, then the rows naming this skill. The one list the dialog
-     * offers and [modifiers] reads, so the two cannot disagree (6ff).
+     * social skill, the rows naming this skill, and the sense rows on a Per
+     * skill. The one list the dialog offers and [modifiers] reads, so the two
+     * cannot disagree (6ff). Distinct by catalogue row and clause, which is
+     * what a modifier's id reads, so a row held twice or under two spellings
+     * is one declaration and one modifier, never two under one id (6fh).
      */
     fun skillRollClauses(traits: List<Trait>, skill: SkillKey): List<TraitClause> {
+        val sense = if (skill.attr == ControllingAttribute.Per) senseClauses(traits) else emptyList()
         val social = if (categoryOf(skill) == SOCIAL_SKILLS) socialClauses(traits) else emptyList()
         val named = traits.flatMap { owned ->
             val bare = catalogueName(owned.name)
@@ -1810,7 +1845,7 @@ object TraitEffects {
                 }
                 .map { it.clause.copy(shown = displayName(owned.name)) }
         }
-        return social + named
+        return (social + named + sense).distinctBy { it.trait to it.printed }
     }
 
 
@@ -1963,6 +1998,16 @@ object TraitEffects {
         "Navigator's Eye" to listOf(
             "Never become lost in any city previously visited" to
                 "the book hands this to the GM, not to a roll",
+        ),
+        // The gloss after each "+2" (6fh). Its first task is a bare Vision
+        // roll with no skill, and this app makes no such roll.
+        ACUTE_VISION to listOf(
+            "notice details at a distance, read lips, spot hidden objects" to
+                "says what a Vision roll is for; on a Per roll the GM declares whether this is one",
+        ),
+        ACUTE_HEARING to listOf(
+            "detect faint sounds, eavesdrop through walls, identify speech in noise" to
+                "says what a Hearing roll is for; on a Per roll the GM declares whether this is one",
         ),
         "Famous Face" to listOf(
             "Recognizable in the city" to "the book hands this to the GM, not to a roll",

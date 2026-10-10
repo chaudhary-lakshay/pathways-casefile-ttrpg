@@ -2340,7 +2340,8 @@ class TraitEffectsTest {
         val rows = (ContentLoader.advantages() + ContentLoader.disadvantages())
             .associateBy { it.name }
         val unread = listOf(
-            "Legal Enforcement Powers", "Acute Vision", "Unsettling Appearance",
+            // Mentor replaces Acute Vision, which 6fh reads.
+            "Legal Enforcement Powers", "Mentor", "Unsettling Appearance",
             // Read for a PRICE and for nothing they print: the sentence says
             // "its price aside" because of these two (the diff review).
             "Wealth: Comfortable", "Social Stigma",
@@ -2659,6 +2660,53 @@ class TraitEffectsTest {
         val social = TraitEffects.skillRollClauses(callous, key("Savoir-Faire"))
         assertEquals(TraitEffects.socialClauses(callous), social)
         assertEquals(1, TraitEffects.modifiers(callous, key("Savoir-Faire"), social.map { it.key }.toSet()).size)
+    }
+
+    /**
+     * Acute Vision's "+2 to Vision rolls" and Acute Hearing's "+2 to Hearing
+     * rolls" (book 936, 940; 6fh). The book never says which rolls those are,
+     * so every Per-controlled skill offers both and the GM declares which
+     * sense this roll is. A skill another attribute controls is offered
+     * neither.
+     */
+    @Test
+    fun `Acute Vision and Acute Hearing are declared on a Per skill's roll`() {
+        val catalogue = ContentLoader.advantages().associateBy { it.name }
+        val perSkills = ContentLoader.skills().filter { it.attr == ControllingAttribute.Per }
+        assertEquals(10, perSkills.size, perSkills.map { it.name }.toString())
+        for (trait in listOf("Acute Vision", "Acute Hearing")) {
+            val held = listOf(advantage(trait))
+            for (row in perSkills) {
+                val skill = SkillKey(row.name, row.specialization, row.attr, row.difficulty)
+                val clause = TraitEffects.skillRollClauses(held, skill).single()
+                assertTrue(clause.conditional, trait)
+                assertEquals(2, clause.value, trait)
+                assertTrue(clause.printed in catalogue.getValue(trait).notes, clause.printed)
+                assertEquals(emptyList<Any>(), TraitEffects.modifiers(held, skill), "${row.name} $trait")
+                val mods = TraitEffects.modifiers(held, skill, setOf(clause.key))
+                assertEquals(ModEffect.Flat(2), mods.single().effect, "${row.name} $trait")
+            }
+            assertTrue(trait in TraitEffects.known(), trait)
+            val stealth = SkillKey("Stealth", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)
+            assertTrue(TraitEffects.skillRollClauses(held, stealth).isEmpty(), trait)
+        }
+        // Observation is a social skill as well: both senses and a social
+        // row come through the one list, each once, under distinct keys.
+        val observation = SkillKey("Observation", null, ControllingAttribute.Per, Difficulty.AVERAGE)
+        val both = listOf(
+            advantage("Acute Vision"), advantage("Acute Hearing"),
+            Trait("Callous", 5, TraitKind.DISADVANTAGE),
+        )
+        val clauses = TraitEffects.skillRollClauses(both, observation)
+        assertEquals(TraitEffects.socialClauses(both).size + 2, clauses.size)
+        assertEquals(clauses.size, clauses.map { it.key }.toSet().size)
+        assertEquals(clauses.size, TraitEffects.modifiers(both, observation, clauses.map { it.key }.toSet()).size)
+        // A trait held twice is one declaration and one modifier (the review).
+        // Two spellings of one row are one too: the modifier's id reads the
+        // catalogue name, never the sheet's (the diff review's LOW).
+        val twice = listOf(advantage("Acute Vision"), advantage("Acute Vision 2"))
+        val once = TraitEffects.skillRollClauses(twice, observation).single()
+        assertEquals(1, TraitEffects.modifiers(twice, observation, setOf(once.key)).size)
     }
 
     /**

@@ -303,7 +303,11 @@ response table.
 ### Detect / Artifacts
 
 **Detect** covers Spirit Vision and the detection rolls, with the
-anti-divination counters applied where a target has them. **Artifacts** lists
+anti-divination counters applied where a target has them. A character with
+Acute Vision sees *Acute Vision: +2 to Vision rolls* above the Spirit Vision
+roll; tap it if the GM rules that the eye's acuity helps this reading. The
+same line, and Acute Hearing's, sits on every Perception-based skill roll.
+**Artifacts** lists
 sealed artifacts, their grades, and what each ability costs in SPI or HP — the
 grade is *not* a gate on use, deliberately.
 

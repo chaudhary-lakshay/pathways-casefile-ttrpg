@@ -130,12 +130,19 @@ object SpiritVision {
      * The number to roll 3d6 under.
      *
      * The bare Perception, plus the two penalties that reach every roll in the
-     * book, plus [alertness] ([TraitEffects.alertnessBonus]). The chapter
-     * itself prints no modifier at all.
+     * book, plus [alertness] ([TraitEffects.alertnessBonus]) and an Acute
+     * Vision the GM has declared ([TraitEffects.visionClause], 6fh). The
+     * chapter itself prints no modifier at all.
      */
-    fun targetFor(per: Int, shock: Int = 0, hurt: Int = 0, alertness: Int = 0): Int {
+    fun targetFor(
+        per: Int,
+        shock: Int = 0,
+        hurt: Int = 0,
+        alertness: Int = 0,
+        vision: TraitClause? = null,
+    ): Int {
         require(alertness >= 0) { "Alertness is a bonus, not a penalty; was $alertness" }
-        return per + alertness + shock + hurt
+        return per + alertness + (vision?.value ?: 0) + shock + hurt
     }
 
     /**
@@ -185,9 +192,16 @@ object SpiritVision {
      * defect this repo has produced three times over -- the answer is
      * returned once, in the form both callers consume.
      */
-    fun partsFor(per: Int, shock: Int = 0, hurt: Int = 0, alertness: Int = 0): List<String> = buildList {
+    fun partsFor(
+        per: Int,
+        shock: Int = 0,
+        hurt: Int = 0,
+        alertness: Int = 0,
+        vision: TraitClause? = null,
+    ): List<String> = buildList {
         add("Per $per")
         if (alertness > 0) add("+$alertness Alertness")
+        vision?.let { add("+${it.value} ${it.shown}") }
         if (shock != 0) add("shock $shock")
         if (hurt != 0) add("hurt or tired $hurt")
     }
@@ -201,10 +215,15 @@ object SpiritVision {
         shock: Int = 0,
         hurt: Int = 0,
         alertness: Int = 0,
+        vision: TraitClause? = null,
     ): SpiritVisionResult =
         // Through [targetFor], never re-derived: the caption above the button
         // and the roll under it take the same terms or they disagree.
-        rollAgainst(targetFor(per, shock, hurt, alertness), source, partsFor(per, shock, hurt, alertness))
+        rollAgainst(
+            targetFor(per, shock, hurt, alertness, vision),
+            source,
+            partsFor(per, shock, hurt, alertness, vision),
+        )
 
     /**
      * The roll itself, against a [target] already composed by [targetFor],

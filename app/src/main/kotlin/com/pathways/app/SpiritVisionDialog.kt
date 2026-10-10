@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.pathways.rules.RandomSource
 import com.pathways.rules.SpiritVision
 import com.pathways.rules.SpiritVisionResult
+import com.pathways.rules.TraitClause
 
 /**
  * Reading a soul (Ch. 7.6, p. 77-78).
@@ -71,16 +72,23 @@ fun SpiritVisionDialog(
     hurt: Int,
     /** [com.pathways.rules.TraitEffects.alertnessBonus]; required, so no caller forgets it. */
     alertness: Int,
+    /**
+     * [com.pathways.rules.TraitEffects.visionClause]: Acute Vision, which the
+     * GM declares on this roll or not (6fh). Required, like [alertness].
+     */
+    visionClause: TraitClause?,
     dice: RandomSource,
     onSpendSpi: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var result by remember { mutableStateOf<SpiritVisionResult?>(null) }
     val activation = SpiritVision.activation()
-    val target = SpiritVision.targetFor(per, shock, hurt, alertness)
+    var visionDeclared by remember { mutableStateOf(false) }
+    val vision = visionClause?.takeIf { visionDeclared }
+    val target = SpiritVision.targetFor(per, shock, hurt, alertness, vision)
     // Composed once, beside the target: the caption prints these and the
     // result carries them, and a second call would be a second answer.
-    val parts = SpiritVision.partsFor(per, shock, hurt, alertness)
+    val parts = SpiritVision.partsFor(per, shock, hurt, alertness, vision)
     val affordable = spiAvailable >= activation
 
     AlertDialog(
@@ -104,6 +112,20 @@ fun SpiritVisionDialog(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                // The skill roll dialog's declaration, for the one clause
+                // this roll can take (6fh).
+                visionClause?.let { clause ->
+                    TextButton(onClick = { visionDeclared = !visionDeclared }) {
+                        Text(
+                            "${clause.shown}: ${clause.printed}",
+                            color = if (visionDeclared) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                        )
+                    }
+                }
                 if (!affordable) {
                     Text(
                         "Not enough SPI: $spiAvailable left, $activation to activate.",

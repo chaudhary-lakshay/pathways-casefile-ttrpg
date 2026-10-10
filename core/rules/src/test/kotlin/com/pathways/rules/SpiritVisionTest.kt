@@ -241,4 +241,31 @@ class SpiritVisionTest {
         assertEquals(composed, SpiritVision.attempt(10, fixed(3), shock = -4, alertness = 2))
         assertFailsWith<IllegalArgumentException> { SpiritVision.targetFor(10, alertness = -1) }
     }
+
+    /**
+     * Acute Vision's "+2 to Vision rolls", declared by the GM (6fh): the
+     * roll is "Perception-based" (4840) and a sight by its own name, so the
+     * Vision clause is offered and the Hearing one never is.
+     */
+    @Test
+    fun `a declared Acute Vision reaches the Spirit Vision roll`() {
+        val held = listOf(
+            com.pathways.model.Trait("Acute Vision", 2, com.pathways.model.TraitKind.ADVANTAGE),
+            com.pathways.model.Trait("Acute Hearing", 2, com.pathways.model.TraitKind.ADVANTAGE),
+        )
+        val vision = TraitEffects.visionClause(held)!!
+        assertEquals("Acute Vision", vision.trait)
+        assertNull(TraitEffects.visionClause(held.drop(1)))
+        assertEquals(14, SpiritVision.targetFor(10, alertness = 2, vision = vision))
+        assertEquals(
+            listOf("Per 10", "+2 Alertness", "+2 Acute Vision"),
+            SpiritVision.partsFor(10, alertness = 2, vision = vision),
+        )
+        val composed = SpiritVision.rollAgainst(
+            SpiritVision.targetFor(10, vision = vision),
+            fixed(3),
+            SpiritVision.partsFor(10, vision = vision),
+        )
+        assertEquals(composed, SpiritVision.attempt(10, fixed(3), vision = vision))
+    }
 }

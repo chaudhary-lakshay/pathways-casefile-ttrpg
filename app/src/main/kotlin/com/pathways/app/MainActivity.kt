@@ -1156,6 +1156,9 @@ fun SheetScreen(
             per = vitals.per,
             // "+1 per level to all Per rolls": this is one, as Detection is (6fe).
             alertness = TraitEffects.alertnessBonus(traits),
+            // A sight by its own name: the GM says whether the eye's acuity
+            // reaches it (6fh).
+            visionClause = TraitEffects.visionClause(traits),
             spiAvailable = vitals.maxSpi - session.spiSpent,
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,
