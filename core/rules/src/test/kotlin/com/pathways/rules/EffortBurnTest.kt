@@ -329,6 +329,8 @@ class EffortBurnTest {
     fun `a second push past the cap buys nothing instead of throwing`() {
         val first = EffortBurn.pushed(rolled(total = 14, target = 10), BurnKind.PHYSICAL, 3, alreadyBurned = 0, spiAvailable = 0)
         assertEquals(13, first!!.target)
+        // And the push says what it was, in the line the result prints.
+        assertEquals(LedgerLine("Pushed with FP", 3, com.pathways.model.SourceKind.SITUATIONAL), first.lines().last())
         assertNull(EffortBurn.pushed(first, BurnKind.PHYSICAL, 3, alreadyBurned = 3, spiAvailable = 0))
         // What the cap still allows is still sold, and lands on the first.
         assertEquals(15, EffortBurn.pushed(first, BurnKind.PHYSICAL, 2, alreadyBurned = 3, spiAvailable = 0)!!.target)

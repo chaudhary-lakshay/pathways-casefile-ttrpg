@@ -7,6 +7,7 @@ import com.pathways.model.Modifier
 import com.pathways.model.ModifierId
 import com.pathways.model.ModifierSource
 import com.pathways.model.Outcome
+import com.pathways.model.SourceKind
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -185,5 +186,42 @@ class SkillRollTest {
 
         assertTrue(out.forbidden)
         assertNull(out.roll)
+    }
+
+    /**
+     * Every modifier has carried the words for itself since the model was
+     * written, in its `source`, and no screen read them: the ledger's lines printed the id,
+     * "state:hp: -1", where the other dialogs say what took the point.
+     */
+    @Test
+    fun `a ledger line names its source, never its id`() {
+        val key = skill.key()
+        val reeling = Conditions.forSkill(key, Pools.hp(4, 14), Pools.fp(11, 11))
+        val adverse = CommonModifiers.modifiers(
+            CommonModifiers.offered().filter { it.situation.startsWith("Adverse") },
+            emptyMap(),
+        )
+
+        val target = SkillRoll.targetFor(skill.label, 16, key, reeling + adverse)
+
+        assertEquals(
+            setOf(
+                LedgerLine("Adverse conditions (dark, noisy, dangerous)", -4, SourceKind.SITUATIONAL),
+                LedgerLine("1/3 HP remaining", -1, SourceKind.STATE),
+            ),
+            target.lines().toSet(),
+        )
+        assertEquals(target.lines(), SkillRoll.rollAgainst(target, always(4)).lines())
+    }
+
+    /** A contribution nothing explains still prints, under the id it has. */
+    @Test
+    fun `a line with no source falls back to its id`() {
+        val bare = SkillTarget(
+            "Stealth", baseTarget = 12, target = 14,
+            applied = listOf(Contribution(listOf(ModifierId("house:rule")), 2)),
+            forbidden = false, requiresCritical = false,
+        )
+        assertEquals(listOf(LedgerLine("house:rule", 2, null)), bare.lines())
     }
 }

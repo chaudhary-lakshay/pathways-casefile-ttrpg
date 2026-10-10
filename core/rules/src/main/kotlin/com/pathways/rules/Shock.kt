@@ -142,7 +142,7 @@ object Shock {
         return listOf(
             Modifier(
                 id = ModifierId("state:shock"),
-                source = ModifierSource.StateThreshold("shock"),
+                source = ModifierSource.StateThreshold("Shock"),
                 // Retargeted onto the skill being rolled by SkillRoll, as
                 // Conditions' rows are. "All rolls" needs no scoping.
                 target = ModTarget.AllRolls,

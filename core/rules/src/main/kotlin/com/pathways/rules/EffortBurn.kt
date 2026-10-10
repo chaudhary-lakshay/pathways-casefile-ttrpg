@@ -3,6 +3,7 @@ package com.pathways.rules
 import com.pathways.model.Attr
 import com.pathways.model.ControllingAttribute
 import com.pathways.model.ModifierId
+import com.pathways.model.ModifierSource
 import com.pathways.model.SkillKey
 import com.pathways.rules.content.BurnablePool
 import com.pathways.rules.content.ContentLoader
@@ -221,6 +222,9 @@ object EffortBurn {
         return outcome.copy(
             target = target,
             applied = outcome.applied + Contribution(listOf(idFor(kind)), bonus),
+            // No Modifier stands behind a push, so it names itself here.
+            sources = outcome.sources +
+                (idFor(kind) to ModifierSource.Situational("Pushed with ${pool(kind).pool}")),
             roll = SuccessRoll.evaluate(roll.total, target),
         )
     }

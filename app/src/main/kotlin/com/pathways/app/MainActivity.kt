@@ -81,6 +81,7 @@ import com.pathways.model.ModEffect
 import com.pathways.model.Outcome
 import com.pathways.model.RollResult
 import com.pathways.model.SkillKey
+import com.pathways.model.SourceKind
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
 import com.pathways.rules.Appearance
@@ -89,7 +90,6 @@ import com.pathways.rules.CommonModifiers
 import com.pathways.rules.Concentration
 import com.pathways.rules.ConcentrationOutcome
 import com.pathways.rules.Conditions
-import com.pathways.rules.Contribution
 import com.pathways.rules.Derive
 import com.pathways.rules.Divination
 import com.pathways.rules.EffortBurn
@@ -97,6 +97,7 @@ import com.pathways.rules.Equipment
 import com.pathways.rules.FrightCheck
 import com.pathways.rules.FrightKind
 import com.pathways.rules.FrightOutcome
+import com.pathways.rules.LedgerLine
 import com.pathways.rules.PenaltyScope
 import com.pathways.rules.NaturalRecovery
 import com.pathways.rules.Pool
@@ -2407,10 +2408,15 @@ private fun RollDialog(
                         }
                     }
                     CircumstanceRow(chosen, gmValue, withheld)
-                    // What the target above is made of: the trackers and
-                    // traits as well as the chips. The lines the result
-                    // prints, from the same composable.
-                    LedgerLines(standing.applied, standing.requiresCritical)
+                    // What the target above is made of beyond the chips:
+                    // the trackers and the traits. A circumstance picked
+                    // here is already on screen as its own lit chip, and
+                    // printing it again under them said one -4 twice. The
+                    // result lists every line, the chips being gone by then.
+                    LedgerLines(
+                        standing.lines().filter { it.kind != SourceKind.SITUATIONAL },
+                        standing.requiresCritical,
+                    )
                     // Every row the table prints for this skill, conditions
                     // and all. Showing only the unconditional ones would teach
                     // the player that a skill with no line here has no gear --
@@ -2746,7 +2752,7 @@ private fun RollResult(out: SkillRollOutcome, sense: SpiritualSense? = null) {
                 style = MaterialTheme.typography.bodySmall,
             )
         }
-        LedgerLines(out.applied, out.requiresCritical)
+        LedgerLines(out.lines(), out.requiresCritical)
     }
 }
 
@@ -2757,12 +2763,15 @@ internal const val FORBIDDEN_ROLL = "Forbidden — this roll cannot be attempted
  * One line for each thing that moved a ledger roll's target, and the
  * critical-only rule. The same lines before the dice and after, so the two
  * cannot be two renderings of one breakdown (6eh, on Detection).
+ *
+ * In the modifier's own words ([LedgerLine]): this printed its id,
+ * "state:hp: -1", until 6ge.
  */
 @Composable
-internal fun LedgerLines(applied: List<Contribution>, requiresCritical: Boolean) {
-    applied.forEach { contribution ->
+internal fun LedgerLines(lines: List<LedgerLine>, requiresCritical: Boolean) {
+    lines.forEach { line ->
         Text(
-            "${contribution.ids.joinToString { it.value }}: ${contribution.delta}",
+            "${line.label}: ${if (line.delta > 0) "+" else ""}${line.delta}",
             style = MaterialTheme.typography.bodySmall,
         )
     }
