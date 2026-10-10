@@ -156,7 +156,7 @@ class VitalRollsTest {
         // The reason expires in the commit that ships the roll (6ba, 6bl).
         assertFalse("Hard to Kill" in TraitEffects.unappliedNames())
         val stale = TraitEffects.unappliedNames().filter { name ->
-            TraitEffects.reported(listOf(trait(name))).any {
+            TraitReport.reported(listOf(trait(name))).any {
                 it.reason.contains("models no death roll")
             }
         }

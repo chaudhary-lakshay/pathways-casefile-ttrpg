@@ -48,7 +48,7 @@ compile left the previous mutant's failures in place, and read as a catch
 **A new production reader of a trait by name must add it to
 `TraitEffects.known()` in the same commit.** Before 6es a trait missing
 from that set made the sheet silent. Now `reported()` prints
-`TraitEffects.UNREAD` for it, *"this app applies nothing this row prints"*,
+`TraitReport.UNREAD` for it, *"this app applies nothing this row prints"*,
 beside a rule that is applied. Nothing enforces this: the census tests name
 the readers that were found (Night Eyes, Spiritual Fortitude, the language
 pricing pair) and cannot see the next one.
@@ -681,12 +681,12 @@ TraitEffects.stunRecoveryHt(traits): MajorWoundHt
 TraitEffects.stunRecoveryBonus(traits): Int   // Combat Reflexes, any stun
 TraitEffects.deathRollBonus(traits): Int      // Hard to Kill, survival roll only
 TraitEffects.defaultBonus(traits): Int        // Versatile, on a roll AT A DEFAULT
-TraitEffects.held(traits, kind): List<HeldTrait>   // one row per held trait:
+TraitReport.held(traits, kind): List<HeldTrait>   // one row per held trait:
                                       // the book's cell and what of it is not
                                       // applied. What the Traits tab prints
-TraitEffects.UNREAD                   // reported() says it of a row outside
+TraitReport.UNREAD                   // reported() says it of a row outside
                                       // known() that prints no self-control roll
-TraitEffects.ROLLED_ONLY              // ...and this of one that does: the
+TraitReport.ROLLED_ONLY              // ...and this of one that does: the
                                       // roll is applied, nothing else (6ew)
 TraitClauses.concentrationClauses(traits)   // Will clauses + Thinned Veil and
                                       // Chronic Insomnia: the Concentrate roll
@@ -694,7 +694,7 @@ TraitClauses.concentrationClauses(traits)   // Will clauses + Thinned Veil and
 TraitEffects.actingGains(traits) / .doublesActingGains(traits)
                                       // ch.6's Acting Method table, doubled for
                                       // Knows the Acting Method (6ez)
-TraitEffects.corruptionNotes(traits)   // Cleansed Spirit beside the CoR stepper:
+TraitReport.corruptionNotes(traits)   // Cleansed Spirit beside the CoR stepper:
                                       // nothing halved, and why (6fd)
 TraitEffects.rerollSource(traits, state)   // Luck / Beckoning Luck (not with
                                       // Fate Debt) / the Lucky One: who may

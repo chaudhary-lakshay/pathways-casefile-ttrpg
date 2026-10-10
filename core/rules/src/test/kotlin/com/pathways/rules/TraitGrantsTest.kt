@@ -303,7 +303,7 @@ class TraitGrantsTest {
         for ((name, expected) in rows) {
             val (cell, rest) = expected
             assertTrue(prose.any { "$name $cell" in it }, name)
-            val held = TraitEffects.held(listOf(advantage(name)), TraitKind.ADVANTAGE).single()
+            val held = TraitReport.held(listOf(advantage(name)), TraitKind.ADVANTAGE).single()
             assertEquals(cell, held.cell, name)
             assertEquals(listOfNotNull(rest), held.notes.map { it.printed }, name)
         }

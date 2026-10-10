@@ -111,7 +111,7 @@ class BlessingsTest {
 
         // The reasons are real text, and each is reachable from a sheet.
         for (deity in deities.filter { it in reported }) {
-            val note = TraitEffects.reported(listOf(blessing(deity))).single()
+            val note = TraitReport.reported(listOf(blessing(deity))).single()
             assertEquals(deity, note.trait)
             assertTrue(note.reason.isNotBlank())
             assertTrue(note.printed.isNotBlank(), "$deity renders no printed cell")
@@ -131,7 +131,7 @@ class BlessingsTest {
     @Test
     fun `the God of Combat names the plumbing rather than a missing rule`() {
         val held = listOf(blessing(TraitEffects.GOD_OF_COMBAT))
-        val note = TraitEffects.reported(held).single()
+        val note = TraitReport.reported(held).single()
         assertTrue(note.printed.contains("+3 ST, +3 DX, +3 HT"), "the cell is quoted whole")
         assertTrue(
             note.reason.contains("attribute"),

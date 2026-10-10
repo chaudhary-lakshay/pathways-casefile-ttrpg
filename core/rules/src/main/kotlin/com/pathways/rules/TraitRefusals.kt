@@ -23,7 +23,7 @@ import com.pathways.rules.TraitEffects.UNFIT
 import com.pathways.rules.TraitEffects.VERY_FIT
 
 /**
- * What [TraitEffects.reported] prints as NOT applied, and why: whole traits
+ * What [TraitReport.reported] prints as NOT applied, and why: whole traits
  * ([UNAPPLIED]) and single clauses of applied ones ([PARTLY_APPLIED]). Moved
  * out of [TraitEffects] unchanged, so that file stays readable.
  */
@@ -33,7 +33,7 @@ internal object TraitRefusals {
      *
      * **A notes cell can hold several rules.** Combat Reflexes prints three
      * and exactly one of them names a roll this app makes; Fit prints two and
-     * one. [TraitEffects.reported] keyed on the trait NAME, and both traits are applied,
+     * one. [TraitReport.reported] keyed on the trait NAME, and both traits are applied,
      * so it answered with nothing for either -- the remaining clauses were
      * not merely unenforced but invisible, on the one screen whose whole job
      * is to say what was not counted.
@@ -335,7 +335,7 @@ internal object TraitRefusals {
      */
     val UNAPPLIED = mapOf(
         "Danger Sense" to "the book hands this to the GM, not to a roll",
-        // Said beside the CoR stepper too ([TraitEffects.corruptionNotes]). "Passive
+        // Said beside the CoR stepper too ([TraitReport.corruptionNotes]). "Passive
         // exposure" occurs once in the book, and Soul Debt -- a hit taken on
         // SPI among its routes -- is charged automatically, so no charge is called
         // deliberate either (the design review's MEDIUM, 6fd).

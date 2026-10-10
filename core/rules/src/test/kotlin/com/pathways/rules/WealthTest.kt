@@ -301,20 +301,20 @@ class WealthTest {
             "Very Wealthy" to "Starting money £100. +3 to reaction rolls. Large house; multiple servants; carriage",
         )
         for ((status, cell) in printed) {
-            val held = TraitEffects.held(listOf(Wealth.traitFor(Wealth.named(status))!!), TraitKind.ADVANTAGE).single()
+            val held = TraitReport.held(listOf(Wealth.traitFor(Wealth.named(status))!!), TraitKind.ADVANTAGE).single()
             assertEquals(cell, held.cell, status)
-            assertEquals(listOf(TraitEffects.UNREAD), held.notes.map { it.reason }, status)
+            assertEquals(listOf(TraitReport.UNREAD), held.notes.map { it.reason }, status)
         }
         // Nine sheets' "Poverty: Struggling" IS the book's Struggling
         // ([Wealth.levelOf]), so it prints that row's cell and notes.
-        val book = TraitEffects.held(listOf(Trait("Wealth: Struggling", 10, TraitKind.DISADVANTAGE)), TraitKind.DISADVANTAGE).single()
-        val sheet = TraitEffects.held(listOf(Trait("Poverty: Struggling", 10, TraitKind.DISADVANTAGE)), TraitKind.DISADVANTAGE).single()
+        val book = TraitReport.held(listOf(Trait("Wealth: Struggling", 10, TraitKind.DISADVANTAGE)), TraitKind.DISADVANTAGE).single()
+        val sheet = TraitReport.held(listOf(Trait("Poverty: Struggling", 10, TraitKind.DISADVANTAGE)), TraitKind.DISADVANTAGE).single()
         assertEquals("Start with 15 soli; modest room; occasional luxuries", sheet.cell)
         assertEquals(book.cell, sheet.cell)
         assertEquals(book.notes.map { it.printed to it.reason }, sheet.notes.map { it.printed to it.reason })
         assertEquals(listOf("Poverty: Struggling"), sheet.notes.map { it.trait })
         // The tenth charges 5, so it names no level and stays recorded (4.1).
         val librarian = Premades.byName("University Librarian").toCharacter().traits
-        assertNull(TraitEffects.held(librarian, TraitKind.DISADVANTAGE).single { it.shown == "Poverty: Struggling" }.cell)
+        assertNull(TraitReport.held(librarian, TraitKind.DISADVANTAGE).single { it.shown == "Poverty: Struggling" }.cell)
     }
 }

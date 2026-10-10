@@ -376,7 +376,7 @@ class ActiveDefensesTest {
      */
     @Test
     fun `a clause the engine applies is not reported as unapplied`() {
-        val notes = TraitEffects.reported(reflexes).map { it.printed }
+        val notes = TraitReport.reported(reflexes).map { it.printed }
         if (ActiveDefenses.state(setOf(DefenseRefusal.SURPRISE), reflexes).defends) {
             assertTrue(notes.none { it.contains("surprise", ignoreCase = true) }, "$notes")
         }

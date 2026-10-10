@@ -47,6 +47,7 @@ import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.SheetComparison
 import com.pathways.rules.Shock
 import com.pathways.rules.TraitEffects
+import com.pathways.rules.TraitReport
 import com.pathways.rules.TraitGrants
 import java.io.File
 import kotlin.random.Random
@@ -211,7 +212,7 @@ fun SheetScreen(
     val maxCor = remember(sheet, drunk, session.edits) { session.edits.corCeilingOn(sheet, drunk) }
     // The disadvantages that print a number to roll under (6am). Until this
     // slice a character's disadvantages rendered NOWHERE in the app at all --
-    // `TraitEffects.reported` reads the advantage catalogue only -- so the
+    // `TraitReport.reported` reads the advantage catalogue only -- so the
     // self-control rolls the book prints had no way to be made.
     val selfControl = remember(traits) {
         SelfControl.checksFor(traits).associateBy { it.trait }
@@ -229,15 +230,15 @@ fun SheetScreen(
     // A quirk gives points as a drawback does and prints with the same sign;
     // nothing this app ships produces one, and one that arrives is not dropped.
     val drawbacks = remember(traits) {
-        TraitEffects.held(traits, TraitKind.DISADVANTAGE) +
-            TraitEffects.held(traits, TraitKind.QUIRK)
+        TraitReport.held(traits, TraitKind.DISADVANTAGE) +
+            TraitReport.held(traits, TraitKind.QUIRK)
     }
     // The advantages, which had no list at all until 6es: the sheet printed
-    // `TraitEffects.reported` and the drawbacks, so an advantage with nothing
+    // `TraitReport.reported` and the drawbacks, so an advantage with nothing
     // to report had its cell on no screen -- the gallery card and the builder
     // show a name. 6am's finding, one list over, and 24 of the premades' 50
     // advantage rows.
-    val advantages = remember(traits) { TraitEffects.held(traits, TraitKind.ADVANTAGE) }
+    val advantages = remember(traits) { TraitReport.held(traits, TraitKind.ADVANTAGE) }
     // Damage rolls off ST, Boxing's bonus off DX and a Major Wound off HT, all
     // AFTER any potion that raised them -- the same digested character the
     // skill levels come from.

@@ -285,17 +285,17 @@ class LanguagesTest {
         assertEquals(setOf(Languages.TALENT, Languages.MULTILINGUAL), Languages.PRICING_TRAITS)
         assertEquals(emptySet<String>(), Languages.PRICING_TRAITS - TraitEffects.known())
         // Multilingual's cell prints a second clause, and it reaches nothing.
-        val multilingual = TraitEffects.reported(holding(Languages.MULTILINGUAL))
+        val multilingual = TraitReport.reported(holding(Languages.MULTILINGUAL))
         assertTrue(multilingual.any { "language-dependent" in it.printed }, multilingual.toString())
         // Language Talent's one clause is applied whole: nothing to report.
-        assertEquals(emptyList<TraitNote>(), TraitEffects.reported(holding(Languages.TALENT)))
+        assertEquals(emptyList<TraitNote>(), TraitReport.reported(holding(Languages.TALENT)))
     }
 
     /** Owned, billed, and still on the sheet: the penalties reach no roll. */
     @Test
     fun `a bought language is reported on the sheet with what is not applied`() {
         val trait = Languages.owned(listOf(buy("Hermes", "Accented")), emptyList()).single().second!!.toTrait()
-        val notes = TraitEffects.reported(listOf(trait))
+        val notes = TraitReport.reported(listOf(trait))
         assertTrue(notes.any { "language-dependent" in it.reason }, notes.toString())
         assertEquals(20, PointBudget.report(
             com.pathways.model.Attributes(9, 9, 9, 9), com.pathways.model.SecondaryDelta(), listOf(trait), emptyList(),

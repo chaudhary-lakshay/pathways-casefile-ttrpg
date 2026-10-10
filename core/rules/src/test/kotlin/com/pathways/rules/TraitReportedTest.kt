@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-/** What [TraitEffects.reported] and [TraitEffects.held] say is not applied, and the census behind [TraitEffects.known]. */
+/** What [TraitReport.reported] and [TraitReport.held] say is not applied, and the census behind [TraitEffects.known]. */
 class TraitReportedTest {
     private fun advantage(name: String) = Trait(name, 5, TraitKind.ADVANTAGE)
     private fun skill(attr: ControllingAttribute) =
@@ -35,7 +35,7 @@ class TraitReportedTest {
         // the map. No unapplied trait is levelled any more, and the levelled
         // resolution it used to pin here lives in `VitalRollsTest` instead,
         // against the accessor that now reads the level.
-        val notes = TraitEffects.reported(listOf(advantage("Danger Sense")))
+        val notes = TraitReport.reported(listOf(advantage("Danger Sense")))
         assertEquals(listOf("Danger Sense"), notes.map { it.trait })
         assertTrue(notes[0].reason.contains("GM"), notes[0].reason)
     }
@@ -55,7 +55,7 @@ class TraitReportedTest {
     @Test
     fun `the shock clause is not reported while Shock applies it`() {
         val tough = listOf(advantage("High Pain Threshold"))
-        val notes = TraitEffects.reported(tough)
+        val notes = TraitReport.reported(tough)
         if (Shock.penaltyFor(RollKind.SKILL, shocked = true, traits = tough) == 0) {
             assertTrue(notes.none { it.printed.contains("Ignore shock penalties") }, "$notes")
             assertTrue(notes.none { it.reason.contains("no shock penalty") }, "$notes")
@@ -88,7 +88,7 @@ class TraitReportedTest {
     fun `a glued name is reported as well as resolved`() {
         val row = ContentLoader.advantages().first { it.name == TraitEffects.RAPID_RECOVERY }
         val glued = Trait("${TraitEffects.RAPID_RECOVERY} - ${row.notes}", 5, TraitKind.ADVANTAGE)
-        val notes = TraitEffects.reported(listOf(glued))
+        val notes = TraitReport.reported(listOf(glued))
         assertEquals(1, notes.size, "the glued trait reported nothing: $notes")
         // The row prints the effect cell underneath, so leaving it inside the
         // NAME printed the same sentence twice -- which only the device could
@@ -123,7 +123,7 @@ class TraitReportedTest {
         // Not +5: the specific bonus is not laid on top of the general one.
         val physician = SkillKey("Physician", null, iq, Difficulty.HARD)
         assertEquals(emptyList<Any>(), TraitEffects.modifiers(healer, physician))
-        val notes = TraitEffects.reported(healer)
+        val notes = TraitReport.reported(healer)
         assertTrue(
             notes.any { it.printed.contains("diagnose, treat, and heal") },
             "the unapplied clause is not reported: $notes",
@@ -147,7 +147,7 @@ class TraitReportedTest {
         for (name in listOf("Flexibility", "Double-Jointed")) {
             val cell = ContentLoader.advantages().first { it.name == name }.notes
             assertTrue(cell.contains("close-quarters penalties"), cell)
-            val notes = TraitEffects.reported(listOf(advantage(name)))
+            val notes = TraitReport.reported(listOf(advantage(name)))
             assertTrue(
                 notes.any { it.printed.contains("close-quarters") },
                 "$name's unapplied clause is not reported: $notes",
@@ -207,7 +207,7 @@ class TraitReportedTest {
             TraitClauses.skillClauseNames()
         for (trait in applied) {
             val cell = catalogue.first { it.name == trait }.notes
-            val reported = TraitEffects.reported(listOf(advantage(trait))).map { it.printed }
+            val reported = TraitReport.reported(listOf(advantage(trait))).map { it.printed }
             val segments = cell.split(';', '.').map { it.trim() }.filter { it.isNotEmpty() }
             for (segment in segments) {
                 val cap = TraitEffects.maxLevelsFor(trait)
@@ -258,7 +258,7 @@ class TraitReportedTest {
     @Test
     fun `the Balance knockdown clause is reported and reaches no roll`() {
         val perfect = listOf(advantage(TraitEffects.PERFECT_BALANCE))
-        val notes = TraitEffects.reported(perfect)
+        val notes = TraitReport.reported(perfect)
         assertEquals(1, notes.size, "$notes")
         assertTrue(notes.single().printed.contains("+6 to avoid knockdown"), "$notes")
         // The applied half is NOT disclaimed, or the report would be false.
@@ -277,7 +277,7 @@ class TraitReportedTest {
     @Test
     fun `the head and recovery traits are reported whole`() {
         for (name in listOf(TraitEffects.IRON_JAW, TraitEffects.RAPID_RECOVERY)) {
-            val notes = TraitEffects.reported(listOf(advantage(name)))
+            val notes = TraitReport.reported(listOf(advantage(name)))
             assertEquals(1, notes.size, "$name: $notes")
             assertEquals(name, notes.single().trait)
         }
@@ -308,7 +308,7 @@ class TraitReportedTest {
      */
     @Test
     fun `a wholly applied trait is absent from the reported list`() {
-        assertEquals(emptyList<TraitNote>(), TraitEffects.reported(listOf(advantage("Alertness 1"))))
+        assertEquals(emptyList<TraitNote>(), TraitReport.reported(listOf(advantage("Alertness 1"))))
     }
 
     /**
@@ -339,7 +339,7 @@ class TraitReportedTest {
      */
     @Test
     fun `a partly applied trait reports the clauses that reach nothing`() {
-        val notes = TraitEffects.reported(listOf(advantage("Combat Reflexes"), advantage("Fit")))
+        val notes = TraitReport.reported(listOf(advantage("Combat Reflexes"), advantage("Fit")))
         assertEquals(listOf("Fit"), notes.map { it.trait })
         assertEquals(listOf("recover FP at twice the normal rate"), notes.map { it.printed })
         // Every applied clause is absent -- none is left over. The last of the
@@ -368,7 +368,7 @@ class TraitReportedTest {
         assertTrue(rows.size >= 2, rows.toString())
         for (trait in rows) {
             val printed = catalogue.getValue(trait).notes
-            for (note in TraitEffects.reported(listOf(advantage(trait)))) {
+            for (note in TraitReport.reported(listOf(advantage(trait)))) {
                 assertTrue(printed.contains(note.printed), "${note.printed} not in: $printed")
             }
         }
@@ -467,13 +467,13 @@ class TraitReportedTest {
      */
     @Test
     fun `the clauses a fright row prints beside its modifier are reported`() {
-        val phobia = TraitEffects.reported(
+        val phobia = TraitReport.reported(
             listOf(Trait("Phobia (Cities)", 10, TraitKind.DISADVANTAGE)),
         )
         assertTrue(phobia.any { "-1 to all rolls" in it.printed }, phobia.toString())
         // ...under the sheet's own spelling.
         assertTrue(phobia.all { it.trait == "Phobia (Cities)" })
-        val fearless = TraitEffects.reported(listOf(advantage("Fearlessness")))
+        val fearless = TraitReport.reported(listOf(advantage("Fearlessness")))
         assertTrue(fearless.any { "intimidation" in it.printed }, fearless.toString())
     }
 
@@ -484,7 +484,7 @@ class TraitReportedTest {
     @Test
     fun `no refusal says this app rolls no default`() {
         val stale = (ContentLoader.advantages() + ContentLoader.disadvantages())
-            .flatMap { TraitEffects.reported(listOf(advantage(it.name))) }
+            .flatMap { TraitReport.reported(listOf(advantage(it.name))) }
             .filter { "no default is rolled" in it.reason }
             .map { it.trait }
         assertEquals(emptyList<String>(), stale, "Divination Arts is rolled at a default")
@@ -512,7 +512,7 @@ class TraitReportedTest {
         )
         val held = listOf(advantage("Official Beyonder"))
         assertTrue("Official Beyonder" in TraitEffects.unappliedNames())
-        assertEquals(cell, TraitEffects.reported(held).single().printed)
+        assertEquals(cell, TraitReport.reported(held).single().printed)
         val occultism = SkillKey(
             "Occultism", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.AVERAGE,
         )
@@ -539,11 +539,11 @@ class TraitReportedTest {
             // "its price aside" because of these two (the diff review).
             "Wealth: Comfortable", "Social Stigma",
         )
-        assertTrue(TraitEffects.UNREAD.startsWith("its price aside"), TraitEffects.UNREAD)
+        assertTrue(TraitReport.UNREAD.startsWith("its price aside"), TraitReport.UNREAD)
         for (name in unread) {
-            val note = TraitEffects.reported(listOf(advantage(name))).single()
+            val note = TraitReport.reported(listOf(advantage(name))).single()
             assertEquals(rows.getValue(name).notes, note.printed, name)
-            assertEquals(TraitEffects.UNREAD, note.reason, name)
+            assertEquals(TraitReport.UNREAD, note.reason, name)
         }
     }
 
@@ -560,7 +560,7 @@ class TraitReportedTest {
             "A Name No Catalogue Prints",
         )
         for (name in quiet) {
-            assertEquals(emptyList<Any>(), TraitEffects.reported(listOf(advantage(name))), name)
+            assertEquals(emptyList<Any>(), TraitReport.reported(listOf(advantage(name))), name)
         }
     }
 
@@ -583,20 +583,20 @@ class TraitReportedTest {
             val held = Trait(row.name, 5, TraitKind.DISADVANTAGE)
             // The sentence says the roll is applied: the roll must be offered.
             assertTrue(SelfControl.checksFor(listOf(held)).isNotEmpty(), row.name)
-            val note = TraitEffects.reported(listOf(held)).single()
+            val note = TraitReport.reported(listOf(held)).single()
             assertEquals(row.notes, note.printed, row.name)
-            assertEquals(TraitEffects.ROLLED_ONLY, note.reason, row.name)
+            assertEquals(TraitReport.ROLLED_ONLY, note.reason, row.name)
         }
         // A quirk of the same name is offered no roll, so it may not be told
         // the roll is applied: `checksFor` rolls disadvantages alone.
         val quirk = Trait("Reckless", 1, TraitKind.QUIRK)
         assertEquals(emptyList<Any>(), SelfControl.checksFor(listOf(quirk)))
-        assertEquals(TraitEffects.UNREAD, TraitEffects.reported(listOf(quirk)).single().reason)
+        assertEquals(TraitReport.UNREAD, TraitReport.reported(listOf(quirk)).single().reason)
         // A self-control row something else reads keeps its clauses: the
         // whole-cell sentence would be false of Loner's applied -1.
         assertEquals(
             listOf("-1 to social rolls in crowds"),
-            TraitEffects.reported(listOf(advantage("Loner"))).map { it.printed },
+            TraitReport.reported(listOf(advantage("Loner"))).map { it.printed },
         )
     }
 
@@ -614,8 +614,8 @@ class TraitReportedTest {
         val struggling = "Start with 15 soli; modest room; occasional luxuries"
         for (sheet in Premades.all()) {
             val traits = sheet.toCharacter().traits
-            val boons = TraitEffects.held(traits, TraitKind.ADVANTAGE)
-            val banes = TraitEffects.held(traits, TraitKind.DISADVANTAGE)
+            val boons = TraitReport.held(traits, TraitKind.ADVANTAGE)
+            val banes = TraitReport.held(traits, TraitKind.DISADVANTAGE)
             assertEquals(traits.filter { it.kind == TraitKind.ADVANTAGE }, boons.map { it.trait })
             assertEquals(
                 traits.filter { it.kind == TraitKind.DISADVANTAGE }.map { owned ->
@@ -626,13 +626,13 @@ class TraitReportedTest {
                 sheet.name,
             )
             for (row in (boons + banes).filter { it.trait != poverty }) {
-                assertEquals(TraitEffects.reported(listOf(row.trait)), row.notes, row.shown)
+                assertEquals(TraitReport.reported(listOf(row.trait)), row.notes, row.shown)
             }
         }
         // Beat Cop's, which the sheet never printed.
-        val cop = TraitEffects.held(Premades.byName("Beat Cop").toCharacter().traits, TraitKind.ADVANTAGE)
+        val cop = TraitReport.held(Premades.byName("Beat Cop").toCharacter().traits, TraitKind.ADVANTAGE)
         val powers = cop.single { it.shown == "Legal Enforcement Powers" }
-        assertEquals(TraitEffects.UNREAD, powers.notes.single().reason)
+        assertEquals(TraitReport.UNREAD, powers.notes.single().reason)
         assertTrue(powers.cell!!.startsWith("Official authority to investigate"), powers.cell)
         // Stated here, not asked of `reported`: applied in full says nothing,
         // and a cell with one clause left over names that clause alone.
@@ -670,7 +670,7 @@ class TraitReportedTest {
             // One at a time: a row's variants are severities, and it admits one.
             held += purchases.map { PurchasableTraits.resolved(listOf(it)).single().second!! }
         }
-        val bare = held.filter { TraitEffects.held(listOf(it), it.kind).single().cell == null }
+        val bare = held.filter { TraitReport.held(listOf(it), it.kind).single().cell == null }
         assertEquals(
             setOf(
                 // Resemblance only, recorded: the book prints the row under another name.
@@ -690,7 +690,7 @@ class TraitReportedTest {
     @Test
     fun `Fast Healer reports the clause the recovery row cannot reach`() {
         assertTrue(TraitEffects.FAST_HEALER in TraitEffects.known())
-        val note = TraitEffects.reported(listOf(advantage(TraitEffects.FAST_HEALER))).single()
+        val note = TraitReport.reported(listOf(advantage(TraitEffects.FAST_HEALER))).single()
         assertEquals("Injuries that would leave others bedridden leave you functional in half the time", note.printed)
         assertTrue("wounds" in note.reason, note.reason)
     }
@@ -706,18 +706,18 @@ class TraitReportedTest {
         val cell = ContentLoader.advantages().single { it.name == TraitEffects.CLEANSED_SPIRIT }.notes
         val held = advantage(TraitEffects.CLEANSED_SPIRIT)
 
-        val note = TraitEffects.corruptionNotes(listOf(held, advantage("Fit"))).single()
+        val note = TraitReport.corruptionNotes(listOf(held, advantage("Fit"))).single()
         assertEquals(cell, note.printed)
         assertTrue("Soul Debt" in note.reason && "GM" in note.reason, note.reason)
-        assertEquals(note, TraitEffects.reported(listOf(held)).single())
+        assertEquals(note, TraitReport.reported(listOf(held)).single())
 
-        assertTrue(TraitEffects.corruptionNotes(listOf(advantage("Fit"))).isEmpty())
+        assertTrue(TraitReport.corruptionNotes(listOf(advantage("Fit"))).isEmpty())
         // A near miss on the name is not the trait (the diff review). It must
         // report something, or a loose filter passes through reported() empty:
         // Spiritual Fortitude is applied in full and could not catch one.
         val nearMiss = listOf(advantage("Spirit Tongue"))
-        assertTrue(TraitEffects.reported(nearMiss).isNotEmpty())
-        assertTrue(TraitEffects.corruptionNotes(nearMiss).isEmpty())
-        assertTrue(TraitEffects.corruptionNotes(emptyList()).isEmpty())
+        assertTrue(TraitReport.reported(nearMiss).isNotEmpty())
+        assertTrue(TraitReport.corruptionNotes(nearMiss).isEmpty())
+        assertTrue(TraitReport.corruptionNotes(emptyList()).isEmpty())
     }
 }

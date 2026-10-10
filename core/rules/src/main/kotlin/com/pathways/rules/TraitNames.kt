@@ -32,7 +32,7 @@ object TraitNames {
      * name unchanged when it resolves to none.
      *
      * **One resolution, shared by everything that matches a trait**: this
-     * object's applied bonuses and [TraitEffects.reported], [SelfControl.checksFor], and
+     * object's applied bonuses and [TraitReport.reported], [SelfControl.checksFor], and
      * the sheet's disadvantage rows. Two matchers is how a character ends up
      * with a bonus whose explanation vanished -- the
      * two-copies-of-one-decision failure this file records three times over
@@ -58,7 +58,7 @@ object TraitNames {
         // A row's own name is that row. `Compulsive Behavior (Indulge Evil
         // Desires) SC 6` ends in its self-control number, and the level strip
         // below lost the row the builder had sold (6ew). Returned in the ROW's
-        // spelling: [TraitEffects.reported] checks [TraitEffects.known] case-sensitively (Codex).
+        // spelling: [TraitReport.reported] checks [TraitEffects.known] case-sensitively (Codex).
         rowNames[printed.lowercase()]?.let { return it }
         if (printed.substringAfterLast(' ').toIntOrNull() != null) {
             return printed.substringBeforeLast(' ')

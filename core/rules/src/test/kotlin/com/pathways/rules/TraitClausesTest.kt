@@ -282,7 +282,7 @@ class TraitClausesTest {
             "Diplomacy", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.HARD,
         )
         assertEquals(emptyList<Any>(), TraitEffects.modifiers(loner, diplomacy))
-        assertTrue(TraitEffects.reported(loner).any { "social rolls" in it.printed })
+        assertTrue(TraitReport.reported(loner).any { "social rolls" in it.printed })
     }
 
     // ---- the three rows that modify a bare Will roll -----------------------
@@ -486,7 +486,7 @@ class TraitClausesTest {
         assertEquals(TraitClauses.willClauses(listOf(grief)), TraitClauses.concentrationClauses(listOf(grief)))
 
         assertTrue(TraitEffects.THINNED_VEIL in TraitEffects.known())
-        val note = TraitEffects.reported(listOf(veil)).single()
+        val note = TraitReport.reported(listOf(veil)).single()
         assertTrue("GM" in note.reason, note.reason)
         assertEquals(clause.printed, note.printed)
     }
@@ -518,7 +518,7 @@ class TraitClausesTest {
         )
 
         assertTrue(TraitEffects.CHRONIC_INSOMNIA in TraitEffects.known())
-        val notes = TraitEffects.reported(listOf(insomnia)).associateBy { it.printed }
+        val notes = TraitReport.reported(listOf(insomnia)).associateBy { it.printed }
         assertEquals(
             setOf(clause.printed, "Lose 1 FP each morning that cannot be recovered through rest"),
             notes.keys,

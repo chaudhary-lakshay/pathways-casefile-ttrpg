@@ -57,6 +57,7 @@ import com.pathways.rules.PotionConsumption
 import com.pathways.rules.RandomSource
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.TraitEffects
+import com.pathways.rules.TraitReport
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.ScoreFloors
 import com.pathways.rules.content.ContentLoader
@@ -517,7 +518,7 @@ internal fun drinkLine(state: BeyonderState?, cor: Int, ceilingAfter: Int): Stri
  * full digestion, a ritual's or a boon's critical failure, and Soul Debt.
  *
  * A holder of Cleansed Spirit is told here that none of those is halved
- * ([TraitEffects.corruptionNotes], 6fd): the book lists no source as passive.
+ * ([TraitReport.corruptionNotes], 6fd): the book lists no source as passive.
  */
 @Composable
 private fun CorruptionTracker(
@@ -569,7 +570,7 @@ private fun CorruptionTracker(
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp),
         )
-        TraitEffects.corruptionNotes(traits).forEach {
+        TraitReport.corruptionNotes(traits).forEach {
             Text(
                 "${it.trait}: ${it.printed} Not halved here: ${it.reason}.",
                 style = MaterialTheme.typography.bodySmall,

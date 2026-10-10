@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
-import com.pathways.rules.TraitEffects.HeldTrait
+import com.pathways.rules.TraitReport.HeldTrait
 import com.pathways.rules.PoolStatus
 import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.SheetRow
@@ -120,7 +120,7 @@ internal fun LazyListScope.traitsTab(
     }
 
     // The disadvantages, which until this slice rendered NOWHERE in
-    // the app: `TraitEffects.reported` reads the advantage catalogue
+    // the app: `TraitReport.reported` reads the advantage catalogue
     // only, so a character's drawbacks -- and the ~24 rows that print
     // a number to roll under -- had no home at all. The same hole
     // 5dcfc25 fixed for bought skills, one list over.

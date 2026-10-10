@@ -161,7 +161,7 @@ class TraitEffectsTest {
     @Test
     fun `Charisma's reaction half is reported and its skill half applied`() {
         val owned = listOf(advantage("${TraitEffects.CHARISMA} 2"))
-        val reported = TraitEffects.reported(owned)
+        val reported = TraitReport.reported(owned)
         assertEquals(1, reported.size, reported.toString())
         assertTrue(reported.single().printed.contains("reaction rolls"), reported.toString())
         val cell = ContentLoader.advantages().first { it.name == TraitEffects.CHARISMA }.notes
@@ -626,7 +626,7 @@ class TraitEffectsTest {
      * asked for.
      *
      * What changed is that there is a control now, so the trait is no longer
-     * [TraitEffects.reported] as unreachable — a disclaimer expires exactly
+     * [TraitReport.reported] as unreachable — a disclaimer expires exactly
      * when the code changes (6ba). The rest of that reading is unmoved and is
      * pinned by `a social penalty needs its circumstance declared`.
      */
@@ -644,7 +644,7 @@ class TraitEffectsTest {
             // ...and it is no longer disclaimed as unreachable, because it is
             // not: the declaration control shipped with this test.
             assertTrue(
-                TraitEffects.reported(owned).none { it.trait == name },
+                TraitReport.reported(owned).none { it.trait == name },
                 "$name has a control now and must not still say it has none",
             )
         }
@@ -686,7 +686,7 @@ class TraitEffectsTest {
         assertNull(TraitEffects.majorWoundHt(resistant).line)
         assertEquals(emptyList<Any>(), TraitEffects.modifiers(resistant, ht))
         // ...and it says so on the sheet rather than going quiet.
-        assertTrue(TraitEffects.reported(resistant).any { "+3 (3 pts)" in it.printed })
+        assertTrue(TraitReport.reported(resistant).any { "+3 (3 pts)" in it.printed })
     }
 
     // ---- Versatile ---------------------------------------------------------
@@ -717,7 +717,7 @@ class TraitEffectsTest {
         // nothing left to report. Until 6et the sheet said "this app offers no
         // other roll at a default", and the Skills tab's untrained roll made
         // that the second false sentence this one trait has carried.
-        assertEquals(emptyList<Any>(), TraitEffects.reported(versatile))
+        assertEquals(emptyList<Any>(), TraitReport.reported(versatile))
         val untrained = SkillDefaults.offered(emptyMap(), { 10 }, TraitEffects.defaultBonus(versatile))
         assertEquals(6, untrained.single { it.key.name == "Stealth" }.level)
     }

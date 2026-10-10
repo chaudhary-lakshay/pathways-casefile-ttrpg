@@ -175,7 +175,7 @@ class AppearanceTest {
      * A face has no catalogue row, so the Traits tab printed its name alone
      * (6fq). Its cell is the table's own reaction column, worded as the book
      * words every row ("-2 to reaction rolls", 722-743), and nothing applies
-     * it, so it carries [TraitEffects.UNREAD] like any row nothing reads.
+     * it, so it carries [TraitReport.UNREAD] like any row nothing reads.
      */
     @Test
     fun `a held face prints its reaction cell and says it is not applied`() {
@@ -188,12 +188,12 @@ class AppearanceTest {
         assertEquals(printed.size, Appearance.all().size)
         for ((level, cell) in Appearance.all().zip(printed)) {
             val face = Appearance.traitFor(level)
-            val held = TraitEffects.held(listOf(face), face.kind).single()
+            val held = TraitReport.held(listOf(face), face.kind).single()
             assertEquals(cell, held.cell, level.level)
-            assertEquals(listOf(TraitEffects.UNREAD), held.notes.map { it.reason }, level.level)
+            assertEquals(listOf(TraitReport.UNREAD), held.notes.map { it.reason }, level.level)
         }
         // A catalogue row is untouched.
-        val luck = TraitEffects.held(listOf(Trait("Luck", 15, TraitKind.ADVANTAGE)), TraitKind.ADVANTAGE).single()
+        val luck = TraitReport.held(listOf(Trait("Luck", 15, TraitKind.ADVANTAGE)), TraitKind.ADVANTAGE).single()
         assertTrue(luck.cell!!.isNotBlank())
     }
 }

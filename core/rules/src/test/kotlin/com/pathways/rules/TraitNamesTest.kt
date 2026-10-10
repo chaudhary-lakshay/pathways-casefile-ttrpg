@@ -700,8 +700,8 @@ class TraitNamesTest {
             .map { it.name }.filter { TraitNames.catalogueName(it.uppercase()) != it }
         assertEquals(emptyList<String>(), recased)
         assertEquals(
-            TraitEffects.reported(listOf(advantage("Phobia (specify)"))),
-            TraitEffects.reported(listOf(advantage("PHOBIA (SPECIFY)")))
+            TraitReport.reported(listOf(advantage("Phobia (specify)"))),
+            TraitReport.reported(listOf(advantage("PHOBIA (SPECIFY)")))
                 .map { it.copy(trait = "Phobia (specify)") },
         )
         assertEquals("Alertness", TraitNames.catalogueName("Alertness 1"))

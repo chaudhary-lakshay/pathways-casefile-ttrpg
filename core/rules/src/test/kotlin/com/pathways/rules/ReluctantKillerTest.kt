@@ -75,7 +75,7 @@ class ReluctantKillerTest {
     @Test
     fun `the sheet names the morose days as the one clause left`() {
         assertTrue(TraitEffects.RELUCTANT_KILLER in TraitEffects.known())
-        val note = TraitEffects.reported(killer).single()
+        val note = TraitReport.reported(killer).single()
         assertEquals("become morose for 3d days", note.printed)
         assertTrue(cell.contains(note.printed))
     }

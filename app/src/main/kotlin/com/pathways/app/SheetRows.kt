@@ -43,7 +43,7 @@ import com.pathways.rules.Pools
 import com.pathways.rules.SuccessRoll
 import com.pathways.rules.VitalCheck
 import com.pathways.rules.VitalRolls
-import com.pathways.rules.TraitEffects
+import com.pathways.rules.TraitReport
 
 /** The pool maximums and Will as they stand after whatever has been drunk. */
 internal data class Vitals(
@@ -121,7 +121,7 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
  * caveat the other drops.
  */
 @Composable
-internal fun HeldCell(row: TraitEffects.HeldTrait) {
+internal fun HeldCell(row: TraitReport.HeldTrait) {
     row.cell?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
     for (note in row.notes) {
         Text(
