@@ -6726,6 +6726,71 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6fv. A turn of the tablet took the sheet away
+
+6fu recorded it from source and did not reproduce it. With the owner's
+go-ahead, on the SM-T570:
+
+**Reproduced.** Apothecary's sheet open on Vitals; `settings put system
+accelerometer_rotation 0` then `user_rotation 1`. The dump after read
+*"Characters"* and `All (22)`: the character list. Same pid before and
+after (9050), a new window: the activity was recreated and the process
+was not. Every screen's state is plain `remember`, so nothing on screen
+survived, and the save did.
+
+**The fix is one manifest attribute**, `android:configChanges=
+"orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"`:
+the activity handles a turn itself and is never recreated for one.
+Chosen over `rememberSaveable` for the navigation because that would
+bring back the sheet and still close every dialog with its roll, which
+is what 6dy lost. Two checks could have reversed it and did not: `res/`
+holds no directory qualified by orientation or size (`values-night`
+only), and nothing in `app/src/main` reads `LocalConfiguration`, a
+screen dimension or `BoxWithConstraints`, so no remembered value can
+hold a stale width.
+
+**Its ceiling is written in the manifest.** A dark-mode switch, a font
+scale change and process death still recreate the activity and lose the
+screen. `uiMode` was left out on purpose: `values-night` must reload.
+So 6dy's `onDispose { settle() }` stays in the three dialogs, and its
+comment now says which recreation it is for.
+
+**Verified on the same tablet, fresh install** (`lastUpdateTime` moved):
+
+- Sheet open, turned to landscape and back: still Apothecary, still on
+  Vitals, same pid. The landscape screenshot lays out correctly, tiles
+  eight to a row.
+- Fright dialog with *"Witnessing a supernatural death"* picked: the
+  pick and *"3d6 vs 6"* survived both turns.
+- Rolled: *"Held their nerve — 3d6: 6 vs 6"* read the same in portrait,
+  landscape and portrait again. Navigation alone could not have kept it.
+- Not run: 6dy's ritual push through a rotation. It writes the save, and
+  its code is unchanged; a turn now never reaches it.
+
+Rotation settings were put back each time (`accelerometer_rotation 1`,
+`user_rotation 0`) and the tablet left on its launcher.
+
+**A pin, not a proof.** `ManifestTest` reads the manifest and fails
+without `orientation` and `screenSize` (watched: *"expected
+[orientation, screenSize] but was []"*). No JVM test can turn a device;
+the device pass is the proof and the test stops the line being lost.
+
+**The Apothecary's save entry, on the owner's word.** `+1` eight times
+on the SPI row took it from -8 to *"SPI 0 / 9"*; CoR stayed 0. Against
+the morning's backup the save differs in one field, Apothecary's
+`spiSpent`, 17 to 9, beside the `pendingPcr: null` the newer build
+writes on every entry.
+
+1915 Kotlin (1341 `core:rules`, 554 `app`, 20 `core:model`), green after
+`--rerun-tasks`. No review was run: one attribute, three comments and a
+pin.
+
+**Next (6fw)**: 6ft left the gallery row printing the sheet's
+attributes while the tap leads to the played ones, because digesting on
+the launch screen can throw on a save outside the floors. Read whether
+a builder edit or a potion makes that row wrong today, and what it
+would take to digest there safely.
+
 ## 6fu. Six comments whose claim had expired, and one that is behaviour
 
 6ft named this sweep and **named the wrong query**. Its regex,

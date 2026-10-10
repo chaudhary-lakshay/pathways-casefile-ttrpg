@@ -159,7 +159,7 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6fu is newest, a comment sweep; 6ft before it: a sheet's printed SPI 9 is not played.** Four sheets
+**6fv is newest (rotation), with 6fu and 6ft before it: a sheet's printed SPI 9 is not played.** Four sheets
 (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police) print SPI 9
 and no sheet prints a pathway. `toCharacter` carried the 9 and digestion
 ADDED a potion's grant, so an Apothecary on Hermit 9 played SPI 18; 6dy's
@@ -180,15 +180,19 @@ the owner's call (`MORTAL_SPI`'s KDoc). Read it for two things.
 
 The carried SPI's reason predated the pathway model and expired when it
 landed. Design and diff review said SHIP. Device-verified, save
-untouched. **One save entry is left wrong**: the tablet's Apothecary
-spent 17 of 18, so it reads *"SPI -8 / 9 ... 8 CoR charged"* with CoR 0;
-`+1` eight times clears it and charges nothing. 6fu ran the sweep 6ft
+untouched. **One save entry was left wrong**: the tablet's Apothecary
+had spent 17 of 18, so it read *"SPI -8 / 9 ... 8 CoR charged"* with CoR
+0, until 6fv stepped it back. 6fu ran the sweep 6ft
 named, and the milestone regex was the wrong query: the `ponytail:`
 comments and absence wording found six present-tense claims that had
 expired, corrected in place, section 5's *"zero production callers"*
-among them. **Next (6fv)**: nothing survives a recreated activity but
-the save (no `configChanges`, no `rememberSaveable`). Reproduce a
-rotation on the tablet with the owner, then choose the fix.
+among them. 6fv: one turn of the tablet took an open sheet back to the
+character list (reproduced; same pid). The manifest's `configChanges`
+handles a turn now, so a rolled result survives one; a dark-mode
+switch and process death still lose the screen, never the save.
+Device-verified, and the Apothecary was stepped back to SPI 0 / 9 on
+the owner's word. **Next (6fw)**: the gallery row prints the sheet's
+attributes, not the played ones; read whether that is wrong today.
 
 **6fs is next, a device pass for 6fr: every held row prints a cell.** A census ran `held()`
 over every fixture, every wealth and appearance level, every offered and
@@ -334,7 +338,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6fu first.** The
+**Where to start next: the slice log, from the END — 6fv first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -389,7 +393,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1914 Kotlin** (JUnit 5 — 1341 `core:rules`, 553 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1915 Kotlin** (JUnit 5 — 1341 `core:rules`, 554 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |
