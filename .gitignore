@@ -15,3 +15,6 @@ replay_pid*.log
 # graphify's knowledge-graph output: 21 MB, regenerated from the tree by the
 # tool itself, and a claim about the tree at the moment it ran.
 graphify-out/
+
+# Serena MCP: per-machine project config and a ~500 MB language-server index.
+.serena/

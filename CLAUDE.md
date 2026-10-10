@@ -490,6 +490,16 @@ and the `graphify.exe` shim is refused by Git Bash). Its call edges are
 heuristic: asked what calls `SkillRoll.targetFor` it returned none of the
 three the pattern above finds.
 
+**Serena** (MCP, this project only: `claude mcp get serena`) answers the same
+questions through the Kotlin language server, across modules: asked for
+`SkillRoll.targetFor`'s and `SkillDefaults.wieldedAt`'s references on
+2026-10-10 it returned exactly the callers ast-grep finds. Its first index
+takes about 90 s, and the server needs `-Xmx4G` (set in
+`~/.serena/serena_config.yml`, beside an `ls_path` to a hand-downloaded
+server, because Serena's own download 404s). At 3 GB with Gradle running it
+died of OutOfMemoryError. It also starts a Gradle daemon to import the
+project. Run `./gradlew --stop` before a session if memory is short.
+
 Note: on this machine `python` is not on PATH. Use the `py` launcher. Gradle's
 `--console=plain -q` prints nothing on success; check the exit code.
 
