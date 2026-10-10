@@ -459,7 +459,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1950 Kotlin** (JUnit 5 — 1351 `core:rules`, 579 `app`, 20 `core:model`) + **361 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1950 Kotlin** (JUnit 5 — 1351 `core:rules`, 579 `app`, 20 `core:model`) + **362 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..HEAD -- core app`; nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -482,9 +482,9 @@ ast-grep run -l kotlin -p 'SkillRoll.targetFor($$$)' app core   # call sites
 `ast-grep scan --inline-rules '{id: s, language: kotlin, rule: {kind: function_declaration, has: {kind: simple_identifier, regex: "^RollDialog$"}}}' app`.
 A `fun $N($$$): $R { $$$ }` pattern misses every `@Composable`, which has no
 return type. Nothing runs `ast-grep scan` for you: it is not in the Gradle
-build. Eleven files are over the 800-line cap;
-[`docs/SPLIT-PLAN.md`](docs/SPLIT-PLAN.md) is the plan for them, not yet
-started. `graphify-out/` was rebuilt 2026-10-10 with `python -m graphify
+build. Seven files are over the 800-line cap, and `OVER_CAP` in
+`tools/test_tools.py` fails on an eighth; [`docs/SPLIT-PLAN.md`](docs/SPLIT-PLAN.md)
+has steps 0-4 done and 5-8 open. `graphify-out/` was rebuilt 2026-10-10 with `python -m graphify
 update .` (no LLM; the interpreter is named in `graphify-out/.graphify_python`,
 and the `graphify.exe` shim is refused by Git Bash). Its call edges are
 heuristic: asked what calls `SkillRoll.targetFor` it returned none of the
@@ -994,8 +994,8 @@ so; three `ModifierResolverTest` cases pin it.
   `Permanent`/`Scene` never expire on a turn count.
 
 `ModifierResolver` has **one production caller, `SkillRoll.targetFor`**
-(`SkillRoll.kt:125`; it was `SkillRoll.at` until 6gd), which three screens
-call: the sheet's skill roll (`MainActivity.kt:916`), the Attack dialog
+(`SkillRoll.kt:185`; it was `SkillRoll.at` until 6gd), which three screens
+call: the sheet's skill roll (`MainActivity.kt:865`), the Attack dialog
 and the Defend dialog. Rituals,
 divinations, boons and the bare attribute rolls compose their own targets
 and never reach it. This paragraph said *"zero production callers today.

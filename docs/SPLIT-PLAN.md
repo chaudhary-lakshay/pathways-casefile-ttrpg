@@ -1,7 +1,33 @@
 # Split plan: eleven files over the 800-line cap
 
-Written 2026-10-10 against `123d68c`. **Nothing here has been done.** Every
-line count below is from that commit; re-measure before starting a step.
+Written 2026-10-10 against `123d68c`. Every line count in the tables below
+the status is from that commit; re-measure before starting a step.
+
+## Status (2026-10-10)
+
+**Steps 0-4 are done**, each a commit with 1950 Kotlin tests green from fresh
+XML (`b245394`, `f4d20f3`, `c36e90a`, `7192fb5`; step 0 is `9cc865d`,
+`OVER_CAP` in `tools/test_tools.py`). Steps 5-8 have not been started.
+
+| File | Was | Now | Moved to |
+|---|---|---|---|
+| `Content.kt` | 2106 | 56 | `ContentCharacter` 441, `ContentCombat` 345, `ContentRitual` 322, `ContentPathways` 263, `ContentDivination` 248, `ContentVitals` 227, `ContentSenses` 131, `ContentGear` 102 |
+| `MainActivity.kt` | 2815 | 1235 | `SheetRows` 548, `RollDialog` 514, `FrightDialog` 310, `SelfControlDialog` 195, `ConcentrateDialog` 123 |
+| `TraitEffects.kt` | 2610 | 2187 | `TraitRefusals` 455 |
+| `DefenseDialog.kt` | 1460 | 597 | `DefensePickers` 437, `Parries` 193, `AcrobaticDodge` 173, `RoundState` 80 |
+| `AttackDialog.kt` | 1311 | 581 | `AttackOptions` 538, `RangedOptions` 238 |
+| `BuilderScreen.kt` | 949 | 440 | `BuilderRows` 336, `BuilderPickers` 216 |
+
+Every move was verbatim except four kinds of edit, each in its commit body:
+private declarations used across a new boundary became `internal`; the
+three refusal tables' KDoc links were qualified with `TraitEffects.`;
+`signed(n: Int)` kept one of its four byte-identical private copies; and
+Defend's `Note` became `DefenseNote`, because PathwayScreen's `Note` pads
+16 dp where Defend's pads 4.
+
+Seven files are still over the cap: `test_tools.py` 5978,
+`TraitEffectsTest.kt` 3080, `TraitEffects.kt` 2187, `MainActivity.kt` 1235,
+`RitualDialog.kt` 1042, `extract_content.py` 938, `BeyonderSessionTest.kt` 863.
 
 The point is read cost. An agent that needs one dialog reads 2815 lines of
 `MainActivity.kt` to get it. Section 7's own rule is 800 lines a file.
