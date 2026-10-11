@@ -687,21 +687,7 @@ class TraitReportedTest {
      */
     @Test
     fun `no reachable held row prints without a cell but a recorded sheet spelling`() {
-        val held = mutableListOf<Trait>()
-        Premades.all().forEach { held += it.toCharacter().traits }
-        held += Wealth.all().mapNotNull(Wealth::traitFor)
-        held += Appearance.all().map(Appearance::traitFor)
-        held += PurchasableTraits.offered().map { it.toTrait() }
-        held += TraitGrants.grantedTraitTable().values.flatten()
-        for (lang in Languages.all()) for (p in Languages.proficiencies(lang.type)) for (form in Languages.forms()) {
-            held += Languages.traits(listOf(LanguagePurchase(lang.name, p.proficiency, form)), emptyList())
-        }
-        for (row in PurchasableTraits.instantiable()) {
-            val purchases = row.variants.map { (v, cost) -> InstancedPurchase(row.name, variant = v, cost = cost) }
-                .ifEmpty { listOf(InstancedPurchase(row.name, instance = "Census", cost = row.costMin)) }
-            // One at a time: a row's variants are severities, and it admits one.
-            held += purchases.map { PurchasableTraits.resolved(listOf(it)).single().second!! }
-        }
+        val held = reachableHeldTraits()
         val bare = held.filter { TraitReport.held(listOf(it), it.kind).single().cell == null }
         assertEquals(
             setOf(

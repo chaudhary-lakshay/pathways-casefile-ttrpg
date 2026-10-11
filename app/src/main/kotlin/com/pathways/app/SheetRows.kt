@@ -116,29 +116,6 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
 }
 
 /**
- * The book's cell for one held trait and, under it, what of that cell is not
- * applied. Shared by the advantage and drawback rows, so neither can print a
- * caveat the other drops.
- */
-@Composable
-internal fun HeldCell(row: TraitReport.HeldTrait) {
-    row.cell?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
-    for (note in row.notes) {
-        Text(
-            // A note on the whole cell would print the cell twice; a note on
-            // one clause of it says which. Muted, not brass: this is a caveat
-            // about what the app does NOT do, and painting it the accent
-            // colour made every trait row shout in the same voice as the Roll
-            // button it is not (docs/DESIGN-DIRECTION.md).
-            (if (note.printed == row.cell) "" else "${note.printed}. ") +
-                "Not applied here: ${note.reason}.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-/**
  * The recovery table's daily HT roll, offered while the character is hurt.
  *
  * The DAY is whoever taps the button's to declare, as a new round is: this app

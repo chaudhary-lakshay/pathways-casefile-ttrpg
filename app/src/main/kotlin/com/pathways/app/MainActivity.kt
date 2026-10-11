@@ -25,6 +25,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -239,6 +240,8 @@ fun SheetScreen(
     // show a name. 6am's finding, one list over, and 24 of the premades' 50
     // advantage rows.
     val advantages = remember(traits) { TraitReport.held(traits, TraitKind.ADVANTAGE) }
+    // Which Traits rows are open, by kind and name (6gl).
+    val expandedTraits = remember(sheet) { mutableStateMapOf<String, Boolean>() }
     // Damage rolls off ST, Boxing's bonus off DX and a Major Wound off HT, all
     // AFTER any potion that raised them -- the same digested character the
     // skill levels come from.
@@ -437,6 +440,8 @@ fun SheetScreen(
                     traits = traits,
                     selfControl = selfControl,
                     standing = standing,
+                    expanded = expandedTraits,
+                    onToggle = { expandedTraits[it] = expandedTraits[it] != true },
                     onControl = { controlling = it },
                 )
                 SheetTab.SKILLS -> skillsTab(

@@ -94,77 +94,51 @@ internal fun LazyListScope.traitsTab(
     traits: List<Trait>,
     selfControl: Map<String, SelfControlCheck>,
     standing: Map<String, Int>,
+    expanded: Map<String, Boolean>,
+    onToggle: (String) -> Unit,
     onControl: (SelfControlCheck) -> Unit,
 ) {
-    // Every advantage held, with the book's cell and, under it, what
-    // of that cell lands on nothing this app rolls. Shown with the
-    // reason rather than silently dropped: a GM who can read "no shock
-    // penalty to ignore" applies it themselves, one who sees nothing
-    // assumes it was counted. The call the artifact grade table (6af)
-    // already needed.
+    // Every held trait, collapsed to its name, price and a word for how much
+    // of it is applied (6gl). The book's cell and every reason open under it,
+    // so nothing unapplied is silent: the word says so first. Keyed by kind
+    // and name, never position, because a potion's grants shift the rows.
+    item { TraitLegend() }
+    item { TraitSection("Advantages", advantages.size) }
     items(advantages) { row ->
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
-            Text(
-                // A granted row costs nothing and was not bought (6fk);
-                // a bought level a potion added to says both (6fm).
-                when {
-                    row.trait in grantedTraits -> "${row.shown} — from the potion"
-                    else -> "${row.shown} — ${row.trait.cost} pts" +
-                        TraitGrants.grantedLevelsIn(row.trait, bought)
-                            ?.let { ", +$it from the potion" }.orEmpty()
-                } + superseded(row.trait, traits),
-                style = MaterialTheme.typography.bodySmall,
-            )
-            HeldCell(row)
-        }
+        val key = "a:${row.shown}"
+        TraitRow(
+            row = row,
+            // A granted row costs nothing and was not bought (6fk); a bought
+            // level a potion added to says both (6fm).
+            priceLine = when {
+                row.trait in grantedTraits -> "from the potion"
+                else -> "${row.trait.cost} pts" +
+                    TraitGrants.grantedLevelsIn(row.trait, bought)?.let { ", +$it from the potion" }.orEmpty()
+            } + superseded(row.trait, traits),
+            roll = null,
+            expanded = expanded[key] == true,
+            onToggle = { onToggle(key) },
+            onRoll = {},
+        )
     }
-
-    // The disadvantages, which until this slice rendered NOWHERE in
-    // the app: `TraitReport.reported` reads the advantage catalogue
-    // only, so a character's drawbacks -- and the ~24 rows that print
-    // a number to roll under -- had no home at all. The same hole
-    // 5dcfc25 fixed for bought skills, one list over.
-    //
-    // The self-control rows are tappable, and nothing rolls on its
-    // own: WHEN to call for one is the GM's, exactly as a Fright Check
-    // (6c) and a Major Wound's HT roll (6n) are, and both of those
-    // ship as a button the GM presses.
+    // A quirk prints with a drawback's sign; nothing this app ships makes one.
+    item { TraitSection("Disadvantages", drawbacks.size) }
     items(drawbacks) { row ->
-        val trait = row.trait
-        // The sheet's own name minus the effect cell shown below it,
-        // where the two were printed as one string. Keyed the same way
-        // `SelfControlCheck.trait` is, so the row and its roll cannot
-        // disagree about what the trait is called.
-        val shown = row.shown
-        val check = selfControl[shown]
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .then(
-                    if (check != null) {
-                        Modifier.clickable { onControl(check) }
-                    } else {
-                        Modifier
-                    },
-                )
-                .padding(horizontal = 16.dp, vertical = 6.dp),
-        ) {
-            Text(
-                // `Trait.cost` is a MAGNITUDE and the sign lives in
-                // the kind (6u). Printed back with the minus the book
-                // gives a disadvantage, never negated in the data.
-                (if (trait in grantedTraits) "$shown — from the potion" else "$shown — −${trait.cost} pts") +
-                    superseded(trait, traits) +
-                    (check?.let { " — 3d6 ≤ ${standing.getValue(it.trait)}" } ?: ""),
-                style = MaterialTheme.typography.bodySmall,
-                color = if (check != null) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-            )
-            HeldCell(row)
-        }
+        val key = "d:${row.shown}"
+        // Keyed the way `SelfControlCheck.trait` is, so the row and its roll
+        // cannot disagree about what the trait is called. Nothing rolls on
+        // its own: WHEN to call for one is the GM's.
+        val check = selfControl[row.shown]
+        TraitRow(
+            row = row,
+            // `Trait.cost` is a MAGNITUDE and the sign lives in the kind (6u).
+            priceLine = (if (row.trait in grantedTraits) "from the potion" else "−${row.trait.cost} pts") +
+                superseded(row.trait, traits),
+            roll = check?.let { "Roll 3d6 ≤ ${standing.getValue(it.trait)}" },
+            expanded = expanded[key] == true,
+            onToggle = { onToggle(key) },
+            onRoll = { check?.let(onControl) },
+        )
     }
 }
 

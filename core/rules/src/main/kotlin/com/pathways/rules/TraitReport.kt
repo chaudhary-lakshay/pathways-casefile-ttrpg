@@ -122,6 +122,22 @@ object TraitReport {
         "its price and its self-control roll aside, this app applies nothing " +
             "this row prints, so the rest of its text is the table's to apply"
 
+    /** How much of a held trait's cell this app applies, in one word for a collapsed row. */
+    enum class Applied { APPLIED, PARTLY, ROLL_ONLY, GM, NOT_IN_BOOK }
+
+    /**
+     * [row]'s [Applied], read off its cell and notes and nothing else, so the
+     * word cannot disagree with the text it stands for (6gl). A note on the
+     * whole cell means none of it is applied; a note on a clause, part.
+     */
+    fun applied(row: HeldTrait): Applied = when {
+        row.cell == null -> Applied.NOT_IN_BOOK
+        row.notes.isEmpty() -> Applied.APPLIED
+        row.notes.any { it.reason == ROLLED_ONLY } -> Applied.ROLL_ONLY
+        row.notes.any { it.printed == row.cell } -> Applied.GM
+        else -> Applied.PARTLY
+    }
+
     /**
      * One held trait as the sheet prints it: the book's [cell] where the
      * sheet's spelling finds one, and what of it is not applied.

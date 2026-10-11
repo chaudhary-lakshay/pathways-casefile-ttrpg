@@ -460,10 +460,11 @@ internal object TraitRefusals {
             "the bonus is scoped to a category the GM names (Disease, Poison, " +
             "Temperature Extremes), and this app offers no roll to resist any " +
             "of them",
+        // The same refusal Phobia's Fright Check line carries in SelfControl
+        // (6am); said to the player without the cross-reference (6gl).
         "Duty (specify)" to
-            "its \"roll 9 or less\" is how often the duty comes up rather than " +
-            "a roll this character makes, the same refusal Phobia's Fright " +
-            "Check line carries in SelfControl (6am)",
+            "its \"roll 9 or less\" is how often the duty comes up, the GM's " +
+            "to roll, rather than a roll this character makes",
         // The five rows that modify a Fright Check were HERE, and the reason
         // they carried was a GAP stated as one -- "what is missing is the
         // join". The join shipped, so the disclaimer went with it: a report of
