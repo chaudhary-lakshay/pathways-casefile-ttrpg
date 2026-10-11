@@ -6726,6 +6726,146 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gk. A potion's text, checked against the book and laid out
+
+The owner, 2026-10-11: the pathway text, *"the abilities and all"*, is not
+readable, and *"verify if you have written them properly at all"*. The
+screen printed each potion's ability section as one paragraph of small
+type, below both trackers and an always-open list of what raises
+corruption. Seer's two abilities ran together as one sentence; Fool 7's
+3,426 characters were one block.
+
+### Was it written properly
+
+Checked both ways against `build/extract/book.txt`, every block's own
+`sourceLines` range.
+
+- **Stored to book.** Each stored text field is a verbatim run of its
+  block's lines (whitespace collapsed) in 87 of 88 blocks. The 88th,
+  Chained 7, is not a defect: the book prints a stat row, *Basic Move +1*,
+  between two advantage rows, and the extractor lifted it into `stats`.
+- **Book to stored.** Every line in every block lands in a stored field, a
+  stat or skill row, a note, or page furniture. The first run printed 29
+  lines; 22 were stat and skill notes the check had not read, six were
+  wrapped skill rows its regex missed, and one was the Reader's row below.
+  **That check could not see a dropped skill row**: it passed any line
+  shaped like one without asking whether the skill was stored, so it
+  missed the Savant's and the Potions Professor's. The drop was found by
+  reading `UNRESOLVED_GRANTS`. A second check asks it of every row: 312
+  printed (261 potion, 51 non-standard), none missing after the fix, and
+  three missing when run on the JSON before it.
+- **Three grants were dropped.** The extractor's `UNRESOLVED_GRANTS` named
+  them as naming no skill the book lists, and they stopped there: the
+  Reader's *"Any one knowledge skill (player's choice)/IQ [Average] +3"*,
+  the Savant's *"Inventor!/IQ [Wildcard] +2"*, the Potions Professor's
+  *"Poison/IQ [Hard] +3"*. Recorded rather than guessed was right; reaching
+  no screen was not. A White Tower 9 player never saw their +3.
+
+They are `unresolvedSkills` on their block now, verbatim, and the Skills
+card shows each with its printed bonus and *"names no skill the book
+lists; the GM assigns it"*. Nothing is computed from them. No Kotlin test
+noticed the new JSON key before the field existed: the lenient decoder
+drops an undeclared key, as the memory index records.
+
+### What changed on the screen
+
+- **The potion first.** Once a potion is drunk the screen has two tabs:
+  *Potion*, and *Digestion & corruption* with both trackers. Before, the
+  trackers pushed every potion's own text below the fold.
+- **Cards.** *Gains* as pills (*SPI +9*), *Skills* with the level each
+  reaches in a badge, then *Advantages*, *Drawbacks*, *Abilities* and
+  *Reinforced abilities* at reading size.
+- **Abilities are laid out, not rewritten.** `abilityParagraphs` starts a
+  new block at every heading the book prints (*"Spirit Vision:"*), and
+  three or more clauses joined by `; ` outside brackets become a list.
+  Costs, distances, dice and modifiers are picked out in colour.
+- The sequence chips carry the potion's name (*7 · Magician*), the header
+  leads with the potion, the second *"Sequence 9: Seer"* title and the
+  *"point budget unchanged"* line are gone, and what raises corruption is
+  behind *What raises corruption*.
+
+### The reading the layout makes, and does not
+
+**Every heading is drawn at one level.** Some name an ability, some an
+outcome inside one (*Failure* in seven pathways, *Success by 3*), some a
+field (*Duration*, *Range*). The book does not say which is which, so the
+screen does not either: a card per heading would have invented abilities,
+and telling the kinds apart needed a list of the ones I had seen.
+
+A heading opens the text or follows a sentence end, starts with a word,
+and every word after it is capitalised, a number, a parenthesis or a
+joining word. *"While active:"* fails on *active* and stays inside Spirit
+Vision. *"p. B420:"* is a page reference, and its first word is not a
+word.
+
+**The split is at display time, not ingestion**, against the memory
+index's *keep the parser out of the engine*. Nothing but the screen reads
+the pieces. The guard is that `rejoined` gives back the stored string byte
+for byte, over all 105 blocks. A `ponytail:` comment names when to move it.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| an unresolved grant is stored on its block verbatim (Python) | the committed JSON before regeneration |
+| a grant naming no skill is loaded as printed | no field: did not compile |
+| every ability text is laid out without a character lost or changed | a stub that split nothing passed it; it guards the other five |
+| the Seer's text is two abilities, and the active one lists what it sees | the stub: `[null]` |
+| a grouped name is one heading, and a page reference is none | the stub |
+| text that opens with no name keeps its first paragraph unnamed | the stub (passed: it asks for null) |
+| costs, distances and modifiers are the terms picked out | the stub: `[]` |
+| a semicolon inside brackets does not start a list | the first splitter, on the tablet |
+
+**The device found one the tests did not.** Paper Weaponry's damage
+table sits in one parenthesis, *"(knife: thr-1 cut / sw-2 imp; short
+sword: …; etc.)"*, and the first splitter made three bullets of it, the
+last opening *"etc.) and counts as…"*. The lossless test passed, because
+nothing was lost. A list now splits only at depth zero.
+
+### Device pass
+
+SM-T570, Beat Cop on Fool 9, browsing only.
+
+- Seer: *Spirit Vision* and *Danger Intuition* as two headed blocks; the
+  four things Spirit Vision sees as a list; *1 SPI* and *10 meters* in
+  colour.
+- Fool 7, the longest text: one block per ability, *Paper Weaponry (1
+  SPI)* whole after the fix.
+- *Digestion & corruption*: both trackers; *What raises corruption* opens
+  six rows with their cost on the right.
+- White Tower 9: *"Any one knowledge skill (player's choice)"*, *+3*.
+
+No FATAL in logcat. The save was `cmp`-identical to its backup.
+
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on `05dc014..b235a0c`, with a Python port of
+the splitter run over the corpus: SHIP WITH CHANGES. Both taken.
+
+- **MEDIUM: the lead-in was cut at the last `. ` anywhere**, so a full
+  stop inside brackets (*"(see Ch. 5)"*, *"Seq."*) would have opened the
+  list mid-bracket. None does today; the port found zero. It cuts at a
+  sentence end outside brackets now, the same depth scan as the list,
+  with a synthetic test that failed first.
+- **LOW: the tab outlived the potion.** On *Digestion & corruption*,
+  picking *8 · Clown* changed nothing visible. Picking a potion or a
+  pathway returns to *Potion*; device-verified.
+
+It confirmed the split is lossless by construction for the cases a corpus
+test cannot reach: a heading straight after a heading, one at the end,
+an empty body, unbalanced brackets. And it said what the lossless test
+cannot see: a wrong split that keeps every character, and the screen
+itself, which draws the pieces without the `: ` and `; ` between them.
+The test proves the model, not the pixels. One LOW left: *"+2 SPI"*
+colours the +2 alone, as a modifier would be.
+
+1965 Kotlin (1356 `core:rules`, 589 `app`, 20 `core:model`) and 366
+Python, from fresh results.
+
+**Next**: the owner's wider point, that the app shows too much text,
+applies to the sheet and its dialogs too. This slice changed the pathway
+screen only.
+
 ## 6gj. Three cells that name a roll by what it is for
 
 6gi tabled the trait backlog and left Voice as the one live question:
