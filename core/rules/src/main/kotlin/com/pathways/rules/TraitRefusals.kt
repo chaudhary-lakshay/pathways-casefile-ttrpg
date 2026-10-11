@@ -206,10 +206,15 @@ internal object TraitRefusals {
             "any body part bends any way" to
                 "a capability rather than a roll, so the GM adjudicates it",
         ),
+        // Its -3 is declared on every skill roll and its IQ roll is offered
+        // (SelfControl); this sentence hands itself to the GM (6gj).
+        "Absent-Mindedness" to listOf(
+            "In combat, may forget to reload, change tactics, or use special " +
+                "abilities (GM's discretion)" to
+                "the cell leaves it to the GM's discretion in its own words",
+        ),
         "Healer" to listOf(
-            "+2 to all rolls to diagnose, treat, and heal" to
-                "this book tags no skill as a healing skill, so which rolls " +
-                "count is the GM's call",
+            "+2 to all rolls to diagnose, treat, and heal" to PURPOSE_NOT_SKILL,
             "HT rolls to avoid or recover from disease at +2" to
                 "this app models no disease roll",
         ),
@@ -304,6 +309,20 @@ internal object TraitRefusals {
             "rolls it names is the GM's call"
 
     /**
+     * Why a cell that names what a roll is FOR reaches no roll: Healer's
+     * "to diagnose, treat, and heal", Voice's "to influence others through
+     * speech", Industrial Expertise's "relevant" (6gj). Healer's said
+     * "this book tags no skill as a healing skill", true of Healer alone.
+     * The book does list "Influence skills", twice and differently (563-564,
+     * 7645), and Voice's cell names neither the group nor a list. Healer's
+     * verbs resemble Diagnosis, Physician and First Aid; resemblance is not
+     * a name, and its cell names First Aid outright in its next clause.
+     */
+    private const val PURPOSE_NOT_SKILL =
+        "this says what a roll is for and names no skill, nor a group the " +
+            "book lists, so which rolls count is the GM's call"
+
+    /**
      * Why both jointedness rows' second clause reaches nothing.
      *
      * **Checked, not assumed.** 6bo found that a near-identical excuse for
@@ -335,6 +354,11 @@ internal object TraitRefusals {
      */
     val UNAPPLIED = mapOf(
         "Danger Sense" to "the book hands this to the GM, not to a roll",
+        // Each names a purpose and no skill or group, Healer's case (6gj).
+        // Voice's phrase is neither of the book's two "Influence skills"
+        // lists (563-564, 7645), which differ; "relevant" names no industry.
+        "Voice" to PURPOSE_NOT_SKILL,
+        "Industrial Expertise" to PURPOSE_NOT_SKILL,
         // Said beside the CoR stepper too ([TraitReport.corruptionNotes]). "Passive
         // exposure" occurs once in the book, and Soul Debt -- a hit taken on
         // SPI among its routes -- is charged automatically, so no charge is called

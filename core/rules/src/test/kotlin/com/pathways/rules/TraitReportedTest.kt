@@ -135,6 +135,26 @@ class TraitReportedTest {
     }
 
     /**
+     * Voice's "+2 to all rolls to influence others through speech" (599) and
+     * Industrial Expertise's "+2 to all relevant skill rolls" (857) each name
+     * a purpose, as Healer's general clause does, and no skill or group: the
+     * book's two "Influence skills" lists (563-564, 7645) differ and neither
+     * is Voice's phrase. Refused on Healer's reason rather than read as
+     * applying nothing (6gj).
+     */
+    @Test
+    fun `Voice and Industrial Expertise are refused on Healer's reason`() {
+        val healer = TraitRefusals.PARTLY_APPLIED.getValue("Healer").first().second
+        val fastTalk = SkillKey("Fast-Talk", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.AVERAGE)
+        for (name in listOf("Voice", "Industrial Expertise")) {
+            val held = listOf(advantage(name))
+            assertEquals(healer, TraitReport.reported(held).single().reason, name)
+            assertEquals(emptyList<Any>(), TraitClauses.skillRollClauses(held, fastTalk), name)
+            assertEquals(emptyList<Any>(), TraitEffects.modifiers(held, fastTalk), name)
+        }
+    }
+
+    /**
      * **The close-quarters clause reaches nothing, and that was checked rather
      * than assumed.** 6bo found that a near-identical excuse for High Pain
      * Threshold was FALSE -- the book did print a shock penalty, on a table
@@ -232,6 +252,17 @@ class TraitReportedTest {
                     TraitEffects.categoryFor(trait)?.let { banner ->
                         segment.lowercase().contains(banner.substringBefore(' ').lowercase())
                     } == true ||
+                    // ...and a self-control roll the row is offered, which
+                    // SelfControl applies (6gj): the "roll vs" head and the
+                    // "IQ to ..." trigger after it. Never an "or ..."
+                    // consequence, which nothing applies (the diff review).
+                    (
+                        SelfControl.checksFor(listOf(Trait(trait, 5, TraitKind.DISADVANTAGE))).isNotEmpty() &&
+                            (
+                                segment.matches(Regex("""(?i)(must )?roll vs""")) ||
+                                    segment.matches(Regex("""(IQ|Will|Per|HT)([+-]\d+)? to .*"""))
+                                )
+                        ) ||
                     // ...and a declared clause on one skill's roll.
                     TraitClauses.skillClauseRows().any {
                         it.trait == trait && (segment.contains(it.printed) || it.printed.contains(segment))
@@ -577,8 +608,9 @@ class TraitReportedTest {
     fun `a self-control row nothing else reads says its roll is all that is applied`() {
         val swept = ContentLoader.disadvantages()
             .filter { it.selfControl != null && it.name !in TraitEffects.known() }
-        // 28 when written (6ew); Reluctant Killer left for the Attack dialog.
-        assertEquals(27, swept.size)
+        // 28 when written (6ew); Reluctant Killer left for the Attack dialog,
+        // and Absent-Mindedness for every skill roll (6gj).
+        assertEquals(26, swept.size)
         for (row in swept) {
             val held = Trait(row.name, 5, TraitKind.DISADVANTAGE)
             // The sentence says the roll is applied: the roll must be offered.

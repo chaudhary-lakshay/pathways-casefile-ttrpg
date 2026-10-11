@@ -585,6 +585,37 @@ class TraitClausesTest {
     }
 
     /**
+     * Absent-Mindedness, book 1242: "-3 to skill rolls requiring
+     * concentration or organisation in everyday life". The cell names the
+     * roll, every skill roll, and leaves the circumstance to the GM, so it is
+     * offered on every skill and counted only when declared (6gj). The
+     * Concentrate maneuver's Will roll is not a skill roll and is not
+     * offered it (6fa).
+     */
+    @Test
+    fun `Absent-Mindedness is declared on any skill roll and not on Concentrate`() {
+        val held = listOf(Trait("Absent-Mindedness", 15, TraitKind.DISADVANTAGE))
+        val cell = ContentLoader.disadvantages().first { it.name == "Absent-Mindedness" }.notes
+        for (row in ContentLoader.skills()) {
+            val skill = SkillKey(row.name, row.specialization, row.attr, row.difficulty)
+            val clause = TraitClauses.skillRollClauses(held, skill).single()
+            assertTrue(clause.conditional, row.name)
+            assertEquals(-3, clause.value)
+            assertTrue(clause.printed in cell, clause.printed)
+            assertEquals(emptyList<Any>(), TraitEffects.modifiers(held, skill), row.name)
+            assertEquals(
+                ModEffect.Flat(-3),
+                TraitEffects.modifiers(held, skill, setOf(clause.key)).single().effect,
+            )
+        }
+        assertTrue("Absent-Mindedness" in TraitEffects.known())
+        assertEquals(emptyList<Any>(), TraitClauses.concentrationClauses(held))
+        // The sheets' "Absent-Minded" is 6am's recorded non-match, not this row.
+        val sheet = listOf(Trait("Absent-Minded", 5, TraitKind.DISADVANTAGE))
+        assertTrue(TraitClauses.skillRollClauses(sheet, iq).isEmpty())
+    }
+
+    /**
      * Acute Vision's "+2 to Vision rolls" and Acute Hearing's "+2 to Hearing
      * rolls" (book 936, 940; 6fh). The book never says which rolls those are,
      * so every Per-controlled skill offers both and the GM declares which

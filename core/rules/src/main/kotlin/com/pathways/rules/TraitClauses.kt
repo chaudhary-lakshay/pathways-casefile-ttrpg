@@ -210,7 +210,8 @@ object TraitClauses {
      * (6fb). The book sets no duration that makes concentration sustained,
      * and never says every Concentrate roll is, so it is the GM's to declare
      * like the environment above. Single-Minded and Absent-Mindedness stay
-     * out by their own words (6fa).
+     * out by their own words (6fa): Absent-Mindedness names SKILL rolls,
+     * which this Will roll is not, and is declared on those ([ANY_SKILL_CLAUSES]).
      */
     private val CONCENTRATION_CLAUSES: List<TraitClause> = listOf(
         TraitClause(
@@ -490,16 +491,33 @@ object TraitClauses {
     fun visionClause(traits: List<Trait>): TraitClause? =
         senseClauses(traits).firstOrNull { it.trait == ACUTE_VISION }
 
+    /**
+     * The cells that say "skill rolls" and name no skill: every skill roll is
+     * the roll, and the circumstance is the GM's (6gj). Absent-Mindedness,
+     * book 1242. Industrial Expertise's "+2 to all relevant skill rolls" is
+     * not here: "relevant" is a purpose, the reason Healer's "+2 to all rolls
+     * to diagnose, treat, and heal" is refused ([TraitRefusals.UNAPPLIED]).
+     */
+    private val ANY_SKILL_CLAUSES: List<TraitClause> = listOf(
+        TraitClause(
+            "Absent-Mindedness",
+            "Absent-Mindedness",
+            "-3 to skill rolls requiring concentration or organisation in everyday life",
+            -3,
+            conditional = true,
+        ),
+    )
+
     /** The traits whose cell names one skill, or one sense, and a circumstance, for [TraitEffects.known]. */
     fun skillClauseNames(): Set<String> = skillClauseRows().map { it.trait }.toSet()
 
     /** The printed rows, for the clause guard. */
-    fun skillClauseRows(): List<TraitClause> = SKILL_CLAUSES.map { it.clause } + SENSE_CLAUSES
+    fun skillClauseRows(): List<TraitClause> = SKILL_CLAUSES.map { it.clause } + SENSE_CLAUSES + ANY_SKILL_CLAUSES
 
     /**
      * Every clause a roll of [skill] asks the GM about: the social rows on a
-     * social skill, the rows naming this skill, and the sense rows on a Per
-     * skill. The one list the dialog offers and [TraitEffects.modifiers] reads, so the two
+     * social skill, the rows naming this skill, the sense rows on a Per
+     * skill, and the rows naming every skill roll. The one list the dialog offers and [TraitEffects.modifiers] reads, so the two
      * cannot disagree (6ff). Distinct by catalogue row and clause, which is
      * what a modifier's id reads, so a row held twice or under two spellings
      * is one declaration and one modifier, never two under one id (6fh).
@@ -517,7 +535,13 @@ object TraitClauses {
                 }
                 .map { it.clause.copy(shown = displayName(owned.name)) }
         }
-        return (social + named + sense).distinctBy { it.trait to it.printed }
+        val any = traits.flatMap { owned ->
+            val bare = catalogueName(owned.name)
+            ANY_SKILL_CLAUSES
+                .filter { it.trait.equals(bare, ignoreCase = true) }
+                .map { it.copy(shown = displayName(owned.name)) }
+        }
+        return (social + named + sense + any).distinctBy { it.trait to it.printed }
     }
 
 
