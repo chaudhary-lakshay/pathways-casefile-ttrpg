@@ -1,35 +1,44 @@
 package com.pathways.app
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -45,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -57,12 +67,12 @@ import com.pathways.rules.Corruption
 import com.pathways.rules.DigestedCharacter
 import com.pathways.rules.PcrOutcome
 import com.pathways.rules.PotionConsumption
-import com.pathways.rules.RandomSource
 import com.pathways.rules.PotionDigestion
+import com.pathways.rules.PremadeSheet
+import com.pathways.rules.RandomSource
+import com.pathways.rules.ScoreFloors
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.TraitReport
-import com.pathways.rules.PremadeSheet
-import com.pathways.rules.ScoreFloors
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SequenceBlock
 
@@ -242,15 +252,20 @@ fun PathwayScreen(
                     }
                 }
                 item {
-                    FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    Row(
+                        Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(horizontal = 4.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
                         SEQUENCES.forEach { n ->
-                            val potion = blocks.single { it.pathway == block.pathway && it.sequence == n }.name
-                            FilterChip(
+                            SequenceTile(
+                                sequence = n,
+                                potion = blocks.single { it.pathway == block.pathway && it.sequence == n }.name,
                                 selected = n == sequence,
+                                // Cumulative: a Sequence 8 drank the 9 first.
+                                drunk = drunk?.pathway == block.pathway && n >= drunk.sequence,
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
                                 // Picking a potion is asking to read it.
                                 onClick = { sequence = n; tab = 0 },
-                                label = { Text("$n · $potion") },
-                                modifier = Modifier.padding(end = 8.dp),
                             )
                         }
                     }
@@ -336,7 +351,16 @@ fun PathwayScreen(
                                     }
                                 }
                             drunk?.pathway == chosen.pathway && drunk.sequence == chosen.sequence ->
-                                Note("digesting: ${drunk.digestion}%")
+                                Column(Modifier.weight(1f).padding(horizontal = 16.dp)) {
+                                    Text(
+                                        "Digestion ${drunk.digestion}%",
+                                        style = MaterialTheme.typography.labelLarge,
+                                    )
+                                    LinearProgressIndicator(
+                                        progress = { drunk.digestion / 100f },
+                                        modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                                    )
+                                }
                             // A pathway is walked one potion at a time, so
                             // every other block is readable but not drinkable.
                             drunk == null -> Note("a pathway begins at Sequence ${PotionDigestion.STARTING_SEQUENCE}")
@@ -661,6 +685,50 @@ private fun PcrDialog(
             }
         },
     )
+}
+
+/**
+ * One rung of the pathway's ladder: its number and potion, filled when it is
+ * the block being read, and checked when the character has drunk it.
+ */
+@Composable
+private fun SequenceTile(
+    sequence: Int,
+    potion: String,
+    selected: Boolean,
+    drunk: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    val scheme = MaterialTheme.colorScheme
+    Surface(
+        color = if (selected) scheme.secondaryContainer else scheme.surfaceContainer,
+        contentColor = if (selected) scheme.onSecondaryContainer else scheme.onSurface,
+        shape = RoundedCornerShape(10.dp),
+        border = if (selected) null else BorderStroke(1.dp, scheme.outlineVariant),
+        modifier = modifier.selectable(selected = selected, role = Role.Tab, onClick = onClick),
+    ) {
+        Column(Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "Seq $sequence",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = LocalContentColor.current.copy(alpha = 0.8f),
+                    modifier = Modifier.weight(1f),
+                )
+                if (drunk) {
+                    Icon(Icons.Filled.Check, contentDescription = "drunk", modifier = Modifier.size(14.dp))
+                }
+            }
+            Text(
+                potion,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 2.dp),
+            )
+        }
+    }
 }
 
 /** Why a potion is not drinkable, in the space its button would occupy. */
