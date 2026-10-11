@@ -148,6 +148,16 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                 }
             }
 
+            // Named like the section below it: the four rows were the only
+            // block on the screen without a heading.
+            item {
+                Text(
+                    "Attributes",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                )
+            }
+
             items(Attr.entries) { attr ->
                 AttributeRow(
                     attr = attr,

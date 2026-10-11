@@ -162,15 +162,25 @@ internal fun SecondaryRow(
 @Composable
 internal fun BudgetBar(spent: Int, budget: Int) {
     val over = spent > budget
+    val accent = if (over) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
     Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Text(
-            if (over) "$spent of $budget points — over budget" else "$spent of $budget points, ${budget - spent} spare",
-            style = MaterialTheme.typography.titleSmall,
-            color = if (over) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-        )
+        Row(Modifier.semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "$spent",
+                style = MaterialTheme.typography.headlineSmall.copy(fontFeatureSettings = "tnum"),
+                color = accent,
+            )
+            Text(
+                " of $budget points",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
+            )
+            Tag(if (over) "${spent - budget} over budget" else "${budget - spent} spare", accent)
+        }
         LinearProgressIndicator(
             progress = { if (budget == 0) 0f else (spent.toFloat() / budget).coerceIn(0f, 1f) },
-            color = if (over) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+            color = accent,
             modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
         )
     }
