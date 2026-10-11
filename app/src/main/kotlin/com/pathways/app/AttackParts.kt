@@ -28,7 +28,13 @@ import com.pathways.rules.SkillTarget
  * costs, and a step either way. The plan decides what a step may reach.
  */
 @Composable
-internal fun OptionStepper(label: String, value: Int, note: String, onStep: (Int) -> Unit) {
+internal fun OptionStepper(
+    label: String,
+    value: Int,
+    note: String,
+    shown: String = "$value",
+    onStep: (Int) -> Unit,
+) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = RoundedCornerShape(12.dp),
@@ -36,7 +42,7 @@ internal fun OptionStepper(label: String, value: Int, note: String, onStep: (Int
     ) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("$label $value", style = MaterialTheme.typography.titleSmall)
+                Text("$label $shown", style = MaterialTheme.typography.titleSmall)
                 Text(
                     note,
                     style = MaterialTheme.typography.bodySmall,

@@ -1,12 +1,27 @@
 package com.pathways.app
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -17,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.pathways.model.RollResult
 import com.pathways.rules.FrightCheck
@@ -40,6 +56,7 @@ import com.pathways.rules.content.FrightTrigger
  * prints and shows the range beside it -- the severity inside that range is
  * the GM's call, exactly like the acting-quality ranges on the pathway screen.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun FrightDialog(
     will: Int,
@@ -94,30 +111,95 @@ internal fun FrightDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
-        title = { Text(outcome?.let { if (it.passed) "Held their nerve" else "Fright Check failed" } ?: "Fright Check") },
-        text = {
+        title = {
             Column {
-                val result = outcome
-                val chosen = picked
-                if (result == null && chosen != null) {
-                    // Three of the book's five rows do not print a single
-                    // number -- "-2 to -6" and "-8 or worse" are severities the
-                    // GM chooses. Rolling the gentlest end for them would
-                    // quietly turn their failures into successes.
-                    Text(chosen.trigger, style = MaterialTheme.typography.titleSmall)
-                    Text(
-                        "the book prints ${chosen.printed}" +
-                            if (chosen.openEnded) " — no floor, so worse is legal" else "",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        TextButton(onClick = { modifier -= 1 }) { Text("−1") }
-                        Text(
-                            (if (modifier > 0) "+" else "") + modifier,
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(horizontal = 8.dp),
+                Text("Fright Check")
+                Text(
+                    "Will $will",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        },
+        text = {
+            val result = outcome
+            if (result != null) {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    FrightResultCard(result, kind, ht = ht, will = will, iq = iq)
+                    // Six of the nine bands print no way out at all, so this
+                    // is null for them and no control appears. The cell's own
+                    // sentence above already said so.
+                    result.effect?.let { FrightCheck.recoveryFor(it, kind) }?.let { out ->
+                        FrightRecoveryPanel(
+                            recovery = out,
+                            // Both of these are the rules' call, asked once
+                            // each: the column decides the attribute, and the
+                            // same fact decides which clause list can reach
+                            // the roll.
+                            attributeLevel = FrightCheck.levelFor(out, will, iq),
+                            bonus = if (StunRecovery.isStun(out)) stunRecoveryBonus else 0,
+                            clauseBonus = if (FrightCheck.takesWillClauses(out)) {
+                                TraitClauses.clauseBonus(willOnlyClauses, declared)
+                            } else {
+                                ClauseBonus(0, null)
+                            },
+                            shock = shock,
+                            hurt = hurt,
+                            rolled = recovery,
+                            onRoll = { target ->
+                                // One roll a tap: a second from the same
+                                // picture would roll again (6p).
+                                if (recovery == null) recovery = SuccessRoll.against(target, appDice)
+                            },
                         )
-                        TextButton(onClick = { modifier += 1 }) { Text("+1") }
+                    }
+                }
+                return@AlertDialog
+            }
+            val chosen = picked
+            // ONE value, displayed and rolled: computing the caption from one
+            // expression and the roll from another is how these numbers
+            // stopped reconciling (6ag, 6ai). The trait total comes from rules
+            // for the same reason -- a screen that summed its own chips would
+            // be the second copy.
+            val fromTraits = TraitClauses.clauseBonus(clauses, declared)
+            val effective = modifier + shock + hurt + fromTraits.total
+            val target = FrightCheck.targetFor(will, effective)
+            // The choices scroll and the target with Roll is pinned beneath
+            // them, the shape of the Attack and ritual dialogs.
+            Column {
+                Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+                    TargetCard(target, baseTarget = will)
+                    SectionLabel("Kind")
+                    FlowRow {
+                        FrightKind.entries.forEach { option ->
+                            FilterChip(
+                                selected = option == kind,
+                                onClick = { kind = option },
+                                label = { Text(option.name.lowercase().replaceFirstChar { it.uppercase() }) },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                    SectionLabel("What was witnessed")
+                    triggers.forEach { trigger ->
+                        TriggerRow(trigger, selected = trigger == chosen) {
+                            picked = trigger
+                            modifier = trigger.modifier
+                        }
+                    }
+                    // Three of the book's five rows do not print a single
+                    // number -- "-2 to -6" and "-8 or worse" are severities
+                    // the GM chooses. Rolling the gentlest end for them would
+                    // quietly turn their failures into successes.
+                    if (chosen != null) {
+                        OptionStepper(
+                            label = "Modifier",
+                            value = modifier,
+                            shown = signed(modifier),
+                            note = "the book prints ${chosen.printed}" +
+                                if (chosen.openEnded) " — no floor, so worse is legal" else "",
+                        ) { modifier += it }
                     }
                     // The character's own traits. Unconditional clauses are
                     // counted without asking; each conditional one is a chip,
@@ -125,129 +207,120 @@ internal fun FrightDialog(
                     // the thing they fear is the GM's to say and this app
                     // holds no scene.
                     ClauseChips(clauses, declared) { declared = it }
-                    // ONE value, displayed and rolled: computing the caption
-                    // from one expression and the roll from another is how
-                    // these numbers stopped reconciling (6ag, 6ai). The trait
-                    // total comes from rules for the same reason -- a screen
-                    // that summed its own chips would be the second copy.
-                    val fromTraits = TraitClauses.clauseBonus(clauses, declared)
-                    val effective = modifier + shock + hurt + fromTraits.total
-                    // Composed once: the caption and the roll are this value.
-                    val target = FrightCheck.targetFor(will, effective)
-                    Text("3d6 vs $target", style = MaterialTheme.typography.bodySmall)
-                    if (shock != 0) {
-                        Text(
-                            "includes $shock from shock — \"${Shock.printed()}\"",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                    if (hurt != 0) {
-                        Text(
-                            "includes $hurt from the HP and FP trackers",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                    fromTraits.line?.let {
-                        Text("includes $it", style = MaterialTheme.typography.bodySmall)
-                    }
-                    TextButton(
-                        // Guarded rather than relying on the button leaving the
-                        // tree: two taps before a recomposition would otherwise
-                        // roll twice and keep the second, the re-entrancy the
-                        // divination dialog was hardened for (6p).
-                        enabled = outcome == null,
+                }
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                if (shock != 0) {
+                    Text(
+                        "includes $shock from shock — \"${Shock.printed()}\"",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                if (hurt != 0) {
+                    Text(
+                        "includes $hurt from the HP and FP trackers",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                fromTraits.line?.let {
+                    Text("includes $it", style = MaterialTheme.typography.bodySmall)
+                }
+                Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        if (chosen == null) "Pick what was witnessed." else "3d6 ≤ $target",
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Button(
+                        enabled = chosen != null,
                         onClick = {
-                            if (outcome == null) {
+                            // Guarded rather than relying on the button
+                            // leaving the tree: two taps before a
+                            // recomposition would otherwise roll twice and
+                            // keep the second, the re-entrancy the divination
+                            // dialog was hardened for (6p).
+                            if (outcome == null && chosen != null) {
                                 outcome = FrightCheck.rollAgainst(target, appDice)
                             }
                         },
                     ) {
-                        Text("Roll")
-                    }
-                } else if (result == null) {
-                    Text("3d6 vs Will $will, modified by what was witnessed.")
-                    Row {
-                        FrightKind.entries.forEach { option ->
-                            TextButton(onClick = { kind = option }) {
-                                Text(
-                                    option.name.lowercase(),
-                                    color = if (option == kind) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    },
-                                )
-                            }
-                        }
-                    }
-                    triggers.forEach { trigger ->
-                        Text(
-                            "${trigger.trigger} (${trigger.printed})",
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    picked = trigger
-                                    modifier = trigger.modifier
-                                }
-                                .padding(vertical = 8.dp),
-                        )
-                    }
-                } else {
-                    Text(
-                        "3d6: ${result.roll.total} vs ${result.target}",
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    if (!result.passed) {
-                        Text("failed by ${result.margin}; effect roll ${result.effectRoll}")
-                        Text(
-                            "${result.effect?.printed}: ${result.effect?.let { FrightCheck.text(it, kind) }}",
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                        // One band works its duration out from the character
-                        // ("Retching for (25 - HT) sec"); the other two that
-                        // print a duration already print a number. Null
-                        // elsewhere, so no line appears.
-                        result.effect?.let { FrightCheck.durationFor(it, kind) }?.let { held ->
-                            Text(
-                                FrightCheck.durationLine(held, ht = ht, will = will, iq = iq),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
-                        // Six of the nine bands print no way out at all, so
-                        // this is null for them and no control appears. The
-                        // cell's own sentence above already said so.
-                        result.effect?.let { FrightCheck.recoveryFor(it, kind) }?.let { out ->
-                            FrightRecoveryPanel(
-                                recovery = out,
-                                // Both of these are the rules' call, asked once
-                                // each: the column decides the attribute, and
-                                // the same fact decides which clause list can
-                                // reach the roll.
-                                attributeLevel = FrightCheck.levelFor(out, will, iq),
-                                bonus = if (StunRecovery.isStun(out)) stunRecoveryBonus else 0,
-                                clauseBonus = if (FrightCheck.takesWillClauses(out)) {
-                                    TraitClauses.clauseBonus(willOnlyClauses, declared)
-                                } else {
-                                    ClauseBonus(0, null)
-                                },
-                                shock = shock,
-                                hurt = hurt,
-                                rolled = recovery,
-                                onRoll = { target ->
-                                    // One roll a tap: a second from the same
-                                    // picture would roll again (6p).
-                                    if (recovery == null) recovery = SuccessRoll.against(target, appDice)
-                                },
-                            )
-                        }
+                        Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text("Roll", modifier = Modifier.padding(start = 8.dp))
                     }
                 }
             }
         },
     )
+}
+
+/** One row of the book's trigger table: what was seen, and what it prints. */
+@Composable
+private fun TriggerRow(trigger: FrightTrigger, selected: Boolean, onPick: () -> Unit) {
+    val accent = MaterialTheme.colorScheme.primary
+    Surface(
+        color = if (selected) accent.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(12.dp),
+        border = if (selected) BorderStroke(1.dp, accent) else null,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 3.dp)
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onPick),
+    ) {
+        Row(Modifier.padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(selected = selected, onClick = null)
+            Text(
+                trigger.trigger,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
+            )
+            Tag(trigger.printed, MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+/**
+ * The check, once rolled: held or failed, the dice against the target they
+ * were rolled at, and on a failure the band of the effects table it reached.
+ */
+@Composable
+private fun FrightResultCard(result: FrightOutcome, kind: FrightKind, ht: Int, will: Int, iq: Int) {
+    val accent = if (result.passed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.5.dp, accent),
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                if (result.passed) "Held their nerve" else "Fright Check failed",
+                style = MaterialTheme.typography.headlineMedium,
+                color = accent,
+            )
+            Text(
+                "3d6: ${result.roll.total} vs ${result.target}",
+                style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
+            )
+            if (!result.passed) {
+                Text("failed by ${result.margin}; effect roll ${result.effectRoll}")
+                Text(
+                    "${result.effect?.printed}: ${result.effect?.let { FrightCheck.text(it, kind) }}",
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+                // One band works its duration out from the character
+                // ("Retching for (25 - HT) sec"); the other two that print a
+                // duration already print a number. Null elsewhere, so no line
+                // appears.
+                result.effect?.let { FrightCheck.durationFor(it, kind) }?.let { held ->
+                    Text(
+                        FrightCheck.durationLine(held, ht = ht, will = will, iq = iq),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+        }
+    }
 }
 
 /**

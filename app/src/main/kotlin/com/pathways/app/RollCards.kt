@@ -40,7 +40,12 @@ private const val TABULAR = "tnum"
  * would push them down mid-tap.
  */
 @Composable
-internal fun TargetCard(standing: SkillTarget) {
+internal fun TargetCard(standing: SkillTarget) =
+    TargetCard(standing.target, standing.baseTarget, standing.forbidden)
+
+/** The same card for a roll outside the ledger: the Fright Check's. */
+@Composable
+internal fun TargetCard(target: Int, baseTarget: Int, forbidden: Boolean = false) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = RoundedCornerShape(12.dp),
@@ -53,23 +58,23 @@ internal fun TargetCard(standing: SkillTarget) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Box(Modifier.heightIn(min = 64.dp), contentAlignment = Alignment.Center) {
-                if (standing.forbidden) {
+                if (forbidden) {
                     Text(
                         FORBIDDEN_ROLL,
                         color = MaterialTheme.colorScheme.error,
                         textAlign = TextAlign.Center,
                     )
                 } else {
-                    val moved = standing.target != standing.baseTarget
+                    val moved = target != baseTarget
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
-                            "${standing.target}",
+                            "$target",
                             style = MaterialTheme.typography.displayMedium
                                 .copy(fontFeatureSettings = TABULAR),
                             color = MaterialTheme.colorScheme.primary,
                         )
                         Text(
-                            "${standing.baseTarget}",
+                            "$baseTarget",
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontFeatureSettings = TABULAR,
                                 textDecoration = TextDecoration.LineThrough,
@@ -85,8 +90,8 @@ internal fun TargetCard(standing: SkillTarget) {
             // Laid out when forbidden too, so a forbidding clause cannot
             // shrink the card under a finger.
             Pill(
-                "3d6 ≤ ${standing.target}",
-                Modifier.then(if (standing.forbidden) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier),
+                "3d6 ≤ $target",
+                Modifier.then(if (forbidden) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier),
             )
         }
     }
@@ -177,7 +182,7 @@ private fun Pill(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun Tag(text: String, color: Color) {
+internal fun Tag(text: String, color: Color) {
     Text(
         text,
         style = MaterialTheme.typography.labelLarge.copy(fontFeatureSettings = TABULAR),

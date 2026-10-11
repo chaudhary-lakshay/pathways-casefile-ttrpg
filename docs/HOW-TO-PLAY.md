@@ -261,7 +261,10 @@ and if so, rolls that table, whose shock the sheet then carries for the turn.
 ### Concentrate / Fright
 
 **Concentrate** is the focus some actions gate behind. **Fright** rolls the
-Fright Check: two rolls, the check and then the effect table.
+Fright Check: two rolls, the check and then the effect table. Pick the kind
+and what was witnessed on one page; each row shows what the book prints for
+it, and **Modifier** steps the severity inside a printed span. The target sits
+above the choices and **Roll** below them, withdrawn until a row is picked.
 
 Three of the table's nine bands print a way out, and those show a **recovery
 roll** against the column's own attribute — Will in Fright and Awe, IQ in
