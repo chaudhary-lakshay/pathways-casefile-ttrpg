@@ -27,6 +27,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -108,6 +111,7 @@ fun PathwayScreen(
     // Drink acts only while the session still matches both (see stillShows).
     val printedCor = session.cor
     var pcr by remember { mutableStateOf<PcrOutcome?>(null) }
+    var tab by remember { mutableIntStateOf(0) }
     val blocks = remember { ContentLoader.pathways() }
     val pathways = remember(blocks) {
         blocks.map { it.pathway }.distinct().sorted().swapping("Wheel of Fortune", "White Tower")
@@ -226,13 +230,11 @@ fun PathwayScreen(
                                 modifier = Modifier.size(112.dp),
                             )
                             Column(Modifier.padding(start = 14.dp)) {
+                                // The potion leads; the pathway is already in the top bar.
+                                Text(block.name, style = MaterialTheme.typography.headlineSmall)
                                 Text(
-                                    "${block.pathway} Pathway",
-                                    style = MaterialTheme.typography.titleMedium,
-                                )
-                                Text(
-                                    "Sequence ${block.sequence}: ${block.name}",
-                                    style = MaterialTheme.typography.bodySmall,
+                                    "Sequence ${block.sequence} · ${block.pathway} Pathway",
+                                    style = MaterialTheme.typography.labelLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
@@ -240,12 +242,13 @@ fun PathwayScreen(
                     }
                 }
                 item {
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    FlowRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
                         SEQUENCES.forEach { n ->
+                            val potion = blocks.single { it.pathway == block.pathway && it.sequence == n }.name
                             FilterChip(
                                 selected = n == sequence,
                                 onClick = { sequence = n },
-                                label = { Text("Seq $n") },
+                                label = { Text("$n · $potion") },
                                 modifier = Modifier.padding(end = 8.dp),
                             )
                         }
@@ -348,17 +351,32 @@ fun PathwayScreen(
                 val isCurrentPotion = drunk != null &&
                     drunk.pathway == block.pathway &&
                     drunk.sequence == block.sequence
-                if (isCurrentPotion && !session.isLost) {
+                // Two tabs once a potion is drunk: what this potion grants, and
+                // the character's own digestion and corruption. Stacked, the
+                // trackers pushed every potion's text below the fold.
+                if (drunk != null) {
                     item {
-                        DigestionTracker(drunk!!, traits, session::digest)
+                        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                            listOf("Potion", "Digestion & corruption").forEachIndexed { i, label ->
+                                SegmentedButton(
+                                    selected = tab == i,
+                                    onClick = { tab = i },
+                                    shape = SegmentedButtonDefaults.itemShape(i, 2),
+                                ) { Text(label) }
+                            }
+                        }
                     }
                 }
-                // CoR is not tied to the potion being browsed: it is the
-                // character's, so it shows whenever they have walked at all.
-                if (drunk != null) {
+                if (drunk != null && tab == 1) {
+                    if (isCurrentPotion && !session.isLost) {
+                        item { DigestionTracker(drunk, traits, session::digest) }
+                    }
+                    // CoR is not tied to the potion being browsed: it is the
+                    // character's, so it shows whenever they have walked at all.
                     item { CorruptionTracker(session, drunk, maxCor, traits) }
+                } else {
+                    potionContent(block, digested)
                 }
-                digestion(block, digested)
             }
         }
     }
@@ -565,11 +583,18 @@ private fun CorruptionTracker(
                 modifier = Modifier.padding(top = 4.dp),
             )
         }
-        Text(
-            Corruption.gained().joinToString("   ") { "${it.action}: ${it.gain}" },
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 4.dp),
-        )
+        var sources by remember { mutableStateOf(false) }
+        TextButton(onClick = { sources = !sources }) {
+            Text(if (sources) "Hide what raises corruption" else "What raises corruption")
+        }
+        if (sources) {
+            Corruption.gained().forEach {
+                Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+                    Text(it.action, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                    Text(it.gain, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
+                }
+            }
+        }
         TraitReport.corruptionNotes(traits).forEach {
             Text(
                 "${it.trait}: ${it.printed} Not halved here: ${it.reason}.",
@@ -637,118 +662,8 @@ private fun PcrDialog(
     )
 }
 
-private fun LazyListScope.digestion(block: SequenceBlock, digested: DigestedCharacter) {
-    item {
-        Column(Modifier.padding(16.dp)) {
-            Text("Sequence ${block.sequence}: ${block.name}", style = MaterialTheme.typography.titleLarge)
-            if (block.sequence < PotionDigestion.STARTING_SEQUENCE) {
-                Text(
-                    "every potion from Sequence ${PotionDigestion.STARTING_SEQUENCE} down to " +
-                        "${block.sequence}, digested in order",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-            Text(
-                "point budget unchanged: ${digested.budget.spent} of ${digested.budget.budget} spent " +
-                    "— the potion's gains are free",
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-        HorizontalDivider()
-
-        // The rows are this potion's own; the totals beneath them are the
-        // whole chain's, which is why the two are labelled differently.
-        SectionHeader("Stats from this potion")
-        if (block.stats.isEmpty()) {
-            GrantRow("no stat gains", "", "")
-        } else {
-            block.stats.forEach { gain -> GrantRow(gain.attr, formatDelta(gain.delta), gain.note) }
-        }
-        if (digested.grants.spi != 0) {
-            GrantRow("SPI after digestion", digested.effectiveSpi.toString(), "")
-        }
-
-        if (block.advantages.isNotEmpty()) {
-            SectionHeader("Advantages")
-            Prose(block.advantages)
-        }
-        if (block.drawbacks.isNotEmpty()) {
-            SectionHeader("Drawbacks")
-            Prose(block.drawbacks)
-        }
-    }
-
-    if (block.skills.isNotEmpty()) {
-        item { SectionHeader("Skills") }
-        items(block.skills) { grant ->
-            // The engine resolved each grant to a level; fall back to the
-            // book's raw "+N" only if a grant somehow fails to match, rather
-            // than showing a level that was never computed.
-            //
-            // The match is on the full identity, not the base name: the
-            // grants map now carries earlier Sequences too, and Death grants
-            // Hidden Lore (Spirits) at Seq 8 and Hidden Lore (Spirit World)
-            // at Seq 6 -- a base-name match would show one row's level on the
-            // other row.
-            val base = grant.name.substringBefore(" (")
-            val specialization =
-                if (" (" in grant.name) grant.name.substringAfter(" (").removeSuffix(")") else null
-            val level = digested.grants.skillLevels.entries
-                .firstOrNull {
-                    it.key.name == base &&
-                        it.key.specialization == specialization &&
-                        it.key.difficulty == grant.difficulty
-                }
-                ?.value
-            GrantRow(grant.name, level?.toString() ?: "+${grant.bonus}", grant.note)
-        }
-    }
-
-    item {
-        SectionHeader("Ability")
-        Prose(block.ability)
-        if (block.reinforcedAbilities.isNotEmpty()) {
-            SectionHeader("Reinforced abilities")
-            Prose(block.reinforcedAbilities)
-        }
-    }
-}
-
 /** Why a potion is not drinkable, in the space its button would occupy. */
 @Composable
 private fun Note(text: String) {
     Text(text, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(16.dp))
-}
-
-@Composable
-private fun SectionHeader(title: String) {
-    Text(
-        title,
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
-    )
-}
-
-@Composable
-private fun GrantRow(label: String, value: String, note: String) {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp)) {
-        Column(Modifier.weight(1f)) {
-            Text(label, style = MaterialTheme.typography.bodyMedium)
-            if (note.isNotEmpty()) {
-                Text(note, style = MaterialTheme.typography.bodySmall)
-            }
-        }
-        Text(value, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.End)
-    }
-}
-
-@Composable
-private fun Prose(text: String) {
-    Text(text, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp))
-}
-
-/** "+2", "-1", "+0.25" — the book's own notation, without a trailing ".0". */
-private fun formatDelta(delta: Double): String {
-    val sign = if (delta < 0) "" else "+"
-    return if (delta == delta.toInt().toDouble()) "$sign${delta.toInt()}" else "$sign$delta"
 }

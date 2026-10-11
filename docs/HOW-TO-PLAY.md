@@ -272,6 +272,13 @@ You walk a pathway one potion at a time: only the first potion for a mortal, or
 the next Sequence of the pathway you already walk. Digestion is tracked, and
 acting method progress with it.
 
+Once you have drunk, the screen has two tabs. **Potion** shows what the chosen
+Sequence grants: stat gains, skills with the level they reach, then the book's
+own advantage, drawback and ability text, each named ability under its own
+heading. Costs, distances, dice and modifiers are picked out in colour; the
+words are the book's. **Digestion & corruption** holds the two trackers, and
+**What raises corruption** opens the list of what costs CoR.
+
 **What a potion gives you is free.** It is never written into your point
 budget — the app stores only the *choice* (pathway, Sequence, digestion) and
 re-derives every grant from it. A potion that raises DX lifts every DX skill you
