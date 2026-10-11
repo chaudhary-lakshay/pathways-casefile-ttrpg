@@ -4,9 +4,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -133,7 +138,7 @@ internal fun RollDialog(
         // instead of implied -- a GM can see the roll has happened.
         dismissButton = { TextButton(onClick = onDismiss) { Text("Close") } },
         confirmButton = {
-            TextButton(
+            Button(
                 enabled = out == null,
                 onClick = {
                     // Belt to the disabled state's braces: two taps in the same
@@ -144,46 +149,49 @@ internal fun RollDialog(
                     // rolled (6eg).
                     if (out == null) out = roll(standing)
                 },
-            ) { Text("Roll") }
+            ) {
+                Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
+                Text("Roll", modifier = Modifier.padding(start = 8.dp))
+            }
         },
-        title = { Text(label) },
+        title = {
+            Column {
+                Text(label)
+                Text(
+                    "Skill $base",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 val shownOut = out
                 if (shownOut == null) {
-                    Text("Skill $base", style = MaterialTheme.typography.titleLarge)
-                    // One line whatever is picked, so the chips below it do
+                    // One height whatever is picked, so the chips below it do
                     // not move under a finger. What made it is listed under
                     // the chips, where it can grow.
-                    Text(
-                        if (standing.forbidden) FORBIDDEN_ROLL else "3d6 ≤ ${standing.target}",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
+                    TargetCard(standing)
                     if (sense != null) SenseRow(sense, senseChosen, chosen, gmValue)
                     if (declarableClauses.isNotEmpty()) {
                         Text(
                             "Does any of this hold?",
-                            style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.padding(top = 8.dp),
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(top = 12.dp),
                         )
-                        FlowRow {
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             declarableClauses.forEach { clause ->
-                                TextButton(onClick = {
-                                    if (clause.key in declaredClauses) {
-                                        declaredClauses.remove(clause.key)
-                                    } else {
-                                        declaredClauses.add(clause.key)
-                                    }
-                                }) {
-                                    Text(
-                                        "${clause.shown}: ${clause.printed}",
-                                        color = if (clause.key in declaredClauses) {
-                                            MaterialTheme.colorScheme.primary
+                                FilterChip(
+                                    selected = clause.key in declaredClauses,
+                                    onClick = {
+                                        if (clause.key in declaredClauses) {
+                                            declaredClauses.remove(clause.key)
                                         } else {
-                                            MaterialTheme.colorScheme.onSurfaceVariant
-                                        },
-                                    )
-                                }
+                                            declaredClauses.add(clause.key)
+                                        }
+                                    },
+                                    label = { Text("${clause.shown}: ${clause.printed}") },
+                                )
                             }
                         }
                     }
@@ -218,19 +226,19 @@ internal fun RollDialog(
                     // reads as another selectable one; this app already
                     // refused a design that blurred an applied chip into a
                     // shown reference, and that distinction breaks the tie.
+                    //
+                    // Closed behind its title (6gl's RuleNote): reference the
+                    // GM reads once, and the title still says "not applied".
                     if (equipment.isNotEmpty()) {
-                        Text(
-                            "Gear that names this skill (not applied):",
-                            style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.padding(top = 12.dp),
-                        )
-                        equipment.forEach {
-                            Text(it, style = MaterialTheme.typography.bodySmall)
+                        RuleNote("Gear that names this skill (not applied)") {
+                            equipment.forEach {
+                                Text(it, style = MaterialTheme.typography.bodySmall)
+                            }
                         }
                     }
                     return@Column
                 }
-                RollResult(shownOut, sense)
+                ResultCard(shownOut, sense)
                 // Ch. 2, p. 9: "You may use this after seeing the result."
                 // That is the whole reason this sits BELOW the result rather
                 // than beside the chips -- it is a decision made once the
@@ -300,7 +308,7 @@ private fun CircumstanceRow(
 ) {
     Text(
         "Circumstances (Appendix A)",
-        style = MaterialTheme.typography.labelLarge,
+        style = MaterialTheme.typography.titleSmall,
         modifier = Modifier.padding(top = 12.dp),
     )
     if (withheld.isNotEmpty()) {
@@ -378,7 +386,7 @@ private fun SenseRow(
 ) {
     Text(
         "Circumstances (${sense.skill}, Ch. 4)",
-        style = MaterialTheme.typography.labelLarge,
+        style = MaterialTheme.typography.titleSmall,
         modifier = Modifier.padding(top = 12.dp),
     )
     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -409,50 +417,6 @@ private fun SenseRow(
                 },
             )
         }
-    }
-}
-
-@Composable
-internal fun RollResult(out: SkillRollOutcome, sense: SpiritualSense? = null) {
-    Column {
-        val roll = out.roll
-        if (roll == null) {
-            Text(FORBIDDEN_ROLL)
-        } else {
-            Text(
-                "3d6: ${roll.total} vs ${roll.target}",
-                style = MaterialTheme.typography.titleLarge,
-            )
-            // effectiveOutcome, not roll.outcome: RequireCrit demotes an
-            // ordinary success, and showing "Success" with a note underneath
-            // would misreport the result.
-            val shown = out.effectiveOutcome ?: roll.outcome
-            Text(label(shown, out.degree), color = colorFor(shown))
-            Text("margin ${roll.margin}", style = MaterialTheme.typography.bodySmall)
-            // The skill's own table, when its chapter prints one. Read from
-            // the EFFECTIVE outcome, so a roll demoted by requiresCritical
-            // cannot come back carrying a success row -- the defect
-            // SkillRollOutcome.degree avoids one object over. A failure lands
-            // on no row, because chapter 4 prints none.
-            if (sense != null) {
-                val row = SpiritualSenses.rowFor(sense, shown, roll.margin)
-                if (row != null) {
-                    Text("${row.result} — ${row.effect}")
-                } else {
-                    Text(
-                        "${sense.skill} prints no row for this result.",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-            }
-        }
-        if (out.target != out.baseTarget) {
-            Text(
-                "base ${out.baseTarget}, modified to ${out.target}",
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-        LedgerLines(out.lines(), out.requiresCritical)
     }
 }
 
@@ -499,12 +463,6 @@ internal fun label(outcome: Outcome, degree: SuccessDegree? = null) = when (outc
     }
     Outcome.FAILURE -> "Failure"
     Outcome.CRITICAL_FAILURE -> "Critical failure"
-}
-
-@Composable
-private fun colorFor(outcome: Outcome) = when (outcome) {
-    Outcome.CRITICAL_FAILURE, Outcome.FAILURE -> MaterialTheme.colorScheme.error
-    else -> MaterialTheme.colorScheme.primary
 }
 
 /**

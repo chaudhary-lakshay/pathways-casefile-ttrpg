@@ -94,10 +94,13 @@ Switch to **Skills** and tap any row. A dialog opens **before** the roll,
 because the modifiers come first:
 
 1. State the circumstances the GM called (the dialog shows what applies).
-   Under **Skill N** it prints the target as it stands, *3d6 ≤ N*, and that
-   number moves as you pick. What made it is listed under the chips.
+   Under the skill's name and **Skill N**, a card prints the **Target** as it
+   stands, large, with *3d6 ≤ N* beneath it; once something moves it, the
+   skill's own level is shown struck through beside it. The number moves as
+   you pick. What made it is listed under the chips.
 2. Press **Roll**. It rolls the number that was on screen.
-3. You get 3d6, the target, the margin, and the degree of success.
+3. You get the degree of success in its colour, *3d6: total vs target*, and
+   the margin, then every line that moved the target.
 
 The target already includes what the app can prove: your level, the trackers
 (HP, FP, SPI, Corruption penalties scoped to the skills they actually touch),
@@ -127,7 +130,8 @@ screen already took. Closing is also when a critical failure's Corruption is
 charged — because a push can take a ritual off the Critical Failure Table
 entirely, and you should not pay for a disaster you bought your way out of.
 
-**Gear that names this skill (not applied).** Under the roll you may see lines
+**Gear that names this skill (not applied).** Under the circumstances you may
+see this title; tap it to open lines
 from chapter 8's equipment table — "Magnifying glass (3s) — +1 to Search for
 fine details". Those are printed for you to read, and the app does not add
 them. It cannot: nothing here records what your character is carrying, and
