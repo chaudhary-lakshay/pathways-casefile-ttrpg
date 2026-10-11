@@ -192,15 +192,18 @@ internal fun FrightDialog(
                     // number -- "-2 to -6" and "-8 or worse" are severities
                     // the GM chooses. Rolling the gentlest end for them would
                     // quietly turn their failures into successes.
-                    if (chosen != null) {
-                        OptionStepper(
-                            label = "Modifier",
-                            value = modifier,
-                            shown = signed(modifier),
-                            note = "the book prints ${chosen.printed}" +
-                                if (chosen.openEnded) " — no floor, so worse is legal" else "",
-                        ) { modifier += it }
-                    }
+                    // Drawn before a pick too, so the first pick cannot grow
+                    // the dialog and slide the rows under a finger. It steps
+                    // nothing until a row is picked, which resets it.
+                    OptionStepper(
+                        label = "Modifier",
+                        value = modifier,
+                        shown = signed(modifier),
+                        note = chosen?.let {
+                            "the book prints ${it.printed}" +
+                                if (it.openEnded) " — no floor, so worse is legal" else ""
+                        } ?: "pick what was witnessed",
+                    ) { if (picked != null) modifier += it }
                     // The character's own traits. Unconditional clauses are
                     // counted without asking; each conditional one is a chip,
                     // because whether this character is in a church or facing

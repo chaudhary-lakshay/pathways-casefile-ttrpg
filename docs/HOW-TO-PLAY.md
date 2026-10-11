@@ -263,7 +263,8 @@ and if so, rolls that table, whose shock the sheet then carries for the turn.
 **Concentrate** is the focus some actions gate behind. **Fright** rolls the
 Fright Check: two rolls, the check and then the effect table. Pick the kind
 and what was witnessed on one page; each row shows what the book prints for
-it, and **Modifier** steps the severity inside a printed span. The target sits
+it, and picking one sets **Modifier** to that figure, which then steps a point
+at a time for the GM's severity, with no bound. The target sits
 above the choices and **Roll** below them, withdrawn until a row is picked.
 
 Three of the table's nine bands print a way out, and those show a **recovery
