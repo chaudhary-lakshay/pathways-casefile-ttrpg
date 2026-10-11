@@ -69,6 +69,12 @@ potion grants.
   10 pts, +2 from the potion"*). A potion's face beside a bought one: the
   better face is played, and a worse bought face says *"not played: the
   potion's face is better"*.
+- **Reference text** in a dialog (shield rules, the incantation, Spirit
+  Vision's colour key, spirit body damage, an artifact's description) sits
+  behind a book icon, closed until you tap it. Targets, costs and what the
+  app does not apply stay open.
+- **The header** under the character's name shows the walk as tags: pathway
+  and Sequence, digestion, CoR, and *Lost* if the character is gone.
 - **The action tiles** are one wrapping grid of twelve, colour-coded by what
   they are for: neutral = a roll the GM called, red = combat, purple = a
   Beyonder power, green = managing the character. The three Beyonder tiles

@@ -1,5 +1,9 @@
 package com.pathways.app
 
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -380,21 +384,20 @@ fun SheetScreen(
                         // diff they carry is against the published sheet, and
                         // no published sheet records a pathway. Saying so is
                         // better than silently mixing two states.
-                        Text(
-                            "Sequence ${drunk.sequence} of the ${drunk.pathway} Pathway, " +
-                                "digested ${drunk.digestion}%, ${session.cor} CoR — " +
-                                when {
-                                    session.lost -> "LOST to the Rampager"
-                                    session.corrupted -> "LOST to corruption"
-                                    else -> "see the pathway screen for what it grants"
-                                },
-                            style = MaterialTheme.typography.bodySmall,
-                            color = if (session.isLost) {
-                                MaterialTheme.colorScheme.error
-                            } else {
-                                MaterialTheme.colorScheme.onSurface
-                            },
-                        )
+                        // Pills, not a sentence (6gl): what the Pathway tile
+                        // opens is said by the tile itself.
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            HeaderPill("${drunk.pathway} · Seq ${drunk.sequence}")
+                            HeaderPill("Digested ${drunk.digestion}%")
+                            HeaderPill("CoR ${session.cor}")
+                            when {
+                                session.lost -> HeaderPill("Lost to the Rampager", lost = true)
+                                session.corrupted -> HeaderPill("Lost to corruption", lost = true)
+                            }
+                        }
                     }
                     Text(
                         if (differing == 0) {
@@ -484,4 +487,15 @@ fun SheetScreen(
         shockOnAttribute = shockOnAttribute,
         hurtOnAttribute = hurtOnAttribute,
     )
+}
+
+/** One fact about the walk, in the sheet's header. */
+@Composable
+private fun HeaderPill(text: String, lost: Boolean = false) {
+    Surface(
+        shape = RoundedCornerShape(50),
+        color = if (lost) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.secondaryContainer,
+    ) {
+        Text(text, style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
+    }
 }
