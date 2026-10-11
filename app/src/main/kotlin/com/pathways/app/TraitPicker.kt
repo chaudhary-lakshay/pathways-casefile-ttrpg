@@ -7,15 +7,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Trait
 import com.pathways.rules.InstancedPurchase
@@ -172,6 +182,10 @@ internal fun TraitPicker(
             ),
         )
     }
+    // One open row, held outside the list's items, which forget their state
+    // when scrolled off. Keyed by section too: a name in two sections must
+    // not open twice (6gm's design review).
+    var open by remember { mutableStateOf<String?>(null) }
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
@@ -201,28 +215,17 @@ internal fun TraitPicker(
                         // second copy bills its points and changes nothing,
                         // and a chip that cannot be taken is not a choice.
                         val already = !PurchasableTraits.canBuy(row, held) || row.name in bought
-                        Column(
-                            Modifier
-                                .fillMaxWidth()
-                                .clickable(enabled = !already) { onBuy(row) }
-                                .padding(vertical = 8.dp),
-                        ) {
-                            Text(
-                                row.name +
-                                    if (already) " — already held" else "",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = if (already) {
-                                    MaterialTheme.colorScheme.outline
-                                } else {
-                                    MaterialTheme.colorScheme.onSurface
-                                },
-                            )
-                            Text(
-                                (if (row.advantage) row.cost else -row.cost).pointsLabel(),
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                            Text(row.notes, style = MaterialTheme.typography.bodySmall)
-                        }
+                        val key = "$heading/${row.name}"
+                        PickerRow(
+                            name = row.name,
+                            already = already,
+                            price = (if (row.advantage) row.cost else -row.cost).pointsLabel(),
+                            notes = row.notes,
+                            expanded = open == key,
+                            onToggle = { open = if (open == key) null else key },
+                            action = "Buy · ${(if (row.advantage) row.cost else -row.cost).pointsLabel()}",
+                            onAction = { onBuy(row) },
+                        )
                         HorizontalDivider()
                     }
                 }
@@ -246,35 +249,25 @@ internal fun TraitPicker(
                     // exception: those are severities of one condition, and a
                     // character is Mild or Severe, never both.
                     val already = !PurchasableTraits.canInstantiate(row, held)
-                    Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable(enabled = !already) { onSettle(row) }
-                            .padding(vertical = 8.dp),
-                    ) {
-                        Text(
-                            row.name + if (already) " — already held" else "",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = if (already) {
-                                MaterialTheme.colorScheme.outline
-                            } else {
-                                MaterialTheme.colorScheme.onSurface
-                            },
-                        )
-                        Text(
-                            if (row.variants.isNotEmpty()) {
-                                row.variants.joinToString(" / ") { (name, points) ->
-                                    "$name ${if (row.advantage) points else -points}"
-                                }
-                            } else {
-                                val low = if (row.advantage) row.costMin else -row.costMax
-                                val high = if (row.advantage) row.costMax else -row.costMin
-                                "$low to $high pts"
-                            },
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                        Text(row.notes, style = MaterialTheme.typography.bodySmall)
-                    }
+                    val key = "instance/${row.name}"
+                    PickerRow(
+                        name = row.name,
+                        already = already,
+                        price = if (row.variants.isNotEmpty()) {
+                            row.variants.joinToString(" / ") { (name, points) ->
+                                "$name ${if (row.advantage) points else -points}"
+                            }
+                        } else {
+                            val low = if (row.advantage) row.costMin else -row.costMax
+                            val high = if (row.advantage) row.costMax else -row.costMin
+                            "$low to $high pts"
+                        },
+                        notes = row.notes,
+                        expanded = open == key,
+                        onToggle = { open = if (open == key) null else key },
+                        action = "Choose…",
+                        onAction = { onSettle(row) },
+                    )
                     HorizontalDivider()
                 }
                 items(withheld) { group ->
@@ -291,4 +284,61 @@ internal fun TraitPicker(
             }
         },
     )
+}
+
+/**
+ * One row of the picker: its name and price, and its book text behind a tap.
+ *
+ * The tap OPENS the row and never buys (6gm): a player reads a trait before
+ * paying for it, the way the Traits tab's roll chip is never the row's tap
+ * (6gl). [action] labels the button that buys, or opens the instance
+ * dialog, and it shows only on an open row a character can still take;
+ * "already held" stays on the closed row, the only line saying why it
+ * cannot be taken.
+ */
+@Composable
+private fun PickerRow(
+    name: String,
+    already: Boolean,
+    price: String,
+    notes: String,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    action: String,
+    onAction: () -> Unit,
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClickLabel = if (expanded) "Hide details" else "Show details", onClick = onToggle)
+            .semantics { stateDescription = if (expanded) "Expanded" else "Collapsed" }
+            .padding(vertical = 8.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                name + if (already) " — already held" else "",
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (already) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                price,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 6.dp),
+            )
+            Icon(
+                if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = null,
+            )
+        }
+        if (expanded) {
+            Text(notes, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp))
+            if (!already) {
+                FilledTonalButton(onClick = onAction, modifier = Modifier.padding(top = 6.dp)) {
+                    Text(action)
+                }
+            }
+        }
+    }
 }
