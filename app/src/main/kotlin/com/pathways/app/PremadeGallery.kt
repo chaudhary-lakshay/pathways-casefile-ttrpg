@@ -2,6 +2,7 @@ package com.pathways.app
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Groups
@@ -410,59 +412,78 @@ private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, numbers: Playe
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false),
                     )
-                    if (beyonder) {
+                    if (walk != null) {
                         Text(
-                            "  BEYONDER",
-                            style = MaterialTheme.typography.labelMedium,
+                            "BEYONDER",
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.secondary,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .border(1.dp, MaterialTheme.colorScheme.secondary, MaterialTheme.shapes.extraSmall)
+                                .padding(horizontal = 6.dp, vertical = 1.dp),
+                        )
+                        // The walk, beside the mark it explains. Weighted
+                        // like the name, so on a narrow phone the two share
+                        // what the pill leaves and neither takes it all.
+                        Text(
+                            "${walk.pathway} ${walk.sequence}",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.secondary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false).padding(start = 8.dp),
                         )
                     }
                 }
 
-                // The four attributes as played, in one monospaced-feeling
-                // row, then the walk. Not SPI: a pool is the sheet screen's
-                // to print, beside what is left of it. A FlowRow, so
-                // "Wheel of Fortune 9" wraps on a narrow screen.
+                // The four attributes as played. Not SPI: a pool is the sheet
+                // screen's to print, beside what is left of it.
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     val played = numbers.attributes
                     StatCell("ST", "${played.st}")
                     StatCell("DX", "${played.dx}")
                     StatCell("IQ", "${played.iq}")
                     StatCell("HT", "${played.ht}")
-                    if (walk != null) StatCell(walk.pathway, "${walk.sequence}", accent = true)
                 }
 
-                val traits = numbers.chips
-                if (traits.isNotEmpty()) {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        for (trait in traits) {
-                            Surface(
-                                shape = MaterialTheme.shapes.extraSmall,
-                                color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            ) {
-                                Text(
-                                    trait,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                )
-                            }
+                // The skill count is drawn whether or not a trait chip is: it
+                // sat inside the chips' row, so a character with no short
+                // trait name printed no count either.
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    for (trait in numbers.chips) {
+                        Surface(
+                            shape = MaterialTheme.shapes.extraSmall,
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ) {
+                            Text(
+                                trait,
+                                style = MaterialTheme.typography.labelMedium,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            )
                         }
-                        Text(
-                            "${numbers.skills} skills",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(start = 2.dp, top = 2.dp),
-                        )
                     }
+                    Text(
+                        "${numbers.skills} skills",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 2.dp, top = 2.dp),
+                    )
                 }
             }
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.CenterVertically),
+            )
         }
     }
 }
 
 @Composable
-private fun StatCell(label: String, value: String, accent: Boolean = false) {
+private fun StatCell(label: String, value: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             label,
@@ -472,11 +493,7 @@ private fun StatCell(label: String, value: String, accent: Boolean = false) {
         Text(
             " $value",
             style = MaterialTheme.typography.labelLarge,
-            color = if (accent) {
-                MaterialTheme.colorScheme.secondary
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
