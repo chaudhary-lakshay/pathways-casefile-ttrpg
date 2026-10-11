@@ -119,8 +119,9 @@ fun ThemePicker(
     }
 }
 
+/** A section's name above its chips; the Attack dialog uses it too. */
 @Composable
-private fun SectionLabel(text: String) {
+internal fun SectionLabel(text: String) {
     Text(
         text,
         style = MaterialTheme.typography.titleSmall,

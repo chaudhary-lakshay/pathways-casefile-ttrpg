@@ -188,7 +188,7 @@ Deceptive Attack's -2 per -1 imposed (capped at half your skill), Rapid Strike's
 It will not let you buy an option the maneuver does not allow, and it charges FP
 once per purchase, not once per recomposition.
 
-Above **Roll** it adds the terms up: what injury, fatigue and attrition take,
+The choices scroll; under them, pinned beside **Roll**, it adds the terms up: what injury, fatigue and attrition take,
 then the target, *3d6 ≤ N* (*", each"* when the plan makes more than one
 attack).
 

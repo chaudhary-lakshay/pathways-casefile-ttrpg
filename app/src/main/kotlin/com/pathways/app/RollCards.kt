@@ -25,6 +25,7 @@ import com.pathways.model.Outcome
 import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.SkillTarget
 import com.pathways.rules.SpiritualSenses
+import com.pathways.rules.SuccessDegree
 import com.pathways.rules.content.SpiritualSense
 
 private const val TABULAR = "tnum"
@@ -97,7 +98,13 @@ internal fun TargetCard(standing: SkillTarget) {
  * is listed below it, the chips being gone by then.
  */
 @Composable
-internal fun ResultCard(out: SkillRollOutcome, sense: SpiritualSense? = null) {
+internal fun ResultCard(
+    out: SkillRollOutcome,
+    sense: SpiritualSense? = null,
+    // Appendix A's success bands, which the skill roll prints. The attack
+    // passes null: it never printed a band, and adding one is a rule claim.
+    degree: SuccessDegree? = out.degree,
+) {
     val roll = out.roll
     // effectiveOutcome, not roll.outcome: RequireCrit demotes an ordinary
     // success, and showing "Success" with a note underneath would misreport
@@ -118,7 +125,7 @@ internal fun ResultCard(out: SkillRollOutcome, sense: SpiritualSense? = null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        label(shown, out.degree),
+                        label(shown, degree),
                         style = MaterialTheme.typography.headlineMedium,
                         color = accent,
                     )

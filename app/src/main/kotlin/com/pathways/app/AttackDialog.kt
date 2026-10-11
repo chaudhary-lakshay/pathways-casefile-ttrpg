@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.ModEffect
@@ -319,6 +320,7 @@ fun AttackDialog(
                                     plan = AttackPlan(isRanged = armed.isFired)
                                 }
                                 .padding(vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(Modifier.weight(1f)) {
                                 Text(entry.key.label())
@@ -330,7 +332,7 @@ fun AttackDialog(
                                     )
                                 }
                             }
-                            Text("${entry.level}", style = MaterialTheme.typography.titleMedium)
+                            LevelBadge("${entry.level}", MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
@@ -501,26 +503,15 @@ fun AttackDialog(
     )
 }
 
+/**
+ * One attack's dice: the skill and which attack it was, then the same card
+ * the skill roll uses, with no success band (see [ResultCard]).
+ */
 @Composable
 private fun AttackResult(outcome: SkillRollOutcome) {
     Column(Modifier.padding(bottom = 12.dp)) {
         Text(outcome.label, style = MaterialTheme.typography.titleSmall)
-        Text(
-            "3d6: ${outcome.roll?.total} vs ${outcome.target}",
-            style = MaterialTheme.typography.titleLarge,
-        )
-        if (outcome.target != outcome.baseTarget) {
-            Text(
-                "base ${outcome.baseTarget}, modified to ${outcome.target}",
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-        Text(
-            outcome.effectiveOutcome?.name?.lowercase()?.replace('_', ' ') ?: "no roll",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(top = 8.dp),
-        )
+        ResultCard(outcome, degree = null)
     }
 }
 

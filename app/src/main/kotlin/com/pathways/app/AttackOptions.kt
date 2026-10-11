@@ -3,19 +3,17 @@ package com.pathways.app
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.ModEffect
@@ -76,200 +74,204 @@ internal fun AttackOptions(
     onRoll: () -> Unit,
 ) {
     val maxDeceptive = Attacks.maxDeceptive(skillLevel)
-    // Scrolls: with a distance band and nine conditions to choose from, the
-    // panel is taller than a phone and the Roll button fell off the bottom.
+    // The choices scroll and the target with Roll is pinned beneath them
+    // ([AttackFooter]): with a distance band and nine conditions the panel is
+    // taller than a phone, and Roll fell below the fold even on the tablet.
     // An AlertDialog does not scroll its own text slot. Found on device.
-    Column(Modifier.verticalScroll(rememberScrollState())) {
-        Text("$label $skillLevel", style = MaterialTheme.typography.titleMedium)
-        notes.forEach {
-            Text(
-                it,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        if (attacks.isNotEmpty()) {
+    Column {
+        Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(label, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                LevelBadge("$skillLevel", MaterialTheme.colorScheme.primary)
+            }
+            notes.forEach {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (attacks.isNotEmpty()) {
+                SectionLabel("Strike")
+                FlowRow {
+                    attacks.forEach { option ->
+                        FilterChip(
+                            selected = unarmed?.attack == option.attack,
+                            onClick = { onAttack(option) },
+                            label = { Text(option.attack) },
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                    }
+                }
+                unarmed?.let {
+                    Text(
+                        // Shove prints "Special" and rolls nothing; saying so beats
+                        // showing a damage line it does not have.
+                        "${it.damage} — ${it.notes}",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(vertical = 4.dp),
+                    )
+                }
+            }
+            ArmedWith(weapons, armed, wieldedAt, onArmed)
+            // Chips WRAP rather than scroll sideways: a horizontally scrolling Row
+            // inside an AlertDialog never received the drag on a 1080px phone, so
+            // three of the five maneuvers -- Strong, Double and Charge -- could not
+            // be selected at all. Found on device, not by a test.
+            SectionLabel("Maneuver")
             FlowRow {
-                attacks.forEach { option ->
+                AttackManeuver.entries.forEach { option ->
                     FilterChip(
-                        selected = unarmed?.attack == option.attack,
-                        onClick = { onAttack(option) },
-                        label = { Text(option.attack) },
+                        selected = plan.maneuver == option,
+                        // Changing maneuver drops the options the old one allowed:
+                        // Heroic Charge outside a charge is refused by Attacks, and
+                        // carrying it over silently would throw on Roll. Through
+                        // Attacks rather than rebuilt here, because deciding what
+                        // survives a transition is a rule and this was its third
+                        // copy -- the one that dropped an unscoped option.
+                        onClick = { onPlan(Attacks.withManeuver(plan, option)) },
+                        label = { Text(option.printed) },
                         modifier = Modifier.padding(end = 8.dp),
                     )
                 }
             }
-            unarmed?.let {
-                Text(
-                    // Shove prints "Special" and rolls nothing; saying so beats
-                    // showing a damage line it does not have.
-                    "${it.damage} — ${it.notes}",
-                    style = MaterialTheme.typography.bodySmall,
+            // Two chips, the lit one saying where the target is. Both attack
+            // options are melee-only, so switching to range drops them rather
+            // than offering a choice the book does not allow.
+            FlowRow {
+                listOf(false to "In reach", true to "At range").forEach { (ranged, text) ->
+                    FilterChip(
+                        selected = plan.isRanged == ranged,
+                        onClick = { if (plan.isRanged != ranged) onPlan(Attacks.atRange(plan, ranged)) },
+                        label = { Text(text) },
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+                }
+            }
+
+            if (plan.isRanged) {
+                RangedOptions(
+                    band,
+                    circumstances,
+                    armed,
+                    aimCancelled,
+                    aimRefusedBy,
+                    darknessCause,
+                    darknessReduction,
+                    darknessSeverity,
+                    onBand,
+                    onCircumstance,
+                    onAimCancelled,
+                    onDarknessCause,
+                    onDarknessSeverity,
+                )
+            } else {
+                SectionLabel("Options")
+                OptionStepper("Rapid Strike", plan.rapidStrikes, "${Attacks.RAPID_STRIKE_PENALTY} each") {
+                    onPlan(plan.copy(rapidStrikes = (plan.rapidStrikes + it).coerceAtLeast(0)))
+                }
+                OptionStepper(
+                    "Deceptive",
+                    plan.deceptive,
+                    if (maxDeceptive == 0) "skill too low" else "-2 each, max $maxDeceptive",
+                ) {
+                    onPlan(plan.copy(deceptive = (plan.deceptive + it).coerceIn(0, maxDeceptive)))
+                }
+                // The one row of the ranged table the book also prices in reach.
+                // Which rows those are is [Ranged.meleeConditions]' call, not this
+                // screen's: a dialog holding its own list is the second copy of a
+                // scope (6ag, 6ai, 6be). Same chip label as the ranged side, whole
+                // printed clause included, so both numbers are on screen wherever
+                // the plan is and the breakdown always adds up.
+                FlowRow {
+                    Ranged.meleeConditions().forEach { option ->
+                        FilterChip(
+                            selected = option.condition in circumstances,
+                            onClick = { onCircumstance(option.condition) },
+                            label = { Text("${option.condition} ${option.printed}") },
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                    }
+                }
+            }
+            CalledShot(location, onLocation)
+            KillerTarget(killerClauses, killerTarget, onKillerTarget)
+            // "Regular melee attacks only", and an attack that rolls damage for
+            // the +2 to land on. Withheld rather than offered and refused: a chip
+            // that takes the dialog down on Roll is not a choice (6t). The whole
+            // scope lives in Attacks, because half of it -- the firearm, and
+            // whether anything is being rolled at all -- is a fact about what is
+            // held, which modifiers() never sees.
+            SectionLabel("Extra effort")
+            if (Attacks.offersStrongBlow(plan, damage != null, armed?.isFired == true)) {
+                FilterChip(
+                    selected = plan.strongBlow,
+                    onClick = { onPlan(plan.copy(strongBlow = !plan.strongBlow)) },
+                    label = {
+                        Text(
+                            "${Attacks.STRONG_BLOW} (${Attacks.effortFp(Attacks.STRONG_BLOW)} FP, " +
+                                "+${Attacks.STRONG_BLOW_DAMAGE} damage)",
+                        )
+                    },
                     modifier = Modifier.padding(vertical = 4.dp),
                 )
             }
-        }
-        ArmedWith(weapons, armed, wieldedAt, onArmed)
-        // Chips WRAP rather than scroll sideways: a horizontally scrolling Row
-        // inside an AlertDialog never received the drag on a 1080px phone, so
-        // three of the five maneuvers -- Strong, Double and Charge -- could not
-        // be selected at all. Found on device, not by a test.
-        FlowRow {
-            AttackManeuver.entries.forEach { option ->
+            if (plan.maneuver == AttackManeuver.CHARGE) {
                 FilterChip(
-                    selected = plan.maneuver == option,
-                    // Changing maneuver drops the options the old one allowed:
-                    // Heroic Charge outside a charge is refused by Attacks, and
-                    // carrying it over silently would throw on Roll. Through
-                    // Attacks rather than rebuilt here, because deciding what
-                    // survives a transition is a rule and this was its third
-                    // copy -- the one that dropped an unscoped option.
-                    onClick = { onPlan(Attacks.withManeuver(plan, option)) },
-                    label = { Text(option.printed) },
-                    modifier = Modifier.padding(end = 8.dp),
+                    selected = plan.heroicCharge,
+                    onClick = { onPlan(plan.copy(heroicCharge = !plan.heroicCharge)) },
+                    label = {
+                        Text("${Attacks.HEROIC_CHARGE} (${Attacks.effortFp(Attacks.HEROIC_CHARGE)} FP)")
+                    },
+                    modifier = Modifier.padding(vertical = 4.dp),
                 )
             }
-        }
-        FilterChip(
-            selected = plan.isRanged,
-            // Both attack options are melee-only, so switching to range drops
-            // them rather than offering a choice the book does not allow.
-            onClick = { onPlan(Attacks.atRange(plan, !plan.isRanged)) },
-            label = { Text(if (plan.isRanged) "At range" else "In reach") },
-            modifier = Modifier.padding(vertical = 8.dp),
-        )
-
-        if (plan.isRanged) {
-            RangedOptions(
-                band,
-                circumstances,
-                armed,
-                aimCancelled,
-                aimRefusedBy,
-                darknessCause,
-                darknessReduction,
-                darknessSeverity,
-                onBand,
-                onCircumstance,
-                onAimCancelled,
-                onDarknessCause,
-                onDarknessSeverity,
-            )
-        } else {
-            Stepper("Rapid Strike", plan.rapidStrikes, "${Attacks.RAPID_STRIKE_PENALTY} each") {
-                onPlan(plan.copy(rapidStrikes = (plan.rapidStrikes + it).coerceAtLeast(0)))
-            }
-            Stepper(
-                "Deceptive",
-                plan.deceptive,
-                if (maxDeceptive == 0) "skill too low" else "-2 each, max $maxDeceptive",
-            ) {
-                onPlan(plan.copy(deceptive = (plan.deceptive + it).coerceIn(0, maxDeceptive)))
-            }
-            // The one row of the ranged table the book also prices in reach.
-            // Which rows those are is [Ranged.meleeConditions]' call, not this
-            // screen's: a dialog holding its own list is the second copy of a
-            // scope (6ag, 6ai, 6be). Same chip label as the ranged side, whole
-            // printed clause included, so both numbers are on screen wherever
-            // the plan is and the breakdown always adds up.
-            FlowRow {
-                Ranged.meleeConditions().forEach { option ->
-                    FilterChip(
-                        selected = option.condition in circumstances,
-                        onClick = { onCircumstance(option.condition) },
-                        label = { Text("${option.condition} ${option.printed}") },
-                        modifier = Modifier.padding(end = 8.dp),
-                    )
-                }
-            }
-        }
-        CalledShot(location, onLocation)
-        KillerTarget(killerClauses, killerTarget, onKillerTarget)
-        // "Regular melee attacks only", and an attack that rolls damage for
-        // the +2 to land on. Withheld rather than offered and refused: a chip
-        // that takes the dialog down on Roll is not a choice (6t). The whole
-        // scope lives in Attacks, because half of it -- the firearm, and
-        // whether anything is being rolled at all -- is a fact about what is
-        // held, which modifiers() never sees.
-        if (Attacks.offersStrongBlow(plan, damage != null, armed?.isFired == true)) {
+            // Offered on every maneuver and at any reach, because its cell prints
+            // no scope where both neighbours print one. The step itself is the
+            // GM's -- this app holds no map -- so what the chip delivers is the FP
+            // charge, which is the half of the row this app does model.
             FilterChip(
-                selected = plan.strongBlow,
-                onClick = { onPlan(plan.copy(strongBlow = !plan.strongBlow)) },
+                selected = plan.giantStep,
+                onClick = { onPlan(plan.copy(giantStep = !plan.giantStep)) },
                 label = {
-                    Text(
-                        "${Attacks.STRONG_BLOW} (${Attacks.effortFp(Attacks.STRONG_BLOW)} FP, " +
-                            "+${Attacks.STRONG_BLOW_DAMAGE} damage)",
-                    )
+                    Text("${Attacks.GIANT_STEP} (${Attacks.effortFp(Attacks.GIANT_STEP)} FP)")
                 },
                 modifier = Modifier.padding(vertical = 4.dp),
             )
         }
-        if (plan.maneuver == AttackManeuver.CHARGE) {
-            FilterChip(
-                selected = plan.heroicCharge,
-                onClick = { onPlan(plan.copy(heroicCharge = !plan.heroicCharge)) },
-                label = {
-                    Text("${Attacks.HEROIC_CHARGE} (${Attacks.effortFp(Attacks.HEROIC_CHARGE)} FP)")
-                },
-                modifier = Modifier.padding(vertical = 4.dp),
-            )
-        }
-        // Offered on every maneuver and at any reach, because its cell prints
-        // no scope where both neighbours print one. The step itself is the
-        // GM's -- this app holds no map -- so what the chip delivers is the FP
-        // charge, which is the half of the row this app does model.
-        FilterChip(
-            selected = plan.giantStep,
-            onClick = { onPlan(plan.copy(giantStep = !plan.giantStep)) },
-            label = {
-                Text("${Attacks.GIANT_STEP} (${Attacks.effortFp(Attacks.GIANT_STEP)} FP)")
-            },
-            modifier = Modifier.padding(vertical = 4.dp),
-        )
-
-        HorizontalDivider(Modifier.padding(vertical = 8.dp))
         val fp = Attacks.fpCost(plan)
         val total = Attacks.modifiers(plan, skillLevel, unarmed)
             .sumOf { (it.effect as ModEffect.Flat).n }
         val count = Attacks.attackCount(plan)
         val fromRange = rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled || aimRefusedBy != null, darknessCause, darknessReduction, darknessSeverity)
             .sumOf { (it.effect as ModEffect.Flat).n }
-        Text(
-            "Attack options: ${if (total == 0) "no modifier" else signed(total)}" +
-                (if (count > 1) ", $count attacks" else "") +
-                if (fp > 0) ", costs $fp FP" else "",
-            style = MaterialTheme.typography.bodySmall,
-        )
+        // Every term the target is made of, in the order it was always
+        // printed, handed to the footer that prints the target under them.
+        val lines = mutableListOf<String>()
+        lines += "Attack options: ${if (total == 0) "no modifier" else signed(total)}" +
+            (if (count > 1) ", $count attacks" else "") +
+            if (fp > 0) ", costs $fp FP" else ""
         val fromMelee = meleeModifiers(plan, circumstances)
             .sumOf { (it.effect as ModEffect.Flat).n }
         if (plan.isRanged) {
-            Text(
-                "Range and cover: ${if (fromRange == 0) "no modifier" else signed(fromRange)}",
-                style = MaterialTheme.typography.bodySmall,
-            )
+            lines += "Range and cover: ${if (fromRange == 0) "no modifier" else signed(fromRange)}"
         } else if (fromMelee != 0) {
             // Its own label, never "Range and cover": nothing about distance
             // is being priced here, and a total that does not match the line
             // above it is the breakdown defect this repo has shipped twice
             // (6ag, 6ai).
-            Text(
-                "Target: ${signed(fromMelee)}",
-                style = MaterialTheme.typography.bodySmall,
-            )
+            lines += "Target: ${signed(fromMelee)}"
         }
         if (fromTraits != 0) {
             // Its own line, like "Target": a trait term the breakdown left
             // out would make the roll's total a number nothing above it adds
             // up to (the diff review's MEDIUM).
-            Text("Traits: ${signed(fromTraits)}", style = MaterialTheme.typography.bodySmall)
+            lines += "Traits: ${signed(fromTraits)}"
         }
         location?.let {
-            Text(
-                "Called shot: ${it.target} ${signed(it.penalty)}, ${it.printedMultiplier} — ${it.effect}",
-                style = MaterialTheme.typography.bodySmall,
-            )
+            lines += "Called shot: ${it.target} ${signed(it.penalty)}, ${it.printedMultiplier} — ${it.effect}"
         }
-        Text(
+        lines += (
             // The multiplier is SHOWN, never applied: damage here is an
             // expression, not a rolled total, so there is no product to round
             // and this book prints no rounding rule to round it by.
@@ -298,33 +300,15 @@ internal fun AttackOptions(
                 // sentence.
                 row.opposedRoll?.let { "The target rolls $it." }
                     ?: "Rolls no damage; see the note above."
-            }.orEmpty(),
-            style = MaterialTheme.typography.bodySmall,
-        )
+            }.orEmpty()
+            )
         // The last term, and then what they all come to. This line used to
         // read "...are added when it is rolled", the only word of the target
         // this dialog gave before the dice.
         if (fromTrackers != 0) {
-            Text(
-                "Injury, fatigue and attrition: ${signed(fromTrackers)}",
-                style = MaterialTheme.typography.bodySmall,
-            )
+            lines += "Injury, fatigue and attrition: ${signed(fromTrackers)}"
         }
-        Text(
-            if (standing.forbidden) {
-                FORBIDDEN_ROLL
-            } else {
-                "3d6 ≤ ${standing.target}" + if (count > 1) ", each" else ""
-            },
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(top = 4.dp),
-        )
-        if (standing.requiresCritical) {
-            Text("Only a critical success counts.", style = MaterialTheme.typography.bodySmall)
-        }
-        // Nothing to roll is nothing to pay for: the handler charges the
-        // plan's FP whatever the dice do.
-        TextButton(onClick = onRoll, enabled = !standing.forbidden) { Text("Roll") }
+        AttackFooter(lines.filter { it.isNotEmpty() }, standing, count, onRoll)
     }
 }
 
@@ -348,11 +332,7 @@ private fun ArmedWith(
     onArmed: (Armed?) -> Unit,
 ) {
     if (weapons.isEmpty()) return
-    Text(
-        "Weapon",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 8.dp),
-    )
+    SectionLabel("Weapon")
     FlowRow {
         weapons.forEach { option ->
             FilterChip(
@@ -417,11 +397,7 @@ private fun KillerTarget(
     onDeclare: (String) -> Unit,
 ) {
     if (clauses.isEmpty()) return
-    Text(
-        "Target (${clauses.first().shown})",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 8.dp),
-    )
+    SectionLabel("Target (${clauses.first().shown})")
     FlowRow {
         clauses.forEach { clause ->
             FilterChip(
@@ -459,11 +435,7 @@ internal fun woundingNote(location: HitLocation?, type: String): String {
 @Composable
 private fun CalledShot(location: HitLocation?, onLocation: (HitLocation) -> Unit) {
     val locations = remember { Wounds.locations() }
-    Text(
-        "Called shot",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 8.dp),
-    )
+    SectionLabel("Called shot")
     FlowRow {
         locations.forEach { option ->
             FilterChip(
@@ -535,13 +507,3 @@ internal data class Armed(val weapon: CataloguedWeapon, val mode: WeaponMode) {
  * unarmed attack that reaches past arm's length.
  */
 internal val Armed?.isFired: Boolean get() = this != null && Weapons.isRanged(weapon)
-
-@Composable
-private fun Stepper(label: String, value: Int, note: String, onStep: (Int) -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
-        Text("$label $value", Modifier.weight(1f))
-        Text(note, style = MaterialTheme.typography.bodySmall)
-        TextButton(onClick = { onStep(-1) }) { Text("−") }
-        TextButton(onClick = { onStep(1) }) { Text("+") }
-    }
-}

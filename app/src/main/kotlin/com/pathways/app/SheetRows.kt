@@ -366,7 +366,7 @@ private fun RollGlyph() {
 
 /** The level the row rolls, in a 40dp outlined badge. */
 @Composable
-private fun LevelBadge(number: String, color: Color) {
+internal fun LevelBadge(number: String, color: Color) {
     Box(
         Modifier.size(40.dp).border(1.dp, color, RoundedCornerShape(8.dp)),
         contentAlignment = Alignment.Center,
