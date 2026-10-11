@@ -41,6 +41,7 @@ import com.pathways.model.TraitKind
 import com.pathways.rules.Conditions
 import com.pathways.rules.Derive
 import com.pathways.rules.Divination
+import com.pathways.rules.Pool
 import com.pathways.rules.Pools
 import com.pathways.rules.SpiritVision
 import com.pathways.rules.PremadeSheet
@@ -401,6 +402,26 @@ fun SheetScreen(
                             HeaderPill("CoR ${session.cor}", lost = session.isLost)
                         }
                     }
+                    // Health first and always: it sat behind the Vitals tab.
+                    // SPI only for a Beyonder -- "Non-Beyonders (SPI 0) ...
+                    // have no spirituality to sacrifice" (p. 41), and
+                    // Pools.spi refuses a maximum of zero.
+                    PoolStrip(
+                        pools = listOfNotNull(
+                            hpNow,
+                            fpNow,
+                            if (vitals.maxSpi > 0) Pools.spi(vitals.maxSpi - session.spiSpent, vitals.maxSpi) else null,
+                        ),
+                        onSpend = { pool, n ->
+                            val max = when (pool) {
+                                Pool.HP -> vitals.maxHp
+                                Pool.FP -> vitals.maxFp
+                                Pool.SPI -> vitals.maxSpi
+                            }
+                            session.spend(pool, n, max, maxCor)
+                        },
+                        modifier = Modifier.padding(top = 12.dp, bottom = 8.dp),
+                    )
                     Text(
                         if (differing == 0) {
                             "all ${rows.size} values match the published sheet"
@@ -426,9 +447,6 @@ fun SheetScreen(
 
             when (tab) {
                 SheetTab.VITALS -> vitalsTab(
-                    session = session,
-                    vitals = vitals,
-                    maxCor = maxCor,
                     hpNow = hpNow,
                     ht = attributes.ht,
                     traits = traits,

@@ -29,9 +29,6 @@ import com.pathways.rules.PremadeSheet
 // emitted for that tab before they were split out.
 
 internal fun LazyListScope.vitalsTab(
-    session: BeyonderSession,
-    vitals: Vitals,
-    maxCor: Int,
     hpNow: PoolStatus,
     ht: Int,
     traits: List<Trait>,
@@ -42,9 +39,6 @@ internal fun LazyListScope.vitalsTab(
 ) {
     item {
         PoolTrackers(
-            session = session,
-            vitals = vitals,
-            maxCor = maxCor,
             hp = hpNow,
             ht = ht,
             traits = traits,

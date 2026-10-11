@@ -191,29 +191,19 @@ private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int) {
 }
 
 /**
- * HP, FP and SPI at the table (Ch. 5).
- *
- * SPI is shown only for a Beyonder: "Non-Beyonders (SPI 0) ... have no
- * spirituality to sacrifice" (p. 41), and [Pools.spi] refuses a maximum of
- * zero rather than reporting a mortal as Spiritually Exhausted.
+ * The rolls a pool's state calls for, under the strip that shows the pools
+ * ([PoolStrip]): the HP table's two vital rolls and the recovery roll.
  */
 @Composable
 internal fun PoolTrackers(
-    session: BeyonderSession,
-    vitals: Vitals,
-    maxCor: Int,
     hp: PoolStatus,
     ht: Int,
     traits: List<Trait>,
     poolPenalty: Int,
 ) {
     Column(Modifier.padding(vertical = 4.dp)) {
-        PoolRow(hp) {
-            session.spend(Pool.HP, it, vitals.maxHp, maxCor)
-        }
-        // Under the row that produced them, and only where the table prints
-        // one: `Pools` has flagged these two rolls since M0 and nothing could
-        // make them. See VitalRolls.
+        // Only where the table prints one: `Pools` has flagged these two
+        // rolls since M0 and nothing could make them. See VitalRolls.
         VitalRolls.due(hp).forEach { check ->
             VitalRollRow(
                 check = check,
@@ -223,78 +213,8 @@ internal fun PoolTrackers(
                 poolPenalty = poolPenalty,
             )
         }
-        // The recovery table's one roll, under the pool it restores.
+        // The recovery table's one roll.
         if (NaturalRecovery.isOffered(hp)) RecoveryRollRow(ht, traits, poolPenalty)
-        PoolRow(Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp)) {
-            session.spend(Pool.FP, it, vitals.maxFp, maxCor)
-        }
-        if (vitals.maxSpi > 0) {
-            PoolRow(Pools.spi(vitals.maxSpi - session.spiSpent, vitals.maxSpi)) {
-                session.spend(Pool.SPI, it, vitals.maxSpi, maxCor)
-            }
-        }
-        HorizontalDivider()
-    }
-}
-
-/**
- * One pool: where it stands, what the book says about standing there, and a
- * stepper.
- *
- * ponytail: -1/+1 only. Damage is rolled at the table off dice this app does
- * not own, and a "take N damage" field is a keyboard in the middle of a sheet.
- *
- * Soul Debt, "+1 CoR per 1 point below 0" (p. 35), is CHARGED by
- * [BeyonderSession.spend] since `ea6ae38`, one way: stepping back up refunds
- * no CoR, because CoR from Soul Debt is permanent (p. 41). This said
- * "reported, not applied" until 6fd.
- */
-@Composable
-private fun PoolRow(status: PoolStatus, onSpend: (Int) -> Unit) {
-    val bad = status.penalty != 0 || status.isDead || status.isUnconscious
-    Row(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(
-                "${status.pool} ${status.current} / ${status.max}",
-                style = MaterialTheme.typography.titleMedium,
-                color = if (bad) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-            )
-            if (bad) {
-                Text(
-                    buildList {
-                        add(status.level)
-                        // The number first, with what it applies to: -3 for
-                        // Spiritual Attrition is SPI rolls only, and a GM
-                        // reading it as -3 to everything would be the whole
-                        // point of carrying the scope.
-                        if (status.penalty != 0) {
-                            val what = when (status.scope) {
-                                PenaltyScope.SPI_ROLLS -> "SPI rolls and ability checks"
-                                PenaltyScope.ALL_ROLLS -> "all rolls"
-                            }
-                            add("${status.penalty} to $what")
-                        }
-                        // Reported as DONE, not as a chore. It used to read
-                        // "add N CoR on the pathway screen", which was honest
-                        // while nothing charged it and became an instruction
-                        // to double-count the moment something did. Found on
-                        // device, in the same slice that applied the charge.
-                        if (status.corGained > 0) add("${status.corGained} CoR charged")
-                        add(status.effect)
-                    }.joinToString(" — "),
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-        }
-        // Outlined and neutral, not brass text. Three pools times two steppers
-        // put six accent-coloured controls on screen at once, which is most of
-        // why the sheet read as one yellow note; and an outline says "button"
-        // more plainly than colour does.
-        OutlinedIconButton(onClick = { onSpend(1) }) { Text("−1") }
-        OutlinedIconButton(onClick = { onSpend(-1) }) { Text("+1") }
     }
 }
 
