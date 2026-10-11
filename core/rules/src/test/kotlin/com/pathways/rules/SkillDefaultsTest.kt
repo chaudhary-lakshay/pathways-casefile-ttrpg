@@ -554,4 +554,63 @@ class SkillDefaultsTest {
         // And the moved plan is one Attacks will roll.
         Attacks.modifiers(Attacks.atLevel(plan, 6), 6)
     }
+
+    private fun keyOf(name: String, specialization: String? = null) =
+        skill(name, specialization).let { SkillKey(it.name, it.specialization, it.attr, it.difficulty) }
+
+    /**
+     * **The Attack picker offers the owned skills the book files under COMBAT
+     * SKILLS.** Until this slice it offered every owned skill, Research and
+     * Writing included. The banner and not the damage line: ten of its rows
+     * (Shortsword, Polearm, Shield, Guns (Pistol)...) print no damage this
+     * dialog can show and are still attacks, and the maneuvers are theirs too.
+     */
+    @Test
+    fun `an owned skill is offered as an attack only under the COMBAT SKILLS banner`() {
+        val owned = mapOf(
+            keyOf("Research") to 13,
+            keyOf("Writing") to 12,
+            keyOf("Acrobatics") to 11,
+            keyOf("Brawling") to 12,
+            keyOf("Shortsword") to 11,
+            keyOf("Guns", "Pistol") to 10,
+        )
+
+        val offered = SkillDefaults.ownedAttacks(owned)
+
+        assertEquals(
+            setOf("Brawling", "Shortsword", "Guns (Pistol)"),
+            offered.keys.map { it.specialization?.let { s -> "${it.name} ($s)" } ?: it.name }.toSet(),
+        )
+        assertEquals(12, offered.getValue(keyOf("Brawling")), "the level travels with the key")
+    }
+
+    /**
+     * The banner is read by NAME alone ([TraitEffects.categoryOf]), so a name
+     * printed under COMBAT SKILLS and under a second banner would be filed by
+     * whichever row came first. None is today; this says so (the design
+     * review's MEDIUM), and pins the nineteen.
+     */
+    @Test
+    fun `the COMBAT SKILLS banner is nineteen rows whose names no other banner prints`() {
+        val rows = ContentLoader.skills()
+        val combat = rows.filter { it.category == SkillDefaults.COMBAT_SKILLS }
+        assertEquals(19, combat.size)
+        val names = combat.map { it.name }.toSet()
+        assertTrue(rows.none { it.name in names && it.category != SkillDefaults.COMBAT_SKILLS })
+    }
+
+    /**
+     * A held skill with no banner would vanish from the Attack picker with no
+     * way back. Every skill a potion grants, on a standard pathway or not,
+     * names a catalogue row, so none can (the design review's MEDIUM).
+     */
+    @Test
+    fun `every skill a potion grants is filed under some banner`() {
+        val names = ContentLoader.skills().map { it.name }.toSet()
+        val granted = (ContentLoader.pathways() + NonStandardPathways.all())
+            .flatMap { block -> block.skills.map { it.name.substringBefore(" (") } }
+        assertTrue(granted.isNotEmpty())
+        assertEquals(emptySet<String>(), granted.filterNot { it in names }.toSet())
+    }
 }

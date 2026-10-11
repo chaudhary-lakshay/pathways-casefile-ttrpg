@@ -52,13 +52,14 @@ private const val BOXING = "Boxing"
  * against the best skill on the sheet or trimming the choice afterwards, and
  * [Attacks] refuses a trimmed plan rather than silently obeying it.
  *
- * Every OWNED skill is offered, not a curated combat list. The book does
- * print a COMBAT SKILLS banner -- nineteen rows, Fast-Draw and Shield among
- * them -- but a banner is where a skill is filed, not a rule about which
- * skill may make an attack, so which of a character's skills can is the GM's
- * call. (This KDoc said "this book tags no skill as a combat skill" until
- * 6eu, which line 1668 of the book contradicts.) Chapter 8's weapon table
- * names seven skills, and [Weapons.forSkill] arms those.
+ * The OWNED skills offered are the ones the book files under COMBAT SKILLS
+ * ([SkillDefaults.ownedAttacks]): nineteen rows, Fast-Draw and Shield among
+ * them, and no skill outside it prints a damage line or arms a weapon. Until
+ * the redesign every owned skill was offered, Research and Writing included,
+ * on the reading that which skill may attack is the GM's call; a skill
+ * outside the banner a GM rules can strike is now a Skills-tab roll.
+ * Chapter 8's weapon table names seven skills, and [Weapons.forSkill] arms
+ * those.
  *
  * **Untrained skills are offered too, where this dialog can show an attack
  * for one** ([SkillDefaults.attacks]): a fist, or a weapon off the table.
@@ -80,9 +81,10 @@ fun AttackDialog(
      * no slice ever argued for it. `EffortBurn.affordable` reads it, so a 0
      * drove that row's early return and told a Beyonder at full SPI they had
      * "no spirituality left" -- on a screen that had just printed the rule
-     * granting the push. Every skill is offered here (see the KDoc above), and
-     * `pathways.json` grants Ritualistic Magic at Sequence 9 of six pathways,
-     * so the false sentence was reachable on a character's first potion.
+     * granting the push. That was reachable while every owned skill was
+     * offered here. No COMBAT SKILLS row is SPI-based, so no attack pushes
+     * with SPI today; the balance is still passed, live, so the row stays
+     * true if one ever does.
      *
      * Must be passed as a LIVE expression by the caller, never a remembered
      * one: a maneuver can make two attacks and they share this one pool.
@@ -121,7 +123,9 @@ fun AttackDialog(
     onDismiss: () -> Unit,
 ) {
     val skills = remember(skillLevels, untrained) {
-        skillLevels.entries.sortedBy { it.key.name }.map { OfferedSkill(it.key, it.value) } +
+        SkillDefaults.ownedAttacks(skillLevels).entries
+            .sortedBy { it.key.name }
+            .map { OfferedSkill(it.key, it.value) } +
             untrained.map { OfferedSkill(it.key, it.level, it) }
     }
     var picked by remember { mutableStateOf<OfferedSkill?>(null) }
@@ -530,11 +534,13 @@ internal fun SkillKey.label(): String =
  * What the character's traits add to an attack: the general term every
  * other roll on the sheet takes, and the to-hit clause the GM declared.
  *
- * The Attack roll was the one roll that took no trait term (6ev). A census
- * found [TraitEffects.modifiers] empty for every COMBAT skill, and that was
- * the wrong corpus: this dialog offers every owned skill, so Perfect
- * Balance's +2 reaches an Acrobatics attack here as it does on the Skills tab
- * (the diff review). Composed once per composition, printed and rolled.
+ * The Attack roll was the one roll that took no trait term (6ev). 6ew's
+ * census found [TraitEffects.modifiers] empty for every COMBAT skill, and
+ * since the redesign those are the only owned skills offered here, so the
+ * general term adds nothing today and Reluctant Killer's clause is what this
+ * carries. Kept whole so a trait that names a combat skill reaches the attack
+ * the way it reaches the Skills tab. Composed once per composition, printed
+ * and rolled.
  */
 internal fun traitTerms(
     traits: List<Trait>,

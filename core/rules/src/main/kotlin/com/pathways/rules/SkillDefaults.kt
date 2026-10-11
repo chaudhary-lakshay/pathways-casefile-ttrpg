@@ -118,11 +118,37 @@ object SkillDefaults {
      * design review's wording). The book prints a COMBAT SKILLS banner of
      * nineteen and a default for a Shield Bash, and neither decides this
      * list: a skill with no damage line this app can show is rolled from the
-     * Skills tab, where a to-hit number is all there is to show.
+     * Skills tab, where a to-hit number is all there is to show. An OWNED
+     * skill is offered by its banner instead ([ownedAttacks]).
      */
     fun attacks(untrained: List<Untrained>): List<Untrained> = untrained.filter {
         Damage.attacksFor(it.key.name).isNotEmpty() || Weapons.forSkill(it.key).isNotEmpty()
     }
+
+    /** The banner Ch. 3 prints nineteen skills under, every weapon among them. */
+    const val COMBAT_SKILLS = "COMBAT SKILLS"
+
+    /**
+     * The OWNED skills the Attack dialog offers: the ones the book files under
+     * [COMBAT_SKILLS], read through [TraitEffects.categoryOf].
+     *
+     * The banner and not [attacks]' damage line, which is a different
+     * question: ten banner rows (Shortsword, Polearm, Shield, Guns (Pistol)
+     * among them) print no damage this app can show and are still attacks,
+     * with the maneuvers, Deceptive Attack and called shot that go with one.
+     * Within the banner nothing is curated, so Fast-Draw stays (6i's refusal
+     * to curate a banner's rows is the half of it that survives).
+     *
+     * So an untrained banner skill with no damage line (Shortsword at its
+     * default) is not offered while the same skill owned is. That asymmetry
+     * is the two questions' and is deliberate.
+     *
+     * What it loses: a skill outside the banner that a GM rules can strike,
+     * an Acrobatics kick, is a plain roll on the Skills tab. No skill outside
+     * the banner has a damage line or a weapon row.
+     */
+    fun ownedAttacks(skillLevels: Map<SkillKey, Int>): Map<SkillKey, Int> =
+        skillLevels.filterKeys { TraitEffects.categoryOf(it) == COMBAT_SKILLS }
 
     /**
      * The Twilight Giant's weapon line, which a walked chain holds one stage

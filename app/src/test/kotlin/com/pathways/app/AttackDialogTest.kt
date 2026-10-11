@@ -178,13 +178,14 @@ class AttackDialogTest {
     }
 
     /**
-     * **The dialog offers every owned skill, not the combat banner** (the
-     * diff review's MEDIUM). The census behind "costs nothing yet" read the
-     * 19 COMBAT SKILLS keys, so it could not see Perfect Balance's +2 reach
-     * an Acrobatics attack here, as it does on the Skills tab.
+     * The trait term is the general one the Skills tab takes, whatever the
+     * skill. Acrobatics is used because Perfect Balance prices it; since the
+     * redesign the picker offers only COMBAT SKILLS rows, so this is no longer
+     * an attack this dialog can make ([SkillDefaults.ownedAttacks], pinned in
+     * `SkillDefaultsTest`), and the general term adds nothing to one today.
      */
     @Test
-    fun `a trait bonus on a non-combat skill reaches the attack too`() {
+    fun `the trait term is the general one, whatever the skill`() {
         val balance = listOf(Trait(TraitEffects.PERFECT_BALANCE, 15, TraitKind.ADVANTAGE))
         val acrobatics = SkillKey("Acrobatics", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.HARD)
         assertEquals(listOf(2), flats(traitTerms(balance, acrobatics, killerTarget = null)))

@@ -178,7 +178,10 @@ actually runs, plus two neutral rolls a fight reaches for.
 
 ### Attack
 
-Pick the maneuver and any attack options. The dialog prices them as you go:
+Pick the skill first. The list is your skills the book files under **Combat
+Skills** (Brawling, Knife, Guns, Shield, Fast-Draw and the rest of that
+list); a Research or Writing roll is made from the Skills tab. Then pick
+the maneuver and any attack options. The dialog prices them as you go:
 Deceptive Attack's -2 per -1 imposed (capped at half your skill), Rapid Strike's
 -6, All-Out Attack's +4 or extra attack, the FP that Extra Effort costs.
 
