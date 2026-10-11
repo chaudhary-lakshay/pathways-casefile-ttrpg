@@ -207,7 +207,7 @@ fun PathwayScreen(
                         maxItemsInEachRow = 3,
                     ) {
                         for (name in pathways) {
-                            PathwayTile(name, Modifier.weight(1f)) { pathway = name }
+                            PathwayTile(name, Modifier.weight(1f)) { pathway = name; tab = 0 }
                         }
                     }
                 }
@@ -247,7 +247,8 @@ fun PathwayScreen(
                             val potion = blocks.single { it.pathway == block.pathway && it.sequence == n }.name
                             FilterChip(
                                 selected = n == sequence,
-                                onClick = { sequence = n },
+                                // Picking a potion is asking to read it.
+                                onClick = { sequence = n; tab = 0 },
                                 label = { Text("$n · $potion") },
                                 modifier = Modifier.padding(end = 8.dp),
                             )

@@ -49,6 +49,16 @@ class PathwayTextTest {
         assertTrue(paper.lead.contains("(knife: thr-1 cut / sw-2 imp; short sword:"), paper.lead)
     }
 
+    /** The diff review: a sentence end inside brackets is not where the list starts. */
+    @Test
+    fun `the lead-in ends at a sentence end outside brackets`() {
+        val text = "Ward: Lasts a scene (see Ch. 5). Blocks spirits (Seq. 9 and up); slows ghosts; dims light."
+        val ward = abilityParagraphs(text).single()
+        assertEquals("Lasts a scene (see Ch. 5).", ward.lead)
+        assertEquals(listOf("Blocks spirits (Seq. 9 and up)", "slows ghosts", "dims light."), ward.items)
+        assertEquals(text, rejoined(listOf(ward)))
+    }
+
     @Test
     fun `a grouped name is one heading, and a page reference is none`() {
         val sun = ContentLoader.pathways().single { it.pathway == "Sun" && it.sequence == 9 }

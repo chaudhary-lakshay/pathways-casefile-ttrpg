@@ -48,34 +48,35 @@ private fun paragraph(run: String): AbilityParagraph {
     val named = HEADING.matchAt(run, 0)
     val heading = named?.groupValues?.get(1)
     val body = if (named == null) run else run.substring(named.range.last + 1)
-    val clauses = topLevelClauses(body)
+    val clauses = topLevel(body, "; ").let { cuts ->
+        (listOf(0) + cuts.map { it + 2 }).zip(cuts + body.length) { a, b -> body.substring(a, b) }
+    }
     if (clauses.size < LIST_MIN) return AbilityParagraph(heading, body, emptyList())
     // The first clause carries the lead-in sentences; the list starts after
-    // the last sentence end inside it.
+    // the last sentence end inside it, outside brackets (the diff review).
     val first = clauses.first()
-    val cut = first.lastIndexOf(". ")
+    val cut = topLevel(first, ". ").lastOrNull() ?: -1
     val lead = if (cut < 0) "" else first.substring(0, cut + 1)
     val opening = if (cut < 0) first else first.substring(cut + 2)
     return AbilityParagraph(heading, lead, listOf(opening) + clauses.drop(1))
 }
 
 /**
- * [body] cut at each "; " outside brackets. A semicolon inside one belongs
- * to whatever the bracket lists, such as Paper Weaponry's damage table.
+ * Where [separator] occurs in [text] outside brackets. A semicolon or a full
+ * stop inside one belongs to whatever the bracket holds, such as Paper
+ * Weaponry's damage table.
  */
-private fun topLevelClauses(body: String): List<String> {
+private fun topLevel(text: String, separator: String): List<Int> {
     val cuts = mutableListOf<Int>()
     var depth = 0
-    body.forEachIndexed { i, c ->
+    text.forEachIndexed { i, c ->
         when (c) {
             '(', '[' -> depth++
             ')', ']' -> depth = maxOf(0, depth - 1)
-            ';' -> if (depth == 0 && body.startsWith("; ", i)) cuts += i
         }
+        if (depth == 0 && text.startsWith(separator, i)) cuts += i
     }
-    val starts = listOf(0) + cuts.map { it + 2 }
-    val ends = cuts + body.length
-    return starts.zip(ends) { a, b -> body.substring(a, b) }
+    return cuts
 }
 
 private const val LIST_MIN = 3
