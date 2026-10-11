@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attr
+import com.pathways.model.SkillKey
 import com.pathways.rules.Derive
 import com.pathways.rules.InstantiableTrait
 import com.pathways.rules.PremadeSheet
@@ -61,6 +64,10 @@ import com.pathways.rules.content.WealthLevel
 @Composable
 fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> Unit) {
     val start = remember(sheet) { sheet.toCharacter() }
+    // PURCHASES only, never a potion's grants: every level this screen prints
+    // is a bought one, which is what the Skills header's single "Levels
+    // before potions" tag claims for every row at once (6gm). Merge grants
+    // into this and that tag lies for all of them.
     val character = session.characterFor(sheet)
     val derived = remember(character) { Derive.of(character) }
     // The character as PLAYED, for the numbers shown -- the ones the sheet
@@ -82,6 +89,10 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     // and they differ by more than money -- Very Hard self-study is
     // "Not possible" at any price.
     var studyMethod by remember { mutableStateOf(StudyMethod.TUTOR) }
+    // Outside the list's items, which forget their state when scrolled off.
+    // Keyed by the SkillKey, never its display, which drops the difficulty:
+    // one name at two difficulties is two skills (p. 85; the diff review).
+    var openStudy by remember { mutableStateOf(setOf<SkillKey>()) }
 
     Scaffold(
         topBar = {
@@ -264,29 +275,36 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        "Skills",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f),
-                    )
+                    Column(Modifier.weight(1f)) {
+                        Text("Skills", style = MaterialTheme.typography.titleMedium)
+                        // Said once for the section: every row's level, and
+                        // a refusal's "already 12", is the bought one.
+                        if (session.state != null) {
+                            Text(
+                                "Levels before potions",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
                     TextButton(onClick = { adding = true }) { Text("Add a skill") }
                 }
+                // Two roads the book prices, so two chips: Very Hard
+                // self-study is "Not possible", and a tag saying so is lifted
+                // here.
                 Row(
                     Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Text(
-                        "Study cost shown for: ${studyMethod.label}",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.weight(1f),
-                    )
-                    TextButton(onClick = {
-                        studyMethod = if (studyMethod == StudyMethod.TUTOR) {
-                            StudyMethod.SELF_STUDY
-                        } else {
-                            StudyMethod.TUTOR
-                        }
-                    }) { Text("Switch") }
+                    Text("Study by", style = MaterialTheme.typography.labelLarge)
+                    StudyMethod.entries.forEach { method ->
+                        FilterChip(
+                            selected = studyMethod == method,
+                            onClick = { studyMethod = method },
+                            label = { Text(method.label) },
+                        )
+                    }
                 }
                 HorizontalDivider()
             }
@@ -299,6 +317,11 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     label = purchased.key.display,
                     level = derived.skillLevels[purchased.key],
                     points = purchased.points,
+                    expanded = purchased.key in openStudy,
+                    onToggle = {
+                        val key = purchased.key
+                        openStudy = if (key in openStudy) openStudy - key else openStudy + key
+                    },
                     // What downtime study would cost to reach the next rung
                     // (Ch. 3, p. 32). Advice only: study points are earned
                     // outside the creation budget, so nothing here spends.
@@ -307,12 +330,11 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     // true on THIS screen -- a Character holds purchases only
                     // (M3), so every row here was bought. The rule is enforced
                     // in `Study` regardless, for a caller that does hold grants.
-                    study = studyLine(purchased, character, derived, studyMethod, session.state != null),
-                    // A Beyonder's rows stay on BOUGHT levels and say so: a
-                    // potion lifts a bought skill or supersedes it with a
-                    // grant, and which is `PotionDigestion`'s to decide, on
-                    // the sheet -- not a second matcher's here.
-                    isBeforePotions = session.state != null,
+                    // A Beyonder's rows stay on BOUGHT levels, said once on
+                    // the header: a potion lifts a bought skill or supersedes
+                    // it with a grant, and which is `PotionDigestion`'s to
+                    // decide, on the sheet -- not a second matcher's here.
+                    study = studyAdvice(purchased, character, derived, studyMethod),
                     // Only skills bought in play are editable. The published
                     // sheet's own purchases stay put: the diff against it is a
                     // feature (spec section 6), and quietly re-pointing a

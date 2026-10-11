@@ -28,8 +28,11 @@ data class StudyPlan(
         get() = "$hours hrs + " + if (unit == "£") "£$amount" else "$amount$unit"
 }
 
+/** Which of the book's refusals it was, for a screen that tags the cause. */
+enum class StudyRefusal { NOT_BY_POINTS, POTION_GRANTED, NOT_POSSIBLE, AT_CAP, PAST_GRID }
+
 /** Carries the book's own sentence for why study offers nothing here. */
-class StudyRefusedException(val reason: String) : IllegalStateException(reason)
+class StudyRefusedException(val reason: String, val refusal: StudyRefusal) : IllegalStateException(reason)
 
 /**
  * Planning downtime study (Ch. 3, p. 32).
@@ -137,16 +140,18 @@ object Study {
         require(points >= 0) { "points spent cannot be negative; was $points" }
         if (!SkillLadder.isBuyableWithPoints(attr)) {
             return refuse(
+                StudyRefusal.NOT_BY_POINTS,
                 "Study earns character points, and this book does not let a " +
                     "${attr.code}-based skill be raised with them.",
             )
         }
         if (isPotionGranted) {
-            return refuse("A potion granted this skill, and the book does not let it be studied.")
+            return refuse(StudyRefusal.POTION_GRANTED, "A potion granted this skill, and the book does not let it be studied.")
         }
         val cell = cellFor(difficulty, method)
         if (cell.hours == null) {
             return refuse(
+                StudyRefusal.NOT_POSSIBLE,
                 "The book prints \"${cell.printed}\" for a ${labelOf(difficulty)} " +
                     "skill by ${method.label.lowercase()}.",
             )
@@ -159,13 +164,13 @@ object Study {
         val current = if (points == 0) null
         else SkillLadder.levelFor(points, difficulty, attributeLevel)
         if (current != null && current >= cap) {
-            return refuse("Study alone cannot pass $cap, and this skill is already $current.")
+            return refuse(StudyRefusal.AT_CAP, "Study alone cannot pass $cap, and this skill is already $current.")
         }
         val nextPoints = SkillLadder.nextRungPoints(points)
-            ?: return refuse("This skill is past the last rung the book's grid prints.")
+            ?: return refuse(StudyRefusal.PAST_GRID, "This skill is past the last rung the book's grid prints.")
         val toLevel = SkillLadder.levelFor(nextPoints, difficulty, attributeLevel)
         if (toLevel > cap) {
-            return refuse("The next rung is $toLevel, and study alone cannot pass $cap.")
+            return refuse(StudyRefusal.AT_CAP, "The next rung is $toLevel, and study alone cannot pass $cap.")
         }
         val needed = nextPoints - points
         return Result.success(
@@ -183,8 +188,8 @@ object Study {
         )
     }
 
-    private fun refuse(reason: String): Result<StudyPlan> =
-        Result.failure(StudyRefusedException(reason))
+    private fun refuse(cause: StudyRefusal, reason: String): Result<StudyPlan> =
+        Result.failure(StudyRefusedException(reason, cause))
 
     /** The book's own spelling of a difficulty, which is this table's key. */
     private fun labelOf(difficulty: Difficulty): String = when (difficulty) {

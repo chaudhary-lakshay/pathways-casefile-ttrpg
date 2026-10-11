@@ -1,12 +1,21 @@
 package com.pathways.app
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -14,6 +23,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attr
@@ -24,6 +35,7 @@ import com.pathways.rules.Derive
 import com.pathways.rules.PurchaseCeilings
 import com.pathways.rules.Study
 import com.pathways.rules.StudyMethod
+import com.pathways.rules.StudyRefusal
 import com.pathways.rules.StudyRefusedException
 import com.pathways.model.Character
 import com.pathways.model.PurchasedSkill
@@ -165,7 +177,8 @@ internal fun BudgetBar(spent: Int, budget: Int) {
 }
 
 /**
- * What downtime study would cost this skill's next rung (Ch. 3, p. 32).
+ * What downtime study would cost this skill's next rung (Ch. 3, p. 32), as a
+ * tag and, for a refusal, the book's sentence the open row prints.
  *
  * Advice, never a purchase. Study points are earned outside the 70-point
  * creation budget, so this line must never reach `SavedEdits` -- a planner
@@ -174,24 +187,27 @@ internal fun BudgetBar(spent: Int, budget: Int) {
  *
  * A refusal is SHOWN rather than hidden, because a row that simply stops
  * offering study is indistinguishable from a screen that forgot to render it
- * (6am). All three of the book's refusals reach this line.
+ * (6am). Its tag names the CAUSE (6gm's design review): "not by self-study"
+ * is the one the road chips lift, and "at cap 11" the one a level settles,
+ * which a bare "no study" would hide behind a tap. The row prints each after
+ * "Study: ".
  */
-internal fun studyLine(
+internal data class StudyAdvice(val tag: String, val reason: String?)
+
+internal const val PAST_GRID_TAG = "past the grid"
+
+internal fun studyAdvice(
     purchased: PurchasedSkill,
     character: Character,
     derived: DerivedCharacter,
     method: StudyMethod,
-    isBeforePotions: Boolean,
-): String {
+): StudyAdvice {
     val attributeLevel = Derive.controllingLevel(
         purchased.key.attr,
         character.attributes,
         derived.secondaries,
         character.spi,
     )
-    // On the label, not after the level: a refusal names a level too
-    // ("...this skill is already 12"), and both are the bought one.
-    val label = if (isBeforePotions) "Study ($BEFORE_POTIONS)" else "Study"
     return Study.plan(
         points = purchased.points,
         difficulty = purchased.key.difficulty,
@@ -199,13 +215,25 @@ internal fun studyLine(
         method = method,
         attr = purchased.key.attr,
     ).fold(
-        onSuccess = { "$label: ${it.printed} for ${it.pointsNeeded} CP → level ${it.toLevel}" },
-        onFailure = { "$label: ${(it as StudyRefusedException).reason}" },
+        onSuccess = { StudyAdvice("${it.printed} · ${it.pointsNeeded} CP → ${it.toLevel}", null) },
+        onFailure = {
+            val refused = it as StudyRefusedException
+            val tag = when (refused.refusal) {
+                StudyRefusal.AT_CAP -> "at cap ${Study.capFor(attributeLevel)}"
+                StudyRefusal.NOT_POSSIBLE -> "not by ${method.label.lowercase()}"
+                StudyRefusal.NOT_BY_POINTS -> "not by points"
+                StudyRefusal.POTION_GRANTED -> "potion skill"
+                StudyRefusal.PAST_GRID -> PAST_GRID_TAG
+            }
+            StudyAdvice(tag, refused.reason)
+        },
     )
 }
 
 /**
- * One skill: its level, what it cost, and a stepper when it was bought here.
+ * One skill: its level, what it cost, a study tag, and a stepper when it was
+ * bought here. A refusal's sentence opens on the row's tap; the stepper sits
+ * outside that target so a step never toggles it.
  *
  * A skill with no [onSpend] is one the published sheet printed. It is shown
  * because the budget bills it, but it is not editable -- see BuilderScreen.
@@ -216,29 +244,65 @@ internal fun SkillRow(
     level: Int?,
     points: Int,
     onSpend: ((Int) -> Unit)?,
-    study: String? = null,
-    isBeforePotions: Boolean = false,
+    study: StudyAdvice,
+    expanded: Boolean,
+    onToggle: () -> Unit,
 ) {
+    val canOpen = study.reason != null
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        Modifier.fillMaxWidth().padding(end = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(Modifier.weight(1f)) {
-            Text(label, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                "$points pts" + (level?.let { " - level $it" + if (isBeforePotions) " $BEFORE_POTIONS" else "" } ?: ""),
-                style = MaterialTheme.typography.bodySmall,
-            )
-            study?.let {
+        Column(
+            Modifier
+                .weight(1f)
+                .clickable(enabled = canOpen, onClickLabel = if (expanded) "Hide why" else "Show why", onClick = onToggle)
+                .semantics { if (canOpen) stateDescription = if (expanded) "Expanded" else "Collapsed" }
+                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                level?.let { Text("$it", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 8.dp)) }
+                // The chevron's width is kept on a row with nothing to open,
+                // so every level sits in one column.
+                if (canOpen) {
+                    Icon(
+                        if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                        contentDescription = null,
+                    )
+                } else {
+                    Spacer(Modifier.width(24.dp))
+                }
+            }
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
                 Text(
-                    it,
+                    points.pointsLabel().removePrefix("+"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(end = 8.dp),
+                )
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = if (canOpen) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.secondaryContainer,
+                ) {
+                    Text(
+                        "Study: ${study.tag}",
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
+                    )
+                }
+            }
+            if (expanded && study.reason != null) {
+                Text(
+                    study.reason,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 6.dp),
                 )
             }
         }
         if (onSpend != null) {
-            OutlinedIconButton(onClick = { onSpend(-1) }) { Text("\u2212") }
+            OutlinedIconButton(onClick = { onSpend(-1) }) { Text("−") }
             OutlinedIconButton(onClick = { onSpend(1) }) { Text("+") }
         }
     }
