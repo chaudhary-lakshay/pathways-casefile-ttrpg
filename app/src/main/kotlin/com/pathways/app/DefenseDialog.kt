@@ -439,18 +439,24 @@ fun DefenseDialog(
                     // The DX row's two readings, said beside it. Until 6ev
                     // a note here called a sheet with no unarmed skill "a
                     // gap" in defaults, under a cell that prints DX.
+                    //
+                    // Behind a tap with the mastery's below (the redesign): both
+                    // are this app's readings of a formula cell, never a target,
+                    // a cost or a refusal, and the rows they explain stay open.
                     if (standing.any { it.second == UnarmedStyle.BARE_HANDS }) {
                         val formula = printed
                             .firstOrNull { it.defense.startsWith("Parry (Unarmed)") }
                             ?.formula
-                        DefenseNote(
-                            "Parry ($BARE_HANDS) is the formula cell's other operand" +
-                                (formula?.let { ", \"$it\"" } ?: "") +
-                                ": DX itself, not a default, so nothing is taken off " +
-                                "and Versatile adds nothing. Against a weapon it takes " +
-                                "Brawling's −3. That is a reading: the cell names " +
-                                "Brawling and exempts Boxing alone.",
-                        )
+                        RuleNote("Why the bare-hand parry is DX itself") {
+                            DefenseNote(
+                                "Parry ($BARE_HANDS) is the formula cell's other operand" +
+                                    (formula?.let { ", \"$it\"" } ?: "") +
+                                    ": DX itself, not a default, so nothing is taken off " +
+                                    "and Versatile adds nothing. Against a weapon it takes " +
+                                    "Brawling's −3. That is a reading: the cell names " +
+                                    "Brawling and exempts Boxing alone.",
+                            )
+                        }
                     }
                     // What is still not offered, named rather than absent.
                     if (unskilled.isNotEmpty()) {
@@ -465,12 +471,14 @@ fun DefenseDialog(
                     // the book's own examples are attacks and this is the
                     // reading that carries the line to a parry (6ey).
                     if (mastery != null && lifted.isNotEmpty()) {
-                        DefenseNote(
-                            "${lifted.joinToString(", ")}: Weapon Skill no less than DX " +
-                                "before the halving, from ${mastery.quoted}'s \"treated as " +
-                                "known at effective DX\", read as the Parry (Armed) " +
-                                "row's operand. A reading: the book's examples are attacks.",
-                        )
+                        RuleNote("Why a master's weapon parries at DX") {
+                            DefenseNote(
+                                "${lifted.joinToString(", ")}: Weapon Skill no less than DX " +
+                                    "before the halving, from ${mastery.quoted}'s \"treated as " +
+                                    "known at effective DX\", read as the Parry (Armed) " +
+                                    "row's operand. A reading: the book's examples are attacks.",
+                            )
+                        }
                     }
                     // A refusal, not a penalty, so the rows are withdrawn and
                     // the reason is SAID -- a GM who picks "a shot" and sees
@@ -598,11 +606,7 @@ fun DefenseDialog(
                     )
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
 
-                    Text(
-                        "Modifiers",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
+                    SectionLabel("Modifiers")
                 }
                 items(modifiers) { DefenseNote(it) }
             }

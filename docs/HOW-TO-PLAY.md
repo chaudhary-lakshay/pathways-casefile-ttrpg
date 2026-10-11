@@ -200,7 +200,7 @@ A weapon you have no skill with prints *"no parry offered without the skill"*.
 
 A **Warrior**, **Pugilist** or **Weapon Master** wields any weapon in hand at no
 less than DX, and the header says so. For its parry, the weapon skill is floored at
-DX before the halving, on this screen and in Defend, which says it is a reading. Put the weapon down and the
+DX before the halving, on this screen and in Defend, which says it is a reading (tap *Why a master's weapon parries at DX*). Put the weapon down and the
 skill is back at its own number, and a Deceptive Attack the lower number cannot
 afford goes to 0. The Warrior's *"default +2"* for a weapon used repeatedly is
 not applied: the Warrior's own example puts it above DX, and the Weapon
@@ -233,7 +233,8 @@ The busiest screen in the app, and the one with the most declarations.
 - **Parry (DX, bare hands)** — the book's unarmed formula is *"Brawling or DX
   ÷ 2 + 3"*, so every character has a parry with no skill at all. The row is
   left out only when your Brawling already parries as well. It takes the same
-  -3 against a weapon, which is the app's reading and is said on screen. A
+  -3 against a weapon, which is the app's reading; tap *Why the bare-hand
+  parry is DX itself* to read it. A
   melee weapon you carry with no skill for it gets no parry row, and a note
   names it. A firearm parries at nothing, skill or no skill.
 - **Facing** — front, side, rear. Decides whether the shield's DB counts.

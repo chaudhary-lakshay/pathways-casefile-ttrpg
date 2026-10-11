@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -38,7 +40,7 @@ internal fun ShieldPicker(
     coverage: ShieldCoverage,
     onPick: (Shield) -> Unit,
 ) {
-    Text("Shield Readied", style = MaterialTheme.typography.titleSmall)
+    SectionLabel("Shield Readied")
     // One note per coverage state, because the old single note told the GM to
     // hand-check the rear -- which the app now does -- while saying nothing
     // about the side, which it still cannot decide. A disclaimer that outlives
@@ -215,7 +217,7 @@ internal fun BoostPicker(
     // still needs its clear button, so an empty row list is not an early exit
     // when one is held.
     if (rows.isEmpty() && chosen == null) return
-    Text("Buy +${ActiveDefenses.BOOST_BONUS} on one defence", style = MaterialTheme.typography.titleSmall)
+    SectionLabel("Buy +${ActiveDefenses.BOOST_BONUS} on one defence")
     DefenseBoost.entries.forEach { boost ->
         val fp = ActiveDefenses.fpCostOf(boost)
         Text(
@@ -288,7 +290,7 @@ internal enum class Incoming(val label: String) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun FacingPicker(chosen: Facing, onPick: (Facing) -> Unit) {
-    Text("Where the attack comes from", style = MaterialTheme.typography.titleSmall)
+    SectionLabel("Where the attack comes from")
     FlowRow {
         Facing.entries.forEach { option ->
             FilterChip(
@@ -322,7 +324,7 @@ private val FACING_LABELS = mapOf(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun IncomingPicker(chosen: Incoming, onPick: (Incoming) -> Unit) {
-    Text("The attack coming in", style = MaterialTheme.typography.titleSmall)
+    SectionLabel("The attack coming in")
     FlowRow {
         Incoming.entries.forEach { option ->
             FilterChip(
@@ -346,7 +348,7 @@ internal fun IncomingPicker(chosen: Incoming, onPick: (Incoming) -> Unit) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun StunPicker(stunned: Boolean, onToggle: () -> Unit) {
-    Text("Stunned", style = MaterialTheme.typography.titleSmall)
+    SectionLabel("Stunned")
     FlowRow {
         FilterChip(
             selected = stunned,
@@ -392,7 +394,7 @@ internal fun RefusalPicker(
     forfeiting: List<String>,
     onToggle: (DefenseRefusal) -> Unit,
 ) {
-    Text("Can this character defend?", style = MaterialTheme.typography.titleSmall)
+    SectionLabel("Can this character defend?")
     FlowRow {
         REFUSAL_LABELS.forEach { (cause, label) ->
             FilterChip(
@@ -418,13 +420,9 @@ internal fun RefusalPicker(
  */
 @Composable
 internal fun ParriesThisRound(prior: Int, penalty: Int, onChange: (Int) -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text("Parries already this round", style = MaterialTheme.typography.bodySmall)
-        TextButton(onClick = { onChange((prior - 1).coerceAtLeast(0)) }) { Text("−1") }
-        Text("$prior", style = MaterialTheme.typography.titleMedium)
-        TextButton(onClick = { onChange(prior + 1) }) { Text("+1") }
-    }
-    DefenseNote(
+    OptionStepper(
+        "Parries already this round",
+        prior,
         if (penalty == 0) {
             "The first parry of a round is free."
         } else {
@@ -434,18 +432,34 @@ internal fun ParriesThisRound(prior: Int, penalty: Int, onChange: (Int) -> Unit)
             "Parry rows above include ${"$penalty".replace('-', '−')}. " +
                 "Chapter 8 prints no fencing weapon or rapier, whose tiers are −2 and −1."
         },
-    )
+    ) { onChange((prior + it).coerceAtLeast(0)) }
 }
 
+/** One defence and the number it stands at, as a tile: the figure the GM asks for. */
 @Composable
 internal fun DefenseRow(label: String, value: String) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-        Text(value, style = MaterialTheme.typography.titleMedium)
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+    ) {
+        Row(Modifier.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(label, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+            Text(
+                value,
+                style = MaterialTheme.typography.headlineSmall.copy(fontFeatureSettings = "tnum"),
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
     }
 }
 
 @Composable
 internal fun DefenseNote(text: String) {
-    Text(text, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(bottom = 4.dp))
+    Text(
+        text,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(bottom = 4.dp),
+    )
 }
