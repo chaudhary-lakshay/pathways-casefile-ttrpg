@@ -1,8 +1,6 @@
 package com.pathways.app
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -55,7 +53,6 @@ fun GlossarySheet(onDismiss: () -> Unit) {
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp)
                 .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             // Title only. The book's closing note -- "This glossary covers only
             // the terms unique to this book. For full GURPS terminology, refer
@@ -68,13 +65,10 @@ fun GlossarySheet(onDismiss: () -> Unit) {
                 modifier = Modifier.padding(bottom = 6.dp),
             )
 
+            // Terms only, each definition closed until tapped: 25 open
+            // definitions read as one text wall (the owner's rule, 6gn).
             for (entry in entries) {
-                Column(Modifier.fillMaxWidth()) {
-                    Text(
-                        entry.term,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
+                RuleNote(entry.term) {
                     Text(entry.definition, style = MaterialTheme.typography.bodyMedium)
                 }
             }

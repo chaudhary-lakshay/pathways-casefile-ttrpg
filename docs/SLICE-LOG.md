@@ -6726,6 +6726,25 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6go. The glossary and theme sheets, surveyed
+
+6gm and 6gn both listed these two sheets as never surveyed. Both were
+surveyed on the SM-T570.
+
+- **Theme sheet: left as it is.** It holds swatches, three mode chips and two
+  toggles. The only prose is the Material You subtitle, three lines.
+- **Glossary: collapsed.** All 25 definitions were drawn open, one
+  scrolling wall of text. Each term is now a `RuleNote`, closed until it is
+  tapped, which is 6gl's pattern for reference prose that no control reads.
+  The book's order and wording are unchanged. The owner picked this option
+  over a Stitch round.
+
+Device-verified: the sheet opens on terms only, and a tap on *CoR* opened
+*"A measure of how close a Beyonder is to losing control…"* while the other
+terms stayed closed. Display only, and the save was `cmp`-identical after the
+pass. No Compose test harness exists (section 6), so the device pass is the
+proof.
+
 ## 6gn. The redesign: nine Stitch components, one a commit
 
 After 6gm the owner rejected the screens as text walls. The decision:
