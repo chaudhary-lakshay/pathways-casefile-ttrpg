@@ -190,7 +190,61 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fs back to 6de
+## Retired lead paragraphs, 6fy back to 6de
+
+**6fy (6fx's device pass), 6fx, 6fw, 6fv, 6fu and 6ft: a sheet's printed SPI 9 is not played.** Four sheets
+(Apothecary, Barmaid Brawler, Docks Bouncer, Military Police) print SPI 9
+and no sheet prints a pathway. `toCharacter` carried the 9 and digestion
+ADDED a potion's grant, so an Apothecary on Hermit 9 played SPI 18; 6dy's
+device pass recorded that number as its proof. A Beyonder with no
+pathway is a state this app cannot hold, so a premade plays 0 and the 9
+stays in the fixture behind a guard. **The other reading is not
+refuted**: the blank sheet's cell is 0, so the 9 was typed, and the four
+may be Beyonders whose pathway the sheet omits. Naming one for each is
+the owner's call (`MORTAL_SPI`'s KDoc). Read it for two things.
+
+- **6eb's gallery question was a symptom.** Three predicates answered
+  "is this a Beyonder" and disagreed on 10 of 22 characters. The gallery
+  asks the save now (`walkOf`); "has a pool" stays the sheet's
+  `maxSpi > 0`, a different question, since Chained 9 grants no SPI.
+- **The gallery digested nothing until 6fw**: `digestedWith` throws on
+  a save outside the floors, and 6ft held that only a session could
+  repair one. The design review had asked for the row played.
+
+The carried SPI's reason predated the pathway model and expired when it
+landed. Design and diff review said SHIP. Device-verified, save
+untouched. **One save entry was left wrong**: the tablet's Apothecary
+had spent 17 of 18, so it read *"SPI -8 / 9 ... 8 CoR charged"* with CoR
+0, until 6fv stepped it back. 6fu ran the sweep 6ft
+named, and the milestone regex was the wrong query: the `ponytail:`
+comments and absence wording found six present-tense claims that had
+expired, corrected in place, section 5's *"zero production callers"*
+among them. 6fv: one turn of the tablet took an open sheet back to the
+character list (reproduced; same pid). The manifest's `configChanges`
+handles a turn now, so a rolled result survives one; a dark-mode
+switch and process death still lose the screen, never the save.
+Device-verified, and the Apothecary was stepped back to SPI 0 / 9 on
+the owner's word. 6fw: the gallery row printed the
+sheet's attributes and skill count beside the walk: 16 of 22 Sequence 9
+potions raise an attribute, and a builder edit never reached the row,
+so a Docks Bouncer on Twilight Giant 9 read ST 11 and opened at ST 14.
+6ft's refusal rested on *"a session repairs on opening and the launch
+screen cannot"*; the repair writes nothing, so it is one pure function
+now, `SavedSession.repairedEdits`, which `init` and the gallery both
+call. **Repair a save there and nowhere else.** A walk the catalogue
+lacks costs a row its played numbers (logged), never the launch
+screen. The diff review said SHIP; device-verified, save untouched.
+6fx: the row's two chips were the sheet's first two traits, so a
+Fortune Teller who picked a wealth still read *"Wealth: Comfortable"*,
+and one on Demoness 8 read *"Charisma 2"* for a played 4. They are the
+first two of `traitsInPlay`'s list now; every number and chip is
+played, save `rowFor`'s fallback. One sheet on two paths, and the second came from counting what
+can change a held trait, not from the question asked. SHIP. 6fy: on
+the SM-T570 a Fortune Teller who picked Poor read *"Charisma 2"*,
+*"Secret (Racist Sympathizer)"*; the save was restored. **Back up the
+save at the start of every pass**: the copy from two hours earlier was
+stale by a Beat Cop's five FP. The open item is the owner's, the four
+SPI 9 sheets.
 
 **6fs is next, a device pass for 6fr: every held row prints a cell.** A census ran `held()`
 over every fixture, every wealth and appearance level, every offered and
@@ -2103,12 +2157,14 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6dv back to 6de
+## Digest index, 6dx back to 6de
 
 Moved from the handover in 6ff, unchanged, when its digest index neared
 8,000 characters. 6ds and 6dr followed in 6gb, and 6dv back to 6dt in
-6gd, for the same reason; the last entry kept there is 6dw.
+6gd, for the same reason; 6dx and 6dw in 6gl.
 
+**6dx** — `Shaken` needed no refusal, its carrier being a recorded GAP in `PotionDigestion.UNPARSED`; a line-local regex had dropped a wrapped `p. B229`;
+**6dw** — chapter 8's gear reference rendered only after the roll; it sits in the pre-roll branch now, below the modifier chips.
 **6dv** — `extract_equipment.skill_index()` dropped the open-row skills `isTemplate` matched, one flag at two sites; and a dump's tap scale is per WINDOW;
 **6du** — claimed lines checked for numbers their file never holds (clean); the fright table's `25 − HT` durations are computed, and the operand is not the attribute the cell rolls;
 **6dt** — `Hard to Subdue` reached nothing beside an applied `Hard to Kill`; two gaps cancelled into silence, and `BespokeBonus` feeds `known()` now.

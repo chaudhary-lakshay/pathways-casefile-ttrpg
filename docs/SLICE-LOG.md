@@ -6726,6 +6726,139 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gl. The sheet and its dialogs, by what a player scans
+
+The owner, after 6gk: *"yes, do the sheet and dialogs next"*. A survey on
+the SM-T570 first, every tab and every dialog, Beat Cop:
+
+- **Traits** was the wall. Each of seven traits printed its whole cell and
+  a grey *"Not applied here: …"* under it, two sentences of which were the
+  same blanket constant, and Duty's read *"…the same refusal Phobia's
+  Fright Check line carries in SelfControl (6am)"*: a class name and a
+  slice number, to a player.
+- **Skills** and the skill roll were already a list and chips.
+- **Dialogs** were mostly chips. What sat open between the controls was
+  reference: Defend's three shield rules, Ritual's incantation (two long
+  paragraphs), Damage's fifteen spirit-body rules, an artifact's lore,
+  Spirit Vision's two colour tables.
+- **The header** was a sentence: *"Sequence 9 of the Fool Pathway,
+  digested 0%, 0 CoR — see the pathway screen for what it grants"*.
+
+A string sweep for player-facing internals found one: Duty's. 43 strings
+say what *"this app"* does or does not apply. They are honest, so the
+fix is how they are shown, not their words; rewording them one at a time
+is the rot `UNREAD`'s KDoc warns about.
+
+### Traits: a name, a price, one word
+
+Each row is its name, its price, a tag, a roll chip where it has a
+self-control roll, and a chevron. The cell and every reason open under
+it. The tag is `TraitReport.applied(row)`, read off the same cell and
+notes the open row prints, so it cannot say less than they do:
+
+| Tag | When |
+|---|---|
+| Applied | a catalogue row, and nothing to report |
+| Partly applied | a note on a clause, none on the whole cell |
+| Roll only | `ROLLED_ONLY`: a self-control row nothing else reads |
+| Not applied | a note on the whole cell, `UNREAD` or its own reason |
+| Unmatched name | no catalogue row: 4.1's recorded sheet spellings |
+
+**An empty notes list is "applied" only where a row was found.** The
+sheet spellings 6fr pinned (*Absent-Minded*, *Paranoia: Bodies of
+water*) have no cell and no notes, and a pill reading notes alone would
+have called them counted. *What the tags mean* says each once, and an open row says its reason again.
+
+The roll is its own chip, never the row's tap: the number is
+`standingTargets`, the one the dialog rolls (6ga), and opening a row's
+text must not roll it. The click-handler census still reads 34.
+
+Duty now says *"its "roll 9 or less" is how often the duty comes up, the
+GM's to roll, rather than a roll this character makes"*; the
+cross-reference moved to a comment.
+
+### Dialogs: reference behind a book icon
+
+`RuleNote` is a header with a book icon and a chevron, closed until
+tapped. It holds the five blocks above and nothing else. Its KDoc names
+what it must never hold: a target, a cost, the only line saying a choice
+is the GM's or not applied, the only explanation of a disabled control.
+Each wrap sits in the branch the block was already in. The Flourish line
+stays open: it is the only statement that the bonus is the GM's award.
+Divination's *"Specialisation +1 is not applied here"* stays open for
+the same reason.
+
+### Header: tags
+
+*Fool · Seq 9*, *Digested 0%*, *CoR 0*, and an error-coloured *Lost to the
+Rampager* or *Lost to corruption*. The Pathway tile says what it opens.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| each kind of held row gets the status its notes say | no `applied`: did not compile |
+| no reachable row reads as applied while a note says otherwise | the same; then a mutant dropping the no-row branch: *Absent-Minded* |
+
+The corpus test asserts properties (no row is *Applied* while it has a
+note; *Unmatched name* exactly where the cell is null; *Roll only* only
+where `SelfControl` offers the roll), not a restatement of the function.
+6fr's corpus moved into a shared test helper, `reachableHeldTraits`, so
+both suites read one list.
+
+### Device pass
+
+SM-T570, Beat Cop, browsing only.
+
+- Traits: three advantages and four disadvantages, one line each. Fit
+  opened to *"Not applied: recover FP at twice the normal rate"* and *"This
+  app holds no clock to recover against."* Duty opened to its new reason.
+  *Roll 3d6 ≤ 12* opened Overconfidence's dialog at 12.
+- Damage, Artifacts, Spirit Vision, Defend and Ritual each opened with
+  their reference closed; the incantation opened on a tap. The ritual
+  dialog now fits on one screen with its roll.
+- The header reads as three tags.
+
+No FATAL in logcat across the pass. The save was `cmp`-identical to its
+backup after each install.
+
+### The diff reviews
+
+Sonnet, `kotlin-reviewer.md`, one per surface.
+
+**The Traits tab, SHIP WITH CHANGES.** It traced every shape `held()`
+can produce and found none that reads as counted. Two MEDIUMs, taken:
+
+- **The blanket reasons lived only in the legend**, which is closed by
+  default, so an open *Not applied* row showed its cell and nothing
+  saying none of it was applied. Every reason prints on an open row now.
+- **"Not in the book" was false** for *Absent-Minded*, which resembles
+  the book's *Absent-Mindedness*: 4.1 records the mismatch, the row is
+  printed. The tag is *Unmatched name*.
+
+Three LOWs taken: *GM applies* is *Not applied*, since a refusal can be
+the book's ambiguity rather than the GM's; the expand key carries the
+price as well as the name; and the row says *Expanded* or *Collapsed*
+to a screen reader.
+
+**The dialogs and header, SHIP WITH CHANGES.** Its HIGH was a missing
+`@ExperimentalLayoutApi` opt-in on the header's `FlowRow`, *"a probable
+compile error"*. It was not: the build that put that code on the tablet
+compiled it. It read each wrapped block against the rule and found
+none hiding a target, cost or refusal; the one control explanation
+inside the damage rules, *"No SPI: a non-Beyonder has no spirituality to
+sacrifice"*, is printed outside it too. Taken: a lost character's tag
+comes first and every tag turns the error colour, where it could have
+wrapped out of sight; the reference header is 48dp with a button role;
+a stale comment. Left: the colour key closes beside the result it
+interprets, which the rule allows.
+
+1967 Kotlin (1358 `core:rules`, 589 `app`, 20 `core:model`) and 366
+Python, from fresh results.
+
+**Next**: the dialogs' remaining text is mostly chips' own labels and
+one-line notes. The builder was not surveyed.
+
 ## 6gk. A potion's text, checked against the book and laid out
 
 The owner, 2026-10-11: the pathway text, *"the abilities and all"*, is not

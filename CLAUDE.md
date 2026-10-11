@@ -170,7 +170,7 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6gk, 6gj, 6gi, 6gh, 6gg, 6gf, 6ge and 6gd: a ledger roll prints its target first, in words.** The skill
+**6gl, 6gk, 6gj, 6gi, 6gh, 6gg, 6gf, 6ge and 6gd: a ledger roll prints its target first, in words.** The skill
 roll, the attack and the Acrobatic Dodge printed a level and resolved
 their target inside the click: 6eg's third category, named in its
 census and neither fixed nor refused for forty-odd slices. A reeling
@@ -226,7 +226,10 @@ so a reading that applies one applies all three. Device-verified.
 three grants naming no listed skill were dropped and reached no screen;
 stored and shown now. The pathway screen lays the text out as cards and
 tabs; `abilityParagraphs` is display only and rejoins all 105 blocks byte
-for byte. **Next**: the sheet and dialogs carry the same wall of text.
+for byte. 6gl: the Traits tab is a name, a price and a tag per row,
+`TraitReport.applied`, which says no less than the open row's notes; a
+dialog's reference prose sits closed in `RuleNote`, never a target, cost
+or refusal; the header is tags. **Next**: the builder was not surveyed.
 
 **6gc (its device pass) and 6gb: the second tap of one picture.** 6ga left the dialogs
 to 6eh, and ten slices had moved a dialog's target since, so they were
@@ -287,63 +290,10 @@ out the shock and the *"-1 to all rolls"*. One `standingTargets` number
 feeds both now. SHIP; a device control only. Re-run that sweep after any new screen;
 a grep for derivation calls is not it.
 
-**6fy (6fx's device pass), 6fx, 6fw, 6fv, 6fu and 6ft: a sheet's printed SPI 9 is not played.** Four sheets
-(Apothecary, Barmaid Brawler, Docks Bouncer, Military Police) print SPI 9
-and no sheet prints a pathway. `toCharacter` carried the 9 and digestion
-ADDED a potion's grant, so an Apothecary on Hermit 9 played SPI 18; 6dy's
-device pass recorded that number as its proof. A Beyonder with no
-pathway is a state this app cannot hold, so a premade plays 0 and the 9
-stays in the fixture behind a guard. **The other reading is not
-refuted**: the blank sheet's cell is 0, so the 9 was typed, and the four
-may be Beyonders whose pathway the sheet omits. Naming one for each is
-the owner's call (`MORTAL_SPI`'s KDoc). Read it for two things.
-
-- **6eb's gallery question was a symptom.** Three predicates answered
-  "is this a Beyonder" and disagreed on 10 of 22 characters. The gallery
-  asks the save now (`walkOf`); "has a pool" stays the sheet's
-  `maxSpi > 0`, a different question, since Chained 9 grants no SPI.
-- **The gallery digested nothing until 6fw**: `digestedWith` throws on
-  a save outside the floors, and 6ft held that only a session could
-  repair one. The design review had asked for the row played.
-
-The carried SPI's reason predated the pathway model and expired when it
-landed. Design and diff review said SHIP. Device-verified, save
-untouched. **One save entry was left wrong**: the tablet's Apothecary
-had spent 17 of 18, so it read *"SPI -8 / 9 ... 8 CoR charged"* with CoR
-0, until 6fv stepped it back. 6fu ran the sweep 6ft
-named, and the milestone regex was the wrong query: the `ponytail:`
-comments and absence wording found six present-tense claims that had
-expired, corrected in place, section 5's *"zero production callers"*
-among them. 6fv: one turn of the tablet took an open sheet back to the
-character list (reproduced; same pid). The manifest's `configChanges`
-handles a turn now, so a rolled result survives one; a dark-mode
-switch and process death still lose the screen, never the save.
-Device-verified, and the Apothecary was stepped back to SPI 0 / 9 on
-the owner's word. 6fw: the gallery row printed the
-sheet's attributes and skill count beside the walk: 16 of 22 Sequence 9
-potions raise an attribute, and a builder edit never reached the row,
-so a Docks Bouncer on Twilight Giant 9 read ST 11 and opened at ST 14.
-6ft's refusal rested on *"a session repairs on opening and the launch
-screen cannot"*; the repair writes nothing, so it is one pure function
-now, `SavedSession.repairedEdits`, which `init` and the gallery both
-call. **Repair a save there and nowhere else.** A walk the catalogue
-lacks costs a row its played numbers (logged), never the launch
-screen. The diff review said SHIP; device-verified, save untouched.
-6fx: the row's two chips were the sheet's first two traits, so a
-Fortune Teller who picked a wealth still read *"Wealth: Comfortable"*,
-and one on Demoness 8 read *"Charisma 2"* for a played 4. They are the
-first two of `traitsInPlay`'s list now; every number and chip is
-played, save `rowFor`'s fallback. One sheet on two paths, and the second came from counting what
-can change a held trait, not from the question asked. SHIP. 6fy: on
-the SM-T570 a Fortune Teller who picked Poor read *"Charisma 2"*,
-*"Secret (Racist Sympathizer)"*; the save was restored. **Back up the
-save at the start of every pass**: the copy from two hours earlier was
-stale by a Beat Cop's five FP. The open item is the owner's, the four
-SPI 9 sheets.
-
-**6fs back to 6de had lead paragraphs here until 2026-10-11. Each is in
+**6fy back to 6de had lead paragraphs here until 2026-10-11. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fy–6ft** — a sheet's printed SPI 9 is not played: a premade plays 0 until a potion; the gallery and every chip print played numbers; `repairedEdits` is the one repair;
 **6fr** — every held row prints a cell: of 495 rows 29 had none; Wealthy prints the wealth table's, and the sense chips were cut, so a chip's text is not a row's cell (6fs: its device pass);
 **6fq** — a held face printed its name alone on Traits; `held()` gives it the table's reaction cell, and my test had computed its expectation with `cellFor`'s own formula;
 **6fp** — the builder's Appearance row says what the potion grants and which face is played, through `Appearance.played`; that closed 6fn's census;
@@ -389,9 +339,7 @@ slice log.** One line each:
 **6ea** — the six priced secondary characteristics were billed and could not be bought; the save stores the book's row key, and the merge ADDS to a potion's grant;
 **6dz** — every optional parameter checked for a non-default argument; span rows (`+0 to +2`) applied their near end because only `BoonDialog` passed `gmValue`;
 **6dy** — the post-roll SPI push reached the plain skill roll alone; ritual, divination and boon take it now, and the 196 unclaimed mechanical lines are tabled as a census;
-**6dx** — `Shaken` needed no refusal, its carrier being a recorded GAP in `PotionDigestion.UNPARSED`; a line-local regex had dropped a wrapped `p. B229`;
-**6dw** — chapter 8's gear reference rendered only after the roll; it sits in the pre-roll branch now, below the modifier chips.
-**6dv back to 6de** have one-line digests too, moved verbatim to
+**6dx back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ff, 6gb, 6gd).
 
@@ -412,7 +360,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6gk first.** The
+**Where to start next: the slice log, from the END — 6gl first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -467,7 +415,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1965 Kotlin** (JUnit 5 — 1356 `core:rules`, 589 `app`, 20 `core:model`) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1967 Kotlin** (JUnit 5 — 1358 `core:rules`, 589 `app`, 20 `core:model`) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, and then `123d68c..4e9ab4e`, the file splits (SHIP, no findings); nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -692,6 +640,8 @@ TraitEffects.defaultBonus(traits): Int        // Versatile, on a roll AT A DEFAU
 TraitReport.held(traits, kind): List<HeldTrait>   // one row per held trait:
                                       // the book's cell and what of it is not
                                       // applied. What the Traits tab prints
+TraitReport.applied(row): Applied     // one word for a collapsed Traits row,
+                                      // read off its cell and notes (6gl)
 TraitReport.UNREAD                   // reported() says it of a row outside
                                       // known() that prints no self-control roll
 TraitReport.ROLLED_ONLY              // ...and this of one that does: the
