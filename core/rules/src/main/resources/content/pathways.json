@@ -346,6 +346,9 @@
    "sourceLines": [
     5630,
     5658
+   ],
+   "unresolvedSkills": [
+    "Any one knowledge skill (player's choice)/IQ [Average] +3"
    ]
   },
   {
@@ -703,6 +706,9 @@
    "sourceLines": [
     5931,
     5955
+   ],
+   "unresolvedSkills": [
+    "Inventor!/IQ [Wildcard] +2"
    ]
   },
   {
@@ -3814,6 +3820,9 @@
    "sourceLines": [
     8743,
     8782
+   ],
+   "unresolvedSkills": [
+    "Poison/IQ [Hard] +3"
    ]
   },
   {

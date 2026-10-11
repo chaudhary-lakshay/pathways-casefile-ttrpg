@@ -83,6 +83,11 @@ data class SequenceBlock(
     val ability: String = "",
     val reinforcedAbilities: String = "",
     val sourceLines: List<Int> = emptyList(),
+    /**
+     * Skill grants the book prints that name no skill it lists, verbatim
+     * ("Inventor!/IQ [Wildcard] +2"). Shown, never applied (6gk).
+     */
+    val unresolvedSkills: List<String> = emptyList(),
 )
 
 /**

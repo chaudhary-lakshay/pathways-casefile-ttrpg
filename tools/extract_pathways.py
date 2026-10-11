@@ -378,6 +378,10 @@ def extract(all_lines, ranges, heading_of):
             ),
             "sourceLines": [start["n"], end],
         })
+        # Verbatim, for the screen: a grant no skill matches is still printed
+        # by the book, and dropping it hid the Reader's +3 from the player.
+        if block_unparsed:
+            entries[-1]["unresolvedSkills"] = list(block_unparsed)
 
         # A block that straddles a page break can straddle a chapter break
         # (chapter 9 runs onto page 97, which is chapter 10). Claim each

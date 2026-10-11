@@ -377,6 +377,19 @@ def test_a_grant_naming_no_known_skill_is_reported_not_guessed():
     assert unresolved == ["Inventor!/IQ [Wildcard] +2"]
 
 
+def test_an_unresolved_grant_is_stored_on_its_block_verbatim():
+    # Recorded, not guessed -- and not dropped: before this the three rows
+    # reached no screen, so a Reader never saw their +3 (6gk).
+    blocks = json.loads((CONTENT / "pathways.json").read_text(encoding="utf-8"))["entries"]
+    stored = {(b["name"], line) for b in blocks for line in b.get("unresolvedSkills", [])}
+    assert stored == {
+        ("Reader", "Any one knowledge skill (player's choice)/IQ [Average] +3"),
+        ("Savant", "Inventor!/IQ [Wildcard] +2"),
+        ("Potions Professor", "Poison/IQ [Hard] +3"),
+    }
+    assert {line for _, line in stored} == extract_pathways.UNRESOLVED_GRANTS
+
+
 def test_a_block_stops_at_the_next_chapter_heading():
     """A block runs until the next "Sequence N:" header -- but a chapter's
     last blocks are printed on the next chapter's first page, and the next

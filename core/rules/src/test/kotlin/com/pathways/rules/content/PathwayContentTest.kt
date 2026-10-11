@@ -46,6 +46,24 @@ class PathwayContentTest {
         assertTrue(seer.advantages.startsWith("Eidetic Memory"))
     }
 
+    /**
+     * Three grants name no skill this book lists. They are printed all the
+     * same, so they reach the screen as printed rather than vanishing (6gk).
+     */
+    @Test
+    fun `a grant naming no skill is loaded as printed`() {
+        val unresolved = blocks.filter { it.unresolvedSkills.isNotEmpty() }
+            .associate { it.name to it.unresolvedSkills }
+        assertEquals(
+            mapOf(
+                "Reader" to listOf("Any one knowledge skill (player's choice)/IQ [Average] +3"),
+                "Savant" to listOf("Inventor!/IQ [Wildcard] +2"),
+                "Potions Professor" to listOf("Poison/IQ [Hard] +3"),
+            ),
+            unresolved,
+        )
+    }
+
     @Test
     fun `a fractional Basic Speed gain survives as a fraction`() {
         // Seq 9 Assassin is the only +0.25 in the book; rounding it to an Int
