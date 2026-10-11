@@ -170,7 +170,7 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
-**6gl, 6gk, 6gj, 6gi, 6gh, 6gg, 6gf, 6ge and 6gd: a ledger roll prints its target first, in words.** The skill
+**6gm, 6gl, 6gk, 6gj, 6gi, 6gh, 6gg, 6gf, 6ge and 6gd: a ledger roll prints its target first, in words.** The skill
 roll, the attack and the Acrobatic Dodge printed a level and resolved
 their target inside the click: 6eg's third category, named in its
 census and neither fixed nor refused for forty-odd slices. A reeling
@@ -229,7 +229,10 @@ tabs; `abilityParagraphs` is display only and rejoins all 105 blocks byte
 for byte. 6gl: the Traits tab is a name, a price and a tag per row,
 `TraitReport.applied`, which says no less than the open row's notes; a
 dialog's reference prose sits closed in `RuleNote`, never a target, cost
-or refusal; the header is tags. **Next**: the builder was not surveyed.
+or refusal; the header is tags. 6gm: the builder. A skill row is name,
+level, points and a study tag naming the refusal's cause (`StudyRefusal`),
+the sentence on a tap; *before potions* once, on the header. The trait
+picker's tap opens a row and never buys; Buy sits inside it.
 
 **6gc (its device pass) and 6gb: the second tap of one picture.** 6ga left the dialogs
 to 6eh, and ten slices had moved a dialog's target since, so they were
@@ -360,7 +363,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6gl first.** The
+**Where to start next: the slice log, from the END — 6gm first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -415,7 +418,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1967 Kotlin** (JUnit 5 — 1358 `core:rules`, 589 `app`, 20 `core:model`) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1968 Kotlin** (JUnit 5 — 1358 `core:rules`, 590 `app`, 20 `core:model`) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, and then `123d68c..4e9ab4e`, the file splits (SHIP, no findings); nothing is owed |
 | Branch | everything on `master`; working tree clean |

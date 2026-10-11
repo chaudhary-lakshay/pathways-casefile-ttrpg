@@ -6726,6 +6726,96 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gm. The builder, by what a player scans
+
+6gl's **Next** was *"The builder was not surveyed."* Surveyed on the
+SM-T570, Beat Cop (a Fool 9), every row and every picker:
+
+- **Already one line or chips**: the attributes and secondaries (stepper
+  rows), Wealth, Appearance, Languages and Weapons rows, and the Economic
+  status, Appearance, Languages, Carry a weapon and Add a skill pickers.
+- **The instanced-trait dialog keeps its cell open.** Duty's text is the
+  pricing guide for the number being chosen (*"-5 for light duty (roll 6
+  or less)…"*), and its red line is the only explanation of the disabled
+  Buy.
+- **Skills was the wall.** Every row was three lines, *before potions*
+  twice per row, and nine of eleven printed the same refusal: *"Study
+  (before potions): Study alone cannot pass 11, and this skill is already
+  11."*
+- **Buy a trait** printed every one of ~200 rows' notes open, and a tap
+  on a row bought it.
+
+### Skills: name, level, points, a study tag
+
+`studyLine` is `studyAdvice`, giving a `StudyAdvice(tag, reason)`. A plan
+reads *Study: 24 hrs + 16s · 2 CP → 10*. A refusal's tag names its
+CAUSE, from a new `StudyRefusal` on `StudyRefusedException`: *at cap 11*,
+*not by self-study*, *not by points*, *potion skill*, *past the grid*. The
+book's sentence opens on the row's tap; the stepper sits outside that
+target. *Levels before potions* is said once, under the Skills header:
+every level here is a purchase (`characterFor` holds no grants, a KDoc
+now says why that matters). **Study by** is two chips, *With a Tutor* and
+*Self-Study*, in place of *Study cost shown for: … Switch*.
+
+The design review's change: I proposed one tag, *No study*, for all six
+refusal paths. Its case against was that *not by self-study* is the one
+the road chips lift and *at cap* the one a level settles, and one word
+hides which behind a tap. Taken, with an enum rather than a parse of the
+sentence.
+
+### Buy a trait: a tap opens, Buy buys
+
+A row is its name, its price and a chevron. A tap opens the notes and a
+**Buy · +5 pts** button (**Choose…** for an instanced row); it never buys,
+the rule 6gl's roll chip follows. A held row opens to its text and has no
+button; *already held* stays on the closed row. Section subtitles and the
+*Not offered — reason* groups stay open. One row open at a time, keyed
+`section/name`, held outside the list's items. The picker still closes on
+Buy and on Choose, so neither a second tap of the old picture nor a
+stacked dialog is reachable, and `buyTrait` returns early on a name
+already bought. The click-handler census still reads 34: the mutators sit
+in BuilderScreen's callbacks, which did not move.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| a refusal is tagged and keeps its sentence, and a plan is priced | no `studyAdvice`: did not compile; then three mutants, each caught |
+
+The corpus is every bought skill on all 23 premades by both roads; it
+asserts neither branch is empty. Mutants: *not by self-study* turned into
+the grid tag (Apothecary Herbal Medicine), a refusal with no sentence,
+and the cap read as the attribute (Academic Researcher Research). Each
+failed from fresh XML and the file was restored from its copy.
+
+### Device pass
+
+SM-T570, Beat Cop. Skills reads *Guns (Pistol)/DX 11 · 2 pts · Study: at
+cap 11*; a tap opened *"Study alone cannot pass 11, and this skill is
+already 11."*; *Self-Study* repriced Law (Police) to *48 hrs + 4s*. In
+the picker a tap on Absolute Direction opened it and the budget stayed at
+91; Alertness opened with no button; **Buy · +2 pts** on Acute Hearing
+took it to 93 and closed the picker; **Give back** returned 91; Duty's
+**Choose…** opened its instance dialog with the picker closed. The save
+was `cmp`-identical to its backup afterwards. No FATAL.
+
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, SHIP WITH CHANGES, no HIGH. Taken: the
+expand key was `SkillKey.display`, which drops the difficulty, so one
+name at two difficulties (p. 85) would open together — keyed on the
+`SkillKey` now; the pill read *Study: Self-Study: not possible* and *Study:
+No study*, so the tags are lower-case causes; the picker's button label
+is passed in rather than compared as a string. Left: an open row stays
+open across a road switch, which is harmless.
+
+1968 Kotlin (1358 `core:rules`, 590 `app`, 20 `core:model`) and 366
+Python, from fresh results.
+
+**Next**: the builder and the sheet are both surveyed. What is left open
+by design is reference a decision reads (the instanced dialog's cell) and
+lines that are the only reason a control is off.
+
 ## 6gl. The sheet and its dialogs, by what a player scans
 
 The owner, after 6gk: *"yes, do the sheet and dialogs next"*. A survey on

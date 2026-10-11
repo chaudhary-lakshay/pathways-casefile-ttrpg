@@ -389,8 +389,15 @@ For a Beyonder, the big number on an attribute or secondary row is the one
 the character plays with, potions included, and the small line adds *N before
 potions* wherever a potion moved it. The steppers, the prices and the budget
 all work on the bought number, because a potion's gains are free. Skill rows
-stay on bought levels and say *before potions*; the sheet shows the levels
-actually rolled.
+stay on bought levels, and the **Skills** header says *Levels before potions*
+once for all of them; the sheet shows the levels actually rolled.
+
+Each skill row is its name and level, its points, and a **Study** tag: what
+downtime study would cost for the next rung (*24 hrs + 16s · 2 CP → 10*), or
+why it offers none (*at cap 11*, or *not by self-study* for a Very Hard
+skill). Tap a row with a refusal for the book's sentence. **Study
+by** picks the road the tags are priced for, *With a Tutor* or *Self-Study*.
+Study is advice: it never spends the budget.
 
 **Languages** lists the languages bought, with **Add or change** opening the
 book's twelve in its own two groups. Pick a language, one of the three
@@ -419,8 +426,13 @@ the book prices weapons in money, which this app does not track. What it
 changes is the **Defend** screen, which now prints a `Parry (name)` row for
 each carried weapon it can compute one for.
 
-Traits the book prints with a cost range or a "(specify)" name are bought by
-naming the instance and its price — the app stores the row, the variant and the
+**Add a trait** lists the book's advantages and drawbacks as a name and a
+price. Tapping a row opens its text and never buys; **Buy** inside the open
+row does. A trait already held is marked *already held* and has no Buy.
+
+Traits the book prints with a cost range or a "(specify)" name open the same
+way, with **Choose…** in place of Buy, and are bought by naming the instance
+and its price — the app stores the row, the variant and the
 cost, and composes the display name from them.
 
 Edits are saved per character and survive a restart.
