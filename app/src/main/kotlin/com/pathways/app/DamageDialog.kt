@@ -182,8 +182,8 @@ fun DamageDialog(
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
         title = { Text("Damage") },
         text = {
-            // Scrolls: fifteen printed rules do not fit a phone, and an
-            // AlertDialog does not scroll its own text slot.
+            // Scrolls: the hit locations and the Major Wound panel do not
+            // fit a phone, and an AlertDialog does not scroll its own text slot.
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 Row(Modifier.fillMaxWidth().padding(bottom = 4.dp)) {
                     Text("Damage $amount", Modifier.weight(1f))

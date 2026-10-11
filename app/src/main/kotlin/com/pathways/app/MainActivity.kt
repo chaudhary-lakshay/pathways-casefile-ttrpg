@@ -390,13 +390,15 @@ fun SheetScreen(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                             verticalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
-                            HeaderPill("${drunk.pathway} · Seq ${drunk.sequence}")
-                            HeaderPill("Digested ${drunk.digestion}%")
-                            HeaderPill("CoR ${session.cor}")
+                            // Lost first, and every tag in the error colour,
+                            // so a narrow screen cannot wrap it out of sight.
                             when {
                                 session.lost -> HeaderPill("Lost to the Rampager", lost = true)
                                 session.corrupted -> HeaderPill("Lost to corruption", lost = true)
                             }
+                            HeaderPill("${drunk.pathway} · Seq ${drunk.sequence}", lost = session.isLost)
+                            HeaderPill("Digested ${drunk.digestion}%", lost = session.isLost)
+                            HeaderPill("CoR ${session.cor}", lost = session.isLost)
                         }
                     }
                     Text(
