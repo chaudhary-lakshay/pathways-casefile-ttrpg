@@ -59,8 +59,8 @@ potion grants.
   **Traits**. It is a footer, not a screen change — the action tiles stay put.
 - **Traits** lists every advantage and drawback by name and price, with a
   tag for how much of it the app counts: *Applied*, *Partly applied*, *Roll
-  only*, *GM applies*, or *Not in the book* for a sheet name the book's list
-  does not print. Tap a row for the book's own text and, for anything not
+  only*, *Not applied*, or *Unmatched name* for a sheet spelling the book's
+  list does not match. Tap a row for the book's own text and, for anything not
   counted, why. *What the tags mean* explains each. A self-control drawback
   has its own *Roll 3d6 ≤ N* chip. A row your potions gave you (a Hermit's Combat Reflexes, an
   Abyss Beyonder's drawbacks) is listed too, marked *"from the potion"*

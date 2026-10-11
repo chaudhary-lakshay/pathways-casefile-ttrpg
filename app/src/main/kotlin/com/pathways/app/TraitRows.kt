@@ -23,6 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.TraitReport
@@ -44,7 +46,13 @@ internal fun TraitRow(
     onRoll: () -> Unit,
 ) {
     val status = TraitReport.applied(row)
-    Column(Modifier.fillMaxWidth().clickable(onClick = onToggle).padding(horizontal = 16.dp, vertical = 10.dp)) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClickLabel = if (expanded) "Hide details" else "Show details", onClick = onToggle)
+            .semantics { stateDescription = if (expanded) "Expanded" else "Collapsed" }
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(row.shown, style = MaterialTheme.typography.titleMedium)
@@ -72,10 +80,9 @@ private fun Details(row: TraitReport.HeldTrait) {
             style = MaterialTheme.typography.bodyMedium,
         )
         for (note in row.notes) {
-            // The two blanket sentences are the legend's; a row's own reason,
-            // and every clause, are said here.
-            val blanket = note.reason == TraitReport.UNREAD || note.reason == TraitReport.ROLLED_ONLY
-            if (note.printed == row.cell && blanket) continue
+            // Every reason is said where the row opens, the two blanket ones
+            // too: the legend is closed by default, and an open row that
+            // printed only its cell would read as counted (the diff review).
             Column {
                 if (note.printed != row.cell) {
                     Text("Not applied: ${note.printed}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
@@ -96,8 +103,10 @@ private fun StatusPill(status: Applied) {
         Applied.APPLIED -> "Applied" to MaterialTheme.colorScheme.primaryContainer
         Applied.PARTLY -> "Partly applied" to MaterialTheme.colorScheme.tertiaryContainer
         Applied.ROLL_ONLY -> "Roll only" to MaterialTheme.colorScheme.secondaryContainer
-        Applied.GM -> "GM applies" to MaterialTheme.colorScheme.surfaceVariant
-        Applied.NOT_IN_BOOK -> "Not in the book" to MaterialTheme.colorScheme.errorContainer
+        Applied.GM -> "Not applied" to MaterialTheme.colorScheme.surfaceVariant
+        // Not "not in the book": "Absent-Minded" resembles a book row it does
+        // not match, and 4.1 records rather than repairs it.
+        Applied.NOT_IN_BOOK -> "Unmatched name" to MaterialTheme.colorScheme.errorContainer
     }
     Surface(shape = RoundedCornerShape(50), color = color) {
         Text(label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
@@ -116,7 +125,7 @@ internal fun TraitLegend() {
                 Applied.PARTLY to "open the row for the part that is not applied, and why.",
                 Applied.ROLL_ONLY to TraitReport.ROLLED_ONLY + ".",
                 Applied.GM to TraitReport.UNREAD + ", unless the row says why.",
-                Applied.NOT_IN_BOOK to "the sheet prints a name the book's list does not, so nothing is read from it.",
+                Applied.NOT_IN_BOOK to "the sheet's spelling matches no row in the book's list, so nothing is read from it.",
             ).forEach { (status, meaning) ->
                 Row(Modifier.padding(horizontal = 8.dp, vertical = 3.dp), verticalAlignment = Alignment.Top) {
                     StatusPill(status)

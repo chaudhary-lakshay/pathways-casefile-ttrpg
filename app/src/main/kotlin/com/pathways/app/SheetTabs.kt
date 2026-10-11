@@ -105,7 +105,7 @@ internal fun LazyListScope.traitsTab(
     item { TraitLegend() }
     item { TraitSection("Advantages", advantages.size) }
     items(advantages) { row ->
-        val key = "a:${row.shown}"
+        val key = "a:${row.shown}:${row.trait.cost}"
         TraitRow(
             row = row,
             // A granted row costs nothing and was not bought (6fk); a bought
@@ -124,7 +124,7 @@ internal fun LazyListScope.traitsTab(
     // A quirk prints with a drawback's sign; nothing this app ships makes one.
     item { TraitSection("Disadvantages", drawbacks.size) }
     items(drawbacks) { row ->
-        val key = "d:${row.shown}"
+        val key = "d:${row.shown}:${row.trait.cost}"
         // Keyed the way `SelfControlCheck.trait` is, so the row and its roll
         // cannot disagree about what the trait is called. Nothing rolls on
         // its own: WHEN to call for one is the GM's.
