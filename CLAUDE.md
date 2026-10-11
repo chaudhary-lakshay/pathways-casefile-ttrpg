@@ -333,25 +333,10 @@ save at the start of every pass**: the copy from two hours earlier was
 stale by a Beat Cop's five FP. The open item is the owner's, the four
 SPI 9 sheets.
 
-**6fs is next, a device pass for 6fr: every held row prints a cell.** A census ran `held()`
-over every fixture, every wealth and appearance level, every offered and
-instanced purchase, every language and every potion grant: 495 rows, 29
-with no cell. Wealthy and Very Wealthy have no trait-list row, so they
-print the wealth table's (`Wealth.cellFor`, 4965-4972). Nine sheets'
-*"Poverty: Struggling"* is the book's Struggling by `Wealth.levelOf`'s
-two agreements, so it prints that row. Five potion sense rows print
-their whole row, and two run past the bonus, a rest the note says is
-unapplied. The 13 left are sheet spellings 4.1 records, pinned by name,
-so a new bare row in those sources fails a test; a new SOURCE of held
-traits must be added to the census by hand. Read it for one thing:
-**the sense chips were cut**, so a chip's text is not a row's cell. The
-diff review said SHIP. 6fs: 6fq and 6fr are device-verified on the
-SM-T570, from a fresh install, because the APK on it predated both
-fixes; the save was restored.
-
-**6fq back to 6de had lead paragraphs here until 2026-10-10. Each is in
+**6fs back to 6de had lead paragraphs here until 2026-10-11. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6fr** — every held row prints a cell: of 495 rows 29 had none; Wealthy prints the wealth table's, and the sense chips were cut, so a chip's text is not a row's cell (6fs: its device pass);
 **6fq** — a held face printed its name alone on Traits; `held()` gives it the table's reaction cell, and my test had computed its expectation with `cellFor`'s own formula;
 **6fp** — the builder's Appearance row says what the potion grants and which face is played, through `Appearance.played`; that closed 6fn's census;
 **6fo** — Mother 8 and Justiciar 6 grant Ancient Hermes, Native, both forms; `Languages.grantedBy` feeds the ritual dialog's note and no roll changes;

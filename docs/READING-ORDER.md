@@ -190,7 +190,23 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fq back to 6de
+## Retired lead paragraphs, 6fs back to 6de
+
+**6fs is next, a device pass for 6fr: every held row prints a cell.** A census ran `held()`
+over every fixture, every wealth and appearance level, every offered and
+instanced purchase, every language and every potion grant: 495 rows, 29
+with no cell. Wealthy and Very Wealthy have no trait-list row, so they
+print the wealth table's (`Wealth.cellFor`, 4965-4972). Nine sheets'
+*"Poverty: Struggling"* is the book's Struggling by `Wealth.levelOf`'s
+two agreements, so it prints that row. Five potion sense rows print
+their whole row, and two run past the bonus, a rest the note says is
+unapplied. The 13 left are sheet spellings 4.1 records, pinned by name,
+so a new bare row in those sources fails a test; a new SOURCE of held
+traits must be added to the census by hand. Read it for one thing:
+**the sense chips were cut**, so a chip's text is not a row's cell. The
+diff review said SHIP. 6fs: 6fq and 6fr are device-verified on the
+SM-T570, from a fresh install, because the APK on it predated both
+fixes; the save was restored.
 
 **6fo is next: the language a potion grants.** Mother 8 and
 Justiciar 6 print *"Ancient Hermes Fluent — can speak, read, and
