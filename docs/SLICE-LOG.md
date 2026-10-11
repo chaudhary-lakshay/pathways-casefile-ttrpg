@@ -6726,6 +6726,131 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gn. The redesign: nine Stitch components, one a commit
+
+After 6gm the owner rejected the screens as text walls. The decision:
+Sanzo Wada's combination #269 as the default palette, and Stitch
+(project `10633283155405137121`) to design components, one per prompt,
+never a whole screen. Nine were approved. They were built in the agreed
+order, one per commit, each with before and after shots on the SM-T570:
+the skill roll, Attack, Defend, Damage, Cast a ritual, Fright Check, the
+character card, the pathway panel and the builder panel. The pool strip,
+the action buttons and the theme came first.
+
+| Commit | What |
+|---|---|
+| `dcebd9f` | HP, FP and SPI as one strip in the sheet header, on every tab |
+| `a430a06` | four turn buttons and chips for the rest; a skill row is one tap with its level in a badge; the trait tag *Not applied* became *GM call* |
+| `5493f67` | Wada #269 the default theme; dark accents lifted to clear 4.6:1 as text, checked on the page and all three card grounds |
+| `f8e7f5f` | skill roll: `TargetCard` and `ResultCard` (`RollCards.kt`) |
+| `0b09222` | the Attack picker offers only the owned skills filed under COMBAT SKILLS |
+| `52c2cb2` | Attack: section names, stepper cards, every term and Roll pinned in `AttackFooter` |
+| `76fe0c2` | Defend: tiles, readings behind `RuleNote` |
+| `cff53de` | Damage: `AmountCard` |
+| `edea42c` | Ritual: the weight row's missing heading; terms, target, cost and **Cast** pinned in `RitualFooter`; `RitualResultCard` |
+| `1709ece` | Fright: one page; `TargetCard(Int, Int)`; trigger rows tagged with what the book prints |
+| `49e2cd9` | Fright: the stepper drawn from the start (below) |
+| `bcd9e87` | character card: BEYONDER as an outlined tag beside the walk, a chevron |
+| `ff99b41` | pathway: the four Sequences as equal tiles, each drunk one checked; digestion as a bar |
+| `4bc0de1` | builder: the spent figure large with a spare tag; an *Attributes* heading |
+
+`dcebd9f` through `cff53de` were built in the session before this
+entry. Their own commit messages state what each checked, and this
+entry does not re-verify them. `edea42c` onward were built in the session
+that wrote this entry. Each one was reviewed before its commit by a Sonnet
+sub-agent running `kotlin-reviewer.md` (SHIP every time), installed, and
+driven on the tablet. `sessions.json` was `cmp`-identical to its backup
+after every pass.
+
+**What Stitch invented, and none of it was copied**:
+- Dodge as *Base Move 4 + 3*. Dodge comes from Basic Speed.
+- *Side (−2)* / *Rear (No defense)*.
+- Hit-location penalties in the Damage dialog.
+- *Mental / Average*.
+- *Roll saved to combat log*.
+- The builder's *Confirm Stats / Reset*. The budget is live.
+- *4 Sequences Unlocked*.
+- A green *+2*.
+- Monospace labels.
+
+Its ritual mock also had no preparation, link, flourish, power source,
+supporting skills, language or suspension, and paid HP by a toggle with no
+amount. Every one of those stayed as it was.
+
+### Read it for three things
+
+- **The button moved, and the rule did not.** Ritual's Roll sat below
+  every declaration, off the tablet's screen. Its handler moved into
+  `RitualFooter`'s `onCast` and is otherwise unchanged:
+  - the one-shot guard;
+  - the roll against the target as drawn;
+  - fuel charged at the roll;
+  - CoR deferred to `settle`.
+
+  The breakdown went from one sentence to a list of terms. Every term
+  of the old sentence is in it, read from the same functions
+  (6ag's invariant). The three withdrawn states are now one `refusal`,
+  printed beside the disabled button.
+- **A layout change can move a row under a finger.** Fright's first
+  pick drew the Modifier stepper, which grew the dialog. The dialog
+  re-centred and the monster row moved from y≈1192 to y≈1125, so a quick
+  second tap lands on the neighbouring trigger, which is a different
+  modifier. `TargetCard` already kept one height for this reason, and the
+  Fright layout broke that rule beside it. `49e2cd9` draws the stepper
+  before a pick. Until then its steps do nothing (`if (picked != null)`),
+  and a pick resets it anyway. On the tablet the row held at dump y=868
+  across the pick, and a minus with nothing picked left the target at 9.
+- **Two defects rode in with the restyle.**
+  - The Attack picker listed every owned skill, so Research could be
+    swung (`0b09222`).
+  - The gallery drew a character's skill count inside its trait chips'
+    row, so a character with no short trait name printed no count
+    (`bcd9e87`).
+
+### The click-handler census reads 32, not 34
+
+The handover said 34. Run per commit from an extracted tree, it reads 34
+at `3260fd6` and 32 from `dcebd9f` on. Note that the rule's `files:` glob
+is relative, so a scan of a path outside the repo root reports nothing at
+all. The diff across `dcebd9f` is three `session.spend(Pool.X, …)`
+lambdas in `SheetRows.kt` becoming one `session.spend(pool, …)` in the
+pool strip, reached from `MainActivity.kt`. That is a consolidation, not
+a lost guard: a pool stepper is meant to repeat. The handover now reads 32.
+
+### Device passes (this session's commits)
+
+- **Ritual, on Antiquarian Dealer** with a seeded Ritualistic Magic 8
+  (no premade prints the skill):
+  - the footer read *Ritualistic Magic 10 · Light 0 · preparation +0*,
+    *3d6 ≤ 10*, *costs 2 SPI*;
+  - with 1 SPI it showed *No roll — 2 SPI is more than the 1…*, and Cast
+    was disabled;
+  - paying 2 HP turned the cost into *costs 1 SPI and 2 HP*, and Cast
+    rolled *3d6: 7 vs 10*, *Success by 3+*;
+  - HP went from 11 to 9 and SPI from 1 to 0.
+- **Fright:** the monster row at −2, stepped to −3, read *3d6 ≤ 6* and
+  rolled *3d6: 11 vs 6*, *13–15: Acquire a quirk*.
+- **Character card:** *Twilight Giant 9* printed in full beside its tag.
+- **Pathway:** a tap on the Seq 8 tile opened *Unwinged Angel
+  (Coldblooded)* with *Drink and roll* beside it, and nothing was drunk.
+- **Builder:** read *87 of 100 points* and *13 spare*.
+- **Not run on the device:** Fright's recovery roll and the ritual's
+  push row. Both are unchanged code.
+
+### Left out, with the reason
+
+- **The builder's two-column grid of secondary characteristics.** Two
+  steppers side by side are cramped on a phone.
+- **A pinned Drink button on the pathway screen.** Its row has five
+  states: reroll, lost, corrupted, drink, and the notes. Moving it is a
+  restructure, not a restyle.
+
+2070 Kotlin (1361 `core:rules`, 689 `app`, 20 `core:model`) and 366
+Python, from fresh results after `--rerun-tasks`.
+
+**Next**: the owner's call. The nine approved components are built.
+Surveys of the glossary and theme sheets are still not done (6gm).
+
 ## 6gm. The builder, by what a player scans
 
 6gl's **Next** was *"The builder was not surveyed."* Surveyed on the

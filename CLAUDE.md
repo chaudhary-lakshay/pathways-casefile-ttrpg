@@ -170,6 +170,25 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
+**6gn: the redesign, nine Stitch components, one a commit.** The owner
+rejected text walls. Wada #269 is the default palette, and Stitch drew one
+component per prompt: skill roll, Attack, Defend, Damage, Ritual, Fright,
+character card, pathway panel and builder panel, all built (`dcebd9f` to
+`4bc0de1`). Read it for three things.
+
+- **A roll's handler moves into a pinned footer unchanged.** Ritual's
+  Cast sat off the tablet's screen.
+- **A control that appears on the first pick moves the rows under a
+  finger** (`49e2cd9`): draw it from the start, as `TargetCard` keeps one
+  height.
+- **The click-handler census reads 32.** Three pool lambdas became one
+  at `dcebd9f`. Scan from the repo root: the rule's `files:` glob is
+  relative, and a scan elsewhere reports nothing.
+
+Stitch's inventions are listed and none was copied. Each commit got a
+Sonnet `kotlin-reviewer.md` SHIP and a device pass, and the save was
+`cmp`-identical after every one.
+
 **6gm, 6gl, 6gk, 6gj, 6gi, 6gh, 6gg, 6gf, 6ge and 6gd: a ledger roll prints its target first, in words.** The skill
 roll, the attack and the Acrobatic Dodge printed a level and resolved
 their target inside the click: 6eg's third category, named in its
@@ -363,7 +382,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6gm first.** The
+**Where to start next: the slice log, from the END — 6gn first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
@@ -432,7 +451,7 @@ player-facing guide to all four and is verified against the labels in source.
 py -m pytest tools -q                # Python tooling tests (Windows: `py`, not `python`)
 ast-grep scan                     # 4.3's division rule; silent and exit 0 when clean
 ast-grep scan --rule tools/sg-census/session-mutator-in-lambda.yml --report-style short
-                                  # 6gb's census: 34 lines, one per call site
+                                  # 6gb's census: 32 lines (6gn), one per call site
 ast-grep run -l kotlin -p 'SkillRoll.targetFor($$$)' app core   # call sites
 ```
 
