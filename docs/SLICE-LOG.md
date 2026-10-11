@@ -6726,6 +6726,113 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gj. Three cells that name a roll by what it is for
+
+6gi tabled the trait backlog and left Voice as the one live question:
+Justiciar 9 grants it, so a potion puts it on a sheet, and its cell is
+*"+2 to all rolls to influence others through speech"* (599). Two rows
+with the same shape came with it: Industrial Expertise, *"+2 to all
+relevant skill rolls"* (857), and Absent-Mindedness, *"-3 to skill rolls
+requiring concentration or organisation in everyday life"* (1242).
+
+### The design review changed the verdict on one of three
+
+Sonnet, `kotlin-reviewer.md`, on a written decomposition and no diff. I
+favoured declaring both "skill rolls" cells on every skill roll and
+refusing Voice. BUILD WITH CHANGES.
+
+- **It found the precedent I had not named.** Healer's *"+2 to all
+  rolls to diagnose, treat, and heal"* has been refused since 6br on
+  *"this book tags no skill as a healing skill, so which rolls count is
+  the GM's call"*. Industrial Expertise's *"relevant"* is the same kind
+  of word, a purpose. A chip for it beside a refusal for Healer splits
+  them on no axis this repo uses. So it is refused on Healer's reason.
+- **It agreed "skill rolls" is not "social rolls".** The bare phrase
+  refused in `CATEGORY_BONUSES` names no group the book prints; "skill
+  rolls" names every skill. Absent-Mindedness's circumstance is the
+  GM's, as Appendix A's *"Distracted or hurried"* chip already is.
+- **6fa's sentence would have been contradicted.** `TraitClauses` said
+  *"Single-Minded and Absent-Mindedness stay out by their own words"*
+  of the Concentrate roll. Still true, and now it says why: that Will
+  roll is not a skill roll. The same commit says so.
+- Voice: refused. Its phrase names neither a skill nor either of the
+  book's two *Influence skills* lists (563-564, 7645), which differ.
+
+### What changed
+
+- `TraitClauses.ANY_SKILL_CLAUSES`: Absent-Mindedness's -3, conditional,
+  offered by `skillRollClauses` on every skill and counted only when
+  ticked. It is in `skillClauseRows`, so the clause guard walks it and
+  `known()` has it.
+- `PARTLY_APPLIED` reports its combat sentence, which ends *"(GM's
+  discretion)"*. The IQ roll stays offered: `SelfControl.checksFor`
+  reads the row's field, not `known()`.
+- `TraitRefusals.PURPOSE_NOT_SKILL`: *"this says what a roll is for and
+  names no skill, nor a group the book lists, so which rolls count is
+  the GM's call"*. Healer's general clause, Voice and Industrial
+  Expertise all print it. Healer's old words were true of healing
+  alone.
+
+The review traced every reader: the Attack dialog and the Acrobatic
+Dodge call `TraitEffects.modifiers` with no declarations, so nothing
+the GM did not tick reaches them, and they offer no chip.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| Absent-Mindedness is declared on any skill roll and not on Concentrate | no any-skill list: *List is empty* |
+| Voice and Industrial Expertise are refused on Healer's reason | no refusal: the sheet read `UNREAD` |
+
+Two guards moved, both by the count they were written to keep. The
+self-control sweep is 26 rows, not 27. The clause guard credited no
+self-control sentence, because no row it walks had printed one; it
+credits the *"roll vs"* head and an *"IQ to ..."* trigger now. One
+mutant, deleting the combat sentence's report, was caught by that
+guard, run alone from deleted results and restored from its copy.
+
+### The diff review
+
+The same reviewer: SHIP WITH CHANGES, one MEDIUM, taken. My first guard
+branch credited every segment in the sentence holding *"roll vs."*,
+so Glory Hound's *"or ensure your role ... is publicly known"* would
+have passed as handled the day that row joined the walk. It credits
+the head and a *"to ..."* trigger only, never an *"or ..."*
+consequence.
+
+It also asked whether the shared reason is true of all three. Of
+Voice it is arguable: the book does list *Influence skills*, and the
+first wording said *"no group this book prints"*. It now says *"nor a
+group the book lists"*, which Voice's cell does not name. Healer's
+verbs resemble Diagnosis and First Aid; resemblance is not a name, and
+the KDoc says so. One LOW left: Absent-Mindedness reaches `known()`
+by two routes, the clause list and `PARTLY_APPLIED`. Both are true
+readers.
+
+### Device pass
+
+SM-T570, Hunter-Tracker, who has no save entry, so nothing existing
+was at risk. Absent-Mindedness bought in the builder (*"74 of 110
+points"*).
+
+- Tracking: the chip *"Absent-Mindedness: -3 to skill rolls requiring
+  concentration or organisation in everyday life"*, unticked, *"3d6 ≤
+  12"*. Ticked: *"3d6 ≤ 9"* and *"Outdoorsman, Absent-Mindedness: -2"*.
+  Unticked again: 12.
+- Concentrate: no chip.
+- Traits tab: *"Absent-Mindedness — −15 pts — 3d6 ≤ 9"*, its cell, and
+  the combat sentence alone under *"Not applied here"*.
+
+No FATAL in logcat. The save was written back from its backup and
+`cmp`-identical.
+
+1957 Kotlin (1355 `core:rules`, 582 `app`, 20 `core:model`) after
+`--rerun-tasks` from deleted results, and the Python line-cap ratchet.
+
+**Next**: nothing is queued. Of 6gi's table, Voice and Industrial
+Expertise are closed. Healer, Voice and Industrial Expertise now share
+one reason, so a reading that applies one applies all three.
+
 ## 6gi. "×1.5 there", with no place named
 
 Found on the tablet during 6gh's device pass, not by a sweep.
