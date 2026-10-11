@@ -6786,7 +6786,9 @@ The corpus is every bought skill on all 23 premades by both roads; it
 asserts neither branch is empty. Mutants: *not by self-study* turned into
 the grid tag (Apothecary Herbal Medicine), a refusal with no sentence,
 and the cap read as the attribute (Academic Researcher Research). Each
-failed from fresh XML and the file was restored from its copy.
+failed from fresh XML and the file was restored from its copy. They first
+ran before the diff review reworded the tags, so all three were run again
+on the committed code (`86ba1dc`): each still failed, on the new words.
 
 ### Device pass
 
@@ -6797,7 +6799,11 @@ the picker a tap on Absolute Direction opened it and the budget stayed at
 91; Alertness opened with no button; **Buy · +2 pts** on Acute Hearing
 took it to 93 and closed the picker; **Give back** returned 91; Duty's
 **Choose…** opened its instance dialog with the picker closed. The save
-was `cmp`-identical to its backup afterwards. No FATAL.
+was `cmp`-identical to its backup afterwards. No FATAL. Those taps ran
+before the diff review's changes; on the committed build (installed
+19:19) the tag read *Study: at cap 11*, Guns (Pistol) opened to its
+sentence under the `SkillKey` key, the picker's button read *Buy · +5
+pts*, Duty's read *Choose…*, and the save was identical again.
 
 ### The diff review
 
@@ -6812,7 +6818,9 @@ open across a road switch, which is harmless.
 1968 Kotlin (1358 `core:rules`, 590 `app`, 20 `core:model`) and 366
 Python, from fresh results.
 
-**Next**: the builder and the sheet are both surveyed. What is left open
+**Next**: the builder and the sheet are surveyed, and one screenshot of
+the premade gallery shows cards and tags already. Not surveyed: the
+pathway screen since 6gk, the glossary and theme sheets. What stays open
 by design is reference a decision reads (the instanced dialog's cell) and
 lines that are the only reason a control is off.
 
