@@ -1,5 +1,19 @@
 package com.pathways.app
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -160,9 +174,9 @@ fun DamageDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(
+            Button(
                 onClick = {
-                    if (applied) return@TextButton
+                    if (applied) return@Button
                     applied = true
                     // Latched with the hit, never with the roll (Codex): a GM
                     // who rolls the table and then cancels, changes the pool
@@ -177,6 +191,10 @@ fun DamageDialog(
                     onApply(pool, amount)
                     onDismiss()
                 },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                ),
             ) { Text("Apply $amount to $pool") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
@@ -185,17 +203,21 @@ fun DamageDialog(
             // Scrolls: the hit locations and the Major Wound panel do not
             // fit a phone, and an AlertDialog does not scroll its own text slot.
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                Row(Modifier.fillMaxWidth().padding(bottom = 4.dp)) {
-                    Text("Damage $amount", Modifier.weight(1f))
-                    TextButton(
-                        onClick = { step(amount, -5)?.let { amount = it; shock = null } },
-                    ) { Text("−5") }
-                    TextButton(
-                        onClick = { step(amount, -1)?.let { amount = it; shock = null } },
-                    ) { Text("−") }
-                    TextButton(onClick = { amount += 1; shock = null }) { Text("+") }
-                    TextButton(onClick = { amount += 5; shock = null }) { Text("+5") }
-                }
+                AmountCard(
+                    amount = amount,
+                    // The threshold as a tag under the number it is about,
+                    // lit once this one hit crosses it.
+                    threshold = Wounds.majorWoundThreshold(maxHp).let {
+                        if (isMajor) "Major wound: $it or more in one hit" else "Major wound at $it+"
+                    },
+                    isMajor = isMajor,
+                    onStep = { delta ->
+                        // Up is always a hit; down stops at one (see [step]).
+                        val next = if (delta > 0) amount + delta else step(amount, delta)
+                        next?.let { amount = it; shock = null }
+                    },
+                )
+                SectionLabel("Pool")
                 Row {
                     pools.forEach { option ->
                         FilterChip(
@@ -233,7 +255,6 @@ fun DamageDialog(
                 val recoveryTarget = ht + stunRecoveryHt.bonus + hurt + carriedShock
                 MajorWoundPanel(
                     isMajor = isMajor,
-                    threshold = Wounds.majorWoundThreshold(maxHp),
                     ht = htTarget,
                     traitLine = majorWoundHt.line,
                     shock = shock,
@@ -285,7 +306,6 @@ fun DamageDialog(
 @Composable
 private fun MajorWoundPanel(
     isMajor: Boolean,
-    threshold: Int,
     ht: Int,
     traitLine: String? = null,
     shock: RollResult?,
@@ -295,14 +315,12 @@ private fun MajorWoundPanel(
     recovery: RollResult?,
     onRecoveryRoll: () -> Unit,
 ) {
-    Text(
-        if (isMajor) "Major wound: $threshold or more in one hit" else "Major wound at $threshold+",
-        style = MaterialTheme.typography.bodySmall,
-        modifier = Modifier.padding(top = 8.dp),
-    )
     if (!isMajor) return
     if (shock == null) {
-        TextButton(onClick = onRoll) { Text("Roll HT $ht") }
+        OutlinedButton(onClick = onRoll, modifier = Modifier.padding(top = 8.dp)) {
+            Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
+            Text("Roll HT $ht", modifier = Modifier.padding(start = 8.dp))
+        }
         if (traitLine != null) {
             Text(traitLine, style = MaterialTheme.typography.bodySmall)
         }
@@ -365,11 +383,7 @@ private fun WhereItLanded(
     onLocation: (HitLocation) -> Unit,
 ) {
     val locations = remember { Wounds.locations() }
-    Text(
-        "Where it landed",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 8.dp),
-    )
+    SectionLabel("Where it landed")
     FlowRow {
         locations.forEach { option ->
             FilterChip(
@@ -405,6 +419,64 @@ private fun WhereItLanded(
             )
         }
     }
+}
+
+/**
+ * How much got through, large, with steps of one and five either way, and the
+ * Major Wound threshold under it as a tag, lit in the error colour once
+ * crossed.
+ */
+@Composable
+private fun AmountCard(amount: Int, threshold: String, isMajor: Boolean, onStep: (Int) -> Unit) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                "Damage",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                StepButton("−5") { onStep(-5) }
+                StepButton("−") { onStep(-1) }
+                Text(
+                    "$amount",
+                    style = MaterialTheme.typography.displayMedium.copy(fontFeatureSettings = "tnum"),
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.widthIn(min = 56.dp),
+                )
+                StepButton("+") { onStep(1) }
+                StepButton("+5") { onStep(5) }
+            }
+            val tone = if (isMajor) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+            Text(
+                threshold,
+                style = MaterialTheme.typography.labelLarge,
+                color = tone,
+                modifier = Modifier
+                    .padding(top = 6.dp)
+                    .border(1.dp, tone.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+            )
+        }
+    }
+}
+
+/**
+ * 40dp, so four of them and the amount fit a 360dp phone's dialog (about
+ * 232dp of 264); Material still gives each a 48dp touch target.
+ */
+@Composable
+private fun StepButton(text: String, onClick: () -> Unit) {
+    OutlinedButton(
+        onClick = onClick,
+        contentPadding = PaddingValues(0.dp),
+        modifier = Modifier.padding(horizontal = 2.dp).size(40.dp),
+    ) { Text(text) }
 }
 
 /** One damage is the smallest hit there is; zero is not a hit at all. */
