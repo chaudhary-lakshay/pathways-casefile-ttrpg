@@ -316,7 +316,11 @@ preparation are two different tables with two different link rules. The
 language is yours to state per ritual; under the chips the dialog lists the
 mystical languages the character bought in the builder, then any a potion
 granted (*"From the potion: Ancient Hermes, Native."*), and does not pick one
-for you. A language granted by a trait is not in that list.
+for you. A language granted by a trait is not in that list. The choices scroll;
+pinned under them are the terms of the target, the target, what the ritual
+costs and **Cast**, which is withdrawn, with the reason in red, while the
+entity is unasked, the SPI is short, or the book or the entity refuses the
+attempt.
 
 Six of those cells print a span or a floor rather than a number — *Good +1 to
 +2*, *Poor -1 to -2*, *None -4 or worse*, the quick table's *Poor / None -2 to

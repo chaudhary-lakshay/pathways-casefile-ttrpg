@@ -113,11 +113,7 @@ internal fun RitualPowerSourceChips(
     // modifier, this is the scope and gives the cost and the
     // time. The book prints a Major rung here and none in the
     // weight table, which is why Major has no base modifier.
-    Text(
-        "Complexity",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 8.dp),
-    )
+    SectionLabel("Complexity")
     FlowRow {
         PowerSources.complexities().forEach { option ->
             FilterChip(
@@ -136,11 +132,7 @@ internal fun RitualPowerSourceChips(
     // Every cell is a range, so the end is the GM's; the open
     // one ("11-15+") offers three above its printed ceiling
     // rather than pretending to know the top.
-    Text(
-        "Fuel",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 8.dp),
-    )
+    SectionLabel("Fuel")
     FlowRow {
         spiChoices(complexity).forEach { option ->
             FilterChip(
@@ -155,11 +147,7 @@ internal fun RitualPowerSourceChips(
     // Ch. 7 IV.B. Fuel, never a bonus -- the panel says so
     // out loud, because the sentence next to it in the book
     // is the one that gets misread.
-    Text(
-        "Paid in HP (${PowerSources.HP_PER_SPI} HP = 1 SPI, no bonus to the roll)",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 8.dp),
-    )
+    SectionLabel("Paid in HP (${PowerSources.HP_PER_SPI} HP = 1 SPI, no bonus to the roll)")
     FlowRow {
         hpChoices(cost).forEach { option ->
             FilterChip(
@@ -174,11 +162,7 @@ internal fun RitualPowerSourceChips(
     // The Time & Complexity table, whose Rushed and Extended
     // values differ BY RUNG -- -3 at Light, -5 at Major -- so
     // they are read off the complexity chosen above.
-    Text(
-        "Pacing",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 8.dp),
-    )
+    SectionLabel("Pacing")
     FlowRow {
         RitualPacing.entries.forEach { option ->
             val shift = PowerSources.pacingModifier(complexity, option)
@@ -202,11 +186,7 @@ internal fun RitualPowerSourceChips(
     // Ch. 7 IV.C. Every assistant is worth +1 -- the book's
     // own Ritual 3 prints "Two trained assistants  +2", which
     // is the only thing that disambiguates "beyond the first".
-    Text(
-        "Assistants",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 8.dp),
-    )
+    SectionLabel("Assistants")
     FlowRow {
         (0..4).forEach { option ->
             FilterChip(
@@ -231,11 +211,7 @@ internal fun RitualPowerSourceChips(
     }
 
     // Ch. 7 IV.D.
-    Text(
-        "External sacrifice",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 8.dp),
-    )
+    SectionLabel("External sacrifice")
     FlowRow {
         FilterChip(
             selected = sacrifice == null,
@@ -258,12 +234,7 @@ internal fun RitualPowerSourceChips(
         // bonus rides on one and sacrificeBonus refuses it
         // without. It ADDS to the tier rather than replacing
         // it -- two consecutive sentences, both applied.
-        Text(
-            "Sentient beings offered " +
-                "(${signed(PowerSources.SENTIENT_BONUS)} each, on top)",
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(top = 8.dp),
-        )
+        SectionLabel("Sentient beings offered (${signed(PowerSources.SENTIENT_BONUS)} each, on top)")
         FlowRow {
             (0..3).forEach { option ->
                 FilterChip(
@@ -277,11 +248,7 @@ internal fun RitualPowerSourceChips(
     }
 
     // Ch. 7 IV.E. A range the GM picks inside, like darkness.
-    Text(
-        "Catalyst",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 8.dp),
-    )
+    SectionLabel("Catalyst")
     FlowRow {
         (PowerSources.CATALYST_LOWEST..PowerSources.CATALYST_HIGHEST)
             .forEach { option ->
@@ -328,7 +295,7 @@ internal fun RitualSupportAndLanguage(
     // scoped to neither mode. A skill the character does not
     // own is not offered, so the list is empty for most
     // casters -- said out loud rather than shown as a gap.
-    Text("Supporting skills", style = MaterialTheme.typography.titleSmall)
+    SectionLabel("Supporting skills")
     if (ownedSupportSkills.isEmpty()) {
         Text(
             "This character has none of the book's " +
@@ -357,11 +324,7 @@ internal fun RitualSupportAndLanguage(
     // rituals; a common tongue is not offered, because the
     // book never grants it ritual power and offering it would
     // read as permission.
-    Text(
-        "Mystical language",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 8.dp),
-    )
+    SectionLabel("Mystical language")
     FlowRow {
         FilterChip(
             selected = language == null,

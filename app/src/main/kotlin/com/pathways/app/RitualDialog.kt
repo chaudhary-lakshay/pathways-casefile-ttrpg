@@ -275,21 +275,51 @@ fun RitualDialog(
         onDismissRequest = finish,
         confirmButton = { TextButton(onClick = finish) { Text("Close") } },
         title = {
-            Text(
-                outcome?.let { if (it.succeeded) "The ritual holds" else "The ritual fails" }
-                    ?: "Cast a ritual",
-            )
+            Column {
+                Text("Cast a ritual")
+                Text(
+                    "$RITUAL_SKILL $skillLevel",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
         },
         text = {
-            // Scrolls: fuel and preparation add two chip rows, and an
-            // AlertDialog does not scroll its own text slot -- the defect that
-            // put the Roll button off the bottom of the attack dialog.
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                val result = outcome
-                if (result == null) {
+            val result = outcome
+            if (result != null) {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    RitualResultCard(result)
+                    if (RitualResolution.canPush(result)) {
+                        BurnRow(
+                            kind = BurnKind.MYSTICAL,
+                            burned = burned,
+                            spiAvailable = spiAvailable - burned,
+                            note = "Separate from the ritual's fuel, which is " +
+                                "already paid. Charged when this closes.",
+                        ) { points ->
+                            // The LIVE outcome, not the one this row was drawn
+                            // against: two taps land before a recomposition,
+                            // and pushing the captured value would throw the
+                            // first away while charging for it.
+                            val live = outcome ?: return@BurnRow
+                            if (!Pools.canAffordSpi(burned + points, spiAvailable)) {
+                                return@BurnRow
+                            }
+                            burned += points
+                            outcome = RitualResolution.pushed(live, points)
+                        }
+                    }
+                }
+                return@AlertDialog
+            }
+            // The choices scroll and the target with Cast is pinned beneath
+            // them: with every declaration open the chips run three screens,
+            // and Cast sat below all of them.
+            Column {
+                Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
                     // The mode comes first, because it decides which
                     // preparation table the chips below are drawn from.
-                    Text("Mode", style = MaterialTheme.typography.titleSmall)
+                    SectionLabel("Mode")
                     FlowRow {
                         RitualMode.entries.forEach { option ->
                             FilterChip(
@@ -309,8 +339,8 @@ fun RitualDialog(
                                 "reaches +3 and already includes the link."
                         },
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(bottom = 8.dp),
                     )
+                    SectionLabel("Weight")
                     Row {
                         weights.forEach { option ->
                             FilterChip(
@@ -321,11 +351,7 @@ fun RitualDialog(
                             )
                         }
                     }
-                    Text(
-                        weight.categories,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(vertical = 8.dp),
-                    )
+                    Text(weight.categories, style = MaterialTheme.typography.bodySmall)
                     RitualPowerSourceChips(
                         complexity = complexity,
                         spiChoice = spiChoice,
@@ -349,11 +375,7 @@ fun RitualDialog(
                         // taps in one frame flip twice, as they did before the split.
                         onToggleSuspended = { suspended = !suspended },
                     )
-                    Text(
-                        if (mode == RitualMode.QUICK) "Preparation" else "Preparation (Phase I)",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
+                    SectionLabel(if (mode == RitualMode.QUICK) "Preparation" else "Preparation (Phase I)")
                     FlowRow {
                         preparations.forEach { option ->
                             FilterChip(
@@ -376,11 +398,7 @@ fun RitualDialog(
                     // above already priced the link -- its own text names one
                     // -- so offering it here would pay a perfect link twice.
                     if (mode.usesTargetLink) {
-                        Text(
-                            "Link to target",
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
+                        SectionLabel("Link to target")
                         FlowRow {
                             RitualMode.links().forEach { option ->
                                 FilterChip(
@@ -408,11 +426,7 @@ fun RitualDialog(
                     // Withheld rather than offered-and-refused -- a chip that
                     // throws on Roll is not a choice (the two Aim rows, 6t).
                     if (mode.usesFlourish) {
-                        Text(
-                            "Delivery (Phase II)",
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
+                        SectionLabel("Delivery (Phase II)")
                         FlowRow {
                             FilterChip(
                                 selected = flourish,
@@ -434,11 +448,7 @@ fun RitualDialog(
 
                     // Ch. 7 IV.F. Invoking is optional -- praying to oneself
                     // needs no entity and no table.
-                    Text(
-                        "Power source",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
+                    SectionLabel("Power source")
                     FlowRow {
                         FilterChip(
                             selected = !invoked,
@@ -540,204 +550,88 @@ fun RitualDialog(
                         onLanguage = { language = it },
                     )
 
-                    if (target == null) {
-                        // Broken is offered as a chip and then refuses, rather
-                        // than being hidden: a caster who only speaks it needs
-                        // to see WHY there is no roll. Same reason the book's
-                        // sentence is quoted instead of paraphrased.
-                        Text(
-                            if (rejected) {
-                                "No roll — the entity rejected the ritual."
-                            } else {
-                                "No roll — the book forbids this attempt."
-                            },
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                    } else {
-                        Text(
-                            "3d6 ≤ $target",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                        Text(
-                            "$RITUAL_SKILL $skillLevel, ${weight.weight} ${weight.modifier}" +
-                                ", preparation ${signed(RitualMode.valueFor(preparation, preparationPick))}" +
-                                (link?.let {
-                                    ", ${signed(RitualMode.valueFor(it, linkPick))} ${it.link.lowercase()} link"
-                                } ?: "") +
-                                // Named, because the breakdown and the target
-                                // above it must reconcile -- the invariant
-                                // 6ag added 300 cases for and 6ak broke once.
-                                (if (flourish) {
-                                    ", ${signed(RitualMode.FLOURISH_BONUS)} flourish"
-                                } else {
-                                    ""
-                                }) +
-                                (answer?.ritualModifier?.takeIf { it != 0 }
-                                    ?.let { ", ${signed(it)} from the entity" } ?: "") +
-                                (language?.ritualModifier?.takeIf { it != 0 }
-                                    ?.let { ", $it for an accented tongue" } ?: "") +
-                                (if (conditionPenalty != 0) ", $conditionPenalty hurt or tired" else "") +
-                                    (if (shock != 0) ", $shock shock" else "") +
-                                // Read from the same function targetFor calls.
-                                // A literal here was a second copy of one
-                                // rule -- correct today, and exactly how the
-                                // breakdown stopped reconciling in 6ag/6ai.
-                                (Corruption.ritualPenalty(cor).takeIf { it != 0 }
-                                    ?.let { ", $it for $cor CoR" } ?: "") +
-                                (RitualMode.supportBonus(support).takeIf { it != 0 }
-                                    ?.let { ", ${signed(it)} from supporting skills" } ?: "") +
-                                (PowerSources.pacingModifier(complexity, pacing)
-                                    .takeIf { it != 0 }
-                                    ?.let { ", ${signed(it)} ${pacing.name.lowercase()}" } ?: "") +
-                                (PowerSources.participantBonus(assistants).takeIf { it != 0 }
-                                    ?.let { ", ${signed(it)} from $assistants assisting" } ?: "") +
-                                (sacrifice?.let {
-                                    ", ${signed(
-                                        PowerSources.sacrificeBonus(it, sentientBeings),
-                                    )} sacrifice"
-                                } ?: "") +
-                                (catalyst.takeIf { it != 0 }
-                                    ?.let { ", ${signed(it)} catalyst" } ?: "") +
-                                (if (suspended) {
-                                    ", ${signed(PowerSources.SUSPENSION_PENALTY)} suspended"
-                                } else {
-                                    ""
-                                }) +
-                                ". Costs " +
-                                (if (hpOwed > 0) {
-                                    "$spiOwed SPI and $hpOwed HP."
-                                } else {
-                                    "$spiOwed SPI."
-                                }) +
-                                (if (residual) {
-                                    " The entity did not answer, so the ritual " +
-                                        "draws only on residual power."
-                                } else {
-                                    ""
-                                }),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                        // Ch. 7's Power Source A: "SPI cannot be reduced below
-                        // 0." The Roll button is WITHDRAWN rather than left to
-                        // refuse on tap -- 6x's Broken mystical language, the
-                        // same shape. The book's own answer is the rest of
-                        // Section IV: bleed for it, bring assistants, offer a
-                        // sacrifice.
-                        if (invoked && answer == null) {
-                            // "The GM rolls secretly on the Entity Response
-                            // Table FIRST, then applies the entity's modifier
-                            // to the Ritualistic Magic roll" (p. 66). Rolling
-                            // before asking casts an unaided ritual under a
-                            // power source whose whole content is the entity's
-                            // answer -- and the answer also prices the attempt
-                            // (Invocation.fuelFor), so the charge is not known
-                            // until it is given. Withdrawn rather than left to
-                            // refuse on tap, the shape 6x and 6ar both took.
-                            Text(
-                                "No roll yet — ask the entity first. The book " +
-                                    "rolls the Entity Response Table before the " +
-                                    "ritual, and its answer sets both the modifier " +
-                                    "and what this attempt costs.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        } else if (!Pools.canAffordSpi(spiOwed, spiAvailable)) {
-                            Text(
-                                "No roll — $spiOwed SPI is more than the " +
-                                    "$spiAvailable this caster has, and personal " +
-                                    "spirituality cannot be spent below 0. Pay in HP, " +
-                                    "bring assistants, or offer a sacrifice.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        } else TextButton(
-                            onClick = {
-                                // One Roll spends once: a second tap before
-                                // the button leaves the tree would charge the
-                                // fuel again, and below 0 that buys permanent
-                                // CoR.
-                                if (outcome != null) return@TextButton
-                                // Against the number PRINTED above, and
-                                // nothing read here: this handler belongs
-                                // to the composition that drew it, so a
-                                // state it read now could be a row, a mode
-                                // or a complexity that number never saw --
-                                // which targetFor refuses by throwing.
-                                val rolled = RitualResolution.rollAgainst(target, dice)
-                                outcome = rolled
-                                // The fuel is spent whether or not it works:
-                                // "No effect. SPI and materials spent" (p. 62).
-                                // HP goes through the tracker too -- printing
-                                // a sacrifice the app then fails to charge is
-                                // how a tracker starts lying.
-                                //
-                                // The CoR is NOT charged here: a push can move
-                                // this ritual off the Critical Failure Table
-                                // altogether, so the row's price is read once,
-                                // at [finish].
-                                onSpendSpi(spiOwed)
-                                if (hpOwed > 0) onSpendHp(hpOwed)
-                            },
-                        ) { Text("Roll") }
-                    }
-                } else {
-                    Text(
-                        "3d6: ${result.roll.total} vs ${result.target}",
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    // Step 4's grade, and the counterpart of the failure row
-                    // below it. Not coloured as an error -- the ritual worked.
-                    result.success?.let { success ->
-                        Text(
-                            "${success.printed} — ${success.outcome}",
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                    }
-                    result.consequence?.let { consequence ->
-                        Text(
-                            "${consequence.printed} — ${consequence.consequence}",
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                    }
-                    result.critical?.let { critical ->
-                        Text(
-                            "Critical Failure Table ${result.criticalRoll} " +
-                                "(${critical.printed}): ${critical.outcome}",
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                        critical.corGained?.let {
-                            Text(
-                                "+$it CoR on closing.",
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        }
-                    }
-                    if (RitualResolution.canPush(result)) {
-                        BurnRow(
-                            kind = BurnKind.MYSTICAL,
-                            burned = burned,
-                            spiAvailable = spiAvailable - burned,
-                            note = "Separate from the ritual's fuel, which is " +
-                                "already paid. Charged when this closes.",
-                        ) { points ->
-                            // The LIVE outcome, not the one this row was drawn
-                            // against: two taps land before a recomposition,
-                            // and pushing the captured value would throw the
-                            // first away while charging for it.
-                            val live = outcome ?: return@BurnRow
-                            if (!Pools.canAffordSpi(burned + points, spiAvailable)) {
-                                return@BurnRow
-                            }
-                            burned += points
-                            outcome = RitualResolution.pushed(live, points)
-                        }
-                    }
                 }
+                // Every term by name, because the breakdown and the target
+                // must reconcile -- the invariant 6ag added 300 cases for and
+                // 6ak broke once. CoR is read from the same function
+                // targetFor calls: a literal here was a second copy of one
+                // rule, which is how the breakdown stopped reconciling in 6ag/6ai.
+                val terms = if (target == null) emptyList() else listOfNotNull(
+                    "$RITUAL_SKILL $skillLevel",
+                    "${weight.weight} ${weight.modifier}",
+                    "preparation ${signed(RitualMode.valueFor(preparation, preparationPick))}",
+                    link?.let { "${signed(RitualMode.valueFor(it, linkPick))} ${it.link.lowercase()} link" },
+                    if (flourish) "${signed(RitualMode.FLOURISH_BONUS)} flourish" else null,
+                    answer?.ritualModifier?.takeIf { it != 0 }?.let { "${signed(it)} from the entity" },
+                    language?.ritualModifier?.takeIf { it != 0 }?.let { "$it for an accented tongue" },
+                    if (conditionPenalty != 0) "$conditionPenalty hurt or tired" else null,
+                    if (shock != 0) "$shock shock" else null,
+                    Corruption.ritualPenalty(cor).takeIf { it != 0 }?.let { "$it for $cor CoR" },
+                    RitualMode.supportBonus(support).takeIf { it != 0 }
+                        ?.let { "${signed(it)} from supporting skills" },
+                    PowerSources.pacingModifier(complexity, pacing).takeIf { it != 0 }
+                        ?.let { "${signed(it)} ${pacing.name.lowercase()}" },
+                    PowerSources.participantBonus(assistants).takeIf { it != 0 }
+                        ?.let { "${signed(it)} from $assistants assisting" },
+                    sacrifice?.let { "${signed(PowerSources.sacrificeBonus(it, sentientBeings))} sacrifice" },
+                    catalyst.takeIf { it != 0 }?.let { "${signed(it)} catalyst" },
+                    if (suspended) "${signed(PowerSources.SUSPENSION_PENALTY)} suspended" else null,
+                )
+                val refusal = when {
+                    // Broken is offered as a chip and then refuses, rather
+                    // than being hidden: a caster who only speaks it needs
+                    // to see WHY there is no roll.
+                    target == null && rejected -> "No roll — the entity rejected the ritual."
+                    target == null -> "No roll — the book forbids this attempt."
+                    // "The GM rolls secretly on the Entity Response Table
+                    // FIRST, then applies the entity's modifier to the
+                    // Ritualistic Magic roll" (p. 66). The answer also prices
+                    // the attempt (Invocation.fuelFor), so the charge is not
+                    // known until it is given. Withdrawn rather than left to
+                    // refuse on tap, the shape 6x and 6ar both took.
+                    invoked && answer == null ->
+                        "No roll yet — ask the entity first. The book rolls the " +
+                            "Entity Response Table before the ritual, and its answer " +
+                            "sets both the modifier and what this attempt costs."
+                    // Ch. 7's Power Source A: "SPI cannot be reduced below 0."
+                    // The book's own answer is the rest of Section IV: bleed
+                    // for it, bring assistants, offer a sacrifice.
+                    !Pools.canAffordSpi(spiOwed, spiAvailable) ->
+                        "No roll — $spiOwed SPI is more than the $spiAvailable this " +
+                            "caster has, and personal spirituality cannot be spent " +
+                            "below 0. Pay in HP, bring assistants, or offer a sacrifice."
+                    else -> null
+                }
+                RitualFooter(
+                    terms = terms,
+                    target = target,
+                    cost = "costs " + (if (hpOwed > 0) "$spiOwed SPI and $hpOwed HP" else "$spiOwed SPI") +
+                        (if (residual) ", residual power only — the entity did not answer" else ""),
+                    refusal = refusal,
+                    onCast = {
+                        // One Cast spends once: a second tap before the
+                        // button leaves the tree would charge the fuel
+                        // again, and below 0 that buys permanent CoR.
+                        if (outcome != null || target == null || refusal != null) return@RitualFooter
+                        // Against the number PRINTED above, and nothing read
+                        // here: this handler belongs to the composition that
+                        // drew it, so a state it read now could be a row, a
+                        // mode or a complexity that number never saw -- which
+                        // targetFor refuses by throwing.
+                        outcome = RitualResolution.rollAgainst(target, dice)
+                        // The fuel is spent whether or not it works: "No
+                        // effect. SPI and materials spent" (p. 62). HP goes
+                        // through the tracker too -- printing a sacrifice the
+                        // app then fails to charge is how a tracker starts
+                        // lying.
+                        //
+                        // The CoR is NOT charged here: a push can move this
+                        // ritual off the Critical Failure Table altogether,
+                        // so the row's price is read once, at [finish].
+                        onSpendSpi(spiOwed)
+                        if (hpOwed > 0) onSpendHp(hpOwed)
+                    },
+                )
             }
         },
     )
