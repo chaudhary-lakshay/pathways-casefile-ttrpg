@@ -18,8 +18,8 @@ it does the arithmetic. Nothing is hidden and nothing is invented.
 |---|---|---|
 | **Premade list** | opens first | pick one of the 23 published characters |
 | **Sheet** | tap a premade | play: roll skills, fight, cast, divine |
-| **Pathway** | the **Pathway** tile on the sheet — labelled **Drink a potion** until you have drunk one | drink potions, advance Sequence, track digestion |
-| **Builder** | the **Spend points** tile on the sheet | change attributes and secondary characteristics, buy skills, traits and languages, and carry weapons, against a live budget |
+| **Pathway** | the **Pathway** button on the sheet — labelled **Drink a potion** until you have drunk one | drink potions, advance Sequence, track digestion |
+| **Builder** | the **Spend points** chip on the sheet | change attributes and secondary characteristics, buy skills, traits and languages, and carry weapons, against a live budget |
 
 ---
 
@@ -43,7 +43,8 @@ silently "fix" them. If a number surprises you, the book is the authority.
 
 The number on a **Vitals** or **Skills** row is the one you play: what you
 bought in the builder, then what your potions raised, and it is the level
-**Roll** rolls. The red *(sheet: 9)* is still about the sheet as printed.
+the row rolls: on **Skills** the whole row is the button, with the level in
+its badge. The red *(sheet: 9)* is still about the sheet as printed.
 Where you have moved off the sheet and it disputes a figure, the grey note
 says which: *"HP 14 · 11 from the sheet's points (sheet: 9)"* is a played
 14, on a sheet whose own points give 11 and which prints 9.
@@ -56,10 +57,10 @@ potion grants.
 ### How the sheet is laid out
 
 - **The bottom bar** switches what the list below shows: **Vitals**, **Skills**,
-  **Traits**. It is a footer, not a screen change — the action tiles stay put.
+  **Traits**. It is a footer, not a screen change — the pools and actions stay put.
 - **Traits** lists every advantage and drawback by name and price, with a
   tag for how much of it the app counts: *Applied*, *Partly applied*, *Roll
-  only*, *Not applied*, or *Unmatched name* for a sheet spelling the book's
+  only*, *GM call*, or *Unmatched name* for a sheet spelling the book's
   list does not match. Tap a row for the book's own text and, for anything not
   counted, why. *What the tags mean* explains each. A self-control drawback
   has its own *Roll 3d6 ≤ N* chip. A row your potions gave you (a Hermit's Combat Reflexes, an
@@ -75,10 +76,15 @@ potion grants.
   app does not apply stay open.
 - **The header** under the character's name shows the walk as tags: pathway
   and Sequence, digestion, CoR, and *Lost* if the character is gone.
-- **The action tiles** are one wrapping grid of twelve, colour-coded by what
-  they are for: neutral = a roll the GM called, red = combat, purple = a
-  Beyonder power, green = managing the character. The three Beyonder tiles
-  (Ritual, Divine, Boon) appear only once you have drunk a potion.
+- **HP, FP and SPI** sit in one strip under the header, on every tab, each
+  with **−** and **+**. When a pool reaches a row of the book's table, tags
+  under it name the state and its cost (*Reeling*, *−1 all rolls*); tap them
+  for the printed row. SPI shows only for a Beyonder.
+- **The actions** come in two weights. Four buttons — **Attack**, **Defend**,
+  **Damage** and **Pathway** — then a row of chips for the rest, coloured by
+  what they are for: neutral = a roll the GM called, red = combat, violet = a
+  Beyonder power, brass = managing the character. The Beyonder chips (Ritual,
+  Divine, Boon, Spirit Vision) appear only once a potion grants them.
 
 ---
 
@@ -163,7 +169,7 @@ with the default as its skill: *"Acrobatics (untrained, DX-6)"*.
 
 ## 3. Combat
 
-Three red tiles — **Attack**, **Defend**, **Damage** — in the order a turn
+Three buttons — **Attack**, **Defend**, **Damage** — in the order a turn
 actually runs, plus two neutral rolls a fight reaches for.
 
 ### Attack
@@ -453,11 +459,11 @@ Edits are saved per character and survive a restart.
   counter beyond the defence screen's own round. FP recovery, stun duration and
   reload rates are yours to run. So is the *day* in HP recovery — but its roll
   is offered: while a character is hurt, **Vitals** prints the book's three
-  Natural Recovery rows under the HP row, a **−1 / +1** for anything else that
+  Natural Recovery rows, a **−1 / +1** for anything else that
   moves the roll (a potion's grant, say — the line under it shows what is
   already counted), and **Roll HT N — a day of rest and food**. You say when
   a day has passed. A success restores nothing by itself: apply what the rows
-  print with **+1** on the HP row, because which band applies to a large body
+  print with **+** on the HP strip, because which band applies to a large body
   is the GM's call. A Fast Healer is told of one more HP on a success; on a
   failure, whether that point still comes is the GM's call, and the line
   says so. **Another day** clears it for the next one. The Healing

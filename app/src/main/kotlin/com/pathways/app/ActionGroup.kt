@@ -1,11 +1,13 @@
 package com.pathways.app
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -19,25 +21,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 /**
- * The sheet screen's action palette: twelve actions in one wrapping grid.
+ * The sheet's actions in two weights: four big buttons for what a turn
+ * reaches for, and a row of chips for the rest.
  *
- * Three shapes have now been tried for these twelve. A single
- * `horizontalScroll` row hid nine of them off-screen. Four labelled chip groups
- * made all twelve visible but stacked to roughly 340dp and read as four
- * separate lists rather than one palette. This is the third: a fixed-width
- * tile per action, icon over label, wrapped -- about 240dp for the same twelve,
- * scannable by icon on a screen the player has already seen a hundred times.
+ * This replaces one grid of thirteen equal tiles, which spent 40% of a tablet
+ * screen before a single stat and gave the Attack button the same weight as
+ * Artifacts. Before the grid there was a scrolling row that hid nine actions,
+ * and before that four labelled chip groups that read as four lists. The
+ * chips keep every action one tap away. The big buttons are what is used
+ * every turn.
  *
- * **Colour carries the category**, which is why `Theme.kt` defines three
- * accents. Brass is reserved for the screen's one primary button, so the hub
- * spends the other two plus a neutral:
- * a GM-called roll is neutral, combat is `error`, a Beyonder power is
- * `secondary` (arcane), management is `tertiary` (verdigris). A player looking
- * for "Ritual" finds the purple cluster without reading a word.
- *
- * The caller still decides membership: the Beyonder actions are conditional,
- * and passing none of them simply yields a shorter grid rather than an empty
- * heading.
+ * **Colour carries the category**, drawn from Sanzo Wada's combination #269
+ * ([Wada269]): combat is Pale Burnt Lake, a Beyonder power is Aconite Violet,
+ * managing the character is Raw Sienna, and a roll the GM called is neutral.
  */
 
 /** What an action is FOR, which decides its colour. */
@@ -46,57 +42,61 @@ enum class ActionKind { ROLL, COMBAT, BEYONDER, MANAGE }
 @Composable
 private fun tintOf(kind: ActionKind): Color = when (kind) {
     ActionKind.ROLL -> MaterialTheme.colorScheme.onSurfaceVariant
-    ActionKind.COMBAT -> MaterialTheme.colorScheme.error
-    ActionKind.BEYONDER -> MaterialTheme.colorScheme.secondary
-    ActionKind.MANAGE -> MaterialTheme.colorScheme.tertiary
+    ActionKind.COMBAT -> Wada269.burntLake()
+    ActionKind.BEYONDER -> Wada269.aconite()
+    ActionKind.MANAGE -> Wada269.rawSienna()
 }
 
+/** One of the big buttons: icon over label, 64dp tall. The caller sets its width. */
 @Composable
-fun ActionHub(modifier: Modifier = Modifier, content: @Composable FlowRowScopeMarker.() -> Unit) {
-    FlowRow(
-        modifier.fillMaxWidth().padding(top = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        FlowRowScopeMarker.content()
-    }
-}
-
-/**
- * ponytail: a marker object rather than a receiver-typed scope. `FlowRowScope`
- * carries `Modifier.weight`, which these fixed-width tiles must not use -- a
- * weighted tile stretches to fill its row and the grid stops being a grid.
- */
-object FlowRowScopeMarker
-
-@Composable
-fun FlowRowScopeMarker.HubAction(
+internal fun PrimaryAction(
     label: String,
     icon: ImageVector,
     kind: ActionKind,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     Surface(
         onClick = onClick,
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        // A fixed width, so the tiles line up into columns instead of forming
-        // ragged rows that shift whenever a label's length changes.
-        modifier = Modifier.width(104.dp),
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        modifier = modifier.heightIn(min = 64.dp),
     ) {
         Column(
             Modifier.padding(vertical = 10.dp, horizontal = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
         ) {
             Icon(icon, contentDescription = null, tint = tintOf(kind))
             Text(
                 label,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
             )
         }
     }
+}
+
+/** A secondary action: an outlined chip in its category's colour. */
+@Composable
+internal fun ActionChip(
+    label: String,
+    icon: ImageVector,
+    kind: ActionKind,
+    onClick: () -> Unit,
+) {
+    val tint = tintOf(kind)
+    AssistChip(
+        onClick = onClick,
+        label = { Text(label, style = MaterialTheme.typography.labelLarge) },
+        leadingIcon = { Icon(icon, contentDescription = null, Modifier.size(AssistChipDefaults.IconSize)) },
+        colors = AssistChipDefaults.assistChipColors(
+            labelColor = if (kind == ActionKind.ROLL) MaterialTheme.colorScheme.onSurface else tint,
+            leadingIconContentColor = tint,
+        ),
+        border = BorderStroke(1.dp, if (kind == ActionKind.ROLL) MaterialTheme.colorScheme.outline else tint),
+    )
 }

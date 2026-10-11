@@ -1,6 +1,13 @@
 package com.pathways.app
 
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -28,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import com.pathways.model.RollResult
@@ -278,30 +286,16 @@ internal fun disambiguated(key: SkillKey, visible: List<SkillKey>): String {
  */
 @Composable
 internal fun AddedSkillRow(label: String, level: Int, provenance: String, onClick: () -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().clickable(onClick = onClick)
-            .padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-        Text("$level", style = MaterialTheme.typography.bodyMedium)
-        Text(
-            // Arcane, not brass: a potion grant is a Beyonder fact, and the
-            // gallery already uses this colour for exactly that. Brass is the
-            // colour of a thing you can DO, and provenance is not one.
-            " ($provenance)",
-            style = MaterialTheme.typography.bodySmall,
-            color = if (provenance == "potion") {
-                MaterialTheme.colorScheme.secondary
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            },
-        )
-        // The same button the published rows carry. Without it, a sheet showed
-        // Roll on ten skills and nothing on the three a potion granted, which
-        // reads as "these cannot be rolled" -- an inconsistent affordance is
-        // worse than none, because it makes a false statement about the data.
-        RollButton(onClick)
+    // Violet for a potion's grant: it is a Beyonder fact, the colour the
+    // pool strip and the actions give the Beyonder. Brass for one bought.
+    val potion = provenance == "potion"
+    val tint = if (potion) Wada269.aconite() else Wada269.rawSienna()
+    SkillRowFrame(Modifier.clickable(onClickLabel = "Roll", role = Role.Button, onClick = onClick)) {
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+        RowTag(provenance, tint)
+        Spacer(Modifier.weight(1f))
+        RollGlyph()
+        LevelBadge("$level", tint)
     }
 }
 
@@ -310,17 +304,13 @@ internal fun ComparisonRow(
     line: PlayedLine,
     modifier: Modifier = Modifier,
     // Present only on a row that can be rolled. The secondaries above the
-    // skills share this composable and are not rollable, so the button is
-    // absent rather than disabled -- a control that cannot do anything should
-    // not be drawn.
+    // skills share this composable and are not rollable, so the badge and
+    // glyph are absent rather than disabled -- a control that cannot do
+    // anything should not be drawn.
     onRoll: (() -> Unit)? = null,
 ) {
-    Row(
-        modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(line.label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-        Text(line.number, style = MaterialTheme.typography.bodyMedium)
+    SkillRowFrame(modifier) {
+        Text(line.label, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
         // Neutral: the character having moved is not a disagreement.
         line.basis?.let {
             Text(
@@ -334,34 +324,72 @@ internal fun ComparisonRow(
                 it,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(end = 8.dp),
             )
         }
         if (onRoll != null) {
-            RollButton(onRoll)
+            RollGlyph()
+            LevelBadge(line.number, Wada269.rawSienna())
+        } else {
+            Text(line.number, style = MaterialTheme.typography.bodyLarge)
         }
     }
 }
 
+/** A list row: at least 56dp, one tap target when the caller makes it clickable. */
+@Composable
+private fun SkillRowFrame(modifier: Modifier, content: @Composable RowScope.() -> Unit) {
+    Row(
+        modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 16.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        content = content,
+    )
+}
+
 /**
- * The affordance that used to be a sentence.
+ * The die that says a row rolls.
  *
- * Rolling a skill is the single most-used interaction in the app and it was
- * reachable only by tapping a row that gave no sign it was tappable. A line of
- * help text was added and then removed again: a sentence teaching an
- * affordance means the affordance is missing (docs/DESIGN-DIRECTION.md).
- *
- * The row stays clickable as well, so the larger target still works.
+ * It replaced a "Roll" text button: the whole row is the target now, as the
+ * rows below a Roll button always were, and a second target inside it was
+ * a smaller copy of the same tap.
  */
 @Composable
-private fun RollButton(onClick: () -> Unit) {
-    TextButton(onClick = onClick, modifier = Modifier.padding(start = 4.dp)) {
-        Icon(
-            Icons.Filled.Casino,
-            contentDescription = null,
-            modifier = Modifier.size(16.dp),
+private fun RollGlyph() {
+    Icon(
+        Icons.Filled.Casino,
+        contentDescription = null,
+        modifier = Modifier.size(18.dp),
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+/** The level the row rolls, in a 40dp outlined badge. */
+@Composable
+private fun LevelBadge(number: String, color: Color) {
+    Box(
+        Modifier.size(40.dp).border(1.dp, color, RoundedCornerShape(8.dp)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            number,
+            style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
+            color = color,
         )
-        Text(" Roll", style = MaterialTheme.typography.labelMedium)
     }
+}
+
+/** A small outlined word beside a row's name: where a skill came from. */
+@Composable
+private fun RowTag(text: String, color: Color) {
+    Text(
+        text,
+        style = MaterialTheme.typography.labelMedium,
+        color = color,
+        modifier = Modifier
+            .border(1.dp, color.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+    )
 }
 
 /**

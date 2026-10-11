@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
@@ -29,6 +30,7 @@ import com.pathways.rules.PremadeSheet
 // emitted for that tab before they were split out.
 
 internal fun LazyListScope.vitalsTab(
+    diffSummary: String,
     hpNow: PoolStatus,
     ht: Int,
     traits: List<Trait>,
@@ -75,6 +77,14 @@ internal fun LazyListScope.vitalsTab(
     // the pools rather than the skills: they are what the character IS,
     // so each prints the number PLAYED, and the disagreement with the
     // published sheet is printed beside it ([PlayedLine]).
+    item {
+        Text(
+            diffSummary,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp),
+        )
+    }
     items(
         secondaryLines,
     ) { ComparisonRow(it) }
@@ -169,7 +179,7 @@ internal fun LazyListScope.skillsTab(
             val roll = { onRoll(RollableSkill(skill.label, level, skill.key())) }
             ComparisonRow(
                 playedLine(row, level.toString()),
-                Modifier.clickable(onClick = roll),
+                Modifier.clickable(onClickLabel = "Roll", role = Role.Button, onClick = roll),
                 onRoll = roll,
             )
         }

@@ -1,5 +1,10 @@
 package com.pathways.app
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Bolt
@@ -16,6 +21,7 @@ import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.pathways.model.BeyonderState
 
 /** The sheet's dialogs a hub tile opens; [SheetScreen] holds which are open. */
@@ -23,7 +29,11 @@ enum class SheetDialog {
     FRIGHT, CONCENTRATE, DETECT, ATTACK, DEFEND, DAMAGE, RITUAL, DIVINE, SPIRIT_VISION, BOON, ARTIFACTS,
 }
 
-/** The sheet's action hub: every tile, each gated as the book gates it. */
+/**
+ * The sheet's actions, each gated as the book gates it: four big buttons for
+ * a turn (the combat three in the order a turn runs, and the pathway), then
+ * chips for everything else. See [PrimaryAction].
+ */
 @Composable
 internal fun SheetActions(
     drunk: BeyonderState?,
@@ -35,85 +45,74 @@ internal fun SheetActions(
     onOpen: (SheetDialog) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    ActionHub(modifier) {
-        // The pathway was a full-width brass Button above this
-        // grid, which made it a thirteenth action drawn to
-        // different rules -- and cost a whole row of height to
-        // say what a tile says. Arcane, because drinking is how
-        // a mortal stops being one; ungated, because that is
-        // exactly who needs it.
-        HubAction(
-            if (drunk == null) "Drink a potion" else "Pathway",
-            Icons.Filled.Science,
-            ActionKind.BEYONDER,
-            onPathways,
-        )
-        HubAction("Fright", Icons.Filled.Psychology, ActionKind.ROLL) {
-            onOpen(SheetDialog.FRIGHT)
-        }
-        // Ungated, like Fright and Detect: the maneuver is
-        // "powers or skills requiring focus", and which of
-        // them counts is the GM's call, not a skill list this
-        // book never prints (6i).
-        HubAction("Concentrate", Icons.Filled.CenterFocusStrong, ActionKind.ROLL) {
-            onOpen(SheetDialog.CONCENTRATE)
-        }
-        // Not gated. Divination Arts is the DIVINER's skill;
-        // being divined needs no skill at all, and the book's
-        // detection roll falls back to Per, which a mortal
-        // has. Who suspects is the GM's call (Detection).
-        HubAction("Detect", Icons.Filled.Radar, ActionKind.ROLL) {
-            onOpen(SheetDialog.DETECT)
-        }
-        HubAction("Attack", Icons.Filled.Bolt, ActionKind.COMBAT) {
-            onOpen(SheetDialog.ATTACK)
-        }
-        HubAction("Defend", Icons.Filled.Shield, ActionKind.COMBAT) {
-            onOpen(SheetDialog.DEFEND)
-        }
-        HubAction("Damage", Icons.Filled.HeartBroken, ActionKind.COMBAT) {
-            onOpen(SheetDialog.DAMAGE)
-        }
-        // Each gated individually, which the grid allows and a
-        // labelled group did not: an absent tile leaves no hole,
-        // where an absent group left a heading over empty space.
-        if (ritualLevel != null) {
-            HubAction("Ritual", Icons.Filled.AutoAwesome, ActionKind.BEYONDER) {
-                onOpen(SheetDialog.RITUAL)
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            val each = Modifier.weight(1f)
+            PrimaryAction("Attack", Icons.Filled.Bolt, ActionKind.COMBAT, each) {
+                onOpen(SheetDialog.ATTACK)
             }
-        }
-        if (divinationLevel != null) {
-            HubAction("Divine", Icons.Filled.Visibility, ActionKind.BEYONDER) {
-                onOpen(SheetDialog.DIVINE)
+            PrimaryAction("Defend", Icons.Filled.Shield, ActionKind.COMBAT, each) {
+                onOpen(SheetDialog.DEFEND)
             }
-        }
-        if (spiritVisionForm != null) {
-            // Labelled with the pathway's OWN name for it: a
-            // Hermit's block writes "Eyes of Mystery Prying"
-            // and never "Spirit Vision", so a fixed label
-            // would name something their sheet does not.
-            HubAction(
-                spiritVisionForm,
-                Icons.Filled.RemoveRedEye,
+            PrimaryAction("Damage", Icons.Filled.HeartBroken, ActionKind.COMBAT, each) {
+                onOpen(SheetDialog.DAMAGE)
+            }
+            // Ungated, because a mortal is exactly who needs it: drinking is
+            // how one stops being mortal.
+            PrimaryAction(
+                if (drunk == null) "Drink a potion" else "Pathway",
+                Icons.Filled.Science,
                 ActionKind.BEYONDER,
-            ) { onOpen(SheetDialog.SPIRIT_VISION) }
+                each,
+                onPathways,
+            )
         }
-        if (ritualLevel != null) {
-            // Same gate as the ritual: Chapter 13 rolls the
-            // same skill, because a boon IS a ritual.
-            HubAction("Boon", Icons.Filled.Church, ActionKind.BEYONDER) {
-                onOpen(SheetDialog.BOON)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Each Beyonder chip gated on its own: an absent one leaves no
+            // hole, where an absent labelled group left a heading over
+            // nothing.
+            if (ritualLevel != null) {
+                ActionChip("Ritual", Icons.Filled.AutoAwesome, ActionKind.BEYONDER) {
+                    onOpen(SheetDialog.RITUAL)
+                }
             }
-        }
-        HubAction("Spend points", Icons.Filled.Calculate, ActionKind.MANAGE) {
-            onBuild()
-        }
-        // Not gated on anything. A Sealed Artifact is found,
-        // not bought or awarded by Sequence: the grade table's
-        // only gate is church rank, which this app does not
-        // model. See SealedArtifacts.
-        HubAction("Artifacts", Icons.Filled.Lock, ActionKind.MANAGE) {
-            onOpen(SheetDialog.ARTIFACTS)
+            if (divinationLevel != null) {
+                ActionChip("Divine", Icons.Filled.Visibility, ActionKind.BEYONDER) {
+                    onOpen(SheetDialog.DIVINE)
+                }
+            }
+            if (spiritVisionForm != null) {
+                // The pathway's OWN name for it: a Hermit's block writes
+                // "Eyes of Mystery Prying" and never "Spirit Vision".
+                ActionChip(spiritVisionForm, Icons.Filled.RemoveRedEye, ActionKind.BEYONDER) {
+                    onOpen(SheetDialog.SPIRIT_VISION)
+                }
+            }
+            if (ritualLevel != null) {
+                // Same gate as the ritual: Chapter 13 rolls the same skill,
+                // because a boon IS a ritual.
+                ActionChip("Boon", Icons.Filled.Church, ActionKind.BEYONDER) {
+                    onOpen(SheetDialog.BOON)
+                }
+            }
+            // Fright, Concentrate and Detect are ungated: which focus counts,
+            // and who suspects, is the GM's call (6i, Detection); the
+            // detection roll falls back to Per, which a mortal has.
+            ActionChip("Fright", Icons.Filled.Psychology, ActionKind.ROLL) {
+                onOpen(SheetDialog.FRIGHT)
+            }
+            ActionChip("Concentrate", Icons.Filled.CenterFocusStrong, ActionKind.ROLL) {
+                onOpen(SheetDialog.CONCENTRATE)
+            }
+            ActionChip("Detect", Icons.Filled.Radar, ActionKind.ROLL) {
+                onOpen(SheetDialog.DETECT)
+            }
+            ActionChip("Spend points", Icons.Filled.Calculate, ActionKind.MANAGE, onBuild)
+            // Not gated: a Sealed Artifact is found, not bought or awarded by
+            // Sequence, and church rank is not modelled. See SealedArtifacts.
+            ActionChip("Artifacts", Icons.Filled.Lock, ActionKind.MANAGE) {
+                onOpen(SheetDialog.ARTIFACTS)
+            }
         }
     }
 }

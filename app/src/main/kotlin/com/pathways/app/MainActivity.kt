@@ -402,6 +402,12 @@ fun SheetScreen(
                             HeaderPill("CoR ${session.cor}", lost = session.isLost)
                         }
                     }
+                }
+            }
+            // Pinned while the list scrolls: health is checked between every
+            // roll, and a strip that scrolled away was the tab it replaced.
+            stickyHeader {
+                Surface(color = MaterialTheme.colorScheme.surface) {
                     // Health first and always: it sat behind the Vitals tab.
                     // SPI only for a Beyonder -- "Non-Beyonders (SPI 0) ...
                     // have no spirituality to sacrifice" (p. 41), and
@@ -420,17 +426,12 @@ fun SheetScreen(
                             }
                             session.spend(pool, n, max, maxCor)
                         },
-                        modifier = Modifier.padding(top = 12.dp, bottom = 8.dp),
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     )
-                    Text(
-                        if (differing == 0) {
-                            "all ${rows.size} values match the published sheet"
-                        } else {
-                            "$differing of ${rows.size} values differ from the published sheet"
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-
+                }
+            }
+            item {
+                Column(Modifier.padding(horizontal = 16.dp)) {
                     SheetActions(
                         drunk = drunk,
                         ritualLevel = ritualLevel,
@@ -439,7 +440,7 @@ fun SheetScreen(
                         onPathways = onPathways,
                         onBuild = onBuild,
                         onOpen = { open = open + it },
-                        modifier = Modifier.padding(top = 12.dp, bottom = 12.dp),
+                        modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
                     )
                 }
                 HorizontalDivider()
@@ -447,6 +448,15 @@ fun SheetScreen(
 
             when (tab) {
                 SheetTab.VITALS -> vitalsTab(
+                    // The engine against the published sheet: what the rows
+                    // below carry in red. A check on the book, not on the
+                    // character, so it heads the stat list rather than the
+                    // screen a player reads every turn.
+                    diffSummary = if (differing == 0) {
+                        "All ${rows.size} values match the published sheet"
+                    } else {
+                        "$differing of ${rows.size} values differ from the published sheet"
+                    },
                     hpNow = hpNow,
                     ht = attributes.ht,
                     traits = traits,

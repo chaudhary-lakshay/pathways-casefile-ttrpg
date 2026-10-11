@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
@@ -55,7 +57,7 @@ internal fun TraitRow(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(row.shown, style = MaterialTheme.typography.titleMedium)
+                Text(row.shown, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                 Text(priceLine, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             StatusPill(status)
@@ -99,17 +101,31 @@ private fun Details(row: TraitReport.HeldTrait) {
 
 @Composable
 private fun StatusPill(status: Applied) {
-    val (label, color) = when (status) {
-        Applied.APPLIED -> "Applied" to MaterialTheme.colorScheme.primaryContainer
-        Applied.PARTLY -> "Partly applied" to MaterialTheme.colorScheme.tertiaryContainer
-        Applied.ROLL_ONLY -> "Roll only" to MaterialTheme.colorScheme.secondaryContainer
-        Applied.GM -> "Not applied" to MaterialTheme.colorScheme.surfaceVariant
+    val sienna = Wada269.rawSienna()
+    val grey = MaterialTheme.colorScheme.onSurfaceVariant
+    // Filled only where the app does all of it; an outline is a part, or the
+    // GM's. "GM call" was "Not applied", which a player read as "this trait
+    // does nothing" -- the row's rule still holds, the GM applies it.
+    val (label, color, filled) = when (status) {
+        Applied.APPLIED -> Triple("Applied", sienna, true)
+        Applied.PARTLY -> Triple("Partly applied", sienna, false)
+        Applied.ROLL_ONLY -> Triple("Roll only", sienna, false)
+        Applied.GM -> Triple("GM call", grey, false)
         // Not "not in the book": "Absent-Minded" resembles a book row it does
         // not match, and 4.1 records rather than repairs it.
-        Applied.NOT_IN_BOOK -> "Unmatched name" to MaterialTheme.colorScheme.errorContainer
+        Applied.NOT_IN_BOOK -> Triple("Unmatched name", Wada269.burntLake(), false)
     }
-    Surface(shape = RoundedCornerShape(50), color = color) {
-        Text(label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
+    Surface(
+        shape = RoundedCornerShape(6.dp),
+        color = if (filled) Wada269.RAW_SIENNA else Color.Transparent,
+        border = if (filled) null else BorderStroke(1.dp, color),
+    ) {
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium,
+            color = if (filled) Wada269.BLACK else color,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+        )
     }
 }
 
