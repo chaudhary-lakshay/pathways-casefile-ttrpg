@@ -45,7 +45,8 @@ import androidx.compose.ui.unit.sp
  * "I do not like the theme" is not a defect report, and the contrast audit
  * found nothing to fix. A taste complaint that measurement cannot locate is
  * answered by handing over the choice, which is what the popular open-source
- * Material 3 apps do. Hence four presets, three modes, and a true-black option.
+ * Material 3 apps do. Hence five presets, three modes, and a true-black option. The default
+ * is Wada, Sanzo Wada's combination #269, which the owner chose (2026-10-11).
  *
  * @see ThemeSeed for why the preset list is curated rather than a colour wheel.
  */
@@ -70,7 +71,7 @@ enum class ThemeMode(val label: String) {
  * entry carry a copy that could disagree with the others.
  */
 data class ThemePrefs(
-    val seed: ThemeSeed = ThemeSeed.FOOL,
+    val seed: ThemeSeed = ThemeSeed.WADA,
     val mode: ThemeMode = ThemeMode.SYSTEM,
     /** Material You, from the wallpaper. Android 12+ only; see [schemeFor]. */
     val dynamic: Boolean = false,

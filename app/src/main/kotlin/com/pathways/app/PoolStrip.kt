@@ -32,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -40,45 +39,6 @@ import androidx.compose.ui.unit.sp
 import com.pathways.rules.PenaltyScope
 import com.pathways.rules.Pool
 import com.pathways.rules.PoolStatus
-
-/**
- * Sanzo Wada, *A Dictionary of Color Combinations* (1933), combination #269:
- * the four colours the redesign is drawn in (the owner's pick, 2026-10-11).
- *
- * ponytail: only the accents live here so far, read by [PoolStrip] and the
- * sheet's actions.
- * Moving the whole [ThemeSchemes] onto this set is the theme slice's job.
- */
-internal object Wada269 {
-    val RAW_SIENNA = Color(0xFFBB7125)
-    val PALE_BURNT_LAKE = Color(0xFF802626)
-    val ACONITE_VIOLET = Color(0xFFA36AA5)
-
-    /** Pale Burnt Lake lifted for text on a dark page, where #802626 fails contrast. */
-    val PALE_BURNT_LAKE_ON_DARK = Color(0xFFC25A5A)
-
-    /** Pale Burnt Lake as the page allows: lifted on dark, itself on light. */
-    @Composable
-    fun burntLake(): Color = if (isDarkPage()) PALE_BURNT_LAKE_ON_DARK else PALE_BURNT_LAKE
-
-    /**
-     * Raw Sienna as text or outline. On a light page it is 3.6:1 against the
-     * surface, under AA, so it is darkened there (#965A1D, 5.3:1). Fills that
-     * carry dark text use [RAW_SIENNA] itself.
-     */
-    @Composable
-    fun rawSienna(): Color = if (isDarkPage()) RAW_SIENNA else Color(0xFF965A1D)
-
-    /** Aconite Violet as text or outline; darkened on a light page (#82508A, 5.8:1). */
-    @Composable
-    fun aconite(): Color = if (isDarkPage()) ACONITE_VIOLET else Color(0xFF82508A)
-
-    /** #111314, Wada's black: 4.9:1 on a [RAW_SIENNA] fill in either mode. */
-    val BLACK = Color(0xFF111314)
-
-    @Composable
-    private fun isDarkPage(): Boolean = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-}
 
 /**
  * What a pool's state costs, as tags: the book's own name for the row
@@ -286,9 +246,10 @@ private fun PoolTag(text: String, color: Color) {
     }
 }
 
+/** The pool in its category colour: HP is combat (`error`), FP the brass, SPI the Beyonder violet. */
 @Composable
 private fun poolColor(pool: Pool): Color = when (pool) {
-    Pool.HP -> Wada269.burntLake()
-    Pool.FP -> Wada269.rawSienna()
-    Pool.SPI -> Wada269.aconite()
+    Pool.HP -> MaterialTheme.colorScheme.error
+    Pool.FP -> MaterialTheme.colorScheme.primary
+    Pool.SPI -> MaterialTheme.colorScheme.secondary
 }

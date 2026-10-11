@@ -31,9 +31,10 @@ import androidx.compose.ui.unit.dp
  * chips keep every action one tap away. The big buttons are what is used
  * every turn.
  *
- * **Colour carries the category**, drawn from Sanzo Wada's combination #269
- * ([Wada269]): combat is Pale Burnt Lake, a Beyonder power is Aconite Violet,
- * managing the character is Raw Sienna, and a roll the GM called is neutral.
+ * **Colour carries the category**, through the theme's roles: combat is
+ * `error`, a Beyonder power is `secondary`, managing the character is
+ * `primary`, and a roll the GM called is neutral. In the default Wada preset
+ * those are Pale Burnt Lake, Aconite Violet and Raw Sienna (gen_theme.py).
  */
 
 /** What an action is FOR, which decides its colour. */
@@ -42,9 +43,9 @@ enum class ActionKind { ROLL, COMBAT, BEYONDER, MANAGE }
 @Composable
 private fun tintOf(kind: ActionKind): Color = when (kind) {
     ActionKind.ROLL -> MaterialTheme.colorScheme.onSurfaceVariant
-    ActionKind.COMBAT -> Wada269.burntLake()
-    ActionKind.BEYONDER -> Wada269.aconite()
-    ActionKind.MANAGE -> Wada269.rawSienna()
+    ActionKind.COMBAT -> MaterialTheme.colorScheme.error
+    ActionKind.BEYONDER -> MaterialTheme.colorScheme.secondary
+    ActionKind.MANAGE -> MaterialTheme.colorScheme.primary
 }
 
 /** One of the big buttons: icon over label, 64dp tall. The caller sets its width. */

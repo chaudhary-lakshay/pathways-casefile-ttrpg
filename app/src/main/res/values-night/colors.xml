@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Approximates ThemeSeed.FOOL's dark background (#131313). See the comment in
+<!-- Approximates ThemeSeed.WADA's dark background (#111314), Wada's black. See the comment in
      values/colors.xml for why this is now an approximation rather than a mirror.
      Note this cannot follow the pure-black option either: that is a preference
      read after the window is already painted. -->
 <resources>
-    <color name="launch_background">#FF131313</color>
+    <color name="launch_background">#FF111314</color>
 </resources>

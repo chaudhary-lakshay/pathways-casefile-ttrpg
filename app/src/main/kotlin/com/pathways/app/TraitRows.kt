@@ -101,7 +101,7 @@ private fun Details(row: TraitReport.HeldTrait) {
 
 @Composable
 private fun StatusPill(status: Applied) {
-    val sienna = Wada269.rawSienna()
+    val sienna = MaterialTheme.colorScheme.primary
     val grey = MaterialTheme.colorScheme.onSurfaceVariant
     // Filled only where the app does all of it; an outline is a part, or the
     // GM's. "GM call" was "Not applied", which a player read as "this trait
@@ -113,17 +113,17 @@ private fun StatusPill(status: Applied) {
         Applied.GM -> Triple("GM call", grey, false)
         // Not "not in the book": "Absent-Minded" resembles a book row it does
         // not match, and 4.1 records rather than repairs it.
-        Applied.NOT_IN_BOOK -> Triple("Unmatched name", Wada269.burntLake(), false)
+        Applied.NOT_IN_BOOK -> Triple("Unmatched name", MaterialTheme.colorScheme.error, false)
     }
     Surface(
         shape = RoundedCornerShape(6.dp),
-        color = if (filled) Wada269.RAW_SIENNA else Color.Transparent,
+        color = if (filled) color else Color.Transparent,
         border = if (filled) null else BorderStroke(1.dp, color),
     ) {
         Text(
             label,
             style = MaterialTheme.typography.labelMedium,
-            color = if (filled) Wada269.BLACK else color,
+            color = if (filled) MaterialTheme.colorScheme.onPrimary else color,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
         )
     }

@@ -157,11 +157,11 @@ class ThemeSchemesTest {
 
     @Test
     fun `the default preset is the one the launch background approximates`() {
-        // res/values/colors.xml hardcodes FOOL's backgrounds, because a platform
+        // res/values/colors.xml hardcodes WADA's backgrounds, because a platform
         // theme is resolved before any preference can be read. If the default
         // moves and that file does not, every cold start flashes.
         assertTrue(
-            ThemePrefs().seed == ThemeSeed.FOOL,
+            ThemePrefs().seed == ThemeSeed.WADA,
             "the default preset changed; update launch_background in " +
                 "res/values/colors.xml and res/values-night/colors.xml to match",
         )

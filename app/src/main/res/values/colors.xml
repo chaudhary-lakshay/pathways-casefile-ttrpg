@@ -4,11 +4,11 @@
 
   It can no longer be kept exactly in step with the scheme, and that is a real
   change: the theme is now chosen at runtime, so there are eight possible first
-  frames (four presets, two modes) plus Material You and the pure-black option.
+  frames (five presets, two modes) plus Material You and the pure-black option.
   A platform theme is resolved before any of that is read.
 
-  So this APPROXIMATES the default preset, ThemeSeed.FOOL, whose background is
-  #F9F9F9 light and #131313 dark. A user on another preset sees at most one
+  So this APPROXIMATES the default preset, ThemeSeed.WADA, whose background is
+  #F9F9F9 light and #111314 dark. A user on another preset sees at most one
   frame of the default's neutral before their own scheme paints over it. Both
   values are near-neutral greys in every preset, which is what makes the
   approximation cheap; a strongly tinted preset would show a flash.

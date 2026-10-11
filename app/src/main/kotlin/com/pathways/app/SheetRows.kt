@@ -289,7 +289,7 @@ internal fun AddedSkillRow(label: String, level: Int, provenance: String, onClic
     // Violet for a potion's grant: it is a Beyonder fact, the colour the
     // pool strip and the actions give the Beyonder. Brass for one bought.
     val potion = provenance == "potion"
-    val tint = if (potion) Wada269.aconite() else Wada269.rawSienna()
+    val tint = if (potion) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
     SkillRowFrame(Modifier.clickable(onClickLabel = "Roll", role = Role.Button, onClick = onClick)) {
         Text(label, style = MaterialTheme.typography.bodyLarge)
         RowTag(provenance, tint)
@@ -329,7 +329,7 @@ internal fun ComparisonRow(
         }
         if (onRoll != null) {
             RollGlyph()
-            LevelBadge(line.number, Wada269.rawSienna())
+            LevelBadge(line.number, MaterialTheme.colorScheme.primary)
         } else {
             Text(line.number, style = MaterialTheme.typography.bodyLarge)
         }

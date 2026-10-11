@@ -57,6 +57,7 @@ from pathlib import Path
 try:
     from materialyoucolor.hct import Hct
     from materialyoucolor.dynamiccolor.material_dynamic_colors import MaterialDynamicColors
+    from materialyoucolor.scheme.scheme_neutral import SchemeNeutral
     from materialyoucolor.scheme.scheme_rainbow import SchemeRainbow
     from materialyoucolor.scheme.scheme_tonal_spot import SchemeTonalSpot
 except ImportError:  # pragma: no cover - the message IS the handling
@@ -91,13 +92,13 @@ MIN_SEPARATION = 40.0
 # tint back into the surfaces, which is the atmosphere the previous palette was
 # reaching for. Offering both is what gives the presets their variety: the two
 # permitted hue windows alone would only ever yield two distinguishable themes.
-STYLES = {"rainbow": SchemeRainbow, "tonal": SchemeTonalSpot}
+STYLES = {"rainbow": SchemeRainbow, "tonal": SchemeTonalSpot, "neutral": SchemeNeutral}
 
 # name -> (seed argb, style key, one-line rationale for the KDoc)
 SEEDS: dict[str, tuple[int, str, str]] = {
     "Fool": (
         0xFFF9C72F, "rainbow",
-        "Brass on neutral graphite. The app's own gold, and the launcher icon's. Default.",
+        "Brass on neutral graphite. The app's own gold, and the launcher icon's.",
     ),
     "Gaslamp": (
         0xFFF9C72F, "tonal",
@@ -114,6 +115,57 @@ SEEDS: dict[str, tuple[int, str, str]] = {
         "Deep teal, surfaces tinted with it. Indigo was tried first and the separation "
         "guard rejected it: hue 291 puts its tertiary 27 degrees off the error red.",
     ),
+}
+
+# Presets drawn from a fixed palette rather than one seed rotated round the
+# wheel: each accent family is seeded at its own colour, then the roles a
+# screen actually paints are pinned to the palette's exact hex.
+#
+# Wada is Sanzo Wada, *A Dictionary of Color Combinations* (1933), combination
+# #269 -- the owner's pick, 2026-10-11. Its four colours fill four of the five
+# category slots: Raw Sienna is the primary action, Aconite Violet is Beyonder
+# material (`secondary`), Pale Burnt Lake is combat (`error`), Black is the
+# page. Management (`tertiary`) has no fifth colour, so it takes a warm stone
+# neutral: two call sites, and it must not repeat an accent.
+#
+# The rotation's separation check does not apply: Raw Sienna and Pale Burnt
+# Lake are ~35 degrees apart in hue, under MIN_SEPARATION, but far apart in
+# tone, which is what separates them on screen. `check_pinned` checks that
+# each text colour reads on every ground a screen puts it on instead.
+PINNED: dict[str, dict] = {
+    "Wada": {
+        "style": "rainbow",
+        # Rainbow lifts any seed to a vivid primary (chroma ~48), which turned
+        # the stone seed into a saturated yellow no Wada swatch has. The stone
+        # family is built Neutral so it stays a stone.
+        "family_styles": {"tertiary": "neutral"},
+        "seeds": {"primary": 0xFFBB7125, "secondary": 0xFFA36AA5,
+                  "tertiary": 0xFF9A8F80, "error": 0xFF802626},
+        "dark": {
+            # Wada's own hex is 3.5-3.9:1 as text on a raised card (#2A2A2A),
+            # under AA. Each accent is its own hue lifted to HCT tone ~61, the
+            # lowest that clears 4.6:1 on surfaceContainerHigh: #CE8033 is
+            # Raw Sienna, #B97EBB Aconite Violet, #E2706B Pale Burnt Lake.
+            # Burnt Lake itself stays as the error container, for fills.
+            "primary": 0xCE8033, "onPrimary": 0x111314,
+            "secondary": 0xB97EBB, "onSecondary": 0x111314,
+            "error": 0xE2706B, "onError": 0x111314,
+            "errorContainer": 0x802626, "onErrorContainer": 0xECE6DC,
+            "background": 0x111314, "onBackground": 0xECE6DC,
+            "surface": 0x111314, "onSurface": 0xECE6DC,
+            # 4.6:1 on surfaceVariant, the darkest ground it is read on.
+            "onSurfaceVariant": 0xBDB6AD,
+        },
+        "light": {
+            # Raw Sienna and Aconite Violet are 3.6:1 and 3.9:1 on a light
+            # page, under AA for text; darkened to 5.3:1 and 5.8:1.
+            "primary": 0x965A1D, "onPrimary": 0xFFFFFF,
+            "secondary": 0x82508A, "onSecondary": 0xFFFFFF,
+            "error": 0x802626, "onError": 0xFFFFFF,
+        },
+        "why": "Sanzo Wada's combination #269: Raw Sienna, Aconite Violet and Pale "
+               "Burnt Lake on black. Default.",
+    },
 }
 
 # Every role `androidx.compose.material3.ColorScheme` accepts, in the order the
@@ -242,6 +294,60 @@ def build(seed: int, is_dark: bool, style: str) -> dict[str, int]:
     return out
 
 
+def build_pinned(spec: dict, is_dark: bool) -> dict[str, int]:
+    """Every role for a pinned preset: each family from its own seed, then pins."""
+    seeds = spec["seeds"]
+    style = spec["style"]
+    styles = spec.get("family_styles", {})
+    fam = {k: scheme_for(Hct.from_int(v), is_dark, styles.get(k, style)) for k, v in seeds.items()}
+    error_from_primary = {
+        "error": "primary", "onError": "onPrimary",
+        "errorContainer": "primaryContainer", "onErrorContainer": "onPrimaryContainer",
+    }
+    out: dict[str, int] = {}
+    for role in ROLES:
+        if role in SECONDARY_FROM_PRIMARY:
+            out[role] = role_value(fam["secondary"], SECONDARY_FROM_PRIMARY[role])
+        elif role in TERTIARY_FROM_PRIMARY:
+            out[role] = role_value(fam["tertiary"], TERTIARY_FROM_PRIMARY[role])
+        elif role in error_from_primary:
+            out[role] = role_value(fam["error"], error_from_primary[role])
+        else:
+            out[role] = role_value(fam["primary"], role)
+    out.update(spec["dark" if is_dark else "light"])
+    return out
+
+
+def contrast(a: int, b: int) -> float:
+    """WCAG contrast ratio of two RGB ints."""
+    def lum(c: int) -> float:
+        ch = [((c >> sh) & 0xFF) / 255 for sh in (16, 8, 0)]
+        ch = [x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055) ** 2.4 for x in ch]
+        return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]
+    hi, lo = sorted((lum(a), lum(b)), reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def check_pinned(name: str, roles: dict[str, int], mode: str) -> None:
+    """Every pinned text colour must clear AA (4.5:1) on every ground it is read on.
+
+    The grounds are the page and the three containers a card sits on; checking
+    the page alone passed three accents that read at 3.5-3.9:1 on a card.
+    """
+    grounds = ("surface", "surfaceContainerLow", "surfaceContainer", "surfaceContainerHigh")
+    pairs = [(accent, g) for accent in ("primary", "secondary", "tertiary", "error", "onSurfaceVariant")
+             for g in grounds]
+    pairs += [("onSurfaceVariant", "surfaceVariant"), ("onPrimary", "primary"),
+              ("onSecondary", "secondary"), ("onError", "error"),
+              ("onErrorContainer", "errorContainer")]
+    for fg, bg in pairs:
+        ratio = contrast(roles[fg], roles[bg])
+        if ratio < 4.5:
+            raise SystemExit(
+                f"pinned preset '{name}' {mode}: {fg} is {ratio:.2f}:1 on {bg}; 4.5 is the minimum"
+            )
+
+
 def render_scheme(kotlin_name: str, roles: dict[str, int], is_dark: bool) -> str:
     fn = "darkColorScheme" if is_dark else "lightColorScheme"
     lines = [f"private val {kotlin_name} = {fn}("]
@@ -281,6 +387,16 @@ def main() -> None:
         check_separation(name, seed)
 
     parts = [HEADER]
+    for name, spec in PINNED.items():
+        dark, light = build_pinned(spec, True), build_pinned(spec, False)
+        check_pinned(name, dark, "dark")
+        check_pinned(name, light, "light")
+        parts.append(
+            f"/**\n * {spec['why']}\n *\n"
+            " * Pinned, not rotated: see the generator's PINNED.\n */"
+        )
+        parts.append(render_scheme(f"{name}Dark", dark, True))
+        parts.append(render_scheme(f"{name}Light", light, False))
     for name, (seed, style, why) in SEEDS.items():
         hues = category_hues(seed)
         parts.append(
@@ -294,7 +410,7 @@ def main() -> None:
         parts.append(render_scheme(f"{name}Light", build(seed, False, style), False))
 
     entries = "\n".join(
-        f'    {name.upper()}("{name}", {name}Light, {name}Dark),' for name in SEEDS
+        f'    {name.upper()}("{name}", {name}Light, {name}Dark),' for name in [*PINNED, *SEEDS]
     )
     parts.append(
         "/**\n"
@@ -314,7 +430,7 @@ def main() -> None:
     )
 
     OUT.write_text("\n\n".join(parts) + "\n", encoding="utf-8")
-    print(f"wrote {OUT} -- {len(SEEDS)} presets, {len(ROLES) + 1} roles each, both modes")
+    print(f"wrote {OUT} -- {len(PINNED) + len(SEEDS)} presets, {len(ROLES) + 1} roles each, both modes")
 
 
 if __name__ == "__main__":
