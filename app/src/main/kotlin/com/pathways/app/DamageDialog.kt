@@ -261,17 +261,20 @@ fun DamageDialog(
                     )
                 }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                var section = ""
-                rules.forEach {
-                    if (it.section != section) {
-                        section = it.section
-                        Text(
-                            section,
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
+                // Reference for the GM, not a control: closed until asked (6gl).
+                RuleNote("Spirit body damage rules") {
+                    var section = ""
+                    rules.forEach {
+                        if (it.section != section) {
+                            section = it.section
+                            Text(
+                                section,
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.padding(top = 8.dp),
+                            )
+                        }
+                        Text(it.rule, style = MaterialTheme.typography.bodySmall)
                     }
-                    Text(it.rule, style = MaterialTheme.typography.bodySmall)
                 }
             }
         },

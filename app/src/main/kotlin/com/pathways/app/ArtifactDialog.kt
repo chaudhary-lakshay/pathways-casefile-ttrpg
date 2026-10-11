@@ -120,11 +120,10 @@ fun ArtifactDialog(
                         "Church access: ${grade.churchAccess}.",
                     style = MaterialTheme.typography.bodySmall,
                 )
-                Text(
-                    artifact.appearance,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 4.dp),
-                )
+                // Lore: what it looks like and where it came from (6gl).
+                RuleNote("Description") {
+                    Text(artifact.appearance, style = MaterialTheme.typography.bodySmall)
+                }
 
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 Text("Ability", style = MaterialTheme.typography.titleSmall)

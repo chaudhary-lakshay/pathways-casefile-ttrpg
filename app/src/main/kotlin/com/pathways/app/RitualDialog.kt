@@ -499,11 +499,8 @@ fun RitualDialog(
                     // chip: the Quick Ritual's four steps print no narration.
                     if (mode.usesFlourish) {
                         val incantation = Incantations.forPowerSource(invoked)
-                        Text(
-                            "Incantation (Phase II)",
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
+                        // What to say, read once: closed until asked (6gl).
+                        RuleNote("Incantation (Phase II)") {
                         Text(
                             "${incantation.structure} — ${incantation.text}",
                             style = MaterialTheme.typography.bodySmall,
@@ -522,6 +519,7 @@ fun RitualDialog(
                                 "${it.scope}: ${it.text}",
                                 style = MaterialTheme.typography.bodySmall,
                             )
+                        }
                         }
                     }
 

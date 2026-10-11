@@ -550,7 +550,7 @@ fun DefenseDialog(
                     carried?.let {
                         DefenseNote("${it.type}: DB +${it.db}, Cover DR ${it.coverDr}, HP ${it.hp} — ${it.notes}")
                     }
-                    Shields.rules().forEach { DefenseNote(it.rule) }
+                    RuleNote("Shield rules") { Shields.rules().forEach { DefenseNote(it.rule) } }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
 
                     // UNDER the rows, because it names one of them: a picker

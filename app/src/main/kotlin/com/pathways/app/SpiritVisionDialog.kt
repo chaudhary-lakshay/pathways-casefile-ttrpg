@@ -156,6 +156,8 @@ fun SpiritVisionDialog(
                 }
 
                 HorizontalDivider()
+                // The key a reading is interpreted with: closed until asked (6gl).
+                RuleNote("Colour key") {
                 ColourTable(
                     "Astral Projection — emotional state",
                     SpiritVision.astralColors().map { it.color to it.meaning },
@@ -172,6 +174,7 @@ fun SpiritVisionDialog(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                }
             }
         },
         confirmButton = {
