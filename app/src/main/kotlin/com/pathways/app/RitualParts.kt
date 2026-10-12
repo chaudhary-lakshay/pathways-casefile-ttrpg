@@ -35,6 +35,9 @@ internal fun RitualFooter(
     target: Int?,
     cost: String,
     refusal: String?,
+    /** What the target reads as; a boon's can fall below what 3d6 shows ([targetLine]). */
+    targetText: String = "3d6 ≤ $target",
+    label: String = "Cast",
     onCast: () -> Unit,
 ) {
     Column {
@@ -64,7 +67,7 @@ internal fun RitualFooter(
                         color = MaterialTheme.colorScheme.primary,
                     )
                     Column(Modifier.padding(start = 10.dp)) {
-                        Text("3d6 ≤ $target", style = MaterialTheme.typography.labelLarge)
+                        Text(targetText, style = MaterialTheme.typography.labelLarge)
                         Text(
                             cost,
                             style = MaterialTheme.typography.bodySmall,
@@ -75,7 +78,7 @@ internal fun RitualFooter(
             }
             Button(onClick = onCast, enabled = target != null && refusal == null) {
                 Icon(Icons.Filled.AutoAwesome, contentDescription = null, modifier = Modifier.size(18.dp))
-                Text("Cast", modifier = Modifier.padding(start = 8.dp))
+                Text(label, modifier = Modifier.padding(start = 8.dp))
             }
         }
     }
@@ -116,24 +119,33 @@ internal fun RitualResultCard(result: RitualOutcome) {
                     modifier = Modifier.padding(top = 8.dp),
                 )
             }
-            result.consequence?.let { consequence ->
-                Text(
-                    "${consequence.printed} — ${consequence.consequence}",
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-            }
-            result.critical?.let { critical ->
-                Text(
-                    "Critical Failure Table ${result.criticalRoll} " +
-                        "(${critical.printed}): ${critical.outcome}",
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-                critical.corGained?.let {
-                    Text("+$it CoR on closing.", style = MaterialTheme.typography.bodySmall)
-                }
-            }
+            RitualFailureLines(result)
+        }
+    }
+}
+
+/**
+ * The failure row a ritual landed on, and the Critical Failure Table's row
+ * with the CoR it charges on closing. Empty for a success.
+ */
+@Composable
+internal fun RitualFailureLines(result: RitualOutcome) {
+    result.consequence?.let { consequence ->
+        Text(
+            "${consequence.printed} — ${consequence.consequence}",
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+    }
+    result.critical?.let { critical ->
+        Text(
+            "Critical Failure Table ${result.criticalRoll} " +
+                "(${critical.printed}): ${critical.outcome}",
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+        critical.corGained?.let {
+            Text("+$it CoR on closing.", style = MaterialTheme.typography.bodySmall)
         }
     }
 }

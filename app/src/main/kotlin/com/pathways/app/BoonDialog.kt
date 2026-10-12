@@ -175,17 +175,62 @@ fun BoonDialog(
     AlertDialog(
         onDismissRequest = finish,
         confirmButton = { TextButton(onClick = finish) { Text("Close") } },
-        title = {
-            Text(
-                outcome?.let { if (it.succeeded) "The boon is granted" else "The prayer fails" }
-                    ?: "Petition for a boon",
-            )
-        },
+        title = { Text("Petition for a boon") },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                val result = outcome
-                if (result == null) {
-                    Text("Boon level", style = MaterialTheme.typography.titleSmall)
+            val result = outcome
+            if (result != null) {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    // The final outcome, pushed or not: a push re-reads the
+                    // same dice against the raised target, roll and all.
+                    VerdictCard(
+                        if (result.succeeded) "The boon is granted" else "The prayer fails",
+                        result.succeeded,
+                        result.roll,
+                    ) {
+                        // No Step 4 grade: the old screen never printed one
+                        // for a boon, and printing it is a rule claim.
+                        RitualFailureLines(result)
+                    }
+                    if (Boons.canPush(result)) {
+                        BurnRow(
+                            kind = BurnKind.MYSTICAL,
+                            burned = burned,
+                            spiAvailable = spiAvailable - burned,
+                            note = "Separate from the ritual's fuel, which is " +
+                                "already paid. Charged when this closes.",
+                        ) { points ->
+                            // See RitualDialog: the row was drawn against a
+                            // value two taps can outrun.
+                            val live = outcome ?: return@BurnRow
+                            if (!Pools.canAffordSpi(burned + points, spiAvailable)) {
+                                return@BurnRow
+                            }
+                            burned += points
+                            outcome = Boons.pushed(live, points)
+                        }
+                    }
+                    if (result.succeeded) {
+                        // Section IV. None of it is a number, and the book
+                        // hands all of it to the GM -- but a boon accepted
+                        // without them on screen is a bargain half read.
+                        Text(
+                            "Sequence $sequence" +
+                                (pathway?.let { " of the $it Pathway" } ?: "") +
+                                " granted. The patron is aware of you now:",
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        pathway?.let { NonStandardPathways.blockFor(it, sequence) }
+                            ?.let { GrantedBlock(it) }
+                        granting.consequences.forEach {
+                            Text("• $it", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+                return@AlertDialog
+            }
+            Column {
+                Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+                    SectionLabel("Boon level")
                     FlowRow {
                         (Boons.HIGHEST_SEQUENCE downTo Boons.LOWEST_SEQUENCE).forEach { option ->
                             FilterChip(
@@ -202,11 +247,7 @@ fun BoonDialog(
                         style = MaterialTheme.typography.bodySmall,
                     )
 
-                    Text(
-                        "Patron's pathway",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
+                    SectionLabel("Patron's pathway")
                     FlowRow {
                         NonStandardPathways.pathways().forEach { option ->
                             FilterChip(
@@ -245,11 +286,7 @@ fun BoonDialog(
                     }
 
                     groups.forEach { group ->
-                        Text(
-                            group,
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
+                        SectionLabel(group)
                         FlowRow {
                             byGroup.getValue(group).forEach { option ->
                                 FilterChip(
@@ -279,11 +316,7 @@ fun BoonDialog(
                         }
                     }
 
-                    Text(
-                        "Fuel",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
+                    SectionLabel("Fuel")
                     FlowRow {
                         (granting.spi..granting.spiMax).forEach { option ->
                             FilterChip(
@@ -295,118 +328,49 @@ fun BoonDialog(
                         }
                     }
 
-                    Text(
-                        targetLine(target),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
-                    Text(
-                        "${granting.skill} $skillLevel, ${granting.weight} " +
-                            "${granting.weightModifier}" +
-                            ", Sequence $sequence ${signed(Boons.penaltyForSequence(sequence))}" +
-                            ", circumstances ${signed(Boons.modifierTotal(picks, overrides))}" +
-                            (if (conditionPenalty != 0) ", $conditionPenalty hurt or tired" else "") +
-                                (if (shock != 0) ", $shock shock" else "") +
-                            (if (cor >= 3) ", -1 for $cor CoR" else "") +
-                            ". Costs $cost SPI, takes ${granting.complexityTime}.",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    // A boon IS a ch. 7 ritual with its parameters fixed (6r),
-                    // so Power Source A's floor applies here too: "SPI cannot
-                    // be reduced below 0."
-                    if (!Pools.canAffordSpi(cost, spiAvailable)) {
-                        Text(
-                            "No supplication — this costs $cost SPI and only " +
-                                "$spiAvailable is left. SPI cannot be spent below 0.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                    }
-                    Text(
-                        "Bring:",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
+                    SectionLabel("Bring")
                     granting.requirements.forEach {
                         Text("• $it", style = MaterialTheme.typography.bodySmall)
                     }
-                    if (Pools.canAffordSpi(cost, spiAvailable)) TextButton(
-                        onClick = {
-                            // One Pray spends once: a second tap before the
-                            // button leaves the tree charges the fuel again,
-                            // and below 0 that buys permanent CoR.
-                            if (outcome != null) return@TextButton
-                            // Against the target printed above, never
-                            // composed a second time here (6eg, 6eh).
-                            val rolled = RitualResolution.rollAgainst(target, dice)
-                            outcome = rolled
-                            // Spent whether or not the Great One answers:
-                            // "No effect. SPI and materials spent" (p. 62).
-                            // The CoR waits for [finish]: a push can take this
-                            // off the Critical Failure Table entirely.
-                            onSpendSpi(cost)
-                        },
-                    ) { Text("Pray") }
-                } else {
-                    Text(
-                        "3d6: ${result.roll.total} vs ${result.target}",
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    result.consequence?.let { consequence ->
-                        Text(
-                            "${consequence.printed} — ${consequence.consequence}",
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                    }
-                    result.critical?.let { critical ->
-                        Text(
-                            "Critical Failure Table ${result.criticalRoll} " +
-                                "(${critical.printed}): ${critical.outcome}",
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                        critical.corGained?.let {
-                            Text(
-                                "+$it CoR on closing.",
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        }
-                    }
-                    if (Boons.canPush(result)) {
-                        BurnRow(
-                            kind = BurnKind.MYSTICAL,
-                            burned = burned,
-                            spiAvailable = spiAvailable - burned,
-                            note = "Separate from the ritual's fuel, which is " +
-                                "already paid. Charged when this closes.",
-                        ) { points ->
-                            // See RitualDialog: the row was drawn against a
-                            // value two taps can outrun.
-                            val live = outcome ?: return@BurnRow
-                            if (!Pools.canAffordSpi(burned + points, spiAvailable)) {
-                                return@BurnRow
-                            }
-                            burned += points
-                            outcome = Boons.pushed(live, points)
-                        }
-                    }
-                    if (result.succeeded) {
-                        // Section IV. None of it is a number, and the book
-                        // hands all of it to the GM -- but a boon accepted
-                        // without them on screen is a bargain half read.
-                        Text(
-                            "Sequence $sequence" +
-                                (pathway?.let { " of the $it Pathway" } ?: "") +
-                                " granted. The patron is aware of you now:",
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                        pathway?.let { NonStandardPathways.blockFor(it, sequence) }
-                            ?.let { GrantedBlock(it) }
-                        granting.consequences.forEach {
-                            Text("• $it", style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
+                }
+                // A boon IS a ch. 7 ritual with its parameters fixed (6r),
+                // so Power Source A's floor applies here too: "SPI cannot
+                // be reduced below 0."
+                val affordable = Pools.canAffordSpi(cost, spiAvailable)
+                RitualFooter(
+                    terms = listOfNotNull(
+                        "${granting.skill} $skillLevel",
+                        "${granting.weight} ${granting.weightModifier}",
+                        "Sequence $sequence ${signed(Boons.penaltyForSequence(sequence))}",
+                        "circumstances ${signed(Boons.modifierTotal(picks, overrides))}",
+                        if (conditionPenalty != 0) "$conditionPenalty hurt or tired" else null,
+                        if (shock != 0) "$shock shock" else null,
+                        if (cor >= 3) "-1 for $cor CoR" else null,
+                    ),
+                    target = target,
+                    cost = "costs $cost SPI, takes ${granting.complexityTime}",
+                    refusal = if (affordable) {
+                        null
+                    } else {
+                        "No supplication — this costs $cost SPI and only " +
+                            "$spiAvailable is left. SPI cannot be spent below 0."
+                    },
+                    targetText = targetLine(target),
+                    label = "Pray",
+                ) {
+                    // One Pray spends once: a second tap before the
+                    // button leaves the tree charges the fuel again,
+                    // and below 0 that buys permanent CoR.
+                    if (outcome != null || !affordable) return@RitualFooter
+                    // Against the target printed above, never
+                    // composed a second time here (6eg, 6eh).
+                    val rolled = RitualResolution.rollAgainst(target, dice)
+                    outcome = rolled
+                    // Spent whether or not the Great One answers:
+                    // "No effect. SPI and materials spent" (p. 62).
+                    // The CoR waits for [finish]: a push can take this
+                    // off the Critical Failure Table entirely.
+                    onSpendSpi(cost)
                 }
             }
         },
