@@ -30,6 +30,7 @@ import com.pathways.rules.Shock
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SpiritualSenses
+import com.pathways.rules.StunRecovery
 import com.pathways.rules.TraitClauses
 import com.pathways.rules.TraitAttributeRolls
 import com.pathways.rules.TraitEffects
@@ -307,11 +308,18 @@ internal fun SheetDialogs(
             // differently for it: shock refuses this roll (the roll creates
             // it) and the pools do not (the character carried them in).
             hurt = Conditions.penaltyFor(RollKind.MAJOR_WOUND_HT, hpNow, fpNow),
-            // The recovery roll's own term, and only its own: Shock
-            // refuses the Major Wound roll (that roll makes the shock)
-            // and reaches every other kind, so a character already
-            // shocked from an earlier wound recovers at -4.
-            carriedShock = shockOnAttribute,
+            // Shock refuses the Major Wound roll (that roll makes the
+            // shock) and reaches every other kind, so a character already
+            // shocked from an earlier wound recovers at -4. The pools'
+            // term is hurtOnAttribute: Conditions.penaltyFor answers every
+            // kind but SKILL alike, so it is the `hurt` above.
+            recoveryTarget = StunRecovery.targetFor(
+                attributes.ht,
+                traits,
+                poolPenalty = hurtOnAttribute,
+                shock = shockOnAttribute,
+                states = physicalStates.total,
+            ),
             // Both rolls here are HT rolls.
             states = physicalStates,
             onDismiss = { onClose(SheetDialog.DAMAGE) },

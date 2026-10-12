@@ -89,8 +89,22 @@ class StunRecoveryTest {
 
     @Test
     fun `the target is the attribute, the traits and what the trackers cost`() {
-        assertEquals(10 + 6 - 2, StunRecovery.targetFor(ht = 10, traits = reflexes, poolPenalty = -2))
-        assertEquals(10, StunRecovery.targetFor(ht = 10, traits = emptyList(), poolPenalty = 0))
+        assertEquals(
+            10 + 6 - 2,
+            StunRecovery.targetFor(ht = 10, traits = reflexes, poolPenalty = -2, shock = 0, states = 0),
+        )
+        assertEquals(10, StunRecovery.targetFor(ht = 10, traits = emptyList(), poolPenalty = 0, shock = 0, states = 0))
+    }
+
+    @Test
+    fun `a shock carried in and a declared state move the recovery target too`() {
+        // A shock from an earlier wound reaches this roll (6gs): it is not the
+        // roll that creates it. So does a declared "-N to all rolls".
+        assertEquals(10 - 4 - 2, StunRecovery.targetFor(ht = 10, traits = emptyList(), poolPenalty = 0, shock = -4, states = -2))
+        assertEquals(
+            10 + 6 - 1 - 4 - 2,
+            StunRecovery.targetFor(ht = 10, traits = reflexes, poolPenalty = -1, shock = -4, states = -2),
+        )
     }
 
     @Test

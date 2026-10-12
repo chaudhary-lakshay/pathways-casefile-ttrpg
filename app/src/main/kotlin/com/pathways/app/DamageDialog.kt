@@ -107,8 +107,9 @@ fun DamageDialog(
      * A second parameter rather than a flag on the one above, because the two
      * rolls are reached by different clauses: `High Pain Threshold` moves the
      * table's roll and not this one, Combat Reflexes moves this one and not
-     * that one. Resolved at the call site for the same reason `majorWoundHt`
-     * is — the number and the sentence must be built together.
+     * that one. Only its sentence is read here: its number is inside
+     * [recoveryTarget], built at the same call site from the same traits, and
+     * the sentence's own bonus is built from `StunRecovery.bonusFor`.
      */
     stunRecoveryHt: MajorWoundHt = MajorWoundHt(0, null),
     /**
@@ -131,19 +132,18 @@ fun DamageDialog(
      */
     hurt: Int,
     /**
-     * A shock the character walked in with, for the RECOVERY roll only.
+     * The Failure row's recovery roll, from
+     * [com.pathways.rules.StunRecovery.targetFor]: printed on its button and
+     * rolled as printed.
      *
-     * Separate from [hurt] because the two rolls answer differently and the
-     * reason is `Shock`'s own: it refuses `RollKind.MAJOR_WOUND_HT` because
-     * that roll CREATES the shock, and the recovery roll creates nothing —
-     * `Shock.appliesTo` is true for every other kind. Folding it into [hurt]
-     * would apply it to both.
-     *
-     * It can only ever be a shock from an EARLIER wound. This hit's shock
-     * comes from the Success row, and the recovery button is offered on the
-     * Failure row, so the two are never the same -4.
+     * It takes a shock the character walked in with, which the Major Wound
+     * roll above does not: `Shock` refuses `RollKind.MAJOR_WOUND_HT` because
+     * that roll CREATES the shock, and the recovery roll creates nothing. It
+     * can only ever be a shock from an EARLIER wound. This hit's shock comes
+     * from the Success row, and the recovery button is offered on the Failure
+     * row, so the two are never the same -4.
      */
-    carriedShock: Int = 0,
+    recoveryTarget: Int,
     /**
      * The held rows' declared "-N to all rolls" (6gs), on BOTH rolls. Shock's
      * refusal of the Major Wound roll is that the roll creates it; withdrawal
@@ -256,10 +256,6 @@ fun DamageDialog(
                 // apart three times in this codebase (6ag, 6ai, 6be) -- and a
                 // third term is exactly the edit that would have split them.
                 val htTarget = ht + majorWoundHt.bonus + hurt + states.total
-                // The table's Failure row asks for a second HT roll and the
-                // two are reached by different clauses, so this is its own
-                // expression rather than htTarget reused.
-                val recoveryTarget = ht + stunRecoveryHt.bonus + hurt + carriedShock + states.total
                 MajorWoundPanel(
                     isMajor = isMajor,
                     ht = htTarget,

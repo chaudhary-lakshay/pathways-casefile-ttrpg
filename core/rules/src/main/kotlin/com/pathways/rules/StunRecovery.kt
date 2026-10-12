@@ -98,10 +98,15 @@ object StunRecovery {
      * ([Conditions.penaltyFor]). It applies: the character carried reeling and
      * fatigue in, so the argument that keeps shock off
      * [RollKind.MAJOR_WOUND_HT] — that the roll creates the state — has no
-     * counterpart here.
+     * counterpart here. The same argument lets in a [shock] carried from an
+     * earlier wound, and the declared [states] (6gs).
+     *
+     * [shock] and [states] are required, unlike [VitalRolls.targetFor]'s: the
+     * Damage dialog summed this target by hand from the roll's first commit,
+     * and 6gs taught that sum both terms while this function took neither.
      */
-    fun targetFor(ht: Int, traits: List<Trait>, poolPenalty: Int): Int =
-        ht + bonusFor(traits) + poolPenalty
+    fun targetFor(ht: Int, traits: List<Trait>, poolPenalty: Int, shock: Int, states: Int): Int =
+        ht + bonusFor(traits) + poolPenalty + shock + states
 
     private fun row(): MajorWound = ContentLoader.majorWound().firstOrNull(::stunsOn)
         ?: error("the Major Wound table prints no \"$ROW\" row to recover from")
