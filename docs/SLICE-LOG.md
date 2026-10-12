@@ -6845,6 +6845,40 @@ reading *"Phobia (Cities)"* would mislead a future comparison of
 `FromTrait.name` to a catalogue name. No such comparison exists. The
 `shown` KDoc says it is the sheet's spelling.
 
+### The Attack dialog, after the commit
+
+Neither review traced the Attack dialog, and the device pass never opened
+it. It is the one screen that reads its *"Injury, fatigue and attrition"*
+line off the ledger by id over what `conditionsFor` returns (6gd). Until
+`02f6e1a`, everything on that path carried a `state:` id. The declared
+states are FromTrait, and the ledger groups every FromTrait term into one
+contribution. A lit Laudanum therefore printed under the trackers' label.
+Beside a Reluctant Killer's clause, the whole group landed on that line.
+
+The fix (`d199b85`): `conditionsFor` takes `withDeclared`, which
+defaults to `withStates`. Attack passes `false`, adds `stateModifiers` to
+its own picked terms, and prints *"Declared on the sheet: ..."* itself. The
+guard *a declared state is a picked term and never reaches the tracker line*
+passed on its first run, because the pure function did not change and the
+call site did. Its second half asserts the misrouted case, so it records
+why. Device, SM-T570, Hunter-Tracker, Guns (Rifle) 10, both states lit:
+*"Declared on the sheet: Phobia (Cities) -1, Addiction: Laudanum -2"*,
+*"3d6 ≤ 7"*, and no tracker line. Save restored, `cmp`-identical.
+
+Soul Scar's chip now quotes its trigger (*"Under extreme spiritual stress
+(Fright Check failure by 5+, witnessing Seq. 5+ abilities), ..."*): cut at
+*"old pain resurfaces"*, it told the GM the penalty and not when.
+
+Sonnet, `kotlin-reviewer.md`, on that diff: SHIP, two LOWs, neither
+taken. No test reddens if `withDeclared = false` is dropped at the call
+site, and the device pass is the proof I recorded for it. `Modifier` is
+written fully qualified, which matches the parameters already in that
+file. It found `attackStanding` is the only code in `app/src/main` that
+filters `applied` by id. 2081 Kotlin (1371 `core:rules`, 690 `app`, 20
+`core:model`), 0 failures, after `--rerun-tasks` from deleted results.
+The first such run died of a JVM out-of-memory crash on this machine,
+not a test failure: `./gradlew --stop`, then green.
+
 **Next**: the PCR takes no carried state (hurt, shock or declared). Whether
 "all rolls" reaches it is a reading of its own. Then 6gi's table, less
 these rows.
