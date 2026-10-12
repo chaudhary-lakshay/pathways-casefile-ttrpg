@@ -6726,6 +6726,81 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hf. God of Combat's +3 ST, +3 DX, +3 HT: the decomposition
+
+Owner question 8, answered *apply* in 6he, on condition of this section
+and its review before any code.
+
+**The rule.** Book 1101-1117, "Seven Orthodox Gods Blessings", *"Blessing
+Effect (Passive & Permanent)"*: *"God of Combat — Herculean strength &
+catlike reflexes. +3 ST, +3 DX, +3 HT."* 75 points each
+(`blessings.json`). *"Requirement: Character must be a confirmed believer
+... Losing faith (GM discretion) temporarily suspends blessings."* No other
+blessing prints an attribute: Lord of Storms' *"+3 HT vs pressure"* is a
+scoped roll, not HT.
+
+**The boundary it moves.** M3: *"`Character` stays purchased-only"*, and
+until now only a potion added to a played attribute, with
+`PurchaseCeilings` derived from potion walks alone. The +3 is paid for by
+the 75-point trait, so it must not be written into `attributes`:
+`AttributeCosts` would bill the same three levels again, 30 + 60 + 30
+points. It is a played gain, like a potion's.
+
+**Where played attributes come from today.** One authority for a Beyonder,
+`PotionDigestion.digest` (`effectiveAttributes`, which starts from
+`character.attributes` at line 198), and for a mortal a fallback to
+`character.attributes` at four sites: `EditedCharacter.attributesWith`
+(:84), `BuilderScreen` (:165, :259), `SkillDefaults` (:384). The mortal's
+secondaries and bought skill levels come from `Derive.of`, which reads
+`c.attributes` (:17, :25) beside the budget (:20). Query:
+`grep -rnE '\.attributes\b|\battributes\[' core/rules/src/main app/src/main`.
+
+### The design
+
+1. **A table, not a parser.** `Blessings.ATTRIBUTE_GAINS`: God of Combat
+   to ST/DX/HT +3, written by hand as `TraitGrants` is, and a test pins
+   it against `blessings.json`'s effect cell in both directions: every
+   blessing whose effect prints `+N ST|DX|IQ|HT` is in the table, and
+   nothing else is (memory: keep the parser out of the engine).
+2. **One played base.** `Blessings.played(attributes, traits): Attributes`
+   is `attributes` plus the gains of the blessings held. Two callers start
+   from it: `Derive.of` for secondaries and skill levels (never the
+   budget, which keeps `c.attributes`), and `PotionDigestion.digest` as
+   the base its potion grants add to. The four mortal fallbacks become one
+   core function, `Derive.attributes(c, walked)` = `walked?.effectiveAttributes
+   ?: Blessings.played(c.attributes, c.traits)`. The same predicate at four
+   sites is the defect this slice would otherwise ship.
+3. **Secondaries follow.** HP from ST, FP from HT, Basic Speed from DX and
+   HT, so the blessing raises them as a potion's attribute grant does. This
+   is a reading: GURPS derives secondaries from the attribute as played,
+   and the book prints the +3 as ST, not as "ST rolls".
+4. **Ceilings.** `PurchaseCeilings.attribute(attr, traits)` = 30 − largest
+   walk − the held blessing's gain: ST 16, DX 23, HT 22 for a holder,
+   unchanged for everyone else. ST 30 is also where the thrust/swing table
+   ends. **Buying God of Combat is refused while a bought ST, DX or HT sits
+   above the lowered ceiling**, and the builder says which. Never a silent
+   clamp: `withinCeilings` would otherwise lower a player's bought ST on
+   the next open. Selling it raises the ceilings back.
+5. **The report.** God of Combat joins `TraitEffects.known()` in the same
+   commit (the handover's rule). Its Traits row reads applied, and its
+   note says suspension for lost faith is the GM's: sell the row. No
+   suspended state is stored.
+6. **The builder's label.** An attribute row a blessing moved prints the
+   played number and *"10 before potions"*, which would misname the cause.
+   It reads *"10 bought"* for every attribute and secondary row instead
+   (`BuilderRows.kt:84`, `:140`, both through `beforePotions`). The
+   blessing moves HP as surely as ST. Skill rows keep *"before potions"*
+   (`BEFORE_POTIONS`): their bought level is the level the budget prices,
+   and a DX blessing re-levels them only in play.
+
+**Tests (RED first).** The table pin; a mortal holding it derives HP, FP,
+Basic Speed and a DX skill 3 higher, with the budget unchanged; a Beyonder
+adds the potion's grants on top; the ceilings for a holder; the refused
+purchase at ST 17; `known()` holds it; `attributesWith` for a mortal.
+
+**What this does not do.** The other six blessings' effects stay prose:
+none prints an attribute.
+
 ## 6he. Four owner answers (2026-10-12)
 
 | Q | Answer |
