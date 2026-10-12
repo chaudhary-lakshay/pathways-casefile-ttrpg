@@ -95,6 +95,33 @@ object SelfControl {
     const val IQ = "IQ"
 
     /**
+     * The rows that print no roll and name the row whose roll they take.
+     *
+     * Cannot Kill, book 1323-1324: *"If responsible for a death, react as
+     * Reluctant Killer (-5)."* **The owner's ruling (2026-10-12), not a
+     * quotation**: the row offers Reluctant Killer's Will roll, and nothing
+     * else of that row reaches its holder -- not the to-hit penalties, not
+     * the withdrawn Aim. A table here and not a `selfControl` field in the
+     * content, because the extractor reads what a cell prints and this cell
+     * prints no roll. `SelfControlTest` pins it both ways against the
+     * catalogue: it is the one cell that reacts as another row.
+     */
+    private val BORROWED_ROLLS: Map<String, String> = mapOf("Cannot Kill" to "Reluctant Killer")
+
+    /** [BORROWED_ROLLS], for the census test. */
+    fun borrowedRolls(): Map<String, String> = BORROWED_ROLLS
+
+    /**
+     * The reaction a borrower is shown: Reluctant Killer's last sentence,
+     * verbatim (book 1314-1315), and pinned against its cell. Quoted beside
+     * Cannot Kill's own cell because that cell names the reaction and does
+     * not print it.
+     */
+    const val KILL_REACTION =
+        "If you kill a recognizable person, become morose for 3d days — " +
+            "Will rolls required to use violence again."
+
+    /**
      * The self-control rolls [traits] carry, in sheet order.
      *
      * Only [TraitKind.DISADVANTAGE] rows are considered: self-control is a
@@ -109,8 +136,11 @@ object SelfControl {
             if (owned.kind != TraitKind.DISADVANTAGE) return@mapNotNull null
             val row = byName[TraitNames.catalogueName(owned.name).lowercase()]
                 ?: return@mapNotNull null
-            val spec = row.selfControl ?: return@mapNotNull null
-            SelfControlCheck(TraitNames.displayName(owned.name), spec, row.notes)
+            val shown = TraitNames.displayName(owned.name)
+            row.selfControl?.let { return@mapNotNull SelfControlCheck(shown, it, row.notes) }
+            val lender = BORROWED_ROLLS[row.name]?.let { byName[it.lowercase()] }
+            val spec = lender?.selfControl ?: return@mapNotNull null
+            SelfControlCheck(shown, spec, "${row.notes} ${lender.name}: \"$KILL_REACTION\"")
         }
     }
 

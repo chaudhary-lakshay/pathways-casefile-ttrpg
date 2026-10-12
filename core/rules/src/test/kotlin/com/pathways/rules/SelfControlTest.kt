@@ -177,6 +177,49 @@ class SelfControlTest {
         assertNull(ContentLoader.disadvantages().single { it.name == "Skinny" }.selfControl)
     }
 
+    /**
+     * **Cannot Kill prints no roll and names the row that does** (6hj):
+     * *"If responsible for a death, react as Reluctant Killer (-5)."* The
+     * owner's ruling, 2026-10-12: its row offers Reluctant Killer's Will
+     * roll and nothing else of that row. The spec is read off the lender, so
+     * a content fix to one moves both.
+     */
+    @Test
+    fun `Cannot Kill offers the Will roll of the row it names`() {
+        val lender = ContentLoader.disadvantages().single { it.name == "Reluctant Killer" }
+        val check = SelfControl.checksFor(listOf(dis("Cannot Kill"))).single()
+
+        assertEquals("Cannot Kill", check.trait)
+        assertEquals(lender.selfControl, check.spec)
+        assertEquals(11, SelfControl.targetFor(check.spec, will = 11, iq = 14))
+        val own = ContentLoader.disadvantages().single { it.name == "Cannot Kill" }.notes
+        assertEquals("$own Reluctant Killer: \"${SelfControl.KILL_REACTION}\"", check.printed)
+    }
+
+    @Test
+    fun `the reaction Cannot Kill is shown is Reluctant Killer's own sentence`() {
+        val lender = ContentLoader.disadvantages().single { it.name == "Reluctant Killer" }
+        assertTrue(SelfControl.KILL_REACTION in lender.notes, lender.notes)
+        // The whole sentence and no more: the cell ends with it, and the
+        // to-hit clauses before it are not Cannot Kill's.
+        assertTrue(lender.notes.endsWith(SelfControl.KILL_REACTION), lender.notes)
+        assertFalse("to hit" in SelfControl.KILL_REACTION)
+    }
+
+    @Test
+    fun `Cannot Kill is the one row that reacts as another`() {
+        val rows = ContentLoader.advantages() + ContentLoader.disadvantages()
+        val names = rows.map { it.name }
+        // A cell naming another row that prints a roll, and printing none itself.
+        val borrowers = rows.filter { row ->
+            row.selfControl == null && "react as" in row.notes.lowercase()
+        }.associate { row ->
+            row.name to names.single { it != row.name && "react as $it".lowercase() in row.notes.lowercase() }
+        }
+        assertEquals(mapOf("Cannot Kill" to "Reluctant Killer"), borrowers)
+        assertEquals(borrowers, SelfControl.borrowedRolls())
+    }
+
     @Test
     fun `the two refused phrasings stay refused`() {
         // Duty's "(roll 9 or less)" is how often the duty comes up; Phobia's
