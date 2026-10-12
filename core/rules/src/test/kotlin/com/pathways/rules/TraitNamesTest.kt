@@ -213,7 +213,7 @@ class TraitNamesTest {
     }
 
     /**
-     * Sixteen spellings, and the reason each is here. Keep the wording of the
+     * The spellings, and the reason each is here. Keep the wording of the
      * REASON honest: it is the thing a later slice will check first, and a
      * false one has already cost this project two slices (a shock penalty the
      * book did print, and a knockdown roll that was never unreachable).
@@ -223,8 +223,6 @@ class TraitNamesTest {
         "No Sense of Humour" to
             "the book prints no such trait; a text search finds the phrase nowhere",
         "Pacifism (Cannot Harm Innocents)" to
-            "the book prints no Pacifism row; \"Pacifis\" occurs nowhere in it",
-        "Pacifism (Cannot Kill)" to
             "the book prints no Pacifism row; \"Pacifis\" occurs nowhere in it",
 
         // --- resembles a printed row, and the price disagrees -------------
@@ -371,7 +369,9 @@ class TraitNamesTest {
             "Paranoia: Bodies of water",     // the row is a bare "Paranoia"
             "Blacklisted: Specific Industry org or church",
             "Absent-Minded",                 // "Absent-Mindedness" in the book
-            "Pacifism (Cannot Kill)",        // no such row at all
+            // No such row at all. Its sibling "(Cannot Kill)" resolves on
+            // the owner's ruling (6hl); this one was not ruled on.
+            "Pacifism (Cannot Harm Innocents)",
         )) {
             assertEquals(name, TraitNames.catalogueName(name), name)
         }
@@ -503,6 +503,29 @@ class TraitNamesTest {
         assertEquals("Secret", TraitNames.catalogueName("Secret (Courier network)"))
         assertEquals("Secret", TraitNames.catalogueName("Secret (Racist Sympathizer)"))
         assertEquals("Obsession (A rival)", TraitNames.catalogueName("Obsession (A rival)"))
+    }
+
+    /**
+     * The Apothecary's "Pacifism (Cannot Kill)" is the Cannot Kill row, on
+     * the owner's ruling (6hl, 2026-10-13): the book prints no Pacifism
+     * heading, the bracket is a row's whole name, and the sheet pays that
+     * row's 15. One spelling was ruled on. Its sibling was not asked about,
+     * and stays recorded.
+     */
+    @Test
+    fun `the Apothecary's Pacifism bracket is the Cannot Kill row, and its sibling is not resolved`() {
+        assertEquals("Cannot Kill", TraitNames.catalogueName("Pacifism (Cannot Kill)"))
+        assertEquals("Pacifism (Cannot Kill)", TraitNames.displayName("Pacifism (Cannot Kill)"))
+        assertEquals(
+            "Pacifism (Cannot Harm Innocents)",
+            TraitNames.catalogueName("Pacifism (Cannot Harm Innocents)"),
+        )
+        // What the ruling is for: the premade is offered the roll.
+        val apothecary = Premades.all().single { it.name == "Apothecary" }.toCharacter()
+        val check = SelfControl.checksFor(apothecary.traits).single { it.trait == "Pacifism (Cannot Kill)" }
+        assertEquals("Will", check.spec.attribute)
+        val sheetCost = apothecary.traits.single { it.name == "Pacifism (Cannot Kill)" }.cost
+        assertEquals(15, sheetCost)
     }
 
     /**

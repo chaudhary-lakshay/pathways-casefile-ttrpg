@@ -60,6 +60,7 @@ object TraitNames {
         // below lost the row the builder had sold (6ew). Returned in the ROW's
         // spelling: [TraitReport.reported] checks [TraitEffects.known] case-sensitively (Codex).
         rowNames[printed.lowercase()]?.let { return it }
+        RULED_SPELLINGS[printed]?.let { return it }
         if (printed.substringAfterLast(' ').toIntOrNull() != null) {
             return printed.substringBeforeLast(' ')
         }
@@ -69,6 +70,18 @@ object TraitNames {
             // Object's holder chose (6hk).
             ?: CharmedObject.rowOf(printed) ?: printed
     }
+
+    /**
+     * Sheet spellings the owner ruled are a printed row, one by one (6hl).
+     *
+     * The Apothecary prints "Pacifism (Cannot Kill)" at 15 pts. The book
+     * prints no Pacifism heading and does print Cannot Kill at 15, so the
+     * resemblance is strong and is still only resemblance: this is a ruling
+     * (2026-10-13), not a rule. The same sheet's "Pacifism (Cannot Harm
+     * Innocents)" was not ruled on and stays unmatched. Exact spelling, so
+     * nothing here generalises to another bracket.
+     */
+    private val RULED_SPELLINGS = mapOf("Pacifism (Cannot Kill)" to "Cannot Kill")
 
     /**
      * The row a bracket instantiates where a SHEET has proved it does, or null.

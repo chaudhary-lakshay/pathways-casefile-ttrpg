@@ -263,7 +263,6 @@ class ContentLoaderTest {
     private val KNOWN_ABSENT_TRAITS = setOf(
         "No Sense of Humour",
         "Pacifism (Cannot Harm Innocents)",
-        "Pacifism (Cannot Kill)",
     )
 
     private data class TraitConflict(val name: String, val fixtureCost: Int, val bookDescription: String)
