@@ -190,7 +190,39 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6fy back to 6de
+## Retired lead paragraphs, 6ga back to 6de
+
+**6ga, with 6fz before it: a sheet row prints the number played.** The Vitals
+and Skills tabs render `SheetComparison`'s rows as the character, and
+each printed the engine's number for the UNEDITED sheet. On the tablet a
+Docks Bouncer on Twilight Giant 9 read Brawling 12 beside a Roll that
+rolled 16, *"HP 11 (sheet: 9)"* under a pool of 14 / 14, and a Speed,
+Move and Dodge it no longer had, the played ones on no screen: 1734 of
+1936 premade-and-block pairs print such a row. 6e kept that number
+because *"that comparison is the engine against the book and a potion
+is neither"*. True of the diff, never a reason to print a level the Roll
+does not roll. Read it for three things.
+
+- **Two differences, one disagreement.** Sheet against engine is the
+  diff: the unedited sheet's, what the header counts, the only red.
+  Played against sheet is a potion or an edit and is never red
+  (`PlayedLine`). A moved row the sheet disputes says which figure in
+  grey: *"HP 14 · 11 from the sheet's points (sheet: 9)"*.
+- **The design was reviewed before the code**, and both of its changes
+  were to my proposal: a red note that read as the app disputing
+  itself, and a positional list where the label is the link.
+- **A Will row reading Per failed nothing in 1937 tests**: no fixture
+  prints Will different from Per. Pinned on Abyss 9. A mutant that
+  survives may be measuring the fixtures.
+
+Design and diff review said SHIP; device-verified, save untouched.
+6ga ran the sweep 6fz named and had not run: every number printed
+beside a control, asked whether the control uses it. Ten pairs, one
+defect. A self-control row on Traits printed *"3d6 ≤ 12"* and the
+dialog it opens rolled 11 for a reeling character, because the row left
+out the shock and the *"-1 to all rolls"*. One `standingTargets` number
+feeds both now. SHIP; a device control only. Re-run that sweep after any new screen;
+a grep for derivation calls is not it.
 
 **6fy (6fx's device pass), 6fx, 6fw, 6fv, 6fu and 6ft: a sheet's printed SPI 9 is not played.** Four sheets
 (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police) print SPI 9

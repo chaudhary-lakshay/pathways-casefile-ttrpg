@@ -6726,6 +6726,93 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gp. The six roll dialogs 6gn did not draw
+
+6gn built nine Stitch components and left six roll dialogs as they were:
+Self-control, Concentrate, Detection, Spirit Vision, Boon and Divination.
+The census was every `rollAgainst(` / `.attempt(` call site in `app/` less
+the files already using `TargetCard` or `ResultCard`, and 6gn recorded no
+reason for leaving any of them out. The owner chose to extend the approved
+components over a new Stitch round. No new component was designed: each
+dialog takes the shape of its nearest redesigned sibling.
+
+| Commit | Dialog | Shape |
+|---|---|---|
+| `57e9935` | Self-control | `TargetCard` over the row's own number, the stepper as an `OptionStepper`, Roll pinned in a new `RollFooter`, the verdict in a new `VerdictCard` |
+| `2bb9a10` | Concentrate | the same; Roll disabled until *Injured or defending* is lit |
+| `78f2806` | Detection | the same; `RollFooter` gains a label (*Sense*), disabled under automatic awareness instead of removed |
+| `5e4dc7f` | Spirit Vision | `TargetCard` and `RollFooter` (*Look*); the reading in a neutral card |
+| `da9e5f9` | Boon | the ritual's `RitualFooter` (*Pray*), which gains a label and the target's text; `VerdictCard` over `RitualFailureLines`, extracted from `RitualResultCard` |
+| `493ccd7` | Divination | `RitualFooter` (*Ask*); `VerdictCard` coloured from `effectiveOutcome` |
+
+`RollFooter` always lays out one line above Roll, so the first declared
+clause cannot grow the dialog under a finger, the class `49e2cd9` fixed.
+Each `TargetCard` strikes out the number before this dialog moved it: the
+row's printed target for Self-control (6ga's agreement between row and
+dialog), the maneuver's Will-3, the attribute alone for Detection, Per for
+Spirit Vision.
+
+### Read it for three things
+
+- **Three dialogs do not take the verdict card whole.** Spirit Vision's
+  reading carries no verdict word or colour, because *"Incorrect
+  reading"* is what the character comes away believing. A boon prints no
+  Step 4 grade: the old screen never did, nothing in `Boons.kt` claims
+  one, and printing it is a rule claim. Divination colours from
+  `effectiveOutcome`, so a critical-only target's ordinary success reads
+  as a failure.
+- **The AlertDialog text slot stacks bare children.** Detection's result
+  drew `VerdictCard` and the parts line as siblings, and on the tablet
+  the line sat on top of the card. It is a `Column` now. Self-control
+  and Concentrate draw one child there and were not affected.
+- **A push re-reads the roll, not only the target.**
+  `RitualResolution.pushed` re-evaluates the original total against the
+  raised target, so `VerdictCard`'s `roll.target` and margin follow a
+  push. Checked before Boon used it: *12 vs 13*, then *+2*, then *12 vs
+  15, margin 3*.
+
+### Proof
+
+Each commit had a Sonnet `kotlin-reviewer.md` review of its uncommitted
+diff before the commit. All six said SHIP. Two LOWs were taken. Spirit
+Vision's shortfall line had replaced the activation sentence, and now
+both print. The rest were left, with their reasons in the session: an
+unsigned margin matches `ResultCard`, and a target shown beside a
+disabled Roll matches Fright.
+
+Device passes on the SM-T570, each followed by a save restore and a
+`cmp` against the backup:
+- **Self-control** (Barmaid Brawler's Overconfidence): 12, stepped to 13
+  with 12 struck out, then *Held, 3d6: 10 vs 13*.
+- **Concentrate**: Roll stayed in place when the chip was lit, then
+  *Lost the focus, 3d6: 15 vs 7*, in red.
+- **Detection**: warded space took the target from 10 to 12, Sense
+  rolled *Success, 10 vs 12*. Under automatic awareness Sense is
+  disabled. *Sense again* returns to the choices.
+- **Spirit Vision**: Look charged SPI 1 to 0, gave *Full reading, 3 vs
+  10*, and left Look again disabled with both footer lines showing.
+- **Boon** (Church Healer, seeded Ritualistic Magic 8): Seq 0 printed
+  *3d6 ≤ -499 — a rolled 3 or 4 still succeeds*. Pray granted at *12 vs
+  13*. The push is above. The save charged 6 SPI, which is 4 fuel plus
+  2 push.
+- **Divination**: *Success by 0–2, 11 vs 11, Vague*. After *Ask again*
+  at 0 SPI the refusal showed and Ask did nothing. A Seq 4 target
+  printed *3d6 ≤ 1, a 3 or 4 only*, with the warning under the chips.
+
+The click-handler census reads 32 after every commit. `./gradlew test`
+passed: 2070 tests, 0 failures, counted from the XML.
+
+**6ga's sweep, re-run over the six.** Every printed target is the value
+its control rolls. Each review answered this with file:line evidence,
+and the device lines above show it.
+
+**Not verified.** No premade exercised a conditional Will clause on
+Self-control or Concentrate, so the chips' place was read and never
+tapped. The Ritual dialog was not driven after `RitualParts` changed.
+Its call site passes neither new parameter, and the review confirmed
+that the defaults reproduce the old strings and that the extraction is
+verbatim.
+
 ## 6go. The glossary and theme sheets, surveyed
 
 6gm and 6gn both listed these two sheets as never surveyed. Both were

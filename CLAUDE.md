@@ -170,6 +170,18 @@ do is find defects. **Read that as a number about the instrument, not a clean
 bill of health on 1513 tests.** Re-running the sweep is cheap and proves
 nothing new unless the batches change.
 
+**6gp: the six roll dialogs 6gn did not draw.** Self-control,
+Concentrate, Detection, Spirit Vision, Boon and Divination take the
+approved components, one a commit (`57e9935` to `493ccd7`), with no new
+Stitch round: `TargetCard`, and two new shared pieces, `RollFooter` and
+`VerdictCard`; Boon and Divination take the ritual's `RitualFooter`.
+Three do not take the verdict whole, each for a rule: Spirit Vision's
+reading has no verdict colour (an incorrect reading is believed), a boon
+prints no Step 4 grade, and Divination colours from `effectiveOutcome`.
+**The AlertDialog text slot stacks bare children**: wrap two in a
+`Column`. Six SHIPs, six device passes, saves `cmp`-identical, census
+32, 2070 tests.
+
 **6gn: the redesign, nine Stitch components, one a commit.** The owner
 rejected text walls. Wada #269 is the default palette, and Stitch drew one
 component per prompt: skill roll, Attack, Defend, Damage, Ritual, Fright,
@@ -280,41 +292,10 @@ two on *Apply 1 to HP* cost 2. On this build, one push and one hit.
 6ga's hurt case with it: reeling, the Traits row and its dialog both
 read *"3d6 ≤ 11"*. The save was restored.
 
-**6ga, with 6fz before it: a sheet row prints the number played.** The Vitals
-and Skills tabs render `SheetComparison`'s rows as the character, and
-each printed the engine's number for the UNEDITED sheet. On the tablet a
-Docks Bouncer on Twilight Giant 9 read Brawling 12 beside a Roll that
-rolled 16, *"HP 11 (sheet: 9)"* under a pool of 14 / 14, and a Speed,
-Move and Dodge it no longer had, the played ones on no screen: 1734 of
-1936 premade-and-block pairs print such a row. 6e kept that number
-because *"that comparison is the engine against the book and a potion
-is neither"*. True of the diff, never a reason to print a level the Roll
-does not roll. Read it for three things.
-
-- **Two differences, one disagreement.** Sheet against engine is the
-  diff: the unedited sheet's, what the header counts, the only red.
-  Played against sheet is a potion or an edit and is never red
-  (`PlayedLine`). A moved row the sheet disputes says which figure in
-  grey: *"HP 14 · 11 from the sheet's points (sheet: 9)"*.
-- **The design was reviewed before the code**, and both of its changes
-  were to my proposal: a red note that read as the app disputing
-  itself, and a positional list where the label is the link.
-- **A Will row reading Per failed nothing in 1937 tests**: no fixture
-  prints Will different from Per. Pinned on Abyss 9. A mutant that
-  survives may be measuring the fixtures.
-
-Design and diff review said SHIP; device-verified, save untouched.
-6ga ran the sweep 6fz named and had not run: every number printed
-beside a control, asked whether the control uses it. Ten pairs, one
-defect. A self-control row on Traits printed *"3d6 ≤ 12"* and the
-dialog it opens rolled 11 for a reeling character, because the row left
-out the shock and the *"-1 to all rolls"*. One `standingTargets` number
-feeds both now. SHIP; a device control only. Re-run that sweep after any new screen;
-a grep for derivation calls is not it.
-
-**6fy back to 6de had lead paragraphs here until 2026-10-11. Each is in
+**6ga back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ga–6fz** — a sheet row prints the played number, never the unedited sheet's; re-run 6ga's printed-number sweep after any new screen, and a grep for derivation calls is not it;
 **6fy–6ft** — a sheet's printed SPI 9 is not played: a premade plays 0 until a potion; the gallery and every chip print played numbers; `repairedEdits` is the one repair;
 **6fr** — every held row prints a cell: of 495 rows 29 had none; Wealthy prints the wealth table's, and the sense chips were cut, so a chip's text is not a row's cell (6fs: its device pass);
 **6fq** — a held face printed its name alone on Traits; `held()` gives it the table's reaction cell, and my test had computed its expectation with `cellFor`'s own formula;
@@ -382,7 +363,7 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6go first.** The
+**Where to start next: the slice log, from the END — 6gp first.** The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
