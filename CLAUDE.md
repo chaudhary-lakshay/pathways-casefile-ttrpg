@@ -258,7 +258,7 @@ its 8,000-character cap (6ev).
 (no code: the sweep 6gz named as its blind side, denials and counts in
 comments and literals that never say "this app", each block joined before
 matching; fifteen stale comments went, and the guide's "nothing here
-records what your character is carrying"; five hid behind an exclusion
+records what your character is carrying"; four hid behind an exclusion
 that trusted 6gz's reach, and `FrightCheck.recoveryBonus` has no
 production caller; no device pass; ten owner questions). Then 6gz
 (the Defend note called an untrained weapon's parry "a gap here and not a

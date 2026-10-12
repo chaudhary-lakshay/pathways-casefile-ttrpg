@@ -6731,7 +6731,9 @@ resolution above, and then `Secret`, which has none.
 6gz closed by saying what its comment sweep could not see: a comment that
 never says *this app*. This slice ran that sweep. No code changed and no
 string on a screen. Fifteen comments, one sentence of the guide and two
-lines of the handover said something false of the app today.
+lines of the handover said something false of the app today. The fifteen
+are the 16 hunks of `git diff 328ad0b..13fb869 -- app core`, less one: the
+moved KDoc is a hunk in each of two files.
 
 ### The queries
 
@@ -6781,7 +6783,7 @@ and not corrected: a census in a comment expires when a call site is added.
 
 ### The exclusion
 
-**The first pass corrected nine comments and missed five**, and the review
+**The first pass corrected nine comments and missed six**, and the review
 found the way in. Its one finding outside the diff was the `RollKind`
 header's *"the four attribute rolls"*, which the count pattern matches. My
 script had dropped it: the block opens *"Every kind of 3d6 roll this app
@@ -6789,8 +6791,12 @@ makes"*, and blocks carrying 6gz's subject were excluded as already read.
 6gz read them for a denial. Nothing had read them for a count.
 
 The count pattern over the excluded blocks matches 51 times. Reading
-those gave the `RollKind` header, `StunRecovery`, the God of Combat
-comment and the two readers. **An exclusion written as "the last sweep
+those gave four: the `RollKind` header, `StunRecovery`'s object KDoc, the
+God of Combat comment and the two readers. The fifth, `StunRecovery
+.bonusFor`'s *"see this object's KDoc for why none is offered here"*, was
+in the first pass's own list. I read it and passed it, because the KDoc it
+points at was one of the excluded. The sixth, `FrightDialog`'s, matches no
+pattern here. **An exclusion written as "the last sweep
 covered these" inherits what that sweep was looking for** (6da, with one
 sweep's reach standing in for a careful exclusion).
 
@@ -6822,8 +6828,11 @@ this slice's subject was claims about the app.
 
 `compileDebugKotlin` and `:core:rules:compileKotlin` built, `e:` count 0.
 `ast-grep scan` is clean. 366 Python, run after the guide's edit; no test
-reads the guide. No Kotlin test was run for comments, so the 2097 is
-6gz's count and not this slice's.
+reads the guide; run again on `13fb869`, after the last edit. 2097 Kotlin
+(1385 `core:rules`, 692 `app`, 20 `core:model`), 0 failures, on `13fb869`
+after `--rerun-tasks` from deleted results, counted from the XML; `e:`
+count 0. No test asserts a comment, so that run says the tree builds and
+nothing else moved.
 
 The script's tokeniser was rewritten once through a heredoc, which ate two
 backslashes of its string regex. Every literal count fell to 0 where the
@@ -6848,8 +6857,9 @@ and `FrightDialog` gates it on `StunRecovery.isStun` where the panel is
 drawn, which is the function's own body written a second time.
 `FrightDialog`'s KDoc had named the same function as the gate; both say
 what runs now, and the handover's API list says the function has no
-production caller. The other three edits it found true. **This last
-correction has been read by no reviewer.**
+production caller. The other three edits it found true. A third pass,
+on the correction as committed: SHIP, every function named is the one
+that runs.
 
 ### Seen and not built
 
