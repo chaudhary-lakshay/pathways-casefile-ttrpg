@@ -73,7 +73,8 @@ potion grants.
 - **Vitals** asks *"Does any of this hold?"* when a held drawback prints
   "-N to all rolls" under a circumstance only the GM can see: a phobia's
   stimulus present, laudanum withdrawal, a disrupted warding routine, an
-  entity nearby, a Soul Scar resurfacing. Tap the line to light it. A lit
+  entity nearby, a Soul Scar resurfacing, a Reckless character where caution
+  would be smarter. Tap the line to light it. A lit
   line counts on every roll on every screen, and each roll names it (*"includes
   Phobia (Cities) -1"*), until you tap it again. One line is narrower:
   Perceptual Splitting's *"All physical rolls at -2 during an episode"*
@@ -327,6 +328,12 @@ budget — the app stores only the *choice* (pathway, Sequence, digestion) and
 re-derives every grant from it. A potion that raises DX lifts every DX skill you
 bought; it does not re-level what an earlier potion granted.
 
+**A Hanged Man chooses a drawback.** Sequence 9 prints three and says to choose
+one. On the Potion tab the Drawbacks card has a chip for each; the one you tap
+is held free from then on, down the whole pathway, and you can switch it. A
+drawback you already bought in the builder shows *bought* and cannot be chosen
+until you sell it, or its points would still be credited.
+
 ### Ritual
 
 Pick the ritual's weight, your preparation, the language, the target link and
@@ -426,10 +433,13 @@ to the printed value clears the purchase; the sheet's own **computed vs.
 as-published** table keeps showing what the sheet printed, because that
 comparison is the engine against the book and a purchase is neither.
 
-For a Beyonder, the big number on an attribute or secondary row is the one
-the character plays with, potions included, and the small line adds *N before
-potions* wherever a potion moved it. The steppers, the prices and the budget
-all work on the bought number, because a potion's gains are free. Skill rows
+The big number on an attribute or secondary row is the one the character
+plays with, potions and God of Combat's +3 ST, DX and HT included, and the
+small line adds *N bought* wherever either moved it. The steppers, the prices
+and the budget all work on the bought number: a potion's gains are free, and
+the blessing's 75 points already paid for its +3. A God of Combat holder can
+buy ST, DX and HT three levels less high than anyone else, so every potion
+still fits on top. Skill rows
 stay on bought levels, and the **Skills** header says *Levels before potions*
 once for all of them; the sheet shows the levels actually rolled.
 
@@ -469,7 +479,9 @@ each carried weapon it can compute one for.
 
 **Add a trait** lists the book's advantages and drawbacks as a name and a
 price. Tapping a row opens its text and never buys; **Buy** inside the open
-row does. A trait already held is marked *already held* and has no Buy.
+row does. A trait already held is marked *already held* and has no Buy. God
+of Combat is refused the same way while a bought ST, DX or HT is above what a
+holder may buy, and its row says which to lower.
 
 Traits the book prints with a cost range or a "(specify)" name open the same
 way, with **Choose…** in place of Buy, and are bought by naming the instance

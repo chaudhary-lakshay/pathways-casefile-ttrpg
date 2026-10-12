@@ -6872,7 +6872,10 @@ takes the held names, required; `BeyonderSession.buyRefusal`, which the
 picker prints in place of the Buy button (*"bought ST 17 is above the 16
 a holder may buy; lower it first"*); `boughtNote` replaces
 `beforePotions`. God of Combat left `TraitRefusals` and joined `known()`
-through the table. **I overwrote the existing `BlessingsTest.kt` with a
+through the table. **Design point 5's note is not built**: the Traits row
+reads *Applied* and says nothing about lost faith. The requirement shows
+only as the picker's blessing section header. **I overwrote the existing
+`BlessingsTest.kt` with a
 Write before reading it**; it was restored from `HEAD` before any run,
 and the new tests went into `BlessingAttributesTest`. Two of its tests
 pinned the refusal and were changed to the ruling.
