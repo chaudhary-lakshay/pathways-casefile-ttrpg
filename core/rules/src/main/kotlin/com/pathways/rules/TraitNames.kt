@@ -187,10 +187,10 @@ object TraitNames {
      * 6bv refused both on the grounds that "the sheet added a qualifier the
      * book never asked for, so the only evidence is resemblance". That
      * sentence is simply false for these two, and checking a sweep's own
-     * excuse is 6bf's lesson. The four spellings whose reason still holds --
-     * two Secret, Paranoia, Blacklisted -- hang off cells that enumerate
-     * nothing, and a test pins them still unmatched. Five Sense of Duty were
-     * counted with them until [quotedInstanceRow] found their evidence.
+     * excuse is 6bf's lesson. The two spellings whose reason still holds --
+     * Paranoia, Blacklisted -- hang off cells that enumerate nothing, and a
+     * test pins them still unmatched. Five Sense of Duty and two Secret were
+     * counted with them until [quotedInstanceRow] took them in.
      *
      * The qualifier must PREFIX exactly one option, because the sheet writes
      * "Criminal" where the book writes "Criminal Record". Naming none, or

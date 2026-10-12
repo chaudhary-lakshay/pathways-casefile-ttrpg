@@ -396,7 +396,7 @@ class TraitNamesTest {
      * disagreement (4.1).** 6bv refused these two because "the sheet added a
      * qualifier the book never asked for, so the only evidence is
      * resemblance". That sentence is false for exactly these two, and 6bf's
-     * lesson is that a sweep's excuse is the thing to check. The nine
+     * lesson is that a sweep's excuse is the thing to check. The
      * spellings whose reason still holds are pinned unmatched above.
      */
     @Test
