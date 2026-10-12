@@ -6755,7 +6755,14 @@ One mutation, the gate dropped so every recovery takes the bonus:
 | the dialog's own expression, before the change | `:app:testDebugUnitTest` from deleted results | 692 tests, 0 failures, `e:` 0. It survived |
 | `FrightCheck.recoveryBonus`, after | `:core:rules:test --tests "*FrightRecoveryTest*"` from deleted results | 7 tests, 1 failure, `e:` 0: *Combat Reflexes reaches the stunned rows and not the twelve row*, *expected: <0> but was: <6>* |
 
+| the call site, after: `{ TraitAttributeRolls.stunRecoveryBonus(traits) }` in `SheetDialogs` | `:app:testDebugUnitTest` from deleted results | 692 tests, 0 failures, `e:` 0. It survives |
+
 Each file was copied aside first and restored from the copy.
+
+**So what this slice bought is one copy of the predicate, the tested
+one.** The wiring from `SheetDialogs` into the dialog is as unpinned as it
+was, like every composable here: the third row is the first row's mutant
+moved one file over, and it still lives.
 
 No test was written. The one that reddens existed; it had been pinning
 the wrong copy.
@@ -6765,7 +6772,8 @@ the wrong copy.
 2097 Kotlin (1385 `core:rules`, 692 `app`, 20 `core:model`), 0 failures,
 after `--rerun-tasks` from deleted results, counted from the XML; `e:`
 count 0. `ast-grep scan` is clean, and the click-handler census still
-reads 32. The 366 Python are 6ha's run: no file they read changed.
+reads 32. 366 Python, run on `2306d32`: the line-count ratchet reads
+every `.kt`, and two of them changed.
 
 ### The diff review
 
@@ -6778,7 +6786,8 @@ the number rolled. It ran nothing.
 
 ### No device pass
 
-`R52TA076AEZ` was not attached. Unverified on a device: that a stunned
+`adb devices -l` at 18:16 on 2026-10-12 listed the AIM-75 alone, as it
+had at the start of 6ha. Unverified on a device: that a stunned
 fright row's recovery still prints the +6 for a holder of Combat Reflexes.
 The engine's half is the test above.
 

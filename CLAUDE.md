@@ -257,8 +257,8 @@ its 8,000-character cap (6ev).
 **Where to start next: the slice log, from the END — 6hb first**
 (the Fright dialog gated Combat Reflexes' +6 itself, the body of
 `FrightCheck.recoveryBonus` written twice, and the tested copy had no
-caller; the dialog asks it now, and the mutant that survived 692 app tests
-reddens one; no number changed). Then 6ha
+caller; the predicate has one copy now, the tested one, and the call
+site's own mutant still survives; no number changed). Then 6ha
 (no code: the sweep 6gz named as its blind side, denials and counts in
 comments and literals that never say "this app", each block joined before
 matching; fifteen stale comments went, and the guide's "nothing here
