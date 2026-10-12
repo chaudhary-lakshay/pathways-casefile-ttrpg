@@ -6726,6 +6726,56 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gq. The second tap, after the restyle
+
+6gn and 6gp moved every roll and charge handler into `RollFooter`,
+`RitualFooter` or `VerdictCard`, and called the move *unchanged*. Nothing
+checked that claim. 6ga's sweep was re-run, but it asks whether a printed
+number is the rolled one. The click-handler census reads 32, but it counts
+call sites and never sees a guard. Every device pass tapped once. 6gb's
+rule, *a handler that rolls, charges or sells guards its own second tap*,
+has no test behind its screen guards. This slice checked it.
+
+**Read, at `589933b`.** Every handler that charges still returns first:
+
+| Handler | Guard |
+|---|---|
+| Ritual *Cast* | `outcome != null` (and no target, a refusal) |
+| Boon *Pray* | `outcome != null \|\| !affordable` |
+| Divination *Ask* | `outcome != null \|\| !affordable` |
+| Spirit Vision *Look* / *Look again* | `result !== drawn`, by identity |
+| Damage *Apply* | the `applied` latch |
+| Attack *Roll* (the plan's FP) | `outcomes.isNotEmpty()` |
+| Defend's boost chip | charges only from no boost to one |
+| Artifacts | `used != null` resets and returns |
+| The push rows (skill roll, Attack) | `EffortBurn.pushed(...) ?: return` |
+| Ritual / Boon / Divination push | charged on close, latched by `settled`, or zeroed after paying |
+
+**Driven, on the SM-T570.** Two taps landed in one frame by one monkey
+script (`Tap` twice, `--throttle 0`), and then `spiSpent` was read from the
+save. Church Healer had Ritualistic Magic 8 seeded, and Academic Researcher
+was reset to full SPI:
+
+| Control | One tap costs | `spiSpent` after |
+|---|---|---|
+| Ritual *Cast* (Full, Light) | 2 | 0 → 2 |
+| Boon *Pray* | 4 | 2 → 6 |
+| Divination *Ask* | 1 | 6 → 7 |
+| Spirit Vision *Look* | 1 | 0 → 1 |
+
+Each one charged once and showed one verdict. `AndroidRuntime:E` logged
+nothing. Save restored, `cmp`-identical. This is a GREEN with no device
+RED beside it. The script is the one that reproduced 6ei's crash and 6gc's
+FATAL, so it does land two taps in one frame.
+
+**The pinned Drink button, refused.** 6gn left it out as a restructure.
+The real reason is simpler. Drink is the second item of the pathway
+screen's list, under the Sequence tiles. On Academic Researcher's Seq 8
+it sat at y≈620 of 1920, with its roll line under it. Ritual's Cast was
+pinned because it sat below the fold, and Drink never did.
+
+No code changed.
+
 ## 6gp. The six roll dialogs 6gn did not draw
 
 6gn built nine Stitch components and left six roll dialogs as they were:

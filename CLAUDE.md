@@ -363,7 +363,9 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6gp first.** The
+**Where to start next: the slice log, from the END — 6gq first** (no code:
+every restyled charge handler kept its second-tap guard, double-tapped on
+the device; the pinned Drink button refused, as it sits above the fold). The
 reading-order narrative for 6cc back to 6bf moved to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) on 2026-10-08, unchanged.
 
