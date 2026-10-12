@@ -6737,7 +6737,9 @@ own instruction, so storing it is literal, not a reading.
 ### Decomposition, reviewed before any test
 
 Sonnet, `kotlin-reviewer.md`, on the written design: **build with
-changes**, five, all taken. The advisor had already found the gap that
+changes**, five. Four taken as written; the stale-skill note went into
+the builder's line under the row, not `TraitReport.held`, which cannot see
+the character's levels. The advisor had already found the gap that
 shaped it: `skillRollClauses` chips have ONE app caller, the Skills tab's
 roll (`SheetDialogs.kt:212`). Attack and the Acrobatic Dodge call
 `TraitEffects.modifiers` with no declared set (6gj's review recorded
@@ -6771,8 +6773,11 @@ that), and the ritual dialogs compose their own targets.
   skills; `setCharmedSkill` is an absolute setter. The line under the row
   says the skill, that none is chosen, or that the chosen one is not held.
 - A stored skill the book does not print leaves the row bare.
-- The guide has a paragraph. The click-handler census reads **35**: one
-  new line, the picker's setter. The handover said 32, last counted in 6gn.
+- The guide has a paragraph. The click-handler census reads **35**. Run
+  on a worktree of `e303ca2` it reads 34, and the per-file counts differ
+  in `BuilderScreen.kt` alone, 15 to 16: the picker's absolute setter. The
+  handover's 32 was 6gn's and two behind before this slice; those two
+  were not traced to their slices.
 
 RED, each watched: six rules tests against a stub object; the duplicate
 purchase test only once `heldAs` was real and the name branch absent
@@ -6785,7 +6790,13 @@ Sonnet on `078f9bf -- core app`: **SHIP**, two LOWs. Taken: the builder's
 line matched specialization by case where the roll does not. Not taken: a
 hand-typed `Charmed Object (my lucky pistol)` reads as chosen and offers
 no chip. No fixture prints the row and the app composes catalogue skills
-only. It ran nothing. **`9f30d45` and `0f5d6da` are unreviewed.**
+only. It ran nothing.
+
+A third pass, same reviewer, on `078f9bf..75543c5 -- core app` (the
+picker's skill source, the moved test, the report fix below): **SHIP**,
+LOWs only, none taken. `charmableSkills` runs a digestion twice per
+builder recomposition with no `remember`, where `MainActivity` remembers
+the same call; two imports sit out of order in `TraitPicker.kt`.
 
 ### Device pass, SM-T570 over Wi-Fi
 
@@ -6805,17 +6816,31 @@ with both rows, the save `cmp`-identical after the restore.
 **The pass found one defect.** Beat Cop is a Fool 9 and the picker left
 out its four granted skills: the builder's character carries no walk.
 `charmableSkills(character, state)` reads the played levels now, RED
-first (*expected: <true> but was: <false>*). **That fix was not seen on
-the device.**
+first (*expected: <true> but was: <false>*).
+
+**And the advisor a second, from my own dump.** The unchosen row read
+*Partly applied* with nothing applied, and a chosen row's note would have
+read *"Not applied: +1 ... / Applied only as a chip ..."*. An unchosen
+row now carries one note on the whole cell, so `TraitReport.applied`
+answers GM; `REACH` leads with the rolls that do not take the +1. RED:
+*IllegalArgumentException* from `single()` on two notes, and the wording
+assertion.
+
+**A second pass, same backup, restored `cmp`-identical**: the picker
+listed sixteen skills, the four granted ones among them; Divination Arts
+picked; the Traits tab read *Charmed Object (Divination Arts)*, *Partly
+applied*, *"Not applied: +1 to one specific skill when used"*, *"On a
+parry, an Acrobatic Dodge, a ritual, a divination or a boon built on the
+chosen skill. A roll of the skill from the Skills tab, and an attack with
+it, offer the +1 as a chip."* No FATAL. The unchosen row's new tag was not
+seen on the device.
 
 ### Left as it is
 
-- An unchosen row's collapsed tag reads *Partly applied* though nothing
-  is applied until a skill is picked. The open row says so.
 - The Skills tab's other declared clauses still do not reach Attack.
 - Untrained skills are not in the picker.
 
-2142 Kotlin (1410 `core:rules`, 711 `app`, 21 `core:model`) from deleted
+2143 Kotlin (1411 `core:rules`, 711 `app`, 21 `core:model`) from deleted
 results with `--rerun-tasks`; 366 Python; `ast-grep scan` clean.
 `TraitReportedTest` had reached 813 lines against the 800 ratchet, which
 only the Python suite sees; one test moved to `SelfControlTest`.
@@ -6860,6 +6885,9 @@ alone.
   Killer's sentence, pinned as the verbatim end of that cell.
 - Nothing else of Reluctant Killer reaches the holder: not the -4 to
   hit, not the withdrawn Aim. The owner's ruling, not a quotation.
+- **Cannot Kill is read by name and is NOT in `known()`, on purpose.**
+  Joining would take away its `ROLLED_ONLY` note, and its conduct clauses
+  are still the table's. `checksFor` is how the report finds it.
 - The row reads `ROLLED_ONLY` now, not `UNREAD`. The 25-row sweep
   filters on a `selfControl` field and cannot see it, so it has its own
   test, mutated: the table emptied, 0 compile errors, *expected: <its
