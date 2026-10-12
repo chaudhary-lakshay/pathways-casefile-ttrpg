@@ -190,7 +190,140 @@ test, and the two defects it found instead were both on the sheet screen,
 where every roll a Beyonder makes had been using the level printed before the
 potion.
 
-## Retired lead paragraphs, 6ga back to 6de
+## Where to start next, links retired from the chain
+
+Each sentence as it stood in `CLAUDE.md`'s "where to start next"
+paragraph, line breaks included, newest first. The chain keeps five.
+
+Then 6gq (no code:
+every restyled charge handler kept its second-tap guard, double-tapped on
+the device beside a mutant RED; the pinned Drink button refused, as it sits above the fold).
+
+## Retired lead paragraphs, 6gp back to 6de
+
+6gp back to 6gb were retired in 6gw, one contiguous block, unchanged.
+
+**6gp: the six roll dialogs 6gn did not draw.** Self-control,
+Concentrate, Detection, Spirit Vision, Boon and Divination take the
+approved components, one a commit (`57e9935` to `493ccd7`), with no new
+Stitch round: `TargetCard`, and two new shared pieces, `RollFooter` and
+`VerdictCard`; Boon and Divination take the ritual's `RitualFooter`.
+Three do not take the verdict whole, each for a rule: Spirit Vision's
+reading has no verdict colour (an incorrect reading is believed), a boon
+prints no Step 4 grade, and Divination colours from `effectiveOutcome`.
+**The AlertDialog text slot stacks bare children**: wrap two in a
+`Column`. Six SHIPs, six device passes, saves `cmp`-identical, census
+32, 2070 tests.
+
+**6gn: the redesign, nine Stitch components, one a commit.** The owner
+rejected text walls. Wada #269 is the default palette, and Stitch drew one
+component per prompt: skill roll, Attack, Defend, Damage, Ritual, Fright,
+character card, pathway panel and builder panel, all built (`dcebd9f` to
+`4bc0de1`). Read it for three things.
+
+- **A roll's handler moves into a pinned footer unchanged.** Ritual's
+  Cast sat off the tablet's screen.
+- **A control that appears on the first pick moves the rows under a
+  finger** (`49e2cd9`): draw it from the start, as `TargetCard` keeps one
+  height.
+- **The click-handler census reads 32.** Three pool lambdas became one
+  at `dcebd9f`. Scan from the repo root: the rule's `files:` glob is
+  relative, and a scan elsewhere reports nothing.
+
+Stitch's inventions are listed and none was copied. Each commit got a
+Sonnet `kotlin-reviewer.md` SHIP and a device pass, and the save was
+`cmp`-identical after every one.
+
+**6gm, 6gl, 6gk, 6gj, 6gi, 6gh, 6gg, 6gf, 6ge and 6gd: a ledger roll prints its target first, in words.** The skill
+roll, the attack and the Acrobatic Dodge printed a level and resolved
+their target inside the click: 6eg's third category, named in its
+census and neither fixed nor refused for forty-odd slices. A reeling
+character read *"Skill 16"*, rolled, and learned from the result that it
+had been 15. `SkillRoll.at` is split: `targetFor` gives a `SkillTarget`
+and `rollAgainst` rolls the one it is handed. Each dialog resolves while
+it is drawn. Read it for two things.
+
+- **Resolving in the draw moves every `require` behind the chips from
+  the tap to the screen**, where a throw has no way out. The design
+  review traced each chip handler before any screen was touched: none
+  can fire.
+- **Attack's tracker line is read off the ledger by id**, never as a
+  remainder, which would absorb a term the screen forgot and still add
+  up. The diff review then found my matrix test took that number from
+  the function under test. It is a literal now.
+
+`SkillRoll.at` and `.of` have no production caller. The design review
+changed four things; the diff review said SHIP. Device-verified,
+reeling Docks Bouncer: *"Skill 16"*, *"3d6 ≤ 15"*, *"state:hp: -1"*,
+then *"3d6: 7 vs 15"*; the attack *"3d6 ≤ 2, each"* and two rolls *"vs
+2"*; *"Roll vs. Acrobatics — 3d6 ≤ 4 (5 → 4)"*. Save restored.
+
+6ge: those lines printed each modifier's ID, *"state:hp: -1"*. Every
+`ModifierSource` has carried words for itself since the model was
+written and no screen read one. `ModifierSource.label()` is the one
+place a source becomes text; `lines()` on a target or an outcome gives
+them, and a push names itself. Before the dice the skill dialog leaves
+out the circumstances picked in it, already lit chips above. The
+resolver is untouched. SHIP, prose only; device-verified: *"1/3 HP
+remaining: -1"*, *"Pushed with FP: +1"*. 6gf: the attack's
+add-up test now runs the range band, each circumstance, darkness and
+the trait terms, alone and together. It never reads what `AttackOptions`
+prints. 6gg: *walking* and *running* could both be ticked, a -3 no
+speed produces. The three speed rows are one pick now: the extractor
+marks them, `Ranged.modifiers` refuses two and the chip swaps through
+`Ranged.alternativesTo`. A reading from bounds that do not meet, not a
+printed sentence; Fit beside Very Fit (6fk) is two held traits and does
+not transfer. Design review changed three things, one of them 6gf's own
+plans. Device-verified. 6gh: the refusal counted a flag and the swap
+filtered on it, 6gg's LOW, a defect by the owner's own rule. One
+`Ranged.oneOf` answers both now; one mutant reddens both sides. Review:
+"behaviour-preserving" was false for a row with both flags; none
+exists. The Aim swap is device-verified. 6gi: with no shot called the
+damage line read *"×1.5 there"* under nine unlit chips; it says *there*
+only for a called location now. Its log tables the trait backlog: 125
+unread rows, none a slice without a new reading. Device-verified.
+6gj: Absent-Mindedness's "-3 to skill rolls" is a GM declaration on
+every skill roll; Voice and Industrial Expertise name a purpose and are
+refused on Healer's reason, one shared constant, `PURPOSE_NOT_SKILL`,
+so a reading that applies one applies all three. Device-verified.
+6gk: the potion text, checked both ways against the book: verbatim, but
+three grants naming no listed skill were dropped and reached no screen;
+stored and shown now. The pathway screen lays the text out as cards and
+tabs; `abilityParagraphs` is display only and rejoins all 105 blocks byte
+for byte. 6gl: the Traits tab is a name, a price and a tag per row,
+`TraitReport.applied`, which says no less than the open row's notes; a
+dialog's reference prose sits closed in `RuleNote`, never a target, cost
+or refusal; the header is tags. 6gm: the builder. A skill row is name,
+level, points and a study tag naming the refusal's cause (`StudyRefusal`),
+the sentence on a tap; *before potions* once, on the header. The trait
+picker's tap opens a row and never buys; Buy sits inside it.
+
+**6gc (its device pass) and 6gb: the second tap of one picture.** 6ga left the dialogs
+to 6eh, and ten slices had moved a dialog's target since, so they were
+read again: 18 rolls and every charge. Each prints the number it rolls
+or charges. What did not hold was 6ei's count, *"Drink alone had no
+re-entrancy guard"*. Read it for three things.
+
+- **The push rows.** A chip is offered against the count as drawn. In
+  the skill dialog *+3* twice throws past the FP cap, and on the SPI row
+  spends a pool the first tap emptied: Soul Debt, permanent CoR. The
+  attack's also pushed the outcome it was drawn with, 2 FP for +1.
+- **A stale tap is dropped, not honoured**, the design review's change
+  to my proposal: these two charge AT the tap and hold the balance as
+  drawn, where the ritual's push charges on closing. `EffortBurn.pushed`
+  is the rule's refusal behind the drop.
+- **My own count was wrong within the hour.** The first commit says
+  seven handlers. A sentence I wrote here about *"every handler"* was
+  questioned, and the query it needed found Damage's Apply and the
+  builder's Give back, which sold the neighbour. The slice log gives
+  tables and no count.
+
+Both diff reviews said SHIP. 6gc, on the SM-T570: the tablet still
+held the build before the fix, and two taps on *+3* gave the FATAL in
+`EffortBurn.bonusFor` that 6gb had written down, 3 FP already charged;
+two on *Apply 1 to HP* cost 2. On this build, one push and one hit.
+6ga's hurt case with it: reeling, the Traits row and its dialog both
+read *"3d6 ≤ 11"*. The save was restored.
 
 **6ga, with 6fz before it: a sheet row prints the number played.** The Vitals
 and Skills tabs render `SheetComparison`'s rows as the character, and
@@ -2189,12 +2322,28 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6dx back to 6de
+## Digest index, 6en back to 6de
 
 Moved from the handover in 6ff, unchanged, when its digest index neared
 8,000 characters. 6ds and 6dr followed in 6gb, and 6dv back to 6dt in
-6gd, for the same reason; 6dx and 6dw in 6gl.
+6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw.
 
+**6en** — Basic Speed and Basic Move sold a hundred steps each; both stand at zero in `ScoreFloors`, as policy, and Move is measured after Speed;
+**6em** — maximum CoR is a state the app checked only on a gain; a builder sale is refused where a potion latches, and the first potion never latched;
+**6el** — a potion's grants are added to the bought score, so browsing a block crashed a high-ST save; `PurchaseCeilings` bounds each purchase, and 6ek's own example was false;
+**6ek** — the builder sold a secondary a hundred steps and four guards threw below HP/FP 1, a CoR ceiling of 1 and Per 0; "four" came from a keyword grep and held, for crashes, on a wider one;
+**6ej** — the Drink button printed nothing about its own roll; `pcrLine` feeds both blocks, and the new line could crash the block it was drawn on, a Will below 1 throwing in composition;
+**6ei** — two taps milliseconds apart DO reach one composition's handler, so 6ef-6eh's "two frames" premise was false; Drink had no re-entrancy guard (not alone: 6gb) and crashed on an SM-T570;
+**6eh** — seven more engines roll the target they printed; `attempt` became test-only, and no test had rolled a Spirit Vision success through the engine;
+**6eg** — print a target, then roll it: a handler belongs to the composition that drew it, so `rollAgainst` takes the target on screen;
+**6ef** — the GM picks inside a span cell; a keyed `remember` resets a frame late, so a pick lives with its row, and the click-time read was undone by 6eg;
+**6ee** — every free toolchain diagnostic run as a sweep: clean, and beside its hits an assertion that could not fail and a fourth inline copy of `endsBetween`;
+**6ed** — does a committed generated file reproduce from its tool: 81 of 81 do, and `build/extract/book.txt`, the citation anchor, had no writer (`coverage.py` writes it now);
+**6ec** — every `@Serializable` property checked for a key that sets it; two stat notes were cut at their wrap, and re-running `extract_pathways.py` silently reverted `b1c8c4e`;
+**6eb** — the defence screen read `Character.weapons`, which nothing fills; carried weapons are catalogue names in `SavedEdits.weapons`, priced by `Weapons.parryFor`;
+**6ea** — the six priced secondary characteristics were billed and could not be bought; the save stores the book's row key, and the merge ADDS to a potion's grant;
+**6dz** — every optional parameter checked for a non-default argument; span rows (`+0 to +2`) applied their near end because only `BoonDialog` passed `gmValue`;
+**6dy** — the post-roll SPI push reached the plain skill roll alone; ritual, divination and boon take it now, and the 196 unclaimed mechanical lines are tabled as a census;
 **6dx** — `Shaken` needed no refusal, its carrier being a recorded GAP in `PotionDigestion.UNPARSED`; a line-local regex had dropped a wrapped `p. B229`;
 **6dw** — chapter 8's gear reference rendered only after the roll; it sits in the pre-roll branch now, below the modifier chips.
 **6dv** — `extract_equipment.skill_index()` dropped the open-row skills `isTemplate` matched, one flag at two sites; and a dump's tap scale is per WINDOW;
