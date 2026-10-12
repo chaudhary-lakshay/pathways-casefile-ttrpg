@@ -6726,6 +6726,71 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gr. "-1 to Will", read as a roll
+
+6gi's backlog left three disadvantages unread: *Addiction: Tobacco*,
+*Guilt* and *Bound to a Place*. Each prints *"-1 to Will"* with no
+*roll*, and 6gi named the open question: the Will SCORE, which would
+reach `Corruption.maxFor` and the CoR ceiling, or a penalty on the roll.
+
+**The book answers by its own usage.** A grep of `book.txt` for
+"to Will" finds no line where the bare phrase clearly means the score.
+Every conditional one is a roll penalty:
+- 9192: *"-5 to Will roll to resist"* (Sin of Greed)
+- 9458: *"-5 to Will when pursuing, performing, or preparing"* (Sin of
+  Lust)
+- 5746: *"−1 to Will, skills, and combat actions"* under holy effects,
+  with *"Must roll Will"* in the same cell
+- 7364: *"+2 to Will against Fear checks"*
+
+The score reading would also let a day without tobacco move a permanent
+ceiling. **Still a reading, not a printed fact.** The design review
+(Sonnet) said so, and noted that the precedents are pathway drawbacks,
+not catalogue rows. The KDoc says it in the same style as Thinned
+Veil's.
+
+- **Tobacco and Guilt join `WILL_CLAUSES`.** Each is a conditional -1
+  quoting its cell. They reach self-control, Concentrate and the Fright
+  Check as GM declarations, and `known()` now names them.
+- **Bound to a Place stays out.** *"-1 to Will per additional week,
+  cumulative"* is a count of weeks the app does not track. One fixed -1
+  chip would misstate every absence past two weeks. It still prints
+  `UNREAD`.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| tobacco and guilt are will clauses and bound to a place is not | no rows: *expected: <[Addiction: Tobacco, Guilt]> but was: <[]>* |
+| the two count asserts, 3 → 5 | *expected: <5> but was: <3>* |
+
+Three failures, all assertions, from fresh XML. Then 2071 Kotlin (1362
+`core:rules`, 689 `app`, 20 `core:model`), 0 failures, after
+`--rerun-tasks` from deleted results.
+
+### Device pass
+
+SM-T570. Barmaid Brawler was seeded with all three rows in
+`edits.traits`. Concentrate offered Tobacco and Guilt, not Bound to a
+Place. Both lit took 6 to 4 with *includes Addiction: Tobacco -1, Guilt
+-1*. On the Traits tab both read *Applied*, and Bound to a Place read
+*GM call* with *"this app applies nothing this row prints"*. Save
+restored, `cmp`-identical.
+
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on the two files: SHIP WITH CHANGES, one
+LOW, taken. The test file's section heading still said *"the three
+rows"*. Its nit was also taken: the KDoc's *"the three that remain"*
+now names them, so it cannot be misread as the clause count. It
+checked that both printed strings are verbatim at book 1252 and 1283,
+that removing either row reddens the test, and that Fright's
+`frightClauses + willClauses` cannot collide (the two name sets are
+pinned disjoint).
+
+**Next**: 6gi's table, less these two rows. Bound to a Place would
+need a weeks stepper, which is a control and not a reading.
+
 ## 6gq. The second tap, after the restyle
 
 6gn and 6gp moved every roll and charge handler into `RollFooter`,

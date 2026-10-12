@@ -119,7 +119,7 @@ object TraitClauses {
         conditional: Boolean = true,
     ) = TraitClause(trait, trait, printed, value, conditional)
 
-    // ---- the three rows that modify a bare Will roll -----------------------
+    // ---- the five rows that modify a bare Will roll ------------------------
 
     /**
      * Every clause the book prints against a Will roll, before a character is
@@ -131,15 +131,27 @@ object TraitClauses {
      * in the SINGULAR and is already read as a self-control check (the
      * catalogue's own `selfControl` field), and `Reluctant Killer`, which the
      * plural query does return, carries no number at all and is read the same
-     * way. The three that remain carry a modifier and reached nothing.
+     * way. The three that remain (Incorruptible Will, Grief-Stricken, Evil
+     * Eye Fear) carry a modifier and reached nothing.
      *
-     * **None of the three qualifies the ROLL, so each reaches all of them.**
+     * **Two more say "to Will" and no "roll" (6gr): Addiction: Tobacco and
+     * Guilt.** The query above cannot see them. Reading them as a penalty on
+     * the ROLL is a reading, not the book's word. Every conditional "-N to
+     * Will" the book prints elsewhere is a roll penalty: Sin of Greed's "-5
+     * to Will roll to resist", Sin of Lust's "-5 to Will when pursuing". The
+     * other reading, the Will SCORE, would let a day without tobacco move the
+     * permanent CoR ceiling. `Bound to a Place` prints "-1 to Will per
+     * additional week, cumulative" and stays out: that is a count of weeks,
+     * and one fixed -1 chip would misstate every absence past two.
+     *
+     * **None of the five qualifies the ROLL, so each reaches all of them.**
      * The bar is the one 6de applied to the HP table's two HT rolls: `Hard to
      * Kill`'s "HT rolls to avoid death" picks one of a PRINTED pair, and
      * `High Pain Threshold`'s "to avoid knockdown" names a printed roll this
      * app does not make. "To resist Beyonder abilities", "in situations that
      * echo a specific loss" and "to act clearly" name no printed roll at all
-     * -- they name the circumstance -- so they are declarations, and the roll
+     * -- they name the circumstance -- and neither does "if unable to smoke"
+     * or "in situations that echo the original act". So they are declarations, and the roll
      * they reach is whichever of this app's three bare Will rolls
      * (self-control, Concentrate, the Fright Check) is happening when the GM
      * says the circumstance holds.
@@ -171,6 +183,16 @@ object TraitClauses {
             "If interrupted from a warding routine, -1 to Will rolls for the day",
             -1,
         ),
+        willClause(
+            "Addiction: Tobacco",
+            "Minor withdrawal irritability (-1 to Will) if unable to smoke for a full day",
+            -1,
+        ),
+        willClause(
+            "Guilt",
+            "-1 to Will in situations that echo the original act",
+            -1,
+        ),
     )
 
     /** The printed rows, for the pin tests. [TraitClause.shown] is per character. */
@@ -183,7 +205,7 @@ object TraitClauses {
      * The clauses [traits] bring to a bare Will roll, under the sheet's own
      * spellings.
      *
-     * No level scaling, unlike [frightClauses]: not one of the three cells
+     * No level scaling, unlike [frightClauses]: not one of the five cells
      * prints "per level", so multiplying would invent a scale where
      * Fearlessness's cell states one.
      */

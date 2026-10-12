@@ -285,7 +285,7 @@ class TraitClausesTest {
         assertTrue(TraitReport.reported(loner).any { "social rolls" in it.printed })
     }
 
-    // ---- the three rows that modify a bare Will roll -----------------------
+    // ---- the five rows that modify a bare Will roll ------------------------
 
 
     /**
@@ -336,7 +336,7 @@ class TraitClausesTest {
     fun `every will number is still the one its row prints`() {
         val byName =
             (ContentLoader.advantages() + ContentLoader.disadvantages()).associateBy { it.name }
-        assertEquals(3, TraitClauses.willClauseRows().size)
+        assertEquals(5, TraitClauses.willClauseRows().size)
         for (clause in TraitClauses.willClauseRows()) {
             val notes = byName.getValue(clause.trait).notes.orEmpty()
             assertTrue(clause.printed in notes, "${clause.trait}: ${clause.printed}")
@@ -349,7 +349,7 @@ class TraitClausesTest {
     }
 
     /**
-     * **All three name a circumstance, so none may be counted unasked.**
+     * **All five name a circumstance, so none may be counted unasked.**
      * Unlike the Fright Check's rows, where Fearlessness is what the
      * character always is, there is no unconditional Will clause: every cell
      * says "to resist", "if interrupted" or "in situations that echo".
@@ -404,7 +404,29 @@ class TraitClausesTest {
         // Hard to Kill's "to avoid death", which picks one of the HP table's
         // PRINTED pair.
         assertTrue("to act clearly" in clause.printed)
-        assertEquals(3, TraitClauses.willClauseNames().size)
+        assertEquals(5, TraitClauses.willClauseNames().size)
+    }
+
+    /**
+     * "-1 to Will" with no "roll" is read as a penalty on the bare Will roll,
+     * a READING (6gr): every conditional "-N to Will" the book prints elsewhere
+     * is a roll penalty (Sin of Greed's "-5 to Will roll to resist", Sin of
+     * Lust's "-5 to Will when pursuing"), and a day without tobacco moving the
+     * Will score would move the permanent CoR ceiling with it.
+     *
+     * Bound to a Place is NOT one: "-1 to Will per additional week,
+     * cumulative" is a count of weeks, and one fixed -1 chip would misstate
+     * every absence past two.
+     */
+    @Test
+    fun `tobacco and guilt are will clauses and bound to a place is not`() {
+        val clauses = willOf("Addiction: Tobacco", "Guilt", "Bound to a Place")
+        assertEquals(setOf("Addiction: Tobacco", "Guilt"), clauses.map { it.trait }.toSet())
+        assertTrue(clauses.all { it.value == -1 && it.conditional })
+        assertTrue("Bound to a Place" !in TraitClauses.willClauseNames())
+        assertTrue("Bound to a Place" !in TraitEffects.known())
+        assertTrue("Addiction: Tobacco" in TraitEffects.known())
+        assertTrue("Guilt" in TraitEffects.known())
     }
 
     /**
