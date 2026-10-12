@@ -6793,8 +6793,16 @@ with Dead Language Fluency (30 listed)"*; bought, the budget stayed at
 still free. Reinstalled, the note read the new sentence. No FATAL; the save
 restored and `cmp`-identical.
 
-2120 Kotlin (1398 `core:rules`, 701 `app`, 21 `core:model`) from deleted
-results with `--rerun-tasks`; `ast-grep scan` clean. Python not touched.
+2121 Kotlin (1398 `core:rules`, 702 `app`, 21 `core:model`) from deleted
+results with `--rerun-tasks`; the 702nd is the guide's reprice claim, the
+trait bought after the language, added on the advisor's note and green on
+its first run, so it pins and proves no RED; `ast-grep scan` clean. Python not touched.
+
+The handover's digest index: 6ew moved to `docs/READING-ORDER.md`. The
+cap is counted over the entry lines alone (`grep '^\*\*6' | wc -m` on the
+block from *"6gy back to 6de had lead"* to *"its 8,000-character cap"*):
+7,767. The whole block, sentences around it included, is 8,028, and was
+8,016 at 6hg.
 
 **Next.** Nothing is queued. The four rows above were queried. 6gx's
 other claim about this app, *"this app holds one sheet"* (nine rows), was

@@ -334,7 +334,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2120 Kotlin** (JUnit 5 — 1398 `core:rules`, 701 `app`, 21 `core:model`, counted in 6hh) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2121 Kotlin** (JUnit 5 — 1398 `core:rules`, 702 `app`, 21 `core:model`, counted in 6hh) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hh (SHIP; 6hg and 6hh after their commits); nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -747,7 +747,9 @@ Languages.owned(purchases, held): List<Pair<LanguagePurchase, OwnedLanguage?>>
                                       // table price, half for one form, half
                                       // for Language Talent, ONE ceiling;
                                       // Multilingual frees the first two that
-                                      // are common, Native and in both forms
+                                      // are common, Native and in both forms;
+                                      // Dead Language Fluency the first of
+                                      // DEAD_LANGUAGES, the owner's list (6hh)
 Languages.traits(purchases, held) / .forms() / OwnedLanguage.costLine
 Languages.grantedBy(state)            // a potion's language: Ancient Hermes,
                                       // Native, both forms (6fo)

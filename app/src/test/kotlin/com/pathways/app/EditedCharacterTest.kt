@@ -718,6 +718,17 @@ class EditedCharacterTest {
         assertEquals(listOf(0, 10, 0, 6), languageCosts(owned.copy(traits = listOf(Languages.MULTILINGUAL))))
     }
 
+    /** The guide's claim (6hh): the trait bought later reprices what is owned. */
+    @Test
+    fun `Dead Language Fluency bought in play frees the dead language already owned`() {
+        val owned = SavedEdits(languages = listOf(language("Hermes", "Native"), language("Ancient Hermes", "Native")))
+        assertEquals(listOf(30, 30), languageCosts(owned))
+        assertEquals(
+            listOf(30, 0),
+            languageCosts(owned.copy(traits = listOf(Languages.DEAD_LANGUAGE_FLUENCY))),
+        )
+    }
+
     /** Dropped at composition and not deleted: a content fix may print it. */
     @Test
     fun `a language the book does not print bills nothing`() {
