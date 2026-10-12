@@ -6726,6 +6726,149 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ha. The sweep 6gz named as its blind side, and an exclusion that hid a count
+
+6gz closed by saying what its comment sweep could not see: a comment that
+never says *this app*. This slice ran that sweep. No code changed and no
+string on a screen. Fifteen comments, one sentence of the guide and two
+lines of the handover said something false of the app today.
+
+### The queries
+
+A throwaway script tokenised every `.kt` under the three `src/main` trees
+into comments and string literals, the first to open winning, so a quote
+inside a KDoc is not a string. **Each comment block was joined into one
+line before matching**, and adjacent literals joined across `+`, so a
+phrase that wraps is still seen (6ba). Trailing `//` comments are in.
+
+| | Pattern | Comment blocks | Literals |
+|---|---|---|---|
+| A, denials | `not modell?ed\|unmodell?ed\|not offered\|not applied\|not built\|no control for\|no (production )?caller\|nothing (reads\|calls\|applies\|rolls\|charges\|stores\|records\|sets\|clears)\|not yet\|still (unmatched\|open\|refused\|needs)\|is a gap\|not settled\|no (roll\|screen\|dialog\|field\|consumer\|reader\|control\|chip\|row\|table) (for\|to\|reads\|that\|here)` | 58 | 17 |
+| B, counts | `the only\|the one (place\|roll\|caller\|screen\|dialog\|consumer\|reader\|table\|row)\|(two…twelve\|both\|all) (\w+ )?(rolls\|dialogs\|screens\|callers\|consumers\|readers\|sites\|places\|engines\|tables)` | 203 | 15 |
+| C | `the GM'?s` | 50 | 24 |
+
+All three were counted over blocks that do NOT carry 6gz's subject
+pattern (`this app\|this engine\|nothing here\|is rolled here\|this
+dialog\|this screen`), which 223 comment blocks and 50 literals do. Every
+hit in the table was read in a window around its match. The 56 literals
+were read first, because a player reads those.
+
+**The literals hold.** Each denial on a screen was a refusal an earlier
+slice gave a query, or a table's own *"prints no row for"*.
+
+### What was false
+
+| Where | What it said | Query | What is true |
+|---|---|---|---|
+| `DamageDialog`, `majorWoundHt` | Fit applies *"because this is an HT roll, and it is the only bare one in the app"* | the same file, twenty lines down | five: this, consciousness, survival, stun recovery, a day's recovery. 6gz fixed that count in one KDoc and left it in its neighbour |
+| `DamageDialog` | *"Five sites clear `shock`"* | `shock = null` in the file | two |
+| `MainActivity`, twice | *"The four rolls that do NOT go through the ledger"*, a Fright Check, a self-control roll, a concentration check and a detection roll | where `shockOnAttribute` is handed | nine, the list `RollKind.ATTRIBUTE`'s KDoc has carried since 6gs |
+| `DetectionDialog`, `Detection` | *"one of the four"* bare attribute rolls | the same | the same |
+| `Shock.penaltyFor`, and the `RollKind` header | *"the four attribute rolls take this number"* | callers of `Shock.penaltyFor`, by kind | every roll outside the ledger takes it: the nine, the three that compose a skill's target, and a defence |
+| `RollKind.SKILL` | *"Anything resolved through [SkillRoll] -- skills, attacks, rituals, divination, boons"* | `SkillRoll\.` in `RitualResolution`, `Divination`, `Boons`: nothing | three rolls resolve through it. A ritual, a divination and a boon compose their own target and are handed `shockOnSkill` |
+| `PremadeGallery` | *"every FilterChip and NavigationBarItem in this app, 79 of them"* | `FilterChip(` 89, `NavigationBarItem(` 2 | the number is gone |
+| `AttackOptions` | two KDoc blocks stacked above `meleeModifiers` | `fun rangedModifiers`: `RangedOptions.kt`, with no KDoc | the first block was `rangedModifiers`', left behind by a file split. Moved, unchanged |
+| `StunRecovery`, twice | the fright rows' recovery is *"a gap rather than a refusal ... a slice of its own"*, and *"see this object's KDoc for why none is offered here"* | `recoveryFor` in `FrightDialog` | `FrightRecoveryPanel` offers it. The two pathway abilities' is still offered nowhere |
+| `FrightDialog`, `stunRecoveryBonus` | *"[FrightCheck.recoveryBonus] gates it on the row's own state"* | `recoveryBonus(` over both source trees | no screen calls it; the panel asks `StunRecovery.isStun`. Found by the second review, below |
+| `TraitRefusals`, above God of Combat | *"the only one refused for a reason that is about THIS APP's shape"* | the three strings under it | Goddess of Evernight, Lord of Storms and Eternal Blazing Sun each say *this app holds one sheet*, or no roll, or no clock |
+| `MainActivity` | traits *"hoisted because two readers need them"* | the comment's own next paragraph | every reader on the screen |
+| **`docs/HOW-TO-PLAY.md`** | *"It cannot: nothing here records what your character is carrying"* | `SavedEdits.weapons` | the save records weapons carried (6eb) and no other gear. **6gz corrected this sentence in two comments and recorded that the guide holds.** Its pattern carries *nothing here*, so the line was in its reach |
+| the handover, section 2 | *"a twelve-tile action hub"* | `PrimaryAction(` and `ActionChip(` in `SheetActions.kt` | up to thirteen, four of them gated. The number is gone |
+| the handover's API notes | `StunRecovery.targetFor`: *"the fright table's Will/IQ ones are a GAP"* | as `StunRecovery` above | they are `FrightCheck`'s |
+
+Where a count was wrong and nothing depends on it, the count was removed
+and not corrected: a census in a comment expires when a call site is added.
+
+### The exclusion
+
+**The first pass corrected nine comments and missed five**, and the review
+found the way in. Its one finding outside the diff was the `RollKind`
+header's *"the four attribute rolls"*, which the count pattern matches. My
+script had dropped it: the block opens *"Every kind of 3d6 roll this app
+makes"*, and blocks carrying 6gz's subject were excluded as already read.
+6gz read them for a denial. Nothing had read them for a count.
+
+The count pattern over the excluded blocks matches 51 times. Reading
+those gave the `RollKind` header, `StunRecovery`, the God of Combat
+comment and the two readers. **An exclusion written as "the last sweep
+covered these" inherits what that sweep was looking for** (6da, with one
+sweep's reach standing in for a careful exclusion).
+
+6gz also left 106 of its 244 lines unread. By block, 29 of the 223 carry
+no negation word near the match; those were read here and hold, less
+`PremadeGallery`'s 79.
+
+### What held, with its query
+
+| Claim | Query | Verdict |
+|---|---|---|
+| `SheetDialogs`: *"Three callers collapse this list with `sumOf`"*, and *"the three dialogs that reduce it to an Int"* | callers of `conditionsFor` and of `shockOnSkill` | three each: divination, ritual, boon |
+| `SheetDialogs`: Ether Body Damage reaches *"two rolls"* outside the ledger | uses of `spiTrait`; `skills.json` | detection and divination. Ritualistic Magic is IQ, so no ritual is SPI-based |
+| `Pools`: *"One predicate, four readers"*, and *"three sites that have only the numbers"* | callers of both `isFatigued` | hold |
+| `SkillRoll`: *"Nothing builds a `Potion` source yet"* | `ModifierSource.Potion` | the model's declaration and its label, no constructor call |
+| `FrightCheck`: *"this book prints no trait clause naming IQ rolls"* | `IQ rolls\|IQ-based` over both trait catalogues | 0 |
+| `TraitAttributeRolls`: *"the two bare Per rolls"* | callers of `alertnessBonus` | Detection and Spirit Vision |
+| `PremadeGallery`: *"the other three screens all require a selected character"* | `enum class Screen` | SHEET, PATHWAY, BUILDER |
+| `SheetLines`: the diff is *"the only thing printed in red"* | `colorScheme.error` across `app` | true of the two differences that meet on a stat line, which is what the sentence is about. The app spends that colour in 34 other places |
+| `ContentCombat`: Escape is *"a gap with no screen to live on"* | `escape\|grapple` across `app` | the Attack dialog rolls the grappler's half and says the target's is the GM's |
+| `SpiritVision`: *"this app walks 22 pathways"*; `PathwayScreen`: *"all 22"* | `pathways.json` | 88 blocks, 22 pathways |
+| the guide: *"plus two neutral rolls"*, the four screens, the round | `SheetActions.kt`, `Screen` | hold |
+
+**Read and not re-counted:** every count of the book's own content, a
+table's rows or the premades carrying a trait. Tests pin most of them, and
+this slice's subject was claims about the app.
+
+### Checks
+
+`compileDebugKotlin` and `:core:rules:compileKotlin` built, `e:` count 0.
+`ast-grep scan` is clean. 366 Python, run after the guide's edit; no test
+reads the guide. No Kotlin test was run for comments, so the 2097 is
+6gz's count and not this slice's.
+
+The script's tokeniser was rewritten once through a heredoc, which ate two
+backslashes of its string regex. Every literal count fell to 0 where the
+run before had 21, and that was how it showed.
+
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on the uncommitted diff of the first nine
+edits and the guide, asked for the strongest case that a rewritten
+sentence is still false: SHIP. It traced `shockOnAttribute` to each of
+the nine rolls, the three `SkillRoll.targetFor` call sites, the moved
+KDoc against `rangedModifiers`' body, and `SavedEdits.weapons` for the
+guide's sentence. It ran nothing. Its one finding outside the diff is the
+section above.
+
+**The four edits that finding led to went back to it, and one of mine was
+false.** I had written that Combat Reflexes reaches a Will or IQ recovery
+roll *"through [FrightCheck.recoveryBonus]"*. `recoveryBonus(` over both
+source trees: the function, its three tests, and two comments. No screen
+calls it. `SheetDialogs` resolves `TraitAttributeRolls.stunRecoveryBonus`
+and `FrightDialog` gates it on `StunRecovery.isStun` where the panel is
+drawn, which is the function's own body written a second time.
+`FrightDialog`'s KDoc had named the same function as the gate; both say
+what runs now, and the handover's API list says the function has no
+production caller. The other three edits it found true. **This last
+correction has been read by no reviewer.**
+
+### Seen and not built
+
+**`FrightCheck.recoveryBonus` is tested and uncalled, and the screen
+repeats its predicate.** The two agree today. Routing the dialog through
+it changes a composable's parameters, which is code and not this slice.
+
+### No device pass
+
+`adb devices -l` listed the AIM-75 (`22JUL32E02785`) alone. Nothing was
+sent to it. 6gz's two items stay unverified on a device: that the Defend
+dialog draws the note, and the Attack line's new string.
+
+**What this sweep cannot see.** A comment that states a capability with
+neither a denial nor a count. A claim split between a comment and the
+literal under it. Test sources, and every doc but the guide.
+
+**Next.** The ten owner questions in 6gz stand, and this slice adds none.
+
 ## 6gz. The parry the screen called a gap, and a round the app denied keeping
 
 6gy named this slice's method: re-read 6eq's remaining verdicts and every

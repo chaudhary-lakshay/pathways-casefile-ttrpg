@@ -195,6 +195,11 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6gv (Perceptual Splitting's -2 declared on the sheet and scoped to the rolls
+line 390 calls physical: `physicalStates` beside `states`, and the ledger
+asks `EffortBurn.isPhysical`; the signed unread rows are all triaged, and
+none is a slice without a stored choice or a new roll).
+
 Then 6gu (Light
 Sleeper's +4 declared on a Per skill and on Detection's Per branch, never
 Spirit Vision; Skinny refused as a purpose; the unread census read 117).
@@ -2341,12 +2346,13 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6ep back to 6de
+## Digest index, 6eq back to 6de
 
 Moved from the handover in 6ff, unchanged, when its digest index neared
 8,000 characters. 6ds and 6dr followed in 6gb, and 6dv back to 6dt in
-6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy.
+6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy; 6eq in 6ha.
 
+**6eq** — 39 refusals in production source whose subject is this app, seven false or stale; Versatile's +1 goes inside the pick between an owned level and a default;
 **6ep** — 6dy's three refusals re-asked; the HP recovery table's first row is a ROLL, so the daily HT roll is offered and nothing is restored;
 **6eo** — the builder printed bought values and the sheet the played ones; rows show the value as played, and every edit still reads the purchase;
 **6en** — Basic Speed and Basic Move sold a hundred steps each; both stand at zero in `ScoreFloors`, as policy, and Move is measured after Speed;

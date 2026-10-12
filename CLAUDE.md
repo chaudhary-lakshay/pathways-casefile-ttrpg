@@ -183,9 +183,10 @@ chip handler first. Attack's tracker line is read off the ledger by id,
 never as a remainder. Scan the click-handler census from the repo root:
 the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 
-**6gu back to 6de had lead paragraphs here until 2026-10-12. Each is in
+**6gv back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6gv** — Perceptual Splitting's -2 declared on the sheet and scoped to the rolls line 390 calls physical; the ledger asks `EffortBurn.isPhysical`;
 **6gu** — Light Sleeper's +4 declared on a Per skill and on Detection's Per branch, never Spirit Vision; Skinny refused as a purpose;
 **6gt** — no roll changed: the PCR takes no carried state, on the book's "Only the drinker's digestion ... matters", and no row names the roll;
 **6gs** — five "-N to all rolls" drawbacks declared once on the Vitals tab, reaching every roll shock reaches and the Major Wound HT roll; Phobia's and Soul Scar's refusals expired;
@@ -232,10 +233,9 @@ slice log.** One line each:
 **6et** — the untrained roll: `defaultFor` had no caller since M0; a skill's own line (Brawling DX-2, Wrestling none) beats the table, and Versatile's +1 sits inside every default;
 **6es** — the complement of `known()`, listed: 148 rows nothing read; `UNREAD` says so, and the sheet lists every held advantage with its cell;
 **6er** — the builder sells a language; the two halvings combine with one ceiling, and a Language Talent bought later reprices what is owned;
-**6eq** — 39 refusals in production source whose subject is this app, seven false or stale; Versatile's +1 goes inside the pick between an owned level and a default;
-**6ep back to 6de** have one-line digests too, moved verbatim to
+**6eq back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
-its 8,000-character cap (6ff, 6gb, 6gd, 6gw).
+its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha).
 
 **6dd back to 6cd had lead paragraphs here and they have been cut, because
 this file keeps reaching the 150 k-char limit (6eb: 152,583; 6eh cut 6dd to
@@ -254,7 +254,13 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6gz first**
+**Where to start next: the slice log, from the END — 6ha first**
+(no code: the sweep 6gz named as its blind side, denials and counts in
+comments and literals that never say "this app", each block joined before
+matching; fifteen stale comments went, and the guide's "nothing here
+records what your character is carrying"; five hid behind an exclusion
+that trusted 6gz's reach, and `FrightCheck.recoveryBonus` has no
+production caller; no device pass; ten owner questions). Then 6gz
 (the Defend note called an untrained weapon's parry "a gap here and not a
 ruling" where 6ev had refused it; it gives the ruling now, from the two
 formula cells, after a design review asked for the case against; two stale
@@ -271,11 +277,7 @@ roll" not built, as Entity Fixation's sibling clause is refused; five
 owner questions open). Then 6gw (Anchored Soul refused with its reason: every "against you" the book
 prints is the other party's attempt, and no line turns the -2 into a bonus
 where the holder rolls, so it is not Incorruptible Will's mirror; this
-file trimmed to 71k and this chain capped; three owner questions open).
-Then 6gv (Perceptual Splitting's -2 declared on the sheet and scoped to the rolls
-line 390 calls physical: `physicalStates` beside `states`, and the ledger
-asks `EffortBurn.isPhysical`; the signed unread rows are all triaged, and
-none is a slice without a stored choice or a new roll). The chain
+file trimmed to 71k and this chain capped; three owner questions open). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -324,7 +326,7 @@ of what is left is the closing paragraph of the most recent slice.
 
 There is an Android module (`app/`, Compose) with four screens: premade list
 (theme picker in its top bar) -> sheet (the `computed vs asPublished` diff, a
-Vitals/Skills/Traits bottom bar, and a twelve-tile action hub), the pathway
+Vitals/Skills/Traits bottom bar, and an action hub), the pathway
 screen (potion grants, digestion tracker, Potion Consumption Roll), and the
 builder (attributes, secondary characteristics, wealth, appearance, languages, traits,
 weapons and bought skills, against a live point budget). `docs/HOW-TO-PLAY.md` is the
@@ -542,7 +544,9 @@ VitalRolls.printed(check): String             // CONSCIOUSNESS at 0 HP, SURVIVAL
 StunRecovery.stunsOn(row) / .printed() / .bonusFor(traits)
 StunRecovery.isStun(recovery)                 // the one authority on the word
 FrightCheck.recoveryFor(effect, kind): FrightRecovery?   // null in 6 of 9 bands
-FrightCheck.recoveryBonus(recovery, traits)   // Combat Reflexes, Stunned only
+FrightCheck.recoveryBonus(recovery, traits)   // Combat Reflexes, Stunned only;
+                                      // NO production caller: the dialog
+                                      // gates on StunRecovery.isStun (6ha)
 FrightCheck.levelFor(recovery, will, iq) / .takesWillClauses(recovery)
 FrightCheck.durationFor(effect, kind): ComputedDuration?   // row 12 only:
                                       // the one duration with a stat in it
@@ -551,7 +555,7 @@ FrightCheck.secondsFor(duration, ht, will, iq) / .durationLine(...)
 Outcome.isSuccess: Boolean                    // print a roll's OWN verdict
 StunRecovery.targetFor(ht, traits, poolPenalty)   // the Major Wound Failure
                                               // row's own roll; the fright
-                                              // table's Will/IQ ones are a GAP
+                                              // table's are FrightCheck's
 TraitAttributeRolls.stunRecoveryHt(traits): MajorWoundHt
 TraitAttributeRolls.stunRecoveryBonus(traits): Int   // Combat Reflexes, any stun
 TraitAttributeRolls.deathRollBonus(traits): Int      // Hard to Kill, survival roll only
