@@ -457,15 +457,17 @@ proficiencies at that group's prices (6 / 4 / 2 for a common tongue, 30 / 20 /
 and *Spoken only* or *Written only* costs half. The line above **Buy** is
 what the budget will bill and why. Language Talent halves it, rounded up, and
 Multilingual makes the first two common languages bought at Native in both
-forms free; both are read whenever the character is composed, so buying
-either one later reprices what is already owned. Picking a language the
+forms free; Dead Language Fluency does the same for the first of Ancient
+Hermes or Ancient Feysac bought at Native in both forms (the owner's reading:
+the book names no level, price or list). All three are read whenever the
+character is composed, so buying one later reprices what is already owned. Picking a language the
 character owns changes it in place, and **Give back** removes it. The points
 are applied and the *-2 / -3 to language-dependent skill rolls* are not: the
-book tags no skill as language-dependent, so those are the GM's. No language
-is free without Multilingual, because the book prints no free native tongue;
+book tags no skill as language-dependent, so those are the GM's. No other language
+is free, because the book prints no free native tongue;
 what a premade already speaks is not on its sheet, and the app does not
 guess it. A language that comes with a trait (Official Beyonder's *Hermes
-Language (Broken)*, Dead Language Fluency) or with a potion is not a row
+Language (Broken)*) or with a potion is not a row
 here either, so do not buy it twice.
 
 **Weapons** lists what the character is carrying, with **Carry a weapon**

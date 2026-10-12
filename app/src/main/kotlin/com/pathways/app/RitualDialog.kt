@@ -91,8 +91,8 @@ fun RitualDialog(
      * The mystical languages this character BOUGHT, each as "Hermes, Native,
      * written only". Printed beside the picker and never fed to it: owning a
      * language does not say which one this ritual is cast in, and a trait
-     * (Official Beyonder, Dead Language Fluency) can grant one this list
-     * cannot see.
+     * (Official Beyonder) can grant one this list cannot see. Dead Language
+     * Fluency's is bought, free, so it is here (6hh).
      */
     boughtLanguages: List<String>,
     /** The languages a potion drunk granted, the same way (6fo). */

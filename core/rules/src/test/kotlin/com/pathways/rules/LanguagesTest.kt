@@ -199,6 +199,49 @@ class LanguagesTest {
         assertTrue(without.none { it.isFree })
     }
 
+    /**
+     * "Read and speak one dead language (Ancient Hermes, Ancient Loen, etc.)
+     * without having formally learned it" (p. 14). The cell prints no level,
+     * no price and no list: the owner ruled all three on 2026-10-12 (6hh) --
+     * Native, both forms, billed nothing, and the two Ancient languages the
+     * table holds. Jotun is "still in daily use"; Ancient Loen is not listed.
+     */
+    @Test
+    fun `Dead Language Fluency frees the first fluent dead language and nothing else`() {
+        val bought = listOf(
+            buy("Hermes", "Native"),
+            buy("Ancient Feysac", "Native", Languages.SPOKEN_ONLY),
+            buy("Ancient Hermes", "Native"),
+            buy("Jotun (Giant's)", "Native"),
+        )
+        val with = Languages.owned(bought, holding(Languages.DEAD_LANGUAGE_FLUENCY)).map { it.second!! }
+        assertEquals(listOf(30, 15, 0, 30), with.map { it.cost })
+        assertEquals(listOf("Ancient Hermes"), with.filter { it.isFree }.map { it.purchase.language })
+        // One language, so a second fluent dead one is billed.
+        val two = listOf(buy("Ancient Feysac", "Native"), buy("Ancient Hermes", "Native"))
+        assertEquals(
+            listOf(0, 30),
+            Languages.owned(two, holding(Languages.DEAD_LANGUAGE_FLUENCY)).map { it.second!!.cost },
+        )
+        assertEquals(listOf(30, 15, 30, 30), Languages.owned(bought, emptyList()).map { it.second!!.cost })
+    }
+
+    @Test
+    fun `Multilingual and Dead Language Fluency each free their own`() {
+        val bought = listOf(buy("Ancient Hermes", "Native"), buy("Loen", "Native"), buy("Hermes", "Native"))
+        val held = holding(Languages.MULTILINGUAL, Languages.DEAD_LANGUAGE_FLUENCY)
+        assertEquals(listOf(0, 0, 30), Languages.owned(bought, held).map { it.second!!.cost })
+    }
+
+    /** A misspelt name would free nothing and fail no other test. */
+    @Test
+    fun `every dead language is a mystical row the table prints`() {
+        assertEquals(setOf("Ancient Hermes", "Ancient Feysac"), Languages.DEAD_LANGUAGES)
+        for (name in Languages.DEAD_LANGUAGES) {
+            assertEquals(Languages.MYSTICAL, Languages.all().single { it.name == name }.type, name)
+        }
+    }
+
     @Test
     fun `a purchase the book does not print is dropped, and a language is owned once`() {
         assertNull(costOf(buy("Klingon", "Native")))
@@ -263,6 +306,10 @@ class LanguagesTest {
             "free with Multilingual (6 listed)",
             line(buy("Loen", "Native"), Languages.MULTILINGUAL, Languages.TALENT),
         )
+        assertEquals(
+            "free with Dead Language Fluency (30 listed)",
+            line(buy("Ancient Hermes", "Native"), Languages.DEAD_LANGUAGE_FLUENCY, Languages.TALENT),
+        )
     }
 
     /** "Fluent" is the Native row's own first word, in both tables. */
@@ -282,13 +329,18 @@ class LanguagesTest {
      */
     @Test
     fun `every trait the language prices read is one the census can see`() {
-        assertEquals(setOf(Languages.TALENT, Languages.MULTILINGUAL), Languages.PRICING_TRAITS)
+        assertEquals(
+            setOf(Languages.TALENT, Languages.MULTILINGUAL, Languages.DEAD_LANGUAGE_FLUENCY),
+            Languages.PRICING_TRAITS,
+        )
         assertEquals(emptySet<String>(), Languages.PRICING_TRAITS - TraitEffects.known())
         // Multilingual's cell prints a second clause, and it reaches nothing.
         val multilingual = TraitReport.reported(holding(Languages.MULTILINGUAL))
         assertTrue(multilingual.any { "language-dependent" in it.printed }, multilingual.toString())
         // Language Talent's one clause is applied whole: nothing to report.
         assertEquals(emptyList<TraitNote>(), TraitReport.reported(holding(Languages.TALENT)))
+        // So is Dead Language Fluency's, which leaves UNREAD behind (6hh).
+        assertEquals(emptyList<TraitNote>(), TraitReport.reported(holding(Languages.DEAD_LANGUAGE_FLUENCY)))
     }
 
     /** Owned, billed, and still on the sheet: the penalties reach no roll. */

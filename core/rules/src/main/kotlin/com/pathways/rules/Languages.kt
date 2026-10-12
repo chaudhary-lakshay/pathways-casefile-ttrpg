@@ -58,13 +58,19 @@ data class OwnedLanguage(
     /** [Languages.COMMON] or [Languages.MYSTICAL]. */
     val type: String,
     val cost: Int,
-    /** One of Multilingual's two: common, fluent, both forms, billed nothing. */
-    val isFree: Boolean,
+    /**
+     * The trait that bills this nothing: one of [Languages.MULTILINGUAL]'s
+     * two, or [Languages.DEAD_LANGUAGE_FLUENCY]'s one. Null when billed.
+     */
+    val freedBy: String?,
     /** The table's own price, before a form or a trait moved it. */
     val listed: Int,
     /** Whether Language Talent's halving is in [cost]. */
     val isHalvedByTalent: Boolean,
 ) {
+    val isFree: Boolean
+        get() = freedBy != null
+
     /**
      * [cost], and what moved it off the table's price. Authored here rather
      * than in the builder, the call [Divination.sourceLine] makes: a screen
@@ -72,7 +78,7 @@ data class OwnedLanguage(
      */
     val costLine: String
         get() {
-            if (isFree) return "free with ${Languages.MULTILINGUAL} ($listed listed)"
+            if (freedBy != null) return "free with $freedBy ($listed listed)"
             val moved = listOfNotNull(
                 "half for one form".takeIf { purchase.form != Languages.BOTH_FORMS },
                 "halved by ${Languages.TALENT}, rounded up".takeIf { isHalvedByTalent },
@@ -111,10 +117,24 @@ object Languages {
     const val MULTILINGUAL_LANGUAGES = 2
 
     /**
+     * "Read and speak one dead language (Ancient Hermes, Ancient Loen, etc.)
+     * without having formally learned it" (p. 14). The cell prints no level,
+     * price or list; the OWNER ruled them on 2026-10-12 (6hh), not the book:
+     * [FLUENT], both forms, billed nothing, one of [DEAD_LANGUAGES].
+     */
+    const val DEAD_LANGUAGE_FLUENCY = "Dead Language Fluency"
+
+    /**
+     * The owner's list (6hh): the two Ancient rows the table holds. Jotun is
+     * printed "still in daily use", and Ancient Loen is not in the table.
+     */
+    val DEAD_LANGUAGES = setOf("Ancient Hermes", "Ancient Feysac")
+
+    /**
      * The traits [owned] reads. Exported once so [TraitEffects.known] can
      * count them as applied without a second copy of the names.
      */
-    val PRICING_TRAITS = setOf(TALENT, MULTILINGUAL)
+    val PRICING_TRAITS = setOf(TALENT, MULTILINGUAL, DEAD_LANGUAGE_FLUENCY)
 
     /** The row whose effect cell opens "Fluent.", in both tables. */
     const val FLUENT = "Native"
@@ -136,7 +156,10 @@ object Languages {
      * purchases that are common, [FLUENT] and in both forms cost nothing --
      * "it does not apply to mystical languages". Which two is this app's
      * convention and changes no total: every eligible purchase costs the
-     * same. The book prints no free native tongue, so nothing else is free.
+     * same. [DEAD_LANGUAGE_FLUENCY] likewise frees the first purchase of a
+     * [DEAD_LANGUAGES] row that is [FLUENT] and in both forms (the owner's
+     * ruling, 6hh); the two sets cannot meet, as one is common and one
+     * mystical. The book prints no free native tongue, so nothing else is free.
      *
      * A language is owned once, and the FIRST purchase stands. A purchase is
      * validated before it claims its language, so a stale row cannot
@@ -148,6 +171,7 @@ object Languages {
     ): List<Pair<LanguagePurchase, OwnedLanguage?>> {
         val talentDivisor = if (holds(held, TALENT)) 2 else 1
         var free = if (holds(held, MULTILINGUAL)) MULTILINGUAL_LANGUAGES else 0
+        var dead = if (holds(held, DEAD_LANGUAGE_FLUENCY)) 1 else 0
         val seen = mutableSetOf<String>()
         return purchases.map { purchase ->
             val entry = all().firstOrNull { it.name.equals(purchase.language, ignoreCase = true) }
@@ -163,19 +187,23 @@ object Languages {
             if (entry == null || row == null || formDivisor == null || !seen.add(entry.name)) {
                 return@map purchase to null
             }
-            val isFree = free > 0 && entry.type == COMMON &&
-                row.proficiency == FLUENT && purchase.form == BOTH_FORMS
-            if (isFree) free--
+            val fluentInBoth = row.proficiency == FLUENT && purchase.form == BOTH_FORMS
+            val freedBy = when {
+                !fluentInBoth -> null
+                free > 0 && entry.type == COMMON -> MULTILINGUAL.also { free-- }
+                dead > 0 && entry.name in DEAD_LANGUAGES -> DEAD_LANGUAGE_FLUENCY.also { dead-- }
+                else -> null
+            }
             // Ceiling division (4.3): the book rounds UP, and floorDiv on the
             // negated price is how this codebase writes that.
-            val cost = if (isFree) 0 else -Math.floorDiv(-row.points, formDivisor * talentDivisor)
+            val cost = if (freedBy != null) 0 else -Math.floorDiv(-row.points, formDivisor * talentDivisor)
             purchase to OwnedLanguage(
                 purchase.copy(language = entry.name, proficiency = row.proficiency),
                 entry.type,
                 cost,
-                isFree,
+                freedBy,
                 listed = row.points,
-                isHalvedByTalent = !isFree && talentDivisor > 1,
+                isHalvedByTalent = freedBy == null && talentDivisor > 1,
             )
         }
     }
