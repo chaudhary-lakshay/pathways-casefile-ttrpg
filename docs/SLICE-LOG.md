@@ -6726,6 +6726,102 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gu. Light Sleeper, declared on a Per roll
+
+6gi's table left three rows as *"each names a roll loosely; a reading
+apiece"*: Light Sleeper, Marked by Ritual and Skinny. This slice reads one,
+and says why the other two stay.
+
+**The census first, because 6gi's count was three slices old.** The
+complement of `TraitEffects.known()`, by a throwaway test: **117 of 198
+rows, down from 125.** 26 carry a `selfControl` field. Of the other 91, 25
+print a signed number: Local Legend, Respectable Address, Wealth:
+Comfortable, Cold Resistance, Controlled Breathing, Light Sleeper,
+Low-Profile Build, Dreamsight, Pathway Resonance, Anchored Soul, Charmed
+Object, Marked by Ritual, Wealth: Poor, Wealth: Dead Broke, Social Stigma,
+Illegitimate Birth, Reputation: Troublemaker, Cannot Kill, Skinny, Vow
+(specify), Pathway Resonance (Hostile), Bound to a Place, Dead-Eyed,
+Unsettling Appearance, Perceptual Splitting. 6gi's *"the rest"* was never
+listed row by row, and this list is not triaged either beyond the three
+rows below.
+
+**Light Sleeper** (book 906): *"Perception rolls while sleeping at +4;
+never caught completely unaware at night."* A Per-roll bonus under a
+circumstance the GM declares. Alertness's *"all Per rolls"* is the
+precedent for where a Per bonus lands (6fe), and the sense chips for a
+declared one (6fh).
+
+- `TraitClauses.PER_ROLL_CLAUSES`, one row, conditional.
+  `perRollClauses(traits)` gives it under the sheet's spelling.
+  `skillRollClauses` offers it on every Per skill, so the skill dialog's
+  chips and `TraitEffects.modifiers` both read it, and `known()` names it.
+- **Detection's Per branch takes it**, through a `perClause` parameter that
+  lands where `alertness` does and is named on the attribute line. The
+  attribute is still chosen on the raw scores, as for Alertness. On an SPI
+  roll the chip moves nothing, so the dialog says *"This roll takes SPI, so
+  a Perception clause does not reach it."* `Detection.isPerRoll` answers
+  that from the same branch `attributeFor` takes.
+- **Spirit Vision is not offered it.** That roll is the holder's own act
+  and costs SPI to open, so no sleeper makes it. A reading, in the row's
+  KDoc.
+- **The roll the cell most plainly means is one this app does not make**: a
+  bare Per roll to wake. Said in the KDoc.
+- *"never caught completely unaware at night"* is reported: surprise is a
+  GM tick on the Defend dialog (`DefenseRefusal.SURPRISE`), and nothing
+  decides it.
+
+**Skinny stays unread, and its +2 is not an Escape clause.** *"+2 to rolls
+to escape bonds or fit into tight spaces"* looks like the Escape skill,
+whose cell reads *"Free oneself from bonds and confinement"* (2150). The
+book prints two more rolls for the same purpose: Knot-Tying's *"escape
+bonds at -2"* (1883) and the grapple's *"ST or Escape"* (408). So the
+phrase names a purpose that spans several rolls, the case
+`PURPOSE_NOT_SKILL` refuses for Healer, Voice, Industrial Expertise and
+Entity Fixation. Applying it to Escape alone would make that predicate
+answer two ways. No code: the row reads `UNREAD`, which is true, and the
+Traits tab shows *GM call*.
+
+**Marked by Ritual stays unread.** *"+2 to one type of SPI roll (define
+with GM)"* needs the defined type stored: an additive `SavedEdits` field
+and a picker. A slice of its own.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| light sleeper is declared on a Per roll and never on Spirit Vision | a stub returning no rows: *List is empty* |
+| a declared Per clause lifts the Per branch alone and is named there | ignored parameter: *expected: <14> but was: <10>* |
+| `TraitReportedTest`'s clause guard | fired once the row was known: *Light Sleeper drops the clause "never caught completely unaware at night"* |
+
+2084 Kotlin (1373 `core:rules`, 691 `app`, 20 `core:model`), 0 failures,
+after `--rerun-tasks` from deleted results. `ast-grep scan` is clean and
+the click-handler census reads 32.
+
+### Device pass
+
+**Not the SM-T570.** The attached device was an AIM-75 (1200x1920) with no
+Pathways install, so there was no save to back up. The debug build was
+installed fresh, and the save this pass wrote was deleted afterwards. The
+app is still installed there.
+
+Academic Researcher, Light Sleeper bought in the builder (9 spare to 7):
+
+- Detect, nothing lit: *"Per 10 (the higher of SPI 0 and Per 10)"*, *"3d6
+  ≤ 10"*.
+- The chip *"Light Sleeper: Perception rolls while sleeping at +4"*, lit:
+  *"Per 14 (the higher of SPI 0 and Per 10, Light Sleeper +4)"*, *"3d6 ≤
+  14"*. Rolled: *"Success by 3+"*, *"3d6: 6 vs 14"*, and the same line
+  under the verdict.
+- The Darkness row, chip still lit: *"SPI 0 (the row grants a SPI roll)"*,
+  *"3d6 ≤ 0"*, and *"This roll takes SPI, so a Perception clause does not
+  reach it."*
+- Traits: Light Sleeper reads *Partly applied*; open, *"Not applied: never
+  caught completely unaware at night"* and the reason. Skinny, which this
+  premade holds, reads *GM call*.
+
+No FATAL in logcat. **Not driven on the device:** the chip on a Per skill's
+roll. This premade trains none, and the rules test is its proof.
+
 ## 6gt. The PCR takes no carried state, on the book's sentence
 
 6gs excluded the Potion Consumption Roll from the declared states with the
