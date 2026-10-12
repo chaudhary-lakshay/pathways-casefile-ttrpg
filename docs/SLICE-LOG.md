@@ -6726,6 +6726,57 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gt. The PCR takes no carried state, on the book's sentence
+
+6gs excluded the Potion Consumption Roll from the declared states with the
+reason *"where no state reaches at all"*. That is a claim about this app,
+and it describes the code without saying why the code is right. The
+question it left: does *"-N to all rolls"* (Reeling, FP below 0, shock, the
+five declared rows) reach the PCR?
+
+**No, and the book says so on line 3079**: *"This is a raw 3d6 roll — no
+stat or skill applies. Only the drinker's digestion of their current potion
+matters."* That sentence is specific to this roll and *"all rolls"* is
+general, the same call `PcrOutcome.integrated` makes for the critical
+rules. The table agrees with it: the 100% row is annotated *"19 — always
+succeeds"*, and Laudanum's -2 would leave 17, which an 18 fails.
+
+**The query that could have overturned it.** A row that names the PCR would
+be specific too. `advantages.json`, `disadvantages.json`, `pathways.json`
+and `non_standard_pathways.json` were grepped for *consumption roll*, *PCR*
+and *potion consumption*: nothing. The book was grepped for *advanc*,
+*drink* or *potion* on a line with a signed number: one row modifies a
+drinking roll, the Beast Tamer's *"Animals tamed by a Beast Tamer gain +4
+to rolls involving drinking potions"* (line 6837), and it is for a tamed
+animal, which this app does not play. Luck's reroll (6fg) and the Acting
+Method (6ez) reach the PCR through a reroll and through digestion. Neither
+is a modifier.
+
+No roll changed. The reason now sits in production source: `PotionConsumption`'s
+KDoc, and `RollKind`'s, which names the two 3d6 rolls that are deliberately
+no kind. `Invocation.ask` stays out on its own reason: it is the entity's
+roll.
+
+**Not done, and why.** The Drink line prints *"3d6 ≤ 12"* and says nothing
+about a reeling drinker. No screen prints a state beside that number, so
+nothing there reads as applied, and the pathway screen cannot see the
+states declared on the Vitals tab. A sentence was not added.
+
+### Test
+
+`BeyonderSessionTest`: *a hurt drinker rolls the table's target and no
+carried state*. A drinker at 60% with 8 HP lost rolls 12 against 12 and
+integrates. It passed on its first run, as a guard on existing behaviour
+does. Its mutant, a hurt drinker rolled one row lower, reddened it:
+*expected: <12> but was: <10>*. The mutant compiled (`e:` count 0), read
+from results deleted before the run. 2082 Kotlin (1371 `core:rules`, 691
+`app`, 20 `core:model`), 0 failures, after `--rerun-tasks` from deleted
+results; `ast-grep scan` is clean. No device pass: no screen changed. No
+diff review was run on a test and two KDocs.
+
+**Next**: 6gi's table of 125 unread trait rows, less 6gs's five. None is a
+slice without a new reading.
+
 ## 6gs. "-N to all rolls", declared once on the sheet
 
 6gi's table left three disadvantages under *"to all rolls" under a state
