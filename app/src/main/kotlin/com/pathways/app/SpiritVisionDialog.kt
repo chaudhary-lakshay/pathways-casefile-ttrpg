@@ -1,15 +1,17 @@
 package com.pathways.app
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -92,114 +94,113 @@ fun SpiritVisionDialog(
     val parts = SpiritVision.partsFor(per, shock, hurt, alertness, vision)
     val affordable = spiAvailable >= activation
 
+    // The reading the Look button is drawn beside.
+    val drawn = result
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(form) },
         text = {
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Text(
-                    "Activate for $activation SPI, then ${SpiritVision.maintenance()} SPI " +
-                        "per minute to maintain. Roll against Perception to interpret.",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    "Roll $target or under" +
-                        parts.joinToString(
-                            prefix = "  (", postfix = ")",
-                        ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                // The skill roll dialog's declaration, for the one clause
-                // this roll can take (6fh).
-                visionClause?.let { clause ->
-                    TextButton(onClick = { visionDeclared = !visionDeclared }) {
+            Column {
+                Column(
+                    modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    // The base is Perception alone, so the card strikes it out
+                    // once alertness, shock, the trackers or Acute Vision move it.
+                    TargetCard(target, baseTarget = per)
+                    drawn?.let { ReadingCard(it) }
+                    // The skill roll dialog's declaration, for the one clause
+                    // this roll can take (6fh).
+                    visionClause?.let { clause ->
+                        TextButton(onClick = { visionDeclared = !visionDeclared }) {
+                            Text(
+                                "${clause.shown}: ${clause.printed}",
+                                color = if (visionDeclared) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                            )
+                        }
+                    }
+                    // The key a reading is interpreted with: closed until asked (6gl).
+                    RuleNote("Colour key") {
+                        ColourTable(
+                            "Astral Projection — emotional state",
+                            SpiritVision.astralColors().map { it.color to it.meaning },
+                        )
+                        ColourTable(
+                            "Ether Body — physical health",
+                            // The INVERSE order to the table above: this one is keyed
+                            // by body region and the colour is the value. Printed the
+                            // way the book prints each, so neither is transposed.
+                            SpiritVision.etherBody().map { it.region to it.color },
+                        )
                         Text(
-                            "${clause.shown}: ${clause.printed}",
-                            color = if (visionDeclared) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
+                            SpiritVision.etherBodyNote(),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
-                if (!affordable) {
-                    Text(
-                        "Not enough SPI: $spiAvailable left, $activation to activate.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-
-                result?.let { outcome ->
-                    HorizontalDivider()
-                    // The reading, in the book's own words. Deliberately NOT
-                    // labelled with the outcome: "Incorrect reading" is what
-                    // the character comes away believing, and printing
-                    // "Failure" above it tells the player something the rule
-                    // does not give them.
-                    Text(
-                        outcome.row.effect,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                    )
-                    Text(
-                        "rolled ${outcome.roll.total} vs ${outcome.roll.target}" +
-                            "  ·  margin ${outcome.roll.margin}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-
-                HorizontalDivider()
-                // The key a reading is interpreted with: closed until asked (6gl).
-                RuleNote("Colour key") {
-                ColourTable(
-                    "Astral Projection — emotional state",
-                    SpiritVision.astralColors().map { it.color to it.meaning },
-                )
-                ColourTable(
-                    "Ether Body — physical health",
-                    // The INVERSE order to the table above: this one is keyed
-                    // by body region and the colour is the value. Printed the
-                    // way the book prints each, so neither is transposed.
-                    SpiritVision.etherBody().map { it.region to it.color },
-                )
-                Text(
-                    SpiritVision.etherBodyNote(),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                }
-            }
-        },
-        confirmButton = {
-            // The reading this button was drawn beside.
-            val drawn = result
-            TextButton(
-                enabled = affordable,
-                onClick = {
+                RollFooter(
+                    lines = listOfNotNull(
+                        parts.joinToString(", "),
+                        "Activate for $activation SPI, then ${SpiritVision.maintenance()} SPI per minute to maintain.",
+                        if (affordable) null else "Not enough SPI: $spiAvailable left, $activation to activate.",
+                    ),
+                    caption = "3d6 ≤ $target",
+                    enabled = affordable,
+                    label = if (drawn == null) "Look ($activation SPI)" else "Look again ($activation SPI)",
+                ) {
                     // Looking again is the rule, so the button stays; a
                     // second tap of the same picture does not. `affordable`
                     // is the pool as drawn, and the first tap may have
                     // emptied it: the second spent into Soul Debt, which
                     // is permanent CoR. By identity, since two readings can
                     // be equal.
-                    if (result !== drawn) return@TextButton
+                    if (result !== drawn) return@RollFooter
                     // Charged before the roll, like every other SPI-priced
                     // action here: the book spends to activate, and a reading
                     // that failed still cost the point.
                     onSpendSpi(activation)
                     result = SpiritVision.rollAgainst(target, dice, parts)
-                },
-            ) { Text(if (result == null) "Look ($activation SPI)" else "Look again ($activation SPI)") }
+                }
+            }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
     )
+}
+
+/**
+ * The reading, in the book's own words. Deliberately NOT labelled with the
+ * outcome, and drawn in no verdict colour: "Incorrect reading" is what the
+ * character comes away believing, and a red "Failure" above it tells the
+ * player something the rule does not give them.
+ */
+@Composable
+private fun ReadingCard(outcome: SpiritVisionResult) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                outcome.row.effect,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+            )
+            Text(
+                "3d6: ${outcome.roll.total} vs ${outcome.roll.target}  ·  margin ${outcome.roll.margin}",
+                style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+        }
+    }
 }
 
 @Composable
