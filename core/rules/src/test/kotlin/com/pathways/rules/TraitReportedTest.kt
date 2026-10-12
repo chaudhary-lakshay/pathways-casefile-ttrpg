@@ -751,8 +751,6 @@ class TraitReportedTest {
                 // Resemblance only, recorded: the book prints the row under another name.
                 "Absent-Minded", "No Sense of Humour", "Wierdness Magnet", "Paranoia: Bodies of water",
                 "Blacklisted: Specific Industry org or church", "Pacifism (Cannot Kill)", "Pacifism (Cannot Harm Innocents)",
-                // No sheet quotes Secret's cell, so a bracket instantiates nothing (6by).
-                "Secret (Racist Sympathizer)", "Secret (Courier network)",
                 // University Librarian's, at 5 pts: no level's price, so no level (Wealth.levelOf).
                 "Poverty: Struggling",
             ),

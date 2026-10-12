@@ -6726,6 +6726,17 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6he. Four owner answers (2026-10-12)
+
+| Q | Answer |
+|---|---|
+| 7, untrained armed parry | **refused stays**: the book gives no number |
+| 8, God of Combat's +3 ST/DX/HT | **apply**, after a written decomposition and its review |
+| 9, Hanged Man 9's drawback | **store the choice**, granted at 0 pts |
+| 10, a sheet's *"Secret (...)"* | **resolve it to the Secret row**, as the builder's own does |
+
+Questions 1-6 (6gx, 6gy) are still unanswered.
+
 ## 6hd. The device pass three slices owed, and a note under the wrong row
 
 The SM-T570 (`R52TA076AEZ`) was attached, so the checks 6gz, 6hb and 6hc

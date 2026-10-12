@@ -252,60 +252,8 @@ class TraitNamesTest {
             "resolved by [Wealth], not here: that resolution reads the trait's " +
             "cost and kind, and this API takes a name alone (a design review's " +
             "call in 6bx). The builder's wealth row shows the level",
-
-        // --- a GAP: the data marks an instantiation and this app cannot see it
-        "Secret (Courier network)" to SEE_RANGED_TEMPLATE_GAP,
-        "Secret (Racist Sympathizer)" to SEE_RANGED_TEMPLATE_GAP,
     )
 
-    /**
-     * Why seven instantiations of two rows are a GAP and not a refusal.
-     *
-     * The book asks for an instance two ways: explicitly, by putting
-     * "(specify)" in the row's NAME, which this app resolves; and implicitly,
-     * by printing a cost RANGE that the instance settles -- "Sense of Duty"
-     * 2-15, "Secret" 5-30. Nothing here reads the second.
-     *
-     * **Reading the range alone would be inference, and it over-matches.**
-     * Nineteen rows print a range, and two of them are "Shyness" and
-     * "Social Stigma" -- the exact pair 6bw resolved through a separate,
-     * carefully argued warrant, because their cells ENUMERATE their variants
-     * with prices. If a range by itself marked a template, that warrant was
-     * never needed. "Reputation" is variable-cost too, and 6bx's review used
-     * "Reputation: Wealthy" as its over-match example.
-     *
-     * **The narrower warrant was taken instead, and it closed half of this.**
-     * Church Healer prints "Sense of Duty (Flock) - " followed by that row's
-     * own notes VERBATIM -- the sheet asserting the instantiated name IS that
-     * row -- so those six spellings resolve now and are gone from the map
-     * above. `Secret` stays, because no sheet quotes its cell.
-     *
-     * That asymmetry is the whole point, and it is what a design review
-     * insisted on: **a cost inside the printed interval corroborates PRICING,
-     * never catalogue IDENTITY.** Secret prints an interval and enumerates
-     * nothing, exactly as Sense of Duty does, so any rule keyed on that shape
-     * resolves both -- and excluding the counter-examples (Shyness, Social
-     * Stigma, Reputation) is not the same as producing evidence for these.
-     *
-     * **A census of the fixtures, for whoever builds it** (facts, not
-     * recollection -- and the thing 6by did not have):
-     *
-     *  - Nine of the nineteen withheld rows are instantiated by the 23
-     *    published sheets, across 19 instances. (I counted 18 by hand and the
-     *    test said 19 -- which is why it is a test.)
-     *  - EVERY one of the 19 pays a cost INSIDE its row's printed range. None
-     *    outside. That is the book's own cast doing what a bare range implies,
-     *    and it is a claim about PRICING, which is a different question from
-     *    the NAME RESOLUTION refused above.
-     *  - The ranged rows are three shapes, not one: two enumerate named
-     *    variants (Shyness, Social Stigma); two print a SCALE with worked
-     *    points (Mystical Item, Duty) and say the value moves; the rest print
-     *    a bare interval. "Reputation" alone prints no bounds at all, so it
-     *    has no interval to pick inside and is not the same case as the other
-     *    thirteen.
-     *  - "Compulsion: Collection (pathway)" carries a Will-2 self-control
-     *    roll, so offering these rows is not a cosmetic change.
-     */
     /**
      * **The pricing warrant, checked over every sheet rather than asserted.**
      *
@@ -344,13 +292,6 @@ class TraitNamesTest {
             }
         assertEquals(19, checked.size, "the fixtures instantiate 19 ranged rows")
         assertEquals(9, checked.map { it.substringBefore(" (") }.distinct().size)
-    }
-
-    private companion object {
-        const val SEE_RANGED_TEMPLATE_GAP =
-            "the book prints a cost RANGE an instance settles, and no sheet " +
-                "quotes this row's cell -- so nothing proves the bracket names " +
-                "THIS row rather than resembling it"
     }
 
     // ---- the placeholder the book tells the sheet to fill ------------------
@@ -428,7 +369,6 @@ class TraitNamesTest {
         )
         for (name in listOf(
             "Paranoia: Bodies of water",     // the row is a bare "Paranoia"
-            "Secret (Courier network)",       // no sheet quotes its cell
             "Blacklisted: Specific Industry org or church",
             "Absent-Minded",                 // "Absent-Mindedness" in the book
             "Pacifism (Cannot Kill)",        // no such row at all
@@ -526,15 +466,12 @@ class TraitNamesTest {
     }
 
     /**
-     * The bracket resolves for the row a sheet quoted, and for no other.
+     * The bracket resolves for a named row, and for no other.
      *
-     * **"Secret" is the discriminating case**, and it stays unmatched on
-     * purpose: it prints a cost interval and enumerates nothing, exactly like
-     * Sense of Duty, so a rule keyed on that shape would resolve it too. No
-     * sheet quotes its cell, and every instance paying inside its printed
-     * interval is evidence about PRICING rather than catalogue IDENTITY
-     * (Codex, on the design) -- which makes the broader rule the plausible
-     * match 4.1 calls repair.
+     * No SHAPE rule: a cost interval with no enumeration is evidence about
+     * PRICING, never catalogue IDENTITY (Codex, on the design), so Obsession
+     * stays unmatched. Sense of Duty is named on a sheet's quotation, Secret
+     * on the owner's ruling (6he).
      */
     @Test
     fun `a bracket resolves only on the row a sheet proved it instantiates`() {
@@ -560,11 +497,11 @@ class TraitNamesTest {
                 "Sense of Duty (Flock) - Must help/protect certain groups even at personal risk",
             ),
         )
-        // ...and the row nothing quoted keeps its recorded gap.
-        assertEquals(
-            "Secret (Courier network)",
-            TraitNames.catalogueName("Secret (Courier network)"),
-        )
+        // Secret resolves on the owner's ruling, not a quotation (6he): the
+        // builder sells "Secret" with an instance, and a sheet's bracket is
+        // the same purchase.
+        assertEquals("Secret", TraitNames.catalogueName("Secret (Courier network)"))
+        assertEquals("Secret", TraitNames.catalogueName("Secret (Racist Sympathizer)"))
         assertEquals("Obsession (A rival)", TraitNames.catalogueName("Obsession (A rival)"))
     }
 

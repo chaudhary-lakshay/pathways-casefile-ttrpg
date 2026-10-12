@@ -92,8 +92,13 @@ object TraitNames {
      * corroboration on offer is the wrong kind: **every instance paying inside
      * its printed interval is evidence about PRICING, never about catalogue
      * IDENTITY** (Codex, on the design). With the filters removed it is the
-     * plausible match 4.1 calls repair. So `Secret` stays unmatched, because
-     * no sheet quotes its cell, and the day one does this set grows by a name.
+     * plausible match 4.1 calls repair. So no shape rule was written.
+     *
+     * **`Secret` is in the set on the owner's ruling (6he), not a quotation.**
+     * The builder sells "Secret" with an instance and composes the bare row
+     * name, so a sheet's "Secret (Courier network)" reading as unmatched made
+     * one purchase two identities. The refusal above still holds for every
+     * other interval row.
      */
     private fun quotedInstanceRow(printed: String): String? {
         // The glued spelling carries the quotation AND the bracket, so the
@@ -117,13 +122,14 @@ object TraitNames {
     }
 
     /**
-     * Rows a published sheet has proved are instantiated by a bracket.
+     * Rows a bracket instantiates: Sense of Duty on a sheet's quotation,
+     * Secret on the owner's ruling (6he).
      *
      * Named rather than derived, because the evidence lives in the FIXTURES
-     * and production cannot read them. A test pins the quotation that puts
-     * each name here, so the warrant fails loudly rather than the set drifting.
+     * and production cannot read them. A test pins Sense of Duty's quotation,
+     * so that warrant fails loudly rather than the set drifting.
      */
-    private val QUOTED_INSTANCE_ROWS = listOf("Sense of Duty")
+    private val QUOTED_INSTANCE_ROWS = listOf("Sense of Duty", "Secret")
 
     /**
      * A priced option a cell enumerates for itself, as (name, points).

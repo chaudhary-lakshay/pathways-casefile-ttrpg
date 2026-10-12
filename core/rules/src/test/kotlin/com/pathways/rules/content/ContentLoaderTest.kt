@@ -223,21 +223,6 @@ class ContentLoaderTest {
     // Genuine disagreements are reported below rather than bent to match.
     // ---------------------------------------------------------------
 
-    /**
-     * The one asymmetry that is a GAP rather than a decision (6by).
-     *
-     * The book marks a row instantiable two ways: by putting "(specify)" in
-     * its NAME, which production reads, and by printing a cost RANGE the
-     * instance settles ("Sense of Duty" 2-15, "Secret" 5-30), which this audit
-     * reads and production does not. Reading the range alone was refused for
-     * production because nineteen rows print one -- including the pair 6bw
-     * resolved through a separately argued warrant -- so it would over-match
-     * there. Here it cannot: reaching a row only ever adds a cost check.
-     */
-    private val RANGED_TEMPLATE =
-        "the book marks the row instantiable with a printed cost RANGE, which " +
-            "this audit reads and production deliberately does not (6by)"
-
     private val SPECIFY = Regex("""^(.*?)\s*\((specify[^)]*|any)\)\s*$""", RegexOption.IGNORE_CASE)
     private val PAREN = Regex("""^(.*?)\s*\(.*\)\s*$""")
     private val TRAILING_LEVEL_NUMBER = Regex("""^(.*?)\s+\d+$""")
@@ -485,12 +470,9 @@ class ContentLoaderTest {
             "a colon instantiation of a fixed-cost row whose qualifier " +
             "paraphrases the row's own notes rather than quoting them",
         // The six "Sense of Duty (group)" spellings left this list when
-        // production learned to read them: one sheet quotes that row's cell
-        // verbatim behind the bracket, which is the identity evidence Secret
-        // has none of. The audit must never reach LESS than production, so
-        // they belong nowhere here (6bz).
-        "Secret (Courier network)" to RANGED_TEMPLATE,
-        "Secret (Racist Sympathizer)" to RANGED_TEMPLATE,
+        // production learned to read them (6bz), and the two Secret spellings
+        // on the owner's ruling (6he). The audit must never reach LESS than
+        // production, so they belong nowhere here.
     )
 
     // ---------------------------------------------------------------
