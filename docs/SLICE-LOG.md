@@ -6729,8 +6729,8 @@ resolution above, and then `Secret`, which has none.
 ## 6gx. The unread census, both of its blind sides, and nothing to build
 
 6gw named this slice: the half of the unread census 6gv's regex could not
-see. No code. The census is the result, with its queries, and it found a
-second blind side nobody had named.
+see. No code. The census is the result, with its queries, and it read a
+second half that 6gu had set aside by name and nobody had opened.
 
 ### The queries
 
@@ -6738,19 +6738,22 @@ second blind side nobody had named.
   catalogues, by a throwaway test, deleted: **114 of 198 rows**, 43
   advantages and 71 drawbacks.
 - **Signed or not.** The regex is `[+\-−]\d` over the cell, U+2212
-  included: **31 signed, 83 unsigned**. 6gu wrote *"25 unread rows that
-  print a signed number"* without its regex, so that count could not be
-  re-run (6dd's lesson, again).
+  included: **31 signed, 83 unsigned**. 6gu's census names its corpus
+  (*"26 carry a `selfControl` field. Of the other 91, 25 print a signed
+  number"*) and lists the 25, but not its regex; this one reproduces the
+  list, so the two agree.
 
-### The second blind side: nine self-control rows
+### The half set aside: nine self-control rows
 
 6gu counted 25 rows, and 6gv tabled them. Three have since joined
 `known()` (Light Sleeper, Perceptual Splitting, Anchored Soul), which
-leaves 22, and the query above returns 31: those 22 and nine more. **The nine it never held are all rows that offer a
-self-control roll**: 6gu's census was of rows reading `TraitReport.UNREAD`,
-and these read `ROLLED_ONLY`. So 6gv's *"of the unread rows that print a
-SIGNED NUMBER, none is left"* was true of the rows it had and silent on
-these.
+leaves 22, and the query above returns 31: those 22 and nine more. **The nine are all rows
+with a `selfControl` field**, the 26 that 6gu set aside in its own
+sentence and never read for a number beside the roll (the complement
+still holds 26: these nine and seventeen unsigned). 6gv's *"of the unread
+rows that print a SIGNED NUMBER, none is left"* dropped that scope: it was
+true of the 91 and silent on the 26. I first wrote that 6gu gave no query;
+it gave its corpus, and a grep cut at thirty hits had not reached it.
 
 Eight print the number as the roll's own offset. A second throwaway
 printed `SelfControl.targetFor` at Will 10 and IQ 10 beside each cell, and
@@ -6804,9 +6807,9 @@ the 83.
 
 | Rows | Why none is a slice |
 |---|---|
-| 22: Contact; Church Organisation Informant; Reputation; Intuition; Connections: Church Lay Staff; Connections: Press Credentials; Mentor; Police Informant; Street Credibility; Hunting License; General Weapon Certificate; Legal Enforcement Powers; Black Market Access; Experienced Investigator; Underworld Lawyer; Divine Touchstone; Fate Sensitivity; Soul Reading (Untrained); Sequence Knowledge; Spirit Tongue; Familiar Presence; Mystical Item | a favour, an access or a question put to the GM; no roll and no number. Mentor's *"a skill roll at their level"* is another character's level |
+| 21: Contact; Church Organisation Informant; Reputation; Intuition; Connections: Church Lay Staff; Connections: Press Credentials; Mentor; Police Informant; Street Credibility; Hunting License; General Weapon Certificate; Legal Enforcement Powers; Black Market Access; Experienced Investigator; Underworld Lawyer; Divine Touchstone; Fate Sensitivity; Soul Reading (Untrained); Sequence Knowledge; Spirit Tongue; Mystical Item | a favour, an access or a question put to the GM; no roll, and no number but a price. Mentor's *"a skill roll at their level"* is another character's level |
 | 5: Aura Sensitivity; Death Sense; Ghost Proximity Sense; Ritual Intuition; Ether Body Awareness | *"without rolling"*: the GM tells the holder |
-| 8: Warded Dreams; Born Under a Named Star; Aura Leak; CoR Brand; Dream Invaded; Residual Contamination; Spiritually Loud; Haunted | what someone else perceives, or someone else's roll; this app holds one sheet |
+| 9: Familiar Presence; Warded Dreams; Born Under a Named Star; Aura Leak; CoR Brand; Dream Invaded; Residual Contamination; Spiritually Loud; Haunted | what someone else perceives or does, or someone else's roll; this app holds one sheet |
 | 2: Hard Stomach; Cold Iron Tolerance | waives something the book prints nowhere else (queried below) |
 | 2: Dead Language Fluency; Threshold Blindness | a choice the save would have to store: which language, which entity type |
 | 1: Lifting ST | *"only for lifting/carrying"*, and the app models neither |
@@ -6831,10 +6834,10 @@ the 83.
 - Ex-Convict's *"Social Stigma in formal settings"* points at the row
   Social Stigma (1170), which is read for a price and nothing else.
 
-**One soft row, left as read.** Unlucky's cell says *"This is a weaker
+**One soft row, left as read, and put to the owner.** Unlucky's cell says *"This is a weaker
 Fate Debt"*, and Fate Debt's says *"Beckoning Luck never applies."*
-`TraitEffects.rerollSource` withholds Beckoning Luck's reroll on Fate
-Debt by name, so a holder of Unlucky and Beckoning Luck is offered the
+`TraitEffects.rerollSource` withholds Beckoning Luck's reroll where
+`levelOf(traits, FATE_DEBT)` is not null, the one name, so a holder of Unlucky and Beckoning Luck is offered the
 reroll of a failed Potion Consumption Roll. Unlucky's own cell does not
 print the exclusion, and *"weaker"* may be exactly what drops it. Not
 applied, on 4.1; named here because the roll it touches ends a character.
@@ -6850,7 +6853,7 @@ No production or test file changed; both throwaway tests were deleted and
 the tree was clean before this record. The suites were not re-run: 2090
 Kotlin and 366 Python as 6gw counted them.
 
-**Next: four questions for the owner, none blocking.**
+**Next: five questions for the owner, none blocking.**
 
 1. Anchored Soul as a declared +2 on the holder's Will roll, and Pathway
    Resonance (Hostile) as a declared -1 (6gw).
@@ -6860,6 +6863,9 @@ Kotlin and 366 Python as 6gw counted them.
    sixth all-rolls chip on the Vitals tab, and with it whether Entity
    Fixation's *"-2 to any roll that requires you to ignore them"* stays
    refused.
+5. Does Unlucky, *"a weaker Fate Debt"*, inherit Fate Debt's *"Beckoning
+   Luck never applies"*? Today it does not, so its holder keeps the reroll
+   of a failed Potion Consumption Roll.
 
 ## 6gw. Anchored Soul, refused on the book's own idiom
 

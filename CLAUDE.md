@@ -257,7 +257,7 @@ its 8,000-character cap (6ev).
 (no code: the unread census run over both halves, 114 rows outside
 `known()`, 31 signed and 83 not; 6gu's count had missed nine self-control
 rows, eight of which roll the offset they print; Reckless's "-1 to any
-roll" not built, as Entity Fixation's sibling clause is refused; four
+roll" not built, as Entity Fixation's sibling clause is refused; five
 owner questions open). Then 6gw (Anchored Soul refused with its reason: every "against you" the book
 prints is the other party's attempt, and no line turns the -2 into a bonus
 where the holder rolls, so it is not Incorruptible Will's mirror; this
