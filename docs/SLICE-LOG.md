@@ -6837,7 +6837,15 @@ Magic 8): Full, Light, 2 SPI printed *3d6 ≤ 15, costs 2 SPI*. Cast gave
 row's *+1* re-read the same dice as *12 vs 16*, *Spent so far: 1*, and
 on Close SPI read 5 and the save held `spiSpent: 3`. That also covers
 the ritual push row 6gn left undriven. Save restored, `cmp`-identical.
-Still not tapped: a conditional Will clause, for want of a premade.
+The Will clauses, with Incorruptible Will and Chronic Insomnia seeded
+into Barmaid Brawler's `edits.traits`: Concentrate printed 6, the +3
+clause made it 9 over a struck 6, and adding the -1 made it 8, with the
+footer *includes Incorruptible Will +3, Chronic Insomnia -1*. With
+*Injured or defending* lit it rolled *Held the focus, 3d6: 7 vs 8*.
+Overconfidence's self-control offered Incorruptible Will alone, because
+Chronic Insomnia reaches the Concentrate roll only. That roll went 12 to
+15 and gave *Held, 3d6: 6 vs 15*. Save restored, `cmp`-identical.
+Nothing from 6gp is left unverified.
 
 ## 6go. The glossary and theme sheets, surveyed
 
