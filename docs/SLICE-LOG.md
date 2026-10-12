@@ -6897,6 +6897,18 @@ nothing for the Vitals and Damage HT rolls.
 module was re-run whole from deleted results after the new test; `app` and
 `core:model` were not re-run, and nothing in them changed.
 
+**Next**, in this order:
+
+1. Trim `CLAUDE.md` first: it is at 78,184 of 80,000 characters, and the
+   "where to start next" chain grows a link per slice.
+2. Anchored Soul, the reading named above: the mirror of Incorruptible
+   Will's clause, or another party's roll.
+3. Two questions the owner has not answered: whether Light Sleeper is
+   offered on Spirit Vision (6gu's review: Alertness reaches it), and
+   whether the debug build stays on the SM-T570.
+4. Owed device checks: Light Sleeper's chip on a Per skill, and the Vitals
+   and Damage HT rolls with Perceptual Splitting lit.
+
 ## 6gu. Light Sleeper, declared on a Per roll
 
 6gi's table left three rows as *"each names a roll loosely; a reading
