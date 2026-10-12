@@ -27,5 +27,7 @@ internal fun reachableHeldTraits(): List<Trait> {
         // One at a time: a row's variants are severities, and it admits one.
         held += purchases.map { PurchasableTraits.resolved(listOf(it)).single().second!! }
     }
+    // The one name the app composes around a holder's choice (6hk).
+    held += Trait(CharmedObject.heldAs("Guns", "Pistol"), 5, TraitKind.ADVANTAGE)
     return held
 }

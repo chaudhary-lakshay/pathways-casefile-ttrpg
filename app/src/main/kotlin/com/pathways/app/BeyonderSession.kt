@@ -309,6 +309,15 @@ class BeyonderSession(
         edit(edits.copy(traits = edits.traits - name))
     }
 
+    /**
+     * Name the skill a Charmed Object charms. An absolute value, so a second
+     * tap stores what the first did; choosing again is the way back.
+     */
+    fun setCharmedSkill(skill: com.pathways.model.SkillKey) {
+        edits = edits.copy(charmedSkill = SavedCharmedSkill(skill.name, skill.specialization))
+        persist()
+    }
+
     /** Whether [sellTrait] would give [name] back, rather than refuse it. */
     fun canSellTrait(name: String): Boolean = name in edits.traits && allows(edits.copy(traits = edits.traits - name))
 

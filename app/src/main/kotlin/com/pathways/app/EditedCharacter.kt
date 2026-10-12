@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import com.pathways.rules.CharmedObject
 import com.pathways.model.Attr
 import com.pathways.model.Attributes
 import com.pathways.model.BASE_ATTRIBUTE
@@ -325,9 +326,20 @@ private fun SavedEdits.boughtTraits(held: List<Trait>): List<Trait> {
     for (name in traits) {
         val row = PurchasableTraits.named(name) ?: continue
         if (!PurchasableTraits.canBuy(row, held + chosen)) continue
-        chosen += row.toTrait()
+        chosen += charmed(row.toTrait())
     }
     return chosen
+}
+
+/**
+ * A bought Charmed Object under the name that carries its chosen skill (6hk),
+ * and every other trait as it is. A stored skill the book does not print
+ * names nothing, so the row stays bare and says no skill is chosen.
+ */
+private fun SavedEdits.charmed(trait: Trait): Trait {
+    val skill = charmedSkill?.takeIf { trait.name == CharmedObject.ROW } ?: return trait
+    if (definitionOf(skill.name, skill.specialization) == null) return trait
+    return trait.copy(name = CharmedObject.heldAs(skill.name, skill.specialization))
 }
 
 /**

@@ -167,6 +167,9 @@ fun AttackDialog(
     // "cannot Aim", unconditional: the Aim rows are withdrawn for a holder
     // whatever is declared, and kept apart from "Defended or was hurt".
     val killerClauses = TraitClauses.attackClauses(traits)
+    // Charmed Object's "+1 ... when used", declared by the table for this
+    // attack (6hk). Lit is the turn's, like the target above.
+    var charmLit by remember { mutableStateOf(false) }
     val aimRefused = TraitClauses.refusesAim(traits)
     // What is behind "Darkness or heavy fog", which only Night Eyes can care
     // about. It starts on DARKNESS because that is the trait's general clause
@@ -211,7 +214,8 @@ fun AttackDialog(
     val level = levelWith(armed != null)
     // What the traits add, composed ONCE: printed above Roll and rolled by
     // the handler drawn beside it, so the two cannot disagree (6eg).
-    val traitMods = chosen?.let { traitTerms(traits, it.key, killerTarget) }.orEmpty()
+    val charm = chosen?.let { charmFor(traits, it.key) }
+    val traitMods = chosen?.let { traitTerms(traits, it.key, killerTarget, setOfNotNull(charm?.key?.takeIf { charmLit })) }.orEmpty()
     val isMastered = chosen != null && level != chosen.level
     val label = chosen?.let {
         it.key.label() + when {
@@ -245,6 +249,7 @@ fun AttackDialog(
                         aimCancelled = false
                         // And who the target was.
                         killerTarget = null
+                        charmLit = false
                         // So does what the scene was lit by.
                         darknessCause = DarknessCause.DARKNESS
                         // And how bad it was. The same GM declares it about
@@ -413,6 +418,9 @@ fun AttackDialog(
                         killerClauses = killerClauses,
                         killerTarget = killerTarget,
                         onKillerTarget = { killerTarget = if (it == killerTarget) null else it },
+                        charm = charm,
+                        charmLit = charmLit,
+                        onCharm = { charmLit = !charmLit },
                         fromTraits = traitMods.sumOf { (it.effect as ModEffect.Flat).n },
                         states = states,
                         darknessCause = darknessCause,
@@ -549,8 +557,18 @@ internal fun traitTerms(
     traits: List<Trait>,
     key: SkillKey,
     killerTarget: String?,
+    /** The skill clauses the table lit: Charmed Object's, the one offered here (6hk). */
+    declared: Set<String>,
 ): List<com.pathways.model.Modifier> =
-    TraitEffects.modifiers(traits, key) + TraitClauses.attackModifiers(traits, killerTarget)
+    TraitEffects.modifiers(traits, key, declared) + TraitClauses.attackModifiers(traits, killerTarget)
+
+/**
+ * The one skill clause the Attack dialog offers: a Charmed Object naming the
+ * skill in hand. The Skills tab's other declared rows are not offered here,
+ * as 6gj's review recorded.
+ */
+internal fun charmFor(traits: List<Trait>, key: SkillKey): com.pathways.rules.TraitClause? =
+    com.pathways.rules.CharmedObject.clauses(traits, key).firstOrNull()
 
 /**
  * The attack roll as the picks stand: the target printed above Roll and

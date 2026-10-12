@@ -64,7 +64,10 @@ object TraitNames {
             return printed.substringBeforeLast(' ')
         }
         return placeholderRow(printed) ?: variantRow(printed) ?: gluedHead(printed)
-            ?: quotedInstanceRow(printed) ?: printed
+            ?: quotedInstanceRow(printed)
+            // The one bracket this app itself composes: the skill a Charmed
+            // Object's holder chose (6hk).
+            ?: CharmedObject.rowOf(printed) ?: printed
     }
 
     /**

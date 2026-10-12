@@ -171,10 +171,10 @@ class AttackDialogTest {
     fun `the attack roll takes the trait terms and the declared to-hit clause`() {
         val killer = listOf(Trait(TraitEffects.RELUCTANT_KILLER, 5, TraitKind.DISADVANTAGE))
         val guns = SkillKey("Guns", "Pistol", ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
-        assertEquals(emptyList<Int>(), flats(traitTerms(killer, guns, killerTarget = null)))
+        assertEquals(emptyList<Int>(), flats(traitTerms(killer, guns, killerTarget = null, declared = emptySet())))
         val clauses = TraitClauses.attackClauses(killer)
-        assertEquals(listOf(-4), flats(traitTerms(killer, guns, clauses[0].key)))
-        assertEquals(listOf(-2), flats(traitTerms(killer, guns, clauses[1].key)))
+        assertEquals(listOf(-4), flats(traitTerms(killer, guns, clauses[0].key, emptySet())))
+        assertEquals(listOf(-2), flats(traitTerms(killer, guns, clauses[1].key, emptySet())))
     }
 
     /**
@@ -188,7 +188,7 @@ class AttackDialogTest {
     fun `the trait term is the general one, whatever the skill`() {
         val balance = listOf(Trait(TraitEffects.PERFECT_BALANCE, 15, TraitKind.ADVANTAGE))
         val acrobatics = SkillKey("Acrobatics", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.HARD)
-        assertEquals(listOf(2), flats(traitTerms(balance, acrobatics, killerTarget = null)))
+        assertEquals(listOf(2), flats(traitTerms(balance, acrobatics, killerTarget = null, declared = emptySet())))
     }
 
     private val brawling =
@@ -230,7 +230,7 @@ class AttackDialogTest {
         )
         val clauses = TraitClauses.allRollsClauses(held)
         val states = TraitClauses.allRollsModifiers(clauses, clauses.map { it.key }.toSet())
-        val killer = traitTerms(held, brawling, TraitClauses.attackClauses(held).first().key)
+        val killer = traitTerms(held, brawling, TraitClauses.attackClauses(held).first().key, emptySet())
         val standing = attackStanding("Brawling", 16, brawling, hurt, killer + states)
         assertEquals(-5, standing.fromTrackers, "reeling -1 and shock -4, nothing else")
         assertEquals(16 + flats(killer + states).sum() - 5, standing.target.target)
@@ -308,7 +308,7 @@ class AttackDialogTest {
                     shot(picked = setOf(darkness.condition), cause = cause, reduction = reduction, severity = severity)
                 }
             } +
-            declared.map { traitTerms(killer, guns, it) } +
+            declared.map { traitTerms(killer, guns, it, emptySet()) } +
             listOf(meleeModifiers(AttackPlan(), Ranged.meleeConditions().map { it.condition }.toSet()))
         fun together(picked: Set<String>, aimRefused: Boolean) = shot(
             band = Ranged.bands().last(),
@@ -322,7 +322,7 @@ class AttackDialogTest {
         val running = rows.toSet() - Ranged.alternativesTo("Target running (4+ meters/sec)")
         val aimed = together(running - AIM_ROWS.first(), aimRefused = false)
         val refused = together(running - AIM_ROWS, aimRefused = true) +
-            traitTerms(killer, guns, declared.first())
+            traitTerms(killer, guns, declared.first(), emptySet())
         assertEquals(ALONE_TERMS, alone.count { it.isNotEmpty() }, "plans that print a term")
         // The band, six rows (running, shooter moved, the long aim, prone,
         // darkness, cover) and the Eye: 1 + 6 + 1. Then 1 + 5 + 1 with no

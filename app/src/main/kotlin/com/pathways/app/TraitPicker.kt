@@ -1,5 +1,9 @@
 package com.pathways.app
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import com.pathways.model.SkillKey
+import com.pathways.rules.CharmedObject
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,6 +52,9 @@ internal fun TraitsRow(
     onRemove: (String) -> Unit,
     canRemove: (String) -> Boolean,
     onRemoveInstanced: (Int, SavedInstancedTrait) -> Unit,
+    /** What a bought Charmed Object's skill line says (6hk). */
+    charmLine: String,
+    onChooseCharm: () -> Unit,
 ) {
     Column {
         Row(
@@ -118,6 +125,14 @@ internal fun TraitsRow(
                         } ?: "The book no longer prints this trait, so it costs nothing.",
                         style = MaterialTheme.typography.bodySmall,
                     )
+                    // "Specify item and skill": the skill is the holder's to
+                    // name, and choosing again is how it is changed.
+                    if (name == CharmedObject.ROW) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(charmLine, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                            TextButton(onClick = onChooseCharm) { Text("Choose skill") }
+                        }
+                    }
                     // Spiritual Fortitude is +3 maximum CoR: giving it back
                     // can bring the ceiling onto the total, or below 1.
                     if (!removable) {
@@ -132,6 +147,39 @@ internal fun TraitsRow(
             }
         }
     }
+}
+
+/**
+ * What the builder says under a bought Charmed Object: the skill it charms,
+ * that none is chosen, or that the chosen one is not a skill [held] by this
+ * character, where no roll would offer the chip and nothing else says why.
+ */
+internal fun charmLine(chosen: SavedCharmedSkill?, held: Collection<SkillKey>): String {
+    if (chosen == null) return "No skill chosen: no roll offers its +1."
+    val label = if (chosen.specialization == null) chosen.name else "${chosen.name} (${chosen.specialization})"
+    val has = held.any { it.name.equals(chosen.name, ignoreCase = true) && it.specialization == chosen.specialization }
+    return if (has) "Charms $label: +1 when used, lit on the roll." else "Charms $label, which this character has no level in."
+}
+
+/**
+ * The character's own skills, one of which a Charmed Object names. Untrained
+ * skills are not listed.
+ */
+@Composable
+internal fun CharmSkillPicker(skills: List<SkillKey>, onPick: (SkillKey) -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        title = { Text("Charmed Object's skill") },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                if (skills.isEmpty()) Text("This character has no skill to charm yet.")
+                skills.forEach { key ->
+                    TextButton(onClick = { onPick(key) }) { Text(key.label()) }
+                }
+            }
+        },
+    )
 }
 
 /**

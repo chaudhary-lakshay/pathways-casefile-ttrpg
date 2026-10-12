@@ -83,6 +83,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     var picking by remember { mutableStateOf(false) }
     var pickingLooks by remember { mutableStateOf(false) }
     var pickingTrait by remember { mutableStateOf(false) }
+    var pickingCharm by remember { mutableStateOf(false) }
     var pickingWeapon by remember { mutableStateOf(false) }
     var pickingLanguage by remember { mutableStateOf(false) }
     var settling by remember { mutableStateOf<InstantiableTrait?>(null) }
@@ -278,6 +279,8 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     onRemove = { session.sellTrait(it) },
                     canRemove = { session.canSellTrait(it) },
                     onRemoveInstanced = { index, drawn -> session.sellInstancedTrait(index, drawn) },
+                    charmLine = charmLine(session.edits.charmedSkill, liveSkillLevels(character).keys),
+                    onChooseCharm = { pickingCharm = true },
                 )
                 HorizontalDivider()
             }
@@ -382,6 +385,13 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
         )
     }
 
+    if (pickingCharm) {
+        CharmSkillPicker(
+            skills = liveSkillLevels(character).keys.sortedBy { it.label() },
+            onPick = { session.setCharmedSkill(it); pickingCharm = false },
+            onDismiss = { pickingCharm = false },
+        )
+    }
     if (pickingTrait) {
         TraitPicker(
             // In play, not bought: a potion's row is held and is not sold

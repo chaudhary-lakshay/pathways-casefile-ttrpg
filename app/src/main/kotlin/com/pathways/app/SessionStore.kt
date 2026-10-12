@@ -141,6 +141,16 @@ data class SavedEdits(
      * that qualify.
      */
     val languages: List<SavedLanguage> = emptyList(),
+    /**
+     * The skill a bought Charmed Object charms (book 1055-1058: "specify
+     * item and skill"), or null while none is chosen (6hk).
+     *
+     * Beside the purchase and not inside [traits], which is a list of names
+     * in every save already written. Read only while the row is bought:
+     * giving the row back leaves this, so buying it again shows the old
+     * skill, and [isEmpty] does not count it.
+     */
+    val charmedSkill: SavedCharmedSkill? = null,
 ) {
     val isEmpty: Boolean
         get() = st == null && dx == null && iq == null && ht == null &&
@@ -148,6 +158,10 @@ data class SavedEdits(
             traits.isEmpty() && instanced.isEmpty() && secondaries.isEmpty() &&
             weapons.isEmpty() && languages.isEmpty()
 }
+
+/** The skill a Charmed Object names, as written to disk: the book's names. */
+@Serializable
+data class SavedCharmedSkill(val name: String, val specialization: String? = null)
 
 /** One bought language, as written to disk: the book's names, never a cost. */
 @Serializable

@@ -56,6 +56,10 @@ internal fun AttackOptions(
     killerClauses: List<TraitClause>,
     killerTarget: String?,
     onKillerTarget: (String) -> Unit,
+    /** A Charmed Object naming the skill in hand, or null (6hk). */
+    charm: TraitClause?,
+    charmLit: Boolean,
+    onCharm: () -> Unit,
     fromTraits: Int,
     /** The held rows' declared "-N to all rolls" (6gs), on a line of its own. */
     states: ClauseBonus,
@@ -199,6 +203,14 @@ internal fun AttackOptions(
             }
             CalledShot(location, onLocation)
             KillerTarget(killerClauses, killerTarget, onKillerTarget)
+            if (charm != null) {
+                SectionLabel(charm.shown)
+                FilterChip(
+                    selected = charmLit,
+                    onClick = onCharm,
+                    label = { Text(charm.printed) },
+                )
+            }
             // "Regular melee attacks only", and an attack that rolls damage for
             // the +2 to land on. Withheld rather than offered and refused: a chip
             // that takes the dialog down on Roll is not a choice (6t). The whole

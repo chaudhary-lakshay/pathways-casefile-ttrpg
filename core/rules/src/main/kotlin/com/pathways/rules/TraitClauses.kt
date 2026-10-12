@@ -559,7 +559,8 @@ object TraitClauses {
 
     /** The printed rows, for the clause guard. */
     fun skillClauseRows(): List<TraitClause> =
-        SKILL_CLAUSES.map { it.clause } + SENSE_CLAUSES + PER_ROLL_CLAUSES + ANY_SKILL_CLAUSES
+        SKILL_CLAUSES.map { it.clause } + SENSE_CLAUSES + PER_ROLL_CLAUSES + ANY_SKILL_CLAUSES +
+            CharmedObject.TEMPLATE
 
     /**
      * Every clause a roll of [skill] asks the GM about: the social rows on a
@@ -589,7 +590,10 @@ object TraitClauses {
                 .filter { it.trait.equals(bare, ignoreCase = true) }
                 .map { it.copy(shown = displayName(owned.name)) }
         }
-        return (social + named + sense + any).distinctBy { it.trait to it.printed }
+        // Charmed Object's skill is the holder's choice, not the row's, so it
+        // is read off the held name and never from a static table (6hk).
+        val charmed = CharmedObject.clauses(traits, skill)
+        return (social + named + sense + any + charmed).distinctBy { it.trait to it.printed }
     }
 
     // ---- the rows that put a state on every roll ---------------------------

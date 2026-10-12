@@ -485,6 +485,14 @@ row does. A trait already held is marked *already held* and has no Buy. God
 of Combat is refused the same way while a bought ST, DX or HT is above what a
 holder may buy, and its row says which to lower.
 
+A bought **Charmed Object** has a **Choose skill** button under it, listing
+the character's own skills. The book says to specify the item and the skill;
+the app stores the skill. A roll of that skill from the Skills tab, and an
+attack with it, then offers a chip, *+1 to one specific skill when used*,
+which the table lights when the item is in use. Choosing again changes the
+skill. A parry, an Acrobatic Dodge, a ritual, a divination or a boon built on
+the skill does not take the +1 in the app.
+
 Traits the book prints with a cost range or a "(specify)" name open the same
 way, with **Choose…** in place of Buy, and are bought by naming the instance
 and its price — the app stores the row, the variant and the
