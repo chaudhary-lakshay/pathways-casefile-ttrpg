@@ -52,6 +52,7 @@ import com.pathways.rules.SelfControl
 import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.SheetComparison
 import com.pathways.rules.Shock
+import com.pathways.rules.TraitClauses
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.TraitReport
 import com.pathways.rules.TraitGrants
@@ -176,6 +177,11 @@ fun SheetScreen(
     // rather than in the session file, because a one-turn fact that survives a
     // force-stop has outlived its turn by construction.
     var shocked by remember(sheet) { mutableStateOf(false) }
+    // The held rows' "-N to all rolls" the GM says are in force (6gs): one
+    // owner for the same reason as shock, declared once on the Vitals tab
+    // rather than at every roll. In memory, as shock is: SavedEdits drops the
+    // whole file on a decode failure, and a scene's state is not a purchase.
+    var declaredStates by remember(sheet) { mutableStateOf(emptySet<String>()) }
     // The CHECK, not the outcome, exactly as `rolling` holds the skill: the
     // roll happens inside the dialog, after the GM has stated a modifier.
     var controlling by remember(sheet) { mutableStateOf<SelfControlCheck?>(null) }
@@ -323,13 +329,18 @@ fun SheetScreen(
     // decision (Codex, 6bo). Named separately from the shock beside it: a
     // breakdown that has to sum must say which state moved the target.
     val hurtOnAttribute = Conditions.penaltyFor(RollKind.ATTRIBUTE, hpNow, fpNow)
+    // The declared states, as one number with its words for the bare rolls
+    // and as modifiers for the ledger, both from the same two inputs.
+    val allRolls = remember(traits) { TraitClauses.allRollsClauses(traits) }
+    val states = TraitClauses.clauseBonus(allRolls, declaredStates)
+    val stateModifiers = TraitClauses.allRollsModifiers(allRolls, declaredStates)
     // What each self-control roll stands at, for the Traits row that prints
     // it and the dialog that opens on it ([standingTargets]).
     val standing = standingTargets(
         selfControl.values,
         vitals.will,
         attributes.iq,
-        shockOnAttribute + hurtOnAttribute,
+        shockOnAttribute + hurtOnAttribute + states.total,
     )
 
     Scaffold(
@@ -464,6 +475,10 @@ fun SheetScreen(
                     shockOnAttribute = shockOnAttribute,
                     shocked = shocked,
                     onClearShock = { shocked = false },
+                    allRolls = allRolls,
+                    declaredStates = declaredStates,
+                    onDeclareStates = { declaredStates = it },
+                    states = states,
                     secondaryLines = secondaryLines,
                 )
                 SheetTab.TRAITS -> traitsTab(
@@ -517,6 +532,8 @@ fun SheetScreen(
         fpNow = fpNow,
         shockOnAttribute = shockOnAttribute,
         hurtOnAttribute = hurtOnAttribute,
+        states = states,
+        stateModifiers = stateModifiers,
     )
 }
 

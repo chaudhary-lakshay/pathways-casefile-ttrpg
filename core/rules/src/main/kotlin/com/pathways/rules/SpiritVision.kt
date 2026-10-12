@@ -140,9 +140,11 @@ object SpiritVision {
         hurt: Int = 0,
         alertness: Int = 0,
         vision: TraitClause? = null,
+        /** The held rows' declared "-N to all rolls" ([TraitClauses.allRollsClauses]). */
+        states: ClauseBonus = ClauseBonus(0, null),
     ): Int {
         require(alertness >= 0) { "Alertness is a bonus, not a penalty; was $alertness" }
-        return per + alertness + (vision?.value ?: 0) + shock + hurt
+        return per + alertness + (vision?.value ?: 0) + shock + hurt + states.total
     }
 
     /**
@@ -198,12 +200,14 @@ object SpiritVision {
         hurt: Int = 0,
         alertness: Int = 0,
         vision: TraitClause? = null,
+        states: ClauseBonus = ClauseBonus(0, null),
     ): List<String> = buildList {
         add("Per $per")
         if (alertness > 0) add("+$alertness Alertness")
         vision?.let { add("+${it.value} ${it.shown}") }
         if (shock != 0) add("shock $shock")
         if (hurt != 0) add("hurt or tired $hurt")
+        states.line?.let { add(it) }
     }
 
     /**

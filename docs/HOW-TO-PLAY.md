@@ -70,6 +70,14 @@ potion grants.
   10 pts, +2 from the potion"*). A potion's face beside a bought one: the
   better face is played, and a worse bought face says *"not played: the
   potion's face is better"*.
+- **Vitals** asks *"Does any of this hold?"* when a held drawback prints
+  "-N to all rolls" under a circumstance only the GM can see: a phobia's
+  stimulus present, laudanum withdrawal, a disrupted warding routine, an
+  entity nearby, a Soul Scar resurfacing. Tap the line to light it. A lit
+  line counts on every roll on every screen, and each roll names it (*"includes
+  Phobia (Cities) -1"*), until you tap it again. It is not saved: leaving
+  the sheet (for the gallery, or to drink a potion) clears it, as it clears
+  shock.
 - **Reference text** in a dialog (shield rules, the incantation, Spirit
   Vision's colour key, spirit body damage, an artifact's description) sits
   behind a book icon, closed until you tap it. Targets, costs and what the

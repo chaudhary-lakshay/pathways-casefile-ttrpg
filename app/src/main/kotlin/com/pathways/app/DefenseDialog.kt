@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.model.Weapon
+import com.pathways.rules.ClauseBonus
 import com.pathways.rules.ActiveDefenses
 import com.pathways.rules.Facing
 import com.pathways.rules.ParryBlock
@@ -123,6 +124,12 @@ fun DefenseDialog(
      * a pool costs.
      */
     poolPenalty: Int,
+    /**
+     * The held rows' declared "-N to all rolls" (6gs), on every defence row
+     * through [ActiveDefenses.everyDefence]. The Acrobatic Dodge is a skill
+     * roll and takes it through [conditions] instead, never both.
+     */
+    states: ClauseBonus = ClauseBonus(0, null),
     onDismiss: () -> Unit,
 ) {
     // Everything p. 36 scopes to a round, held together so the boundary can
@@ -135,8 +142,8 @@ fun DefenseDialog(
     // all hand it out. It is not a DefenseRefusal -- it prices the defences
     // rather than withdrawing them.
     var stunned by remember { mutableStateOf(false) }
-    val everyDefence = remember(traits, stunned, shocked, poolPenalty) {
-        ActiveDefenses.everyDefence(traits, stunned, shocked, poolPenalty)
+    val everyDefence = remember(traits, stunned, shocked, poolPenalty, states) {
+        ActiveDefenses.everyDefence(traits, stunned, shocked, poolPenalty, states.total)
     }
     val refusal = ActiveDefenses.state(round.declared, traits)
     val forfeiting = remember { ActiveDefenses.forfeitingActions() }
@@ -307,6 +314,9 @@ fun DefenseDialog(
                             "Hurt or tired: $poolPenalty to every defence below, " +
                                 "from the HP and FP thresholds on the sheet (pp. 40 and 42).",
                         )
+                    }
+                    states.line?.let {
+                        DefenseNote("Declared on the sheet: $it to every defence below.")
                     }
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     // Above the rows it changes, unlike the parry stepper: it

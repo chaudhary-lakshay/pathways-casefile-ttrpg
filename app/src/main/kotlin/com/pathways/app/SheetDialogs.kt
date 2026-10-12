@@ -8,9 +8,11 @@ import com.pathways.model.BeyonderState
 import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
 import com.pathways.model.ModEffect
+import com.pathways.model.Modifier
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.rules.BurnKind
+import com.pathways.rules.ClauseBonus
 import com.pathways.rules.Conditions
 import com.pathways.rules.Divination
 import com.pathways.rules.EffortBurn
@@ -66,6 +68,10 @@ internal fun SheetDialogs(
     fpNow: PoolStatus,
     shockOnAttribute: Int,
     hurtOnAttribute: Int,
+    /** The held rows' declared "-N to all rolls" (6gs): the number and its words. */
+    states: ClauseBonus,
+    /** The same declaration as ledger modifiers, for every roll [conditionsFor] feeds. */
+    stateModifiers: List<Modifier>,
 ) {
     val divinationLevel = divination?.level
     // Derived once for both bare Will rolls. Two `remember`s over one input
@@ -96,11 +102,12 @@ internal fun SheetDialogs(
         spiAboutToSpend: Int = 0,
         /**
          * Three callers collapse this list with `sumOf` into one number they
-         * label "hurt or tired" or "circumstances". Shock is neither, so they
-         * take it as its own argument and name it; folding it into a bucket
-         * would move a target by 4 under the wrong reason (Codex).
+         * label "hurt or tired" or "circumstances". Shock is neither, and nor
+         * is a declared trait state (6gs), so they take both as their own
+         * arguments and name them; folding either into a bucket would move a
+         * target under the wrong reason (Codex).
          */
-        withShock: Boolean = true,
+        withStates: Boolean = true,
     ) = Conditions.forSkill(
         skill = key,
         hp = hpNow,
@@ -111,7 +118,7 @@ internal fun SheetDialogs(
             null
         },
         cor = cor,
-    ) + if (withShock) Shock.modifiers(shocked, traits) else emptyList()
+    ) + if (withStates) Shock.modifiers(shocked, traits) + stateModifiers else emptyList()
 
     // The same number the ledger would have carried, for the three dialogs
     // that reduce it to an Int and print their own breakdown.
@@ -215,7 +222,9 @@ internal fun SheetDialogs(
         // Null only if the trait left the list under an open dialog, which
         // no path does today: then there is no roll to show.
         standing[check.trait]?.let { target ->
-            SelfControlDialog(check = check, standing = target, clauses = willClauses) { onControlling(null) }
+            SelfControlDialog(check = check, standing = target, clauses = willClauses, states = states) {
+                onControlling(null)
+            }
         }
     }
 
@@ -253,10 +262,11 @@ internal fun SheetDialogs(
             stunRecoveryBonus = TraitAttributeRolls.stunRecoveryBonus(traits),
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,
+            states = states,
         ) { onClose(SheetDialog.FRIGHT) }
     }
     if (SheetDialog.CONCENTRATE in open) {
-        ConcentrateDialog(vitals.will, concentrationClauses, shockOnAttribute, hurtOnAttribute) {
+        ConcentrateDialog(vitals.will, concentrationClauses, shockOnAttribute, hurtOnAttribute, states) {
             onClose(SheetDialog.CONCENTRATE)
         }
     }
@@ -289,6 +299,7 @@ internal fun SheetDialogs(
             // and reaches every other kind, so a character already
             // shocked from an earlier wound recovers at -4.
             carriedShock = shockOnAttribute,
+            states = states,
             onDismiss = { onClose(SheetDialog.DAMAGE) },
         )
     }
@@ -338,6 +349,7 @@ internal fun SheetDialogs(
             // consequences belong in one place (ActiveDefenses).
             traits = traits,
             shocked = shocked,
+            states = states,
             onSpendFp = { session.spend(Pool.FP, it, vitals.maxFp, maxCor) },
         ) { onClose(SheetDialog.DEFEND) }
     }
@@ -410,10 +422,11 @@ internal fun SheetDialogs(
                     ),
                     cor = 0,
                     spiAboutToSpend = cost,
-                    withShock = false,
+                    withStates = false,
                 ).sumOf { (it.effect as ModEffect.Flat).n }
             },
             shock = shockOnSkill,
+            states = states,
             spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = appDice,
             // Through the tracker, so a question asked at 0 SPI buys the Soul
@@ -433,6 +446,7 @@ internal fun SheetDialogs(
         DetectionDialog(
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,
+            states = states,
             // The SPI branch's mirror of alertness below, and equally unable
             // to be reached by SkillKey scoping.
             spiTrait = spiTrait,
@@ -467,6 +481,7 @@ internal fun SheetDialogs(
             spiAvailable = vitals.maxSpi - session.spiSpent,
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,
+            states = states,
             dice = appDice,
             // Through the tracker, so activating actually costs the point.
             onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
@@ -512,9 +527,10 @@ internal fun SheetDialogs(
                     Difficulty.VERY_HARD,
                 ),
                 cor = 0,
-                withShock = false,
+                withStates = false,
             ).sumOf { (it.effect as ModEffect.Flat).n },
             shock = shockOnSkill,
+            states = states,
             cor = session.cor,
             spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = appDice,
@@ -552,9 +568,10 @@ internal fun SheetDialogs(
                     Difficulty.VERY_HARD,
                 ),
                 cor = 0,
-                withShock = false,
+                withStates = false,
             ).sumOf { (it.effect as ModEffect.Flat).n },
             shock = shockOnSkill,
+            states = states,
             cor = session.cor,
             spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = appDice,

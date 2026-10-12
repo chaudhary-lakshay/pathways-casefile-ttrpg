@@ -15,6 +15,7 @@ import com.pathways.rules.content.ActingQuality
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.TraitAttributeRolls.HT_ROLL_TRAITS
 import com.pathways.rules.TraitAttributeRolls.SPI_ROLL_TRAITS
+import com.pathways.rules.TraitClauses.allRollsClauseNames
 import com.pathways.rules.TraitClauses.attackClauseNames
 import com.pathways.rules.TraitClauses.concentrationClauseNames
 import com.pathways.rules.TraitClauses.frightClauseNames
@@ -666,6 +667,7 @@ object TraitEffects {
             CATEGORY_BONUSES.keys + frightClauseNames() + socialClauseNames() +
             attackClauseNames() +
             willClauseNames() + concentrationClauseNames() + skillClauseNames() +
+            allRollsClauseNames() +
             // [HT_ROLL_TRAITS].keys, not FIT alone. The map has held three
             // traits since 6de and this set named one -- and the guard still
             // covered all three, because `Very Fit` and `Unfit` are also
@@ -698,7 +700,13 @@ object TraitEffects {
     /** The traits reported clause by clause, for the disjointness test. */
     fun partlyAppliedNames(): Set<String> = PARTLY_APPLIED.keys
 
-    internal fun bonus(trait: String, value: Int, suffix: String? = null) = Modifier(
+    internal fun bonus(
+        trait: String,
+        value: Int,
+        suffix: String? = null,
+        /** The sheet's spelling, for the ledger line; [trait] stays the catalogue row. */
+        shown: String = trait,
+    ) = Modifier(
         id = ModifierId("trait:${trait.lowercase()}" + (suffix?.let { ":$it" } ?: "")),
         // FromTrait, NOT Situational. Both existed from M0 and this is the
         // first production caller of either; `Situational` is what a GM says
@@ -714,7 +722,7 @@ object TraitEffects {
         // the sign is how these decisions have drifted before (6ag, 6ai,
         // 6be, 6bp). It picks the `SourceKind` a `Cancel` budget is measured
         // against, so it is not cosmetic.
-        source = ModifierSource.FromTrait(trait, advantage = isAdvantage(trait)),
+        source = ModifierSource.FromTrait(shown, advantage = isAdvantage(trait)),
         // Retargeted onto the skill being rolled by SkillRoll, exactly as
         // Conditions' and CommonModifiers' rows are.
         target = ModTarget.AllRolls,

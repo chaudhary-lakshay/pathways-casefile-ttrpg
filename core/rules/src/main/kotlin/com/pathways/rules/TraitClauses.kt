@@ -566,6 +566,66 @@ object TraitClauses {
         return (social + named + sense + any).distinctBy { it.trait to it.printed }
     }
 
+    // ---- the rows that put a state on every roll ---------------------------
+
+    /**
+     * Every cell that prints "-N to all rolls" under a circumstance (6gs).
+     *
+     * Each names a STATE the character is in -- withdrawal, a disrupted
+     * routine, a phobic stimulus present, an entity nearby, old pain
+     * resurfacing -- and no code here can see any of them, so the GM
+     * declares it, once, on the sheet. It then reaches every roll shock
+     * reaches, by the reading shock already takes: "all rolls" at its word.
+     * Unlike shock it also reaches the Major Wound's HT roll, because shock's
+     * one refusal is that the roll CREATES it, and withdrawal is not created
+     * by a wound.
+     *
+     * Cells whose "to all rolls" continues with a purpose ("to diagnose,
+     * treat, and heal", "to influence others") name no state and stay out;
+     * the census test reads the catalogue to keep this list complete.
+     */
+    private val ALL_ROLLS_CLAUSES: List<TraitClause> = listOf(
+        allRollsClause(
+            "Phobia (specify)",
+            "-1 to all rolls while the phobic stimulus is present and unavoidable",
+            -1,
+        ),
+        allRollsClause("Addiction: Laudanum", "Must use daily or suffer -2 to all rolls from withdrawal", -2),
+        allRollsClause("Superstitious (mundane)", "If warding routine is disrupted, -1 to all rolls for the day", -1),
+        allRollsClause("Soul Scar", "old pain resurfaces: -1 to all rolls for the scene", -1),
+        allRollsClause("Entity Fixation", "-1 to all rolls when a specific entity type is present nearby", -1),
+    )
+
+    /** The printed rows, for the pin tests. [TraitClause.shown] is per character. */
+    fun allRollsClauseRows(): List<TraitClause> = ALL_ROLLS_CLAUSES
+
+    /** The traits whose cell puts a state on every roll, for [TraitEffects.known]. */
+    fun allRollsClauseNames(): Set<String> = ALL_ROLLS_CLAUSES.map { it.trait }.toSet()
+
+    /** The clauses [traits] carry, under the sheet's own spellings. */
+    fun allRollsClauses(traits: List<Trait>): List<TraitClause> = traits.flatMap { owned ->
+        val bare = catalogueName(owned.name)
+        ALL_ROLLS_CLAUSES
+            .filter { it.trait.equals(bare, ignoreCase = true) }
+            .map { it.copy(shown = displayName(owned.name)) }
+        // By key, which is spelling AND clause: two phobias are two stimuli
+        // and two declarations, and only a row held twice under one spelling
+        // collapses (the diff review).
+    }.distinctBy { it.key }
+
+    /**
+     * The [declared] ones as ledger modifiers, for every roll [SkillRoll]
+     * resolves. FromTrait, as every declared trait clause is, so the ledger
+     * line names the trait as the sheet spells it ("Phobia (Cities)", never
+     * the catalogue's "(specify)"); the id takes the declaration's key, so
+     * two phobias never share one.
+     */
+    fun allRollsModifiers(clauses: List<TraitClause>, declared: Set<String>): List<Modifier> =
+        clauses.filter { it.key in declared }.map { bonus(it.trait, it.value, suffix = it.key, shown = it.shown) }
+
+    private fun allRollsClause(trait: String, printed: String, value: Int) =
+        TraitClause(trait, trait, printed, value, conditional = true)
+
 
     /** A row of [SOCIAL_CLAUSES]: always conditional, never counted unasked. */
     private fun socialClause(trait: String, printed: String, value: Int) =

@@ -109,8 +109,8 @@ object VitalRolls {
      * stay conscious at -8. Scoping it to HP would be this app inventing the
      * qualifier the book left out -- the move 4.1 forbids in both directions.
      */
-    fun targetFor(check: VitalCheck, ht: Int, traits: List<Trait>, poolPenalty: Int, shock: Int = 0): Int =
-        ht + bonusFor(check, traits) + poolPenalty + shock
+    fun targetFor(check: VitalCheck, ht: Int, traits: List<Trait>, poolPenalty: Int, shock: Int = 0, states: Int = 0): Int =
+        ht + bonusFor(check, traits) + poolPenalty + shock + states
 
     /** The threshold row's own sentence, quoted rather than paraphrased. */
     fun printed(check: VitalCheck): String = row(check).effect

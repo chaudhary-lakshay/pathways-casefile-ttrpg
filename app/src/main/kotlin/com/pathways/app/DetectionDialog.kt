@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.ClauseBonus
 import com.pathways.rules.AntiDivinationTechniques
 import com.pathways.rules.Detection
 import com.pathways.rules.DetectionResult
@@ -81,6 +82,8 @@ fun DetectionDialog(
      * tip a tie into a Per roll and so cancel itself.
      */
     spiTrait: Int = 0,
+    /** The held rows' declared "-N to all rolls" (6gs). */
+    states: ClauseBonus = ClauseBonus(0, null),
     dice: RandomSource,
     onDismiss: () -> Unit,
 ) {
@@ -123,12 +126,12 @@ fun DetectionDialog(
     // it is not always the higher of the two, so the roll a Fool is granted is
     // a Per roll even when their SPI is better. See Detection.attributeFor.
     val freeRoll = awareness?.freeRoll
-    val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness, shock, hurt, spiTrait)
+    val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness, shock, hurt, spiTrait, states)
     // The breakdown of that number, composed once: printed before the roll
     // and carried by the result after it, so the two lines cannot differ.
     val parts = Detection.partsFor(
         spi, per, pickedSituations, pickedWards, pickedItems, bonus, awareness?.pathway,
-        freeRoll, alertness, shock, hurt, spiTrait,
+        freeRoll, alertness, shock, hurt, spiTrait, states,
     )
     // The row grants automatic awareness only against a WEAKER diviner, and
     // this screen holds the target's sheet alone -- so the comparison is the

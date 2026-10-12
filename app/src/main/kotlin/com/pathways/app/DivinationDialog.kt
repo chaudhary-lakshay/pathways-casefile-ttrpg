@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.ClauseBonus
 import com.pathways.rules.BurnKind
 import com.pathways.rules.Pools
 import com.pathways.rules.AntiDivination
@@ -85,6 +86,8 @@ fun DivinationDialog(
     ownedSupportSkills: List<DivinationSupport> = emptyList(),
     /** The Major Wound's shock: not a circumstance, so it is named on its own. */
     shock: Int = 0,
+    /** The held rows' declared "-N to all rolls" (6gs), named for the same reason. */
+    states: ClauseBonus = ClauseBonus(0, null),
     /**
      * Ether Body Damage's "-1 to all SPI-based rolls". Divination Arts is
      * SPI/Hard, so this roll is one -- and it reaches its target through
@@ -220,7 +223,7 @@ fun DivinationDialog(
     // how hard the question is and this prices which skill is asking.
     val scopePenalty = Divination.penaltyFor(scope)
     val extras =
-        circumstances + protection.penalty + shock + spiTrait + support + scopePenalty
+        circumstances + protection.penalty + shock + states.total + spiTrait + support + scopePenalty
     val target = Divination.targetFor(skillLevel, difficulty, extras)
 
     // Charged by zeroing what it accumulated, so paying is idempotent and
@@ -604,6 +607,7 @@ fun DivinationDialog(
                         "question ${signed(difficulty.modifier)}",
                         if (scopePenalty != 0) "${scope.scope.lowercase()} scope ${signed(scopePenalty)}" else null,
                         if (shock != 0) "shock ${signed(shock)}" else null,
+                        states.line,
                         if (spiTrait != 0) "${signed(spiTrait)} ${TraitEffects.ETHER_BODY_DAMAGE}" else null,
                         if (circumstances != 0) "circumstances ${signed(circumstances)}" else null,
                         if (support != 0) "${signed(support)} from supporting skills" else null,

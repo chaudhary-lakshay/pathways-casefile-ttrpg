@@ -22,6 +22,8 @@ import com.pathways.rules.PoolStatus
 import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.SheetRow
 import com.pathways.rules.Shock
+import com.pathways.rules.ClauseBonus
+import com.pathways.rules.TraitClause
 import com.pathways.rules.TraitGrants
 import com.pathways.rules.PremadeSheet
 
@@ -38,6 +40,10 @@ internal fun LazyListScope.vitalsTab(
     shockOnAttribute: Int,
     shocked: Boolean,
     onClearShock: () -> Unit,
+    allRolls: List<TraitClause>,
+    declaredStates: Set<String>,
+    onDeclareStates: (Set<String>) -> Unit,
+    states: ClauseBonus,
     secondaryLines: List<PlayedLine>,
 ) {
     item {
@@ -50,7 +56,24 @@ internal fun LazyListScope.vitalsTab(
             // 1/3 HP, so this is not the state the roll creates.
             poolPenalty = hurtOnAttribute,
             shock = shockOnAttribute,
+            states = states,
         )
+    }
+    // The held rows whose cell prints "-N to all rolls" under a circumstance
+    // only the GM can see (6gs). Drawn whenever one is held, lit or not, so
+    // lighting one cannot move the rows under a finger; every roll on every
+    // screen takes what is lit, and names it.
+    if (allRolls.isNotEmpty()) {
+        item {
+            Column(Modifier.padding(horizontal = 16.dp)) {
+                ClauseChips(allRolls, declaredStates, onDeclareStates)
+                Text(
+                    "Lit: on every roll until cleared here",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
     }
     if (shocked) {
         item {

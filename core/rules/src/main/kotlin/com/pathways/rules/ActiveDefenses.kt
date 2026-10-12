@@ -576,11 +576,13 @@ object ActiveDefenses {
          * 6be).
          */
         poolPenalty: Int,
+        /** The held rows' declared "-N to all rolls" ([TraitClauses.allRollsClauses]). */
+        states: Int = 0,
     ): Int =
         TraitEffects.defenseBonus(traits) +
             (if (stunned) STUNNED_PENALTY else 0) +
             Shock.penaltyFor(RollKind.ACTIVE_DEFENSE, shocked, traits) +
-            poolPenalty
+            poolPenalty + states
 
     /** The book's own sentence for a cause, refused when the content prints none. */
     fun printedFor(cause: String): String {

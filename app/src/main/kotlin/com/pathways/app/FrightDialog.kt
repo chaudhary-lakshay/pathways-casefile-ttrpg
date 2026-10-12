@@ -94,6 +94,8 @@ internal fun FrightDialog(
     shock: Int = 0,
     /** Reeling and fatigue: "-1 to all rolls", the phrase shock is read by. */
     hurt: Int = 0,
+    /** The held rows' declared "-N to all rolls" (6gs), on the check and its recovery. */
+    states: ClauseBonus = ClauseBonus(0, null),
     onDismiss: () -> Unit,
 ) {
     var kind by remember { mutableStateOf(FrightKind.FRIGHT) }
@@ -146,6 +148,7 @@ internal fun FrightDialog(
                             },
                             shock = shock,
                             hurt = hurt,
+                            states = states,
                             rolled = recovery,
                             onRoll = { target ->
                                 // One roll a tap: a second from the same
@@ -164,7 +167,7 @@ internal fun FrightDialog(
             // for the same reason -- a screen that summed its own chips would
             // be the second copy.
             val fromTraits = TraitClauses.clauseBonus(clauses, declared)
-            val effective = modifier + shock + hurt + fromTraits.total
+            val effective = modifier + shock + hurt + fromTraits.total + states.total
             val target = FrightCheck.targetFor(will, effective)
             // The choices scroll and the target with Roll is pinned beneath
             // them, the shape of the Attack and ritual dialogs.
@@ -226,6 +229,9 @@ internal fun FrightDialog(
                     )
                 }
                 fromTraits.line?.let {
+                    Text("includes $it", style = MaterialTheme.typography.bodySmall)
+                }
+                states.line?.let {
                     Text("includes $it", style = MaterialTheme.typography.bodySmall)
                 }
                 Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -351,12 +357,13 @@ private fun FrightRecoveryPanel(
     clauseBonus: ClauseBonus,
     shock: Int,
     hurt: Int,
+    states: ClauseBonus,
     rolled: RollResult?,
     onRoll: (Int) -> Unit,
 ) {
     // ONE expression, printed and rolled, for the reason the Major Wound panel
     // states: two would let the caption and the roll drift.
-    val target = attributeLevel + bonus + clauseBonus.total + shock + hurt
+    val target = attributeLevel + bonus + clauseBonus.total + shock + hurt + states.total
     Column(Modifier.padding(top = 8.dp)) {
         if (rolled == null) {
             TextButton(onClick = { onRoll(target) }) {
@@ -375,6 +382,9 @@ private fun FrightRecoveryPanel(
                 )
             }
             clauseBonus.line?.let {
+                Text("includes $it", style = MaterialTheme.typography.bodySmall)
+            }
+            states.line?.let {
                 Text("includes $it", style = MaterialTheme.typography.bodySmall)
             }
             return@Column

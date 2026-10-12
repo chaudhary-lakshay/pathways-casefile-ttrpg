@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.ClauseBonus
 import com.pathways.rules.BurnKind
 import com.pathways.rules.Pools
 import com.pathways.rules.Corruption
@@ -73,6 +74,8 @@ fun RitualDialog(
     conditionPenalty: Int,
     /** The Major Wound's shock, named separately so the breakdown reconciles. */
     shock: Int = 0,
+    /** The held rows' declared "-N to all rolls" (6gs), named for the same reason. */
+    states: ClauseBonus = ClauseBonus(0, null),
     cor: Int,
     spiAvailable: Int,
     /**
@@ -200,7 +203,7 @@ fun RitualDialog(
     // is NOT included in [conditionPenalty] because RitualResolution applies
     // it itself, and counting it twice would penalise a corrupted caster
     // once for the ladder and once again for the same ladder.
-    val effectiveSkill = skillLevel + conditionPenalty + shock
+    val effectiveSkill = skillLevel + conditionPenalty + shock + states.total
     // Not computed at all when the book forbids the attempt: Broken prints
     // "Cannot perform rituals in the language", and targetFor refuses it
     // rather than inventing a penalty to roll at.
@@ -566,6 +569,7 @@ fun RitualDialog(
                     language?.ritualModifier?.takeIf { it != 0 }?.let { "$it for an accented tongue" },
                     if (conditionPenalty != 0) "$conditionPenalty hurt or tired" else null,
                     if (shock != 0) "$shock shock" else null,
+                    states.line,
                     Corruption.ritualPenalty(cor).takeIf { it != 0 }?.let { "$it for $cor CoR" },
                     RitualMode.supportBonus(support).takeIf { it != 0 }
                         ?.let { "${signed(it)} from supporting skills" },

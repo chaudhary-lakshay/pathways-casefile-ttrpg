@@ -490,20 +490,18 @@ class TraitReportedTest {
     }
 
     /**
-     * Phobia's "-1 to all rolls" half is REPORTED, not applied. It is a
-     * declared all-rolls state, which this app models for exactly one thing --
-     * shock, through an enum tested per roll class (6bo) -- and a second is its
-     * own slice. Fearlessness's intimidation half needs a contest between two
-     * characters' levels, which this app cannot hold.
+     * Phobia's "-1 to all rolls" half was REPORTED here until 6gs, because
+     * "a second declared all-rolls state is its own slice". That slice is
+     * [TraitClauses.allRollsClauses], so the half is applied and nothing of
+     * Phobia is left to report. Fearlessness's intimidation half still needs
+     * a contest between two characters' levels, which this app cannot hold.
      */
     @Test
     fun `the clauses a fright row prints beside its modifier are reported`() {
         val phobia = TraitReport.reported(
             listOf(Trait("Phobia (Cities)", 10, TraitKind.DISADVANTAGE)),
         )
-        assertTrue(phobia.any { "-1 to all rolls" in it.printed }, phobia.toString())
-        // ...under the sheet's own spelling.
-        assertTrue(phobia.all { it.trait == "Phobia (Cities)" })
+        assertTrue(phobia.none { "-1 to all rolls" in it.printed }, phobia.toString())
         val fearless = TraitReport.reported(listOf(advantage("Fearlessness")))
         assertTrue(fearless.any { "intimidation" in it.printed }, fearless.toString())
     }

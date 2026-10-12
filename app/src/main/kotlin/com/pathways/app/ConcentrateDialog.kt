@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.ClauseBonus
 import com.pathways.rules.Concentration
 import com.pathways.rules.ConcentrationOutcome
 import com.pathways.rules.TraitClause
@@ -41,6 +42,8 @@ internal fun ConcentrateDialog(
     clauses: List<TraitClause> = emptyList(),
     shock: Int = 0,
     hurt: Int = 0,
+    /** The held rows' declared "-N to all rolls" (6gs). */
+    states: ClauseBonus = ClauseBonus(0, null),
     onDismiss: () -> Unit,
 ) {
     var disturbed by remember { mutableStateOf(false) }
@@ -89,7 +92,7 @@ internal fun ConcentrateDialog(
             // two call sites this dialog has always had are why the term is
             // computed once (6ai).
             val fromTraits = TraitClauses.clauseBonus(clauses, declared)
-            val target = Concentration.targetFor(will, shock, hurt, fromTraits.total)
+            val target = Concentration.targetFor(will, shock, hurt, fromTraits.total + states.total)
             Column {
                 Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
                     // The base is the maneuver's own Will-3, so the card
@@ -117,6 +120,7 @@ internal fun ConcentrateDialog(
                         if (shock != 0) "includes $shock from shock" else null,
                         if (hurt != 0) "includes $hurt from the HP and FP trackers" else null,
                         fromTraits.line?.let { "includes $it" },
+                        states.line?.let { "includes $it" },
                     ),
                     caption = if (disturbed) "3d6 ≤ $target" else "No roll unless injured or defending",
                     enabled = disturbed,

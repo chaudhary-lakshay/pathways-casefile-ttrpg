@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.ClauseBonus
 import com.pathways.rules.BurnKind
 import com.pathways.rules.Pools
 import com.pathways.rules.Boons
@@ -112,6 +113,8 @@ fun BoonDialog(
     conditionPenalty: Int,
     /** The Major Wound's shock, named separately so the breakdown reconciles. */
     shock: Int = 0,
+    /** The held rows' declared "-N to all rolls" (6gs), named for the same reason. */
+    states: ClauseBonus = ClauseBonus(0, null),
     cor: Int,
     spiAvailable: Int,
     dice: RandomSource,
@@ -153,7 +156,7 @@ fun BoonDialog(
     // to modify a later roll -- the defect the attack dialog's "Another turn"
     // shipped with.
     val overrides = picks.mapNotNull { row -> picked[row.key]?.let { row.key to it } }.toMap()
-    val effectiveSkill = skillLevel + conditionPenalty + shock
+    val effectiveSkill = skillLevel + conditionPenalty + shock + states.total
     val target = Boons.targetFor(effectiveSkill, cor, sequence, picks, overrides)
     val cost = Boons.spiFor(spiChoice)
 
@@ -345,6 +348,7 @@ fun BoonDialog(
                         "circumstances ${signed(Boons.modifierTotal(picks, overrides))}",
                         if (conditionPenalty != 0) "$conditionPenalty hurt or tired" else null,
                         if (shock != 0) "$shock shock" else null,
+                        states.line,
                         if (cor >= 3) "-1 for $cor CoR" else null,
                     ),
                     target = target,

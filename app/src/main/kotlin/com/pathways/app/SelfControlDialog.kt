@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pathways.rules.ClauseBonus
 import com.pathways.rules.SelfControl
 import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.SelfControlOutcome
@@ -90,6 +91,11 @@ internal fun SelfControlDialog(
     standing: Int,
     /** The character's own Will clauses ([TraitClauses.willClauses]). */
     clauses: List<TraitClause> = emptyList(),
+    /**
+     * The held rows' declared "-N to all rolls" (6gs). Already inside
+     * [standing], as shock is; passed only so the footer can name it.
+     */
+    states: ClauseBonus = ClauseBonus(0, null),
     onDismiss: () -> Unit,
 ) {
     // Keyed on the check: a modifier left over from another disadvantage
@@ -186,7 +192,7 @@ internal fun SelfControlDialog(
                 // Nothing is charged here, but the second tap would silently
                 // discard a rolled outcome and pull an extra draw from the
                 // dice.
-                RollFooter(listOfNotNull(fromTraits.line?.let { "includes $it" }), "3d6 ≤ $target") {
+                RollFooter(listOfNotNull(fromTraits.line?.let { "includes $it" }, states.line?.let { "includes $it" }), "3d6 ≤ $target") {
                     if (outcome != null) return@RollFooter
                     outcome = SelfControl.rollAgainst(check, target, appDice)
                 }

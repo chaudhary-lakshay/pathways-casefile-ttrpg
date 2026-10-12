@@ -182,17 +182,11 @@ internal object TraitRefusals {
         // its cell prints beside the one [TraitEffects.SKILL_BONUSES] applies. A reviewer
         // caught two of these missing entirely -- worse than an untouched
         // trait, because the sheet then shows the cell as understood.
-        // The two Fright Check rows that print a rule beside their modifier.
-        // Phobia's second half is a declared ALL-ROLLS state, which this app
-        // models for exactly one thing -- shock, through an enum tested per
-        // roll class (6bo) -- and a second is its own slice. Fearlessness's
-        // needs a contest between two characters' levels, and this app holds
-        // one sheet (the refusal Feint has carried since 6o).
-        "Phobia (specify)" to listOf(
-            "-1 to all rolls while the phobic stimulus is present and unavoidable" to
-                "this app models one declared all-rolls state (shock) and has no " +
-                "control for a second yet",
-        ),
+        // Phobia's second half was here, refused because "this app models one
+        // declared all-rolls state (shock) and has no control for a second
+        // yet". The control shipped (6gs, [TraitClauses.allRollsClauses]).
+        // Fearlessness's needs a contest between two characters' levels, and
+        // this app holds one sheet (the refusal Feint has carried since 6o).
         "Fearlessness" to listOf(
             "immunity to intimidation from beings with fewer levels of Fearlessness" to
                 "that is a contest between two characters' levels, and this app " +
@@ -212,6 +206,11 @@ internal object TraitRefusals {
             "In combat, may forget to reload, change tactics, or use special " +
                 "abilities (GM's discretion)" to
                 "the cell leaves it to the GM's discretion in its own words",
+        ),
+        // Its "-1 to all rolls when ... present nearby" is declared on the
+        // sheet (6gs); this clause names what a roll is for.
+        "Entity Fixation" to listOf(
+            "-2 to any roll that requires you to ignore them" to PURPOSE_NOT_SKILL,
         ),
         "Healer" to listOf(
             "+2 to all rolls to diagnose, treat, and heal" to PURPOSE_NOT_SKILL,
@@ -442,9 +441,11 @@ internal object TraitRefusals {
             "the book's knockdown rolls for a hit location print no attribute " +
             "to roll against, so this app shows those cells rather than rolling " +
             "them — the refusal Iron Jaw carries, with the sign flipped",
-        "Soul Scar" to
-            "it names a Fright Check FAILURE as its trigger rather than a roll " +
-            "to make, so there is nothing here to roll or to modify",
+        // Soul Scar was here: "it names a Fright Check FAILURE as its trigger
+        // rather than a roll to make, so there is nothing here to roll or to
+        // modify". The trigger is no roll, but the "-1 to all rolls for the
+        // scene" it starts lands on every roll after it, and is declared on
+        // the sheet now (6gs).
         // The four rows that modify a Fright Check. The reason is a GAP, not a
         // refusal, and it is stated as one: this app DOES roll a Fright Check
         // (Ch. 5, `FrightCheck.against`), so "no such roll exists" would be a

@@ -286,7 +286,9 @@ object Detection {
          * choice is made, so it is the only place that can tell.
          */
         spiModifier: Int = 0,
-    ): Int = attributeFor(spi, per, freeRoll, alertness, spiModifier) + modifier + shock + hurt
+        /** The held rows' declared "-N to all rolls" ([TraitClauses.allRollsClauses]). */
+        states: ClauseBonus = ClauseBonus(0, null),
+    ): Int = attributeFor(spi, per, freeRoll, alertness, spiModifier) + modifier + shock + hurt + states.total
 
     /**
      * The row [roll] landed on.
@@ -365,6 +367,7 @@ object Detection {
         shock: Int = 0,
         hurt: Int = 0,
         spiModifier: Int = 0,
+        states: ClauseBonus = ClauseBonus(0, null),
     ): List<String> = buildList {
         // The attribute line carries the trait itself, because it moved the
         // attribute rather than the target beside it -- naming it twice
@@ -372,6 +375,7 @@ object Detection {
         add(attributeLine(spi, per, freeRoll, alertness, spiModifier))
         if (shock != 0) add("shock ${signed(shock)}")
         if (hurt != 0) add("hurt or tired ${signed(hurt)}")
+        states.line?.let { add(it) }
         situations.filter { it.modifier != 0 }
             .forEach { add("${it.situation} ${signed(it.modifier)}") }
         techniques.filter { (it.detectionBonus ?: 0) != 0 }

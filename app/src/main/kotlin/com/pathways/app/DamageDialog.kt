@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.RollResult
+import com.pathways.rules.ClauseBonus
 import com.pathways.rules.MajorWoundHt
 import com.pathways.rules.Pool
 import com.pathways.rules.RandomSource
@@ -143,6 +144,12 @@ fun DamageDialog(
      * Failure row, so the two are never the same -4.
      */
     carriedShock: Int = 0,
+    /**
+     * The held rows' declared "-N to all rolls" (6gs), on BOTH rolls. Shock's
+     * refusal of the Major Wound roll is that the roll creates it; withdrawal
+     * or a phobia is carried in, the way [hurt] is.
+     */
+    states: ClauseBonus = ClauseBonus(0, null),
     onDismiss: () -> Unit,
 ) {
     val rules = remember { ContentLoader.spiritDamage() }
@@ -248,15 +255,16 @@ fun DamageDialog(
                 // twice, which is the shape that let a caption and a roll drift
                 // apart three times in this codebase (6ag, 6ai, 6be) -- and a
                 // third term is exactly the edit that would have split them.
-                val htTarget = ht + majorWoundHt.bonus + hurt
+                val htTarget = ht + majorWoundHt.bonus + hurt + states.total
                 // The table's Failure row asks for a second HT roll and the
                 // two are reached by different clauses, so this is its own
                 // expression rather than htTarget reused.
-                val recoveryTarget = ht + stunRecoveryHt.bonus + hurt + carriedShock
+                val recoveryTarget = ht + stunRecoveryHt.bonus + hurt + carriedShock + states.total
                 MajorWoundPanel(
                     isMajor = isMajor,
                     ht = htTarget,
                     traitLine = majorWoundHt.line,
+                    statesLine = states.line,
                     shock = shock,
                     // Rolled WITHOUT any shock of its own: this is the roll
                     // that creates the state, and Shock refuses to reach
@@ -308,6 +316,7 @@ private fun MajorWoundPanel(
     isMajor: Boolean,
     ht: Int,
     traitLine: String? = null,
+    statesLine: String? = null,
     shock: RollResult?,
     onRoll: () -> Unit,
     recoveryTarget: Int,
@@ -324,6 +333,7 @@ private fun MajorWoundPanel(
         if (traitLine != null) {
             Text(traitLine, style = MaterialTheme.typography.bodySmall)
         }
+        statesLine?.let { Text("includes $it", style = MaterialTheme.typography.bodySmall) }
         return
     }
     // The roll's own target, as the recovery line below prints its own.
@@ -343,6 +353,7 @@ private fun MajorWoundPanel(
         if (recoveryLine != null) {
             Text(recoveryLine, style = MaterialTheme.typography.bodySmall)
         }
+        statesLine?.let { Text("includes $it", style = MaterialTheme.typography.bodySmall) }
         return
     }
     // The roll's OWN target and verdict. Re-judging a stored roll against a
