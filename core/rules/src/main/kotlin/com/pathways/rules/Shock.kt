@@ -18,10 +18,11 @@ import com.pathways.rules.content.MajorWound
  * targets, and the gap looks like an oversight in a UI adapter rather than a
  * reading of the book (Codex, at design time).
  *
- * Two 3d6 rolls the app makes are deliberately no kind, so no state reaches
- * them: the Potion Consumption Roll, on the book's own sentence (see
- * [PotionConsumption]), and `Invocation.ask`, which is the entity's roll and
- * not the character's.
+ * Not every 3d6 is a kind. The Potion Consumption Roll is a roll against a
+ * target and deliberately none, on the book's own sentence (see
+ * [PotionConsumption]), so no state reaches it. `Invocation.ask` is the
+ * entity's roll and not the character's. The 3d6 thrown ON a table (the
+ * fright effect, the ritual critical) is not listed here either.
  */
 enum class RollKind {
     /** Anything resolved through [SkillRoll] -- skills, attacks, rituals, divination, boons. */

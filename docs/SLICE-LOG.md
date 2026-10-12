@@ -6742,10 +6742,15 @@ rules. The table agrees with it: the 100% row is annotated *"19 — always
 succeeds"*, and Laudanum's -2 would leave 17, which an 18 fails.
 
 **The query that could have overturned it.** A row that names the PCR would
-be specific too. `advantages.json`, `disadvantages.json`, `pathways.json`
-and `non_standard_pathways.json` were grepped for *consumption roll*, *PCR*
-and *potion consumption*: nothing. The book was grepped for *advanc*,
-*drink* or *potion* on a line with a signed number: one row modifies a
+be specific too. Every file in `content/` was grepped twice, with no fixed
+padding: for `consum|PCR`, and for `drink|advanc|integrat|digest` within
+100 characters of a signed number. The first run of this query demanded 90
+characters on each side of the match and searched four files, so its empty
+result proved nothing, and it cut a `sealed_artifacts.json` hit before the
+match (a candle burning *"without perceptible consumption"*). In the book,
+*Consumption Roll* and *PCR* occur on lines 216 and 3077-3132 only, and
+*advanc*, *drink* or *potion* beside a signed number was read with a
+two-line window. One row modifies a
 drinking roll, the Beast Tamer's *"Animals tamed by a Beast Tamer gain +4
 to rolls involving drinking potions"* (line 6837), and it is for a tamed
 animal, which this app does not play. Luck's reroll (6fg) and the Acting
@@ -6753,9 +6758,10 @@ Method (6ez) reach the PCR through a reroll and through digestion. Neither
 is a modifier.
 
 No roll changed. The reason now sits in production source: `PotionConsumption`'s
-KDoc, and `RollKind`'s, which names the two 3d6 rolls that are deliberately
-no kind. `Invocation.ask` stays out on its own reason: it is the entity's
-roll.
+KDoc, and `RollKind`'s. `Invocation.ask` stays out on its own reason: it is
+the entity's roll. `RollKind`'s KDoc first said *"two 3d6 rolls"* are no
+kind; a grep of every dice call found the table rolls too (the fright
+effect, the ritual critical), and it now gives no count.
 
 **Not done, and why.** The Drink line prints *"3d6 ≤ 12"* and says nothing
 about a reeling drinker. No screen prints a state beside that number, so

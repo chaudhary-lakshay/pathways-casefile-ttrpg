@@ -55,8 +55,8 @@ data class PcrOutcome(
  * is the specific rule and "all rolls" the general one, the call
  * [PcrOutcome.integrated] already makes for the critical rules. The table
  * agrees: the 100% row is annotated "always succeeds", which Laudanum's -2
- * would make false. A search of the catalogues and the pathway blocks for a
- * modifier that NAMES this roll found one, the Beast Tamer's "+4 to rolls
+ * would make false. A grep of every content file for a modifier that NAMES
+ * this roll (6gt has the query) found one, the Beast Tamer's "+4 to rolls
  * involving drinking potions", and it is for a tamed animal. A row that named
  * a player's PCR would be specific too, and would be applied.
  */

@@ -77,8 +77,10 @@ class BeyonderSessionTest {
         // p. 45: "Only the drinker's digestion of their current potion
         // matters". Reeling's "-1 to all rolls" is general and that sentence
         // is specific: a 12 against the 60% row's 12 integrates, where the
-        // same 12 against 11 would end the character.
-        val (s, _) = session(SavedSession(beyonder = fool9.digested(60), hpLost = 8))
+        // same 12 against 11 would end the character. HP and FP lost are
+        // the two states a session holds; shock and the declared ones live
+        // on the sheet screen and cannot reach drink at all.
+        val (s, _) = session(SavedSession(beyonder = fool9.digested(60), hpLost = 8, fpLost = 20))
         val outcome = s.drink(fool8, fixed(4)) { 20 }!!
         assertEquals(12, outcome.target)
         assertTrue(outcome.integrated)
