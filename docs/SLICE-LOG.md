@@ -6950,8 +6950,22 @@ for comments.
 builder sells Secret with an instance off the same row. The refusal is in
 `TraitNamesTest`, with a design review's reason: a cost inside the printed
 interval corroborates pricing, never identity, and no sheet quotes
-Secret's cell. Its sentence *"Nothing here reads the second"* notation is
-no longer true of the builder. That is owner question 10.
+Secret's cell. The asymmetry is the question: a Secret bought in the
+builder composes the bare row name and resolves, and a sheet's *"Secret
+(Courier network)"* does not. That is owner question 10.
+
+**The review of both late commits** (sonnet, `kotlin-reviewer.md`,
+`8a14f85..93ed26f -- app core`, told the redesign's rule this time): SHIP,
+two LOWs, neither taken. It checked each of the ten rewritten comments
+against the code it names and found all ten true, and the split correct:
+the refusal is open, the cells are behind the tap. Its LOWs: no test pins
+what the composable draws, so dropping `DefenseNote(line)` would stay
+green; and it did not run the test behind the *four spellings* count. It
+ran nothing. So *"read by no reviewer"* above is no longer true of the
+split; *"seen on no device"* still is.
+
+The guide was swept with the same denials and holds: it says *"no turn
+counter beyond the defence screen's own round"*.
 
 **What this sweep cannot see** is a comment that never says *this app*:
 *"is not modelled"*, *"not offered"*, *"the GM's"*. And it read test
