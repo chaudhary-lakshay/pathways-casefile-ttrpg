@@ -220,6 +220,21 @@ class SelfControlTest {
         assertEquals(borrowers, SelfControl.borrowedRolls())
     }
 
+    /**
+     * `TraitReportedTest`'s sweep filters on a `selfControl` field, so it cannot see the
+     * one row that offers a roll and prints none: Cannot Kill takes
+     * Reluctant Killer's (6hj). Its sentence is the same, and for the same
+     * reason: the roll is offered, and its conduct is the table's.
+     */
+    @Test
+    fun `a row offering a borrowed roll says its roll is all that is applied`() {
+        val row = ContentLoader.disadvantages().single { it.name == "Cannot Kill" }
+        assertEquals(null, row.selfControl)
+        val note = TraitReport.reported(listOf(Trait(row.name, 15, TraitKind.DISADVANTAGE))).single()
+        assertEquals(row.notes, note.printed)
+        assertEquals(TraitReport.ROLLED_ONLY, note.reason)
+    }
+
     @Test
     fun `the two refused phrasings stay refused`() {
         // Duty's "(roll 9 or less)" is how often the duty comes up; Phobia's

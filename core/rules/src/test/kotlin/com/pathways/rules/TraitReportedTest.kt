@@ -692,21 +692,6 @@ class TraitReportedTest {
     }
 
     /**
-     * The sweep above filters on a `selfControl` field, so it cannot see the
-     * one row that offers a roll and prints none: Cannot Kill takes
-     * Reluctant Killer's (6hj). Its sentence is the same, and for the same
-     * reason: the roll is offered, and its conduct is the table's.
-     */
-    @Test
-    fun `a row offering a borrowed roll says its roll is all that is applied`() {
-        val row = ContentLoader.disadvantages().single { it.name == "Cannot Kill" }
-        assertEquals(null, row.selfControl)
-        val note = TraitReport.reported(listOf(Trait(row.name, 15, TraitKind.DISADVANTAGE))).single()
-        assertEquals(row.notes, note.printed)
-        assertEquals(TraitReport.ROLLED_ONLY, note.reason)
-    }
-
-    /**
      * **One row per held trait, with its cell and what of it is not applied**,
      * which is what the sheet prints. The drawback half is the lookup the
      * sheet did inline, asked through the one resolution: a second catalogue
