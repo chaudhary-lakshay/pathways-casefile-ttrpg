@@ -195,6 +195,12 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hd
+(the device pass 6gz, 6hb and 6hc owed, on the SM-T570: all four seen as
+built; the Defend dialog printed the unarmed cell's notes under the
+untrained-armed refusal, where they read as its explanation, and they
+sit under the bare-hand row now; the save restored byte for byte).
+
 Then 6hc
 (6cf's caller census re-run over both trees: 979 functions, 68 with no
 production reference, each category given its verdict; the Damage dialog
@@ -2391,12 +2397,13 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6ew back to 6de
+## Digest index, 6ex back to 6de
 
 Moved from the handover in 6ff, unchanged, when its digest index neared
 8,000 characters. 6ds and 6dr followed in 6gb, and 6dv back to 6dt in
-6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy; 6eq in 6ha; 6er in 6hb; 6es in 6hc; 6et in 6hd; 6eu in 6he; 6ev in 6hg; 6ew in 6hh.
+6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy; 6eq in 6ha; 6er in 6hb; 6es in 6hc; 6et in 6hd; 6eu in 6he; 6ev in 6hg; 6ew in 6hh; 6ex in 6hi.
 
+**6ex** — a Reluctant Killer's target is the GM's to declare (-4, or -2 with the face hidden); "cannot Aim" is unconditional, and the Attack roll takes the general trait term;
 **6ew** — a self-control row's other clauses were unsaid; `ROLLED_ONLY` says the roll alone is applied, and `catalogueName` had cut `SC 6` to `SC` as if 6 were a level;
 **6ev** — the bare-hand parry cell prints "Brawling or DX", so DX is a row of its own; the Acrobatic Dodge rolls its default, and Defend gained the missing trait term;
 **6eu** — the Attack dialog takes an untrained skill with a fist or weapon row; a Warrior's weapon is wielded at no less than DX, and one `levelWith` feeds the header, damage and roll;

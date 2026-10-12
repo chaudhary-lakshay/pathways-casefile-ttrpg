@@ -79,6 +79,7 @@ class StudyAdviceTest {
     @Test
     fun `a blessed holder's study tag climbs from the level the row prints`() {
         var checked = 0
+        var capped = 0
         for (sheet in Premades.all()) {
             val mortal = sheet.toCharacter()
             val character = mortal.copy(
@@ -89,11 +90,17 @@ class StudyAdviceTest {
                 val attr = (skill.key.attr as? Buyable)?.attr ?: continue
                 if (Blessings.gainTo(attr, listOf(TraitEffects.GOD_OF_COMBAT)) == 0) continue
                 val tag = studyAdvice(skill, character, derived, StudyMethod.TUTOR).tag
+                // The cap is the blessed attribute's too: the bought score, the
+                // printed +3, and study's one rung above.
+                if (tag.startsWith("at cap ")) {
+                    capped++
+                    assertEquals("at cap ${mortal.attributes[attr] + 3 + 1}", tag, "${sheet.name} ${skill.key.display}")
+                }
                 val to = tag.substringAfter("→ ", "").toIntOrNull() ?: continue
                 checked++
                 assertEquals(derived.skillLevels.getValue(skill.key) + 1, to, "${sheet.name} ${skill.key.display}: $tag")
             }
         }
-        assertTrue(checked > 0, "no blessed skill had a plan")
+        assertTrue(checked > 0 && capped > 0, "planned $checked, capped $capped")
     }
 }

@@ -6726,6 +6726,65 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hi. Three standing sweeps re-run, and a study tag three below its row
+
+The owner chose a sweep for the next gap. Three were run.
+
+| Sweep | Query | Result |
+|---|---|---|
+| 6dy's unclaimed lines | `coverage.py`'s filter over every line no `sourceLines` claims | **196, the same lines**: the corpus has not moved. 6ep re-ran its three app-claim refusals; `Wrestling Master` is still in no content file and `initiative` still appears in comments only |
+| 6hc's caller census | every `fun` added to a `src/main` tree in `5759507..HEAD`, grepped for a production reference | fifteen functions, each called; `attributeGainTable` and `drawbackChoiceTable` are guard accessors, 6hc's own category |
+| 6ga's printed numbers, against 6hf | every read of `.attributes` in `app/src/main` and `core/rules/src/main`, comments dropped | **one**, below. `Premades.kt:77` reads the unedited sheet's, which is the diff's subject |
+
+### The finding
+
+`studyAdvice` (`BuilderRows.kt`) resolved its attribute from
+`character.attributes`, the bought scores. The level printed on the same
+builder row is `Derive.of`'s, read from `Blessings.played` since 6hf. So a
+God of Combat holder's DX skill printed 14 with *"Study: at cap 11"*
+beside it, or a plan *"→ 11"* beside a 13.
+
+Which study is offered never changed: `Study.plan` reads the level, the
+next rung and the cap from the one attribute it is handed, so all three
+moved together and three low. The printed numbers were wrong, and they sat
+beside the right one. 6hf's own sentence names the shape, *"so a blessing
+cannot reach one and miss the next"*, and this caller was the next.
+
+It takes `Derive.attributes(character, null)` now: the builder's rows are
+*"Levels before potions"*, and `derived` at the one call site is
+`Derive.of(character)`.
+
+- RED: *Dock Foreman Lifting/HT: 24 hrs + 16s · 2 CP → 11 ==> expected:
+  <14> but was: <11>*. The expectation is the row's own
+  `derived.skillLevels` plus one rung, not the advice's arithmetic.
+- The file's older test computes its expectation from
+  `character.attributes`, the same call the defect made. No premade holds
+  a blessing, so it was blind and stays right for what it sweeps.
+- The at-cap assertion was added after the fix, on the review's LOW, so
+  it was mutated: the argument put back, results deleted, 0 compile
+  errors, *expected: <at cap 13> but was: <at cap 10>*, restored from a
+  copy with no diff.
+
+### Review and device
+
+Sonnet, `kotlin-reviewer.md`, on `322f3ea -- app`: SHIP, the one LOW
+above taken. It confirmed the single caller and that Will and Per already
+came from played secondaries. One of its sentences says a blessed holder
+*"could be offered a plan against a cap three levels too low"*; its own
+preceding bullet, and `Study.kt:159-172`, say the level moved with the cap.
+
+**Device pass, SM-T570 over Wi-Fi**, the save `cmp`-identical to 6hh's
+backup before and after, Beat Cop seeded with God of Combat: *Guns
+(Pistol)/DX 14*, *Shortsword/DX 14*, *Brawling/DX 14*, each *"Study: at
+cap 14"*. No FATAL.
+
+2122 Kotlin (1398 `core:rules`, 703 `app`, 21 `core:model`) from deleted
+results with `--rerun-tasks`; `ast-grep scan` clean. Python: 366, run in
+6hh and untouched since.
+
+**Next.** Nothing is queued. Not swept here: 6ga's sweep proper, the
+strings a screen types, which this slice ran only for attribute reads.
+
 ## 6hh. Dead Language Fluency's language, and the reason 6gx gave for it
 
 The queue was empty after 6hg. The owner chose the trait backlog, and 6gx
