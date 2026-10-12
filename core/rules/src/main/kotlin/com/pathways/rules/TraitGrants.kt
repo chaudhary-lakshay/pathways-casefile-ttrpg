@@ -95,12 +95,29 @@ object TraitGrants {
         (("Moon" to 8) to "Empathy") to "\"Empathy (animals)\" is a variant the catalogue does not print",
         (("Tyrant" to 7) to PERFECT_BALANCE) to
             "\"Perfect Balance (Enhanced)\" is a variant; Tyrant 9's own Perfect Balance is granted",
-        (("Hanged Man" to 9) to "Paranoia") to "\"Choose one of these three drawbacks\", and this app records no choice",
-        (("Hanged Man" to 9) to "Hallucinations") to "\"Choose one of these three drawbacks\", and this app records no choice",
+    )
+
+    /**
+     * A block that makes the drinker choose one drawback, and the catalogue
+     * rows it offers (6he). Hanged Man 9 prints "Paranoia, Hallucinations, or
+     * Compulsion (Hanged Man; -10 pts) Choose one of these three drawbacks";
+     * the third is the catalogue's "Compulsion (pathway)", 5-15.
+     */
+    private val DRAWBACK_CHOICES: Map<Pair<String, Int>, List<String>> = mapOf(
+        ("Hanged Man" to 9) to listOf("Paranoia", "Hallucinations", "Compulsion (pathway)"),
     )
 
     /** The table, for its census. */
     fun grantedTraitTable(): Map<Pair<String, Int>, List<Trait>> = GRANTED_TRAITS
+
+    /** The choice table, for its census. */
+    fun drawbackChoiceTable(): Map<Pair<String, Int>, List<String>> = DRAWBACK_CHOICES
+
+    /** The drawbacks [state]'s walked chain offers to choose between. */
+    fun drawbackChoices(state: com.pathways.model.BeyonderState): List<String> =
+        DRAWBACK_CHOICES
+            .filterKeys { (pathway, sequence) -> pathway == state.pathway && sequence >= state.sequence }
+            .values.flatten()
 
     /** The refusals, for the census: (block, catalogue row) to reason. */
     fun refusedGrants(): Map<Pair<Pair<String, Int>, String>, String> = REFUSED_GRANTS
@@ -114,10 +131,15 @@ object TraitGrants {
      * "DX +1", which "goes up by 1 permanently" (5446), so Demoness 8's +2,
      * 7's +1 and 6's +1 hold Charisma 4 -- the catalogue's own "[max 4
      * levels]", which [levelled] also caps the printed level at.
+     *
+     * A chosen drawback is granted like the rest, when it is one of the
+     * chain's own [drawbackChoices]; any other stored name grants nothing.
      */
     fun grantedTraits(state: com.pathways.model.BeyonderState?): List<Trait> {
         if (state == null) return emptyList()
-        return GRANTED_TRAITS
+        val chosen = state.drawback?.takeIf { it in drawbackChoices(state) }
+            ?.let { listOf(Trait(it, 0, TraitKind.DISADVANTAGE)) }.orEmpty()
+        return chosen + GRANTED_TRAITS
             .filterKeys { (pathway, sequence) -> pathway == state.pathway && sequence >= state.sequence }
             .values.flatten()
             .groupBy { catalogueName(it.name).lowercase() }.values

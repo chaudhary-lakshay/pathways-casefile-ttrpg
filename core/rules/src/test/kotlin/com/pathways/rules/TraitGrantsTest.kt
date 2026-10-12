@@ -16,6 +16,48 @@ import org.junit.jupiter.api.Test
 class TraitGrantsTest {
     private fun advantage(name: String) = Trait(name, 5, TraitKind.ADVANTAGE)
 
+    private val COMPULSION = "Compulsion (pathway)"
+
+    /**
+     * Hanged Man 9 prints "Paranoia, Hallucinations, or Compulsion (Hanged
+     * Man; -10 pts) Choose one of these three drawbacks" (6he). The three are
+     * the catalogue's rows at the block's price: Paranoia and Hallucinations
+     * cost 10, and Compulsion (pathway) prints 5-15.
+     */
+    @Test
+    fun `Hanged Man 9's three drawbacks are the block's own, at its price`() {
+        val block = ContentLoader.pathways().single { it.pathway == "Hanged Man" && it.sequence == 9 }
+        assertTrue("Choose one of these three drawbacks" in block.drawbacks)
+        for (printed in listOf("Paranoia", "Hallucinations", "Compulsion (Hanged Man; -10 pts)")) {
+            assertTrue(printed in block.drawbacks, printed)
+        }
+        val choices = listOf("Paranoia", "Hallucinations", COMPULSION)
+        assertEquals(mapOf(("Hanged Man" to 9) to choices), TraitGrants.drawbackChoiceTable())
+        val catalogue = ContentLoader.disadvantages().associateBy { it.name }
+        for (name in choices) {
+            val row = catalogue.getValue(name)
+            assertTrue(row.cost == 10 || (row.costMin!! <= 10 && 10 <= row.costMax!!), name)
+        }
+    }
+
+    @Test
+    fun `a chosen drawback is granted free down the chain, and nothing else is`() {
+        val eight = com.pathways.model.BeyonderState("Hanged Man", 8, drawback = "Paranoia")
+        assertEquals(
+            listOf(Trait("Paranoia", 0, TraitKind.DISADVANTAGE)),
+            TraitGrants.grantedTraits(eight).filter { it.kind == TraitKind.DISADVANTAGE },
+        )
+        assertEquals(listOf("Paranoia", "Hallucinations", COMPULSION), TraitGrants.drawbackChoices(eight))
+        // Unchosen, none of the three is held.
+        val nine = com.pathways.model.BeyonderState("Hanged Man", 9)
+        assertTrue(TraitGrants.grantedTraits(nine).none { it.kind == TraitKind.DISADVANTAGE })
+        // A name outside the three, from a hand-edited save, grants nothing.
+        val stray = nine.copy(drawback = "Bloodlust")
+        assertTrue(TraitGrants.grantedTraits(stray).none { it.name == "Bloodlust" })
+        // Another pathway has no choice to make.
+        assertTrue(TraitGrants.drawbackChoices(com.pathways.model.BeyonderState("Fool", 9)).isEmpty())
+    }
+
     /**
      * The potion blocks that grant a sense (6fi), against every block's own
      * prose in both directions. The names come from the PROSE -- any
@@ -86,7 +128,13 @@ class TraitGrantsTest {
             }
             .toSet()
         val refused = TraitGrants.refusedGrants().keys
-        assertEquals(printed, granted + refused)
+        // A chosen drawback is granted when chosen (6he). The block prints
+        // the third as "Compulsion (Hanged Man; -10 pts)", which names no
+        // row whole, so this census cannot see it; the choice test pins it.
+        val chosen = TraitGrants.drawbackChoiceTable()
+            .flatMap { (key, names) -> names.map { key to it } }
+            .toSet() - (("Hanged Man" to 9) to COMPULSION)
+        assertEquals(printed, granted + refused + chosen)
         assertTrue((granted intersect refused).isEmpty(), (granted intersect refused).toString())
         // Every granted catalogue row is unlevelled but Charisma, whose levels
         // the merge adds (6fm): an unlevelled row is kept once by name, which

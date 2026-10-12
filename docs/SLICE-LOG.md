@@ -6737,6 +6737,80 @@ resolution above, and then `Secret`, which has none.
 
 Questions 1-6 (6gx, 6gy) are still unanswered.
 
+### Q10 built: a sheet's Secret is the Secret row
+
+`TraitNames.QUOTED_INSTANCE_ROWS` names Secret beside Sense of Duty, on
+the ruling and not on a quotation; the shape rule (any interval row with a
+bracket) stays refused, so `Obsession (A rival)` stays unmatched. The pins
+on the old unmatched set (`TraitNamesTest`, `TraitReportedTest`,
+`ContentLoaderTest`'s audit-only list) lost the two spellings, and three
+KDocs that still called Secret unmatched were corrected after the advisor
+named them. The builder's second-Secret gate is unaffected:
+`canInstantiate` gates only rows whose cell enumerates variants.
+RED: *expected: <Secret> but was: <Secret (Courier network)>*.
+
+### Q9 built: the drawback is stored in `BeyonderState`
+
+`BeyonderState.drawback: String? = null`, additive. Inside the state and
+not beside it, because every grant reader keys on the state
+(`remember(drunk)`, `remember(session.state)`); beside it, they would have
+needed a new parameter, and 6hc showed a defaulted one goes missing. The
+cost was two constructors: `advanced()` now copies, and `PathwayScreen`
+builds the next potion through `potionOn(block, drunk)`, because
+`canDrink` compares the whole state. Built without the choice, Drink
+vanished. Not validated in the model, because a throwing decode discards
+the whole save. `TraitGrants.grantedTraits` grants a stored name only if
+it is one of the chain's `drawbackChoices`.
+
+- The three: Paranoia (10), Hallucinations (10), and "Compulsion (Hanged
+  Man; -10 pts)" as the catalogue's `Compulsion (pathway)`, 5-15. The
+  chip prints it as the block does.
+- **The owner's case is refused, not left as is.** A drawback the builder
+  sold cannot also be chosen: its bought row keeps the 10-point credit. The
+  chip reads *"Paranoia · bought"*, disabled. Once chosen, the builder
+  cannot sell it, because `traitsInPlay` holds it.
+- The two `REFUSED_GRANTS` rows went. The prose census cannot see the third
+  choice, which names no row whole; a separate test pins all three
+  against the block and its price. `HeldCorpus` takes the three.
+- A choice can be switched, never cleared. Not built: nothing asks for it.
+
+| Mutant | Caught by |
+|---|---|
+| `advanced()` builds a fresh state | `BeyonderStateTest`, and Drink in `DrawbackChoiceTest` |
+| the bought check dropped | `a drawback bought in the builder cannot also be chosen` |
+| `potionOn` drops the choice | `the next potion carries the choice` |
+| any stored name granted | `TraitGrantsTest`'s stray Bloodlust |
+| `!isLost` dropped | `a lost character chooses nothing` |
+
+2106 Kotlin (1388 `core:rules`, 697 `app`, 21 `core:model`), 0 failures,
+from deleted results, counted from the XML.
+
+**Review.** Sonnet, `kotlin-reviewer.md`, on `0e59c42` plus the working
+tree, asked about by-value comparisons, the builder's double-count, and the
+picker's wiring: SHIP, two LOWs, both taken. A lost character's chips read
+"· bought"; no picker draws for a lost character now. And a chip tap on
+Sequence 9 while at 8 jumped the view to 8, because the screen's position
+was keyed on the whole state; it is keyed on pathway and Sequence now, and
+a digestion step no longer jumps it either. It ran nothing.
+
+**Device pass, SM-T570**, save backed up and restored byte for byte
+(`~/pathways-device-backups/sessions-2026-10-12-6he.json`), seeded
+Fortune Teller as Hanged Man 9 at 100%:
+
+- Traits tab before: *"Secret (Racist Sympathizer)"* tagged **GM call**,
+  not *Unmatched name*. Disadvantages 3.
+- Pathway, Sequence 9, Drawbacks card: three chips under the book's text;
+  Paranoia tapped, selected, and the save read `"drawback": "Paranoia"`.
+  The view stayed on Sequence 9.
+- Sequence 8: *"Drink and roll"*, *"at 100% digested, rolls 3d6 ≤ 19"*.
+- Traits tab after: Disadvantages 4, *Paranoia*, *from the potion*,
+  **Roll only**, *Roll 3d6 ≤ 12*.
+
+Not seen: the "· bought" chip, and a drink after choosing.
+
+**Next.** Q8: God of Combat's +3 ST/DX/HT, a written decomposition and its
+review before any code. Then questions 1-6.
+
 ## 6hd. The device pass three slices owed, and a note under the wrong row
 
 The SM-T570 (`R52TA076AEZ`) was attached, so the checks 6gz, 6hb and 6hc

@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,7 +35,12 @@ import com.pathways.rules.content.SequenceBlock
  * drawbacks and abilities. Every word of that text is the book's; only the
  * layout is this screen's ([abilityParagraphs]).
  */
-internal fun LazyListScope.potionContent(block: SequenceBlock, digested: DigestedCharacter) {
+internal fun LazyListScope.potionContent(
+    block: SequenceBlock,
+    digested: DigestedCharacter,
+    /** Under the drawbacks: the choice a block like Hanged Man 9's asks for (6he), or null. */
+    drawbackPicker: (@Composable () -> Unit)?,
+) {
     item {
         PotionCard("Gains") {
             FlowRow(
@@ -84,10 +91,49 @@ internal fun LazyListScope.potionContent(block: SequenceBlock, digested: Digeste
         }
     }
     if (block.advantages.isNotEmpty()) item { PotionCard("Advantages") { BookText(block.advantages) } }
-    if (block.drawbacks.isNotEmpty()) item { PotionCard("Drawbacks") { BookText(block.drawbacks) } }
+    if (block.drawbacks.isNotEmpty()) {
+        item {
+            PotionCard("Drawbacks") {
+                BookText(block.drawbacks)
+                drawbackPicker?.invoke()
+            }
+        }
+    }
     item { PotionCard("Abilities") { Abilities(block.ability) } }
     if (block.reinforcedAbilities.isNotEmpty()) {
         item { PotionCard("Reinforced abilities") { Abilities(block.reinforcedAbilities) } }
+    }
+}
+
+/**
+ * One chip per drawback the block offers, the chosen one selected. A row
+ * the character bought is disabled and says so: sell it in the builder
+ * first. The catalogue's "(pathway)" prints as the block does.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun DrawbackPicker(
+    choices: List<String>,
+    chosen: String?,
+    pathway: String,
+    canChoose: (String) -> Boolean,
+    onChoose: (String) -> Unit,
+) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(top = 8.dp),
+    ) {
+        choices.forEach { name ->
+            val selected = name == chosen
+            val enabled = selected || canChoose(name)
+            val label = name.replace("(pathway)", "($pathway)")
+            FilterChip(
+                selected = selected,
+                enabled = enabled,
+                onClick = { onChoose(name) },
+                label = { Text(if (enabled) label else "$label · bought") },
+            )
+        }
     }
 }
 

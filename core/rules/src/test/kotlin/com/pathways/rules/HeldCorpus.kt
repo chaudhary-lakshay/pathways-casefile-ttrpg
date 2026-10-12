@@ -1,6 +1,7 @@
 package com.pathways.rules
 
 import com.pathways.model.Trait
+import com.pathways.model.TraitKind
 
 /**
  * Every held trait a character can reach (6fr's census): every fixture,
@@ -16,6 +17,7 @@ internal fun reachableHeldTraits(): List<Trait> {
     held += Appearance.all().map(Appearance::traitFor)
     held += PurchasableTraits.offered().map { it.toTrait() }
     held += TraitGrants.grantedTraitTable().values.flatten()
+    held += TraitGrants.drawbackChoiceTable().values.flatten().map { Trait(it, 0, TraitKind.DISADVANTAGE) }
     for (lang in Languages.all()) for (p in Languages.proficiencies(lang.type)) for (form in Languages.forms()) {
         held += Languages.traits(listOf(LanguagePurchase(lang.name, p.proficiency, form)), emptyList())
     }

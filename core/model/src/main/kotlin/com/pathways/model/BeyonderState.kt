@@ -31,6 +31,13 @@ data class BeyonderState(
      * not a level, and it resets when the next potion is drunk.
      */
     val digestion: Int = 0,
+    /**
+     * The drawback a block makes the drinker choose, by catalogue row name:
+     * Hanged Man 9's "Choose one of these three drawbacks" (6he). Null until
+     * chosen. Not validated here: a decode that throws discards the whole
+     * save, so `TraitGrants` grants only one of the block's own names.
+     */
+    val drawback: String? = null,
 ) {
     init {
         require(pathway.isNotBlank()) { "a Beyonder walks a named pathway" }
@@ -44,9 +51,10 @@ data class BeyonderState(
     /**
      * The next potion up the pathway, or null at the strongest Sequence held.
      * Digestion restarts at 0: the new potion is the one being digested now.
+     * The chosen [drawback] carries on, because the chain keeps it.
      */
     fun advanced(): BeyonderState? =
-        if (sequence <= LOWEST_SEQUENCE) null else BeyonderState(pathway, sequence - 1)
+        if (sequence <= LOWEST_SEQUENCE) null else copy(sequence = sequence - 1, digestion = 0)
 
     /** Digestion after a session, clamped to the 0-100% the book defines. */
     fun digested(points: Int): BeyonderState =

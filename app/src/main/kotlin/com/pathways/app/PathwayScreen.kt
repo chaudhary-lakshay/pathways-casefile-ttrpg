@@ -72,6 +72,7 @@ import com.pathways.rules.PremadeSheet
 import com.pathways.rules.RandomSource
 import com.pathways.rules.ScoreFloors
 import com.pathways.rules.TraitEffects
+import com.pathways.rules.TraitGrants
 import com.pathways.rules.TraitReport
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SequenceBlock
@@ -128,8 +129,12 @@ fun PathwayScreen(
     }
     // Opening the screen on the potion already drunk, rather than on the
     // pathway list, is the difference between a browser and a character sheet.
-    var pathway by remember(drunk) { mutableStateOf(drunk?.pathway) }
-    var sequence by remember(drunk) { mutableIntStateOf(drunk?.sequence ?: PotionDigestion.STARTING_SEQUENCE) }
+    // Keyed on the potion, not the whole state: a digestion step or a
+    // drawback chip (6he, on Sequence 9 while at 8) must not jump the view.
+    var pathway by remember(drunk?.pathway, drunk?.sequence) { mutableStateOf(drunk?.pathway) }
+    var sequence by remember(drunk?.pathway, drunk?.sequence) {
+        mutableIntStateOf(drunk?.sequence ?: PotionDigestion.STARTING_SEQUENCE)
+    }
 
     val block = pathway?.let { chosen ->
         blocks.single { it.pathway == chosen && it.sequence == sequence }
@@ -277,7 +282,7 @@ fun PathwayScreen(
                             onClick = { pathway = null },
                             modifier = Modifier.padding(end = 8.dp),
                         ) { Text("Another pathway") }
-                        val chosen = BeyonderState(block.pathway, block.sequence)
+                        val chosen = potionOn(block, drunk)
                         when {
                             // Luck's reroll of the failed PCR, on the block
                             // it attempted (6fg). Saved, so it survives a
@@ -400,7 +405,29 @@ fun PathwayScreen(
                     // character's, so it shows whenever they have walked at all.
                     item { CorruptionTracker(session, drunk, maxCor, traits) }
                 } else {
-                    potionContent(block, digested)
+                    // None for a lost character, so a disabled chip only
+                    // ever means the row was bought.
+                    val choices = drunk?.takeIf { it.pathway == block.pathway && !session.isLost }
+                        ?.let { TraitGrants.drawbackChoiceTable()[block.pathway to block.sequence] }
+                    potionContent(
+                        block,
+                        digested,
+                        choices?.let {
+                            {
+                                DrawbackPicker(
+                                    choices = it,
+                                    chosen = drunk.drawback,
+                                    pathway = block.pathway,
+                                    canChoose = { name -> session.canChooseDrawback(sheet, name) },
+                                    // An absolute setter, so a second tap is
+                                    // harmless; the guard drops a stale one.
+                                    onChoose = { name ->
+                                        if (session.canChooseDrawback(sheet, name)) session.chooseDrawback(sheet, name)
+                                    },
+                                )
+                            }
+                        },
+                    )
                 }
             }
         }
@@ -408,6 +435,14 @@ fun PathwayScreen(
 
     pcr?.let { PcrDialog(it, session.corrupted, if (session.pendingPcr != null) rerollSource else null) { pcr = null } }
 }
+
+/**
+ * The potion [block] offers [drunk]: its pathway and Sequence, carrying the
+ * walked chain's chosen drawback (6he), because [canDrink] compares the
+ * whole state and the next potion keeps the choice.
+ */
+internal fun potionOn(block: SequenceBlock, drunk: BeyonderState?): BeyonderState =
+    BeyonderState(block.pathway, block.sequence, drawback = drunk?.takeIf { it.pathway == block.pathway }?.drawback)
 
 /**
  * One pathway in the chooser: its sigil, then its name.

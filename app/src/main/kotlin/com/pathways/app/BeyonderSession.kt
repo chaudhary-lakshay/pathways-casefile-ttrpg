@@ -19,6 +19,7 @@ import com.pathways.rules.RandomSource
 import com.pathways.rules.ScoreFloors
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.TraitGrants
+import com.pathways.rules.TraitNames
 
 /**
  * One character in play, as the screens see it: the walk down a pathway,
@@ -395,6 +396,25 @@ class BeyonderSession(
      */
     fun traitsInPlay(sheet: PremadeSheet): List<Trait> =
         TraitGrants.withGrantedTraits(characterFor(sheet).traits, state)
+
+    /**
+     * Whether [name] may be stored as the walked chain's chosen drawback
+     * (6he). Refused when [sheet]'s character already BOUGHT it: the bought
+     * row keeps its points, so choosing it too would leave the potion's
+     * drawback paying. Sell it in the builder first.
+     */
+    fun canChooseDrawback(sheet: PremadeSheet, name: String): Boolean {
+        val walked = state ?: return false
+        return !isLost && name in TraitGrants.drawbackChoices(walked) &&
+            characterFor(sheet).traits.none { TraitNames.catalogueName(it.name).equals(name, ignoreCase = true) }
+    }
+
+    /** Store [name] as the chosen drawback. An absolute setter: a second tap is harmless. */
+    fun chooseDrawback(sheet: PremadeSheet, name: String) {
+        require(canChooseDrawback(sheet, name)) { "$name is not a drawback this character may choose" }
+        state = state!!.copy(drawback = name)
+        persist()
+    }
 
     /**
      * Spend or restore [pool] by [delta] points against a maximum of [max],
