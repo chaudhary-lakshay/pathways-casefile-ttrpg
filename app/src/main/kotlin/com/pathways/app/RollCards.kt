@@ -4,11 +4,18 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Outcome
+import com.pathways.model.RollResult
 import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.SkillTarget
 import com.pathways.rules.SpiritualSenses
@@ -166,6 +174,62 @@ internal fun ResultCard(
             )
         }
         LedgerLines(out.lines(), out.requiresCritical)
+    }
+}
+
+/**
+ * A bare roll's verdict, for the dialogs outside the ledger: the word in its
+ * own colour and the dice against the target they were rolled at. What the
+ * verdict means goes in [content], below.
+ */
+@Composable
+internal fun VerdictCard(
+    verdict: String,
+    passed: Boolean,
+    roll: RollResult,
+    content: @Composable ColumnScope.() -> Unit = {},
+) {
+    val accent = if (passed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.5.dp, accent),
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(verdict, style = MaterialTheme.typography.headlineMedium, color = accent)
+                    Text(
+                        "3d6: ${roll.total} vs ${roll.target}",
+                        style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = TABULAR),
+                    )
+                }
+                Tag("margin ${roll.margin}", accent)
+            }
+            content()
+        }
+    }
+}
+
+/**
+ * The foot of a bare roll's choices: what moved the target, the target, and
+ * Roll, pinned below the scrolling choices as in the Attack and ritual
+ * dialogs. With nothing to list one empty line is still laid out, so the
+ * first declared clause cannot grow the dialog under a finger.
+ */
+@Composable
+internal fun RollFooter(lines: List<String>, caption: String, enabled: Boolean = true, onRoll: () -> Unit) {
+    Column {
+        HorizontalDivider(Modifier.padding(vertical = 8.dp))
+        lines.ifEmpty { listOf("") }.forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
+        Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(caption, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+            Button(onClick = onRoll, enabled = enabled) {
+                Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
+                Text("Roll", modifier = Modifier.padding(start = 8.dp))
+            }
+        }
     }
 }
 

@@ -2,8 +2,9 @@ package com.pathways.app
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -14,7 +15,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.SelfControl
@@ -129,65 +129,66 @@ internal fun SelfControlDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
         title = {
-            Text(
-                outcome?.let { if (it.held) "Held" else "Gave in" } ?: check.trait,
-            )
-        },
-        text = {
             Column {
-                // Quoted once, and turning red on a failure IS the
-                // consequence -- printing it twice would read as two rules.
-                Text(
-                    check.printed,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (outcome?.held == false) {
-                        MaterialTheme.colorScheme.error
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    },
-                )
+                Text(check.trait)
                 Text(
                     check.spec.attribute?.let {
                         "keyed on $it${if (check.spec.offset > 0) "+" else ""}" +
                             "${if (check.spec.offset != 0) "${check.spec.offset}" else ""}" +
                             ", after any potion"
                     } ?: "a flat number the book prints — no attribute moves it",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                 )
-                val result = outcome
-                if (result == null) {
-                    ClauseChips(clauses, declared) { declared = it }
-                    fromTraits.line?.let {
-                        Text("includes $it", style = MaterialTheme.typography.bodySmall)
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        TextButton(onClick = { modifier -= 1 }) { Text("−1") }
-                        Text(
-                            (if (modifier > 0) "+" else "") + modifier,
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(horizontal = 8.dp),
-                        )
-                        TextButton(onClick = { modifier += 1 }) { Text("+1") }
-                    }
-                    Text("3d6 ≤ $target", style = MaterialTheme.typography.titleLarge)
-                    // Replaced by the result, AND guarded inline: two taps can
-                    // both reach the handler before the button leaves the
-                    // tree, which is the fix 6p needed for the divination
-                    // dialog. Nothing is charged here, but the second tap
-                    // would silently discard a rolled outcome and pull an
-                    // extra draw from the dice.
-                    TextButton(
-                        onClick = {
-                            if (outcome != null) return@TextButton
-                            outcome = SelfControl.rollAgainst(check, target, appDice)
-                        },
-                    ) { Text("Roll") }
-                } else {
+            }
+        },
+        text = {
+            val result = outcome
+            if (result != null) {
+                // Quoted once, inside the verdict, and red on a failure: that
+                // colour IS the consequence, and printing it twice would read
+                // as two rules.
+                VerdictCard(if (result.held) "Held" else "Gave in", result.held, result.roll) {
                     Text(
-                        "3d6: ${result.roll.total} vs ${result.target}",
-                        style = MaterialTheme.typography.titleLarge,
+                        check.printed,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (result.held) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.error
+                        },
+                        modifier = Modifier.padding(top = 8.dp),
                     )
+                }
+                return@AlertDialog
+            }
+            Column {
+                Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+                    // The base is the number the row printed, so the card
+                    // strikes it out only once this dialog moves it.
+                    TargetCard(target, baseTarget = standing)
+                    Text(
+                        check.printed,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                    OptionStepper(
+                        label = "Modifier",
+                        value = modifier,
+                        shown = signed(modifier),
+                        note = "the GM's, for the circumstance",
+                    ) { modifier += it }
+                    ClauseChips(clauses, declared) { declared = it }
+                }
+                // Replaced by the result, AND guarded inline: two taps can
+                // both reach the handler before the button leaves the tree,
+                // which is the fix 6p needed for the divination dialog.
+                // Nothing is charged here, but the second tap would silently
+                // discard a rolled outcome and pull an extra draw from the
+                // dice.
+                RollFooter(listOfNotNull(fromTraits.line?.let { "includes $it" }), "3d6 ≤ $target") {
+                    if (outcome != null) return@RollFooter
+                    outcome = SelfControl.rollAgainst(check, target, appDice)
                 }
             }
         },
