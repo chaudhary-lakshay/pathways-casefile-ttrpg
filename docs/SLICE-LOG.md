@@ -6782,8 +6782,18 @@ cap 14"*. No FATAL.
 results with `--rerun-tasks`; `ast-grep scan` clean. Python: 366, run in
 6hh and untouched since.
 
-**Next.** Nothing is queued. Not swept here: 6ga's sweep proper, the
-strings a screen types, which this slice ran only for attribute reads.
+**6ga's sweep proper, run after the commit.** Every `targetFor(` and
+`standingTargets(` in `app/src/main`, comments dropped: 20 sites. The four
+that print a target outside the composable that rolls it are the
+self-control row (`MainActivity.kt:342`), the recovery row
+(`SheetRows.kt:148`), the vital rolls (`SheetRows.kt:231`) and the
+Pathway line (`PathwayScreen.kt:550`). The first three take shock, the
+pool penalty and `states.total`, the terms their rolls take; the fourth
+is 6ga's two calls of one function. The builder's secondary rows print
+`derived.secondaries` and `played.secondaries`, both from blessed
+attributes. Nothing found. Read, not device-checked.
+
+**Next.** Nothing is queued.
 
 ## 6hh. Dead Language Fluency's language, and the reason 6gx gave for it
 
