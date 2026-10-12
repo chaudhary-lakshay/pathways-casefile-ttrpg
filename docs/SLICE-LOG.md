@@ -6937,7 +6937,10 @@ button's number for a character shocked from an earlier wound.
 
 - **`Languages.ritualProficiencies` has no caller and no test**, and the
   handover's API list advertises it. Deleting it is the lazy move; the
-  API line would go in the same commit.
+  API line would go in the same commit. **Done after 6hd:** deleted with
+  its API line; `RitualDialog` asks `canPerformRituals` per row and never
+  restated the filter. `:core:rules:test` green, `:app` compiles. The
+  census now reads 67.
 - **The recovery button's number has two terms its captions never
   name.** Under it are the traits' line and *includes* the declared
   states. A carried -4 and the pools' penalty for reeling or fatigue are

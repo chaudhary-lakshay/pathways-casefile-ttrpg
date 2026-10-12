@@ -733,7 +733,7 @@ ContentLoader.appearance()
 Languages.all() / .common() / .mystical(): List<LanguageEntry>
 Languages.proficiencies(type) / .proficiency(type, name)   // type is REQUIRED
 Languages.ritualModifier(prof?): Int    // throws for Broken and for common
-Languages.canPerformRituals(prof) / .ritualProficiencies() / .notes()
+Languages.canPerformRituals(prof) / .notes()
 Languages.owned(purchases, held): List<Pair<LanguagePurchase, OwnedLanguage?>>
                                       // table price, half for one form, half
                                       // for Language Talent, ONE ceiling;

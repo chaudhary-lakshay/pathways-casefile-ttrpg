@@ -268,10 +268,6 @@ object Languages {
     fun canPerformRituals(proficiency: LanguageProficiency): Boolean =
         proficiency.canPerformRituals == true
 
-    /** Every mystical proficiency a ritual can actually be cast in. */
-    fun ritualProficiencies(): List<LanguageProficiency> =
-        proficiencies(MYSTICAL).filter { canPerformRituals(it) }
-
     /** The prose rules printed around the tables, for the GM to read. */
     fun notes(): List<String> = ContentLoader.languageNotes().map { it.text }
 }
