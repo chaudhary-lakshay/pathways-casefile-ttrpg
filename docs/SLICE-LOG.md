@@ -6765,6 +6765,32 @@ proof.
 
 The save was restored from its backup and is `cmp`-identical.
 
+### 6ga's sweep, re-run over the redesign
+
+The handover says to re-run 6ga's sweep after any new screen, and 6gn
+built nine without running it. The sweep asks, of every number printed
+beside a control, whether the control uses that number. This run read
+every file `3260fd6..4bc0de1` changed.
+
+| Printed | The control | One value? |
+|---|---|---|
+| A pool, *"9 / 15"* (`PoolStrip`, new) | -1 / +1 | yes: both read one `PoolStatus`; `max ≥ 1` holds for the bar's division |
+| A skill row's level | its Roll | yes: one `level` to the row and `RollableSkill` |
+| A self-control row, *"Roll 3d6 ≤ N"* | its dialog | yes: `standing[trait]` feeds both, 6ga's fix intact |
+| The skill dialog's `TargetCard` | Roll | yes: `roll(standing)` |
+| Attack's footer | Roll | yes: `standing.target` printed and rolled |
+| The Acrobatic Dodge | its Roll | yes: `acrobaticStanding` |
+| Damage's two HT rolls | their buttons | yes: `htTarget`, `recoveryTarget` |
+| Ritual's footer, *"3d6 ≤ 15"*, *"costs 2 SPI"* | Cast | yes: `target`, with cost and refusal in the same frame |
+| Fright's `TargetCard` and footer | Roll | yes: one `target` |
+| Fright's recovery, *"Roll Will 9"* | its button | yes: one expression |
+| The builder's *"87 of 100"* and *"13 spare"* | (none) | one `spent` and `budget` |
+| The gallery card's attributes and skill count | opening it | yes: `playedRow`, as 6fw left it |
+| The pathway ladder's Digestion % | the tracker | yes: `drunk.digestion` |
+
+No defect. The only thing this pass found was the Fright label above,
+which is a word and not a number.
+
 ## 6gn. The redesign: nine Stitch components, one a commit
 
 After 6gm the owner rejected the screens as text walls. The decision:
