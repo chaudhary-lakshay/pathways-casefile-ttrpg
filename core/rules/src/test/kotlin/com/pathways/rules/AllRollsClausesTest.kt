@@ -27,7 +27,7 @@ class AllRollsClausesTest {
         for (clause in TraitClauses.allRollsClauseRows()) {
             val notes = byName.getValue(clause.trait).notes
             assertTrue(clause.printed in notes, "${clause.trait}: ${clause.printed}")
-            assertTrue("${clause.value} to all rolls" in clause.printed, clause.printed)
+            assertTrue(Regex("${clause.value} to (all rolls|any roll)").containsMatchIn(clause.printed), clause.printed)
             assertTrue(clause.conditional, clause.trait)
         }
     }
@@ -45,7 +45,23 @@ class AllRollsClausesTest {
             .filter { state.containsMatchIn(it.notes) }
             .map { it.name }
             .toSet()
-        assertEquals(printing, TraitClauses.allRollsClauseNames())
+        // Reckless prints "-1 to any roll where caution would be smarter",
+        // which this filter does not read; it is a row on the owner's ruling
+        // (6he, question 4). Entity Fixation's "-2 to any roll that requires
+        // you to ignore them" stays refused: its row is here for the -1 alone.
+        assertEquals(printing + "Reckless", TraitClauses.allRollsClauseNames())
+        val fixation = TraitClauses.allRollsClauseRows().filter { it.trait == "Entity Fixation" }
+        assertEquals(listOf(-1), fixation.map { it.value })
+    }
+
+    /** Declared like the five, and its self-control roll is still offered. */
+    @Test
+    fun `Reckless declares its -1 on every roll`() {
+        val clause = TraitClauses.allRollsClauses(held("Reckless")).single()
+        assertEquals(-1, clause.value)
+        assertEquals("-1 to any roll where caution would be smarter", clause.printed)
+        assertEquals(-1, TraitClauses.clauseBonus(listOf(clause), setOf(clause.key)).total)
+        assertTrue(SelfControl.checksFor(held("Reckless")).isNotEmpty())
     }
 
     @Test
@@ -93,9 +109,9 @@ class AllRollsClausesTest {
     }
 
     @Test
-    fun `the five rows are known and the refusals they carried are gone`() {
+    fun `the six rows are known and the refusals they carried are gone`() {
         val names = TraitClauses.allRollsClauseNames()
-        assertEquals(5, names.size)
+        assertEquals(6, names.size)
         assertTrue(names.all { it in TraitEffects.known() }, names.toString())
         // Phobia's refusal said "no control for a second all-rolls state";
         // Soul Scar's said "nothing here to roll or to modify". Both expired.

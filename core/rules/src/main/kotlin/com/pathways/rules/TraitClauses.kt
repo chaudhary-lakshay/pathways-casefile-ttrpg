@@ -626,6 +626,10 @@ object TraitClauses {
             -1,
         ),
         allRollsClause("Entity Fixation", "-1 to all rolls when a specific entity type is present nearby", -1),
+        // "Any roll", not "all rolls": the owner's ruling (6he, question 4).
+        // The GM declares when caution would be smarter. Entity Fixation's
+        // "-2 to any roll that requires you to ignore them" stays refused.
+        allRollsClause("Reckless", "-1 to any roll where caution would be smarter", -1),
     )
 
     /** The printed rows, for the pin tests. [TraitClause.shown] is per character. */

@@ -666,8 +666,9 @@ class TraitReportedTest {
         val swept = ContentLoader.disadvantages()
             .filter { it.selfControl != null && it.name !in TraitEffects.known() }
         // 28 when written (6ew); Reluctant Killer left for the Attack dialog,
-        // and Absent-Mindedness for every skill roll (6gj).
-        assertEquals(26, swept.size)
+        // and Absent-Mindedness for every skill roll (6gj), and Reckless for
+        // the declared all-rolls chips (6hg).
+        assertEquals(25, swept.size)
         for (row in swept) {
             val held = Trait(row.name, 5, TraitKind.DISADVANTAGE)
             // The sentence says the roll is applied: the roll must be offered.
@@ -678,7 +679,8 @@ class TraitReportedTest {
         }
         // A quirk of the same name is offered no roll, so it may not be told
         // the roll is applied: `checksFor` rolls disadvantages alone.
-        val quirk = Trait("Reckless", 1, TraitKind.QUIRK)
+        // (Reckless was the example until 6hg read it; any swept row serves.)
+        val quirk = Trait(swept.first().name, 1, TraitKind.QUIRK)
         assertEquals(emptyList<Any>(), SelfControl.checksFor(listOf(quirk)))
         assertEquals(TraitReport.UNREAD, TraitReport.reported(listOf(quirk)).single().reason)
         // A self-control row something else reads keeps its clauses: the
