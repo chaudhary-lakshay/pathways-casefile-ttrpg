@@ -117,6 +117,8 @@ object TraitReport {
      *
      * Decided by [SelfControl.checksFor], the code that offers the roll, so
      * a quirk sharing a drawback's name is not told its roll is applied.
+     * That is also why Cannot Kill, which prints no roll and takes
+     * Reluctant Killer's (6hj), reads this and not [UNREAD].
      */
     const val ROLLED_ONLY =
         "its price and its self-control roll aside, this app applies nothing " +
