@@ -216,6 +216,29 @@ class AttackDialogTest {
     }
 
     /**
+     * A declared "-N to all rolls" (6gs) is one of the dialog's own terms and
+     * never a tracker. The ledger groups FromTrait terms, so among the
+     * trackers it would print under "Injury, fatigue and attrition" and drag a
+     * Reluctant Killer's clause in with it -- the second half shows that.
+     * The call site's routing is the device's to prove; this pins why.
+     */
+    @Test
+    fun `a declared state is a picked term and never reaches the tracker line`() {
+        val held = listOf(
+            Trait("Addiction: Laudanum", 10, TraitKind.DISADVANTAGE),
+            Trait(TraitEffects.RELUCTANT_KILLER, 5, TraitKind.DISADVANTAGE),
+        )
+        val clauses = TraitClauses.allRollsClauses(held)
+        val states = TraitClauses.allRollsModifiers(clauses, clauses.map { it.key }.toSet())
+        val killer = traitTerms(held, brawling, TraitClauses.attackClauses(held).first().key)
+        val standing = attackStanding("Brawling", 16, brawling, hurt, killer + states)
+        assertEquals(-5, standing.fromTrackers, "reeling -1 and shock -4, nothing else")
+        assertEquals(16 + flats(killer + states).sum() - 5, standing.target.target)
+        val misrouted = attackStanding("Brawling", 16, brawling, hurt + states, killer)
+        assertTrue(misrouted.fromTrackers < -7, "the group took the clause: ${misrouted.fromTrackers}")
+    }
+
+    /**
      * What makes the lines above Roll add up to the target under them: every
      * term is a plain signed number. A grouped or superseding modifier in any
      * of these lists would move the target by less than its line prints.

@@ -108,6 +108,11 @@ internal fun SheetDialogs(
          * target under the wrong reason (Codex).
          */
         withStates: Boolean = true,
+        /**
+         * The declared states alone. The Attack dialog reads its tracker line
+         * off the ledger by id, so it takes them among its own terms instead.
+         */
+        withDeclared: Boolean = withStates,
     ) = Conditions.forSkill(
         skill = key,
         hp = hpNow,
@@ -118,7 +123,8 @@ internal fun SheetDialogs(
             null
         },
         cor = cor,
-    ) + if (withStates) Shock.modifiers(shocked, traits) + stateModifiers else emptyList()
+    ) + (if (withStates) Shock.modifiers(shocked, traits) else emptyList()) +
+        if (withDeclared) stateModifiers else emptyList()
 
     // The same number the ledger would have carried, for the three dialogs
     // that reduce it to an Int and print their own breakdown.
@@ -356,7 +362,7 @@ internal fun SheetDialogs(
     if (SheetDialog.ATTACK in open) {
         AttackDialog(
             skillLevels = skillLevels,
-            conditions = { conditionsFor(it) },
+            conditions = { conditionsFor(it, withDeclared = false) },
             st = attributes.st,
             dx = attributes.dx,
             dice = appDice,
@@ -381,6 +387,8 @@ internal fun SheetDialogs(
             untrained = SkillDefaults.attacks(untrained),
             mastery = mastery,
             toolNote = drunk?.let { SkillDefaults.toolNote(it.pathway, it.sequence) },
+            states = states,
+            stateModifiers = stateModifiers,
             onDismiss = { onClose(SheetDialog.ATTACK) },
         )
     }

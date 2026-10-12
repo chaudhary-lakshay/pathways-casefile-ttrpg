@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.pathways.model.ModEffect
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
+import com.pathways.rules.ClauseBonus
 import com.pathways.rules.AttackPlan
 import com.pathways.rules.Attacks
 import com.pathways.rules.BurnKind
@@ -121,6 +122,15 @@ fun AttackDialog(
     toolNote: String? = null,
     /** The sheet's traits, for the trait term and Reluctant Killer's clauses. */
     traits: List<Trait> = emptyList(),
+    /**
+     * The held rows' declared "-N to all rolls" (6gs): the words, and the
+     * same declaration as modifiers. Picked terms, NOT [conditions]: the
+     * tracker line is read off the ledger by id, and the ledger groups every
+     * FromTrait term together, so a state among the trackers would print
+     * under "Injury, fatigue and attrition" and take the trait terms with it.
+     */
+    states: ClauseBonus = ClauseBonus(0, null),
+    stateModifiers: List<com.pathways.model.Modifier> = emptyList(),
     onDismiss: () -> Unit,
 ) {
     val skills = remember(skillLevels, untrained) {
@@ -356,6 +366,7 @@ fun AttackDialog(
                             rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled || aimRefused, darknessCause, darknessReduction, darknessSeverity) +
                             meleeModifiers(plan, circumstances) +
                             traitMods +
+                            stateModifiers +
                             listOfNotNull(location?.let(Wounds::modifier)),
                     )
                     val attacks = Attacks.attackCount(plan)
@@ -403,6 +414,7 @@ fun AttackDialog(
                         killerTarget = killerTarget,
                         onKillerTarget = { killerTarget = if (it == killerTarget) null else it },
                         fromTraits = traitMods.sumOf { (it.effect as ModEffect.Flat).n },
+                        states = states,
                         darknessCause = darknessCause,
                         darknessReduction = darknessReduction,
                         darknessSeverity = darknessSeverity,

@@ -592,7 +592,13 @@ object TraitClauses {
         ),
         allRollsClause("Addiction: Laudanum", "Must use daily or suffer -2 to all rolls from withdrawal", -2),
         allRollsClause("Superstitious (mundane)", "If warding routine is disrupted, -1 to all rolls for the day", -1),
-        allRollsClause("Soul Scar", "old pain resurfaces: -1 to all rolls for the scene", -1),
+        // Quoted from its trigger, or the GM would read the -1 without WHEN.
+        allRollsClause(
+            "Soul Scar",
+            "Under extreme spiritual stress (Fright Check failure by 5+, witnessing Seq. 5+ " +
+                "abilities), old pain resurfaces: -1 to all rolls for the scene",
+            -1,
+        ),
         allRollsClause("Entity Fixation", "-1 to all rolls when a specific entity type is present nearby", -1),
     )
 

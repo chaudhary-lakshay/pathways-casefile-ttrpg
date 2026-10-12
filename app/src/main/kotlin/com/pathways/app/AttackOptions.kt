@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.ModEffect
 import com.pathways.model.SkillKey
+import com.pathways.rules.ClauseBonus
 import com.pathways.rules.AttackManeuver
 import com.pathways.rules.AttackPlan
 import com.pathways.rules.Attacks
@@ -56,6 +57,8 @@ internal fun AttackOptions(
     killerTarget: String?,
     onKillerTarget: (String) -> Unit,
     fromTraits: Int,
+    /** The held rows' declared "-N to all rolls" (6gs), on a line of its own. */
+    states: ClauseBonus,
     darknessCause: DarknessCause,
     darknessReduction: Int,
     darknessSeverity: Int?,
@@ -268,6 +271,7 @@ internal fun AttackOptions(
             // up to (the diff review's MEDIUM).
             lines += "Traits: ${signed(fromTraits)}"
         }
+        states.line?.let { lines += "Declared on the sheet: $it" }
         location?.let {
             lines += "Called shot: ${it.target} ${signed(it.penalty)}, ${it.printedMultiplier} — ${it.effect}"
         }
