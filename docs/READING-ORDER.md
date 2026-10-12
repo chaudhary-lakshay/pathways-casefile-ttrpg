@@ -195,6 +195,13 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6gs (five
+"-N to all rolls" drawbacks declared once on the Vitals tab, reaching every
+roll shock reaches and the Major Wound HT roll too; Phobia's and Soul
+Scar's refusals expired; shock now reaches the Vitals tab's HT rolls;
+Attack takes the states among its own terms, since its tracker line is
+read off the ledger by id).
+
 Then 6gr (Tobacco
 and Guilt's "-1 to Will" read as a Will-roll clause, a reading recorded as
 one; Bound to a Place refused, a count of weeks).
@@ -2326,12 +2333,13 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6en back to 6de
+## Digest index, 6eo back to 6de
 
 Moved from the handover in 6ff, unchanged, when its digest index neared
 8,000 characters. 6ds and 6dr followed in 6gb, and 6dv back to 6dt in
-6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw.
+6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx.
 
+**6eo** — the builder printed bought values and the sheet the played ones; rows show the value as played, and every edit still reads the purchase;
 **6en** — Basic Speed and Basic Move sold a hundred steps each; both stand at zero in `ScoreFloors`, as policy, and Move is measured after Speed;
 **6em** — maximum CoR is a state the app checked only on a gain; a builder sale is refused where a potion latches, and the first potion never latched;
 **6el** — a potion's grants are added to the bought score, so browsing a block crashed a high-ST save; `PurchaseCeilings` bounds each purchase, and 6ek's own example was false;

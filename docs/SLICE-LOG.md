@@ -6726,6 +6726,141 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gx. The unread census, both of its blind sides, and nothing to build
+
+6gw named this slice: the half of the unread census 6gv's regex could not
+see. No code. The census is the result, with its queries, and it found a
+second blind side nobody had named.
+
+### The queries
+
+- **The corpus.** The complement of `TraitEffects.known()` over both
+  catalogues, by a throwaway test, deleted: **114 of 198 rows**, 43
+  advantages and 71 drawbacks.
+- **Signed or not.** The regex is `[+\-−]\d` over the cell, U+2212
+  included: **31 signed, 83 unsigned**. 6gu wrote *"25 unread rows that
+  print a signed number"* without its regex, so that count could not be
+  re-run (6dd's lesson, again).
+
+### The second blind side: nine self-control rows
+
+6gu counted 25 rows, and 6gv tabled them. Three have since joined
+`known()` (Light Sleeper, Perceptual Splitting, Anchored Soul), which
+leaves 22, and the query above returns 31: those 22 and nine more. **The nine it never held are all rows that offer a
+self-control roll**: 6gu's census was of rows reading `TraitReport.UNREAD`,
+and these read `ROLLED_ONLY`. So 6gv's *"of the unread rows that print a
+SIGNED NUMBER, none is left"* was true of the rows it had and silent on
+these.
+
+Eight print the number as the roll's own offset. A second throwaway
+printed `SelfControl.targetFor` at Will 10 and IQ 10 beside each cell, and
+every one rolls what it prints:
+
+| Row | Cell | Rolled at 10 |
+|---|---|---|
+| Class Resentment | *vs. Will-2* | 8 |
+| Compulsive Gambling | *Will roll at -2* | 8 |
+| Impulsive | *vs. IQ-2* | 8 |
+| Stubborn | *vs. Will-3* | 7 |
+| Compulsion: Collection (pathway) | *vs. Will-2* | 8 |
+| Compulsion: Confess | *vs. Will-2* | 8 |
+| Compulsion: Preserve the Dead | *vs. Will-3* | 7 |
+| Fear of Silence | *vs. Will-2* | 8 |
+
+**The ninth is Reckless**, and its number is not its roll's: *"-1 to any
+roll where caution would be smarter; must roll vs. Will to back down from
+a physical challenge."* The roll is offered at Will; the -1 reaches
+nothing, and `ROLLED_ONLY` says so on the sheet.
+
+### Reckless, not built
+
+I favoured a sixth all-rolls row: 6gs declares five *"-N to all rolls"*
+states once on the Vitals tab, and its census regex, `to all rolls`, never
+matched *"to any roll"*. The advisor's objection decided it. The query
+`[-+]\d+ to any roll` over both catalogues returns two cells, and the
+other is already answered: Entity Fixation's *"-2 to any roll that
+requires you to ignore them"* is refused on `PURPOSE_NOT_SKILL` (6gs). A
+chip for one and a refusal for the other is two answers to one shape.
+
+Two things about that verdict, so it is not inherited as more than it is:
+
+- **The two precedents pull apart on this row.** 6gj declares
+  Absent-Mindedness's -3 because its qualifier is a circumstance, and
+  refuses Voice because its qualifier is a purpose. *"Where caution would
+  be smarter"* reads as a circumstance; *"that requires you to ignore
+  them"* was read as a purpose. A reader who holds those apart builds the
+  chip. So this is the owner's question, the fourth.
+- `ROLLED_ONLY`'s KDoc quoting Reckless is not a refusal. Of the four
+  examples it lists, two were applied later (Reluctant Killer in 6ex,
+  Absent-Mindedness in 6gj).
+
+### The 83 unsigned rows
+
+A keyword query (`halv|doubl|ignor|immun|cannot|unaffected|without
+roll|no ... roll|automatic|never|always|regardless|roll|FP|HP|SPI|CoR|ST|
+skill`) matches 36 and misses 47, so all 83 were read. Every name is in
+one row below, and the script that wrote this section asserts the union is
+the 83.
+
+| Rows | Why none is a slice |
+|---|---|
+| 22: Contact; Church Organisation Informant; Reputation; Intuition; Connections: Church Lay Staff; Connections: Press Credentials; Mentor; Police Informant; Street Credibility; Hunting License; General Weapon Certificate; Legal Enforcement Powers; Black Market Access; Experienced Investigator; Underworld Lawyer; Divine Touchstone; Fate Sensitivity; Soul Reading (Untrained); Sequence Knowledge; Spirit Tongue; Familiar Presence; Mystical Item | a favour, an access or a question put to the GM; no roll and no number. Mentor's *"a skill roll at their level"* is another character's level |
+| 5: Aura Sensitivity; Death Sense; Ghost Proximity Sense; Ritual Intuition; Ether Body Awareness | *"without rolling"*: the GM tells the holder |
+| 8: Warded Dreams; Born Under a Named Star; Aura Leak; CoR Brand; Dream Invaded; Residual Contamination; Spiritually Loud; Haunted | what someone else perceives, or someone else's roll; this app holds one sheet |
+| 2: Hard Stomach; Cold Iron Tolerance | waives something the book prints nowhere else (queried below) |
+| 2: Dead Language Fluency; Threshold Blindness | a choice the save would have to store: which language, which entity type |
+| 1: Lifting ST | *"only for lifting/carrying"*, and the app models neither |
+| 1: Nightmares | *"lose 1 FP each morning"*; the app holds no clock, and its roll is offered |
+| 16: Curious; Greed; Overconfidence; Bad Temper; Bully; Obsession; Glory Hound; Kleptomania; Laziness; Charity; Bloodlust; Paranoia; Hallucinations; Coldblooded; Compulsive Behavior (Indulge Evil Desires) SC 6; Bleed-Through Visions | the cell prints its self-control roll and nothing else to apply; the roll is offered |
+| 26: Wealth: Struggling; Code of Honor; Sense of Duty; Secret; Blacklisted; Blood Feud; Creditor's Target; Drafted; Ex-Convict; Fugitive (Minor); Fugitive (Serious); Orphan with Dependents; Refugee Status; Wanted by Church; Duty-Bound; Cannot Harm Innocents; Self-Defence Only; Total Non-Violence; Weirdness Magnet; Compulsion (pathway); Delusion (minor); Unlucky; Drawn to Ritual Sites; Honest to Spirits; Pathway Pull; Memory Bleed | conduct, standing or a threat the GM runs; no roll and no number. Wealth: Struggling is read for its price and starting money |
+
+**The claims about this app and about the book's silence, each queried:**
+
+- Hard Stomach waives *"HT rolls ... for disgusting environments"*.
+  `disgust|gore|nause|vomit|retch` over the book returns its own cell and
+  one fright effect (2943, *"Retching for (25 − HT) sec"*), which is a
+  result of a failed Fright Check, not an HT roll for an environment. None
+  of the five fright triggers is gore. There is no roll to waive.
+- Cold Iron Tolerance: `iron` over the book finds no discomfort rule
+  outside its own cell (1016).
+- Lifting ST: `lift|encumb` over `core/rules/src/main/kotlin` and
+  `app/src/main` finds no lifting model.
+- Dead Language Fluency names *"Ancient Hermes, Ancient Loen, etc."*.
+  `languages.json` holds twelve languages and no Ancient Loen. Recorded,
+  not repaired.
+- Ex-Convict's *"Social Stigma in formal settings"* points at the row
+  Social Stigma (1170), which is read for a price and nothing else.
+
+**One soft row, left as read.** Unlucky's cell says *"This is a weaker
+Fate Debt"*, and Fate Debt's says *"Beckoning Luck never applies."*
+`TraitEffects.rerollSource` withholds Beckoning Luck's reroll on Fate
+Debt by name, so a holder of Unlucky and Beckoning Luck is offered the
+reroll of a failed Potion Consumption Roll. Unlucky's own cell does not
+print the exclusion, and *"weaker"* may be exactly what drops it. Not
+applied, on 4.1; named here because the roll it touches ends a character.
+
+### What this closes
+
+The unread census has now been run over both of its halves, signed and
+unsigned, and over both notes a row can carry, `UNREAD` and
+`ROLLED_ONLY`. No row is a slice without a stored choice, a clock, a
+second sheet or an answer from the owner.
+
+No production or test file changed; both throwaway tests were deleted and
+the tree was clean before this record. The suites were not re-run: 2090
+Kotlin and 366 Python as 6gw counted them.
+
+**Next: four questions for the owner, none blocking.**
+
+1. Anchored Soul as a declared +2 on the holder's Will roll, and Pathway
+   Resonance (Hostile) as a declared -1 (6gw).
+2. Light Sleeper on Spirit Vision (6gu).
+3. Whether the debug build stays on the SM-T570.
+4. Reckless's *"-1 to any roll where caution would be smarter"* as a
+   sixth all-rolls chip on the Vitals tab, and with it whether Entity
+   Fixation's *"-2 to any roll that requires you to ignore them"* stays
+   refused.
+
 ## 6gw. Anchored Soul, refused on the book's own idiom
 
 6gv's queue, in its order: the handover trim, the Anchored Soul reading, the

@@ -183,9 +183,10 @@ chip handler first. Attack's tracker line is read off the ledger by id,
 never as a remainder. Scan the click-handler census from the repo root:
 the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 
-**6gr back to 6de had lead paragraphs here until 2026-10-12. Each is in
+**6gs back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6gs** — five "-N to all rolls" drawbacks declared once on the Vitals tab, reaching every roll shock reaches and the Major Wound HT roll; Phobia's and Soul Scar's refusals expired;
 **6gr** — Tobacco and Guilt's "-1 to Will" read as a Will-roll clause, a reading recorded as one; Bound to a Place refused, a count of weeks;
 **6gq** — no code: every restyled charge handler kept its second-tap guard, double-tapped beside a mutant RED; the pinned Drink button refused, as it sits above the fold;
 **6gp** — six more roll dialogs take the approved components, `RollFooter` and `VerdictCard` new; three keep their own verdict, each for a rule;
@@ -231,8 +232,7 @@ slice log.** One line each:
 **6er** — the builder sells a language; the two halvings combine with one ceiling, and a Language Talent bought later reprices what is owned;
 **6eq** — 39 refusals in production source whose subject is this app, seven false or stale; Versatile's +1 goes inside the pick between an owned level and a default;
 **6ep** — 6dy's three refusals re-asked; the HP recovery table's first row is a ROLL, so the daily HT roll is offered and nothing is restored;
-**6eo** — the builder printed bought values and the sheet the played ones; rows show the value as played, and every edit still reads the purchase;
-**6en back to 6de** have one-line digests too, moved verbatim to
+**6eo back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ff, 6gb, 6gd, 6gw).
 
@@ -253,8 +253,12 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6gw first**
-(Anchored Soul refused with its reason: every "against you" the book
+**Where to start next: the slice log, from the END — 6gx first**
+(no code: the unread census run over both halves, 114 rows outside
+`known()`, 31 signed and 83 not; 6gu's count had missed nine self-control
+rows, eight of which roll the offset they print; Reckless's "-1 to any
+roll" not built, as Entity Fixation's sibling clause is refused; four
+owner questions open). Then 6gw (Anchored Soul refused with its reason: every "against you" the book
 prints is the other party's attempt, and no line turns the -2 into a bonus
 where the holder rolls, so it is not Incorruptible Will's mirror; this
 file trimmed to 71k and this chain capped; three owner questions open).
@@ -266,12 +270,7 @@ Sleeper's +4 declared on a Per skill and on Detection's Per branch, never
 Spirit Vision; Skinny refused as a purpose; the unread census read 117).
 Then 6gt (no roll
 changed: the PCR takes no carried state, on the book's "Only the drinker's
-digestion ... matters", and no row names the roll). Then 6gs (five
-"-N to all rolls" drawbacks declared once on the Vitals tab, reaching every
-roll shock reaches and the Major Wound HT roll too; Phobia's and Soul
-Scar's refusals expired; shock now reaches the Vitals tab's HT rolls;
-Attack takes the states among its own terms, since its tracker line is
-read off the ledger by id). The chain
+digestion ... matters", and no row names the roll). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
