@@ -2,6 +2,8 @@ package com.pathways.app
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -56,66 +58,75 @@ internal fun ConcentrateDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
-        title = { Text(outcome?.let { if (it.held) "Held the focus" else "Lost the focus" } ?: "Concentrate") },
-        text = {
+        title = {
             Column {
-                Text(Concentration.printed(), style = MaterialTheme.typography.bodySmall)
-                FilterChip(
-                    selected = disturbed,
-                    onClick = { disturbed = !disturbed },
-                    label = { Text("Injured or defending") },
-                    modifier = Modifier.padding(vertical = 8.dp),
+                Text("Concentrate")
+                Text(
+                    "Will $will",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
                 )
-                val result = outcome
-                when {
-                    !disturbed -> Text(
-                        "No roll: the book asks for one only when the character " +
-                            "is injured or defending.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
+            }
+        },
+        text = {
+            val result = outcome
+            if (result != null) {
+                VerdictCard(if (result.held) "Held the focus" else "Lost the focus", result.held, result.roll) {
+                    // The book prints the roll and stops. Saying so beats
+                    // inventing the only consequence in the rule (6aj).
+                    if (!result.held) {
+                        Text(
+                            "The book prints no consequence for a lost focus — " +
+                                "what it costs is the GM's.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                    }
+                }
+                return@AlertDialog
+            }
+            // From rules, and read by BOTH the card and the roll below -- the
+            // two call sites this dialog has always had are why the term is
+            // computed once (6ai).
+            val fromTraits = TraitClauses.clauseBonus(clauses, declared)
+            val target = Concentration.targetFor(will, shock, hurt, fromTraits.total)
+            Column {
+                Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+                    // The base is the maneuver's own Will-3, so the card
+                    // strikes it out only once shock, the trackers or a
+                    // trait moves it.
+                    TargetCard(target, baseTarget = Concentration.targetFor(will, 0, 0, 0))
+                    Text(
+                        Concentration.printed(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(top = 8.dp),
                     )
-                    result == null -> {
-                        ClauseChips(clauses, declared) { declared = it }
-                        // From rules, and read by BOTH the caption and the
-                        // roll below -- the two call sites this dialog has
-                        // always had are why the term is computed once (6ai).
-                        val fromTraits = TraitClauses.clauseBonus(clauses, declared)
-                        val target = Concentration.targetFor(will, shock, hurt, fromTraits.total)
-                        Text(
-                            "3d6 ≤ $target" +
-                                " — Will $will${Concentration.PENALTY}" +
-                                (if (shock != 0) ", $shock shock" else "") +
-                                (if (hurt != 0) ", $hurt hurt or tired" else "") +
-                                (fromTraits.line?.let { ", $it" } ?: ""),
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                        // Guarded inline as well as by the tree: two taps can
-                        // both reach the handler before it leaves (6p).
-                        TextButton(
-                            onClick = {
-                                // `disturbed` is read here on purpose: it
-                                // is whether the book calls for a roll at
-                                // all, not a term of the target above.
-                                if (outcome != null || !disturbed) return@TextButton
-                                outcome = Concentration.rollAgainst(target, disturbed, appDice)
-                            },
-                        ) { Text("Roll") }
-                    }
-                    else -> {
-                        Text(
-                            "3d6: ${result.roll.total} vs ${result.target}",
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                        // The book prints the roll and stops. Saying so beats
-                        // inventing the only consequence in the rule (6aj).
-                        if (!result.held) {
-                            Text(
-                                "The book prints no consequence for a lost focus — " +
-                                    "what it costs is the GM's.",
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        }
-                    }
+                    FilterChip(
+                        selected = disturbed,
+                        onClick = { disturbed = !disturbed },
+                        label = { Text("Injured or defending") },
+                        modifier = Modifier.padding(vertical = 8.dp),
+                    )
+                    // Drawn before the chip above is lit too, so lighting it
+                    // cannot grow the dialog under a finger.
+                    ClauseChips(clauses, declared) { declared = it }
+                }
+                RollFooter(
+                    listOfNotNull(
+                        "Will $will${Concentration.PENALTY}",
+                        if (shock != 0) "includes $shock from shock" else null,
+                        if (hurt != 0) "includes $hurt from the HP and FP trackers" else null,
+                        fromTraits.line?.let { "includes $it" },
+                    ),
+                    caption = if (disturbed) "3d6 ≤ $target" else "No roll unless injured or defending",
+                    enabled = disturbed,
+                ) {
+                    // Guarded inline as well as by the tree: two taps can
+                    // both reach the handler before it leaves (6p).
+                    // `disturbed` is read here on purpose: it is whether the
+                    // book calls for a roll at all, not a term of the target.
+                    if (outcome != null || !disturbed) return@RollFooter
+                    outcome = Concentration.rollAgainst(target, disturbed, appDice)
                 }
             }
         },
