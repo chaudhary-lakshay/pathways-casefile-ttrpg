@@ -6880,12 +6880,13 @@ Defend dialog draws the note, and the Attack line's new string.
   them choose between.** Buying one in the builder credits ten points the
   potion does not give. It needs a stored choice.
 
-**Next.** 6gy's six owner questions stand, and this slice adds three:
+**Next.** 6gy's six owner questions stand, and this slice adds four:
 
 7. Does a weapon parry at its untrained default? Today it does not, on
    the two cells.
 8. God of Combat's attributes, above.
 9. Hanged Man 9's choice, above.
+10. Is a premade's *"Secret (...)"* the row Secret? Below.
 
 ### After the commit: the note had become a wall
 
