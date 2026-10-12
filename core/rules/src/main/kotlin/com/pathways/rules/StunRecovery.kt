@@ -33,9 +33,9 @@ import com.pathways.rules.content.RecoveryState
  * (p. 128) disagree with each other about the same stun, one saying HT and
  * one saying Will. [bonusFor] composes [TraitAttributeRolls.htRollBonus] because
  * THIS roll is an HT roll; a caller with a Will stun that reused it would
- * quietly collect `Fit`'s HT bonus. The fright rows are a gap rather than a
- * refusal — they carry their recovery attribute in prose, so structuring them
- * is the extractor's job (6dh) and a slice of its own.
+ * quietly collect `Fit`'s HT bonus. The fright rows' recovery is
+ * [FrightCheck.recoveryFor]'s, which rolls the column's own attribute; the
+ * two pathway abilities' is offered nowhere.
  *
  * **Nothing is latched.** [Shock] latches because the app creates a state it
  * can then charge for; a recovery roll ends one, and this app holds no stun
@@ -79,8 +79,9 @@ object StunRecovery {
      *
      * Two clauses reach it and they are different rules. Combat Reflexes says
      * "to recover from stun", which names the condition and not the attribute,
-     * so it would reach a Will or IQ recovery roll too — see this object's
-     * KDoc for why none is offered here. [TraitAttributeRolls.htRollBonus] is "all HT
+     * so it reaches a Will or IQ recovery roll too: the Fright dialog hands a
+     * stun's recovery [TraitAttributeRolls.stunRecoveryBonus], gated on
+     * [isStun]. [TraitAttributeRolls.htRollBonus] is "all HT
      * rolls", which this one is.
      *
      * `High Pain Threshold` is NOT among them. Its "+3 on HT rolls to avoid

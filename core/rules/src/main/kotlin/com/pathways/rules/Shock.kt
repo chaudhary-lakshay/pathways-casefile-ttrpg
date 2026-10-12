@@ -14,7 +14,7 @@ import com.pathways.rules.content.MajorWound
  * Every kind of 3d6 roll this app makes, so shock's scope is a DECISION.
  *
  * The alternative is an exclusion nobody wrote down: wire the ledger that
- * feeds skill rolls, miss the four attribute rolls that compute their own
+ * feeds skill rolls, miss the bare attribute rolls that compute their own
  * targets, and the gap looks like an oversight in a UI adapter rather than a
  * reading of the book (Codex, at design time).
  *
@@ -25,7 +25,11 @@ import com.pathways.rules.content.MajorWound
  * fright effect, the ritual critical) is not listed here either.
  */
 enum class RollKind {
-    /** Anything resolved through [SkillRoll] -- skills, attacks, rituals, divination, boons. */
+    /**
+     * A roll of a skill. The skill roll, the attack and the Acrobatic Dodge
+     * resolve through [SkillRoll]; a ritual, a divination and a boon compose
+     * their own target and take the number.
+     */
     SKILL,
 
     /**
@@ -125,7 +129,7 @@ object Shock {
      * What shock costs a roll of [kind], which is 0 unless it is in force.
      *
      * The single decision both paths ask: the resolver-backed rolls take
-     * [modifiers] and the four attribute rolls take this number, and a screen
+     * [modifiers] and every other roll takes this number, and a screen
      * that worked either out for itself would be the two-copies failure this
      * codebase produced three times (6ag, 6ai, 6be).
      */

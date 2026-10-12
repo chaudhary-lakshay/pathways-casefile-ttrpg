@@ -453,15 +453,6 @@ private fun CalledShot(location: HitLocation?, onLocation: (HitLocation) -> Unit
 }
 
 /**
- * The range and condition modifiers for [plan], or none for a melee attack.
- *
- * Darkness starts at the gentle end the book prints. Its cell reads "-3 to
- * -9 depending on severity", and the harsher end is the GM's call rather than
- * the app's to assume -- [Ranged.modifiers] takes an override for exactly
- * that, and the "How bad is it?" row passes one (6dz). This comment went on
- * saying "the screen does not yet offer one" for five slices after it did.
- */
-/**
  * The condition modifiers for a MELEE [plan], or none for a shot.
  *
  * The mirror of [rangedModifiers]' opening guard, and the whole safety

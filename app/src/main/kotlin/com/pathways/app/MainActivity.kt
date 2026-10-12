@@ -206,8 +206,7 @@ fun SheetScreen(
         vitalLines(sheet, rows, session.characterFor(sheet).secondariesWith(drunk))
     }
     // The traits actually in play -- the sheet's, plus anything the edit
-    // layer changed. Hoisted because two readers need them: a skill roll and
-    // the active defences.
+    // layer changed. Hoisted because more than one reader needs them.
     //
     // Plus every row the potions drunk granted (6fk), from the walk the stat
     // grants come from: a potion's Combat Reflexes is held as surely as a
@@ -316,13 +315,13 @@ fun SheetScreen(
     val hpNow = Pools.hp(vitals.maxHp - session.hpLost, vitals.maxHp)
     val fpNow = Pools.fp(vitals.maxFp - session.fpLost, vitals.maxFp)
 
-    // The four rolls that do NOT go through the ledger above: a Fright Check,
-    // a self-control roll, a concentration check and a detection roll each
-    // build their own target. Shock decides once, here, that all four take it
-    // -- the exclusion Codex warned would otherwise look like an oversight in
-    // whichever adapter went unwired.
+    // The bare attribute rolls, which do NOT go through the ledger above
+    // (RollKind.ATTRIBUTE lists them): each builds its own target. Shock
+    // decides once, here, that all of them take it -- the exclusion Codex
+    // warned would otherwise look like an oversight in whichever adapter
+    // went unwired.
     val shockOnAttribute = Shock.penaltyFor(RollKind.ATTRIBUTE, shocked, traits)
-    // Reeling and fatigue, for those same four rolls. p. 40's "Reeling: -1 to
+    // Reeling and fatigue, for those same rolls. p. 40's "Reeling: -1 to
     // all rolls" and p. 42's "-1 to all rolls" are the phrase Shock already
     // reads at its word, so this is the same scope decision -- made ONCE here,
     // because an adapter left unwired looks like an oversight rather than a

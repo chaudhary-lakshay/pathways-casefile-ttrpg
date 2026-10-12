@@ -287,7 +287,7 @@ object Detection {
         shock: Int = 0,
         /**
          * Reeling and fatigue, both printed "-1 to all rolls" -- the same
-         * unqualified phrase as the shock above, and this is one of the four
+         * unqualified phrase as the shock above, and this is one of the
          * bare attribute rolls the modifier ledger never sees. Separate from
          * [shock] so [attempt] can name each: two states that moved one target
          * must both appear in a breakdown that has to sum (6ag).

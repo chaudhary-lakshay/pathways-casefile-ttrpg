@@ -68,8 +68,8 @@ fun DetectionDialog(
     shock: Int = 0,
     /**
      * Reeling and fatigue, "-1 to all rolls" on pp. 40 and 42 -- the same
-     * unqualified phrase as the shock above, and this roll is one of the four
-     * the modifier ledger cannot reach. Unlike [spiTrait] below it, this is
+     * unqualified phrase as the shock above, and this roll is one of the bare
+     * attribute rolls the modifier ledger cannot reach. Unlike [spiTrait] below it, this is
      * not attribute-scoped: it moves the target whichever attribute is taken.
      */
     hurt: Int = 0,

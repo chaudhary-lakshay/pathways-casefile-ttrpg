@@ -410,10 +410,10 @@ internal object TraitRefusals {
         // The six Orthodox blessings that reach nothing. The seventh, the God
         // of Knowledge, is applied by CATEGORY_BONUSES.
         //
-        // God of Combat is the only one refused for a reason that is about
-        // THIS APP's shape rather than the book's silence, so it says so
-        // exactly. M3's rule is that a granted attribute is never written into
-        // attributes/secondaryDelta/skills, because PointBudget bills those --
+        // God of Combat's number is real, and it is refused for THIS APP's
+        // plumbing, so it says so exactly. M3's rule is that a granted
+        // attribute is never written into attributes/secondaryDelta/skills,
+        // because PointBudget bills those --
         // only the CHOICE is stored and every gain re-derives from it. A
         // blessing is a stored choice, so the same route would work; what does
         // not exist is a trait ever taking it, since a potion is the only

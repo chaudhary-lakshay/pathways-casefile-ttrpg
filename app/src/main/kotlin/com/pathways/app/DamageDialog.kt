@@ -93,7 +93,7 @@ fun DamageDialog(
      * Two rules reach it. High Pain Threshold's "+3 on HT rolls to avoid
      * knockdown" applies because the fail-by-5 row is "Knocked down and
      * unconscious" (Codex, 6bo); Fit's "+1 to all HT rolls" applies because
-     * this is an HT roll, and it is the only bare one in the app.
+     * this is an HT roll.
      *
      * The number and the sentence arrive together on purpose: a screen that
      * added one and printed the other would show a breakdown that does not
@@ -160,8 +160,8 @@ fun DamageDialog(
     var pool by remember { mutableStateOf(Pool.HP) }
     var shock by remember { mutableStateOf<RollResult?>(null) }
     // Keyed on the wound roll, never cleared by hand: a recovery roll belongs
-    // to the stun that roll produced, so it dies with it. Five sites clear
-    // `shock` and adding a sixth line to each is how one gets missed — the
+    // to the stun that roll produced, so it dies with it. More than one site
+    // clears `shock` and adding a line to each is how one gets missed — the
     // key IS the guard (6cp), and it resets through null on every path.
     var recovery by remember(shock) { mutableStateOf<RollResult?>(null) }
     // Optional, and null by default: a hit with no called shot behind it is

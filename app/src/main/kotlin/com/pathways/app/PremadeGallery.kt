@@ -377,7 +377,7 @@ private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, numbers: Playe
             // The mark is a BORDER and the initials, both in bare `secondary`,
             // rather than a filled `secondaryContainer`. Material spends
             // `secondaryContainer` on selected chrome -- every FilterChip and
-            // NavigationBarItem in this app, 79 of them -- so a filled swatch
+            // NavigationBarItem in this app -- so a filled swatch
             // here read as "this row is selected" rather than "this person is a
             // Beyonder, and under a rotated preset it sat next to an identical
             // pill in the nav bar. Bare `secondary` is the accent chrome never

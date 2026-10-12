@@ -145,7 +145,7 @@ entirely, and you should not pay for a disaster you bought your way out of.
 see this title; tap it to open lines
 from chapter 8's equipment table — "Magnifying glass (3s) — +1 to Search for
 fine details". Those are printed for you to read, and the app does not add
-them. It cannot: nothing here records what your character is carrying, and
+them. It cannot: the app records the weapons you carry and no other gear, and
 most of the bonuses are scoped to a circumstance ("for fine details", "when
 rested", "in rain") that only you and the GM can judge.
 

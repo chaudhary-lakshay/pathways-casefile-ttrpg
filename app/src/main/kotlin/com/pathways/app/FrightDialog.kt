@@ -87,8 +87,9 @@ internal fun FrightDialog(
      * Combat Reflexes' "+6 to recover from stun", already resolved.
      *
      * Whether it APPLIES is still the rules' call, not this screen's:
-     * [FrightCheck.recoveryBonus] gates it on the row's own state, so row 12's
-     * Retching, Ecstasy and Dazed get nothing.
+     * [StunRecovery.isStun] is asked of the row's own state where the panel is
+     * drawn, so row 12's Retching, Ecstasy and Dazed get nothing.
+     * [FrightCheck.recoveryBonus] composes the same two and no screen calls it.
      */
     stunRecoveryBonus: Int = 0,
     shock: Int = 0,
