@@ -8,7 +8,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -150,214 +149,196 @@ fun DetectionDialog(
         },
         title = { Text("Am I being divined?") },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                val answer = result
-                if (answer != null) {
-                    Text(
-                        "3d6: ${answer.roll.total} vs ${answer.roll.target} — " +
-                            answer.row.result,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    Text(answer.row.effect, style = MaterialTheme.typography.bodyMedium)
+            val answer = result
+            if (answer != null) {
+                // A Column: the text slot stacks its children on top of one
+                // another.
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    VerdictCard(answer.row.result, answer.roll.outcome.isSuccess, answer.roll) {
+                        Text(
+                            answer.row.effect,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                    }
                     Text(
                         answer.parts.joinToString(", "),
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(top = 8.dp),
                     )
-                    return@Column
                 }
-
-                Text(
-                    "Pathway awareness (Sec. 1)",
-                    style = MaterialTheme.typography.titleSmall,
-                )
-                Text(
-                    "Some pathways feel it without rolling. Leave this off if " +
-                        "yours is not listed.",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                FlowRow {
-                    FilterChip(
-                        selected = awareness == null,
-                        onClick = { awareness = null },
-                        label = { Text("None") },
-                        modifier = Modifier.padding(end = 8.dp),
-                    )
-                    awarenessRows.forEach { row ->
-                        FilterChip(
-                            selected = awareness == row,
-                            onClick = { awareness = row },
-                            label = { Text(row.pathway.substringBefore(" (")) },
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
-                    }
-                }
-                awareness?.let { row ->
+                return@AlertDialog
+            }
+            Column {
+                Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+                    // The base is the attribute alone, the row's or the higher of
+                    // the two, so the card strikes it out once anything moves it.
+                    TargetCard(target, baseTarget = Detection.targetFor(spi, per, freeRoll = freeRoll))
+                    SectionLabel("Pathway awareness (Sec. 1)")
                     Text(
-                        "${row.sequence} — ${row.detection}",
+                        "Some pathways feel it without rolling. Leave this off if " +
+                            "yours is not listed.",
                         style = MaterialTheme.typography.bodySmall,
                     )
-                    row.divinerPenalty?.let {
-                        // A row inside the awareness table that grants no
-                        // awareness. Quoted, never applied: it is the DIVINER's
-                        // penalty, and at the GM's discretion.
+                    FlowRow {
+                        FilterChip(
+                            selected = awareness == null,
+                            onClick = { awareness = null },
+                            label = { Text("None") },
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                        awarenessRows.forEach { row ->
+                            FilterChip(
+                                selected = awareness == row,
+                                onClick = { awareness = row },
+                                label = { Text(row.pathway.substringBefore(" (")) },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                    awareness?.let { row ->
                         Text(
-                            "This row grants no detection roll. Its ${signedInt(it)} " +
-                                "is on the diviner's roll, at the GM's discretion.",
+                            "${row.sequence} — ${row.detection}",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        row.divinerPenalty?.let {
+                            // A row inside the awareness table that grants no
+                            // awareness. Quoted, never applied: it is the DIVINER's
+                            // penalty, and at the GM's discretion.
+                            Text(
+                                "This row grants no detection roll. Its ${signedInt(it)} " +
+                                    "is on the diviner's roll, at the GM's discretion.",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                        row.bonus?.let { value ->
+                            FilterChip(
+                                selected = takeBonus,
+                                onClick = { takeBonus = !takeBonus },
+                                label = { Text("Take ${signedInt(value)}") },
+                                modifier = Modifier.padding(top = 4.dp),
+                            )
+                            row.bonusText?.let {
+                                Text(it, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                    }
+
+                    SectionLabel("Situation (Sec. 2)")
+                    FlowRow {
+                        situations.forEach { row ->
+                            val superseded =
+                                charmTaken && row.situation.equals(Detection.GENERIC_CHARM, ignoreCase = true)
+                            FilterChip(
+                                selected = row.situation in chosen && !superseded,
+                                enabled = !superseded,
+                                onClick = {
+                                    chosen =
+                                        if (row.situation in chosen) chosen - row.situation
+                                        else chosen + row.situation
+                                },
+                                label = { Text("${row.situation} ${signedInt(row.modifier)}") },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                    if (charmTaken) {
+                        Text(
+                            "The charm you named prices itself, so Sec. 2's general " +
+                                "charm row does not also apply.",
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
-                    row.bonus?.let { value ->
+
+                    SectionLabel("Your own protection (Sec. 3, 4)")
+                    Text(
+                        "A ward's price is on its chip; spend it on the tracker. " +
+                            "Nothing here holds a clock for the duration it buys.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    FlowRow {
+                        wards.forEach { row ->
+                            FilterChip(
+                                selected = row.id in wardIds,
+                                onClick = {
+                                    wardIds =
+                                        if (row.id in wardIds) wardIds - row.id
+                                        else wardIds + row.id
+                                },
+                                label = {
+                                    // The book's own words for the price, not a
+                                    // second spelling of `spi` typed on screen.
+                                    val price = row.bullet("Cost")?.let { " · $it" }.orEmpty()
+                                    Text(
+                                        "${row.name} ${signedInt(row.detectionBonus ?: 0)}$price",
+                                    )
+                                },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                        items.forEach { row ->
+                            FilterChip(
+                                selected = row.name in carried,
+                                onClick = {
+                                    carried =
+                                        if (row.name in carried) carried - row.name
+                                        else carried + row.name
+                                },
+                                label = {
+                                    Text(
+                                        row.name.substringBefore(" (") + " " +
+                                            signedInt(row.detectionBonus ?: 0),
+                                    )
+                                },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+
+                    if (grantsAutomatic) {
+                        // Offered rather than assumed: the row's automatic clause
+                        // is scoped to a weaker diviner and this app never sees
+                        // the diviner's sheet. Against an equal or stronger one
+                        // the book calls for a Quick Contest, which is not
+                        // modelled here for the same reason -- so the fallback is
+                        // the ordinary Sense roll, not a claim of awareness.
                         FilterChip(
-                            selected = takeBonus,
-                            onClick = { takeBonus = !takeBonus },
-                            label = { Text("Take ${signedInt(value)}") },
-                            modifier = Modifier.padding(top = 4.dp),
+                            selected = divinerIsWeaker,
+                            onClick = { divinerIsWeaker = !divinerIsWeaker },
+                            label = { Text("The diviner is of weaker Sequence") },
+                            modifier = Modifier.padding(top = 8.dp),
                         )
-                        row.bonusText?.let {
-                            Text(it, style = MaterialTheme.typography.bodySmall)
+                        if (!divinerIsWeaker) {
+                            Text(
+                                "Against an equal or stronger Sequence the book calls " +
+                                    "for a Quick Contest of SPI vs the diviner's " +
+                                    "Divination Arts or Ritualistic Magic, which needs " +
+                                    "both sheets and is not rolled here. Sense below.",
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(top = 4.dp),
+                            )
                         }
                     }
                 }
-
-                Text(
-                    "Situation (Sec. 2)",
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-                FlowRow {
-                    situations.forEach { row ->
-                        val superseded =
-                            charmTaken && row.situation.equals(Detection.GENERIC_CHARM, ignoreCase = true)
-                        FilterChip(
-                            selected = row.situation in chosen && !superseded,
-                            enabled = !superseded,
-                            onClick = {
-                                chosen =
-                                    if (row.situation in chosen) chosen - row.situation
-                                    else chosen + row.situation
-                            },
-                            label = { Text("${row.situation} ${signedInt(row.modifier)}") },
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
-                    }
-                }
-                if (charmTaken) {
-                    Text(
-                        "The charm you named prices itself, so Sec. 2's general " +
-                            "charm row does not also apply.",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-
-                Text(
-                    "Your own protection (Sec. 3, 4)",
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-                Text(
-                    "A ward's price is on its chip; spend it on the tracker. " +
-                        "Nothing here holds a clock for the duration it buys.",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                FlowRow {
-                    wards.forEach { row ->
-                        FilterChip(
-                            selected = row.id in wardIds,
-                            onClick = {
-                                wardIds =
-                                    if (row.id in wardIds) wardIds - row.id
-                                    else wardIds + row.id
-                            },
-                            label = {
-                                // The book's own words for the price, not a
-                                // second spelling of `spi` typed on screen.
-                                val price = row.bullet("Cost")?.let { " · $it" }.orEmpty()
-                                Text(
-                                    "${row.name} ${signedInt(row.detectionBonus ?: 0)}$price",
-                                )
-                            },
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
-                    }
-                    items.forEach { row ->
-                        FilterChip(
-                            selected = row.name in carried,
-                            onClick = {
-                                carried =
-                                    if (row.name in carried) carried - row.name
-                                    else carried + row.name
-                            },
-                            label = {
-                                Text(
-                                    row.name.substringBefore(" (") + " " +
-                                        signedInt(row.detectionBonus ?: 0),
-                                )
-                            },
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
-                    }
-                }
-
-                HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                if (grantsAutomatic) {
-                    // Offered rather than assumed: the row's automatic clause
-                    // is scoped to a weaker diviner and this app never sees
-                    // the diviner's sheet. Against an equal or stronger one
-                    // the book calls for a Quick Contest, which is not
-                    // modelled here for the same reason -- so the fallback is
-                    // the ordinary Sense roll, not a claim of awareness.
-                    FilterChip(
-                        selected = divinerIsWeaker,
-                        onClick = { divinerIsWeaker = !divinerIsWeaker },
-                        label = { Text("The diviner is of weaker Sequence") },
-                    )
-                    if (!divinerIsWeaker) {
-                        Text(
-                            "Against an equal or stronger Sequence the book calls " +
-                                "for a Quick Contest of SPI vs the diviner's " +
-                                "Divination Arts or Ritualistic Magic, which needs " +
-                                "both sheets and is not rolled here. Sense below.",
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(top = 4.dp),
-                        )
-                    }
-                }
-                if (automatic) {
-                    Text(
-                        "Automatic awareness — no roll.",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    Text(
-                        awareness?.detection.orEmpty(),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                } else {
-                    Text(
-                        "Roll 3d6 ≤ $target",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    Text(
-                        // The rules object authors this sentence, because it is
-                        // the one the target above is computed from. A second
-                        // copy here is how the caption came to say "the higher
-                        // of SPI and Per" over a target taken from the row's
-                        // own attribute.
-                        // Named BEFORE the roll as well as after it: the
-                        // breakdown and the target above it must reconcile
-                        // (6ag, 6ai). It is the result's own list, so each
-                        // circumstance is itemised here as it is there.
-                        parts.joinToString(", ") + ". Free action, costs no SPI.",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    TextButton(
-                        onClick = {
-                            // One roll per sensing; the re-entrancy guard the
-                            // divination and ritual dialogs both needed.
-                            if (result != null) return@TextButton
-                            result = Detection.rollAgainst(target, dice, parts)
-                        },
-                    ) { Text("Sense") }
+                RollFooter(
+                    // The rules object authors this sentence, because it is
+                    // the one the target above is computed from. A second
+                    // copy here is how the caption came to say "the higher
+                    // of SPI and Per" over a target taken from the row's
+                    // own attribute.
+                    // Named BEFORE the roll as well as after it: the
+                    // breakdown and the target above it must reconcile
+                    // (6ag, 6ai). It is the result's own list, so each
+                    // circumstance is itemised here as it is there.
+                    lines = listOf(parts.joinToString(", ") + ". Free action, costs no SPI."),
+                    caption = if (automatic) "Automatic awareness — no roll." else "3d6 ≤ $target",
+                    enabled = !automatic,
+                    label = "Sense",
+                ) {
+                    // One roll per sensing; the re-entrancy guard the
+                    // divination and ritual dialogs both needed.
+                    if (result != null || automatic) return@RollFooter
+                    result = Detection.rollAgainst(target, dice, parts)
                 }
             }
         },

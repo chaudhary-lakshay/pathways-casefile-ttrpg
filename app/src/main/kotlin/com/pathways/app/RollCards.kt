@@ -219,7 +219,13 @@ internal fun VerdictCard(
  * first declared clause cannot grow the dialog under a finger.
  */
 @Composable
-internal fun RollFooter(lines: List<String>, caption: String, enabled: Boolean = true, onRoll: () -> Unit) {
+internal fun RollFooter(
+    lines: List<String>,
+    caption: String,
+    enabled: Boolean = true,
+    label: String = "Roll",
+    onRoll: () -> Unit,
+) {
     Column {
         HorizontalDivider(Modifier.padding(vertical = 8.dp))
         lines.ifEmpty { listOf("") }.forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
@@ -227,7 +233,7 @@ internal fun RollFooter(lines: List<String>, caption: String, enabled: Boolean =
             Text(caption, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
             Button(onClick = onRoll, enabled = enabled) {
                 Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
-                Text("Roll", modifier = Modifier.padding(start = 8.dp))
+                Text(label, modifier = Modifier.padding(start = 8.dp))
             }
         }
     }
