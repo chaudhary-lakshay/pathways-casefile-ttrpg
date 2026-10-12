@@ -231,6 +231,9 @@ class LanguagesTest {
         val bought = listOf(buy("Ancient Hermes", "Native"), buy("Loen", "Native"), buy("Hermes", "Native"))
         val held = holding(Languages.MULTILINGUAL, Languages.DEAD_LANGUAGE_FLUENCY)
         assertEquals(listOf(0, 0, 30), Languages.owned(bought, held).map { it.second!!.cost })
+        // Language Talent halves only what is billed.
+        val talented = holding(Languages.MULTILINGUAL, Languages.DEAD_LANGUAGE_FLUENCY, Languages.TALENT)
+        assertEquals(listOf(0, 0, 15), Languages.owned(bought, talented).map { it.second!!.cost })
     }
 
     /** A misspelt name would free nothing and fail no other test. */

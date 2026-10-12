@@ -182,7 +182,7 @@ internal fun LanguagePicker(
                 // Said here because the sheet says it too: the price is what
                 // this app applies, and the row's penalties are not.
                 Text(
-                    "The points are billed. The penalties to language-dependent skill " +
+                    "The price above is what the budget bills. The penalties to language-dependent skill " +
                         "rolls are the GM's: the book tags no skill as language-dependent.",
                     style = MaterialTheme.typography.bodySmall,
                 )
