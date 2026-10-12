@@ -6726,6 +6726,119 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gy. Medical Training's Physician, a gap the untrained list had closed
+
+6gx closed the unread census and queued nothing but the owner's answers.
+This slice came from the other standing instruction: a refusal whose
+subject is this app expires (6eq), and 6eq's own sweep is some sixty
+slices old.
+I re-read its verdicts instead of re-running its grep, and one of them
+named its own expiry.
+
+### The refusal
+
+Medical Training (Informal), book 861: *"Use Physician at IQ-2 without
+purchasing the skill; First Aid rolls gain +1."* The +1 is applied
+(`SKILL_BONUSES`). Of the first half 6eq wrote *"the Skills tab has no row for a
+level a trait grants, so this one is not offered — a gap, not a ruling"*,
+and its design review called the clause *"an explicit, implementable
+entitlement"*.
+
+**6et built the row three slices later and nobody came back.** The Skills
+tab's untrained list offers every printed skill a sheet does not own, and
+Physician is IQ/Hard, so a holder has been offered Physician at the
+table's IQ-6 ever since, under a trait whose cell says IQ-2, with a note
+beside it saying the level was not offered. Printed and contradicted,
+which is the category the unread census cannot see: the row was in
+`known()` all along.
+
+### What changed (`2db90a8`)
+
+- `SkillDefaults.offered` takes the traits, a required parameter (6dz),
+  and `grantedBy` gives a holder Physician at `IQ-2` with the source
+  *"IQ-2, Medical Training (Informal)"*. `offeredTo` passes the list it
+  already reads Versatile from.
+- **No Versatile +1, and that is a reading.** The cell gives a level and
+  never says *default*; 6eq's review declined to call it one, and a
+  Warrior's weapon *"at effective DX"* takes none on the same ground. The
+  other reading is real: page 10 calls any untrained attempt *"using the
+  default"*, and Brawling's *"Default: DX-2"* does take the bonus. The
+  KDoc says so. `offered` appended *", +1 Versatile"* to every row's
+  source, so the granted row returns before that suffix (the advisor's
+  trap, named before the code).
+- No `maxOf` against the table: IQ-2 beats IQ-6 with or without the +1,
+  and Versatile is the only bonus a default takes.
+- The `PARTLY_APPLIED` entry is deleted. Medical Training reads *Applied*.
+
+**The census is one row.** `without purchasing the skill` over both
+catalogues returns this cell alone, and a wider query (`at ATTR±N`,
+`untrained`, `default`, `as if`, `treated as`) adds only Versatile, Dead
+Language Fluency and Workaholic's *"at Will-3"*, none a granted level. So
+one branch, not a table. The four potion blocks that grant Physician give
+IQ+2 or more, and an owned skill is not on the list at all.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| Medical Training rolls Physician at IQ-2 where the table gives IQ-6 | a signature-only stub: *expected: <8> but was: <4>* |
+| Versatile lifts a holder's other defaults and not the granted Physician | the stub: *expected: <8> but was: <5>* |
+| Medical Training's Physician is offered, so nothing of the row is reported | twice: the stub (*<8> but was: <4>*), then the level built and the note still there (*expected: <[]> but was: <[TraitNote(... a gap, not a ruling)]>*) |
+| a holder who owns Physician is offered no second row | passed from the start; the review's missing test, a guard |
+
+**A guard caught the deletion.** With the note gone, *no clause of a
+handled trait goes unmentioned* reddened: *Medical Training (Informal)
+drops the clause "Use Physician at IQ-2 without purchasing the skill"*.
+It walks every applied map and knew nothing of a granted level. It asks
+`SkillDefaults.offered` now, and accepts a segment only where it starts
+*"Use <skill> at"* for a skill the list offers under that trait's name.
+
+2094 Kotlin (1383 `core:rules`, 691 `app`, 20 `core:model`), 0 failures,
+after `--rerun-tasks` from deleted results, counted from the XML; `e:`
+count 0 on every run. `ast-grep scan` is clean. Python was not run;
+nothing under `tools/` changed.
+
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on the uncommitted `git diff -- core`: SHIP,
+three LOWs. It read and ran nothing.
+
+- Asked for the strongest case for the +1, it gave page 10's definition
+  and Brawling, and held the decision: the cell *"replaces the table
+  default, rather than modifying it"*. Its note that the KDoc should call
+  it a judgement was taken.
+- The guard's new condition matched any segment that mentions the skill.
+  Tightened to the *"Use <skill> at"* head.
+- Its most valuable missing test, taken: the last row of the table above.
+- Not taken, and recorded: `offeredTo` reads `character.traits`, not the
+  traits in play, so a potion-granted Versatile or Medical Training would
+  be missed. `GRANTED_TRAITS` holds neither today.
+- It could not confirm the roll dialog adds no second +1. The device did.
+
+### Device pass
+
+SM-T570, the build before the review's three edits, which touch a test, a
+guard and a KDoc. Hunter-Tracker seeded as a new key with Medical Training
+(Informal) and Versatile, IQ 9.
+
+- Traits: Medical Training (Informal), *Applied*. It read *Partly applied*
+  before.
+- **Roll a skill this sheet does not have**: Physician, *"IQ-2, Medical
+  Training (Informal)"*, 7. Its neighbours Diagnosis and Pharmacy,
+  *"IQ-6, +1 Versatile"*, 4.
+- The dialog: *"Physician (untrained, IQ-2, Medical Training
+  (Informal))"*, *"Skill 7"*, *"3d6 ≤ 7"*; rolled, *"3d6: 16 vs 7"*.
+
+No FATAL in logcat. The save went back `cmp`-identical to the backup
+(`~/pathways-device-backups/sessions-2026-10-12-6gy.json`, itself
+identical to 6gw's), and the tablet was left on its launcher.
+
+**Next.** The five owner questions in 6gx stand. The method that found
+this slice is the one to repeat: re-read 6eq's remaining verdicts and
+every *"a gap, not a ruling"* in production source against what has been
+built since, starting with 6eq's *"The First Aid and Physician rows are
+printed in the guide and nowhere in the app"*.
+
 ## 6gx. The unread census, both of its blind sides, and nothing to build
 
 6gw named this slice: the half of the unread census 6gv's regex could not

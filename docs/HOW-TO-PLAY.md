@@ -171,6 +171,9 @@ with the default as its skill: *"Acrobatics (untrained, DX-6)"*.
 - The number is your attribute less 4, 5 or 6 for an Easy, Average or Hard
   skill. **Brawling** is DX-2, which is the book's own line for it.
   **Versatile** adds 1 to every one of them.
+- **Medical Training (Informal)** gives its holder Physician at IQ-2 in
+  place of the Hard skill's IQ-6, and the row says so. Versatile does not
+  add to that one: the book gives it as a level, not a default.
 - Very Hard skills and Wrestling have no default and are not listed.
   Divination Arts is listed only with Ritualistic Magic at 12 or more.
 - The GM may rule that a skill cannot be attempted untrained at all. The app
