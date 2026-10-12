@@ -472,4 +472,26 @@ class DetectionTest {
         )
         assertEquals(listOf("as printed"), Detection.rollAgainst(target, rolling(9), listOf("as printed")).parts)
     }
+
+    /**
+     * A declared Per-roll clause (Light Sleeper's +4, 6gu) lands where
+     * Alertness does: on the Per branch, named on the attribute line, and
+     * nowhere when the roll takes SPI. The attribute is chosen on the raw
+     * scores first, as it is for Alertness.
+     */
+    @Test
+    fun `a declared Per clause lifts the Per branch alone and is named there`() {
+        val asleep = ClauseBonus(4, "Light Sleeper +4")
+        assertEquals(14, Detection.targetFor(spi = 0, per = 10, perClause = asleep))
+        assertEquals(12, Detection.targetFor(spi = 12, per = 10, perClause = asleep))
+        assertEquals(14, Detection.targetFor(spi = 12, per = 10, freeRoll = "Per", perClause = asleep))
+        assertEquals(12, Detection.targetFor(spi = 12, per = 14, freeRoll = "SPI", perClause = asleep))
+        assertTrue("Light Sleeper +4" in Detection.partsFor(spi = 0, per = 10, perClause = asleep).first())
+        assertTrue("Per 14" in Detection.partsFor(spi = 0, per = 10, perClause = asleep).first())
+        assertFalse(Detection.partsFor(spi = 12, per = 10, perClause = asleep).any { "Light Sleeper" in it })
+        assertTrue(Detection.isPerRoll(spi = 0, per = 10))
+        assertFalse(Detection.isPerRoll(spi = 12, per = 10))
+        assertTrue(Detection.isPerRoll(spi = 12, per = 10, freeRoll = "Per"))
+        assertFalse(Detection.isPerRoll(spi = 0, per = 10, freeRoll = "SPI"))
+    }
 }

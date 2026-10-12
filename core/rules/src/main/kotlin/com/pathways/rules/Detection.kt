@@ -95,14 +95,15 @@ object Detection {
         freeRoll: String? = null,
         alertness: Int = 0,
         spiModifier: Int = 0,
+        perClause: Int = 0,
     ): Int {
         require(spi >= 0) { "SPI is an attribute, not a pool balance; was $spi" }
         require(per >= ScoreFloors.MIN_PER) { "Per is an attribute, not a pool balance; was $per" }
         require(alertness >= 0) { "Alertness is a bonus, not a penalty; was $alertness" }
         return when (freeRoll?.uppercase()) {
-            null -> if (takesPer(spi, per)) per + alertness else spi + spiModifier
+            null -> if (takesPer(spi, per)) per + alertness + perClause else spi + spiModifier
             SPI -> spi + spiModifier
-            PER -> per + alertness
+            PER -> per + alertness + perClause
             // Refused rather than falling back to the higher: a caller holding
             // an attribute this table never names has read the wrong row, and
             // the higher of the two would hide that behind a plausible number.
@@ -152,18 +153,21 @@ object Detection {
         freeRoll: String? = null,
         alertness: Int = 0,
         spiModifier: Int = 0,
+        perClause: ClauseBonus = ClauseBonus(0, null),
     ): String {
-        val alert = if (alertness > 0) ", +$alertness Alertness" else ""
+        val alert = (if (alertness > 0) ", +$alertness Alertness" else "") +
+            perClause.line?.let { ", $it" }.orEmpty()
+        val perTotal = per + alertness + perClause.total
         // Named only where it lands. A Per roll is not an SPI-based roll, so
         // printing the trait beside one would explain a number it did not move
         // -- and the breakdown and the target above it must reconcile (6ai).
         val ether = if (spiModifier != 0) ", $spiModifier ${TraitEffects.ETHER_BODY_DAMAGE}" else ""
         return when (freeRoll?.uppercase()) {
             SPI -> "SPI ${spi + spiModifier} (the row grants a SPI roll$ether)"
-            PER -> "Per ${per + alertness} (the row grants a Per roll$alert)"
+            PER -> "Per $perTotal (the row grants a Per roll$alert)"
             else ->
                 if (takesPer(spi, per)) {
-                    "Per ${per + alertness} (the higher of SPI $spi and Per $per$alert)"
+                    "Per $perTotal (the higher of SPI $spi and Per $per$alert)"
                 } else {
                     "SPI ${spi + spiModifier} (the higher of SPI $spi and Per $per$ether)"
                 }
@@ -180,6 +184,17 @@ object Detection {
      * smaller reading. Ties still go to SPI, as they always did.
      */
     private fun takesPer(spi: Int, per: Int): Boolean = per > spi
+
+    /**
+     * Whether this roll takes Per: what [attributeFor] decides, for a screen
+     * that offers a Per-roll clause and must not offer it on an SPI roll,
+     * where a lit chip would move nothing.
+     */
+    fun isPerRoll(spi: Int, per: Int, freeRoll: String? = null): Boolean = when (freeRoll?.uppercase()) {
+        null -> takesPer(spi, per)
+        PER -> true
+        else -> false
+    }
 
     /** Sec. 1's eight rows, in printed order. */
     fun awareness(): List<DivinationAwareness> = ContentLoader.divinationAwareness()
@@ -288,7 +303,13 @@ object Detection {
         spiModifier: Int = 0,
         /** The held rows' declared "-N to all rolls" ([TraitClauses.allRollsClauses]). */
         states: ClauseBonus = ClauseBonus(0, null),
-    ): Int = attributeFor(spi, per, freeRoll, alertness, spiModifier) + modifier + shock + hurt + states.total
+        /**
+         * A declared Per-roll clause ([TraitClauses.perRollClauses]): Light
+         * Sleeper's "Perception rolls while sleeping at +4". On the Per
+         * branch alone, as [alertness] is.
+         */
+        perClause: ClauseBonus = ClauseBonus(0, null),
+    ): Int = attributeFor(spi, per, freeRoll, alertness, spiModifier, perClause.total) + modifier + shock + hurt + states.total
 
     /**
      * The row [roll] landed on.
@@ -368,11 +389,12 @@ object Detection {
         hurt: Int = 0,
         spiModifier: Int = 0,
         states: ClauseBonus = ClauseBonus(0, null),
+        perClause: ClauseBonus = ClauseBonus(0, null),
     ): List<String> = buildList {
         // The attribute line carries the trait itself, because it moved the
         // attribute rather than the target beside it -- naming it twice
         // would double it in a breakdown that has to sum (6ag).
-        add(attributeLine(spi, per, freeRoll, alertness, spiModifier))
+        add(attributeLine(spi, per, freeRoll, alertness, spiModifier, perClause))
         if (shock != 0) add("shock ${signed(shock)}")
         if (hurt != 0) add("hurt or tired ${signed(hurt)}")
         states.line?.let { add(it) }

@@ -683,4 +683,31 @@ class TraitClausesTest {
         val once = TraitClauses.skillRollClauses(twice, observation).single()
         assertEquals(1, TraitEffects.modifiers(twice, observation, setOf(once.key)).size)
     }
+
+    /**
+     * Light Sleeper, book 906: "Perception rolls while sleeping at +4". A Per
+     * roll under a circumstance the GM declares, so it is offered wherever a
+     * Per roll is made TO the character: a Per skill, and Detection's Per
+     * branch ([TraitClauses.perRollClauses]). Spirit Vision is the holder's
+     * own act and costs SPI to open, so no sleeper makes it.
+     */
+    @Test
+    fun `light sleeper is declared on a Per roll and never on Spirit Vision`() {
+        val held = listOf(advantage("Light Sleeper"))
+        val per = SkillKey("Observation", null, ControllingAttribute.Per, Difficulty.AVERAGE)
+        val clause = TraitClauses.skillRollClauses(held, per).single()
+        assertTrue(clause.conditional)
+        assertEquals(4, clause.value)
+        assertTrue(clause.printed in ContentLoader.advantages().single { it.name == "Light Sleeper" }.notes)
+        assertEquals(emptyList<Any>(), TraitEffects.modifiers(held, per))
+        assertEquals(ModEffect.Flat(4), TraitEffects.modifiers(held, per, setOf(clause.key)).single().effect)
+        assertEquals(listOf(clause), TraitClauses.perRollClauses(held))
+        assertNull(TraitClauses.visionClause(held))
+        val dx = SkillKey("Stealth", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)
+        assertTrue(TraitClauses.skillRollClauses(held, dx).isEmpty())
+        assertTrue("Light Sleeper" in TraitEffects.known())
+        // An Acute Vision holder is offered the sense on a Per skill and
+        // nothing on Detection, which names no sense (6fh).
+        assertTrue(TraitClauses.perRollClauses(listOf(advantage("Acute Vision"))).isEmpty())
+    }
 }

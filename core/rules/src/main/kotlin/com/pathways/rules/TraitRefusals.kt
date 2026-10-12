@@ -59,6 +59,12 @@ internal object TraitRefusals {
      * pinned by a test in `ActiveDefensesTest` rather than by this comment.
      */
     val PARTLY_APPLIED: Map<String, List<Pair<String, String>>> = mapOf(
+        // Its +4 is declared on a Per roll ([TraitClauses.perRollClauses], 6gu).
+        "Light Sleeper" to listOf(
+            "never caught completely unaware at night" to
+                "surprise is the GM's to declare on the Defend dialog, and " +
+                "nothing here decides it",
+        ),
         // The price half is applied by [Languages.owned]: two common
         // languages, fluent, free. The other half is the language row's own
         // refusal ([UNAPPLIED]).

@@ -455,6 +455,7 @@ internal fun SheetDialogs(
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,
             states = states,
+            perClauses = TraitClauses.perRollClauses(traits),
             // The SPI branch's mirror of alertness below, and equally unable
             // to be reached by SkillKey scoping.
             spiTrait = spiTrait,

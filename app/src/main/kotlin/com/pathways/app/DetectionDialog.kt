@@ -23,6 +23,8 @@ import com.pathways.rules.AntiDivinationTechniques
 import com.pathways.rules.Detection
 import com.pathways.rules.DetectionResult
 import com.pathways.rules.RandomSource
+import com.pathways.rules.TraitClause
+import com.pathways.rules.TraitClauses
 import com.pathways.rules.content.DivinationAwareness
 
 /**
@@ -84,6 +86,12 @@ fun DetectionDialog(
     spiTrait: Int = 0,
     /** The held rows' declared "-N to all rolls" (6gs). */
     states: ClauseBonus = ClauseBonus(0, null),
+    /**
+     * [TraitClauses.perRollClauses]: Light Sleeper's "Perception rolls while
+     * sleeping at +4", which the GM declares (6gu). It reaches the Per branch
+     * alone, as [alertness] does.
+     */
+    perClauses: List<TraitClause> = emptyList(),
     dice: RandomSource,
     onDismiss: () -> Unit,
 ) {
@@ -103,6 +111,8 @@ fun DetectionDialog(
     var wardIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var carried by remember { mutableStateOf<Set<String>>(emptySet()) }
     var result by remember { mutableStateOf<DetectionResult?>(null) }
+    var declared by remember { mutableStateOf<Set<String>>(emptySet()) }
+    val perClause = TraitClauses.clauseBonus(perClauses, declared)
 
     val pickedWards = wards.filter { it.id in wardIds }
     val pickedItems = items.filter { it.name in carried }
@@ -126,12 +136,12 @@ fun DetectionDialog(
     // it is not always the higher of the two, so the roll a Fool is granted is
     // a Per roll even when their SPI is better. See Detection.attributeFor.
     val freeRoll = awareness?.freeRoll
-    val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness, shock, hurt, spiTrait, states)
+    val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness, shock, hurt, spiTrait, states, perClause)
     // The breakdown of that number, composed once: printed before the roll
     // and carried by the result after it, so the two lines cannot differ.
     val parts = Detection.partsFor(
         spi, per, pickedSituations, pickedWards, pickedItems, bonus, awareness?.pathway,
-        freeRoll, alertness, shock, hurt, spiTrait, states,
+        freeRoll, alertness, shock, hurt, spiTrait, states, perClause,
     )
     // The row grants automatic awareness only against a WEAKER diviner, and
     // this screen holds the target's sheet alone -- so the comparison is the
@@ -321,6 +331,15 @@ fun DetectionDialog(
                                 modifier = Modifier.padding(top = 4.dp),
                             )
                         }
+                    }
+                    // Last in the column: the note under it comes and goes
+                    // with the row picked above, and nothing sits below to move.
+                    ClauseChips(perClauses, declared) { declared = it }
+                    if (perClauses.isNotEmpty() && !Detection.isPerRoll(spi, per, freeRoll)) {
+                        Text(
+                            "This roll takes SPI, so a Perception clause does not reach it.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
                     }
                 }
                 RollFooter(

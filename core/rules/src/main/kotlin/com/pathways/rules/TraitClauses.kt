@@ -510,6 +510,29 @@ object TraitClauses {
      * neither pathway is granted Spirit Vision; Red Priest 8 is, and holds
      * Sequence 9's Acute Vision (6fi).
      */
+    /**
+     * "Perception rolls while sleeping at +4" (Light Sleeper, book 906; 6gu).
+     * A Per roll under a circumstance the GM declares, so it is offered where
+     * Alertness's "all Per rolls" lands on a roll made TO the character:
+     * every Per skill, and Detection's Per branch. Spirit Vision is left out:
+     * it is the holder's own act and costs SPI to open, so no sleeper makes
+     * it. The roll the cell most plainly means, a bare Per roll to wake, is
+     * one this app does not make.
+     */
+    private val PER_ROLL_CLAUSES: List<TraitClause> = listOf(
+        TraitClause(
+            "Light Sleeper", "Light Sleeper", "Perception rolls while sleeping at +4", 4, conditional = true,
+        ),
+    )
+
+    /** The declared clauses on any Per roll, for a Per skill and for Detection. */
+    fun perRollClauses(traits: List<Trait>): List<TraitClause> = traits.flatMap { owned ->
+        val bare = catalogueName(owned.name)
+        PER_ROLL_CLAUSES
+            .filter { it.trait.equals(bare, ignoreCase = true) }
+            .map { it.copy(shown = displayName(owned.name)) }
+    }
+
     fun visionClause(traits: List<Trait>): TraitClause? =
         senseClauses(traits).firstOrNull { it.trait == ACUTE_VISION }
 
@@ -534,7 +557,8 @@ object TraitClauses {
     fun skillClauseNames(): Set<String> = skillClauseRows().map { it.trait }.toSet()
 
     /** The printed rows, for the clause guard. */
-    fun skillClauseRows(): List<TraitClause> = SKILL_CLAUSES.map { it.clause } + SENSE_CLAUSES + ANY_SKILL_CLAUSES
+    fun skillClauseRows(): List<TraitClause> =
+        SKILL_CLAUSES.map { it.clause } + SENSE_CLAUSES + PER_ROLL_CLAUSES + ANY_SKILL_CLAUSES
 
     /**
      * Every clause a roll of [skill] asks the GM about: the social rows on a
@@ -545,7 +569,8 @@ object TraitClauses {
      * is one declaration and one modifier, never two under one id (6fh).
      */
     fun skillRollClauses(traits: List<Trait>, skill: SkillKey): List<TraitClause> {
-        val sense = if (skill.attr == ControllingAttribute.Per) senseClauses(traits) else emptyList()
+        val sense =
+            if (skill.attr == ControllingAttribute.Per) senseClauses(traits) + perRollClauses(traits) else emptyList()
         val social = if (categoryOf(skill) == SOCIAL_SKILLS) socialClauses(traits) else emptyList()
         val named = traits.flatMap { owned ->
             val bare = catalogueName(owned.name)
