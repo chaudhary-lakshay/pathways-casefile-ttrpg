@@ -6845,10 +6845,34 @@ results with `--rerun-tasks`; 366 Python; `ast-grep scan` clean.
 `TraitReportedTest` had reached 813 lines against the 800 ratchet, which
 only the Python suite sees; one test moved to `SelfControlTest`.
 
-**Next.** One question for the owner: the Apothecary prints *"Pacifism
-(Cannot Kill)"*, which resolves to no row, so that premade is offered
-neither Cannot Kill's roll nor its cell. Resolve it as 6he did Secret, or
-leave it recorded?
+### The owner's answer: the Apothecary's Pacifism is Cannot Kill
+
+Asked at the end of this slice, answered 2026-10-13: *resolve it*.
+`TraitNames.RULED_SPELLINGS` holds the one exact spelling, *"Pacifism
+(Cannot Kill)"*, read before any bracket rule. The book prints no
+Pacifism heading and the sheet pays Cannot Kill's 15, which is strong
+resemblance and still a ruling, not a rule. **The same sheet's "Pacifism
+(Cannot Harm Innocents)" was not ruled on and stays unmatched**, though
+it pays that row's 10: the next question for the owner.
+
+- RED: *expected: <Cannot Kill> but was: <Pacifism (Cannot Kill)>*.
+- Five pins on the old unmatched set failed and lost the spelling:
+  `TraitNamesTest`'s map and its qualifier list (which takes the sibling
+  now), `TraitReportedTest`'s bare set, `ContentLoaderTest`'s
+  `KNOWN_ABSENT_TRAITS`, twice. A comment's *"Sixteen spellings"* stood
+  over a map of eight; the count went.
+- Sonnet, `kotlin-reviewer.md`, on `84e2dc9 -- core`: **SHIP**, no
+  findings. It ran nothing.
+- SM-T570, no seed, the save `cmp`-identical after: the Apothecary's
+  Traits tab read *Pacifism (Cannot Kill)*, **Roll only**, *Roll 3d6 ≤
+  10*, with *Pacifism (Cannot Harm Innocents)* still **Unmatched name**
+  above it. No FATAL.
+
+2144 Kotlin (1412 `core:rules`, 711 `app`, 21 `core:model`) from deleted
+results with `--rerun-tasks`; 366 Python; `ast-grep scan` clean.
+
+**Next.** One question for the owner: is the Apothecary's *"Pacifism
+(Cannot Harm Innocents)"* the Cannot Harm Innocents row too?
 
 ## 6hj. The unread census at 112, and the one cell that names another row's roll
 
