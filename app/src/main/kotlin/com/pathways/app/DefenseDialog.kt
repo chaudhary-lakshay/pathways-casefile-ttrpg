@@ -469,7 +469,10 @@ fun DefenseDialog(
                         }
                     }
                     // What is not offered, named rather than absent.
-                    unskilledParryNote(unskilled, printed)?.let { DefenseNote(it) }
+                    unskilledParryNote(unskilled, printed)?.let { (line, why) ->
+                        DefenseNote(line)
+                        RuleNote("Why no untrained armed parry") { DefenseNote(why) }
+                    }
                     // Said wherever the mastery changed a number, because
                     // the book's own examples are attacks and this is the
                     // reading that carries the line to a parry (6ey).

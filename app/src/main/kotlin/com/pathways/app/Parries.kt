@@ -79,7 +79,9 @@ internal fun unskilledParriers(
     .map { it.name }
 
 /**
- * What the screen says of [unskilledParriers], or null for none.
+ * What the screen says of [unskilledParriers], or null for none: the
+ * refusal, which stays open, and the cells behind it, which sit closed in a
+ * `RuleNote` as the bare-hand row's reading does.
  *
  * A refusal with the book's reason, where this said "a gap here and not a
  * ruling" (6gz; the design review: keep refusing, say why). The one untrained
@@ -90,15 +92,16 @@ internal fun unskilledParriers(
  * a cell. Not argued from a master's "treated as known": that sentence says
  * "no default penalty" in the same breath (5797-5798).
  */
-internal fun unskilledParryNote(names: List<String>, cells: List<Defense>): String? {
+internal fun unskilledParryNote(names: List<String>, cells: List<Defense>): Pair<String, String>? {
     if (names.isEmpty()) return null
     val armed = cells.firstOrNull { it.defense.startsWith("Parry (Armed)") }?.formula ?: return null
     val unarmed = cells.firstOrNull { it.defense.startsWith("Parry (Unarmed)") }?.formula ?: return null
-    return "No parry offered with ${names.joinToString(", ")}: no skill on this sheet " +
-        "wields it. The Parry (Armed) cell prints \"$armed\" and names no untrained " +
+    val line = "No parry offered with ${names.joinToString(", ")}: no skill on this " +
+        "sheet wields it, and an untrained armed parry is the GM's call."
+    val why = "The Parry (Armed) cell prints \"$armed\" and names no untrained " +
         "operand, where the unarmed cell prints \"$unarmed\": DX itself, not " +
-        "Brawling's default. The book gives an untrained armed parry no number, so " +
-        "it is the GM's call."
+        "Brawling's default. So the book gives an untrained armed parry no number."
+    return line to why
 }
 
 /** The shield skill Block is rolled off (Ch. 5, p. 37). */

@@ -385,17 +385,19 @@ class DefenseDialogTest {
      * The note called this "a gap here and not a ruling" while the journal
      * recorded it refused (6ev) and `wieldedAt`'s KDoc gave the reason. It
      * says the ruling now, from the two cells: the one untrained parry
-     * operand the book prints is DX, never a skill's default.
+     * operand the book prints is DX, never a skill's default. The refusal
+     * is the open line; the cells are reference prose, behind a tap.
      */
     @Test
     fun `the note on an unskilled weapon gives the two cells and leaves it to the GM`() {
         val cells = ContentLoader.defenses()
-        val note = unskilledParryNote(listOf("Broadsword"), cells)!!
-        assertTrue("Broadsword" in note, note)
-        assertTrue("\"Weapon Skill ÷ 2 + 3\"" in note, note)
-        assertTrue("\"Brawling or DX ÷ 2 + 3\"" in note, note)
-        assertTrue("GM" in note, note)
-        assertFalse("gap" in note, note)
+        val (line, why) = unskilledParryNote(listOf("Broadsword"), cells)!!
+        assertTrue("Broadsword" in line, line)
+        assertTrue("GM" in line, line)
+        assertFalse("÷" in line, line)
+        assertTrue("\"Weapon Skill ÷ 2 + 3\"" in why, why)
+        assertTrue("\"Brawling or DX ÷ 2 + 3\"" in why, why)
+        assertFalse("gap" in line + why, line + why)
         assertNull(unskilledParryNote(emptyList(), cells))
     }
 
