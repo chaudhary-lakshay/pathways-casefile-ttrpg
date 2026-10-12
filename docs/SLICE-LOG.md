@@ -6761,7 +6761,7 @@ of the same name and a `::method` reference, are counted here.
 | 7 | a `ContentLoader` loader | read by the content tests alone |
 | 6 | already recorded as deliberate: `ParryBlock.parryFor`, `EffortBurn.requireOnePool`, `AntiDivinationTechniques.spiFor`, `PathwayText.rejoined`, `SealedArtifacts.powerEquivalentOf` and `.agreesWithGrade` | hold |
 | 1 | `Languages.ritualProficiencies`, which no test calls either | below |
-| 16 | the rest, each read and given the query below | one finding |
+| 16 | the rest, each read and given the query below | none; the finding was a 69th, called since this slice's fix, so the table below has 17 rows |
 
 **The 16, each asked whether production restates its body:**
 
@@ -6857,10 +6857,12 @@ button's number for a character shocked from an earlier wound.
 - **`Languages.ritualProficiencies` has no caller and no test**, and the
   handover's API list advertises it. Deleting it is the lazy move; the
   API line would go in the same commit.
-- **The recovery button's line names the traits and not the shock or the
-  states in its number.** `statesLine` prints *includes* the declared
-  states under it; a carried -4 is in the number and named nowhere.
-  Existing behaviour, not this slice's change.
+- **The recovery button's number has two terms its captions never
+  name.** Under it are the traits' line and *includes* the declared
+  states. A carried -4 and the pools' penalty for reeling or fatigue are
+  in the number and named nowhere; the Major Wound button beside it leaves
+  the pools' penalty unnamed the same way. Existing behaviour, not this
+  slice's change.
 
 **What this census cannot see.** A copy that does not restate a function
 it can find: a predicate written twice where neither copy is a function.
