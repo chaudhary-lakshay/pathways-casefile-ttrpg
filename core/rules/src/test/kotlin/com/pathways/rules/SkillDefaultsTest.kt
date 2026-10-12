@@ -5,6 +5,8 @@ import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
 import com.pathways.model.Outcome
 import com.pathways.model.SkillKey
+import com.pathways.model.Trait
+import com.pathways.model.TraitKind
 import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -29,7 +31,8 @@ class SkillDefaultsTest {
         owned: Map<SkillKey, Int> = emptyMap(),
         level: Int = 10,
         bonus: Int = 0,
-    ) = SkillDefaults.offered(owned, flat(level), bonus)
+        traits: List<Trait> = emptyList(),
+    ) = SkillDefaults.offered(owned, flat(level), bonus, traits)
 
     /**
      * The book's own worked example, p. 10: "A character with IQ 9 ... tries
@@ -107,6 +110,63 @@ class SkillDefaultsTest {
             offered(level = 10, bonus = bonus).single { it.key.name == SkillDefaults.BRAWLING }.level
         assertEquals(brawling(0) + 1, brawling(1))
     }
+
+    /**
+     * Medical Training (Informal), book 861: "Use Physician at IQ-2 without
+     * purchasing the skill" (6gy). 6eq left it as "a gap, not a ruling":
+     * no screen had a row for a skill a character does not own. 6et built
+     * that list, and Physician (IQ/Hard) has stood on it at the table's IQ-6
+     * for a holder ever since.
+     *
+     * The census is the cell's own phrase, so a second row granting a level
+     * reddens here rather than being offered at the table's number.
+     */
+    @Test
+    fun `Medical Training rolls Physician at IQ-2 where the table gives IQ-6`() {
+        val granting = (ContentLoader.advantages() + ContentLoader.disadvantages())
+            .filter { "without purchasing the skill" in it.notes }
+        assertEquals(listOf(SkillDefaults.MEDICAL_TRAINING), granting.map { it.name })
+        assertTrue(
+            granting.single().notes.startsWith("Use ${SkillDefaults.PHYSICIAN} at IQ-2 without"),
+            granting.single().notes,
+        )
+        fun physician(traits: List<Trait>) =
+            offered(level = 10, traits = traits).single { it.key.name == SkillDefaults.PHYSICIAN }
+        assertEquals(4, physician(emptyList()).level)
+        assertEquals("IQ-6", physician(emptyList()).source)
+        val granted = physician(listOf(medicalTraining))
+        assertEquals(8, granted.level)
+        assertEquals("IQ-2, ${SkillDefaults.MEDICAL_TRAINING}", granted.source)
+    }
+
+    /**
+     * **Not a default, so Versatile's +1 stays off it.** "Without purchasing
+     * the skill" gives a level and never calls it a default, the reading
+     * 6eq's design review declined to go past, and the Warrior's weapon "at
+     * effective DX" takes none on the same ground. IQ-2 also beats the
+     * table's IQ-6 with the +1, so the grant is never the worse number.
+     */
+    @Test
+    fun `Versatile lifts a holder's other defaults and not the granted Physician`() {
+        val rows = offered(level = 10, bonus = 1, traits = listOf(medicalTraining))
+        val physician = rows.single { it.key.name == SkillDefaults.PHYSICIAN }
+        assertEquals(8, physician.level)
+        assertTrue(TraitEffects.VERSATILE !in physician.source, physician.source)
+        val stealth = rows.single { it.key.name == "Stealth" }
+        assertEquals(6, stealth.level)
+        assertTrue(stealth.source.endsWith("+1 ${TraitEffects.VERSATILE}"), stealth.source)
+    }
+
+    /** "Without purchasing the skill": a Physician already held is not on the list twice, or at all. */
+    @Test
+    fun `a holder who owns Physician is offered no second row`() {
+        val row = skill(SkillDefaults.PHYSICIAN)
+        val owned = mapOf(SkillKey(row.name, row.specialization, row.attr, row.difficulty) to 12)
+        val rows = offered(owned, traits = listOf(medicalTraining))
+        assertEquals(emptyList<String>(), rows.map { it.key.name }.filter { it == SkillDefaults.PHYSICIAN })
+    }
+
+    private val medicalTraining = Trait(SkillDefaults.MEDICAL_TRAINING, 5, TraitKind.ADVANTAGE)
 
     /**
      * **Divination Arts has one default, and it is the Divine tile's.** Line

@@ -229,6 +229,11 @@ class TraitReportedTest {
             val cell = catalogue.first { it.name == trait }.notes
             val reported = TraitReport.reported(listOf(advantage(trait))).map { it.printed }
             val segments = cell.split(';', '.').map { it.trim() }.filter { it.isNotEmpty() }
+            // A level the trait grants for a skill not owned, asked of the
+            // list that offers it and never re-derived here (6gy).
+            val granted = SkillDefaults.offered(emptyMap(), { 10 }, 0, listOf(advantage(trait)))
+                .filter { trait in it.source }
+                .map { it.key.name }
             for (segment in segments) {
                 val cap = TraitEffects.maxLevelsFor(trait)
                 val handled = segment in prose ||
@@ -267,6 +272,7 @@ class TraitReportedTest {
                     TraitClauses.skillClauseRows().any {
                         it.trait == trait && (segment.contains(it.printed) || it.printed.contains(segment))
                     } ||
+                    granted.any { segment.startsWith("Use $it at") } ||
                     reported.any { it.contains(segment) || segment.contains(it) }
                 assertTrue(handled, "$trait drops the clause \"$segment\"")
             }
@@ -517,6 +523,21 @@ class TraitReportedTest {
             .filter { "no default is rolled" in it.reason }
             .map { it.trait }
         assertEquals(emptyList<String>(), stale, "Divination Arts is rolled at a default")
+    }
+
+    /**
+     * 6eq reworded that clause to "the Skills tab has no row for a level a
+     * trait grants ... a gap, not a ruling". The row exists now (6gy), so
+     * the note is gone, and the guard reads both objects: a note may return
+     * only if the list stops offering the level.
+     */
+    @Test
+    fun `Medical Training's Physician is offered, so nothing of the row is reported`() {
+        val held = listOf(advantage(SkillDefaults.MEDICAL_TRAINING))
+        val physician = SkillDefaults.offered(emptyMap(), { 10 }, 0, held)
+            .single { it.key.name == SkillDefaults.PHYSICIAN }
+        assertEquals(8, physician.level)
+        assertEquals(emptyList<Any>(), TraitReport.reported(held))
     }
 
     // ---- 6es: the complement of known() ------------------------------------

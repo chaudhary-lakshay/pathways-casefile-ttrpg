@@ -223,11 +223,6 @@ internal object TraitRefusals {
             "HT rolls to avoid or recover from disease at +2" to
                 "this app models no disease roll",
         ),
-        "Medical Training (Informal)" to listOf(
-            "Use Physician at IQ-2 without purchasing the skill" to
-                "the Skills tab has no row for a level a trait grants, so this " +
-                    "one is not offered — a gap, not a ruling",
-        ),
         "Absolute Direction" to listOf(
             "Always know which way is north; never become lost in natural terrain" to
                 "the book hands both to the GM, not to a roll",

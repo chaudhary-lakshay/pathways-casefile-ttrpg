@@ -718,7 +718,7 @@ class TraitEffectsTest {
         // other roll at a default", and the Skills tab's untrained roll made
         // that the second false sentence this one trait has carried.
         assertEquals(emptyList<Any>(), TraitReport.reported(versatile))
-        val untrained = SkillDefaults.offered(emptyMap(), { 10 }, TraitEffects.defaultBonus(versatile))
+        val untrained = SkillDefaults.offered(emptyMap(), { 10 }, TraitEffects.defaultBonus(versatile), versatile)
         assertEquals(6, untrained.single { it.key.name == "Stealth" }.level)
     }
 

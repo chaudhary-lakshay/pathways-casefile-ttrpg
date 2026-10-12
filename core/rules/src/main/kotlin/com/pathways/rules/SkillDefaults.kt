@@ -3,6 +3,7 @@ package com.pathways.rules
 import com.pathways.model.Character
 import com.pathways.model.ControllingAttribute
 import com.pathways.model.SkillKey
+import com.pathways.model.Trait
 import com.pathways.rules.content.CataloguedWeapon
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SkillDefinition
@@ -47,6 +48,11 @@ import com.pathways.rules.content.SkillDefinition
 object SkillDefaults {
 
     const val BRAWLING = "Brawling"
+    const val PHYSICIAN = "Physician"
+    const val MEDICAL_TRAINING = "Medical Training (Informal)"
+
+    /** "Use Physician at IQ-2 without purchasing the skill" (book 861). */
+    const val MEDICAL_TRAINING_PENALTY = -2
     const val WRESTLING = "Wrestling"
 
     /** "Default: DX-2 if untrained" (p. 38, and the p. 39 summary). */
@@ -279,7 +285,9 @@ object SkillDefaults {
      *
      * [attributeLevel] answers for the character as PLAYED -- after potions --
      * the same levels a bought skill is rolled from. [defaultBonus] is
-     * [TraitEffects.defaultBonus], added once.
+     * [TraitEffects.defaultBonus], added once. [traits] are the same list
+     * that bonus was read from; a level one of them grants ([grantedBy])
+     * stands in for the default and takes no bonus.
      *
      * Owned is the same name and specialization at ANY difficulty: five
      * potion grants disagree with chapter 3 about a difficulty, and the
@@ -291,6 +299,7 @@ object SkillDefaults {
         owned: Map<SkillKey, Int>,
         attributeLevel: (ControllingAttribute) -> Int,
         defaultBonus: Int,
+        traits: List<Trait>,
     ): List<Untrained> {
         val printed = ContentLoader.skills()
         val suffix = if (defaultBonus != 0) ", +$defaultBonus ${TraitEffects.VERSATILE}" else ""
@@ -300,14 +309,39 @@ object SkillDefaults {
                 owned.keys.none { covers(it, row, onlyRow) }
             }
             .mapNotNull { skill ->
+                val key = SkillKey(skill.name, skill.specialization, skill.attr, skill.difficulty)
+                grantedBy(skill, traits, attributeLevel)?.let { (level, source) ->
+                    return@mapNotNull Untrained(key, level, source)
+                }
                 val (level, source) = defaultOf(skill, owned, attributeLevel, defaultBonus)
                     ?: return@mapNotNull null
-                Untrained(
-                    SkillKey(skill.name, skill.specialization, skill.attr, skill.difficulty),
-                    level,
-                    source + suffix,
-                )
+                Untrained(key, level, source + suffix)
             }
+    }
+
+    /**
+     * The level a held trait gives for a skill the character does not own:
+     * [MEDICAL_TRAINING]'s "Use Physician at IQ-2 without purchasing the
+     * skill", the one catalogue cell that grants a level (6gy).
+     *
+     * **Not a default, so [TraitEffects.defaultBonus] is not added**: the
+     * cell gives a level and never uses the word, as a Warrior's weapon "at
+     * effective DX" does not ([mastered]). A reading, not the book's only
+     * one: page 10 calls any untrained attempt "using the default", and
+     * Brawling's own "Default: DX-2" does take the bonus. It also needs no comparison with
+     * the table's row: Physician is Hard, IQ-6, and Versatile's +1 is the
+     * only bonus a default takes, so the grant is always the better number.
+     * A bought Physician is at least IQ-2 at its first point and is not on
+     * this list at all.
+     */
+    private fun grantedBy(
+        skill: SkillDefinition,
+        traits: List<Trait>,
+        attributeLevel: (ControllingAttribute) -> Int,
+    ): Pair<Int, String>? {
+        if (skill.name != PHYSICIAN || TraitNames.levelOf(traits, MEDICAL_TRAINING) == null) return null
+        return attributeLevel(skill.attr) + MEDICAL_TRAINING_PENALTY to
+            "${skill.attr.code}$MEDICAL_TRAINING_PENALTY, $MEDICAL_TRAINING"
     }
 
     /**
@@ -352,6 +386,7 @@ object SkillDefaults {
             owned = walked?.skillLevels ?: Derive.of(character).skillLevels,
             attributeLevel = { Derive.controllingLevel(it, attributes, secondaries, spi) },
             defaultBonus = TraitEffects.defaultBonus(character.traits),
+            traits = character.traits,
         )
     }
 
