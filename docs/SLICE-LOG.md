@@ -6726,6 +6726,64 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hb. The gate the Fright dialog wrote a second time
+
+6ha saw this and did not build it: `FrightCheck.recoveryBonus` was tested
+and had no production caller, and the screen repeated its predicate. No
+number on any screen changed.
+
+**What stood.** `SheetDialogs` resolved
+`TraitAttributeRolls.stunRecoveryBonus(traits)` and handed `FrightDialog`
+an Int. The dialog drew the recovery panel with `bonus = if
+(StunRecovery.isStun(out)) stunRecoveryBonus else 0`. That is
+`FrightCheck.recoveryBonus`'s body, and `FrightRecoveryTest` pins the
+function: Combat Reflexes' +6 on the rows that stun, 0 on row 12's
+Retching, Ecstasy and Dazed. So the test guarded the copy no screen ran.
+
+**What changed (`250633b`).** `FrightDialog` takes `recoveryBonus:
+(FrightRecovery) -> Int`, the panel asks it of the row, and `SheetDialogs`
+passes `{ FrightCheck.recoveryBonus(it, traits) }`. The dialog's
+`StunRecovery` import went with its gate. The three lines 6ha wrote about
+a function nothing called say what runs now.
+
+### The mutant, before and after
+
+One mutation, the gate dropped so every recovery takes the bonus:
+
+| Where | Run | Result |
+|---|---|---|
+| the dialog's own expression, before the change | `:app:testDebugUnitTest` from deleted results | 692 tests, 0 failures, `e:` 0. It survived |
+| `FrightCheck.recoveryBonus`, after | `:core:rules:test --tests "*FrightRecoveryTest*"` from deleted results | 7 tests, 1 failure, `e:` 0: *Combat Reflexes reaches the stunned rows and not the twelve row*, *expected: <0> but was: <6>* |
+
+Each file was copied aside first and restored from the copy.
+
+No test was written. The one that reddens existed; it had been pinning
+the wrong copy.
+
+### Checks
+
+2097 Kotlin (1385 `core:rules`, 692 `app`, 20 `core:model`), 0 failures,
+after `--rerun-tasks` from deleted results, counted from the XML; `e:`
+count 0. `ast-grep scan` is clean, and the click-handler census still
+reads 32. The 366 Python are 6ha's run: no file they read changed.
+
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on the uncommitted diff, asked for the case
+against: SHIP, no findings. It compared the old expression with the
+function's body for every `FrightRecovery`, found `traits` at the call
+site to be the list the old call took, and placed `recoveryBonus(out)` in
+composition and not in a click handler, so the printed target is still
+the number rolled. It ran nothing.
+
+### No device pass
+
+`R52TA076AEZ` was not attached. Unverified on a device: that a stunned
+fright row's recovery still prints the +6 for a holder of Combat Reflexes.
+The engine's half is the test above.
+
+**Next.** The ten owner questions in 6gz stand.
+
 ## 6ha. The sweep 6gz named as its blind side, and an exclusion that hid a count
 
 6gz closed by saying what its comment sweep could not see: a comment that
