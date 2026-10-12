@@ -183,9 +183,10 @@ chip handler first. Attack's tracker line is read off the ledger by id,
 never as a remainder. Scan the click-handler census from the repo root:
 the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 
-**6gw back to 6de had lead paragraphs here until 2026-10-12. Each is in
+**6gx back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6gx** — no code: the unread census over both halves, 114 rows outside `known()`; 6gu's count had missed nine self-control rows;
 **6gw** — Anchored Soul refused: every "against you" the book prints is the other party's attempt, so it is not Incorruptible Will's mirror; the chain capped at five;
 **6gv** — Perceptual Splitting's -2 declared on the sheet and scoped to the rolls line 390 calls physical; the ledger asks `EffortBurn.isPhysical`;
 **6gu** — Light Sleeper's +4 declared on a Per skill and on Detection's Per branch, never Spirit Vision; Skinny refused as a purpose;
@@ -232,10 +233,9 @@ slice log.** One line each:
 **6ev** — the bare-hand parry cell prints "Brawling or DX", so DX is a row of its own; the Acrobatic Dodge rolls its default, and Defend gained the missing trait term;
 **6eu** — the Attack dialog takes an untrained skill with a fist or weapon row; a Warrior's weapon is wielded at no less than DX, and one `levelWith` feeds the header, damage and roll;
 **6et** — the untrained roll: `defaultFor` had no caller since M0; a skill's own line (Brawling DX-2, Wrestling none) beats the table, and Versatile's +1 sits inside every default;
-**6es** — the complement of `known()`, listed: 148 rows nothing read; `UNREAD` says so, and the sheet lists every held advantage with its cell;
-**6er back to 6de** have one-line digests too, moved verbatim to
+**6es back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
-its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb).
+its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc).
 
 **6dd back to 6cd had lead paragraphs here and they have been cut, because
 this file keeps reaching the 150 k-char limit (6eb: 152,583; 6eh cut 6dd to
@@ -254,7 +254,12 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6hb first**
+**Where to start next: the slice log, from the END — 6hc first**
+(6cf's caller census re-run over both trees: 979 functions, 68 with no
+production reference, each category given its verdict; the Damage dialog
+had summed the stun recovery target by hand since its first commit, and
+6gs had taught that sum two terms the tested `StunRecovery.targetFor`
+never got; it takes them now, required, and no number moved). Then 6hb
 (the Fright dialog gated Combat Reflexes' +6 itself, the body of
 `FrightCheck.recoveryBonus` written twice, and the tested copy had no
 caller; the predicate has one copy now, the tested one, and the call
@@ -273,11 +278,7 @@ attached, so no device pass; ten owner questions). Then 6gy
 (Medical Training's "Use Physician at IQ-2" was a gap in 6eq and the
 untrained list has offered a holder IQ-6 since 6et; it gives IQ-2 now,
 with no Versatile +1, a reading and a sixth owner question; found by
-re-reading 6eq's verdicts against what was built since). Then 6gx (no code: the unread census run over both halves, 114 rows outside
-`known()`, 31 signed and 83 not; 6gu's count had missed nine self-control
-rows, eight of which roll the offset they print; Reckless's "-1 to any
-roll" not built, as Entity Fixation's sibling clause is refused; five
-owner questions open). The chain
+re-reading 6eq's verdicts against what was built since). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -552,7 +553,7 @@ FrightCheck.durationFor(effect, kind): ComputedDuration?   // row 12 only:
 FrightCheck.secondsFor(duration, ht, will, iq) / .durationLine(...)
                                       // the operand is NOT the roll's
 Outcome.isSuccess: Boolean                    // print a roll's OWN verdict
-StunRecovery.targetFor(ht, traits, poolPenalty)   // the Major Wound Failure
+StunRecovery.targetFor(ht, traits, poolPenalty, shock, states)   // the Major Wound Failure
                                               // row's own roll; the fright
                                               // table's are FrightCheck's
 TraitAttributeRolls.stunRecoveryHt(traits): MajorWoundHt

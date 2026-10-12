@@ -195,6 +195,12 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6gx (no code: the unread census run over both halves, 114 rows outside
+`known()`, 31 signed and 83 not; 6gu's count had missed nine self-control
+rows, eight of which roll the offset they print; Reckless's "-1 to any
+roll" not built, as Entity Fixation's sibling clause is refused; five
+owner questions open).
+
 Then 6gw (Anchored Soul refused with its reason: every "against you" the book
 prints is the other party's attempt, and no line turns the -2 into a bonus
 where the holder rolls, so it is not Incorruptible Will's mirror; this
@@ -2351,12 +2357,13 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6er back to 6de
+## Digest index, 6es back to 6de
 
 Moved from the handover in 6ff, unchanged, when its digest index neared
 8,000 characters. 6ds and 6dr followed in 6gb, and 6dv back to 6dt in
-6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy; 6eq in 6ha; 6er in 6hb.
+6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy; 6eq in 6ha; 6er in 6hb; 6es in 6hc.
 
+**6es** — the complement of `known()`, listed: 148 rows nothing read; `UNREAD` says so, and the sheet lists every held advantage with its cell;
 **6er** — the builder sells a language; the two halvings combine with one ceiling, and a Language Talent bought later reprices what is owned;
 **6eq** — 39 refusals in production source whose subject is this app, seven false or stale; Versatile's +1 goes inside the pick between an owned level and a default;
 **6ep** — 6dy's three refusals re-asked; the HP recovery table's first row is a ROLL, so the daily HT roll is offered and nothing is restored;

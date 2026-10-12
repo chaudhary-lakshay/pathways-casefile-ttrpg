@@ -6726,6 +6726,148 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hc. The caller census re-run, and the target the screen had right
+
+6hb found one tested function no screen called while a screen restated
+it. That is 6cf's sweep direction, last run before most of this API
+existed, and 6cf counted callers in `app/` alone. So it was run again over
+every function in both trees.
+
+### The census
+
+A throwaway script listed every `fun` in the three `src/main` trees, less
+`override` and `operator`, with its owner, and counted its references in
+main sources with comments blanked:
+
+- an object member: `Owner.name` anywhere (a call or an import), `::name`
+  anywhere, and a bare `name` in its own file;
+- anything else (top-level, extension, class member): a bare `name`
+  anywhere, which over-counts on a shared name, so a miss is reported only
+  when even the loosest reading finds nothing.
+
+**979 functions, 68 with no reference in main source** (69 before this
+slice's fix). 6cf counted 323 public functions and 46 uncalled.
+
+**The script's own false positive, and 6cf's two.** Its first run blanked
+string literals with the comments and reported 82: 13 of those are called
+only inside a template, `"${Shock.printed()}"`. 6cf's shapes, a property
+of the same name and a `::method` reference, are counted here.
+
+| Count | Category | Verdict |
+|---|---|---|
+| 18 | a lookup by name (`named`, `*Named`, `byName`) | the tests' way into a table |
+| 13 | a guard accessor (`*Names`, `*ClauseRows`, `grantedTraitTable`, `refusedGrants`) | what the census tests read, as 6cf found |
+| 7 | `attempt` in seven engines | 6eh: the composed convenience the tests use |
+| 7 | a `ContentLoader` loader | read by the content tests alone |
+| 6 | already recorded as deliberate: `ParryBlock.parryFor`, `EffortBurn.requireOnePool`, `AntiDivinationTechniques.spiFor`, `PathwayText.rejoined`, `SealedArtifacts.powerEquivalentOf` and `.agreesWithGrade` | hold |
+| 1 | `Languages.ritualProficiencies`, which no test calls either | below |
+| 16 | the rest, each read and given the query below | one finding |
+
+**The 16, each asked whether production restates its body:**
+
+| Function | Query | Verdict |
+|---|---|---|
+| **`StunRecovery.targetFor`** | `recoveryTarget` in `app` | **restated, and the restatement was right.** Below |
+| `AntiDivination.modifiers` | `requiresCritical\|protection\.penalty` | the ledger's form. Divination composes its own target and takes the penalty and the critical demand as two fields |
+| `Languages.traits`, `PurchasableTraits.instancedTraits` | `toTrait\(\)\|\.resolved\(` | `EditedCharacter` composes the same two steps through `ownedLanguages` and `instancedRows`, which the builder's rows read too. One `mapNotNull` each; the app's copy is what three app test files exercise |
+| `Weapons.hasWoundingMultiplier` | `knowsType\(` | `AttackOptions` asks `Wounds.knowsType` of a roll's type, the one authority it wraps |
+| `StunRecovery.printed` | `row.effect` in `DamageDialog` | the dialog prints the row `Wounds.majorWoundFor` returns: one table, another reader |
+| `Languages.notes` | `languageNotes\|Languages\.notes` | no screen shows the two paragraphs. Every rule in them, half for one form, Language Talent and Multilingual, the picker prices |
+| `DegreeOfSuccess.marginFor` | its row constants and `SuccessDegree.` in `app` | no copy; the screen names a degree and never its margin |
+| `Ranged.penaltyFor`, `EffortBurn.maxFor`, `Detection.awarenessFor` | `bandFor(...).penalty`, `EffortBurn.pool`, `awareness()` | a property read through the same object; the dialog lists every awareness row |
+| `SpiritVision.isMisleading`, `SpiritualSenses.modifierTotal`, `Study.isPriced`, `Study.costPerPoint` | the body's own test in `app` | no copy |
+| `TraitEffects.categoryFor`, `.skillsFor` | `CATEGORY_BONUSES\[\|SKILL_BONUSES\[` | read only inside `TraitEffects` |
+
+### The finding: a correct screen and a stale rules function
+
+**It runs the opposite way to 6hb.** `DamageDialog` summed the Failure
+row's recovery target by hand from the roll's first commit (`5dfe530`):
+`git log -S "recoveryTarget = ht"` returns that commit alone. So
+`StunRecovery.targetFor(ht, traits, poolPenalty)` never had a caller.
+6gs then taught the hand sum shock and the declared states, as it taught
+`VitalRolls.targetFor` and `NaturalRecovery.targetFor`, and left this one
+at `ht + bonusFor + poolPenalty`. The function's KDoc called itself *"The
+number 3d6 is rolled against"* and was two terms short of the number
+rolled.
+
+**Before any edit, the baseline mutants** (`:app:testDebugUnitTest` from
+deleted results, `e:` 0 each, restored from a copy):
+
+| Dropped from the dialog's sum | Result |
+|---|---|
+| `carriedShock` | 692 tests, 0 failures |
+| `states.total` | 692 tests, 0 failures |
+
+**Would a number move?** `Conditions.penaltyFor` answers every kind but
+`SKILL` with `hp.penalty + fp.penalty`, so the dialog's `hurt`, read with
+`MAJOR_WOUND_HT`, equals `hurtOnAttribute`. `stunRecoveryHt.bonus` is
+built from `StunRecovery.bonusFor`. No number moves.
+
+**What changed (`8ce1634`).**
+
+- `StunRecovery.targetFor` takes `shock` and `states`, **required**.
+  `VitalRolls.targetFor` defaults both to 0, and a default 0 is how a
+  term goes missing without a sound; the KDoc names the departure.
+- `SheetDialogs` composes the target with `hurtOnAttribute`,
+  `shockOnAttribute` and `physicalStates.total`, and hands `DamageDialog`
+  the Int, printed on the button and rolled. `carriedShock` is gone, and
+  its KDoc's reasoning moved onto `recoveryTarget`.
+- `htTarget`, the Major Wound roll's own sum, stays in the dialog. It has
+  no rules twin to drift from.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| a shock carried in and a declared state move the recovery target too | the old signature: a compile failure, `No parameter with name 'shock' found` (four `e:` lines, no XML written). Recorded as that, not as an XML failure (6fi) |
+
+The after-mutants, each from deleted results and restored from a copy:
+
+| Mutant | Result |
+|---|---|
+| `+ shock` dropped inside `targetFor` | `StunRecoveryTest`, 9 tests, 1 failure: *expected: <4>* |
+| `+ states` dropped inside `targetFor` | the same |
+| `shock = 0` at the `SheetDialogs` call site | 692 app tests, 0 failures. **It survives**, as 6hb's did: the wiring into a composable is unpinned |
+
+2098 Kotlin (1386 `core:rules`, 692 `app`, 20 `core:model`), 0 failures,
+after `--rerun-tasks` from deleted results, counted from the XML; `e:`
+count 0. 366 Python. `ast-grep scan` is clean, and the click-handler
+census reads 32. That run was before the review's KDoc edit, which
+compiled.
+
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on the uncommitted diff, asked whether a
+number moved: SHIP. It checked each term against the old sum, the two
+`penaltyFor` kinds equal, `attributes.ht` as the dialog's own `ht`, and
+the printed target as the rolled one. Two LOWs. One was taken: the
+`stunRecoveryHt` KDoc said a test *pins* its bonus to `bonusFor`, and the
+test cannot fail because one is built from the other; it says *is built
+from* now. The other, that `hurt` and `recoveryTarget` are two
+arguments built apart, was not: the target is composed in one place. It
+ran nothing.
+
+### No device pass
+
+Only the AIM-75 was attached. Unverified on a device: the recovery
+button's number for a character shocked from an earlier wound.
+
+### Seen and not built
+
+- **`Languages.ritualProficiencies` has no caller and no test**, and the
+  handover's API list advertises it. Deleting it is the lazy move; the
+  API line would go in the same commit.
+- **The recovery button's line names the traits and not the shock or the
+  states in its number.** `statesLine` prints *includes* the declared
+  states under it; a carried -4 is in the number and named nowhere.
+  Existing behaviour, not this slice's change.
+
+**What this census cannot see.** A copy that does not restate a function
+it can find: a predicate written twice where neither copy is a function.
+6hb and this slice were both caught because one copy had a name.
+
+**Next.** The ten owner questions in 6gz stand.
+
 ## 6hb. The gate the Fright dialog wrote a second time
 
 6ha saw this and did not build it: `FrightCheck.recoveryBonus` was tested
