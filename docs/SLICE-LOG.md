@@ -6726,6 +6726,84 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hd. The device pass three slices owed, and a note under the wrong row
+
+The SM-T570 (`R52TA076AEZ`) was attached, so the checks 6gz, 6hb and 6hc
+left unverified were run. The APK on it was from 16:48, before 6gz's note
+split; `installDebug` replaced it. The save was copied off first, matched
+6gy's backup byte for byte, and was written back after each of the two
+passes and read again: identical both times
+(`~/pathways-device-backups/sessions-2026-10-12-6hc.json`).
+
+### What was seen
+
+| Owed by | Setup | Seen |
+|---|---|---|
+| 6gz, Defend | Apothecary given a Broadsword in the builder; no skill on the sheet or from Hermit 9 wields it | open: *"No parry offered with Broadsword: no skill on this sheet wields it, and an untrained armed parry is the GM's call."* Closed: **Why no untrained armed parry**, which opens to both formula cells |
+| 6gz, Attack | the same | *"Acc 0 · reach/range C · untrained parry is the GM's call · £3"*, header *"Broadsword (untrained, DX-5)"* |
+| 6hc | Military Police, HT 10, Combat Reflexes, no save entry. A 6 HP hit: the Major Wound roll at HT 10 | stun row with nothing carried: *"Roll HT 16 to recover now"*. A shock-row hit applied, then a second: the Major Wound roll still *"Roll HT 10"*, shock refused; the stun row's button *"Roll HT 12 to recover now"*, 10 + 6 − 4 |
+| 6hb | the same character, still shocked; Fright Check with the +2 row, target 7 | *"3d6: 8 vs 7 ... effect roll 11 ... 10–11: Stunned"*, and *"Roll Will 11 to recover now"*, 9 + 6 − 4, *"includes +6 from Combat Reflexes"* |
+
+**Journalist was the first pick and was the wrong one.** It carries a
+Combat Knife and owns no Knife skill on its sheet, and its Defend dialog
+parried at 9. Error 9 grants Knife at DX+3, 12, so 9 is right. A sheet's
+skill list is not what a played character wields.
+
+**The shock latches on Apply, not on the roll.** Five shock-row rolls
+rerolled in place left the recovery at 16; the -4 reached it only after
+the hit was applied. That is `DamageDialog`'s design (line 195), and the
+first reading of 16 as a defect was mine.
+
+### What was wrong: a cell's notes under another row's refusal
+
+The Defend dialog printed the unarmed cell's own notes, *"Brawling parries
+weapons at -3. Boxing uses Boxing ÷ 2 + 3 and ignores that penalty.
+Cannot parry ranged attacks."*, LAST in the parry section, after the
+untrained-armed refusal. On the tablet it sat under **Why no untrained
+armed parry** and read as that refusal's explanation. The armed cell's
+notes sit under the armed rows (`DefenseDialog.kt:415`).
+
+They print first now, under the bare-hand row: the row, the book's notes,
+then the app's reading behind a tap, then the Broadsword refusal and its
+own. Seen on the tablet after a second `installDebug`. A first attempt put
+them after the closed **Why the bare-hand parry is DX itself** header,
+where they read as its contents; the screenshot showed it, and they moved
+above it.
+
+No test: the repo tests no composable. `:app:testDebugUnitTest` passed on
+the change.
+
+### Tooling, for the next pass
+
+- `adb-ui.sh dump` prints bounds as uiautomator reports them, which is 3/4
+  of a pixel on this tablet, and `tap` takes pixels. A tap at the dumped
+  point lands a row high: the first two picks opened Fortune Teller.
+- A dialog is its own window and its offset moves with its height, so no
+  one formula maps it. Taps inside dialogs were read off a screenshot of
+  the dialog in that state.
+- `tapon.sh` (scratchpad) finds a node, waits for two equal dumps, and taps
+  it scaled. It is right for the full-screen list and wrong inside a
+  dialog.
+
+### The review
+
+Sonnet, `kotlin-reviewer.md`, on the uncommitted diff, asked for every
+other state of the section: SHIP, one LOW, taken. Against a shot no
+unarmed row stands, so the moved notes printed under the armed block's
+divider with no row over them, and the refusal *"No unarmed parry against
+a shot: "Cannot parry ranged attacks.""* came three lines later quoting
+the same cell. The notes print only when a row stands now. For a Brawling
+or Boxing holder they sit under that row, and the mastery note and the
+open-versus-closed split are unchanged. It ran nothing.
+
+### Not seen
+
+The order against a shot, with a Brawling holder, and with a master's
+weapon. The review read those states in code, and the shot case changed
+after the device pass.
+
+**Next.** The ten owner questions in 6gz stand.
+
 ## 6hc. The caller census re-run, and the target the screen had right
 
 6hb found one tested function no screen called while a screen restated
