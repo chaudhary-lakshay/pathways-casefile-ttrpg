@@ -6796,11 +6796,14 @@ the same cell. The notes print only when a row stands now. For a Brawling
 or Boxing holder they sit under that row, and the mastery note and the
 open-versus-closed split are unchanged. It ran nothing.
 
+Seen after the LOW was taken, on `785f9a6` installed: Apothecary against
+*A shot* shows Dodge, the Dive control, and the refusal alone, with no
+cell notes over it. The save read back identical to the backup.
+
 ### Not seen
 
-The order against a shot, with a Brawling holder, and with a master's
-weapon. The review read those states in code, and the shot case changed
-after the device pass.
+The order with a Brawling holder and with a master's weapon. The review
+read both in code.
 
 **Next.** The ten owner questions in 6gz stand.
 
