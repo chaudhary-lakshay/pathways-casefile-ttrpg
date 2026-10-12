@@ -6745,8 +6745,16 @@ bare target already read that list.
   again: four red.
 
 2117 Kotlin, 0 failures, from deleted results; `ast-grep scan` clean.
-No reviewer: one data row in a list a reviewed slice built, whose
-consumers are unchanged.
+Committed unreviewed; reviewed after, with the post-review hunks of
+`af77a6e` (the pathway screen's position keyed on pathway and Sequence,
+and no drawback picker for a lost character): sonnet,
+`kotlin-reviewer.md`, SHIP. A drink still moves the view to the new
+Sequence, no browsed pair can lack a block, and "Another pathway" now
+survives a digestion step, which is the change's intent. Reckless's
+Traits row reads **Applied**, which is true: the -1 is a chip and the
+back-down roll is still offered. One LOW, not taken: `allRollsClauses`
+matches by name, so a Reckless *quirk* would get the chip. All six rows
+already behave this way, and nothing in this app makes a quirk.
 
 **Device pass, SM-T570**, backup `sessions-2026-10-12-6hg.json`
 (identical to 6hf's), Night Watchman seeded with Reckless bought,
