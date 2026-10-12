@@ -6777,8 +6777,24 @@ does. Its mutant, a hurt drinker rolled one row lower, reddened it:
 *expected: <12> but was: <10>*. The mutant compiled (`e:` count 0), read
 from results deleted before the run. 2082 Kotlin (1371 `core:rules`, 691
 `app`, 20 `core:model`), 0 failures, after `--rerun-tasks` from deleted
-results; `ast-grep scan` is clean. No device pass: no screen changed. No
-diff review was run on a test and two KDocs.
+results; `ast-grep scan` is clean. No device pass: no screen changed.
+
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on `git diff 2f7cb75..333f278 -- core app`:
+SHIP WITH CHANGES, one MEDIUM, taken. It confirmed each KDoc claim and
+found no other 3d6 against a target that takes no state. It did not open
+the targets of `SheetRows.kt` 106 and 189, and searched no wording beyond
+*potion consumption*, *PCR* and *drinking potion*.
+
+The MEDIUM: the test's session had no sheet, so `hpLost = 8` was a number
+with no maximum, and a regression that derived *reeling* from the sheet
+would have stayed green. Measured: a mutant that lowered the target only
+when `sheet != null` passed the test as written. With `plain()` as the
+sheet (HP and FP 9) the same mutant reddens it, *expected: <12> but was:
+<10>*, `e:` count 0. The comment's *"cannot reach drink at all"* now says
+what guarantees it: `drink` takes no parameter for those states. After
+this change `BeyonderSessionTest` alone was re-run (33 cases, green).
 
 **Next**: 6gi's table of 125 unread trait rows, less 6gs's five. None is a
 slice without a new reading.
