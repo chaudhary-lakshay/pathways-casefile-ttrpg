@@ -6726,6 +6726,80 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hh. Dead Language Fluency's language, and the reason 6gx gave for it
+
+The queue was empty after 6hg. The owner chose the trait backlog, and 6gx
+had already given every one of its 114 rows a verdict, so this slice re-ran
+four refusals whose reason is a claim about this app (`~/.claude/CLAUDE.md`:
+a reason is a claim with an expiry date).
+
+| Row | 6gx's reason | Query, 2026-10-12 | Verdict |
+|---|---|---|---|
+| Lifting ST | the app models no lifting | `-w lifting\|lift\|encumbrance` over `core/rules/src/main` and `app/src/main`: comments only | holds |
+| Nightmares | the app holds no clock | `morning\|clock\|elapsed`: only "holds no clock" sentences and `ModifierResolver`'s turn expiry | holds |
+| Threshold Blindness | a choice the save would have to store | `threshold blindness\|entity type` over both trees: only Entity Fixation's declared chip | **holds on another reason**: no roll or screen here names an entity type for it to reach |
+| Dead Language Fluency | a choice the save would have to store | the language purchase IS the stored choice, in `SavedEdits` since 6er, and `Languages.owned` already frees Multilingual's two that way | **expired** |
+
+6gx refused both of the "choice" rows on one sentence. It was false for
+Dead Language Fluency from the start, and is not the load-bearing reason
+for Threshold Blindness. The split above is the correction, and the row
+that survives keeps its verdict on its real reason.
+
+### The owner's two answers
+
+The cell is *"Read and speak one dead language (Ancient Hermes, Ancient
+Loen, etc.) without having formally learned it."* It prints no level, no
+price and no list, and `dead` appears nowhere else in the book (grep of
+`book.txt`: lines 1059 and 1061 only). Two questions, answered 2026-10-12:
+
+1. **Native, both forms, billed nothing**, Multilingual's reading of
+   *"fluency"*, and a Native mystical language can perform rituals.
+2. **Ancient Hermes and Ancient Feysac**: the two Ancient rows the table
+   holds. Jotun is printed *"still in daily use"*; Ancient Loen is not in
+   the table (recorded since 6x, never repaired).
+
+### What changed
+
+- `Languages.DEAD_LANGUAGE_FLUENCY` and `DEAD_LANGUAGES`, their KDoc naming
+  the owner's ruling, not the book. `PRICING_TRAITS` takes the trait, so
+  `known()` sees it and `TraitReport.reported` prints nothing for it:
+  `UNREAD` is gone from its row, asserted, not assumed.
+- `OwnedLanguage.isFree: Boolean` became `freedBy: String?`, with `isFree`
+  kept as a getter; `costLine` names the trait that freed it. One
+  construction site, not `@Serializable`, so no save changes shape.
+- `owned()` frees the first Native, both-forms purchase in the dead set.
+  Multilingual's arm requires common and this one mystical, so the two
+  cannot meet and the order between them changes nothing.
+- RED: four failures (the census set, two costs, the cost line), each for
+  the missing branch, compiled against the constants alone.
+- The guide said a DLF holder should not buy the language here; it now
+  says the first dead one bought at Native is free. `RitualDialog`'s KDoc
+  said DLF grants a language the bought list cannot see; it is bought now.
+- The picker's note said *"The points are billed"* under a free line,
+  Multilingual's included, since 6er. It says *"The price above is what
+  the budget bills"*, true at 0.
+
+### Review and device
+
+Sonnet, `kotlin-reviewer.md`, on `cb2737e..1cd6697`: SHIP. One LOW taken:
+Language Talent held beside both freeing traits had no cost assertion; it
+has one (`0, 0, 15`). One LOW not taken: the dead set is hard-coded, and
+is meant to be, since it is a ruling.
+
+**Device pass, SM-T570**, backup `sessions-6hh-bak.json`, Apothecary seeded
+with the trait alone. The picker printed *"Ancient Hermes, Native — free
+with Dead Language Fluency (30 listed)"*; bought, the budget stayed at
+110 of 105 (the trait's 5 alone), and the purchase survived a restart
+still free. Reinstalled, the note read the new sentence. No FATAL; the save
+restored and `cmp`-identical.
+
+2120 Kotlin (1398 `core:rules`, 701 `app`, 21 `core:model`) from deleted
+results with `--rerun-tasks`; `ast-grep scan` clean. Python not touched.
+
+**Next.** Nothing is queued. The four rows above were queried. 6gx's
+other claim about this app, *"this app holds one sheet"* (nine rows), was
+not, and neither were its verdicts that rest on the book.
+
 ## 6hg. Reckless's -1, the sixth declared all-rolls state
 
 Owner question 4 (6he): *"-1 to any roll where caution would be smarter"*

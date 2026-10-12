@@ -186,6 +186,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6hc** — the Damage dialog summed the stun recovery target by hand; it calls `StunRecovery.targetFor`, which 6gs had left two terms short; 979 functions censused for callers;
 **6hb** — the Fright dialog gated Combat Reflexes' +6 itself; `FrightCheck.recoveryBonus` is its one copy now;
 **6ha** — no code: a comment-and-literal sweep 6gz could not see; fifteen stale comments and one guide sentence went;
 **6gz** — an untrained weapon's parry is refused on the two formula cells, not "a gap"; eight stale comment claims about this app went;
@@ -233,10 +234,9 @@ slice log.** One line each:
 **6ez** — Knows the Acting Method doubles the digestion ranges the tracker prints for a holder; the note asks `doublesActingGains`, not whether two tables differ;
 **6ey** — a master's weapon parries at DX: `SkillDefaults.wieldedAt` floors the skill, and Attack, Defend and the builder all print it; the Pugilist was invisible to a keyword;
 **6ex** — a Reluctant Killer's target is the GM's to declare (-4, or -2 with the face hidden); "cannot Aim" is unconditional, and the Attack roll takes the general trait term;
-**6ew** — a self-control row's other clauses were unsaid; `ROLLED_ONLY` says the roll alone is applied, and `catalogueName` had cut `SC 6` to `SC` as if 6 were a level;
-**6ev back to 6de** have one-line digests too, moved verbatim to
+**6ew back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
-its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg).
+its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh).
 
 **6dd back to 6cd had lead paragraphs here and they have been cut, because
 this file keeps reaching the 150 k-char limit (6eb: 152,583; 6eh cut 6dd to
@@ -255,7 +255,12 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6hg first**
+**Where to start next: the slice log, from the END — 6hh first**
+(Dead Language Fluency frees the first of Ancient Hermes or Ancient
+Feysac bought at Native in both forms, on the owner's ruling; 6gx's
+"a choice the save would have to store" was false for it, as the
+language purchase is that choice, and Threshold Blindness stays refused
+on its real reason; seen on the SM-T570). Then 6hg
 (Reckless's "-1 to any roll where caution would be smarter" is a sixth
 declared all-rolls chip, on the owner's ruling; Entity Fixation's -2
 stays refused; seen on the SM-T570; all ten owner questions are now
@@ -272,12 +277,7 @@ seen on the SM-T570). Then 6hd
 (the device pass 6gz, 6hb and 6hc owed, on the SM-T570: all four seen as
 built; the Defend dialog printed the unarmed cell's notes under the
 untrained-armed refusal, where they read as its explanation, and they
-sit under the bare-hand row now; the save restored byte for byte). Then 6hc
-(6cf's caller census re-run over both trees: 979 functions, 68 with no
-production reference, each category given its verdict; the Damage dialog
-had summed the stun recovery target by hand since its first commit, and
-6gs had taught that sum two terms the tested `StunRecovery.targetFor`
-never got; it takes them now, required, and no number moved). The chain
+sit under the bare-hand row now; the save restored byte for byte). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -334,9 +334,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2117 Kotlin** (JUnit 5 — 1395 `core:rules`, 701 `app`, 21 `core:model`, counted in 6hg) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2120 Kotlin** (JUnit 5 — 1398 `core:rules`, 701 `app`, 21 `core:model`, counted in 6hh) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hg (SHIP; 6hg after its commit); nothing is owed |
+| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hh (SHIP; 6hg and 6hh after their commits); nothing is owed |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
