@@ -6822,6 +6822,27 @@ Academic Researcher, Light Sleeper bought in the builder (9 spare to 7):
 No FATAL in logcat. **Not driven on the device:** the chip on a Per skill's
 roll. This premade trains none, and the rules test is its proof.
 
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on `git diff 149e085..e58fe57 -- core app`:
+SHIP, two LOWs and an INFO. It read the code and ran nothing. It found the
+clause counted once, the breakdown agreeing with the target in all four
+branches, `isPerRoll` agreeing with `attributeFor`, and no caller that
+misses the clause or takes it twice.
+
+- LOW, taken: my insertion had landed between `visionClause` and its KDoc,
+  leaving the function undocumented. The block now sits above that KDoc.
+- INFO, taken: the Spirit Vision exclusion was worded as if the book ruled
+  it. The KDoc now calls it this app's reading. Its case against: Alertness
+  does reach Spirit Vision, and a GM could rule a sleeping Beyonder a
+  Per roll of that kind.
+- LOW, not taken: the test's `assertNull(visionClause(held))` does not
+  guard the dialog's wiring, since `visionClause` filters on Acute Vision
+  by name. Nothing tests `SheetDialogs`' call, and the device pass did not
+  open Spirit Vision. Unguarded.
+
+After the KDoc move `TraitClausesTest` was re-run alone, green.
+
 ## 6gt. The PCR takes no carried state, on the book's sentence
 
 6gs excluded the Potion Consumption Roll from the declared states with the

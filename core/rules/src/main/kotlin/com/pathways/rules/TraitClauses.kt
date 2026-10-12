@@ -502,22 +502,14 @@ object TraitClauses {
     }
 
     /**
-     * Acute Vision's clause, for Spirit Vision's Perception-based roll (book
-     * 4840), which is a sight by its own name: the GM declares whether the
-     * eye's acuity reaches it. Hearing is never offered there. Null for a
-     * character who does not hold it. Acute Vision alone, because the potion
-     * rows above it (Greater, Incisive) are Demoness's and Visionary's, and
-     * neither pathway is granted Spirit Vision; Red Priest 8 is, and holds
-     * Sequence 9's Acute Vision (6fi).
-     */
-    /**
      * "Perception rolls while sleeping at +4" (Light Sleeper, book 906; 6gu).
      * A Per roll under a circumstance the GM declares, so it is offered where
      * Alertness's "all Per rolls" lands on a roll made TO the character:
-     * every Per skill, and Detection's Per branch. Spirit Vision is left out:
-     * it is the holder's own act and costs SPI to open, so no sleeper makes
-     * it. The roll the cell most plainly means, a bare Per roll to wake, is
-     * one this app does not make.
+     * every Per skill, and Detection's Per branch. Spirit Vision is left out
+     * as this app's reading, not a ruling the book prints: it is the holder's
+     * own act and costs SPI to open, so no sleeper makes it. The roll the
+     * cell most plainly means, a bare Per roll to wake, is one this app does
+     * not make.
      */
     private val PER_ROLL_CLAUSES: List<TraitClause> = listOf(
         TraitClause(
@@ -533,6 +525,15 @@ object TraitClauses {
             .map { it.copy(shown = displayName(owned.name)) }
     }
 
+    /**
+     * Acute Vision's clause, for Spirit Vision's Perception-based roll (book
+     * 4840), which is a sight by its own name: the GM declares whether the
+     * eye's acuity reaches it. Hearing is never offered there. Null for a
+     * character who does not hold it. Acute Vision alone, because the potion
+     * rows above it (Greater, Incisive) are Demoness's and Visionary's, and
+     * neither pathway is granted Spirit Vision; Red Priest 8 is, and holds
+     * Sequence 9's Acute Vision (6fi).
+     */
     fun visionClause(traits: List<Trait>): TraitClause? =
         senseClauses(traits).firstOrNull { it.trait == ACUTE_VISION }
 
