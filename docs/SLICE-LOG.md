@@ -6787,6 +6787,40 @@ above a 640 dp fold. That is an estimate from the layout: no phone was
 run. Ritual's Cast was pinned because it sat below the fold, and Drink
 never did.
 
+### The two leftovers 6gh named, closed without code
+
+- **6gb's LOW: a stale push tap that outlived *Another turn* and a fresh
+  Roll.** It cannot happen, and the reason is layout, not timing. A tap
+  is dispatched against the layout on screen when it arrives. In the
+  Attack dialog, the push chips are drawn in the
+  `outcomes.isNotEmpty()` branch. Roll is drawn in the plan branch.
+  *Another turn* also clears `picked`, which leaves a third screen, the
+  skill list, between them. A stale chip's tap is therefore dispatched
+  before any Roll exists. If it lands in the same frame as *Another
+  turn*, it reads the state that handler has just written, because
+  snapshot state is live to the next handler and not to the next frame.
+  So one of the two guards returns (`AttackDialog.kt:285-286`): `burned
+  != drawn` if the old picture had pushes, or else
+  `outcomes.getOrNull(index)` reading null. For the stale tap to come after a fresh Roll,
+  input would have to arrive out of order. The skill dialog never clears
+  `out`: it rolls once per opening (`RollDialog.kt:150`), so the case
+  does not exist there. Refused. **The claim expires** if the push chips
+  and a Roll are ever drawn in one branch.
+
+  The reachable half was driven on the SM-T570. Church Healer's
+  Fast-Draw (Revolver) failed *13 vs 11* with its FP row offered. One
+  monkey script then tapped *Another turn* and *+1*. The *+1* fell on
+  Wrestling's row in the new skill list, yet no skill was picked, so the
+  tap reached the old picture's chip. `fpLost` stayed 0 and logcat was
+  clean. Save restored, `cmp`-identical.
+- **`ModifierSource.Potion`'s label has no test (6ge).** No production
+  code builds that source, because a potion's grants are folded into
+  the character rather than applied as modifiers (section 6, *Character
+  stays purchased-only*). The branch exists because `label()` is an
+  exhaustive `when` over a sealed type. A test would pin wording no
+  screen can print. Left alone. **This expires** the first time anything
+  constructs a `Potion` source; give it a test in that commit.
+
 No code changed.
 
 ## 6gp. The six roll dialogs 6gn did not draw
