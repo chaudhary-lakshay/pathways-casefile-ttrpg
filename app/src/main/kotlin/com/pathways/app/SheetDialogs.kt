@@ -198,8 +198,8 @@ internal fun SheetDialogs(
             spiAvailable = vitals.maxSpi - session.spiSpent,
             conditionalBurnNote = EffortBurn.conditionalScope(skill.key),
             // Chapter 8's gear that names this exact skill, printed as the
-            // book prints it. Not a chip: nothing here records what the
-            // character owns, so the screen cannot assert possession, and
+            // book prints it. Not a chip: the save records weapons carried
+            // and no other gear, so the screen cannot assert possession, and
             // two of these rows would stack into a bonus the book never
             // grants. Rules decides which rows the sentence names.
             equipment = Equipment.referenceFor(skill.key),

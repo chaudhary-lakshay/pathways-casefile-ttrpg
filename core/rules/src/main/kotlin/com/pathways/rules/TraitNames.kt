@@ -181,9 +181,10 @@ object TraitNames {
      * 6bv refused both on the grounds that "the sheet added a qualifier the
      * book never asked for, so the only evidence is resemblance". That
      * sentence is simply false for these two, and checking a sweep's own
-     * excuse is 6bf's lesson. The nine spellings whose reason still holds --
-     * five Sense of Duty, two Secret, Paranoia, Blacklisted -- hang off cells
-     * that enumerate nothing, and a test pins them still unmatched.
+     * excuse is 6bf's lesson. The four spellings whose reason still holds --
+     * two Secret, Paranoia, Blacklisted -- hang off cells that enumerate
+     * nothing, and a test pins them still unmatched. Five Sense of Duty were
+     * counted with them until [quotedInstanceRow] found their evidence.
      *
      * The qualifier must PREFIX exactly one option, because the sheet writes
      * "Criminal" where the book writes "Criminal Record". Naming none, or
@@ -227,7 +228,9 @@ object TraitNames {
      * printing a bracket.** That is what keeps it out of 4.1's territory: the
      * qualifiers 6am refused -- "Paranoia: Bodies of water", "Shyness (Mild)",
      * "Social Stigma (Criminal)", "Sense of Duty (Patients)" -- hang off rows
-     * whose names print no placeholder at all, and they stay unmatched.
+     * whose names print no placeholder at all, and this join leaves them
+     * unmatched. [variantRow] and [quotedInstanceRow] reach the last three,
+     * each on evidence of its own; the first matches nothing still.
      *
      * The trailing bracket is the instance, so a row name that carries its own
      * ("Pathway Resonance (Hostile)") cannot be mistaken for a head.

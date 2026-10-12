@@ -166,9 +166,10 @@ internal fun DiveControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
  * note needs, and asking `incoming` a second time is how one rule becomes two
  * disagreeing copies (6ag, 6ai, 6be).
  *
- * The "1 melee attack per round" limit is SAID and not enforced, the split
- * [DiveControl] takes on the turn spent standing up: this screen keeps no
- * round, and the parry stepper below is the GM's for the same reason.
+ * WHICH melee attack is the one is SAID and not decided, the split
+ * [DiveControl] takes on the turn spent standing up: [RoundState] holds the
+ * chip and **New round** clears it (6cp), but this screen sees no attack to
+ * count, and the parry stepper below is the GM's for the same reason.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -414,8 +415,9 @@ internal fun RefusalPicker(
  * How many parries this character has already made this round.
  *
  * A stepper rather than a counter the app increments, because nothing here
- * knows a round has passed -- the same reason a Fright Check and a Major
- * Wound's HT roll are buttons the GM presses (6c, 6n). The penalty is shown
+ * sees a parry made -- the same reason a Fright Check and a Major Wound's HT
+ * roll are buttons the GM presses (6c, 6n). **New round** zeroes it with the
+ * rest of [RoundState] (6cp). The penalty is shown
  * beside it so the number on the rows above can be reconciled.
  */
 @Composable

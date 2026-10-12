@@ -504,8 +504,8 @@ object ActiveDefenses {
      * 6be).
      *
      * Combat Reflexes deliberately does NOT cancel the stun: its own clause is
-     * "+6 to recover from stun", which is the recovery roll this app does not
-     * model (6bf), not the penalty while stunned.
+     * "+6 to recover from stun", which is the recovery roll ([StunRecovery],
+     * where it is applied), not the penalty while stunned.
      *
      * [Shock] is the third thing that moves every row, and it comes from the
      * OTHER half of the same table: a Major Wound's HT roll stuns on a failure

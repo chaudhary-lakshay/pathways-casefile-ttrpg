@@ -290,10 +290,12 @@ object PurchasableTraits {
      *  - a row whose cell enumerates variants takes the variant -- "Shyness
      *    (Mild)" -- likewise already resolved, and the variant names the cost;
      *  - **anything else composes the BOOK'S OWN bare name**, keeping the
-     *    instance for display alone. "Sense of Duty (Patients)" resolves to
+     *    instance for display alone. "Secret (Courier network)" resolves to
      *    nothing in this app -- a recorded gap, not a refusal -- so composing
      *    it would hand the engine an identity it cannot match, and the trait
-     *    would silently do nothing.
+     *    would silently do nothing. (The example here was "Sense of Duty
+     *    (Patients)", which [TraitNames.catalogueName] has resolved since a
+     *    sheet was found quoting that row's cell.)
      *
      * That third rule is why a caller must never key a duplicate check, an
      * edit, or a delete on the composed name: two "Sense of Duty" purchases

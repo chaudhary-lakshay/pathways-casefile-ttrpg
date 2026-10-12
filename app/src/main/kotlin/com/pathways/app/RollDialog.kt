@@ -68,8 +68,8 @@ internal fun RollDialog(
     // engine cannot test for itself. Shown, never applied.
     conditionalBurnNote: String? = null,
     // Chapter 8's equipment rows whose printed note names this skill in a
-    // signed clause. Reference, never a modifier: this app records no
-    // possession, the table prices two disguise kits that would stack, and
+    // signed clause. Reference, never a modifier: this app records no gear
+    // owned but weapons, the table prices two disguise kits that would stack, and
     // one of its penalties is aimed at whoever is looking FOR the wearer.
     // Shown for the same reason the conditional push above is shown.
     equipment: List<String> = emptyList(),

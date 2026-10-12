@@ -325,10 +325,11 @@ object TraitEffects {
      * **Only unconditional rows are here.** Five cells say "social skill
      * rolls" and three of them qualify it -- Callous "when warmth or empathy
      * is required", Shyness "depending on severity and audience", Social
-     * Anxiety "in groups of 6+" -- which are circumstances a GM declares and
-     * this app has no control for. Applying them at their printed value would
-     * charge a penalty nobody declared, on three premades that own a social
-     * skill; they are [UNAPPLIED] with the reason instead.
+     * Anxiety "in groups of 6+" -- which are circumstances a GM declares.
+     * Applying them at their printed value would charge a penalty nobody
+     * declared, on three premades that own a social skill; they are chips on
+     * the skill roll instead ([TraitClauses.skillRollClauses]). This said
+     * "this app has no control for" them and filed them as unapplied.
      *
      * **The bare phrase "social rolls" is a different thing and reaches
      * nothing.** Line 6522 prints "(-1 to all emotional reaction rolls and

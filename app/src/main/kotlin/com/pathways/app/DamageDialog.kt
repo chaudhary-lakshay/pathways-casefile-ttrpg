@@ -118,8 +118,8 @@ fun DamageDialog(
      * `Shock` refuses `RollKind.MAJOR_WOUND_HT` because that roll is what
      * CREATES the shock. Reeling and fatigue are not created by it -- the
      * character carried them in -- so the exclusion is about WHEN and does not
-     * transfer, and "-1 to all rolls" reaches the only bare HT roll this app
-     * makes.
+     * transfer, and "-1 to all rolls" reaches this bare HT roll as it does the
+     * other four (consciousness, survival, stun recovery, a day's recovery).
      *
      * **It is live, and the tap order cannot make it wrong.** The value is
      * re-read from the trackers on every recomposition, so the obvious worry
