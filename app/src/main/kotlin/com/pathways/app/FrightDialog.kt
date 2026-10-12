@@ -41,7 +41,6 @@ import com.pathways.rules.FrightOutcome
 import com.pathways.rules.SuccessRoll
 import com.pathways.rules.Shock
 import com.pathways.rules.TraitClause
-import com.pathways.rules.StunRecovery
 import com.pathways.rules.ClauseBonus
 import com.pathways.rules.TraitClauses
 import com.pathways.rules.content.FrightRecovery
@@ -84,14 +83,12 @@ internal fun FrightDialog(
      */
     willOnlyClauses: List<TraitClause> = emptyList(),
     /**
-     * Combat Reflexes' "+6 to recover from stun", already resolved.
-     *
-     * Whether it APPLIES is still the rules' call, not this screen's:
-     * [StunRecovery.isStun] is asked of the row's own state where the panel is
-     * drawn, so row 12's Retching, Ecstasy and Dazed get nothing.
-     * [FrightCheck.recoveryBonus] composes the same two and no screen calls it.
+     * What the character's traits add to a recovery roll:
+     * [FrightCheck.recoveryBonus], which gives Combat Reflexes' "+6 to recover
+     * from stun" to a row that stuns and nothing to row 12's Retching, Ecstasy
+     * and Dazed. Asked of the rules per row; this screen decides neither half.
      */
-    stunRecoveryBonus: Int = 0,
+    recoveryBonus: (FrightRecovery) -> Int = { 0 },
     shock: Int = 0,
     /** Reeling and fatigue: "-1 to all rolls", the phrase shock is read by. */
     hurt: Int = 0,
@@ -141,7 +138,7 @@ internal fun FrightDialog(
                             // same fact decides which clause list can reach
                             // the roll.
                             attributeLevel = FrightCheck.levelFor(out, will, iq),
-                            bonus = if (StunRecovery.isStun(out)) stunRecoveryBonus else 0,
+                            bonus = recoveryBonus(out),
                             clauseBonus = if (FrightCheck.takesWillClauses(out)) {
                                 TraitClauses.clauseBonus(willOnlyClauses, declared)
                             } else {

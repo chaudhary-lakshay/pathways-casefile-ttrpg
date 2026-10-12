@@ -79,9 +79,8 @@ object StunRecovery {
      *
      * Two clauses reach it and they are different rules. Combat Reflexes says
      * "to recover from stun", which names the condition and not the attribute,
-     * so it reaches a Will or IQ recovery roll too: the Fright dialog hands a
-     * stun's recovery [TraitAttributeRolls.stunRecoveryBonus], gated on
-     * [isStun]. [TraitAttributeRolls.htRollBonus] is "all HT
+     * so it reaches a Will or IQ recovery roll too, through
+     * [FrightCheck.recoveryBonus]. [TraitAttributeRolls.htRollBonus] is "all HT
      * rolls", which this one is.
      *
      * `High Pain Threshold` is NOT among them. Its "+3 on HT rolls to avoid

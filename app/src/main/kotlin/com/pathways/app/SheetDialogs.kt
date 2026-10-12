@@ -17,6 +17,7 @@ import com.pathways.rules.Conditions
 import com.pathways.rules.Divination
 import com.pathways.rules.EffortBurn
 import com.pathways.rules.Equipment
+import com.pathways.rules.FrightCheck
 import com.pathways.rules.Languages
 import com.pathways.rules.Pool
 import com.pathways.rules.PoolStatus
@@ -271,7 +272,7 @@ internal fun SheetDialogs(
             // rows that name one reach it and the ones scoped to the Fright
             // Check do not — that check is over by then.
             willOnlyClauses = willClauses,
-            stunRecoveryBonus = TraitAttributeRolls.stunRecoveryBonus(traits),
+            recoveryBonus = { FrightCheck.recoveryBonus(it, traits) },
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,
             states = states,
