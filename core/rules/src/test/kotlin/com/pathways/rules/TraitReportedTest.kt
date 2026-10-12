@@ -549,6 +549,30 @@ class TraitReportedTest {
     }
 
     /**
+     * **Anchored Soul is not the mirror of Incorruptible Will (6gw).** Its
+     * "-2 against you" is on the attempt. Every "against you" the book prints
+     * with a number is the other party's side: "All divination attempts
+     * against you are at -2" (3855), "Ranged attacks against you suffer -4 to
+     * hit" (8252), "their abilities against you at +1" (1460). Where the
+     * holder is the one who rolls ("The target rolls Will-6 to resist", 8529;
+     * a potion drawback's self-control roll, which is the cell's "pathway
+     * side effects") no line turns the -2 into a +2 on that roll. A reason
+     * naming the other party alone would be false of that half, so the
+     * refusal says both.
+     */
+    @Test
+    fun `Anchored Soul is refused whole, on the attempt and on the holder's own roll`() {
+        val cell = ContentLoader.advantages().first { it.name == "Anchored Soul" }.notes
+        assertTrue(cell.endsWith("are at -2 against you."), cell)
+        val note = TraitReport.reported(listOf(advantage("Anchored Soul"))).single()
+        assertEquals(cell, note.printed)
+        assertTrue("other party's roll" in note.reason, note.reason)
+        assertTrue("self-control roll" in note.reason, note.reason)
+        // Refused whole, so not also offered as a chip on a Will roll.
+        assertTrue("Anchored Soul" !in TraitClauses.willClauseNames())
+    }
+
+    /**
      * **A held trait no collection names said nothing at all.** `reported`
      * answered only for [TraitEffects.known], so 65 of the 99 advantages --
      * `Legal Enforcement Powers` on three premades among them -- printed

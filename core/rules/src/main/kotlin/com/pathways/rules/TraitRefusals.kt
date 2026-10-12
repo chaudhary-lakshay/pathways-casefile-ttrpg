@@ -364,6 +364,19 @@ internal object TraitRefusals {
         // lists (563-564, 7645), which differ; "relevant" names no industry.
         "Voice" to PURPOSE_NOT_SKILL,
         "Industrial Expertise" to PURPOSE_NOT_SKILL,
+        // Not the mirror of Incorruptible Will's +3 (6gw). Every "against
+        // you" the book prints with a number is the other party's side (3855,
+        // 8252, 1460), and a divination against the holder is refused the same
+        // way under "Goddess of Evernight". The second half is the one a reason about the other
+        // party alone would miss: most attempts on a mind have the TARGET
+        // roll (8529), and "pathway side effects" are a potion's drawbacks
+        // (5448), one of which this app rolls self-control for.
+        "Anchored Soul" to
+            "the -2 is on the attempt, the other party's roll, and this app " +
+            "holds one sheet; where the holder is the one who rolls (\"The " +
+            "target rolls Will-6 to resist\", a potion drawback's self-control " +
+            "roll) the book prints no rule turning it into a bonus on that " +
+            "roll, so that is the GM's call",
         // Said beside the CoR stepper too ([TraitReport.corruptionNotes]). "Passive
         // exposure" occurs once in the book, and Soul Debt -- a hit taken on
         // SPI among its routes -- is charged automatically, so no charge is called
