@@ -415,12 +415,14 @@ object ActiveDefenses {
      * hands [dive], since "melee" and "not ranged" are one fact, and two
      * spellings of one fact at two sites is the defect (6cn).
      *
-     * **The "per round" half is not enforced, and here that is a decision
-     * rather than an omission.** p. 36's "Each can be used once per round"
-     * governs all three free actions from a paragraph this app does not
-     * extract, and this screen keeps no round: the parry stepper is a number
-     * the GM sets and a paid boost never clears either. A latch on this one
-     * control would claim a boundary the other two cannot honour.
+     * **The "per round" half is the dialog's, not this function's.** p. 36's
+     * "Each can be used once per round" governs all three free actions from
+     * a paragraph no content file claims. This said "this screen keeps no
+     * round", and a latch on one control would have claimed a boundary the
+     * others could not honour; the Defend dialog's `RoundState` holds all
+     * three beside the parry count and a paid boost, and **New round** clears
+     * them together (6cp). Which melee attack the bonus is spent against is
+     * still the GM's.
      *
      * **One attack, five rows, and that is the dialog's own shape.** The bonus
      * is spent against a single attack, while this screen "reports what every

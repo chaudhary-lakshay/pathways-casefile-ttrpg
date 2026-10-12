@@ -436,7 +436,7 @@ internal object TraitRefusals {
             "regenerate is healing over time, which needs a clock",
         "Eternal Blazing Sun" to
             "the 1d6 falls on someone else each round, and this app holds " +
-            "neither a second sheet nor a round",
+            "one sheet",
         "God of Steam & Machinery" to
             "identification and negated curses print no number to apply",
         RAPID_RECOVERY to "both halves are durations, and this app holds no clock",

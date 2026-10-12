@@ -526,6 +526,20 @@ class TraitReportedTest {
     }
 
     /**
+     * The Defend dialog has kept a round since 6cp (`RoundState`, **New
+     * round**), and 6eq found the Retreat note denying it. Eternal Blazing
+     * Sun's refusal said the same in a string 6eq's table never reached.
+     * The blessings are in neither catalogue, so this reads the registries.
+     */
+    @Test
+    fun `no refusal says this app keeps no round`() {
+        val reasons = TraitRefusals.UNAPPLIED.toList() +
+            TraitRefusals.PARTLY_APPLIED.flatMap { (trait, clauses) -> clauses.map { trait to it.second } }
+        val stale = reasons.filter { Regex("\\b(no|nor a|without a) rounds?\\b").containsMatchIn(it.second) }.map { it.first }
+        assertEquals(emptyList<String>(), stale, "the Defend dialog keeps one")
+    }
+
+    /**
      * 6eq reworded that clause to "the Skills tab has no row for a level a
      * trait grants ... a gap, not a ruling". The row exists now (6gy), so
      * the note is gone, and the guard reads both objects: a note may return
