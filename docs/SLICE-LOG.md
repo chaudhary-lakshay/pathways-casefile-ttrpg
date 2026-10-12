@@ -6858,10 +6858,17 @@ ran nothing.
 
 ### No device pass
 
-**The debug build is not on the tablet.** `pm list packages` on the AIM-75
-shows no `com.pathways.app`, and `run-as` answers *"unknown package"*.
-Nothing was installed and nothing was restored; the newest backup is
-still 6gy's. `assembleDebug` built. Unverified on a device: that the
+**The SM-T570 was not attached.** The one device `adb devices` listed
+was the AIM-75 (`22JUL32E02785`), the other project's monitor, which has
+never held `com.pathways.app`. I read its model, its focused window and
+its package list, sent it no input and installed nothing.
+
+**I first recorded that the debug build was gone from the tablet**, on
+`run-as: unknown package`, and committed it (`148b3cd`). The memory note
+that tells the two devices apart by serial corrected it: the SM-T570 is
+`R52TA076AEZ`. A wrong device reads exactly like an uninstall.
+
+The newest backup is still 6gy's. `assembleDebug` built. Unverified on a device: that the
 Defend dialog draws the note, and the Attack line's new string.
 
 ### Seen and not built
@@ -6881,9 +6888,6 @@ Defend dialog draws the note, and the Attack line's new string.
    the two cells.
 8. God of Combat's attributes, above.
 9. Hanged Man 9's choice, above.
-
-Question 3 has changed shape: the debug build is gone from the tablet, so
-it is now whether to put it back.
 
 **The sweep to run next is the one 6eq's query cannot.** It drops comment
 lines, and the stale Retreat KDoc was one. The same pattern over comment

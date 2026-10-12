@@ -258,8 +258,8 @@ its 8,000-character cap (6ev).
 (the Defend note called an untrained weapon's parry "a gap here and not a
 ruling" where 6ev had refused it; it gives the ruling now, from the two
 formula cells, after a design review asked for the case against; two stale
-"keeps no round" claims went; the debug build is gone from the tablet, so
-no device pass; nine owner questions). Then 6gy
+"keeps no round" claims went; the SM-T570 was not attached, so no device
+pass; nine owner questions). Then 6gy
 (Medical Training's "Use Physician at IQ-2" was a gap in 6eq and the
 untrained list has offered a holder IQ-6 since 6et; it gives IQ-2 now,
 with no Versatile +1, a reading and a sixth owner question; found by
