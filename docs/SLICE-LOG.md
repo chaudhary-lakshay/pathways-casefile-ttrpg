@@ -6726,6 +6726,149 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gw. Anchored Soul, refused on the book's own idiom
+
+6gv's queue, in its order: the handover trim, the Anchored Soul reading, the
+owed device checks. The two owner questions are still open, and this slice
+adds a third.
+
+### The trim (`84d806e`)
+
+`CLAUDE.md` was at 78,184 of 80,000 characters and its digest index at
+8,045 of 8,000, already over. The leads for 6gp back to 6gb and the chain's
+6gq link moved to `docs/READING-ORDER.md`, each asserted a substring of the
+file it went to; fourteen digests replaced them; 6en back to 6dy left the
+index for the same file. 71,259 after, index 7,625. Three things changed
+beside the cut:
+
+- **The chain is capped at five links.** A slice that adds one retires the
+  oldest to a digest, its sentence to `READING-ORDER.md` first. That is the
+  retention rule's own number, and it stops the growth 6gv named.
+- **One paragraph keeps what the retired leads carried that a new screen
+  needs**: no text walls, the pinned footer, a control drawn from the start,
+  the AlertDialog text slot, a target resolved while drawn, Attack's line
+  read by id, the census scanned from the repo root.
+- `wc -m` read 78,433 where Python's decoded count read 78,184. The rule
+  counts decoded characters; count with Python.
+
+### The reading
+
+The cell (book 1008-1009): *"All attempts to alter your mental identity —
+possession, compulsion, pathway side effects — are at -2 against you."*
+6gv left two readings: the mirror of Incorruptible Will's *"+3 to all Will
+rolls to resist ... ritual compulsion"*, a declared +2 on the holder's Will
+roll, or another party's roll.
+
+**The book's idiom settles the side.** The query is `against you` over
+`build/extract/book.txt`, kept where the line prints a number: *"All
+divination attempts against you are at -2"* (3855), *"All divination against
+you is at -4"* (3863), *"Ranged attacks against you suffer -4 to hit"*
+(8252), *"their abilities against you at +1"* (1460), *"penalty to
+Dream/Illusion rolls against you increases to -3"* (6701), *"charm rolls
+against you are at -2"* (9450), and beside them the Barbarian's *"mind
+control and fear-based effects against them suffer -4"* (7033). Every one
+is on the other party's attempt, and the app already models one that way:
+`AntiDivination` puts 3855's -2 on the diviner.
+
+**No line converts it.** Most attempts on a mind give the only roll to the
+target: *"The target rolls Will-6 to resist"* (8527, 8529), *"Target rolls
+Will at -3 each turn"* (8083), *"must roll Will -2 or be charmed"* (8381).
+A few are Quick Contests (8187, *"Judge's SPI vs. target's Will"*), where
+the -2 lands on the Judge. For the first shape the mirror gives the only
+effect the cell could have, and that is an argument about the cell, not a
+sentence in it: the bar Official Beyonder was refused on (6es), and 4.1's.
+6gr took a reading, but one that kept the printed sign and the printed
+roller. The mirror changes both.
+
+**"Pathway side effects" is the half a reason about the other party would
+have been false of** (the advisor's point, before any code). Lines 5438
+and 5448 call a potion's drawbacks its side effects, and this app rolls
+self-control for one: Abyss 8's *Compulsive Behavior (Indulge Evil Desires)
+SC 6* (`TraitGrantsTest`, *checksFor ... Compulsive Behavior*). That clause
+has no other party at all. So the reason says both halves.
+
+### What changed (`8d70221`)
+
+One `TraitRefusals.UNAPPLIED` entry. The row said `TraitReport.UNREAD`; it
+says: *"the -2 is on the attempt, the other party's roll, and this app
+holds one sheet; where the holder is the one who rolls ("The target rolls
+Will-6 to resist", a potion drawback's self-control roll) the book prints
+no rule turning it into a bonus on that roll, so that is the GM's call"*.
+No roll changed.
+
+`UNREAD`'s KDoc argues against a reason per row, because a claim about this
+app rots (6eq). This one is taken anyway: it is the one unread row with a
+competing reading a holder's table will reach for, and all but six words of
+it are a claim about the book. Low-Profile Build and Pathway Resonance
+(Hostile), the other two rows 6gv filed under *someone else's roll*, have
+no second reading and keep `UNREAD`.
+
+| Test | Watched failing against |
+|---|---|
+| Anchored Soul is refused whole, on the attempt and on the holder's own roll | no entry: *its price aside, this app applies nothing this row prints ... ==> expected: <true> but was: <false>*, `e:` count 0, from deleted results |
+
+Its last assertion, that Anchored Soul is not a Will clause, passed from
+the start, as a guard does.
+
+2090 Kotlin (1379 `core:rules`, 691 `app`, 20 `core:model`), 0 failures,
+after `--rerun-tasks` from deleted results, counted from the XML.
+`ast-grep scan` is clean. 366 Python, run after the docs were written;
+nothing under `tools/` changed.
+
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on the uncommitted `git diff -- core`: SHIP,
+LOWs only. It read the code and the book and ran nothing. Asked for the
+strongest case against the refusal, it gave the mirror's: the cell's three
+targets match Incorruptible Will's, and a -2 on an attacker is symmetric
+with a +2 on a defender. It found no line that makes the conversion and
+grepped for other phrasings. Two LOWs taken: the comment said *"refused the
+same way below"* and now names the Goddess of Evernight entry, and a
+sentence in the test's KDoc was untangled. One claim it could not verify,
+that the app rolls self-control for a granted drawback, I checked against
+`TraitGrantsTest` line 120.
+
+### Device pass
+
+SM-T570, this build. Seeded as a NEW key, Hunter-Tracker, beside the
+save's eight entries, so no entry of the owner's was overwritten (6ev's
+cost): a mortal at -10 of 10 HP with Light Sleeper, Perceptual Splitting
+and Anchored Soul.
+
+- **This slice.** Traits: Anchored Soul, *10 pts*, tag *GM call*; open, the
+  cell and the reason above, whole.
+- **Owed from 6gu.** Tracking (Per): *"3d6 ≤ 11"*; the chip *"Light
+  Sleeper: Perception rolls while sleeping at +4"* lit gives *"3d6 ≤ 15"*
+  and *"Outdoorsman, Light Sleeper: +5"*; rolled, *"3d6: 13 vs 15"*.
+- **Owed from 6gv.** Vitals with Perceptual Splitting lit: all three HT
+  rows read *"HT 9, -1 hurt or tired, Perceptual Splitting -2"* and *"Roll
+  HT 6"*; rolled, *"3d6: 8 vs 6 - failure"* at 0 HP and *"3d6: 10 vs 6 -
+  failure"*, *"Nothing is restored for this day."* Damage at 6: *"Roll HT
+  6"*, *"includes Perceptual Splitting -2"*, *"3d6: 9 vs 6"*, then *"Roll
+  HT 6 to recover now"*, *"3d6: 10 vs 6"*, *"Still stunned"*.
+
+No FATAL in logcat. The save went back `cmp`-identical to the backup taken
+first (`~/pathways-device-backups/sessions-2026-10-12-6gw.json`, itself
+identical to 6gv's), and the tablet was left on its launcher. **The write
+that worked:** `adb push` to `/data/local/tmp`, then `run-as com.pathways.app
+cp` into `files/`. The `sh -c 'cat > ...'` shape is the one the harness
+refused twice.
+
+A line holding a `"` is in the screenshot and missing from the helper's
+dump, as the memory note says: the reason was read from the screencap.
+
+**Next.** Three questions for the owner, none blocking:
+
+1. Should Anchored Soul be offered as a declared +2 on the holder's Will
+   roll after all? It is one `willClause` row, and the reading is the
+   owner's to make, not the book's.
+2. Is Light Sleeper offered on Spirit Vision (6gu's review: Alertness
+   reaches it)?
+3. Does the debug build stay on the SM-T570?
+
+Nothing else is queued. The unread rows that print a signed number were
+triaged in 6gv; the next slice needs a new sweep or the owner's call.
+
 ## 6gv. Perceptual Splitting, on the rolls the book calls physical
 
 6gu listed 25 unread rows that print a signed number and triaged three.

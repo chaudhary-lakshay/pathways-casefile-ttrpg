@@ -183,9 +183,10 @@ chip handler first. Attack's tracker line is read off the ledger by id,
 never as a remainder. Scan the click-handler census from the repo root:
 the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 
-**6gq back to 6de had lead paragraphs here until 2026-10-12. Each is in
+**6gr back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6gr** — Tobacco and Guilt's "-1 to Will" read as a Will-roll clause, a reading recorded as one; Bound to a Place refused, a count of weeks;
 **6gq** — no code: every restyled charge handler kept its second-tap guard, double-tapped beside a mutant RED; the pinned Drink button refused, as it sits above the fold;
 **6gp** — six more roll dialogs take the approved components, `RollFooter` and `VerdictCard` new; three keep their own verdict, each for a rule;
 **6gn** — the redesign: nine Stitch components over Wada #269, one a commit; Ritual's Cast sat off the tablet's screen, and Stitch's inventions were listed and none copied;
@@ -252,8 +253,12 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6gv first**
-(Perceptual Splitting's -2 declared on the sheet and scoped to the rolls
+**Where to start next: the slice log, from the END — 6gw first**
+(Anchored Soul refused with its reason: every "against you" the book
+prints is the other party's attempt, and no line turns the -2 into a bonus
+where the holder rolls, so it is not Incorruptible Will's mirror; this
+file trimmed to 71k and this chain capped; three owner questions open).
+Then 6gv (Perceptual Splitting's -2 declared on the sheet and scoped to the rolls
 line 390 calls physical: `physicalStates` beside `states`, and the ledger
 asks `EffortBurn.isPhysical`; the signed unread rows are all triaged, and
 none is a slice without a stored choice or a new roll). Then 6gu (Light
@@ -266,9 +271,7 @@ digestion ... matters", and no row names the roll). Then 6gs (five
 roll shock reaches and the Major Wound HT roll too; Phobia's and Soul
 Scar's refusals expired; shock now reaches the Vitals tab's HT rolls;
 Attack takes the states among its own terms, since its tracker line is
-read off the ledger by id). Then 6gr (Tobacco
-and Guilt's "-1 to Will" read as a Will-roll clause, a reading recorded as
-one; Bound to a Place refused, a count of weeks). The chain
+read off the ledger by id). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -325,7 +328,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2089 Kotlin** (JUnit 5 — 1378 `core:rules`, 691 `app`, 20 `core:model`) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2090 Kotlin** (JUnit 5 — 1379 `core:rules`, 691 `app`, 20 `core:model`) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, and then `123d68c..4e9ab4e`, the file splits (SHIP, no findings); nothing is owed |
 | Branch | everything on `master`; working tree clean |

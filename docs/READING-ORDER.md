@@ -195,6 +195,10 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6gr (Tobacco
+and Guilt's "-1 to Will" read as a Will-roll clause, a reading recorded as
+one; Bound to a Place refused, a count of weeks).
+
 Then 6gq (no code:
 every restyled charge handler kept its second-tap guard, double-tapped on
 the device beside a mutant RED; the pinned Drink button refused, as it sits above the fold).
