@@ -256,8 +256,8 @@ its 8,000-character cap (6ev).
 **Where to start next: the slice log, from the END — 6gy first**
 (Medical Training's "Use Physician at IQ-2" was a gap in 6eq and the
 untrained list has offered a holder IQ-6 since 6et; it gives IQ-2 now,
-with no Versatile +1, a reading; found by re-reading 6eq's verdicts
-against what was built since). Then 6gx (no code: the unread census run over both halves, 114 rows outside
+with no Versatile +1, a reading and a sixth owner question; found by
+re-reading 6eq's verdicts against what was built since). Then 6gx (no code: the unread census run over both halves, 114 rows outside
 `known()`, 31 signed and 83 not; 6gu's count had missed nine self-control
 rows, eight of which roll the offset they print; Reckless's "-1 to any
 roll" not built, as Entity Fixation's sibling clause is refused; five
@@ -327,7 +327,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2094 Kotlin** (JUnit 5 — 1383 `core:rules`, 691 `app`, 20 `core:model`) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2095 Kotlin** (JUnit 5 — 1384 `core:rules`, 691 `app`, 20 `core:model`) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, and then `123d68c..4e9ab4e`, the file splits (SHIP, no findings); nothing is owed |
 | Branch | everything on `master`; working tree clean |

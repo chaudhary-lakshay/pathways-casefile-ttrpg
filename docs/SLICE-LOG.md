@@ -6833,11 +6833,38 @@ No FATAL in logcat. The save went back `cmp`-identical to the backup
 (`~/pathways-device-backups/sessions-2026-10-12-6gy.json`, itself
 identical to 6gw's), and the tablet was left on its launcher.
 
-**Next.** The five owner questions in 6gx stand. The method that found
-this slice is the one to repeat: re-read 6eq's remaining verdicts and
-every *"a gap, not a ruling"* in production source against what has been
-built since, starting with 6eq's *"The First Aid and Physician rows are
-printed in the guide and nowhere in the app"*.
+### After the commit: two things the slice owed in the same breath
+
+The advisor's, both taken (`git log -1 --grep "who has the skill"`).
+
+- **A reason expires in the commit that ships the roll** (6ba), and this
+  one had expired at 6et. `NaturalRecovery.UNMODELLED` said of First Aid
+  and of Physician *"a skill roll the sheet offers to a character who has
+  the skill"*; the untrained list offers both to one who does not, and a
+  Medical Training holder now rolls Physician at IQ-2. Both read *"from
+  Skills or from the untrained list"*, and the guide's sentence with them.
+  The test reads the list: *no skill row says only its owner is offered
+  the roll*, watched failing with *expected: <[]> but was: <[First Aid,
+  Physician]>*. The rest of each reason holds: *"skill 12+"*, the day, the
+  wound and the equipment are the GM's.
+- **Medical Training is in `known()` by its own line.** `grantedBy` is a
+  reader by name, and deleting the `PARTLY_APPLIED` entry left the row
+  covered through its First Aid bonus alone, the second-route cover
+  `known()`'s KDoc already records three times. No test: a union cannot
+  show which member supplied a name, and a first draft of one was vacuous.
+
+2095 Kotlin (1384 `core:rules`, 691 `app`, 20 `core:model`), 0 failures,
+after `--rerun-tasks` from deleted results. `ast-grep scan` is clean. The
+device build predates these edits, which change two strings on the Vitals
+tab and nothing a roll reads.
+
+**Next.** The five owner questions in 6gx stand, and this slice adds a
+sixth: does Versatile's +1 reach Medical Training's Physician? Today it
+does not.
+
+The method that found this slice is the one to repeat: re-read 6eq's
+remaining verdicts and every *"a gap, not a ruling"* in production source
+against what has been built since.
 
 ## 6gx. The unread census, both of its blind sides, and nothing to build
 

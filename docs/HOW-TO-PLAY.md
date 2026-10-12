@@ -501,8 +501,8 @@ Edits are saved per character and survive a restart.
   failure, whether that point still comes is the GM's call, and the line
   says so. **Another day** clears it for the next one. The Healing
   advantage and Regeneration are not offered. First Aid and Physician are
-  skills, rolled from **Skills** like any other by a character who has them,
-  and the app restores no HP for either. The book's rows are *"First Aid: 1
+  skills, rolled from **Skills** like any other, or untrained from the list
+  at its foot, and the app restores no HP for either. The book's rows are *"First Aid: 1
   HP + stops bleeding; 1 minute; once per wound"* and *"Physician (skill 12+):
   1 HP (2 HP on critical success); per day of bed rest; requires equipment"*.
   Add the HP with **+1**; the rest is yours to count.
