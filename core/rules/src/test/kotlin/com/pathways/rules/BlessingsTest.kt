@@ -91,14 +91,15 @@ class BlessingsTest {
      *
      * A blessing whose cell reaches nothing and says nothing is worse than one
      * the app never offered: the sheet then shows the cell as understood
-     * (6bf). Six of the seven land here.
+     * (6bf). Five of the seven land here; God of Knowledge's category bonus
+     * and God of Combat's attributes (6hf) are applied.
      */
     @Test
-    fun `six blessings are reported with a reason and the seventh is applied`() {
+    fun `five blessings are reported with a reason and two are applied`() {
         val deities = ContentLoader.blessings().map { it.deity }
         assertEquals(7, deities.size)
 
-        val applied = TraitEffects.categoryBonusNames()
+        val applied = TraitEffects.categoryBonusNames() + Blessings.attributeGainTable().keys
         val reported = TraitEffects.unappliedNames()
         for (deity in deities) {
             assertTrue(
@@ -107,7 +108,7 @@ class BlessingsTest {
             )
             assertFalse(deity in applied && deity in reported, "$deity is applied and disclaimed")
         }
-        assertEquals(1, deities.count { it in applied })
+        assertEquals(2, deities.count { it in applied })
 
         // The reasons are real text, and each is reachable from a sheet.
         for (deity in deities.filter { it in reported }) {
@@ -119,27 +120,15 @@ class BlessingsTest {
     }
 
     /**
-     * **God of Combat's refusal is about this app's shape, not the book's
-     * silence, and says so.**
-     *
-     * The number is printed, real, and unambiguous. What is missing is that a
-     * granted attribute is never written into a billable field (M3) and no
-     * trait re-derives one -- only a potion does. A reason claiming the book
-     * prints nothing would be the fresh excuse 6bo caught one commit from
-     * shipping.
+     * **God of Combat raises the attributes, never a roll's modifier.** Its
+     * refusal named the plumbing until 6hf built it: the +3 enters the
+     * played base ([Blessings.played]), so a modifier on top would count it
+     * twice (6ai's screen-disagrees-with-itself defect, the other way round).
      */
     @Test
-    fun `the God of Combat names the plumbing rather than a missing rule`() {
+    fun `the God of Combat reaches the attributes and no modifier`() {
         val held = listOf(blessing(TraitEffects.GOD_OF_COMBAT))
-        val note = TraitReport.reported(held).single()
-        assertTrue(note.printed.contains("+3 ST, +3 DX, +3 HT"), "the cell is quoted whole")
-        assertTrue(
-            note.reason.contains("attribute"),
-            "the reason has to name what is missing: ${note.reason}",
-        )
-        // And the modifier path really does leave it alone, on every attribute
-        // the cell names -- a report beside a live bonus would be the
-        // screen-disagrees-with-itself defect (6ai).
+        assertTrue(TraitReport.reported(held).isEmpty())
         for (attr in listOf(Attr.ST, Attr.DX, Attr.HT)) {
             assertTrue(
                 TraitEffects.modifiers(

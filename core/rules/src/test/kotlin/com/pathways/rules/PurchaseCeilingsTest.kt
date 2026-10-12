@@ -25,10 +25,10 @@ class PurchaseCeilingsTest {
     private fun atCeilings() = Character(
         name = "ceilings",
         attributes = Attributes(
-            st = PurchaseCeilings.attribute(Attr.ST),
-            dx = PurchaseCeilings.attribute(Attr.DX),
-            iq = PurchaseCeilings.attribute(Attr.IQ),
-            ht = PurchaseCeilings.attribute(Attr.HT),
+            st = PurchaseCeilings.attribute(Attr.ST, emptyList()),
+            dx = PurchaseCeilings.attribute(Attr.DX, emptyList()),
+            iq = PurchaseCeilings.attribute(Attr.IQ, emptyList()),
+            ht = PurchaseCeilings.attribute(Attr.HT, emptyList()),
         ),
         secondaryDelta = ContentLoader.secondaryCosts().fold(SecondaryDelta()) { d, row ->
             SecondaryCharacteristics.withSteps(d, row.key, PurchaseCeilings.secondarySteps(row.key))
@@ -57,7 +57,7 @@ class PurchaseCeilingsTest {
         // Per and Basic Move +2 at most. No potion grants HP or FP.
         assertEquals(
             mapOf(Attr.ST to 19, Attr.DX to 26, Attr.IQ to 26, Attr.HT to 25),
-            Attr.entries.associateWith(PurchaseCeilings::attribute),
+            Attr.entries.associateWith { PurchaseCeilings.attribute(it, emptyList()) },
         )
         assertEquals(
             mapOf("hp" to 100, "fp" to 100, "will" to 98, "per" to 98, "basicSpeed" to 96, "basicMove" to 98),
@@ -104,7 +104,7 @@ class PurchaseCeilingsTest {
         for (sheet in Premades.all()) {
             val a = sheet.toCharacter().attributes
             for (attr in Attr.entries) {
-                assertTrue(a[attr] <= PurchaseCeilings.attribute(attr), "${sheet.name} prints $attr ${a[attr]}")
+                assertTrue(a[attr] <= PurchaseCeilings.attribute(attr, emptyList()), "${sheet.name} prints $attr ${a[attr]}")
             }
         }
     }

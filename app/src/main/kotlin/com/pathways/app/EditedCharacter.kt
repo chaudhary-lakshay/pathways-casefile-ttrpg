@@ -81,19 +81,20 @@ fun Character.digestedWith(state: BeyonderState?): DigestedCharacter? =
  * prints them.
  */
 fun Character.attributesWith(state: BeyonderState?): Attributes =
-    digestedWith(state)?.effectiveAttributes ?: attributes
+    Derive.attributes(this, digestedWith(state))
 
 /** The secondaries as played, by the same rule as [attributesWith]. */
 fun Character.secondariesWith(state: BeyonderState?): Secondaries =
     digestedWith(state)?.secondaries ?: Derive.of(this).secondaries
 
 /**
- * What the builder prints under a number a potion moved: the builder steps,
- * prices and floors the BOUGHT score, and shows the played one. Null when
- * the two agree, which is every mortal and every row no potion touched.
+ * What the builder prints under a number a potion or a blessing moved: the
+ * builder steps, prices and floors the BOUGHT score, and shows the played
+ * one. Null when the two agree. "Bought", not "before potions", because God
+ * of Combat moves a mortal's numbers too (6hf).
  */
-fun beforePotions(bought: String, played: String): String? =
-    if (bought == played) null else "$bought $BEFORE_POTIONS"
+fun boughtNote(bought: String, played: String): String? =
+    if (bought == played) null else "$bought bought"
 
 /** Also the label on a Beyonder's skill rows, which stay on bought levels. */
 const val BEFORE_POTIONS = "before potions"
@@ -140,7 +141,9 @@ fun SavedEdits.corCeilingOn(sheet: PremadeSheet, state: BeyonderState?): Int {
  * because lowering ST lowers HP.
  */
 fun SavedEdits.withinCeilings(): SavedEdits {
-    fun Int?.held(attr: Attr) = this?.coerceIn(BASE_ATTRIBUTE, PurchaseCeilings.attribute(attr))
+    // The blessings among the bought names are every blessing a character
+    // can hold: no premade prints one (BlessingAttributesTest).
+    fun Int?.held(attr: Attr) = this?.coerceIn(BASE_ATTRIBUTE, PurchaseCeilings.attribute(attr, traits))
     return copy(
         st = st.held(Attr.ST),
         dx = dx.held(Attr.DX),

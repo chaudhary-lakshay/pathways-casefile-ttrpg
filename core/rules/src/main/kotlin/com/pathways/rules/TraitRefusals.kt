@@ -407,23 +407,9 @@ internal object TraitRefusals {
         // with the same scope; the sheet prints drawbacks whole, so it needs
         // no entry to be visible.
         IRON_JAW to "this app rolls no knockdown for a hit location, and no bite",
-        // The six Orthodox blessings that reach nothing. The seventh, the God
-        // of Knowledge, is applied by CATEGORY_BONUSES.
-        //
-        // God of Combat's number is real, and it is refused for THIS APP's
-        // plumbing, so it says so exactly. M3's rule is that a granted
-        // attribute is never written into attributes/secondaryDelta/skills,
-        // because PointBudget bills those --
-        // only the CHOICE is stored and every gain re-derives from it. A
-        // blessing is a stored choice, so the same route would work; what does
-        // not exist is a trait ever taking it, since a potion is the only
-        // thing in this codebase that grants an attribute (6al). Naming that
-        // is the honest version: the number is real and the plumbing is
-        // missing, which is not the same as the book printing nothing.
-        GOD_OF_COMBAT to
-            "a potion is the only thing here that grants an attribute — a " +
-            "granted attribute is never written into a billable field, and no " +
-            "trait re-derives one yet",
+        // The five Orthodox blessings that reach nothing. The God of Knowledge
+        // is applied by CATEGORY_BONUSES, and the God of Combat's +3 ST/DX/HT
+        // by [Blessings.played], as a played gain the budget never bills (6hf).
         "Goddess of Evernight" to
             "\"most divination\" prints no number, and being divined against " +
             "is the other party's roll — this app holds one sheet",

@@ -21,8 +21,13 @@ import com.pathways.rules.content.ContentLoader
 object PurchaseCeilings {
     private val reach by lazy { PotionDigestion.largestGrants(ContentLoader.pathways()) }
 
-    /** ST 19, DX 26, IQ 26, HT 25 against today's catalogue. */
-    fun attribute(attr: Attr): Int = MAX_ATTRIBUTE - (reach.attributes[attr] ?: 0)
+    /**
+     * ST 19, DX 26, IQ 26, HT 25 against today's catalogue, less what the
+     * blessings named in [held] add ([Blessings], 6hf): ST 16, DX 23, HT 22
+     * for God of Combat. Required, so no caller forgets the blessing.
+     */
+    fun attribute(attr: Attr, held: Collection<String>): Int =
+        MAX_ATTRIBUTE - (reach.attributes[attr] ?: 0) - Blessings.gainTo(attr, held)
 
     /** The steps of the book's secondary row [key]; 100 for a row no potion raises. */
     fun secondarySteps(key: String): Int =

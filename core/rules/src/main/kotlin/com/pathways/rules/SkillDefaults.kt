@@ -381,7 +381,7 @@ object SkillDefaults {
      */
     fun offeredTo(character: Character): List<Untrained> {
         val walked = PotionDigestion.of(character, ContentLoader.pathways())
-        val attributes = walked?.effectiveAttributes ?: character.attributes
+        val attributes = Derive.attributes(character, walked)
         val secondaries = walked?.secondaries ?: Derive.of(character).secondaries
         val spi = walked?.effectiveSpi ?: character.spi
         return offered(

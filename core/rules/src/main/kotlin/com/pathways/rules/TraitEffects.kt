@@ -665,7 +665,8 @@ object TraitEffects {
      */
     fun known(): Set<String> =
         UNAPPLIED.keys + PARTLY_APPLIED.keys + SKILL_BONUSES.keys +
-            CATEGORY_BONUSES.keys + frightClauseNames() + socialClauseNames() +
+            CATEGORY_BONUSES.keys + Blessings.attributeGainTable().keys +
+            frightClauseNames() + socialClauseNames() +
             attackClauseNames() +
             willClauseNames() + concentrationClauseNames() + skillClauseNames() +
             allRollsClauseNames() + TraitClauses.physicalRollsClauseNames() +

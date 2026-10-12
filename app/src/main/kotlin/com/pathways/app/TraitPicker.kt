@@ -149,6 +149,8 @@ internal fun TraitsRow(
 internal fun TraitPicker(
     held: List<Trait>,
     bought: List<String>,
+    /** Why a row may not be bought now, beyond being held (God of Combat's ceilings, 6hf), or null. */
+    refusalFor: (String) -> String?,
     onBuy: (PurchasableTrait) -> Unit,
     onSettle: (InstantiableTrait) -> Unit,
     onDismiss: () -> Unit,
@@ -214,11 +216,15 @@ internal fun TraitPicker(
                         // Refused rather than offered and then rejected: a
                         // second copy bills its points and changes nothing,
                         // and a chip that cannot be taken is not a choice.
-                        val already = !PurchasableTraits.canBuy(row, held) || row.name in bought
+                        val blocked = if (!PurchasableTraits.canBuy(row, held) || row.name in bought) {
+                            ALREADY_HELD
+                        } else {
+                            refusalFor(row.name)
+                        }
                         val key = "$heading/${row.name}"
                         PickerRow(
                             name = row.name,
-                            already = already,
+                            blocked = blocked,
                             price = (if (row.advantage) row.cost else -row.cost).pointsLabel(),
                             notes = row.notes,
                             expanded = open == key,
@@ -252,7 +258,7 @@ internal fun TraitPicker(
                     val key = "instance/${row.name}"
                     PickerRow(
                         name = row.name,
-                        already = already,
+                        blocked = if (already) ALREADY_HELD else null,
                         price = if (row.variants.isNotEmpty()) {
                             row.variants.joinToString(" / ") { (name, points) ->
                                 "$name ${if (row.advantage) points else -points}"
@@ -286,6 +292,9 @@ internal fun TraitPicker(
     )
 }
 
+/** What a held row says in place of its Buy button. */
+private const val ALREADY_HELD = "already held"
+
 /**
  * One row of the picker: its name and price, and its book text behind a tap.
  *
@@ -293,13 +302,14 @@ internal fun TraitPicker(
  * paying for it, the way the Traits tab's roll chip is never the row's tap
  * (6gl). [action] labels the button that buys, or opens the instance
  * dialog, and it shows only on an open row a character can still take;
- * "already held" stays on the closed row, the only line saying why it
- * cannot be taken.
+ * [blocked] stays on the closed row, the only line saying why it cannot be
+ * taken: "already held", or a refusal such as God of Combat's ceilings.
  */
 @Composable
 private fun PickerRow(
     name: String,
-    already: Boolean,
+    /** Why the row cannot be taken, printed after its name; null when it can. */
+    blocked: String?,
     price: String,
     notes: String,
     expanded: Boolean,
@@ -316,9 +326,9 @@ private fun PickerRow(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                name + if (already) " — already held" else "",
+                name + (blocked?.let { " — $it" } ?: ""),
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (already) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onSurface,
+                color = if (blocked != null) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
             )
             Text(
@@ -334,7 +344,7 @@ private fun PickerRow(
         }
         if (expanded) {
             Text(notes, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp))
-            if (!already) {
+            if (blocked == null) {
                 FilledTonalButton(onClick = onAction, modifier = Modifier.padding(top = 6.dp)) {
                     Text(action)
                 }

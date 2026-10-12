@@ -667,10 +667,10 @@ class EditedCharacterTest {
     }
 
     @Test
-    fun `a number a potion moved is printed beside the one that was bought`() {
-        assertEquals("9 before potions", beforePotions(bought = "9", played = "11"))
-        assertEquals("10 before potions", beforePotions(bought = "10", played = "9"))
-        assertNull(beforePotions(bought = "4.50", played = "4.50"), "nothing moved: nothing to explain")
+    fun `a number a potion or blessing moved is printed beside the one that was bought`() {
+        assertEquals("9 bought", boughtNote(bought = "9", played = "11"))
+        assertEquals("10 bought", boughtNote(bought = "10", played = "9"))
+        assertNull(boughtNote(bought = "4.50", played = "4.50"), "nothing moved: nothing to explain")
     }
 
     // ---- languages ---------------------------------------------------------

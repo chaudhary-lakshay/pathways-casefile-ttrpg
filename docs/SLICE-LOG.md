@@ -6801,6 +6801,97 @@ purchase at ST 17; `known()` holds it; `attributesWith` for a mortal.
 **What this does not do.** The other six blessings' effects stay prose:
 none prints an attribute.
 
+### The design review, and what changed
+
+Sonnet, `kotlin-reviewer.md`, asked for the strongest case against on
+three questions: SOUND WITH CHANGES. Taken:
+
+- **HIGH: digestion rebuilds the base every block.**
+  `PotionDigestion.kt:206-210` is `character.attributes + grants` inside
+  the loop, so changing :198 alone dropped the blessing from the first
+  block on. One played-base `val`, read at :198, :200 and :206-210.
+- **The fallback census was short.** Beyond the four attribute fallbacks,
+  every mortal reader of `Derive.of(...).secondaries` and `.skillLevels`
+  (`EditedCharacter` :88, :113, :131; `MainActivity` :193; `SkillDefaults`
+  :385, :388) takes the played base, which `Derive.of` now gives them.
+- **MEDIUM: `SheetComparison` is the sheet against the book.** It reads
+  `Derive.of(sheet.toCharacter())`, and no fixture holds a blessing. A
+  test pins that no premade prints one, so the comparison cannot move.
+- **HIGH: `withinCeilings` clamps.** It takes no traits, so a holder's
+  ST 17 would be lowered silently. It reads the blessings among
+  `SavedEdits.traits`, which is every blessing a character can hold,
+  because no premade prints one (the same test). `buyTrait` gains
+  `canBuyTrait`: refused when the purchase would leave a bought score
+  above its lowered ceiling, and the picker says why. A save holding both
+  from before this slice is clamped on open by the existing repair; no
+  such save exists (none of the tablet backups names God of Combat).
+- Both the ceilings and the played base read one table, so bought +
+  gain + walk stays at or below 30.
+- Not a pseudo-potion: `PotionDigestion.of` is null for a mortal, and a
+  fake walk would make every screen treat a mortal as digested.
+
+### Built
+
+`Blessings` (the table, `gainTo`, `played`); `Derive.of` derives
+secondaries and skill levels from the played base and bills the bought
+one; `Derive.attributes(c, walked)` is the one fallback;
+`PotionDigestion.digest` reads one `base`; `PurchaseCeilings.attribute`
+takes the held names, required; `BeyonderSession.buyRefusal`, which the
+picker prints in place of the Buy button (*"bought ST 17 is above the 16
+a holder may buy; lower it first"*); `boughtNote` replaces
+`beforePotions`. God of Combat left `TraitRefusals` and joined `known()`
+through the table. **I overwrote the existing `BlessingsTest.kt` with a
+Write before reading it**; it was restored from `HEAD` before any run,
+and the new tests went into `BlessingAttributesTest`. Two of its tests
+pinned the refusal and were changed to the ruling.
+
+| Mutant | Caught by |
+|---|---|
+| digestion's loop rebuilds from `character.attributes` (the review's HIGH) | `a Beyonder holder takes the potion's grants on top` |
+| `Derive.of`'s secondaries from bought | `a mortal holder plays three higher` |
+| `withinCeilings` ignores the blessing | two `BlessingSessionTest` cases |
+| `Derive.attributes` falls back to bought | both mortal-holder tests |
+| `buyTrait` drops the refusal | `God of Combat is refused while ...` |
+
+2116 Kotlin (1394 `core:rules`, 701 `app`, 21 `core:model`), 0 failures,
+from deleted results; 366 Python; `ast-grep scan` clean.
+
+**Diff review.** Sonnet, `kotlin-reviewer.md`, on the working tree, three
+questions (faithful to the design; any throw or silent clamp; the
+picker): SHIP, four LOWs. Taken: the refusal says what to do. Not taken:
+the duplicated guard in `onBuy` is the second-tap pattern; `refusalFor`
+per row per recomposition is cheap; the long closed-row line wraps. It ran
+nothing.
+
+**Device pass, SM-T570**, backup `sessions-2026-10-12-6hf.json`
+(identical to 6he's), Underground Courier seeded with God of Combat
+bought, restored byte for byte after:
+
+- Gallery: *ST 12, DX 13, IQ 9, HT 12*, the sheet's 9/10/9/9 plus 3.
+- Vitals: *HP / 12*, *FP / 12*.
+- Traits: *God of Combat · 75 pts · **Applied***.
+- Builder: ST *"0 pts spent here — next level costs 10 — 9 bought"*, DX
+  *"... — 10 bought"*, HT *"... — 9 bought"*, IQ without one.
+
+Not seen: the refusal line in the picker (no seeded ST above 16).
+
+**Next.** Q4: Reckless's -1 as a sixth declared all-rolls chip.
+
+## 6he answers, continued: questions 1-6
+
+Asked 2026-10-12 after 6hf's design.
+
+| Q | Answer |
+|---|---|
+| 1, Anchored Soul / Pathway Resonance | **refused stays** |
+| 2, Light Sleeper on Spirit Vision | **stays off** |
+| 3, the debug build on the SM-T570 | **stays installed** |
+| 4, Reckless / Entity Fixation | **Reckless's -1 becomes a sixth declared all-rolls chip; Fixation stays refused** |
+| 5, Unlucky and Beckoning Luck | **keeps the reroll** |
+| 6, Versatile on Physician at IQ-2 | **no +1** |
+
+Only 4 and 8 change code.
+
 ## 6he. Four owner answers (2026-10-12)
 
 | Q | Answer |

@@ -334,7 +334,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2106 Kotlin** (JUnit 5 — 1388 `core:rules`, 697 `app`, 21 `core:model`, counted in 6he) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2116 Kotlin** (JUnit 5 — 1394 `core:rules`, 701 `app`, 21 `core:model`, counted in 6hf) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, and then `123d68c..4e9ab4e`, the file splits (SHIP, no findings); nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -516,7 +516,12 @@ ScoreFloors.MIN_POOL_MAX / .MIN_COR_CEILING / .MIN_PER   // the app's, not the
 ScoreFloors.MIN_MOVE / .MIN_SPEED_QUARTERS   // policy, not a guard: both 0,
                                       // and Move is measured after Speed (6en)
 ScoreFloors.shortfall(secondaries, traits) / .holdsCeiling(ceiling)
-PurchaseCeilings.attribute(attr) / .secondarySteps(key)   // the highest a
+Blessings.played(attributes, traits) / .gainTo(attr, held)   // God of
+                                      // Combat's +3 ST/DX/HT, played and never
+                                      // billed (6hf)
+Derive.attributes(c, walked)          // ST/DX/IQ/HT as played: the walk's,
+                                      // or the blessed purchase. The fallback
+PurchaseCeilings.attribute(attr, held) / .secondarySteps(key)   // the highest a
                                       // purchase may reach so every potion
                                       // fits on top: bound less the largest
                                       // walk, derived from the catalogue (6el)

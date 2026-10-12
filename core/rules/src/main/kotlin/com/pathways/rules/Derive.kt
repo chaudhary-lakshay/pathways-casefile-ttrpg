@@ -13,8 +13,13 @@ data class DerivedCharacter(
 
 /** The single public entry point of the engine. Pure: it never mutates its input. */
 object Derive {
+    /**
+     * The mortal's derivation: secondaries and skill levels from the PLAYED
+     * attributes ([Blessings.played], 6hf), the budget from the bought ones.
+     */
     fun of(c: Character): DerivedCharacter {
-        val secondaries = SecondaryCharacteristics.of(c.attributes, c.secondaryDelta)
+        val played = Blessings.played(c.attributes, c.traits)
+        val secondaries = SecondaryCharacteristics.of(played, c.secondaryDelta)
         return DerivedCharacter(
             secondaries = secondaries,
             budget = PointBudget.report(c.attributes, c.secondaryDelta, c.traits, c.skills),
@@ -22,11 +27,19 @@ object Derive {
                 s.key to SkillLadder.levelFor(
                     s.points,
                     s.key.difficulty,
-                    controllingLevel(s.key.attr, c.attributes, secondaries, c.spi),
+                    controllingLevel(s.key.attr, played, secondaries, c.spi),
                 )
             },
         )
     }
+
+    /**
+     * ST, DX, IQ and HT as played: [walked]'s, after any potion, or the
+     * blessed purchase for a mortal. The one answer every screen's fallback
+     * reads (6hf), so a blessing cannot reach one and miss the next.
+     */
+    fun attributes(c: Character, walked: DigestedCharacter?): Attributes =
+        walked?.effectiveAttributes ?: Blessings.played(c.attributes, c.traits)
 
     /**
      * Resolves a skill's controlling attribute to an actual level by reading

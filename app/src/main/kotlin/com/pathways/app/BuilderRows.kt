@@ -58,11 +58,11 @@ internal fun AttributeRow(
     level: Int,
     played: Int,
     startingLevel: Int,
+    /** Room left for every potion and blessing on top of what is bought (PurchaseCeilings). */
+    ceiling: Int,
     canLower: Boolean,
     onChange: (Int) -> Unit,
 ) {
-    // Room left for every potion on top of what is bought (PurchaseCeilings).
-    val ceiling = PurchaseCeilings.attribute(attr)
     Row(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -81,7 +81,7 @@ internal fun AttributeRow(
                     append("$spent pts spent here")
                     next?.let { append(" — next level costs $it") }
                     if (level != startingLevel) append(" — sheet prints $startingLevel")
-                    beforePotions("$level", "$played")?.let { append(" — $it") }
+                    boughtNote("$level", "$played")?.let { append(" — $it") }
                 },
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -137,7 +137,7 @@ internal fun SecondaryRow(
                 buildString {
                     append(row.cost)
                     if (steps != 0) append(" — ${steps.signed()} bought")
-                    beforePotions(boughtValue, value)?.let { append(" — $it") }
+                    boughtNote(boughtValue, value)?.let { append(" — $it") }
                 },
                 style = MaterialTheme.typography.bodySmall,
             )

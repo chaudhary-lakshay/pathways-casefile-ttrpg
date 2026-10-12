@@ -271,9 +271,26 @@ class BeyonderSession(
      * list is not a rules violation, the same call [buySkill] makes.
      */
     fun buyTrait(name: String) {
-        if (name in edits.traits) return
+        if (name in edits.traits || buyRefusal(name) != null) return
         edits = edits.copy(traits = edits.traits + name)
         persist()
+    }
+
+    /**
+     * Why [buyTrait] would refuse [name], or null. God of Combat lowers the
+     * ST, DX and HT a purchase may reach by its +3 (6hf), and a bought score
+     * already above that is refused here rather than clamped by
+     * [SavedEdits.withinCeilings] on the next edit: a purchase never lowers
+     * another one silently.
+     */
+    fun buyRefusal(name: String): String? {
+        val next = edits.copy(traits = edits.traits + name)
+        val held = next.withinCeilings()
+        val over = listOf(Attr.ST to (next.st to held.st), Attr.DX to (next.dx to held.dx), Attr.HT to (next.ht to held.ht))
+            .firstOrNull { (_, pair) -> pair.first != pair.second }
+            ?: return null
+        return "bought ${over.first} ${over.second.first} is above the ${over.second.second} a holder may buy; " +
+            "lower it first"
     }
 
     /**

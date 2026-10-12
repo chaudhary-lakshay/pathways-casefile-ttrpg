@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.pathways.model.Attr
 import com.pathways.model.SkillKey
 import com.pathways.rules.Derive
+import com.pathways.rules.PurchaseCeilings
 import com.pathways.rules.InstantiableTrait
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.SecondaryCharacteristics
@@ -162,8 +163,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                 AttributeRow(
                     attr = attr,
                     level = character.attributes[attr],
-                    played = played?.effectiveAttributes?.get(attr) ?: character.attributes[attr],
+                    played = Derive.attributes(character, played)[attr],
                     startingLevel = start.attributes[attr],
+                    ceiling = PurchaseCeilings.attribute(attr, session.edits.traits),
                     // A step the session would refuse: below a score floor (ScoreFloors).
                     canLower = session.canSetAttribute(attr, character.attributes[attr] - 1),
                     onChange = { delta ->
@@ -256,7 +258,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     // A master's weapon parries off a skill floored at DX as played,
                     // the same reading Defend applies (6ey).
                     mastery = session.state?.let { SkillDefaults.masteryFor(it.pathway, it.sequence) },
-                    dx = played?.effectiveAttributes?.get(Attr.DX) ?: character.attributes[Attr.DX],
+                    dx = Derive.attributes(character, played).dx,
                     onAdd = { pickingWeapon = true },
                     onRemove = { session.dropWeapon(it) },
                 )
@@ -386,7 +388,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
             // again (6fk's diff review).
             held = session.traitsInPlay(sheet),
             bought = session.edits.traits,
-            onBuy = { session.buyTrait(it.name); pickingTrait = false },
+            refusalFor = session::buyRefusal,
+            // A refused row draws no Buy button; the guard drops a stale tap.
+            onBuy = { if (session.buyRefusal(it.name) == null) session.buyTrait(it.name); pickingTrait = false },
             // The picker closes behind the settle dialog rather than stacking
             // two: a row priced by its instance is one choice made in two
             // steps, not two choices.

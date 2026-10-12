@@ -195,7 +195,10 @@ object PotionDigestion {
         val derived = Derive.of(character)
         var grants = PotionGrants()
         val superseded = mutableSetOf<SkillKey>()
-        var effectiveAttributes = character.attributes
+        // A blessing's attributes, then the potions on top (6hf): one base,
+        // read before the loop and inside it, which rebuilds every block.
+        val base = Blessings.played(character.attributes, character.traits)
+        var effectiveAttributes = base
         var effectiveSpi = character.spi
         var secondaries = SecondaryCharacteristics.of(effectiveAttributes, character.secondaryDelta)
 
@@ -204,10 +207,10 @@ object PotionDigestion {
             grants = grants.mergeStats(stats)
 
             effectiveAttributes = Attributes(
-                st = character.attributes.st + (grants.attributes[Attr.ST] ?: 0),
-                dx = character.attributes.dx + (grants.attributes[Attr.DX] ?: 0),
-                iq = character.attributes.iq + (grants.attributes[Attr.IQ] ?: 0),
-                ht = character.attributes.ht + (grants.attributes[Attr.HT] ?: 0),
+                st = base.st + (grants.attributes[Attr.ST] ?: 0),
+                dx = base.dx + (grants.attributes[Attr.DX] ?: 0),
+                iq = base.iq + (grants.attributes[Attr.IQ] ?: 0),
+                ht = base.ht + (grants.attributes[Attr.HT] ?: 0),
             )
             effectiveSpi = character.spi + grants.spi
             secondaries = SecondaryCharacteristics.of(
