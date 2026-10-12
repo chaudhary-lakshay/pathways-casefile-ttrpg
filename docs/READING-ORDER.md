@@ -195,6 +195,19 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hb
+(the Fright dialog gated Combat Reflexes' +6 itself, the body of
+`FrightCheck.recoveryBonus` written twice, and the tested copy had no
+caller; the predicate has one copy now, the tested one, and the call
+site's own mutant still survives; no number changed).
+
+Then 6ha
+(no code: the sweep 6gz named as its blind side, denials and counts in
+comments and literals that never say "this app", each block joined before
+matching; fifteen stale comments went, and the guide's "nothing here
+records what your character is carrying"; four hid behind an exclusion
+that trusted 6gz's reach; no device pass; ten owner questions).
+
 Then 6gz
 (the Defend note called an untrained weapon's parry "a gap here and not a
 ruling" where 6ev had refused it; it gives the ruling now, from the two
@@ -2371,12 +2384,13 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6eu back to 6de
+## Digest index, 6ev back to 6de
 
 Moved from the handover in 6ff, unchanged, when its digest index neared
 8,000 characters. 6ds and 6dr followed in 6gb, and 6dv back to 6dt in
-6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy; 6eq in 6ha; 6er in 6hb; 6es in 6hc; 6et in 6hd; 6eu in 6he.
+6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy; 6eq in 6ha; 6er in 6hb; 6es in 6hc; 6et in 6hd; 6eu in 6he; 6ev in 6hg.
 
+**6ev** — the bare-hand parry cell prints "Brawling or DX", so DX is a row of its own; the Acrobatic Dodge rolls its default, and Defend gained the missing trait term;
 **6eu** — the Attack dialog takes an untrained skill with a fist or weapon row; a Warrior's weapon is wielded at no less than DX, and one `levelWith` feeds the header, damage and roll;
 **6et** — the untrained roll: `defaultFor` had no caller since M0; a skill's own line (Brawling DX-2, Wrestling none) beats the table, and Versatile's +1 sits inside every default;
 **6es** — the complement of `known()`, listed: 148 rows nothing read; `UNREAD` says so, and the sheet lists every held advantage with its cell;

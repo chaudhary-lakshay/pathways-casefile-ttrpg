@@ -6726,6 +6726,38 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hg. Reckless's -1, the sixth declared all-rolls state
+
+Owner question 4 (6he): *"-1 to any roll where caution would be smarter"*
+joins the five chips 6gs declared on the Vitals tab; Entity Fixation's
+*"-2 to any roll that requires you to ignore them"* stays refused. One
+row in `TraitClauses.ALL_ROLLS_CLAUSES`; the chips, the ledger and every
+bare target already read that list.
+
+- The census filter reads *"to all rolls"*, so Reckless is added to its
+  expectation by name, on the ruling, and Entity Fixation's chip is pinned
+  to its -1 alone. The number pin takes *"any roll"* beside *"all rolls"*.
+- Reckless is in `known()` through the list, so it left the self-control
+  rows reported **Roll only**: 26 became 25. That test's quirk example
+  was Reckless and now takes any swept row.
+- RED: three failures in `AllRollsClausesTest` (*expected: <6> but was:
+  <5>*, the census, and the new case's empty list). The row removed
+  again: four red.
+
+2117 Kotlin, 0 failures, from deleted results; `ast-grep scan` clean.
+No reviewer: one data row in a list a reviewed slice built, whose
+consumers are unchanged.
+
+**Device pass, SM-T570**, backup `sessions-2026-10-12-6hg.json`
+(identical to 6hf's), Night Watchman seeded with Reckless bought,
+restored byte for byte after: the Vitals tab's *"Does any of this
+hold?"* lists *"Reckless: -1 to any roll where caution would be
+smarter"*, lit on a tap, *"Lit: on every roll it names until cleared
+here"*.
+
+**Next.** All ten owner questions are answered and built. Nothing in
+the slice log is queued.
+
 ## 6hf. God of Combat's +3 ST, +3 DX, +3 HT: the decomposition
 
 Owner question 8, answered *apply* in 6he, on condition of this section
