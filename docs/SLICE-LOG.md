@@ -6764,15 +6764,28 @@ was reset to full SPI:
 | Spirit Vision *Look* | 1 | 0 → 1 |
 
 Each one charged once and showed one verdict. `AndroidRuntime:E` logged
-nothing. Save restored, `cmp`-identical. This is a GREEN with no device
-RED beside it. The script is the one that reproduced 6ei's crash and 6gc's
-FATAL, so it does land two taps in one frame.
+nothing.
+
+**The RED beside them.** On its own, a GREEN cannot separate three cases:
+the guard dropped the second tap, monkey dropped it, or it landed a frame
+late on something harmless. So `RitualDialog.kt` was copied aside, and
+`outcome != null ||` was removed from Cast's guard. The mutant was then
+installed and the same script run at the same coordinate. *The ritual
+holds, 12 vs 15*, and `spiSpent` 0 → **4**: the fuel was charged twice.
+The file was restored from the copy and the real build reinstalled, so
+the tree is clean. Save restored, `cmp`-identical. The script does land
+two taps in one frame on these dialogs, so the four GREEN rows measure
+the guards.
 
 **The pinned Drink button, refused.** 6gn left it out as a restructure.
 The real reason is simpler. Drink is the second item of the pathway
 screen's list, under the Sequence tiles. On Academic Researcher's Seq 8
-it sat at y≈620 of 1920, with its roll line under it. Ritual's Cast was
-pinned because it sat below the fold, and Drink never did.
+it sat at 310 dp of a 960 dp screen (SM-T570, density 320), with its roll
+line under it. Above it there is only the 112 dp sigil row and the tile
+row. A phone's narrower tiles wrap taller, but the button stays well
+above a 640 dp fold. That is an estimate from the layout: no phone was
+run. Ritual's Cast was pinned because it sat below the fold, and Drink
+never did.
 
 No code changed.
 
