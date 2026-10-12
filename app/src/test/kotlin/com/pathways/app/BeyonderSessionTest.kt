@@ -73,6 +73,18 @@ class BeyonderSessionTest {
     }
 
     @Test
+    fun `a hurt drinker rolls the table's target and no carried state`() {
+        // p. 45: "Only the drinker's digestion of their current potion
+        // matters". Reeling's "-1 to all rolls" is general and that sentence
+        // is specific: a 12 against the 60% row's 12 integrates, where the
+        // same 12 against 11 would end the character.
+        val (s, _) = session(SavedSession(beyonder = fool9.digested(60), hpLost = 8))
+        val outcome = s.drink(fool8, fixed(4)) { 20 }!!
+        assertEquals(12, outcome.target)
+        assertTrue(outcome.integrated)
+    }
+
+    @Test
     fun `advancing before full digestion charges the book's floor`() {
         // p. 45: "Advancing sequence without full digestion: 10+ CoR".
         val (s, saved) = session(SavedSession(beyonder = fool9.digested(90)))

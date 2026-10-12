@@ -48,6 +48,17 @@ data class PcrOutcome(
  * digestion of their current potion matters" (p. 45). Nothing about the
  * character is an input beyond that percentage, which is why this takes a
  * [BeyonderState] and not a Character.
+ *
+ * **No carried state reaches it either, and that is the same sentence.**
+ * Reeling, FP below 0, shock and the five declared trait states each print
+ * "to all rolls" (6gs), and this roll takes none of them: "only ... matters"
+ * is the specific rule and "all rolls" the general one, the call
+ * [PcrOutcome.integrated] already makes for the critical rules. The table
+ * agrees: the 100% row is annotated "always succeeds", which Laudanum's -2
+ * would make false. A search of the catalogues and the pathway blocks for a
+ * modifier that NAMES this roll found one, the Beast Tamer's "+4 to rolls
+ * involving drinking potions", and it is for a tamed animal. A row that named
+ * a player's PCR would be specific too, and would be applied.
  */
 object PotionConsumption {
 

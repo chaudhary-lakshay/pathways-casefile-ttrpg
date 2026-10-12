@@ -17,6 +17,11 @@ import com.pathways.rules.content.MajorWound
  * feeds skill rolls, miss the four attribute rolls that compute their own
  * targets, and the gap looks like an oversight in a UI adapter rather than a
  * reading of the book (Codex, at design time).
+ *
+ * Two 3d6 rolls the app makes are deliberately no kind, so no state reaches
+ * them: the Potion Consumption Roll, on the book's own sentence (see
+ * [PotionConsumption]), and `Invocation.ask`, which is the entity's roll and
+ * not the character's.
  */
 enum class RollKind {
     /** Anything resolved through [SkillRoll] -- skills, attacks, rituals, divination, boons. */
