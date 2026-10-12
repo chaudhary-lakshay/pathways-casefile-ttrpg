@@ -30,16 +30,18 @@ object CharmedObject {
     /** The cell's other sentence, which this app cannot apply. */
     const val DESTROYED = "Lost permanently if the item is destroyed"
 
-    /** Where the chip is offered, and the rolls built on the skill that do not take it. */
+    /**
+     * The rolls built on the chosen skill that do not take the +1. Read
+     * after the sheet's "Not applied:", so it leads with what is not reached.
+     */
     const val REACH =
-        "applied only as a chip the table lights on a roll of this skill, " +
-            "from the Skills tab or in the Attack dialog; a parry, an " +
-            "Acrobatic Dodge, a ritual, a divination or a boon built on the " +
-            "skill does not take the +1 here"
+        "on a parry, an Acrobatic Dodge, a ritual, a divination or a boon " +
+            "built on the chosen skill. A roll of the skill from the Skills " +
+            "tab, and an attack with it, offer the +1 as a chip"
 
-    /** A row bought and not yet given its skill. */
+    /** A row bought and not yet given its skill: said of the whole cell. */
     const val UNCHOSEN =
-        "no skill is chosen for it, so no roll offers it: choose one in the builder"
+        "no skill is chosen for it, so no roll offers its +1: choose one in the builder"
 
     private const val NO_ITEMS =
         "this app tracks no item to destroy; give the row back in the builder"
@@ -72,9 +74,13 @@ object CharmedObject {
             .map { TEMPLATE.copy(shown = it.name) }
     }
 
-    /** What the sheet says of a held row, chosen or not. */
-    internal fun notes(shown: String, printed: String): List<TraitNote> = listOf(
-        TraitNote(shown, CLAUSE, if (skillOf(printed) == null) UNCHOSEN else REACH),
-        TraitNote(shown, DESTROYED, NO_ITEMS),
-    )
+    /**
+     * What the sheet says of a held row. With no skill chosen nothing of
+     * [cell] is applied, and one note on the whole cell says so, which is
+     * what [TraitReport.applied] reads as the table's.
+     */
+    internal fun notes(shown: String, printed: String, cell: String): List<TraitNote> {
+        if (skillOf(printed) == null) return listOf(TraitNote(shown, cell, UNCHOSEN))
+        return listOf(TraitNote(shown, CLAUSE, REACH), TraitNote(shown, DESTROYED, NO_ITEMS))
+    }
 }

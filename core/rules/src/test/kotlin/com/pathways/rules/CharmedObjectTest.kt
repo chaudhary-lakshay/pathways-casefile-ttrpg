@@ -99,10 +99,23 @@ class CharmedObjectTest {
         val chosen = TraitReport.reported(charmedPistol)
         assertEquals(listOf(CharmedObject.CLAUSE, CharmedObject.DESTROYED), chosen.map { it.printed })
         assertEquals(CharmedObject.REACH, chosen.first().reason)
-        val bare = TraitReport.reported(held("Charmed Object"))
-        assertEquals(listOf(CharmedObject.CLAUSE, CharmedObject.DESTROYED), bare.map { it.printed })
-        assertEquals(CharmedObject.UNCHOSEN, bare.first().reason)
+        // Read after the sheet's "Not applied:", so it names what is NOT reached.
+        assertTrue(CharmedObject.REACH.startsWith("on a parry"), CharmedObject.REACH)
+        assertEquals(TraitReport.Applied.PARTLY, tagOf(charmedPistol))
     }
+
+    /** Seen on the SM-T570: an unchosen row read "Partly applied" with nothing applied. */
+    @Test
+    fun `a charm with no skill chosen applies nothing, and its tag says so`() {
+        val cell = ContentLoader.advantages().single { it.name == CharmedObject.ROW }.notes
+        val bare = TraitReport.reported(held("Charmed Object")).single()
+        assertEquals(cell, bare.printed)
+        assertEquals(CharmedObject.UNCHOSEN, bare.reason)
+        assertEquals(TraitReport.Applied.GM, tagOf(held("Charmed Object")))
+    }
+
+    private fun tagOf(traits: List<Trait>) =
+        TraitReport.applied(TraitReport.held(traits, TraitKind.ADVANTAGE).single())
 
     @Test
     fun `the skill read back is the one stored`() {

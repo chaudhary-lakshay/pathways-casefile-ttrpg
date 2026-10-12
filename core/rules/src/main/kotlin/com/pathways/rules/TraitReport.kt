@@ -61,7 +61,7 @@ object TraitReport {
                 return@flatMap listOf(TraitNote(shown, printed, reason))
             }
             // The one row whose note depends on what its holder chose.
-            if (bare == CharmedObject.ROW) return@flatMap CharmedObject.notes(shown, owned.name)
+            if (bare == CharmedObject.ROW) return@flatMap CharmedObject.notes(shown, owned.name, printed)
             val whole = UNAPPLIED[bare]?.let { listOf(TraitNote(shown, printed, it)) }.orEmpty()
             // A trait can be applied and still have rules left over, so the
             // clauses are reported even though the trait itself is not.
