@@ -61,6 +61,19 @@ class CharmedSkillTest {
     }
 
     @Test
+    fun `a potion's skill can be charmed, as the Skills tab lists it`() {
+        // Seen on the SM-T570: a Fool 9's picker left out Ritualistic Magic.
+        fun names(state: com.pathways.model.BeyonderState?) = charmableSkills(mortal, state).map { it.name }
+        assertEquals(false, "Divination Arts" in names(null))
+        assertEquals(true, "Divination Arts" in names(fool9))
+        // A sheet's case is the roll's: the builder's line agrees with it.
+        assertEquals(
+            "Charms Guns (Pistol): +1 when used, lit on the roll.",
+            charmLine(chosen, listOf(pistol.copy(specialization = "pistol"))),
+        )
+    }
+
+    @Test
     fun `the choice is stored, switched, and survives the row being given back`() {
         val (s, saved) = session()
         s.buyTrait(CharmedObject.ROW)

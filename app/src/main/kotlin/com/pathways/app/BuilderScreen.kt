@@ -279,7 +279,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     onRemove = { session.sellTrait(it) },
                     canRemove = { session.canSellTrait(it) },
                     onRemoveInstanced = { index, drawn -> session.sellInstancedTrait(index, drawn) },
-                    charmLine = charmLine(session.edits.charmedSkill, liveSkillLevels(character).keys),
+                    charmLine = charmLine(session.edits.charmedSkill, charmableSkills(character, session.state)),
                     onChooseCharm = { pickingCharm = true },
                 )
                 HorizontalDivider()
@@ -387,7 +387,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
 
     if (pickingCharm) {
         CharmSkillPicker(
-            skills = liveSkillLevels(character).keys.sortedBy { it.label() },
+            skills = charmableSkills(character, session.state).sortedBy { it.label() },
             onPick = { session.setCharmedSkill(it); pickingCharm = false },
             onDismiss = { pickingCharm = false },
         )

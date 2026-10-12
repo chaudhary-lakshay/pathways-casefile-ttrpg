@@ -1,5 +1,7 @@
 package com.pathways.app
 
+import com.pathways.model.BeyonderState
+import com.pathways.model.Character
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.pathways.model.SkillKey
@@ -157,9 +159,16 @@ internal fun TraitsRow(
 internal fun charmLine(chosen: SavedCharmedSkill?, held: Collection<SkillKey>): String {
     if (chosen == null) return "No skill chosen: no roll offers its +1."
     val label = if (chosen.specialization == null) chosen.name else "${chosen.name} (${chosen.specialization})"
-    val has = held.any { it.name.equals(chosen.name, ignoreCase = true) && it.specialization == chosen.specialization }
+    val has = held.any { it.name.equals(chosen.name, ignoreCase = true) && it.specialization.equals(chosen.specialization, ignoreCase = true) }
     return if (has) "Charms $label: +1 when used, lit on the roll." else "Charms $label, which this character has no level in."
 }
+
+/**
+ * The skills a Charmed Object may name: every one [character] has a level in,
+ * a potion's grants included, as the sheet's Skills tab lists them.
+ */
+internal fun charmableSkills(character: Character, state: BeyonderState?): Set<SkillKey> =
+    liveSkillLevels(character.copy(beyonder = state)).keys
 
 /**
  * The character's own skills, one of which a Charmed Object names. Untrained
