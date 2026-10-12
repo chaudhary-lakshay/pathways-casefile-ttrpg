@@ -115,4 +115,21 @@ class NaturalRecoveryTest {
             NaturalRecovery.targetFor(10, emptyList(), -1, 0, shock = -4),
         )
     }
+
+    /**
+     * Both skill rows said the sheet offers the roll "to a character who has
+     * the skill". True when 6ep wrote it; 6et's untrained list offers both to
+     * a character who does not, and Medical Training's holder rolls
+     * Physician at IQ-2 (6gy). Read off the list, so the sentence may return
+     * only if the list stops offering them.
+     */
+    @Test
+    fun `no skill row says only its owner is offered the roll`() {
+        val untrained = SkillDefaults.offered(emptyMap(), { 10 }, 0, emptyList()).map { it.key.name }
+        val stale = NaturalRecovery.UNMODELLED
+            .filter { (row, reason) -> row in untrained && "who has the skill" in reason }
+            .keys
+        assertTrue("First Aid" in untrained && SkillDefaults.PHYSICIAN in untrained, untrained.toString())
+        assertEquals(emptySet<String>(), stale)
+    }
 }

@@ -692,7 +692,11 @@ object TraitEffects {
             // ([DarknessCause]), so neither has anything to report.
             setOf(NIGHT_EYES, Corruption.FORTITUDE) +
             // The seventh, from 6es's untriaged list: [actingGains] (6ez).
-            setOf(ACTING_METHOD)
+            setOf(ACTING_METHOD) +
+            // The eighth: [SkillDefaults.offered] reads it for Physician at
+            // IQ-2 (6gy). Its First Aid +1 already had it in [SKILL_BONUSES],
+            // the second-route cover this KDoc records against Outdoorsman.
+            setOf(SkillDefaults.MEDICAL_TRAINING)
 
     /** The traits reported whole, for the disjointness test. */
     fun unappliedNames(): Set<String> = UNAPPLIED.keys

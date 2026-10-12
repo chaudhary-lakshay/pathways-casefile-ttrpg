@@ -40,12 +40,12 @@ object NaturalRecovery {
     val UNMODELLED = mapOf(
         "First Aid" to
             "\"1 HP + stops bleeding ... 1 minute; once per wound\" -- a skill " +
-            "roll the sheet offers to a character who has the skill, and the " +
+            "roll the sheet offers, from Skills or from the untrained list, and the " +
             "HP stepper applies the point. The minute, the bleeding and the " +
             "once are the GM's: this app tracks a pool and no wounds",
         "Physician" to
             "\"1 HP (2 HP on critical success) ... Per day of bed rest\" -- " +
-            "a skill roll the sheet offers to a character who has the skill, " +
+            "a skill roll the sheet offers, from Skills or from the untrained list, " +
             "and the HP stepper applies it. \"skill 12+\", the day and the " +
             "equipment are the GM's",
         "Healing advantage" to
