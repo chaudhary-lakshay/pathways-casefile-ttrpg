@@ -6767,8 +6767,9 @@ you is at -4"* (3863), *"Ranged attacks against you suffer -4 to hit"*
 Dream/Illusion rolls against you increases to -3"* (6701), *"charm rolls
 against you are at -2"* (9450), and beside them the Barbarian's *"mind
 control and fear-based effects against them suffer -4"* (7033). Every one
-is on the other party's attempt, and the app already models one that way:
-`AntiDivination` puts 3855's -2 on the diviner.
+is on the other party's attempt, and the app already models that side:
+`AntiDivination.against` takes Sec. 3's technique penalties, 3855's among
+them, as one total on the diviner's roll.
 
 **No line converts it.** Most attempts on a mind give the only roll to the
 target: *"The target rolls Will-6 to resist"* (8527, 8529), *"Target rolls
@@ -6799,9 +6800,14 @@ No roll changed.
 `UNREAD`'s KDoc argues against a reason per row, because a claim about this
 app rots (6eq). This one is taken anyway: it is the one unread row with a
 competing reading a holder's table will reach for, and all but six words of
-it are a claim about the book. Low-Profile Build and Pathway Resonance
-(Hostile), the other two rows 6gv filed under *someone else's roll*, have
-no second reading and keep `UNREAD`.
+it are a claim about the book. Of the other two rows 6gv filed under
+*someone else's roll*, Low-Profile Build has no second reading: the holder
+never rolls to avoid being identified. **Pathway Resonance (Hostile) has
+the same one, sign flipped** (the advisor's point, after the commit):
+*"their abilities against you at +1"* (1460) would mirror to -1 on the
+holder's Will roll wherever 8529's shape applies. It keeps `UNREAD`, which
+is still true of it, and no reason; a drawback's cell is printed whole on
+the sheet. So the rule above picks two rows and this slice wrote one.
 
 | Test | Watched failing against |
 |---|---|
@@ -6860,14 +6866,19 @@ dump, as the memory note says: the reason was read from the screencap.
 **Next.** Three questions for the owner, none blocking:
 
 1. Should Anchored Soul be offered as a declared +2 on the holder's Will
-   roll after all? It is one `willClause` row, and the reading is the
-   owner's to make, not the book's.
+   roll after all, and Pathway Resonance (Hostile) as a declared -1? Each
+   is one `willClause` row, and the reading is the owner's to make, not the
+   book's. Answer both together: they are one question.
 2. Is Light Sleeper offered on Spirit Vision (6gu's review: Alertness
    reaches it)?
 3. Does the debug build stay on the SM-T570?
 
-Nothing else is queued. The unread rows that print a signed number were
-triaged in 6gv; the next slice needs a new sweep or the owner's call.
+**The next slice that needs no answer** is the half of the unread census
+6gv's regex could not see: it kept cells printing a SIGNED NUMBER, so a
+cell saying *"halved"*, *"ignore"*, *"no penalties"*, *"immune"* or
+*"cannot"* was never in it. Run that query over the complement of
+`TraitEffects.known()` and triage as 6gv did, each reason about this app
+queried before it is written down.
 
 ## 6gv. Perceptual Splitting, on the rolls the book calls physical
 
