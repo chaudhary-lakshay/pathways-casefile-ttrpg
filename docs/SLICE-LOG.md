@@ -6732,7 +6732,19 @@ resolution above, and then `Secret`, which has none.
 Self-control, Concentrate, Detection, Spirit Vision, Boon and Divination.
 The census was every `rollAgainst(` / `.attempt(` call site in `app/` less
 the files already using `TargetCard` or `ResultCard`, and 6gn recorded no
-reason for leaving any of them out. The owner chose to extend the approved
+reason for leaving any of them out. **That query cannot see
+`SuccessRoll.against(`**, so it was re-run with that pattern added
+after the six were built. Its extra hits all sit in surfaces 6gn already
+drew: Fright's recovery panel, Damage's two HT rolls, Defend's Acrobatic
+Dodge, and the PCR on the pathway screen, whose Drink 6gn left out with a
+reason. There are also two inline rows on the Vitals tab, the vital
+rolls and the daily HT roll, which are rows and not dialogs. Those two
+printed the `Outcome` enum's name, so a 3 or 4 read *"critical_success"*:
+6go's *WILL* class, reached through `.name.lowercase()`, a shape that
+sweep did not look for. Both rows now print through the skill roll's
+`label()` (`f30b66d`, device-checked: *"3d6: 11 vs 9 - failure"*, not
+reviewed separately). `RitualPacing` and `FrightKind` also print their
+names, but every member of each is one plain word. The owner chose to extend the approved
 components over a new Stitch round. No new component was designed: each
 dialog takes the shape of its nearest redesigned sibling.
 
@@ -6774,11 +6786,17 @@ Spirit Vision.
 ### Proof
 
 Each commit had a Sonnet `kotlin-reviewer.md` review of its uncommitted
-diff before the commit. All six said SHIP. Two LOWs were taken. Spirit
+diff before the commit. All six said SHIP. One LOW was taken: Spirit
 Vision's shortfall line had replaced the activation sentence, and now
-both print. The rest were left, with their reasons in the session: an
-unsigned margin matches `ResultCard`, and a target shown beside a
-disabled Roll matches Fright.
+both print. Four were left, each for a reason:
+- *A footer line that wraps to two still grows the footer.* Left until a
+  device shows it. On the tablet Detection's breakdown wrapped and Sense
+  did not move.
+- *The margin tag is unsigned.* It matches `ResultCard`.
+- *A target is shown beside a disabled Roll* (Concentrate not lit,
+  Detection under automatic awareness). It matches Fright before a pick.
+- *Divination's critical-only warning scrolls off with the chips.* The
+  pinned footer says *"a 3 or 4 only"*.
 
 Device passes on the SM-T570, each followed by a save restore and a
 `cmp` against the backup:
