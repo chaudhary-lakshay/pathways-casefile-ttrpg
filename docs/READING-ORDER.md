@@ -195,6 +195,10 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6gu (Light
+Sleeper's +4 declared on a Per skill and on Detection's Per branch, never
+Spirit Vision; Skinny refused as a purpose; the unread census read 117).
+
 Then 6gt (no roll
 changed: the PCR takes no carried state, on the book's "Only the drinker's
 digestion ... matters", and no row names the roll).

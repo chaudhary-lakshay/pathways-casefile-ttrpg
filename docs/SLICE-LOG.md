@@ -6726,6 +6726,170 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gz. The parry the screen called a gap, and a round the app denied keeping
+
+6gy named this slice's method: re-read 6eq's remaining verdicts and every
+*"a gap, not a ruling"* in production source against what has been built
+since. No number on any screen changed. Two sentences did, and two stale
+reasons went.
+
+### The queries
+
+- **6eq's own grep, re-run.** It returns 49 lines today, less comment lines, where 6eq counted 39.
+- **`gap.{0,40}ruling|ruling.{0,40}gap`** over both source trees and the
+  guide: one line, `DefenseDialog.kt:477`. A literal grep for 6gy's phrase
+  returns nothing, because the survivor reads *"a gap here and not a
+  ruling"*. It surfaced through a different pattern, and the advisor named
+  it.
+
+**6eq's table has thirteen rows for its 39 lines.** It never listed
+Eternal Blazing Sun, and its query drops comment lines, so a KDoc was out
+of its reach by construction.
+
+### The verdicts
+
+| Reason as written | Query | Verdict |
+|---|---|---|
+| Eternal Blazing Sun: *"this app holds neither a second sheet nor a round"* | `RoundState`, the **New round** button | **False in its second half since 6cp.** 6eq found the same claim on the Retreat note and fixed it there. The verdict holds on one sheet; the string says that now. |
+| `ActiveDefenses.retreat`'s KDoc: *"this screen keeps no round: the parry stepper is a number the GM sets and a paid boost never clears either"* | the same | **Stale since 6cp**, and the half of 6co's reason the handover names as expired. Rewritten (`eb01ae8`, with the string above). |
+| `DefenseDialog`: *"Whether a default parries is a gap here and not a ruling"* | 6ev's record, `wieldedAt`'s KDoc | **The record contradicted itself.** Below. |
+| Resistant (specify) and Healer's disease clause: no roll to resist | `poison\|disease\|temperature` over both source trees: `TraitNames` and `TraitRefusals` alone | Hold. |
+| `Equipment.UNMODELLED`, Currency: *"no arithmetic anywhere touches money"* | `startingMoney\|pounds\|shillings\|pence` over both source trees | Holds. Every hit prints a string. |
+| Alcohol Tolerance: *"this app applies no drinking penalty"* | `alcohol\|drunk\|drinking\|intoxic` over the book | Holds, and the book prints none to apply. |
+| God of Combat: *"no trait re-derives one yet"* | callers of `PotionDigestion.of`, `.digest`, `.digestThrough` | Holds as a gap. Below. |
+| Hanged Man 9: *"this app records no choice"* | `BeyonderState`'s three fields | Holds as a gap. Below. |
+| Official Beyonder: *"the language ... not added to this sheet either"* | `Languages.ritualModifier`, which throws for Broken | Holds. Hermes at Broken performs no ritual, so granting it would move no roll. |
+
+**Read and not re-queried:** the clock, morning, day and session reasons
+(Fit, Very Fit, Unfit, Fast Healer, Reluctant Killer, Chronic Insomnia,
+Luck, Sanctity), and Iron Jaw, Eidetic Memory, Lightning Calculator,
+Natural Leader, Lord of Storms, Uncanny Survivor, Fearlessness, Ether Body
+Damage, Anchored Soul and Goddess of Evernight. 6eq or a later slice gave
+each its query; this slice did not run them again.
+
+### The parry
+
+A carried melee weapon with no skill behind it gets no parry row. The
+record on why, in order:
+
+- 6et and 6eu: *"Whether a default parries needs a design review."*
+- 6ev: *"Refused on the difference between the two formula cells, and
+  said on screen."* The screen said *"a gap here and not a ruling"*.
+- 6ey, in `wieldedAt`'s KDoc: *"A non-master's still needs a skill,
+  because the armed cell prints no 'or DX'."*
+- `AttackOptions.kt`, in a comment: *"Whether a default parries is not
+  settled."*
+
+So the journal had a refusal, the KDoc had its reason, and the player was
+told nobody had ruled.
+
+**I took a different slice to the advisor first.** Hanged Man 9's choice
+looked like the live gap. Its answer: storing a choice is a new feature
+and not an expired reason, and the parry's record disagrees with itself,
+which is a slice whichever way the review goes.
+
+**The design review** (sonnet, `kotlin-reviewer.md`, a written
+decomposition, no diff) was asked for the strongest case against keeping
+the refusal. It gave one: line 424's *"attempt most skills even without
+training"*, the Warrior's *"no default penalty"* (5797-5798), the Attack
+dialog already swinging the weapon at its default, and the Acrobatic
+Dodge rolled at one. Its verdict was to keep refusing:
+
+- Nothing prints *default ÷ 2 + 3*. The one untrained parry operand in
+  the book is the unarmed cell's DX (2473), and Brawling's *"Default:
+  DX-2"* (2540) is not what that cell prints.
+- The Acrobatic Dodge does not transfer. Line 2483 says *"Roll vs.
+  Acrobatics"*, a roll of a skill, and the armed parry is a formula cell.
+- **One clause of my reason was wrong, and it is gone.** I had written
+  that a master's weapon is *"treated as known"*, which is not a default.
+  The same sentence says *"no default penalty"*.
+
+For the record, the number that was not built: DX 10 with a Broadsword
+would parry at 5 from a default of 5, beside 8 trained at DX and a bare
+hand's 8, or 5 against a weapon.
+
+**What changed (`7535bb9`).**
+
+- `unskilledParryNote(names, cells)` in `Parries.kt` builds the note and
+  quotes both formula cells from `ContentLoader.defenses()`. It reads:
+  *"No parry offered with Broadsword: no skill on this sheet wields it.
+  The Parry (Armed) cell prints "Weapon Skill ÷ 2 + 3" and names no
+  untrained operand, where the unarmed cell prints "Brawling or DX ÷ 2 +
+  3": DX itself, not Brawling's default. The book gives an untrained
+  armed parry no number, so it is the GM's call."*
+- The Attack dialog's weapon line reads *"untrained parry is the GM's
+  call"*, where it read *"no parry offered without the skill"*. The guide
+  quoted the old label and quotes the new one.
+- `wieldedAt`'s KDoc carries the 2473 contrast beside the argument from
+  silence it already had.
+
+Versatile's rule in the handover still says four consumers of a default.
+A fifth was not added.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| no refusal says this app keeps no round | the old string: *expected: <[]> but was: <[Eternal Blazing Sun]>*; and again as a mutant after the review widened its regex |
+| the note on an unskilled weapon gives the two cells and leaves it to the GM | a stub returning null: `NullPointerException` at the test's `!!` |
+
+The blessings are in neither trait catalogue, so the first test reads
+`TraitRefusals.UNAPPLIED` and `PARTLY_APPLIED` directly, where 6eq's
+sibling walks the catalogues.
+
+2097 Kotlin (1385 `core:rules`, 692 `app`, 20 `core:model`), 0 failures,
+after `--rerun-tasks` from deleted results, counted from the XML; `e:`
+count 0. `ast-grep scan` is clean. 366 Python, run after the guide's
+edit. The regex was widened after that full run, and `TraitReportedTest`
+alone was run again, green.
+
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on the uncommitted diff: SHIP, two LOWs. It
+ran nothing.
+
+- The round test's regex was `\b(no|nor a) round\b`. Taken:
+  `\b(no|nor a|without a) rounds?\b`, and the old string put back as a
+  mutant to see it still redden.
+- Nothing tests that the dialog draws the note. Not taken: the repo tests
+  no composable.
+- It checked every added sentence against the book lines and the
+  rewritten KDoc against `RoundState.kt`, and found none false.
+
+### No device pass
+
+**The debug build is not on the tablet.** `pm list packages` on the AIM-75
+shows no `com.pathways.app`, and `run-as` answers *"unknown package"*.
+Nothing was installed and nothing was restored; the newest backup is
+still 6gy's. `assembleDebug` built. Unverified on a device: that the
+Defend dialog draws the note, and the Attack line's new string.
+
+### Seen and not built
+
+- **God of Combat is sold for 75 points and its *"+3 ST, +3 DX, +3 HT"*
+  reaches nothing.** The Traits tab says so. Applying it moves M3's
+  boundary: a granted attribute outside a potion, with `PurchaseCeilings`
+  derived from potion walks alone. That needs a written decomposition
+  and the owner's word before any code.
+- **A Hanged Man is granted none of the three drawbacks Sequence 9 makes
+  them choose between.** Buying one in the builder credits ten points the
+  potion does not give. It needs a stored choice.
+
+**Next.** 6gy's six owner questions stand, and this slice adds three:
+
+7. Does a weapon parry at its untrained default? Today it does not, on
+   the two cells.
+8. God of Combat's attributes, above.
+9. Hanged Man 9's choice, above.
+
+Question 3 has changed shape: the debug build is gone from the tablet, so
+it is now whether to put it back.
+
+**The sweep to run next is the one 6eq's query cannot.** It drops comment
+lines, and the stale Retreat KDoc was one. The same pattern over comment
+lines alone, each claim about this app checked against the code beside
+it, has not been run.
+
 ## 6gy. Medical Training's Physician, a gap the untrained list had closed
 
 6gx closed the unread census and queued nothing but the owner's answers.
