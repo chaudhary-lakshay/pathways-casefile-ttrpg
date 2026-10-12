@@ -667,7 +667,7 @@ object TraitEffects {
             CATEGORY_BONUSES.keys + frightClauseNames() + socialClauseNames() +
             attackClauseNames() +
             willClauseNames() + concentrationClauseNames() + skillClauseNames() +
-            allRollsClauseNames() +
+            allRollsClauseNames() + TraitClauses.physicalRollsClauseNames() +
             // [HT_ROLL_TRAITS].keys, not FIT alone. The map has held three
             // traits since 6de and this set named one -- and the guard still
             // covered all three, because `Very Fit` and `Unfit` are also

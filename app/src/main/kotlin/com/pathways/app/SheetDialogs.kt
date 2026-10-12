@@ -70,8 +70,14 @@ internal fun SheetDialogs(
     hurtOnAttribute: Int,
     /** The held rows' declared "-N to all rolls" (6gs): the number and its words. */
     states: ClauseBonus,
-    /** The same declaration as ledger modifiers, for every roll [conditionsFor] feeds. */
-    stateModifiers: List<Modifier>,
+    /**
+     * [states] plus the states scoped to physical rolls (6gv): for the bare
+     * rolls line 390 calls physical, which are the defences and the HT rolls.
+     * No default, so a new dialog has to say which of the two it takes.
+     */
+    physicalStates: ClauseBonus,
+    /** The same declaration as ledger modifiers, for a roll that is physical or is not. */
+    stateModifiers: (physical: Boolean) -> List<Modifier>,
 ) {
     val divinationLevel = divination?.level
     // Derived once for both bare Will rolls. Two `remember`s over one input
@@ -124,7 +130,7 @@ internal fun SheetDialogs(
         },
         cor = cor,
     ) + (if (withStates) Shock.modifiers(shocked, traits) else emptyList()) +
-        if (withDeclared) stateModifiers else emptyList()
+        if (withDeclared) stateModifiers(EffortBurn.isPhysical(key)) else emptyList()
 
     // The same number the ledger would have carried, for the three dialogs
     // that reduce it to an Int and print their own breakdown.
@@ -305,7 +311,8 @@ internal fun SheetDialogs(
             // and reaches every other kind, so a character already
             // shocked from an earlier wound recovers at -4.
             carriedShock = shockOnAttribute,
-            states = states,
+            // Both rolls here are HT rolls.
+            states = physicalStates,
             onDismiss = { onClose(SheetDialog.DAMAGE) },
         )
     }
@@ -355,7 +362,9 @@ internal fun SheetDialogs(
             // consequences belong in one place (ActiveDefenses).
             traits = traits,
             shocked = shocked,
-            states = states,
+            // "dodging" is on line 390's own list, and a parry or block is
+            // a DX skill's.
+            states = physicalStates,
             onSpendFp = { session.spend(Pool.FP, it, vitals.maxFp, maxCor) },
         ) { onClose(SheetDialog.DEFEND) }
     }
@@ -387,8 +396,9 @@ internal fun SheetDialogs(
             untrained = SkillDefaults.attacks(untrained),
             mastery = mastery,
             toolNote = drunk?.let { SkillDefaults.toolNote(it.pathway, it.sequence) },
-            states = states,
-            stateModifiers = stateModifiers,
+            // "attack rolls" lead line 390's list, whatever the skill.
+            states = physicalStates,
+            stateModifiers = stateModifiers(true),
             onDismiss = { onClose(SheetDialog.ATTACK) },
         )
     }

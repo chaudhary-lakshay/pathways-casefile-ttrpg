@@ -68,7 +68,7 @@ internal fun LazyListScope.vitalsTab(
             Column(Modifier.padding(horizontal = 16.dp)) {
                 ClauseChips(allRolls, declaredStates, onDeclareStates)
                 Text(
-                    "Lit: on every roll until cleared here",
+                    "Lit: on every roll it names until cleared here",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

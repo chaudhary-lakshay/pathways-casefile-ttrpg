@@ -280,5 +280,12 @@ object EffortBurn {
     // deliver one of its three fields. An accessor for one field of three is
     // not an abstraction, and 6cf's API sweep is what surfaced it.
 
+    /**
+     * Whether a roll of [key] is one of the book's "Physical Rolls": the FP
+     * row's "any roll based on ST, DX, or HT". [kindFor]'s answer, for a rule
+     * that scopes itself to those rolls and spends nothing (6gv).
+     */
+    fun isPhysical(key: SkillKey): Boolean = kindFor(key) == BurnKind.PHYSICAL
+
     private val PHYSICAL_ATTRS = setOf(Attr.ST, Attr.DX, Attr.HT)
 }

@@ -331,9 +331,13 @@ fun SheetScreen(
     val hurtOnAttribute = Conditions.penaltyFor(RollKind.ATTRIBUTE, hpNow, fpNow)
     // The declared states, as one number with its words for the bare rolls
     // and as modifiers for the ledger, both from the same two inputs.
-    val allRolls = remember(traits) { TraitClauses.allRollsClauses(traits) }
-    val states = TraitClauses.clauseBonus(allRolls, declaredStates)
-    val stateModifiers = TraitClauses.allRollsModifiers(allRolls, declaredStates)
+    // A physical roll also takes the states scoped to those (6gv), so there
+    // are two numbers, and the ledger asks which kind its roll is.
+    val allRolls = remember(traits) { TraitClauses.declaredStateClauses(traits) }
+    val declaredNow = TraitClauses.declaredStates(traits, declaredStates)
+    val states = declaredNow.all
+    val physicalStates = declaredNow.physical
+    val stateModifiers = { physical: Boolean -> TraitClauses.declaredModifiers(traits, declaredStates, physical) }
     // What each self-control roll stands at, for the Traits row that prints
     // it and the dialog that opens on it ([standingTargets]).
     val standing = standingTargets(
@@ -478,7 +482,8 @@ fun SheetScreen(
                     allRolls = allRolls,
                     declaredStates = declaredStates,
                     onDeclareStates = { declaredStates = it },
-                    states = states,
+                    // The Vitals tab's rolls are all HT rolls.
+                    states = physicalStates,
                     secondaryLines = secondaryLines,
                 )
                 SheetTab.TRAITS -> traitsTab(
@@ -533,6 +538,7 @@ fun SheetScreen(
         shockOnAttribute = shockOnAttribute,
         hurtOnAttribute = hurtOnAttribute,
         states = states,
+        physicalStates = physicalStates,
         stateModifiers = stateModifiers,
     )
 }

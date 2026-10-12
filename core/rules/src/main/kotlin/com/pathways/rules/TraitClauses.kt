@@ -655,6 +655,65 @@ object TraitClauses {
     fun allRollsModifiers(clauses: List<TraitClause>, declared: Set<String>): List<Modifier> =
         clauses.filter { it.key in declared }.map { bonus(it.trait, it.value, suffix = it.key, shown = it.shown) }
 
+    // ---- the row that puts a state on every PHYSICAL roll -------------------
+
+    /**
+     * "All physical rolls at -2 during an episode" (Perceptual Splitting,
+     * book 1551; 6gv). A state the GM declares on the sheet, as the all-rolls
+     * rows are, but scoped: the book defines a physical roll as "any roll
+     * based on ST, DX, or HT (attack rolls, dodging, climbing, lifting,
+     * etc.)" (390), the sentence [EffortBurn.isPhysical] already reads for
+     * the FP push. So it reaches a skill on one of those three, every attack
+     * and defence, and the bare HT rolls, and no Will, IQ, Per or SPI roll.
+     */
+    private val PHYSICAL_ROLLS_CLAUSES: List<TraitClause> = listOf(
+        TraitClause(
+            "Perceptual Splitting", "Perceptual Splitting",
+            "All physical rolls at -2 during an episode", -2, conditional = true,
+        ),
+    )
+
+    /** The printed rows, for the pin tests. */
+    fun physicalRollsClauseRows(): List<TraitClause> = PHYSICAL_ROLLS_CLAUSES
+
+    /** The traits whose cell puts a state on every physical roll, for [TraitEffects.known]. */
+    fun physicalRollsClauseNames(): Set<String> = PHYSICAL_ROLLS_CLAUSES.map { it.trait }.toSet()
+
+    private fun physicalRollsClauses(traits: List<Trait>): List<TraitClause> = traits.flatMap { owned ->
+        val bare = catalogueName(owned.name)
+        PHYSICAL_ROLLS_CLAUSES
+            .filter { it.trait.equals(bare, ignoreCase = true) }
+            .map { it.copy(shown = displayName(owned.name)) }
+    }.distinctBy { it.key }
+
+    /** Every state [traits] let the GM declare on the sheet: one chip list. */
+    fun declaredStateClauses(traits: List<Trait>): List<TraitClause> =
+        allRollsClauses(traits) + physicalRollsClauses(traits)
+
+    /**
+     * What is lit, as the two numbers a bare roll takes: [DeclaredStates.all]
+     * for a roll that is not physical, [DeclaredStates.physical] for one that
+     * is. Composed here so a screen never sums the two lists itself.
+     */
+    fun declaredStates(traits: List<Trait>, declared: Set<String>): DeclaredStates {
+        val all = allRollsClauses(traits)
+        return DeclaredStates(
+            all = clauseBonus(all, declared),
+            physical = clauseBonus(all + physicalRollsClauses(traits), declared),
+        )
+    }
+
+    /**
+     * The same declaration as ledger modifiers, for a roll that is
+     * [physical] or is not. A skill roll asks [EffortBurn.isPhysical] of its
+     * key; an attack is physical by line 390's own list.
+     */
+    fun declaredModifiers(traits: List<Trait>, declared: Set<String>, physical: Boolean): List<Modifier> =
+        allRollsModifiers(
+            allRollsClauses(traits) + if (physical) physicalRollsClauses(traits) else emptyList(),
+            declared,
+        )
+
     private fun allRollsClause(trait: String, printed: String, value: Int) =
         TraitClause(trait, trait, printed, value, conditional = true)
 
@@ -663,3 +722,6 @@ object TraitClauses {
     private fun socialClause(trait: String, printed: String, value: Int) =
         TraitClause(trait, trait, printed, value, conditional = true)
 }
+
+/** The lit sheet states, for a roll that is not physical and for one that is (6gv). */
+data class DeclaredStates(val all: ClauseBonus, val physical: ClauseBonus)
