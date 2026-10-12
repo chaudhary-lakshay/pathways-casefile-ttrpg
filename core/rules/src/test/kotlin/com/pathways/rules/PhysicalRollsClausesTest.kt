@@ -77,4 +77,37 @@ class PhysicalRollsClausesTest {
         assertEquals(listOf(-2), values(TraitClauses.declaredModifiers(both, lit, physical = false)))
         assertEquals(listOf(-2, -2), values(TraitClauses.declaredModifiers(both, lit, physical = true)))
     }
+
+    /**
+     * The number a bare roll takes and the modifiers a ledger roll takes are
+     * composed by two functions, and a screen prints one beside a target made
+     * of the other (the Attack dialog's "Declared on the sheet" line). So
+     * they must agree for every lit subset, two phobias included: those share
+     * a catalogue row, and a dedupe on it in one function alone would drop a
+     * term from one side (the diff review's missing test).
+     */
+    @Test
+    fun `the number and the ledger agree for every lit subset`() {
+        fun dis(name: String) = Trait(name, 10, TraitKind.DISADVANTAGE)
+        val sheets = listOf(
+            splitting,
+            splitting + dis("Addiction: Laudanum"),
+            splitting + dis("Phobia (Cities)") + dis("Phobia (Heights)"),
+            splitting + splitting,
+            listOf(dis("Soul Scar")),
+        )
+        for (sheet in sheets) {
+            val keys = TraitClauses.declaredStateClauses(sheet).map { it.key }
+            assertEquals(keys.size, keys.toSet().size, "one chip per key: $keys")
+            for (mask in 0 until (1 shl keys.size)) {
+                val lit = keys.filterIndexed { i, _ -> mask and (1 shl i) != 0 }.toSet()
+                val now = TraitClauses.declaredStates(sheet, lit)
+                val physical = TraitClauses.declaredModifiers(sheet, lit, physical = true)
+                val other = TraitClauses.declaredModifiers(sheet, lit, physical = false)
+                assertEquals(now.physical.total, values(physical).sum(), "physical, lit $lit")
+                assertEquals(now.all.total, values(other).sum(), "not physical, lit $lit")
+                assertEquals(physical.size, physical.map { it.id }.toSet().size, "ids, lit $lit")
+            }
+        }
+    }
 }

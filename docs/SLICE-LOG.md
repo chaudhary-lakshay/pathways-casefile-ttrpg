@@ -6845,6 +6845,43 @@ the restore, with a dialog scaled about its own frame's origin. The
 tablet rotated mid-pass, and I pinned landscape for one minute and put
 auto-rotate back.
 
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on `git diff db861ce..e3d24a4 -- core app`:
+SHIP, two LOWs. It read the code and ran nothing. It traced every site:
+the Vitals tab hands its number to HT rolls alone, self-control's
+`standing` keeps the all-rolls number, Attack's printed line and its
+modifiers are both the physical set, and no physical roll is left on
+`states`. The Acrobatic Dodge takes the state on its own roll and the
+Dodge score takes it through `everyDefence`: two targets, the split 6gs
+made. `isPhysical` never disagrees with *"based on ST, DX, or HT"*: the
+supernatural-skill branch is reached only by an IQ key.
+
+- **Its most valuable missing test, taken.** The number a bare roll takes
+  and the modifiers a ledger roll takes come from two functions, and
+  Attack prints one beside a target made of the other. *the number and the
+  ledger agree for every lit subset* checks both sums and distinct ids over
+  five sheets, two phobias among them. It passed on its first run, as a
+  guard does. Its mutant, a dedupe by catalogue row on the ledger side
+  alone, reddened it and nothing else: *physical, lit [Phobia (Heights)
+  ...] ==> expected: <-1>*, `e:` count 0, from deleted results. That is the
+  bug 6gs's review found one function over.
+- LOW, not taken: Attack passes `physical = true` whatever the skill. Line
+  390 lists *"attack rolls"* by name, and the comment at the call says so.
+- LOW, not taken: the chip list concatenates two lists deduped separately,
+  so an all-rolls row and a physical row with one key would be two chips
+  under one toggle. A key is the spelling and the clause; the new test
+  asserts the keys are distinct on each sheet.
+
+**No test reaches the hand-off**: which dialog gets `states` and which
+`physicalStates` is wiring in `SheetDialogs` and `MainActivity`, proved by
+the device pass above for skills, Attack, Defend and Concentrate, and by
+nothing for the Vitals and Damage HT rolls.
+
+2089 Kotlin (1378 `core:rules`, 691 `app`, 20 `core:model`). The rules
+module was re-run whole from deleted results after the new test; `app` and
+`core:model` were not re-run, and nothing in them changed.
+
 ## 6gu. Light Sleeper, declared on a Per roll
 
 6gi's table left three rows as *"each names a roll loosely; a reading
