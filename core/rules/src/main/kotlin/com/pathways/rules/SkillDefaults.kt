@@ -232,8 +232,10 @@ object SkillDefaults {
      * Line 2468 prints "Weapon Skill ÷ 2 + 3", and a master's weapon is
      * "treated as known at effective DX", so DX is that operand and a
      * master's weapon parries untrained (6ey; the design review: SHIP). A
-     * non-master's still needs a skill, because the armed cell prints no
-     * "or DX". The highest skill, not the one an attack picked, so the
+     * non-master's still needs a skill: the armed cell prints no "or DX",
+     * and the unarmed cell, the one place an untrained parry operand is
+     * printed (2473), prints DX and not Brawling's DX-2 default, so no line
+     * halves a default (6gz). The highest skill, not the one an attack picked, so the
      * Attack and Defend dialogs print one parry for one weapon.
      */
     fun wieldedAt(weapon: CataloguedWeapon, skillLevels: Map<SkillKey, Int>, mastery: WeaponMastery?, dx: Int): Int? {

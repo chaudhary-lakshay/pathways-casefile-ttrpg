@@ -368,15 +368,15 @@ private fun ArmedWith(
             // rather than a 0: parrying at nothing is not parrying badly.
             "Acc ${held.weapon.acc} · reach/range ${held.weapon.range} · " +
                 (
-                    // Whether a default parries is not settled, and Defend
-                    // offers none with a weapon (its bare-hand row is DX, a
-                    // printed operand), so this line must not print one either.
-                    // A firearm first: it parries at nothing, skill or not.
+                    // The book prints no untrained armed parry (Defend says
+                    // why, [unskilledParryNote]), so this line prints none
+                    // either. A firearm first: it parries at nothing, skill
+                    // or not.
                     if (!Weapons.canParry(held.weapon)) {
                         "cannot parry"
                     } else {
                         wieldedAt(held.weapon)?.let { "parry ${Weapons.parryFor(held.weapon, it)}" }
-                            ?: "no parry offered without the skill"
+                            ?: "untrained parry is the GM's call"
                     }
                     ) +
                 " · ${held.weapon.cost}",

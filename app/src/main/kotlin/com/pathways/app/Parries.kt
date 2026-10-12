@@ -9,6 +9,7 @@ import com.pathways.rules.Facing
 import com.pathways.rules.ParryBlock
 import com.pathways.rules.Weapons
 import com.pathways.rules.content.CataloguedWeapon
+import com.pathways.rules.content.Defense
 import com.pathways.rules.ShieldCoverage
 import com.pathways.rules.Shields
 import com.pathways.rules.SkillDefaults
@@ -76,6 +77,29 @@ internal fun unskilledParriers(
 ): List<String> = weapons
     .filter { Weapons.canParry(it) && SkillDefaults.wieldedAt(it, skillLevels, mastery, dx) == null }
     .map { it.name }
+
+/**
+ * What the screen says of [unskilledParriers], or null for none.
+ *
+ * A refusal with the book's reason, where this said "a gap here and not a
+ * ruling" (6gz; the design review: keep refusing, say why). The one untrained
+ * parry operand the book prints is the unarmed cell's DX, and Brawling's
+ * "Default: DX-2" (2540) is not what it prints there, so "default ÷ 2 + 3"
+ * is a formula no line gives. Line 424's "attempt most skills" is why the
+ * same weapon SWINGS at its default: an attack rolls the skill, and this is
+ * a cell. Not argued from a master's "treated as known": that sentence says
+ * "no default penalty" in the same breath (5797-5798).
+ */
+internal fun unskilledParryNote(names: List<String>, cells: List<Defense>): String? {
+    if (names.isEmpty()) return null
+    val armed = cells.firstOrNull { it.defense.startsWith("Parry (Armed)") }?.formula ?: return null
+    val unarmed = cells.firstOrNull { it.defense.startsWith("Parry (Unarmed)") }?.formula ?: return null
+    return "No parry offered with ${names.joinToString(", ")}: no skill on this sheet " +
+        "wields it. The Parry (Armed) cell prints \"$armed\" and names no untrained " +
+        "operand, where the unarmed cell prints \"$unarmed\": DX itself, not " +
+        "Brawling's default. The book gives an untrained armed parry no number, so " +
+        "it is the GM's call."
+}
 
 /** The shield skill Block is rolled off (Ch. 5, p. 37). */
 internal const val SHIELD_SKILL = "Shield"

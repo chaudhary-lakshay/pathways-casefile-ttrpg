@@ -15,6 +15,7 @@ import com.pathways.rules.Shields
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.UnarmedStyle
+import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
@@ -381,10 +382,28 @@ class DefenseDialogTest {
     }
 
     /**
-     * The gap this slice leaves, as a list the note can name: a carried
-     * weapon that can parry and has no skill behind it. Line 2468 prints
-     * "Weapon Skill ÷ 2 + 3" and no second operand, where the unarmed row
-     * prints DX. A firearm is not one of them: it parries at nothing.
+     * The note called this "a gap here and not a ruling" while the journal
+     * recorded it refused (6ev) and `wieldedAt`'s KDoc gave the reason. It
+     * says the ruling now, from the two cells: the one untrained parry
+     * operand the book prints is DX, never a skill's default.
+     */
+    @Test
+    fun `the note on an unskilled weapon gives the two cells and leaves it to the GM`() {
+        val cells = ContentLoader.defenses()
+        val note = unskilledParryNote(listOf("Broadsword"), cells)!!
+        assertTrue("Broadsword" in note, note)
+        assertTrue("\"Weapon Skill ÷ 2 + 3\"" in note, note)
+        assertTrue("\"Brawling or DX ÷ 2 + 3\"" in note, note)
+        assertTrue("GM" in note, note)
+        assertFalse("gap" in note, note)
+        assertNull(unskilledParryNote(emptyList(), cells))
+    }
+
+    /**
+     * The list the note names: a carried weapon that can parry and has no
+     * skill behind it. Line 2468 prints "Weapon Skill ÷ 2 + 3" and no second
+     * operand, where the unarmed row prints DX. A firearm is not one of
+     * them: it parries at nothing.
      */
     @Test
     fun `a parrying weapon carried without its skill is named, a firearm is not`() {

@@ -468,15 +468,8 @@ fun DefenseDialog(
                             )
                         }
                     }
-                    // What is still not offered, named rather than absent.
-                    if (unskilled.isNotEmpty()) {
-                        DefenseNote(
-                            "No parry offered with ${unskilled.joinToString(", ")}: no " +
-                                "skill on this sheet wields it, and the Parry (Armed) " +
-                                "row prints Weapon Skill ÷ 2 + 3 with no second operand. " +
-                                "Whether a default parries is a gap here and not a ruling.",
-                        )
-                    }
+                    // What is not offered, named rather than absent.
+                    unskilledParryNote(unskilled, printed)?.let { DefenseNote(it) }
                     // Said wherever the mastery changed a number, because
                     // the book's own examples are attacks and this is the
                     // reading that carries the line to a parry (6ey).

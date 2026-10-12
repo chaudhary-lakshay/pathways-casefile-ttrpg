@@ -210,7 +210,9 @@ Under your own skills the list carries on with the ones you can attack with
 **untrained**: a fist (Brawling at DX-2, Boxing at DX-5) and the weapons in the
 book's table (Knife, Axe/Mace, Broadsword and three Guns), each marked
 *"untrained, DX-4"* or the like. They roll and deal damage like any other.
-A weapon you have no skill with prints *"no parry offered without the skill"*.
+A weapon you have no skill with prints *"untrained parry is the GM's call"*: the
+book's armed cell is *"Weapon Skill ÷ 2 + 3"* and names no untrained operand, and
+Defend says so under its rows.
 
 A **Warrior**, **Pugilist** or **Weapon Master** wields any weapon in hand at no
 less than DX, and the header says so. For its parry, the weapon skill is floored at
