@@ -6909,10 +6909,52 @@ and both cells behind the tap. Watched failing against a stub with an
 empty open line: *expected: <true> but was: <false>*. **This edit has
 been read by no reviewer and seen on no device.**
 
-**The sweep to run next is the one 6eq's query cannot.** It drops comment
-lines, and the stale Retreat KDoc was one. The same pattern over comment
-lines alone, each claim about this app checked against the code beside
-it, has not been run.
+### The same day: the comment sweep this slice named
+
+6eq's query drops comment lines, and the stale Retreat KDoc was one. So
+the pattern was run over comment lines alone.
+
+**The queries.** `this app|this engine|nothing here|is rolled here|this
+dialog|this screen` over lines that open with `//` or `*`, both source
+trees: **244 lines**. A second pattern picked the denials out of them,
+*this app holds / keeps / models / rolls / records no ...*, *nothing
+here*, *this app does not / never / cannot*: 96 lines. A third pass read
+the 42 other lines that carry a negation word. Every one of the 138 was
+read at its own line, and the ones below with the lines around them. The
+other 106 were not read.
+
+**Eight comments said something false of the app today.** No string a
+player sees changed, and no code.
+
+| Where | What it said | What is true |
+|---|---|---|
+| `ActiveDefenses.everyDefence` | Combat Reflexes' *"+6 to recover from stun"* is *"the recovery roll this app does not model"* | `StunRecovery` rolls it and applies the +6 |
+| `RetreatControl` | *"this screen keeps no round"* | `RoundState` holds the chip and **New round** clears it (6cp); which attack is the one is still the GM's |
+| `ParriesThisRound` | a stepper *"because nothing here knows a round has passed"* | **New round** zeroes it; what nothing sees is a parry being made |
+| `TraitEffects`, the social rows | Callous, Shyness and Social Anxiety are circumstances *"this app has no control for"*, filed as unapplied | they are chips on the skill roll (`TraitClauses.skillRollClauses`) |
+| `DamageDialog` | *"-1 to all rolls"* reaches *"the only bare HT roll this app makes"* | five now, 6eq's stale count in a place its query could not reach |
+| `PurchasableTraits.instanced` | *"Sense of Duty (Patients)" resolves to nothing in this app* | `quotedInstanceRow` resolves it; the example is `Secret (Courier network)` now, which does not |
+| `TraitNames`, twice | *"five Sense of Duty ... still unmatched"*, and four refused qualifiers *"stay unmatched"* | four spellings are unmatched, not nine; of the four qualifiers, three resolve by a later join |
+| `RollDialog`, `SheetDialogs` | *"this app records no possession"* | the save records weapons carried (6eb), and no other gear |
+
+The clock, turn, map, facing, session and second-sheet denials were read
+and hold: nothing in either tree keeps any of them, and `RoundState` is
+the Defend dialog's alone.
+
+`compileDebugKotlin` built and `ast-grep scan` is clean. No test was run
+for comments.
+
+**Seen and not built.** Fortune Teller's and Underground Courier's
+*"Secret (...)"* read **Unmatched name** on the Traits tab, while the
+builder sells Secret with an instance off the same row. The refusal is in
+`TraitNamesTest`, with a design review's reason: a cost inside the printed
+interval corroborates pricing, never identity, and no sheet quotes
+Secret's cell. Its sentence *"Nothing here reads the second"* notation is
+no longer true of the builder. That is owner question 10.
+
+**What this sweep cannot see** is a comment that never says *this app*:
+*"is not modelled"*, *"not offered"*, *"the GM's"*. And it read test
+sources only where a production comment pointed.
 
 ## 6gy. Medical Training's Physician, a gap the untrained list had closed
 
