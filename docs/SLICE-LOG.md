@@ -6786,6 +6786,15 @@ Language Talent held beside both freeing traits had no cost assertion; it
 has one (`0, 0, 15`). One LOW not taken: the dead set is hard-coded, and
 is meant to be, since it is a ruling.
 
+A second pass, same reviewer, on the Kotlin hunks of `1cd6697..50599dc`
+(the picker's sentence, the Talent assertion, the reprice test): SHIP,
+after the commits. One LOW, not taken: where the picker prints *"The book
+prints no such row"* the note has no price above it to point at. Buy is
+disabled there and nothing is billed, so the sentence is empty, not false.
+It traced both tests to the DLF arm by reading, and ran no mutant; its
+trace called Hermes a common language, which it is not, and the verdict
+does not lean on that.
+
 **Device pass, SM-T570**, backup `sessions-6hh-bak.json`, Apothecary seeded
 with the trait alone. The picker printed *"Ancient Hermes, Native — free
 with Dead Language Fluency (30 listed)"*; bought, the budget stayed at
