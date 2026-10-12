@@ -103,6 +103,6 @@ object NaturalRecovery {
     private const val FAST_HEALER_CLAUSE = "Recover 1 additional HP per day of rest"
 
     /** [poolPenalty] is [Conditions.penaltyFor]'s, as it is for the other bare HT rolls. */
-    fun targetFor(ht: Int, traits: List<Trait>, poolPenalty: Int, gmModifier: Int): Int =
-        ht + bonusFor(traits) + poolPenalty + gmModifier
+    fun targetFor(ht: Int, traits: List<Trait>, poolPenalty: Int, gmModifier: Int, shock: Int = 0): Int =
+        ht + bonusFor(traits) + poolPenalty + gmModifier + shock
 }

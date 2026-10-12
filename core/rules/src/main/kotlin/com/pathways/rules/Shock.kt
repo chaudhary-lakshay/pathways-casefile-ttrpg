@@ -22,7 +22,13 @@ enum class RollKind {
     /** Anything resolved through [SkillRoll] -- skills, attacks, rituals, divination, boons. */
     SKILL,
 
-    /** A bare attribute roll: a Fright Check, a self-control roll, [Concentration], [Detection]. */
+    /**
+     * A bare attribute roll: a Fright Check, a self-control roll, [Concentration],
+     * [Detection], Spirit Vision, the stun recovery, and the HP table's two HT
+     * rolls with the daily recovery roll. Those last three arrived after this
+     * list was written and took the trackers' penalty but not shock's until
+     * 6gs: a census in a KDoc expires when a roll is added.
+     */
     ATTRIBUTE,
 
     /** Dodge, Parry and Block -- a number the player rolls under. */

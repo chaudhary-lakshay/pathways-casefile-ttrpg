@@ -35,6 +35,7 @@ internal fun LazyListScope.vitalsTab(
     ht: Int,
     traits: List<Trait>,
     hurtOnAttribute: Int,
+    shockOnAttribute: Int,
     shocked: Boolean,
     onClearShock: () -> Unit,
     secondaryLines: List<PlayedLine>,
@@ -48,6 +49,7 @@ internal fun LazyListScope.vitalsTab(
             // takes. A character at 0 HP has been reeling since
             // 1/3 HP, so this is not the state the roll creates.
             poolPenalty = hurtOnAttribute,
+            shock = shockOnAttribute,
         )
     }
     if (shocked) {

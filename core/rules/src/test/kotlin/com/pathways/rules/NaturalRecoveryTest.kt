@@ -106,4 +106,13 @@ class NaturalRecoveryTest {
         assertTrue("Nothing is restored by the roll" in lost, lost)
         assertTrue("GM" in lost && "Fast Healer" in lost, lost)
     }
+
+    /** The daily HT roll takes shock as its own term too (6gs). */
+    @Test
+    fun `shock reaches the daily recovery roll as its own term`() {
+        assertEquals(
+            NaturalRecovery.targetFor(10, emptyList(), -1, 0) - 4,
+            NaturalRecovery.targetFor(10, emptyList(), -1, 0, shock = -4),
+        )
+    }
 }

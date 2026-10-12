@@ -224,4 +224,20 @@ class VitalRollsTest {
             assertTrue(name in known, "$name is applied and invisible to the catalogue guard")
         }
     }
+
+    /**
+     * Shock is "-4 to all rolls" and these two are rolls the shocked character
+     * makes, on the tab that prints the shock (6gs). Its own term, never the
+     * trackers' [poolPenalty], so the row can name it.
+     */
+    @Test
+    fun `shock reaches both vital rolls as its own term`() {
+        val shock = Shock.penaltyFor(RollKind.ATTRIBUTE, shocked = true, traits = emptyList())
+        for (check in VitalCheck.entries) {
+            assertEquals(
+                VitalRolls.targetFor(check, 10, emptyList(), -1) + shock,
+                VitalRolls.targetFor(check, 10, emptyList(), -1, shock = shock),
+            )
+        }
+    }
 }

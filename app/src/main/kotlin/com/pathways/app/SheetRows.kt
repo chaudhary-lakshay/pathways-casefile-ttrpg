@@ -75,7 +75,7 @@ internal data class Vitals(
  * keep an outcome that belonged to a different number (6k, 6y).
  */
 @Composable
-private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: Int, poolPenalty: Int) {
+private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: Int, poolPenalty: Int, shock: Int) {
     var outcome by remember(check, target) { mutableStateOf<RollResult?>(null) }
     Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
         Text(VitalRolls.printed(check), style = MaterialTheme.typography.bodySmall)
@@ -89,6 +89,7 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
                 if (fromTraits > 0) add("+$fromTraits from traits")
                 if (fromTraits < 0) add("$fromTraits from traits")
                 if (poolPenalty != 0) add("$poolPenalty hurt or tired")
+                if (shock != 0) add("$shock shock")
             }.joinToString(", "),
             style = MaterialTheme.typography.bodySmall,
         )
@@ -138,11 +139,11 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
  * against a later one.
  */
 @Composable
-private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int) {
+private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int, shock: Int) {
     var modifier by remember { mutableIntStateOf(0) }
     var outcome by remember { mutableStateOf<RollResult?>(null) }
     val fromTraits = NaturalRecovery.bonusFor(traits)
-    val target = NaturalRecovery.targetFor(ht, traits, poolPenalty, modifier)
+    val target = NaturalRecovery.targetFor(ht, traits, poolPenalty, modifier, shock)
     Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
         NaturalRecovery.rows().forEach {
             Text("${it.method}: ${it.recovered}. ${it.notes}", style = MaterialTheme.typography.bodySmall)
@@ -164,6 +165,7 @@ private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int) {
                     if (fromTraits > 0) add("+$fromTraits from traits")
                     if (fromTraits < 0) add("$fromTraits from traits")
                     if (poolPenalty != 0) add("$poolPenalty hurt or tired")
+                    if (shock != 0) add("$shock shock")
                     if (modifier > 0) add("+$modifier entered")
                     if (modifier < 0) add("$modifier entered")
                 }.joinToString(", "),
@@ -208,6 +210,12 @@ internal fun PoolTrackers(
     ht: Int,
     traits: List<Trait>,
     poolPenalty: Int,
+    /**
+     * Shock's "-4 to all rolls", which reaches these three as it reaches every
+     * bare attribute roll: none of them creates it (6gs). Its own term, so the
+     * row names it rather than counting it as hurt or tired.
+     */
+    shock: Int,
 ) {
     Column(Modifier.padding(vertical = 4.dp)) {
         // Only where the table prints one: `Pools` has flagged these two
@@ -215,14 +223,15 @@ internal fun PoolTrackers(
         VitalRolls.due(hp).forEach { check ->
             VitalRollRow(
                 check = check,
-                target = VitalRolls.targetFor(check, ht, traits, poolPenalty),
+                target = VitalRolls.targetFor(check, ht, traits, poolPenalty, shock),
                 fromTraits = VitalRolls.bonusFor(check, traits),
                 ht = ht,
                 poolPenalty = poolPenalty,
+                shock = shock,
             )
         }
         // The recovery table's one roll.
-        if (NaturalRecovery.isOffered(hp)) RecoveryRollRow(ht, traits, poolPenalty)
+        if (NaturalRecovery.isOffered(hp)) RecoveryRollRow(ht, traits, poolPenalty, shock)
     }
 }
 

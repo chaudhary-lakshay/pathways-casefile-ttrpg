@@ -461,6 +461,7 @@ fun SheetScreen(
                     ht = attributes.ht,
                     traits = traits,
                     hurtOnAttribute = hurtOnAttribute,
+                    shockOnAttribute = shockOnAttribute,
                     shocked = shocked,
                     onClearShock = { shocked = false },
                     secondaryLines = secondaryLines,
