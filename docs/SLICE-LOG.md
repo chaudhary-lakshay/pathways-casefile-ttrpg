@@ -6743,8 +6743,23 @@ This slice triages the rest and takes the one that is a slice.
 | Bound to a Place | a count of weeks (6gr) |
 | **Perceptual Splitting** | this slice |
 
-So of the rows that print a modifier, none is left that is a slice
-without a stored choice or a new roll.
+So of the unread rows that print a SIGNED NUMBER, none is left that is a
+slice without a stored choice or a new roll. The census was that regex: a
+cell saying *"no penalties"*, *"halved"* or *"ignore"* was never in it.
+
+**Five of those reasons are claims about this app, and each was queried
+after the table was written** (the advisor's point; 6eq is what unqueried
+ones cost). `core/rules/src/main` and `app/src/main` hold no *hypothermia*,
+no *toxin*, and *breath* only in two unrelated KDocs, so Cold Resistance and
+Controlled Breathing name rolls the app does not make. Nothing identifies a
+character *from description* (Low-Profile Build). **Anchored Soul is the
+soft one.** *"All attempts to alter your mental identity — possession,
+compulsion, pathway side effects — are at -2 against you"* penalises the
+attempt, which is another party's roll. But Incorruptible Will, already a
+declared Will clause, prints *"+3 to all Will rolls to resist ... ritual
+compulsion"*, the same event from the holder's side. Whether Anchored Soul
+is the mirror of that or a different rule is a reading nobody has made.
+Pathway Resonance (Hostile) was read, not queried.
 
 **Perceptual Splitting** (book 1550-1551): *"At moments of high spiritual
 activity, senses temporarily separate from your body. All physical rolls

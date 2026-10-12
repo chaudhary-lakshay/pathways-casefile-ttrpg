@@ -75,7 +75,10 @@ potion grants.
   stimulus present, laudanum withdrawal, a disrupted warding routine, an
   entity nearby, a Soul Scar resurfacing. Tap the line to light it. A lit
   line counts on every roll on every screen, and each roll names it (*"includes
-  Phobia (Cities) -1"*), until you tap it again. It is not saved: leaving
+  Phobia (Cities) -1"*), until you tap it again. One line is narrower:
+  Perceptual Splitting's *"All physical rolls at -2 during an episode"*
+  counts only on rolls based on ST, DX or HT (those skills, attacks, defences
+  and HT rolls), never on a Will, IQ, Per or SPI roll. It is not saved: leaving
   the sheet (for the gallery, or to drink a potion) clears it, as it clears
   shock.
 - **Reference text** in a dialog (shield rules, the incantation, Spirit
@@ -391,6 +394,9 @@ same line, and Acute Hearing's, sits on every Perception-based skill roll,
 whether the sense was bought or granted by a potion (a Red Priest's, a
 Demoness's, a Visionary's). A potion's stronger row, such as Greater Acute
 Vision's +4, is a line of its own; tick both only if the GM rules they add.
+A Light Sleeper sees *Light Sleeper: Perception rolls while sleeping at +4*
+on those skill rolls and at the foot of the detection roll; it counts there
+only when that roll takes Per, and the dialog says so when it takes SPI.
 **Artifacts** lists
 sealed artifacts, their grades, and what each ability costs in SPI or HP — the
 grade is *not* a gate on use, deliberately.
