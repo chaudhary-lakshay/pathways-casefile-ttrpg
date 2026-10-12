@@ -6726,6 +6726,129 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gs. "-N to all rolls", declared once on the sheet
+
+6gi's table left three disadvantages under *"to all rolls" under a state
+the GM declares*: Addiction: Laudanum, Superstitious (mundane), Entity
+Fixation. A catalogue census for a signed *"to all rolls"* not followed by
+a purpose (*"to diagnose"*, *"to influence"*) found five rows. The other two
+each carried a refusal, and both reasons were claims about this app:
+
+- **Phobia (specify)**: *"this app models one declared all-rolls state
+  (shock) and has no control for a second yet"*. True until this slice.
+- **Soul Scar**: *"it names a Fright Check FAILURE as its trigger rather
+  than a roll to make, so there is nothing here to roll or to modify"*.
+  The trigger is no roll. The *"-1 to all rolls for the scene"* it starts
+  lands on every roll after it, so the reason was false from the start.
+
+**The shape is shock's.** The design review (Sonnet, `kotlin-reviewer.md`)
+weighed one sheet-level declaration against a chip in every dialog, the
+shape Tobacco took in 6gr. Per-roll chips would make the GM re-declare a
+phobia on every roll of a fight, and cannot reach a defence row, because
+`everyDefence` is computed once per dialog. So `ClauseChips` sits on the
+Vitals tab under the shock banner, held in `remember(sheet)` beside
+`shocked`, not saved. Every roll takes what is lit and names it.
+
+- `TraitClauses.ALL_ROLLS_CLAUSES`: five verbatim clauses, all
+  conditional. `allRollsClauses(traits)` gives them under the sheet's
+  spelling. `allRollsModifiers` turns the lit ones into FromTrait ledger
+  modifiers. `clauseBonus` gives the number and its words for the bare
+  rolls.
+- **Reach, from a census of every roll site in `app/src/main`.** Ledger
+  rolls (skill, Attack, the Acrobatic Dodge) take it through
+  `conditionsFor`. Its `withShock` flag is now `withStates`, so Ritual, Boon
+  and Divination keep it out of their *"hurt or tired"* sum and print it as
+  its own term. As a named term it also reaches the Fright Check and its
+  recovery, Concentrate, Detection, Spirit Vision, self-control (inside
+  `standing`, named in the footer), every defence row (`everyDefence`),
+  Damage's Major Wound and stun-recovery HT rolls, and the Vitals tab's
+  three HT rolls.
+- **The Major Wound HT roll takes it and still refuses shock.** Shock's
+  refusal is that the roll creates shock. Withdrawal is carried in, as
+  `hurt` is.
+- **Excluded, as for shock and the trackers today:** the PCR, where no
+  state reaches at all (a candidate slice, not this one), and
+  `Invocation.ask`, which is the entity's roll.
+- Entity Fixation's *"-2 to any roll that requires you to ignore them"*
+  names a purpose: refused on `PURPOSE_NOT_SKILL`, the 6gj constant.
+
+**A pre-existing gap, its own commit (`5a106fa`).** The HP table's two HT
+rolls and the daily recovery roll arrived after `RollKind`'s census. They
+took the trackers' penalty but not shock's, on the tab that prints the
+shock banner. The design review asked for this as a separate commit made
+first, and `RollKind.ATTRIBUTE`'s KDoc now lists them.
+
+**Found on the device:** the skill dialog's ledger line read *"Phobia
+(specify), Addiction: Laudanum, Outdoorsman: -2"*: the catalogue's
+placeholder, where every other screen said *"(Cities)"*. `bonus()` takes a
+`shown` name for the FromTrait label and keeps `trait` for the id and the
+advantage flag. The other declared skill clauses still pass the catalogue
+name; none of those rows is a placeholder.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| every cell printing a state on all rolls is a row | empty table: *expected: <[Addiction: Laudanum, Superstitious (mundane), Soul Scar, Entity Fixation, Phobia (specify)]> but was: <[]>* |
+| a premade's phobia offers its all-rolls clause under its own spelling | *List is empty*; then the label: *expected: <Phobia (Cities)> but was: <Phobia (specify)>* |
+| declared states sum and reach a skill roll as trait modifiers | *expected: <2> but was: <0>* |
+| the five rows are known and the refusals they carried are gone | *expected: <5> but was: <0>* |
+| every engine composing a bare target takes the state as its own term | ignored parameter: *expected: <8> but was: <10>* |
+| shock reaches both vital rolls / the daily recovery roll as its own term | ignored parameter: *expected: <5> but was: <9>* |
+| two held phobias are two declarations | the review's MEDIUM, above |
+| `TraitReportedTest`: the clauses a fright row prints beside its modifier | flipped: it asserted Phobia's all-rolls half was REPORTED, the expired refusal |
+
+A mutant that dropped Soul Scar's row reddened four tests, one of them
+`TraitReportedTest`'s *"reach nothing, silently"* guard. 2080 Kotlin (1371
+`core:rules`, 689 `app`, 20 `core:model`), 0 failures. The full suite ran
+with `--rerun-tasks` from deleted results at 2079, and the review's test
+was added after it. The click-handler census still reads
+32, and `ast-grep scan` is clean.
+
+### Device pass
+
+SM-T570, Hunter-Tracker (Phobia (Cities)), seeded with Addiction: Laudanum,
+both lit:
+
+- Concentrate: *"3d6 ≤ 3"* and *"includes Phobia (Cities) -1, Addiction:
+  Laudanum -2"*.
+- Defend: *"Declared on the sheet: Phobia (Cities) -1, Addiction: Laudanum
+  -2 to every defence below."*, Dodge 4 (7 − 3), Acrobatic Dodge *"3d6 ≤ 0
+  (3 → 0)"*. Once, not twice.
+- Tracking 11: *"3d6 ≤ 9"* with Outdoorsman's +1. After the label fix it
+  read *"Phobia (Cities), Addiction: Laudanum, Outdoorsman: -2"*.
+- Damage 6 to HP: *"Roll HT 6"* (HT 9 − 3), naming both. Not applied.
+- Traits: both rows read *Applied*.
+- Unseeded, Phobia lit, 1 HP lost: *"HT 9, Phobia (Cities) -1"*, *"Roll HT
+  8 — a day of rest and food"*.
+
+The save was restored and `cmp`-identical after each pass. Shock on the
+Vitals rows was not driven on the device, because it needs a Major Wound
+roll to succeed. Its wiring is the same `states` path shown above, plus a
+rules test.
+
+### The diff review
+
+Sonnet, `kotlin-reviewer.md`, on `git diff aab489e`: SHIP WITH CHANGES,
+one MEDIUM, taken. `allRollsClauses` deduped on the catalogue row, so a
+character holding Phobia (Cities) and Phobia (Heights) got one chip. It now
+dedupes on `TraitClause.key` (spelling and clause), and the modifier's id
+takes the key, because two lit phobias would otherwise share one id in the
+ledger. Test: *two held phobias are two declarations*, watched failing
+(*expected: <[Phobia (Cities), Phobia (Heights)]> but was: <[Phobia
+(Cities)]>*). Not re-run on the device: the ledger label is unchanged.
+
+It traced every dialog and found each term in the target once and printed
+once, and no roll that takes the state twice. Its case against `bonus()`'s
+`shown` parameter: an id reading `phobia (specify)` beside a source
+reading *"Phobia (Cities)"* would mislead a future comparison of
+`FromTrait.name` to a catalogue name. No such comparison exists. The
+`shown` KDoc says it is the sheet's spelling.
+
+**Next**: the PCR takes no carried state (hurt, shock or declared). Whether
+"all rolls" reaches it is a reading of its own. Then 6gi's table, less
+these rows.
+
 ## 6gr. "-1 to Will", read as a roll
 
 6gi's backlog left three disadvantages unread: *Addiction: Tobacco*,
