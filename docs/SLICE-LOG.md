@@ -6745,6 +6745,26 @@ terms stayed closed. Display only, and the save was `cmp`-identical after the
 pass. No Compose test harness exists (section 6), so the device pass is the
 proof.
 
+### The two paths 6gn never ran, run
+
+- **Fright's recovery roll.** On Antiquarian Dealer, a +2 trigger failed
+  by 1, effect roll 11, *"10–11: Stunned 1d–2d sec; roll vs. Will to
+  recover."* The button rolled *3d6: 12 vs 9*, *"Still there; the row asks
+  again."* It also printed **"Roll WILL 9"**: the template printed
+  `RecoveryAttribute`'s Kotlin name, not the book's word. It reads *"Roll
+  Will 9"* now, through an exhaustive `when`, so a new member has to name
+  itself. The Confusion column's `IQ` was already right by coincidence. A
+  sweep of every `${…}` in `app/` whose field is named like an enum found
+  no other: the rest are Strings, or `Attr` and `Pool`, whose names are
+  the book's.
+- **The ritual push row.** On Church Healer with a seeded Ritualistic
+  Magic 8 (skill 15, SPI 8), Cast rolled *3d6: 14 vs 15*, *"Success by
+  0–2"*, and SPI went to 6 for the fuel. *+2* re-read the same dice as
+  *14 vs 17*, *"Success by 3+"*, with *"Spent so far: 2"*. SPI went to 4
+  only when the dialog closed, as the row says.
+
+The save was restored from its backup and is `cmp`-identical.
+
 ## 6gn. The redesign: nine Stitch components, one a commit
 
 After 6gm the owner rejected the screens as text walls. The decision:

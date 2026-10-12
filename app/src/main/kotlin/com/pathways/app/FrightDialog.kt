@@ -45,6 +45,7 @@ import com.pathways.rules.StunRecovery
 import com.pathways.rules.ClauseBonus
 import com.pathways.rules.TraitClauses
 import com.pathways.rules.content.FrightRecovery
+import com.pathways.rules.content.RecoveryAttribute
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.content.FrightTrigger
 
@@ -359,7 +360,12 @@ private fun FrightRecoveryPanel(
     Column(Modifier.padding(top = 8.dp)) {
         if (rolled == null) {
             TextButton(onClick = { onRoll(target) }) {
-                Text("Roll ${recovery.attribute} $target to recover now")
+                // The book's word, as the cell prints it: the enum's name is "WILL".
+                val attribute = when (recovery.attribute) {
+                    RecoveryAttribute.WILL -> "Will"
+                    RecoveryAttribute.IQ -> "IQ"
+                }
+                Text("Roll $attribute $target to recover now")
             }
             if (bonus != 0) {
                 Text(
