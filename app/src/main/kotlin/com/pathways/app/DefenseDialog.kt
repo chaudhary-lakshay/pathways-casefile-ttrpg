@@ -446,6 +446,15 @@ fun DefenseDialog(
                     )
                 }
                 item {
+                    // The unarmed cell's own notes first, beside the rows they
+                    // belong to, as the armed cell's sit under its rows. Printed
+                    // last, after the weapon note, they read as its explanation
+                    // (seen on the SM-T570, 6hd). Only under a row: against a
+                    // shot none stands, and the refusal below quotes the cell.
+                    if (standing.isNotEmpty()) {
+                        printed.firstOrNull { it.defense.startsWith("Parry (Unarmed)") }
+                            ?.let { DefenseNote(it.notes) }
+                    }
                     // The DX row's two readings, said beside it. Until 6ev
                     // a note here called a sheet with no unarmed skill "a
                     // gap" in defaults, under a cell that prints DX.
@@ -492,8 +501,6 @@ fun DefenseDialog(
                     if (standing.isEmpty() && parries.isNotEmpty()) {
                         DefenseNote("No unarmed parry against a shot: \"Cannot parry ranged attacks.\"")
                     }
-                    printed.firstOrNull { it.defense.startsWith("Parry (Unarmed)") }
-                        ?.let { DefenseNote(it.notes) }
                     // The stepper sits UNDER the parry rows, because it moves
                     // them and a control above them would read as applying to
                     // Dodge too -- which takes no such penalty ("May be used
