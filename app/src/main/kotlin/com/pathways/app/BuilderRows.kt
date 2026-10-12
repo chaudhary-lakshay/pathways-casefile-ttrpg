@@ -214,7 +214,9 @@ internal fun studyAdvice(
 ): StudyAdvice {
     val attributeLevel = Derive.controllingLevel(
         purchased.key.attr,
-        character.attributes,
+        // As played before potions, the attribute [derived]'s level beside
+        // this tag was read from: a blessing lifts both or neither (6hi).
+        Derive.attributes(character, null),
         derived.secondaries,
         character.spi,
     )

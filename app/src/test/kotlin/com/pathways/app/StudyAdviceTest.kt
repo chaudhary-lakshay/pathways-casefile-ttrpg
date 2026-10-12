@@ -1,6 +1,11 @@
 package com.pathways.app
 
+import com.pathways.model.ControllingAttribute.Buyable
+import com.pathways.model.Trait
+import com.pathways.model.TraitKind
+import com.pathways.rules.Blessings
 import com.pathways.rules.Derive
+import com.pathways.rules.TraitEffects
 import com.pathways.rules.Premades
 import com.pathways.rules.Study
 import com.pathways.rules.StudyMethod
@@ -63,5 +68,32 @@ class StudyAdviceTest {
         }
         // Neither branch may be vacuous.
         assertTrue(refused > 0 && planned > 0, "refused $refused, planned $planned")
+    }
+
+    /**
+     * The row prints the level a blessed attribute gives (`Derive.of`, 6hf),
+     * so the rung study buys is read from the same attribute: one higher than
+     * the level beside it, never three lower. The expectation is the row's
+     * own number, not the advice's arithmetic.
+     */
+    @Test
+    fun `a blessed holder's study tag climbs from the level the row prints`() {
+        var checked = 0
+        for (sheet in Premades.all()) {
+            val mortal = sheet.toCharacter()
+            val character = mortal.copy(
+                traits = mortal.traits + Trait(TraitEffects.GOD_OF_COMBAT, 75, TraitKind.ADVANTAGE),
+            )
+            val derived = Derive.of(character)
+            for (skill in character.skills) {
+                val attr = (skill.key.attr as? Buyable)?.attr ?: continue
+                if (Blessings.gainTo(attr, listOf(TraitEffects.GOD_OF_COMBAT)) == 0) continue
+                val tag = studyAdvice(skill, character, derived, StudyMethod.TUTOR).tag
+                val to = tag.substringAfter("→ ", "").toIntOrNull() ?: continue
+                checked++
+                assertEquals(derived.skillLevels.getValue(skill.key) + 1, to, "${sheet.name} ${skill.key.display}: $tag")
+            }
+        }
+        assertTrue(checked > 0, "no blessed skill had a plan")
     }
 }
