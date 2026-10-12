@@ -6831,6 +6831,14 @@ Its call site passes neither new parameter, and the review confirmed
 that the defaults reproduce the old strings and that the extraction is
 verbatim.
 
+*Driven afterwards, on `5664fbd`* (Church Healer, seeded Ritualistic
+Magic 8): Full, Light, 2 SPI printed *3d6 ≤ 15, costs 2 SPI*. Cast gave
+*The ritual holds, 3d6: 12 vs 15, Success by 3+*, SPI 8 to 6. The push
+row's *+1* re-read the same dice as *12 vs 16*, *Spent so far: 1*, and
+on Close SPI read 5 and the save held `spiSpent: 3`. That also covers
+the ritual push row 6gn left undriven. Save restored, `cmp`-identical.
+Still not tapped: a conditional Will clause, for want of a premade.
+
 ## 6go. The glossary and theme sheets, surveyed
 
 6gm and 6gn both listed these two sheets as never surveyed. Both were
