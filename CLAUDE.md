@@ -363,11 +363,14 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6gu first** (Light
+**Where to start next: the slice log, from the END — 6gv first**
+(Perceptual Splitting's -2 declared on the sheet and scoped to the rolls
+line 390 calls physical: `physicalStates` beside `states`, and the ledger
+asks `EffortBurn.isPhysical`; the signed unread rows are all triaged, and
+none is a slice without a stored choice or a new roll). Then 6gu (Light
 Sleeper's +4 declared on a Per skill and on Detection's Per branch, never
-Spirit Vision; Skinny refused as a purpose, Marked by Ritual needs a stored
-choice; the unread census reads 117, and its 25 signed rows are listed
-there untriaged). Then 6gt (no roll
+Spirit Vision; Skinny refused as a purpose; the unread census read 117).
+Then 6gt (no roll
 changed: the PCR takes no carried state, on the book's "Only the drinker's
 digestion ... matters", and no row names the roll). Then 6gs (five
 "-N to all rolls" drawbacks declared once on the Vitals tab, reaching every
@@ -433,7 +436,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2084 Kotlin** (JUnit 5 — 1373 `core:rules`, 691 `app`, 20 `core:model`) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2088 Kotlin** (JUnit 5 — 1377 `core:rules`, 691 `app`, 20 `core:model`) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, and then `123d68c..4e9ab4e`, the file splits (SHIP, no findings); nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -682,6 +685,12 @@ TraitClauses.skillRollClauses(traits, skill)   // every clause a skill roll asks
                                       // (6fh), and Absent-Mindedness on every
                                       // skill (6gj). The dialog's chips and
                                       // modifiers() read it
+TraitClauses.declaredStates(traits, declared): DeclaredStates
+                                      // the lit sheet states: .all for a roll
+                                      // that is not physical, .physical for
+                                      // one that is (6gs, 6gv)
+TraitClauses.declaredModifiers(traits, declared, physical)   // the ledger's
+EffortBurn.isPhysical(key)            // line 390: based on ST, DX or HT
 TraitClauses.perRollClauses(traits)   // Light Sleeper's declared +4: a Per
                                       // skill and Detection's Per branch (6gu)
 TraitClauses.visionClause(traits)     // Acute Vision alone, for Spirit

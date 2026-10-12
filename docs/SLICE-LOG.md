@@ -6726,6 +6726,125 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6gv. Perceptual Splitting, on the rolls the book calls physical
+
+6gu listed 25 unread rows that print a signed number and triaged three.
+This slice triages the rest and takes the one that is a slice.
+
+| Rows | Why not now |
+|---|---|
+| Social Stigma, Vow (specify), Cannot Kill | the number is a price, not a modifier: the 6gu regex counted them |
+| Local Legend, Respectable Address, Illegitimate Birth, Dead-Eyed | *"social rolls"*, `BARE_SOCIAL_ROLLS`' refusal |
+| Wealth: Comfortable, Poor and Dead Broke, Reputation: Troublemaker, Unsettling Appearance | reactions; the book prints no reaction roll (6w) |
+| Cold Resistance, Controlled Breathing | a roll this app does not make (hypothermia, airborne toxins) |
+| Low-Profile Build, Anchored Soul, Pathway Resonance (Hostile) | someone else's roll against the holder |
+| Dreamsight, Pathway Resonance, Skinny | a purpose and no skill (*"one investigation roll"*, *"rolls to identify"*; Skinny in 6gu) |
+| Marked by Ritual, Charmed Object | a choice the save would have to store (*"one type of SPI roll"*, *"specify item and skill"*) |
+| Bound to a Place | a count of weeks (6gr) |
+| **Perceptual Splitting** | this slice |
+
+So of the rows that print a modifier, none is left that is a slice
+without a stored choice or a new roll.
+
+**Perceptual Splitting** (book 1550-1551): *"At moments of high spiritual
+activity, senses temporarily separate from your body. All physical rolls
+at -2 during an episode (1d seconds)."* A state the GM declares, as 6gs's
+five are, but not on all rolls. **The book defines the group**, on line
+390: *"FP -> Physical Rolls. Spend 1 FP to gain +1 on any roll based on
+ST, DX, or HT (attack rolls, dodging, climbing, lifting, etc.)."* That is
+what separates it from *"social rolls"*, which the book never lists.
+
+**The design review came first** (Sonnet, `kotlin-reviewer.md`, on the
+written decomposition), because every consumer of 6gs's `states` adds it
+unscoped: this row in `ALL_ROLLS_CLAUSES` would have put -2 on Fright,
+Concentrate and every ritual. It weighed a second number handed to the
+physical sites against a scope field on `TraitClause` asked at every site,
+and chose the first: the ~15 sites receive a summed `ClauseBonus` and never
+see a clause, so the scope field would rewrite them all for nothing. Its
+amendments, all taken:
+
+- The ledger side is asked per roll, not pre-built: `stateModifiers` is now
+  a function of *physical or not*, and `conditionsFor` asks
+  `EffortBurn.isPhysical(key)`.
+- `physicalStates` has no default at `SheetDialogs`, so a new dialog must
+  say which of the two it takes.
+- One rules function composes both numbers
+  (`TraitClauses.declaredStates`), so the composition is unit-tested and
+  only the hand-off is device-only.
+
+It checked every self-control check's attribute (all IQ or Will), that
+stun recovery rolls HT and fright recovery Will or IQ, and found no roll
+site missing from the list.
+
+### What changed
+
+- `TraitClauses.PHYSICAL_ROLLS_CLAUSES`, one row. `declaredStateClauses`
+  is the sheet's one chip list; `declaredStates(traits, declared)` gives
+  `all` and `physical`; `declaredModifiers(traits, declared, physical)`
+  gives the ledger's.
+- **One predicate.** `EffortBurn.isPhysical(key)` is `kindFor(key) ==
+  PHYSICAL`, the answer the FP push already reads off line 390. No second
+  ST/DX/HT set.
+- **Reach.** A skill roll asks its key, so the Acrobatic Dodge and an
+  untrained roll are covered. By site, on line 390's own words: Attack
+  (*"attack rolls"*), every defence row (*"dodging"*; a parry or block is a
+  DX skill's), the Vitals tab's three HT rolls, and Damage's Major Wound
+  and stun-recovery HT rolls. Never: an IQ, Will, Per or SPI skill, the
+  Fright Check and its recovery, Concentrate, Detection, Spirit Vision,
+  self-control, Ritual, Divination, Boon.
+- The Vitals note read *"Lit: on every roll until cleared here"*, false of
+  this chip. It reads *"on every roll it names"*.
+- The cell's first sentence and *"(1d seconds)"* say when and how long.
+  The chip is that declaration and the GM clears it; the app holds no
+  clock. `TraitReportedTest`'s clause guard did not fire, so nothing was
+  added to `PARTLY_APPLIED`.
+
+### Tests
+
+| Test | Watched failing against |
+|---|---|
+| a physical roll is one based on ST, DX or HT | stub: *ST ==> expected: <true> but was: <false>* |
+| every cell printing a state on physical rolls is a row | no rows: *expected: <[Perceptual Splitting]> but was: <[]>* |
+| an episode is one sheet chip and reaches a physical roll alone | *List is empty* |
+| an all-rolls state is on both and sums with the episode on a physical roll | *expected: <2> but was: <1>* |
+
+2088 Kotlin (1377 `core:rules`, 691 `app`, 20 `core:model`), 0 failures,
+after `--rerun-tasks` from deleted results. `ast-grep scan` is clean and
+the click-handler census reads 32.
+
+### Device pass
+
+Docks Bouncer, seeded mortal with Perceptual Splitting and Addiction:
+Laudanum; Perceptual Splitting lit alone.
+
+- Vitals: both chips, and *"Lit: on every roll it names until cleared
+  here"*.
+- Brawling (DX) 12: *"3d6 ≤ 10"*, *"Perceptual Splitting: -2"*.
+- Carousing (HT) 12: *"3d6 ≤ 11"*, *"Perceptual Splitting, Fit: -1"*.
+- Streetwise (IQ) 10: *"3d6 ≤ 10"*, no line.
+- Concentrate: *"Will 9-3"*, *"3d6 ≤ 6"*, no state.
+- Defend: *"Declared on the sheet: Perceptual Splitting -2 to every
+  defence below."*
+- Attack, Brawling: *"Declared on the sheet: Perceptual Splitting -2"*,
+  *"3d6 ≤ 10"*.
+
+No FATAL in logcat. **Not driven:** the Vitals HT rolls and Damage's two
+(they need a hurt character), and Laudanum lit beside it; the rules tests
+cover the sum.
+
+**A correction to 6gu's device note.** That device is the SM-T570:
+`ro.product.name` reads `gtactive3wifixx`, and only `ro.product.model`
+reads `AIM-75`. The app had been uninstalled from it. After 6gu's fresh
+install the tablet's old test save came back (eight premades; the data
+directory is dated 2026-09-06), most likely Android's backup restoring it.
+This pass found it in place of the file 6gu had deleted, backed it up
+before seeding, and restored it `cmp`-identical; a copy is at
+`~/pathways-device-backups/sessions-2026-10-12.json`. The dump's
+coordinates changed too: 1:1 on the fresh install, 3/4 of physical after
+the restore, with a dialog scaled about its own frame's origin. The
+tablet rotated mid-pass, and I pinned landscape for one minute and put
+auto-rotate back.
+
 ## 6gu. Light Sleeper, declared on a Per roll
 
 6gi's table left three rows as *"each names a roll loosely; a reading
