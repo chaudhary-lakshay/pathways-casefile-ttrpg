@@ -6813,9 +6813,12 @@ block from *"6gy back to 6de had lead"* to *"its 8,000-character cap"*):
 7,767. The whole block, sentences around it included, is 8,028, and was
 8,016 at 6hg.
 
-**Next.** Nothing is queued. The four rows above were queried. 6gx's
-other claim about this app, *"this app holds one sheet"* (nine rows), was
-not, and neither were its verdicts that rest on the book.
+**Next.** Nothing is queued. The four rows above were queried, and
+after the push so were the nine 6gx put under *"what someone else
+perceives or does"*: each cell re-read from the two catalogues, and none
+prints a number on the holder's own roll. Haunted's *"it may interfere
+with rituals"* names no modifier, so it is the GM's. All nine hold. 6gx's
+verdicts that rest on the book were not re-read.
 
 ## 6hg. Reckless's -1, the sixth declared all-rolls state
 
