@@ -262,9 +262,9 @@ fun DivinationDialog(
         },
         title = { Text("Divination Arts $skillLevel") },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                val answer = outcome
-                if (answer != null) {
+            val answer = outcome
+            if (answer != null) {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
                     // The backlash is shown only while the roll it came from
                     // is still critical: a push can take a margin-based
                     // critical failure off that row, and printing the ritual
@@ -289,401 +289,366 @@ fun DivinationDialog(
                             outcome = Divination.pushed(live, points)
                         }
                     }
-                    return@Column
                 }
-                sourceLine?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
-                Text("Question", style = MaterialTheme.typography.titleSmall)
-                FlowRow {
-                    difficulties.forEach { option ->
-                        FilterChip(
-                            selected = option == difficulty,
-                            onClick = { difficulty = option },
-                            label = {
-                                Text("${option.band.substringBefore(" ")} ${option.printedModifier}")
-                            },
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
+                return@AlertDialog
+            }
+            Column {
+                Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+                    sourceLine?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+                    SectionLabel("Question")
+                    FlowRow {
+                        difficulties.forEach { option ->
+                            FilterChip(
+                                selected = option == difficulty,
+                                onClick = { difficulty = option },
+                                label = {
+                                    Text("${option.band.substringBefore(" ")} ${option.printedModifier}")
+                                },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
                     }
-                }
-                Text(difficulty.example, style = MaterialTheme.typography.bodySmall)
+                    Text(difficulty.example, style = MaterialTheme.typography.bodySmall)
 
-                Text(
-                    "Scope",
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-                FlowRow {
-                    scopes.forEach { option ->
-                        FilterChip(
-                            selected = option == scope,
-                            onClick = { scope = option },
-                            label = {
-                                // The two free rows carry no number to show,
-                                // and showing "+0" would print a modifier the
-                                // book does not.
-                                Text(
-                                    listOfNotNull(option.scope, option.printedModifier)
-                                        .joinToString(" "),
+                    SectionLabel("Scope")
+                    FlowRow {
+                        scopes.forEach { option ->
+                            FilterChip(
+                                selected = option == scope,
+                                onClick = { scope = option },
+                                label = {
+                                    // The two free rows carry no number to show,
+                                    // and showing "+0" would print a modifier the
+                                    // book does not.
+                                    Text(
+                                        listOfNotNull(option.scope, option.printedModifier)
+                                            .joinToString(" "),
+                                    )
+                                },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                    Text(
+                        "${scope.examples} — ${scope.guidance}",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+
+                    SectionLabel("Method")
+                    FlowRow {
+                        methods.forEach { option ->
+                            FilterChip(
+                                selected = option == method,
+                                onClick = { method = option },
+                                label = { Text("${option.method} ${spiLabel(option)}") },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                    Text(
+                        "${method.time}, ${spiLabel(method)} SPI — ${method.bestFor}",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    method.spiMax?.let { most ->
+                        // The one method whose cost is a range. Showing it while
+                        // always charging the low end is how the app undercharges
+                        // a debt the book makes permanent.
+                        FlowRow {
+                            (method.spi..most).forEach { option ->
+                                FilterChip(
+                                    selected = option == spiChoice,
+                                    onClick = { spiChoice = option },
+                                    label = { Text("$option SPI") },
+                                    modifier = Modifier.padding(end = 8.dp),
                                 )
-                            },
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
-                    }
-                }
-                Text(
-                    "${scope.examples} — ${scope.guidance}",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-
-                Text(
-                    "Method",
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-                FlowRow {
-                    methods.forEach { option ->
-                        FilterChip(
-                            selected = option == method,
-                            onClick = { method = option },
-                            label = { Text("${option.method} ${spiLabel(option)}") },
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
-                    }
-                }
-                Text(
-                    "${method.time}, ${spiLabel(method)} SPI — ${method.bestFor}",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                method.spiMax?.let { most ->
-                    // The one method whose cost is a range. Showing it while
-                    // always charging the low end is how the app undercharges
-                    // a debt the book makes permanent.
-                    FlowRow {
-                        (method.spi..most).forEach { option ->
-                            FilterChip(
-                                selected = option == spiChoice,
-                                onClick = { spiChoice = option },
-                                label = { Text("$option SPI") },
-                                modifier = Modifier.padding(end = 8.dp),
-                            )
+                            }
                         }
                     }
-                }
 
-                Text(
-                    "Circumstances",
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-                FlowRow {
-                    rows.forEach { option ->
-                        FilterChip(
-                            selected = option.source in chosen,
-                            onClick = {
-                                chosen = if (option.source in chosen) {
-                                    chosen - option.source
-                                } else {
-                                    chosen + option.source
-                                }
-                            },
-                            label = {
-                                Text("${option.source.substringBefore(" (")} ${option.printed}")
-                            },
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
-                    }
-                }
-                // The second row of chips appears only for a span that is
-                // ticked: an untouched table reads as it always did, and a
-                // row printing one number gets no picker at all.
-                picks.filter { it.best != null }.forEach { row ->
-                    Text(
-                        "${row.source.substringBefore(" (")} — pick a value",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
+                    SectionLabel("Circumstances")
                     FlowRow {
-                        endsBetween(row.modifier!!, row.best).forEach { value ->
+                        rows.forEach { option ->
                             FilterChip(
-                                // The row's own figure is what the engine
-                                // applies when nothing is picked, so the chip
-                                // showing selected is the one being used.
-                                selected = (picked[row.source] ?: row.modifier) == value,
-                                onClick = { picked[row.source] = value },
-                                label = { Text(signed(value)) },
-                                modifier = Modifier.padding(end = 8.dp),
-                            )
-                        }
-                    }
-                }
-                if (picks.any { it.perRepeat }) {
-                    Text(
-                        "How many times this subject has been divined before",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
-                    FlowRow {
-                        repeatChoices().forEach { count ->
-                            FilterChip(
-                                selected = repeats == count,
-                                onClick = { repeats = count },
-                                label = { Text("x$count") },
-                                modifier = Modifier.padding(end = 8.dp),
-                            )
-                        }
-                    }
-                }
-
-                Text(
-                    "Supporting skills",
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-                if (ownedSupportSkills.isEmpty()) {
-                    // Naming the four is the point: a bare absence reads as a
-                    // screen that forgot to render, which is the call 6am made
-                    // for the ritual dialog's own empty branch.
-                    Text(
-                        "This diviner has none of the book's " +
-                            "${Divination.supportingSkills().size} supporting skills " +
-                            "(${Divination.supportingSkills().joinToString { it.skill }}).",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                } else {
-                    Text(
-                        // What each skill is worth is on its own chip below, so
-                        // this line states only the cap. "+1 each" was a third
-                        // copy of a number the rows already print.
-                        "Capped at +${Divination.MAX_SUPPORT_BONUS} — the book's own cap " +
-                            "for divination, which is not ch. 7's " +
-                            "+${RitualMode.SUPPORT_CAP}.",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    FlowRow {
-                        ownedSupportSkills.forEach { option ->
-                            FilterChip(
-                                selected = option.skill in supporting,
+                                selected = option.source in chosen,
                                 onClick = {
-                                    supporting = if (option.skill in supporting) {
-                                        supporting - option.skill
+                                    chosen = if (option.source in chosen) {
+                                        chosen - option.source
                                     } else {
-                                        supporting + option.skill
+                                        chosen + option.source
                                     }
                                 },
-                                label = { Text("${option.skill} ${signed(option.bonus)}") },
+                                label = {
+                                    Text("${option.source.substringBefore(" (")} ${option.printed}")
+                                },
                                 modifier = Modifier.padding(end = 8.dp),
                             )
                         }
                     }
-                }
-                // A printed bonus this screen does not offer, said out loud
-                // rather than left silent, with its reason read from the rules
-                // rather than paraphrased here. OUTSIDE the branch above: the
-                // refusal has nothing to do with owning a supporting skill, and
-                // a diviner who owns none is the likelier reader of it.
-                Divination.UNAPPLIED.forEach { (rule, reason) ->
-                    Text(
-                        "$rule ${signed(Divination.SPECIALISATION_BONUS)} is not " +
-                            "applied here — $reason.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                    // The second row of chips appears only for a span that is
+                    // ticked: an untouched table reads as it always did, and a
+                    // row printing one number gets no picker at all.
+                    picks.filter { it.best != null }.forEach { row ->
+                        Text(
+                            "${row.source.substringBefore(" (")} — pick a value",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        FlowRow {
+                            endsBetween(row.modifier!!, row.best).forEach { value ->
+                                FilterChip(
+                                    // The row's own figure is what the engine
+                                    // applies when nothing is picked, so the chip
+                                    // showing selected is the one being used.
+                                    selected = (picked[row.source] ?: row.modifier) == value,
+                                    onClick = { picked[row.source] = value },
+                                    label = { Text(signed(value)) },
+                                    modifier = Modifier.padding(end = 8.dp),
+                                )
+                            }
+                        }
+                    }
+                    if (picks.any { it.perRepeat }) {
+                        Text(
+                            "How many times this subject has been divined before",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        FlowRow {
+                            repeatChoices().forEach { count ->
+                                FilterChip(
+                                    selected = repeats == count,
+                                    onClick = { repeats = count },
+                                    label = { Text("x$count") },
+                                    modifier = Modifier.padding(end = 8.dp),
+                                )
+                            }
+                        }
+                    }
 
-                HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                Text("Target's protection", style = MaterialTheme.typography.titleSmall)
-                Text(
-                    "A Beyonder resists being divined. Leave this off for an " +
-                        "ordinary target.",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                FlowRow {
-                    FilterChip(
-                        selected = targetSequence == null,
-                        onClick = { targetSequence = null },
-                        label = { Text("Not a Beyonder") },
-                        modifier = Modifier.padding(end = 8.dp),
-                    )
-                    // The book's table covers 2..9 and stops; AntiDivination
-                    // throws below that rather than inventing a god's row, so
-                    // the chips stop where the table does.
-                    immunityRows.forEach { row ->
-                        FilterChip(
-                            selected = targetSequence
-                                ?.let { it in row.sequenceLow..row.sequenceHigh } == true,
-                            onClick = { targetSequence = row.sequenceHigh },
-                            label = { Text(row.label.substringBefore(" (")) },
-                            modifier = Modifier.padding(end = 8.dp),
+                    SectionLabel("Supporting skills")
+                    if (ownedSupportSkills.isEmpty()) {
+                        // Naming the four is the point: a bare absence reads as a
+                        // screen that forgot to render, which is the call 6am made
+                        // for the ritual dialog's own empty branch.
+                        Text(
+                            "This diviner has none of the book's " +
+                                "${Divination.supportingSkills().size} supporting skills " +
+                                "(${Divination.supportingSkills().joinToString { it.skill }}).",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    } else {
+                        Text(
+                            // What each skill is worth is on its own chip below, so
+                            // this line states only the cap. "+1 each" was a third
+                            // copy of a number the rows already print.
+                            "Capped at +${Divination.MAX_SUPPORT_BONUS} — the book's own cap " +
+                                "for divination, which is not ch. 7's " +
+                                "+${RitualMode.SUPPORT_CAP}.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        FlowRow {
+                            ownedSupportSkills.forEach { option ->
+                                FilterChip(
+                                    selected = option.skill in supporting,
+                                    onClick = {
+                                        supporting = if (option.skill in supporting) {
+                                            supporting - option.skill
+                                        } else {
+                                            supporting + option.skill
+                                        }
+                                    },
+                                    label = { Text("${option.skill} ${signed(option.bonus)}") },
+                                    modifier = Modifier.padding(end = 8.dp),
+                                )
+                            }
+                        }
+                    }
+                    // A printed bonus this screen does not offer, said out loud
+                    // rather than left silent, with its reason read from the rules
+                    // rather than paraphrased here. OUTSIDE the branch above: the
+                    // refusal has nothing to do with owning a supporting skill, and
+                    // a diviner who owns none is the likelier reader of it.
+                    Divination.UNAPPLIED.forEach { (rule, reason) ->
+                        Text(
+                            "$rule ${signed(Divination.SPECIALISATION_BONUS)} is not " +
+                                "applied here — $reason.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                }
-                targetSequence?.let { seq ->
+
+                    HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                    SectionLabel("Target's protection")
                     Text(
-                        AntiDivination.rowFor(seq).text,
+                        "A Beyonder resists being divined. Leave this off for an " +
+                            "ordinary target.",
                         style = MaterialTheme.typography.bodySmall,
                     )
                     FlowRow {
                         FilterChip(
-                            selected = directLink,
-                            onClick = { directLink = !directLink },
-                            label = { Text("True name + personal item") },
+                            selected = targetSequence == null,
+                            onClick = { targetSequence = null },
+                            label = { Text("Not a Beyonder") },
                             modifier = Modifier.padding(end = 8.dp),
                         )
-                        FilterChip(
-                            selected = sacrificeHp,
-                            onClick = { sacrificeHp = !sacrificeHp },
-                            label = { Text("Burn $hpForSacrifice HP") },
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
+                        // The book's table covers 2..9 and stops; AntiDivination
+                        // throws below that rather than inventing a god's row, so
+                        // the chips stop where the table does.
+                        immunityRows.forEach { row ->
+                            FilterChip(
+                                selected = targetSequence
+                                    ?.let { it in row.sequenceLow..row.sequenceHigh } == true,
+                                onClick = { targetSequence = row.sequenceHigh },
+                                label = { Text(row.label.substringBefore(" (")) },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
                     }
-                }
-
-                Text(
-                    "Active techniques (Sec. 3)",
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-                Text(
-                    "What the target has raised, and paid SPI for. All active " +
-                        "techniques stack.",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                FlowRow {
-                    allTechniques.forEach { option ->
-                        FilterChip(
-                            selected = option.id in techniqueIds,
-                            onClick = {
-                                techniqueIds =
-                                    if (option.id in techniqueIds) techniqueIds - option.id
-                                    else techniqueIds + option.id
-                            },
-                            label = {
-                                Text(
-                                    option.name + (
-                                        option.divinationPenalty
-                                            ?.let { " ${signed(it)}" } ?: ""
-                                        ),
-                                )
-                            },
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
-                    }
-                }
-                techniques.forEach { chosen ->
-                    // Four of the six price no roll at all -- they divert,
-                    // redirect or answer falsely. Saying what one DOES is the
-                    // only honest thing to show beside a chip worth +0.
-                    //
-                    // Every printed line, not just the Effect. Each technique
-                    // also prints who may use it ("Fool Pathway, Seq 6 --
-                    // Faceless") and its own caveats -- 3A's ward breaks on a
-                    // wound over HP/3, 3D fails against a diviner 2+ Sequences
-                    // stronger, 3B extends to another target for +1 SPI. The
-                    // target has no sheet here, so none of it can be checked;
-                    // showing it is the call 6af made for the Sealed Artifact
-                    // grade table, and a caveat that is extracted but never
-                    // rendered is one the GM cannot apply either.
-                    Text(
-                        "${chosen.name} — ${chosen.availability}",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    chosen.bullets.forEach { line ->
+                    targetSequence?.let { seq ->
                         Text(
-                            "${line.label}: ${line.text}",
+                            AntiDivination.rowFor(seq).text,
                             style = MaterialTheme.typography.bodySmall,
                         )
+                        FlowRow {
+                            FilterChip(
+                                selected = directLink,
+                                onClick = { directLink = !directLink },
+                                label = { Text("True name + personal item") },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                            FilterChip(
+                                selected = sacrificeHp,
+                                onClick = { sacrificeHp = !sacrificeHp },
+                                label = { Text("Burn $hpForSacrifice HP") },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+
+                    SectionLabel("Active techniques (Sec. 3)")
+                    Text(
+                        "What the target has raised, and paid SPI for. All active " +
+                            "techniques stack.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    FlowRow {
+                        allTechniques.forEach { option ->
+                            FilterChip(
+                                selected = option.id in techniqueIds,
+                                onClick = {
+                                    techniqueIds =
+                                        if (option.id in techniqueIds) techniqueIds - option.id
+                                        else techniqueIds + option.id
+                                },
+                                label = {
+                                    Text(
+                                        option.name + (
+                                            option.divinationPenalty
+                                                ?.let { " ${signed(it)}" } ?: ""
+                                            ),
+                                    )
+                                },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
+                    techniques.forEach { chosen ->
+                        // Four of the six price no roll at all -- they divert,
+                        // redirect or answer falsely. Saying what one DOES is the
+                        // only honest thing to show beside a chip worth +0.
+                        //
+                        // Every printed line, not just the Effect. Each technique
+                        // also prints who may use it ("Fool Pathway, Seq 6 --
+                        // Faceless") and its own caveats -- 3A's ward breaks on a
+                        // wound over HP/3, 3D fails against a diviner 2+ Sequences
+                        // stronger, 3B extends to another target for +1 SPI. The
+                        // target has no sheet here, so none of it can be checked;
+                        // showing it is the call 6af made for the Sealed Artifact
+                        // grade table, and a caveat that is extracted but never
+                        // rendered is one the GM cannot apply either.
+                        Text(
+                            "${chosen.name} — ${chosen.availability}",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        chosen.bullets.forEach { line ->
+                            Text(
+                                "${line.label}: ${line.text}",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+
+                    if (protection.requiresCritical) {
+                        // Not expressible as a penalty, so it cannot be left to the
+                        // target number: the book forbids the ordinary success a
+                        // high skill would otherwise buy.
+                        Text(
+                            "Only a critical success (3–4) can succeed — the book says " +
+                                "this penalty cannot be offset by skill alone.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
                     }
                 }
-
-                HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                Text("Roll 3d6 ≤ $target", style = MaterialTheme.typography.titleMedium)
-                if (protection.requiresCritical) {
-                    // Not expressible as a penalty, so it cannot be left to the
-                    // target number: the book forbids the ordinary success a
-                    // high skill would otherwise buy.
-                    Text(
-                        "Only a critical success (3–4) can succeed — the book says " +
-                            "this penalty cannot be offset by skill alone.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-                Text(
-                    "Skill $skillLevel, question ${signed(difficulty.modifier)}" +
-                        (
-                            if (scopePenalty != 0) {
-                                ", ${scope.scope.lowercase()} scope ${signed(scopePenalty)}"
-                            } else ""
-                            ) +
-                        (if (shock != 0) ", shock ${signed(shock)}" else "") +
-                        (
-                            if (spiTrait != 0) {
-                                ", ${signed(spiTrait)} ${TraitEffects.ETHER_BODY_DAMAGE}"
-                            } else ""
-                            ) +
-                        (
-                            if (circumstances != 0) ", circumstances ${signed(circumstances)}"
-                            else ""
-                            ) +
-                        // Named rather than folded into `circumstances`: the
-                        // signed numbers on this line must sum to the target
-                        // printed above it (6ag, 6ai), and the cap means the
-                        // total is not the sum of the chips a GM ticked.
-                        (
-                            if (support != 0) {
-                                ", ${signed(support)} from supporting skills"
-                            } else ""
-                            ) +
-                        (
-                            if (protection.parts.isEmpty()) ""
-                            else ", " + protection.parts.joinToString(", ")
-                            ) +
-                        // What will actually be CHARGED, not the printed
-                        // range: the range is above, beside the chips that
-                        // choose inside it.
-                        ". Costs $cost SPI.",
-                    style = MaterialTheme.typography.bodySmall,
-                )
                 // At 0 SPI the pool table says a Beyonder "cannot activate any
                 // SPI-cost abilities". Withdrawn rather than refused on tap.
-                if (!Pools.canAffordSpi(cost, spiAvailable)) {
-                    Text(
+                val affordable = Pools.canAffordSpi(cost, spiAvailable)
+                RitualFooter(
+                    // Every signed number here sums to the target beside it
+                    // (6ag, 6ai). The support bonus is named rather than
+                    // folded into `circumstances`, because the cap means the
+                    // total is not the sum of the chips a GM ticked.
+                    terms = listOfNotNull(
+                        "Skill $skillLevel",
+                        "question ${signed(difficulty.modifier)}",
+                        if (scopePenalty != 0) "${scope.scope.lowercase()} scope ${signed(scopePenalty)}" else null,
+                        if (shock != 0) "shock ${signed(shock)}" else null,
+                        if (spiTrait != 0) "${signed(spiTrait)} ${TraitEffects.ETHER_BODY_DAMAGE}" else null,
+                        if (circumstances != 0) "circumstances ${signed(circumstances)}" else null,
+                        if (support != 0) "${signed(support)} from supporting skills" else null,
+                    ) + protection.parts,
+                    target = target,
+                    // What will actually be CHARGED, not the printed range:
+                    // the range is above, beside the chips that choose inside it.
+                    cost = "costs $cost SPI",
+                    refusal = if (affordable) {
+                        null
+                    } else {
                         "No question — this method costs $cost SPI and only " +
-                            "$spiAvailable is left. SPI cannot be spent below 0.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                } else TextButton(
-                    onClick = {
-                        // One Ask spends once. Two taps can reach this handler
-                        // before the button leaves the tree, and the second
-                        // would charge the SPI again -- which below 0 buys
-                        // Soul Debt, and that CoR never comes back (Codex).
-                        if (outcome != null) return@TextButton
-                        // Against the target printed above, never composed
-                        // a second time here (6eg, 6eh).
-                        val result = Divination.rollAgainst(
-                            target, dice, requiresCritical = protection.requiresCritical,
-                        )
-                        outcome = result
-                        // Spent whatever the roll says, like the SPI: it is
-                        // burned to cast, not paid on success. But only what
-                        // the sacrifice actually BOUGHT -- against a target
-                        // with no penalty to forgive, AntiDivination reports 0
-                        // and the offer costs nothing.
-                        if (protection.hpSpent > 0) onSpendHp(protection.hpSpent)
-                        // The clarity row prints no effects of its own: it says
-                        // "treat as a ritual critical failure", so the ritual
-                        // table is ROLLED rather than copied -- off the same
-                        // injected source, never Random directly.
-                        backlash = if (result.isCritical) {
-                            RitualResolution.criticalFor((1..3).sumOf { dice.roll(6) }).outcome
-                        } else {
-                            null
-                        }
-                        onSpendSpi(cost)
+                            "$spiAvailable is left. SPI cannot be spent below 0."
                     },
-                ) { Text("Ask") }
+                    targetText = "3d6 ≤ $target" + if (protection.requiresCritical) ", a 3 or 4 only" else "",
+                    label = "Ask",
+                ) {
+                    // One Ask spends once. Two taps can reach this handler
+                    // before the button leaves the tree, and the second
+                    // would charge the SPI again -- which below 0 buys
+                    // Soul Debt, and that CoR never comes back (Codex).
+                    if (outcome != null || !affordable) return@RitualFooter
+                    // Against the target printed above, never composed
+                    // a second time here (6eg, 6eh).
+                    val result = Divination.rollAgainst(
+                        target, dice, requiresCritical = protection.requiresCritical,
+                    )
+                    outcome = result
+                    // Spent whatever the roll says, like the SPI: it is
+                    // burned to cast, not paid on success. But only what
+                    // the sacrifice actually BOUGHT -- against a target
+                    // with no penalty to forgive, AntiDivination reports 0
+                    // and the offer costs nothing.
+                    if (protection.hpSpent > 0) onSpendHp(protection.hpSpent)
+                    // The clarity row prints no effects of its own: it says
+                    // "treat as a ritual critical failure", so the ritual
+                    // table is ROLLED rather than copied -- off the same
+                    // injected source, never Random directly.
+                    backlash = if (result.isCritical) {
+                        RitualResolution.criticalFor((1..3).sumOf { dice.roll(6) }).outcome
+                    } else {
+                        null
+                    }
+                    onSpendSpi(cost)
+                }
             }
         },
     )
@@ -691,24 +656,23 @@ fun DivinationDialog(
 
 @Composable
 private fun Result(outcome: DivinationOutcome, backlash: String?) {
-    Text(
-        "3d6: ${outcome.roll.total} vs ${outcome.roll.target}",
-        style = MaterialTheme.typography.titleLarge,
-    )
-    Text(
-        "${outcome.clarity.result} — ${outcome.clarity.clarity}",
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(top = 8.dp),
-    )
-    Text(outcome.clarity.effect, style = MaterialTheme.typography.bodySmall)
-    backlash?.let {
+    // effectiveOutcome, not roll.outcome: a critical-only target demotes an
+    // ordinary success, and a green card over "Failure" would misreport it.
+    VerdictCard(outcome.clarity.result, outcome.effectiveOutcome.isSuccess, outcome.roll) {
         Text(
-            "Critical Failure Table: $it",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.error,
+            outcome.clarity.clarity,
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(top = 8.dp),
         )
+        Text(outcome.clarity.effect, style = MaterialTheme.typography.bodyMedium)
+        backlash?.let {
+            Text(
+                "Critical Failure Table: $it",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+        }
     }
 }
 
