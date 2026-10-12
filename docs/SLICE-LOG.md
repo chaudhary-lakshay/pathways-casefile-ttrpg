@@ -6795,8 +6795,8 @@ It walks every applied map and knew nothing of a granted level. It asks
 
 2094 Kotlin (1383 `core:rules`, 691 `app`, 20 `core:model`), 0 failures,
 after `--rerun-tasks` from deleted results, counted from the XML; `e:`
-count 0 on every run. `ast-grep scan` is clean. Python was not run;
-nothing under `tools/` changed.
+count 0 on every run. `ast-grep scan` is clean. 366 Python, run after
+the docs were written.
 
 ### The diff review
 
