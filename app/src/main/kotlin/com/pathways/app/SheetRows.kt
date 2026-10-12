@@ -107,7 +107,7 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
             ) { Text("Roll HT $target — ${VitalRolls.rowFor(check)}") }
         } else {
             Text(
-                "3d6: ${result.total} vs $target - ${result.outcome.name.lowercase()}",
+                "3d6: ${result.total} vs $target - ${label(result.outcome).lowercase()}",
                 style = MaterialTheme.typography.titleSmall,
             )
             // The book asks for one of these A TURN and this app holds no
@@ -186,7 +186,7 @@ private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int) {
             ) { Text("Roll HT $target — a day of rest and food") }
         } else {
             Text(
-                "3d6: ${result.total} vs ${result.target} - ${result.outcome.name.lowercase()}",
+                "3d6: ${result.total} vs ${result.target} - ${label(result.outcome).lowercase()}",
                 style = MaterialTheme.typography.titleSmall,
             )
             Text(
