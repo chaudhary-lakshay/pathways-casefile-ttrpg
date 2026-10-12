@@ -6783,10 +6783,12 @@ record on why, in order:
 So the journal had a refusal, the KDoc had its reason, and the player was
 told nobody had ruled.
 
-**I took a different slice to the advisor first.** Hanged Man 9's choice
-looked like the live gap. Its answer: storing a choice is a new feature
-and not an expired reason, and the parry's record disagrees with itself,
-which is a slice whichever way the review goes.
+**I took two other slices to the advisor first.** God of Combat, and its
+answer was that the reason has not expired and the parry note is the
+candidate. Then, having read 6ev's refusal, Hanged Man 9's choice, and
+its answer was that storing a choice is a new feature and not an expired
+reason, and that the parry's record disagrees with itself, which is a
+slice whichever way the review goes.
 
 **The design review** (sonnet, `kotlin-reviewer.md`, a written
 decomposition, no diff) was asked for the strongest case against keeping
@@ -6811,12 +6813,9 @@ hand's 8, or 5 against a weapon.
 **What changed (`7535bb9`).**
 
 - `unskilledParryNote(names, cells)` in `Parries.kt` builds the note and
-  quotes both formula cells from `ContentLoader.defenses()`. It reads:
-  *"No parry offered with Broadsword: no skill on this sheet wields it.
-  The Parry (Armed) cell prints "Weapon Skill ÷ 2 + 3" and names no
-  untrained operand, where the unarmed cell prints "Brawling or DX ÷ 2 +
-  3": DX itself, not Brawling's default. The book gives an untrained
-  armed parry no number, so it is the GM's call."*
+  quotes both formula cells from `ContentLoader.defenses()`. As first
+  committed it was one open sentence of about 330 characters; see the
+  last section for what it is now.
 - The Attack dialog's weapon line reads *"untrained parry is the GM's
   call"*, where it read *"no parry offered without the skill"*. The guide
   quoted the old label and quotes the new one.
@@ -6839,9 +6838,8 @@ sibling walks the catalogues.
 
 2097 Kotlin (1385 `core:rules`, 692 `app`, 20 `core:model`), 0 failures,
 after `--rerun-tasks` from deleted results, counted from the XML; `e:`
-count 0. `ast-grep scan` is clean. 366 Python, run after the guide's
-edit. The regex was widened after that full run, and `TraitReportedTest`
-alone was run again, green.
+count 0. That run is the last one, after every edit below. `ast-grep
+scan` is clean. 366 Python, run after the docs were written.
 
 ### The diff review
 
@@ -6888,6 +6886,28 @@ Defend dialog draws the note, and the Attack line's new string.
    the two cells.
 8. God of Combat's attributes, above.
 9. Hanged Man 9's choice, above.
+
+### After the commit: the note had become a wall
+
+The advisor's, taken (`git log -1 --grep "behind a tap"`). The reworded
+note was a third longer than the one it replaced, and all of it sat open
+under the rows. The redesign's rule is in the handover: a refusal stays
+open and reference prose sits closed in a `RuleNote`. The diff reviewer
+was never told that rule, so its SHIP did not cover it.
+
+`unskilledParryNote` returns the two parts now:
+
+- Open: *"No parry offered with Broadsword: no skill on this sheet wields
+  it, and an untrained armed parry is the GM's call."*
+- Behind **Why no untrained armed parry**: *"The Parry (Armed) cell
+  prints "Weapon Skill ÷ 2 + 3" and names no untrained operand, where the
+  unarmed cell prints "Brawling or DX ÷ 2 + 3": DX itself, not Brawling's
+  default. So the book gives an untrained armed parry no number."*
+
+The test asserts the weapon and *GM* on the open line, no formula there,
+and both cells behind the tap. Watched failing against a stub with an
+empty open line: *expected: <true> but was: <false>*. **This edit has
+been read by no reviewer and seen on no device.**
 
 **The sweep to run next is the one 6eq's query cannot.** It drops comment
 lines, and the stale Retreat KDoc was one. The same pattern over comment
