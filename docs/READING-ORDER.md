@@ -195,6 +195,14 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6gz
+(the Defend note called an untrained weapon's parry "a gap here and not a
+ruling" where 6ev had refused it; it gives the ruling now, from the two
+formula cells, after a design review asked for the case against; two stale
+"keeps no round" claims went, and a sweep of comment lines found eight
+more stale claims about this app, none on a screen; the SM-T570 was not
+attached, so no device pass; ten owner questions).
+
 Then 6gy
 (Medical Training's "Use Physician at IQ-2" was a gap in 6eq and the
 untrained list has offered a holder IQ-6 since 6et; it gives IQ-2 now,
@@ -2363,12 +2371,13 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6et back to 6de
+## Digest index, 6eu back to 6de
 
 Moved from the handover in 6ff, unchanged, when its digest index neared
 8,000 characters. 6ds and 6dr followed in 6gb, and 6dv back to 6dt in
-6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy; 6eq in 6ha; 6er in 6hb; 6es in 6hc; 6et in 6hd.
+6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy; 6eq in 6ha; 6er in 6hb; 6es in 6hc; 6et in 6hd; 6eu in 6he.
 
+**6eu** — the Attack dialog takes an untrained skill with a fist or weapon row; a Warrior's weapon is wielded at no less than DX, and one `levelWith` feeds the header, damage and roll;
 **6et** — the untrained roll: `defaultFor` had no caller since M0; a skill's own line (Brawling DX-2, Wrestling none) beats the table, and Versatile's +1 sits inside every default;
 **6es** — the complement of `known()`, listed: 148 rows nothing read; `UNREAD` says so, and the sheet lists every held advantage with its cell;
 **6er** — the builder sells a language; the two halvings combine with one ceiling, and a Language Talent bought later reprices what is owned;
