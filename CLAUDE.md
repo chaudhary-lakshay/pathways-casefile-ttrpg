@@ -183,9 +183,10 @@ chip handler first. Attack's tracker line is read off the ledger by id,
 never as a remainder. Scan the click-handler census from the repo root:
 the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 
-**6gx back to 6de had lead paragraphs here until 2026-10-12. Each is in
+**6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6gy** — Medical Training's Physician at IQ-2, which the untrained list had offered at IQ-6 since 6et; no Versatile +1;
 **6gx** — no code: the unread census over both halves, 114 rows outside `known()`; 6gu's count had missed nine self-control rows;
 **6gw** — Anchored Soul refused: every "against you" the book prints is the other party's attempt, so it is not Incorruptible Will's mirror; the chain capped at five;
 **6gv** — Perceptual Splitting's -2 declared on the sheet and scoped to the rolls line 390 calls physical; the ledger asks `EffortBurn.isPhysical`;
@@ -232,10 +233,9 @@ slice log.** One line each:
 **6ew** — a self-control row's other clauses were unsaid; `ROLLED_ONLY` says the roll alone is applied, and `catalogueName` had cut `SC 6` to `SC` as if 6 were a level;
 **6ev** — the bare-hand parry cell prints "Brawling or DX", so DX is a row of its own; the Acrobatic Dodge rolls its default, and Defend gained the missing trait term;
 **6eu** — the Attack dialog takes an untrained skill with a fist or weapon row; a Warrior's weapon is wielded at no less than DX, and one `levelWith` feeds the header, damage and roll;
-**6et** — the untrained roll: `defaultFor` had no caller since M0; a skill's own line (Brawling DX-2, Wrestling none) beats the table, and Versatile's +1 sits inside every default;
-**6es back to 6de** have one-line digests too, moved verbatim to
+**6et back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
-its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc).
+its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd).
 
 **6dd back to 6cd had lead paragraphs here and they have been cut, because
 this file keeps reaching the 150 k-char limit (6eb: 152,583; 6eh cut 6dd to
@@ -254,7 +254,11 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6hc first**
+**Where to start next: the slice log, from the END — 6hd first**
+(the device pass 6gz, 6hb and 6hc owed, on the SM-T570: all four seen as
+built; the Defend dialog printed the unarmed cell's notes under the
+untrained-armed refusal, where they read as its explanation, and they
+sit under the bare-hand row now; the save restored byte for byte). Then 6hc
 (6cf's caller census re-run over both trees: 979 functions, 68 with no
 production reference, each category given its verdict; the Damage dialog
 had summed the stun recovery target by hand since its first commit, and
@@ -274,11 +278,7 @@ ruling" where 6ev had refused it; it gives the ruling now, from the two
 formula cells, after a design review asked for the case against; two stale
 "keeps no round" claims went, and a sweep of comment lines found eight
 more stale claims about this app, none on a screen; the SM-T570 was not
-attached, so no device pass; ten owner questions). Then 6gy
-(Medical Training's "Use Physician at IQ-2" was a gap in 6eq and the
-untrained list has offered a holder IQ-6 since 6et; it gives IQ-2 now,
-with no Versatile +1, a reading and a sixth owner question; found by
-re-reading 6eq's verdicts against what was built since). The chain
+attached, so no device pass; ten owner questions). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
