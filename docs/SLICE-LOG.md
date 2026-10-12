@@ -6726,6 +6726,156 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hk. Charmed Object's skill, which the book says to specify
+
+Owner, 2026-10-12: *store the skill*. The cell (book 1055-1058, 5 pts) is
+*"One item you own provides +1 to one specific skill when used (specify
+item and skill). Lost permanently if the item is destroyed."* 6gv refused
+it as *"a choice the save would have to store"*. The choice is the book's
+own instruction, so storing it is literal, not a reading.
+
+### Decomposition, reviewed before any test
+
+Sonnet, `kotlin-reviewer.md`, on the written design: **build with
+changes**, five, all taken. The advisor had already found the gap that
+shaped it: `skillRollClauses` chips have ONE app caller, the Skills tab's
+roll (`SheetDialogs.kt:212`). Attack and the Acrobatic Dodge call
+`TraitEffects.modifiers` with no declared set (6gj's review recorded
+that), and the ritual dialogs compose their own targets.
+
+| Roll | This slice |
+|---|---|
+| Skills tab: every owned skill and the untrained list | chip on the chosen skill |
+| Attack dialog | the charm's chip alone, its key passed to `traitTerms` as declared |
+| Parry at skill/2+3, Acrobatic Dodge | not reached, a READING: "+1 to one specific skill when used" is +1 to a roll the table declares, so the level does not move |
+| Ritual, Boon, Divination, Spirit Vision, Detection, Concentrate | not reached; `CharmedObject.REACH` says so on the Traits tab |
+
+### What changed
+
+- **Storage.** `SavedEdits.charmedSkill: SavedCharmedSkill?`, a name and
+  a specialization, additive. Giving the row back leaves it, and
+  `isEmpty` does not count it.
+- **Carrier: the held trait's name**, `Charmed Object (Guns (Pistol))`,
+  composed in `boughtTraits`. Not a parameter: the chips and the dice
+  both take the trait list, and a defaulted argument beside it is what
+  6hc found missing at a caller. `CharmedObject` strips the known head,
+  so a specialization's bracket is never parsed. `catalogueName` has one
+  new branch, last.
+- **The clause** is the cell's words, +1, conditional, offered where the
+  bracket equals the rolled skill's name and specialization. No
+  difficulty in the match: a charm on Knife reaches Knife at both
+  printed difficulties. Stated in the KDoc and tested.
+- `traitTerms` takes `declared` with no default, so its seven test call
+  sites say what they pass.
+- **Builder.** *Choose skill* under the bought row opens the character's
+  skills; `setCharmedSkill` is an absolute setter. The line under the row
+  says the skill, that none is chosen, or that the chosen one is not held.
+- A stored skill the book does not print leaves the row bare.
+- The guide has a paragraph. The click-handler census reads **35**: one
+  new line, the picker's setter. The handover said 32, last counted in 6gn.
+
+RED, each watched: six rules tests against a stub object; the duplicate
+purchase test only once `heldAs` was real and the name branch absent
+(under the stub it passed for the wrong reason); four app tests against a
+no-op setter and an empty `charmFor`.
+
+### Reviews
+
+Sonnet on `078f9bf -- core app`: **SHIP**, two LOWs. Taken: the builder's
+line matched specialization by case where the roll does not. Not taken: a
+hand-typed `Charmed Object (my lucky pistol)` reads as chosen and offers
+no chip. No fixture prints the row and the app composes catalogue skills
+only. It ran nothing. **`9f30d45` and `0f5d6da` are unreviewed.**
+
+### Device pass, SM-T570 over Wi-Fi
+
+Backup `~/pathways-device-backups/sessions-6hk-bak.json`, Beat Cop seeded
+with both rows, the save `cmp`-identical after the restore.
+
+- Traits tab: *Charmed Object*, **Partly applied**, *"No skill is chosen
+  for it, so no roll offers it: choose one in the builder."*
+- Builder: *No skill chosen*, *Choose skill*, twelve skills; Guns
+  (Pistol) picked; the line read *Charms Guns (Pistol)* and the save
+  `"charmedSkill":{"name":"Guns","specialization":"Pistol"}`.
+- Skills tab, Guns (Pistol): the chip, lit, target 11 to 12, ledger
+  *Charmed Object: +1*.
+- Attack, Guns (Pistol): the chip under its own label, lit, *Traits: +1*,
+  3d6 ≤ 12; *Another turn* cleared it. No FATAL.
+
+**The pass found one defect.** Beat Cop is a Fool 9 and the picker left
+out its four granted skills: the builder's character carries no walk.
+`charmableSkills(character, state)` reads the played levels now, RED
+first (*expected: <true> but was: <false>*). **That fix was not seen on
+the device.**
+
+### Left as it is
+
+- An unchosen row's collapsed tag reads *Partly applied* though nothing
+  is applied until a skill is picked. The open row says so.
+- The Skills tab's other declared clauses still do not reach Attack.
+- Untrained skills are not in the picker.
+
+2142 Kotlin (1410 `core:rules`, 711 `app`, 21 `core:model`) from deleted
+results with `--rerun-tasks`; 366 Python; `ast-grep scan` clean.
+`TraitReportedTest` had reached 813 lines against the 800 ratchet, which
+only the Python suite sees; one test moved to `SelfControlTest`.
+
+**Next.** One question for the owner: the Apothecary prints *"Pacifism
+(Cannot Kill)"*, which resolves to no row, so that premade is offered
+neither Cannot Kill's roll nor its cell. Resolve it as 6he did Secret, or
+leave it recorded?
+
+## 6hj. The unread census at 112, and the one cell that names another row's roll
+
+The owner chose the trait backlog again. 6gx and 6hh had given every row a
+verdict, so this re-ran the corpus and read what neither had.
+
+- **The corpus.** The complement of `TraitEffects.known()` over both
+  catalogues, by a throwaway test, deleted: **112 of 198**, 6gx's 114
+  less Dead Language Fluency and Reckless. All seven blessings are in
+  `known()`.
+- **Two refusals rested on "a choice the save would have to store"**,
+  the sentence 6hh found false for Dead Language Fluency: Charmed Object
+  and Marked by Ritual. Put to the owner with a third row, below.
+
+| Row | Owner, 2026-10-12 | |
+|---|---|---|
+| Charmed Object | store the skill | 6hk |
+| Marked by Ritual | **stays refused** | on a corrected reason: `type of SPI\|SPI roll\|SPI-based` over `book.txt` finds no list of SPI-roll types, so there is nothing to pick from. Not "a stored choice" |
+| Cannot Kill | offer the Will roll | this slice |
+
+### Cannot Kill
+
+*"If responsible for a death, react as Reluctant Killer (-5)."* (1323-1324).
+6gv read its -5 as a price and went no further. The cell prints no roll
+and names the row that does: Reluctant Killer ends *"If you kill a
+recognizable person, become morose for 3d days — Will rolls required to
+use violence again."* `react as` over both catalogues returns this cell
+alone.
+
+- `SelfControl.BORROWED_ROLLS`, one entry, in Kotlin and not a
+  `selfControl` field: the extractor reads what a cell prints.
+  `checksFor` falls back to the lender's spec, so a content fix to one
+  moves both. The check prints Cannot Kill's cell and then Reluctant
+  Killer's sentence, pinned as the verbatim end of that cell.
+- Nothing else of Reluctant Killer reaches the holder: not the -4 to
+  hit, not the withdrawn Aim. The owner's ruling, not a quotation.
+- The row reads `ROLLED_ONLY` now, not `UNREAD`. The 25-row sweep
+  filters on a `selfControl` field and cannot see it, so it has its own
+  test, mutated: the table emptied, 0 compile errors, *expected: <its
+  price and its self-control roll aside ...> but was: <its price aside
+  ...>*, restored from a copy.
+- RED: *NoSuchElementException* where no check was offered, and the
+  census's empty table.
+
+Review, same call as 6hk's design: **SHIP**. Its LOW: the printed-text
+assertion rebuilds the string from the production constant; the second
+test pins that constant against the cell. A holder of both rows sees the
+roll twice, left.
+
+Device, in 6hk's pass: *Cannot Kill*, **Roll only**, *Roll 3d6 ≤ 9*, and
+the dialog printed both sentences.
+
 ## 6hi. Three standing sweeps re-run, and a study tag three below its row
 
 The owner chose a sweep for the next gap. Three were run.

@@ -195,6 +195,19 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hf
+(God of Combat's +3 ST, DX and HT applied as a played gain, never
+billed: one blessed base for `Derive.of` and digestion, purchase
+ceilings three lower for a holder and the purchase refused above them;
+a decomposition and a design review before the code, whose HIGH was
+digestion's per-block rebuild; seen on the SM-T570).
+
+Then 6he
+(four owner answers: the untrained parry stays refused; a sheet's
+"Secret (...)" is the Secret row; Hanged Man 9's drawback is stored in
+`BeyonderState` and granted free, refused for a row the builder sold;
+seen on the SM-T570).
+
 Then 6hd
 (the device pass 6gz, 6hb and 6hc owed, on the SM-T570: all four seen as
 built; the Defend dialog printed the unarmed cell's notes under the
@@ -2401,8 +2414,10 @@ each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
 Moved from the handover in 6ff, unchanged, when its digest index neared
 8,000 characters. 6ds and 6dr followed in 6gb, and 6dv back to 6dt in
-6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy; 6eq in 6ha; 6er in 6hb; 6es in 6hc; 6et in 6hd; 6eu in 6he; 6ev in 6hg; 6ew in 6hh; 6ex in 6hi.
+6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy; 6eq in 6ha; 6er in 6hb; 6es in 6hc; 6et in 6hd; 6ez and 6ey in 6hk; 6eu in 6he; 6ev in 6hg; 6ew in 6hh; 6ex in 6hi.
 
+**6ez** — Knows the Acting Method doubles the digestion ranges the tracker prints for a holder; the note asks `doublesActingGains`, not whether two tables differ;
+**6ey** — a master's weapon parries at DX: `SkillDefaults.wieldedAt` floors the skill, and Attack, Defend and the builder all print it; the Pugilist was invisible to a keyword;
 **6ex** — a Reluctant Killer's target is the GM's to declare (-4, or -2 with the face hidden); "cannot Aim" is unconditional, and the Attack roll takes the general trait term;
 **6ew** — a self-control row's other clauses were unsaid; `ROLLED_ONLY` says the roll alone is applied, and `catalogueName` had cut `SC 6` to `SC` as if 6 were a level;
 **6ev** — the bare-hand parry cell prints "Brawling or DX", so DX is a row of its own; the Acrobatic Dodge rolls its default, and Defend gained the missing trait term;

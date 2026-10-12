@@ -186,6 +186,8 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6hf** — God of Combat's +3 ST, DX and HT is a played gain, never billed: one blessed base for `Derive.of` and digestion, and purchase ceilings three lower for a holder;
+**6he** — four owner answers: a sheet's "Secret (...)" is the Secret row; Hanged Man 9's drawback is stored in `BeyonderState` and granted free; the untrained parry stays refused;
 **6hd** — the device pass 6gz, 6hb and 6hc owed; the Defend dialog printed the unarmed cell's notes under the wrong row;
 **6hc** — the Damage dialog summed the stun recovery target by hand; it calls `StunRecovery.targetFor`, which 6gs had left two terms short; 979 functions censused for callers;
 **6hb** — the Fright dialog gated Combat Reflexes' +6 itself; `FrightCheck.recoveryBonus` is its one copy now;
@@ -232,11 +234,9 @@ slice log.** One line each:
 **6fc** — Fast Healer's +1 is said on the recovery row's result; on a failure the two readings disagree, so the line says it is the GM's;
 **6fb** — Chronic Insomnia's "sustained concentration at -1" is declared on the Concentrate roll; two API lines had been pasted inside 6ew's lead;
 **6fa** — Thinned Veil's "Concentration ... at -2" is a declaration on the Concentrate roll alone; the verbatim guard checked two traits, and now checks every partly-applied row;
-**6ez** — Knows the Acting Method doubles the digestion ranges the tracker prints for a holder; the note asks `doublesActingGains`, not whether two tables differ;
-**6ey** — a master's weapon parries at DX: `SkillDefaults.wieldedAt` floors the skill, and Attack, Defend and the builder all print it; the Pugilist was invisible to a keyword;
-**6ex back to 6de** have one-line digests too, moved verbatim to
+**6ez back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
-its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi).
+its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi, 6hk).
 
 **6dd back to 6cd had lead paragraphs here and they have been cut, because
 this file keeps reaching the 150 k-char limit (6eb: 152,583; 6eh cut 6dd to
@@ -255,7 +255,16 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6hi first**
+**Where to start next: the slice log, from the END — 6hk first**
+(Charmed Object's skill is stored beside the purchase and carried in the
+held trait's name, on the owner's ruling; a declared +1 on that skill's
+Skills-tab roll and in the Attack dialog, nowhere else, and the Traits
+tab says so; 6gv's "a choice the save would have to store" was the
+book's own instruction; seen on the SM-T570). Then 6hj
+(the unread census re-run at 112 rows; Cannot Kill offers Reluctant
+Killer's Will roll, the one cell that names another row's, on the
+owner's ruling; Marked by Ritual stays refused, as the book lists no
+SPI-roll types; seen on the SM-T570). Then 6hi
 (three standing sweeps re-run; the builder's study tag read the bought
 attribute beside a level read from the blessed one, so a God of Combat
 holder saw "at cap 11" beside a 14; which study is offered never changed;
@@ -268,16 +277,7 @@ on its real reason; seen on the SM-T570). Then 6hg
 (Reckless's "-1 to any roll where caution would be smarter" is a sixth
 declared all-rolls chip, on the owner's ruling; Entity Fixation's -2
 stays refused; seen on the SM-T570; all ten owner questions are now
-answered and built, and nothing is queued). Then 6hf
-(God of Combat's +3 ST, DX and HT applied as a played gain, never
-billed: one blessed base for `Derive.of` and digestion, purchase
-ceilings three lower for a holder and the purchase refused above them;
-a decomposition and a design review before the code, whose HIGH was
-digestion's per-block rebuild; seen on the SM-T570). Then 6he
-(four owner answers: the untrained parry stays refused; a sheet's
-"Secret (...)" is the Secret row; Hanged Man 9's drawback is stored in
-`BeyonderState` and granted free, refused for a row the builder sold;
-seen on the SM-T570). The chain
+answered and built, and nothing is queued). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -334,9 +334,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2122 Kotlin** (JUnit 5 — 1398 `core:rules`, 703 `app`, 21 `core:model`, counted in 6hi) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2142 Kotlin** (JUnit 5 — 1410 `core:rules`, 711 `app`, 21 `core:model`, counted in 6hk) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hi (SHIP; 6hg, 6hh and 6hi after their commits); nothing is owed |
+| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hk (SHIP; 6hg to 6hk after their commits). 6hk's last two commits, `9f30d45` and `0f5d6da`, are unreviewed |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
@@ -348,7 +348,7 @@ player-facing guide to all four and is verified against the labels in source.
 py -m pytest tools -q                # Python tooling tests (Windows: `py`, not `python`)
 ast-grep scan                     # 4.3's division rule; silent and exit 0 when clean
 ast-grep scan --rule tools/sg-census/session-mutator-in-lambda.yml --report-style short
-                                  # 6gb's census: 32 lines (6gn), one per call site
+                                  # 6gb's census: 35 lines (6hk), one per call site
 ast-grep run -l kotlin -p 'SkillRoll.targetFor($$$)' app core   # call sites
 ```
 
@@ -604,6 +604,13 @@ TraitClauses.visionClause(traits)     // Acute Vision alone, for Spirit
 TraitNames.catalogueName(printed) / .displayName(printed) / .levelOf(traits, name)
                                       // the ONE resolution of a sheet's spelling
                                       // to a catalogue row, and its level
+SelfControl.borrowedRolls()           // Cannot Kill takes Reluctant Killer's
+                                      // Will roll: the one cell naming
+                                      // another row's (6hj)
+CharmedObject.heldAs(skill, spec) / .skillOf(printed) / .clauses(traits, skill)
+                                      // the chosen skill rides in the held
+                                      // trait's NAME; a declared +1 on that
+                                      // skill's roll and in Attack (6hk)
 TraitGrants.grantedTraits(state) / .withGrantedTraits(traits, state)
 TraitGrants.grantedLevelsIn(merged, bought)   // the levels a potion ADDED
                                       // to a bought levelled row (6fm)
@@ -977,7 +984,7 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
 - **`SavedEdits` now covers everything a player changes** — the four
   attributes, bought skills, wealth, appearance, traits (fixed-price and
   instanced), the six priced secondary characteristics (6ea), the weapons
-  carried (6eb) and languages (6er). Widen it ADDITIVELY: `SessionStore.load` discards the whole
+  carried (6eb), languages (6er) and Charmed Object's skill (6hk). Widen it ADDITIVELY: `SessionStore.load` discards the whole
   file on a decode failure, so a shape change drops every existing save.
 - **A SHEET-printed weapon row is a stated non-goal.** `Character.weapons`
   and `ParryBlock.parryFor(Weapon, …)` have no production caller: no
