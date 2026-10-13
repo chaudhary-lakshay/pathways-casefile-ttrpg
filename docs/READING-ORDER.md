@@ -195,6 +195,13 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hj
+(the unread census re-run at 112 rows; Cannot Kill offers Reluctant
+Killer's Will roll, the one cell that names another row's, on the
+owner's ruling, and so does the Apothecary's "Pacifism (Cannot Kill)";
+four sheet spellings are ruled rows, each exact; Marked by Ritual stays refused, as the book lists no
+SPI-roll types; seen on the SM-T570).
+
 Then 6hi
 (three standing sweeps re-run; the builder's study tag read the bought
 attribute beside a level read from the blessed one, so a God of Combat

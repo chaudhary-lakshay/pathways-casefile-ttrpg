@@ -6726,6 +6726,58 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ho. A prayer's fuel, paid in HP
+
+6hm left "a mortal still cannot pray" for the owner. The owner, 2026-10-13:
+*"go ahead with whatever is correct in the pdf"*.
+
+**The book prints it.** Line 8914: "a mortal may acquire a boon". Line
+8933: the ritual "uses the standard Ritualistic Magic system (see Chapter
+7)". Line 4271, IV.B: "The caster burns HP in addition to or instead of
+SPI. Every 2 HP spent counts as 1 SPI toward the ritual cost", and it
+"does not grant a bonus to the roll". `Boons.targetFor`'s recorded refusal
+of power sources is about modifiers, and fuel is not one: its KDoc says so
+now.
+
+- `BoonDialog` draws the Ritual dialog's HP chips under Fuel
+  (`hpChoices`, now `internal`), keyed on the SPI chip as the ritual's
+  are. The footer prints *costs N SPI and M HP*, and Pray charges both as
+  printed, HP through `onSpendHp`.
+- `boonRefusal` takes `hpSacrificed` and asks `PowerSources.spiOwed`; its
+  SPI line names what is still owed and ends *Pay in HP: 2 HP counts as 1
+  SPI*.
+- Not built: IV.C's assistants, D's sacrifice tiers and E's catalysts.
+  Ch. 13 prints its own Sacrifice and Ritual quality rows, and the KDoc's
+  reason stands for those.
+- **A mortal who bleeds 8 of 10 HP is left at 2**, and nothing warns
+  them: the Ritual dialog does not either.
+
+RED, watched: `blood pays for a prayer that SPI cannot` against a stub
+that took the parameter and ignored it, *expected null but was "No
+supplication ..."*.
+
+2181 Kotlin (1426 `core:rules`, 734 `app`, 21 `core:model`) from deleted
+results; `ast-grep scan` clean; the click-handler census reads 38, the
+new line in the guarded Pray handler. Python not re-run: no tool changed.
+
+Sonnet on `48c516c..4c14d7f -- core app`: **SHIP**. It ran nothing.
+Two LOWs, neither taken: the Pray handler's wiring has no test, as no
+composable has; HP can be spent below 0, as in the Ritual dialog.
+
+### Device pass, SM-T570
+
+Backup `~/pathways-device-backups/sessions-6ho-bak.json`; a mortal Night
+Watchman with Ritualistic Magic 16 points was seeded. The save was
+`cmp`-identical after the restore. No FATAL.
+
+- With Chaos Mist chosen and no HP: *No supplication — this costs 4 SPI
+  and only 0 is left ... Pay in HP: 2 HP counts as 1 SPI.*
+- 6 HP: *costs 1 SPI and 6 HP*, still refused. 8 HP: *costs 0 SPI and 8
+  HP*, *3d6 ≤ 8*, Pray enabled.
+- A 4 granted it. The save held `hpLost` 8, `spiSpent` 0 and
+  `{"pathway": "Chaos Mist", "sequence": 9}`.
+- Not seen: SPI and HP mixed on a Beyonder, a failed prayer.
+
 ## 6hn. A boon's catalogue rows, granted as a potion's are
 
 6hm left a boon block's advantages as prose the GM applies. The owner said
