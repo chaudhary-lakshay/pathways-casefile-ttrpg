@@ -6882,8 +6882,18 @@ drawbacks each under its bold name. Chained 7 was not opened after the
 2156 Kotlin (1413 `core:rules`, 722 `app`, 21 `core:model`) from deleted
 results with `--rerun-tasks`; 366 Python; `ast-grep scan` clean.
 
-**Next.** Nothing is queued. The owner has not yet seen this on the
-tablet.
+**Next, for the session after this one** (the owner closed it with
+*"lets continue in next session"*):
+
+- Six commits, `a6fcd3d`..`c3d01ca` and this note, are NOT pushed. The
+  owner was asked twice and did not answer: ask again before pushing.
+- The owner has not said whether the page reads well now. *2* was the
+  whole answer to "did pathways also mean the other cards and the
+  picker", so what else reads badly is not known: ask for the screen.
+- Owed: one reviewer pass on `f1b24a5..c3d01ca -- app` (the `body` fix),
+  and Chained 7's drawbacks seen on the tablet.
+- Open, the owner's call: the Advantages card, and the Boon dialog's
+  small raw Advantages and Drawbacks lines.
 
 ## 6hk. Charmed Object's skill, which the book says to specify
 
