@@ -195,6 +195,14 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hk, whose subsections hold the four ruled sheet
+spellings
+(Charmed Object's skill is stored beside the purchase and carried in the
+held trait's name, on the owner's ruling; a declared +1 on that skill's
+Skills-tab roll and in the Attack dialog, nowhere else, and the Traits
+tab says so; 6gv's "a choice the save would have to store" was the
+book's own instruction; seen on the SM-T570).
+
 Then 6hj
 (the unread census re-run at 112 rows; Cannot Kill offers Reluctant
 Killer's Will roll, the one cell that names another row's, on the

@@ -6726,6 +6726,75 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hp. Nine components, picked from three variants each
+
+No rule changed. The owner rejected seven whole screens drawn by Stitch,
+unseen: full screens from Stitch *"will never be good"*. A component round
+followed, 2026-10-13: nine components, three variants each, captioned A, B
+and C over the same content. The owner: *"go with your picks and build
+them"*.
+
+- **`StepperParts.kt`**, new: `JoinedStepper`, `StepperCard`, `ChipTag`,
+  `SectionSurface`, `SectionHead`. Every step and section button is
+  neutral: a colour on "-5%" would say the step is bad.
+- **Vitals** (A): `VitalsCard` holds the diff summary and the seven rows
+  in one card. A row that disagrees with the sheet takes the accent and
+  its note stays grey, on the owner's answer: the row's colour already
+  says it.
+- **Pathway** (A, A, A): digestion and corruption are each a
+  `StepperCard`; each power is its own card and its bracket a violet tag.
+- **Builder** (B, B, A): attributes and secondaries end in a
+  `JoinedStepper`; weapons, traits and languages sit in one card of
+  `SectionHead` rows; a skill row is name, points, level badge, study tag.
+- **Gallery** (C): the filter is a `PrimaryTabRow`, not a `NavigationBar`:
+  the three are one list filtered, not destinations.
+- The budget header (A) was already built, and its bar is kept.
+
+Every click handler moved unchanged: the census still reads 38.
+
+### Found at phone width, 400dp (`wm density 480`)
+
+- "Study by" wrapped *Self-Study* in two. The segmented row is 280dp wide
+  now; `softWrap = false` only clipped it.
+- A long study tag crushed a skill's name to a syllable a line. The
+  badge, tag and chevron share a `weight(1.5f)` row and the tag wraps.
+- Gallery names were cut beside the BEYONDER mark, *Academic R…*. This is
+  older than the slice. The name takes two lines now, on the owner's
+  answer.
+
+### Four answers from the owner, 2026-10-13
+
+Commit, with this entry, and no push. The "maximum CoR" line goes back to
+white until the character is lost: the picked variant drew it always red,
+which said danger at CoR 0. The Vitals note stays grey. Gallery names
+wrap.
+
+### Checks
+
+734 `app` tests from deleted results, `--rerun-tasks`, before the last two
+edits, and the task green after them. `core:rules`, `core:model` and
+Python not re-run: nothing under them changed. Census 38.
+
+A sonnet reviewer read the tree before the phone-width fixes: ship with
+changes, cleanups taken. The two phone-width fixes, the CoR colour and
+the name's `maxLines` came after it. They were read and seen on the
+device, and not reviewed.
+
+### Device pass, SM-T570
+
+The save was `cmp`-identical after each pass. Seen: the builder with two
+languages, two weapons, two traits and a bought skill; the violet tag on
+the Apothecary's powers, *1 SPI/min* and *Ritual*; both phone-width fixes
+at 400dp and at tablet width; *Academic Researcher* and *Antiquarian
+Dealer* on two lines at 400dp; the corruption card's line in white at
+0 / 10.
+
+Not seen: the line in red on a lost character; a row that disagrees on
+the Vitals card at phone width.
+
+**Unpushed:** `b250c61` to `d52eb4e`, and 6ho's from `4c14d7f`. A push
+needs the owner's word.
+
 ## 6ho. A prayer's fuel, paid in HP
 
 6hm left "a mortal still cannot pray" for the owner. The owner, 2026-10-13:
