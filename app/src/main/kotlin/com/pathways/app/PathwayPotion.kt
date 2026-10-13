@@ -92,7 +92,7 @@ internal fun LazyListScope.potionContent(
                     val level = digested.grants.skillLevels.entries.firstOrNull {
                         it.key.name == base && it.key.specialization == spec && it.key.difficulty == grant.difficulty
                     }?.value
-                    SkillLine(grant.name, grant.note, level?.toString() ?: "+${grant.bonus}")
+                    SkillLine(grant.name, noteOf(grant.note), level?.toString() ?: "+${grant.bonus}")
                 }
                 // Printed, and naming no skill the book lists (6gk): shown as
                 // printed, with nothing computed from it.
@@ -110,7 +110,10 @@ internal fun LazyListScope.potionContent(
     if (block.drawbacks.isNotEmpty()) {
         item {
             PotionCard("Drawbacks") {
-                BookText(block.drawbacks)
+                // Hanged Man 9 names its three under one cell: a label each.
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    abilityParagraphs(block.drawbacks).forEach { Paragraph(it, label = it.heading) }
+                }
                 drawbackPicker?.invoke()
             }
         }

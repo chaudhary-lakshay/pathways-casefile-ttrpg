@@ -81,6 +81,9 @@ internal fun named(item: String): Pair<String?, String> {
     return name.groupValues[1] to item.substring(name.range.last + 1)
 }
 
+/** A skill row's note as a line under the name. */
+internal fun noteOf(note: String): String = note.removePrefix("— ")
+
 internal const val BULLET = '\u007f'
 
 private val PART = Regex("""(?:Critical )?(?:Success|Failure)(?: by \d+)?|Passive|Duration|Range|Examples?|Note""")
@@ -114,19 +117,21 @@ private fun paragraph(run: String): AbilityParagraph {
 }
 
 /**
- * Where [separator] occurs in [text] outside brackets. A semicolon or a full
- * stop inside one belongs to whatever the bracket holds, such as Paper
- * Weaponry's damage table.
+ * Where [separator] occurs in [text] outside brackets and quotation marks.
+ * A semicolon or a full stop inside one belongs to whatever it holds, such
+ * as Paper Weaponry's damage table or a three-part honorific.
  */
 private fun topLevel(text: String, separator: String): List<Int> {
     val cuts = mutableListOf<Int>()
     var depth = 0
+    var quoted = false
     text.forEachIndexed { i, c ->
         when (c) {
             '(', '[' -> depth++
             ')', ']' -> depth = maxOf(0, depth - 1)
+            '"' -> quoted = !quoted
         }
-        if (depth == 0 && text.startsWith(separator, i)) cuts += i
+        if (depth == 0 && !quoted && text.startsWith(separator, i)) cuts += i
     }
     return cuts
 }

@@ -144,6 +144,22 @@ class PathwayTextTest {
         assertEquals(null to "sees non-physical entities: ghosts", named("sees non-physical entities: ghosts"))
     }
 
+    /** Seen on the tablet: a three-part honorific cut into bullets, the third running into the next name. */
+    @Test
+    fun `a semicolon inside quotation marks does not start a list`() {
+        val block = ContentLoader.pathways().single { it.pathway == "Hanged Man" && it.sequence == 9 }
+        val knowledge = abilityParagraphs(block.ability).single { it.heading == "Knowledge (Honorifics)" }
+        assertTrue(knowledge.items.isEmpty(), knowledge.items.toString())
+        assertTrue(knowledge.lead.contains("\"The Lord that Created Everything; The Lord who Reigns"), knowledge.lead)
+    }
+
+    @Test
+    fun `a skill's note loses the dash the table cell opens with`() {
+        assertEquals("decent knowledge of rituals", noteOf("— decent knowledge of rituals"))
+        assertEquals("(Nature, Herbs)", noteOf("(Nature, Herbs)"))
+        assertEquals("", noteOf(""))
+    }
+
     @Test
     fun `costs, distances and modifiers are the terms picked out`() {
         val text = "costs 1 SPI per minute; within roughly 10 meters at -2 to hit, 2d+1 damage"
