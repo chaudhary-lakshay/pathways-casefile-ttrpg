@@ -6777,8 +6777,21 @@ Python not re-run: nothing under them changed. Census 38.
 
 A sonnet reviewer read the tree before the phone-width fixes: ship with
 changes, cleanups taken. The two phone-width fixes, the CoR colour and
-the name's `maxLines` came after it. They were read and seen on the
-device, and not reviewed.
+the name's `maxLines` came after it, so a second pass read the commits,
+`09f19e5..d52eb4e -- app`, on three questions. It ran nothing.
+
+- **Every handler body and enabled-condition is unchanged**, each
+  compared and listed. It did not read `RuleNote`, which now holds the
+  "What raises corruption" toggle's state.
+- The gallery footer takes the navigation-bar inset as `NavigationBar`
+  did: no double padding.
+- **Ship with changes, one MEDIUM, not taken.** At 360dp the "Study by"
+  row cannot give the segmented row its 280dp and clamps it to about
+  260. The fix offered, `weight(1f)`, hands it the same 260 there and
+  stretches it across a tablet. By arithmetic 130dp a button holds
+  *Self-Study*. **Not seen**: the SM-T570 at `wm density 533` is 360 by
+  576dp, and the pinned pools leave the sheet's list no room to reach
+  the builder. That is the tablet's shape and not a phone's.
 
 ### Device pass, SM-T570
 
