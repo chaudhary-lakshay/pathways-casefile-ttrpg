@@ -610,6 +610,7 @@ internal fun SheetDialogs(
             nextBoon = session::nextBoon,
             lost = session.isLost,
             onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
+            onSpendHp = { session.spend(Pool.HP, it, vitals.maxHp, maxCor) },
             // Asked again at the grant: the dialog settles as it leaves, and
             // the character may have been lost since the roll.
             onGranted = { if (session.nextBoon(it.pathway) == it) session.grantBoon(it) },

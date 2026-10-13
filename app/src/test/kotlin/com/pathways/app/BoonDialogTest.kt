@@ -49,6 +49,21 @@ class BoonDialogTest {
     }
 
     @Test
+    fun `blood pays for a prayer that SPI cannot`() {
+        // Ch. 13: "a mortal may acquire a boon", by "the standard Ritualistic
+        // Magic system"; ch. 7 IV.B: HP "in addition to or instead of SPI",
+        // "Every 2 HP spent counts as 1 SPI". A mortal plays SPI 0.
+        fun refusal(spi: Int, hp: Int) =
+            boonRefusal(12, "Chaos Mist", null, broker, cost = 4, spiAvailable = spi, hpSacrificed = hp)
+        assertNull(refusal(spi = 0, hp = 8))
+        assertNull(refusal(spi = 2, hp = 4))
+        // 6 HP covers 3 of the 4: the line names what is still owed.
+        assertTrue("costs 1 SPI" in refusal(spi = 0, hp = 6)!!)
+        // And the refusal says where the fuel can come from.
+        assertTrue("HP" in refusal(spi = 0, hp = 0)!!)
+    }
+
+    @Test
     fun `a granted row says what gave it`() {
         assertEquals("the potion", grantedBy(potion = true, boon = false))
         assertEquals("the boon", grantedBy(potion = false, boon = true))

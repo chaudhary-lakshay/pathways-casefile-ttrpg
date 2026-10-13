@@ -147,7 +147,9 @@ object Boons {
      * already stands in for Section IV's circumstances. The genuinely open one
      * is IV.C's assistants, which chapter 13 neither offers nor forbids -- so
      * it is left off rather than assumed, and this sentence exists so the
-     * omission stays a decision instead of becoming an oversight.
+     * omission stays a decision instead of becoming an oversight. IV.B's HP
+     * is fuel and "does not grant a bonus to the roll", so it never reaches
+     * this target: the dialog charges it, and it is how a mortal prays.
      *
      * And no Flourish Bonus, for the same reason as the preparation it sits
      * beside: Phase II awards it for narrating the incantation, and chapter 13

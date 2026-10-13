@@ -43,7 +43,7 @@ private fun spiChoices(complexity: RitualComplexity): List<Int> {
  * a chip offering one would be a chip for wasting a hit point.
  * ponytail: four steps covers the rungs a caster survives.
  */
-private fun hpChoices(cost: Int): List<Int> =
+internal fun hpChoices(cost: Int): List<Int> =
     (0..minOf(cost, 4)).map { PowerSources.hpFor(it) }
 
 /**

@@ -26,6 +26,7 @@ import com.pathways.rules.ClauseBonus
 import com.pathways.rules.Corruption
 import com.pathways.rules.BurnKind
 import com.pathways.rules.Pools
+import com.pathways.rules.PowerSources
 import com.pathways.rules.Boons
 import com.pathways.rules.RitualResolution
 import com.pathways.rules.NonStandardPathways
@@ -65,6 +66,7 @@ internal fun boonRefusal(
     cost: Int,
     spiAvailable: Int,
     lost: Boolean = false,
+    hpSacrificed: Int = 0,
 ): String? = when {
     lost -> "No prayer — this character is lost, and the GM plays them."
     // Ch. 7 II: the skill "has no default and cannot be substituted".
@@ -74,8 +76,12 @@ internal fun boonRefusal(
     next == null && held != null ->
         "The book records no boon past Sequence ${held.sequence} for this patron."
     next == null -> "No boon can be asked of this patron."
-    !Pools.canAffordSpi(cost, spiAvailable) ->
-        "No supplication — this costs $cost SPI and only $spiAvailable is left. SPI cannot be spent below 0."
+    // Ch. 7 IV.B, which ch. 13 III defers to: HP "in addition to or instead
+    // of SPI". It is how a mortal, who plays SPI 0, prays at all.
+    !Pools.canAffordSpi(PowerSources.spiOwed(cost, hpSacrificed), spiAvailable) ->
+        "No supplication — this costs ${PowerSources.spiOwed(cost, hpSacrificed)} SPI and only " +
+            "$spiAvailable is left. SPI cannot be spent below 0. Pay in HP: " +
+            "${PowerSources.HP_PER_SPI} HP counts as 1 SPI."
     else -> null
 }
 
@@ -166,6 +172,7 @@ fun BoonDialog(
     dice: RandomSource,
     onCorGained: (Int) -> Unit,
     onSpendSpi: (Int) -> Unit,
+    onSpendHp: (Int) -> Unit,
     onGranted: (BoonState) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -208,6 +215,10 @@ fun BoonDialog(
         Boons.targetFor(skillLevel + conditionPenalty + shock + states.total, cor, next.sequence, picks, overrides)
     }
     val cost = Boons.spiFor(spiChoice)
+    // Keyed on the fuel, as RitualDialog's is: spiOwed refuses HP that
+    // covers more than the cost.
+    var hpSacrificed by remember(spiChoice) { mutableIntStateOf(0) }
+    val spiOwed = PowerSources.spiOwed(cost, hpSacrificed)
 
     // One place charges the push and the consequence and stores the grant,
     // off the FINAL outcome: see RitualDialog for why not at the roll.
@@ -355,6 +366,18 @@ fun BoonDialog(
                             )
                         }
                     }
+                    // Ch. 7 IV.B. Fuel, never a bonus.
+                    SectionLabel("Paid in HP (${PowerSources.HP_PER_SPI} HP = 1 SPI, no bonus to the roll)")
+                    FlowRow {
+                        hpChoices(cost).forEach { option ->
+                            FilterChip(
+                                selected = option == hpSacrificed,
+                                onClick = { hpSacrificed = option },
+                                label = { Text(if (option == 0) "None" else "$option HP") },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                        }
+                    }
 
                     RuleNote("What a petition needs") {
                         Column {
@@ -370,7 +393,7 @@ fun BoonDialog(
                 // A boon IS a ch. 7 ritual with its parameters fixed (6r),
                 // so Power Source A's floor applies here too: "SPI cannot
                 // be reduced below 0."
-                val refusal = boonRefusal(skillLevel, patron, held, next, cost, spiAvailable, lost)
+                val refusal = boonRefusal(skillLevel, patron, held, next, cost, spiAvailable, lost, hpSacrificed)
                 RitualFooter(
                     terms = listOfNotNull(
                         skillLevel?.let { "${granting.skill} $it" },
@@ -383,7 +406,8 @@ fun BoonDialog(
                         Corruption.ritualPenalty(cor).takeIf { it != 0 }?.let { "$it for $cor CoR" },
                     ),
                     target = target,
-                    cost = "costs $cost SPI, takes ${granting.complexityTime}",
+                    cost = "costs " + (if (hpSacrificed > 0) "$spiOwed SPI and $hpSacrificed HP" else "$spiOwed SPI") +
+                        ", takes ${granting.complexityTime}",
                     refusal = refusal,
                     targetText = target?.let(::targetLine).orEmpty(),
                     label = "Pray",
@@ -401,7 +425,8 @@ fun BoonDialog(
                     // The CoR and the grant wait for [finish]: a push
                     // can take this off the Critical Failure Table, or
                     // onto a success.
-                    onSpendSpi(cost)
+                    onSpendSpi(spiOwed)
+                    if (hpSacrificed > 0) onSpendHp(hpSacrificed)
                 }
             }
         },
