@@ -266,11 +266,10 @@ Vitals card, a wide stepper in a card for digestion and corruption, a
 joined stepper and section cards in the builder, a card per power, the
 gallery filter as tabs; display only, every handler moved unchanged;
 two phone-width defects found at 400dp and fixed; seen on the SM-T570;
-**its commits from `b250c61` are unpushed**). Then 6ho
+pushed 2026-10-13 through `fb6bba6`). Then 6ho
 (a prayer's fuel may be paid in HP, 2 for 1 SPI, as ch. 7 IV.B prints
 and ch. 13 defers to: it is how a mortal prays; fuel only, so
-`Boons.targetFor` is untouched; seen on the SM-T570; **its commits
-from `4c14d7f` are unpushed, and a push needs the owner's word**). Then 6hn
+`Boons.targetFor` is untouched; seen on the SM-T570). Then 6hn
 (a boon block's catalogue rows are granted through the potion merge:
 Charisma +2, Acute Hearing, Acute Vision, Fit; five look-alike names are
 refused, each printing another rule; seen on the SM-T570, where a
@@ -287,7 +286,7 @@ Failure under the power they follow, and the PDF's bullet, stored as
 U+007F, a real one; display only, the stored text untouched; 6gk's "the
 book does not say which is which" was answered by a census: no text
 opens with an outcome; the Boon dialog draws the same rows; seen
-on the SM-T570; **its commits are unpushed and its closing list holds
+on the SM-T570; **its closing list holds
 what is owed and what to ask the owner**). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
