@@ -318,9 +318,12 @@ acting method progress with it.
 
 Once you have drunk, the screen has two tabs. **Potion** shows what the chosen
 Sequence grants: stat gains, skills with the level they reach, then the book's
-own advantage, drawback and ability text, each named ability under its own
-heading. Costs, distances, dice and modifiers are picked out in colour; the
-words are the book's. **Digestion & corruption** holds the two trackers, and
+own advantage, drawback and ability text. Each ability is a row: its name and
+the bracket the book prints after it, such as **1 SPI** or **Passive**. Tap a
+row to read it; **Open all** opens the whole card, and a card of one or two
+abilities starts open. A roll's Success and Failure lines sit under the
+ability they belong to. Costs, distances, dice and modifiers are picked out in
+colour; the words are the book's. **Digestion & corruption** holds the two trackers, and
 **What raises corruption** opens the list of what costs CoR.
 
 **What a potion gives you is free.** It is never written into your point

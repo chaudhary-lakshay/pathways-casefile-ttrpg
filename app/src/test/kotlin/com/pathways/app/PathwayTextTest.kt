@@ -74,6 +74,63 @@ class PathwayTextTest {
     }
 
     @Test
+    fun `grouping loses and reorders nothing`() {
+        for (text in texts) {
+            assertEquals(abilityParagraphs(text), abilities(text).flatMap { listOf(it.head) + it.parts })
+        }
+    }
+
+    /** Seen on the tablet: Success, Failure and Critical Failure drawn as three abilities. */
+    @Test
+    fun `the Cryptologist's roll outcomes sit under Decryption`() {
+        val block = ContentLoader.pathways().single { it.name == "Cryptologist" }
+        val grouped = abilities(block.ability)
+        assertEquals(listOf("Decryption (IQ / 1 SPI)", "Beyonder Knowledge (Passive)"), grouped.map { it.head.heading })
+        assertEquals(listOf("Success", "Failure", "Critical Failure"), grouped.first().parts.map { it.heading })
+    }
+
+    @Test
+    fun `every bare Passive sits under the power it follows`() {
+        val block = NonStandardPathways.all().first { it.ability.contains("Midoro's Worship") }
+        val grouped = abilities(block.ability)
+        assertTrue(grouped.none { it.head.heading == "Passive" }, grouped.map { it.head.heading }.toString())
+        assertEquals(9, grouped.sumOf { a -> a.parts.count { it.heading == "Passive" } })
+        // A longer name that starts with the word is a power of its own.
+        assertTrue(texts.flatMap { abilities(it) }.any { it.head.heading == "Passive Luck" })
+    }
+
+    /** The condition the nesting rests on: a part with nothing above it would be orphaned. */
+    @Test
+    fun `no text opens with an outcome or an aspect`() {
+        val parts = texts.flatMap { text -> abilities(text).flatMap { it.parts } }.mapNotNull { it.heading }.toSet()
+        assertTrue(parts.containsAll(listOf("Success", "Failure", "Critical Failure", "Passive", "Duration")), "$parts")
+        for (text in texts) {
+            val first = abilityParagraphs(text).first().heading
+            assertTrue(first !in parts, "$first opens: ${text.take(60)}")
+        }
+    }
+
+    @Test
+    fun `a heading's closing bracket is its tag`() {
+        assertEquals("Decryption" to "IQ / 1 SPI", titleOf("Decryption (IQ / 1 SPI)"))
+        assertEquals("Treasure Sense" to null, titleOf("Treasure Sense"))
+        assertEquals("Singing — Buff Effects" to null, titleOf("Singing — Buff Effects"))
+    }
+
+    /** Seen on the tablet as two boxes: the PDF's bullet is stored as U+007F. */
+    @Test
+    fun `the book's bullets are lines of their own`() {
+        val block = ContentLoader.pathways().single { it.name == "Cryptologist" }
+        val knowledge = abilityParagraphs(block.ability).single { it.heading == "Beyonder Knowledge (Passive)" }
+        val lines = bullets(knowledge.lead)
+        assertEquals("The Cryptologist has deep knowledge of:", lines.first())
+        assertEquals(3, lines.size)
+        assertTrue(lines[1].startsWith("Mystical objects"), lines[1])
+        assertTrue(lines.none { '\u007f' in it })
+        assertEquals(listOf("No bullet here."), bullets("No bullet here."))
+    }
+
+    @Test
     fun `costs, distances and modifiers are the terms picked out`() {
         val text = "costs 1 SPI per minute; within roughly 10 meters at -2 to hit, 2d+1 damage"
         val picked = keyTerms(text).map { text.substring(it) }
