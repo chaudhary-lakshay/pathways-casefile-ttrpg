@@ -152,7 +152,7 @@ class TraitNamesTest {
      * now the warrant for the bracket, so it resolves.
      */
     @Test
-    fun `an instantiated name the book never prints stays unmatched`() {
+    fun `no premade prints a long name that stays unmatched`() {
         val printed = (ContentLoader.advantages() + ContentLoader.disadvantages())
             .map { it.name }.toSet()
         val glued = Premades.all()

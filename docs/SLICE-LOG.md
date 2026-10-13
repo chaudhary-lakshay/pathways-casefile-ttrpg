@@ -6906,6 +6906,44 @@ spellings are six: Absent-Minded, No Sense of Humour, Wierdness Magnet,
 Paranoia: Bodies of water, Blacklisted: Specific Industry org or church,
 Poverty: Struggling.
 
+### Two more rulings: Weirdness Magnet and Blacklisted
+
+Asked and answered 2026-10-13, both *resolve it*. Of the six spellings
+above, these two pay their row's own price; the other four do not, or are
+Wealth's. `RULED_SPELLINGS` holds four exact spellings now.
+
+- The Journalist's *"Wierdness Magnet"*, 15, is Weirdness Magnet, 15.
+  **The recorded refusal's reason expired**: *"Resolving it needs typo
+  tolerance, which is the guessing 4.1 forbids"* was true of a rule and
+  is not true of one exact ruled spelling. *Wierdness Magnett* and
+  *Weirdnes Magnet* still resolve to nothing, tested.
+- The University Librarian's *"Blacklisted: Specific Industry org or
+  church"*, 10, is Blacklisted, 10. The row prints no placeholder, so no
+  tail rule reads it: *"Blacklisted: The Church of Steam"* stays
+  unmatched, tested in three places.
+- RED: *expected: <Weirdness Magnet> but was: <Wierdness Magnet>*. Six
+  pins then failed and were corrected: three sets, and three tests that
+  used the Blacklisted spelling as their unmatched example. Two of those
+  take the Church of Steam tail in its place. The third, the long-name
+  sweep, expects an empty list and was renamed *no premade prints a long
+  name that stays unmatched*.
+- Sonnet, `kotlin-reviewer.md`, on `3dfb537 -- core`: **SHIP**, two LOWs.
+  Taken: that rename. It ran nothing. It noted the builder's "already
+  held" check now withholds the two rows from those two premades, which
+  no premade-specific test pins; Cannot Kill takes the same path.
+- SM-T570 over Wi-Fi, no seed, the save `cmp`-identical after. The
+  Librarian: *Blacklisted: Specific Industry org or church*, **GM call**,
+  the row's cell, *"this app applies nothing this row prints"*. The
+  Journalist: *Wierdness Magnet*, **GM call**, the same. No FATAL.
+
+2145 Kotlin (1413 `core:rules`, 711 `app`, 21 `core:model`) from deleted
+results with `--rerun-tasks`; 366 Python; `ast-grep scan` clean.
+
+**Next.** Nothing is queued, and no question is open. Four sheet
+spellings stay unmatched: Absent-Minded (pays 5, the row prints 15), No
+Sense of Humour (no such row), Paranoia: Bodies of water (pays 5, the row
+prints 10), Poverty: Struggling (Wealth's, at no level's price).
+
 ## 6hj. The unread census at 112, and the one cell that names another row's roll
 
 The owner chose the trait backlog again. 6gx and 6hh had given every row a
