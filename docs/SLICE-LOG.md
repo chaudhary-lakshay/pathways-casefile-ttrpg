@@ -6726,6 +6726,121 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hl. A potion's abilities, as rows that open
+
+Owner, 2026-10-13: *"work on the pathways and their abilities, right now
+they are not readable at all and are very confusing to even look at"*.
+Display only. No stored text, rules code or roll changed.
+
+### What the tablet showed
+
+Error 7 (Cryptologist) on the SM-T570, before any change:
+
+- *Success*, *Failure* and *Critical Failure* drawn as three abilities, in
+  the same size and colour as *Decryption (IQ / 1 SPI)* above them.
+- Two empty boxes inside *Beyonder Knowledge*. The PDF's bullet glyph is
+  stored as U+007F, 29 times in the 88 blocks, and `book.txt` holds the
+  same character, so the extractor is not where it was lost.
+- Every ability open. Everlasting 9 prints 23 headings, nine of them a
+  bare *Passive*.
+
+### The recorded decision this overturns
+
+6gk's KDoc on `abilityParagraphs`: *"the book does not say which is which,
+so the screen does not either."* Run as a query over all 161 texts (88
+standard blocks and 17 non-standard, ability and reinforced), it has an
+answer: the headings Success, Failure, Critical Success, Critical Failure,
+Success by 3, Passive, Duration, Range, Example, Examples and Note occur
+42 times, and none opens a text. Each has a power above it.
+
+### Decomposition, reviewed before any test
+
+Sonnet, `kotlin-reviewer.md`, on the written design: **build with
+changes**.
+
+- Taken: `rememberSaveable`, as the open set was lost when the card
+  scrolled away. A card of one or two powers starts open, and a longer one
+  has *Open all* / *Close all*: its case against starting closed was nine
+  taps to read Everlasting 9.
+- **Not taken, with the text that disproves it.** Its MEDIUM said
+  Everlasting 9's *Passive* after *Failure* starts a new power, so an
+  aspect must never nest after an outcome. The text is *"Learnable spells:
+  Star Scrying (3 SPI): Gaze into the cosmos ... Passive: once/session
+  roll 3d ≤ 14"*. *Star Scrying* follows a colon, not a sentence end, so
+  the parser never saw it as a heading, and the *Passive* is its aspect.
+  The fix would have drawn a row named *Passive*.
+- Left as heads, each one occurrence: *Quick Contest*, *Format*,
+  *Additionally*, *Reminder*, *Permanent Changes*, *Results*.
+
+### What changed
+
+- `abilities(text)` groups `abilityParagraphs`, which is untouched, as is
+  `rejoined`. A paragraph whose whole heading is one of those words joins
+  the power before it. *Passive Luck* is a power.
+- `titleOf` splits a heading's closing bracket off as a tag, in the book's
+  words: *1 SPI*, *Passive*, *2 SPI per 3 HP*.
+- `bullets` splits at U+007F. `named` gives a bullet that opens with a
+  name its label, which is what makes the Apothecary's five potions
+  readable.
+- `Abilities` in `PathwayPotion.kt`: one row per power, the name, the tag
+  and a chevron, mirroring `TraitRow`. Outcomes and aspects are indented
+  under the power's text, their label in bold.
+- **The Boon dialog printed the same text raw**, in `bodySmall`, for the
+  non-standard pathways, which the potion picker does not offer. It calls
+  `Abilities` now. Found by grepping for a second reader of
+  `block.ability` after I had written "the non-standard pathways reach no
+  screen" into the handover.
+- The guide's paragraph on the Potion tab says rows.
+
+RED, each watched against stubs: five of the first seven tests failed on
+their assertions (*expected: <(Decryption, IQ / 1 SPI)> but was:
+<(Decryption (IQ / 1 SPI), null)>*). *grouping loses and reorders nothing*
+passed under the stub, as it must: it guards loss, not grouping. `named`
+failed alone before it was written.
+
+### Diff review
+
+Sonnet on `a6fcd3d -- app`: **ship with changes**. It ran nothing.
+
+- Taken, MEDIUM: *no text opens with an outcome or an aspect* read its
+  labels from the grouping it checks. A text that opened with *Failure*
+  would be a head there and so never in the set. The test has its own
+  words now, and pins that an orphan stays a head.
+- Taken: the row is `Role.Button`.
+- Not taken: an empty bracket draws an empty chip (no heading prints one);
+  the lead-in split sits in the composable and has no test of its own.
+
+### Device pass, SM-T570 over Wi-Fi
+
+Backup `~/pathways-device-backups/sessions-6hl-bak.json`. Ritualistic
+Magic was seeded into the Academic Researcher for the Boon dialog, and the
+save was `cmp`-identical after the restore. No FATAL.
+
+- Fool 7, the longest text: nine rows, each with its *1 SPI*, *3 SPI* or
+  *Free*; *Open all* at the card's right; two rows opened by tap.
+- Error 7: *Decryption* with *IQ / 1 SPI*, its three outcomes indented
+  under it; *Beyonder Knowledge* with *Passive* and two real bullets. Both
+  open, as the card has two.
+- Moon 9: five bullets, each potion's name in bold.
+- Boon dialog, Everlasting, Sequence 9: eleven rows where 23 headings were (ten seen, the last below the fold),
+  no row named *Passive*; *Midoro's Worship* opened.
+
+### Left as it is
+
+- **A last bullet runs into the prose after it**, and *Trace — ...
+  Standard — ...* stays one run: the PDF kept no line break at either, and
+  225 em-dashes are mostly prose.
+- *Star Scrying* sits inside *Midoro's Worship*'s Failure line.
+- Advantages and drawbacks are still one paragraph each.
+
+2152 Kotlin (1413 `core:rules`, 718 `app`, 21 `core:model`) from deleted
+results with `--rerun-tasks`; 366 Python; `ast-grep scan` clean; the
+click-handler census still reads 35, as a toggle reaches no session
+mutator.
+
+**Next.** Nothing is queued. The owner has not yet seen this on the
+tablet.
+
 ## 6hk. Charmed Object's skill, which the book says to specify
 
 Owner, 2026-10-12: *store the skill*. The cell (book 1055-1058, 5 pts) is

@@ -195,6 +195,12 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hg
+(Reckless's "-1 to any roll where caution would be smarter" is a sixth
+declared all-rolls chip, on the owner's ruling; Entity Fixation's -2
+stays refused; seen on the SM-T570; all ten owner questions are now
+answered and built, and nothing is queued).
+
 Then 6hf
 (God of Combat's +3 ST, DX and HT applied as a played gain, never
 billed: one blessed base for `Derive.of` and digestion, purchase

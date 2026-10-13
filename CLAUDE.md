@@ -186,6 +186,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6hg** — Reckless's -1 is a sixth declared all-rolls chip, on the owner's ruling; Entity Fixation's -2 stays refused;
 **6hf** — God of Combat's +3 ST, DX and HT is a played gain, never billed: one blessed base for `Derive.of` and digestion, and purchase ceilings three lower for a holder;
 **6he** — four owner answers: a sheet's "Secret (...)" is the Secret row; Hanged Man 9's drawback is stored in `BeyonderState` and granted free; the untrained parry stays refused;
 **6hd** — the device pass 6gz, 6hb and 6hc owed; the Defend dialog printed the unarmed cell's notes under the wrong row;
@@ -255,10 +256,17 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6hk first.** END
+**Where to start next: the slice log, from the END — 6hl first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
-line 6728, then 6hk back to 6cb, newest first, so `tail` prints 6cb. The
-four ruled sheet spellings are subsections of 6hk. 6hk:
+line 6728, then 6hl back to 6cb, newest first, so `tail` prints 6cb. 6hl:
+(the owner called the potion's abilities unreadable; each power is a row
+that opens, with the book's bracket as its tag, a roll's Success and
+Failure under the power they follow, and the PDF's bullet, stored as
+U+007F, a real one; display only, the stored text untouched; 6gk's "the
+book does not say which is which" was answered by a census: no text
+opens with an outcome; the Boon dialog draws the same rows; seen
+on the SM-T570). Then 6hk, whose subsections hold the four ruled sheet
+spellings
 (Charmed Object's skill is stored beside the purchase and carried in the
 held trait's name, on the owner's ruling; a declared +1 on that skill's
 Skills-tab roll and in the Attack dialog, nowhere else, and the Traits
@@ -277,11 +285,7 @@ seen on the SM-T570 over Wi-Fi). Then 6hh
 Feysac bought at Native in both forms, on the owner's ruling; 6gx's
 "a choice the save would have to store" was false for it, as the
 language purchase is that choice, and Threshold Blindness stays refused
-on its real reason; seen on the SM-T570). Then 6hg
-(Reckless's "-1 to any roll where caution would be smarter" is a sixth
-declared all-rolls chip, on the owner's ruling; Entity Fixation's -2
-stays refused; seen on the SM-T570; all ten owner questions are now
-answered and built, and nothing is queued). The chain
+on its real reason; seen on the SM-T570). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -338,7 +342,7 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2145 Kotlin** (JUnit 5 — 1413 `core:rules`, 711 `app`, 21 `core:model`, counted in 6hk) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2152 Kotlin** (JUnit 5 — 1413 `core:rules`, 718 `app`, 21 `core:model`, counted in 6hl) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
 | Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hk (SHIP; 6hg to 6hk after their commits); nothing is owed |
 | Branch | everything on `master`; working tree clean |
@@ -352,7 +356,7 @@ player-facing guide to all four and is verified against the labels in source.
 py -m pytest tools -q                # Python tooling tests (Windows: `py`, not `python`)
 ast-grep scan                     # 4.3's division rule; silent and exit 0 when clean
 ast-grep scan --rule tools/sg-census/session-mutator-in-lambda.yml --report-style short
-                                  # 6gb's census: 35 lines (6hk), one per call site
+                                  # 6gb's census: 35 lines (6hl), one per call site
 ast-grep run -l kotlin -p 'SkillRoll.targetFor($$$)' app core   # call sites
 ```
 

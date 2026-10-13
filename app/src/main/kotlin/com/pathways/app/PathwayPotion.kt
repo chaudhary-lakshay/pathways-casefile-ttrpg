@@ -223,7 +223,7 @@ private fun SkillLine(name: String, note: String, value: String) {
  * text walls), except in a card short enough to read at a glance.
  */
 @Composable
-private fun Abilities(title: String, text: String) {
+internal fun Abilities(title: String, text: String) {
     val all = remember(text) { abilities(text) }
     val named = all.indices.filter { all[it].head.heading != null }
     var open by rememberSaveable(text) { mutableStateOf(if (named.size <= OPEN_AT_MOST) named else emptyList()) }

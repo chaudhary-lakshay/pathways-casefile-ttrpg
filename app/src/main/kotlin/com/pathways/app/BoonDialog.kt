@@ -81,13 +81,11 @@ private fun GrantedBlock(block: SequenceBlock) {
             color = MaterialTheme.colorScheme.error,
         )
     } else {
-        Text(block.ability, style = MaterialTheme.typography.bodySmall)
+        // The potion screen's rows: Everlasting 9 prints 23 headings (6hl).
+        Abilities("Abilities", block.ability)
     }
     if (block.reinforcedAbilities.isNotBlank()) {
-        Text(
-            "Reinforced: ${block.reinforcedAbilities}",
-            style = MaterialTheme.typography.bodySmall,
-        )
+        Abilities("Reinforced abilities", block.reinforcedAbilities)
     }
 }
 
