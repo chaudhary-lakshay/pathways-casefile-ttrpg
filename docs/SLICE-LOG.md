@@ -6810,6 +6810,16 @@ Sonnet on `a6fcd3d -- app`: **ship with changes**. It ran nothing.
 - Not taken: an empty bracket draws an empty chip (no heading prints one);
   the lead-in split sits in the composable and has no test of its own.
 
+A second pass, same reviewer, on `a6fcd3d..dbff8b6 -- app` (the test,
+the role, `named`, the Boon dialog): **ship with changes**, two LOWs,
+neither taken. It ran nothing.
+
+- The test's `(Success|Failure).*` is wider than the grouping's pattern.
+  It is meant to be: a text opening with *Failure Mode* is worth a look.
+- **After a granted boon the card sits inside the verdict card, and that
+  was not seen on the device.** Only the pre-roll block was: the roll
+  charges SPI the seeded character did not have.
+
 ### Device pass, SM-T570 over Wi-Fi
 
 Backup `~/pathways-device-backups/sessions-6hl-bak.json`. Ritualistic
