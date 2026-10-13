@@ -78,10 +78,14 @@ object TraitNames {
      * prints no Pacifism heading and does print Cannot Kill at 15, so the
      * resemblance is strong and is still only resemblance: this is a ruling
      * (2026-10-13), not a rule. The same sheet's "Pacifism (Cannot Harm
-     * Innocents)" was not ruled on and stays unmatched. Exact spelling, so
-     * nothing here generalises to another bracket.
+     * Innocents)" at 10 pts was ruled the same way on a second asking, for
+     * the Cannot Harm Innocents row at 10. Exact spellings, so nothing here
+     * generalises to another bracket.
      */
-    private val RULED_SPELLINGS = mapOf("Pacifism (Cannot Kill)" to "Cannot Kill")
+    private val RULED_SPELLINGS = mapOf(
+        "Pacifism (Cannot Kill)" to "Cannot Kill",
+        "Pacifism (Cannot Harm Innocents)" to "Cannot Harm Innocents",
+    )
 
     /**
      * The row a bracket instantiates where a SHEET has proved it does, or null.

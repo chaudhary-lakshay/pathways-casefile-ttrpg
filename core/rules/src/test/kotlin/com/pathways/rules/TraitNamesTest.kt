@@ -222,8 +222,6 @@ class TraitNamesTest {
         // --- the book prints no such row, under any spelling -------------
         "No Sense of Humour" to
             "the book prints no such trait; a text search finds the phrase nowhere",
-        "Pacifism (Cannot Harm Innocents)" to
-            "the book prints no Pacifism row; \"Pacifis\" occurs nowhere in it",
 
         // --- resembles a printed row, and the price disagrees -------------
         "Absent-Minded" to
@@ -369,9 +367,6 @@ class TraitNamesTest {
             "Paranoia: Bodies of water",     // the row is a bare "Paranoia"
             "Blacklisted: Specific Industry org or church",
             "Absent-Minded",                 // "Absent-Mindedness" in the book
-            // No such row at all. Its sibling "(Cannot Kill)" resolves on
-            // the owner's ruling (6hl); this one was not ruled on.
-            "Pacifism (Cannot Harm Innocents)",
         )) {
             assertEquals(name, TraitNames.catalogueName(name), name)
         }
@@ -509,19 +504,23 @@ class TraitNamesTest {
      * The Apothecary's "Pacifism (Cannot Kill)" is the Cannot Kill row, on
      * the owner's ruling (6hl, 2026-10-13): the book prints no Pacifism
      * heading, the bracket is a row's whole name, and the sheet pays that
-     * row's 15. One spelling was ruled on. Its sibling was not asked about,
-     * and stays recorded.
+     * row's 15. Its sibling was ruled the same way the next day, on the
+     * same grounds at that row's 10. Each is its own exact spelling: a
+     * third Pacifism bracket resolves to nothing.
      */
     @Test
-    fun `the Apothecary's Pacifism bracket is the Cannot Kill row, and its sibling is not resolved`() {
+    fun `the Apothecary's two Pacifism brackets are the rows they name, by ruling`() {
         assertEquals("Cannot Kill", TraitNames.catalogueName("Pacifism (Cannot Kill)"))
         assertEquals("Pacifism (Cannot Kill)", TraitNames.displayName("Pacifism (Cannot Kill)"))
         assertEquals(
-            "Pacifism (Cannot Harm Innocents)",
+            "Cannot Harm Innocents",
             TraitNames.catalogueName("Pacifism (Cannot Harm Innocents)"),
         )
-        // What the ruling is for: the premade is offered the roll.
+        assertEquals("Pacifism (Self-Defense Only)", TraitNames.catalogueName("Pacifism (Self-Defense Only)"))
         val apothecary = Premades.all().single { it.name == "Apothecary" }.toCharacter()
+        assertEquals(10, apothecary.traits.single { it.name == "Pacifism (Cannot Harm Innocents)" }.cost)
+        assertEquals(10, ContentLoader.disadvantages().single { it.name == "Cannot Harm Innocents" }.cost)
+        // What the first ruling is for: the premade is offered the roll.
         val check = SelfControl.checksFor(apothecary.traits).single { it.trait == "Pacifism (Cannot Kill)" }
         assertEquals("Will", check.spec.attribute)
         val sheetCost = apothecary.traits.single { it.name == "Pacifism (Cannot Kill)" }.cost

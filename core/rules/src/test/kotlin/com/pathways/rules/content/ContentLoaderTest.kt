@@ -262,7 +262,6 @@ class ContentLoaderTest {
     /** Genuinely absent from the book under any spelling -- verified by name search. */
     private val KNOWN_ABSENT_TRAITS = setOf(
         "No Sense of Humour",
-        "Pacifism (Cannot Harm Innocents)",
     )
 
     private data class TraitConflict(val name: String, val fixtureCost: Int, val bookDescription: String)
