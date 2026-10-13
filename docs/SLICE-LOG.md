@@ -6848,6 +6848,40 @@ results with `--rerun-tasks`; 366 Python; `ast-grep scan` clean; the
 click-handler census still reads 35, as a toggle reaches no session
 mutator.
 
+### The rest of the potion page
+
+Asked whether *pathways* also meant the other cards and the picker, the
+owner answered *2*, read as yes. The picker and the Digestion &
+corruption tab were looked at on the tablet and left alone. Three things
+on the Potion tab changed:
+
+- **A semicolon inside quotation marks starts no list.** Hanged Man 9's
+  two three-part honorifics were cut into five bullets, the third running
+  from one honorific into the next. `topLevel` toggles on a straight
+  double quote. One unpaired mark would silence every later cut in its
+  paragraph, so a test pins that all are paired: eleven texts hold one.
+- A skill's note loses the dash its table cell opens with (`noteOf`).
+- **The Drawbacks card labels a cell that names its rows**, which is
+  Hanged Man 9's Paranoia, Hallucinations and Compulsion. It is never
+  drawn as a list: my first version reused `Paragraph`, and Chained 7's
+  two rows hold three semicolon clauses, so a bullet would have started
+  in one row and ended in the next. `AbilityParagraph.body` is the cell
+  as one run. RED: *expected: <Sun Vulnerability ...> but was: <>*.
+- Advantages are untouched. Their rows run together with no boundary the
+  PDF kept, and `GRANTED_TRAITS` names only the catalogue's.
+
+Sonnet, same rubric, on `f1b24a5 -- app`: **SHIP**, one LOW, taken: the
+paired-marks test. It ran nothing, and it read the Chained 7 bullets as
+display only; the `body` fix came after it and is unreviewed.
+
+SM-T570, the save `cmp`-identical after, no FATAL: Hanged Man 9 showed
+both honorifics whole, the two notes without their dash, and the three
+drawbacks each under its bold name. Chained 7 was not opened after the
+`body` fix.
+
+2156 Kotlin (1413 `core:rules`, 722 `app`, 21 `core:model`) from deleted
+results with `--rerun-tasks`; 366 Python; `ast-grep scan` clean.
+
 **Next.** Nothing is queued. The owner has not yet seen this on the
 tablet.
 

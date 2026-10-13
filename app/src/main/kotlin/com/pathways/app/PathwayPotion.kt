@@ -111,8 +111,9 @@ internal fun LazyListScope.potionContent(
         item {
             PotionCard("Drawbacks") {
                 // Hanged Man 9 names its three under one cell: a label each.
+                // Never a list: Chained 7's semicolons sit inside two rows.
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    abilityParagraphs(block.drawbacks).forEach { Paragraph(it, label = it.heading) }
+                    abilityParagraphs(block.drawbacks).forEach { BookText(it.body, it.heading) }
                 }
                 drawbackPicker?.invoke()
             }

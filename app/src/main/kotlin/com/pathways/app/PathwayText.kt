@@ -12,8 +12,11 @@ package com.pathways.app
  */
 internal data class AbilityParagraph(val heading: String?, val lead: String, val items: List<String>) {
     val text: String
-        get() = heading.orEmpty().let { if (heading == null) "" else "$it: " } + lead +
-            (if (items.isEmpty()) "" else (if (lead.isEmpty()) "" else " ") + items.joinToString("; "))
+        get() = (if (heading == null) "" else "$heading: ") + body
+
+    /** Everything under the heading, as one run. */
+    val body: String
+        get() = lead + (if (items.isEmpty()) "" else (if (lead.isEmpty()) "" else " ") + items.joinToString("; "))
 }
 
 /**

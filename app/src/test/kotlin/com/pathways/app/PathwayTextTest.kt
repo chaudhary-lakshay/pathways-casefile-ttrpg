@@ -153,6 +153,28 @@ class PathwayTextTest {
         assertTrue(knowledge.lead.contains("\"The Lord that Created Everything; The Lord who Reigns"), knowledge.lead)
     }
 
+    /** What the quote rule rests on: one unpaired mark would silence every later cut in its paragraph. */
+    @Test
+    fun `every quotation mark in the potion text is paired`() {
+        val drawbacks = (ContentLoader.pathways() + NonStandardPathways.all()).map { it.drawbacks }
+        for (text in texts + drawbacks) {
+            assertEquals(0, text.count { it == '"' } % 2, text.take(60))
+        }
+        assertTrue(texts.count { '"' in it } >= 11)
+    }
+
+    /**
+     * Chained 7's drawbacks are two rows with a semicolon in each: cut at
+     * them, a bullet would start in one row and end in the next.
+     */
+    @Test
+    fun `a drawback cell is drawn whole, never as a list`() {
+        val block = ContentLoader.pathways().single { it.pathway == "Chained" && it.sequence == 7 }
+        val cell = abilityParagraphs(block.drawbacks).single()
+        assertEquals(3, cell.items.size)
+        assertEquals(block.drawbacks, cell.body)
+    }
+
     @Test
     fun `a skill's note loses the dash the table cell opens with`() {
         assertEquals("decent knowledge of rituals", noteOf("— decent knowledge of rituals"))
