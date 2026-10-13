@@ -262,7 +262,8 @@ means the newest slice, not the end of the file: 6a to 6by run down to
 line 6728, then 6ho back to 6cb, newest first, so `tail` prints 6cb. 6ho:
 (a prayer's fuel may be paid in HP, 2 for 1 SPI, as ch. 7 IV.B prints
 and ch. 13 defers to: it is how a mortal prays; fuel only, so
-`Boons.targetFor` is untouched; seen on the SM-T570). Then 6hn
+`Boons.targetFor` is untouched; seen on the SM-T570; **its commits
+from `4c14d7f` are unpushed, and a push needs the owner's word**). Then 6hn
 (a boon block's catalogue rows are granted through the potion merge:
 Charisma +2, Acute Hearing, Acute Vision, Fit; five look-alike names are
 refused, each printing another rule; seen on the SM-T570, where a
@@ -271,7 +272,7 @@ potion-only row also read *from the potion or the boon*). Then 6hm
 after the potions and held beside them, on the owner's ruling; the rung
 is the next one printed, never chosen, and a patron is required; the
 purchase ceilings dropped to leave room for both walks; a boon's
-advantages are still prose; seen on the SM-T570; **unpushed, and the
+advantages are still prose; seen on the SM-T570; **the
 owner has not said which roll number is wrong**). Then 6hl
 (the owner called the potion's abilities unreadable; each power is a row
 that opens, with the book's bracket as its tag, a roll's Success and
