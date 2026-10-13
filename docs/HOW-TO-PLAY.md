@@ -405,8 +405,10 @@ Pick the **patron's pathway**. The Sequence is not yours to pick: a first
 prayer asks for the first rung the book prints for that patron (Sequence 9,
 or 8 for the three pathways printed only there), and each later prayer asks
 the same patron for the next one. The rung's gains, skills and abilities are
-listed above the choices; its advantages and drawbacks are closed rows the GM
-applies. Then the sacrifice, the ritual's quality, and 4-6 SPI of fuel. The
+listed above the choices; its advantages and drawbacks are closed rows. One
+that names a listed trait with the same numbers (the Broker's Charisma +2,
+Fit, Acute Vision, Acute Hearing) is held on the Traits tab, marked *"from
+the boon"*, and counts in rolls as a potion's does; the rest is the GM's. Then the sacrifice, the ritual's quality, and 4-6 SPI of fuel. The
 foot shows every term of the target: Moderate -2, the Sequence (none at 9,
 -2 at 8, doubling after), and the two circumstances.
 

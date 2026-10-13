@@ -6726,6 +6726,40 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hn. A boon's catalogue rows, granted as a potion's are
+
+6hm left a boon block's advantages as prose the GM applies. The owner said
+*"continue"* twice, and this was the piece that needed no ruling.
+
+- `TraitGrants.BOON_TRAITS`, keyed by the walked name, held to 6fk's bar:
+  a catalogue row is granted where the block prints the catalogue's own
+  numbers. Four are: Chaos Mist 9's Charisma +2, Second Law 8's Acute
+  Hearing, Sublunary Eye 8's Acute Vision, Patriarch 8's Fit.
+- **Five names are refused, each over a different rule than the
+  catalogue's**: Double-Jointed (+2 to Escape, not +5 to Climbing and
+  Escape), Hard Stomach (food-borne illness, not disgusting
+  environments), Experienced Investigator (+1 to three rolls, not a
+  yes/no question), and *Sin of Greed* twice, which is the block's own
+  row. The census found all nine; my hand list in 6hm had named
+  Resistant, which no catalogue row is, and missed four.
+- `grantedTraits(state, boon)` and `withGrantedTraits(traits, state,
+  boon)` put both sources through one merge, so a row held from both is
+  held once and Charisma's levels add, capped at 4. The session's
+  `traitsInPlay`, the sheet's granted list and the gallery row pass the
+  boon. The Traits tab says *from the boon*, or *from the potion or the
+  boon* when both are held: one label for the list, not per row.
+- Not reached: the builder's granted-face line, as no boon prints a face;
+  `Languages.grantedBy` and `SpiritVision`, as no boon block names either
+  in a cell. A boon's drawbacks name no catalogue row at all.
+
+RED, each watched: three of `BoonTraitsTest`'s four against an empty
+table (the fourth, a row held from both sources, cannot fail before one
+exists); the session test.
+
+2180 Kotlin (1426 `core:rules`, 733 `app`, 21 `core:model`) from deleted
+results; 366 Python; `ast-grep scan` clean. `:app:assembleDebug` builds.
+**Not seen on the tablet, and no reviewer has read it.**
+
 ## 6hm. A granted boon is stored, and played beside a potion
 
 Owner, 2026-10-13: *"lets work on boon now, they are not working and not

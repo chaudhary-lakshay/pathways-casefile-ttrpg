@@ -195,6 +195,12 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hi
+(three standing sweeps re-run; the builder's study tag read the bought
+attribute beside a level read from the blessed one, so a God of Combat
+holder saw "at cap 11" beside a 14; which study is offered never changed;
+seen on the SM-T570 over Wi-Fi).
+
 Then 6hh
 (Dead Language Fluency frees the first of Ancient Hermes or Ancient
 Feysac bought at Native in both forms, on the owner's ruling; 6gx's

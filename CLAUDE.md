@@ -186,6 +186,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6hi** — three standing sweeps re-run; the builder's study tag read the bought attribute beside a blessed level;
 **6hh** — Dead Language Fluency frees the first of Ancient Hermes or Feysac at Native, both forms; Threshold Blindness stays refused;
 **6hg** — Reckless's -1 is a sixth declared all-rolls chip, on the owner's ruling; Entity Fixation's -2 stays refused;
 **6hf** — God of Combat's +3 ST, DX and HT is a played gain, never billed: one blessed base for `Derive.of` and digestion, and purchase ceilings three lower for a holder;
@@ -255,9 +256,13 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6hm first.** END
+**Where to start next: the slice log, from the END — 6hn first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
-line 6728, then 6hm back to 6cb, newest first, so `tail` prints 6cb. 6hm:
+line 6728, then 6hn back to 6cb, newest first, so `tail` prints 6cb. 6hn:
+(a boon block's catalogue rows are granted through the potion merge:
+Charisma +2, Acute Hearing, Acute Vision, Fit; five look-alike names are
+refused, each printing another rule; **unreviewed and unseen on the
+tablet**). Then 6hm
 (a granted boon stored nothing; it is `SavedEdits.boon` now, digested
 after the potions and held beside them, on the owner's ruling; the rung
 is the next one printed, never chosen, and a patron is required; the
@@ -282,11 +287,7 @@ book's own instruction; seen on the SM-T570). Then 6hj
 Killer's Will roll, the one cell that names another row's, on the
 owner's ruling, and so does the Apothecary's "Pacifism (Cannot Kill)";
 four sheet spellings are ruled rows, each exact; Marked by Ritual stays refused, as the book lists no
-SPI-roll types; seen on the SM-T570). Then 6hi
-(three standing sweeps re-run; the builder's study tag read the bought
-attribute beside a level read from the blessed one, so a God of Combat
-holder saw "at cap 11" beside a 14; which study is offered never changed;
-seen on the SM-T570 over Wi-Fi). The chain
+SPI-roll types; seen on the SM-T570). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -343,9 +344,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2174 Kotlin** (JUnit 5 — 1422 `core:rules`, 731 `app`, 21 `core:model`, counted in 6hm) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2180 Kotlin** (JUnit 5 — 1426 `core:rules`, 733 `app`, 21 `core:model`, counted in 6hn) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`, is owed a pass; 6hm's uncommitted tree: ship with changes, taken |
+| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`, is owed a pass; 6hm's uncommitted tree: ship with changes, taken; 6hn is owed a pass |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
@@ -620,7 +621,8 @@ CharmedObject.heldAs(skill, spec) / .skillOf(printed) / .clauses(traits, skill)
                                       // the chosen skill rides in the held
                                       // trait's NAME; a declared +1 on that
                                       // skill's roll and in Attack (6hk)
-TraitGrants.grantedTraits(state) / .withGrantedTraits(traits, state)
+TraitGrants.grantedTraits(state, boon) / .withGrantedTraits(traits, state, boon)
+TraitGrants.boonTraitTable() / .refusedBoonGrants()   // a boon's rows (6hn)
 TraitGrants.grantedLevelsIn(merged, bought)   // the levels a potion ADDED
                                       // to a bought levelled row (6fm)
 TraitGrants.grantedTraitTable() / .refusedGrants()
