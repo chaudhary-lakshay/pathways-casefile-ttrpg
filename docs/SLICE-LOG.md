@@ -6726,6 +6726,101 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hm. A granted boon is stored, and played beside a potion
+
+Owner, 2026-10-13: *"lets work on boon now, they are not working and not
+accurate at all right now"*. Asked which, the owner ticked all four shown:
+a granted boon does nothing; any Sequence and no patron; the roll's
+numbers; the screen. Two rulings the same day: a boon is held by **anyone,
+alongside potions**, and a pathway printed only at Sequence 8 is granted
+**as printed**, the two Eternal Aeon spellings walked as one.
+
+### What was wrong
+
+- **A successful prayer stored nothing.** `BoonDialog` printed "Sequence N
+  granted" and the block, and no field anywhere held it. 6r's device pass
+  read the verdict and never the sheet.
+- **The Sequence was a free chip, 9 down to 0**, and the patron optional:
+  a prayer to nobody at Sequence 0 rolled and was "granted". No block is
+  printed below Sequence 8.
+- **The chip was hidden without Ritualistic Magic**, which no premade
+  prints, so on every premade the feature was absent.
+- The guide's Boon section described an entity-response roll and an
+  orthodox shift the dialog never had.
+
+### What changed
+
+- `BoonState(pathway, sequence)` in `core:model`, no `init` check; on
+  `Character.boon`, and saved as **`SavedEdits.boon`**. Not a purchase: it
+  is there because `applyTo` is the one place a save becomes the character
+  played, so every `digestedWith`, `liveSkillLevels`, floor and CoR-ceiling
+  reader digests it untaught, and every `remember(..., session.edits)`
+  recomputes. A `SavedSession.boon` would have needed each
+  `copy(beyonder = ...)` site taught. The trade is that `isEmpty` and the
+  repair path carry a non-purchase.
+- `PotionDigestion.of` and `digestThrough` fold the potion chain and then
+  the boon chain. **READING, pinned by a test:** potions first. A granted
+  level is frozen at the attributes of its moment and the save stores no
+  order. A mortal with a boon digests the boon alone.
+- `NonStandardPathways.patronOf`, `patrons`, `chainFor`, `nextRung`. The
+  next rung is the next one PRINTED on the patron already served: 9, or 8
+  where no 9 is printed, then nothing. A second patron is never offered:
+  each Outer Deity "is the sole source of all boons on that path".
+  `chainFor` answers empty for a name the book does not print.
+- **`PurchaseCeilings` leaves room for a potion walk and a boon walk
+  together**: ST 19 to 17, DX 26 to 23, IQ 26 to 25, HT 25 to 21, Will 98
+  to 96 steps, Basic Speed 96 to 88. ST 17 + Twilight Giant's 11 +
+  Patriarch's 2 is exactly 30. **A save bought above a new ceiling is
+  brought down on opening and written back, with no notice**: the cost of
+  the owner's "alongside".
+- `BeyonderSession.boon`, `nextBoon`, `grantBoon`. The dialog asks for
+  `nextBoon(patron)`, never a chosen rung, and hands the grant over in
+  `settle()`, because a push can still turn the verdict. `boonRefusal` is
+  the one answer for the button and its line.
+- The Boon chip is ungated; the header shows *Boon · name · Seq N*.
+  Requirements, consequences, the level rule and a block's advantages and
+  drawbacks are closed `RuleNote`s.
+
+### Not built, and said on the screen
+
+- **A boon block's advantages and drawbacks are prose the GM applies.**
+  Charisma +2, Acute Vision, Acute Hearing, Fit and Resistant name
+  catalogue rows and reach no roll: `TraitGrants`, `Languages.grantedBy`
+  and `SpiritVision` key on `BeyonderState`. The census 6fk ran for
+  potions is owed for the 17 boon blocks.
+- **The roll's numbers were checked against lines 8933-8950 and nothing
+  disagreed**: Moderate -2, 4-6 SPI, the two circumstance rows, the
+  doubling ladder. The owner ticked "numbers are wrong" without naming
+  one. Three readings are the candidates: the doubling (6r), no Entity
+  Response roll, no language. Ask with the ledger on screen.
+
+- **A mortal still cannot pray.** The fuel is 4-6 SPI and a mortal plays
+  SPI 0, so the ungated chip opens onto a refusal. Ch. 7 IV.B's blood
+  (2 HP for 1 SPI) would reach them, and `Boons.targetFor` leaves power
+  sources out for a reason about modifiers, not fuel. The owner's ruling.
+
+### Review
+
+Decomposition: the advisor, before code. Diff: sonnet on the ecc rubric,
+uncommitted tree, **ship with changes**. It ran nothing.
+
+- Taken: the footer printed "Ritualistic Magic null"; a lost character
+  was told "no boon can be asked of this patron"; a decode of a save from
+  before the field.
+- Recorded, not changed: the ceilings moved for everyone (above).
+- Not taken: "the patron chips stay tappable after Pray". The result
+  branch returns before the chips are composed.
+
+RED, each watched: seven of `BoonGrantsTest`'s nine against stubs, and
+the ceiling numbers; five of `BoonSessionTest`'s six; both of
+`BoonDialogTest`'s new ones. Four older tests pinned the old ceilings and
+moved by exactly the boon's reach.
+
+2174 Kotlin (1422 `core:rules`, 731 `app`, 21 `core:model`) from deleted
+results; 366 Python; `ast-grep scan` clean; the click-handler census reads
+37, the two new lines both in the guarded grant. `:app:assembleDebug`
+builds. **Not seen on the tablet, not committed.**
+
 ## 6hl. A potion's abilities, as rows that open
 
 Owner, 2026-10-13: *"work on the pathways and their abilities, right now

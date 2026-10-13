@@ -96,7 +96,8 @@ potion grants.
   **Damage** and **Pathway** — then a row of chips for the rest, coloured by
   what they are for: neutral = a roll the GM called, red = combat, violet = a
   Beyonder power, brass = managing the character. The Beyonder chips (Ritual,
-  Divine, Boon, Spirit Vision) appear only once a potion grants them.
+  Divine, Spirit Vision) appear only once a potion grants them; **Boon** is
+  always there.
 
 ---
 
@@ -395,9 +396,25 @@ still buys a clearer answer.
 
 ### Boon
 
-Supplication: the entity's response, the Sequence penalty (doubling: none at
-Sequence 9, -512 at Sequence 0), and the orthodox standing shift on the
-response table.
+Always on the sheet. Without Ritualistic Magic it opens and says so: the
+skill has no default, and **Spend points** sells it. It also needs 4 SPI of
+fuel, which a mortal does not have: today only a character a potion has
+given SPI can pray.
+
+Pick the **patron's pathway**. The Sequence is not yours to pick: a first
+prayer asks for the first rung the book prints for that patron (Sequence 9,
+or 8 for the three pathways printed only there), and each later prayer asks
+the same patron for the next one. The rung's gains, skills and abilities are
+listed above the choices; its advantages and drawbacks are closed rows the GM
+applies. Then the sacrifice, the ritual's quality, and 4-6 SPI of fuel. The
+foot shows every term of the target: Moderate -2, the Sequence (none at 9,
+-2 at 8, doubling after), and the two circumstances.
+
+A granted boon is stored when the dialog closes, and held **beside** any
+potion walk: its attribute, SPI and skill gains are on the sheet from then
+on, free, and the header shows *Boon · name · Seq N*. The book records
+nothing past Sequence 8 for any patron, so the dialog refuses a prayer once
+the last printed rung is held.
 
 ### Detect / Artifacts
 

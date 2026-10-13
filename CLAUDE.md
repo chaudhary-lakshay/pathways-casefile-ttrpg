@@ -186,6 +186,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6hh** — Dead Language Fluency frees the first of Ancient Hermes or Feysac at Native, both forms; Threshold Blindness stays refused;
 **6hg** — Reckless's -1 is a sixth declared all-rolls chip, on the owner's ruling; Entity Fixation's -2 stays refused;
 **6hf** — God of Combat's +3 ST, DX and HT is a played gain, never billed: one blessed base for `Derive.of` and digestion, and purchase ceilings three lower for a holder;
 **6he** — four owner answers: a sheet's "Secret (...)" is the Secret row; Hanged Man 9's drawback is stored in `BeyonderState` and granted free; the untrained parry stays refused;
@@ -233,11 +234,9 @@ slice log.** One line each:
 **6fe** — Alertness reaches Spirit Vision's Per roll; a recorded census ("the one bare Per roll") expired when a second roll arrived;
 **6fd** — Cleansed Spirit halves nothing, and the CoR stepper says why; "Soul Debt is reported, not applied" had been false since `ea6ae38`;
 **6fc** — Fast Healer's +1 is said on the recovery row's result; on a failure the two readings disagree, so the line says it is the GM's;
-**6fb** — Chronic Insomnia's "sustained concentration at -1" is declared on the Concentrate roll; two API lines had been pasted inside 6ew's lead;
-**6fa** — Thinned Veil's "Concentration ... at -2" is a declaration on the Concentrate roll alone; the verbatim guard checked two traits, and now checks every partly-applied row;
-**6ez back to 6de** have one-line digests too, moved verbatim to
+**6fb back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
-its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi, 6hk).
+its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi, 6hk, 6hm).
 
 **6dd back to 6cd had lead paragraphs here and they have been cut, because
 this file keeps reaching the 150 k-char limit (6eb: 152,583; 6eh cut 6dd to
@@ -256,9 +255,15 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6hl first.** END
+**Where to start next: the slice log, from the END — 6hm first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
-line 6728, then 6hl back to 6cb, newest first, so `tail` prints 6cb. 6hl:
+line 6728, then 6hm back to 6cb, newest first, so `tail` prints 6cb. 6hm:
+(a granted boon stored nothing; it is `SavedEdits.boon` now, digested
+after the potions and held beside them, on the owner's ruling; the rung
+is the next one printed, never chosen, and a patron is required; the
+purchase ceilings dropped to leave room for both walks; a boon's
+advantages are still prose; **uncommitted, unseen on the tablet, and the
+owner has not said which roll number is wrong**). Then 6hl
 (the owner called the potion's abilities unreadable; each power is a row
 that opens, with the book's bracket as its tag, a roll's Success and
 Failure under the power they follow, and the PDF's bullet, stored as
@@ -281,12 +286,7 @@ SPI-roll types; seen on the SM-T570). Then 6hi
 (three standing sweeps re-run; the builder's study tag read the bought
 attribute beside a level read from the blessed one, so a God of Combat
 holder saw "at cap 11" beside a 14; which study is offered never changed;
-seen on the SM-T570 over Wi-Fi). Then 6hh
-(Dead Language Fluency frees the first of Ancient Hermes or Ancient
-Feysac bought at Native in both forms, on the owner's ruling; 6gx's
-"a choice the save would have to store" was false for it, as the
-language purchase is that choice, and Threshold Blindness stays refused
-on its real reason; seen on the SM-T570). The chain
+seen on the SM-T570 over Wi-Fi). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -343,9 +343,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2156 Kotlin** (JUnit 5 — 1413 `core:rules`, 722 `app`, 21 `core:model`, counted in 6hl) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2174 Kotlin** (JUnit 5 — 1422 `core:rules`, 731 `app`, 21 `core:model`, counted in 6hm) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`, is owed a pass |
+| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`, is owed a pass; 6hm's uncommitted tree: ship with changes, taken |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
@@ -357,7 +357,7 @@ player-facing guide to all four and is verified against the labels in source.
 py -m pytest tools -q                # Python tooling tests (Windows: `py`, not `python`)
 ast-grep scan                     # 4.3's division rule; silent and exit 0 when clean
 ast-grep scan --rule tools/sg-census/session-mutator-in-lambda.yml --report-style short
-                                  # 6gb's census: 35 lines (6hl), one per call site
+                                  # 6gb's census: 37 lines (6hm), one per call site
 ast-grep run -l kotlin -p 'SkillRoll.targetFor($$$)' app core   # call sites
 ```
 
@@ -720,6 +720,10 @@ Boons.canPush(outcome) / .pushed(outcome, points)   // ch.13 line 8933 defers
 NonStandardPathways.all() / .pathways() / .blocksFor(pathway)
 NonStandardPathways.blockFor(pathway, sequence): SequenceBlock?  // null = no such rung
 NonStandardPathways.knownSequences(pathway) / .alsoPrintedAs(pathway)
+NonStandardPathways.patrons() / .patronOf(pathway) / .chainFor(boon)
+NonStandardPathways.nextRung(held, patron): BoonState?   // the next rung
+                                      // PRINTED, on the patron served (6hm)
+BeyonderSession.boon / .nextBoon(patron) / .grantBoon(next)
 Weapons.all() / .named(name) / .forSkill(key): List<CataloguedWeapon>
 Weapons.levelFor(weapon, skillLevels): Int?   // the HIGHEST matching skill,
                                       // never the first: p.85 makes one name
@@ -959,6 +963,8 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
   `PointBudget` bills those. Only the CHOICE is stored — pathway, sequence,
   digestion — and every gain re-derives from it. Writing grants into billable
   fields overcharges silently, and the totals still look plausible.
+  **A boon is a third** (6hm): `Character.boon`, saved as
+  `SavedEdits.boon`, folded by `PotionDigestion.of` after the potions.
   **A blessing is the second played gain** (6hf): God of Combat's +3 enters
   through `Blessings.played`, never `attributes`, and lowers the purchase
   ceilings by its gain.

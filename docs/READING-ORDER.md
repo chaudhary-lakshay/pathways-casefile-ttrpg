@@ -195,6 +195,13 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hh
+(Dead Language Fluency frees the first of Ancient Hermes or Ancient
+Feysac bought at Native in both forms, on the owner's ruling; 6gx's
+"a choice the save would have to store" was false for it, as the
+language purchase is that choice, and Threshold Blindness stays refused
+on its real reason; seen on the SM-T570).
+
 Then 6hg
 (Reckless's "-1 to any roll where caution would be smarter" is a sixth
 declared all-rolls chip, on the owner's ruling; Entity Fixation's -2
@@ -2417,6 +2424,9 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
 ## Digest index, 6ex back to 6de
+
+**6fb** — Chronic Insomnia's "sustained concentration at -1" is declared on the Concentrate roll; two API lines had been pasted inside 6ew's lead;
+**6fa** — Thinned Veil's "Concentration ... at -2" is a declaration on the Concentrate roll alone; the verbatim guard checked two traits, and now checks every partly-applied row;
 
 Moved from the handover in 6ff, unchanged, when its digest index neared
 8,000 characters. 6ds and 6dr followed in 6gb, and 6dv back to 6dt in
