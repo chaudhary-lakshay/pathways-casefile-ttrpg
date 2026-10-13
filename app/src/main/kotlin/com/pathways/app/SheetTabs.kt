@@ -119,6 +119,8 @@ internal fun LazyListScope.traitsTab(
     advantages: List<HeldTrait>,
     drawbacks: List<HeldTrait>,
     grantedTraits: List<Trait>,
+    /** What gave [grantedTraits]: "the potion", "the boon", or both (6hn). */
+    grantedBy: String,
     bought: List<Trait>,
     traits: List<Trait>,
     selfControl: Map<String, SelfControlCheck>,
@@ -140,9 +142,9 @@ internal fun LazyListScope.traitsTab(
             // A granted row costs nothing and was not bought (6fk); a bought
             // level a potion added to says both (6fm).
             priceLine = when {
-                row.trait in grantedTraits -> "from the potion"
+                row.trait in grantedTraits -> "from $grantedBy"
                 else -> "${row.trait.cost} pts" +
-                    TraitGrants.grantedLevelsIn(row.trait, bought)?.let { ", +$it from the potion" }.orEmpty()
+                    TraitGrants.grantedLevelsIn(row.trait, bought)?.let { ", +$it from $grantedBy" }.orEmpty()
             } + superseded(row.trait, traits),
             roll = null,
             expanded = expanded[key] == true,
@@ -161,7 +163,7 @@ internal fun LazyListScope.traitsTab(
         TraitRow(
             row = row,
             // `Trait.cost` is a MAGNITUDE and the sign lives in the kind (6u).
-            priceLine = (if (row.trait in grantedTraits) "from the potion" else "−${row.trait.cost} pts") +
+            priceLine = (if (row.trait in grantedTraits) "from $grantedBy" else "−${row.trait.cost} pts") +
                 superseded(row.trait, traits),
             roll = check?.let { "Roll 3d6 ≤ ${standing.getValue(it.trait)}" },
             expanded = expanded[key] == true,

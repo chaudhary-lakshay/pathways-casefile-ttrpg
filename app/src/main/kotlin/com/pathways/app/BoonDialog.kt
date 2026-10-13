@@ -79,6 +79,13 @@ internal fun boonRefusal(
     else -> null
 }
 
+/** What a granted Traits row says gave it: a boon's rows sit beside a potion's (6hn). */
+internal fun grantedBy(potion: Boolean, boon: Boolean): String = when {
+    potion && boon -> "the potion or the boon"
+    boon -> "the boon"
+    else -> "the potion"
+}
+
 /** The sheet's tag for a held boon: the rung's own name, as the book prints it. */
 internal fun boonPill(boon: BoonState): String {
     val name = NonStandardPathways.chainFor(boon).lastOrNull { it.sequence == boon.sequence }?.name
@@ -100,10 +107,11 @@ private fun GrantedBlock(block: SequenceBlock) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
-    // Prose, and granted as prose: no row here is applied to a roll yet.
+    // Prose. A row that names a catalogue trait with its own numbers is
+    // granted and on the Traits tab (TraitGrants, 6hn); the rest is the GM's.
     listOf("Advantages" to block.advantages, "Drawbacks" to block.drawbacks).forEach { (label, text) ->
         if (text.isNotBlank()) {
-            RuleNote("$label — the GM applies these") { Text(text, style = MaterialTheme.typography.bodySmall) }
+            RuleNote(label) { Text(text, style = MaterialTheme.typography.bodySmall) }
         }
     }
     if (block.ability.isBlank()) {

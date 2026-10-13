@@ -446,7 +446,7 @@ class BeyonderSession(
      * never sold again. Never the character: the budget prices that.
      */
     fun traitsInPlay(sheet: PremadeSheet): List<Trait> =
-        TraitGrants.withGrantedTraits(characterFor(sheet).traits, state)
+        TraitGrants.withGrantedTraits(characterFor(sheet).traits, state, edits.boon)
 
     /**
      * Whether [name] may be stored as the walked chain's chosen drawback

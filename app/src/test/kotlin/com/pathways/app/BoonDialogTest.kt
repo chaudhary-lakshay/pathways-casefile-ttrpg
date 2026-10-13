@@ -49,6 +49,13 @@ class BoonDialogTest {
     }
 
     @Test
+    fun `a granted row says what gave it`() {
+        assertEquals("the potion", grantedBy(potion = true, boon = false))
+        assertEquals("the boon", grantedBy(potion = false, boon = true))
+        assertEquals("the potion or the boon", grantedBy(potion = true, boon = true))
+    }
+
+    @Test
     fun `the sheet names the held boon by its rung`() {
         assertEquals("Boon · Broker · Seq 9", boonPill(broker))
         // Across Eternal Aeon's two spellings: the Sequence 8 is ch. 15's.

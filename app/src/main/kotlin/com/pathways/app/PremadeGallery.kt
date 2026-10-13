@@ -149,7 +149,7 @@ internal fun playedRow(sheet: PremadeSheet, saved: SavedSession?): PlayedRow {
         bought.attributesWith(walk),
         liveSkillLevels(bought.copy(beyonder = walk)).size,
         // The list the sheet's rolls read ([BeyonderSession.traitsInPlay]).
-        chipTraits(TraitGrants.withGrantedTraits(bought.traits, walk).map { it.name }),
+        chipTraits(TraitGrants.withGrantedTraits(bought.traits, walk, bought.boon).map { it.name }),
     )
 }
 

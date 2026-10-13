@@ -56,6 +56,17 @@ class BoonSessionTest {
     }
 
     @Test
+    fun `a boon's catalogue rows are in play, and never on the character`() {
+        // Patriarch 8 prints "Fit +1 to all HT rolls" (6hn).
+        val (s, _) = session(sheet = plain())
+        s.grantBoon(BoonState("Patriarch", 9))
+        assertFalse(s.traitsInPlay(plain()).any { it.name == "Fit" })
+        s.grantBoon(BoonState("Patriarch", 8))
+        assertEquals(listOf(0), s.traitsInPlay(plain()).filter { it.name == "Fit" }.map { it.cost })
+        assertFalse(s.characterFor(plain()).traits.any { it.name == "Fit" })
+    }
+
+    @Test
     fun `a lost character is granted nothing`() {
         val (s, _) = session(SavedSession(lost = true), plain())
         assertNull(s.nextBoon("Chaos Mist"))

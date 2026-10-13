@@ -17,6 +17,7 @@ import com.pathways.rules.TraitEffects.PERFECT_BALANCE
 import com.pathways.rules.TraitEffects.maxLevelsFor
 import com.pathways.rules.TraitNames.catalogueName
 import com.pathways.rules.TraitNames.levelOf
+import com.pathways.model.BoonState
 import com.pathways.rules.content.ContentLoader
 
 /**
@@ -107,6 +108,38 @@ object TraitGrants {
         ("Hanged Man" to 9) to listOf("Paranoia", "Hallucinations", "Compulsion (pathway)"),
     )
 
+    /**
+     * [GRANTED_TRAITS] for the boon blocks (6hn), keyed by the name a
+     * pathway is walked under ([NonStandardPathways.patronOf]) and held to
+     * the same bar: a catalogue row is granted where the block prints the
+     * catalogue's own numbers. Ch. 15: "The same rules for potion-granted
+     * skills and attributes from Chapter 9 apply here."
+     */
+    private val BOON_TRAITS: Map<Pair<String, Int>, List<Trait>> = mapOf(
+        ("Chaos Mist" to 9) to advantages("$CHARISMA 2"),
+        ("Second Law" to 8) to advantages(ACUTE_HEARING),
+        ("Sublunary Eye" to 8) to advantages(ACUTE_VISION),
+        ("Patriarch" to 8) to advantages(FIT),
+    )
+
+    /** The catalogue names a boon block prints over a different rule. */
+    private val REFUSED_BOON_GRANTS: Map<Pair<Pair<String, Int>, String>, String> = mapOf(
+        (("Eternal Aeon (Inevitability)" to 9) to "Double-Jointed") to
+            "\"+2 to Escape and any roll involving contortion\", not the catalogue's +5 to Climbing and Escape",
+        (("Monarch of Decay" to 9) to "Hard Stomach") to
+            "\"+4 to HT rolls to avoid food-borne illness\", not the catalogue's disgusting environments",
+        (("Sublunary Eye" to 8) to "Experienced Investigator") to
+            "\"+1 to all Investigation, Observation, and Search rolls\", not the catalogue's yes/no question",
+        (("Patriarch" to 9) to "Greed") to "\"Sin of Greed\" is the block's own row, with its own Will penalties",
+        (("Patriarch" to 8) to "Greed") to "\"Replaces Sin of Greed\" names the Sequence 9 row, not the catalogue's",
+    )
+
+    /** The boon table, for its census. */
+    fun boonTraitTable(): Map<Pair<String, Int>, List<Trait>> = BOON_TRAITS
+
+    /** The boon refusals, for the census: (block, catalogue row) to reason. */
+    fun refusedBoonGrants(): Map<Pair<Pair<String, Int>, String>, String> = REFUSED_BOON_GRANTS
+
     /** The table, for its census. */
     fun grantedTraitTable(): Map<Pair<String, Int>, List<Trait>> = GRANTED_TRAITS
 
@@ -135,13 +168,27 @@ object TraitGrants {
      * A chosen drawback is granted like the rest, when it is one of the
      * chain's own [drawbackChoices]; any other stored name grants nothing.
      */
-    fun grantedTraits(state: com.pathways.model.BeyonderState?): List<Trait> {
-        if (state == null) return emptyList()
-        val chosen = state.drawback?.takeIf { it in drawbackChoices(state) }
+    fun grantedTraits(state: com.pathways.model.BeyonderState?, boon: BoonState? = null): List<Trait> {
+        val chosen = state?.drawback?.takeIf { it in drawbackChoices(state) }
             ?.let { listOf(Trait(it, 0, TraitKind.DISADVANTAGE)) }.orEmpty()
-        return chosen + GRANTED_TRAITS
-            .filterKeys { (pathway, sequence) -> pathway == state.pathway && sequence >= state.sequence }
-            .values.flatten()
+        val potions = if (state == null) {
+            emptyList()
+        } else {
+            GRANTED_TRAITS
+                .filterKeys { (pathway, sequence) -> pathway == state.pathway && sequence >= state.sequence }
+                .values.flatten()
+        }
+        // A boon's rows join the same merge (6hn): held beside the potion's,
+        // a shared row once and Charisma's levels added.
+        val boons = if (boon == null) {
+            emptyList()
+        } else {
+            val patron = NonStandardPathways.patronOf(boon.pathway)
+            BOON_TRAITS
+                .filterKeys { (pathway, sequence) -> pathway == patron && sequence >= boon.sequence }
+                .values.flatten()
+        }
+        return chosen + (potions + boons)
             .groupBy { catalogueName(it.name).lowercase() }.values
             .map { rows ->
                 val first = rows.first()
@@ -159,8 +206,12 @@ object TraitGrants {
      * replaced in place by one at the sum, keeping its cost and kind, because
      * [levelOf] reads one row per trait and a second copy would be hidden.
      */
-    fun withGrantedTraits(traits: List<Trait>, state: com.pathways.model.BeyonderState?): List<Trait> {
-        val granted = grantedTraits(state).associateBy { catalogueName(it.name).lowercase() }
+    fun withGrantedTraits(
+        traits: List<Trait>,
+        state: com.pathways.model.BeyonderState?,
+        boon: BoonState? = null,
+    ): List<Trait> {
+        val granted = grantedTraits(state, boon).associateBy { catalogueName(it.name).lowercase() }
         val held = traits.map { catalogueName(it.name).lowercase() }.toSet()
         val merged = traits.map { owned ->
             val name = catalogueName(owned.name)

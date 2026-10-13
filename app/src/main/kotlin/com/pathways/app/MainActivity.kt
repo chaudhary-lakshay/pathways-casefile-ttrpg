@@ -212,7 +212,7 @@ fun SheetScreen(
     // grants come from: a potion's Combat Reflexes is held as surely as a
     // bought one. Every reader on this screen takes the merged list; the
     // budget never sees it, because it prices `characterFor` itself.
-    val grantedTraits = remember(drunk) { TraitGrants.grantedTraits(drunk) }
+    val grantedTraits = remember(drunk, session.boon) { TraitGrants.grantedTraits(drunk, session.boon) }
     // What was bought, for the levels a potion added to it (6fm).
     val bought = remember(sheet, session.edits) { session.characterFor(sheet).traits }
     val traits = remember(sheet, session.edits, drunk) { session.traitsInPlay(sheet) }
@@ -494,6 +494,7 @@ fun SheetScreen(
                     advantages = advantages,
                     drawbacks = drawbacks,
                     grantedTraits = grantedTraits,
+                    grantedBy = grantedBy(drunk != null, session.boon != null),
                     bought = bought,
                     traits = traits,
                     selfControl = selfControl,
