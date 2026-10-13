@@ -320,6 +320,18 @@ internal fun RitualSupportAndLanguage(
         }
     }
 
+    MysticalLanguagePicker(language, boughtLanguages, grantedLanguages, onLanguage)
+}
+
+/** The tongue a ritual or a prayer is said in: the GM's declaration. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun MysticalLanguagePicker(
+    language: LanguageProficiency?,
+    boughtLanguages: List<String>,
+    grantedLanguages: List<String>,
+    onLanguage: (LanguageProficiency?) -> Unit,
+) {
     // Ch. 3, p. 14. Only the MYSTICAL table speaks about
     // rituals; a common tongue is not offered, because the
     // book never grants it ritual power and offering it would

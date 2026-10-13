@@ -588,6 +588,12 @@ internal fun SheetDialogs(
     if (SheetDialog.BOON in open) {
         BoonDialog(
             skillLevel = ritualLevel,
+            boughtLanguages = remember(sheet, session.edits) {
+                session.edits.ownedLanguages(sheet.toCharacter().traits)
+                    .filter { it.type == Languages.MYSTICAL }
+                    .map { it.label }
+            },
+            grantedLanguages = remember(drunk) { Languages.grantedBy(drunk).map { it.label } },
             // cor = 0 for the same reason the ritual passes 0: Boons routes
             // through RitualResolution, which applies the ladder itself.
             conditionPenalty = conditionsFor(

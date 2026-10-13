@@ -1,6 +1,8 @@
 package com.pathways.app
 
 import com.pathways.model.BoonState
+import com.pathways.rules.RandomSource
+import com.pathways.rules.Languages
 import com.pathways.rules.Boons
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -61,6 +63,24 @@ class BoonDialogTest {
         assertTrue("costs 1 SPI" in refusal(spi = 0, hp = 6)!!)
         // And the refusal says where the fuel can come from.
         assertTrue("HP" in refusal(spi = 0, hp = 0)!!)
+    }
+
+    @Test
+    fun `a prayer in a Broken tongue is refused, and a paid one is not asked for its fuel again`() {
+        val broken = Languages.proficiencies(Languages.MYSTICAL).first { !Languages.canPerformRituals(it) }
+        val refusal = boonRefusal(12, "Chaos Mist", null, broker, cost = 4, spiAvailable = 9, language = broken)
+        assertTrue(broken.proficiency in refusal!!)
+        // Asked and charged: the 4 SPI are gone, and that is not a refusal.
+        assertNull(boonRefusal(12, "Chaos Mist", null, broker, cost = 4, spiAvailable = 0, paid = true))
+    }
+
+    @Test
+    fun `the patron is asked before the prayer, and two answers end it`() {
+        fun asked(face: Int) = Boons.ask(RandomSource { face })
+        assertTrue("Ask" in answerRefusal(null)!!)
+        assertNull(answerRefusal(asked(1)))
+        assertTrue("rejected" in answerRefusal(asked(6))!!)
+        assertTrue("did not answer" in answerRefusal(asked(4))!!)
     }
 
     @Test

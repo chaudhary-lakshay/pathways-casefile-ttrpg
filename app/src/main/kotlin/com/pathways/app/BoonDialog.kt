@@ -24,6 +24,10 @@ import androidx.compose.ui.unit.dp
 import com.pathways.model.BoonState
 import com.pathways.rules.ClauseBonus
 import com.pathways.rules.Corruption
+import com.pathways.rules.EntityAnswer
+import com.pathways.rules.Fuel
+import com.pathways.rules.Languages
+import com.pathways.rules.content.LanguageProficiency
 import com.pathways.rules.BurnKind
 import com.pathways.rules.Pools
 import com.pathways.rules.PowerSources
@@ -67,6 +71,8 @@ internal fun boonRefusal(
     spiAvailable: Int,
     lost: Boolean = false,
     hpSacrificed: Int = 0,
+    language: LanguageProficiency? = null,
+    paid: Boolean = false,
 ): String? = when {
     lost -> "No prayer — this character is lost, and the GM plays them."
     // Ch. 7 II: the skill "has no default and cannot be substituted".
@@ -76,12 +82,28 @@ internal fun boonRefusal(
     next == null && held != null ->
         "The book records no boon past Sequence ${held.sequence} for this patron."
     next == null -> "No boon can be asked of this patron."
+    // Ch. 3's mystical table, by the owner's ruling (6hq).
+    language != null && !Languages.canPerformRituals(language) ->
+        "No prayer in a ${language.proficiency} tongue: the book forbids a ritual in it."
     // Ch. 7 IV.B, which ch. 13 III defers to: HP "in addition to or instead
     // of SPI". It is how a mortal, who plays SPI 0, prays at all.
-    !Pools.canAffordSpi(PowerSources.spiOwed(cost, hpSacrificed), spiAvailable) ->
+    // [paid]: the fuel went when the patron was asked.
+    !paid && !Pools.canAffordSpi(PowerSources.spiOwed(cost, hpSacrificed), spiAvailable) ->
         "No supplication — this costs ${PowerSources.spiOwed(cost, hpSacrificed)} SPI and only " +
             "$spiAvailable is left. SPI cannot be spent below 0. Pay in HP: " +
             "${PowerSources.HP_PER_SPI} HP counts as 1 SPI."
+    else -> null
+}
+
+/**
+ * What stands between a prayer that may be made and its roll: the patron's
+ * answer (ch. 7 IV.F, on the owner's ruling). Which answers end it is
+ * [Boons.endsPrayer]'s; this only words them.
+ */
+internal fun answerRefusal(answer: EntityAnswer?): String? = when {
+    answer == null -> "Ask the patron first: the answer moves the roll, and the fuel is spent on asking."
+    answer.failsRitual -> "No prayer — the patron rejected it. Nothing was spent."
+    Boons.endsPrayer(answer) -> "No boon — the patron did not answer."
     else -> null
 }
 
@@ -136,6 +158,8 @@ private fun GrantedBlock(block: SequenceBlock) {
     }
 }
 
+private fun fuelLine(spi: Int, hp: Int): String = if (hp > 0) "$spi SPI and $hp HP" else "$spi SPI"
+
 /** The ends a ranged option offers, the row's own figure first. */
 private fun endsOf(row: BoonModifier): List<Int> = endsBetween(row.modifier, row.best)
 
@@ -167,6 +191,9 @@ fun BoonDialog(
     /** The boon already held: its patron is the only one petitioned again. */
     held: BoonState?,
     nextBoon: (String) -> BoonState?,
+    /** The mystical languages bought and granted, as the Ritual dialog prints them. */
+    boughtLanguages: List<String> = emptyList(),
+    grantedLanguages: List<String> = emptyList(),
     /** Lost to the Rampager or to corruption: the refusal says so. */
     lost: Boolean = false,
     dice: RandomSource,
@@ -202,6 +229,18 @@ fun BoonDialog(
     // The boon the roll was made for: [next] moves once it is granted.
     var asked by remember { mutableStateOf<BoonState?>(null) }
 
+    // The GM's declaration, as a ritual's is: null is "not stated".
+    var language by remember { mutableStateOf<LanguageProficiency?>(null) }
+    // The patron is asked once, before the roll, and the fuel goes then:
+    // paid only at the roll, a closed dialog asked again for nothing.
+    var answer by remember { mutableStateOf<EntityAnswer?>(null) }
+    var paid by remember { mutableStateOf<Fuel?>(null) }
+    // A prayer's own fuel does not lower its roll, as a ritual's cannot,
+    // being spent at the cast: the penalty is the one the patron was asked
+    // under. Blood paid at the asking took 1 from the roll it paid for.
+    var hurtAtAsking by remember { mutableStateOf<Int?>(null) }
+    val hurt = hurtAtAsking ?: conditionPenalty
+
     val next = patron?.let(nextBoon)
     val picks = groups.mapNotNull { chosen[it] }
     // Only the options actually chosen right now. Filtering here rather than
@@ -209,10 +248,16 @@ fun BoonDialog(
     // to modify a later roll -- the defect the attack dialog's "Another turn"
     // shipped with.
     val overrides = picks.mapNotNull { row -> picked[row.key]?.let { row.key to it } }.toMap()
-    val target = if (skillLevel == null || next == null) {
+    // Null where targetFor would throw: it is drawn, not tapped.
+    val canSpeak = language?.let { Languages.canPerformRituals(it) } != false
+    val ended = answer?.let(Boons::endsPrayer) == true
+    val target = if (skillLevel == null || next == null || !canSpeak || ended) {
         null
     } else {
-        Boons.targetFor(skillLevel + conditionPenalty + shock + states.total, cor, next.sequence, picks, overrides)
+        Boons.targetFor(
+            skillLevel + hurt + shock + states.total, cor, next.sequence, picks, overrides,
+            language = language, answer = answer,
+        )
     }
     val cost = Boons.spiFor(spiChoice)
     // Keyed on the fuel, as RitualDialog's is: spiOwed refuses HP that
@@ -301,6 +346,8 @@ fun BoonDialog(
                             NonStandardPathways.patrons().forEach { option ->
                                 FilterChip(
                                     selected = option == patron,
+                                    // The answer is this patron's.
+                                    enabled = answer == null,
                                     onClick = { patron = option },
                                     label = { Text(option) },
                                     modifier = Modifier.padding(end = 8.dp),
@@ -360,6 +407,8 @@ fun BoonDialog(
                         (granting.spi..granting.spiMax).forEach { option ->
                             FilterChip(
                                 selected = option == spiChoice,
+                                // Spent once the patron is asked.
+                                enabled = answer == null,
                                 onClick = { spiChoice = option },
                                 label = { Text("$option SPI") },
                                 modifier = Modifier.padding(end = 8.dp),
@@ -372,12 +421,15 @@ fun BoonDialog(
                         hpChoices(cost).forEach { option ->
                             FilterChip(
                                 selected = option == hpSacrificed,
+                                enabled = answer == null,
                                 onClick = { hpSacrificed = option },
                                 label = { Text(if (option == 0) "None" else "$option HP") },
                                 modifier = Modifier.padding(end = 8.dp),
                             )
                         }
                     }
+
+                    MysticalLanguagePicker(language, boughtLanguages, grantedLanguages) { language = it }
 
                     RuleNote("What a petition needs") {
                         Column {
@@ -393,40 +445,69 @@ fun BoonDialog(
                 // A boon IS a ch. 7 ritual with its parameters fixed (6r),
                 // so Power Source A's floor applies here too: "SPI cannot
                 // be reduced below 0."
-                val refusal = boonRefusal(skillLevel, patron, held, next, cost, spiAvailable, lost, hpSacrificed)
+                val given = answer
+                val spent = paid
+                // What forbids the prayer forbids the asking; the answer
+                // stands only between an asked prayer and its roll.
+                val base = boonRefusal(
+                    skillLevel, patron, held, next, cost, spiAvailable, lost, hpSacrificed,
+                    language = language, paid = given != null,
+                )
+                val refusal = base ?: given?.let(::answerRefusal)
+                if (given != null) {
+                    Text(
+                        "The patron: rolled ${given.roll}. ${given.response.response}",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                }
                 RitualFooter(
                     terms = listOfNotNull(
                         skillLevel?.let { "${granting.skill} $it" },
                         "${granting.weight} ${granting.weightModifier}",
                         next?.let { "Sequence ${it.sequence} ${signed(Boons.penaltyForSequence(it.sequence))}" },
                         "circumstances ${signed(Boons.modifierTotal(picks, overrides))}",
-                        if (conditionPenalty != 0) "$conditionPenalty hurt or tired" else null,
+                        given?.ritualModifier?.takeIf { it != 0 }?.let { "${signed(it)} from the patron" },
+                        language?.ritualModifier?.takeIf { it != 0 }?.let { "$it for an accented tongue" },
+                        if (hurt != 0) "$hurt hurt or tired" else null,
                         if (shock != 0) "$shock shock" else null,
                         states.line,
                         Corruption.ritualPenalty(cor).takeIf { it != 0 }?.let { "$it for $cor CoR" },
                     ),
                     target = target,
-                    cost = "costs " + (if (hpSacrificed > 0) "$spiOwed SPI and $hpSacrificed HP" else "$spiOwed SPI") +
-                        ", takes ${granting.complexityTime}",
+                    cost = if (spent != null) {
+                        "spent on asking: " + fuelLine(spent.spi, spent.hp)
+                    } else {
+                        "costs " + fuelLine(spiOwed, hpSacrificed) + " when the patron is asked, takes ${granting.complexityTime}"
+                    },
                     refusal = refusal,
                     targetText = target?.let(::targetLine).orEmpty(),
-                    label = "Pray",
+                    label = if (given == null) "Ask the patron" else "Pray",
                 ) {
-                    // One Pray spends once: a second tap before the
-                    // button leaves the tree charges the fuel again,
-                    // and below 0 that buys permanent CoR.
+                    if (given == null) {
+                        // This picture's button asks and never prays: a
+                        // second tap of it finds the answer given and stops.
+                        if (answer != null || refusal != null) return@RitualFooter
+                        val reply = Boons.ask(dice)
+                        val fuel = Boons.fuelFor(reply, cost, hpSacrificed)
+                        answer = reply
+                        hurtAtAsking = conditionPenalty
+                        paid = fuel
+                        // Spent whether or not the Great One grants it:
+                        // "No effect. SPI and materials spent" (p. 62).
+                        if (fuel.spi > 0) onSpendSpi(fuel.spi)
+                        if (fuel.hp > 0) onSpendHp(fuel.hp)
+                        return@RitualFooter
+                    }
+                    // One Pray rolls once.
                     if (outcome != null || refusal != null || target == null) return@RitualFooter
                     // Against the target printed above, never
                     // composed a second time here (6eg, 6eh).
                     asked = next
                     outcome = RitualResolution.rollAgainst(target, dice)
-                    // Spent whether or not the Great One answers:
-                    // "No effect. SPI and materials spent" (p. 62).
                     // The CoR and the grant wait for [finish]: a push
                     // can take this off the Critical Failure Table, or
                     // onto a success.
-                    onSpendSpi(spiOwed)
-                    if (hpSacrificed > 0) onSpendHp(hpSacrificed)
                 }
             }
         },

@@ -3,6 +3,7 @@ package com.pathways.rules
 import com.pathways.rules.content.BoonGranting
 import com.pathways.rules.content.BoonModifier
 import com.pathways.rules.content.ContentLoader
+import com.pathways.rules.content.LanguageProficiency
 import com.pathways.rules.content.RitualWeight
 
 /**
@@ -136,13 +137,16 @@ object Boons {
      * The number to roll under: the caster's skill, the fixed Moderate weight,
      * the boon's sequence, their corruption, and the circumstances chosen.
      *
-     * No language is passed, for the same reason no preparation is. Chapter 13
-     * prints its own modifier list and names neither, and the chapter says why:
-     * "the actual power comes from the patron, not the ritual itself". Applying
-     * chapter 3's mystical-tongue penalty here would charge a boon for a
-     * property of the ritual the chapter has already discounted.
+     * **[language] and [answer] are the owner's rulings (2026-10-13, 6hq),
+     * not this chapter's list**, which names neither. A prayer is said in a
+     * mystical tongue and priced as chapter 3 prices any ritual in one, and
+     * the patron is asked on chapter 7's Entity Response Table first. Until
+     * then this refused both, on "the actual power comes from the patron".
+     * An [answer] that ends the prayer has no target and is refused: ask
+     * [endsPrayer] first.
      *
-     * No power sources either, and mostly for that same reason: chapter 13
+     * No preparation, for a reason that still stands: this chapter prints
+     * its own Ritual quality row for it. No power sources either: chapter 13
      * prices the patron's involvement itself, and its own Ritual quality row
      * already stands in for Section IV's circumstances. The genuinely open one
      * is IV.C's assistants, which chapter 13 neither offers nor forbids -- so
@@ -161,11 +165,52 @@ object Boons {
         sequence: Int,
         chosen: List<BoonModifier> = emptyList(),
         gmValue: Map<String, Int> = emptyMap(),
-    ): Int = RitualResolution.targetFor(
-        skillLevel = skillLevel + penaltyForSequence(sequence) + modifierTotal(chosen, gmValue),
-        weight = weight(),
-        cor = cor,
-    )
+        language: LanguageProficiency? = null,
+        answer: EntityAnswer? = null,
+    ): Int {
+        require(answer == null || !endsPrayer(answer)) {
+            "the patron's answer ended the prayer; there is no roll to compose"
+        }
+        return RitualResolution.targetFor(
+            skillLevel = skillLevel + penaltyForSequence(sequence) + modifierTotal(chosen, gmValue) +
+                (answer?.ritualModifier ?: 0),
+            weight = weight(),
+            cor = cor,
+            language = language,
+        )
+    }
+
+    /**
+     * Ask the patron, on chapter 7's table. Never shifted: "Hidden
+     * existences and evil gods use the table unmodified" (line 4297), and
+     * the Great Ones are "hidden existences" (line 8912).
+     */
+    fun ask(source: RandomSource): EntityAnswer = Invocation.ask(source, orthodoxInGoodStanding = false)
+
+    /**
+     * Whether [answer] leaves no prayer to roll.
+     *
+     * A rejection is the table's own: "Ritual fails automatically". **No
+     * response is the owner's ruling, against chapter 7**, which lets that
+     * ritual go on at +0 on the caster's residual power: a boon's power
+     * "comes from the patron" (line 8939), and a patron who did not answer
+     * gave none.
+     */
+    fun endsPrayer(answer: EntityAnswer): Boolean = answer.failsRitual || answer.unanswered
+
+    /**
+     * What asking costs, owed at the asking: a fuel paid only at the roll
+     * let a closed dialog ask again for nothing.
+     *
+     * A rejection charges nothing, as [Invocation.fuelFor] refuses it any.
+     * No response takes chapter 7's 2 SPI out of the fuel declared
+     * ([Invocation.residualFuel]). Any other answer costs what was declared.
+     */
+    fun fuelFor(answer: EntityAnswer, cost: Int, hpSacrificed: Int): Fuel = when {
+        answer.failsRitual -> Fuel(0, 0)
+        answer.unanswered -> Invocation.residualFuel(hpSacrificed)
+        else -> Fuel(PowerSources.spiOwed(cost, hpSacrificed), hpSacrificed)
+    }
 
     /**
      * Petition for the boon, and let Chapter 7 resolve what comes back.

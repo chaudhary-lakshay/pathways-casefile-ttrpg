@@ -17,7 +17,12 @@ data class EntityAnswer(
     val response: EntityResponse,
     val ritualModifier: Int,
     val failsRitual: Boolean,
+    /** The "No response" row: asked, and nothing came back. */
+    val unanswered: Boolean = false,
 )
+
+/** What an attempt is charged, in SPI and in HP sacrificed toward it. */
+data class Fuel(val spi: Int, val hp: Int)
 
 /**
  * Borrowing a ritual's power from an entity (Ch. 7, Section IV.F, p. 66).
@@ -195,6 +200,23 @@ object Invocation {
             response = response,
             ritualModifier = if (response.automaticFailure) 0 else ritualModifier(response),
             failsRitual = response.automaticFailure,
+            unanswered = drawsOnResidualPower(response),
         )
+    }
+
+    /**
+     * The no-response row's 2 SPI, taken out of a fuel declared partly in
+     * HP: HP first, 2 for 1 (Section IV.B), and the rest of what was
+     * declared is displaced.
+     *
+     * READING, and a prayer's alone (6hq): a mortal plays SPI 0 and prays in
+     * blood, so "2 SPI personal" must be payable the way the fuel was. The
+     * Ritual dialog still displaces a declared sacrifice whole and asks for
+     * the 2 in SPI.
+     */
+    fun residualFuel(hpSacrificed: Int): Fuel {
+        require(hpSacrificed >= 0) { "HP sacrificed cannot be negative; was $hpSacrificed" }
+        val covered = minOf(Math.floorDiv(hpSacrificed, PowerSources.HP_PER_SPI), RESIDUAL_SPI)
+        return Fuel(spi = RESIDUAL_SPI - covered, hp = covered * PowerSources.HP_PER_SPI)
     }
 }

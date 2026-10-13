@@ -240,7 +240,7 @@ fun RitualDialog(
     // so an unanswered Heavy invocation took 8+ where the book prints 2. The
     // decision lives in [Invocation]; re-deriving it here is how this
     // breakdown stopped reconciling in 6ag and 6ai.
-    val residual = answer?.response?.let(Invocation::drawsOnResidualPower) == true
+    val residual = answer?.unanswered == true
     val spiOwed = answer?.takeIf { !it.failsRitual }
         ?.let { Invocation.fuelFor(it.response, declaredSpi) }
         ?: declaredSpi
