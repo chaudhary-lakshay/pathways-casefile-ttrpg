@@ -161,6 +161,20 @@ object PotionDigestion {
      */
     fun of(character: Character, blocks: List<SequenceBlock>): DigestedCharacter? =
         character.beyonder?.let { digestThrough(character, it.pathway, it.sequence, blocks) }
+            ?: boonChain(character).takeIf { it.isNotEmpty() }?.let { digest(character, it) }
+
+    /**
+     * The boon [character] holds, as blocks (Ch. 13-15). A boon "functions
+     * similarly to a Beyonder potion", and ch. 15 applies "the same rules
+     * for potion-granted skills and attributes", so it is folded by the
+     * same loop.
+     *
+     * READING: after the potions. A granted level is frozen at the
+     * attributes of its moment and the save stores no order of acquisition,
+     * so one is fixed here.
+     */
+    private fun boonChain(character: Character): List<SequenceBlock> =
+        character.boon?.let(NonStandardPathways::chainFor).orEmpty()
 
     /**
      * Every potion up to and including [sequence] on [pathway], in the order
@@ -188,10 +202,15 @@ object PotionDigestion {
             "the $pathway Pathway chain starts at Sequence ${chain.first().sequence}, " +
                 "not $STARTING_SEQUENCE -- a Beyonder cannot skip the potion they began with"
         }
-        return digest(character, chain)
+        return digest(character, chain + boonChain(character), named = chain.last())
     }
 
-    private fun digest(character: Character, chain: List<SequenceBlock>): DigestedCharacter {
+    private fun digest(
+        character: Character,
+        chain: List<SequenceBlock>,
+        /** The block the result is named for: the potion walked, where there is one. */
+        named: SequenceBlock = chain.last(),
+    ): DigestedCharacter {
         val derived = Derive.of(character)
         var grants = PotionGrants()
         val superseded = mutableSetOf<SkillKey>()
@@ -248,11 +267,10 @@ object PotionDigestion {
             }
         }
 
-        val last = chain.last()
         return DigestedCharacter(
             base = character,
-            pathway = last.pathway,
-            sequence = last.sequence,
+            pathway = named.pathway,
+            sequence = named.sequence,
             grants = grants,
             effectiveAttributes = effectiveAttributes,
             effectiveSpi = effectiveSpi,
@@ -297,6 +315,13 @@ object PotionDigestion {
                 .runningFold(PotionGrants()) { walked, block -> walked.mergeStats(statGrants(block.stats)) }
                 .fold(highest) { acc, walked -> acc.atLeast(walked) }
         }
+
+    /**
+     * The most a potion walk and a boon walk add TOGETHER: a boon is held
+     * beside a potion, so a purchase must leave room for both.
+     */
+    fun largestGrants(potions: List<SequenceBlock>, boons: List<SequenceBlock>): PotionGrants =
+        largestGrants(potions).mergeStats(largestGrants(boons))
 
     private fun PotionGrants.atLeast(other: PotionGrants) = copy(
         attributes = Attr.entries.associateWith { maxOf(attributes[it] ?: 0, other.attributes[it] ?: 0) },

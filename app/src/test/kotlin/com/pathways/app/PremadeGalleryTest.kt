@@ -104,8 +104,8 @@ class PremadeGalleryTest {
 
         val row = playedRow(dealer, saved)
 
-        // The purchase ceiling for ST is 19; Abyss 9 adds 2.
-        assertEquals(21, row.attributes.st)
+        // The purchase ceiling for ST is 17; Abyss 9 adds 2.
+        assertEquals(19, row.attributes.st)
         val opened = BeyonderSession(saved, dealer)
         assertEquals(opened.characterFor(dealer).attributesWith(abyss), row.attributes)
     }

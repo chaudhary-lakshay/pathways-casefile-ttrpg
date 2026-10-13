@@ -61,6 +61,7 @@ fun SavedEdits.applyTo(base: Character): Character {
         secondaryDelta = SecondaryCharacteristics.plusSteps(base.secondaryDelta, secondaries),
         traits = chosenTraits(base.traits),
         skills = base.skills + purchases(base),
+        boon = boon,
     )
 }
 

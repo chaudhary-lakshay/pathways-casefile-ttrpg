@@ -245,12 +245,12 @@ class BeyonderSessionEditsTest {
     @Test
     fun `a save bought past a ceiling is brought down to it on opening, before the floors`() {
         // Written before the ceilings existed: ST 25 is ST 36 on Twilight
-        // Giant's walk. Bringing ST down to 19 takes HP (ST + steps) from 5 to
-        // -1, so the floors must be asked AFTER the ceilings, or the repair
+        // Giant's walk. Bringing ST down to 17 (the ceiling leaves room for a
+        // boon too) takes HP (ST + steps) from 5 to -3, so the floors must be asked AFTER the ceilings, or the repair
         // leaves a save the sheet throws on.
         val saved = SavedSession(edits = SavedEdits(st = 25, secondaries = mapOf("hp" to -20, "per" to 100)))
         val (s, last) = session(saved, plain())
-        val expected = SavedEdits(st = 19, secondaries = mapOf("hp" to -18, "per" to 98))
+        val expected = SavedEdits(st = 17, secondaries = mapOf("hp" to -16, "per" to 98))
         assertEquals(expected, s.edits)
         assertEquals(expected, last().edits, "the repair is written back, not redone on every open")
     }

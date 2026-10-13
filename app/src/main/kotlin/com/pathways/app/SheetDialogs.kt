@@ -583,7 +583,9 @@ internal fun SheetDialogs(
             onDismiss = { onClose(SheetDialog.ARTIFACTS) },
         )
     }
-    if (SheetDialog.BOON in open && ritualLevel != null) {
+    // Ungated: without Ritualistic Magic the dialog says what is missing,
+    // where an absent chip read as a feature that did not work.
+    if (SheetDialog.BOON in open) {
         BoonDialog(
             skillLevel = ritualLevel,
             // cor = 0 for the same reason the ritual passes 0: Boons routes
@@ -604,7 +606,13 @@ internal fun SheetDialogs(
             spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = appDice,
             onCorGained = { gained -> session.gainCor(gained, maxCor) },
+            held = session.boon,
+            nextBoon = session::nextBoon,
+            lost = session.isLost,
             onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
+            // Asked again at the grant: the dialog settles as it leaves, and
+            // the character may have been lost since the roll.
+            onGranted = { if (session.nextBoon(it.pathway) == it) session.grantBoon(it) },
             onDismiss = { onClose(SheetDialog.BOON) },
         )
     }

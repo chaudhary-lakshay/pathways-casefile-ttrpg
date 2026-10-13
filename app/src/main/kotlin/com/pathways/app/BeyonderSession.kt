@@ -6,11 +6,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.pathways.model.Attr
 import com.pathways.model.BeyonderState
+import com.pathways.model.BoonState
 import com.pathways.model.Character
 import com.pathways.model.SecondaryDelta
 import com.pathways.model.Trait
 import com.pathways.model.canDrink
 import com.pathways.rules.Corruption
+import com.pathways.rules.NonStandardPathways
 import com.pathways.rules.PcrOutcome
 import com.pathways.rules.Pool
 import com.pathways.rules.PotionConsumption
@@ -408,6 +410,29 @@ class BeyonderSession(
             else (skill.points + delta).takeIf { it > 0 }?.let { skill.copy(points = it) }
         }
         edits = edits.copy(skills = updated)
+        persist()
+    }
+
+    /** The boon held, or null (Ch. 13-15). Stored with the edits: see [SavedEdits.boon]. */
+    val boon: BoonState? get() = edits.boon
+
+    /**
+     * The boon a petition to [patron] asks for, or null: the next printed
+     * rung ([NonStandardPathways.nextRung]), and nothing for a lost
+     * character, whom the GM plays.
+     */
+    fun nextBoon(patron: String): BoonState? =
+        if (isLost) null else NonStandardPathways.nextRung(edits.boon, patron)
+
+    /**
+     * Store a granted boon. Only [nextBoon]'s own answer: a second tap of
+     * one picture asks for a rung already held, and is refused here.
+     * Past the floors, as no boon lowers a score (BoonGrantsTest); the
+     * purchase ceilings already left room for its gains.
+     */
+    fun grantBoon(next: BoonState) {
+        require(next == nextBoon(next.pathway)) { "$next is not the next boon after ${edits.boon}" }
+        edits = edits.copy(boon = next)
         persist()
     }
 

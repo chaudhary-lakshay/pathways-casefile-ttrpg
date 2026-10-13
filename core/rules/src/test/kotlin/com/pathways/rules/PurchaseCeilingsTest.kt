@@ -2,6 +2,7 @@ package com.pathways.rules
 
 import com.pathways.model.Attr
 import com.pathways.model.Attributes
+import com.pathways.model.BoonState
 import com.pathways.model.Character
 import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.model.SecondaryDelta
@@ -22,6 +23,10 @@ class PurchaseCeilingsTest {
 
     private val blocks = ContentLoader.pathways()
 
+    /** Every boon a character can hold, and none: a boon sits on a potion walk. */
+    private val boons: List<BoonState?> =
+        listOf<BoonState?>(null) + NonStandardPathways.all().map { BoonState(NonStandardPathways.patronOf(it.pathway), it.sequence) }
+
     private fun atCeilings() = Character(
         name = "ceilings",
         attributes = Attributes(
@@ -41,7 +46,7 @@ class PurchaseCeilingsTest {
      * future, unrelated `require` on the way cannot pass for a tight ceiling.
      */
     private fun digestsEverywhere(c: Character): Boolean = blocks.all { b ->
-        runCatching { PotionDigestion.digestThrough(c, b.pathway, b.sequence, blocks) }
+        runCatching { boons.forEach { PotionDigestion.digestThrough(c.copy(boon = it), b.pathway, b.sequence, blocks) } }
             .onFailure { e ->
                 val bound = e is IllegalArgumentException &&
                     e.message.orEmpty().let { "must be between" in it || "magnitude too large" in it }
@@ -55,12 +60,15 @@ class PurchaseCeilingsTest {
         // Twilight Giant is ST +11 and HT +5 by Sequence 6; Demoness and Moon
         // DX +4, White Tower IQ +4; Moon Basic Speed +1 (four quarters); Will,
         // Per and Basic Move +2 at most. No potion grants HP or FP.
+        // And the largest boon walk on top, which is held beside a potion's:
+        // Patriarch ST +2, Sublunary Eye DX +3 and Basic Speed +2, Monarch of
+        // Decay HT +4, three pathways IQ +1, Eternal Aeon Will +2.
         assertEquals(
-            mapOf(Attr.ST to 19, Attr.DX to 26, Attr.IQ to 26, Attr.HT to 25),
+            mapOf(Attr.ST to 17, Attr.DX to 23, Attr.IQ to 25, Attr.HT to 21),
             Attr.entries.associateWith { PurchaseCeilings.attribute(it, emptyList()) },
         )
         assertEquals(
-            mapOf("hp" to 100, "fp" to 100, "will" to 98, "per" to 98, "basicSpeed" to 96, "basicMove" to 98),
+            mapOf("hp" to 100, "fp" to 100, "will" to 96, "per" to 98, "basicSpeed" to 88, "basicMove" to 98),
             ContentLoader.secondaryCosts().associate { it.key to PurchaseCeilings.secondarySteps(it.key) }
                 .filterKeys { it in setOf("hp", "fp", "will", "per", "basicSpeed", "basicMove") },
         )
@@ -69,8 +77,8 @@ class PurchaseCeilingsTest {
     @Test
     fun `every potion digests on a character bought to every ceiling at once`() {
         val c = atCeilings()
-        for (b in blocks) {
-            val digested = PotionDigestion.digestThrough(c, b.pathway, b.sequence, blocks)
+        for (b in blocks) for (boon in boons) {
+            val digested = PotionDigestion.digestThrough(c.copy(boon = boon), b.pathway, b.sequence, blocks)
             // The second reader of ST: damage rolls off the digested score.
             Damage.thrust(digested.effectiveAttributes.st)
         }

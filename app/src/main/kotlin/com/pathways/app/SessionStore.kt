@@ -2,6 +2,7 @@ package com.pathways.app
 
 import android.util.Log
 import com.pathways.model.BeyonderState
+import com.pathways.model.BoonState
 import com.pathways.rules.InstancedPurchase
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -151,12 +152,19 @@ data class SavedEdits(
      * skill, and [isEmpty] does not count it.
      */
     val charmedSkill: SavedCharmedSkill? = null,
+    /**
+     * The boon held (Ch. 13-15): the patron's pathway and the Sequence
+     * granted, never its gains. Not a purchase -- it is here because
+     * [applyTo] is the one place a save becomes the character played, so
+     * every reader of that character digests the boon without being told.
+     */
+    val boon: BoonState? = null,
 ) {
     val isEmpty: Boolean
         get() = st == null && dx == null && iq == null && ht == null &&
             skills.isEmpty() && wealth == null && appearance == null &&
             traits.isEmpty() && instanced.isEmpty() && secondaries.isEmpty() &&
-            weapons.isEmpty() && languages.isEmpty()
+            weapons.isEmpty() && languages.isEmpty() && boon == null
 }
 
 /** The skill a Charmed Object names, as written to disk: the book's names. */

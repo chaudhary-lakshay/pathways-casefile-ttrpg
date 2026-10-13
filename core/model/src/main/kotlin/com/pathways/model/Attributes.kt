@@ -7,9 +7,9 @@ const val BASE_ATTRIBUTE = 9
 /**
  * Upper bound on an [Attributes] level, bought OR digested. The rulebook's
  * attribute scale is stated as "15+" and Beyonder progression pushes higher
- * still, and a potion adds to what was bought: ST 19, the highest a purchase
+ * still, and a potion adds to what was bought: ST 17, the highest a purchase
  * may reach ([com.pathways.rules.PurchaseCeilings]), plus Twilight Giant's
- * +11 is exactly 30. It guards [AttributeCosts.costOf], whose doubling
+ * +11 and the Patriarch boon's +2 is exactly 30. It guards [AttributeCosts.costOf], whose doubling
  * ladder overflows `Int` past roughly level 40 -- see KNOWN_ISSUES -- and
  * the thrust/swing table, which stops at ST 30.
  */

@@ -27,30 +27,30 @@ class BlessingSessionTest {
         assertEquals(before.st, s.characterFor(plain()).attributes.st)
     }
 
-    /** Refused, never clamped: the purchase would leave ST above the holder's 16. */
+    /** Refused, never clamped: the purchase would leave ST above the holder's 14. */
     @Test
     fun `God of Combat is refused while a bought score sits above the holder's ceiling`() {
         val (s, _) = session(sheet = plain())
-        s.setAttribute(Attr.ST, 17)
+        s.setAttribute(Attr.ST, 15)
         assertNotNull(s.buyRefusal(combat))
         s.buyTrait(combat)
         assertFalse(combat in s.edits.traits)
-        assertEquals(17, s.characterFor(plain()).attributes.st)
-        s.setAttribute(Attr.ST, 16)
+        assertEquals(15, s.characterFor(plain()).attributes.st)
+        s.setAttribute(Attr.ST, 14)
         assertNull(s.buyRefusal(combat))
         s.buyTrait(combat)
         assertTrue(combat in s.edits.traits)
         // ...and a holder cannot step past it.
-        s.setAttribute(Attr.ST, 17)
-        assertEquals(16, s.characterFor(plain()).attributes.st)
+        s.setAttribute(Attr.ST, 15)
+        assertEquals(14, s.characterFor(plain()).attributes.st)
     }
 
     /** A save holding both from before 6hf is brought inside on open, as any over-ceiling save is. */
     @Test
     fun `the ceilings read the blessing among the bought traits`() {
         val held = SavedEdits(st = 19, traits = listOf(combat)).withinCeilings()
-        assertEquals(16, held.st)
-        assertEquals(19, SavedEdits(st = 19).withinCeilings().st)
+        assertEquals(14, held.st)
+        assertEquals(17, SavedEdits(st = 19).withinCeilings().st)
     }
 
     @Test

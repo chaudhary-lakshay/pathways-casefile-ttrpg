@@ -45,6 +45,13 @@ class SessionStoreTest {
     }
 
     @Test
+    fun `a file from before boons existed still loads`() {
+        // What 256f781 wrote: edits with no "boon" key.
+        File(dir, "sessions.json").writeText("""{"plain":{"cor":2,"edits":{"st":11}}}""")
+        assertEquals(mapOf("plain" to SavedSession(cor = 2, edits = SavedEdits(st = 11))), store().load())
+    }
+
+    @Test
     fun `a file from before CoR and pools existed still loads`() {
         // Exactly what cc61648 wrote. Every field added since must default,
         // or upgrading the app would silently drop a table's whole walk.

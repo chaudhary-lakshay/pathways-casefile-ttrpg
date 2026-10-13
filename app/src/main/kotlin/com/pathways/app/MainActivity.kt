@@ -394,7 +394,9 @@ fun SheetScreen(
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
             item {
                 Column(Modifier.padding(horizontal = 16.dp)) {
-                    if (drunk != null) {
+                    // A boon is held beside a potion walk, or by a mortal.
+                    val boon = session.boon
+                    if (drunk != null || boon != null) {
                         // The sheet rows below are still the mortal's: the
                         // diff they carry is against the published sheet, and
                         // no published sheet records a pathway. Saying so is
@@ -411,8 +413,11 @@ fun SheetScreen(
                                 session.lost -> HeaderPill("Lost to the Rampager", lost = true)
                                 session.corrupted -> HeaderPill("Lost to corruption", lost = true)
                             }
-                            HeaderPill("${drunk.pathway} · Seq ${drunk.sequence}", lost = session.isLost)
-                            HeaderPill("Digested ${drunk.digestion}%", lost = session.isLost)
+                            if (drunk != null) {
+                                HeaderPill("${drunk.pathway} · Seq ${drunk.sequence}", lost = session.isLost)
+                                HeaderPill("Digested ${drunk.digestion}%", lost = session.isLost)
+                            }
+                            if (boon != null) HeaderPill(boonPill(boon), lost = session.isLost)
                             HeaderPill("CoR ${session.cor}", lost = session.isLost)
                         }
                     }

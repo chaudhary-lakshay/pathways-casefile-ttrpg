@@ -11,8 +11,8 @@ import kotlinx.serialization.Serializable
 const val MAX_SPI = 1000
 
 /**
- * Purchased state, plus two things nobody buys: [beyonder], the pathway
- * walked, and [spi]. Nothing here is derived, and table state -- pools
+ * Purchased state, plus three things nobody buys: [beyonder], the pathway
+ * walked, [boon], the one held beside it, and [spi]. Nothing here is derived, and table state -- pools
  * spent, CoR -- is the session's, never the character's.
  *
  * [spi] is the SPI held BEFORE any potion: digestion adds each grant to it,
@@ -43,6 +43,11 @@ data class Character(
      * keeps free potion gains out of [com.pathways.rules.PointBudget].
      */
     val beyonder: BeyonderState? = null,
+    /**
+     * The boon held, or null. The choice only, beside [beyonder] and derived
+     * the same way: a boon's gains are as free as a potion's.
+     */
+    val boon: BoonState? = null,
     val traits: List<Trait> = emptyList(),
     val skills: List<PurchasedSkill> = emptyList(),
     val weapons: List<Weapon> = emptyList(),

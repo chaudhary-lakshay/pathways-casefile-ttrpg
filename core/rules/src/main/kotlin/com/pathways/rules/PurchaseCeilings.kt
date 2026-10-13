@@ -6,8 +6,8 @@ import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
 import com.pathways.rules.content.ContentLoader
 
 /**
- * The highest each score may be BOUGHT to, so that every potion still fits on
- * top of it.
+ * The highest each score may be BOUGHT to, so that every potion and every boon
+ * still fits on top of it.
  *
  * ponytail: the app's bound, not the book's, the ceiling side of
  * [ScoreFloors]. A potion adds to what was bought, and the digested score is
@@ -19,11 +19,19 @@ import com.pathways.rules.content.ContentLoader
  * content fix that raises a grant lowers the ceiling with it.
  */
 object PurchaseCeilings {
-    private val reach by lazy { PotionDigestion.largestGrants(ContentLoader.pathways()) }
+    // A boon is held BESIDE a potion walk, so the room is for both: the
+    // boon blocks under the name each is walked by, or Eternal Aeon's two
+    // spellings would be measured as two half ladders.
+    private val reach by lazy {
+        PotionDigestion.largestGrants(
+            ContentLoader.pathways(),
+            NonStandardPathways.all().map { it.copy(pathway = NonStandardPathways.patronOf(it.pathway)) },
+        )
+    }
 
     /**
-     * ST 19, DX 26, IQ 26, HT 25 against today's catalogue, less what the
-     * blessings named in [held] add ([Blessings], 6hf): ST 16, DX 23, HT 22
+     * ST 17, DX 23, IQ 25, HT 21 against today's catalogue, less what the
+     * blessings named in [held] add ([Blessings], 6hf): ST 14, DX 20, HT 18
      * for God of Combat. Required, so no caller forgets the blessing.
      */
     fun attribute(attr: Attr, held: Collection<String>): Int =

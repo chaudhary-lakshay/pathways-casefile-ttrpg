@@ -88,12 +88,12 @@ internal fun SheetActions(
                     onOpen(SheetDialog.SPIRIT_VISION)
                 }
             }
-            if (ritualLevel != null) {
-                // Same gate as the ritual: Chapter 13 rolls the same skill,
-                // because a boon IS a ritual.
-                ActionChip("Boon", Icons.Filled.Church, ActionKind.BEYONDER) {
-                    onOpen(SheetDialog.BOON)
-                }
+            // Ungated: an absent chip read as a feature that did not work.
+            // The dialog refuses the roll, and says why, without Ritualistic
+            // Magic or the 4 SPI of fuel -- so a mortal at SPI 0 still cannot
+            // pray, and whether blood may fuel it is the owner's to rule.
+            ActionChip("Boon", Icons.Filled.Church, ActionKind.BEYONDER) {
+                onOpen(SheetDialog.BOON)
             }
             // Fright, Concentrate and Detect are ungated: which focus counts,
             // and who suspects, is the GM's call (6i, Detection); the
