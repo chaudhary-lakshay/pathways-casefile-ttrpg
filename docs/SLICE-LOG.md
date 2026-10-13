@@ -6766,7 +6766,22 @@ name), so it asserts the boon alone and the merge itself; the builder's
 face line passes the boon. Not taken: the census compares names, not
 levels, and the Charisma test pins the one level there is.
 
-**Not seen on the tablet**: the seed write was refused by the harness.
+### Device pass, SM-T570
+
+Over wireless adb, on the build of `06b3eb0`. Backup
+`~/pathways-device-backups/sessions-6hn-bak.json`; `edits.boon` Sublunary
+Eye 8 was seeded into two premades the save did not hold, Night Watchman
+(a mortal) and Military Police (with Demoness 9), by `adb push` and
+`run-as cp`. The save was `cmp`-identical after the restore. No FATAL.
+
+- Night Watchman's Traits tab listed *Acute Vision · from the boon*, and
+  the header read *Boon · Reporter · Seq 8*.
+- The Observation dialog offered *Acute Vision: +2 to Vision rolls*.
+- The builder's trait picker read *Acute Vision — already held*.
+- Military Police held Acute Vision once. **Both granted rows read *from
+  the potion or the boon*, Acute Hearing included, which only the potion
+  grants**: the one label per list, as built, and wrong for that row.
+- Not seen: Charisma's added levels, Second Law's and Patriarch's rows.
 
 ## 6hm. A granted boon is stored, and played beside a potion
 

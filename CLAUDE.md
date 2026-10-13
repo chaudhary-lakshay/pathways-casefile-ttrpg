@@ -261,7 +261,8 @@ means the newest slice, not the end of the file: 6a to 6by run down to
 line 6728, then 6hn back to 6cb, newest first, so `tail` prints 6cb. 6hn:
 (a boon block's catalogue rows are granted through the potion merge:
 Charisma +2, Acute Hearing, Acute Vision, Fit; five look-alike names are
-refused, each printing another rule; **unseen on the tablet**). Then 6hm
+refused, each printing another rule; seen on the SM-T570, where a
+potion-only row also read *from the potion or the boon*). Then 6hm
 (a granted boon stored nothing; it is `SavedEdits.boon` now, digested
 after the potions and held beside them, on the owner's ruling; the rung
 is the next one printed, never chosen, and a patron is required; the
