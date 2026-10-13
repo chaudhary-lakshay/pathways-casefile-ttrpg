@@ -214,6 +214,7 @@ object PotionDigestion {
         val derived = Derive.of(character)
         var grants = PotionGrants()
         val superseded = mutableSetOf<SkillKey>()
+        val stacked = mutableMapOf<SkillKey, Stacked>()
         // A blessing's attributes, then the potions on top (6hf): one base,
         // read before the loop and inside it, which rebuilds every block.
         val base = Blessings.played(character.attributes, character.traits)
@@ -245,6 +246,11 @@ object PotionDigestion {
             // at digestion ("your IQ + 3"), with no points behind it to
             // recompute from.
             val purchased = purchasedLevels(character, effectiveAttributes, secondaries, effectiveSpi)
+            // The exception, on the owner's ruling (6hq): a bonus stacked on
+            // a BOUGHT skill has those points behind it, so it follows them.
+            grants = grants.copy(
+                skillLevels = grants.skillLevels + stacked.mapValues { (_, on) -> purchased.getValue(on.bought) + on.bonus },
+            )
 
             for (grant in block.skills) {
                 val key = skillKey(grant.name, grant.attr, grant.difficulty)
@@ -256,6 +262,9 @@ object PotionDigestion {
                 val alreadyGranted = grants.skillLevels.entries.firstOrNull { it.key.matches(key) }
                 val bought = purchased.entries.firstOrNull { it.key.matches(key) }
                 bought?.let { superseded += it.key }
+                val grantedKey = alreadyGranted?.key ?: key
+                val on = stacked[grantedKey] ?: bought?.takeIf { alreadyGranted == null }?.let { Stacked(it.key, 0) }
+                on?.let { stacked -= grantedKey; stacked[key] = it.copy(bonus = it.bonus + grant.bonus) }
 
                 val from = alreadyGranted?.value
                     ?: bought?.value
@@ -298,6 +307,9 @@ object PotionDigestion {
             Derive.controllingLevel(s.key.attr, attributes, secondaries, spi),
         )
     }
+
+    /** A granted level that stands on a [bought] skill, and the bonuses on it. */
+    private data class Stacked(val bought: SkillKey, val bonus: Int)
 
     /** The p. 86 identity: same name, same specialization, same difficulty. */
     private fun SkillKey.matches(other: SkillKey) =

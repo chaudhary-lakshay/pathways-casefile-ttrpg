@@ -164,6 +164,42 @@ class PotionDigestionTest {
     }
 
     @Test
+    fun `a grant stacked on a bought skill rises with an attribute a later potion grants`() {
+        // The owner's ruling, 2026-10-13: a bonus stacked on a BOUGHT skill
+        // has points behind it, so it follows the attribute. It was frozen
+        // with the grants that have none, and a boon's IQ +1 lifted every IQ
+        // skill but the one a potion had touched.
+        val key = SkillKey("Stealth", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.AVERAGE)
+        val trained = mortal.copy(skills = listOf(PurchasedSkill(key, points = 4)))
+        val bought = Derive.of(trained).skillLevels.getValue(key)
+        val blocks = listOf(
+            SequenceBlock(
+                sequence = 9, name = "First", pathway = "Test",
+                skills = listOf(SkillGrant("Stealth", key.attr, Difficulty.AVERAGE, bonus = 2)),
+                ability = "test",
+            ),
+            SequenceBlock(
+                sequence = 8, name = "Second", pathway = "Test",
+                stats = listOf(StatGain("DX", 1.0)),
+                skills = listOf(SkillGrant("Climbing", key.attr, Difficulty.AVERAGE, bonus = 1)),
+                ability = "test",
+            ),
+        )
+
+        val walked = PotionDigestion.digestThrough(trained, "Test", sequence = 8, blocks = blocks)
+
+        assertEquals(bought + 1 + 2, walked.skillLevels.getValue(key))
+        // A grant with no points behind it stays where its potion put it.
+        val unbought = SequenceBlock(
+            sequence = 9, name = "First", pathway = "Test",
+            skills = listOf(SkillGrant("Stealth", key.attr, Difficulty.AVERAGE, bonus = 2)),
+            ability = "test",
+        )
+        val frozen = PotionDigestion.digestThrough(mortal, "Test", sequence = 8, blocks = listOf(unbought, blocks[1]))
+        assertEquals(mortal.attributes.dx + 2, frozen.skillLevels.entries.single { it.key.name == "Stealth" }.value)
+    }
+
+    @Test
     fun `advancing to a sequence the pathway lacks fails instead of reporting another one`() {
         // Partial content must not silently answer for Sequence 9 when
         // Sequence 8 was asked for -- the totals would be a real Beyonder's,
