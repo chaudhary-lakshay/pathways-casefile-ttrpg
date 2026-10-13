@@ -76,7 +76,11 @@ class BoonTraitsTest {
     @Test
     fun `a row held from both a potion and a boon is held once`() {
         // Demoness 9 and Sublunary Eye 8 both print Acute Vision +2.
-        val both = held(BoonState("Sublunary Eye", 8), BeyonderState("Demoness", 9))
+        // The boon alone grants it, and the merge itself holds it once:
+        // withGrantedTraits would dedupe a second copy by name on its own.
+        val reporter = BoonState("Sublunary Eye", 8)
+        assertEquals(1, held(reporter).count { it.name == "Acute Vision" })
+        val both = TraitGrants.grantedTraits(BeyonderState("Demoness", 9), reporter)
         assertEquals(1, both.count { it.name == "Acute Vision" })
     }
 }

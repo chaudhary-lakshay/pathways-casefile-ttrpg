@@ -261,8 +261,7 @@ means the newest slice, not the end of the file: 6a to 6by run down to
 line 6728, then 6hn back to 6cb, newest first, so `tail` prints 6cb. 6hn:
 (a boon block's catalogue rows are granted through the potion merge:
 Charisma +2, Acute Hearing, Acute Vision, Fit; five look-alike names are
-refused, each printing another rule; **unreviewed and unseen on the
-tablet**). Then 6hm
+refused, each printing another rule; **unseen on the tablet**). Then 6hm
 (a granted boon stored nothing; it is `SavedEdits.boon` now, digested
 after the potions and held beside them, on the owner's ruling; the rung
 is the next one printed, never chosen, and a patron is required; the
@@ -346,7 +345,7 @@ player-facing guide to all four and is verified against the labels in source.
 |---|---|
 | Tests | **2180 Kotlin** (JUnit 5 — 1426 `core:rules`, 733 `app`, 21 `core:model`, counted in 6hn) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`, is owed a pass; 6hm's uncommitted tree: ship with changes, taken; 6hn is owed a pass |
+| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`, is owed a pass; 6hm's uncommitted tree: ship with changes, taken; 6hn: ship with changes, taken |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 

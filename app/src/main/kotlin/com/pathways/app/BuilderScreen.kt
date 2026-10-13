@@ -229,7 +229,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     printed = Appearance.levelOf(start.traits),
                     // The face a potion granted (6fn), so a face is not bought
                     // blind: the better of the two is played.
-                    granted = remember(session.state) { Appearance.played(TraitGrants.grantedTraits(session.state)) },
+                    granted = remember(session.state, session.boon) {
+                        Appearance.played(TraitGrants.grantedTraits(session.state, session.boon))
+                    },
                     onPick = { pickingLooks = true },
                 )
                 HorizontalDivider()

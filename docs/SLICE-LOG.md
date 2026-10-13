@@ -6758,7 +6758,15 @@ exists); the session test.
 
 2180 Kotlin (1426 `core:rules`, 733 `app`, 21 `core:model`) from deleted
 results; 366 Python; `ast-grep scan` clean. `:app:assembleDebug` builds.
-**Not seen on the tablet, and no reviewer has read it.**
+
+Sonnet on `9538583..93d8a41 -- core app`: **ship with changes**. It ran
+nothing. Taken: the held-once test could not fail on the boon path
+(Demoness 9 grants the row anyway, and `withGrantedTraits` dedupes by
+name), so it asserts the boon alone and the merge itself; the builder's
+face line passes the boon. Not taken: the census compares names, not
+levels, and the Charisma test pins the one level there is.
+
+**Not seen on the tablet**: the seed write was refused by the harness.
 
 ## 6hm. A granted boon is stored, and played beside a potion
 
