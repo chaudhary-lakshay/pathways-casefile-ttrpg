@@ -21,16 +21,12 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -39,6 +35,10 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -47,7 +47,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attributes
@@ -95,14 +94,11 @@ import com.pathways.rules.TraitGrants
  * ([repairedEdits]).
  */
 
-/** The filter across the top. `TEMPLATE` is not a person; see [isTemplate]. */
-internal enum class Roster(val label: String, val icon: ImageVector) {
-    ALL("All", Icons.Filled.Groups),
-    MORTAL("Mortal", Icons.Filled.Person),
-    // An eye: what a Beyonder has that a mortal does not is Spirit Vision, and
-    // the sheet's own Divine action already carries this icon for the same
-    // idea.
-    BEYONDER("Beyonders", Icons.Filled.Visibility),
+/** The filter across the bottom. `TEMPLATE` is not a person; see [isTemplate]. */
+internal enum class Roster(val label: String) {
+    ALL("All"),
+    MORTAL("Mortal"),
+    BEYONDER("Beyonders"),
 }
 
 /**
@@ -301,14 +297,22 @@ fun PremadeGallery(
             // A footer, matching the sheet screen. The counts stay on the
             // labels: a destination reading "Beyonders (4)" says how much list
             // is behind it before a tap finds out.
-            NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
-                for (option in Roster.entries) {
-                    NavigationBarItem(
-                        selected = roster == option,
-                        onClick = { roster = option },
-                        icon = { Icon(option.icon, contentDescription = null) },
-                        label = { Text("${option.label} (${rosterOf(option, people, saved).size})") },
-                    )
+            // Underlined tabs, not destinations: the three are one list filtered.
+            Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
+                PrimaryTabRow(
+                    selectedTabIndex = roster.ordinal,
+                    containerColor = Color.Transparent,
+                    modifier = Modifier.navigationBarsPadding(),
+                ) {
+                    for (option in Roster.entries) {
+                        Tab(
+                            selected = roster == option,
+                            onClick = { roster = option },
+                            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.heightIn(min = 56.dp),
+                            text = { Text("${option.label} (${rosterOf(option, people, saved).size})") },
+                        )
+                    }
                 }
             }
         },
@@ -377,7 +381,7 @@ private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, numbers: Playe
             // The mark is a BORDER and the initials, both in bare `secondary`,
             // rather than a filled `secondaryContainer`. Material spends
             // `secondaryContainer` on selected chrome -- every FilterChip and
-            // NavigationBarItem in this app -- so a filled swatch
+            // segmented button in this app -- so a filled swatch
             // here read as "this row is selected" rather than "this person is a
             // Beyonder, and under a rotated preset it sat next to an identical
             // pill in the nav bar. Bare `secondary` is the accent chrome never
@@ -408,7 +412,9 @@ private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, numbers: Playe
                     Text(
                         sheet.name,
                         style = MaterialTheme.typography.titleSmall,
-                        maxLines = 1,
+                        // Two: at phone width one line cut "Academic R…"
+                        // beside the mark.
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false),
                     )
