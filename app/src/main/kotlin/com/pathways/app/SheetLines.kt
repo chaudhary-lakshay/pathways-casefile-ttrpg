@@ -15,7 +15,8 @@ import com.pathways.rules.SheetRow
  *
  *  - **The sheet against the engine**, the spec's `computed vs asPublished`
  *    diff. It is the UNEDITED sheet's, it is what the Vitals tab counts, and it
- *    is the only thing printed in red: [disagreement].
+ *    is the only thing marked, red on a skill row and the accent on the
+ *    Vitals card: [disagreement].
  *  - **The character played against the sheet**, which a potion or a builder
  *    edit makes. That is not a disagreement with the book, so it is never
  *    red: [number] simply is the played value.

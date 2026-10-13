@@ -24,6 +24,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -318,11 +324,6 @@ internal fun AddedSkillRow(label: String, level: Int, provenance: String, onClic
 internal fun ComparisonRow(
     line: PlayedLine,
     modifier: Modifier = Modifier,
-    // Present only on a row that can be rolled. The secondaries above the
-    // skills share this composable and are not rollable, so the badge and
-    // glyph are absent rather than disabled -- a control that cannot do
-    // anything should not be drawn.
-    onRoll: (() -> Unit)? = null,
 ) {
     SkillRowFrame(modifier) {
         Text(line.label, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
@@ -342,11 +343,61 @@ internal fun ComparisonRow(
                 modifier = Modifier.padding(end = 8.dp),
             )
         }
-        if (onRoll != null) {
-            RollGlyph()
-            LevelBadge(line.number, MaterialTheme.colorScheme.primary)
-        } else {
-            Text(line.number, style = MaterialTheme.typography.bodyLarge)
+        // Every row here rolls; the secondaries, which do not, are [VitalsCard]'s.
+        RollGlyph()
+        LevelBadge(line.number, MaterialTheme.colorScheme.primary)
+    }
+}
+
+/**
+ * The derived values as one card under the notice that counts the
+ * disagreements. A row the published sheet disagrees with is tinted and
+ * takes the accent, with the sheet's figure beside its name; none rolls.
+ */
+@Composable
+internal fun VitalsCard(diffSummary: String, lines: List<PlayedLine>) {
+    val shape = RoundedCornerShape(10.dp)
+    val accent = MaterialTheme.colorScheme.primary
+    Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Surface(shape = shape, color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+            Row(Modifier.height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.width(3.dp).fillMaxHeight().background(accent))
+                Text(diffSummary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(12.dp))
+            }
+        }
+        Surface(shape = shape, color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+            Column {
+                lines.forEachIndexed { i, line ->
+                    if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    val differs = line.disagreement != null
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .background(if (differs) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent)
+                            .heightIn(min = 48.dp)
+                            .padding(horizontal = 16.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            line.label,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (differs) accent else Color.Unspecified,
+                        )
+                        Text(
+                            listOfNotNull(line.disagreement, line.basis).joinToString("  "),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Text(
+                            line.number,
+                            style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
+                            color = if (differs) accent else Color.Unspecified,
+                        )
+                    }
+                }
+            }
         }
     }
 }

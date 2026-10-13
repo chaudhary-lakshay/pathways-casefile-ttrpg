@@ -102,17 +102,7 @@ internal fun LazyListScope.vitalsTab(
     // the pools rather than the skills: they are what the character IS,
     // so each prints the number PLAYED, and the disagreement with the
     // published sheet is printed beside it ([PlayedLine]).
-    item {
-        Text(
-            diffSummary,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp),
-        )
-    }
-    items(
-        secondaryLines,
-    ) { ComparisonRow(it) }
+    item { VitalsCard(diffSummary, secondaryLines) }
 }
 
 internal fun LazyListScope.traitsTab(
@@ -207,7 +197,6 @@ internal fun LazyListScope.skillsTab(
             ComparisonRow(
                 playedLine(row, level.toString()),
                 Modifier.clickable(onClickLabel = "Roll", role = Role.Button, onClick = roll),
-                onRoll = roll,
             )
         }
     }
