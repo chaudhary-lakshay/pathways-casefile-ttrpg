@@ -255,7 +255,10 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6hk first**
+**Where to start next: the slice log, from the END — 6hk first.** END
+means the newest slice, not the end of the file: 6a to 6by run down to
+line 6728, then 6hk back to 6cb, newest first, so `tail` prints 6cb. The
+four ruled sheet spellings are subsections of 6hk. 6hk:
 (Charmed Object's skill is stored beside the purchase and carried in the
 held trait's name, on the owner's ruling; a declared +1 on that skill's
 Skills-tab roll and in the Attack dialog, nowhere else, and the Traits
