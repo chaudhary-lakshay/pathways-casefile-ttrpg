@@ -349,7 +349,10 @@ class SelfControlTest {
         // Pinned here for the same reason: an unpinned recorded disagreement
         // is the one a later session repairs by fuzzy-matching. It differs
         // from the two below in that the row it reaches for prints no
-        // self-control roll, so only the no-match half is asserted.
+        // self-control roll, so only the no-match half is asserted. The
+        // owner has since ruled that exact spelling the Weirdness Magnet row
+        // (2026-10-13): the book still does not print it, and it still rolls
+        // nothing.
         listOf("Wierdness Magnet", "Absent-Minded", "Paranoia: Bodies of water").forEach {
             assertFalse(it in printed, "the book's list now prints '$it'")
             assertTrue(SelfControl.checksFor(listOf(dis(it))).isEmpty())

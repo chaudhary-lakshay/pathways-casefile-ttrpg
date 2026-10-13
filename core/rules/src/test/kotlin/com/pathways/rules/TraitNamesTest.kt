@@ -65,18 +65,18 @@ class TraitNamesTest {
     }
 
     /**
-     * A tail that is NOT the catalogue's own words stays unmatched, so
-     * "Blacklisted: Specific Industry org or church" -- a spelling this book
-     * never prints, whose qualifier paraphrases the row rather than quoting
-     * it -- is still recorded rather than guessed at. The truncated Sense of
-     * Duty below is the near-miss: its tail stops short of the row's own
-     * words, and only the COMPLETE quotation licenses that bracket.
+     * A tail that is NOT the catalogue's own words stays unmatched. The
+     * truncated Sense of Duty below is the near-miss: its tail stops short
+     * of the row's own words, and only the COMPLETE quotation licenses that
+     * bracket. University Librarian's Blacklisted paraphrase stood here
+     * until the owner ruled that one spelling a row (2026-10-13); a
+     * different Blacklisted tail takes its place.
      */
     @Test
     fun `a tail that is not the book's own words is left unmatched`() {
         for (name in listOf(
             "Healer - something the book never says",
-            "Blacklisted: Specific Industry org or church",
+            "Blacklisted: The Church of Steam",
             // The near-miss: a bracket this app DOES read, behind a tail that
             // stops short of the row's own words. Only the complete quotation
             // licenses it, so a partial one is a disagreement to record.
@@ -139,12 +139,12 @@ class TraitNamesTest {
     }
 
     /**
-     * **A name the book never prints stays unmatched, glue or no glue.**
-     * University Librarian's "Blacklisted: Specific Industry org or church"
-     * paraphrases the row rather than quoting it, so the tail reproduces no
-     * catalogue cell and the resolution must refuse it. 4.1: the disagreement
-     * is recorded, never guessed away -- and the sheet keeps every character
-     * it printed so the record stays visible.
+     * **No long sheet name is left unmatched, and none resolves by glue
+     * alone.** University Librarian's "Blacklisted: Specific Industry org or
+     * church" paraphrases the row rather than quoting it, so no tail rule
+     * reads it. It was the one name listed here until the owner ruled that
+     * exact spelling the Blacklisted row (2026-10-13). A new long spelling
+     * fails here, and is a question for the owner, not a rule to widen.
      *
      * Church Healer's "Sense of Duty (Flock) - ..." used to be listed here
      * beside it. It is NOT the same case and never was: its tail is the row's
@@ -161,7 +161,7 @@ class TraitNamesTest {
             .filter { it.length >= 40 }
         val unmatched = glued.filter { TraitNames.catalogueName(it) !in printed }
         assertEquals(
-            listOf("Blacklisted: Specific Industry org or church"),
+            emptyList<String>(),
             unmatched,
             "the set of unmatched sheet spellings changed",
         )
@@ -230,18 +230,8 @@ class TraitNamesTest {
         "Paranoia: Bodies of water" to
             "the book prints a bare \"Paranoia\" at 10 and this sheet pays 5, so " +
             "the qualifier is unprinted AND the price disagrees",
-        "Wierdness Magnet" to
-            "the book prints \"Weirdness Magnet\" once, at this sheet's own 15 -- " +
-            "so the price agrees and the spelling is a transposition. Resolving " +
-            "it needs typo tolerance, which is the guessing 4.1 forbids, and the " +
-            "row prints no mechanical clause so nothing is lost by refusing",
-
-        // --- an instantiation that paraphrases rather than quotes ---------
-        "Blacklisted: Specific Industry org or church" to
-            "\"Blacklisted\" prints a FIXED 10 and no placeholder, so nothing " +
-            "marks it instantiable -- and the qualifier paraphrases the row's own " +
-            "notes rather than quoting them, which is what 6br's exact-tail rule " +
-            "refuses",
+        // "Wierdness Magnet" and the Librarian's Blacklisted left this map on
+        // the owner's rulings (2026-10-13): each pays its row's own price.
 
         // --- resolved elsewhere, by design --------------------------------
         "Poverty: Struggling" to
@@ -365,7 +355,7 @@ class TraitNamesTest {
         )
         for (name in listOf(
             "Paranoia: Bodies of water",     // the row is a bare "Paranoia"
-            "Blacklisted: Specific Industry org or church",
+            "Blacklisted: The Church of Steam",   // a fixed row, no placeholder
             "Absent-Minded",                 // "Absent-Mindedness" in the book
         )) {
             assertEquals(name, TraitNames.catalogueName(name), name)
@@ -525,6 +515,30 @@ class TraitNamesTest {
         assertEquals("Will", check.spec.attribute)
         val sheetCost = apothecary.traits.single { it.name == "Pacifism (Cannot Kill)" }.cost
         assertEquals(15, sheetCost)
+    }
+
+    /**
+     * Two more ruled spellings (2026-10-13), each at its row's own price.
+     * The Journalist's "Wierdness Magnet" is a transposition of the book's
+     * row: an exact entry, so no other misspelling resolves. The University
+     * Librarian's Blacklisted tail restates the row's own cell; the row
+     * prints no placeholder, so another tail stays unmatched.
+     */
+    @Test
+    fun `a ruled typo and a ruled tail resolve, and their neighbours do not`() {
+        val rows = ContentLoader.disadvantages().associate { it.name to it.cost }
+        for ((sheet, printed, row) in listOf(
+            Triple("Journalist", "Wierdness Magnet", "Weirdness Magnet"),
+            Triple("University Librarian", "Blacklisted: Specific Industry org or church", "Blacklisted"),
+        )) {
+            assertEquals(row, TraitNames.catalogueName(printed))
+            assertEquals(printed, TraitNames.displayName(printed))
+            val paid = Premades.byName(sheet).toCharacter().traits.single { it.name == printed }.cost
+            assertEquals(rows.getValue(row), paid, printed)
+        }
+        for (other in listOf("Wierdness Magnett", "Weirdnes Magnet", "Blacklisted: The Church of Steam")) {
+            assertEquals(other, TraitNames.catalogueName(other), other)
+        }
     }
 
     /**

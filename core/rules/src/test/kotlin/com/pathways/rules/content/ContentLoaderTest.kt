@@ -455,21 +455,16 @@ class ContentLoaderTest {
         "Absent-Minded" to
             "an alias here; production refuses it because the price disagrees " +
             "too (5 against the book's 15), leaving only resemblance",
-        "Wierdness Magnet" to
-            "an alias here; production refuses it because closing a " +
-            "transposition needs typo tolerance, which 4.1 calls guessing",
         "Poverty: Struggling" to
             "an alias here; production resolves it in [com.pathways.rules.Wealth] " +
             "instead, on the cost and kind this name-only API cannot read",
         "Paranoia: Bodies of water" to
             "a colon instantiation of a fixed-cost row, and the price disagrees " +
             "as well (5 against 10)",
-        "Blacklisted: Specific Industry org or church" to
-            "a colon instantiation of a fixed-cost row whose qualifier " +
-            "paraphrases the row's own notes rather than quoting them",
         // The six "Sense of Duty (group)" spellings left this list when
         // production learned to read them (6bz), and the two Secret spellings
-        // on the owner's ruling (6he). The audit must never reach LESS than
+        // on the owner's ruling (6he), and "Wierdness Magnet" and the
+        // Librarian's Blacklisted on two more (2026-10-13). The audit must never reach LESS than
         // production, so they belong nowhere here.
     )
 

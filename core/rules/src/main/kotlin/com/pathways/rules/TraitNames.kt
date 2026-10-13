@@ -79,12 +79,17 @@ object TraitNames {
      * resemblance is strong and is still only resemblance: this is a ruling
      * (2026-10-13), not a rule. The same sheet's "Pacifism (Cannot Harm
      * Innocents)" at 10 pts was ruled the same way on a second asking, for
-     * the Cannot Harm Innocents row at 10. Exact spellings, so nothing here
-     * generalises to another bracket.
+     * the Cannot Harm Innocents row at 10. Two more that day, each at its
+     * row's own price: the Journalist's "Wierdness Magnet", a transposition
+     * of Weirdness Magnet at 15, and the University Librarian's Blacklisted
+     * at 10, whose tail restates the row's cell. Exact spellings, so nothing
+     * here generalises to another bracket, typo or tail.
      */
     private val RULED_SPELLINGS = mapOf(
         "Pacifism (Cannot Kill)" to "Cannot Kill",
         "Pacifism (Cannot Harm Innocents)" to "Cannot Harm Innocents",
+        "Wierdness Magnet" to "Weirdness Magnet",
+        "Blacklisted: Specific Industry org or church" to "Blacklisted",
     )
 
     /**
@@ -209,7 +214,9 @@ object TraitNames {
      * sentence is simply false for these two, and checking a sweep's own
      * excuse is 6bf's lesson. The two spellings whose reason still holds --
      * Paranoia, Blacklisted -- hang off cells that enumerate nothing, and a
-     * test pins them still unmatched. Five Sense of Duty and two Secret were
+     * test pins Paranoia still unmatched; the Librarian's Blacklisted
+     * resolves on a ruling for its exact spelling ([RULED_SPELLINGS]), not
+     * by this rule. Five Sense of Duty and two Secret were
      * counted with them until [quotedInstanceRow] took them in.
      *
      * The qualifier must PREFIX exactly one option, because the sheet writes

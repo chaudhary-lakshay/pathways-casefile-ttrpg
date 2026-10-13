@@ -751,8 +751,7 @@ class TraitReportedTest {
         assertEquals(
             setOf(
                 // Resemblance only, recorded: the book prints the row under another name.
-                "Absent-Minded", "No Sense of Humour", "Wierdness Magnet", "Paranoia: Bodies of water",
-                "Blacklisted: Specific Industry org or church",
+                "Absent-Minded", "No Sense of Humour", "Paranoia: Bodies of water",
                 // University Librarian's, at 5 pts: no level's price, so no level (Wealth.levelOf).
                 "Poverty: Struggling",
             ),
