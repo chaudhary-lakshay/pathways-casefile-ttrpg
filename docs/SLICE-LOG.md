@@ -6726,6 +6726,138 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hq. The prayer's four numbers, answered
+
+6hm left the owner's "numbers are wrong" unnamed and listed three
+candidates. Asked with the ledger's terms in front of them, 2026-10-13,
+the owner ticked all four offered, then ruled on each.
+
+| Asked | Answer | Built |
+|---|---|---|
+| The Sequence penalty: doubling, or -2 a rung | Keep doubling | Nothing |
+| No Entity Response roll | Wrong | Asked first |
+| No language modifier | Wrong | A tongue is declared |
+| The skill level | "Should rise with IQ", "16 points should buy more", and "nothing" | The first |
+| The No response row, on a prayer | No boon | As ruled |
+
+**"16 points should buy more" is not built.** The 1/2/4/8/16 ladder is
+ch. 3's own, and `SkillLadder`'s KDoc holds the count: GURPS core's would
+make 14 of the 232 published levels wrong.
+
+### A bonus stacked on a bought skill follows the attribute (`4209e44`)
+
+The Academic Researcher, IQ 10 and a Fool 9, with 16 points in
+Ritualistic Magic prays at 14: IQ+1 for the points and the Seer's +3.
+After a boon's IQ +1 every IQ skill rose but that one. `digest` froze
+every level a potion had touched, and the recorded reason for freezing,
+"no points behind it to recompute from", is false of this one.
+
+`PotionDigestion.digest` keeps, for a grant that stood on a bought skill,
+that skill's key and the bonuses on it, and re-reads the level from the
+re-levelled purchase at every block. A grant with nothing bought under it
+stays where its potion put it.
+
+RED, watched: `a grant stacked on a bought skill rises with an attribute
+a later potion grants`, *expected 13 but was 12*.
+
+### The prayer (`0d7ced5`)
+
+Two recorded refusals in `Boons.targetFor`'s KDoc die, both on the owner's
+word and neither on the book's: ch. 13's own modifier list (8940-8946)
+names no language and no entity. The KDoc says so. Preparation and the
+Flourish Bonus stay refused: ch. 13's Ritual quality row prices them, and
+that reason was not the one overturned.
+
+- **`Boons.targetFor` takes `language` and `answer`.** The tongue goes
+  straight to `RitualResolution.targetFor`, so Broken is refused there as
+  for a ritual. The answer's modifier rides on the skill.
+- **`Boons.ask` never shifts the table.** Line 4297: "Hidden existences
+  and evil gods use the table unmodified", and line 8912 calls the Great
+  Ones hidden existences. The dialog offers no good-standing chip.
+- **`Boons.endsPrayer`**: a rejection, the table's own, and No response,
+  the owner's ruling against ch. 7, which lets that ritual go on at +0.
+- **`Boons.fuelFor`, owed at the asking.** The design review's finding:
+  paid at the roll, a closed dialog asked the table again for nothing
+  until it answered +5. A rejection costs nothing, as
+  `Invocation.fuelFor` already refuses it any.
+- **`Invocation.residualFuel`**: No response's "2 SPI personal", taken
+  from the fuel declared, HP first. **A reading, and a prayer's alone.** A
+  mortal plays SPI 0 and prays in blood, so the 2 must be payable the way
+  the fuel was. The Ritual dialog still displaces a declared sacrifice
+  whole and asks for 2 SPI, which a caster at 0 SPI cannot pay: seen and
+  not touched.
+- `EntityAnswer.unanswered` is set by `Invocation.ask`; the Ritual dialog
+  reads it where it re-derived the row.
+
+**The dialog.** One footer button, *Ask the patron* and then *Pray*. The
+picture drawn before the answer can only ask: its handler returns if an
+answer is already there, so a second tap of it never prays. Asking
+charges the fuel and locks the patron, SPI and HP chips. The target is
+null while drawn for a Broken tongue or an ended prayer, where
+`targetFor` would throw. `MysticalLanguagePicker` is lifted out of
+`RitualSupportAndLanguage` and both dialogs draw it.
+
+RED, watched, against stubs that took the parameters and ignored them:
+four in `BoonsTest` (*expected 10 but was 12*; *expected Fuel(spi=2,
+hp=4) but was Fuel(spi=0, hp=0)*; *expected true but was false*; the
+unshifted answer) and two in `BoonDialogTest`, each a
+`NullPointerException` on a refusal that was not there.
+
+### What the tablet found
+
+Blood paid at the asking lowered the roll it paid for: 6 HP put the
+Researcher under a third, and the foot read *-1 hurt or tired*, *3d6 ≤
+11*. The prayer then failed on a 12. A ritual's fuel cannot do this,
+being spent at the cast. The dialog holds the penalty the patron was
+asked under (`hurtAtAsking`). A reading: the book prints neither order.
+
+### Reviews
+
+Sonnet on the written decomposition: **CHANGE**, all taken. The target
+guard in composition, Ask as the commit point, the lift of `unanswered`
+and `residualFuel`, the KDoc as an owner's ruling, and one refusal for
+asking with a second for praying.
+
+Sonnet on `fb6bba6..0d7ced5 -- core app`: **SHIP**. It ran nothing. Four
+LOWs. Three comments taken. Not taken: the answer is `remember`ed, so a
+dialog closed after asking loses it and keeps the fuel. The comment says
+so now.
+
+### Checks
+
+2188 Kotlin (1431 `core:rules`, 736 `app`, 21 `core:model`) from deleted
+results with `--rerun-tasks`, before `hurtAtAsking` and the shorter
+Broken line; the `app` task green after them. 366 Python. `ast-grep scan`
+clean. The click-handler census still reads 38: the two charges moved
+inside one lambda.
+
+### Device pass, SM-T570
+
+The save was `cmp`-identical after each restore. No FATAL.
+
+- Chaos Mist, Not stated: *Ritualistic Magic 13 · Moderate -2 · Sequence
+  9 +0 · circumstances +0*, *3d6 ≤ 11*, refused for 4 SPI against 1.
+- Broken: no target, the refusal in red. Accented: *-2 for an accented
+  tongue*, *3d6 ≤ 9*.
+- 6 HP, then Ask: *The patron: rolled 7. Partial response.*, *+3 from the
+  patron*, *spent on asking: 1 SPI and 6 HP*, the button *Pray*, the fuel
+  chips grey. The save held `hpLost` 6 and `spiSpent` 9, and Pray changed
+  neither.
+- After the fix: rolled 11, *+1 from the patron*, *3d6 ≤ 12*, no hurt
+  term.
+
+Not seen: No response, a rejection, a granted prayer, two taps a frame
+apart on Ask, a boon's IQ lifting a stacked skill on the sheet.
+
+### Left as it is
+
+- A rejection may be asked again free by reopening the dialog.
+- The Ritual dialog at 0 SPI after No response, above.
+- `docs/HOW-TO-PLAY.md` said a mortal cannot pray, stale since 6ho. Fixed
+  with this slice's paragraph.
+
+**Unpushed:** `4209e44`, `0d7ced5` and the docs after them.
+
 ## 6hp. Nine components, picked from three variants each
 
 No rule changed. The owner rejected seven whole screens drawn by Stitch,

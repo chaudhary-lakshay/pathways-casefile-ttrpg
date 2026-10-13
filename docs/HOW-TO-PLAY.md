@@ -398,8 +398,7 @@ still buys a clearer answer.
 
 Always on the sheet. Without Ritualistic Magic it opens and says so: the
 skill has no default, and **Spend points** sells it. It also needs 4 SPI of
-fuel, which a mortal does not have: today only a character a potion has
-given SPI can pray.
+fuel, in SPI or in blood.
 
 Pick the **patron's pathway**. The Sequence is not yours to pick: a first
 prayer asks for the first rung the book prints for that patron (Sequence 9,
@@ -411,7 +410,16 @@ Fit, Acute Vision, Acute Hearing) is held on the Traits tab, marked *"from
 the boon"*, and counts in rolls as a potion's does; the rest is the GM's. Then the sacrifice, the ritual's quality, and 4-6 SPI of fuel, any of
 it paid in HP at 2 HP for 1 SPI: that is how a mortal, who has no SPI, prays. The
 foot shows every term of the target: Moderate -2, the Sequence (none at 9,
--2 at 8, doubling after), and the two circumstances.
+-2 at 8, doubling after), and the two circumstances. **Mystical language**
+is the tongue the prayer is said in, as on a ritual: *Accented* is -2 and
+*Broken* forbids it.
+
+The button reads **Ask the patron** first. It rolls the Entity Response
+Table, spends the fuel, and locks the patron and fuel choices. The answer
+is printed above the foot and its modifier joins the target; the button
+then reads **Pray**. Two answers end the prayer with no roll: a rejection,
+which spends nothing, and no response, which grants no boon and takes 2 SPI
+out of the fuel you declared, HP first.
 
 A granted boon is stored when the dialog closes, and held **beside** any
 potion walk: its attribute, SPI and skill gains are on the sheet from then

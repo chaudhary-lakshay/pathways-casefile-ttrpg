@@ -232,7 +232,9 @@ fun BoonDialog(
     // The GM's declaration, as a ritual's is: null is "not stated".
     var language by remember { mutableStateOf<LanguageProficiency?>(null) }
     // The patron is asked once, before the roll, and the fuel goes then:
-    // paid only at the roll, a closed dialog asked again for nothing.
+    // paid only at the roll, a closed dialog asked again for nothing. Closed
+    // after asking, the answer is lost and the fuel is not: the next asking
+    // pays again. A rejection costs nothing, so it may be asked again free.
     var answer by remember { mutableStateOf<EntityAnswer?>(null) }
     var paid by remember { mutableStateOf<Fuel?>(null) }
     // A prayer's own fuel does not lower its roll, as a ritual's cannot,

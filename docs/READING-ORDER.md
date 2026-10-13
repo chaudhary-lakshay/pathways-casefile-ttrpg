@@ -195,6 +195,16 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hl
+(the owner called the potion's abilities unreadable; each power is a row
+that opens, with the book's bracket as its tag, a roll's Success and
+Failure under the power they follow, and the PDF's bullet, stored as
+U+007F, a real one; display only, the stored text untouched; 6gk's "the
+book does not say which is which" was answered by a census: no text
+opens with an outcome; the Boon dialog draws the same rows; seen
+on the SM-T570; **its closing list holds
+what is owed and what to ask the owner**).
+
 Then 6hk, whose subsections hold the four ruled sheet
 spellings
 (Charmed Object's skill is stored beside the purchase and carried in the
@@ -2444,14 +2454,15 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6ex back to 6de
+## Digest index, 6fc back to 6de
 
+**6fc** — Fast Healer's +1 is said on the recovery row's result; on a failure the two readings disagree, so the line says it is the GM's;
 **6fb** — Chronic Insomnia's "sustained concentration at -1" is declared on the Concentrate roll; two API lines had been pasted inside 6ew's lead;
 **6fa** — Thinned Veil's "Concentration ... at -2" is a declaration on the Concentrate roll alone; the verbatim guard checked two traits, and now checks every partly-applied row;
 
 Moved from the handover in 6ff, unchanged, when its digest index neared
 8,000 characters. 6ds and 6dr followed in 6gb, and 6dv back to 6dt in
-6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy; 6eq in 6ha; 6er in 6hb; 6es in 6hc; 6et in 6hd; 6ez and 6ey in 6hk; 6eu in 6he; 6ev in 6hg; 6ew in 6hh; 6ex in 6hi.
+6gd, for the same reason; 6dx and 6dw in 6gl; 6en back to 6dy in 6gw; 6eo in 6gx; 6ep in 6gy; 6eq in 6ha; 6er in 6hb; 6es in 6hc; 6et in 6hd; 6ez and 6ey in 6hk; 6eu in 6he; 6ev in 6hg; 6ew in 6hh; 6ex in 6hi; 6fc in 6hq.
 
 **6ez** — Knows the Acting Method doubles the digestion ranges the tracker prints for a holder; the note asks `doublesActingGains`, not whether two tables differ;
 **6ey** — a master's weapon parries at DX: `SkillDefaults.wieldedAt` floors the skill, and Attack, Defend and the builder all print it; the Pugilist was invisible to a keyword;

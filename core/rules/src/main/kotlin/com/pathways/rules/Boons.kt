@@ -145,8 +145,8 @@ object Boons {
      * An [answer] that ends the prayer has no target and is refused: ask
      * [endsPrayer] first.
      *
-     * No preparation, for a reason that still stands: this chapter prints
-     * its own Ritual quality row for it. No power sources either: chapter 13
+     * No preparation: this chapter prints its own Ritual quality row for it,
+     * and that reason still stands. No power sources either: chapter 13
      * prices the patron's involvement itself, and its own Ritual quality row
      * already stands in for Section IV's circumstances. The genuinely open one
      * is IV.C's assistants, which chapter 13 neither offers nor forbids -- so
@@ -217,7 +217,8 @@ object Boons {
      *
      * The sequence penalty and the chosen circumstances ride on the skill
      * rather than being a second weight, because the weight is the one thing
-     * this chapter fixes.
+     * this chapter fixes. No tongue and no patron's answer: this has no
+     * production caller, and the screen composes [targetFor] with both.
      */
     fun attempt(
         skillLevel: Int,
