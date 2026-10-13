@@ -104,10 +104,14 @@ class PathwayTextTest {
     fun `no text opens with an outcome or an aspect`() {
         val parts = texts.flatMap { text -> abilities(text).flatMap { it.parts } }.mapNotNull { it.heading }.toSet()
         assertTrue(parts.containsAll(listOf("Success", "Failure", "Critical Failure", "Passive", "Duration")), "$parts")
+        // The test's own words, not the grouping's: a text that opened with
+        // one would be a head there, and so never in `parts` (the diff review).
+        val label = Regex("""(Critical )?(Success|Failure).*|Passive|Duration|Range|Examples?|Note""")
         for (text in texts) {
             val first = abilityParagraphs(text).first().heading
-            assertTrue(first !in parts, "$first opens: ${text.take(60)}")
+            assertTrue(first == null || !label.matches(first), "$first opens: ${text.take(60)}")
         }
+        assertEquals("Failure", abilities("Failure: nothing. Ward (1 SPI): a wall.").first().head.heading)
     }
 
     @Test
@@ -128,6 +132,16 @@ class PathwayTextTest {
         assertTrue(lines[1].startsWith("Mystical objects"), lines[1])
         assertTrue(lines.none { '\u007f' in it })
         assertEquals(listOf("No bullet here."), bullets("No bullet here."))
+    }
+
+    /** Seen on the tablet: the Apothecary's five potions, each named inside its bullet. */
+    @Test
+    fun `a bullet that opens with a name gives it up as its label`() {
+        assertEquals(
+            "Libido Potion (Pharmacy -1)" to "Powdered mummy and aromatic herbs.",
+            named("Libido Potion (Pharmacy -1): Powdered mummy and aromatic herbs."),
+        )
+        assertEquals(null to "sees non-physical entities: ghosts", named("sees non-physical entities: ghosts"))
     }
 
     @Test

@@ -75,6 +75,12 @@ internal fun titleOf(heading: String): Pair<String, String?> {
  */
 internal fun bullets(text: String): List<String> = text.split(BULLET).map { it.trim() }.filter { it.isNotEmpty() }
 
+/** A bullet's own name, where it opens with one, and the rest of it. */
+internal fun named(item: String): Pair<String?, String> {
+    val name = HEADING.matchAt(item, 0) ?: return null to item
+    return name.groupValues[1] to item.substring(name.range.last + 1)
+}
+
 internal const val BULLET = '\u007f'
 
 private val PART = Regex("""(?:Critical )?(?:Success|Failure)(?: by \d+)?|Passive|Duration|Range|Examples?|Note""")

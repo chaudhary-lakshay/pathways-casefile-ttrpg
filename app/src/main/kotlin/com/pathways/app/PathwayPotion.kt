@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.AnnotatedString
@@ -261,7 +262,7 @@ private fun AbilityRow(ability: Ability, expanded: Boolean, onToggle: () -> Unit
     Row(
         Modifier
             .fillMaxWidth()
-            .clickable(onClickLabel = if (expanded) "Hide text" else "Show text", onClick = onToggle)
+            .clickable(onClickLabel = if (expanded) "Hide text" else "Show text", role = Role.Button, onClick = onToggle)
             .semantics { stateDescription = if (expanded) "Expanded" else "Collapsed" }
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -319,7 +320,8 @@ private fun Paragraph(paragraph: AbilityParagraph, label: String?) {
         listed.forEach { item ->
             Row(Modifier.padding(top = 4.dp, start = 4.dp)) {
                 Text("•  ", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
-                BookText(item)
+                val (name, rest) = named(item)
+                BookText(rest, name)
             }
         }
     }
