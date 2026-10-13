@@ -504,34 +504,36 @@ private fun DigestionTracker(
     onDigest: (Int) -> Unit,
 ) {
     val gains = remember(traits) { TraitEffects.actingGains(traits) }
-    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Text("Digesting this potion", style = MaterialTheme.typography.titleSmall)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            // Outlined and neutral, matching the sheet's pool steppers. These
-            // were brass text buttons, so the same control looked like two
-            // different controls depending which screen you were on.
-            OutlinedButton(onClick = { onDigest(-5) }) { Text("-5%") }
-            Text(
-                "${state.digestion}%",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(horizontal = 8.dp),
-            )
-            OutlinedButton(onClick = { onDigest(5) }) { Text("+5%") }
-        }
-        Text("next potion rolls ${pcrLine(state)}", style = MaterialTheme.typography.bodySmall)
+    StepperCard(
+        title = "Digesting this potion",
+        minus = "-5%",
+        plus = "+5%",
+        value = "${state.digestion}%",
+        onMinus = { onDigest(-5) },
+        onPlus = { onDigest(5) },
+    ) {
         Text(
-            gains.joinToString("   ") { quality ->
-                val gain = if (quality.losesProgress) "0 or lose" else "+${quality.minGain}-${quality.maxGain}%"
-                "${quality.quality} $gain"
-            },
+            "next potion rolls ${pcrLine(state)}",
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 4.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        // One neutral chip a quality: the book prints a range and no verdict.
+        FlowRow(
+            Modifier.padding(top = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            gains.forEach { quality ->
+                val gain = if (quality.losesProgress) "0 or lose" else "+${quality.minGain}-${quality.maxGain}%"
+                ChipTag("${quality.quality} $gain")
+            }
+        }
         // Said, because a doubled range reads as a misprint of the book's.
         if (TraitEffects.doublesActingGains(traits)) {
             Text(
                 "${TraitEffects.ACTING_METHOD}: \"all Digestion Gain Per Session is doubled\".",
                 style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 8.dp),
             )
         }
     }
@@ -611,18 +613,16 @@ private fun CorruptionTracker(
     val step = { delta: Int -> if (session.onSamePotion(drunk)) session.gainCor(delta, max) }
     val cor = session.cor
     val atRisk = session.corrupted || cor >= max - 1
-    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Text("Corruption", style = MaterialTheme.typography.titleSmall)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            OutlinedButton(onClick = { step(-1) }, enabled = !session.isLost) { Text("−1") }
-            Text(
-                "$cor / $max",
-                style = MaterialTheme.typography.titleLarge,
-                color = if (atRisk) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(horizontal = 8.dp),
-            )
-            OutlinedButton(onClick = { step(1) }, enabled = !session.isLost) { Text("+1") }
-        }
+    StepperCard(
+        title = "Corruption",
+        minus = "−1",
+        plus = "+1",
+        value = "$cor / $max",
+        onMinus = { step(-1) },
+        onPlus = { step(1) },
+        enabled = !session.isLost,
+        valueColor = if (atRisk) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+    ) {
         Text(
             if (session.corrupted) {
                 "At maximum CoR the character is permanently lost. The GM takes full control."
@@ -643,11 +643,8 @@ private fun CorruptionTracker(
                 modifier = Modifier.padding(top = 4.dp),
             )
         }
-        var sources by remember { mutableStateOf(false) }
-        TextButton(onClick = { sources = !sources }) {
-            Text(if (sources) "Hide what raises corruption" else "What raises corruption")
-        }
-        if (sources) {
+        HorizontalDivider(Modifier.padding(top = 10.dp), color = MaterialTheme.colorScheme.outlineVariant)
+        RuleNote("What raises corruption") {
             Corruption.gained().forEach {
                 Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
                     Text(it.action, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))

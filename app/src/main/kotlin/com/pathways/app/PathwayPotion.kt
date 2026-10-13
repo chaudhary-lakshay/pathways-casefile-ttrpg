@@ -1,6 +1,5 @@
 package com.pathways.app
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,7 +16,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -244,9 +242,20 @@ internal fun Abilities(title: String, text: String) {
             }
         },
     ) {
-        all.forEachIndexed { i, ability ->
-            if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            AbilityRow(ability, expanded = i in open, onToggle = { open = if (i in open) open - i else open + i })
+        // Each power is its own card inside the section's.
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            all.forEachIndexed { i, ability ->
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    // Text with no name has no row above it to space it.
+                    Column(Modifier.padding(start = 14.dp, end = 14.dp, top = if (ability.head.heading == null) 12.dp else 0.dp)) {
+                        AbilityRow(ability, expanded = i in open, onToggle = { open = if (i in open) open - i else open + i })
+                    }
+                }
+            }
         }
     }
 }
@@ -276,7 +285,7 @@ private fun AbilityRow(ability: Ability, expanded: Boolean, onToggle: () -> Unit
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Text(name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            Text(name, style = MaterialTheme.typography.titleMedium)
             if (tag != null) Tag(tag)
         }
         Icon(
@@ -291,14 +300,16 @@ private fun AbilityRow(ability: Ability, expanded: Boolean, onToggle: () -> Unit
 /** The heading's bracket, in the book's words: a cost, "Passive", a resistance. */
 @Composable
 private fun Tag(text: String) {
+    // Violet: a power's cost or kind is a Beyonder fact, the colour the pool
+    // strip gives SPI.
     Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = Color.Transparent,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        shape = RoundedCornerShape(6.dp),
+        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f),
     ) {
         Text(
             text,
             style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
         )
     }
