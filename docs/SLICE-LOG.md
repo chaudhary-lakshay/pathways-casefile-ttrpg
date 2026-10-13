@@ -6819,7 +6819,25 @@ moved by exactly the boon's reach.
 2174 Kotlin (1422 `core:rules`, 731 `app`, 21 `core:model`) from deleted
 results; 366 Python; `ast-grep scan` clean; the click-handler census reads
 37, the two new lines both in the guarded grant. `:app:assembleDebug`
-builds. **Not seen on the tablet, not committed.**
+builds.
+
+### Device pass, SM-T570
+
+Backup `~/pathways-device-backups/sessions-6hm-bak.json`; Ritualistic
+Magic 16 points and SPI unspent were seeded into the Academic Researcher,
+a Fool 9. The save was `cmp`-identical after the restore. No FATAL.
+
+- The dialog opened on *Choose a patron.* with Pray disabled. Chaos Mist
+  drew *Broker — Sequence 9 · +0*, the gains, two closed rows and the
+  abilities; the foot read *Ritualistic Magic 14 · Moderate -2 · Sequence
+  9 +0 · circumstances +0*, *3d6 ≤ 12*.
+- An 8 granted it. Nothing was stored until Close: then the header read
+  *Boon · Broker · Seq 9*, SPI 10 / 14 (9 and the boon's 5, 4 spent), and
+  the IQ skills each rose one. The save held
+  `{"pathway": "Chaos Mist", "sequence": 9}`.
+- Opened again: *Held: Broker · Seq 9*, no patron chips, *Shadow Merchant
+  — Sequence 8 · -2*, *3d6 ≤ 10*.
+- Not seen: a failed prayer, a push that turns one, a mortal's refusal.
 
 ## 6hl. A potion's abilities, as rows that open
 

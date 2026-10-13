@@ -262,7 +262,7 @@ line 6728, then 6hm back to 6cb, newest first, so `tail` prints 6cb. 6hm:
 after the potions and held beside them, on the owner's ruling; the rung
 is the next one printed, never chosen, and a patron is required; the
 purchase ceilings dropped to leave room for both walks; a boon's
-advantages are still prose; **uncommitted, unseen on the tablet, and the
+advantages are still prose; seen on the SM-T570; **unpushed, and the
 owner has not said which roll number is wrong**). Then 6hl
 (the owner called the potion's abilities unreadable; each power is a row
 that opens, with the book's bracket as its tag, a roll's Success and
