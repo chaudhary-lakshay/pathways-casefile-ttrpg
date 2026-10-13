@@ -263,8 +263,8 @@ tab says so; 6gv's "a choice the save would have to store" was the
 book's own instruction; seen on the SM-T570). Then 6hj
 (the unread census re-run at 112 rows; Cannot Kill offers Reluctant
 Killer's Will roll, the one cell that names another row's, on the
-owner's ruling, and so does the Apothecary's "Pacifism (Cannot Kill)",
-one ruled spelling; Marked by Ritual stays refused, as the book lists no
+owner's ruling, and so does the Apothecary's "Pacifism (Cannot Kill)";
+both its Pacifism spellings are ruled rows; Marked by Ritual stays refused, as the book lists no
 SPI-roll types; seen on the SM-T570). Then 6hi
 (three standing sweeps re-run; the builder's study tag read the bought
 attribute beside a level read from the blessed one, so a God of Combat

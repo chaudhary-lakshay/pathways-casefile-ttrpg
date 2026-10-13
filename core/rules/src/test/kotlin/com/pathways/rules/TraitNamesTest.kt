@@ -504,7 +504,7 @@ class TraitNamesTest {
      * The Apothecary's "Pacifism (Cannot Kill)" is the Cannot Kill row, on
      * the owner's ruling (6hl, 2026-10-13): the book prints no Pacifism
      * heading, the bracket is a row's whole name, and the sheet pays that
-     * row's 15. Its sibling was ruled the same way the next day, on the
+     * row's 15. Its sibling was ruled the same way later that day, on the
      * same grounds at that row's 10. Each is its own exact spelling: a
      * third Pacifism bracket resolves to nothing.
      */

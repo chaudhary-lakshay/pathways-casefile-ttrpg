@@ -6874,6 +6874,38 @@ results with `--rerun-tasks`; 366 Python; `ast-grep scan` clean.
 **Next.** One question for the owner: is the Apothecary's *"Pacifism
 (Cannot Harm Innocents)"* the Cannot Harm Innocents row too?
 
+### The second answer: Cannot Harm Innocents too
+
+Asked on the last line above, answered the same day, 2026-10-13: *resolve
+it*. `RULED_SPELLINGS` has a second exact spelling, *"Pacifism (Cannot Harm
+Innocents)"*, for the Cannot Harm Innocents row. The sheet pays that
+row's 10. The cell prints no number and no roll, so no roll changed.
+
+- RED: *expected: <Cannot Harm Innocents> but was: <Pacifism (Cannot Harm
+  Innocents)>*. The test also pins the sheet's 10 beside the row's 10, and
+  that a third bracket, *"Pacifism (Self-Defense Only)"*, resolves to
+  nothing. No sheet prints that one: it proves the match is exact.
+- Five pins on the unmatched set failed and lost the spelling, the same
+  five places as the first ruling. `KNOWN_ABSENT_TRAITS` holds *No Sense
+  of Humour* alone now.
+- Sonnet, `kotlin-reviewer.md`, on `08900d2 -- core`: **SHIP**, two LOWs.
+  Taken: a comment said the sibling was ruled "the next day". It ran
+  nothing, and did not read `PurchasableTraits` or the builder's "already
+  held" path; Cannot Kill already takes that path.
+- SM-T570 over Wi-Fi, no seed, the save `cmp`-identical after: the
+  Apothecary's Traits tab read *Pacifism (Cannot Harm Innocents)*, **GM
+  call**, the row's cell, and *"Its price aside, this app applies nothing
+  this row prints, so its text is the table's to apply."* Cannot Kill
+  still **Roll only**, *Roll 3d6 ≤ 10*. No FATAL.
+
+2144 Kotlin (1412 `core:rules`, 711 `app`, 21 `core:model`) from deleted
+results with `--rerun-tasks`; 366 Python; `ast-grep scan` clean.
+
+**Next.** Nothing is queued, and no question is open. The unmatched sheet
+spellings are six: Absent-Minded, No Sense of Humour, Wierdness Magnet,
+Paranoia: Bodies of water, Blacklisted: Specific Industry org or church,
+Poverty: Struggling.
+
 ## 6hj. The unread census at 112, and the one cell that names another row's roll
 
 The owner chose the trait backlog again. 6gx and 6hh had given every row a
