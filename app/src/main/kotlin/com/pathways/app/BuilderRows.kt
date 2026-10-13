@@ -1,12 +1,17 @@
 package com.pathways.app
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
@@ -17,15 +22,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attr
 import com.pathways.model.BASE_ATTRIBUTE
@@ -67,33 +71,33 @@ internal fun AttributeRow(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(Modifier.weight(1f)) {
-            Text(attr.name, style = MaterialTheme.typography.titleMedium)
-            // costOf is CUMULATIVE -- what standing at that level costs in
-            // total. The number that governs the next click is the
-            // difference, and on a doubling ladder the two diverge fast: at
-            // IQ 11 the cumulative figure for 12 is 140, but the click costs
-            // 80.
-            val spent = AttributeCosts.costOf(attr, level)
-            val next = if (level < ceiling) AttributeCosts.costOf(attr, level + 1) - spent else null
-            Text(
-                buildString {
-                    append("$spent pts spent here")
-                    next?.let { append(" — next level costs $it") }
-                    if (level != startingLevel) append(" — sheet prints $startingLevel")
-                    boughtNote("$level", "$played")?.let { append(" — $it") }
-                },
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-        OutlinedIconButton(onClick = { onChange(-1) }, enabled = level > BASE_ATTRIBUTE && canLower) { Text("−") }
+        Text(attr.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.widthIn(min = 52.dp))
+        // costOf is CUMULATIVE -- what standing at that level costs in
+        // total. The number that governs the next click is the difference,
+        // and on a doubling ladder the two diverge fast: at IQ 11 the
+        // cumulative figure for 12 is 140, but the click costs 80.
+        val spent = AttributeCosts.costOf(attr, level)
+        val next = if (level < ceiling) AttributeCosts.costOf(attr, level + 1) - spent else null
         Text(
-            "$played",
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 8.dp),
+            buildString {
+                append("$spent pts spent here")
+                next?.let { append(" — next level costs $it") }
+                if (level != startingLevel) append(" — sheet prints $startingLevel")
+                boughtNote("$level", "$played")?.let { append(" — $it") }
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f).padding(end = 8.dp),
         )
-        OutlinedIconButton(onClick = { onChange(1) }, enabled = level < ceiling) { Text("+") }
+        JoinedStepper(
+            value = "$played",
+            onMinus = { onChange(-1) },
+            onPlus = { onChange(1) },
+            minusEnabled = level > BASE_ATTRIBUTE && canLower,
+            plusEnabled = level < ceiling,
+            // The accent on a level with points in it, as the note beside it says.
+            valueColor = if (spent > 0) MaterialTheme.colorScheme.primary else Color.Unspecified,
+        )
     }
 }
 
@@ -140,22 +144,17 @@ internal fun SecondaryRow(
                     boughtNote(boughtValue, value)?.let { append(" — $it") }
                 },
                 style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        OutlinedIconButton(
-            onClick = { onChange(-1) },
-            enabled = steps > -MAX_SECONDARY_DELTA_MAGNITUDE && canLower,
-        ) { Text("−") }
-        Text(
-            value,
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 8.dp),
+        JoinedStepper(
+            value = value,
+            onMinus = { onChange(-1) },
+            onPlus = { onChange(1) },
+            minusEnabled = steps > -MAX_SECONDARY_DELTA_MAGNITUDE && canLower,
+            plusEnabled = steps < PurchaseCeilings.secondarySteps(row.key),
+            valueColor = if (steps != 0) MaterialTheme.colorScheme.primary else Color.Unspecified,
         )
-        OutlinedIconButton(
-            onClick = { onChange(1) },
-            enabled = steps < PurchaseCeilings.secondarySteps(row.key),
-        ) { Text("+") }
     }
 }
 
@@ -261,61 +260,68 @@ internal fun SkillRow(
     onToggle: () -> Unit,
 ) {
     val canOpen = study.reason != null
-    Row(
-        Modifier.fillMaxWidth().padding(end = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    // A row whose study can be bought is the one a player acts on: its badge
+    // and tag take the accent, and a refusal's stay neutral.
+    val accent = if (canOpen) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.primary
+    Surface(
+        shape = RoundedCornerShape(10.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 3.dp),
     ) {
-        Column(
-            Modifier
-                .weight(1f)
-                .clickable(enabled = canOpen, onClickLabel = if (expanded) "Hide why" else "Show why", onClick = onToggle)
-                .semantics { if (canOpen) stateDescription = if (expanded) "Expanded" else "Collapsed" }
-                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                level?.let { Text("$it", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 8.dp)) }
-                // The chevron's width is kept on a row with nothing to open,
-                // so every level sits in one column.
-                if (canOpen) {
-                    Icon(
-                        if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                        contentDescription = null,
-                    )
-                } else {
-                    Spacer(Modifier.width(24.dp))
+        Row(Modifier.padding(end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(
+                Modifier
+                    .weight(1f)
+                    .clickable(enabled = canOpen, onClickLabel = if (expanded) "Hide why" else "Show why", onClick = onToggle)
+                    .semantics { if (canOpen) stateDescription = if (expanded) "Expanded" else "Collapsed" }
+                    .padding(start = 14.dp, top = 8.dp, bottom = 8.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Column(Modifier.weight(1f)) {
+                        Text(label, style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            points.pointsLabel().removePrefix("+"),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    // A share of the row, not what the tag asks for: at phone
+                    // width a long tag took it all and the name wrapped a
+                    // syllable a line. The tag wraps instead.
+                    Row(
+                        Modifier.weight(1.5f),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End),
+                    ) {
+                        level?.let { LevelBadge("$it", accent) }
+                        Box(Modifier.weight(1f, fill = false)) {
+                            if (canOpen) ChipTag("Study: ${study.tag}") else Tag("Study: ${study.tag}", accent)
+                        }
+                        // The chevron's width is kept on a row with nothing to
+                        // open, so every tag ends in one column.
+                        if (canOpen) {
+                            Icon(
+                                if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                contentDescription = null,
+                            )
+                        } else {
+                            Spacer(Modifier.width(24.dp))
+                        }
+                    }
                 }
-            }
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
-                Text(
-                    points.pointsLabel().removePrefix("+"),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(end = 8.dp),
-                )
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = if (canOpen) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.secondaryContainer,
-                ) {
+                if (expanded && study.reason != null) {
                     Text(
-                        "Study: ${study.tag}",
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
+                        study.reason,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 6.dp),
                     )
                 }
             }
-            if (expanded && study.reason != null) {
-                Text(
-                    study.reason,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 6.dp),
-                )
+            if (onSpend != null) {
+                OutlinedIconButton(onClick = { onSpend(-1) }) { Text("−") }
+                OutlinedIconButton(onClick = { onSpend(1) }) { Text("+") }
             }
-        }
-        if (onSpend != null) {
-            OutlinedIconButton(onClick = { onSpend(-1) }) { Text("−") }
-            OutlinedIconButton(onClick = { onSpend(1) }) { Text("+") }
         }
     }
 }
@@ -329,36 +335,30 @@ internal fun SkillRow(
  * shot's wounding multiplier, which is quoted beside the damage rather than
  * multiplied into it.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun WealthRow(level: WealthLevel?, printed: WealthLevel?, onPick: () -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text("Wealth", style = MaterialTheme.typography.titleMedium)
-            Text(
-                buildString {
-                    // Null is not Average: a sheet that prints no wealth row
-                    // has said nothing about its character's status, and
-                    // naming a level here would invent the book's silence away.
-                    if (level == null) append("The sheet prints no wealth level")
-                    else {
-                        append("${level.status} — ${level.pointsLabel()}, ")
-                        append("${level.startingMoney} to start")
-                        if (level.reactionModifier != 0) {
-                            append(", reaction ${level.reactionModifier.signed()}")
-                        }
-                        if (printed != null && printed.status != level.status) {
-                            append(" — sheet prints ${printed.status}")
-                        }
-                    }
-                },
-                style = MaterialTheme.typography.bodySmall,
-            )
-            level?.let { Text(it.lifestyle, style = MaterialTheme.typography.bodySmall) }
+    SectionHead("Wealth", "Change", onPick) {
+        // Null is not Average: a sheet that prints no wealth row has said
+        // nothing about its character's status, and naming a level here
+        // would invent the book's silence away.
+        if (level == null) {
+            Text("The sheet prints no wealth level", style = MaterialTheme.typography.bodyMedium)
+            return@SectionHead
         }
-        TextButton(onClick = onPick) { Text("Change") }
+        Text(level.status, style = MaterialTheme.typography.titleMedium)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            ChipTag(level.pointsLabel())
+            ChipTag("${level.startingMoney} to start")
+            if (level.reactionModifier != 0) ChipTag("reaction ${level.reactionModifier.signed()}")
+            if (printed != null && printed.status != level.status) ChipTag("sheet prints ${printed.status}")
+        }
+        Text(
+            level.lifestyle,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp),
+        )
     }
 }
 
@@ -373,6 +373,7 @@ internal fun WealthRow(level: WealthLevel?, printed: WealthLevel?, onPick: () ->
  * arithmetic the book never asked for; each is reported beside the thing that
  * grants it.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun AppearanceRow(
     level: AppearanceLevel?,
@@ -380,33 +381,28 @@ internal fun AppearanceRow(
     granted: AppearanceLevel?,
     onPick: () -> Unit,
 ) {
-    Row(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text("Appearance", style = MaterialTheme.typography.titleMedium)
+    SectionHead("Appearance", "Change", onPick) {
+        // Null is ordinary looks, and that is not a level: the book's
+        // cheapest row is Attractive at 1 point, so it prints no ordinary
+        // row to name here.
+        if (level == null) {
+            Text("Ordinary — the book prints no level for it", style = MaterialTheme.typography.bodyMedium)
+        } else {
+            Text(level.level, style = MaterialTheme.typography.titleMedium)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                ChipTag(level.points.pointsLabel())
+                ChipTag("reaction ${level.reactionModifier.signed()}")
+                if (printed != null && printed.level != level.level) ChipTag("sheet prints ${printed.level}")
+            }
+        }
+        if (granted != null) {
+            val played = Appearance.played(listOfNotNull(level, granted).map(Appearance::traitFor))!!
             Text(
-                buildString {
-                    // Null is ordinary looks, and that is not a level: the
-                    // book's cheapest row is Attractive at 1 point, so it
-                    // prints no ordinary row to name here.
-                    if (level == null) append("Ordinary — the book prints no level for it")
-                    else {
-                        append("${level.level} — ${level.points.pointsLabel()}")
-                        append(", reaction ${level.reactionModifier.signed()}")
-                        if (printed != null && printed.level != level.level) {
-                            append(" — sheet prints ${printed.level}")
-                        }
-                    }
-                    if (granted != null) {
-                        val played = Appearance.played(listOfNotNull(level, granted).map(Appearance::traitFor))!!
-                        append(" — the potion grants ${granted.level}; ${played.level} is played")
-                    }
-                },
+                "the potion grants ${granted.level}; ${played.level} is played",
                 style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp),
             )
         }
-        TextButton(onClick = onPick) { Text("Change") }
     }
 }

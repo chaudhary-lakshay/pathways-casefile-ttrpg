@@ -44,23 +44,14 @@ internal fun WeaponsRow(
     onRemove: (String) -> Unit,
 ) {
     Column {
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                "Weapons",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.weight(1f),
-            )
-            TextButton(onClick = onAdd) { Text("Carry a weapon") }
-        }
-        if (carried.isEmpty()) {
-            Text(
-                "None carried — the defence screen has no armed parry to show.",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
+        SectionHead("Weapons", "Carry a weapon", onAdd) {
+            if (carried.isEmpty()) {
+                Text(
+                    "None carried — the defence screen has no armed parry to show.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
         carried.forEach { weapon ->
             Row(

@@ -10,16 +10,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -210,6 +213,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
             }
 
             item {
+                SectionSurface(first = true) {
                 WealthRow(
                     // The CHOICE, not the composed character: Average costs 0
                     // pts and so leaves no trait to read back (Codex).
@@ -217,10 +221,11 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     printed = Wealth.levelOf(start.traits),
                     onPick = { picking = true },
                 )
-                HorizontalDivider()
+                }
             }
 
             item {
+                SectionSurface {
                 AppearanceRow(
                     // The composed character is enough here, unlike wealth:
                     // every level costs something, so a chosen one always
@@ -234,10 +239,11 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     },
                     onPick = { pickingLooks = true },
                 )
-                HorizontalDivider()
+                }
             }
 
             item {
+                SectionSurface {
                 LanguagesRow(
                     // What the composition bills, read from the SHEET's own
                     // traits so a Language Talent bought in play is counted.
@@ -245,10 +251,11 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     onAdd = { pickingLanguage = true },
                     onGiveBack = { session.sellLanguage(it) },
                 )
-                HorizontalDivider()
+                }
             }
 
             item {
+                SectionSurface {
                 WeaponsRow(
                     carried = session.edits.carriedWeapons(),
                     // The levels rolled TODAY, which is what a parry is
@@ -265,10 +272,11 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     onAdd = { pickingWeapon = true },
                     onRemove = { session.dropWeapon(it) },
                 )
-                HorizontalDivider()
+                }
             }
 
             item {
+                SectionSurface(last = true) {
                 TraitsRow(
                     bought = session.edits.traits,
                     // Resolved against the same list the composition asks the
@@ -284,12 +292,12 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     charmLine = charmLine(session.edits.charmedSkill, charmableSkills(character, session.state)),
                     onChooseCharm = { pickingCharm = true },
                 )
-                HorizontalDivider()
+                }
             }
 
             item {
                 Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    Modifier.fillMaxWidth().padding(start = 16.dp, end = 12.dp, top = 16.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f)) {
@@ -304,26 +312,30 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                             )
                         }
                     }
-                    TextButton(onClick = { adding = true }) { Text("Add a skill") }
+                    OutlinedButton(onClick = { adding = true }) { Text("Add a skill") }
                 }
-                // Two roads the book prices, so two chips: Very Hard
+                // Two roads the book prices, so one toggle: Very Hard
                 // self-study is "Not possible", and a tag saying so is lifted
                 // here.
                 Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     Text("Study by", style = MaterialTheme.typography.labelLarge)
-                    StudyMethod.entries.forEach { method ->
-                        FilterChip(
-                            selected = studyMethod == method,
-                            onClick = { studyMethod = method },
-                            label = { Text(method.label) },
-                        )
+                    // A set width: left to itself the row takes its narrowest
+                    // wrap, which broke "Self-Study" in two.
+                    SingleChoiceSegmentedButtonRow(Modifier.width(280.dp)) {
+                        StudyMethod.entries.forEachIndexed { i, method ->
+                            SegmentedButton(
+                                selected = studyMethod == method,
+                                onClick = { studyMethod = method },
+                                shape = SegmentedButtonDefaults.itemShape(i, StudyMethod.entries.size),
+                                icon = {},
+                            ) { Text(method.label) }
+                        }
                     }
                 }
-                HorizontalDivider()
             }
 
             items(character.skills) { purchased ->
@@ -360,7 +372,6 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                         { delta: Int -> session.spendOnSkill(saved.name, saved.specialization, delta) }
                     },
                 )
-                HorizontalDivider()
             }
         }
     }

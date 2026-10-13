@@ -59,23 +59,14 @@ internal fun TraitsRow(
     onChooseCharm: () -> Unit,
 ) {
     Column {
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                "Traits",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.weight(1f),
-            )
-            TextButton(onClick = onAdd) { Text("Add a trait") }
-        }
-        if (bought.isEmpty() && instanced.isEmpty()) {
-            Text(
-                "None bought in play — the sheet's own are on the sheet screen.",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
+        SectionHead("Traits", "Add a trait", onAdd) {
+            if (bought.isEmpty() && instanced.isEmpty()) {
+                Text(
+                    "None bought in play — the sheet's own are on the sheet screen.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
         // Removed by INDEX, never by name: two purchases of one row are legal
         // and a bare ranged row composes to the book's own name for both, so

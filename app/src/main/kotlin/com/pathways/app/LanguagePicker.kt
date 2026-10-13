@@ -40,18 +40,18 @@ internal fun LanguagesRow(
     onAdd: () -> Unit,
     onGiveBack: (String) -> Unit,
 ) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text("Languages", style = MaterialTheme.typography.titleMedium)
-                if (owned.isEmpty()) {
-                    Text("None bought", style = MaterialTheme.typography.bodySmall)
-                }
+    Column(Modifier.fillMaxWidth()) {
+        SectionHead("Languages", "Add or change", onAdd) {
+            if (owned.isEmpty()) {
+                Text(
+                    "None bought",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
-            TextButton(onClick = onAdd) { Text("Add or change") }
         }
         owned.forEach { language ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     "${language.label} — ${language.costLine}",
                     style = MaterialTheme.typography.bodyMedium,
