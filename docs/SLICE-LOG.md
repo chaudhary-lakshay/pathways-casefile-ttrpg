@@ -6944,6 +6944,10 @@ spellings stay unmatched: Absent-Minded (pays 5, the row prints 15), No
 Sense of Humour (no such row), Paranoia: Bodies of water (pays 5, the row
 prints 10), Poverty: Struggling (Wealth's, at no level's price).
 
+**The owner, 2026-10-13: leave all four unmatched.** A ruling, so do not
+ask again: two pay a price their row does not print, which 4.1 records
+and does not repair.
+
 ## 6hj. The unread census at 112, and the one cell that names another row's roll
 
 The owner chose the trait backlog again. 6gx and 6hh had given every row a
