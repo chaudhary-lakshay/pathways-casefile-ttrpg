@@ -101,6 +101,21 @@ object CommonModifiers {
         }
     }
 
+    /**
+     * A modifier the GM rules for this circumstance, beside the printed rows
+     * (play session 1: "he's rattled, +2" had nowhere to go). Null at zero,
+     * as a printed +0 is: a choice that adds nothing reaches no ledger.
+     */
+    fun gmRuling(value: Int): Modifier? = if (value == 0) null else Modifier(
+        id = ModifierId("gm:ruling"),
+        source = ModifierSource.Situational(GM_RULING),
+        target = ModTarget.AllRolls,
+        effect = ModEffect.Flat(value),
+        layer = Layer.SITUATIONAL,
+    )
+
+    private const val GM_RULING = "GM's ruling"
+
     private fun situational(row: CommonModifier, value: Int): Modifier? {
         // "Routine conditions" really does print +0. It is a choice that adds
         // nothing, so it reaches no ledger -- the same as any other zero.

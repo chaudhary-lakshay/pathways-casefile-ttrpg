@@ -107,6 +107,8 @@ internal fun RollDialog(
     // current picks on every roll, so dropping a chip cannot leave its value
     // behind -- the stale-state defect the boon dialog was fixed for.
     val gmValue = remember { mutableStateMapOf<String, Int>() }
+    // The GM's own ruling beside the printed rows (play session 1).
+    var gmRuling by remember { mutableIntStateOf(0) }
     // The roll as the chips stand: printed under the level, and what Roll
     // rolls. This is the expression the click used to build, moved into the
     // draw, so every `require` behind it now runs while the dialog is on
@@ -119,7 +121,7 @@ internal fun RollDialog(
             gmValue = gmValue.filterKeys { key ->
                 chosen.any { it.situation == key }
             },
-        ) +
+        ) + listOfNotNull(CommonModifiers.gmRuling(gmRuling)) +
             // Passed the general picks as well, so the double-charge is
             // refused in rules even though the chips cannot produce it.
             if (sense == null) emptyList() else SpiritualSenses.modifiers(
@@ -196,6 +198,12 @@ internal fun RollDialog(
                         }
                     }
                     CircumstanceRow(chosen, gmValue, withheld)
+                    OptionStepper(
+                        label = "Modifier",
+                        value = gmRuling,
+                        shown = signed(gmRuling),
+                        note = "the GM's, for anything the chips do not name",
+                    ) { gmRuling += it }
                     // What the target above is made of beyond the chips:
                     // the trackers and the traits. A circumstance picked
                     // here is already on screen as its own lit chip, and

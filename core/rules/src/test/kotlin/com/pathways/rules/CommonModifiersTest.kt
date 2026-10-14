@@ -1,6 +1,9 @@
 package com.pathways.rules
 
+import com.pathways.model.Attr
+import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
+import com.pathways.model.SkillKey
 import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -204,5 +207,22 @@ class CommonModifiersTest {
         assertTrue(
             ContentLoader.rangedModifiers().any { it.condition.contains("Darkness") },
         ) { "the reason this table is kept off the ranged dialog" }
+    }
+
+    // ---- the GM's own ruling --------------------------------------------
+
+    /**
+     * Play session 1: the GM said "he's rattled, +2" and the skill roll had
+     * nowhere to put it -- only this table's fixed rows. A ruling is its own
+     * ledger line, named as the GM's, and a zero is no line at all.
+     */
+    @Test
+    fun `a GM ruling moves the target and names itself on the ledger`() {
+        val intimidation = SkillKey("Intimidation", null, ControllingAttribute.Will, Difficulty.AVERAGE)
+        val ruled = SkillRoll.targetFor("Intimidation", 6, intimidation, listOfNotNull(CommonModifiers.gmRuling(2)))
+        assertEquals(8, ruled.target)
+        assertEquals(listOf("GM's ruling" to 2), ruled.lines().map { it.label to it.delta })
+        assertEquals(4, SkillRoll.targetFor("Intimidation", 6, intimidation, listOfNotNull(CommonModifiers.gmRuling(-2))).target)
+        assertNull(CommonModifiers.gmRuling(0))
     }
 }
