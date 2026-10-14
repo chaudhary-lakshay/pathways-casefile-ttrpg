@@ -243,16 +243,11 @@ class BoonsTest {
 
     @Test
     fun `the fuel is owed once the patron is asked`() {
-        // An answer: the fuel as declared, 4 SPI with 4 HP covering 2 of it.
-        assertEquals(Fuel(spi = 2, hp = 4), Boons.fuelFor(Boons.ask(fixed(1)), cost = 4, hpSacrificed = 4))
-        // A rejection is never rolled, and ch. 7 charges it nothing.
-        assertEquals(Fuel(0, 0), Boons.fuelFor(Boons.ask(fixed(6)), cost = 4, hpSacrificed = 4))
-        // No response: "treat as 2 SPI personal", out of the fuel declared,
-        // HP first. A mortal plays SPI 0 and declared it all in blood.
-        val silent = Boons.ask(fixed(4))
-        assertEquals(Fuel(2, 0), Boons.fuelFor(silent, cost = 4, hpSacrificed = 0))
-        assertEquals(Fuel(1, 2), Boons.fuelFor(silent, cost = 4, hpSacrificed = 2))
-        assertEquals(Fuel(0, 4), Boons.fuelFor(silent, cost = 4, hpSacrificed = 8))
+        // The prayer's fuel is the ritual's (InvocationTest); this pins that
+        // the patron's unshifted answer prices it the same way.
+        assertEquals(Fuel(spi = 2, hp = 4), Invocation.fuelFor(Boons.ask(fixed(1)), cost = 4, hpSacrificed = 4))
+        assertEquals(Fuel(0, 0), Invocation.fuelFor(Boons.ask(fixed(6)), cost = 4, hpSacrificed = 4))
+        assertEquals(Fuel(0, 4), Invocation.fuelFor(Boons.ask(fixed(4)), cost = 4, hpSacrificed = 8))
     }
 
     /**

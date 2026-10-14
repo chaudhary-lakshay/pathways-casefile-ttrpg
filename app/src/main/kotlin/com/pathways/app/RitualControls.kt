@@ -98,6 +98,8 @@ internal fun RitualPowerSourceChips(
     sentientBeings: Int,
     catalyst: Int,
     suspended: Boolean,
+    /** False once the fuel is spent: complexity, SPI and HP are what it paid. */
+    fuelEnabled: Boolean,
     onComplexity: (RitualComplexity) -> Unit,
     onSpiChoice: (Int) -> Unit,
     onHpSacrificed: (Int) -> Unit,
@@ -118,6 +120,7 @@ internal fun RitualPowerSourceChips(
         PowerSources.complexities().forEach { option ->
             FilterChip(
                 selected = option.complexity == complexity.complexity,
+                enabled = fuelEnabled,
                 onClick = { onComplexity(option) },
                 label = { Text(option.complexity) },
                 modifier = Modifier.padding(end = 8.dp),
@@ -137,6 +140,7 @@ internal fun RitualPowerSourceChips(
         spiChoices(complexity).forEach { option ->
             FilterChip(
                 selected = option == spiChoice,
+                enabled = fuelEnabled,
                 onClick = { onSpiChoice(option) },
                 label = { Text("$option SPI") },
                 modifier = Modifier.padding(end = 8.dp),
@@ -152,6 +156,7 @@ internal fun RitualPowerSourceChips(
         hpChoices(cost).forEach { option ->
             FilterChip(
                 selected = option == hpSacrificed,
+                enabled = fuelEnabled,
                 onClick = { onHpSacrificed(option) },
                 label = { Text(if (option == 0) "None" else "$option HP") },
                 modifier = Modifier.padding(end = 8.dp),

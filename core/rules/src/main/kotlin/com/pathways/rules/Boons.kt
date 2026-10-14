@@ -199,20 +199,6 @@ object Boons {
     fun endsPrayer(answer: EntityAnswer): Boolean = answer.failsRitual || answer.unanswered
 
     /**
-     * What asking costs, owed at the asking: a fuel paid only at the roll
-     * let a closed dialog ask again for nothing.
-     *
-     * A rejection charges nothing, as [Invocation.fuelFor] refuses it any.
-     * No response takes chapter 7's 2 SPI out of the fuel declared
-     * ([Invocation.residualFuel]). Any other answer costs what was declared.
-     */
-    fun fuelFor(answer: EntityAnswer, cost: Int, hpSacrificed: Int): Fuel = when {
-        answer.failsRitual -> Fuel(0, 0)
-        answer.unanswered -> Invocation.residualFuel(hpSacrificed)
-        else -> Fuel(PowerSources.spiOwed(cost, hpSacrificed), hpSacrificed)
-    }
-
-    /**
      * Petition for the boon, and let Chapter 7 resolve what comes back.
      *
      * The sequence penalty and the chosen circumstances ride on the skill

@@ -135,7 +135,7 @@ class InvocationTest {
         val answer = Invocation.ask(fixed(4), orthodoxInGoodStanding = false)
         assertEquals(12, answer.shifted)
         assertEquals(0, answer.ritualModifier)
-        assertEquals(Invocation.RESIDUAL_SPI, Invocation.fuelFor(answer.response, declared = 8))
+        assertEquals(Fuel(Invocation.RESIDUAL_SPI, 0), Invocation.fuelFor(answer, cost = 8, hpSacrificed = 0))
         assertEquals(2, Invocation.RESIDUAL_SPI)
     }
 
@@ -144,9 +144,12 @@ class InvocationTest {
         // The book prices none of the five answering rows, so they are left
         // alone. Reading "you borrow power from someone higher" as "those rows
         // are free" would author a price on five rows the book never prices.
-        listOf(3, 6, 9, 15).forEach { low ->
-            val response = Invocation.responseFor(low)
-            assertEquals(8, Invocation.fuelFor(response, declared = 8))
+        // Faces 1, 2, 3 and 5 roll 3, 6, 9 and 15.
+        listOf(1, 2, 3, 5).forEach { face ->
+            val answer = Invocation.ask(fixed(face), orthodoxInGoodStanding = false)
+            assertEquals(Fuel(8, 0), Invocation.fuelFor(answer, cost = 8, hpSacrificed = 0), "face $face")
+            // 4 HP covers 2 of the 8, and is charged beside the 6 SPI.
+            assertEquals(Fuel(6, 4), Invocation.fuelFor(answer, cost = 8, hpSacrificed = 4), "face $face")
         }
     }
 
@@ -155,9 +158,20 @@ class InvocationTest {
         // A Full response charges a Heavy ritual's whole 8 while No response
         // charges 2. The book prints both and reconciles neither. This test
         // exists so a later reading cannot quietly straighten it.
-        val full = Invocation.fuelFor(Invocation.responseFor(3), declared = 8)
-        val none = Invocation.fuelFor(Invocation.responseFor(12), declared = 8)
-        assertTrue(full > none, "the printed prices really do run backwards")
+        val full = Invocation.fuelFor(Invocation.ask(fixed(1), false), cost = 8, hpSacrificed = 0)
+        val none = Invocation.fuelFor(Invocation.ask(fixed(4), false), cost = 8, hpSacrificed = 0)
+        assertTrue(full.spi > none.spi, "the printed prices really do run backwards")
+    }
+
+    @Test
+    fun `no response takes its 2 SPI out of the fuel declared, HP first`() {
+        // The owner's ruling (6hq for a prayer, 6hr for a ritual): a mortal
+        // plays SPI 0 and declares the fuel in blood, so the residual 2 is
+        // paid the way the fuel was, 2 HP for 1 SPI, and the rest is dropped.
+        val silent = Invocation.ask(fixed(4), orthodoxInGoodStanding = false)
+        assertEquals(Fuel(2, 0), Invocation.fuelFor(silent, cost = 4, hpSacrificed = 0))
+        assertEquals(Fuel(1, 2), Invocation.fuelFor(silent, cost = 4, hpSacrificed = 2))
+        assertEquals(Fuel(0, 4), Invocation.fuelFor(silent, cost = 4, hpSacrificed = 8))
     }
 
     @Test
@@ -175,13 +189,11 @@ class InvocationTest {
 
     @Test
     fun `a rejected ritual has no fuel to spend`() {
-        // Same refusal shape as ritualModifier: the ritual fails automatically
-        // and is never rolled, so answering with a number would let a caller
-        // charge for a roll that did not happen.
-        val rejection = Invocation.responseFor(18)
-        assertThrows<IllegalArgumentException> {
-            Invocation.fuelFor(rejection, declared = 8)
-        }
+        // The ritual fails automatically and is never rolled, so it charges
+        // nothing: a caller asked for the fuel at the asking cannot be
+        // charged for a roll that will not happen.
+        val rejection = Invocation.ask(fixed(6), orthodoxInGoodStanding = false)
+        assertEquals(Fuel(0, 0), Invocation.fuelFor(rejection, cost = 8, hpSacrificed = 4))
     }
 
     @Test

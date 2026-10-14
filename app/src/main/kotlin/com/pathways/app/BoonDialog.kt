@@ -26,6 +26,7 @@ import com.pathways.rules.ClauseBonus
 import com.pathways.rules.Corruption
 import com.pathways.rules.EntityAnswer
 import com.pathways.rules.Fuel
+import com.pathways.rules.Invocation
 import com.pathways.rules.Languages
 import com.pathways.rules.content.LanguageProficiency
 import com.pathways.rules.BurnKind
@@ -158,7 +159,7 @@ private fun GrantedBlock(block: SequenceBlock) {
     }
 }
 
-private fun fuelLine(spi: Int, hp: Int): String = if (hp > 0) "$spi SPI and $hp HP" else "$spi SPI"
+internal fun fuelLine(spi: Int, hp: Int): String = if (hp > 0) "$spi SPI and $hp HP" else "$spi SPI"
 
 /** The ends a ranged option offers, the row's own figure first. */
 private fun endsOf(row: BoonModifier): List<Int> = endsBetween(row.modifier, row.best)
@@ -491,7 +492,7 @@ fun BoonDialog(
                         // second tap of it finds the answer given and stops.
                         if (answer != null || refusal != null) return@RitualFooter
                         val reply = Boons.ask(dice)
-                        val fuel = Boons.fuelFor(reply, cost, hpSacrificed)
+                        val fuel = Invocation.fuelFor(reply, cost, hpSacrificed)
                         answer = reply
                         hurtAtAsking = conditionPenalty
                         paid = fuel

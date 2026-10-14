@@ -117,14 +117,20 @@ object Invocation {
     }
 
     /**
-     * The SPI the caster pays personally, given what the entity gave.
+     * What asking the entity costs, owed at the asking: a fuel paid only at
+     * the roll let a closed dialog ask the table again for nothing (6hq for a
+     * prayer, 6hr for a ritual, both the owner's ruling).
      *
-     * [declared] is what the ritual would have cost out of the caster's own
-     * pool -- Section IV.A's complexity ladder, less any HP already sacrificed
-     * toward it. It is returned unchanged whenever the entity answers.
+     * [cost] is Section IV.A's complexity ladder (or a boon's SPI) and
+     * [hpSacrificed] the HP declared toward it. Any answering row charges that
+     * declaration as it stands.
+     *
+     * **A rejection charges nothing.** That ritual fails automatically and is
+     * never rolled, so there is no fuel to spend.
      *
      * **Only the no-response row changes the charge, and only because it
-     * prints a number.** The book states no cost for the five rows that DO
+     * prints a number** -- taken out of the declaration HP first
+     * ([residualFuel]). The book states no cost for the five rows that DO
      * answer, so they keep the declared one. Reading the section's "you borrow
      * power from someone higher" as "the entity pays, so those rows cost 0"
      * would author a price on five rows the book never prices -- the refusal
@@ -137,35 +143,26 @@ object Invocation {
      * neither; straightening it means inventing the five missing prices.
      *
      * The row is identified by its own shape -- answering, yet printing no
-     * modifier -- rather than by the band 12-14, so a re-extraction that moved
-     * the bands cannot silently point this at the wrong row.
-     *
-     * Refused for the rejection row, like [ritualModifier]: that ritual fails
-     * automatically and is never rolled, so there is no fuel to spend.
+     * modifier -- rather than by the band 12-14 ([EntityAnswer.unanswered],
+     * set from [drawsOnResidualPower]), so a re-extraction that moved the
+     * bands cannot silently point this at the wrong row.
      */
-    fun fuelFor(response: EntityResponse, declared: Int): Int {
-        require(declared >= 0) { "a ritual cannot cost negative SPI; was $declared" }
-        require(!response.automaticFailure) {
-            "the ${response.low}-${response.high} row fails the ritual automatically; " +
-                "there is no fuel to spend"
-        }
-        return if (drawsOnResidualPower(response)) RESIDUAL_SPI else declared
+    fun fuelFor(answer: EntityAnswer, cost: Int, hpSacrificed: Int): Fuel = when {
+        answer.failsRitual -> Fuel(0, 0)
+        answer.unanswered -> residualFuel(hpSacrificed)
+        else -> Fuel(PowerSources.spiOwed(cost, hpSacrificed), hpSacrificed)
     }
 
     /**
      * Whether [response] throws the ritual back on the caster's own power.
      *
      * True only for the row that answers while printing no modifier -- the
-     * "No response" band. Exposed because [fuelFor] is not the only thing that
-     * has to know: a declared HP sacrifice is fuel too, and the row says the
-     * ritual "draws ONLY on caster's residual power", so the substitution
-     * replaces the whole declared fuel rather than only its SPI half. **That
-     * last step is a reading** -- the book prices the row and says nothing
-     * about HP already offered -- and it is pinned by a named test.
+     * "No response" band. [ask] records it as [EntityAnswer.unanswered], which
+     * [fuelFor] prices and a prayer reads to end itself ([Boons.endsPrayer]).
      *
-     * A caller asking this and then re-deriving the charge itself would be the
-     * second copy of one decision that made the ritual breakdown stop
-     * reconciling twice already (6ag, 6ai). Ask here, then call [fuelFor].
+     * A caller re-deriving the charge from this would be the second copy of
+     * one decision that made the ritual breakdown stop reconciling twice
+     * already (6ag, 6ai). Call [fuelFor].
      */
     fun drawsOnResidualPower(response: EntityResponse): Boolean =
         !response.automaticFailure && response.ritualModifier == null
@@ -207,12 +204,13 @@ object Invocation {
     /**
      * The no-response row's 2 SPI, taken out of a fuel declared partly in
      * HP: HP first, 2 for 1 (Section IV.B), and the rest of what was
-     * declared is displaced.
+     * declared is not charged.
      *
-     * READING, and a prayer's alone (6hq): a mortal plays SPI 0 and prays in
-     * blood, so "2 SPI personal" must be payable the way the fuel was. The
-     * Ritual dialog still displaces a declared sacrifice whole and asks for
-     * the 2 in SPI.
+     * READING, the owner's, for a prayer (6hq) and a ritual (6hr): a mortal
+     * plays SPI 0 and casts in blood, so "2 SPI personal" must be payable the
+     * way the fuel was. Until 6hr the Ritual dialog displaced a declared
+     * sacrifice whole and asked for the 2 in SPI, which a caster at 0 could
+     * not pay.
      */
     fun residualFuel(hpSacrificed: Int): Fuel {
         require(hpSacrificed >= 0) { "HP sacrificed cannot be negative; was $hpSacrificed" }
