@@ -266,8 +266,7 @@ ch. 7's Entity Response, asked first and unshifted; no response grants
 no boon; the fuel is spent on asking and does not lower the roll it
 paid for; a potion's bonus stacked on a BOUGHT skill re-levels with a
 later attribute gain; the doubling and the 1/2/4/8/16 ladder stand;
-seen on the SM-T570; **its commits from `4209e44` are unpushed, and a
-push needs the owner's word**). Then 6hp
+seen on the SM-T570; pushed 2026-10-14 through `6d5a6b0`). Then 6hp
 (nine components the owner picked from three drawn variants each: one
 Vitals card, a wide stepper in a card for digestion and corruption, a
 joined stepper and section cards in the builder, a card per power, the
