@@ -291,6 +291,8 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     onRemoveInstanced = { index, drawn -> session.sellInstancedTrait(index, drawn) },
                     charmLine = charmLine(session.edits.charmedSkill, charmableSkills(character, session.state)),
                     onChooseCharm = { pickingCharm = true },
+                    gained = session.edits.gained,
+                    onGained = session::setGained,
                 )
                 }
             }

@@ -20,6 +20,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -57,6 +58,9 @@ internal fun TraitsRow(
     /** What a bought Charmed Object's skill line says (6hk). */
     charmLine: String,
     onChooseCharm: () -> Unit,
+    /** The bought disadvantages marked gained in play ([SavedEdits.gained]). */
+    gained: List<String> = emptyList(),
+    onGained: (String, Boolean) -> Unit = { _, _ -> },
 ) {
     Column {
         SectionHead("Traits", "Add a trait", onAdd) {
@@ -88,14 +92,16 @@ internal fun TraitsRow(
                         ).joinToString(" — "),
                         style = MaterialTheme.typography.bodyLarge,
                     )
+                    val isAdvantage = PurchasableTraits.instantiableNamed(purchase.row)?.advantage == true
                     Text(
                         trait?.let {
-                            val row = PurchasableTraits.instantiableNamed(purchase.row)
-                            (if (row?.advantage == true) it.cost else -it.cost).pointsLabel()
+                            if (!isAdvantage && it.name in gained) GAINED_LABEL
+                            else (if (isAdvantage) it.cost else -it.cost).pointsLabel()
                         } ?: "Not applied — the book does not license this purchase, " +
                             "so it costs nothing.",
                         style = MaterialTheme.typography.bodySmall,
                     )
+                    if (trait != null && !isAdvantage) GainedChip(trait.name in gained) { onGained(trait.name, it) }
                 }
                 TextButton(onClick = { onRemoveInstanced(index, purchase) }) { Text("Give back") }
             }
@@ -114,10 +120,12 @@ internal fun TraitsRow(
                         // the file and billed by nothing, so the row says so
                         // rather than showing a price it cannot justify.
                         row?.let {
-                            (if (it.advantage) it.cost else -it.cost).pointsLabel()
+                            if (!it.advantage && name in gained) GAINED_LABEL
+                            else (if (it.advantage) it.cost else -it.cost).pointsLabel()
                         } ?: "The book no longer prints this trait, so it costs nothing.",
                         style = MaterialTheme.typography.bodySmall,
                     )
+                    if (row != null && !row.advantage) GainedChip(name in gained) { onGained(name, it) }
                     // "Specify item and skill": the skill is the holder's to
                     // name, and choosing again is how it is changed.
                     if (name == CharmedObject.ROW) {
@@ -399,4 +407,17 @@ private fun PickerRow(
             }
         }
     }
+}
+
+private const val GAINED_LABEL = "Gained in play — 0 pts"
+
+/**
+ * A fright table's "New -10 pt disadvantage" is gained, not bought (play
+ * session 1: the purchase paid 10 points back). Lit, the trait still
+ * applies and bills nothing. Drawn on every bought disadvantage from the
+ * start, so lighting it moves no row.
+ */
+@Composable
+private fun GainedChip(on: Boolean, onChange: (Boolean) -> Unit) {
+    FilterChip(selected = on, onClick = { onChange(!on) }, label = { Text("Gained in play") })
 }

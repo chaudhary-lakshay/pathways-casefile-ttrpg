@@ -44,6 +44,36 @@ class BeyonderSessionEditsTest {
         assertNull(saved().edits.wealth)
     }
 
+    /**
+     * The mark a fright-table disadvantage carries (play session 1): set by
+     * an absolute value, so a second tap stores what the first did, and
+     * dropped with the trait, so buying it again later is billed again.
+     */
+    @Test
+    fun `a gained mark is set absolutely and goes with the trait`() {
+        val (s, saved) = session()
+        val phobia = SavedInstancedTrait("Phobia (specify)", instance = "Candles", cost = 10)
+        s.buyInstancedTrait(phobia)
+        s.setGained("Phobia (Candles)", true)
+        s.setGained("Phobia (Candles)", true)
+        assertEquals(listOf("Phobia (Candles)"), saved().edits.gained)
+        s.setGained("Phobia (Candles)", false)
+        assertEquals(emptyList<String>(), saved().edits.gained)
+
+        s.setGained("Phobia (Candles)", true)
+        s.sellInstancedTrait(0, phobia)
+        assertEquals(emptyList<String>(), saved().edits.gained)
+
+        s.buyTrait("Stubborn")
+        s.setGained("Stubborn", true)
+        s.sellTrait("Stubborn")
+        assertEquals(emptyList<String>(), saved().edits.gained)
+
+        // A name not bought cannot be marked, so buying it later is billed.
+        s.setGained("Curious", true)
+        assertEquals(emptyList<String>(), saved().edits.gained)
+    }
+
     @Test
     fun `a second Give back of the same picture sells nothing`() {
         // Two taps reach the handler of the list as drawn (6ei), and by then

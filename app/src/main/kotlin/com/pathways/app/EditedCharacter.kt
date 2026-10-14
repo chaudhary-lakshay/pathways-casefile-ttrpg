@@ -10,6 +10,7 @@ import com.pathways.model.SecondaryDelta
 import com.pathways.model.Character
 import com.pathways.model.PurchasedSkill
 import com.pathways.model.SkillKey
+import com.pathways.model.TraitKind
 import com.pathways.model.Trait
 import com.pathways.rules.Appearance
 import com.pathways.rules.Corruption
@@ -59,10 +60,25 @@ fun SavedEdits.applyTo(base: Character): Character {
         // it: a potion grant lands in this same field, so a sparse map naming
         // one row must not zero a granted Will (Codex, on the design).
         secondaryDelta = SecondaryCharacteristics.plusSteps(base.secondaryDelta, secondaries),
-        traits = chosenTraits(base.traits),
+        traits = gainedFree(chosenTraits(base.traits), base.traits),
         skills = base.skills + purchases(base),
         boon = boon,
     )
+}
+
+/**
+ * [traits] with each bought disadvantage named in [SavedEdits.gained] billed
+ * at nothing. Only the bought ones: as many occurrences of a name as the
+ * sheet itself [printed] keep their price, because the mark is a purchase's
+ * and the sheet's own trait was never bought (the diff review).
+ */
+private fun SavedEdits.gainedFree(traits: List<Trait>, printed: List<Trait>): List<Trait> {
+    val sheetLeft = printed.groupingBy { it.name }.eachCount().toMutableMap()
+    return traits.map {
+        val fromSheet = (sheetLeft[it.name] ?: 0) > 0
+        if (fromSheet) sheetLeft[it.name] = sheetLeft.getValue(it.name) - 1
+        if (!fromSheet && it.kind == TraitKind.DISADVANTAGE && it.name in gained) it.copy(cost = 0) else it
+    }
 }
 
 /**

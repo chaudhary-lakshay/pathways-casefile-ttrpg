@@ -159,6 +159,15 @@ data class SavedEdits(
      * every reader of that character digests the boon without being told.
      */
     val boon: BoonState? = null,
+    /**
+     * Bought disadvantages, by the NAME they compose to, that were gained in
+     * play and bill no points: a failed Fright Check's "New -10 pt
+     * disadvantage" (play session 1, where the purchase paid 10 points back).
+     * The trait is still held and its rules still apply. Alone it changes
+     * nothing, so [isEmpty] does not count it; additive and defaulted, so an
+     * older save still decodes.
+     */
+    val gained: List<String> = emptyList(),
 ) {
     val isEmpty: Boolean
         get() = st == null && dx == null && iq == null && ht == null &&

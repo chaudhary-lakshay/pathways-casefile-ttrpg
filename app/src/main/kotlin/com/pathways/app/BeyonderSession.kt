@@ -1,5 +1,7 @@
 package com.pathways.app
 
+import com.pathways.rules.InstancedPurchase
+import com.pathways.rules.PurchasableTraits
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -308,7 +310,25 @@ class BeyonderSession(
         if (name !in edits.traits) return
         // Spiritual Fortitude is +3 to the CoR ceiling, so selling it can
         // take the ceiling below its floor, or onto the CoR total.
-        edit(edits.copy(traits = edits.traits - name))
+        edit(edits.copy(traits = edits.traits - name, gained = edits.gained - name))
+    }
+
+    /**
+     * Mark a bought disadvantage as gained in play, so it bills no points
+     * ([SavedEdits.gained]). An absolute value, so a second tap stores what
+     * the first did.
+     */
+    fun setGained(name: String, gained: Boolean) {
+        // Only a bought trait can carry the mark: one left on a name not held
+        // would make a later purchase of it silently free (the diff review).
+        val bought = name in edits.traits || PurchasableTraits.resolved(
+            edits.instanced.map { InstancedPurchase(it.row, it.variant, it.instance, it.cost) },
+        ).any { it.second?.name == name }
+        if (gained && !bought) return
+        val next = if (gained) (edits.gained - name) + name else edits.gained - name
+        if (next == edits.gained) return
+        edits = edits.copy(gained = next)
+        persist()
     }
 
     /**
@@ -378,8 +398,13 @@ class BeyonderSession(
      */
     fun sellInstancedTrait(index: Int, drawn: SavedInstancedTrait) {
         if (edits.instanced.getOrNull(index) != drawn) return
+        // The mark goes with the trait, so buying it again is billed again.
+        val name = PurchasableTraits.resolved(
+            listOf(InstancedPurchase(drawn.row, drawn.variant, drawn.instance, drawn.cost)),
+        ).single().second?.name
         edits = edits.copy(
             instanced = edits.instanced.filterIndexed { at, _ -> at != index },
+            gained = edits.gained - setOfNotNull(name),
         )
         persist()
     }
