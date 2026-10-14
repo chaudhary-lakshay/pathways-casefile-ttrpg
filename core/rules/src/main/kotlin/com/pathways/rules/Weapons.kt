@@ -48,8 +48,18 @@ object Weapons {
      */
     fun forSkill(key: SkillKey): List<CataloguedWeapon> {
         val printed = key.specialization?.let { "${key.name} ($it)" } ?: key.name
-        return all().filter { it.skill.equals(printed, ignoreCase = true) }
+        val also = ALSO_ARMS.entries.firstOrNull { it.key.equals(printed, ignoreCase = true) }?.value.orEmpty()
+        val arms = setOf(printed) + also
+        return all().filter { w -> arms.any { w.skill.equals(it, ignoreCase = true) } }
     }
+
+    /**
+     * A skill that fires another skill's weapons: the owner's ruling, not the
+     * book's. Chapter 8 catalogues no pistol, so Guns (Pistol) armed nothing
+     * and a sheet's Guns (Pistol)-10 fired a revolver at an untrained 6
+     * (play session 1). The owner, 2026-10-15: "revolver uses pistol skill".
+     */
+    private val ALSO_ARMS = mapOf("Guns (Pistol)" to setOf("Guns (Revolver)"))
 
     /**
      * The level [weapon] is wielded at, or null when no skill this character

@@ -107,7 +107,21 @@ class WeaponsTest {
             Weapons.forSkill(gun("Rifle")).map { it.name },
         )
         assertEquals(listOf("Combat Knife"), Weapons.forSkill(knifeSkill).map { it.name })
-        assertTrue(Weapons.forSkill(gun("Pistol")).isEmpty())
+        assertTrue(Weapons.forSkill(gun("Shotgun")).none { it.skill == "Guns (Revolver)" })
+    }
+
+    @Test
+    fun `Guns (Pistol) fires a revolver, on the owner's ruling`() {
+        // Chapter 8 catalogues no pistol, so the Private Investigator's
+        // Guns (Pistol)-10 armed nothing and his revolver fell to an untrained
+        // 6 (play session 1). The owner, 2026-10-15: "revolver uses pistol skill".
+        assertEquals(
+            listOf("Revolver (.38 cal)", "Revolver (.44 cal)"),
+            Weapons.forSkill(gun("Pistol")).map { it.name },
+        )
+        assertEquals(10, Weapons.levelFor(Weapons.named("Revolver (.38 cal)"), mapOf(gun("Pistol") to 10)))
+        // One way only: the ruling says nothing of a revolver skill and a pistol.
+        assertTrue(Weapons.forSkill(gun("Revolver")).all { it.skill == "Guns (Revolver)" })
     }
 
     @Test

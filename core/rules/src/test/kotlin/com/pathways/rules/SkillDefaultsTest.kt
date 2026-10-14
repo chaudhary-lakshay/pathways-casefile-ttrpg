@@ -462,7 +462,8 @@ class SkillDefaultsTest {
         val rows = SkillDefaults.attacks(offered())
         assertEquals(
             listOf(
-                "Guns (Revolver)", "Guns (Rifle)", "Guns (Shotgun)", "Brawling", "Boxing",
+                // Pistol arms the revolvers on the owner's ruling (Weapons.ALSO_ARMS).
+                "Guns (Pistol)", "Guns (Revolver)", "Guns (Rifle)", "Guns (Shotgun)", "Brawling", "Boxing",
                 "Knife", "Axe/Mace", "Broadsword",
             ),
             rows.map { it.key.specialization?.let { s -> "${it.key.name} ($s)" } ?: it.key.name },
