@@ -287,7 +287,10 @@ fun RitualDialog(
     // What this picture's Ask would charge and shift by. A tap whose live
     // fuel or standing moved since it was drawn is dropped, as is one whose
     // ritual is no longer invoked: it would pay for a price nobody saw.
-    val drawnAsking = Triple(cost, hpSacrificed, goodStanding)
+    // The raw inputs, never a price recomputed from live state: in that
+    // frame `spiChoice` still holds the old rung's value, and spiFor
+    // throws on a choice outside the rung.
+    val drawnAsking = listOf(complexity, spiChoice, hpSacrificed, goodStanding)
 
     // The push window closes when the dialog does, and that is the ONE place
     // the pushed SPI and the outcome's consequences are charged. Both are read
@@ -643,8 +646,9 @@ fun RitualDialog(
                             // two taps both reach this handler, and the book
                             // has the GM roll once.
                             if (paid != null || refusal != null || target == null) return@RitualFooter
-                            val live = Triple(PowerSources.spiFor(complexity, spiChoice), hpSacrificed, goodStanding)
-                            if (!invoked || live != drawnAsking) return@RitualFooter
+                            if (!invoked || listOf(complexity, spiChoice, hpSacrificed, goodStanding) != drawnAsking) {
+                                return@RitualFooter
+                            }
                             val reply = Invocation.ask(dice, goodStanding)
                             val fuel = Invocation.fuelFor(reply, cost, hpSacrificed)
                             answer = reply

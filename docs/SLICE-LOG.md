@@ -6805,6 +6805,15 @@ Ask is dropped; *displaced* in `residualFuel`'s KDoc. Its test gap stands:
 the second-tap contract of every guard above has no test, as no
 composable here does.
 
+**The stale-Ask guard was taken after that review and was not
+re-reviewed, and as first written it could crash.** It recomputed the
+live price with `PowerSources.spiFor(complexity, spiChoice)`. In the frame
+a Complexity chip and Ask share, `spiChoice` is `remember(complexity)` and
+still holds the old rung's value, and `spiFor` `require`s a choice inside
+the rung: Light's 2 on Moderate throws in a click handler. The advisor
+caught it before push. The guard compares the raw drawn inputs now and
+calls no rule.
+
 ### Checks
 
 2192 Kotlin (1432 `core:rules`, 739 `app`, 21 `core:model`) from deleted
@@ -6834,6 +6843,12 @@ at the end. No crash in the log.
   every try ran on the last one's save (`hpLost` reached 20). Pass the
   local file as `C:/...`. The rejection row (an 18, 1 in 216) was not
   rolled; `ritualRefusal` and `InvocationTest` cover it.
+- After the guard's fix, *Moderate* and *Ask the entity* from one monkey
+  script (Light, 2 HP declared): no crash in the log, no roll, the save
+  unchanged, the complexity Moderate. **Not a proven one-frame pair**: no
+  neutered build was run, and an Ask a frame later is refused on 4 SPI
+  anyway. The tablet turned landscape mid-pass; portrait was locked and
+  auto-rotate put back after.
 
 ## 6hq. The prayer's four numbers, answered
 
