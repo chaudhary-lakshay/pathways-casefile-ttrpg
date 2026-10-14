@@ -6726,6 +6726,115 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hr. The ritual's fuel, paid at the asking
+
+6hq left two holes in the Ritual dialog, seen and not touched. Offered
+first of four on 2026-10-14, the owner picked it and ruled on both.
+
+| Asked | Answer | Built |
+|---|---|---|
+| No response, fuel declared in HP: how is "2 SPI personal" paid? | HP first, like the prayer | `Invocation.residualFuel` for both |
+| Pay an invoked ritual's fuel at the asking? | Yes | Ask charges, Cast does not |
+
+**The first was a defect at 0 SPI.** The dialog displaced a declared
+sacrifice whole and asked for the 2 in SPI, so a caster who bled 8 HP for
+a Moderate invocation and drew No response was refused: *No roll — 2 SPI
+is more than the 1*. The second is 6hq's prayer hole: paid at the cast, a
+dialog closed after a bad answer asked the table again for nothing.
+
+### One price (`e75d442`)
+
+- **`Boons.fuelFor` is `Invocation.fuelFor(answer, cost, hp): Fuel`**,
+  body unchanged, and both dialogs call it. The Int
+  `Invocation.fuelFor(response, declared)` it replaces had one production
+  caller, the ritual's, and is deleted; its four tests are ported, the
+  recorded "best outcome costs the most" kept. A rejection now returns
+  `Fuel(0, 0)` where it threw: the throw's reason, "charge for a roll that
+  did not happen", is met by charging nothing, and an Ask that drew 18
+  would otherwise crash.
+- `drawsOnResidualPower`'s KDoc said the row "replaces the whole declared
+  fuel", "pinned by a named test". No test pinned it: the displacement
+  lived in the dialog's `hpOwed`. The KDoc says what is true now.
+
+### The dialog
+
+- **The footer button asks, then casts**, as the prayer's does. Asking
+  rolls the table, sets `paid`, charges it, and freezes the condition
+  penalty the entity was asked under (`hurtAtAsking`, the prayer's
+  reading): blood paid at the asking does not lower the ritual it paid
+  for, as it could not when the fuel went at the cast. A Personal SPI
+  ritual still pays at Cast.
+- **`ritualRefusal`** lifts the inline refusal so `app/src/test` reaches
+  it. Its affordability clause skips once paid. The declaration is the
+  most an asking can charge: No response's 2 never exceeds a rung's SPI
+  (the cheapest costs 2), so checking it before asking is enough. *"No roll
+  yet — ask the entity first"* is gone: the button is the asking.
+- **Locked once paid**: the Personal/Invocation and good-standing chips,
+  complexity, SPI and HP. Each handler guards on LIVE `paid`, and
+  `LaunchedEffect(invoked, goodStanding) { answer = null }` is deleted —
+  the design review's finding: a chip drawn enabled can be tapped in the
+  frame Ask ran in, the reset cleared the answer, and Ask charged again.
+- **The handler branches on the drawn `asking`**, never on live state,
+  so a second tap in the Ask frame cannot cast against a target drawn
+  before the answer moved it. And an Ask whose live fuel, HP or standing
+  moved since it was drawn, or whose ritual is no longer invoked, is
+  dropped (the diff review's finding).
+
+**Not widened**: `hpChoices` caps the HP at 4 SPI's worth, so a 0-SPI
+caster still cannot ask an invoked Heavy ritual, though No response would
+cost only 4 HP. It follows from gating on the declaration.
+
+RED, watched, against stubs that took the parameters and ignored them:
+four in `InvocationTest` (*expected Fuel(spi=2, hp=0) but was Fuel(spi=8,
+hp=0)*; the rejection's *Fuel(spi=6, hp=4)*; the backwards prices; the HP
+first rows), one in `BoonsTest`, two in the new `RitualDialogTest`. The
+answering rows stayed green, as they should: the stub charged the
+declaration, which is their price. One of
+those first passed under its stub — a paid caster with HP covering the
+whole cost never reached the SPI check — and was rewritten to the case
+that bites: 2 SPI paid at the asking, 0 left.
+
+### Reviews
+
+Sonnet on the written decomposition: **CHANGE**, both MEDIUMs taken (live
+`paid` guards and the deleted reset; the captured branch). Its optional
+LOW, unlock after a free rejection, not taken: the prayer does not.
+
+Sonnet on the uncommitted tree: **SHIP WITH CHANGES**. Taken: the stale
+Ask is dropped; *displaced* in `residualFuel`'s KDoc. Its test gap stands:
+the second-tap contract of every guard above has no test, as no
+composable here does.
+
+### Checks
+
+2192 Kotlin (1432 `core:rules`, 739 `app`, 21 `core:model`) from deleted
+results with `--rerun-tasks`, before the stale-Ask guard; both tasks green
+after it. 366 Python. `ast-grep scan` clean. The click-handler
+census still reads 38: Ask and Cast charge through `onSpendSpi` and
+`onSpendHp`, the callbacks the census does not count.
+
+### Device pass, SM-T570
+
+The Academic Researcher, SPI 1 left, Moderate (4 SPI) paid in 8 HP. The
+save was backed up first and restored before each try, then `cmp`-identical
+at the end. No crash in the log.
+
+- Before asking: *Ask the entity*, *costs 0 SPI and 8 HP when the entity
+  is asked*.
+- Rolled 10, Minimal: *+1 from the entity*, *3d6 ≤ 14*, *spent on asking:
+  0 SPI and 8 HP*; `hpLost` 0 to 8, no hurt term. The power source chips
+  grey, and a tap on *Personal SPI* changed nothing. Cast: the save did
+  not move.
+- Rolled 13, No response: *spent on asking: 0 SPI and 4 HP, residual power
+  only — the entity did not answer*, *3d6 ≤ 13*, Cast offered; `hpLost` 0
+  to 4, `spiSpent` unchanged. Cast and Close: the save did not move.
+- Personal SPI, Light, 2 HP: *costs 1 SPI and 2 HP*, charged at Cast.
+- **My first loop restored nothing**: `MSYS_NO_PATHCONV` kept Git Bash
+  from translating the LOCAL path too, so `adb push` found no file and
+  every try ran on the last one's save (`hpLost` reached 20). Pass the
+  local file as `C:/...`. The rejection row (an 18, 1 in 216) was not
+  rolled; `ritualRefusal` and `InvocationTest` cover it.
+
 ## 6hq. The prayer's four numbers, answered
 
 6hm left the owner's "numbers are wrong" unnamed and listed three

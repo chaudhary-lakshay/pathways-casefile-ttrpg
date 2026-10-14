@@ -349,9 +349,17 @@ mystical languages the character bought in the builder, then any a potion
 granted (*"From the potion: Ancient Hermes, Native."*), and does not pick one
 for you. A language granted by a trait is not in that list. The choices scroll;
 pinned under them are the terms of the target, the target, what the ritual
-costs and **Cast**, which is withdrawn, with the reason in red, while the
-entity is unasked, the SPI is short, or the book or the entity refuses the
-attempt.
+costs and **Cast**, which is withdrawn, with the reason in red, while the SPI
+is short, or the book or the entity refuses the attempt.
+
+**An invocation is paid when you ask.** With *Invocation* chosen, the button
+reads **Ask the entity** first. Asking rolls the Entity Response Table and
+spends the fuel then (*spent on asking: …*), and the power source, complexity,
+SPI and HP chips grey out; the button then reads **Cast**, which costs nothing
+more. A rejection spends nothing. *No response* spends the book's 2 SPI out of
+the HP you declared first, 2 HP for each, so a caster at 0 SPI who bled for it
+can still cast. Close the dialog after asking and the answer is gone but the
+fuel is not. A ritual on *Personal SPI* pays at **Cast**.
 
 Six of those cells print a span or a floor rather than a number — *Good +1 to
 +2*, *Poor -1 to -2*, *None -4 or worse*, the quick table's *Poor / None -2 to

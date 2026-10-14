@@ -186,6 +186,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6hm** — a granted boon stored nothing; it is `SavedEdits.boon`, digested after the potions; the rung is the next printed, a patron required;
 **6hl** — a potion's abilities are rows that open, the bracket a tag, Success and Failure under their power; display only; 6gk's "the book does not say which" fell to a census;
 **6hk** — Charmed Object's skill rides in the held trait's name: a declared +1 on that skill's roll and in Attack; 6gv's "a choice the save would have to store" was the book's instruction;
 **6hj** — the unread census at 112 rows; Cannot Kill offers Reluctant Killer's Will roll, the one cell naming another row's; Marked by Ritual stays refused;
@@ -236,10 +237,9 @@ slice log.** One line each:
 **6fg** — Luck may reroll a failed PCR, so the attempted potion is saved; a restart would strand it, and a Will lowered since made the reroll throw;
 **6ff** — six rows that name one skill are declared on its roll; one list, `skillRollClauses`, feeds the chips and the dice, and "rural" excludes the sea;
 **6fe** — Alertness reaches Spirit Vision's Per roll; a recorded census ("the one bare Per roll") expired when a second roll arrived;
-**6fd** — Cleansed Spirit halves nothing, and the CoR stepper says why; "Soul Debt is reported, not applied" had been false since `ea6ae38`;
-**6fc back to 6de** have one-line digests too, moved verbatim to
+**6fd back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
-its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi, 6hk, 6hm, 6hq).
+its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi, 6hk, 6hm, 6hq, 6hr).
 
 **6dd back to 6cd had lead paragraphs here and they have been cut, because
 this file keeps reaching the 150 k-char limit (6eb: 152,583; 6eh cut 6dd to
@@ -258,9 +258,14 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6hq first.** END
+**Where to start next: the slice log, from the END — 6hr first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
-line 6728, then 6hq back to 6cb, newest first, so `tail` prints 6cb. 6hq:
+line 6728, then 6hr back to 6cb, newest first, so `tail` prints 6cb. 6hr:
+(two owner answers on the ritual's fuel: No response's 2 SPI comes out
+of the declared HP first, as the prayer's does, so a caster at 0 SPI
+who bled for it casts; an invoked ritual pays when the entity is asked,
+and the fuel chips lock; `Invocation.fuelFor` is the one price both
+dialogs charge; seen on the SM-T570). Then 6hq
 (four owner answers on the Boon prayer: it takes a mystical tongue and
 ch. 7's Entity Response, asked first and unshifted; no response grants
 no boon; the fuel is spent on asking and does not lower the roll it
@@ -279,13 +284,7 @@ and ch. 13 defers to: it is how a mortal prays; fuel only, so
 (a boon block's catalogue rows are granted through the potion merge:
 Charisma +2, Acute Hearing, Acute Vision, Fit; five look-alike names are
 refused, each printing another rule; seen on the SM-T570, where a
-potion-only row also read *from the potion or the boon*). Then 6hm
-(a granted boon stored nothing; it is `SavedEdits.boon` now, digested
-after the potions and held beside them, on the owner's ruling; the rung
-is the next one printed, never chosen, and a patron is required; the
-purchase ceilings dropped to leave room for both walks; a boon's
-advantages are still prose; seen on the SM-T570; **the
-owner has not said which roll number is wrong**). The chain
+potion-only row also read *from the potion or the boon*). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -342,9 +341,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2188 Kotlin** (JUnit 5 — 1431 `core:rules`, 736 `app`, 21 `core:model`, counted in 6hq) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2192 Kotlin** (JUnit 5 — 1432 `core:rules`, 739 `app`, 21 `core:model`, counted in 6hr) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`: SHIP, one LOW not taken (a 12.dp indent); 6hm's uncommitted tree: ship with changes, taken; 6hn: ship with changes, taken; 6ho: SHIP; 6hp: ship with changes, taken; then `09f19e5..d52eb4e -- app`: ship with changes, one MEDIUM not taken (the 280.dp row at 360dp); 6hq's design: CHANGE, taken; its diff `fb6bba6..0d7ced5`: SHIP |
+| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`: SHIP, one LOW not taken (a 12.dp indent); 6hm's uncommitted tree: ship with changes, taken; 6hn: ship with changes, taken; 6ho: SHIP; 6hp: ship with changes, taken; then `09f19e5..d52eb4e -- app`: ship with changes, one MEDIUM not taken (the 280.dp row at 360dp); 6hq's design: CHANGE, taken; its diff `fb6bba6..0d7ced5`: SHIP; 6hr's design: CHANGE, taken; its uncommitted tree: ship with changes, taken |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
@@ -717,12 +716,13 @@ Boons.modifierTotal(chosen, gmValue) / .spiFor(chosen, burned)
 Boons.targetFor(skill, cor, sequence, chosen, gmValue, language, answer) / .attempt(...)
 Boons.canPush(outcome) / .pushed(outcome, points)   // ch.13 line 8933 defers
                                       // to ch.7, so ch.7's push reaches here
-Boons.ask(source) / .endsPrayer(answer) / .fuelFor(answer, cost, hp): Fuel
-                                      // the patron asked first, unshifted;
-                                      // no response grants nothing; the fuel
-                                      // is owed at the asking (6hq)
+Boons.ask(source) / .endsPrayer(answer)   // the patron asked first,
+                                      // unshifted; no response grants nothing
+Invocation.fuelFor(answer, cost, hp): Fuel   // owed at the asking, for a
+                                      // prayer (6hq) and an invoked ritual
+                                      // (6hr); a rejection costs nothing
 Invocation.residualFuel(hp): Fuel     // the no-response 2 SPI, HP first:
-                                      // a prayer's reading, not a ritual's
+                                      // the owner's reading, both dialogs
 NonStandardPathways.all() / .pathways() / .blocksFor(pathway)
 NonStandardPathways.blockFor(pathway, sequence): SequenceBlock?  // null = no such rung
 NonStandardPathways.knownSequences(pathway) / .alsoPrintedAs(pathway)

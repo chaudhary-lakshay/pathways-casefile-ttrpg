@@ -195,6 +195,14 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hm
+(a granted boon stored nothing; it is `SavedEdits.boon` now, digested
+after the potions and held beside them, on the owner's ruling; the rung
+is the next one printed, never chosen, and a patron is required; the
+purchase ceilings dropped to leave room for both walks; a boon's
+advantages are still prose; seen on the SM-T570; **the
+owner has not said which roll number is wrong**).
+
 Then 6hl
 (the owner called the potion's abilities unreadable; each power is a row
 that opens, with the book's bracket as its tag, a roll's Success and
@@ -2454,8 +2462,9 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6fc back to 6de
+## Digest index, 6fd back to 6de
 
+**6fd** — Cleansed Spirit halves nothing, and the CoR stepper says why; "Soul Debt is reported, not applied" had been false since `ea6ae38`;
 **6fc** — Fast Healer's +1 is said on the recovery row's result; on a failure the two readings disagree, so the line says it is the GM's;
 **6fb** — Chronic Insomnia's "sustained concentration at -1" is declared on the Concentrate roll; two API lines had been pasted inside 6ew's lead;
 **6fa** — Thinned Veil's "Concentration ... at -2" is a declaration on the Concentrate roll alone; the verbatim guard checked two traits, and now checks every partly-applied row;
