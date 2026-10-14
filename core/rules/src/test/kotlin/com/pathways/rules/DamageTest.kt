@@ -1,5 +1,6 @@
 package com.pathways.rules
 
+import com.pathways.model.DiceExpr
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.UnarmedAttack
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -123,5 +124,25 @@ class DamageTest {
             type = "cr",
         )
         assertThrows<IllegalStateException> { Damage.forAttack(bogus, st = 10) }
+    }
+
+    /**
+     * Play session 1: Attack printed "2d pi" and nothing rolled it. The dice
+     * are kept beside the total, so the GM can read the throw back.
+     */
+    @Test
+    fun `a damage roll throws its dice and adds the modifier`() {
+        val faces = ArrayDeque(listOf(1, 2, 6))
+        val dice = RandomSource { faces.removeFirst() }
+        assertEquals(DamageResult(listOf(1, 2), 3, "pi"), Damage.roll(DamageRoll(DiceExpr(2), "pi"), dice))
+        assertEquals(DamageResult(listOf(6), 8, "cr"), Damage.roll(DamageRoll(DiceExpr(1, modifier = 2), "cr"), dice))
+    }
+
+    /** The book prints no minimum; below zero is no damage, never a heal. */
+    @Test
+    fun `a damage roll below zero is zero and no minimum is invented`() {
+        val dice = RandomSource { 1 }
+        assertEquals(0, Damage.roll(DamageRoll(DiceExpr(1, modifier = -3), "cr"), dice).total)
+        assertEquals(0, Damage.roll(DamageRoll(DiceExpr(1, modifier = -1), "cut"), dice).total)
     }
 }

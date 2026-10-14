@@ -25,6 +25,15 @@ object Damage {
     /** Boxing's bonus caps here "without Trained by a Master" (p. 38). */
     const val MAX_BOXING_BONUS = 2
 
+    /**
+     * [damage] thrown. The book prints no minimum, so none is invented; a
+     * total below zero is no damage, never a heal.
+     */
+    fun roll(damage: DamageRoll, source: RandomSource): DamageResult {
+        val faces = List(damage.dice.count) { source.roll(damage.dice.sides) }
+        return DamageResult(faces, (faces.sum() + damage.dice.modifier).coerceAtLeast(0), damage.type)
+    }
+
     /** The ST column an unarmed attack rolls off. */
     fun thrust(st: Int): DiceExpr = rowFor(st).thrust
 
@@ -85,3 +94,6 @@ object Damage {
 data class DamageRoll(val dice: DiceExpr, val type: String) {
     fun render(): String = "${dice.render()} $type"
 }
+
+/** A thrown [DamageRoll]: the faces, so the GM can read the throw back, and the total. */
+data class DamageResult(val faces: List<Int>, val total: Int, val type: String)

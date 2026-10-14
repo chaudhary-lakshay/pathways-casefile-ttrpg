@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,6 +30,8 @@ import com.pathways.rules.Attacks
 import com.pathways.rules.BurnKind
 import com.pathways.rules.EffortBurn
 import com.pathways.rules.Damage
+import com.pathways.rules.DamageResult
+import com.pathways.rules.DamageRoll
 import com.pathways.rules.DarknessCause
 import com.pathways.rules.TraitClauses
 import com.pathways.rules.TraitEffects
@@ -200,6 +203,11 @@ fun AttackDialog(
     // Rapid Strike is two -- the per-call-vs-per-roll slip 6ak already made
     // once, here in the one place the distinction is visible on screen.
     var burned by remember { mutableStateOf<Map<Int, Int>>(emptyMap()) }
+    // The damage the attack was drawn with, kept at Roll so a hit rolls what
+    // was printed, and each hit's throw by index (play session 1: "2d pi"
+    // printed and nothing rolled it).
+    var rolledDamage by remember { mutableStateOf<DamageRoll?>(null) }
+    var damageRolls by remember { mutableStateOf<Map<Int, DamageResult>>(emptyMap()) }
 
     val chosen = picked
     // What the chosen skill is rolled at NOW. Its own level, owned or
@@ -238,6 +246,8 @@ fun AttackDialog(
                         outcomes = emptyList()
                         // The pushes belong to the rolls they were spent on.
                         burned = emptyMap()
+                        rolledDamage = null
+                        damageRolls = emptyMap()
                         picked = null
                         plan = AttackPlan()
                         unarmed = null
@@ -267,6 +277,16 @@ fun AttackDialog(
                 outcomes.isNotEmpty() -> LazyColumn {
                     itemsIndexed(outcomes) { index, outcome ->
                         AttackResult(outcome)
+                        val hit = outcome.roll?.outcome?.isSuccess == true
+                        rolledDamage?.takeIf { hit }?.let { damage ->
+                            DamageLine(damage, damageRolls[index]) {
+                                // One throw per hit: a second tap of the same
+                                // picture would replace the first.
+                                if (index !in damageRolls) {
+                                    damageRolls = damageRolls + (index to Damage.roll(damage, dice))
+                                }
+                            }
+                        }
                         // Ch. 2's FP push, whose scope names attack rolls
                         // outright: "any roll based on ST, DX, or HT (attack
                         // rolls, dodging, climbing, lifting, etc.)". It was
@@ -376,6 +396,16 @@ fun AttackDialog(
                     )
                     val attacks = Attacks.attackCount(plan)
                     val fp = Attacks.fpCost(plan)
+                    // Two unrelated bonuses reach damage: All-Out Attack
+                    // (Strong)'s +2 and Boxing's for skill above DX. Attacks
+                    // composes them so neither can be dropped here. Boxing's
+                    // is a property of the bare fist, so a weapon takes only
+                    // the maneuver's.
+                    val damage = armed?.let { Weapons.damageFor(it.weapon, it.mode, st, Attacks.damageBonus(plan, 0)) }
+                        ?: unarmed?.let {
+                            val fromSkill = if (it.skill == BOXING) Damage.boxingBonus(dx, level) else 0
+                            Damage.forAttack(it, st, Attacks.damageBonus(plan, fromSkill))
+                        }
                     AttackOptions(
                         label = label,
                         skillLevel = level,
@@ -398,16 +428,7 @@ fun AttackDialog(
                         wieldedAt = { SkillDefaults.wieldedAt(it, skillLevels, mastery, dx) },
                         plan = plan,
                         unarmed = unarmed,
-                        // Two unrelated bonuses reach damage: All-Out Attack
-                        // (Strong)'s +2 and Boxing's for skill above DX. Attacks
-                        // composes them so neither can be dropped here. Boxing's
-                        // is a property of the bare fist, so a weapon takes only
-                        // the maneuver's.
-                        damage = armed?.let { Weapons.damageFor(it.weapon, it.mode, st, Attacks.damageBonus(plan, 0)) }
-                            ?: unarmed?.let {
-                                val fromSkill = if (it.skill == BOXING) Damage.boxingBonus(dx, level) else 0
-                                Damage.forAttack(it, st, Attacks.damageBonus(plan, fromSkill))
-                            },
+                        damage = damage,
                         attacks = Damage.attacksFor(chosen.key.name),
                         armed = armed,
                         weapons = Weapons.forSkill(chosen.key),
@@ -514,6 +535,8 @@ fun AttackDialog(
                             // the cost as they were drawn. Nothing the plan is
                             // made of is read again here (6eg).
                             outcomes = List(attacks) { SkillRoll.rollAgainst(standing.target, dice) }
+                            rolledDamage = damage
+                            damageRolls = emptyMap()
                             fp.takeIf { it > 0 }?.let(onSpendFp)
                         },
                     )
@@ -521,6 +544,27 @@ fun AttackDialog(
             }
         },
     )
+}
+
+/**
+ * A hit's damage: a button until it is thrown, then the faces and the total.
+ * The multiplier for a called shot stays the GM's, as the line above Roll
+ * says: this book prints no rounding rule for the product.
+ */
+@Composable
+private fun DamageLine(damage: DamageRoll, thrown: DamageResult?, onRoll: () -> Unit) {
+    if (thrown == null) {
+        OutlinedButton(onClick = onRoll, modifier = Modifier.padding(bottom = 12.dp)) {
+            Text("Roll damage ${damage.render()}")
+        }
+    } else {
+        Text(
+            "Damage ${damage.render()}: ${thrown.faces.joinToString("+")}" +
+                "${damage.dice.modifier.takeIf { it != 0 }?.let(::signed).orEmpty()} = ${thrown.total} ${thrown.type}",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 12.dp),
+        )
+    }
 }
 
 /**
