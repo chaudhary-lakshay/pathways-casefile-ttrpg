@@ -1,5 +1,7 @@
 package com.pathways.rules
 
+import com.pathways.model.Outcome
+import com.pathways.model.RollResult
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
 import com.pathways.rules.content.ContentLoader
@@ -126,5 +128,22 @@ class StunRecoveryTest {
         val none = TraitAttributeRolls.stunRecoveryHt(emptyList())
         assertEquals(0, none.bonus)
         assertEquals(null, none.line)
+    }
+
+    /**
+     * Play session 1: the Damage dialog rolled "Stunned for 1d6 seconds" and
+     * Defend's Stunned chip stayed off until the GM ticked it. Applying the
+     * hit now carries the stun, unless the recovery roll beside it succeeded.
+     */
+    @Test
+    fun `a hit leaves the character stunned until a recovery roll succeeds`() {
+        val rows = ContentLoader.majorWound()
+        val stun = rows.single { StunRecovery.stunsOn(it) }
+        val other = rows.first { !StunRecovery.stunsOn(it) }
+        fun roll(outcome: Outcome) = RollResult(10, 10, 0, outcome)
+        assertTrue(StunRecovery.leavesStunned(stun, recovery = null))
+        assertTrue(StunRecovery.leavesStunned(stun, roll(Outcome.FAILURE)))
+        assertFalse(StunRecovery.leavesStunned(stun, roll(Outcome.SUCCESS)))
+        assertFalse(StunRecovery.leavesStunned(other, recovery = null))
     }
 }

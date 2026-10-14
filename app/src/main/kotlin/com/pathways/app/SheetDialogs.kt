@@ -281,6 +281,8 @@ internal fun SheetDialogs(
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,
             states = states,
+            onStunned = { stunnedState.value = it },
+            stunned = stunnedState.value,
         ) { onClose(SheetDialog.FRIGHT) }
     }
     if (SheetDialog.CONCENTRATE in open) {
@@ -306,6 +308,7 @@ internal fun SheetDialogs(
                 session.spend(pool, amount, max, maxCor)
             },
             onShocked = onShocked,
+            onStunned = { stunnedState.value = true },
             majorWoundHt = TraitAttributeRolls.majorWoundHt(traits),
             stunRecoveryHt = TraitAttributeRolls.stunRecoveryHt(traits),
             // The kind is named at the call site because the two states answer

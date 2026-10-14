@@ -94,6 +94,10 @@ internal fun FrightDialog(
     hurt: Int = 0,
     /** The held rows' declared "-N to all rolls" (6gs), on the check and its recovery. */
     states: ClauseBonus = ClauseBonus(0, null),
+    /** Defend's Stunned, set by a stunning band and cleared by its recovery (play session 1). */
+    onStunned: (Boolean) -> Unit,
+    /** Whether the character was already stunned when this dialog opened. */
+    stunned: Boolean,
     onDismiss: () -> Unit,
 ) {
     var kind by remember { mutableStateOf(FrightKind.FRIGHT) }
@@ -107,6 +111,9 @@ internal fun FrightDialog(
     // Keyed on the check, so a new Fright Check clears the last one's recovery
     // roll without a second clearing site (6cp: the key is the guard).
     var recovery by remember(outcome) { mutableStateOf<RollResult?>(null) }
+    // Whether THIS check stunned the character. Its recovery ends only that
+    // stun, never one a Major Wound set before it (the diff review).
+    var stunnedHere by remember { mutableStateOf(false) }
     val triggers = remember { FrightCheck.triggers() }
 
     AlertDialog(
@@ -151,7 +158,12 @@ internal fun FrightDialog(
                             onRoll = { target ->
                                 // One roll a tap: a second from the same
                                 // picture would roll again (6p).
-                                if (recovery == null) recovery = SuccessRoll.against(target, appDice)
+                                if (recovery == null) {
+                                    val rolled = SuccessRoll.against(target, appDice)
+                                    recovery = rolled
+                                    // Won back: the stun this check set ends.
+                                    if (stunnedHere && rolled.outcome.isSuccess) onStunned(false)
+                                }
                             },
                         )
                     }
@@ -247,7 +259,12 @@ internal fun FrightDialog(
                             // keep the second, the re-entrancy the divination
                             // dialog was hardened for (6p).
                             if (outcome == null && chosen != null) {
-                                outcome = FrightCheck.rollAgainst(target, appDice)
+                                val rolled = FrightCheck.rollAgainst(target, appDice)
+                                outcome = rolled
+                                if (FrightCheck.leavesStunned(rolled.effect, kind, recovery = null)) {
+                                    stunnedHere = !stunned
+                                    onStunned(true)
+                                }
                             }
                         },
                     ) {

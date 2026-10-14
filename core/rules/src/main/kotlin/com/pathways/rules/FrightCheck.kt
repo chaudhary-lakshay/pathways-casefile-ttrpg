@@ -151,6 +151,15 @@ object FrightCheck {
     }
 
     /**
+     * Whether a check that landed on [effect] leaves the character stunned:
+     * a band whose [kind] column stuns, unless [recovery] already won it
+     * back. What Defend's Stunned is set from (play session 1).
+     */
+    fun leavesStunned(effect: FrightEffect?, kind: FrightKind, recovery: RollResult?): Boolean =
+        effect?.let { recoveryFor(it, kind) }?.let(StunRecovery::isStun) == true &&
+            recovery?.outcome?.isSuccess != true
+
+    /**
      * The duration that column of [effect] works out from the character, or
      * null where the cell prints one this app has nothing to compute.
      *

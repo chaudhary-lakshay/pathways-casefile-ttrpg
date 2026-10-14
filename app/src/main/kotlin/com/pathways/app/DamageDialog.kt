@@ -87,6 +87,8 @@ fun DamageDialog(
      * re-declare a fact the screen just produced.
      */
     onShocked: () -> Unit,
+    /** The stun this hit leaves, for Defend's Stunned (play session 1). */
+    onStunned: () -> Unit,
     /**
      * What the character's traits do to this roll, and the sentence saying so.
      *
@@ -194,6 +196,11 @@ fun DamageDialog(
                     // this roll belongs to this hit.
                     if (isMajor && shock?.let { Shock.causedBy(Wounds.majorWoundFor(it)) } == true) {
                         onShocked()
+                    }
+                    // The same latch, for the stun: unless the recovery roll
+                    // beside it already won it back.
+                    if (isMajor && shock?.let { StunRecovery.leavesStunned(Wounds.majorWoundFor(it), recovery) } == true) {
+                        onStunned()
                     }
                     onApply(pool, amount)
                     onDismiss()

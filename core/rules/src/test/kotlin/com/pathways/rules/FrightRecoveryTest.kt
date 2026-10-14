@@ -1,5 +1,7 @@
 package com.pathways.rules
 
+import com.pathways.model.Outcome
+import com.pathways.model.RollResult
 import com.pathways.model.Trait
 import com.pathways.model.TraitKind
 import com.pathways.rules.content.ContentLoader
@@ -125,5 +127,20 @@ class FrightRecoveryTest {
             for (kind in FrightKind.entries) assertNull(FrightCheck.recoveryFor(band(low), kind))
         }
         assertNotNull(FrightCheck.recoveryFor(band(4), FrightKind.FRIGHT))
+    }
+
+    /**
+     * The fright table's stun reaches Defend too (play session 1 found the
+     * Damage half): a stunning band leaves the character stunned until its
+     * recovery roll succeeds, and a band that does not stun never does.
+     */
+    @Test
+    fun `a stunning band leaves the character stunned until recovery succeeds`() {
+        fun roll(outcome: Outcome) = RollResult(10, 10, 0, outcome)
+        assertTrue(FrightCheck.leavesStunned(band(4), FrightKind.FRIGHT, recovery = null))
+        assertTrue(FrightCheck.leavesStunned(band(10), FrightKind.CONFUSION, roll(Outcome.FAILURE)))
+        assertFalse(FrightCheck.leavesStunned(band(4), FrightKind.FRIGHT, roll(Outcome.SUCCESS)))
+        assertFalse(FrightCheck.leavesStunned(band(12), FrightKind.FRIGHT, recovery = null))
+        assertFalse(FrightCheck.leavesStunned(null, FrightKind.FRIGHT, recovery = null))
     }
 }

@@ -1,5 +1,6 @@
 package com.pathways.rules
 
+import com.pathways.model.RollResult
 import com.pathways.model.Trait
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.FrightRecovery
@@ -58,6 +59,14 @@ object StunRecovery {
      * "Failure" would be a second copy of which row this rule belongs to.
      */
     fun stunsOn(row: MajorWound): Boolean = row.result == ROW
+
+    /**
+     * Whether a hit whose wound roll landed on [row] leaves the character
+     * stunned once applied: the stun row, unless [recovery] already won it
+     * back. What Defend's Stunned is set from (play session 1).
+     */
+    fun leavesStunned(row: MajorWound, recovery: RollResult?): Boolean =
+        stunsOn(row) && recovery?.outcome?.isSuccess != true
 
     /** That row's effect cell, quoted rather than paraphrased. */
     fun printed(): String = row().effect
