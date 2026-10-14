@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +48,7 @@ import com.pathways.rules.content.Shield
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DefenseDialog(
+internal fun DefenseDialog(
     dodge: Int,
     skillLevels: Map<SkillKey, Int>,
     /**
@@ -130,18 +131,26 @@ fun DefenseDialog(
      * roll and takes it through [conditions] instead, never both.
      */
     states: ClauseBonus = ClauseBonus(0, null),
+    /**
+     * The round and Stunned, owned by [SheetScene]: a `remember` here lived
+     * only while the dialog was open, so closing it forgot a Retreat the book
+     * allows once per round, and a +2 whose FP was already spent (play
+     * session 1).
+     */
+    roundState: MutableState<RoundState>,
+    stunnedState: MutableState<Boolean>,
     onDismiss: () -> Unit,
 ) {
     // Everything p. 36 scopes to a round, held together so the boundary can
     // move all of it at once: the refusals the GM declares (none is computable
     // -- the app holds no turn, no initiative and no line of sight), the three
     // free actions, the parry count and the paid boost. See [RoundState].
-    var round by remember { mutableStateOf(RoundState()) }
+    var round by roundState
     // Stunned is a DECLARATION for the same reason, and this app is where the
     // state comes from: its own fright, major-wound and ritual-critical tables
     // all hand it out. It is not a DefenseRefusal -- it prices the defences
     // rather than withdrawing them.
-    var stunned by remember { mutableStateOf(false) }
+    var stunned by stunnedState
     val everyDefence = remember(traits, stunned, shocked, poolPenalty, states) {
         ActiveDefenses.everyDefence(traits, stunned, shocked, poolPenalty, states.total)
     }
@@ -180,18 +189,14 @@ fun DefenseDialog(
     // sheet the roll would turn into one at its default while a bonus rolled at
     // the trained level stayed on Dodge (a review's finding, latent today
     // because the sheet is behind this dialog).
-    // The roll lives in [RoundState] with the other two free actions, so the
-    // guard that `remember(acrobatics)` used to give it is written out here.
-    // It stays a COMPOSITION-time clear, exactly as the remember key was: a
-    // LaunchedEffect fires after the pass commits, so the row would render one
-    // frame carrying a roll made against a level that has already moved. And
-    // keying the whole holder would discard the paid boost with it, which
-    // `onSpendFp` has already charged for.
-    val rolledAgainst = remember { mutableStateOf(acrobatics) }
-    if (rolledAgainst.value != acrobatics) {
-        rolledAgainst.value = acrobatics
-        round = round.copy(acrobatic = null)
-    }
+    // The roll lives in [RoundState] with the other two free actions, and the
+    // round outlives this dialog, so the guard reads the stored outcome
+    // ([RoundState.keptFor]) rather than a `remember` that a closed dialog
+    // forgets. It stays a COMPOSITION-time clear: a LaunchedEffect fires after
+    // the pass commits, so the row would render one frame carrying a roll
+    // made against a level that has already moved. And clearing the whole
+    // round would discard the paid boost, which `onSpendFp` has charged for.
+    round.keptFor(acrobatics).let { if (it != round) round = it }
     // Latched behind the round boundary now, with the other two free actions.
     // p. 36's "Each can be used once per round" governs all three, and 6bf/6co
     // refused to honour it on the grounds that clearing one while `priorParries`

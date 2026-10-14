@@ -66,6 +66,19 @@ internal data class RoundState(
      */
     val boost: Pair<DefenseBoost, String>? = null,
 ) {
+    /**
+     * This round, less an Acrobatic Dodge rolled against any skill or level
+     * but [skill]'s: its note would report a target the row's ±2 no longer
+     * matches. Read off the stored outcome, because the round outlives the
+     * dialog (play session 1) and a `remember` inside it cannot see a level
+     * that moved while it was closed.
+     */
+    fun keptFor(skill: AcrobaticSkill?): RoundState {
+        val roll = acrobatic ?: return this
+        val same = skill != null && roll.label == skill.label && roll.baseTarget == skill.level
+        return if (same) this else copy(acrobatic = null)
+    }
+
     /** A fresh round: every value the two sentences govern, back to default. */
     fun newRound(): RoundState = RoundState()
 

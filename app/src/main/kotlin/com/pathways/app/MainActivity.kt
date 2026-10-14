@@ -105,6 +105,9 @@ fun App(
     // screens cannot drift apart.
     val saved = remember { store.load().toMutableMap() }
     var screen by remember(selected) { mutableStateOf(Screen.SHEET) }
+    // Above the screen switch, so the builder and the pathway screen do not
+    // take the scene down with the sheet (play session 1).
+    val scene = remember(selected) { SheetScene() }
     // One walk down a pathway per selected premade, restored from disk and
     // written back on every change.
     val session = remember(selected) {
@@ -127,6 +130,7 @@ fun App(
                 Screen.SHEET -> SheetScreen(
                     sheet,
                     session = session,
+                    scene = scene,
                     onPathways = { screen = Screen.PATHWAY },
                     onBuild = { screen = Screen.BUILDER },
                     onBack = { selected = null },
@@ -148,9 +152,10 @@ fun App(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SheetScreen(
+internal fun SheetScreen(
     sheet: PremadeSheet,
     session: BeyonderSession,
+    scene: SheetScene,
     onPathways: () -> Unit,
     onBuild: () -> Unit,
     onBack: () -> Unit,
@@ -165,7 +170,7 @@ fun SheetScreen(
     // roughly six phone-heights -- status, actions, pools, trait prose, then
     // the skills, which are the reason anyone opened it. Defaulting to SKILLS
     // puts the primary interaction one tap from the character, not six swipes.
-    var tab by remember(sheet) { mutableStateOf(SheetTab.SKILLS) }
+    var tab by scene.tab
     // Which of the hub's dialogs are open. A set, because two tiles
     // tapped a few milliseconds apart both reach this composition's
     // handlers and open two dialogs, as eleven flags did (6ei).
@@ -176,12 +181,11 @@ fun SheetScreen(
     // disagree with itself across surfaces (Codex, at design time). In memory
     // rather than in the session file, because a one-turn fact that survives a
     // force-stop has outlived its turn by construction.
-    var shocked by remember(sheet) { mutableStateOf(false) }
+    var shocked by scene.shocked
     // The held rows' "-N to all rolls" the GM says are in force (6gs): one
     // owner for the same reason as shock, declared once on the Vitals tab
-    // rather than at every roll. In memory, as shock is: SavedEdits drops the
-    // whole file on a decode failure, and a scene's state is not a purchase.
-    var declaredStates by remember(sheet) { mutableStateOf(emptySet<String>()) }
+    // rather than at every roll. Both live in [SheetScene], above this screen.
+    var declaredStates by scene.declaredStates
     // The CHECK, not the outcome, exactly as `rolling` holds the skill: the
     // roll happens inside the dialog, after the GM has stated a modifier.
     var controlling by remember(sheet) { mutableStateOf<SelfControlCheck?>(null) }
@@ -526,6 +530,8 @@ fun SheetScreen(
         onPickingUntrained = { pickingUntrained = it },
         shocked = shocked,
         onShocked = { shocked = true },
+        roundState = scene.round,
+        stunnedState = scene.stunned,
         sheet = sheet,
         session = session,
         drunk = drunk,

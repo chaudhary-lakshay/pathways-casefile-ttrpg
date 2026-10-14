@@ -1,6 +1,7 @@
 package com.pathways.app
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import com.pathways.model.Attr
 import com.pathways.model.Attributes
@@ -54,6 +55,9 @@ internal fun SheetDialogs(
     onPickingUntrained: (Boolean) -> Unit,
     shocked: Boolean,
     onShocked: () -> Unit,
+    /** Defend's round and Stunned, held in [SheetScene] so closing Defend keeps them. */
+    roundState: MutableState<RoundState>,
+    stunnedState: MutableState<Boolean>,
     sheet: PremadeSheet,
     session: BeyonderSession,
     drunk: BeyonderState?,
@@ -375,6 +379,8 @@ internal fun SheetDialogs(
             // a DX skill's.
             states = physicalStates,
             onSpendFp = { session.spend(Pool.FP, it, vitals.maxFp, maxCor) },
+            roundState = roundState,
+            stunnedState = stunnedState,
         ) { onClose(SheetDialog.DEFEND) }
     }
     if (SheetDialog.ATTACK in open) {

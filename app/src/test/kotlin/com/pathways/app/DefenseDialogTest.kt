@@ -376,6 +376,27 @@ class DefenseDialogTest {
         assertEquals(6, acrobaticTarget(untrained, ledger, emptyList()).target)
     }
 
+    /**
+     * The round now outlives the dialog (play session 1: closing Defend
+     * forgot a Retreat), so the guard that cleared a roll taken at a level
+     * that has since moved can no longer be a `remember` inside it. It reads
+     * the stored outcome itself.
+     */
+    @Test
+    fun `an Acrobatic Dodge rolled at another level is cleared and one at this level kept`() {
+        val at4 = AcrobaticSkill(acrobaticsKey, 4, "DX-6")
+        val rolled = RoundState(
+            retreated = true,
+            acrobatic = com.pathways.rules.SkillRoll.rollAgainst(
+                acrobaticTarget(at4, { emptyList() }, emptyList()),
+            ) { 3 },
+        )
+        assertEquals(rolled, rolled.keptFor(at4))
+        assertEquals(RoundState(retreated = true), rolled.keptFor(AcrobaticSkill(acrobaticsKey, 12, null)))
+        assertEquals(RoundState(retreated = true), rolled.keptFor(AcrobaticSkill(acrobaticsKey, 4, null)))
+        assertEquals(RoundState(retreated = true), rolled.keptFor(null))
+    }
+
     @Test
     fun `no Acrobatics and no default leaves nothing to roll`() {
         assertNull(acrobaticsFor(emptyMap(), emptyList()))
