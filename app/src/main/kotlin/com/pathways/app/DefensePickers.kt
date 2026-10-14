@@ -1,5 +1,10 @@
 package com.pathways.app
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.AssistChip
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import com.pathways.model.RollResult
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -437,20 +442,47 @@ internal fun ParriesThisRound(prior: Int, penalty: Int, onChange: (Int) -> Unit)
     ) { onChange((prior + it).coerceAtLeast(0)) }
 }
 
-/** One defence and the number it stands at, as a tile: the figure the GM asks for. */
+/**
+ * One defence and the figures it stands at, as a tile, with a roll at each
+ * (play session 1: Defend printed the numbers and rolled none). Two figures
+ * when a shield's DB may apply -- the GM picks, as [shieldedTargets] says.
+ * The verdict has a line of its own, drawn empty before the first roll and
+ * held to one line, so a roll moves no row under a finger even at phone
+ * width beside two chips (the diff review). A defence repeats, so a chip rolls again; a tap of a picture
+ * already replaced is dropped (the second-tap guard, 6gb).
+ */
 @Composable
-internal fun DefenseRow(label: String, value: String) {
+internal fun DefenseRow(name: String, targets: List<Int>, roll: (Int) -> RollResult) {
+    var rolled by remember(targets) { mutableStateOf<RollResult?>(null) }
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
     ) {
-        Row(Modifier.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(label, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(name, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    targets.joinToString(" → "),
+                    style = MaterialTheme.typography.headlineSmall.copy(fontFeatureSettings = "tnum"),
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                val drawn = rolled
+                targets.forEach { target ->
+                    AssistChip(
+                        onClick = { if (rolled === drawn) rolled = roll(target) },
+                        label = { Text("Roll ≤ $target") },
+                        modifier = Modifier.padding(end = 6.dp),
+                    )
+                }
+            }
             Text(
-                value,
-                style = MaterialTheme.typography.headlineSmall.copy(fontFeatureSettings = "tnum"),
-                color = MaterialTheme.colorScheme.primary,
+                rolled?.let { "3d6: ${it.total} vs ${it.target} — ${label(it.outcome)}" }.orEmpty(),
+                style = MaterialTheme.typography.titleSmall,
+                minLines = 1,
+                maxLines = 1,
             )
         }
     }

@@ -397,6 +397,17 @@ class DefenseDialogTest {
         assertEquals(RoundState(retreated = true), rolled.keptFor(null))
     }
 
+    /**
+     * Play session 1: Defend printed the numbers and rolled none. A row rolls
+     * against each figure it prints, so with a shield up the GM picks which
+     * -- at the side the book settles nothing (see [shieldedTargets]).
+     */
+    @Test
+    fun `a defence row offers a roll at each figure it prints`() {
+        assertEquals(listOf(8), shieldedTargets(7, null, everyDefence = 1))
+        assertEquals(listOf(8, 10), shieldedTargets(7, Shields.named("Medium"), everyDefence = 1))
+    }
+
     @Test
     fun `no Acrobatics and no default leaves nothing to roll`() {
         assertNull(acrobaticsFor(emptyMap(), emptyList()))

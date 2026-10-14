@@ -29,6 +29,7 @@ import com.pathways.rules.RandomSource
 import com.pathways.rules.Shields
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
+import com.pathways.rules.SuccessRoll
 import com.pathways.rules.UnarmedStyle
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.Shield
@@ -155,6 +156,9 @@ internal fun DefenseDialog(
         ActiveDefenses.everyDefence(traits, stunned, shocked, poolPenalty, states.total)
     }
     val refusal = ActiveDefenses.state(round.declared, traits)
+    // A defence is a plain 3d6 against the figure the row prints (play
+    // session 1: the numbers were shown and nothing rolled them).
+    val rollDefence = { target: Int -> SuccessRoll.against(target, dice) }
     val forfeiting = remember { ActiveDefenses.forfeitingActions() }
     val printed = remember { ContentLoader.defenses() }
     // Only the bullets this app does NOT apply. The Acrobatic Dodge row is
@@ -362,11 +366,12 @@ internal fun DefenseDialog(
                         // sentence printed in the acrobatic bullet's own cell:
                         // "Stacks with Retreat." -- corroboration for this row
                         // rather than the general line, and pinned by a test.
-                        shielded(
+                        shieldedTargets(
                             dodge + boostOn("Dodge", round.boost) + acrobaticSwing + diveBonus + retreatDodge,
                             shieldForDb,
                             everyDefence,
                         ),
+                        rollDefence,
                     )
                     printed.firstOrNull { it.defense == "Dodge" }?.let { DefenseNote(it.notes) }
                     // Under the row it moved, like the Acrobatic Dodge's own
@@ -408,11 +413,12 @@ internal fun DefenseDialog(
                     val label = "Parry ($name)"
                     DefenseRow(
                         label,
-                        shielded(
+                        shieldedTargets(
                             parryScore(value, parryPenalty, boostOn(label, round.boost), retreatParry),
                             shieldForDb,
                             everyDefence,
                         ),
+                        rollDefence,
                     )
                 }
                 item {
@@ -437,7 +443,7 @@ internal fun DefenseDialog(
                     val label = "Parry ($name)"
                     DefenseRow(
                         label,
-                        shielded(
+                        shieldedTargets(
                             parryScore(
                                 value,
                                 parryPenalty,
@@ -448,6 +454,7 @@ internal fun DefenseDialog(
                             shieldForDb,
                             everyDefence,
                         ),
+                        rollDefence,
                     )
                 }
                 item {
@@ -530,7 +537,7 @@ internal fun DefenseDialog(
                         val bare = ParryBlock.blockFor(shieldSkill, shieldDb = 0)
                         val boosted = boostOn("Block", round.boost)
                         if (held == null) {
-                            DefenseRow("Block", shielded(bare + boosted + retreatBlock, null, everyDefence))
+                            DefenseRow("Block", shieldedTargets(bare + boosted + retreatBlock, null, everyDefence), rollDefence)
                             // Two ways to have no DB, and they are different
                             // facts: nothing Readied, or something Readied
                             // that the book withholds from behind.
@@ -550,7 +557,7 @@ internal fun DefenseDialog(
                             val own = bare + everyDefence + boosted + retreatBlock
                             val melee =
                                 Shields.blockFor(held, shieldSkill) + everyDefence + boosted + retreatBlock
-                            DefenseRow("Block", "$own → $melee")
+                            DefenseRow("Block", listOf(own, melee), rollDefence)
                             // The ranged figure is shown beside it rather than
                             // replacing it: a light shield is "-1 to Block vs.
                             // ranged" and one number cannot say both. It takes

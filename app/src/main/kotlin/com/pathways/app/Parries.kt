@@ -122,24 +122,24 @@ internal const val SHIELD_SKILL = "Shield"
  * GM roll a shielded Dodge against a backstab (Codex), and hiding it would
  * withhold a bonus the book may well grant.
  */
-internal fun shielded(base: Int, shield: Shield?, everyDefence: Int = 0): String {
+internal fun shieldedTargets(base: Int, shield: Shield?, everyDefence: Int = 0): List<Int> {
     // What lands on EVERY row is unconditional -- Combat Reflexes' "+1 to all
     // active defenses" and the stun's "-4 to Active Defense" -- so it is
     // folded into the base, where the shield's conditional DB cannot be. Every
     // row goes through this one function for exactly that reason: two places
     // adding the same figure is how these numbers stop reconciling (6ai).
     val own = base + everyDefence
-    return if (shield == null) "$own" else "$own → ${Shields.withBonus(own, shield)}"
+    return if (shield == null) listOf(own) else listOf(own, Shields.withBonus(own, shield))
 }
 
 /**
  * The shield whose DB the rows may add, which is not always the one Readied.
  *
  * One function rather than the predicate written at each site: the Dodge and
- * Parry rows go through `shielded()` and the Block row builds its arrow by
+ * Parry rows go through `shieldedTargets()` and the Block row builds its arrow by
  * hand, so the same test written twice is how this codebase's numbers stopped
  * reconciling three times (6ag, 6ai, 6be). A design review named the Block row
- * specifically -- gating only `shielded()` would have left the bonus standing
+ * specifically -- gating only `shieldedTargets()` would have left the bonus standing
  * on the row the change exists for.
  *
  * Null means "add no DB", which the caller must not read as "no shield
@@ -152,7 +152,7 @@ internal fun shieldForDb(carried: Shield?, facing: Facing): Shield? =
  * What a paid boost adds to the row named [label], and nothing to the rest.
  *
  * Both printed sentences say "+2 to ONE defence", so the bonus is keyed on
- * the row the GM named rather than folded into [shielded] with Combat
+ * the row the GM named rather than folded into [shieldedTargets] with Combat
  * Reflexes -- which really does say "all active defenses" (6al).
  */
 internal fun boostOn(label: String, boost: Pair<DefenseBoost, String>?): Int =
