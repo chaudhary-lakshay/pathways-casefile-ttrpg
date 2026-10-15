@@ -352,7 +352,7 @@ fun PremadeGallery(
     if (creating) {
         NewCharacterDialog(
             bases = bases,
-            taken = sheets.map { it.name }.toSet(),
+            taken = takenNames(sheets, saved),
             onDismiss = { creating = false },
             onCreate = { name, base -> creating = false; onCreate(name, base) },
         )

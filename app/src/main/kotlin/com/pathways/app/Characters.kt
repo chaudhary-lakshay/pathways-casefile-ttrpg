@@ -9,11 +9,21 @@ internal const val BLANK_SHEET = "LOTM Blank Character Sheet"
  * The player's own characters: each save entry with a [SavedSession.basedOn],
  * as that premade under the entry's name. One whose premade is no longer
  * printed is left out rather than guessed at; its entry stays in the file.
+ * An entry under a premade's own name is that premade's, never a second sheet.
  */
 internal fun ownSheets(premades: List<PremadeSheet>, saved: Map<String, SavedSession>): List<PremadeSheet> {
     val byName = premades.associateBy { it.name }
-    return saved.mapNotNull { (name, entry) -> entry.basedOn?.let(byName::get)?.copy(name = name) }
+    return saved.filterKeys { it !in byName }
+        .mapNotNull { (name, entry) -> entry.basedOn?.let(byName::get)?.copy(name = name) }
 }
+
+/**
+ * Every name a new character may not take: the gallery's, and every save
+ * entry's, since one whose base is gone is not in the gallery and a new
+ * character under its name would overwrite it (the diff review).
+ */
+internal fun takenNames(sheets: List<PremadeSheet>, saved: Map<String, SavedSession>): Set<String> =
+    sheets.map { it.name }.toSet() + saved.keys
 
 /** Why [name] cannot be a new character, or null. Names key the save file. */
 internal fun newCharacterRefusal(name: String, taken: Set<String>): String? = when {

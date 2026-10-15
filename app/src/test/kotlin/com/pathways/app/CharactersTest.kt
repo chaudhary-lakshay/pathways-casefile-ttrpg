@@ -37,6 +37,18 @@ class CharactersTest {
     }
 
     @Test
+    fun `an entry whose base is gone still holds its name`() {
+        // Not in the gallery, still in the file: a new character must not overwrite it.
+        val saved = mapOf("Ghost" to SavedSession(basedOn = "Nobody"))
+        assertTrue("Ghost" in takenNames(premades + ownSheets(premades, saved), saved))
+    }
+
+    @Test
+    fun `an entry under a premade's own name is never a second sheet`() {
+        assertEquals(emptyList<Any>(), ownSheets(premades, mapOf("Beat Cop" to SavedSession(basedOn = BLANK_SHEET))))
+    }
+
+    @Test
     fun `a new character needs a name no one else has`() {
         val taken = setOf("Beat Cop", "Elsie")
         assertEquals("Name the character.", newCharacterRefusal("  ", taken))

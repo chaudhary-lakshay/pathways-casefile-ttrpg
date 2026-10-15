@@ -25,7 +25,10 @@ it does the arithmetic. Nothing is hidden and nothing is invented.
 
 ## 1. Pick a character
 
-The premade list shows all 23 sheets. Tap one. The palette icon in its top bar
+The premade list shows all 23 sheets. Tap one. To make your own, tap the
+person icon in the top bar: give a name and pick what it starts as (the blank
+sheet, or a premade to copy). It joins the list under that name, and the
+builder (**Spend points**) is where it is built. The palette icon in its top bar
 opens the theme picker — presets, plus light / dark / follow-system.
 
 A row prints the four attributes, the skill count and the first two traits
@@ -104,6 +107,8 @@ potion grants.
   has no target. It shows dice, not verdicts: a push or a table's own rule
   can change a verdict after the dice, and the dialog that rolled says which.
   It is not saved; closing the app clears it.
+- **⋮ → Delete character** appears only on a character you made (below),
+  and removes it after asking. A premade cannot be deleted.
 - **⋮ → Reset to sheet** puts the character back to the printed sheet:
   potions, purchases, wounds, corruption, declared lines and the roll log
   all go. It asks first, and it cannot be undone. It is for starting over,
