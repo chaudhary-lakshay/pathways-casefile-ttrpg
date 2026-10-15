@@ -56,6 +56,18 @@ internal fun targetLine(target: Int): String {
 }
 
 /**
+ * The two refusals no pick in the dialog can lift: they lead it, above
+ * the form (play session 3, the owner's call), and open [boonRefusal].
+ */
+internal fun standingRefusal(skillLevel: Int?, lost: Boolean): String? = when {
+    lost -> "No prayer — this character is lost, and the GM plays them."
+    // Ch. 7 II: the skill "has no default and cannot be substituted".
+    skillLevel == null ->
+        "No prayer — a boon is rolled on $RITUAL_SKILL, which has no default. Buy it under Spend points."
+    else -> null
+}
+
+/**
  * Why no prayer can be made, or null. One answer for the button and the
  * line above it.
  *
@@ -74,11 +86,7 @@ internal fun boonRefusal(
     hpSacrificed: Int = 0,
     language: LanguageProficiency? = null,
     paid: Boolean = false,
-): String? = when {
-    lost -> "No prayer — this character is lost, and the GM plays them."
-    // Ch. 7 II: the skill "has no default and cannot be substituted".
-    skillLevel == null ->
-        "No prayer — a boon is rolled on $RITUAL_SKILL, which has no default. Buy it under Spend points."
+): String? = standingRefusal(skillLevel, lost) ?: when {
     patron == null -> "Choose a patron."
     next == null && held != null ->
         "The book records no boon past Sequence ${held.sequence} for this patron."
@@ -343,6 +351,15 @@ fun BoonDialog(
             }
             Column {
                 Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+                    // Before the form, not under it: no pick below lifts it.
+                    standingRefusal(skillLevel, lost)?.let {
+                        Text(
+                            it,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(bottom = 8.dp),
+                        )
+                    }
                     if (held == null) {
                         SectionLabel("Patron's pathway")
                         FlowRow {

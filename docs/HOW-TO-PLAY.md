@@ -438,7 +438,8 @@ still buys a clearer answer.
 
 ### Boon
 
-Always on the sheet. Without Ritualistic Magic it opens and says so: the
+Always on the sheet. Without Ritualistic Magic it opens and says so first,
+above the form, which stays below for reference: the
 skill has no default, and **Spend points** sells it. It also needs 4 SPI of
 fuel, in SPI or in blood.
 

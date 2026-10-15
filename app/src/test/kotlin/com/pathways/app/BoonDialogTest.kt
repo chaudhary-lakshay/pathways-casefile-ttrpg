@@ -50,6 +50,20 @@ class BoonDialogTest {
         assertTrue("GM" in refusal(next = null, lost = true)!!)
     }
 
+    /**
+     * Play session 3: a Scholar with no Ritualistic Magic filled in the whole
+     * petition before the bottom line said no. The two refusals no pick in
+     * the dialog can lift lead it (the owner, 2026-10-16); the rest are steps.
+     */
+    @Test
+    fun `only a refusal no pick can lift leads the dialog`() {
+        assertTrue("Ritualistic Magic" in standingRefusal(skillLevel = null, lost = false)!!)
+        assertTrue("GM" in standingRefusal(skillLevel = 12, lost = true)!!)
+        assertNull(standingRefusal(skillLevel = 12, lost = false))
+        // The same words the footer prints: one copy.
+        assertEquals(standingRefusal(null, false), boonRefusal(null, null, null, null, cost = 4, spiAvailable = 9))
+    }
+
     @Test
     fun `blood pays for a prayer that SPI cannot`() {
         // Ch. 13: "a mortal may acquire a boon", by "the standard Ritualistic
