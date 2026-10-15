@@ -95,9 +95,10 @@ internal fun ShieldPicker(
 internal fun NewRoundControl(round: RoundState, onNewRound: () -> Unit) {
     if (!round.isSpent()) return
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        // Not "spent": a declared surprise is enough to show this, and it
+        // spends nothing (play session 2).
         Text(
-            "Free actions, parries and any paid +${ActiveDefenses.BOOST_BONUS} " +
-                "are spent for this round.",
+            "What is marked here holds until the next round.",
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(end = 8.dp),
         )
