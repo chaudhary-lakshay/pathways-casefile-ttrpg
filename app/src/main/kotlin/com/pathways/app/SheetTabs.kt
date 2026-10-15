@@ -33,7 +33,7 @@ import com.pathways.rules.PremadeSheet
 // emitted for that tab before they were split out.
 
 internal fun LazyListScope.vitalsTab(
-    diffSummary: String,
+    diffSummary: String?,
     hpNow: PoolStatus,
     ht: Int,
     traits: List<Trait>,

@@ -209,6 +209,8 @@ internal fun SheetScreen(
 ) {
     val drunk = session.state
     val rows = remember(sheet) { SheetComparison.of(sheet) }
+    // Only an own character can be deleted, and only a premade is the book's.
+    val isOwn = onDelete != null
     val differing = rows.count { !it.matches }
     // The SKILL, not the outcome: the roll now happens inside the dialog, after
     // the GM has stated the circumstances.
@@ -254,7 +256,7 @@ internal fun SheetScreen(
     // The seven secondaries as PLAYED, each beside its row of the diff
     // (6fz). Keyed as the pools above are: a potion or an edit moves both.
     val secondaryLines = remember(sheet, rows, drunk, session.edits) {
-        vitalLines(sheet, rows, session.characterFor(sheet).secondariesWith(drunk))
+        vitalLines(sheet, rows, session.characterFor(sheet).secondariesWith(drunk), compared = !isOwn)
     }
     // The traits actually in play -- the sheet's, plus anything the edit
     // layer changed. Hoisted because more than one reader needs them.
@@ -523,7 +525,10 @@ internal fun SheetScreen(
                     // below carry in red. A check on the book, not on the
                     // character, so it heads the stat list rather than the
                     // screen a player reads every turn.
-                    diffSummary = if (differing == 0) {
+                    diffSummary = if (isOwn) {
+                        // An own character: nothing published to differ from.
+                        null
+                    } else if (differing == 0) {
                         "All ${rows.size} values match the published sheet"
                     } else {
                         "$differing of ${rows.size} values differ from the published sheet"

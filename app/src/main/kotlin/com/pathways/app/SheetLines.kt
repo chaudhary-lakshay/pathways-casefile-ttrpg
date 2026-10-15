@@ -54,10 +54,22 @@ internal fun playedLine(row: SheetRow, played: String): PlayedLine {
  * [played], each beside its own row of [rows]. Paired by label, never by
  * position: the two lists come from one function, and a label is what says
  * which row a number belongs to.
+ *
+ * [compared] is false for an own character: the sheet it was copied from is
+ * where it started, not a book it can disagree with, so no line carries a
+ * note (play session 2).
  */
-internal fun vitalLines(sheet: PremadeSheet, rows: List<SheetRow>, played: Secondaries): List<PlayedLine> =
+internal fun vitalLines(
+    sheet: PremadeSheet,
+    rows: List<SheetRow>,
+    played: Secondaries,
+    compared: Boolean = true,
+): List<PlayedLine> =
     SheetComparison.secondaryRows(played, sheet.published)
-        .map { now -> playedLine(rows.first { it.label == now.label }, now.computed) }
+        .map { now ->
+            val line = playedLine(rows.first { it.label == now.label }, now.computed)
+            if (compared) line else line.copy(basis = null, disagreement = null)
+        }
 
 /**
  * What each self-control roll stands at before the GM has said anything, by

@@ -357,14 +357,16 @@ internal fun ComparisonRow(
  * takes the accent, with the sheet's figure beside its name; none rolls.
  */
 @Composable
-internal fun VitalsCard(diffSummary: String, lines: List<PlayedLine>) {
+internal fun VitalsCard(diffSummary: String?, lines: List<PlayedLine>) {
     val shape = RoundedCornerShape(10.dp)
     val accent = MaterialTheme.colorScheme.primary
     Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Surface(shape = shape, color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
-            Row(Modifier.height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.width(3.dp).fillMaxHeight().background(accent))
-                Text(diffSummary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(12.dp))
+        if (diffSummary != null) {
+            Surface(shape = shape, color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+                Row(Modifier.height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.width(3.dp).fillMaxHeight().background(accent))
+                    Text(diffSummary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(12.dp))
+                }
             }
         }
         Surface(shape = shape, color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {

@@ -91,6 +91,19 @@ class SheetLinesTest {
     // A self-control row prints the target its dialog opens on. Until 6ga
     // the row left out the shock and the reeling its dialog rolled with.
 
+    /**
+     * An own character has no published sheet: the one it was copied from is
+     * a starting point, and Mira, built from the blank, read "1 of 7 values
+     * differ" over the blank's floored Basic Speed (play session 2).
+     */
+    @Test
+    fun `an own character's lines carry no sheet note`() {
+        val blank = Premades.byName(BLANK_SHEET)
+        val lines = vitalLines(blank, SheetComparison.of(blank), blank.toCharacter().secondariesWith(null), compared = false)
+        assertEquals(7, lines.size)
+        assertEquals(emptyList<PlayedLine>(), lines.filter { it.disagreement != null || it.basis != null })
+    }
+
     private val bouncer = SelfControl.checksFor(Premades.byName("Docks Bouncer").toCharacter().traits)
 
     @Test
