@@ -193,6 +193,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6hq** — a prayer takes a mystical tongue and Entity Response, asked first; no response grants no boon; the fuel paid does not lower the roll; a bonus on a bought skill re-levels;
 **6hp** — nine components the owner picked from three variants each: one Vitals card, steppers, section cards, a card per power, the gallery filter as tabs; display only;
 **6ho** — a prayer's fuel may be paid in HP, 2 for 1 SPI, as ch. 7 IV.B prints and ch. 13 defers to: how a mortal prays; fuel only, `Boons.targetFor` untouched;
 **6hn** — a boon block's catalogue rows are granted through the potion merge: Charisma +2, Acute Hearing, Acute Vision, Fit; five look-alike names are refused, each printing another rule;
@@ -242,11 +243,9 @@ slice log.** One line each:
 **6fm** — a potion's Charisma levels add down the chain and onto a bought level, capped at 4; the label first said the grant's level, not what it added;
 **6fk** — a potion's catalogue rows are granted through one table pinned both ways; a census that dropped names under four characters lost Fit, and the builder would have sold a granted row;
 **6fj** — the Warrior's default +2 stays refused, on the book's reason: no number fits both the Warrior's example and the Weapon Master's DX ceiling;
-**6fi** — a potion's senses reach the Per roll through one table; the census took its names from my list, not the prose, and a non-compiling mutant read stale XML as a catch;
-**6fh** — Acute Vision and Hearing are declared on every Per skill; Spirit Vision takes Vision alone, and a row held twice is deduped on `trait to printed`;
-**6fg back to 6de** have one-line digests too, moved verbatim to
+**6fi back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
-its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi, 6hk, 6hm, 6hq, 6hr, 6hs, 6ht, 6hu).
+its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi, 6hk, 6hm, 6hq, 6hr, 6hs, 6ht, 6hu, 6hv).
 
 **6dd back to 6cd had lead paragraphs here and they have been cut, because
 this file keeps reaching the 150 k-char limit (6eb: 152,583; 6eh cut 6dd to
@@ -265,9 +264,15 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6hu first.** END
+**Where to start next: the slice log, from the END — 6hv first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
-line 6728, then 6hu back to 6cb, newest first, so `tail` prints 6cb. 6hu:
+line 6728, then 6hv back to 6cb, newest first, so `tail` prints 6cb. 6hv:
+(play session 2, which I played alone as an own character, Mira: eleven
+findings, all fixed; shock leaves the daily recovery roll, which comes a
+day after a one-turn state; the skill stepper steps rung to rung; the
+Damage dialog prices a hit by its type, floored as a reading; reset keeps
+an own character's build; a Fright quirk is recorded at 0; a held power's
+fixed SPI price has a button; seen on the SM-T570). Then 6hu
 (own
 characters, a save entry whose `basedOn` names its premade, no second file;
 study points recorded on a skill's points with a `studied` share the budget
@@ -291,13 +296,7 @@ unpicked). Then 6hr
 of the declared HP first, as the prayer's does, so a caster at 0 SPI
 who bled for it casts; an invoked ritual pays when the entity is asked,
 and the fuel chips lock; `Invocation.fuelFor` is the one price both
-dialogs charge; seen on the SM-T570). Then 6hq
-(four owner answers on the Boon prayer: it takes a mystical tongue and
-ch. 7's Entity Response, asked first and unshifted; no response grants
-no boon; the fuel is spent on asking and does not lower the roll it
-paid for; a potion's bonus stacked on a BOUGHT skill re-levels with a
-later attribute gain; the doubling and the 1/2/4/8/16 ladder stand;
-seen on the SM-T570; pushed 2026-10-14 through `6d5a6b0`). The chain
+dialogs charge; seen on the SM-T570). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -354,9 +353,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2243 Kotlin** (JUnit 5 — 1450 `core:rules`, 770 `app`, 23 `core:model`, counted in 6hu) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2259 Kotlin** (JUnit 5 — 1456 `core:rules`, 780 `app`, 23 `core:model`, counted in 6hv) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`: SHIP, one LOW not taken (a 12.dp indent); 6hm's uncommitted tree: ship with changes, taken; 6hn: ship with changes, taken; 6ho: SHIP; 6hp: ship with changes, taken; then `09f19e5..d52eb4e -- app`: ship with changes, one MEDIUM not taken (the 280.dp row at 360dp); 6hq's design: CHANGE, taken; its diff `fb6bba6..0d7ced5`: SHIP; 6hr's design: CHANGE, taken; its uncommitted tree: ship with changes, taken; 6hs's twelve fixes: SHIP and ship with changes, taken; 6ht's reset and roll log: SHIP, one LOW taken; 6hu's own characters: ship with changes (reviewed after commit), taken; study's design: CHANGE, taken; its diff: ship with changes, taken |
+| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`: SHIP, one LOW not taken (a 12.dp indent); 6hm's uncommitted tree: ship with changes, taken; 6hn: ship with changes, taken; 6ho: SHIP; 6hp: ship with changes, taken; then `09f19e5..d52eb4e -- app`: ship with changes, one MEDIUM not taken (the 280.dp row at 360dp); 6hq's design: CHANGE, taken; its diff `fb6bba6..0d7ced5`: SHIP; 6hr's design: CHANGE, taken; its uncommitted tree: ship with changes, taken; 6hs's twelve fixes: SHIP and ship with changes, taken; 6ht's reset and roll log: SHIP, one LOW taken; 6hu's own characters: ship with changes (reviewed after commit), taken; study's design: CHANGE, taken; its diff: ship with changes, taken; 6hv's eleven fixes `f6d2406..a5fdf48`: ship with changes, one LOW taken, two not |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
@@ -368,7 +367,7 @@ player-facing guide to all four and is verified against the labels in source.
 py -m pytest tools -q                # Python tooling tests (Windows: `py`, not `python`)
 ast-grep scan                     # 4.3's division rule; silent and exit 0 when clean
 ast-grep scan --rule tools/sg-census/session-mutator-in-lambda.yml --report-style short
-                                  # 6gb's census: 39 lines (6hu), one per call site
+                                  # 6gb's census: 40 lines (6hv), one per call site
 ast-grep run -l kotlin -p 'SkillRoll.targetFor($$$)' app core   # call sites
 ```
 
@@ -492,6 +491,8 @@ SecondaryCharacteristics.valueLabelOf(s, key): String?
                                       // null for spi/cor/digestion: the three
                                       // rows the table refuses to price
 SkillLadder.levelFor(points, difficulty, attributeLevel): Int
+SkillLadder.stepped(bought, studied, up): Int   // the builder's step: rung to
+                                      // rung, study counted, 0 un-buys (6hv)
 SkillLadder.defaultFor(difficulty, attributeLevel): Int?   // ch.2's table ALONE
 SkillDefaults.offeredTo(character): List<Untrained>   // what a screen asks: the
                                       // table, Brawling's DX-2, Wrestling's
@@ -500,7 +501,7 @@ SkillDefaults.offered(owned, attributeLevel, defaultBonus, traits) / .weaponNote
                                       // traits: Medical Training's Physician
                                       // at IQ-2, a level and not a default (6gy)
 SkillDefaults.NOT_LISTED / .PLAIN_ROLL    // what the list withholds and does not carry
-SkillDefaults.attacks(untrained)      // the rows the Attack dialog can show an
+SkillDefaults.attacks(untrained, carried, owned)   // the rows the Attack dialog can show an
                                       // attack for: an app boundary, not a rule
 SkillDefaults.masteryFor(pathway, sequence) / .mastered(level, weaponInHand, mastery, dx)
                                       // Warrior / Weapon Master: a weapon IN
@@ -669,6 +670,8 @@ Wounds.locationNamed(target): HitLocation / .locations() / .damageTypes()
 Wounds.multiplierFor(location, type): Double   // both tables, composed
 Wounds.typeMultiplier(type) / .modifier(location) / .render(multiplier)
 Wounds.majorWoundThreshold(maxHp) / .isMajorWound(damage, maxHp)
+Wounds.injuryFor(penetrating, location, type)   // both multipliers,
+                                      // floored as a reading (6hv)
 Wounds.effectsAt(location, damage, maxHp) / .thresholdFor(location, outcome, maxHp)
 Wounds.cripplingRule()                // p.41, unclaimed and filter-invisible until 6di
 Wounds.majorWoundFor(roll): MajorWound / .majorWounds()
@@ -704,6 +707,8 @@ ModifierSource.label()                // what moved the target, in the
                                       // modifier's own words, never its id (6ge)
 FrightCheck.against(will, modifier, source): FrightOutcome   // two rolls
 FrightCheck.effectFor(roll) / .text(effect, kind) / .triggers()
+FrightCheck.grantsQuirk(effect, kind)  // the 13-15 band; recorded as
+                                      // SavedEdits.quirks at 0 (6hv)
 RitualResolution.attempt(skill, weight, cor, source): RitualOutcome
 RitualResolution.rollAgainst(target, source): RitualOutcome
                                       // the roll, against a target targetFor
@@ -996,6 +1001,9 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
   that `PointBudget.report` subtracts (`points - studied`), so every level
   reader keeps reading `points`. A new reader that wants "what was paid"
   must subtract `studied`; a new free gain must not reuse this field.
+  **A quirk acquired in play** (6hv) is a trait at cost 0 from
+  `SavedEdits.quirks`, never a priced one: it bills nothing, as a gained
+  disadvantage does.
 - **Sequences are cumulative.** A Sequence 8 Fool drank the Sequence 9 potion
   first. `digestThrough` folds the chain; digesting one block alone answers a
   different question.

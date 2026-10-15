@@ -6726,6 +6726,125 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hv. Play session 2: eleven findings, all fixed
+
+The owner said "play yourself" (2026-10-15). I built an own character,
+**Mira**, from the blank sheet (detective: Guns (Revolver), Observation,
+Alertness, Combat Reflexes, Code of Honor (Detective) -10, revolver and
+knife) and played a warehouse scene on the SM-T570: Observation in the dark,
+a surprised Dodge, a revolver hit and its damage, a 7-point major wound, a
+failed Fright Check, Justiciar 9, the roll log, Concentrate, study points.
+Twelve findings; checked against their recorded reasons before reporting,
+one dropped (Concentrate's "Injured or defending" is the book's `disturbed`,
+not HP below max). The owner: "fix all of them".
+
+### Fixes, one commit each
+
+- **Shock left the daily recovery roll** (`25ebf7d`). A shocked HT 10 was
+  offered *Roll HT 5 — a day of rest and food*. Shock is "-4 to all rolls
+  for 1 turn" and the roll comes after a day. 6gs's `5a106fa` put it there
+  by a reach census ("every roll shock reaches"), which never weighed the
+  duration. `RollKind.DAILY_RECOVERY`, refused by `Shock.appliesTo` for
+  WHEN it happens, as `MAJOR_WOUND_HT` is; `NaturalRecovery.targetFor`
+  lost its shock term.
+- **Defend's round line** (`4f85bc9`). Declaring Surprised showed "Free
+  actions, parries and any paid +2 are spent for this round". `isSpent`
+  counts `declared`, rightly (New round clears a surprise); only the
+  sentence was false: *What is marked here holds until the next round.*
+- **Roll log labels** (`8c9d1dd`). The Attack and Damage dialogs take
+  `CharacterDice` and label each throw: *Attack damage*, *Major wound HT*,
+  *Stun recovery*. The log had read the HT roll as *Damage 7 vs 10*.
+- **An own character has no published sheet** (`a637a20`). Mira read "1 of
+  7 values differ from the published sheet" over the blank's floored Basic
+  Speed. `vitalLines(compared = false)` and no summary for an own
+  character; premades unchanged.
+- **The skill stepper steps rung to rung** (`63ab58f`). The book prints
+  cumulative totals, "you pay the difference to move from one step to the
+  next" (line 1573); a one-point `+` sold 3 points that bought nothing over
+  2. `SkillLadder.stepped(bought, studied, up)`: up to the next rung,
+  counting study and never buying it; down to the rung below, keeping one
+  bought point where study alone holds it (un-buying discards the study).
+  `BeyonderSession.stepSkill` reads the live edits, so it repeats.
+- **No untrained row for a weapon held better** (`a6d2d50`). Mira, with
+  Guns (Revolver) 12 and a revolver, was offered untrained Guns (Pistol) 6
+  for the same gun (6hs's `ALSO_ARMS`). `SkillDefaults.attackWeapons` takes
+  the row's level and the owned levels, and skips a carried weapon an owned
+  skill wields at that level or better.
+- **The Damage dialog prices a hit by its type** (`63d04bd`, `911e63c`).
+  Its KDoc recorded "does NOT re-price the damage": the attacker's dialog
+  prints the multiplier. That holds for the character's own hits; for one
+  taken, the GM worked out 5 cut → 7 by hand. **The number above is**:
+  *Injury* (default, as before) or a type, which makes it penetrating
+  damage. `Wounds.injuryFor` applies both multipliers, **floored as a
+  reading** (the book prints the product and no rounding; it rounds down
+  where it prints one), with no minimum of 1 (none printed). DR stays the
+  GM's to subtract: the Skull's "DR 2" is prose beside a helmet's. The
+  review's LOW: the roll and Apply handlers read the injury as drawn; both
+  read it live now (`injuryNow()`).
+- **Reset keeps an own character's build** (`76c2bb1`). `cleared()` kept
+  only `basedOn`, while its call site's comment said "only its play is
+  cleared". An own character's purchases are its sheet: `built()` keeps
+  them and drops potions, wounds, CoR, study, a boon, quirks, and a
+  disadvantage gained in play with its trait. The dialog says which.
+  Premades unchanged.
+- **Skill search** (`d6463e2`). 158 rows, Guns about sixty down. The
+  picker's own ponytail comment said "Add one when the list is the
+  complaint". A fixed-height list, so the field does not move as it
+  narrows (6gn).
+- **A Fright quirk is recorded** (`272bd2a`). The 13–15 band says "Acquire
+  a quirk" in all three columns; `FrightCheck.grantsQuirk` reads the cell's
+  opening words, pinned over every cell. `SavedEdits.quirks` (additive,
+  defaulted, in `isEmpty`), held at cost 0, printed *gained in play*,
+  given back in the builder. `PointBudget`'s "nothing produces a quirk"
+  KDoc now says the one produced costs 0.
+- **A held power's SPI price has a button** (`a5fdf48`). Authority prints
+  "1 SPI" and it was moved on the tracker by hand. `spiPriceOf(tag)` reads a
+  bracket's FIXED price: a census of the 26 cost tags in `pathways.json`
+  found "1 SPI" 72 times and "2 SPI" 52; "X SPI", "1+ SPI", "1–2 SPI/turn"
+  and "1-4 SPI" are the GM's and get none; "2 SPI + 1 SPI/turn" is its
+  activation, 2. Only on a potion drunk (this Sequence or an earlier one
+  of the pathway walked), drawn disabled when the SPI left cannot pay,
+  guarded on the SPI it was drawn with.
+
+### Checks
+
+2259 Kotlin (1456 `core:rules`, 780 `app`, 23 `core:model`) from deleted
+results with `--rerun-tasks`; 366 Python, the 800-line ratchet passing
+(`PathwayScreen.kt` 788). `ast-grep scan` clean. The click-handler census
+reads 40: the new line is the SPI spend, guarded. RED watched for each new
+test; three were compile REDs. Two passed before I saw them fail and were
+proved by mutants from a `cp`: `vitalLines` ignoring `compared`, and
+`attackWeapons` without the owned-skill clause; each failed its test, and
+the file was restored from the copy. Two of my expectations were wrong and
+the implementation right (2 + 2 studied steps to 6 bought, not 2; 3
+points sits on the 2-point rung, so down is 1).
+
+### Review
+
+ecc (sonnet) over `f6d2406..a5fdf48 -- core app`: SHIP WITH CHANGES. Taken:
+the Damage dialog's drawn-injury LOW. Not taken: a disadvantage bought in
+the builder and then marked gained goes on reset (that is what the mark
+means); `built()` resolves instanced names without the held traits, so a
+row `canInstantiate` refuses there is kept (a miss, never a wrong price).
+
+### Device pass, SM-T570 (USB: the tablet's Wi-Fi was off)
+
+Save backed up first; afterwards only Mira's entry differed, and the others
+gained an empty `quirks`. Mira's Vitals: no banner, Basic Speed 5.25 bare;
+Dock Foreman still *1 of 18 values differ*. A cut of 5: *×1.5 = 7*; Neck
+*×3 = 15*. Shocked, the day's roll read *Roll HT 10*. Surprised: the new
+line. Attack offered no Guns (Pistol); the log read *Attack damage*,
+*Attack*, *Major wound HT*, *Stun recovery*. Fright reached 13–15 on the
+13th try; *Fears deep water* saved, on Traits as *gained in play*, in the
+builder with Give back. Observation 2 + 2 studied: `+` to 6 + 2, level 11,
+66 → 70 spent; `−` back. Search "guns": Pistol, Rifle, Shotgun (Revolver
+owned). Authority: *Spend 1 SPI*, `spiSpent` 0 → 1, then *Spend 1 SPI: 0
+left*, disabled, a tap changed nothing. Reset: build kept, potion, wounds,
+study and quirk gone.
+
+**Open after 6hv:** nothing from either play session. Not taken: studying
+a skill the character lacks (6hu's note).
+
 ## 6hu. Own characters, and study points recorded
 
 The play-readiness list's last two (2026-10-14), on the owner's "go ahead"

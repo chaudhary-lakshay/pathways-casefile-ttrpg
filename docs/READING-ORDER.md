@@ -195,6 +195,14 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hq
+(four owner answers on the Boon prayer: it takes a mystical tongue and
+ch. 7's Entity Response, asked first and unshifted; no response grants
+no boon; the fuel is spent on asking and does not lower the roll it
+paid for; a potion's bonus stacked on a BOUGHT skill re-levels with a
+later attribute gain; the doubling and the 1/2/4/8/16 ladder stand;
+seen on the SM-T570; pushed 2026-10-14 through `6d5a6b0`).
+
 Then 6hp
 (nine components the owner picked from three drawn variants each: one
 Vitals card, a wide stepper in a card for digestion and corruption, a
@@ -2481,8 +2489,10 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6fg back to 6de
+## Digest index, 6fi back to 6de
 
+**6fi** — a potion's senses reach the Per roll through one table; the census took its names from my list, not the prose, and a non-compiling mutant read stale XML as a catch;
+**6fh** — Acute Vision and Hearing are declared on every Per skill; Spirit Vision takes Vision alone, and a row held twice is deduped on `trait to printed`;
 **6fg** — Luck may reroll a failed PCR, so the attempted potion is saved; a restart would strand it, and a Will lowered since made the reroll throw;
 **6ff** — six rows that name one skill are declared on its roll; one list, `skillRollClauses`, feeds the chips and the dice, and "rural" excludes the sea;
 **6fe** — Alertness reaches Spirit Vision's Per roll; a recorded census ("the one bare Per roll") expired when a second roll arrived;
