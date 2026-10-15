@@ -300,7 +300,7 @@ internal fun SheetDialogs(
             hasSpirituality = vitals.maxSpi > 0,
             maxHp = vitals.maxHp,
             ht = attributes.ht,
-            dice = dice.dice("Damage"),
+            dice = dice,
             onApply = { pool, amount ->
                 val max = when (pool) {
                     Pool.HP -> vitals.maxHp
@@ -395,7 +395,7 @@ internal fun SheetDialogs(
             conditions = { conditionsFor(it, withDeclared = false) },
             st = attributes.st,
             dx = attributes.dx,
-            dice = dice.dice("Attack"),
+            dice = dice,
             // An All-Out maneuver's own FP is spent like any other: through
             // the tracker, so the next roll is made by a tireder character.
             // Distinct from [burn]: this is the maneuver's printed price, not

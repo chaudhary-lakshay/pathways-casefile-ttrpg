@@ -35,7 +35,6 @@ import com.pathways.rules.DamageRoll
 import com.pathways.rules.DarknessCause
 import com.pathways.rules.TraitClauses
 import com.pathways.rules.TraitEffects
-import com.pathways.rules.RandomSource
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
@@ -73,12 +72,13 @@ private const val BOXING = "Boxing"
  * the Skills tab, where a to-hit number is all there is.
  */
 @Composable
-fun AttackDialog(
+internal fun AttackDialog(
     skillLevels: Map<SkillKey, Int>,
     conditions: (SkillKey) -> List<com.pathways.model.Modifier>,
     st: Int,
     dx: Int,
-    dice: RandomSource,
+    /** Labelled per throw, so the roll log tells the attack from its damage. */
+    dice: CharacterDice,
     onSpendFp: (Int) -> Unit,
     /**
      * What is left of the character's SPI, for Ch. 2's mystical push.
@@ -286,7 +286,7 @@ fun AttackDialog(
                                 // One throw per hit: a second tap of the same
                                 // picture would replace the first.
                                 if (index !in damageRolls) {
-                                    damageRolls = damageRolls + (index to Damage.roll(damage, dice))
+                                    damageRolls = damageRolls + (index to Damage.roll(damage, dice.dice("Attack damage")))
                                 }
                             }
                         }
@@ -538,7 +538,7 @@ fun AttackDialog(
                             // The target printed above the button, the count and
                             // the cost as they were drawn. Nothing the plan is
                             // made of is read again here (6eg).
-                            outcomes = List(attacks) { SkillRoll.rollAgainst(standing.target, dice) }
+                            outcomes = List(attacks) { SkillRoll.rollAgainst(standing.target, dice.dice("Attack")) }
                             rolledDamage = damage
                             damageRolls = emptyMap()
                             fp.takeIf { it > 0 }?.let(onSpendFp)

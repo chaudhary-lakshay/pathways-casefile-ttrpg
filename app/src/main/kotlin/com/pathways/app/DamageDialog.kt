@@ -39,7 +39,6 @@ import com.pathways.model.RollResult
 import com.pathways.rules.ClauseBonus
 import com.pathways.rules.MajorWoundHt
 import com.pathways.rules.Pool
-import com.pathways.rules.RandomSource
 import com.pathways.rules.Shock
 import com.pathways.rules.StunRecovery
 import com.pathways.rules.SuccessRoll
@@ -74,11 +73,12 @@ import com.pathways.rules.content.HitLocation
  * second place that knows the rate is a second place to get it wrong.
  */
 @Composable
-fun DamageDialog(
+internal fun DamageDialog(
     hasSpirituality: Boolean,
     maxHp: Int,
     ht: Int,
-    dice: RandomSource,
+    /** Labelled per throw: the log said "Damage 7 vs 10" for the HT roll. */
+    dice: CharacterDice,
     onApply: (Pool, Int) -> Unit,
     /**
      * Latches the Major Wound's shock, which this dialog is where it comes
@@ -282,14 +282,14 @@ fun DamageDialog(
                     // picture would roll for a hit since stepped down.
                     onRoll = {
                         if (shock == null && pool == Pool.HP && Wounds.isMajorWound(amount, maxHp)) {
-                            shock = SuccessRoll.against(htTarget, dice)
+                            shock = SuccessRoll.against(htTarget, dice.dice("Major wound HT"))
                         }
                     },
                     recoveryTarget = recoveryTarget,
                     recoveryLine = stunRecoveryHt.line,
                     recovery = recovery,
                     onRecoveryRoll = {
-                        if (recovery == null) recovery = SuccessRoll.against(recoveryTarget, dice)
+                        if (recovery == null) recovery = SuccessRoll.against(recoveryTarget, dice.dice("Stun recovery"))
                     },
                 )
                 if (pool == Pool.HP) {
