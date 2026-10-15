@@ -98,7 +98,7 @@ class MainActivity : ComponentActivity() {
  */
 @Composable
 fun App(
-    sheets: List<PremadeSheet>,
+    premades: List<PremadeSheet>,
     store: SessionStore,
     themePrefs: MutableState<ThemePrefs>,
 ) {
@@ -127,8 +127,23 @@ fun App(
         }
     }
 
+    // The premades, then the player's own characters. Not remembered: `saved`
+    // is a plain map, and it changes only while a sheet is selected, so each
+    // return to the gallery reads it fresh.
+    val sheets = premades + ownSheets(premades, saved)
+
     when (val sheet = selected) {
-        null -> PremadeGallery(sheets, saved, themePrefs) { selected = it }
+        null -> PremadeGallery(
+            sheets,
+            saved,
+            themePrefs,
+            bases = premades.sortedByDescending(::isTemplate),
+            onCreate = { name, base ->
+                saved[name] = SavedSession(basedOn = base.name)
+                store.save(saved)
+                selected = base.copy(name = name)
+            },
+        ) { selected = it }
         else -> CompositionLocalProvider(
             LocalDice provides remember(sheet) { CharacterDice { label -> rollLog.dice(sheet.name, label) } },
         ) {
@@ -144,10 +159,21 @@ fun App(
                     onBuild = { screen = Screen.BUILDER },
                     onBack = { selected = null },
                     onReset = {
-                        saved.remove(sheet.name)
+                        // An own character stays one: only its play is cleared.
+                        val kept = saved[sheet.name]?.cleared()?.takeIf { it.basedOn != null }
+                        if (kept != null) saved[sheet.name] = kept else saved.remove(sheet.name)
                         store.save(saved)
                         rollLog.forget(sheet.name)
                         resets++
+                    },
+                    // Only an own character can go: a premade is the book's.
+                    onDelete = saved[sheet.name]?.basedOn?.let {
+                        {
+                            saved.remove(sheet.name)
+                            store.save(saved)
+                            rollLog.forget(sheet.name)
+                            selected = null
+                        }
                     },
                     throws = { rollLog.of(sheet.name) },
                 )
@@ -176,6 +202,8 @@ internal fun SheetScreen(
     onBuild: () -> Unit,
     onBack: () -> Unit,
     onReset: () -> Unit,
+    /** Delete an own character; null for a premade. */
+    onDelete: (() -> Unit)?,
     /** This character's throws, newest first, read only when the log opens. */
     throws: () -> List<LoggedThrow>,
 ) {
@@ -380,7 +408,7 @@ internal fun SheetScreen(
                         overflow = TextOverflow.Ellipsis,
                     )
                 },
-                actions = { SheetMenu(sheet.name, throws, onReset) },
+                actions = { SheetMenu(sheet.name, throws, onReset, onDelete) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(

@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -101,14 +102,6 @@ internal enum class Roster(val label: String) {
     BEYONDER("Beyonders"),
 }
 
-/**
- * The blank sheet is a starting point, not a character: it has no attributes
- * worth scanning and no traits, and offering it among the people is what made
- * the first gallery show a row with "0 skills" as though someone had rolled it.
- * Matched on the fixture's own name.
- */
-private fun isTemplate(sheet: PremadeSheet): Boolean =
-    sheet.name.contains("Blank", ignoreCase = true)
 
 /**
  * The pathway [sheet] has been walked onto in play, or null for a mortal.
@@ -237,9 +230,13 @@ fun PremadeGallery(
     sheets: List<PremadeSheet>,
     saved: Map<String, SavedSession>,
     themePrefs: MutableState<ThemePrefs>,
+    /** What a new character may be copied from, the blank sheet first. */
+    bases: List<PremadeSheet>,
+    onCreate: (name: String, base: PremadeSheet) -> Unit,
     onSelect: (PremadeSheet) -> Unit,
 ) {
     var roster by remember { mutableStateOf(Roster.ALL) }
+    var creating by remember { mutableStateOf(false) }
     var themeOpen by remember { mutableStateOf(false) }
     var glossaryOpen by remember { mutableStateOf(false) }
     val people = remember(sheets) { sheets.filterNot(::isTemplate) }
@@ -267,6 +264,9 @@ fun PremadeGallery(
                         )
                     },
                     actions = {
+                        IconButton(onClick = { creating = true }) {
+                            Icon(Icons.Filled.PersonAdd, contentDescription = "New character")
+                        }
                         // The glossary's only entry point, and it is here for
                         // its own reason rather than the theme picker's: the
                         // other three screens all require a selected
@@ -349,6 +349,14 @@ fun PremadeGallery(
         GlossarySheet(onDismiss = { glossaryOpen = false })
     }
 
+    if (creating) {
+        NewCharacterDialog(
+            bases = bases,
+            taken = sheets.map { it.name }.toSet(),
+            onDismiss = { creating = false },
+            onCreate = { name, base -> creating = false; onCreate(name, base) },
+        )
+    }
     if (themeOpen) {
         ThemePicker(
             prefs = themePrefs.value,

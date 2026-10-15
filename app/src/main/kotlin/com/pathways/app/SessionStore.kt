@@ -250,6 +250,12 @@ data class SavedSession(
     val spiSpent: Int = 0,
     val edits: SavedEdits = SavedEdits(),
     val pendingPcr: BeyonderState? = null,
+    /**
+     * The premade a player's OWN character was copied from, under the name
+     * this entry is saved as; null for a premade's own entry. Additive and
+     * defaulted, so an older save still decodes.
+     */
+    val basedOn: String? = null,
 )
 
 /**

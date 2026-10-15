@@ -26,21 +26,42 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-/** The sheet's overflow menu: the roll log, and a reset to the printed sheet. */
+/**
+ * The sheet's overflow menu: the roll log, a reset to the printed sheet, and
+ * for an own character only ([onDelete] non-null), deleting it.
+ */
 @Composable
-internal fun SheetMenu(name: String, throws: () -> List<LoggedThrow>, onReset: () -> Unit) {
+internal fun SheetMenu(
+    name: String,
+    throws: () -> List<LoggedThrow>,
+    onReset: () -> Unit,
+    onDelete: (() -> Unit)?,
+) {
     var menu by remember { mutableStateOf(false) }
     var logging by remember { mutableStateOf(false) }
     var confirming by remember { mutableStateOf(false) }
+    var deleting by remember { mutableStateOf(false) }
     IconButton(onClick = { menu = true }) {
         Icon(Icons.Filled.MoreVert, contentDescription = "More")
     }
     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
         DropdownMenuItem(text = { Text("Roll log") }, onClick = { menu = false; logging = true })
         DropdownMenuItem(text = { Text("Reset to sheet") }, onClick = { menu = false; confirming = true })
+        if (onDelete != null) {
+            DropdownMenuItem(text = { Text("Delete character") }, onClick = { menu = false; deleting = true })
+        }
     }
     if (logging) RollLogDialog(throws()) { logging = false }
     if (confirming) ResetDialog(name, onDismiss = { confirming = false }, onReset = onReset)
+    if (deleting && onDelete != null) {
+        Confirm(
+            title = "Delete $name?",
+            body = "The character, everything it has done, and its roll log go. This cannot be undone.",
+            action = "Delete",
+            onDismiss = { deleting = false },
+            onConfirm = onDelete,
+        )
+    }
 }
 
 /**
@@ -87,26 +108,32 @@ private fun RollLogDialog(throws: List<LoggedThrow>, onDismiss: () -> Unit) {
  * So it is a menu item behind a confirmation, never a control on the sheet.
  */
 @Composable
-private fun ResetDialog(name: String, onDismiss: () -> Unit, onReset: () -> Unit) {
+private fun ResetDialog(name: String, onDismiss: () -> Unit, onReset: () -> Unit) = Confirm(
+    title = "Reset $name?",
+    body = "Back to the printed sheet: potions, purchases, wounds, corruption, " +
+        "declared states and the roll log are cleared. This cannot be undone.",
+    action = "Reset",
+    onDismiss = onDismiss,
+    onConfirm = onReset,
+)
+
+/** A destructive action behind one more tap. */
+@Composable
+private fun Confirm(title: String, body: String, action: String, onDismiss: () -> Unit, onConfirm: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Reset $name?") },
-        text = {
-            Text(
-                "Back to the printed sheet: potions, purchases, wounds, corruption, " +
-                    "declared states and the roll log are cleared. This cannot be undone.",
-            )
-        },
+        title = { Text(title) },
+        text = { Text(body) },
         confirmButton = {
-            // Idempotent, so a second tap of the same picture is harmless:
-            // the entry is already gone and the session is rebuilt again.
+            // Both actions are idempotent, so a second tap of the same picture
+            // is harmless: the entry is already gone.
             Button(
-                onClick = { onDismiss(); onReset() },
+                onClick = { onDismiss(); onConfirm() },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError,
                 ),
-            ) { Text("Reset") }
+            ) { Text(action) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
     )

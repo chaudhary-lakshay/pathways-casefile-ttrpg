@@ -142,8 +142,11 @@ class BeyonderSession(
         return outcome
     }
 
+    /** What an own character was copied from; carried, never changed here. */
+    private val basedOn = saved.basedOn
+
     private fun persist() =
-        onChange(SavedSession(state, lost, cor, corrupted, hpLost, fpLost, spiSpent, edits, pendingPcr))
+        onChange(SavedSession(state, lost, cor, corrupted, hpLost, fpLost, spiSpent, edits, pendingPcr, basedOn))
 
     // A save written before the floors existed can hold a score the rules
     // throw on -- HP sold to 0 killed the sheet screen while it was drawn, on

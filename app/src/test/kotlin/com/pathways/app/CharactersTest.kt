@@ -1,0 +1,72 @@
+package com.pathways.app
+
+import com.pathways.model.BeyonderState
+import com.pathways.rules.Premades
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
+
+/**
+ * The player's own characters: a save entry under a new name, [SavedSession.basedOn]
+ * naming the premade it was copied from. No second file: the gallery lists
+ * the premades and these entries.
+ */
+class CharactersTest {
+
+    private val premades = Premades.all()
+    private val blank = premades.single { it.name == BLANK_SHEET }
+
+    @Test
+    fun `an entry based on a premade is a sheet under its own name`() {
+        val saved = mapOf(
+            "Elsie" to SavedSession(basedOn = BLANK_SHEET),
+            "Beat Cop" to SavedSession(cor = 2),
+        )
+        val own = ownSheets(premades, saved)
+        assertEquals(listOf("Elsie"), own.map { it.name })
+        assertEquals(blank.copy(name = "Elsie"), own.single())
+    }
+
+    @Test
+    fun `an entry based on a premade the book no longer prints is left out`() {
+        assertEquals(emptyList<Any>(), ownSheets(premades, mapOf("Ghost" to SavedSession(basedOn = "Nobody"))))
+    }
+
+    @Test
+    fun `a new character needs a name no one else has`() {
+        val taken = setOf("Beat Cop", "Elsie")
+        assertEquals("Name the character.", newCharacterRefusal("  ", taken))
+        assertEquals("That name is taken.", newCharacterRefusal("beat cop ", taken))
+        assertNull(newCharacterRefusal("Klein", taken))
+    }
+
+    @Test
+    fun `only the printed blank sheet is a template`() {
+        assertTrue(isTemplate(blank))
+        assertFalse(isTemplate(blank.copy(name = "Blank Slate")))
+    }
+
+    @Test
+    fun `a cleared own character keeps what it was copied from`() {
+        val played = SavedSession(beyonder = BeyonderState("Fool", 9), hpLost = 4, basedOn = "Beat Cop")
+        assertEquals(SavedSession(basedOn = "Beat Cop"), played.cleared())
+    }
+
+    @Test
+    fun `a change in play keeps the character's base`() {
+        val (session, last) = session(SavedSession(basedOn = "Beat Cop"))
+        session.carryWeapon("Broadsword")
+        assertEquals("Beat Cop", last().basedOn)
+    }
+
+    @Test
+    fun `the base survives a save and a load`(@TempDir dir: File) {
+        val store = SessionStore(File(dir, "s.json"))
+        store.save(mapOf("Elsie" to SavedSession(basedOn = BLANK_SHEET)))
+        assertEquals(BLANK_SHEET, store.load().getValue("Elsie").basedOn)
+    }
+}
