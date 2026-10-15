@@ -293,6 +293,8 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     onChooseCharm = { pickingCharm = true },
                     gained = session.edits.gained,
                     onGained = session::setGained,
+                    quirks = session.edits.quirks,
+                    onRemoveQuirk = session::removeQuirk,
                 )
                 }
             }

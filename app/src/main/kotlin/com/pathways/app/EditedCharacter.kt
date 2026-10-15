@@ -60,7 +60,8 @@ fun SavedEdits.applyTo(base: Character): Character {
         // it: a potion grant lands in this same field, so a sparse map naming
         // one row must not zero a granted Will (Codex, on the design).
         secondaryDelta = SecondaryCharacteristics.plusSteps(base.secondaryDelta, secondaries),
-        traits = gainedFree(chosenTraits(base.traits), base.traits),
+        // A quirk gained in play bills nothing (SavedEdits.quirks).
+        traits = gainedFree(chosenTraits(base.traits), base.traits) + quirks.map { Trait(it, 0, TraitKind.QUIRK) },
         skills = withStudy(base.skills + purchases(base)),
         boon = boon,
     )

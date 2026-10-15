@@ -47,7 +47,8 @@ internal fun isTemplate(sheet: PremadeSheet): Boolean = sheet.name == BLANK_SHEE
  * Back to the sheet. A premade's is the printed one, so only its name is
  * kept; an own character's purchases ARE its sheet, so its build stays and
  * only what play added goes (play session 2): potions, wounds, CoR, the study
- * recorded, a boon granted, and a disadvantage gained in play with its trait.
+ * recorded, a boon granted, a quirk, and a disadvantage gained in play with
+ * its trait.
  */
 internal fun SavedSession.cleared(): SavedSession =
     if (basedOn == null) SavedSession() else SavedSession(edits = edits.built(), basedOn = basedOn)
@@ -61,6 +62,7 @@ private fun SavedEdits.built(): SavedEdits {
         instanced = instanced.filterIndexed { at, _ -> names[at] !in gained },
         gained = emptyList(),
         studied = emptyList(),
+        quirks = emptyList(),
         boon = null,
     )
 }

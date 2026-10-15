@@ -143,7 +143,8 @@ internal fun LazyListScope.traitsTab(
             onRoll = {},
         )
     }
-    // A quirk prints with a drawback's sign; nothing this app ships makes one.
+    // A quirk prints with a drawback's sign. The one this app makes is a
+    // Fright Check's, gained in play at 0 (SavedEdits.quirks).
     item { TraitSection("Disadvantages", drawbacks.size) }
     items(drawbacks) { row ->
         val key = "d:${row.shown}:${row.trait.cost}"

@@ -292,8 +292,8 @@ internal fun SheetScreen(
     // Through the one resolution, so a sheet that printed the effect beside
     // the name still finds its row: Church Healer stores "Charity - <the
     // book's own cell>" and got no effect line at all.
-    // A quirk gives points as a drawback does and prints with the same sign;
-    // nothing this app ships produces one, and one that arrives is not dropped.
+    // A quirk gives points as a drawback does and prints with the same sign.
+    // The Fright Check's 13-15 band records one, gained in play at 0.
     val drawbacks = remember(traits) {
         TraitReport.held(traits, TraitKind.DISADVANTAGE) +
             TraitReport.held(traits, TraitKind.QUIRK)

@@ -318,6 +318,25 @@ class BeyonderSession(
     }
 
     /**
+     * Record a quirk acquired in play ([SavedEdits.quirks]) under the name
+     * the GM gave it, trimmed. A blank name or one already held changes
+     * nothing, so a second tap of the same picture stores what the first did.
+     */
+    fun addQuirk(name: String) {
+        val quirk = name.trim()
+        if (quirk.isEmpty() || quirk in edits.quirks) return
+        edits = edits.copy(quirks = edits.quirks + quirk)
+        persist()
+    }
+
+    /** Give back a quirk: the way back from [addQuirk]. */
+    fun removeQuirk(name: String) {
+        if (name !in edits.quirks) return
+        edits = edits.copy(quirks = edits.quirks - name)
+        persist()
+    }
+
+    /**
      * Mark a bought disadvantage as gained in play, so it bills no points
      * ([SavedEdits.gained]). An absolute value, so a second tap stores what
      * the first did.

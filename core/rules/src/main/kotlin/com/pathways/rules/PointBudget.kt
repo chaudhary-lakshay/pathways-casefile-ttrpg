@@ -17,7 +17,11 @@ data class BudgetReport(
  * Spending must be <= budget, never == budget: surplus is normal and
  * several published sheets leave points unspent.
  *
- * **Nothing this app ships produces a quirk, and the term is kept anyway.**
+ * **The one quirk this app produces costs 0, and the term is kept anyway.**
+ * Play session 2 made the Fright Check's 13-15 band record one, gained in
+ * play and billed at nothing (`SavedEdits.quirks`), so it never reaches the
+ * cap below. What follows was the case before that, and still holds of every
+ * PRICED quirk.
  * Not "unreachable": [report] takes any `List<Trait>`, so a caller or a
  * deserialized character can hand it one, and the branch below handles that
  * correctly (a review corrected the stronger wording). The book prints

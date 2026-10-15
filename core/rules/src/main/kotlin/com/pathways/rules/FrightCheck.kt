@@ -133,6 +133,17 @@ object FrightCheck {
     }
 
     /**
+     * Whether [effect]'s cell hands out a quirk ("Acquire a quirk: mild
+     * phobia or superstition."), which the sheet records as one gained in
+     * play (play session 2). Read off the cell's opening words, the one band
+     * whose three columns all print them.
+     */
+    fun grantsQuirk(effect: FrightEffect, kind: FrightKind): Boolean =
+        text(effect, kind).startsWith(QUIRK_CELL)
+
+    private const val QUIRK_CELL = "Acquire a quirk:"
+
+    /**
      * The way out of that column, or null where the table prints none.
      *
      * Three of the nine bands offer one and six do not — past 12 the table

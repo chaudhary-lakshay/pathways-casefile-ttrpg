@@ -61,10 +61,13 @@ internal fun TraitsRow(
     /** The bought disadvantages marked gained in play ([SavedEdits.gained]). */
     gained: List<String> = emptyList(),
     onGained: (String, Boolean) -> Unit = { _, _ -> },
+    /** Quirks acquired in play ([SavedEdits.quirks]), each with its way back. */
+    quirks: List<String> = emptyList(),
+    onRemoveQuirk: (String) -> Unit = {},
 ) {
     Column {
         SectionHead("Traits", "Add a trait", onAdd) {
-            if (bought.isEmpty() && instanced.isEmpty()) {
+            if (bought.isEmpty() && instanced.isEmpty() && quirks.isEmpty()) {
                 Text(
                     "None bought in play — the sheet's own are on the sheet screen.",
                     style = MaterialTheme.typography.bodyMedium,
@@ -145,6 +148,18 @@ internal fun TraitsRow(
                     }
                 }
                 TextButton(onClick = { onRemove(name) }, enabled = removable) { Text("Give back") }
+            }
+        }
+        quirks.forEach { name ->
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(name, style = MaterialTheme.typography.bodyLarge)
+                    Text("Quirk · $GAINED_LABEL", style = MaterialTheme.typography.bodySmall)
+                }
+                TextButton(onClick = { onRemoveQuirk(name) }) { Text("Give back") }
             }
         }
     }

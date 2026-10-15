@@ -18,6 +18,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -98,6 +99,8 @@ internal fun FrightDialog(
     onStunned: (Boolean) -> Unit,
     /** Whether the character was already stunned when this dialog opened. */
     stunned: Boolean,
+    /** Record the quirk the 13-15 band hands out ([BeyonderSession.addQuirk]). */
+    onQuirk: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val dice = LocalDice.current
@@ -135,6 +138,9 @@ internal fun FrightDialog(
             if (result != null) {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     FrightResultCard(result, kind, ht = ht, will = will, iq = iq)
+                    result.effect?.takeIf { !result.passed && FrightCheck.grantsQuirk(it, kind) }?.let {
+                        QuirkEntry(onQuirk)
+                    }
                     // Six of the nine bands print no way out at all, so this
                     // is null for them and no control appears. The cell's own
                     // sentence above already said so.
@@ -346,6 +352,35 @@ private fun FrightResultCard(result: FrightOutcome, kind: FrightKind, ht: Int, w
                 }
             }
         }
+    }
+}
+
+/**
+ * The quirk the 13-15 band hands out, named by the GM and written to the
+ * sheet as one gained in play (play session 2, which had nowhere to put it).
+ * Recording twice stores one: [BeyonderSession.addQuirk] ignores a name held.
+ */
+@Composable
+private fun QuirkEntry(onQuirk: (String) -> Unit) {
+    var name by remember { mutableStateOf("") }
+    var recorded by remember { mutableStateOf<String?>(null) }
+    Column(Modifier.padding(top = 8.dp)) {
+        val done = recorded
+        if (done != null) {
+            Text("Recorded on the sheet: $done", style = MaterialTheme.typography.bodyMedium)
+            return@Column
+        }
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("The quirk, as the GM names it") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        TextButton(
+            onClick = { onQuirk(name); recorded = name.trim() },
+            enabled = name.isNotBlank(),
+        ) { Text("Record the quirk") }
     }
 }
 

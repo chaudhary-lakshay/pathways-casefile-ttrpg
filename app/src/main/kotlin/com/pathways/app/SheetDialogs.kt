@@ -285,6 +285,7 @@ internal fun SheetDialogs(
             states = states,
             onStunned = { stunnedState.value = it },
             stunned = stunnedState.value,
+            onQuirk = session::addQuirk,
         ) { onClose(SheetDialog.FRIGHT) }
     }
     if (SheetDialog.CONCENTRATE in open) {

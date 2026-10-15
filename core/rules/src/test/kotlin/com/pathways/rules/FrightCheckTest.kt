@@ -128,4 +128,18 @@ class FrightCheckTest {
         assertEquals(14, rolled.effectRoll)
         assertEquals(FrightCheck.against(10, -2, scripted(6, 6, 6, 1, 1, 2)), rolled)
     }
+
+    /**
+     * The band that hands out a quirk, which play session 2 reached and had
+     * nowhere to write down. Read from every cell rather than from the one
+     * row, so a second band printing a quirk is a failing test.
+     */
+    @Test
+    fun `only the 13-15 band grants a quirk, in all three columns`() {
+        for (effect in ContentLoader.frightEffects()) {
+            for (kind in FrightKind.entries) {
+                assertEquals(effect.printed == "13–15", FrightCheck.grantsQuirk(effect, kind), "${effect.printed} $kind")
+            }
+        }
+    }
 }
