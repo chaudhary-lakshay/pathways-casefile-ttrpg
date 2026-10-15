@@ -6726,6 +6726,89 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hw. Play session 3: the mystical half
+
+Sessions 1 and 2 played a fight and a build; neither touched a Beyonder's
+own rolls. The owner chose play session 3 and "Claude plays alone"
+(2026-10-15). On the SM-T570, HEAD `40f2b98`, save backed up to
+`~/pathways-device-backups/sessions-20261015-2157-pre-session3.json`, I
+played the **Occult Scholar** (fresh in the save) through a haunted
+archive: Hidden Lore, a mortal's Boon form, Seer 9, Spirit Vision, a
+divination with supporting skills, a ritual failed and pushed, acting to
+100%, the PCR to Clown 8, a Fright quirk, Defend with Retreat and an
+Acrobatic Dodge, and 6 SPI of spirit damage into Soul Debt. Everything
+else matched the book; the pass ended when the USB cable was pulled and
+the tablet did not come back on Wi-Fi. The owner: "go ahead".
+
+### Fixes, one commit each
+
+- **A typed spirit hit multiplies on FP and SPI** (`3b93657`). Picking FP
+  or SPI hid the damage type, on a comment that "Wounding multipliers are
+  written against HP, as every threshold is". The spirit-damage rules
+  printed in that same dialog say otherwise: "Wounding multipliers apply
+  normally to the chosen pool (Cut x1.5, Imp x2, etc.). Damage-type
+  multipliers (e.g. skull x4, vitals x3) stack with wounding multipliers
+  when applied to HP" (lines 2718-2719). `Wounds.injuryTo(pool, ...)` is
+  the one expression: the type on every pool, the location on HP only.
+  Off HP the caption says physical DR does not apply (line 2711), and the
+  Major Wound tag reads *No Major wound on SPI* rather than vanishing, so
+  picking a pool moves nothing under the finger (6gn).
+- **Spirit Vision takes Spiritual Attrition** (`dcf709c`). At SPI 3 of 11
+  Divine took the -3 and Spirit Vision rolled a bare Per 10. Attrition is
+  "-3 to all SPI-based skill rolls **and Beyonder ability checks**" (2351,
+  2725); `TraitAttributeRolls`' note had quoted only the first half.
+  `SpiritVision.targetFor/partsFor(spi: PoolStatus?)` read the pool's own
+  `penalty`, never a second threshold test, and the part reads *Spiritual
+  Attrition -3*. The pool is read after the activation is paid
+  (`spiNow(SpiritVision.activation())`, shared with `conditionsFor`), the
+  order a divination's question already uses (ch. 6.5 Step 2, then 3): a
+  reading, and recorded as one. **Not censused:** Detect's *Sense* (the
+  higher of SPI and Per) may also be an ability check; nobody has asked.
+- **A gained quirk reads GM call** (`b6e7651`). The Fright quirk 6hv
+  records was tagged *Unmatched name*, in the error colour. A quirk is
+  named by the GM and matches no row by design; the book defines the kind,
+  "minor personality traits at -1 pt each" (line 1122), and that is its
+  cell now, unread, so its tag is *GM call*.
+- **No push on a crystal clear answer** (`0f758ea`). A success by 7 was
+  offered +1 to +4 SPI. A push buys clarity only, and the table prints
+  nothing above *Crystal clear*: `Divination.canPush` refuses at the
+  clearest success row. A push that reaches it still owes its SPI, so the
+  dialog keeps *Pushed N SPI* in the burn row's place.
+
+### Owner's calls, not taken
+
+- **Absent-Minded** (3 sheets) never resolves to *Absent-Mindedness*, so
+  6gj's -3 never reaches them. Deliberate (4.1, `SelfControlTest`), but
+  6hl's `RULED_SPELLINGS` exists for exactly this.
+- **The Boon form for a character who cannot pray** is drawn whole; its
+  refusal (no Ritualistic Magic) sits at the bottom. 6gn's "draw it from
+  the start" may be why.
+- **The acting-method bands** (*Good +10-15%*) look like chips and are
+  inert; a session's result is tapped in 5% at a time.
+
+### Checks
+
+2263 Kotlin (1460 `core:rules`, 780 `app`, 23 `core:model`) from
+`--rerun-tasks`, 0 failures; 366 Python. RED watched for each: the SPI
+cut read 5 for 7 (a stub reproducing the dialog's old gate), Spirit
+Vision 10 for 7, the quirk's cell null, `canPush` true.
+
+### Review
+
+ecc (sonnet) over `40f2b98..0f758ea -- core app`: SHIP WITH CHANGES.
+Not taken, its MEDIUM: after a Look the card redraws a target three lower.
+That card and its caption price the NEXT look, which *Look again* pays
+for, and the reading above carries its own target (*3d6: 10 vs 10*). Two
+LOWs, no change: `clearest()` assumes every success row prints a margin
+(all do), and one push assertion would also pass before.
+
+### Device pass
+
+**Owed.** The tablet left USB mid-pass and its Wi-Fi was off. The Occult
+Scholar's save entry is new from this session (Fool 8, CoR 1, SPI spent,
+a quirk): delete or reset it rather than restoring the backup over
+anything played since.
+
 ## 6hv. Play session 2: eleven findings, all fixed
 
 The owner said "play yourself" (2026-10-15). I built an own character,

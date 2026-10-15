@@ -195,6 +195,13 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hr
+(two owner answers on the ritual's fuel: No response's 2 SPI comes out
+of the declared HP first, as the prayer's does, so a caster at 0 SPI
+who bled for it casts; an invoked ritual pays when the entity is asked,
+and the fuel chips lock; `Invocation.fuelFor` is the one price both
+dialogs charge; seen on the SM-T570).
+
 Then 6hq
 (four owner answers on the Boon prayer: it takes a mystical tongue and
 ch. 7's Entity Response, asked first and unshifted; no response grants
@@ -2489,8 +2496,11 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6fi back to 6de
+## Digest index, 6fm back to 6de
 
+**6fm** — a potion's Charisma levels add down the chain and onto a bought level, capped at 4; the label first said the grant's level, not what it added;
+**6fk** — a potion's catalogue rows are granted through one table pinned both ways; a census that dropped names under four characters lost Fit, and the builder would have sold a granted row;
+**6fj** — the Warrior's default +2 stays refused, on the book's reason: no number fits both the Warrior's example and the Weapon Master's DX ceiling;
 **6fi** — a potion's senses reach the Per roll through one table; the census took its names from my list, not the prose, and a non-compiling mutant read stale XML as a catch;
 **6fh** — Acute Vision and Hearing are declared on every Per skill; Spirit Vision takes Vision alone, and a row held twice is deduped on `trait to printed`;
 **6fg** — Luck may reroll a failed PCR, so the attempted potion is saved; a restart would strand it, and a Will lowered since made the reroll throw;
