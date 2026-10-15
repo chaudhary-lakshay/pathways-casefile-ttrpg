@@ -265,6 +265,7 @@ fun DamageDialog(
                 val htTarget = ht + majorWoundHt.bonus + hurt + states.total
                 MajorWoundPanel(
                     isMajor = isMajor,
+                    isHp = pool == Pool.HP,
                     ht = htTarget,
                     traitLine = majorWoundHt.line,
                     statesLine = states.line,
@@ -276,7 +277,14 @@ fun DamageDialog(
                     // already carrying those when the blow landed.
                     // One roll a wound: a second tap of the same picture
                     // would roll again and keep the second (6p).
-                    onRoll = { if (shock == null) shock = SuccessRoll.against(htTarget, dice) },
+                    // And only on a hit that is major NOW: the button is drawn
+                    // below the threshold too, and a stale tap of a major
+                    // picture would roll for a hit since stepped down.
+                    onRoll = {
+                        if (shock == null && pool == Pool.HP && Wounds.isMajorWound(amount, maxHp)) {
+                            shock = SuccessRoll.against(htTarget, dice)
+                        }
+                    },
                     recoveryTarget = recoveryTarget,
                     recoveryLine = stunRecoveryHt.line,
                     recovery = recovery,
@@ -317,6 +325,12 @@ fun DamageDialog(
 @Composable
 private fun MajorWoundPanel(
     isMajor: Boolean,
+    /**
+     * Drawn, disabled, for every HP hit below the threshold: appearing at
+     * the threshold grew the dialog, which re-centred and moved the stepper
+     * under the finger (play session 1, at 5 damage). 6gn's rule.
+     */
+    isHp: Boolean,
     ht: Int,
     traitLine: String? = null,
     statesLine: String? = null,
@@ -327,9 +341,9 @@ private fun MajorWoundPanel(
     recovery: RollResult?,
     onRecoveryRoll: () -> Unit,
 ) {
-    if (!isMajor) return
+    if (!isMajor && !isHp) return
     if (shock == null) {
-        OutlinedButton(onClick = onRoll, modifier = Modifier.padding(top = 8.dp)) {
+        OutlinedButton(onClick = onRoll, enabled = isMajor, modifier = Modifier.padding(top = 8.dp)) {
             Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
             Text("Roll HT $ht", modifier = Modifier.padding(start = 8.dp))
         }
