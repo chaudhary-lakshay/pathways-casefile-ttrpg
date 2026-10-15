@@ -79,9 +79,9 @@ potion grants.
   Phobia (Cities) -1"*), until you tap it again. One line is narrower:
   Perceptual Splitting's *"All physical rolls at -2 during an episode"*
   counts only on rolls based on ST, DX or HT (those skills, attacks, defences
-  and HT rolls), never on a Will, IQ, Per or SPI roll. It is not saved: leaving
-  the sheet (for the gallery, or to drink a potion) clears it, as it clears
-  shock.
+  and HT rolls), never on a Will, IQ, Per or SPI roll. It is not saved: going
+  back to the gallery clears it, as it clears shock; the builder and the
+  potion screen do not.
 - **Reference text** in a dialog (shield rules, the incantation, Spirit
   Vision's colour key, spirit body damage, an artifact's description) sits
   behind a book icon, closed until you tap it. Targets, costs and what the
@@ -98,6 +98,10 @@ potion grants.
   Beyonder power, brass = managing the character. The Beyonder chips (Ritual,
   Divine, Spirit Vision) appear only once a potion grants them; **Boon** is
   always there.
+- **⋮ → Reset to sheet**, in the top bar, puts the character back to the
+  printed sheet: potions, purchases, wounds, corruption and declared lines
+  all go. It asks first, and it cannot be undone. It is for starting over,
+  not for play: nothing in the book un-drinks a potion.
 
 ---
 

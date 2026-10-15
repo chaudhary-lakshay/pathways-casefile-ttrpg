@@ -29,6 +29,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -105,12 +106,15 @@ fun App(
     // screens cannot drift apart.
     val saved = remember { store.load().toMutableMap() }
     var screen by remember(selected) { mutableStateOf(Screen.SHEET) }
+    // Bumped by "Reset to sheet": the session and scene below are rebuilt
+    // from a save entry that is no longer there.
+    var resets by remember { mutableIntStateOf(0) }
     // Above the screen switch, so the builder and the pathway screen do not
     // take the scene down with the sheet (play session 1).
-    val scene = remember(selected) { SheetScene() }
+    val scene = remember(selected, resets) { SheetScene() }
     // One walk down a pathway per selected premade, restored from disk and
     // written back on every change.
-    val session = remember(selected) {
+    val session = remember(selected, resets) {
         val name = selected?.name
         BeyonderSession(saved[name] ?: SavedSession(), selected) { updated ->
             if (name != null) {
@@ -134,6 +138,11 @@ fun App(
                     onPathways = { screen = Screen.PATHWAY },
                     onBuild = { screen = Screen.BUILDER },
                     onBack = { selected = null },
+                    onReset = {
+                        saved.remove(sheet.name)
+                        store.save(saved)
+                        resets++
+                    },
                 )
                 Screen.PATHWAY -> PathwayScreen(sheet, session, appDice) { screen = Screen.SHEET }
                 Screen.BUILDER -> BuilderScreen(sheet, session) { screen = Screen.SHEET }
@@ -159,6 +168,7 @@ internal fun SheetScreen(
     onPathways: () -> Unit,
     onBuild: () -> Unit,
     onBack: () -> Unit,
+    onReset: () -> Unit,
 ) {
     val drunk = session.state
     val rows = remember(sheet) { SheetComparison.of(sheet) }
@@ -361,6 +371,7 @@ internal fun SheetScreen(
                         overflow = TextOverflow.Ellipsis,
                     )
                 },
+                actions = { ResetMenu(sheet.name, onReset) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
