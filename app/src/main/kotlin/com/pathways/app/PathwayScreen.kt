@@ -61,6 +61,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.BeyonderState
+import com.pathways.rules.Pool
 import com.pathways.model.Trait
 import com.pathways.model.canDrink
 import com.pathways.rules.Corruption
@@ -162,6 +163,11 @@ fun PathwayScreen(
         { state: BeyonderState? -> session.edits.corCeilingOn(sheet, state) }
     }
     val maxCor = maxCorFor(drunk)
+    // The SPI the potions DRUNK give, as the sheet's tracker reads it: what a
+    // held power is paid from, never the browsed block's.
+    val maxSpi = remember(sheet, drunk, session.edits) {
+        session.characterFor(sheet).digestedWith(drunk)?.effectiveSpi ?: 0
+    }
 
     Scaffold(
         topBar = {
@@ -425,6 +431,18 @@ fun PathwayScreen(
                                         if (session.canChooseDrawback(sheet, name)) session.chooseDrawback(sheet, name)
                                     },
                                 )
+                            }
+                        },
+                        // A power is the character's once its potion is drunk:
+                        // this Sequence or an earlier one of the pathway walked.
+                        spend = drunk?.takeIf {
+                            it.pathway == block.pathway && block.sequence >= it.sequence && !session.isLost
+                        }?.let {
+                            AbilitySpend(left = maxSpi - session.spiSpent) { price, drawnLeft ->
+                                // A stale tap of the same picture: the SPI it
+                                // was drawn with is already spent (6ei).
+                                val left = maxSpi - session.spiSpent
+                                if (left == drawnLeft && left >= price) session.spend(Pool.SPI, price, maxSpi, maxCor)
                             }
                         },
                     )

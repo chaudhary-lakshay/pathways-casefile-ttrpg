@@ -18,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -54,6 +55,8 @@ internal fun LazyListScope.potionContent(
     digested: DigestedCharacter,
     /** Under the drawbacks: the choice a block like Hanged Man 9's asks for (6he), or null. */
     drawbackPicker: (@Composable () -> Unit)?,
+    /** A held potion's powers can be paid for here ([AbilitySpend]); null for one browsed. */
+    spend: AbilitySpend? = null,
 ) {
     item {
         PotionCard("Gains") {
@@ -117,9 +120,9 @@ internal fun LazyListScope.potionContent(
             }
         }
     }
-    item { Abilities("Abilities", block.ability) }
+    item { Abilities("Abilities", block.ability, spend) }
     if (block.reinforcedAbilities.isNotEmpty()) {
-        item { Abilities("Reinforced abilities", block.reinforcedAbilities) }
+        item { Abilities("Reinforced abilities", block.reinforcedAbilities, spend) }
     }
 }
 
@@ -224,8 +227,16 @@ private fun SkillLine(name: String, note: String, value: String) {
  * chevron. The text is closed until the row is tapped (the owner rejects
  * text walls), except in a card short enough to read at a glance.
  */
+/**
+ * Paying a power's fixed SPI price ([spiPriceOf]) from the SPI the
+ * character has left, [left] as drawn: play session 2 moved Authority's
+ * "1 SPI" on the tracker by hand. [onSpend] takes the price and the [left]
+ * the button was drawn with, so a second tap of one picture is dropped.
+ */
+internal class AbilitySpend(val left: Int, val onSpend: (price: Int, drawnLeft: Int) -> Unit)
+
 @Composable
-internal fun Abilities(title: String, text: String) {
+internal fun Abilities(title: String, text: String, spend: AbilitySpend? = null) {
     val all = remember(text) { abilities(text) }
     val named = all.indices.filter { all[it].head.heading != null }
     var open by rememberSaveable(text) { mutableStateOf(if (named.size <= OPEN_AT_MOST) named else emptyList()) }
@@ -252,7 +263,7 @@ internal fun Abilities(title: String, text: String) {
                 ) {
                     // Text with no name has no row above it to space it.
                     Column(Modifier.padding(start = 14.dp, end = 14.dp, top = if (ability.head.heading == null) 12.dp else 0.dp)) {
-                        AbilityRow(ability, expanded = i in open, onToggle = { open = if (i in open) open - i else open + i })
+                        AbilityRow(ability, expanded = i in open, spend = spend, onToggle = { open = if (i in open) open - i else open + i })
                     }
                 }
             }
@@ -264,7 +275,7 @@ internal fun Abilities(title: String, text: String) {
 private const val OPEN_AT_MOST = 2
 
 @Composable
-private fun AbilityRow(ability: Ability, expanded: Boolean, onToggle: () -> Unit) {
+private fun AbilityRow(ability: Ability, expanded: Boolean, spend: AbilitySpend?, onToggle: () -> Unit) {
     val heading = ability.head.heading
     // Text that opens with no name has nothing to tap: it is drawn as it is.
     if (heading == null) {
@@ -294,7 +305,18 @@ private fun AbilityRow(ability: Ability, expanded: Boolean, onToggle: () -> Unit
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
-    if (expanded) AbilityText(ability)
+    if (expanded) {
+        AbilityText(ability)
+        val price = spiPriceOf(tag)
+        if (spend != null && price != null) {
+            // Personal SPI "cannot be reduced below 0" (ch. 7 Power Source A).
+            OutlinedButton(
+                onClick = { spend.onSpend(price, spend.left) },
+                enabled = spend.left >= price,
+                modifier = Modifier.padding(bottom = 12.dp),
+            ) { Text(if (spend.left >= price) "Spend $price SPI" else "Spend $price SPI: ${spend.left} left") }
+        }
+    }
 }
 
 /** The heading's bracket, in the book's words: a cost, "Passive", a resistance. */

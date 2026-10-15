@@ -188,4 +188,22 @@ class PathwayTextTest {
         val picked = keyTerms(text).map { text.substring(it) }
         assertEquals(listOf("1 SPI", "10 meters", "-2", "2d+1"), picked)
     }
+
+    /**
+     * The fixed SPI a power's bracket prices, which its Spend button takes
+     * (play session 2: Authority's "1 SPI" was moved on the tracker by hand).
+     * A price the GM must choose -- "X", "1+", a span -- has none, and a
+     * per-turn upkeep after an activation price is not the activation.
+     */
+    @Test
+    fun `a bracket's fixed SPI price, and none where the GM must choose`() {
+        val fixed = mapOf(
+            "1 SPI" to 1, "3 SPI" to 3, "IQ / 1 SPI" to 1, "2 SPI + 1 SPI/turn" to 2,
+            "Free Action, 1 SPI" to 1, "1 SPI/min" to 1, "3 SPI + Ritualistic Magic" to 3,
+        )
+        fixed.forEach { (tag, price) -> assertEquals(price, spiPriceOf(tag), tag) }
+        for (tag in listOf("X SPI", "1+ SPI", "1–2 SPI/turn", "1-4 SPI", "Free, No SPI Cost", "Passive", null)) {
+            assertEquals(null, spiPriceOf(tag), tag)
+        }
+    }
 }

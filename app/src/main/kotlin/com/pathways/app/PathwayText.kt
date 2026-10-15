@@ -72,6 +72,17 @@ internal fun titleOf(heading: String): Pair<String, String?> {
 }
 
 /**
+ * The fixed SPI a bracket ([titleOf]'s tag) prices a power at, or null where
+ * it prints none or one the GM must choose ("X SPI", "1+ SPI", "1–2 SPI").
+ * The first price is the activation's: "2 SPI + 1 SPI/turn" is 2, then
+ * whatever upkeep the GM runs on the tracker.
+ */
+internal fun spiPriceOf(tag: String?): Int? =
+    tag?.let { SPI_PRICE.find(it)?.groupValues?.get(1)?.toInt() }
+
+private val SPI_PRICE = Regex("""(?<![\d–\-+])(\d+) SPI\b""")
+
+/**
  * The lead-in, then one line per bullet. The PDF's bullet glyph is stored
  * as U+007F, which draws as an empty box. The last bullet runs into the
  * prose after it: the PDF kept no line break to cut at.
