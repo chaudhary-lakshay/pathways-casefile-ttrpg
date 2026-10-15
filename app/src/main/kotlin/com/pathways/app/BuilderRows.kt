@@ -263,7 +263,7 @@ internal fun studyAdvice(
  * bought here. A refusal's sentence opens on the row's tap; the stepper sits
  * outside that target so a step never toggles it.
  *
- * A skill with no [onSpend] is one the published sheet printed. It is shown
+ * A skill with no [onStep] is one the published sheet printed. It is shown
  * because the budget bills it, but it is not editable -- see BuilderScreen.
  */
 @Composable
@@ -271,7 +271,8 @@ internal fun SkillRow(
     label: String,
     level: Int?,
     points: Int,
-    onSpend: ((Int) -> Unit)?,
+    /** One rung up (true) or down, [BeyonderSession.stepSkill]. */
+    onStep: ((up: Boolean) -> Unit)?,
     study: StudyAdvice,
     /** Study points recorded on it (ch. 3 p. 32), part of [points]'s level, not its price. */
     studied: Int = 0,
@@ -340,9 +341,9 @@ internal fun SkillRow(
                     )
                 }
             }
-            if (onSpend != null) {
-                OutlinedIconButton(onClick = { onSpend(-1) }) { Text("−") }
-                OutlinedIconButton(onClick = { onSpend(1) }) { Text("+") }
+            if (onStep != null) {
+                OutlinedIconButton(onClick = { onStep(false) }) { Text("−") }
+                OutlinedIconButton(onClick = { onStep(true) }) { Text("+") }
             }
         }
     }

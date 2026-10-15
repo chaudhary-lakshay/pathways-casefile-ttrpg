@@ -21,6 +21,7 @@ import com.pathways.rules.PotionConsumption
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.RandomSource
 import com.pathways.rules.ScoreFloors
+import com.pathways.rules.SkillLadder
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.TraitGrants
 import com.pathways.rules.TraitNames
@@ -440,6 +441,20 @@ class BeyonderSession(
         if (edits.skills.any { it.name == name && it.specialization == specialization }) return
         edits = edits.copy(skills = edits.skills + SavedSkill(name, specialization, points = 1))
         persist()
+    }
+
+    /**
+     * One step of the builder's stepper: to the next rung or the one below
+     * ([SkillLadder.stepped]), read off the edits as they are NOW, so a
+     * second tap of one picture steps again (6ei). Its study counts toward
+     * the rung, matched case-blind as `withStudy` matches it.
+     */
+    fun stepSkill(name: String, specialization: String?, up: Boolean) {
+        val bought = edits.skills.firstOrNull { it.name == name && it.specialization == specialization } ?: return
+        val studied = edits.studied.firstOrNull {
+            it.name.equals(name, ignoreCase = true) && it.specialization == specialization
+        }?.points ?: 0
+        spendOnSkill(name, specialization, SkillLadder.stepped(bought.points, studied, up) - bought.points)
     }
 
     /**

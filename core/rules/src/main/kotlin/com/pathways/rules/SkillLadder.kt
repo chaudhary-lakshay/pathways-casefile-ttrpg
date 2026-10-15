@@ -45,6 +45,32 @@ object SkillLadder {
     }
 
     /**
+     * The points to have bought after one step of the builder's stepper:
+     * "you pay the difference to move from one step to the next" (Ch. 3,
+     * line 1573), so a step lands on a rung, counting [studied] toward it and
+     * never buying it. Zero means the skill is un-bought.
+     *
+     * Down sells to the rung below what bought and studied hold together. If
+     * study alone already holds that rung, one bought point stays rather than
+     * un-buying the skill, because un-buying also discards its study; at one
+     * bought point, down un-buys it as it always did. Past the printed grid,
+     * up buys nothing.
+     */
+    fun stepped(bought: Int, studied: Int, up: Boolean): Int {
+        require(bought > 0 && studied >= 0) { "a bought skill holds at least 1 point; was $bought + $studied" }
+        val total = bought + studied
+        if (up) return (nextRungPoints(total) ?: return bought) - studied
+        val rung = RUNGS.indexOfLast { it <= total }
+        val below = if (rung == 0) 0 else RUNGS[rung - 1]
+        val sold = below - studied
+        return when {
+            sold >= 1 -> sold
+            bought > 1 -> 1
+            else -> 0
+        }
+    }
+
+    /**
      * Whether a skill controlled by [attr] may be bought with character points.
      *
      * Ch. 9, p. 85: *"Exception — SPI-based skills (Spiritual Intuition,

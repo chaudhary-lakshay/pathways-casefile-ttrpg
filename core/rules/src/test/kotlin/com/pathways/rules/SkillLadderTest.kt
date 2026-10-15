@@ -132,4 +132,45 @@ class SkillLadderTest {
         assertEquals(ControllingAttribute.Buyable(Attr.IQ), ritual.attr)
         assertTrue(SkillLadder.isBuyableWithPoints(ritual.attr))
     }
+
+    /**
+     * The book prints cumulative totals, "you pay the difference to move from
+     * one step to the next" (line 1573), so the builder steps a bought skill
+     * from rung to rung. Its one-point "+" sold 3 points that bought nothing
+     * over 2 (play session 2).
+     */
+    @Test
+    fun `a step up buys the difference to the next rung`() {
+        assertEquals(2, SkillLadder.stepped(bought = 1, studied = 0, up = true))
+        assertEquals(4, SkillLadder.stepped(bought = 2, studied = 0, up = true))
+        assertEquals(8, SkillLadder.stepped(bought = 4, studied = 0, up = true))
+        // Off a rung (an older save): up to the next one, never past it.
+        assertEquals(4, SkillLadder.stepped(bought = 3, studied = 0, up = true))
+        // Study points count toward the rung and are never bought.
+        assertEquals(6, SkillLadder.stepped(bought = 2, studied = 2, up = true))
+        // Past the printed grid there is nothing to buy.
+        assertEquals(256, SkillLadder.stepped(bought = 256, studied = 0, up = true))
+    }
+
+    @Test
+    fun `a step down sells back to the rung below`() {
+        assertEquals(4, SkillLadder.stepped(bought = 8, studied = 0, up = false))
+        assertEquals(1, SkillLadder.stepped(bought = 2, studied = 0, up = false))
+        // 3 points sits on the 2-point rung, so the rung below is 1.
+        assertEquals(1, SkillLadder.stepped(bought = 3, studied = 0, up = false))
+        // At one point, down un-buys the skill.
+        assertEquals(0, SkillLadder.stepped(bought = 1, studied = 0, up = false))
+        assertEquals(2, SkillLadder.stepped(bought = 6, studied = 2, up = false))
+    }
+
+    /**
+     * Where study alone already holds the rung below, the step keeps one
+     * bought point rather than un-buying the skill: un-buying discards its
+     * study too (`BeyonderSession.spendOnSkill`).
+     */
+    @Test
+    fun `a step down never un-buys a skill that holds more than one point`() {
+        assertEquals(1, SkillLadder.stepped(bought = 4, studied = 3, up = false))
+        assertEquals(0, SkillLadder.stepped(bought = 1, studied = 3, up = false))
+    }
 }

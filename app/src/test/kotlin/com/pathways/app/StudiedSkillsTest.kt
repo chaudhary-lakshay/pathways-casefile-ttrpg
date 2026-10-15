@@ -88,4 +88,23 @@ class StudiedSkillsTest {
         session.spendOnSkill("Climbing", null, -1)
         assertNull(last().edits.studied.firstOrNull { it.name == "Climbing" })
     }
+
+    /**
+     * The builder's stepper steps rung to rung from what the session holds
+     * NOW, so a second tap of one picture steps again rather than repeating a
+     * delta read off the first (6ei). Study counts toward the rung.
+     */
+    @Test
+    fun `a skill steps rung to rung, counting its study`() {
+        val (session, last) = session(sheet = bouncer)
+        session.buySkill("Climbing")
+        session.stepSkill("Climbing", null, up = true)
+        session.stepSkill("Climbing", null, up = true)
+        assertEquals(4, last().edits.skills.single { it.name == "Climbing" }.points)
+        session.setStudied("Climbing", null, 2)
+        session.stepSkill("Climbing", null, up = true)
+        assertEquals(6, last().edits.skills.single { it.name == "Climbing" }.points)
+        session.stepSkill("Climbing", null, up = false)
+        assertEquals(2, last().edits.skills.single { it.name == "Climbing" }.points)
+    }
 }

@@ -377,8 +377,8 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     // sheet's own purchases stay put: the diff against it is a
                     // feature (spec section 6), and quietly re-pointing a
                     // printed skill would make that comparison meaningless.
-                    onSpend = bought?.let { saved ->
-                        { delta: Int -> session.spendOnSkill(saved.name, saved.specialization, delta) }
+                    onStep = bought?.let { saved ->
+                        { up: Boolean -> session.stepSkill(saved.name, saved.specialization, up) }
                     },
                 )
             }
