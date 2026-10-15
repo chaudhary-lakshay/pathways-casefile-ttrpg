@@ -6726,6 +6726,105 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hs. Play session 1: twelve findings from a real game
+
+After 6hr the owner asked what was missing to play, then chose to play
+instead: *"lets play using the app and we will know any bugs"*
+(2026-10-14/15). I ran *The Lamplighter's Daughter* as GM with the
+Private Investigator on the SM-T570; the owner switched to bystander
+mid-scene and I drove the tablet. The PI ended unconscious at -3 HP.
+Every finding below was seen on the device, not found by a sweep.
+
+| # | Finding | Commit |
+|---|---|---|
+| 1 | The untrained roll was a text button below the last skill; the owner could not find it | `a3200a4` |
+| 2 | A skill roll took only Appendix A's chips, no free GM modifier | `a52a5e1` |
+| 3 | Fright 16-21's *"New -10 pt disadvantage"* could only be bought, which paid 10 points back | `400ffd1`, `7705518` |
+| 4 | Declared chips, shock and the tab were lost on a visit to *Spend points* | `210e18a` |
+| 5 | A declared-state chip was lit by text colour alone | `bc609b1` |
+| 6 | Guns (Pistol)-10 armed no catalogue weapon, so the revolver fired at an untrained 6 | `75fcf20` |
+| 7 | Attack offered an untrained Guns (Rifle) row and a rifle the PI did not carry | `d112ab2` |
+| 8 | Attack printed "2d pi" and rolled nothing | `583b550` |
+| 9 | Defend printed Dodge and Parry and rolled neither | `8601aa7` |
+| 10 | Defend's `RoundState` lived inside the dialog: closing it forgot a Retreat | `210e18a` |
+| 11 | Damage's major-wound *Stunned* never reached Defend's Stunned chip | `35384bd` |
+| 12 | The Damage dialog re-centred when the Major Wound row appeared at 5, moving the stepper under the finger | `d67502f` |
+
+**Two state-loss defects (4 and 10) and one false claim.** Both were
+`remember` inside a composable that leaves composition: `SheetScreen`
+when the builder opens, the Defend dialog when it closes. `App` now holds
+both per selected character in `SheetScene`, and the round through
+`RoundState.keptFor`. Finding 10 is 6cp's claim failing: *"once per
+round" is honoured by a `New round` control over `RoundState`* held only
+while the dialog was open. A claim about REACH again — 6cp checked that
+the six per-round values sat in one composable, not that the composable
+outlived the round.
+
+**One owner ruling (6).** *"revolver uses pistol skill"*: chapter 8
+catalogues no pistol, and the book prints no cross-default between the
+two. `Weapons.ALSO_ARMS` maps Guns (Pistol) onto the revolvers, one way
+only.
+
+**3 in two parts.** `SavedEdits.gained` marks a bought disadvantage
+gained in play; `gainedFree` bills it at 0 and the trait still applies.
+The sheet's own trait of the same name keeps its price. The Traits tab
+then printed the magnitude with a minus, *"−0 pts"*: `drawbackPrice`
+says *gained in play*, because no catalogue or fixture disadvantage costs
+0 and Hanged Man 9's free drawback is caught first by `grantedTraits`.
+
+**7's boundary.** `SkillDefaults.attackWeapons(key, isUntrained,
+carried)` is the one filter for the row list (`attacks`), the weapon a
+row opens armed with and the weapon picker; the advisor named the third
+read before the code, and the reviewer confirmed no fourth. An UNTRAINED
+row arms only what `carriedWeapons()` holds, the list Defend parries
+with. An OWNED skill still arms the whole catalogue: no premade prints a
+weapon row (6eb), and filtering it would have taken the PI's revolver
+away for want of a builder entry. That is a boundary, recorded, not a
+rule.
+
+**12 is 6gn's rule, broken by a dialog that predated it**: *a control
+that appears on the first pick moves the rows under a finger: draw it
+from the start*. The HT roll is drawn, disabled, on every HP hit, and its
+handler re-checks the LIVE amount and pool, because a stale tap of a
+major picture could otherwise roll for a hit since stepped down (the
+diff review's MEDIUM).
+
+**Book gap, not app:** the fright table's 16-21 row names Cowardice,
+and neither the book nor the catalogue defines it.
+
+### Reviews
+
+ecc (sonnet) on 4, 6 and 10: SHIP. On 2, 8 and 9: SHIP WITH CHANGES.
+On 1, 5, 7, 12 and the price line: SHIP WITH CHANGES; taken: the live
+guard on the HT roll, `carriedWeapons()` read once, `FlowRow` spacing.
+Not taken: import order.
+
+### Checks
+
+2211 Kotlin (1443 `core:rules`, 747 `app`, 21 `core:model`) from deleted
+results with `--rerun-tasks`. RED watched for the price line (*expected
+gained in play but was −0 pts*) and for 7 (three of five new tests; the
+fist-table and owned-catalogue cases stayed green, as they should).
+6eu's pin of the attack list now reads *carries everything*, and its
+comment that Guns (Pistol) is a Skills-tab roll, stale since
+`ALSO_ARMS`, went.
+
+### Device pass, SM-T570
+
+Save backed up (`~/pathways-device-backups/sessions-20261015-pre.json`)
+and `cmp`-identical after. The PI carries a Revolver (.38 cal): Attack
+lists Guns (Pistol) 10, Guns (Revolver) untrained 6, Brawling 8, Boxing
+5, and no rifle, shotgun, knife, axe or sword. Damage: the stepper sat at
+the same y from 1 to 5, *Roll HT 8* greyed then enabled in place. The
+Phobia chip fills when lit, its node `checked=true`, and the HT line took
+its -1. The untrained button is the first row of Skills. **Not seen on
+the device:** the *gained in play* line, as no save holds a gained
+trait; the unit test is its only proof.
+
+**Open after 6hs:** nothing from the session. The owner's play-readiness
+list (reset a character, a roll log, own characters, study CP) is still
+unpicked.
+
 ## 6hr. The ritual's fuel, paid at the asking
 
 6hq left two holes in the Ritual dialog, seen and not touched. Offered
