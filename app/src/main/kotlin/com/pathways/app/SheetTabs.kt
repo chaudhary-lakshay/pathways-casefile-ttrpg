@@ -153,14 +153,24 @@ internal fun LazyListScope.traitsTab(
         TraitRow(
             row = row,
             // `Trait.cost` is a MAGNITUDE and the sign lives in the kind (6u).
-            priceLine = (if (row.trait in grantedTraits) "from $grantedBy" else "−${row.trait.cost} pts") +
-                superseded(row.trait, traits),
+            priceLine = drawbackPrice(row.trait, grantedTraits, grantedBy) + superseded(row.trait, traits),
             roll = check?.let { "Roll 3d6 ≤ ${standing.getValue(it.trait)}" },
             expanded = expanded[key] == true,
             onToggle = { onToggle(key) },
             onRoll = { check?.let(onControl) },
         )
     }
+}
+
+/**
+ * A disadvantage's price line. `Trait.cost` is a MAGNITUDE and the sign
+ * lives in the kind (6u). No catalogue disadvantage costs 0, so a held one
+ * at 0 is one `SavedEdits.gained` billed at nothing.
+ */
+internal fun drawbackPrice(trait: Trait, grantedTraits: List<Trait>, grantedBy: String): String = when {
+    trait in grantedTraits -> "from $grantedBy"
+    trait.cost == 0 -> "gained in play"
+    else -> "−${trait.cost} pts"
 }
 
 internal fun LazyListScope.skillsTab(

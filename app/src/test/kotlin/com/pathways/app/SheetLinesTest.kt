@@ -1,6 +1,8 @@
 package com.pathways.app
 
 import com.pathways.model.BeyonderState
+import com.pathways.model.Trait
+import com.pathways.model.TraitKind
 import com.pathways.rules.Premades
 import com.pathways.rules.SelfControl
 import com.pathways.rules.SheetComparison
@@ -99,5 +101,25 @@ class SheetLinesTest {
     @Test
     fun `a reeling character's self-control row takes the -1 its dialog rolls with`() {
         assertEquals(mapOf("Overconfidence" to 11, "Bully" to 11), standingTargets(bouncer, will = 9, iq = 9, state = -1))
+    }
+
+    // A disadvantage's price on the Traits tab. A gained one is billed at 0
+    // (`SavedEdits.gained`), and read "−0 pts" there (play session 1).
+
+    private val cowardice = Trait("Cowardice", 10, TraitKind.DISADVANTAGE)
+
+    @Test
+    fun `a bought disadvantage prints its points with a minus`() {
+        assertEquals("−10 pts", drawbackPrice(cowardice, emptyList(), "the potion"))
+    }
+
+    @Test
+    fun `a disadvantage gained in play says so, never minus nothing`() {
+        assertEquals("gained in play", drawbackPrice(cowardice.copy(cost = 0), emptyList(), "the potion"))
+    }
+
+    @Test
+    fun `a granted disadvantage names what granted it`() {
+        assertEquals("from the potion", drawbackPrice(cowardice, listOf(cowardice), "the potion"))
     }
 }
