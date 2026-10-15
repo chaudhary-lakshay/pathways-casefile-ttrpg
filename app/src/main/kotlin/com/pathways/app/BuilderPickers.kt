@@ -2,6 +2,9 @@ package com.pathways.app
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -161,12 +164,17 @@ internal fun AppearancePicker(
     )
 }
 
+/** The label a skill is listed under: its name, then its specialization. */
+private fun SkillDefinition.label(): String = specialization?.let { "$name ($it)" } ?: name
+
+/** Whether [definition]'s label holds [query], ignoring case; a blank query holds everywhere. */
+internal fun skillMatches(definition: SkillDefinition, query: String): Boolean =
+    query.isBlank() || definition.label().contains(query.trim(), ignoreCase = true)
+
 /**
- * Every skill the book prints, minus the ones already owned.
- *
- * ponytail: no search box. 158 rows scroll fine on a phone, and a text field
- * is a keyboard, an IME and another piece of hoisted state for a list this
- * size. Add one when the list is the complaint.
+ * Every skill the book prints, minus the ones already owned, and a search
+ * over them: 158 rows had Guns about sixty down (play session 2), which is
+ * when the comment here said to add one.
  */
 @Composable
 internal fun SkillPicker(
@@ -184,31 +192,39 @@ internal fun SkillPicker(
             .filter { SkillLadder.isBuyableWithPoints(it.attr) }
             .sortedBy { it.name }
     }
+    var query by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
         title = { Text("Add a skill") },
         text = {
-            LazyColumn {
-                items(skills) { definition ->
-                    Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable { onPick(definition) }
-                            .padding(vertical = 8.dp),
-                    ) {
-                        Text(
-                            definition.specialization?.let { "${definition.name} ($it)" }
-                                ?: definition.name,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                        Text(
-                            "${definition.attr.code}/${definition.difficulty.code}" +
-                                if (definition.specializable) " - needs a specialization" else "",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
+            Column {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    label = { Text("Search") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                // A fixed height: a list that shrank as it filtered would
+                // re-centre the dialog and move the field under the finger (6gn).
+                LazyColumn(Modifier.height(420.dp)) {
+                    items(skills.filter { skillMatches(it, query) }) { definition ->
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable { onPick(definition) }
+                                .padding(vertical = 8.dp),
+                        ) {
+                            Text(definition.label(), style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                "${definition.attr.code}/${definition.difficulty.code}" +
+                                    if (definition.specializable) " - needs a specialization" else "",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                        HorizontalDivider()
                     }
-                    HorizontalDivider()
                 }
             }
         },
