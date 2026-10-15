@@ -458,8 +458,8 @@ class SkillDefaultsTest {
      * so a tenth weapon row is a failing test and not a silent ninth entry.
      */
     @Test
-    fun `the attacks supported here, for a character who owns nothing`() {
-        val rows = SkillDefaults.attacks(offered())
+    fun `the attacks supported here, for a character who owns nothing and carries everything`() {
+        val rows = SkillDefaults.attacks(offered(), Weapons.all())
         assertEquals(
             listOf(
                 // Pistol arms the revolvers on the owner's ruling (Weapons.ALSO_ARMS).
@@ -468,7 +468,7 @@ class SkillDefaultsTest {
             ),
             rows.map { it.key.specialization?.let { s -> "${it.key.name} ($s)" } ?: it.key.name },
         )
-        // Guns (Pistol) has a default and no weapon row, so it is a Skills-tab roll.
+        // Guns (Pistol) has a default, and the revolvers are its weapon rows.
         assertTrue(offered().any { it.key.specialization == "Pistol" && it.key.name == "Guns" })
     }
 
@@ -673,5 +673,48 @@ class SkillDefaultsTest {
             .flatMap { block -> block.skills.map { it.name.substringBefore(" (") } }
         assertTrue(granted.isNotEmpty())
         assertEquals(emptySet<String>(), granted.filterNot { it in names }.toSet())
+    }
+
+    // An untrained weapon row is offered in Attack only for a weapon in hand
+    // (play session 1: a Private Investigator was offered a Bolt-Action Rifle
+    // they never carried, at Guns (Rifle)'s default).
+
+    private fun carried(vararg names: String) = names.map(Weapons::named)
+
+    private fun attackRows(vararg carried: String) =
+        SkillDefaults.attacks(offered(), carried(*carried)).map { it.key.name to it.key.specialization }
+
+    @Test
+    fun `an untrained weapon skill is not offered to attack with a weapon not carried`() {
+        assertTrue("Guns" to "Rifle" !in attackRows())
+    }
+
+    @Test
+    fun `an untrained weapon skill is offered with only the weapon carried`() {
+        assertTrue("Guns" to "Rifle" in attackRows("Hunting Rifle"))
+        val rifle = offered().single { it.key.name == "Guns" && it.key.specialization == "Rifle" }
+        assertEquals(
+            listOf("Hunting Rifle"),
+            SkillDefaults.attackWeapons(rifle.key, isUntrained = true, carried("Hunting Rifle")).map { it.name },
+        )
+    }
+
+    @Test
+    fun `an untrained skill with a fist table of its own is offered with nothing carried`() {
+        assertTrue(attackRows().any { Damage.attacksFor(it.first).isNotEmpty() })
+    }
+
+    @Test
+    fun `untrained Guns (Pistol) is offered with a revolver carried`() {
+        assertTrue("Guns" to "Pistol" !in attackRows())
+        assertTrue("Guns" to "Pistol" in attackRows("Revolver (.38 cal)"))
+    }
+
+    @Test
+    fun `an owned weapon skill still arms every catalogue weapon`() {
+        assertEquals(
+            listOf("Bolt-Action Rifle", "Hunting Rifle"),
+            SkillDefaults.attackWeapons(keyOf("Guns", "Rifle"), isUntrained = false, emptyList()).map { it.name },
+        )
     }
 }

@@ -127,9 +127,20 @@ object SkillDefaults {
      * Skills tab, where a to-hit number is all there is to show. An OWNED
      * skill is offered by its banner instead ([ownedAttacks]).
      */
-    fun attacks(untrained: List<Untrained>): List<Untrained> = untrained.filter {
-        Damage.attacksFor(it.key.name).isNotEmpty() || Weapons.forSkill(it.key).isNotEmpty()
+    fun attacks(untrained: List<Untrained>, carried: List<CataloguedWeapon>): List<Untrained> = untrained.filter {
+        Damage.attacksFor(it.key.name).isNotEmpty() || attackWeapons(it.key, isUntrained = true, carried).isNotEmpty()
     }
+
+    /**
+     * The weapons the Attack dialog arms [key] with. An UNTRAINED skill arms
+     * only what is [carried]: the untrained list names every weapon skill in
+     * the book, and play session 1 offered a Private Investigator a
+     * Bolt-Action Rifle they never had. An OWNED skill still arms the whole
+     * catalogue, because no premade prints a weapon row (6eb) and the sheet's
+     * own skill is its evidence of one; that is not this fix's to change.
+     */
+    fun attackWeapons(key: SkillKey, isUntrained: Boolean, carried: List<CataloguedWeapon>): List<CataloguedWeapon> =
+        Weapons.forSkill(key).filter { !isUntrained || it in carried }
 
     /** The banner Ch. 3 prints nineteen skills under, every weapon among them. */
     const val COMBAT_SKILLS = "COMBAT SKILLS"

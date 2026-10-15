@@ -42,6 +42,7 @@ import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.SkillTarget
 import com.pathways.rules.Weapons
 import com.pathways.rules.Wounds
+import com.pathways.rules.content.CataloguedWeapon
 import com.pathways.rules.content.HitLocation
 import com.pathways.rules.content.RangePenalty
 import com.pathways.rules.content.UnarmedAttack
@@ -119,6 +120,8 @@ fun AttackDialog(
      * ones and rolled through the same path.
      */
     untrained: List<SkillDefaults.Untrained> = emptyList(),
+    /** The weapons in hand: the only ones an UNTRAINED row arms ([SkillDefaults.attackWeapons]). */
+    carried: List<CataloguedWeapon> = emptyList(),
     /** Warrior's or Weapon Master's weapon line, where the chain holds one. */
     mastery: SkillDefaults.WeaponMastery? = null,
     /** The Harvest Priest's farming-tool line, as the sentence to print. */
@@ -343,7 +346,8 @@ fun AttackDialog(
                                     // of its own: Brawling has both, and the
                                     // book's own first answer there is a fist.
                                     armed = if (unarmed == null) {
-                                        Weapons.forSkill(entry.key).firstOrNull()?.let(::Armed)
+                                        SkillDefaults.attackWeapons(entry.key, entry.untrained != null, carried)
+                                            .firstOrNull()?.let(::Armed)
                                     } else {
                                         null
                                     }
@@ -431,7 +435,7 @@ fun AttackDialog(
                         damage = damage,
                         attacks = Damage.attacksFor(chosen.key.name),
                         armed = armed,
-                        weapons = Weapons.forSkill(chosen.key),
+                        weapons = SkillDefaults.attackWeapons(chosen.key, chosen.untrained != null, carried),
                         band = band,
                         circumstances = circumstances,
                         aimCancelled = aimCancelled,

@@ -387,6 +387,7 @@ internal fun SheetDialogs(
         ) { onClose(SheetDialog.DEFEND) }
     }
     if (SheetDialog.ATTACK in open) {
+        val carried = session.edits.carriedWeapons()
         AttackDialog(
             skillLevels = skillLevels,
             conditions = { conditionsFor(it, withDeclared = false) },
@@ -411,7 +412,9 @@ internal fun SheetDialogs(
             // The untrained skills this dialog can show an attack for, off
             // the same list the Skills tab offers -- one source, so the two
             // screens agree on a default wherever no weapon line applies.
-            untrained = SkillDefaults.attacks(untrained),
+            untrained = SkillDefaults.attacks(untrained, carried),
+            // The list Defend parries with: an untrained row arms only these.
+            carried = carried,
             mastery = mastery,
             toolNote = drunk?.let { SkillDefaults.toolNote(it.pathway, it.sequence) },
             // "attack rolls" lead line 390's list, whatever the skill.
