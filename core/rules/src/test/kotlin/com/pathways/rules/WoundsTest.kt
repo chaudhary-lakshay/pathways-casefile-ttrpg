@@ -260,4 +260,22 @@ class WoundsTest {
         assertEquals(5, Wounds.injuryFor(5, null, "pi"))
         assertEquals(0, Wounds.injuryFor(0, null, "imp"))
     }
+
+    /**
+     * Spirit body damage: "Wounding multipliers apply normally to the chosen
+     * pool (Cut x1.5, Imp x2, etc.). Damage-type multipliers (e.g. skull x4,
+     * vitals x3) stack with wounding multipliers when applied to HP" (lines
+     * 2718-2719). Play session 3 took a cut to SPI and the dialog hid the
+     * type, on a comment that said multipliers were written against HP.
+     */
+    @Test
+    fun `a typed hit to FP or SPI takes its type multiplier and never its location's`() {
+        val neck = Wounds.locationNamed("Neck")
+        assertEquals(7, Wounds.injuryTo(Pool.SPI, 5, neck, "cut"))
+        assertEquals(10, Wounds.injuryTo(Pool.FP, 5, neck, "imp"))
+        assertEquals(15, Wounds.injuryTo(Pool.HP, 5, neck, "cut"))
+        // No type is the injury as entered, on every pool.
+        assertEquals(5, Wounds.injuryTo(Pool.SPI, 5, neck, null))
+        assertEquals(5, Wounds.injuryTo(Pool.HP, 5, neck, null))
+    }
 }

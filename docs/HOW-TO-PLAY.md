@@ -296,7 +296,9 @@ picks what the stepper means. **Injury** (the default) is the injury itself,
 multipliers already in it. Pick a damage type (**cr**, **cut**, **imp**,
 **pi**…) and the stepper is penetrating damage — after DR, which you subtract
 first — and the app applies the type's multiplier and, if you pick **Where it
-landed**, the location's, rounded down: *5 cut past DR ×1.5 = 7 injury*. The
+landed**, the location's, rounded down: *5 cut past DR ×1.5 = 7 injury*. On
+**FP** or **SPI** (spirit body damage) the type still multiplies, but no
+location does and physical DR never applies: *5 cut ×1.5 = 7 to SPI*. The
 dialog then says whether it is a **major wound** (over half max HP) and offers
 that table's HT roll, whose shock the sheet then carries.
 

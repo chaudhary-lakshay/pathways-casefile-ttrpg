@@ -157,6 +157,17 @@ object Wounds {
         return Math.floor(penetrating * multiplierFor(location, type)).toInt()
     }
 
+    /**
+     * The injury a hit does to [pool]: [penetrating] as entered when [type]
+     * is null, else [injuryFor]. Spirit body damage may land on any pool,
+     * and "Wounding multipliers apply normally to the chosen pool ...
+     * Damage-type multipliers (e.g. skull x4, vitals x3) stack with wounding
+     * multipliers when applied to HP" (lines 2718-2719): the type multiplies
+     * every pool, the [location] only HP.
+     */
+    fun injuryTo(pool: Pool, penetrating: Int, location: HitLocation?, type: String?): Int =
+        type?.let { injuryFor(penetrating, location.takeIf { pool == Pool.HP }, it) } ?: penetrating
+
     /** [location]'s to-hit penalty, or null for the Torso, which costs +0. */
     fun modifier(location: HitLocation): Modifier? {
         if (location.penalty == 0) return null

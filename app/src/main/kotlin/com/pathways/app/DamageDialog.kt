@@ -180,11 +180,11 @@ internal fun DamageDialog(
     // Debt. Nothing clears this; the dialog is gone once it is set.
     var applied by remember { mutableStateOf(false) }
 
-    // Wounding multipliers are written against HP, as every threshold is.
+    // The type multiplies every pool, the location only HP (Wounds.injuryTo).
     // A function, so a handler asks for the injury as it is NOW: a stale tap
     // of a picture drawn before a type or location changed would otherwise
     // roll for the old number (the diff review).
-    fun injuryNow() = type?.takeIf { pool == Pool.HP }?.let { Wounds.injuryFor(amount, landed, it) } ?: amount
+    fun injuryNow() = Wounds.injuryTo(pool, amount, landed, type)
     val injury = injuryNow()
     // Only HP has a Major Wound threshold: the rule is written against "half
     // your HP", and FP and SPI print no equivalent.
@@ -234,8 +234,14 @@ internal fun DamageDialog(
                     amount = amount,
                     // The threshold as a tag under the number it is about,
                     // lit once this one hit crosses it.
+                    // Kept as a tag off HP, so picking a pool below it
+                    // moves nothing under the finger (6gn).
                     threshold = Wounds.majorWoundThreshold(maxHp).let {
-                        if (isMajor) "Major wound: $it or more in one hit" else "Major wound at $it+"
+                        when {
+                            pool != Pool.HP -> "No Major wound on $pool"
+                            isMajor -> "Major wound: $it or more in one hit"
+                            else -> "Major wound at $it+"
+                        }
                     },
                     isMajor = isMajor,
                     onStep = { delta ->
@@ -271,10 +277,10 @@ internal fun DamageDialog(
                         modifier = Modifier.padding(top = 4.dp),
                     )
                 }
-                if (pool == Pool.HP) {
-                    // The hit changed, so its roll is no longer an answer.
-                    DamageType(type, amount, landed) { type = it; shock = null }
-                }
+                // Every pool: "Wounding multipliers apply normally to the
+                // chosen pool" (line 2718). The hit changed, so its roll is
+                // no longer an answer.
+                DamageType(type, amount, landed, pool) { type = it; shock = null }
                 // ONE expression, printed and rolled. It was written out
                 // twice, which is the shape that let a caption and a roll drift
                 // apart three times in this codebase (6ag, 6ai, 6be) -- and a
@@ -349,7 +355,7 @@ internal fun DamageDialog(
  * under the finger (6gn).
  */
 @Composable
-private fun DamageType(type: String?, amount: Int, landed: HitLocation?, onPick: (String?) -> Unit) {
+private fun DamageType(type: String?, amount: Int, landed: HitLocation?, pool: Pool, onPick: (String?) -> Unit) {
     val types = remember { Wounds.knownAbbreviations() }
     SectionLabel("The number above is")
     FlowRow {
@@ -370,9 +376,16 @@ private fun DamageType(type: String?, amount: Int, landed: HitLocation?, onPick:
     }
     Text(
         type?.let {
-            val times = Wounds.multiplierFor(landed, it)
-            "$amount $it past DR ${Wounds.render(times)} = ${Wounds.injuryFor(amount, landed, it)} injury, " +
-                "rounded down. Subtract DR first."
+            val isHp = pool == Pool.HP
+            val times = Wounds.multiplierFor(landed.takeIf { isHp }, it)
+            val injury = Wounds.injuryTo(pool, amount, landed, it)
+            // Off HP the hit is spirit body damage, which "bypasses physical
+            // Damage Resistance (DR) entirely" (line 2711).
+            if (isHp) {
+                "$amount $it past DR ${Wounds.render(times)} = $injury injury, rounded down. Subtract DR first."
+            } else {
+                "$amount $it ${Wounds.render(times)} = $injury to $pool, rounded down. Physical DR does not apply."
+            }
         } ?: "Injury as entered: the multipliers are already in it.",
         style = MaterialTheme.typography.bodySmall,
         modifier = Modifier.padding(top = 4.dp),
