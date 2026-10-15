@@ -125,11 +125,13 @@ object SkillDefaults {
      * nineteen and a default for a Shield Bash, and neither decides this
      * list: a skill with no damage line this app can show is rolled from the
      * Skills tab, where a to-hit number is all there is to show. An OWNED
-     * skill is offered by its banner instead ([ownedAttacks]).
+     * skill is offered by its banner instead ([ownedAttacks]). [owned] is the
+     * character's skill levels, which [attackWeapons] reads.
      */
-    fun attacks(untrained: List<Untrained>, carried: List<CataloguedWeapon>): List<Untrained> = untrained.filter {
-        Damage.attacksFor(it.key.name).isNotEmpty() || attackWeapons(it.key, isUntrained = true, carried).isNotEmpty()
-    }
+    fun attacks(untrained: List<Untrained>, carried: List<CataloguedWeapon>, owned: Map<SkillKey, Int>): List<Untrained> =
+        untrained.filter {
+            Damage.attacksFor(it.key.name).isNotEmpty() || attackWeapons(it.key, it.level, carried, owned).isNotEmpty()
+        }
 
     /**
      * The weapons the Attack dialog arms [key] with. An UNTRAINED skill arms
@@ -138,9 +140,22 @@ object SkillDefaults {
      * Bolt-Action Rifle they never had. An OWNED skill still arms the whole
      * catalogue, because no premade prints a weapon row (6eb) and the sheet's
      * own skill is its evidence of one; that is not this fix's to change.
+     *
+     * [untrainedAt] is the untrained row's level, null for an owned skill. An
+     * untrained row also skips a weapon an [owned] skill already wields at
+     * that level or better ([Weapons.levelFor]): play session 2 offered Guns
+     * (Pistol) at 6 for the revolver its holder fired at 12.
      */
-    fun attackWeapons(key: SkillKey, isUntrained: Boolean, carried: List<CataloguedWeapon>): List<CataloguedWeapon> =
-        Weapons.forSkill(key).filter { !isUntrained || it in carried }
+    fun attackWeapons(
+        key: SkillKey,
+        untrainedAt: Int?,
+        carried: List<CataloguedWeapon>,
+        owned: Map<SkillKey, Int>,
+    ): List<CataloguedWeapon> =
+        Weapons.forSkill(key).filter { weapon ->
+            untrainedAt == null ||
+                weapon in carried && (Weapons.levelFor(weapon, owned) ?: Int.MIN_VALUE) < untrainedAt
+        }
 
     /** The banner Ch. 3 prints nineteen skills under, every weapon among them. */
     const val COMBAT_SKILLS = "COMBAT SKILLS"

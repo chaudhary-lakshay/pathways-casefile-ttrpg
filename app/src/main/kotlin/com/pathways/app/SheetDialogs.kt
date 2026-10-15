@@ -414,7 +414,7 @@ internal fun SheetDialogs(
             // The untrained skills this dialog can show an attack for, off
             // the same list the Skills tab offers -- one source, so the two
             // screens agree on a default wherever no weapon line applies.
-            untrained = SkillDefaults.attacks(untrained, carried),
+            untrained = SkillDefaults.attacks(untrained, carried, skillLevels),
             // The list Defend parries with: an untrained row arms only these.
             carried = carried,
             mastery = mastery,

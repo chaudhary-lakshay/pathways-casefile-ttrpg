@@ -346,7 +346,7 @@ internal fun AttackDialog(
                                     // of its own: Brawling has both, and the
                                     // book's own first answer there is a fist.
                                     armed = if (unarmed == null) {
-                                        SkillDefaults.attackWeapons(entry.key, entry.untrained != null, carried)
+                                        SkillDefaults.attackWeapons(entry.key, entry.untrained?.level, carried, skillLevels)
                                             .firstOrNull()?.let(::Armed)
                                     } else {
                                         null
@@ -435,7 +435,7 @@ internal fun AttackDialog(
                         damage = damage,
                         attacks = Damage.attacksFor(chosen.key.name),
                         armed = armed,
-                        weapons = SkillDefaults.attackWeapons(chosen.key, chosen.untrained != null, carried),
+                        weapons = SkillDefaults.attackWeapons(chosen.key, chosen.untrained?.level, carried, skillLevels),
                         band = band,
                         circumstances = circumstances,
                         aimCancelled = aimCancelled,

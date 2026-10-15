@@ -459,7 +459,7 @@ class SkillDefaultsTest {
      */
     @Test
     fun `the attacks supported here, for a character who owns nothing and carries everything`() {
-        val rows = SkillDefaults.attacks(offered(), Weapons.all())
+        val rows = SkillDefaults.attacks(offered(), Weapons.all(), emptyMap())
         assertEquals(
             listOf(
                 // Pistol arms the revolvers on the owner's ruling (Weapons.ALSO_ARMS).
@@ -682,7 +682,7 @@ class SkillDefaultsTest {
     private fun carried(vararg names: String) = names.map(Weapons::named)
 
     private fun attackRows(vararg carried: String) =
-        SkillDefaults.attacks(offered(), carried(*carried)).map { it.key.name to it.key.specialization }
+        SkillDefaults.attacks(offered(), carried(*carried), emptyMap()).map { it.key.name to it.key.specialization }
 
     @Test
     fun `an untrained weapon skill is not offered to attack with a weapon not carried`() {
@@ -695,7 +695,7 @@ class SkillDefaultsTest {
         val rifle = offered().single { it.key.name == "Guns" && it.key.specialization == "Rifle" }
         assertEquals(
             listOf("Hunting Rifle"),
-            SkillDefaults.attackWeapons(rifle.key, isUntrained = true, carried("Hunting Rifle")).map { it.name },
+            SkillDefaults.attackWeapons(rifle.key, rifle.level, carried("Hunting Rifle"), emptyMap()).map { it.name },
         )
     }
 
@@ -714,7 +714,28 @@ class SkillDefaultsTest {
     fun `an owned weapon skill still arms every catalogue weapon`() {
         assertEquals(
             listOf("Bolt-Action Rifle", "Hunting Rifle"),
-            SkillDefaults.attackWeapons(keyOf("Guns", "Rifle"), isUntrained = false, emptyList()).map { it.name },
+            SkillDefaults.attackWeapons(keyOf("Guns", "Rifle"), null, emptyList(), emptyMap()).map { it.name },
+        )
+    }
+
+    /**
+     * Play session 2: Mira, holding Guns (Revolver) 12 and a revolver, was
+     * offered untrained Guns (Pistol) at 6 for the same gun. An untrained row
+     * arms only a carried weapon no owned skill already wields at least as
+     * well, and drops out when that leaves it nothing.
+     */
+    @Test
+    fun `an untrained row does not arm a weapon an owned skill wields better`() {
+        val revolver = keyOf("Guns", "Revolver")
+        val owned = mapOf(revolver to 12)
+        val rows = SkillDefaults.attacks(offered(owned), carried("Revolver (.38 cal)"), owned)
+        assertTrue(rows.none { it.key.name == "Guns" && it.key.specialization == "Pistol" }, rows.toString())
+        // Wielded WORSE than the default, the untrained row still arms it.
+        val weak = mapOf(revolver to 1)
+        val pistol = offered(weak).single { it.key.name == "Guns" && it.key.specialization == "Pistol" }
+        assertEquals(
+            listOf("Revolver (.38 cal)"),
+            SkillDefaults.attackWeapons(pistol.key, pistol.level, carried("Revolver (.38 cal)"), weak).map { it.name },
         )
     }
 }
