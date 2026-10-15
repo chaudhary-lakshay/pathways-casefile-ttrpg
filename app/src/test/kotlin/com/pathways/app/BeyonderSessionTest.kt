@@ -298,12 +298,6 @@ class BeyonderSessionTest {
     // --- acting on what the screen printed ----------------------------------
 
     /**
-     * Drink is the one irreversible button, and its handler belongs to the
-     * composition that drew it. If the session has moved since -- a second
-     * tap, a CoR step, a lost roll -- the screen is showing a past the GM is
-     * no longer in, and the tap must do nothing rather than act on it.
-     */
-    /**
      * The owner's call after play session 3: a band's tap adds the low end of
      * its range, and the GM steps +5% for more. A session is one tap, so the
      * second tap of the same picture (6ei) is dropped; "None" adds nothing.
@@ -321,6 +315,12 @@ class BeyonderSessionTest {
         assertEquals(10, saved().beyonder?.digestion)
     }
 
+    /**
+     * Drink is the one irreversible button, and its handler belongs to the
+     * composition that drew it. If the session has moved since -- a second
+     * tap, a CoR step, a lost roll -- the screen is showing a past the GM is
+     * no longer in, and the tap must do nothing rather than act on it.
+     */
     @Test
     fun `a screen drawn before the session moved no longer shows the truth`() {
         val (s, _) = session(SavedSession(beyonder = fool9.digested(100)))

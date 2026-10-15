@@ -543,12 +543,12 @@ private fun DigestionTracker(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
+            // Drawn at this digestion: a second tap of it is dropped.
+            val drawn = state.digestion
             gains.forEach { quality ->
                 if (quality.losesProgress) {
                     ChipTag("${quality.quality} 0 or lose")
                 } else {
-                    // Drawn at this digestion: a second tap of it is dropped.
-                    val drawn = state.digestion
                     AssistChip(
                         onClick = { onAct(quality, drawn) },
                         label = { Text("${quality.quality} +${quality.minGain}-${quality.maxGain}%") },
