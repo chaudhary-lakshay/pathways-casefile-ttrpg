@@ -181,8 +181,11 @@ internal fun DamageDialog(
     var applied by remember { mutableStateOf(false) }
 
     // Wounding multipliers are written against HP, as every threshold is.
-    val pricedAs = type?.takeIf { pool == Pool.HP }
-    val injury = pricedAs?.let { Wounds.injuryFor(amount, landed, it) } ?: amount
+    // A function, so a handler asks for the injury as it is NOW: a stale tap
+    // of a picture drawn before a type or location changed would otherwise
+    // roll for the old number (the diff review).
+    fun injuryNow() = type?.takeIf { pool == Pool.HP }?.let { Wounds.injuryFor(amount, landed, it) } ?: amount
+    val injury = injuryNow()
     // Only HP has a Major Wound threshold: the rule is written against "half
     // your HP", and FP and SPI print no equivalent.
     val isMajor = pool == Pool.HP && Wounds.isMajorWound(injury, maxHp)
@@ -194,6 +197,9 @@ internal fun DamageDialog(
                 onClick = {
                     if (applied) return@Button
                     applied = true
+                    // As it is now, for the reason [injuryNow] gives.
+                    val hit = injuryNow()
+                    val isMajor = pool == Pool.HP && Wounds.isMajorWound(hit, maxHp)
                     // Latched with the hit, never with the roll (Codex): a GM
                     // who rolls the table and then cancels, changes the pool
                     // or drops the damage below the threshold has applied no
@@ -209,7 +215,7 @@ internal fun DamageDialog(
                     if (isMajor && shock?.let { StunRecovery.leavesStunned(Wounds.majorWoundFor(it), recovery) } == true) {
                         onStunned()
                     }
-                    onApply(pool, injury)
+                    onApply(pool, hit)
                     onDismiss()
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -292,7 +298,7 @@ internal fun DamageDialog(
                     // below the threshold too, and a stale tap of a major
                     // picture would roll for a hit since stepped down.
                     onRoll = {
-                        if (shock == null && pool == Pool.HP && Wounds.isMajorWound(injury, maxHp)) {
+                        if (shock == null && pool == Pool.HP && Wounds.isMajorWound(injuryNow(), maxHp)) {
                             shock = SuccessRoll.against(htTarget, dice.dice("Major wound HT"))
                         }
                     },
