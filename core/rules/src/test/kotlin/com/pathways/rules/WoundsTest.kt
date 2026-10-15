@@ -242,4 +242,22 @@ class WoundsTest {
         assertEquals("×1.5", Wounds.render(1.5))
         assertEquals("×0.5", Wounds.render(0.5))
     }
+
+    /**
+     * The injury a hit's penetrating damage does: "the wounding modifier is
+     * applied to penetrating damage (stacks with the damage-type
+     * multiplier)" (line 2740). The book prints no rounding for the product;
+     * it is floored, the book's own direction elsewhere (Basic Speed, half a
+     * skill), and a reading. Play session 2 took a 5-point cut and had to
+     * work out the 7 by hand.
+     */
+    @Test
+    fun `injury is penetrating damage times both multipliers, floored`() {
+        assertEquals(7, Wounds.injuryFor(5, null, "cut"))
+        assertEquals(7, Wounds.injuryFor(5, Wounds.locationNamed("Torso"), "cut"))
+        // The book's own example: a cut to the Neck is x3 in total.
+        assertEquals(15, Wounds.injuryFor(5, Wounds.locationNamed("Neck"), "cut"))
+        assertEquals(5, Wounds.injuryFor(5, null, "pi"))
+        assertEquals(0, Wounds.injuryFor(0, null, "imp"))
+    }
 }

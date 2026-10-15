@@ -142,6 +142,21 @@ object Wounds {
         return ofType * (location.byType[type.lowercase()] ?: location.multiplier)
     }
 
+    /**
+     * The injury [penetrating] damage of [type] does at [location]: both
+     * multipliers ([multiplierFor]) on damage already past DR.
+     *
+     * **Floored, as a reading.** The book prints the multiplication and no
+     * rounding for it; it rounds down where it does print one (Basic Speed,
+     * a Deceptive Attack's cap), and no minimum of 1 is applied because none
+     * is printed. DR is the GM's to subtract first: the one location that
+     * prints any, the Skull's "DR 2", prints it in prose beside a helmet's.
+     */
+    fun injuryFor(penetrating: Int, location: HitLocation?, type: String): Int {
+        require(penetrating >= 0) { "penetrating damage cannot be negative; was $penetrating" }
+        return Math.floor(penetrating * multiplierFor(location, type)).toInt()
+    }
+
     /** [location]'s to-hit penalty, or null for the Torso, which costs +0. */
     fun modifier(location: HitLocation): Modifier? {
         if (location.penalty == 0) return null

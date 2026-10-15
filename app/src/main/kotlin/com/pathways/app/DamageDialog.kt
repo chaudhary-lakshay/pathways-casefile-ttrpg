@@ -171,14 +171,21 @@ internal fun DamageDialog(
     // about it. Only HP carries these -- every threshold in that column is
     // written against HP.
     var landed by remember { mutableStateOf<HitLocation?>(null) }
+    // Null is the injury as entered, the dialog's only reading until play
+    // session 2: a GM who picks a type enters penetrating damage instead, and
+    // both multipliers are applied to it (Wounds.injuryFor).
+    var type by remember { mutableStateOf<String?>(null) }
     // Apply dismisses, and a second tap of the same picture still reaches its
     // handler (6ei): the hit landed twice, and on SPI the second one is Soul
     // Debt. Nothing clears this; the dialog is gone once it is set.
     var applied by remember { mutableStateOf(false) }
 
+    // Wounding multipliers are written against HP, as every threshold is.
+    val pricedAs = type?.takeIf { pool == Pool.HP }
+    val injury = pricedAs?.let { Wounds.injuryFor(amount, landed, it) } ?: amount
     // Only HP has a Major Wound threshold: the rule is written against "half
     // your HP", and FP and SPI print no equivalent.
-    val isMajor = pool == Pool.HP && Wounds.isMajorWound(amount, maxHp)
+    val isMajor = pool == Pool.HP && Wounds.isMajorWound(injury, maxHp)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -202,14 +209,14 @@ internal fun DamageDialog(
                     if (isMajor && shock?.let { StunRecovery.leavesStunned(Wounds.majorWoundFor(it), recovery) } == true) {
                         onStunned()
                     }
-                    onApply(pool, amount)
+                    onApply(pool, injury)
                     onDismiss()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError,
                 ),
-            ) { Text("Apply $amount to $pool") }
+            ) { Text("Apply $injury to $pool") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
         title = { Text("Damage") },
@@ -258,6 +265,10 @@ internal fun DamageDialog(
                         modifier = Modifier.padding(top = 4.dp),
                     )
                 }
+                if (pool == Pool.HP) {
+                    // The hit changed, so its roll is no longer an answer.
+                    DamageType(type, amount, landed) { type = it; shock = null }
+                }
                 // ONE expression, printed and rolled. It was written out
                 // twice, which is the shape that let a caption and a roll drift
                 // apart three times in this codebase (6ag, 6ai, 6be) -- and a
@@ -281,7 +292,7 @@ internal fun DamageDialog(
                     // below the threshold too, and a stale tap of a major
                     // picture would roll for a hit since stepped down.
                     onRoll = {
-                        if (shock == null && pool == Pool.HP && Wounds.isMajorWound(amount, maxHp)) {
+                        if (shock == null && pool == Pool.HP && Wounds.isMajorWound(injury, maxHp)) {
                             shock = SuccessRoll.against(htTarget, dice.dice("Major wound HT"))
                         }
                     },
@@ -295,9 +306,13 @@ internal fun DamageDialog(
                 if (pool == Pool.HP) {
                     WhereItLanded(
                         landed = landed,
-                        damage = amount,
+                        damage = injury,
                         maxHp = maxHp,
-                        onLocation = { landed = if (landed == it) null else it },
+                        onLocation = {
+                            landed = if (landed == it) null else it
+                            // A priced hit re-prices with its location.
+                            if (type != null) shock = null
+                        },
                     )
                 }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
@@ -318,6 +333,43 @@ internal fun DamageDialog(
                 }
             }
         },
+    )
+}
+
+/**
+ * What the number above is: the injury itself (the default), or penetrating
+ * damage of a type, which both multipliers turn into injury
+ * ([Wounds.injuryFor]). Drawn from the first frame, so a pick moves nothing
+ * under the finger (6gn).
+ */
+@Composable
+private fun DamageType(type: String?, amount: Int, landed: HitLocation?, onPick: (String?) -> Unit) {
+    val types = remember { Wounds.knownAbbreviations() }
+    SectionLabel("The number above is")
+    FlowRow {
+        FilterChip(
+            selected = type == null,
+            onClick = { onPick(null) },
+            label = { Text("Injury") },
+            modifier = Modifier.padding(end = 8.dp),
+        )
+        types.forEach { option ->
+            FilterChip(
+                selected = type == option,
+                onClick = { onPick(option) },
+                label = { Text(option) },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
+    }
+    Text(
+        type?.let {
+            val times = Wounds.multiplierFor(landed, it)
+            "$amount $it past DR ${Wounds.render(times)} = ${Wounds.injuryFor(amount, landed, it)} injury, " +
+                "rounded down. Subtract DR first."
+        } ?: "Injury as entered: the multipliers are already in it.",
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.padding(top = 4.dp),
     )
 }
 
@@ -387,11 +439,12 @@ private fun MajorWoundPanel(
 /**
  * The hit location's own effect column (Ch. 5, p. 41), which had no reader.
  *
- * **This picker does NOT re-price the damage.** The wounding multiplier is
- * the attacker's business and `AttackDialog` already prints it ("×4 there"),
- * so the number typed above is the injury that got through. Choosing a
- * location here asks one question the app could not answer before: what does
- * the book say a hit THERE, of THIS size, on THIS character, triggers.
+ * **By default this picker does not re-price the damage**: the number typed
+ * above is the injury that got through, as `AttackDialog` prints the
+ * multiplier for a hit the character makes ("×4 there"). Once the GM says
+ * the number is penetrating damage of a type ([DamageType], play session 2),
+ * the location is one of its two multipliers. Either way it also answers what
+ * the book says a hit THERE, of THIS size, on THIS character, triggers.
  *
  * **It reports a trigger and never applies a state.** Crippling is "unusable
  * until healed" and this app tracks no such duration, so nothing is marked
