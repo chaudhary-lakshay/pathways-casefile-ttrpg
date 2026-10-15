@@ -6775,21 +6775,36 @@ the tablet did not come back on Wi-Fi. The owner: "go ahead".
   clearest success row. A push that reaches it still owes its SPI, so the
   dialog keeps *Pushed N SPI* in the burn row's place.
 
-### Owner's calls, not taken
+### Owner's calls (2026-10-16)
 
-- **Absent-Minded** (3 sheets) never resolves to *Absent-Mindedness*, so
-  6gj's -3 never reaches them. Deliberate (4.1, `SelfControlTest`), but
-  6hl's `RULED_SPELLINGS` exists for exactly this.
-- **The Boon form for a character who cannot pray** is drawn whole; its
-  refusal (no Ritualistic Magic) sits at the bottom. 6gn's "draw it from
-  the start" may be why.
-- **The acting-method bands** (*Good +10-15%*) look like chips and are
-  inert; a session's result is tapped in 5% at a time.
+- **Absent-Minded stays refused.** Asked first as a spelling, the owner
+  said "same trait"; asked again with the fact the first question left
+  out, that all three sheets price it at 5 against the book's 15
+  (`ContentLoaderTest`'s `AUDIT_ONLY` reason), the owner said keep it
+  refused. 4.1's refusal now carries the owner's ruling. **A question
+  that omits half of a refusal's reason gets half an answer.**
+- **The Boon form leads with a refusal no pick can lift** (`4be6a36`).
+  `standingRefusal(skillLevel, lost)` holds the two (no Ritualistic
+  Magic, a lost character) and opens `boonRefusal`, so the words exist
+  once; the dialog prints it above the form, which stays as reference.
+- **An acting band is a tap** (`08c2e5d`). The bands were inert tags and
+  the comment above them refused a button "that would have to invent a
+  figure inside" a range. The owner picked the low end: *Good +10-15%*
+  adds 10, Knows the Acting Method's doubled band its doubled low end,
+  and +5% steps toward the top. `BeyonderSession.act(quality,
+  drawnDigestion)` drops a tap drawn at another digestion (6ei); a
+  mutant without that line read 20 for 10. *None* stays a tag.
 
 ### Checks
 
 2263 Kotlin (1460 `core:rules`, 780 `app`, 23 `core:model`) from
-`--rerun-tasks`, 0 failures; 366 Python. RED watched for each: the SPI
+`--rerun-tasks`, 0 failures; 366 Python. After the owner's calls: 2265
+(782 `app`), `PathwayScreen.kt` 798 of 800, the click-handler census
+still 40 (the band calls `onAct`, a parameter).
+ecc (sonnet) over `27394ff..08c2e5d -- app`: SHIP WITH CHANGES; two
+LOWs taken (a test's KDoc I had split from it, `drawn` hoisted), one not:
+`act`'s `takeUnless` is what says None adds nothing, since the loader
+lets a losesProgress row print a `minGain`. RED watched for each: the SPI
 cut read 5 for 7 (a stub reproducing the dialog's old gate), Spirit
 Vision 10 for 7, the quirk's cell null, `canPush` true.
 
