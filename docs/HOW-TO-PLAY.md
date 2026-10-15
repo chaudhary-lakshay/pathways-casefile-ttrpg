@@ -104,15 +104,19 @@ potion grants.
 - **⋮ → Roll log**, in the top bar, lists every throw this character made
   since the app started, newest first: what was rolled, the dice, and the
   target (*"Fright Check 2 + 5 + 2 = 9 vs 5"*). A table's or damage's throw
-  has no target. It shows dice, not verdicts: a push or a table's own rule
+  has no target. An attack's damage is logged as *Attack damage*, and the
+  Damage dialog's rolls as *Major wound HT* and *Stun recovery*. It shows dice, not verdicts: a push or a table's own rule
   can change a verdict after the dice, and the dialog that rolled says which.
   It is not saved; closing the app clears it.
 - **⋮ → Delete character** appears only on a character you made (below),
   and removes it after asking. A premade cannot be deleted.
-- **⋮ → Reset to sheet** puts the character back to the printed sheet:
+- **⋮ → Reset to sheet** puts a premade back to the printed sheet:
   potions, purchases, wounds, corruption, declared lines and the roll log
-  all go. It asks first, and it cannot be undone. It is for starting over,
-  not for play: nothing in the book un-drinks a potion.
+  all go. On a character you made it keeps the build — attributes, skills,
+  traits, weapons, languages — and clears what play added: potions, wounds,
+  corruption, study points, a boon, traits and quirks gained in play. It asks
+  first, and it cannot be undone. It is for starting over, not for play:
+  nothing in the book un-drinks a potion.
 
 ---
 
@@ -287,9 +291,14 @@ The busiest screen in the app, and the one with the most declarations.
 
 ### Damage
 
-Rolls the weapon's damage, applies the hit-location and damage-type
-multipliers, and tells you whether it is a **major wound** (over half max HP) —
-and if so, rolls that table, whose shock the sheet then carries for the turn.
+A hit taken: how much, and which pool absorbs it. **The number above is**
+picks what the stepper means. **Injury** (the default) is the injury itself,
+multipliers already in it. Pick a damage type (**cr**, **cut**, **imp**,
+**pi**…) and the stepper is penetrating damage — after DR, which you subtract
+first — and the app applies the type's multiplier and, if you pick **Where it
+landed**, the location's, rounded down: *5 cut past DR ×1.5 = 7 injury*. The
+dialog then says whether it is a **major wound** (over half max HP) and offers
+that table's HT roll, whose shock the sheet then carries.
 
 ### Concentrate / Fright
 
@@ -299,6 +308,10 @@ and what was witnessed on one page; each row shows what the book prints for
 it, and picking one sets **Modifier** to that figure, which then steps a point
 at a time for the GM's severity, with no bound. The target sits
 above the choices and **Roll** below them, withdrawn until a row is picked.
+
+The 13–15 band hands out a quirk: name it and tap **Record the quirk**, and
+the sheet holds it as a disadvantage *gained in play*, at no cost. The builder
+gives it back.
 
 Three of the table's nine bands print a way out, and those show a **recovery
 roll** against the column's own attribute — Will in Fright and Awe, IQ in
@@ -337,7 +350,10 @@ Sequence grants: stat gains, skills with the level they reach, then the book's
 own advantage, drawback and ability text. Each ability is a row: its name and
 the bracket the book prints after it, such as **1 SPI** or **Passive**. Tap a
 row to read it; **Open all** opens the whole card, and a card of one or two
-abilities starts open. A roll's Success and Failure lines sit under the
+abilities starts open. On a potion you have drunk, an open ability with a
+fixed SPI price has **Spend N SPI**, which takes it from the SPI tracker; it
+is greyed out when the SPI left cannot pay. A price the GM must choose
+(*X SPI*, *1–2 SPI/turn*) has no button. A roll's Success and Failure lines sit under the
 ability they belong to. Costs, distances, dice and modifiers are picked out in
 colour; the words are the book's. **Digestion & corruption** holds the two trackers, and
 **What raises corruption** opens the list of what costs CoR.
@@ -472,7 +488,10 @@ grade is *not* a gate on use, deliberately.
 ## 5. Build and edit
 
 **Spend points** opens the builder: the four attributes against a live point
-budget, and skills bought at the ladder's own cost. **Add a skill** buys one.
+budget, and skills bought at the ladder's own cost. **Add a skill** buys one;
+its **Search** field narrows the list by any part of a name. A bought skill's
+**+** and **−** step one rung of the ladder (1, 2, 4, 8 points…), counting its
+study points toward the rung.
 **Wealth** and **Appearance** each have a row with a **Change** button (the
 wealth one opens a picker titled *Economic status*), and picking a level
 replaces the one you had rather than stacking a second. Where a potion granted
@@ -577,7 +596,8 @@ Edits are saved per character and survive a restart.
   is offered: while a character is hurt, **Vitals** prints the book's three
   Natural Recovery rows, a **−1 / +1** for anything else that
   moves the roll (a potion's grant, say — the line under it shows what is
-  already counted), and **Roll HT N — a day of rest and food**. You say when
+  already counted), and **Roll HT N — a day of rest and food**. Shock is not
+  in it: it lasts a turn, and the roll comes a day later. You say when
   a day has passed. A success restores nothing by itself: apply what the rows
   print with **+** on the HP strip, because which band applies to a large body
   is the GM's call. A Fast Healer is told of one more HP on a success; on a
