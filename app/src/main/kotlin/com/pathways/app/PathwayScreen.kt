@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -75,6 +76,7 @@ import com.pathways.rules.ScoreFloors
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.TraitGrants
 import com.pathways.rules.TraitReport
+import com.pathways.rules.content.ActingQuality
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SequenceBlock
 
@@ -405,7 +407,7 @@ fun PathwayScreen(
                 }
                 if (drunk != null && tab == 1) {
                     if (isCurrentPotion && !session.isLost) {
-                        item { DigestionTracker(drunk, traits, session::digest) }
+                        item { DigestionTracker(drunk, traits, session::digest, session::act) }
                     }
                     // CoR is not tied to the potion being browsed: it is the
                     // character's, so it shows whenever they have walked at all.
@@ -509,10 +511,9 @@ private fun PathwayTile(name: String, modifier: Modifier = Modifier, onClick: ()
  * The Acting Method, as a table plays it: the GM judges the session's acting
  * and moves the percentage.
  *
- * ponytail: a stepper, not a quality picker. Every acting quality prints a
- * RANGE ("+15-20%") and the book leaves the pick to the GM, so a button per
- * quality would have to invent a figure inside it. The ranges are shown
- * beside the stepper so the judgement stays informed and stays theirs.
+ * A stepper, and a tap per quality that adds the low end of its RANGE
+ * ("+15-20%"), the owner's call after play session 3: the GM steps +5% for
+ * the rest of the span. "None" stays a tag, its loss the GM's to step.
  */
 @Composable
 private fun DigestionTracker(
@@ -520,6 +521,7 @@ private fun DigestionTracker(
     /** Read for Knows the Acting Method, which doubles the table (6ez). */
     traits: List<Trait>,
     onDigest: (Int) -> Unit,
+    onAct: (ActingQuality, drawnDigestion: Int) -> Unit,
 ) {
     val gains = remember(traits) { TraitEffects.actingGains(traits) }
     StepperCard(
@@ -535,15 +537,23 @@ private fun DigestionTracker(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        // One neutral chip a quality: the book prints a range and no verdict.
+        // One chip a quality: the book prints a range and no verdict.
         FlowRow(
             Modifier.padding(top = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             gains.forEach { quality ->
-                val gain = if (quality.losesProgress) "0 or lose" else "+${quality.minGain}-${quality.maxGain}%"
-                ChipTag("${quality.quality} $gain")
+                if (quality.losesProgress) {
+                    ChipTag("${quality.quality} 0 or lose")
+                } else {
+                    // Drawn at this digestion: a second tap of it is dropped.
+                    val drawn = state.digestion
+                    AssistChip(
+                        onClick = { onAct(quality, drawn) },
+                        label = { Text("${quality.quality} +${quality.minGain}-${quality.maxGain}%") },
+                    )
+                }
             }
         }
         // Said, because a doubled range reads as a misprint of the book's.

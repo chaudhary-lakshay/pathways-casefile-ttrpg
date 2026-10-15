@@ -3,6 +3,7 @@ package com.pathways.app
 import com.pathways.model.BeyonderState
 import com.pathways.rules.Pool
 import com.pathways.rules.RandomSource
+import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
@@ -302,6 +303,24 @@ class BeyonderSessionTest {
      * tap, a CoR step, a lost roll -- the screen is showing a past the GM is
      * no longer in, and the tap must do nothing rather than act on it.
      */
+    /**
+     * The owner's call after play session 3: a band's tap adds the low end of
+     * its range, and the GM steps +5% for more. A session is one tap, so the
+     * second tap of the same picture (6ei) is dropped; "None" adds nothing.
+     */
+    @Test
+    fun `an acting band adds its low end once per picture`() {
+        val (s, saved) = session(SavedSession(beyonder = fool9))
+        val good = ContentLoader.actingMethod().single { it.quality == "Good" }
+        s.act(good, drawnDigestion = 0)
+        assertEquals(10, s.state?.digestion)
+        s.act(good, drawnDigestion = 0)
+        assertEquals(10, s.state?.digestion, "a stale tap of the picture drawn at 0%")
+        s.act(ContentLoader.actingMethod().single { it.losesProgress }, drawnDigestion = 10)
+        assertEquals(10, s.state?.digestion)
+        assertEquals(10, saved().beyonder?.digestion)
+    }
+
     @Test
     fun `a screen drawn before the session moved no longer shows the truth`() {
         val (s, _) = session(SavedSession(beyonder = fool9.digested(100)))

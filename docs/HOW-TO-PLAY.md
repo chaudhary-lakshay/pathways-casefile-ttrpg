@@ -359,7 +359,9 @@ is greyed out when the SPI left cannot pay. A price the GM must choose
 (*X SPI*, *1–2 SPI/turn*) has no button. A roll's Success and Failure lines sit under the
 ability they belong to. Costs, distances, dice and modifiers are picked out in
 colour; the words are the book's. **Digestion & corruption** holds the two trackers, and
-**What raises corruption** opens the list of what costs CoR.
+a session's acting is one tap: **Good +10-15%** adds 10%, the low end, and
+**+5%** steps toward the top of the range if the GM rules it; **None** is the
+GM's to step down. **What raises corruption** opens the list of what costs CoR.
 
 **What a potion gives you is free.** It is never written into your point
 budget — the app stores only the *choice* (pathway, Sequence, digestion) and

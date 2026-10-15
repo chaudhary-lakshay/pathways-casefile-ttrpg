@@ -1,7 +1,5 @@
 package com.pathways.app
 
-import com.pathways.rules.InstancedPurchase
-import com.pathways.rules.PurchasableTraits
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -14,17 +12,20 @@ import com.pathways.model.SecondaryDelta
 import com.pathways.model.Trait
 import com.pathways.model.canDrink
 import com.pathways.rules.Corruption
+import com.pathways.rules.InstancedPurchase
 import com.pathways.rules.NonStandardPathways
 import com.pathways.rules.PcrOutcome
 import com.pathways.rules.Pool
 import com.pathways.rules.PotionConsumption
 import com.pathways.rules.PremadeSheet
+import com.pathways.rules.PurchasableTraits
 import com.pathways.rules.RandomSource
 import com.pathways.rules.ScoreFloors
 import com.pathways.rules.SkillLadder
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.TraitGrants
 import com.pathways.rules.TraitNames
+import com.pathways.rules.content.ActingQuality
 
 /**
  * One character in play, as the screens see it: the walk down a pathway,
@@ -642,6 +643,17 @@ class BeyonderSession(
         if (isLost) return
         state = state?.digested(delta)
         persist()
+    }
+
+    /**
+     * A session's acting, judged as [quality]: the low end of its range, the
+     * owner's call (play session 3); the GM steps +5% for more. "None" adds
+     * nothing here: its loss is the GM's, on the stepper. One tap a session,
+     * so a tap drawn at another [drawnDigestion] is a stale second (6ei).
+     */
+    fun act(quality: ActingQuality, drawnDigestion: Int) {
+        if (state?.digestion != drawnDigestion) return
+        quality.minGain?.takeUnless { quality.losesProgress }?.let(::digest)
     }
 
     /**
