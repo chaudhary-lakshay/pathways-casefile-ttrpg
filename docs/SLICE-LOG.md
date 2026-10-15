@@ -6726,6 +6726,82 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ht. Reset to sheet, and a roll log
+
+The first two items of the play-readiness list (2026-10-14), on the
+owner's "go ahead" to the order offered after 6hs: reset, then a roll
+log, so the owner can play, report an issue and start clean.
+
+### Reset to sheet (`eca7a63`)
+
+- **⋮ → Reset to sheet**, behind a confirmation, in the sheet's top bar.
+  `App` removes the character's entry from `saved`, writes the store,
+  and bumps `resets`, which keys the `remember` of both `SheetScene` and
+  `BeyonderSession`: both are rebuilt from an empty `SavedSession`.
+- **Not play.** Nothing in the book un-drinks a potion or un-loses a
+  Rampager (p. 45); this is starting over, so it is a menu item and never
+  a control on the sheet.
+- The guide's *"leaving the sheet (for the gallery, or to drink a
+  potion) clears it"* had been stale since `210e18a`, which hoisted the
+  scene above the screen switch. Only the gallery clears it now.
+
+### The roll log (`b2bac09`, `ab17ed1`)
+
+- **One hook in the rules.** `RandomSource` gains a default no-op
+  `thrown(faces, target)`; `SuccessRoll.against` reports with its target,
+  and the four table rollers (fright effect, ritual critical, entity
+  response, damage) with none, through `RandomSource.threeDSix()`.
+  `DivinationDialog` rolled the backlash table from raw dice in the app;
+  it calls `threeDSix` now. The seeded order of `roll(6)` calls is
+  unchanged.
+- **Dice and target, never a verdict** (the advisor, before the code).
+  At the hub, `RollResult.outcome` is SuccessRoll's general verdict, and
+  three engines override it after: the PCR's own 1 and 19, Divination's
+  `requiresCritical`, and every push, which raises the target with no new
+  dice. A log that rebuilt a verdict would contradict the dialog that
+  rolled. Said once at the top of the log.
+- **`RollLog`**, held by `App`, in memory, capped at 100 per character
+  (the reviewer's LOW: a shared cap let one character evict another's).
+  Not in `SessionStore`, which drops the whole file on a decode failure.
+  Reset clears the character's entries.
+- **Labels.** The eight dialogs `SheetDialogs` opens take
+  `dice.dice("<dialog>")`; a skill roll takes the skill's label; the
+  Concentrate, Fright, self-control and two Vitals rows read `LocalDice`,
+  a CompositionLocal provided around the selected character's screens,
+  with no default, so a reader outside it throws on first open rather
+  than roll unlogged. The pathway screen gets
+  `"Potion Consumption Roll"`, which its Luck reroll shares.
+
+### Checks
+
+2223 Kotlin (1449 `core:rules`, 753 `app`, 21 `core:model`) from
+deleted results with `--rerun-tasks`. RED watched: `RollThrowsTest`'s six
+(every roller *expected [1, 1, 4] but was []*) compare the faces a
+recording source HANDED OUT with the faces REPORTED, over 300 seeds so
+the table branches are reached, so the expectation never comes from the
+code under test; `RollLogTest`'s five, then the per-character cap.
+
+### Reviews
+
+ecc (sonnet), reset: SHIP. Roll log: SHIP; its per-character cap LOW
+taken. Not taken: a damage row prints its dice' sum without the
+expression's `+N` (dice only, by design).
+
+### Device pass, SM-T570
+
+Save backed up before each and `cmp`-identical after. Reset on the PI
+(-3 HP, 4 FP): 9/9 and 9/9, the save entry gone, one HP tap after it
+saved `hpLost: 1` from the rebuilt session; the PI's save then restored.
+Roll log: Guns (Pistol) *4 + 4 + 3 = 11 vs 9*, the Fright Check's
+*2 + 5 + 2 = 9 vs 5* and its table *2 + 6 + 5 = 13* (the dialog's effect
+roll 17, margin 4), and a Vitals HT row *1 + 1 + 6 = 8 vs 8*, each
+matching its dialog. No crash on any `LocalDice` reader opened.
+
+**Open after 6ht:** the rest of the play-readiness list: own characters
+(one Blank Character Sheet slot today), and study CP, which ch. 3 line
+2184 prints as the book's only in-play advancement and the app shows as
+advice. Both want the owner's shape first.
+
 ## 6hs. Play session 1: twelve findings from a real game
 
 After 6hr the owner asked what was missing to play, then chose to play

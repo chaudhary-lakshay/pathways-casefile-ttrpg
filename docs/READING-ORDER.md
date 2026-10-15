@@ -195,6 +195,11 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6ho
+(a prayer's fuel may be paid in HP, 2 for 1 SPI, as ch. 7 IV.B prints
+and ch. 13 defers to: it is how a mortal prays; fuel only, so
+`Boons.targetFor` is untouched; seen on the SM-T570).
+
 Then 6hn
 (a boon block's catalogue rows are granted through the potion merge:
 Charisma +2, Acute Hearing, Acute Vision, Fit; five look-alike names are
@@ -2468,8 +2473,9 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6fe back to 6de
+## Digest index, 6ff back to 6de
 
+**6ff** — six rows that name one skill are declared on its roll; one list, `skillRollClauses`, feeds the chips and the dice, and "rural" excludes the sea;
 **6fe** — Alertness reaches Spirit Vision's Per roll; a recorded census ("the one bare Per roll") expired when a second roll arrived;
 **6fd** — Cleansed Spirit halves nothing, and the CoR stepper says why; "Soul Debt is reported, not applied" had been false since `ea6ae38`;
 **6fc** — Fast Healer's +1 is said on the recovery row's result; on a failure the two readings disagree, so the line says it is the GM's;
