@@ -148,12 +148,12 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
  * against a later one.
  */
 @Composable
-private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int, shock: Int, states: ClauseBonus) {
+private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int, states: ClauseBonus) {
     val dice = LocalDice.current
     var modifier by remember { mutableIntStateOf(0) }
     var outcome by remember { mutableStateOf<RollResult?>(null) }
     val fromTraits = NaturalRecovery.bonusFor(traits)
-    val target = NaturalRecovery.targetFor(ht, traits, poolPenalty, modifier, shock, states.total)
+    val target = NaturalRecovery.targetFor(ht, traits, poolPenalty, modifier, states.total)
     Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
         NaturalRecovery.rows().forEach {
             Text("${it.method}: ${it.recovered}. ${it.notes}", style = MaterialTheme.typography.bodySmall)
@@ -175,7 +175,6 @@ private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int, shoc
                     if (fromTraits > 0) add("+$fromTraits from traits")
                     if (fromTraits < 0) add("$fromTraits from traits")
                     if (poolPenalty != 0) add("$poolPenalty hurt or tired")
-                    if (shock != 0) add("$shock shock")
                     states.line?.let { add(it) }
                     if (modifier > 0) add("+$modifier entered")
                     if (modifier < 0) add("$modifier entered")
@@ -222,9 +221,10 @@ internal fun PoolTrackers(
     traits: List<Trait>,
     poolPenalty: Int,
     /**
-     * Shock's "-4 to all rolls", which reaches these three as it reaches every
-     * bare attribute roll: none of them creates it (6gs). Its own term, so the
-     * row names it rather than counting it as hurt or tired.
+     * Shock's "-4 to all rolls", which reaches the two vital rolls as it
+     * reaches every bare attribute roll: neither creates it (6gs). Its own
+     * term, so the row names it rather than counting it as hurt or tired. Not
+     * the recovery roll: a day of rest outlasts a one-turn state.
      */
     shock: Int,
     /** The held rows' declared "-N to all rolls" (6gs), its own term likewise. */
@@ -245,7 +245,7 @@ internal fun PoolTrackers(
             )
         }
         // The recovery table's one roll.
-        if (NaturalRecovery.isOffered(hp)) RecoveryRollRow(ht, traits, poolPenalty, shock, states)
+        if (NaturalRecovery.isOffered(hp)) RecoveryRollRow(ht, traits, poolPenalty, states)
     }
 }
 

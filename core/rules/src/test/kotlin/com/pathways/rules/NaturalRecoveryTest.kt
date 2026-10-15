@@ -107,13 +107,15 @@ class NaturalRecoveryTest {
         assertTrue("GM" in lost && "Fast Healer" in lost, lost)
     }
 
-    /** The daily HT roll takes shock as its own term too (6gs). */
+    /**
+     * Shock is "-4 to all rolls for 1 turn", and this roll is made after a
+     * day of rest: a one-turn state cannot be live on it (play session 2,
+     * where the Vitals tab offered "Roll HT 5" to a shocked HT 10).
+     */
     @Test
-    fun `shock reaches the daily recovery roll as its own term`() {
-        assertEquals(
-            NaturalRecovery.targetFor(10, emptyList(), -1, 0) - 4,
-            NaturalRecovery.targetFor(10, emptyList(), -1, 0, shock = -4),
-        )
+    fun `shock does not reach the daily recovery roll`() {
+        assertFalse(Shock.appliesTo(RollKind.DAILY_RECOVERY))
+        assertTrue(Shock.appliesTo(RollKind.ATTRIBUTE))
     }
 
     /**

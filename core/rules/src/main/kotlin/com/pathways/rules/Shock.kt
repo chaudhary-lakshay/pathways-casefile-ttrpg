@@ -35,9 +35,9 @@ enum class RollKind {
     /**
      * A bare attribute roll: a Fright Check, a self-control roll, [Concentration],
      * [Detection], Spirit Vision, the stun recovery, and the HP table's two HT
-     * rolls with the daily recovery roll. Those last three arrived after this
-     * list was written and took the trackers' penalty but not shock's until
-     * 6gs: a census in a KDoc expires when a roll is added.
+     * rolls. Those two arrived after this list was written and took the
+     * trackers' penalty but not shock's until 6gs: a census in a KDoc expires
+     * when a roll is added. The daily recovery roll is [DAILY_RECOVERY].
      */
     ATTRIBUTE,
 
@@ -46,6 +46,14 @@ enum class RollKind {
 
     /** The Major Wound's own HT roll, which is where shock comes FROM. */
     MAJOR_WOUND_HT,
+
+    /**
+     * The natural-recovery HT roll, made after "a day of rest". Shock lasts
+     * "1 turn", so it cannot be live on it: 6gs counted this roll as an
+     * [ATTRIBUTE] roll by census and offered a shocked HT 10 "Roll HT 5"
+     * (play session 2).
+     */
+    DAILY_RECOVERY,
 }
 
 /**
@@ -102,11 +110,13 @@ object Shock {
     /**
      * Whether shock reaches a roll of this kind at all.
      *
-     * Three of the four are the same answer for the same reason -- the book
-     * says "all rolls" and names no exception -- and the fourth is refused
-     * because of WHEN it happens rather than what it is.
+     * Three of the five are the same answer for the same reason -- the book
+     * says "all rolls" and names no exception -- and the other two are
+     * refused because of WHEN they happen rather than what they are: one
+     * creates the shock, the other comes a day after it ended.
      */
-    fun appliesTo(kind: RollKind): Boolean = kind != RollKind.MAJOR_WOUND_HT
+    fun appliesTo(kind: RollKind): Boolean =
+        kind != RollKind.MAJOR_WOUND_HT && kind != RollKind.DAILY_RECOVERY
 
     /**
      * Whether [traits] carry the advantage that ignores it.

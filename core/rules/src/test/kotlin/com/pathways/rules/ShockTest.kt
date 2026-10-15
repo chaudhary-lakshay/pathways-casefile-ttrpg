@@ -39,7 +39,7 @@ class ShockTest {
      */
     @Test
     fun `shock reaches every kind of roll this app makes`() {
-        for (kind in RollKind.entries - RollKind.MAJOR_WOUND_HT) {
+        for (kind in RollKind.entries - RollKind.MAJOR_WOUND_HT - RollKind.DAILY_RECOVERY) {
             assertTrue(Shock.appliesTo(kind), "$kind should take the penalty")
             assertEquals(-4, Shock.penaltyFor(kind, shocked = true, traits = none), "$kind")
         }
