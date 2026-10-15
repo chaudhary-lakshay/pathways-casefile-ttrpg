@@ -42,6 +42,15 @@ class PointBudgetTest {
     }
 
     @Test
+    fun `study points raise a skill and are not billed`() {
+        // Ch. 3 p. 32: study points are earned over downtime, outside the budget.
+        val key = SkillKey("Knife", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
+        fun spent(skill: PurchasedSkill) =
+            PointBudget.report(Attributes(9, 9, 9, 9), SecondaryDelta(), emptyList(), listOf(skill)).spent
+        assertEquals(spent(PurchasedSkill(key, 2)), spent(PurchasedSkill(key, 4, studied = 2)))
+    }
+
+    @Test
     fun `disadvantages are capped at forty points`() {
         val r = PointBudget.report(
             Attributes(), SecondaryDelta(), listOf(dis("A", 30), dis("B", 30)), emptyList(),

@@ -312,8 +312,14 @@ object PotionDigestion {
     private data class Stacked(val bought: SkillKey, val bonus: Int)
 
     /** The p. 86 identity: same name, same specialization, same difficulty. */
-    private fun SkillKey.matches(other: SkillKey) =
-        name == other.name && specialization == other.specialization && difficulty == other.difficulty
+    private fun SkillKey.matches(other: SkillKey) = isSameSkill(this, other)
+
+    /**
+     * The p. 86 identity, public so a caller asking "does a grant supersede
+     * this bought skill" (study, 6hu) asks the same question digestion does.
+     */
+    fun isSameSkill(a: SkillKey, b: SkillKey): Boolean =
+        a.name == b.name && a.specialization == b.specialization && a.difficulty == b.difficulty
 
     /**
      * The most any walk of [blocks] adds to each attribute and secondary row,

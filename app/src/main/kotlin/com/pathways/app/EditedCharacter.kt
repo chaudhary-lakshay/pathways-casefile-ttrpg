@@ -61,7 +61,7 @@ fun SavedEdits.applyTo(base: Character): Character {
         // one row must not zero a granted Will (Codex, on the design).
         secondaryDelta = SecondaryCharacteristics.plusSteps(base.secondaryDelta, secondaries),
         traits = gainedFree(chosenTraits(base.traits), base.traits),
-        skills = base.skills + purchases(base),
+        skills = withStudy(base.skills + purchases(base)),
         boon = boon,
     )
 }
@@ -587,12 +587,16 @@ fun grantedSkills(
  * An SPI skill is barred permanently, so there is nothing to preserve.
  */
 fun SavedEdits.withoutForbiddenPurchases(): SavedEdits {
-    val legal = skills.filter { saved ->
+    // Study earns character points, so the same gate holds for it (Study.plan).
+    fun legal(saved: SavedSkill): Boolean {
         val definition = definitionOf(saved.name, saved.specialization)
-            ?: return@filter true // unknown today, possibly printed again tomorrow
-        SkillLadder.isBuyableWithPoints(definition.attr)
+            ?: return true // unknown today, possibly printed again tomorrow
+        return SkillLadder.isBuyableWithPoints(definition.attr)
     }
-    return if (legal.size == skills.size) this else copy(skills = legal)
+    val bought = skills.filter(::legal)
+    val study = studied.filter(::legal)
+    return if (bought.size == skills.size && study.size == studied.size) this
+    else copy(skills = bought, studied = study)
 }
 
 fun definitionOf(name: String, specialization: String? = null): SkillDefinition? {
@@ -631,6 +635,19 @@ private fun SavedEdits.purchases(base: Character): List<PurchasedSkill> {
         if ((key.name.lowercase() to key.specialization) in owned) null
         else PurchasedSkill(key, saved.points)
     }
+}
+
+/**
+ * [skills] with each [SavedEdits.studied] entry folded onto the skill it
+ * names: more points, the same many marked studied so the budget does not
+ * bill them. In place, so the printed sheet's order holds (the sheet rows
+ * pair by position). An entry naming no skill held adds nothing.
+ */
+private fun SavedEdits.withStudy(skills: List<PurchasedSkill>): List<PurchasedSkill> = skills.map { skill ->
+    val n = studied.firstOrNull {
+        it.name.equals(skill.key.name, ignoreCase = true) && it.specialization == skill.key.specialization
+    }?.points ?: 0
+    if (n == 0) skill else skill.copy(points = skill.points + n, studied = skill.studied + n)
 }
 
 /** [Attr] as the four nullable fields [SavedEdits] stores. */

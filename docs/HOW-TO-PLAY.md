@@ -502,7 +502,12 @@ downtime study would cost for the next rung (*24 hrs + 16s · 2 CP → 10*), or
 why it offers none (*at cap 11*, or *not by self-study* for a Very Hard
 skill). Tap a row with a refusal for the book's sentence. **Study
 by** picks the road the tags are priced for, *With a Tutor* or *Self-Study*.
-Study is advice: it never spends the budget.
+When the downtime is done, record each study point earned with the row's
+**study CP +** (and take one back with **−**). The points raise the skill
+like any other (*2 pts + 2 studied*) and never spend the budget, because the
+book's study points are earned, not bought. **+** is off where study is
+refused: at the cap of Attribute+1, or on a skill a potion grants. Keeping to
+two skills per downtime is the GM's.
 
 **Languages** lists the languages bought, with **Add or change** opening the
 book's twelve in its own two groups. Pick a language, one of the three

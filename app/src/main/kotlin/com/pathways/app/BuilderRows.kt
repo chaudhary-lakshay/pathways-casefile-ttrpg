@@ -22,29 +22,34 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attr
 import com.pathways.model.BASE_ATTRIBUTE
+import com.pathways.model.Character
 import com.pathways.model.MAX_SECONDARY_DELTA_MAGNITUDE
+import com.pathways.model.PurchasedSkill
+import com.pathways.model.SkillKey
+import com.pathways.rules.Appearance
 import com.pathways.rules.AttributeCosts
 import com.pathways.rules.Derive
+import com.pathways.rules.DerivedCharacter
+import com.pathways.rules.DigestedCharacter
+import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PurchaseCeilings
 import com.pathways.rules.Study
 import com.pathways.rules.StudyMethod
 import com.pathways.rules.StudyRefusal
 import com.pathways.rules.StudyRefusedException
-import com.pathways.model.Character
-import com.pathways.model.PurchasedSkill
-import com.pathways.rules.DerivedCharacter
-import com.pathways.rules.Appearance
 import com.pathways.rules.Wealth
 import com.pathways.rules.content.AppearanceLevel
 import com.pathways.rules.content.SecondaryCost
@@ -205,11 +210,22 @@ internal data class StudyAdvice(val tag: String, val reason: String?)
 
 internal const val PAST_GRID_TAG = "past the grid"
 
+/**
+ * Whether a potion grants this skill too, by p. 86's identity (name,
+ * specialization, difficulty): its grant then supersedes the bought level
+ * (`PotionDigestion`). Not "the key is missing from the played map": a
+ * grant with the same key lands back under it. "Beyonder potion-granted
+ * skills cannot be studied" (ch. 3 p. 32).
+ */
+internal fun isSupersededByPotion(key: SkillKey, played: DigestedCharacter?): Boolean =
+    played != null && played.grants.skillLevels.keys.any { PotionDigestion.isSameSkill(it, key) }
+
 internal fun studyAdvice(
     purchased: PurchasedSkill,
     character: Character,
     derived: DerivedCharacter,
     method: StudyMethod,
+    isPotionGranted: Boolean = false,
 ): StudyAdvice {
     val attributeLevel = Derive.controllingLevel(
         purchased.key.attr,
@@ -225,6 +241,7 @@ internal fun studyAdvice(
         attributeLevel = attributeLevel,
         method = method,
         attr = purchased.key.attr,
+        isPotionGranted = isPotionGranted,
     ).fold(
         onSuccess = { StudyAdvice("${it.printed} · ${it.pointsNeeded} CP → ${it.toLevel}", null) },
         onFailure = {
@@ -256,6 +273,10 @@ internal fun SkillRow(
     points: Int,
     onSpend: ((Int) -> Unit)?,
     study: StudyAdvice,
+    /** Study points recorded on it (ch. 3 p. 32), part of [points]'s level, not its price. */
+    studied: Int = 0,
+    /** Set the recorded study points; + is offered only while [study] prices a next rung. */
+    onStudy: ((Int) -> Unit)? = null,
     expanded: Boolean,
     onToggle: () -> Unit,
 ) {
@@ -280,10 +301,11 @@ internal fun SkillRow(
                     Column(Modifier.weight(1f)) {
                         Text(label, style = MaterialTheme.typography.bodyLarge)
                         Text(
-                            points.pointsLabel().removePrefix("+"),
+                            points.pointsLabel().removePrefix("+") + if (studied > 0) " + $studied studied" else "",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                        if (onStudy != null) StudyStepper(studied, canAdd = study.reason == null, onStudy)
                     }
                     // A share of the row, not what the tag asks for: at phone
                     // width a long tag took it all and the name wrapped a
@@ -323,6 +345,29 @@ internal fun SkillRow(
                 OutlinedIconButton(onClick = { onSpend(1) }) { Text("+") }
             }
         }
+    }
+}
+
+/**
+ * Record a study point earned over downtime, or take one back. Absolute
+ * values, so a second tap of one picture stores what the first did. Drawn on
+ * every studiable row from the start, so it never moves the row under a
+ * finger (6gn); + is off when study is refused (at the cap, a potion's skill).
+ */
+@Composable
+private fun StudyStepper(studied: Int, canAdd: Boolean, onStudy: (Int) -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        TextButton(
+            onClick = { onStudy(studied - 1) },
+            enabled = studied > 0,
+            modifier = Modifier.semantics { contentDescription = "Remove a study point" },
+        ) { Text("−") }
+        Text("study CP", style = MaterialTheme.typography.labelMedium)
+        TextButton(
+            onClick = { onStudy(studied + 1) },
+            enabled = canAdd,
+            modifier = Modifier.semantics { contentDescription = "Record a study point" },
+        ) { Text("+") }
     }
 }
 

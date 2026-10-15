@@ -413,6 +413,23 @@ class BeyonderSession(
     }
 
     /**
+     * Record [points] study points on the skill held as [name] /
+     * [specialization] (ch. 3 p. 32); 0 removes the record. An absolute
+     * value, so a second tap of the same picture stores what the first did.
+     * Whether a point MAY be recorded is `Study.plan`'s, asked by the builder
+     * as it draws: the cap is checked when a point is recorded, never
+     * re-applied if the attribute later falls (the − step is the way back).
+     */
+    fun setStudied(name: String, specialization: String?, points: Int) {
+        require(points >= 0) { "study points cannot be negative; was $points" }
+        val others = edits.studied.filterNot { it.name == name && it.specialization == specialization }
+        val next = if (points == 0) others else others + SavedSkill(name, specialization, points)
+        if (next == edits.studied) return
+        edits = edits.copy(studied = next)
+        persist()
+    }
+
+    /**
      * Buy [name] at one point, the cheapest a skill can be owned at.
      *
      * A skill already bought is left exactly as it is rather than reset: a
@@ -437,7 +454,19 @@ class BeyonderSession(
             if (skill.name != name || skill.specialization != specialization) skill
             else (skill.points + delta).takeIf { it > 0 }?.let { skill.copy(points = it) }
         }
-        edits = edits.copy(skills = updated)
+        // Un-bought, its study goes too: left behind it would come back,
+        // unasked, the next time the skill was bought (the design review).
+        val gone = updated.none { it.name == name && it.specialization == specialization }
+        edits = edits.copy(
+            skills = updated,
+            // Case-blind, as `withStudy` matches: study is keyed by the
+            // catalogue's spelling, a purchase by the one it was bought under.
+            studied = if (gone) {
+                edits.studied.filterNot { it.name.equals(name, ignoreCase = true) && it.specialization == specialization }
+            } else {
+                edits.studied
+            },
+        )
         persist()
     }
 

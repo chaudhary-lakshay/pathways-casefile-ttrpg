@@ -347,7 +347,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                 SkillRow(
                     label = purchased.key.display,
                     level = derived.skillLevels[purchased.key],
-                    points = purchased.points,
+                    // What was BOUGHT; recorded study rides beside it, unbilled.
+                    points = purchased.points - purchased.studied,
+                    studied = purchased.studied,
                     expanded = purchased.key in openStudy,
                     onToggle = {
                         val key = purchased.key
@@ -357,15 +359,20 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     // (Ch. 3, p. 32). Advice only: study points are earned
                     // outside the creation budget, so nothing here spends.
                     //
-                    // `isPotionGranted` is left false because it cannot be
-                    // true on THIS screen -- a Character holds purchases only
-                    // (M3), so every row here was bought. The rule is enforced
-                    // in `Study` regardless, for a caller that does hold grants.
-                    // A Beyonder's rows stay on BOUGHT levels, said once on
-                    // the header: a potion lifts a bought skill or supersedes
-                    // it with a grant, and which is `PotionDigestion`'s to
-                    // decide, on the sheet -- not a second matcher's here.
-                    study = studyAdvice(purchased, character, derived, studyMethod),
+                    // A potion lifts a bought skill or supersedes it with a
+                    // grant, and which is `PotionDigestion`'s to decide: a
+                    // superseded row is a potion's skill now, and cannot be
+                    // studied (the design review). A Beyonder's rows stay on
+                    // BOUGHT levels, said once on the header.
+                    study = studyAdvice(
+                        purchased, character, derived, studyMethod,
+                        isPotionGranted = isSupersededByPotion(purchased.key, played),
+                    ),
+                    // Recorded study points (ch. 3 p. 32), on any row: a
+                    // printed skill can be studied as well as a bought one.
+                    onStudy = { n ->
+                        session.setStudied(purchased.key.name, purchased.key.specialization, n.coerceAtLeast(0))
+                    },
                     // Only skills bought in play are editable. The published
                     // sheet's own purchases stay put: the diff against it is a
                     // feature (spec section 6), and quietly re-pointing a

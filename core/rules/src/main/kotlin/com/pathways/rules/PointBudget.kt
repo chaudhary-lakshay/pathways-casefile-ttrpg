@@ -68,7 +68,8 @@ object PointBudget {
         val spent = AttributeCosts.totalCost(attributes) +
             SecondaryCharacteristics.costOf(secondaryDelta) +
             sumOf(TraitKind.ADVANTAGE) +
-            skills.sumOf { it.points }
+            // Study points are earned over downtime, not bought (ch. 3 p. 32).
+            skills.sumOf { it.points - it.studied }
 
         val violations = buildList {
             if (rawDisadvantages > MAX_DISADVANTAGES) {

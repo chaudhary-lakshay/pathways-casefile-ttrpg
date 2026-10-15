@@ -168,12 +168,18 @@ data class SavedEdits(
      * older save still decodes.
      */
     val gained: List<String> = emptyList(),
+    /**
+     * Study points earned in play (ch. 3 p. 32), one entry per skill by the
+     * name and specialization it is held under. Folded onto that skill by
+     * [applyTo], raising it unbilled. Additive and defaulted.
+     */
+    val studied: List<SavedSkill> = emptyList(),
 ) {
     val isEmpty: Boolean
         get() = st == null && dx == null && iq == null && ht == null &&
             skills.isEmpty() && wealth == null && appearance == null &&
             traits.isEmpty() && instanced.isEmpty() && secondaries.isEmpty() &&
-            weapons.isEmpty() && languages.isEmpty() && boon == null
+            weapons.isEmpty() && languages.isEmpty() && boon == null && studied.isEmpty()
 }
 
 /** The skill a Charmed Object names, as written to disk: the book's names. */
