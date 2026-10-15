@@ -178,6 +178,9 @@ object TraitReport {
      * A census over every fixture and table row found three owners (6fr).
      */
     private fun unrowed(owned: Trait, shown: String): Pair<String?, List<TraitNote>> {
+        // A quirk is named by whoever gave it (a Fright Check's, 6hv), so no
+        // row prints it; the book defines the kind, and the GM plays it.
+        if (owned.kind == TraitKind.QUIRK) return QUIRK_CELL to listOf(TraitNote(shown, QUIRK_CELL, UNREAD))
         // A face: the appearance table's reaction column, which nothing applies (6fq).
         val face = Appearance.played(listOf(owned))
         if (face != null) {
@@ -202,6 +205,9 @@ object TraitReport {
         val rest = SENSE_ROW_REST[sense.trait] ?: return sense.printed to emptyList()
         return "${sense.printed}; $rest" to listOf(TraitNote(shown, rest, SENSE_REST))
     }
+
+    /** Line 1122: "quirks (minor personality traits at -1 pt each) are allowed." */
+    private const val QUIRK_CELL = "minor personality traits"
 
     /** What two of those rows print past their bonus (7196-7198, 8355-8357), which nothing reads (6fr). */
     private val SENSE_ROW_REST: Map<String, String> = mapOf(
