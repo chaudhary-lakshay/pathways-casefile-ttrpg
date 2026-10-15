@@ -6726,6 +6726,95 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hu. Own characters, and study points recorded
+
+The play-readiness list's last two (2026-10-14), on the owner's "go ahead"
+to the shapes offered after 6ht: a new character copies the blank sheet or
+a premade under a name, and a study point earned is recorded, not its
+hours.
+
+### Own characters (`8103297`, `2a73c32`)
+
+- **No second file.** `SavedSession.basedOn` names the premade an entry was
+  copied from; `ownSheets` lists each such entry as that premade under the
+  entry's name. Additive and defaulted. `BeyonderSession.persist()` built
+  its `SavedSession` positionally, so a new field would have been dropped
+  on the first change; it carries `basedOn` now, pinned by a test.
+- **New character** (gallery top bar): a name and a base, blank sheet
+  first. **Reset** keeps an own character (`cleared()` keeps `basedOn`);
+  **Delete**, in the sheet's menu, only on an own character.
+- `isTemplate` matched any name containing "Blank", so an own character
+  called *Blank Slate* would have hidden among the templates; it matches
+  the fixture's exact name.
+- **The review's MEDIUM, taken after commit.** `8103297` was committed
+  before its review, against this repo's review-before-commit order; the
+  review ran on the commit. An entry whose base premade is gone is left
+  out of the gallery, so its name was offered again and creating under it
+  overwrote the entry. `takenNames` reads every save key; an entry under a
+  premade's own name is never a second sheet.
+
+### Study points (`e060cfe`)
+
+Ch. 3 p. 32 (book 2181-2237): "study points — character points that can
+only be spent on the skill being studied", 1 per downtime session, on the
+normal ladder; not past Attribute+1 through study alone; not on a
+potion-granted skill; two skills per downtime.
+
+- **Design reviewed before code: CHANGE, all taken.** The decomposition
+  put earned points INTO `PurchasedSkill.points` with a `studied` share
+  `PointBudget` subtracts (`points - studied`), against a separate list,
+  because two readers of one skill's level is the defect class this repo
+  keeps finding. The review's strongest case against: `Character` stops
+  being purchased-only for skills. It found no reader that wants "what was
+  paid" except the budget, and asked for: `isEmpty` to count `studied`
+  (a study-only save would have been dropped by `applyTo`'s early
+  return); the fold to map printed skills IN PLACE (`withStudy`), never
+  through `purchases`, which drops any key already owned; SPI entries
+  dropped on load; un-buying a skill to drop its study.
+- **One gate.** The row's `+` is enabled exactly when `Study.plan` prices
+  a next rung, so the cap is read on the next rung and one point never
+  lands past Attr+1. Checked at record time only; an attribute lowered
+  later leaves the points, and `−` is the way back.
+- **A potion's skill.** `isSupersededByPotion` first asked whether the
+  bought key was missing from the played map, and the test caught it: a
+  grant with the same key lands back under that key. It asks whether a
+  grant matches by p. 86's identity, which the diff review then had moved
+  into ONE public copy, `PotionDigestion.isSameSkill`, that digestion
+  itself uses.
+- Not in this slice: studying a skill the character lacks (the book's own
+  Tomás example, from a default). The untrained list has no builder row.
+
+### Checks
+
+2243 Kotlin (1450 `core:rules`, 770 `app`, 23 `core:model`) from deleted
+results with `--rerun-tasks`. RED watched for every new test. Two tests
+that passed under their stubs were read again: the save round-trip is a
+guard; the un-buy test was proved by a mutant (cleanup disabled, the
+mutant compiled, the test failed, file restored from a copy). One test
+first named Knife as a skill the Docks Bouncer lacked; the stub run
+showed 2 points with no fold, the fixture prints Knife, and the tests
+use Climbing.
+
+### Reviews
+
+ecc (sonnet): own characters SHIP WITH CHANGES (the MEDIUM above, and the
+duplicate-name LOW); study design CHANGE, taken; study diff SHIP WITH
+CHANGES, taken (one matcher, the stepper's screen-reader labels, the
+un-buy's case-blind match, a misplaced KDoc). Not taken: deduping a
+hand-edited save's study entries.
+
+### Device pass, SM-T570
+
+Save backed up before each, restored after. Own characters: "beat cop"
+refused (*That name is taken.*), *Elsie* created on the blank sheet and
+saved with `basedOn`; one HP tap kept it; she listed in the gallery (All
+22 → 23); Reset kept her at 9/9; Delete removed her (All 22). Study on the
+PI: Writing (IQ/Average, 2 pts, 10, *2 CP → 11*): one point read *2 pts +
+1 studied*, level 10, *1 CP → 11*; a second, 11, *at cap 11*, `+` off;
+the budget held at 87 of 105 throughout, and the sheet rolled Writing 11.
+
+**Open after 6hu:** the play-readiness list is done. Offer play session 2.
+
 ## 6ht. Reset to sheet, and a roll log
 
 The first two items of the play-readiness list (2026-10-14), on the
