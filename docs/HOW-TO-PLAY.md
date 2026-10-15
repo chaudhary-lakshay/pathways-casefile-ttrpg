@@ -158,7 +158,8 @@ book charges 1 HP for every point below 0 rather than forbidding it.
 The same push is offered on **Ritual**, **Boon** and **Divine**, where the
 book prints it again in each chapter's own words. There it is charged **when
 you close the dialog**, not on each tap, and it is separate from the fuel that
-screen already took. Closing is also when a critical failure's Corruption is
+screen already took. A divination already **Crystal clear** offers no push:
+there is no clearer answer to buy. Closing is also when a critical failure's Corruption is
 charged — because a push can take a ritual off the Critical Failure Table
 entirely, and you should not pay for a disaster you bought your way out of.
 

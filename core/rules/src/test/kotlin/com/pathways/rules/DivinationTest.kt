@@ -504,6 +504,18 @@ class DivinationTest {
         assertEquals("Crystal clear", pushed.clarity.clarity)
     }
 
+    /**
+     * A push buys a clearer answer and nothing else, and "Crystal clear" has
+     * none above it: play session 3 was offered +1 to +4 SPI there.
+     */
+    @Test
+    fun `a crystal clear answer has nothing left to push for`() {
+        val clear = Divination.attempt(12, difficulty("Trivial"), fixed(1))
+        assertEquals("Crystal clear", clear.clarity.clarity)
+        assertFalse(Divination.canPush(clear))
+        assertEquals(clear, Divination.pushed(clear, 3))
+    }
+
     @Test
     fun `the critical-only rule survives a push, and refuses one`() {
         // Sequence Immunity demotes a plain success. A burn moves the target

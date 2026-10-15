@@ -467,9 +467,15 @@ object Divination {
      * and never the total, so no amount of it reaches a rolled 3 or 4. True
      * everywhere else, a critical success included -- the clarity table has
      * no critical row and grades one by margin like any other roll, so a
-     * point still buys a clearer answer.
+     * point still buys a clearer answer -- until the answer is the clearest
+     * the table prints, where a point buys nothing (play session 3).
      */
-    fun canPush(outcome: DivinationOutcome): Boolean = !outcome.requiresCritical
+    fun canPush(outcome: DivinationOutcome): Boolean =
+        !outcome.requiresCritical && outcome.clarity != clearest()
+
+    /** The success row with the deepest margin: nothing is clearer. */
+    private fun clearest(): DivinationClarity =
+        clarities().filter { !it.isFailure && !it.isCritical }.maxBy { it.margin ?: 0 }
 
     /**
      * The same dice read against a target [points] SPI higher (p. 55).

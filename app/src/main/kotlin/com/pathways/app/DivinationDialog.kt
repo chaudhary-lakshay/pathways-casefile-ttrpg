@@ -292,6 +292,13 @@ fun DivinationDialog(
                             burned += points
                             outcome = Divination.pushed(live, points)
                         }
+                    } else if (burned > 0) {
+                        // A push that reached the clearest row ends the row,
+                        // and the SPI it took is still owed.
+                        Text(
+                            "Pushed $burned SPI. Charged when this question ends.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
                     }
                 }
                 return@AlertDialog
