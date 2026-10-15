@@ -89,7 +89,8 @@ object TraitAttributeRolls {
      *
      * **And the book itself draws that distinction, on this attribute.** Line
      * 2351 prints Spiritual Attrition as "-3 to all SPI-based SKILL rolls"
-     * where this cell says "All SPI-based rolls" -- the same one-word
+     * (and "Beyonder ability checks", which reaches Spirit Vision's look,
+     * play session 3) where this cell says "All SPI-based rolls" -- the same one-word
      * difference the book makes between "social skill rolls" and "social
      * rolls" and settles in one bracket of its own (6bt). So the wider phrase
      * really is wider, and the bare rolls are not an assumption: a condition

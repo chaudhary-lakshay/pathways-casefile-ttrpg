@@ -30,6 +30,7 @@ import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.Shock
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
+import com.pathways.rules.SpiritVision
 import com.pathways.rules.SpiritualSenses
 import com.pathways.rules.StunRecovery
 import com.pathways.rules.TraitClauses
@@ -110,6 +111,11 @@ internal fun SheetDialogs(
     // [spiAboutToSpend] is SPI this roll will pay BEFORE it is rolled, which
     // ch. 6.5 pays in Step 2 and rolls in Step 3 (p. 55). Zero everywhere
     // else, where nothing is paid to make the roll at all.
+    // The SPI pool as a roll will find it, [aboutToSpend] already paid; null
+    // for a mortal, since Pools.spi refuses a maximum of zero.
+    fun spiNow(aboutToSpend: Int = 0) =
+        if (vitals.maxSpi > 0) Pools.spi(vitals.maxSpi - session.spiSpent - aboutToSpend, vitals.maxSpi) else null
+
     fun conditionsFor(
         key: SkillKey,
         cor: Int = session.cor,
@@ -131,11 +137,7 @@ internal fun SheetDialogs(
         skill = key,
         hp = hpNow,
         fp = fpNow,
-        spi = if (vitals.maxSpi > 0) {
-            Pools.spi(vitals.maxSpi - session.spiSpent - spiAboutToSpend, vitals.maxSpi)
-        } else {
-            null
-        },
+        spi = spiNow(spiAboutToSpend),
         cor = cor,
     ) + (if (withStates) Shock.modifiers(shocked, traits) else emptyList()) +
         if (withDeclared) stateModifiers(EffortBurn.isPhysical(key)) else emptyList()
@@ -525,6 +527,10 @@ internal fun SheetDialogs(
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,
             states = states,
+            // Attrition is "-3 to all ... Beyonder ability checks", and the
+            // look is rolled once the activation is paid, as a divination's
+            // question is (ch. 6.5 Step 2, then Step 3).
+            spi = spiNow(SpiritVision.activation()),
             dice = dice.dice("Spirit Vision"),
             // Through the tracker, so activating actually costs the point.
             onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },

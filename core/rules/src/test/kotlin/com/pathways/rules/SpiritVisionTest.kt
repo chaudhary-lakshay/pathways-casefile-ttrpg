@@ -268,4 +268,20 @@ class SpiritVisionTest {
         )
         assertEquals(composed, SpiritVision.attempt(10, fixed(3), vision = vision))
     }
+
+    /**
+     * Spiritual Attrition is "-3 to all SPI-based skill rolls and Beyonder
+     * ability checks" (lines 2351, 2725), and Spirit Vision is a Beyonder
+     * ability: "By expending 1 SPI, the Seer activates Spirit Vision". Play
+     * session 3 looked at SPI 3 of 11 and rolled against a bare Per 10.
+     */
+    @Test
+    fun `an attrited pool takes three from the look and says so`() {
+        val attrited = Pools.spi(3, 11)
+        assertEquals(7, SpiritVision.targetFor(10, spi = attrited))
+        assertTrue(SpiritVision.partsFor(10, spi = attrited).contains("Spiritual Attrition -3"))
+        // Above a third of the maximum the pool costs the look nothing.
+        assertEquals(10, SpiritVision.targetFor(10, spi = Pools.spi(4, 11)))
+        assertEquals(listOf("Per 10"), SpiritVision.partsFor(10, spi = Pools.spi(4, 11)))
+    }
 }

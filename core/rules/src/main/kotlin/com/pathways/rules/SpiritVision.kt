@@ -133,6 +133,10 @@ object SpiritVision {
      * book, plus [alertness] ([TraitAttributeRolls.alertnessBonus]) and an Acute
      * Vision the GM has declared ([TraitClauses.visionClause], 6fh). The
      * chapter itself prints no modifier at all.
+     *
+     * And [spi]'s Spiritual Attrition: "-3 to all SPI-based skill rolls and
+     * Beyonder ability checks" (lines 2351, 2725), which this is. Read off
+     * the pool's own [PoolStatus.penalty], never a second threshold test.
      */
     fun targetFor(
         per: Int,
@@ -142,9 +146,10 @@ object SpiritVision {
         vision: TraitClause? = null,
         /** The held rows' declared "-N to all rolls" ([TraitClauses.allRollsClauses]). */
         states: ClauseBonus = ClauseBonus(0, null),
+        spi: PoolStatus? = null,
     ): Int {
         require(alertness >= 0) { "Alertness is a bonus, not a penalty; was $alertness" }
-        return per + alertness + (vision?.value ?: 0) + shock + hurt + states.total
+        return per + alertness + (vision?.value ?: 0) + shock + hurt + states.total + attritionOf(spi)
     }
 
     /**
@@ -201,6 +206,7 @@ object SpiritVision {
         alertness: Int = 0,
         vision: TraitClause? = null,
         states: ClauseBonus = ClauseBonus(0, null),
+        spi: PoolStatus? = null,
     ): List<String> = buildList {
         add("Per $per")
         if (alertness > 0) add("+$alertness Alertness")
@@ -208,7 +214,11 @@ object SpiritVision {
         if (shock != 0) add("shock $shock")
         if (hurt != 0) add("hurt or tired $hurt")
         states.line?.let { add(it) }
+        spi?.let { attritionOf(it) }?.takeIf { it != 0 }?.let { add("${spi.effect.substringBefore(':')} $it") }
     }
+
+    private fun attritionOf(spi: PoolStatus?): Int =
+        spi?.takeIf { it.scope == PenaltyScope.SPI_ROLLS }?.penalty ?: 0
 
     /**
      * Roll it, and read the row. [SpiritVisionResult.parts] is [partsFor].

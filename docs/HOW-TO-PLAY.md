@@ -473,7 +473,10 @@ the last printed rung is held.
 **Detect** covers Spirit Vision and the detection rolls, with the
 anti-divination counters applied where a target has them. A character with
 Acute Vision sees *Acute Vision: +2 to Vision rolls* above the Spirit Vision
-roll; tap it if the GM rules that the eye's acuity helps this reading. The
+roll; tap it if the GM rules that the eye's acuity helps this reading. A look
+that leaves SPI at a third of its maximum or less takes *Spiritual Attrition
+-3*, the pool's "Beyonder ability checks" penalty, counted after the activation
+is paid. The
 same line, and Acute Hearing's, sits on every Perception-based skill roll,
 whether the sense was bought or granted by a potion (a Red Priest's, a
 Demoness's, a Visionary's). A potion's stronger row, such as Greater Acute

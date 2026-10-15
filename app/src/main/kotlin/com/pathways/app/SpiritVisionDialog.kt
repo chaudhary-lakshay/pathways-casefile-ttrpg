@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.ClauseBonus
+import com.pathways.rules.PoolStatus
 import com.pathways.rules.RandomSource
 import com.pathways.rules.SpiritVision
 import com.pathways.rules.SpiritVisionResult
@@ -60,11 +61,11 @@ import com.pathways.rules.TraitClauses
  * caller from `session.spiSpent`, which is `mutableIntStateOf`, so spending
  * recomposes the caller and this dialog is handed the new figure.
  *
- * Nothing about spending SPI moves the target. [SpiritVision.targetFor] is
- * `per + alertness + shock + hurt`, and those read the ATTRIBUTE, a trait and
- * the HP/FP pools --
- * the reading `DetectionDialog` already needed, after passing a remaining
- * pool there made a caster who had spent SPI worse at noticing.
+ * The roll is Per, the ATTRIBUTE, never what is left in the pool -- the
+ * reading `DetectionDialog` already needed, after passing a remaining pool
+ * there made a caster who had spent SPI worse at noticing. What the pool
+ * does reach is its own threshold: Spiritual Attrition's -3 on "Beyonder
+ * ability checks" ([spi], play session 3).
  */
 @Composable
 fun SpiritVisionDialog(
@@ -83,6 +84,8 @@ fun SpiritVisionDialog(
     visionClause: TraitClause?,
     /** The held rows' declared "-N to all rolls" (6gs). */
     states: ClauseBonus,
+    /** The pool as the look finds it, its activation paid: Spiritual Attrition's -3. */
+    spi: PoolStatus?,
     dice: RandomSource,
     onSpendSpi: (Int) -> Unit,
     onDismiss: () -> Unit,
@@ -91,10 +94,10 @@ fun SpiritVisionDialog(
     val activation = SpiritVision.activation()
     var visionDeclared by remember { mutableStateOf(false) }
     val vision = visionClause?.takeIf { visionDeclared }
-    val target = SpiritVision.targetFor(per, shock, hurt, alertness, vision, states)
+    val target = SpiritVision.targetFor(per, shock, hurt, alertness, vision, states, spi)
     // Composed once, beside the target: the caption prints these and the
     // result carries them, and a second call would be a second answer.
-    val parts = SpiritVision.partsFor(per, shock, hurt, alertness, vision, states)
+    val parts = SpiritVision.partsFor(per, shock, hurt, alertness, vision, states, spi)
     val affordable = spiAvailable >= activation
 
     // The reading the Look button is drawn beside.
