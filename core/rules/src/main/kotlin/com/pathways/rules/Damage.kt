@@ -31,6 +31,7 @@ object Damage {
      */
     fun roll(damage: DamageRoll, source: RandomSource): DamageResult {
         val faces = List(damage.dice.count) { source.roll(damage.dice.sides) }
+        source.thrown(faces, null)
         return DamageResult(faces, (faces.sum() + damage.dice.modifier).coerceAtLeast(0), damage.type)
     }
 

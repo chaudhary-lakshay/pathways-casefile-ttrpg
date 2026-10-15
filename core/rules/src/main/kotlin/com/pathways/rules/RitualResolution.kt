@@ -418,5 +418,5 @@ object RitualResolution {
     private val RitualFailure.reachesTheTable: Boolean
         get() = "Critical Failure Table" in consequence
 
-    private fun rollThreeDSix(source: RandomSource) = (1..3).sumOf { source.roll(6) }
+    private fun rollThreeDSix(source: RandomSource) = source.threeDSix()
 }

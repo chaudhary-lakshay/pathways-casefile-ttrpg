@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.ClauseBonus
+import com.pathways.rules.threeDSix
 import com.pathways.rules.BurnKind
 import com.pathways.rules.Pools
 import com.pathways.rules.AntiDivination
@@ -647,7 +648,7 @@ fun DivinationDialog(
                     // table is ROLLED rather than copied -- off the same
                     // injected source, never Random directly.
                     backlash = if (result.isCritical) {
-                        RitualResolution.criticalFor((1..3).sumOf { dice.roll(6) }).outcome
+                        RitualResolution.criticalFor(dice.threeDSix()).outcome
                     } else {
                         null
                     }

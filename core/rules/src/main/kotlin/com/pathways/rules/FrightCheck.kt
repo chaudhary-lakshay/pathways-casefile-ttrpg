@@ -261,5 +261,5 @@ object FrightCheck {
     fun takesWillClauses(recovery: FrightRecovery): Boolean =
         recovery.attribute == RecoveryAttribute.WILL
 
-    private fun rollThreeDSix(source: RandomSource) = (1..3).sumOf { source.roll(6) }
+    private fun rollThreeDSix(source: RandomSource) = source.threeDSix()
 }

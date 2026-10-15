@@ -188,7 +188,7 @@ object Invocation {
      * answer from the wrong band entirely.
      */
     fun ask(source: RandomSource, orthodoxInGoodStanding: Boolean): EntityAnswer {
-        val roll = (1..3).sumOf { source.roll(6) }
+        val roll = source.threeDSix()
         val shifted = shiftedRoll(roll, orthodoxInGoodStanding)
         val response = responseFor(shifted)
         return EntityAnswer(
