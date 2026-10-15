@@ -6795,6 +6795,14 @@ first named Knife as a skill the Docks Bouncer lacked; the stub run
 showed 2 points with no fold, the fixture prints Knife, and the tests
 use Climbing.
 
+**The standing checks, run for the first time since 6hr**: 366 Python,
+and the 800-line ratchet FAILED: `EditedCharacterTest.kt` at 811, since
+`400ffd1` (6hs's gained-trait tests), so the handover's "no file is over
+the cap" had been false for three slices. Its two gained-in-play tests
+moved verbatim to `GainedTraitsTest.kt` (777 left; 770 `app` tests either
+way), and the ratchet passes. `ast-grep scan` clean. The click-handler
+census reads 39 (38 at 6ho).
+
 ### Reviews
 
 ecc (sonnet): own characters SHIP WITH CHANGES (the MEDIUM above, and the

@@ -53,6 +53,13 @@ beside a rule that is applied. Nothing enforces this: the census tests name
 the readers that were found (Night Eyes, Spiritual Fortitude, the language
 pricing pair) and cannot see the next one.
 
+**Every throw reaches the roll log, and nothing enforces it** (6ht).
+A roller reports through `RandomSource.thrown`: `SuccessRoll.against`,
+`threeDSix()`, or an explicit call as `Damage.roll` makes. `RollThrowsTest`
+names today's five rollers and cannot see a sixth that rolls raw dice. A
+roll site takes its dice from `LocalDice` or `rollLog.dice`; `LocalDice`
+has no default, so a roll site outside `App`'s provider throws on open.
+
 **A handler that rolls, charges or sells guards its own second tap.**
 Two taps a few milliseconds apart both reach the handler of the
 composition drawn before the first (6ei), so what it captured is the
@@ -361,7 +368,7 @@ player-facing guide to all four and is verified against the labels in source.
 py -m pytest tools -q                # Python tooling tests (Windows: `py`, not `python`)
 ast-grep scan                     # 4.3's division rule; silent and exit 0 when clean
 ast-grep scan --rule tools/sg-census/session-mutator-in-lambda.yml --report-style short
-                                  # 6gb's census: 38 lines (6ho), one per call site
+                                  # 6gb's census: 39 lines (6hu), one per call site
 ast-grep run -l kotlin -p 'SkillRoll.targetFor($$$)' app core   # call sites
 ```
 
@@ -464,7 +471,9 @@ ParryBlock.bareHandParry(dx, brawling): Int?      // p.37's "Brawling or DX":
                                       // null only where a held Brawling
                                       // parries at least as well
 ParryBlock.blockFor(shieldSkillLevel, shieldDb): Int
-PointBudget.report(...): BudgetReport
+PointBudget.report(...): BudgetReport  // bills points - studied (6hu)
+PurchasedSkill(key, points, studied = 0)  // studied: earned, unbilled
+PotionDigestion.isSameSkill(a, b)     // p. 86's identity, the one copy
 SheetComparison.of(sheet): List<SheetRow>     // the diff: the UNEDITED sheet's
 SheetComparison.secondaryRows(s, published)   // the seven rows for any
                                       // Secondaries; a screen asks it of the
@@ -504,6 +513,8 @@ SkillDefaults.wieldedAt(weapon, skillLevels, mastery, dx): Int?
 Attacks.atLevel(plan, level)          // the hand changed the level: drop a
                                       // Deceptive Attack it cannot afford
 SuccessRoll.against(target, source: RandomSource): RollResult
+RandomSource.thrown(faces, target) / RandomSource.threeDSix()
+                                      // every throw reported: the roll log (6ht)
 ContentLoader.skills() / .advantages() / .disadvantages() / .thrustSwing()
 ContentLoader.pathways() / .actingMethod() / .potionConsumption()
 ContentLoader.corGained() / .ritualCorThresholds() / .poolThresholds()
@@ -980,6 +991,11 @@ digestion tracker"* — is all in `master` and device-verified on an emulator.
   **A blessing is the second played gain** (6hf): God of Combat's +3 enters
   through `Blessings.played`, never `attributes`, and lowers the purchase
   ceilings by its gain.
+  **Study points are the one free gain IN `skills`** (6hu): earned over
+  downtime, they land on `PurchasedSkill.points` with a `studied` share
+  that `PointBudget.report` subtracts (`points - studied`), so every level
+  reader keeps reading `points`. A new reader that wants "what was paid"
+  must subtract `studied`; a new free gain must not reuse this field.
 - **Sequences are cumulative.** A Sequence 8 Fool drank the Sequence 9 potion
   first. `digestThrough` folds the chain; digesting one block alone answers a
   different question.
