@@ -68,6 +68,38 @@ class CharactersTest {
         assertEquals(SavedSession(basedOn = "Beat Cop"), played.cleared())
     }
 
+    /**
+     * Mira's build was most of what her entry held, and reset sent it back
+     * to the blank (play session 2): an own character's purchases are its
+     * sheet. What play added goes -- potions and wounds as before, and the
+     * study, the boon and any disadvantage gained in play with its trait.
+     */
+    @Test
+    fun `a cleared own character keeps its build and loses its play`() {
+        val honor = SavedInstancedTrait("Code of Honor", null, "Detective", 10)
+        val build = SavedEdits(
+            st = 10,
+            skills = listOf(SavedSkill("Observation", null, 2)),
+            traits = listOf("Alertness", "Bad Temper"),
+            instanced = listOf(honor),
+            weapons = listOf("Revolver (.38 cal)"),
+        )
+        val played = SavedSession(
+            beyonder = BeyonderState("Justiciar", 9),
+            hpLost = 7,
+            edits = build.copy(
+                gained = listOf("Bad Temper"),
+                studied = listOf(SavedSkill("Observation", null, 2)),
+                boon = com.pathways.model.BoonState("Mother", 9),
+            ),
+            basedOn = BLANK_SHEET,
+        )
+        assertEquals(
+            SavedSession(edits = build.copy(traits = listOf("Alertness")), basedOn = BLANK_SHEET),
+            played.cleared(),
+        )
+    }
+
     @Test
     fun `a change in play keeps the character's base`() {
         val (session, last) = session(SavedSession(basedOn = "Beat Cop"))

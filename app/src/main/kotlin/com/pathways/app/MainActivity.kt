@@ -159,7 +159,8 @@ fun App(
                     onBuild = { screen = Screen.BUILDER },
                     onBack = { selected = null },
                     onReset = {
-                        // An own character stays one: only its play is cleared.
+                        // An own character stays one, build and all: only its
+                        // play is cleared (SavedSession.cleared).
                         val kept = saved[sheet.name]?.cleared()?.takeIf { it.basedOn != null }
                         if (kept != null) saved[sheet.name] = kept else saved.remove(sheet.name)
                         store.save(saved)

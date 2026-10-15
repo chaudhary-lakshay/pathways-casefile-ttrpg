@@ -52,7 +52,7 @@ internal fun SheetMenu(
         }
     }
     if (logging) RollLogDialog(throws()) { logging = false }
-    if (confirming) ResetDialog(name, onDismiss = { confirming = false }, onReset = onReset)
+    if (confirming) ResetDialog(name, isOwn = onDelete != null, onDismiss = { confirming = false }, onReset = onReset)
     if (deleting && onDelete != null) {
         Confirm(
             title = "Delete $name?",
@@ -108,10 +108,15 @@ private fun RollLogDialog(throws: List<LoggedThrow>, onDismiss: () -> Unit) {
  * So it is a menu item behind a confirmation, never a control on the sheet.
  */
 @Composable
-private fun ResetDialog(name: String, onDismiss: () -> Unit, onReset: () -> Unit) = Confirm(
+private fun ResetDialog(name: String, isOwn: Boolean, onDismiss: () -> Unit, onReset: () -> Unit) = Confirm(
     title = "Reset $name?",
-    body = "Back to the printed sheet: potions, purchases, wounds, corruption, " +
-        "declared states and the roll log are cleared. This cannot be undone.",
+    body = if (isOwn) {
+        "Back to $name as built: potions, wounds, corruption, study, boons, traits gained in play, " +
+            "declared states and the roll log are cleared. Purchases are kept. This cannot be undone."
+    } else {
+        "Back to the printed sheet: potions, purchases, wounds, corruption, " +
+            "declared states and the roll log are cleared. This cannot be undone."
+    },
     action = "Reset",
     onDismiss = onDismiss,
     onConfirm = onReset,
