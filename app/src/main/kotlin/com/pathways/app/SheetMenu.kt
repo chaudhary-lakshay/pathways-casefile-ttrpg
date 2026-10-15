@@ -1,5 +1,11 @@
 package com.pathways.app
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
@@ -17,9 +23,63 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+
+/** The sheet's overflow menu: the roll log, and a reset to the printed sheet. */
+@Composable
+internal fun SheetMenu(name: String, throws: () -> List<LoggedThrow>, onReset: () -> Unit) {
+    var menu by remember { mutableStateOf(false) }
+    var logging by remember { mutableStateOf(false) }
+    var confirming by remember { mutableStateOf(false) }
+    IconButton(onClick = { menu = true }) {
+        Icon(Icons.Filled.MoreVert, contentDescription = "More")
+    }
+    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+        DropdownMenuItem(text = { Text("Roll log") }, onClick = { menu = false; logging = true })
+        DropdownMenuItem(text = { Text("Reset to sheet") }, onClick = { menu = false; confirming = true })
+    }
+    if (logging) RollLogDialog(throws()) { logging = false }
+    if (confirming) ResetDialog(name, onDismiss = { confirming = false }, onReset = onReset)
+}
 
 /**
- * The sheet's overflow menu: put a character back to its printed sheet.
+ * Every throw this character made since the app started, newest first: a
+ * name, the dice and the target (the owner rejected text walls, 6gd).
+ */
+@Composable
+private fun RollLogDialog(throws: List<LoggedThrow>, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        title = { Text("Roll log") },
+        text = {
+            if (throws.isEmpty()) {
+                Text("No rolls yet.")
+            } else {
+                // Said once, not per row: the dialog that rolled owns the verdict.
+                LazyColumn(Modifier.heightIn(max = 480.dp)) {
+                    item {
+                        Text(
+                            "Dice as thrown. A push or a table's own rule can change the verdict after.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    items(throws) { row ->
+                        Row(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+                            Text(row.label, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+                            Text(row.line(), style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
+                }
+            }
+        },
+    )
+}
+
+/**
+ * Put a character back to its printed sheet.
  *
  * A drunk potion, a purchase, a wound or a loss to a failed PCR cannot be
  * undone in play, and that is the book's (p. 45). Starting over is not
@@ -27,40 +87,27 @@ import androidx.compose.runtime.setValue
  * So it is a menu item behind a confirmation, never a control on the sheet.
  */
 @Composable
-internal fun ResetMenu(name: String, onReset: () -> Unit) {
-    var menu by remember { mutableStateOf(false) }
-    var confirming by remember { mutableStateOf(false) }
-    IconButton(onClick = { menu = true }) {
-        Icon(Icons.Filled.MoreVert, contentDescription = "More")
-    }
-    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-        DropdownMenuItem(
-            text = { Text("Reset to sheet") },
-            onClick = { menu = false; confirming = true },
-        )
-    }
-    if (confirming) {
-        AlertDialog(
-            onDismissRequest = { confirming = false },
-            title = { Text("Reset $name?") },
-            text = {
-                Text(
-                    "Back to the printed sheet: potions, purchases, wounds, " +
-                        "corruption and declared states are cleared. This cannot be undone.",
-                )
-            },
-            confirmButton = {
-                // Idempotent, so a second tap of the same picture is harmless:
-                // the entry is already gone and the session is rebuilt again.
-                Button(
-                    onClick = { confirming = false; onReset() },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError,
-                    ),
-                ) { Text("Reset") }
-            },
-            dismissButton = { TextButton(onClick = { confirming = false }) { Text("Cancel") } },
-        )
-    }
+private fun ResetDialog(name: String, onDismiss: () -> Unit, onReset: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Reset $name?") },
+        text = {
+            Text(
+                "Back to the printed sheet: potions, purchases, wounds, corruption, " +
+                    "declared states and the roll log are cleared. This cannot be undone.",
+            )
+        },
+        confirmButton = {
+            // Idempotent, so a second tap of the same picture is harmless:
+            // the entry is already gone and the session is rebuilt again.
+            Button(
+                onClick = { onDismiss(); onReset() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                ),
+            ) { Text("Reset") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+    )
 }

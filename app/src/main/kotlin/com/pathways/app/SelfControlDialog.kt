@@ -99,6 +99,7 @@ internal fun SelfControlDialog(
     states: ClauseBonus = ClauseBonus(0, null),
     onDismiss: () -> Unit,
 ) {
+    val dice = LocalDice.current
     // Keyed on the check: a modifier left over from another disadvantage
     // would silently move this one's target -- the stale-state family 6k, 6y
     // and 6af each found once.
@@ -195,7 +196,7 @@ internal fun SelfControlDialog(
                 // dice.
                 RollFooter(listOfNotNull(fromTraits.line?.let { "includes $it" }, states.line?.let { "includes $it" }), "3d6 ≤ $target") {
                     if (outcome != null) return@RollFooter
-                    outcome = SelfControl.rollAgainst(check, target, appDice)
+                    outcome = SelfControl.rollAgainst(check, target, dice.dice(check.trait))
                 }
             }
         },

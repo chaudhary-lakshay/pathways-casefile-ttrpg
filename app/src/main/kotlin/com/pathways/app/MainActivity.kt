@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -109,6 +110,8 @@ fun App(
     // Bumped by "Reset to sheet": the session and scene below are rebuilt
     // from a save entry that is no longer there.
     var resets by remember { mutableIntStateOf(0) }
+    // Every throw, per character, for as long as the app runs (RollLog).
+    val rollLog = remember { RollLog(appDice) }
     // Above the screen switch, so the builder and the pathway screen do not
     // take the scene down with the sheet (play session 1).
     val scene = remember(selected, resets) { SheetScene() }
@@ -126,7 +129,9 @@ fun App(
 
     when (val sheet = selected) {
         null -> PremadeGallery(sheets, saved, themePrefs) { selected = it }
-        else -> {
+        else -> CompositionLocalProvider(
+            LocalDice provides remember(sheet) { CharacterDice { label -> rollLog.dice(sheet.name, label) } },
+        ) {
             BackHandler {
                 if (screen == Screen.SHEET) selected = null else screen = Screen.SHEET
             }
@@ -141,10 +146,12 @@ fun App(
                     onReset = {
                         saved.remove(sheet.name)
                         store.save(saved)
+                        rollLog.forget(sheet.name)
                         resets++
                     },
+                    throws = { rollLog.of(sheet.name) },
                 )
-                Screen.PATHWAY -> PathwayScreen(sheet, session, appDice) { screen = Screen.SHEET }
+                Screen.PATHWAY -> PathwayScreen(sheet, session, rollLog.dice(sheet.name, "Potion Consumption Roll")) { screen = Screen.SHEET }
                 Screen.BUILDER -> BuilderScreen(sheet, session) { screen = Screen.SHEET }
             }
         }
@@ -169,6 +176,8 @@ internal fun SheetScreen(
     onBuild: () -> Unit,
     onBack: () -> Unit,
     onReset: () -> Unit,
+    /** This character's throws, newest first, read only when the log opens. */
+    throws: () -> List<LoggedThrow>,
 ) {
     val drunk = session.state
     val rows = remember(sheet) { SheetComparison.of(sheet) }
@@ -371,7 +380,7 @@ internal fun SheetScreen(
                         overflow = TextOverflow.Ellipsis,
                     )
                 },
-                actions = { ResetMenu(sheet.name, onReset) },
+                actions = { SheetMenu(sheet.name, throws, onReset) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(

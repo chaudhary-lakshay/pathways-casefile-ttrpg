@@ -83,6 +83,7 @@ internal data class Vitals(
  */
 @Composable
 private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: Int, poolPenalty: Int, shock: Int, states: ClauseBonus) {
+    val dice = LocalDice.current
     var outcome by remember(check, target) { mutableStateOf<RollResult?>(null) }
     Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
         Text(VitalRolls.printed(check), style = MaterialTheme.typography.bodySmall)
@@ -109,7 +110,7 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
                     // needs: two taps can both reach the handler before the
                     // button leaves the tree (6p).
                     if (outcome != null) return@TextButton
-                    outcome = SuccessRoll.against(target, appDice)
+                    outcome = SuccessRoll.against(target, dice.dice(if (check == VitalCheck.SURVIVAL) "HT to survive" else "HT to stay conscious"))
                 },
                 // Named by the book's own row, because below -HP BOTH rolls
                 // are offered and their targets differ (6cn).
@@ -148,6 +149,7 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
  */
 @Composable
 private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int, shock: Int, states: ClauseBonus) {
+    val dice = LocalDice.current
     var modifier by remember { mutableIntStateOf(0) }
     var outcome by remember { mutableStateOf<RollResult?>(null) }
     val fromTraits = NaturalRecovery.bonusFor(traits)
@@ -192,7 +194,7 @@ private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int, shoc
             TextButton(
                 onClick = {
                     if (outcome != null) return@TextButton
-                    outcome = SuccessRoll.against(target, appDice)
+                    outcome = SuccessRoll.against(target, dice.dice("Natural recovery"))
                 },
             ) { Text("Roll HT $target — a day of rest and food") }
         } else {

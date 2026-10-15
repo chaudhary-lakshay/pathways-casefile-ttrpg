@@ -100,6 +100,7 @@ internal fun FrightDialog(
     stunned: Boolean,
     onDismiss: () -> Unit,
 ) {
+    val dice = LocalDice.current
     var kind by remember { mutableStateOf(FrightKind.FRIGHT) }
     var outcome by remember { mutableStateOf<FrightOutcome?>(null) }
     var picked by remember { mutableStateOf<FrightTrigger?>(null) }
@@ -159,7 +160,7 @@ internal fun FrightDialog(
                                 // One roll a tap: a second from the same
                                 // picture would roll again (6p).
                                 if (recovery == null) {
-                                    val rolled = SuccessRoll.against(target, appDice)
+                                    val rolled = SuccessRoll.against(target, dice.dice("Fright recovery"))
                                     recovery = rolled
                                     // Won back: the stun this check set ends.
                                     if (stunnedHere && rolled.outcome.isSuccess) onStunned(false)
@@ -259,7 +260,7 @@ internal fun FrightDialog(
                             // keep the second, the re-entrancy the divination
                             // dialog was hardened for (6p).
                             if (outcome == null && chosen != null) {
-                                val rolled = FrightCheck.rollAgainst(target, appDice)
+                                val rolled = FrightCheck.rollAgainst(target, dice.dice("Fright Check"))
                                 outcome = rolled
                                 if (FrightCheck.leavesStunned(rolled.effect, kind, recovery = null)) {
                                     stunnedHere = !stunned

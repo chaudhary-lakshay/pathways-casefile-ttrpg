@@ -46,6 +46,7 @@ internal fun ConcentrateDialog(
     states: ClauseBonus = ClauseBonus(0, null),
     onDismiss: () -> Unit,
 ) {
+    val dice = LocalDice.current
     var disturbed by remember { mutableStateOf(false) }
     // Keyed on [clauses] and NOT on [disturbed]: a changed trait list retires
     // the keys a declaration names (Codex), while whether a Beyonder ability
@@ -130,7 +131,7 @@ internal fun ConcentrateDialog(
                     // `disturbed` is read here on purpose: it is whether the
                     // book calls for a roll at all, not a term of the target.
                     if (outcome != null || !disturbed) return@RollFooter
-                    outcome = Concentration.rollAgainst(target, disturbed, appDice)
+                    outcome = Concentration.rollAgainst(target, disturbed, dice.dice("Concentrate"))
                 }
             }
         },

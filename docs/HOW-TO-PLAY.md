@@ -98,8 +98,14 @@ potion grants.
   Beyonder power, brass = managing the character. The Beyonder chips (Ritual,
   Divine, Spirit Vision) appear only once a potion grants them; **Boon** is
   always there.
-- **⋮ → Reset to sheet**, in the top bar, puts the character back to the
-  printed sheet: potions, purchases, wounds, corruption and declared lines
+- **⋮ → Roll log**, in the top bar, lists every throw this character made
+  since the app started, newest first: what was rolled, the dice, and the
+  target (*"Fright Check 2 + 5 + 2 = 9 vs 5"*). A table's or damage's throw
+  has no target. It shows dice, not verdicts: a push or a table's own rule
+  can change a verdict after the dice, and the dialog that rolled says which.
+  It is not saved; closing the app clears it.
+- **⋮ → Reset to sheet** puts the character back to the printed sheet:
+  potions, purchases, wounds, corruption, declared lines and the roll log
   all go. It asks first, and it cannot be undone. It is for starting over,
   not for play: nothing in the book un-drinks a potion.
 

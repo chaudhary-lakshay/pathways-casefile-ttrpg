@@ -85,6 +85,8 @@ internal fun SheetDialogs(
     /** The same declaration as ledger modifiers, for a roll that is physical or is not. */
     stateModifiers: (physical: Boolean) -> List<Modifier>,
 ) {
+    // Every throw is logged under the dialog that rolled it (RollLog).
+    val dice = LocalDice.current
     val divinationLevel = divination?.level
     // Derived once for both bare Will rolls. Two `remember`s over one input
     // is two chances to key them differently, which is the drift this file
@@ -231,7 +233,7 @@ internal fun SheetDialogs(
                         circumstances,
                 )
             },
-            roll = { SkillRoll.rollAgainst(it, appDice) },
+            roll = { SkillRoll.rollAgainst(it, dice.dice(it.label)) },
             onBurn = burn,
             onDismiss = { onRolling(null) },
         )
@@ -298,7 +300,7 @@ internal fun SheetDialogs(
             hasSpirituality = vitals.maxSpi > 0,
             maxHp = vitals.maxHp,
             ht = attributes.ht,
-            dice = appDice,
+            dice = dice.dice("Damage"),
             onApply = { pool, amount ->
                 val max = when (pool) {
                     Pool.HP -> vitals.maxHp
@@ -365,7 +367,7 @@ internal fun SheetDialogs(
             // The same line the Attack dialog lifts a weapon with, so a
             // master's weapon parries at DX on both screens (6ey).
             mastery = mastery,
-            dice = appDice,
+            dice = dice.dice("Defend"),
             // What the trackers cost, the first term of the sheet's own skill
             // rolls. An Acrobatic Dodge is a skill roll like any other, and
             // rolling it bare would have a reeling character roll Acrobatics at
@@ -393,7 +395,7 @@ internal fun SheetDialogs(
             conditions = { conditionsFor(it, withDeclared = false) },
             st = attributes.st,
             dx = attributes.dx,
-            dice = appDice,
+            dice = dice.dice("Attack"),
             // An All-Out maneuver's own FP is spent like any other: through
             // the tracker, so the next roll is made by a tireder character.
             // Distinct from [burn]: this is the maneuver's printed price, not
@@ -467,7 +469,7 @@ internal fun SheetDialogs(
             shock = shockOnSkill,
             states = states,
             spiAvailable = vitals.maxSpi - session.spiSpent,
-            dice = appDice,
+            dice = dice.dice("Divination"),
             // Through the tracker, so a question asked at 0 SPI buys the Soul
             // Debt the book charges for it.
             onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
@@ -502,7 +504,7 @@ internal fun SheetDialogs(
             // SPI -2 and Per 10".
             spi = vitals.maxSpi,
             per = vitals.per,
-            dice = appDice,
+            dice = dice.dice("Detect"),
             onDismiss = { onClose(SheetDialog.DETECT) },
         )
     }
@@ -522,7 +524,7 @@ internal fun SheetDialogs(
             shock = shockOnAttribute,
             hurt = hurtOnAttribute,
             states = states,
-            dice = appDice,
+            dice = dice.dice("Spirit Vision"),
             // Through the tracker, so activating actually costs the point.
             onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
             onDismiss = { onClose(SheetDialog.SPIRIT_VISION) },
@@ -573,7 +575,7 @@ internal fun SheetDialogs(
             states = states,
             cor = session.cor,
             spiAvailable = vitals.maxSpi - session.spiSpent,
-            dice = appDice,
+            dice = dice.dice("Ritual"),
             onCorGained = { gained -> session.gainCor(gained, maxCor) },
             // Through the tracker, so a ritual fuelled past 0 SPI buys the
             // Soul Debt the book charges for it.
@@ -622,7 +624,7 @@ internal fun SheetDialogs(
             states = states,
             cor = session.cor,
             spiAvailable = vitals.maxSpi - session.spiSpent,
-            dice = appDice,
+            dice = dice.dice("Boon"),
             onCorGained = { gained -> session.gainCor(gained, maxCor) },
             held = session.boon,
             nextBoon = session::nextBoon,
