@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -181,6 +182,15 @@ internal fun LazyListScope.skillsTab(
     onRoll: (RollableSkill) -> Unit,
     onPickUntrained: () -> Unit,
 ) {
+    // "You can attempt most skills even without training" (p. 10).
+    // First and filled: as a text button below the last skill the owner
+    // could not find it in play (session 1).
+    item {
+        FilledTonalButton(
+            onClick = onPickUntrained,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+        ) { Text("Roll a skill this sheet does not have") }
+    }
     // Row order past the secondaries is one per purchased skill, in
     // sheet order - pinned by SheetComparisonTest. That is what makes
     // this positional pairing safe.
@@ -261,15 +271,5 @@ internal fun LazyListScope.skillsTab(
         AddedSkillRow(label, level, "potion") {
             onRoll(RollableSkill(label, level, key))
         }
-    }
-
-    // "You can attempt most skills even without training" (p. 10).
-    // Last, because it is the exception: the rows above are what the
-    // character can do, and this is what anyone can try.
-    item {
-        TextButton(
-            onClick = onPickUntrained,
-            modifier = Modifier.padding(horizontal = 4.dp),
-        ) { Text("Roll a skill this sheet does not have") }
     }
 }

@@ -166,7 +166,7 @@ does nothing.
 ### A skill you do not have
 
 The book lets you attempt most skills untrained, at a default. Scroll to the
-foot of **Skills** and tap **Roll a skill this sheet does not have**. Type a
+top of **Skills** and tap **Roll a skill this sheet does not have**. Type a
 few letters in **Find a skill**, tap the row, and the usual roll dialog opens
 with the default as its skill: *"Acrobatics (untrained, DX-6)"*.
 
