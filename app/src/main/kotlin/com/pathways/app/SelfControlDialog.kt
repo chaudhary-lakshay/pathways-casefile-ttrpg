@@ -1,11 +1,13 @@
 package com.pathways.app
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -46,22 +48,21 @@ internal fun ClauseChips(
         style = MaterialTheme.typography.labelMedium,
         modifier = Modifier.padding(top = 8.dp),
     )
-    FlowRow {
+    FlowRow(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         conditional.forEach { clause ->
-            TextButton(onClick = {
-                onDeclared(
-                    if (clause.key in declared) declared - clause.key else declared + clause.key,
-                )
-            }) {
-                Text(
-                    "${clause.shown}: ${clause.printed}",
-                    color = if (clause.key in declared) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                )
-            }
+            // A FilterChip, not a coloured TextButton: lit by colour alone
+            // read the same either way in play, and carried no selected
+            // state for TalkBack (play session 1).
+            FilterChip(
+                selected = clause.key in declared,
+                onClick = {
+                    onDeclared(
+                        if (clause.key in declared) declared - clause.key else declared + clause.key,
+                    )
+                },
+                label = { Text("${clause.shown}: ${clause.printed}") },
+                modifier = Modifier.padding(end = 8.dp),
+            )
         }
     }
 }
