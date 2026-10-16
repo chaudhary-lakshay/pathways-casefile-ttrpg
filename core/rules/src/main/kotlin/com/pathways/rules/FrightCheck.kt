@@ -86,6 +86,8 @@ object FrightCheck {
         target: Int,
         source: RandomSource,
         effects: List<FrightEffect> = ContentLoader.frightEffects(),
+        /** The effect roll's dice, so the roll log names it apart from the check. */
+        effectSource: RandomSource = source,
     ): FrightOutcome {
         val roll = SuccessRoll.against(target, source)
         // By outcome, not by margin: 3 and 4 always succeed whatever the
@@ -102,7 +104,7 @@ object FrightCheck {
         // The printed table starts at 4, so a bare 3 with no margin lands on
         // no row. The mildest band is the honest answer there; refusing to
         // answer would crash a table mid-scene.
-        val effectRoll = (rollThreeDSix(source) + margin).coerceAtLeast(LOWEST_EFFECT_ROLL)
+        val effectRoll = (rollThreeDSix(effectSource) + margin).coerceAtLeast(LOWEST_EFFECT_ROLL)
         return FrightOutcome(
             roll = roll,
             target = target,

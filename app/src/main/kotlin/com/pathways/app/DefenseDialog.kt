@@ -68,8 +68,8 @@ internal fun DefenseDialog(
      * a master's hand parries at DX, and a silent default would drop that.
      */
     mastery: SkillDefaults.WeaponMastery?,
-    /** The dice an Acrobatic Dodge is rolled with. */
-    dice: RandomSource,
+    /** The dice, labelled per row so the roll log tells a Dodge from a Parry (play session 5). */
+    dice: CharacterDice,
     /**
      * What the trackers cost a roll of a given skill.
      *
@@ -158,9 +158,9 @@ internal fun DefenseDialog(
     val refusal = ActiveDefenses.state(round.declared, traits)
     // A defence is a plain 3d6 against the figure the row prints (play
     // session 1: the numbers were shown and nothing rolled them).
-    val rollDefence = { target: Int -> SuccessRoll.against(target, dice) }
+    val rollDefence = { label: String -> { target: Int -> SuccessRoll.against(target, dice.dice(label)) } }
     // A parry rolled is a parry made: the round counts it (play session 5).
-    val rollParry = { target: Int -> rollDefence(target).also { round = round.parried() } }
+    val rollParry = { label: String -> { target: Int -> rollDefence(label)(target).also { round = round.parried() } } }
     val forfeiting = remember { ActiveDefenses.forfeitingActions() }
     val printed = remember { ContentLoader.defenses() }
     // Only the bullets this app does NOT apply. The Acrobatic Dodge row is
@@ -373,7 +373,7 @@ internal fun DefenseDialog(
                             shieldForDb,
                             everyDefence,
                         ),
-                        rollDefence,
+                        rollDefence("Dodge"),
                     )
                     printed.firstOrNull { it.defense == "Dodge" }?.let { DefenseNote(it.notes) }
                     // Under the row it moved, like the Acrobatic Dodge's own
@@ -398,7 +398,7 @@ internal fun DefenseDialog(
                         rolled = round.acrobatic,
                         onRoll = {
                             acrobaticStanding?.let { printed ->
-                                round = round.copy(acrobatic = SkillRoll.rollAgainst(printed, dice))
+                                round = round.copy(acrobatic = SkillRoll.rollAgainst(printed, dice.dice("Acrobatic Dodge")))
                             }
                         },
                         onClear = { round = round.copy(acrobatic = null) },
@@ -420,7 +420,7 @@ internal fun DefenseDialog(
                             shieldForDb,
                             everyDefence,
                         ),
-                        rollParry,
+                        rollParry(label),
                     )
                 }
                 item {
@@ -456,7 +456,7 @@ internal fun DefenseDialog(
                             shieldForDb,
                             everyDefence,
                         ),
-                        rollParry,
+                        rollParry(label),
                     )
                 }
                 item {
@@ -539,7 +539,7 @@ internal fun DefenseDialog(
                         val bare = ParryBlock.blockFor(shieldSkill, shieldDb = 0)
                         val boosted = boostOn("Block", round.boost)
                         if (held == null) {
-                            DefenseRow("Block", shieldedTargets(bare + boosted + retreatBlock, null, everyDefence), rollDefence)
+                            DefenseRow("Block", shieldedTargets(bare + boosted + retreatBlock, null, everyDefence), rollDefence("Block"))
                             // Two ways to have no DB, and they are different
                             // facts: nothing Readied, or something Readied
                             // that the book withholds from behind.
@@ -559,7 +559,7 @@ internal fun DefenseDialog(
                             val own = bare + everyDefence + boosted + retreatBlock
                             val melee =
                                 Shields.blockFor(held, shieldSkill) + everyDefence + boosted + retreatBlock
-                            DefenseRow("Block", listOf(own, melee), rollDefence)
+                            DefenseRow("Block", listOf(own, melee), rollDefence("Block"))
                             // The ranged figure is shown beside it rather than
                             // replacing it: a light shield is "-1 to Block vs.
                             // ranged" and one number cannot say both. It takes

@@ -381,7 +381,7 @@ internal fun SheetDialogs(
             // The same line the Attack dialog lifts a weapon with, so a
             // master's weapon parries at DX on both screens (6ey).
             mastery = mastery,
-            dice = dice.dice("Defend"),
+            dice = dice,
             // What the trackers cost, the first term of the sheet's own skill
             // rolls. An Acrobatic Dodge is a skill roll like any other, and
             // rolling it bare would have a reeling character roll Acrobatics at

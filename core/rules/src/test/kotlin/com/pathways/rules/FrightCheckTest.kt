@@ -91,6 +91,20 @@ class FrightCheckTest {
     }
 
     @Test
+    fun `the effect roll is thrown with its own dice, so the log can name it`() {
+        // Play session 5: the check and its effect roll both read "Fright
+        // Check" in the roll log.
+        val effectThrows = mutableListOf<List<Int>>()
+        val effect = object : RandomSource {
+            override fun roll(sides: Int) = 2
+            override fun thrown(faces: List<Int>, target: Int?) { effectThrows += faces }
+        }
+        val outcome = FrightCheck.rollAgainst(target = 5, source = fixed(6), effectSource = effect)
+        assertEquals(listOf(listOf(2, 2, 2)), effectThrows)
+        assertEquals(6 + 13, outcome.effectRoll)
+    }
+
+    @Test
     fun `a critical failure under its own target still lands on the table`() {
         // 18 always fails, even against a target of 18 -- and then nothing was
         // overshot, so a bare 3 on the effect roll would fall off the bottom

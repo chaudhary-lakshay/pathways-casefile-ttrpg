@@ -266,7 +266,7 @@ internal fun FrightDialog(
                             // keep the second, the re-entrancy the divination
                             // dialog was hardened for (6p).
                             if (outcome == null && chosen != null) {
-                                val rolled = FrightCheck.rollAgainst(target, dice.dice("Fright Check"))
+                                val rolled = FrightCheck.rollAgainst(target, dice.dice("Fright Check"), effectSource = dice.dice("Fright effect"))
                                 outcome = rolled
                                 if (FrightCheck.leavesStunned(rolled.effect, kind, recovery = null)) {
                                     stunnedHere = !stunned
