@@ -259,8 +259,8 @@ internal fun AttackOptions(
         val total = Attacks.modifiers(plan, skillLevel, unarmed)
             .sumOf { (it.effect as ModEffect.Flat).n }
         val count = Attacks.attackCount(plan)
-        val fromRange = rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled || aimRefusedBy != null, darknessCause, darknessReduction, darknessSeverity)
-            .sumOf { (it.effect as ModEffect.Flat).n }
+        val rangeTerms = rangedModifiers(plan, band, circumstances, armed.aimAcc, aimCancelled || aimRefusedBy != null, darknessCause, darknessReduction, darknessSeverity)
+            .map { (it.effect as ModEffect.Flat).n }
         // Every term the target is made of, in the order it was always
         // printed, handed to the footer that prints the target under them.
         val lines = mutableListOf<String>()
@@ -270,7 +270,7 @@ internal fun AttackOptions(
         val fromMelee = meleeModifiers(plan, circumstances)
             .sumOf { (it.effect as ModEffect.Flat).n }
         if (plan.isRanged) {
-            lines += "Range and cover: ${if (fromRange == 0) "no modifier" else signed(fromRange)}"
+            lines += "Range and cover: ${termLine(rangeTerms)}"
         } else if (fromMelee != 0) {
             // Its own label, never "Range and cover": nothing about distance
             // is being priced here, and a total that does not match the line
@@ -515,3 +515,11 @@ internal data class Armed(val weapon: CataloguedWeapon, val mode: WeaponMode) {
  * unarmed attack that reaches past arm's length.
  */
 internal val Armed?.isFired: Boolean get() = this != null && Weapons.isRanged(weapon)
+
+/**
+ * A breakdown line's figure: "no modifier" only when nothing moved it, and
+ * "+0" when terms cancel -- a -3 range and a +3 Aim read as no modifier at
+ * all (play session 5).
+ */
+internal fun termLine(terms: List<Int>): String =
+    if (terms.all { it == 0 }) "no modifier" else signed(terms.sum())

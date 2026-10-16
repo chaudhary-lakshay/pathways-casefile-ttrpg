@@ -383,6 +383,15 @@ class AttackDialogTest {
         assertEquals(", ×1.5 there", woundingNote(Wounds.locationNamed("Torso"), "pi+"))
     }
 
+    @Test
+    fun `terms that cancel print +0, not no modifier`() {
+        // Play session 5: a -3 range band and a +3 Aim read as no modifier.
+        assertEquals("no modifier", termLine(emptyList()))
+        assertEquals("no modifier", termLine(listOf(0)))
+        assertEquals("+0", termLine(listOf(-3, 3)))
+        assertEquals("-3", termLine(listOf(-3)))
+    }
+
     private companion object {
         const val ALONE_TERMS = 38
         const val TOGETHER_TERMS = 8
