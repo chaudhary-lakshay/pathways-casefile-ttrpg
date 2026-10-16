@@ -6758,8 +6758,28 @@ ecc (sonnet) over the uncommitted tree: SHIP WITH CHANGES. Taken: LOW,
 (the ruling makes it an ability check, whichever attribute), and the
 hardcoded label (the same words `SpiritVision` derives).
 
-**Device pass owed**, with 6hw's: the tablet was on neither USB nor
-wireless this session.
+### Device pass (SM-T570, wireless, 2026-10-16)
+
+HEAD `da75bb9` installed over a 2026-10-15 21:57 build that predated
+every 6hw fix. Save backed up first, restored after, `cmp` identical.
+The Occult Scholar at SPI 3 of 11:
+
+- Detect, no row: SPI 11, target 11, no Attrition. The Fool row: *Per 10
+  (the row grants a Per roll), Spiritual Attrition -3*, target 7, and the
+  rolled result carries the same line.
+- Spirit Vision: *Per 10, Spiritual Attrition -3*, target 7.
+- Damage on SPI, 2 cut: *2 cut x1.5 = 3 to SPI, rounded down. Physical DR
+  does not apply*, *No Major wound on SPI*, *Apply 3 to SPI*.
+- Traits: *Avoids old mirrors*, gained in play, tagged *GM call*.
+- Pathway, Good +10-15%: one tap, Digestion 0% to 10%.
+- Boon on the Docks Bouncer (no Ritualistic Magic) leads with *No prayer
+  -- a boon is rolled on Ritualistic Magic, which has no default*; on the
+  Occult Scholar, who holds it, no refusal.
+
+Not seen: *no push at Crystal clear* needs a roll the dice did not give;
+unit-tested only. **Found:** picking SPI or FP in the Damage dialog drops
+the HT roll and the location rows, the dialog shrinks and re-centres, and
+the type chips move under the finger (6gn's rule). Not fixed.
 
 ## 6hw. Play session 3: the mystical half
 
