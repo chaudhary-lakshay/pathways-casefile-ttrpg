@@ -114,8 +114,11 @@ private fun ResetDialog(name: String, isOwn: Boolean, onDismiss: () -> Unit, onR
         "Back to $name as built: potions, wounds, corruption, study, boons, traits gained in play, " +
             "declared states and the roll log are cleared. Purchases are kept. This cannot be undone."
     } else {
-        "Back to the printed sheet: potions, purchases, wounds, corruption, " +
-            "declared states and the roll log are cleared. This cannot be undone."
+        // The whole save entry goes (MainActivity keeps none for a premade),
+        // so every kept thing is named, as the own character's line names its
+        // own: play session 4 reset a boon this line did not mention.
+        "Back to the printed sheet: potions, purchases, wounds, corruption, study, boons, " +
+            "traits gained in play, declared states and the roll log are cleared. This cannot be undone."
     },
     action = "Reset",
     onDismiss = onDismiss,
