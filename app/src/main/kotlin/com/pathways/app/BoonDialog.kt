@@ -372,18 +372,6 @@ fun BoonDialog(
                         // of all boons on that path" (ch. 14).
                         Text("Held: ${boonPill(held).removePrefix("Boon · ")}, ${held.pathway} Pathway")
                     }
-                    if (next != null) {
-                        val block = NonStandardPathways.chainFor(next).last()
-                        Text(
-                            "${block.name} — Sequence ${next.sequence} · " +
-                                signed(Boons.penaltyForSequence(next.sequence)),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                        GrantedBlock(block)
-                    }
-
                     groups.forEach { group ->
                         SectionLabel(group)
                         FlowRow {
@@ -398,15 +386,20 @@ fun BoonDialog(
                         }
                         // Three of the eight options print a range rather than
                         // a number, and the end is the GM's; the default is
-                        // the end nearer zero.
+                        // the end nearer zero. Drawn for every pick in a group
+                        // that has a range, a single figure as one disabled
+                        // chip: appearing on the pick moved the rows below it
+                        // under the finger (play session 4, 6gn's rule).
                         val selected = chosen[group]
-                        if (selected?.best != null) {
+                        if (byGroup.getValue(group).any { it.best != null }) {
                             FlowRow {
-                                endsOf(selected).forEach { value ->
+                                val ends = selected?.takeIf { it.best != null }?.let(::endsOf)
+                                (ends ?: listOf(selected?.modifier ?: 0)).forEach { value ->
                                     FilterChip(
-                                        selected =
+                                        selected = selected != null &&
                                             (picked[selected.key] ?: selected.modifier) == value,
-                                        onClick = { picked[selected.key] = value },
+                                        enabled = ends != null,
+                                        onClick = { if (ends != null) picked[selected.key] = value },
                                         label = { Text(signed(value)) },
                                         modifier = Modifier.padding(end = 8.dp),
                                     )
@@ -443,6 +436,21 @@ fun BoonDialog(
                     }
 
                     MysticalLanguagePicker(language, boughtLanguages, grantedLanguages) { language = it }
+
+                    // Below the form, not above it: picking a patron drew this
+                    // block over the sacrifice chips the next tap was aimed at
+                    // (play session 4).
+                    if (next != null) {
+                        val block = NonStandardPathways.chainFor(next).last()
+                        Text(
+                            "${block.name} — Sequence ${next.sequence} · " +
+                                signed(Boons.penaltyForSequence(next.sequence)),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        GrantedBlock(block)
+                    }
 
                     RuleNote("What a petition needs") {
                         Column {

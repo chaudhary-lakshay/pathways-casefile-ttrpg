@@ -522,21 +522,23 @@ fun RitualDialog(
                             modifier = Modifier.padding(end = 8.dp),
                         )
                     }
+                    // Drawn under Personal SPI too, disabled: appearing on the
+                    // Invocation pick moved the rows below it (play session 4).
+                    FilterChip(
+                        selected = invoked && goodStanding,
+                        // It shifted the roll already made.
+                        enabled = invoked && paid == null,
+                        onClick = { if (invoked && paid == null) goodStanding = !goodStanding },
+                        label = { Text("Orthodox deity, in good standing") },
+                    )
+                    Text(
+                        // Spelled out because the -2 is the slice's whole
+                        // trap: it moves the GM's table roll toward the
+                        // good rows, and would be a penalty on the ritual.
+                        "Shifts the entity's 3d6 by −2, toward a better response.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                     if (invoked) {
-                        FilterChip(
-                            selected = goodStanding,
-                            // It shifted the roll already made.
-                            enabled = paid == null,
-                            onClick = { if (paid == null) goodStanding = !goodStanding },
-                            label = { Text("Orthodox deity, in good standing") },
-                        )
-                        Text(
-                            // Spelled out because the -2 is the slice's whole
-                            // trap: it moves the GM's table roll toward the
-                            // good rows, and would be a penalty on the ritual.
-                            "Shifts the entity's 3d6 by −2, toward a better response.",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
                         // Asked from the footer: asking is what pays (6hr).
                         answer?.let { given ->
                             Text(

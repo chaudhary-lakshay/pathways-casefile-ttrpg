@@ -51,8 +51,9 @@ internal fun hpChoices(cost: Int): List<Int> =
  *
  * "The GM determines the Preparation Modifier from the player's declarations"
  * (p. 63), and some cells of chapter 7's three tables hand them a span or a
- * floor to determine it from -- `ModifierRangeTest` holds the list. Draws nothing for a cell that prints one
- * figure, so the row above it stays the whole control there.
+ * floor to determine it from -- `ModifierRangeTest` holds the list. A cell that
+ * prints one figure draws it as one disabled chip: drawing nothing there made
+ * a span pick grow the dialog under the finger (play session 4, 6gn).
  *
  * [applied] is what the ENGINE says the roll is using, not what was tapped:
  * the chip showing selected before anything is tapped is a claim about the
@@ -61,17 +62,18 @@ internal fun hpChoices(cost: Int): List<Int> =
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun CellValueChips(printed: String, values: List<Int>, applied: Int, onPick: (Int) -> Unit) {
-    if (values.size < 2) return
+    val isSpan = values.size >= 2
     Text(
-        "The book prints $printed — the GM picks:",
+        if (isSpan) "The book prints $printed — the GM picks:" else "The book prints $printed.",
         style = MaterialTheme.typography.bodySmall,
         modifier = Modifier.padding(top = 4.dp),
     )
     FlowRow {
-        values.forEach { value ->
+        (if (isSpan) values else listOf(applied)).forEach { value ->
             FilterChip(
                 selected = applied == value,
-                onClick = { onPick(value) },
+                enabled = isSpan,
+                onClick = { if (isSpan) onPick(value) },
                 label = { Text(signed(value)) },
                 modifier = Modifier.padding(end = 8.dp),
             )
