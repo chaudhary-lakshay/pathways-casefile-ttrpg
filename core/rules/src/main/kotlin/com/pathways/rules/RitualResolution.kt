@@ -266,10 +266,14 @@ object RitualResolution {
      * there buys anything, which is the arithmetic [EffortBurn.canPush]
      * refuses a critical-only rule on rather than a reading of the sentence.
      * Every other result is pushable, a success included: Step 4 grades that
-     * by margin, so a point still buys a better grade.
+     * by margin, so a point still buys a better grade -- until the top band,
+     * "Success by 3+" (line 4094), above which the table prints nothing to
+     * buy. Play session 4 was offered a push at a margin of 11; this is
+     * [Divination.canPush]'s clearest-row refusal, on Step 4's own table.
      */
     fun canPush(outcome: RitualOutcome): Boolean =
-        outcome.roll.total < CRITICAL_ROLL_FLOOR
+        outcome.roll.total < CRITICAL_ROLL_FLOOR &&
+            !(outcome.success != null && outcome.success.to == null)
 
     /**
      * The same dice read against a target [points] SPI higher (p. 63, p. 66).

@@ -354,6 +354,13 @@ fun RitualDialog(
                             burned += points
                             outcome = RitualResolution.pushed(live, points)
                         }
+                    } else if (burned > 0) {
+                        // A push that reached the top band ends the row, and
+                        // the SPI it took is still owed (Divination's, 6hw).
+                        Text(
+                            "Pushed $burned SPI. Charged when this closes.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
                     }
                 }
                 return@AlertDialog

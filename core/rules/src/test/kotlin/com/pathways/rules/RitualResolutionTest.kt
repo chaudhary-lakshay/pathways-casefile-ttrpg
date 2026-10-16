@@ -641,4 +641,20 @@ class RitualResolutionTest {
         val pushed = RitualResolution.pushed(plain, 6)
         assertEquals(3, pushed.success?.from)
     }
+
+    /**
+     * Step 4 prints nothing above "Success by 3+" (line 4094), so a point
+     * spent there buys nothing: play session 4 was offered +1 to +4 at a
+     * margin of 11. Divination.canPush refuses its clearest row the same way
+     * (6hw). One below the band stays pushable.
+     */
+    @Test
+    fun `a success already in the top band takes no push`() {
+        val surpassing = RitualResolution.attempt(14, light, cor = 0, source = fixed(3))
+        assertEquals(null, surpassing.success?.to)
+        assertFalse(RitualResolution.canPush(surpassing))
+        assertFalse(Boons.canPush(surpassing))
+        val asIntended = RitualResolution.attempt(14, light, cor = 0, source = fixed(4))
+        assertTrue(RitualResolution.canPush(asIntended))
+    }
 }
