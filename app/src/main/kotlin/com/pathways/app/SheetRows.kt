@@ -155,8 +155,25 @@ private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int, stat
     val fromTraits = NaturalRecovery.bonusFor(traits)
     val target = NaturalRecovery.targetFor(ht, traits, poolPenalty, modifier, states.total)
     Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-        NaturalRecovery.rows().forEach {
-            Text("${it.method}: ${it.recovered}. ${it.notes}", style = MaterialTheme.typography.bodySmall)
+        // The book's rows and the note on what is entered by hand are
+        // reference, closed (6gl): open, three rows -- two for bodies of 20
+        // HP and more -- and two sentences read as a wall (play session 4).
+        RuleNote("Natural recovery") {
+            Column {
+                NaturalRecovery.rows().forEach {
+                    Text("${it.method}: ${it.recovered}. ${it.notes}", style = MaterialTheme.typography.bodySmall)
+                }
+                // A potion's advantages are prose, so a grant that moves this
+                // roll is held by no trait. Said, or a zero reads as "none" --
+                // and scoped to what the line below does not show, because the
+                // all-HT-roll traits ARE applied and must not be entered twice.
+                Text(
+                    "Anything else that moves the daily HT roll - a potion's grant, say - is entered " +
+                        "with −1 / +1. Only what the line under them shows is applied for you.",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
         }
         val result = outcome
         if (result == null) {
@@ -179,15 +196,6 @@ private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int, stat
                     if (modifier > 0) add("+$modifier entered")
                     if (modifier < 0) add("$modifier entered")
                 }.joinToString(", "),
-                style = MaterialTheme.typography.bodySmall,
-            )
-            // A potion's advantages are prose, so a grant that moves this
-            // roll is held by no trait. Said, or a zero reads as "none" --
-            // and scoped to what the line above does not show, because the
-            // all-HT-roll traits ARE applied and must not be entered twice.
-            Text(
-                "Anything else that moves the daily HT roll - a potion's grant, say - is entered " +
-                    "with −1 / +1. Only what the line above shows is applied for you.",
                 style = MaterialTheme.typography.bodySmall,
             )
             TextButton(
