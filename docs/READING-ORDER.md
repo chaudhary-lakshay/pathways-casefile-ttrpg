@@ -195,6 +195,14 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6ht
+(the
+play-readiness list's first two: ⋮ → Reset to sheet rebuilds the session
+and scene from an empty save; a roll log, in memory per character, fed by
+one `RandomSource.thrown` hook every roller reports through, dice and
+target and never a verdict, because the PCR, a demoted divination and a
+push decide theirs after the dice; seen on the SM-T570).
+
 Then 6hs
 (play session 1, the owner's first real game, on the SM-T570: twelve
 device findings, all fixed and pushed through `a3200a4`; two were
@@ -2505,8 +2513,9 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6fm back to 6de
+## Digest index, 6fn back to 6de
 
+**6fn** — a potion's face: the chain keeps Sequence 6's and the better of bought and granted is played; a second `mapOf` key would have silently dropped Charisma's grant;
 **6fm** — a potion's Charisma levels add down the chain and onto a bought level, capped at 4; the label first said the grant's level, not what it added;
 **6fk** — a potion's catalogue rows are granted through one table pinned both ways; a census that dropped names under four characters lost Fit, and the builder would have sold a granted row;
 **6fj** — the Warrior's default +2 stays refused, on the book's reason: no number fits both the Warrior's example and the Weapon Master's DX ceiling;

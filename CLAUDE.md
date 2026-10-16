@@ -193,6 +193,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ht** — reset to sheet rebuilds the session from an empty save; a roll log fed by one `RandomSource.thrown` hook, dice and target, never a verdict;
 **6hs** — play session 1: twelve device findings, two of them state a `remember` lost, one 6cp's once-per-round claim; the revolver fires on Guns (Pistol);
 **6hr** — the ritual's fuel: No response's 2 SPI comes out of declared HP first, as the prayer's; an invoked ritual pays at the asking; `Invocation.fuelFor` is the one price;
 **6hq** — a prayer takes a mystical tongue and Entity Response, asked first; no response grants no boon; the fuel paid does not lower the roll; a bonus on a bought skill re-levels;
@@ -241,8 +242,7 @@ slice log.** One line each:
 **6fq** — a held face printed its name alone on Traits; `held()` gives it the table's reaction cell, and my test had computed its expectation with `cellFor`'s own formula;
 **6fp** — the builder's Appearance row says what the potion grants and which face is played, through `Appearance.played`; that closed 6fn's census;
 **6fo** — Mother 8 and Justiciar 6 grant Ancient Hermes, Native, both forms; `Languages.grantedBy` feeds the ritual dialog's note and no roll changes;
-**6fn** — a potion's face: the chain keeps Sequence 6's and the better of bought and granted is played; a second `mapOf` key would have silently dropped Charisma's grant;
-**6fm back to 6de** have one-line digests too, moved verbatim to
+**6fn back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi, 6hk, 6hm, 6hq, 6hr, 6hs, 6ht, 6hu, 6hv, 6hw).
 
@@ -263,9 +263,13 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6hx first.** END
+**Where to start next: the slice log, from the END — 6hy first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
-line 6728, then 6hx back to 6cb, newest first, so `tail` prints 6cb. 6hx:
+line 6728, then 6hy back to 6cb, newest first, so `tail` prints 6cb. 6hy:
+(play session 4, the campaign arc, played alone: nine findings, all fixed
+and seen on the SM-T570; one caption, `SuccessRoll.printed`; no push past
+*Success by 3+*; Will and Per roll from their Vitals rows, the owner's
+pick; pick-dependent rows drawn from the start). Then 6hx
 (Detect takes Spiritual Attrition's -3 only on a roll a Sec. 1 awareness
 row grants, an ability check by Step 2's words; a roll on suspicion alone
 takes none, the owner's ruling; `Detection.attritionFor` is the one
@@ -289,13 +293,7 @@ characters, a save entry whose `basedOn` names its premade, no second file;
 study points recorded on a skill's points with a `studied` share the budget
 subtracts, gated on `Study.plan` and refused on a potion's skill through
 `PotionDigestion.isSameSkill`; the play-readiness list is done; seen on the
-SM-T570). Then 6ht
-(the
-play-readiness list's first two: ⋮ → Reset to sheet rebuilds the session
-and scene from an empty save; a roll log, in memory per character, fed by
-one `RandomSource.thrown` hook every roller reports through, dice and
-target and never a verdict, because the PCR, a demoted divination and a
-push decide theirs after the dice; seen on the SM-T570). The chain
+SM-T570). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -352,9 +350,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2266 Kotlin** (JUnit 5 — 1461 `core:rules`, 782 `app`, 23 `core:model`, counted in 6hx) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2270 Kotlin** (JUnit 5 — 1467 `core:rules`, 780 `app`, 23 `core:model`, counted in 6hy) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`: SHIP, one LOW not taken (a 12.dp indent); 6hm's uncommitted tree: ship with changes, taken; 6hn: ship with changes, taken; 6ho: SHIP; 6hp: ship with changes, taken; then `09f19e5..d52eb4e -- app`: ship with changes, one MEDIUM not taken (the 280.dp row at 360dp); 6hq's design: CHANGE, taken; its diff `fb6bba6..0d7ced5`: SHIP; 6hr's design: CHANGE, taken; its uncommitted tree: ship with changes, taken; 6hs's twelve fixes: SHIP and ship with changes, taken; 6ht's reset and roll log: SHIP, one LOW taken; 6hu's own characters: ship with changes (reviewed after commit), taken; study's design: CHANGE, taken; its diff: ship with changes, taken; 6hv's eleven fixes `f6d2406..a5fdf48`: ship with changes, one LOW taken, two not; 6hw's four `40f2b98..0f758ea`: ship with changes, its MEDIUM not taken (the card prices the NEXT look); 6hx's Detect attrition: ship with changes, one LOW taken |
+| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`: SHIP, one LOW not taken (a 12.dp indent); 6hm's uncommitted tree: ship with changes, taken; 6hn: ship with changes, taken; 6ho: SHIP; 6hp: ship with changes, taken; then `09f19e5..d52eb4e -- app`: ship with changes, one MEDIUM not taken (the 280.dp row at 360dp); 6hq's design: CHANGE, taken; its diff `fb6bba6..0d7ced5`: SHIP; 6hr's design: CHANGE, taken; its uncommitted tree: ship with changes, taken; 6hs's twelve fixes: SHIP and ship with changes, taken; 6ht's reset and roll log: SHIP, one LOW taken; 6hu's own characters: ship with changes (reviewed after commit), taken; study's design: CHANGE, taken; its diff: ship with changes, taken; 6hv's eleven fixes `f6d2406..a5fdf48`: ship with changes, one LOW taken, two not; 6hw's four `40f2b98..0f758ea`: ship with changes, its MEDIUM not taken (the card prices the NEXT look); 6hx's Detect attrition: ship with changes, one LOW taken; 6hy's nine `7a2d705..07ce1cb`: SHIP, two LOWs taken |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 

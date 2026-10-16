@@ -6726,6 +6726,73 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hy. Play session 4: the campaign arc, and its nine findings
+
+The owner picked play session 4, "Claude plays alone", on a campaign arc
+no session had walked: rest, a week of study, a prayer to the Goddess of
+Fate (no response, then the Dreamless boon at 18), the Gauntlet, an
+invoked Moderate cleansing pushed to *Success by 3+*, acting to 100% and
+Magician, Faceless at 0% (Lost to the Rampager), a day's recovery roll,
+the roll log, Reset to sheet. Everything else matched the book; nine
+findings did not. The owner: "go ahead", and for the one needing a
+design, the Vitals row (of three previews).
+
+### Fixes, one commit each
+
+- **Pool tags keep their height** (`72e1661`): a threshold appearing or
+  clearing moved the action hub 87 dump px; now 6 (two tags stand a few dp
+  over the reserved 48), accepted.
+- **Pick-dependent rows are drawn from the start** (`3c0d157`), 6gn's rule
+  in four places: the boon's rung block moved below the form (a patron
+  pick had drawn it over the sacrifice chip the next tap hit); the boon's
+  range chips and the ritual's `CellValueChips` draw a single figure as
+  one disabled chip; the Orthodox chip is drawn under Personal SPI,
+  disabled; the PCR caption keeps two lines at 100%.
+- **`SuccessRoll.printed` is the one caption** (`aca5171`): twelve screens
+  printed "3d6 ≤ target", promising a 17 and an 18 `SuccessRoll` fails. It
+  says 16 at most, "a 3 or 4 only" below 4; the PCR's own ≤ 19 is left,
+  and the boon's `targetLine` went, its -512 case moved to the core test.
+- **No push past *Success by 3+*** (`a7802ac`): Step 4 prints nothing
+  above it (line 4094), divination's clearest-row refusal (6hw) on
+  ch. 7's table; the boon refuses by referral. A push that lands there
+  leaves *Pushed N SPI*.
+- **Artifact prose and the recovery table fold closed** (`a094a42`,
+  `eaee075`), 6gl's rule; the cost and the roll stay open.
+- **Will and Per roll from their Vitals rows** (`07ce1cb`): the book asks
+  for bare rolls nothing could make (the Gauntlet's daily Will roll,
+  Light Sleeper's Per roll to wake). `AttributeRoll` takes shock, the
+  trackers, Alertness on Per, the declared clauses (Will's; the sense rows
+  and Light Sleeper on Per) and states, and the GM's figure. ST, DX, IQ
+  and HT have no Vitals row and are not offered.
+- **The entity's table roll has its own log label** (`162a669`), and the
+  premade's reset line names study, boons and traits gained (`6f30574`).
+
+### Checks
+
+2270 Kotlin (1467 `core:rules`, 780 `app`, 23 `core:model`), 366 Python,
+0 failures; `app` lost two `targetLine` tests to core. RED watched for the
+push (`canPush` true at the top band), the caption (unresolved, then
+green against `evaluate` for every target -5..30) and `AttributeRoll`.
+`PathwayScreen.kt` back to 800 (`29b737e`); the census still 40.
+
+### Review
+
+ecc (sonnet) over `7a2d705..07ce1cb -- core app`: SHIP, two comment LOWs
+taken (`673082a`).
+
+### Device pass (SM-T570, USB at the owner's word: its Wi-Fi was on
+another network)
+
+The Occult Scholar seeded back from the session-4 backup (a key the save
+lacked), restored after, `cmp` identical; rotation set to portrait and
+back. Seen: Attack 528 → 522 as Attrition cleared; the Will row's dialog,
+"3d6 ≤ 16, 17–18 fail" at 17, rolled; the boon's sacrifice chip unmoved
+by the patron pick, its range row present; Invocation moved nothing, the
+Orthodox chip drawn disabled; a cast at *Success by 3+* offered no push;
+the log read *Entity response*, *Ritual*, *Will roll*; the Artifacts
+dialog fits without scrolling; the recovery note closed; the reset line;
+Exemplary unmoved at 100%.
+
 ## 6hx. Detect takes Attrition through an awareness row
 
 6hw left one thing uncensused: whether Detect's *Sense* is a Beyonder
