@@ -253,7 +253,7 @@ internal fun FrightDialog(
                 }
                 Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        if (chosen == null) "Pick what was witnessed." else "3d6 ≤ $target",
+                        if (chosen == null) "Pick what was witnessed." else SuccessRoll.printed(target),
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.weight(1f),
                     )

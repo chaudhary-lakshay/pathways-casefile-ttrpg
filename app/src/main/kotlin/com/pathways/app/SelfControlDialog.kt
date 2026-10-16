@@ -23,6 +23,7 @@ import com.pathways.rules.ClauseBonus
 import com.pathways.rules.SelfControl
 import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.SelfControlOutcome
+import com.pathways.rules.SuccessRoll
 import com.pathways.rules.TraitClause
 import com.pathways.rules.TraitClauses
 
@@ -194,7 +195,7 @@ internal fun SelfControlDialog(
                 // Nothing is charged here, but the second tap would silently
                 // discard a rolled outcome and pull an extra draw from the
                 // dice.
-                RollFooter(listOfNotNull(fromTraits.line?.let { "includes $it" }, states.line?.let { "includes $it" }), "3d6 ≤ $target") {
+                RollFooter(listOfNotNull(fromTraits.line?.let { "includes $it" }, states.line?.let { "includes $it" }), SuccessRoll.printed(target)) {
                     if (outcome != null) return@RollFooter
                     outcome = SelfControl.rollAgainst(check, target, dice.dice(check.trait))
                 }

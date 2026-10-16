@@ -34,6 +34,7 @@ import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.SkillTarget
 import com.pathways.rules.SpiritualSenses
 import com.pathways.rules.SuccessDegree
+import com.pathways.rules.SuccessRoll
 import com.pathways.rules.content.SpiritualSense
 
 private const val TABULAR = "tnum"
@@ -98,7 +99,7 @@ internal fun TargetCard(target: Int, baseTarget: Int, forbidden: Boolean = false
             // Laid out when forbidden too, so a forbidding clause cannot
             // shrink the card under a finger.
             Pill(
-                "3d6 ≤ $target",
+                SuccessRoll.printed(target),
                 Modifier.then(if (forbidden) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier),
             )
         }

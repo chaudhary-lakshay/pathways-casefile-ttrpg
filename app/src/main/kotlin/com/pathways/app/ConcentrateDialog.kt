@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.pathways.rules.ClauseBonus
 import com.pathways.rules.Concentration
 import com.pathways.rules.ConcentrationOutcome
+import com.pathways.rules.SuccessRoll
 import com.pathways.rules.TraitClause
 import com.pathways.rules.TraitClauses
 
@@ -123,7 +124,7 @@ internal fun ConcentrateDialog(
                         fromTraits.line?.let { "includes $it" },
                         states.line?.let { "includes $it" },
                     ),
-                    caption = if (disturbed) "3d6 ≤ $target" else "No roll unless injured or defending",
+                    caption = if (disturbed) SuccessRoll.printed(target) else "No roll unless injured or defending",
                     enabled = disturbed,
                 ) {
                     // Guarded inline as well as by the tree: two taps can

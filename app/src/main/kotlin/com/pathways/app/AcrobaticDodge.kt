@@ -15,6 +15,7 @@ import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.SkillTarget
+import com.pathways.rules.SuccessRoll
 import com.pathways.rules.TraitEffects
 
 /**
@@ -133,9 +134,9 @@ internal fun AcrobaticDodge(
             // The number this tap rolls, with the level beside it wherever
             // the trackers or a trait moved it.
             val against = if (standing.target == standing.baseTarget) {
-                "3d6 ≤ ${standing.target}"
+                SuccessRoll.printed(standing.target)
             } else {
-                "3d6 ≤ ${standing.target} (${standing.baseTarget} → ${standing.target})"
+                "${SuccessRoll.printed(standing.target)} (${standing.baseTarget} → ${standing.target})"
             }
             Text(
                 (if (rolled == null) "Roll vs. ${ActiveDefenses.ACROBATIC_SKILL}" else "Roll again") +

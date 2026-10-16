@@ -18,6 +18,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
+import com.pathways.rules.SuccessRoll
 import com.pathways.rules.TraitReport.HeldTrait
 import com.pathways.rules.PoolStatus
 import com.pathways.rules.SelfControlCheck
@@ -156,7 +157,7 @@ internal fun LazyListScope.traitsTab(
             row = row,
             // `Trait.cost` is a MAGNITUDE and the sign lives in the kind (6u).
             priceLine = drawbackPrice(row.trait, grantedTraits, grantedBy) + superseded(row.trait, traits),
-            roll = check?.let { "Roll 3d6 ≤ ${standing.getValue(it.trait)}" },
+            roll = check?.let { "Roll ${SuccessRoll.printed(standing.getValue(it.trait))}" },
             expanded = expanded[key] == true,
             onToggle = { onToggle(key) },
             onRoll = { check?.let(onControl) },

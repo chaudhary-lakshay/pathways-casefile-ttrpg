@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.RitualOutcome
+import com.pathways.rules.SuccessRoll
 
 /**
  * The foot of the ritual's choices: every term of the target, the target, its
@@ -35,8 +36,8 @@ internal fun RitualFooter(
     target: Int?,
     cost: String,
     refusal: String?,
-    /** What the target reads as; a boon's can fall below what 3d6 shows ([targetLine]). */
-    targetText: String = "3d6 ≤ $target",
+    /** What the target reads as: [SuccessRoll.printed], which says a boon's -512 still wins on a 3 or 4. */
+    targetText: String = target?.let(SuccessRoll::printed).orEmpty(),
     label: String = "Cast",
     onCast: () -> Unit,
 ) {

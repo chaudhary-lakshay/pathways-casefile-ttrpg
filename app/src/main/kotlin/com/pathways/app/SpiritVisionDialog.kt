@@ -27,6 +27,7 @@ import com.pathways.rules.PoolStatus
 import com.pathways.rules.RandomSource
 import com.pathways.rules.SpiritVision
 import com.pathways.rules.SpiritVisionResult
+import com.pathways.rules.SuccessRoll
 import com.pathways.rules.TraitClause
 import com.pathways.rules.TraitClauses
 
@@ -156,7 +157,7 @@ fun SpiritVisionDialog(
                         "Activate for $activation SPI, then ${SpiritVision.maintenance()} SPI per minute to maintain.",
                         if (affordable) null else "Not enough SPI: $spiAvailable left, $activation to activate.",
                     ),
-                    caption = "3d6 ≤ $target",
+                    caption = SuccessRoll.printed(target),
                     enabled = affordable,
                     label = if (drawn == null) "Look ($activation SPI)" else "Look again ($activation SPI)",
                 ) {

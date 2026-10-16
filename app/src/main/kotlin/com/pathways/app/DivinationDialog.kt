@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.ClauseBonus
+import com.pathways.rules.SuccessRoll
 import com.pathways.rules.threeDSix
 import com.pathways.rules.BurnKind
 import com.pathways.rules.Pools
@@ -630,7 +631,7 @@ fun DivinationDialog(
                         "No question — this method costs $cost SPI and only " +
                             "$spiAvailable is left. SPI cannot be spent below 0."
                     },
-                    targetText = "3d6 ≤ $target" + if (protection.requiresCritical) ", a 3 or 4 only" else "",
+                    targetText = if (protection.requiresCritical) "3d6: a 3 or 4 only" else SuccessRoll.printed(target),
                     label = "Ask",
                 ) {
                     // One Ask spends once. Two taps can reach this handler

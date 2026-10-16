@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.SkillTarget
+import com.pathways.rules.SuccessRoll
 
 /**
  * A counted attack option, Rapid Strike or Deceptive: its count, what each
@@ -87,7 +88,7 @@ internal fun AttackFooter(
                             color = MaterialTheme.colorScheme.primary,
                         )
                         Text(
-                            "3d6 ≤ ${standing.target}" + if (attacks > 1) ", each" else "",
+                            SuccessRoll.printed(standing.target) + if (attacks > 1) ", each" else "",
                             style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier.padding(start = 10.dp, bottom = 6.dp),
                         )

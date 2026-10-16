@@ -42,20 +42,6 @@ import com.pathways.rules.content.BoonModifier
 import com.pathways.rules.content.SequenceBlock
 
 /**
- * The number to roll under, and -- when the boon-level doubling has driven it
- * below what 3d6 can show -- the exception that still gives it a chance.
- *
- * A bare "3d6 <= -512" reads as impossible. It is not: [SuccessRoll] treats a
- * rolled 3 or 4 as a critical success whatever the target, and Chapter 13
- * prints no override of that (Codex).
- */
-internal fun targetLine(target: Int): String {
-    val printed = "3d6 ≤ $target"
-    if (target >= SuccessRoll.ALWAYS_SUCCEEDS_AT_OR_UNDER) return printed
-    return "$printed — a rolled 3 or 4 still succeeds"
-}
-
-/**
  * The two refusals no pick in the dialog can lift: they lead it, above
  * the form (play session 3, the owner's call), and open [boonRefusal].
  */
@@ -508,7 +494,6 @@ fun BoonDialog(
                         "costs " + fuelLine(spiOwed, hpSacrificed) + " when the patron is asked, takes ${granting.complexityTime}"
                     },
                     refusal = refusal,
-                    targetText = target?.let(::targetLine).orEmpty(),
                     label = if (given == null) "Ask the patron" else "Pray",
                 ) {
                     if (given == null) {

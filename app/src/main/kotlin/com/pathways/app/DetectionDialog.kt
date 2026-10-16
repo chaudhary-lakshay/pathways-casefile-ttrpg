@@ -24,6 +24,7 @@ import com.pathways.rules.Detection
 import com.pathways.rules.DetectionResult
 import com.pathways.rules.PoolStatus
 import com.pathways.rules.RandomSource
+import com.pathways.rules.SuccessRoll
 import com.pathways.rules.TraitClause
 import com.pathways.rules.TraitClauses
 import com.pathways.rules.content.DivinationAwareness
@@ -362,7 +363,7 @@ fun DetectionDialog(
                     // (6ag, 6ai). It is the result's own list, so each
                     // circumstance is itemised here as it is there.
                     lines = listOf(parts.joinToString(", ") + ". Free action, costs no SPI."),
-                    caption = if (automatic) "Automatic awareness — no roll." else "3d6 ≤ $target",
+                    caption = if (automatic) "Automatic awareness — no roll." else SuccessRoll.printed(target),
                     enabled = !automatic,
                     label = "Sense",
                 ) {
