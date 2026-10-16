@@ -74,7 +74,7 @@ class SuccessRollTest {
         assertEquals("3d6: a 3 or 4 only", SuccessRoll.printed(3))
         assertEquals("3d6: a 3 or 4 only", SuccessRoll.printed(-2))
         // A Sequence 0 boon's doubling reaches -512 (Codex's regression,
-        // once BoonDialog's own targetLine): still a 3 or a 4, not hopeless.
+        // formerly pinned on BoonDialog's targetLine, removed): still a 3 or a 4, not hopeless.
         assertEquals("3d6: a 3 or 4 only", SuccessRoll.printed(Boons.penaltyForSequence(0)))
         for (target in -5..30) {
             val best = (3..18).filter { SuccessRoll.evaluate(it, target).outcome.isSuccess }.max()

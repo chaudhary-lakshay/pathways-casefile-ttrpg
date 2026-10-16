@@ -68,7 +68,8 @@ object Boons {
      * 6ck set for widening a rule, cleared by a sentence rather than by the
      * two screens looking alike (6cx). What chapter 13 fixes is the baseline:
      * Heavy complexity, Moderate weight. It replaces no part of chapter 7 it
-     * does not name.
+     * does not name. So ch. 7's top band refuses a push here too (play
+     * session 4): read off Step 4's band, which the boon dialog does not print.
      */
     fun canPush(outcome: RitualOutcome): Boolean = RitualResolution.canPush(outcome)
 
