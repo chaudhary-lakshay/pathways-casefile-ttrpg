@@ -134,22 +134,24 @@ internal fun InstancedTraitDialog(
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
-                if (licensed == null) {
-                    Text(
-                        // Said, never left as a dead button: a player who has
-                        // not filled the instance in should be told which part
-                        // is missing rather than watching Buy stay grey.
-                        if (enumerated) {
-                            "Name which one the character has."
-                        } else {
-                            "The book prices this row by what it actually is, " +
-                                "so name the instance before buying it."
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
-                }
+                // Drawn named or not, two lines either way: the warning going
+                // re-centred the dialog and moved Buy under the finger (play
+                // session 5).
+                Text(
+                    // Said, never left as a dead button: a player who has
+                    // not filled the instance in should be told which part
+                    // is missing rather than watching Buy stay grey.
+                    when {
+                        licensed != null -> ""
+                        enumerated -> "Name which one the character has."
+                        else -> "The book prices this row by what it actually is, " +
+                            "so name the instance before buying it."
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    minLines = 2,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
             }
         },
     )

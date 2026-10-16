@@ -500,30 +500,34 @@ private fun WhereItLanded(
             )
         }
     }
-    landed?.let { location ->
-        val fired = Wounds.effectsAt(location, damage, maxHp)
-        Text(
-            if (fired.isEmpty()) "Nothing this hit triggers there."
-            else fired.joinToString("; ") { row ->
-                val at = Wounds.thresholdFor(location, row.outcome, maxHp)
+    // Both lines are drawn before a location is picked, so the pick does not
+    // grow the dialog and re-centre it under the finger (play session 5).
+    val fired = landed?.let { Wounds.effectsAt(it, damage, maxHp) }.orEmpty()
+    Text(
+        when {
+            landed == null -> "Pick where it landed."
+            fired.isEmpty() -> "Nothing this hit triggers there."
+            else -> fired.joinToString("; ") { row ->
+                val at = Wounds.thresholdFor(landed, row.outcome, maxHp)
                 "${row.outcome} (at $at${if (row.isApproximate) ", approx." else ""})"
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(top = 4.dp),
-        )
+            }
+        },
+        style = MaterialTheme.typography.bodyMedium,
+        modifier = Modifier.padding(top = 4.dp),
+    )
+    Text(
+        landed?.effect.orEmpty(),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        minLines = 1,
+    )
+    if (fired.any { it.outcome == "Crippled" }) {
         Text(
-            location.effect,
+            Wounds.cripplingRule(),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp),
         )
-        if (fired.any { it.outcome == "Crippled" }) {
-            Text(
-                Wounds.cripplingRule(),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp),
-            )
-        }
     }
 }
 

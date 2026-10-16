@@ -85,15 +85,16 @@ internal fun ShieldPicker(
 }
 
 /**
- * The round boundary p. 36 names, offered only once there is something to end.
+ * The round boundary p. 36 names, live only once there is something to end.
  *
- * Hidden while nothing is spent, because a control that clears nothing invites
- * the tap that later clears something -- and what it clears includes a boost
- * the GM has already paid FP for, which no refund rule in this book undoes.
+ * Disabled while nothing is spent, because a control that clears nothing
+ * invites the tap that later clears something -- and what it clears includes a
+ * boost the GM has already paid FP for, which no refund rule in this book
+ * undoes. Drawn from the start all the same: hidden, its first appearance
+ * pushed every row down under the finger that ticked Retreat (play session 5).
  */
 @Composable
 internal fun NewRoundControl(round: RoundState, onNewRound: () -> Unit) {
-    if (!round.isSpent()) return
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         // Not "spent": a declared surprise is enough to show this, and it
         // spends nothing (play session 2).
@@ -102,7 +103,7 @@ internal fun NewRoundControl(round: RoundState, onNewRound: () -> Unit) {
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(end = 8.dp),
         )
-        TextButton(onClick = onNewRound) { Text("New round") }
+        TextButton(onClick = onNewRound, enabled = round.isSpent()) { Text("New round") }
     }
 }
 
@@ -192,7 +193,12 @@ internal fun RetreatControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
             modifier = Modifier.padding(end = 8.dp),
         )
     }
-    if (!taken) return
+    // Said before the tick too, so ticking moves no row under the finger
+    // (play session 5): the sentence is the rule's, true either way.
+    if (!taken) {
+        DefenseNote(RETREAT_ONCE)
+        return
+    }
     // A chip that is on while no row has moved would read as a tick that failed
     // -- the reason a cancelled refusal is SAID rather than silently dropped.
     if (bonus == 0) {
@@ -202,8 +208,11 @@ internal fun RetreatControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
         )
         return
     }
-    DefenseNote("One melee attack this round — which one is the GM's to count. New round clears this.")
+    DefenseNote(RETREAT_ONCE)
 }
+
+private const val RETREAT_ONCE =
+    "One melee attack this round — which one is the GM's to count. New round clears this."
 
 /**
  * Which +2 was paid for, and on which row.

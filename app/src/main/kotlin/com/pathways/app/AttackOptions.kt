@@ -110,15 +110,16 @@ internal fun AttackOptions(
                         )
                     }
                 }
-                unarmed?.let {
-                    Text(
-                        // Shove prints "Special" and rolls nothing; saying so beats
-                        // showing a damage line it does not have.
-                        "${it.damage} — ${it.notes}",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(vertical = 4.dp),
-                    )
-                }
+                // Drawn empty with a weapon in hand, so picking one moves no
+                // row under the finger (play session 5).
+                Text(
+                    // Shove prints "Special" and rolls nothing; saying so beats
+                    // showing a damage line it does not have.
+                    unarmed?.let { "${it.damage} — ${it.notes}" }.orEmpty(),
+                    style = MaterialTheme.typography.bodySmall,
+                    minLines = 1,
+                    modifier = Modifier.padding(vertical = 4.dp),
+                )
             }
             ArmedWith(weapons, armed, wieldedAt, onArmed)
             // Chips WRAP rather than scroll sideways: a horizontally scrolling Row
