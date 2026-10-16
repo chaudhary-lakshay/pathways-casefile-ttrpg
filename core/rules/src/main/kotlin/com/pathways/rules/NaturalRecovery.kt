@@ -89,15 +89,22 @@ object NaturalRecovery {
         val healer = TraitEffects.healsFast(traits)
         return when {
             success && healer ->
-                "Restore what the rows above print, with +1 on the HP row, and 1 more for Fast " +
-                    "Healer (\"$FAST_HEALER_CLAUSE\"). Which band applies, and whether it scales " +
-                    "that point, is the GM's."
-            success -> "Restore what the rows above print, with +1 on the HP row. Which band applies is the GM's."
+                "${restore()}, and 1 more for Fast Healer (\"$FAST_HEALER_CLAUSE\"). ${bands()} " +
+                    "Which band applies, and whether it scales that point, is the GM's."
+            success -> "${restore()}. ${bands()} Which band applies is the GM's."
             healer ->
                 "Nothing is restored by the roll. Whether Fast Healer's \"$FAST_HEALER_CLAUSE\" " +
                     "reaches a day the roll failed is the GM's call."
             else -> "Nothing is restored for this day."
         }
+    }
+
+    // The table's own cells, quoted: the rows sit in a closed note since 6hy,
+    // so "what the rows above print" pointed at nothing (play session 5).
+    private fun restore(): String = "Restore ${rows().first().recovered} with the HP row's +"
+
+    private fun bands(): String = rows().drop(1).joinToString("; ", postfix = ".") {
+        "${it.method.substringAfter('(').substringBefore(')')}: ${it.recovered}"
     }
 
     private const val FAST_HEALER_CLAUSE = "Recover 1 additional HP per day of rest"
