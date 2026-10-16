@@ -101,7 +101,7 @@ object NaturalRecovery {
 
     // The table's own cells, quoted: the rows sit in a closed note since 6hy,
     // so "what the rows above print" pointed at nothing (play session 5).
-    private fun restore(): String = "Restore ${rows().first().recovered} with the HP row's +"
+    private fun restore(): String = "Restore ${rows().first().recovered} on the HP row"
 
     private fun bands(): String = rows().drop(1).joinToString("; ", postfix = ".") {
         "${it.method.substringAfter('(').substringBefore(')')}: ${it.recovered}"

@@ -80,7 +80,7 @@ class NaturalRecoveryTest {
         assertEquals(
             // The rows themselves sit in a closed note since 6hy, so the line
             // quotes them rather than pointing "above" (play session 5).
-            "Restore 1 HP (2 HP w/ Very Rapid Healing) with the HP row's +. " +
+            "Restore 1 HP (2 HP w/ Very Rapid Healing) on the HP row. " +
                 "20–29 HP: 2× base rate; 30–39 HP: 3× base rate. Which band applies is the GM's.",
             NaturalRecovery.dayLine(success = true, traits = emptyList()),
         )
@@ -103,7 +103,7 @@ class NaturalRecoveryTest {
         assertTrue(clause in cell, cell)
 
         val won = NaturalRecovery.dayLine(success = true, traits = healer)
-        assertTrue("with the HP row's +, and 1 more for Fast Healer" in won, won)
+        assertTrue("on the HP row, and 1 more for Fast Healer" in won, won)
         assertTrue(clause in won, won)
         val lost = NaturalRecovery.dayLine(success = false, traits = healer)
         assertTrue("Nothing is restored by the roll" in lost, lost)

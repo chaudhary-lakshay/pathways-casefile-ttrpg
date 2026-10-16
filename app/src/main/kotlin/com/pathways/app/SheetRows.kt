@@ -254,7 +254,10 @@ internal fun StunRow(target: Int, onClear: () -> Unit) {
             onClick = {
                 if (outcome !== drawn) return@TextButton
                 val roll = SuccessRoll.against(target, dice.dice("Stun recovery"))
-                if (StunRecovery.stillStunned(roll)) outcome = roll else onClear()
+                // Stored either way, so a second tap of this picture is
+                // dropped even on the success that clears the row (review).
+                outcome = roll
+                if (!StunRecovery.stillStunned(roll)) onClear()
             },
         ) { Text("Roll HT $target to recover") }
     }
