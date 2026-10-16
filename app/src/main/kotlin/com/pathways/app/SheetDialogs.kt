@@ -507,6 +507,9 @@ internal fun SheetDialogs(
             // SPI -2 and Per 10".
             spi = vitals.maxSpi,
             per = vitals.per,
+            // Nothing is spent, so the pool as it stands: Attrition reaches
+            // the roll an awareness row grants, an ability check.
+            spiPool = spiNow(),
             dice = dice.dice("Detect"),
             onDismiss = { onClose(SheetDialog.DETECT) },
         )

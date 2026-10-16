@@ -22,6 +22,7 @@ import com.pathways.rules.ClauseBonus
 import com.pathways.rules.AntiDivinationTechniques
 import com.pathways.rules.Detection
 import com.pathways.rules.DetectionResult
+import com.pathways.rules.PoolStatus
 import com.pathways.rules.RandomSource
 import com.pathways.rules.TraitClause
 import com.pathways.rules.TraitClauses
@@ -92,6 +93,11 @@ fun DetectionDialog(
      * alone, as [alertness] does.
      */
     perClauses: List<TraitClause> = emptyList(),
+    /**
+     * The SPI pool as it stands, for Spiritual Attrition's -3, which reaches
+     * this roll only when an awareness row grants it ([Detection.attritionFor]).
+     */
+    spiPool: PoolStatus? = null,
     dice: RandomSource,
     onDismiss: () -> Unit,
 ) {
@@ -136,12 +142,15 @@ fun DetectionDialog(
     // it is not always the higher of the two, so the roll a Fool is granted is
     // a Per roll even when their SPI is better. See Detection.attributeFor.
     val freeRoll = awareness?.freeRoll
-    val target = Detection.targetFor(spi, per, modifier, freeRoll, alertness, shock, hurt, spiTrait, states, perClause)
+    val attrition = Detection.attritionFor(spiPool, awareness)
+    val target = Detection.targetFor(
+        spi, per, modifier, freeRoll, alertness, shock, hurt, spiTrait, states, perClause, attrition,
+    )
     // The breakdown of that number, composed once: printed before the roll
     // and carried by the result after it, so the two lines cannot differ.
     val parts = Detection.partsFor(
         spi, per, pickedSituations, pickedWards, pickedItems, bonus, awareness?.pathway,
-        freeRoll, alertness, shock, hurt, spiTrait, states, perClause,
+        freeRoll, alertness, shock, hurt, spiTrait, states, perClause, attrition,
     )
     // The row grants automatic awareness only against a WEAKER diviner, and
     // this screen holds the target's sheet alone -- so the comparison is the

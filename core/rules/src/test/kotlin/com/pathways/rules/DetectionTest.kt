@@ -494,4 +494,24 @@ class DetectionTest {
         assertTrue(Detection.isPerRoll(spi = 12, per = 10, freeRoll = "Per"))
         assertFalse(Detection.isPerRoll(spi = 0, per = 10, freeRoll = "SPI"))
     }
+
+    /**
+     * Spiritual Attrition is "-3 to all SPI-based skill rolls and Beyonder
+     * ability checks" (lines 2351, 2725). Step 2 calls a Sec. 1 row "a
+     * pathway ability" (3745), so the roll a row grants is an ability check;
+     * the roll "any Beyonder [who] suspects" makes (3809) has no ability
+     * behind it. The owner's ruling, 2026-10-16.
+     */
+    @Test
+    fun `attrition reaches the roll an awareness row grants and not a suspicion`() {
+        val attrited = Pools.spi(3, 11)
+        val seer = Detection.awarenessFor("Fool (Seer)")
+        assertEquals(-3, Detection.attritionFor(attrited, seer))
+        assertEquals(0, Detection.attritionFor(attrited, null))
+        assertEquals(0, Detection.attritionFor(Pools.spi(4, 11), seer))
+        assertEquals(0, Detection.attritionFor(null, seer))
+        assertEquals(7, Detection.targetFor(spi = 0, per = 10, freeRoll = "Per", attrition = -3))
+        assertTrue("Spiritual Attrition -3" in Detection.partsFor(spi = 0, per = 10, attrition = -3))
+        assertFalse(Detection.partsFor(spi = 0, per = 10).any { "Attrition" in it })
+    }
 }

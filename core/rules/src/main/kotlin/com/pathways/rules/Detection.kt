@@ -309,7 +309,22 @@ object Detection {
          * branch alone, as [alertness] is.
          */
         perClause: ClauseBonus = ClauseBonus(0, null),
-    ): Int = attributeFor(spi, per, freeRoll, alertness, spiModifier, perClause.total) + modifier + shock + hurt + states.total
+        /** [attritionFor]'s answer, taken whichever attribute is rolled. */
+        attrition: Int = 0,
+    ): Int = attributeFor(spi, per, freeRoll, alertness, spiModifier, perClause.total) +
+        modifier + shock + hurt + states.total + attrition
+
+    /**
+     * Spiritual Attrition's -3, "to all SPI-based skill rolls and Beyonder
+     * ability checks" (lines 2351, 2725), when the roll is an ability check:
+     * Step 2 calls a Sec. 1 row "a pathway ability" (3745), so the roll a
+     * picked [awareness] row grants is one. The roll "any Beyonder [who]
+     * suspects" makes (3809) has no ability behind it and takes nothing --
+     * the owner's ruling (2026-10-16). Read off the pool's own
+     * [PoolStatus.penalty], as [SpiritVision.targetFor] reads it.
+     */
+    fun attritionFor(pool: PoolStatus?, awareness: DivinationAwareness?): Int =
+        if (awareness == null) 0 else pool?.takeIf { it.scope == PenaltyScope.SPI_ROLLS }?.penalty ?: 0
 
     /**
      * The row [roll] landed on.
@@ -347,16 +362,17 @@ object Detection {
         /** Reeling and fatigue, as [targetFor] takes them. */
         hurt: Int = 0,
         spiModifier: Int = 0,
+        attrition: Int = 0,
         source: RandomSource,
     ): DetectionResult = rollAgainst(
         targetFor(
             spi, per, modifierTotal(situations, techniques, items, awarenessBonus),
-            freeRoll, alertness, shock, hurt, spiModifier,
+            freeRoll, alertness, shock, hurt, spiModifier, attrition = attrition,
         ),
         source,
         partsFor(
             spi, per, situations, techniques, items, awarenessBonus, awarenessLabel,
-            freeRoll, alertness, shock, hurt, spiModifier,
+            freeRoll, alertness, shock, hurt, spiModifier, attrition = attrition,
         ),
     )
 
@@ -390,6 +406,7 @@ object Detection {
         spiModifier: Int = 0,
         states: ClauseBonus = ClauseBonus(0, null),
         perClause: ClauseBonus = ClauseBonus(0, null),
+        attrition: Int = 0,
     ): List<String> = buildList {
         // The attribute line carries the trait itself, because it moved the
         // attribute rather than the target beside it -- naming it twice
@@ -398,6 +415,7 @@ object Detection {
         if (shock != 0) add("shock ${signed(shock)}")
         if (hurt != 0) add("hurt or tired ${signed(hurt)}")
         states.line?.let { add(it) }
+        if (attrition != 0) add("Spiritual Attrition ${signed(attrition)}")
         situations.filter { it.modifier != 0 }
             .forEach { add("${it.situation} ${signed(it.modifier)}") }
         techniques.filter { (it.detectionBonus ?: 0) != 0 }
