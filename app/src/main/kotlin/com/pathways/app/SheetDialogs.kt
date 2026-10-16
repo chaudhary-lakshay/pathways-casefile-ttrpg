@@ -586,6 +586,7 @@ internal fun SheetDialogs(
             cor = session.cor,
             spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = dice.dice("Ritual"),
+            askingDice = dice.dice("Entity response"),
             onCorGained = { gained -> session.gainCor(gained, maxCor) },
             // Through the tracker, so a ritual fuelled past 0 SPI buys the
             // Soul Debt the book charges for it.
@@ -635,6 +636,7 @@ internal fun SheetDialogs(
             cor = session.cor,
             spiAvailable = vitals.maxSpi - session.spiSpent,
             dice = dice.dice("Boon"),
+            askingDice = dice.dice("Entity response"),
             onCorGained = { gained -> session.gainCor(gained, maxCor) },
             held = session.boon,
             nextBoon = session::nextBoon,

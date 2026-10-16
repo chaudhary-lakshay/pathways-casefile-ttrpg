@@ -129,6 +129,11 @@ fun RitualDialog(
     /** The languages a potion drunk granted, the same way (6fo). */
     grantedLanguages: List<String>,
     dice: RandomSource,
+    /**
+     * The entity's table roll, logged under its own name: on the ritual's
+     * dice it read "Boon 11" beside the prayer's "Boon 7 vs 18" (play session 4).
+     */
+    askingDice: RandomSource,
     onCorGained: (Int) -> Unit,
     onSpendSpi: (Int) -> Unit,
     onSpendHp: (Int) -> Unit,
@@ -658,7 +663,7 @@ fun RitualDialog(
                             if (!invoked || listOf(complexity, spiChoice, hpSacrificed, goodStanding) != drawnAsking) {
                                 return@RitualFooter
                             }
-                            val reply = Invocation.ask(dice, goodStanding)
+                            val reply = Invocation.ask(askingDice, goodStanding)
                             val fuel = Invocation.fuelFor(reply, cost, hpSacrificed)
                             answer = reply
                             paid = fuel

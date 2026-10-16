@@ -192,6 +192,11 @@ fun BoonDialog(
     /** Lost to the Rampager or to corruption: the refusal says so. */
     lost: Boolean = false,
     dice: RandomSource,
+    /**
+     * The entity's table roll, logged under its own name: on the ritual's
+     * dice it read "Boon 11" beside the prayer's "Boon 7 vs 18" (play session 4).
+     */
+    askingDice: RandomSource,
     onCorGained: (Int) -> Unit,
     onSpendSpi: (Int) -> Unit,
     onSpendHp: (Int) -> Unit,
@@ -508,7 +513,7 @@ fun BoonDialog(
                         // This picture's button asks and never prays: a
                         // second tap of it finds the answer given and stops.
                         if (answer != null || refusal != null) return@RitualFooter
-                        val reply = Boons.ask(dice)
+                        val reply = Boons.ask(askingDice)
                         val fuel = Invocation.fuelFor(reply, cost, hpSacrificed)
                         answer = reply
                         hurtAtAsking = conditionPenalty
