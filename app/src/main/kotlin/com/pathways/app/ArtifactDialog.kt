@@ -139,11 +139,11 @@ fun ArtifactDialog(
                         )
                     }
                 }
-                Text(
-                    ability.effect,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 4.dp),
-                )
+                // Reference prose closed, the cost below it open (6gl): the
+                // ability and drawbacks read as a wall (play session 4).
+                RuleNote("What ${ability.name} does") {
+                    Text(ability.effect, style = MaterialTheme.typography.bodySmall)
+                }
                 Text(
                     costLine(cost.spi, cost.hp, cost.perTurn, artifact),
                     style = MaterialTheme.typography.titleSmall,
@@ -171,19 +171,22 @@ fun ArtifactDialog(
                 }
 
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                Text("Drawbacks", style = MaterialTheme.typography.titleSmall)
-                artifact.drawbacks.forEach {
-                    Text(
-                        "• $it",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(bottom = 4.dp),
-                    )
+                RuleNote("Drawbacks and sealing") {
+                    Column {
+                        artifact.drawbacks.forEach {
+                            Text(
+                                "• $it",
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(bottom = 4.dp),
+                            )
+                        }
+                        Text(
+                            "Sealing: ${artifact.sealing}",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
                 }
-                Text(
-                    "Sealing: ${artifact.sealing}",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 4.dp),
-                )
             }
         },
     )
