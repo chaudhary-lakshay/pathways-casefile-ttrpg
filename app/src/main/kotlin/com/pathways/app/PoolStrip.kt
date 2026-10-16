@@ -201,21 +201,27 @@ private fun PoolCell(
             }
         }
         PoolBar(status, color)
-        if (tags.isNotEmpty()) {
-            // A Column, not a FlowRow: the cells share one height through
-            // IntrinsicSize.Min, and a FlowRow under-reports its wrapped
-            // lines there -- the second tag was clipped on the tablet.
-            Column(
-                Modifier
-                    .heightIn(min = 48.dp)
-                    .clickable(
-                        onClickLabel = if (isOpen) "Hide the rule" else "Show the rule",
-                        role = Role.Button,
-                        onClick = onTags,
-                    ),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) { tags.forEach { PoolTag(it, color) } }
-        }
+        // A Column, not a FlowRow: the cells share one height through
+        // IntrinsicSize.Min, and a FlowRow under-reports its wrapped lines
+        // there -- the second tag was clipped on the tablet. Drawn empty at
+        // normal function: a threshold appearing or clearing moved the whole
+        // action hub below the strip (play session 4).
+        Column(
+            Modifier
+                .heightIn(min = 48.dp)
+                .then(
+                    if (tags.isEmpty()) {
+                        Modifier
+                    } else {
+                        Modifier.clickable(
+                            onClickLabel = if (isOpen) "Hide the rule" else "Show the rule",
+                            role = Role.Button,
+                            onClick = onTags,
+                        )
+                    },
+                ),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) { tags.forEach { PoolTag(it, color) } }
     }
 }
 
