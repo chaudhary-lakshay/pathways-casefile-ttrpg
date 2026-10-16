@@ -270,7 +270,7 @@ line 6728, then 6hx back to 6cb, newest first, so `tail` prints 6cb. 6hx:
 row grants, an ability check by Step 2's words; a roll on suspicion alone
 takes none, the owner's ruling; `Detection.attritionFor` is the one
 answer; 6hw's four and this seen on the SM-T570; the Damage dialog
-re-centres when SPI or FP drops its rows, not fixed). Then 6hw
+keeps its rows, disabled, off HP, so a pool pick moves nothing). Then 6hw
 (play session 3, the mystical half, which I played alone as the Occult
 Scholar: a typed spirit hit multiplies on FP and SPI, the location on HP
 only; Spirit Vision takes Spiritual Attrition's -3, read after the

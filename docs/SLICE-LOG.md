@@ -6779,7 +6779,12 @@ The Occult Scholar at SPI 3 of 11:
 Not seen: *no push at Crystal clear* needs a roll the dice did not give;
 unit-tested only. **Found:** picking SPI or FP in the Damage dialog drops
 the HT roll and the location rows, the dialog shrinks and re-centres, and
-the type chips move under the finger (6gn's rule). Not fixed.
+the type chips move under the finger (6gn's rule). **Fixed** at the
+owner's word: both are drawn on every pool, disabled off HP, and a stale
+location tap after a switch is dropped. On the tablet `cut`, `Roll HT`
+and `Torso` held the same dump positions on HP, SPI and FP (before: `cut`
+734 to 946), and Torso tapped on FP selected nothing. ecc (sonnet): SHIP
+WITH CHANGES, both LOWs taken (the stale-tap guard, a KDoc's "Offered").
 
 ## 6hw. Play session 3: the mystical half
 
