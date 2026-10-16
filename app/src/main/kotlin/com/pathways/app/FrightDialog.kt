@@ -141,6 +141,13 @@ internal fun FrightDialog(
                     result.effect?.takeIf { !result.passed && FrightCheck.grantsQuirk(it, kind) }?.let {
                         QuirkEntry(onQuirk)
                     }
+                    if (result.effect?.let { !result.passed && FrightCheck.grantsDisadvantage(it, kind) } == true) {
+                        Text(
+                            "Record it in Spend points: buy it and tick Gained in play.",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                    }
                     // Six of the nine bands print no way out at all, so this
                     // is null for them and no control appears. The cell's own
                     // sentence above already said so.

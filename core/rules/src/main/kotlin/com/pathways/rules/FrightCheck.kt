@@ -146,6 +146,16 @@ object FrightCheck {
     private const val QUIRK_CELL = "Acquire a quirk:"
 
     /**
+     * The bands that hand out a new disadvantage ("New −10 pt disadvantage:
+     * ..."). Recorded in the builder, bought and ticked Gained in play, so
+     * the dialog says where (play session 5).
+     */
+    fun grantsDisadvantage(effect: FrightEffect, kind: FrightKind): Boolean =
+        text(effect, kind).startsWith(DISADVANTAGE_CELL)
+
+    private const val DISADVANTAGE_CELL = "New −"
+
+    /**
      * The way out of that column, or null where the table prints none.
      *
      * Three of the nine bands offer one and six do not — past 12 the table

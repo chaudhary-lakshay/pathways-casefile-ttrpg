@@ -91,6 +91,20 @@ class FrightCheckTest {
     }
 
     @Test
+    fun `two bands hand out a new disadvantage, in every column`() {
+        // Play session 5: 16-21 named a -10 disadvantage and pointed nowhere,
+        // while the quirk band beside it records one.
+        val granting = ContentLoader.frightEffects().filter { effect ->
+            FrightKind.entries.all { FrightCheck.grantsDisadvantage(effect, it) }
+        }.map { it.printed }
+        assertEquals(listOf("16–21", "22–23"), granting)
+        val none = ContentLoader.frightEffects().filter { effect ->
+            FrightKind.entries.none { FrightCheck.grantsDisadvantage(effect, it) }
+        }
+        assertEquals(ContentLoader.frightEffects().size - 2, none.size)
+    }
+
+    @Test
     fun `the effect roll is thrown with its own dice, so the log can name it`() {
         // Play session 5: the check and its effect roll both read "Fright
         // Check" in the roll log.
