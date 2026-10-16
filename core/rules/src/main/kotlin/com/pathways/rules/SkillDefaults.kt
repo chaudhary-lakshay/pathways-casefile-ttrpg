@@ -156,6 +156,9 @@ object SkillDefaults {
             untrainedAt == null ||
                 weapon in carried && (Weapons.levelFor(weapon, owned) ?: Int.MIN_VALUE) < untrainedAt
         }
+            // Carried first: the dialog arms the first, and play session 5's
+            // carried Hunting Rifle lost to the catalogue's Bolt-Action.
+            .sortedBy { it !in carried }
 
     /** The banner Ch. 3 prints nineteen skills under, every weapon among them. */
     const val COMBAT_SKILLS = "COMBAT SKILLS"

@@ -718,6 +718,16 @@ class SkillDefaultsTest {
         )
     }
 
+    @Test
+    fun `an owned skill's carried weapon comes first, the one the dialog picks`() {
+        // Play session 5: Military Police carried the Hunting Rifle and the
+        // dialog picked the Bolt-Action, first in the catalogue.
+        assertEquals(
+            listOf("Hunting Rifle", "Bolt-Action Rifle"),
+            SkillDefaults.attackWeapons(keyOf("Guns", "Rifle"), null, carried("Hunting Rifle"), emptyMap()).map { it.name },
+        )
+    }
+
     /**
      * Play session 2: Mira, holding Guns (Revolver) 12 and a revolver, was
      * offered untrained Guns (Pistol) at 6 for the same gun. An untrained row
