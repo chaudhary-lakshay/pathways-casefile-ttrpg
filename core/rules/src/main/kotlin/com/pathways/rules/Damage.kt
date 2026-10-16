@@ -1,6 +1,7 @@
 package com.pathways.rules
 
 import com.pathways.model.DiceExpr
+import com.pathways.model.Outcome
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.UnarmedAttack
 
@@ -34,6 +35,16 @@ object Damage {
         source.thrown(faces, null)
         return DamageResult(faces, (faces.sum() + damage.dice.modifier).coerceAtLeast(0), damage.type)
     }
+
+    /**
+     * Ch. 2's "A critical success on an attack roll deals double damage"
+     * (book lines 150 and 280, `core_mechanic.json`). A reading: the ROLLED
+     * total doubles, before DR and the wounding multiplier, which the target's
+     * side applies to whatever this prints. Asked per attack, so each roll of
+     * a Rapid Strike or an All-Out Double reads its own dice.
+     */
+    fun onAttack(thrown: DamageResult, attack: Outcome): DamageResult =
+        if (attack == Outcome.CRITICAL_SUCCESS) thrown.copy(total = thrown.total * 2, doubled = true) else thrown
 
     /** The ST column an unarmed attack rolls off. */
     fun thrust(st: Int): DiceExpr = rowFor(st).thrust
@@ -97,4 +108,10 @@ data class DamageRoll(val dice: DiceExpr, val type: String) {
 }
 
 /** A thrown [DamageRoll]: the faces, so the GM can read the throw back, and the total. */
-data class DamageResult(val faces: List<Int>, val total: Int, val type: String)
+data class DamageResult(
+    val faces: List<Int>,
+    val total: Int,
+    val type: String,
+    /** A critical hit's ×2 is in [total] ([Damage.onAttack]). */
+    val doubled: Boolean = false,
+)

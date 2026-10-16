@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.ModEffect
+import com.pathways.model.Outcome
 import com.pathways.model.SkillKey
 import com.pathways.model.Trait
 import com.pathways.rules.ClauseBonus
@@ -286,7 +287,11 @@ internal fun AttackDialog(
                                 // One throw per hit: a second tap of the same
                                 // picture would replace the first.
                                 if (index !in damageRolls) {
-                                    damageRolls = damageRolls + (index to Damage.roll(damage, dice.dice("Attack damage")))
+                                    val thrown = Damage.roll(damage, dice.dice("Attack damage"))
+                                    // A push moves the target, never the 3 or 4, so
+                                    // a critical reads the same pushed or not.
+                                    val attack = outcome.roll?.outcome ?: Outcome.SUCCESS
+                                    damageRolls = damageRolls + (index to Damage.onAttack(thrown, attack))
                                 }
                             }
                         }
@@ -564,7 +569,9 @@ private fun DamageLine(damage: DamageRoll, thrown: DamageResult?, onRoll: () -> 
     } else {
         Text(
             "Damage ${damage.render()}: ${thrown.faces.joinToString("+")}" +
-                "${damage.dice.modifier.takeIf { it != 0 }?.let(::signed).orEmpty()} = ${thrown.total} ${thrown.type}",
+                "${damage.dice.modifier.takeIf { it != 0 }?.let(::signed).orEmpty()}" +
+                (if (thrown.doubled) ", ×2 critical hit" else "") +
+                " = ${thrown.total} ${thrown.type}",
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 12.dp),
         )
