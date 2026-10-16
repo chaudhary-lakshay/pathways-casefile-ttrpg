@@ -195,6 +195,14 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hu
+(own
+characters, a save entry whose `basedOn` names its premade, no second file;
+study points recorded on a skill's points with a `studied` share the budget
+subtracts, gated on `Study.plan` and refused on a potion's skill through
+`PotionDigestion.isSameSkill`; the play-readiness list is done; seen on the
+SM-T570).
+
 Then 6ht
 (the
 play-readiness list's first two: ⋮ → Reset to sheet rebuilds the session

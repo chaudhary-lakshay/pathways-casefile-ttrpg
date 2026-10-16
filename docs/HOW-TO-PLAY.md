@@ -105,7 +105,9 @@ potion grants.
   since the app started, newest first: what was rolled, the dice, and the
   target (*"Fright Check 2 + 5 + 2 = 9 vs 5"*). A table's or damage's throw
   has no target. An attack's damage is logged as *Attack damage*, and the
-  Damage dialog's rolls as *Major wound HT* and *Stun recovery*. It shows dice, not verdicts: a push or a table's own rule
+  Damage dialog's rolls as *Major wound HT* and *Stun recovery*. Each
+  defence is logged by its row (*Dodge*, *Parry (Brawling)*), and a Fright
+  Check's second throw as *Fright effect*. It shows dice, not verdicts: a push or a table's own rule
   can change a verdict after the dice, and the dialog that rolled says which.
   It is not saved; closing the app clears it.
 - **⋮ → Delete character** appears only on a character you made (below),
@@ -220,6 +222,12 @@ list); a Research or Writing roll is made from the Skills tab. Then pick
 the maneuver and any attack options. The dialog prices them as you go:
 Deceptive Attack's -2 per -1 imposed (capped at half your skill), Rapid Strike's
 -6, All-Out Attack's +4 or extra attack, the FP that Extra Effort costs.
+A carried weapon is the one picked first.
+
+A **critical success** (a 3 or 4) doubles the damage rolled, as the book's
+core mechanic prints; the damage line says *×2 critical hit*. The app's
+reading is that the rolled total doubles, before DR and the wounding
+multiplier.
 
 It will not let you buy an option the maneuver does not allow, and it charges FP
 once per purchase, not once per recomposition.
@@ -259,9 +267,10 @@ book prints, which is what the chip shows selected.
 The busiest screen in the app, and the one with the most declarations.
 
 - **New round** — clears the free actions, the parry count and any paid +2. It
-  appears only once something is spent. It does **not** clear a stun: the book
+  is greyed out until something is spent. It does **not** clear a stun: the book
   gives stun its own clock ("Stunned for 1d6 seconds, roll HT each turn to
-  recover early"), so that ends when the roll says so.
+  recover early"), so that ends when the roll says so — the roll is on
+  **Vitals**, under the pools, with a **Clear** for the GM.
 - **Refusals** (surprised / took an All-Out Attack / never saw the shot) —
   withdraw your defences entirely, and the app says *which* sentence did it.
   Combat Reflexes cancels the surprise one and nothing else.
@@ -285,8 +294,10 @@ The busiest screen in the app, and the one with the most declarations.
   and labelled untrained). They
   stack with each other and with an active defence; the book allows each once
   per round, which is what **New round** is for.
-- **Parries this round** — the stepper. Each parry after the first is -4
-  (-2 fencing, -1 rapier), and Dodge takes no such penalty.
+- **Parries this round** — counted for you: rolling a Parry row adds one,
+  and each parry after the first is -4 (-2 fencing, -1 rapier). The stepper
+  is there for a parry made off this screen, or to take a re-roll back.
+  Dodge takes no such penalty.
 - **Buy +2** — All-Out Defense (Increased) or Feverish Defense, spent on **one
   named row**. Paying twice buys one bonus, so the picker clears first.
 
@@ -314,7 +325,9 @@ above the choices and **Roll** below them, withdrawn until a row is picked.
 
 The 13–15 band hands out a quirk: name it and tap **Record the quirk**, and
 the sheet holds it as a disadvantage *gained in play*, at no cost. The builder
-gives it back.
+gives it back. The 16–21 and 22–23 bands hand out a whole disadvantage; the
+dialog says where it goes: **Spend points**, buy it, and tick **Gained in
+play**.
 
 Three of the table's nine bands print a way out, and those show a **recovery
 roll** against the column's own attribute — Will in Fright and Awe, IQ in
@@ -567,7 +580,7 @@ changes is the **Defend** screen, which now prints a `Parry (name)` row for
 each carried weapon it can compute one for.
 
 **Add a trait** lists the book's advantages and drawbacks as a name and a
-price. Tapping a row opens its text and never buys; **Buy** inside the open
+price, with a **Search** box over them. Tapping a row opens its text and never buys; **Buy** inside the open
 row does. A trait already held is marked *already held* and has no Buy. God
 of Combat is refused the same way while a bought ST, DX or HT is above what a
 holder may buy, and its row says which to lower.
@@ -607,9 +620,10 @@ Edits are saved per character and survive a restart.
   moves the roll (a potion's grant, say — the line under it shows what is
   already counted), and **Roll HT N — a day of rest and food**. Shock is not
   in it: it lasts a turn, and the roll comes a day later. You say when
-  a day has passed. A success restores nothing by itself: apply what the rows
-  print with **+** on the HP strip, because which band applies to a large body
-  is the GM's call. A Fast Healer is told of one more HP on a success; on a
+  a day has passed. A success restores nothing by itself: its line quotes the
+  table (*Restore 1 HP … on the HP row*, and the 20–29 and 30–39 HP bands);
+  apply it with **+** on the HP strip, because which band applies to a large
+  body is the GM's call. A Fast Healer is told of one more HP on a success; on a
   failure, whether that point still comes is the GM's call, and the line
   says so. **Another day** clears it for the next one. The Healing
   advantage and Regeneration are not offered. First Aid and Physician are

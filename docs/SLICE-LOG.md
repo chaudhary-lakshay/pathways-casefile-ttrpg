@@ -6726,6 +6726,86 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hz. Play session 5: combat, and its twelve findings
+
+The owner picked play session 5, "Claude plays alone", on the half no
+session had pressed: a fight over several rounds. Military Police
+(Combat Reflexes, Brawling, Guns (Rifle), Overconfidence) carried a
+Hunting Rifle and a Truncheon: an aimed shot, Dodge with Retreat, a
+Deceptive truncheon blow, a parry that critically failed, a 5 imp torso
+hit and a failed Major Wound roll (stunned), 0 HP and unconscious, days
+of recovery; then a fright check at -4 (effect 17, a -10 Phobia recorded
+as gained in play), an All-Out Attack (Determined) called on the Vitals,
+13 cut to -9 HP, 7 cut to -19 and a death roll that held. The owner: "go
+ahead", with my two defaults taken: a rolled parry counts, and the
+All-Out Attack's forfeit stays a chip the GM ticks (slice log 4625).
+
+### Fixes, one commit each
+
+- **A critical hit doubles its damage** (`d5f2f85`). Ch. 2 prints it
+  twice (lines 150, 280); `core_mechanic.json` loaded the row and only
+  `GoldenCoreRulesTest` read it. `Damage.onAttack` doubles the ROLLED
+  total, a recorded reading: before DR and the wounding multiplier, per
+  attack, the line saying "×2 critical hit".
+- **A held stun has a Vitals row** (`198a6e5`): the Damage dialog offered
+  "roll HT each turn to recover early" once, before Apply; after that the
+  stun lived only inside Defend, whose note called recovery "the GM's
+  roll", and it was still lit at full HP two weeks later. `StunRow` quotes
+  the cell, rolls `StunRecovery.targetFor` (computed once in
+  `MainActivity` for both sites) and clears on `!stillStunned`. The Shock
+  row got its 16 dp gutter.
+- **A rolled parry counts** (`f53afdb`): `RoundState.parried()`. 6cp's
+  reason for a GM-set count was "this dialog allocates no defence"; each
+  row has rolled since the redesign, so that reason had expired.
+  `DefenseRow` remembers its verdict by name, so the -4 does not wipe it.
+- **Pick-dependent lines are drawn before the pick** (`c9c9b0c`), 6gn's
+  rule again: New round (disabled, no longer hidden), the Retreat note,
+  Attack's strike line, Damage's location effects (the dialog re-centred
+  45 dump px), the instance dialog's warning.
+- **The day's recovery line quotes the table** (`1c30869`): "Restore what
+  the rows above print" pointed at rows 6hy folded shut.
+- **The trait picker has a search** (`05fe3b7`): Phobia took forty swipes.
+- **The log names each defence and the fright effect roll** (`2e5aa12`):
+  `DefenseDialog` takes `CharacterDice`; `FrightCheck.rollAgainst` takes
+  an `effectSource`.
+- **The carried weapon is armed first** (`ee1bc62`): `attackWeapons`
+  sorts carried first; the dialog took the catalogue's Bolt-Action.
+- **A new disadvantage says where it is recorded** (`8719549`):
+  `FrightCheck.grantsDisadvantage`, the 16-21 and 22-23 bands.
+- **Cancelling range terms print +0** (`57a8254`): `termLine`.
+
+Not findings, checked: no catalogue shortsword (recorded,
+`SkillDefaults.kt:168`); push chips stop at +4 (deliberate); Brawling
+parries a weapon at -3; Deceptive caps at 2; Determined is +1 at range
+for 2 FP; shock comes only from the Major Wound Success row; a stunned
+character may attack (the book is silent).
+
+### Verification
+
+2281 Kotlin (1474 `core:rules`, 784 `app`, 23 `core:model`), 366 Python,
+0 failures, counted from fresh XML. RED watched for each test-backed fix.
+`ast-grep scan` clean; the census still 40.
+
+### Review
+
+ecc (sonnet) over `3bf0e09..57a8254 -- core app`: ship with changes. Two
+LOWs taken (`4b38191`): the day line ended "with the HP row's +"; a
+successful stun roll left a second tap live. Not taken: a re-rolled
+parry counts twice (the stepper corrects it); a location effect that
+wraps still grows the dialog; "a pushed 5 becomes a critical" is false
+here, where only a 3 or 4 is one (`SuccessRoll.kt:37`).
+
+### Device pass (SM-T570, wireless)
+
+Military Police, save restored after, `cmp` identical. Seen: New round
+drawn disabled at open, and ticking Retreat moved nothing; a rolled
+Brawling parry read "Parries already this round 1", the next at 3, its
+verdict kept; the Truncheon pick left the Weapon row in place; Torso
+moved nothing; a ticked Stunned showed on Vitals and cleared on its roll,
+in Defend too; the log read *Stun recovery*, *Parry (Brawling)*; the
+day's success line; "phob" found three rows. Not seen: a critical hit (a
+3 or 4 did not come up).
+
 ## 6hy. Play session 4: the campaign arc, and its nine findings
 
 The owner picked play session 4, "Claude plays alone", on a campaign arc
