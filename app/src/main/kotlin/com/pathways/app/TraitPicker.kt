@@ -22,6 +22,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -259,109 +260,129 @@ internal fun TraitPicker(
     // when scrolled off. Keyed by section too: a name in two sections must
     // not open twice (6gm's design review).
     var open by remember { mutableStateOf<String?>(null) }
+    // About 200 rows, Drawbacks after every advantage: play session 5 swiped
+    // forty times to reach Phobia. The withheld names stay listed whatever is
+    // typed, as the reason a search finds nothing.
+    var query by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
         title = { Text("Buy a trait") },
         text = {
-            LazyColumn {
-                // The blessings get their own head rather than sitting inside
-                // Advantages. Seven rows at 75 points each, unlabelled among
-                // rows costing 1 to 5, read as a pricing error -- and the
-                // table's printed requirement would have nowhere to live,
-                // which is how a field ends up extracted and never rendered
-                // (6ai). It is SHOWN and gates nothing: this app models no
-                // faith and no reconciliation, so whether a character is a
-                // confirmed believer is the GM's to say (6af).
-                sections.forEach { (heading, subtitle, rows) ->
-                    item {
+            Column {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    label = { Text("Search") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                LazyColumn {
+                    // The blessings get their own head rather than sitting inside
+                    // Advantages. Seven rows at 75 points each, unlabelled among
+                    // rows costing 1 to 5, read as a pricing error -- and the
+                    // table's printed requirement would have nowhere to live,
+                    // which is how a field ends up extracted and never rendered
+                    // (6ai). It is SHOWN and gates nothing: this app models no
+                    // faith and no reconciliation, so whether a character is a
+                    // confirmed believer is the GM's to say (6af).
+                    sections.forEach { (heading, subtitle, all) ->
+                        val rows = all.filter { matchesSearch(it.name, query) }
+                        if (rows.isEmpty()) return@forEach
+                        item {
+                            Text(
+                                heading,
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.padding(top = 8.dp),
+                            )
+                            Text(subtitle, style = MaterialTheme.typography.bodySmall)
+                            HorizontalDivider()
+                        }
+                        items(rows) { row ->
+                            // Refused rather than offered and then rejected: a
+                            // second copy bills its points and changes nothing,
+                            // and a chip that cannot be taken is not a choice.
+                            val blocked = if (!PurchasableTraits.canBuy(row, held) || row.name in bought) {
+                                ALREADY_HELD
+                            } else {
+                                refusalFor(row.name)
+                            }
+                            val key = "$heading/${row.name}"
+                            PickerRow(
+                                name = row.name,
+                                blocked = blocked,
+                                price = (if (row.advantage) row.cost else -row.cost).pointsLabel(),
+                                notes = row.notes,
+                                expanded = open == key,
+                                onToggle = { open = if (open == key) null else key },
+                                action = "Buy · ${(if (row.advantage) row.cost else -row.cost).pointsLabel()}",
+                                onAction = { onBuy(row) },
+                            )
+                            HorizontalDivider()
+                        }
+                    }
+                    val instances = instantiable.filter { matchesSearch(it.name, query) }
+                    if (instances.isNotEmpty()) item {
                         Text(
-                            heading,
+                            "Priced by the instance",
                             style = MaterialTheme.typography.titleSmall,
                             modifier = Modifier.padding(top = 8.dp),
                         )
-                        Text(subtitle, style = MaterialTheme.typography.bodySmall)
-                        HorizontalDivider()
-                    }
-                    items(rows) { row ->
-                        // Refused rather than offered and then rejected: a
-                        // second copy bills its points and changes nothing,
-                        // and a chip that cannot be taken is not a choice.
-                        val blocked = if (!PurchasableTraits.canBuy(row, held) || row.name in bought) {
-                            ALREADY_HELD
-                        } else {
-                            refusalFor(row.name)
-                        }
-                        val key = "$heading/${row.name}"
-                        PickerRow(
-                            name = row.name,
-                            blocked = blocked,
-                            price = (if (row.advantage) row.cost else -row.cost).pointsLabel(),
-                            notes = row.notes,
-                            expanded = open == key,
-                            onToggle = { open = if (open == key) null else key },
-                            action = "Buy · ${(if (row.advantage) row.cost else -row.cost).pointsLabel()}",
-                            onAction = { onBuy(row) },
+                        Text(
+                            "The book prints a range, or asks you to name the instance. " +
+                                "Say which, and the price follows.",
+                            style = MaterialTheme.typography.bodySmall,
                         )
                         HorizontalDivider()
                     }
-                }
-                item {
-                    Text(
-                        "Priced by the instance",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
-                    Text(
-                        "The book prints a range, or asks you to name the instance. " +
-                            "Say which, and the price follows.",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    HorizontalDivider()
-                }
-                items(instantiable) { row ->
-                    // Most of these may be taken more than once -- one premade
-                    // carries two Vows -- so what repeats is a purchase and
-                    // not a row. A row that enumerates variants is the
-                    // exception: those are severities of one condition, and a
-                    // character is Mild or Severe, never both.
-                    val already = !PurchasableTraits.canInstantiate(row, held)
-                    val key = "instance/${row.name}"
-                    PickerRow(
-                        name = row.name,
-                        blocked = if (already) ALREADY_HELD else null,
-                        price = if (row.variants.isNotEmpty()) {
-                            row.variants.joinToString(" / ") { (name, points) ->
-                                "$name ${if (row.advantage) points else -points}"
-                            }
-                        } else {
-                            val low = if (row.advantage) row.costMin else -row.costMax
-                            val high = if (row.advantage) row.costMax else -row.costMin
-                            "$low to $high pts"
-                        },
-                        notes = row.notes,
-                        expanded = open == key,
-                        onToggle = { open = if (open == key) null else key },
-                        action = "Choose…",
-                        onAction = { onSettle(row) },
-                    )
-                    HorizontalDivider()
-                }
-                items(withheld) { group ->
-                    Text(
-                        "Not offered — ${group.reason}",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
-                    Text(
-                        group.names.joinToString(", "),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                    items(instances) { row ->
+                        // Most of these may be taken more than once -- one premade
+                        // carries two Vows -- so what repeats is a purchase and
+                        // not a row. A row that enumerates variants is the
+                        // exception: those are severities of one condition, and a
+                        // character is Mild or Severe, never both.
+                        val already = !PurchasableTraits.canInstantiate(row, held)
+                        val key = "instance/${row.name}"
+                        PickerRow(
+                            name = row.name,
+                            blocked = if (already) ALREADY_HELD else null,
+                            price = if (row.variants.isNotEmpty()) {
+                                row.variants.joinToString(" / ") { (name, points) ->
+                                    "$name ${if (row.advantage) points else -points}"
+                                }
+                            } else {
+                                val low = if (row.advantage) row.costMin else -row.costMax
+                                val high = if (row.advantage) row.costMax else -row.costMin
+                                "$low to $high pts"
+                            },
+                            notes = row.notes,
+                            expanded = open == key,
+                            onToggle = { open = if (open == key) null else key },
+                            action = "Choose…",
+                            onAction = { onSettle(row) },
+                        )
+                        HorizontalDivider()
+                    }
+                    items(withheld) { group ->
+                        Text(
+                            "Not offered — ${group.reason}",
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        Text(
+                            group.names.joinToString(", "),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                 }
             }
         },
     )
 }
+
+/** Whether the picker's search keeps [name]: any part of it, in any case; blank keeps all. */
+internal fun matchesSearch(name: String, query: String): Boolean =
+    query.isBlank() || name.contains(query.trim(), ignoreCase = true)
 
 /** What a held row says in place of its Buy button. */
 private const val ALREADY_HELD = "already held"
