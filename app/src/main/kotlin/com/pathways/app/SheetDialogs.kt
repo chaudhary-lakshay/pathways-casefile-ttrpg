@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import com.pathways.rules.AttributeRoll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
@@ -293,6 +294,20 @@ internal fun SheetDialogs(
     if (SheetDialog.CONCENTRATE in open) {
         ConcentrateDialog(vitals.will, concentrationClauses, shockOnAttribute, hurtOnAttribute, states) {
             onClose(SheetDialog.CONCENTRATE)
+        }
+    }
+    AttributeRoll.Kind.entries.forEach { kind ->
+        val dialog = rollDialogFor(kind)
+        if (dialog in open) {
+            AttributeRollDialog(
+                kind = kind,
+                level = if (kind == AttributeRoll.Kind.WILL) vitals.will else vitals.per,
+                traits = traits,
+                shock = shockOnAttribute,
+                hurt = hurtOnAttribute,
+                // Neither Will nor Per is a roll line 390 calls physical.
+                states = states,
+            ) { onClose(dialog) }
         }
     }
     if (SheetDialog.DAMAGE in open) {

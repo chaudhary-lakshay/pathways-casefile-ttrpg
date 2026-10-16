@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import com.pathways.rules.AttributeRoll
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -365,7 +366,11 @@ internal fun ComparisonRow(
  * takes the accent, with the sheet's figure beside its name; none rolls.
  */
 @Composable
-internal fun VitalsCard(diffSummary: String?, lines: List<PlayedLine>) {
+internal fun VitalsCard(
+    diffSummary: String?,
+    lines: List<PlayedLine>,
+    onRoll: (AttributeRoll.Kind) -> Unit,
+) {
     val shape = RoundedCornerShape(10.dp)
     val accent = MaterialTheme.colorScheme.primary
     Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -382,9 +387,21 @@ internal fun VitalsCard(diffSummary: String?, lines: List<PlayedLine>) {
                 lines.forEachIndexed { i, line ->
                     if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     val differs = line.disagreement != null
+                    // Will and Per open their bare roll; the rest are numbers.
+                    val rolls = AttributeRoll.Kind.entries.firstOrNull { it.label == line.label }
                     Row(
                         Modifier
                             .fillMaxWidth()
+                            .then(
+                                if (rolls == null) {
+                                    Modifier
+                                } else {
+                                    Modifier.clickable(
+                                        onClickLabel = "Roll ${rolls.label}",
+                                        role = Role.Button,
+                                    ) { onRoll(rolls) }
+                                },
+                            )
                             .background(if (differs) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent)
                             .heightIn(min = 48.dp)
                             .padding(horizontal = 16.dp, vertical = 6.dp),
@@ -402,6 +419,14 @@ internal fun VitalsCard(diffSummary: String?, lines: List<PlayedLine>) {
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.weight(1f),
                         )
+                        if (rolls != null) {
+                            Icon(
+                                Icons.Filled.Casino,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(18.dp),
+                            )
+                        }
                         Text(
                             line.number,
                             style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),

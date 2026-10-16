@@ -547,6 +547,7 @@ internal fun SheetScreen(
                     // The Vitals tab's rolls are all HT rolls.
                     states = physicalStates,
                     secondaryLines = secondaryLines,
+                    onRollAttribute = { open = open + rollDialogFor(it) },
                 )
                 SheetTab.TRAITS -> traitsTab(
                     advantages = advantages,

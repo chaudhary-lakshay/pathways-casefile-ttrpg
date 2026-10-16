@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import com.pathways.rules.AttributeRoll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -27,6 +28,14 @@ import com.pathways.model.BeyonderState
 /** The sheet's dialogs a hub tile opens; [SheetScreen] holds which are open. */
 enum class SheetDialog {
     FRIGHT, CONCENTRATE, DETECT, ATTACK, DEFEND, DAMAGE, RITUAL, DIVINE, SPIRIT_VISION, BOON, ARTIFACTS,
+    /** The bare attribute rolls, opened from their Vitals rows (play session 4). */
+    WILL_ROLL, PER_ROLL,
+}
+
+/** The dialog a Vitals row opens. */
+internal fun rollDialogFor(kind: AttributeRoll.Kind): SheetDialog = when (kind) {
+    AttributeRoll.Kind.WILL -> SheetDialog.WILL_ROLL
+    AttributeRoll.Kind.PER -> SheetDialog.PER_ROLL
 }
 
 /**

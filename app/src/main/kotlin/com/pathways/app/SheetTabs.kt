@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import com.pathways.rules.AttributeRoll
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,6 +48,8 @@ internal fun LazyListScope.vitalsTab(
     onDeclareStates: (Set<String>) -> Unit,
     states: ClauseBonus,
     secondaryLines: List<PlayedLine>,
+    /** A Will or Per row tapped: its bare roll (play session 4). */
+    onRollAttribute: (AttributeRoll.Kind) -> Unit,
 ) {
     item {
         PoolTrackers(
@@ -104,7 +107,7 @@ internal fun LazyListScope.vitalsTab(
     // the pools rather than the skills: they are what the character IS,
     // so each prints the number PLAYED, and the disagreement with the
     // published sheet is printed beside it ([PlayedLine]).
-    item { VitalsCard(diffSummary, secondaryLines) }
+    item { VitalsCard(diffSummary, secondaryLines, onRollAttribute) }
 }
 
 internal fun LazyListScope.traitsTab(

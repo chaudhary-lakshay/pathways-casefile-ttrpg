@@ -494,7 +494,7 @@ object TraitClauses {
         TraitClause(ACUTE_SMELL, ACUTE_SMELL, "+2 sharper sense of smell", 2, conditional = true),
         TraitClause(INCISIVE_VISION, INCISIVE_VISION, "+4", 4, conditional = true),
     )
-    private fun senseClauses(traits: List<Trait>): List<TraitClause> = traits.flatMap { owned ->
+    internal fun senseClauses(traits: List<Trait>): List<TraitClause> = traits.flatMap { owned ->
         val bare = catalogueName(owned.name)
         (SENSE_CLAUSES + GRANTED_ONLY_SENSES)
             .filter { it.trait.equals(bare, ignoreCase = true) }
@@ -508,8 +508,8 @@ object TraitClauses {
      * every Per skill, and Detection's Per branch. Spirit Vision is left out
      * as this app's reading, not a ruling the book prints: it is the holder's
      * own act and costs SPI to open, so no sleeper makes it. The roll the
-     * cell most plainly means, a bare Per roll to wake, is one this app does
-     * not make.
+     * cell most plainly means, a bare Per roll to wake, is [AttributeRoll]'s
+     * since play session 4.
      */
     private val PER_ROLL_CLAUSES: List<TraitClause> = listOf(
         TraitClause(
