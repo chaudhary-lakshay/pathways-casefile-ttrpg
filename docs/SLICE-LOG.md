@@ -6726,6 +6726,41 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6hx. Detect takes Attrition through an awareness row
+
+6hw left one thing uncensused: whether Detect's *Sense* is a Beyonder
+ability check, as Spirit Vision is. Attrition is "-3 to all SPI-based
+skill rolls and Beyonder ability checks" (2351, 2725). Detect's roll is
+SPI or Per, not a skill. Ch. 6.5 Step 2 calls a Sec. 1 row "a pathway
+ability that grants automatic detection" (3745), and Sec. 2 also gives a
+roll to "any Beyonder [who] suspects they are under observation" (3809),
+which has no ability behind it. Asked with both halves, the owner ruled:
+**only a roll a Sec. 1 row grants takes the -3** (`7dd77eb`).
+
+`Detection.attritionFor(pool, awareness)` is the one answer: the pool's
+own `penalty` on `SPI_ROLLS` scope, as `SpiritVision` reads it, and 0
+with no row picked. `targetFor`, `partsFor` and `attempt` take it as
+`attrition`, on either attribute (it is an ability check, not an
+SPI-based roll), and the part reads *Spiritual Attrition -3*. The dialog
+passes `spiNow()`, the pool as it stands, because Detect costs nothing.
+
+### Checks
+
+2266 Kotlin (1461 `core:rules`, 782 `app`, 23 `core:model`), 0 failures,
+from a cleared results directory. RED: the test did not compile before
+`attritionFor` existed; a mutant without the awareness gate turned
+`DetectionTest` red, compiled clean.
+
+### Review
+
+ecc (sonnet) over the uncommitted tree: SHIP WITH CHANGES. Taken: LOW,
+`attempt` could not express attrition. Not taken: the Per-branch note
+(the ruling makes it an ability check, whichever attribute), and the
+hardcoded label (the same words `SpiritVision` derives).
+
+**Device pass owed**, with 6hw's: the tablet was on neither USB nor
+wireless this session.
+
 ## 6hw. Play session 3: the mystical half
 
 Sessions 1 and 2 played a fight and a build; neither touched a Beyonder's

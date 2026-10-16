@@ -195,6 +195,15 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hs
+(play session 1, the owner's first real game, on the SM-T570: twelve
+device findings, all fixed and pushed through `a3200a4`; two were
+state lost by a `remember` that left composition, and one of those is
+6cp's once-per-round claim failing across dialog opens; the revolver
+fires on Guns (Pistol) by the owner's ruling; an untrained Attack row
+arms only carried weapons; the owner's play-readiness list is still
+unpicked).
+
 Then 6hr
 (two owner answers on the ritual's fuel: No response's 2 SPI comes out
 of the declared HP first, as the prayer's does, so a caster at 0 SPI
