@@ -288,7 +288,6 @@ internal fun DamageDialog(
                 val htTarget = ht + majorWoundHt.bonus + hurt + states.total
                 MajorWoundPanel(
                     isMajor = isMajor,
-                    isHp = pool == Pool.HP,
                     ht = htTarget,
                     traitLine = majorWoundHt.line,
                     statesLine = states.line,
@@ -315,18 +314,21 @@ internal fun DamageDialog(
                         if (recovery == null) recovery = SuccessRoll.against(recoveryTarget, dice.dice("Stun recovery"))
                     },
                 )
-                if (pool == Pool.HP) {
-                    WhereItLanded(
-                        landed = landed,
-                        damage = injury,
-                        maxHp = maxHp,
-                        onLocation = {
+                WhereItLanded(
+                    landed = landed,
+                    damage = injury,
+                    maxHp = maxHp,
+                    isHp = pool == Pool.HP,
+                    onLocation = {
+                        // A stale tap of an HP picture after a switch to SPI
+                        // or FP would print HP effects beside it (6ei).
+                        if (pool == Pool.HP) {
                             landed = if (landed == it) null else it
                             // A priced hit re-prices with its location.
                             if (type != null) shock = null
-                        },
-                    )
-                }
+                        }
+                    },
+                )
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 // Reference for the GM, not a control: closed until asked (6gl).
                 RuleNote("Spirit body damage rules") {
@@ -395,13 +397,14 @@ private fun DamageType(type: String?, amount: Int, landed: HitLocation?, pool: P
 /** The threshold, and the HT roll the book asks for once it is crossed. */
 @Composable
 private fun MajorWoundPanel(
-    isMajor: Boolean,
     /**
-     * Drawn, disabled, for every HP hit below the threshold: appearing at
-     * the threshold grew the dialog, which re-centred and moved the stepper
-     * under the finger (play session 1, at 5 damage). 6gn's rule.
+     * The roll is drawn, disabled, for every hit below the threshold and every hit off
+     * HP: appearing at the threshold grew the dialog, which re-centred and
+     * moved the stepper under the finger (play session 1, at 5 damage), and
+     * vanishing on SPI or FP shrank it and moved the type chips (6hx's
+     * device pass). 6gn's rule.
      */
-    isHp: Boolean,
+    isMajor: Boolean,
     ht: Int,
     traitLine: String? = null,
     statesLine: String? = null,
@@ -412,7 +415,6 @@ private fun MajorWoundPanel(
     recovery: RollResult?,
     onRecoveryRoll: () -> Unit,
 ) {
-    if (!isMajor && !isHp) return
     if (shock == null) {
         OutlinedButton(onClick = onRoll, enabled = isMajor, modifier = Modifier.padding(top = 8.dp)) {
             Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -471,15 +473,18 @@ private fun MajorWoundPanel(
  * down. The row's printed cell and the paragraph governing it are shown
  * whole, because they say what the thresholds cannot.
  *
- * Offered on HP only: every threshold in that column is written against HP,
+ * Enabled on HP only: every threshold in that column is written against HP,
  * and FP and SPI print no equivalent — the reading the Major Wound panel one
- * control up already makes.
+ * control up already makes. Off HP the chips are drawn disabled, so picking
+ * a pool moves nothing under the finger (6gn).
  */
 @Composable
 private fun WhereItLanded(
     landed: HitLocation?,
     damage: Int,
     maxHp: Int,
+    /** Off HP the chips are drawn disabled, as the Major Wound panel is. */
+    isHp: Boolean,
     onLocation: (HitLocation) -> Unit,
 ) {
     val locations = remember { Wounds.locations() }
@@ -489,6 +494,7 @@ private fun WhereItLanded(
             FilterChip(
                 selected = option == landed,
                 onClick = { onLocation(option) },
+                enabled = isHp,
                 label = { Text(option.target) },
                 modifier = Modifier.padding(end = 8.dp),
             )
