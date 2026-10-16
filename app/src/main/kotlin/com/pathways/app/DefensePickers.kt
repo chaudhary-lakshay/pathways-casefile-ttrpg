@@ -367,8 +367,8 @@ internal fun StunPicker(stunned: Boolean, onToggle: () -> Unit) {
     if (stunned) {
         DefenseNote("Do Nothing (p. 37): \"${ActiveDefenses.printedStun()}\"")
         DefenseNote(
-            "Every defence below already includes it. Recovering is the GM's " +
-                "roll — this app holds no clock to run the duration against.",
+            "Every defence below already includes it. The recovery roll is on the " +
+                "Vitals tab; the duration is the GM's, as this app holds no clock.",
         )
     }
 }

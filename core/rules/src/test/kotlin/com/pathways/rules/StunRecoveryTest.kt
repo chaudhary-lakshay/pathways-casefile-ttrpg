@@ -146,4 +146,15 @@ class StunRecoveryTest {
         assertFalse(StunRecovery.leavesStunned(stun, roll(Outcome.SUCCESS)))
         assertFalse(StunRecovery.leavesStunned(other, recovery = null))
     }
+
+    @Test
+    fun `a later turn's recovery roll ends the stun only on a success`() {
+        // Play session 5: a stun outlived its wound by weeks, because the one
+        // recovery roll lived in the Damage dialog and closed with it.
+        fun roll(outcome: Outcome) = RollResult(10, 10, 0, outcome)
+        assertFalse(StunRecovery.stillStunned(roll(Outcome.SUCCESS)))
+        assertFalse(StunRecovery.stillStunned(roll(Outcome.CRITICAL_SUCCESS)))
+        assertTrue(StunRecovery.stillStunned(roll(Outcome.FAILURE)))
+        assertTrue(StunRecovery.stillStunned(roll(Outcome.CRITICAL_FAILURE)))
+    }
 }

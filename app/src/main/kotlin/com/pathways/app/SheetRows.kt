@@ -56,6 +56,7 @@ import com.pathways.rules.NaturalRecovery
 import com.pathways.rules.Pool
 import com.pathways.rules.PoolStatus
 import com.pathways.rules.Pools
+import com.pathways.rules.StunRecovery
 import com.pathways.rules.SuccessRoll
 import com.pathways.rules.VitalCheck
 import com.pathways.rules.VitalRolls
@@ -216,6 +217,46 @@ private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int, stat
             )
             TextButton(onClick = { outcome = null }) { Text("Another day") }
         }
+    }
+}
+
+/**
+ * A held stun, with the roll its own row prints: "roll HT each turn to
+ * recover early". The Damage dialog offered that roll once, before Apply,
+ * and a stun then outlived its wound by weeks, shown only inside Defend (play
+ * session 5). A success clears it; the duration stays the GM's, so Clear is
+ * here too.
+ */
+@Composable
+internal fun StunRow(target: Int, onClear: () -> Unit) {
+    val dice = LocalDice.current
+    var outcome by remember(target) { mutableStateOf<RollResult?>(null) }
+    Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "Stunned — \"${StunRecovery.printed()}\"",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.weight(1f),
+            )
+            TextButton(onClick = onClear) { Text("Clear") }
+        }
+        outcome?.let {
+            Text(
+                "3d6: ${it.total} vs $target - ${label(it.outcome).lowercase()}, still stunned",
+                style = MaterialTheme.typography.titleSmall,
+            )
+        }
+        // Repeatable, one tap a turn: a second tap of the same picture is
+        // dropped, as every repeatable roll here drops it (6ei).
+        val drawn = outcome
+        TextButton(
+            onClick = {
+                if (outcome !== drawn) return@TextButton
+                val roll = SuccessRoll.against(target, dice.dice("Stun recovery"))
+                if (StunRecovery.stillStunned(roll)) outcome = roll else onClear()
+            },
+        ) { Text("Roll HT $target to recover") }
     }
 }
 

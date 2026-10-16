@@ -86,6 +86,8 @@ internal fun SheetDialogs(
     physicalStates: ClauseBonus,
     /** The same declaration as ledger modifiers, for a roll that is physical or is not. */
     stateModifiers: (physical: Boolean) -> List<Modifier>,
+    /** [StunRecovery.targetFor] as played: the Damage dialog's and the Vitals row's one copy. */
+    stunRecoveryTarget: Int,
 ) {
     // Every throw is logged under the dialog that rolled it (RollLog).
     val dice = LocalDice.current
@@ -340,13 +342,7 @@ internal fun SheetDialogs(
             // shocked from an earlier wound recovers at -4. The pools'
             // term is hurtOnAttribute: Conditions.penaltyFor answers every
             // kind but SKILL alike, so it is the `hurt` above.
-            recoveryTarget = StunRecovery.targetFor(
-                attributes.ht,
-                traits,
-                poolPenalty = hurtOnAttribute,
-                shock = shockOnAttribute,
-                states = physicalStates.total,
-            ),
+            recoveryTarget = stunRecoveryTarget,
             // Both rolls here are HT rolls.
             states = physicalStates,
             onDismiss = { onClose(SheetDialog.DAMAGE) },

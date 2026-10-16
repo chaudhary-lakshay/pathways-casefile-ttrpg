@@ -43,6 +43,10 @@ internal fun LazyListScope.vitalsTab(
     shockOnAttribute: Int,
     shocked: Boolean,
     onClearShock: () -> Unit,
+    /** Set by the Damage dialog or Defend's chip; one Stunned (play session 5). */
+    stunned: Boolean,
+    stunRecoveryTarget: Int,
+    onClearStun: () -> Unit,
     allRolls: List<TraitClause>,
     declaredStates: Set<String>,
     onDeclareStates: (Set<String>) -> Unit,
@@ -80,12 +84,13 @@ internal fun LazyListScope.vitalsTab(
             }
         }
     }
+    if (stunned) item { StunRow(stunRecoveryTarget, onClearStun) }
     if (shocked) {
         item {
             // Only while it is in force: a control that is always
             // there would read as a state the GM must maintain, and
             // this one is latched by the roll that caused it.
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 16.dp)) {
                 Text(
                     "Shock — \"${Shock.printed()}\"" +
                         if (Shock.ignoredBy(traits)) {

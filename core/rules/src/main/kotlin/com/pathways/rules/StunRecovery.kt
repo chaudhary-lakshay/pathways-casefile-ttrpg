@@ -66,7 +66,13 @@ object StunRecovery {
      * back. What Defend's Stunned is set from (play session 1).
      */
     fun leavesStunned(row: MajorWound, recovery: RollResult?): Boolean =
-        stunsOn(row) && recovery?.outcome?.isSuccess != true
+        stunsOn(row) && (recovery == null || stillStunned(recovery))
+
+    /**
+     * Whether a turn's "roll HT each turn to recover early" failed: the roll
+     * the Vitals tab offers for as long as the stun is held (play session 5).
+     */
+    fun stillStunned(recovery: RollResult): Boolean = !recovery.outcome.isSuccess
 
     /** That row's effect cell, quoted rather than paraphrased. */
     fun printed(): String = row().effect

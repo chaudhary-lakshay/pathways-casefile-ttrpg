@@ -54,6 +54,7 @@ import com.pathways.rules.SelfControl
 import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.SheetComparison
 import com.pathways.rules.Shock
+import com.pathways.rules.StunRecovery
 import com.pathways.rules.TraitClauses
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.TraitReport
@@ -390,6 +391,15 @@ internal fun SheetScreen(
     val declaredNow = TraitClauses.declaredStates(traits, declaredStates)
     val states = declaredNow.all
     val physicalStates = declaredNow.physical
+    // A stun's "roll HT each turn to recover early", for the Damage dialog
+    // and the Vitals row alike. Shock reaches it (the wound roll made it).
+    val stunRecoveryTarget = StunRecovery.targetFor(
+        attributes.ht,
+        traits,
+        poolPenalty = hurtOnAttribute,
+        shock = shockOnAttribute,
+        states = physicalStates.total,
+    )
     val stateModifiers = { physical: Boolean -> TraitClauses.declaredModifiers(traits, declaredStates, physical) }
     // What each self-control roll stands at, for the Traits row that prints
     // it and the dialog that opens on it ([standingTargets]).
@@ -541,6 +551,9 @@ internal fun SheetScreen(
                     shockOnAttribute = shockOnAttribute,
                     shocked = shocked,
                     onClearShock = { shocked = false },
+                    stunned = scene.stunned.value,
+                    stunRecoveryTarget = stunRecoveryTarget,
+                    onClearStun = { scene.stunned.value = false },
                     allRolls = allRolls,
                     declaredStates = declaredStates,
                     onDeclareStates = { declaredStates = it },
@@ -606,6 +619,7 @@ internal fun SheetScreen(
         states = states,
         physicalStates = physicalStates,
         stateModifiers = stateModifiers,
+        stunRecoveryTarget = stunRecoveryTarget,
     )
 }
 
