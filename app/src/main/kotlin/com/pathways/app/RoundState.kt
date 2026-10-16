@@ -79,6 +79,16 @@ internal data class RoundState(
         return if (same) this else copy(acrobatic = null)
     }
 
+    /**
+     * One more parry made this round, counted by the roll that made it.
+     *
+     * 6cp left [priorParries] for the GM to set because the dialog "allocates
+     * no defence". Each row has had its own Roll since the redesign, so a
+     * rolled parry IS a defence chosen, and play session 5 parried and then
+     * read 0 here. The stepper stays, for a parry made off this screen.
+     */
+    fun parried(): RoundState = copy(priorParries = priorParries + 1)
+
     /** A fresh round: every value the two sentences govern, back to default. */
     fun newRound(): RoundState = RoundState()
 

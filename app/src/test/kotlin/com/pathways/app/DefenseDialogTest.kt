@@ -81,6 +81,16 @@ class DefenseDialogTest {
     }
 
     @Test
+    fun `a rolled parry counts toward the round's -4`() {
+        // Play session 5: the counter read 0 after a parry was rolled, so the
+        // next parry was offered at full value.
+        val once = RoundState().parried()
+        assertEquals(1, once.priorParries)
+        assertEquals(2, once.parried().priorParries)
+        assertEquals(RoundState(), once.newRound())
+    }
+
+    @Test
     fun `a fresh round has nothing to end, and any one value ends that`() {
         assertFalse(RoundState().isSpent())
         assertTrue(RoundState(dived = true).isSpent())

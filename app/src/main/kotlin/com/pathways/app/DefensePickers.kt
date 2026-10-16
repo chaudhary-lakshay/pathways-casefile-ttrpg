@@ -454,7 +454,10 @@ internal fun ParriesThisRound(prior: Int, penalty: Int, onChange: (Int) -> Unit)
  */
 @Composable
 internal fun DefenseRow(name: String, targets: List<Int>, roll: (Int) -> RollResult) {
-    var rolled by remember(targets) { mutableStateOf<RollResult?>(null) }
+    // Keyed on the row, not its figures: a rolled parry lowers the next one
+    // by 4 (play session 5), and the verdict it just made must not vanish
+    // with the old figure. The line names its own target, so it stays true.
+    var rolled by remember(name) { mutableStateOf<RollResult?>(null) }
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = RoundedCornerShape(12.dp),

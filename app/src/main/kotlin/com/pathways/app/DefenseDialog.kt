@@ -159,6 +159,8 @@ internal fun DefenseDialog(
     // A defence is a plain 3d6 against the figure the row prints (play
     // session 1: the numbers were shown and nothing rolled them).
     val rollDefence = { target: Int -> SuccessRoll.against(target, dice) }
+    // A parry rolled is a parry made: the round counts it (play session 5).
+    val rollParry = { target: Int -> rollDefence(target).also { round = round.parried() } }
     val forfeiting = remember { ActiveDefenses.forfeitingActions() }
     val printed = remember { ContentLoader.defenses() }
     // Only the bullets this app does NOT apply. The Acrobatic Dodge row is
@@ -418,7 +420,7 @@ internal fun DefenseDialog(
                             shieldForDb,
                             everyDefence,
                         ),
-                        rollDefence,
+                        rollParry,
                     )
                 }
                 item {
@@ -454,7 +456,7 @@ internal fun DefenseDialog(
                             shieldForDb,
                             everyDefence,
                         ),
-                        rollDefence,
+                        rollParry,
                     )
                 }
                 item {
