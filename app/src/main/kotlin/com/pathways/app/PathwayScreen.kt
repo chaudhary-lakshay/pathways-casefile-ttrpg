@@ -536,9 +536,7 @@ private fun DigestionTracker(
             "next potion rolls ${pcrLine(state)}",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            // ponytail: two lines, the tablet's longest; a phone can wrap to
-            // three. At 100% the line shrank to one and the bands below,
-            // tapped repeatedly, moved under the finger (play session 4).
+            // ponytail: the tablet's two lines; at 100% it fell to one and moved the bands.
             minLines = 2,
         )
         // One chip a quality: the book prints a range and no verdict.
