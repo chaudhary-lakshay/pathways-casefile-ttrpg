@@ -6726,6 +6726,109 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ie. Case File, slice 3: the sheet
+
+The third session of the Case File redesign: the plan's slice 3, the
+sheet screen (frames 02-04 and 08), restyled in place. No rule, label,
+number or click-handler body changed. Commits `b7311da` and `64126eb`
+REVIEW_COMMITS, not pushed.
+
+### What changed
+
+- **Header** (`SheetHeader.kt`, new). The name leaves the top bar for the
+  list's first item, Fraunces at `displaySmall`, a heading, and it wraps
+  instead of ellipsizing. The walk's facts follow as pills: the pathway
+  and sequence as the verdict's tilted stamp (`Stamp`, now internal, one
+  copy), digestion and a boon in a 2 dp ink box, CoR in a muted 1 dp box.
+  **A loss is a filled red pill with paper text**, and every fact turns to
+  it, as every pill turned to the error colour before: with the pathway
+  stamp red by default, a red outline alone would no longer say "lost".
+  `headerFacts` is the list as a pure function; `SheetHeaderTest` (5)
+  was watched RED first. The back and menu buttons are boxed in ink.
+- **"FILE Nº nn" is deferred to slice 4.** The owner's ruling ties it to
+  the gallery index, no numbering exists in source yet, and a sheet that
+  numbered itself first could disagree with the gallery. The top bar's
+  title is empty until then.
+- **Section heads.** `SheetSection` ("§ SKILLS · 19" over an ink rule)
+  replaces `TraitSection`, through `Caps`, so the source keeps its words
+  and a reader hears "Skills, 19". The skills count is the sum of the
+  three lists that draw the rows, precomputed once in `skillsTab`, so the
+  count and the rows cannot disagree.
+- **Skill rows.** Ruled apart, the die in a decorative 40 dp box (the row
+  stays the one target), the level in a 2 dp ink box. `LevelBadge` keeps
+  its 40 dp and `titleMedium`, because the Attack dialog, its options and
+  the builder print it too. The untrained roll is a dashed full-width box
+  in mono capitals, still first under the head.
+- **Traits rows** (`TraitRows.kt`). Price lines in mono; the five status
+  words keep their filled, outlined, grey and red distinctions, square
+  and mono now; the roll is a ruled chip with a die, its
+  `SuccessRoll.printed` text untouched; an open row's book cell is ruled
+  in stamp red at its left, as frame 08 draws it. "What the tags mean" is
+  an underlined mono link.
+- **Vitals card.** Flat on the paper under "§ Secondary characteristics",
+  rows ruled, numbers in mono at `titleLarge`, Will and Per with the boxed
+  die. The diff summary is a 2 dp ink box. **Ink, not the frame's red**:
+  frame 03 draws the amended row red, but red means harm or the Beyonder
+  (`a9be8f0`) and a disagreement with the published sheet is neither.
+
+**Skipped, each new behaviour or new information the app does not
+print:** the skills list's ATTR column and its header row, the A-Z sort
+(the owner refused it), frame 03's collapsed header on scroll, and the
+struck sheet figure in place of "(sheet: n)".
+
+### Verification
+
+1946 Kotlin (1481 `core:rules`, 442 `app`, 23 `core:model`) and 366
+Python, 0 failures, counted from fresh result directories after
+`--rerun-tasks`; `app` rose by `SheetHeaderTest`'s 5. `assembleDebug`
+clean, `ast-grep scan` clean, the session-mutator census still 40 lines,
+no file over 800 lines (`MainActivity.kt` fell from 628 to 581).
+`docs/HOW-TO-PLAY.md` needs no change: it never placed the name, and
+"Roll a skill this sheet does not have" is still at the top of Skills.
+
+**6ga's printed-number sweep does not apply**: every number the sheet
+prints reads the same source it did (`drunk`, `session.cor`, the same
+`PlayedLine.number` and live level). **6gq's double-tap check does not
+apply**: no click lambda body changed; `skillsTab`'s rewrite moved the
+same `onRoll(RollableSkill(...))` calls into lists computed once.
+
+### Device pass
+
+**None.** The SM-T570 was not on adb all session (no device, no mDNS
+service), so 6id's three owed checks are still owed, and this slice's
+too: the header on a Beyonder, a mortal and a lost character; the
+skills head and dashed box; an open trait row; the Vitals card; all in
+portrait and landscape, at font scale 1.0 and 1.3. The tablet was left
+in landscape by 6id (`settings put system user_rotation 0`).
+
+### Review
+
+Codex was at its limit (it resets at 00:24 on 2026-10-18) and pi-qa
+answered `fetch failed` again, so one general-purpose review sub-agent
+read `04e3977..64126eb`, three questions: SHIP WITH CHANGES.
+- No handler, target, printed number or label changed. The skills
+  rewrite renders the same rows in the same order with the same
+  `onRoll` arguments; `headerFacts` prints the old strings in the old
+  order, lost and corrupted included. Untested: a walk and a boon held
+  together, confirmed by reading only.
+- LOW, taken: `Modifier.boxed()` was a composable modifier factory, which
+  lint flags; it takes the colour now.
+- LOW, taken: two comments the restyle made stale (the Vitals card "as
+  one card", the untrained button "First").
+- LOW, for the device pass: the box around a top-bar button wraps its
+  48 dp target while the ripple is a 40 dp circle; the boxed die costs a
+  ComparisonRow 22 dp of label, so a phone wraps sooner.
+- LOW, the owner's call: the untrained button lost its tonal fill. Play
+  session 1 filled it because the owner could not find it; the frame
+  draws it dashed.
+
+### Next
+
+The device pass above, then slice 4: the gallery, New character and the
+glossary (frames 01, 05, 07), with the one "FILE Nº" numbering the sheet
+will reuse. Codex still owes a review of `a9be8f0`, `5148cb1`, `771deed`,
+all of 6id and this slice.
+
 ## 6id. Case File, slice 2: the shared components
 
 The second session of the Case File redesign: the plan's slice 2, the

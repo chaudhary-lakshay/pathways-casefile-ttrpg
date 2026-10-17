@@ -195,6 +195,12 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hz
+(play session 5, combat, played alone as Military Police: twelve
+findings; a critical hit doubles its rolled damage, a reading; a held
+stun rolls its recovery from a Vitals row; a rolled parry counts, 6cp's
+reason having expired; seen on the SM-T570 but for a critical).
+
 Then 6hy
 (play session 4, the campaign arc, played alone: nine findings, all fixed
 and seen on the SM-T570; one caption, `SuccessRoll.printed`; no push past
@@ -2551,8 +2557,9 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6fy back to 6de
+## Digest index, 6ga back to 6de
 
+**6ga–6fz** — a sheet row prints the played number, never the unedited sheet's; re-run 6ga's printed-number sweep after any new screen, and a grep for derivation calls is not it;
 **6fy–6ft** — a sheet's printed SPI 9 is not played: a premade plays 0 until a potion; the gallery and every chip print played numbers; `repairedEdits` is the one repair;
 **6fr** — every held row prints a cell: of 495 rows 29 had none; Wealthy prints the wealth table's, and the sense chips were cut, so a chip's text is not a row's cell (6fs: its device pass);
 **6fq** — a held face printed its name alone on Traits; `held()` gives it the table's reaction cell, and my test had computed its expectation with `cellFor`'s own formula;
