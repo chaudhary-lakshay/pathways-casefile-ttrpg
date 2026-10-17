@@ -21,9 +21,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -450,25 +447,7 @@ internal fun SheetScreen(
                 ),
             )
         },
-        bottomBar = {
-            // A footer, not a tab row. Three destinations with icons, at the
-            // bottom where a thumb reaches without crossing the screen -- the
-            // tab row sat under the top bar, which is the furthest point from
-            // where the hand holds a phone.
-            NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
-                for (option in SheetTab.entries) {
-                    NavigationBarItem(
-                        selected = tab == option,
-                        onClick = { tab = option },
-                        icon = { Icon(option.icon, contentDescription = null) },
-                        label = { Text(option.label) },
-                        // Ink, not the default `secondary`: that is the stamp
-                        // red, which marks the Beyonder and harm, not a tab.
-                        colors = NavigationBarItemDefaults.colors(selectedTextColor = MaterialTheme.colorScheme.primary),
-                    )
-                }
-            }
-        },
+        bottomBar = { SheetTabBar(tab) { tab = it } },
     ) { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
             item {

@@ -1,6 +1,11 @@
 package com.pathways.app
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
@@ -21,7 +26,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
@@ -121,7 +125,7 @@ internal fun PoolStrip(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.surfaceContainerLow,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
     ) {
         Column {
             BoxWithConstraints {
@@ -169,15 +173,11 @@ private fun PoolCell(
     val color = poolColor(status.pool)
     val tags = poolTags(status)
     Column(modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(
-            status.pool.name,
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = color,
-        )
+        Caps(status.pool.name, color = color, style = MaterialTheme.typography.labelMedium)
         Row(verticalAlignment = Alignment.CenterVertically) {
             // "Lose" is the first button because spending is what happens at
             // the table; regaining is the GM's call, after rest.
-            OutlinedIconButton(onClick = { onSpend(1) }) {
+            OutlinedIconButton(onClick = { onSpend(1) }, shape = MaterialTheme.shapes.extraSmall) {
                 Icon(Icons.Filled.Remove, contentDescription = "Lose 1 ${status.pool.name}")
             }
             // One line that shrinks rather than wraps: "15 / 15" wrapped in a
@@ -205,7 +205,7 @@ private fun PoolCell(
                 maxLines = 1,
                 autoSize = TextAutoSize.StepBased(minFontSize = 12.sp, maxFontSize = current.fontSize),
             )
-            OutlinedIconButton(onClick = { onSpend(-1) }) {
+            OutlinedIconButton(onClick = { onSpend(-1) }, shape = MaterialTheme.shapes.extraSmall) {
                 Icon(Icons.Filled.Add, contentDescription = "Regain 1 ${status.pool.name}")
             }
         }
@@ -234,21 +234,63 @@ private fun PoolCell(
     }
 }
 
+private val PIP_GAP = 2.dp
+private val PIP_MAX = 14.dp
+private val PIP_MIN = 6.dp
+
+/**
+ * How big a pool's pips can be in [width]: as large as fits, never above
+ * [PIP_MAX], and null below [PIP_MIN], where a row of squares stops being
+ * countable at a glance and the plain bar says more.
+ */
+internal fun pipSize(max: Int, width: Dp): Dp? {
+    if (max <= 0) return null
+    val size = minOf((width - PIP_GAP * (max - 1)) / max, PIP_MAX)
+    return size.takeIf { it >= PIP_MIN }
+}
+
+/**
+ * The pool as one square per point (Case File, frame 02): filled for what is
+ * left, a crossed empty box for what is spent. A pool too large for its cell
+ * falls back to a bar.
+ */
 @Composable
 private fun PoolBar(status: PoolStatus, color: Color) {
-    val filled = status.current.coerceIn(0, status.max).toFloat() / status.max
-    Box(
-        Modifier.fillMaxWidth().height(6.dp)
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest, RoundedCornerShape(3.dp)),
-    ) {
-        Box(Modifier.fillMaxWidth(filled).height(6.dp).background(color, RoundedCornerShape(3.dp)))
+    val left = status.current.coerceIn(0, status.max)
+    val spent = MaterialTheme.colorScheme.error
+    val rule = MaterialTheme.colorScheme.outlineVariant
+    // One Canvas, not a Row of boxes in a BoxWithConstraints: the strip's
+    // cells share a height through IntrinsicSize.Min, and a SubcomposeLayout
+    // throws when asked for an intrinsic (it crashed the sheet on the tablet).
+    Canvas(Modifier.fillMaxWidth().height(PIP_MAX)) {
+        val stroke = 1.dp.toPx()
+        val pip = pipSize(status.max, size.width.toDp())?.toPx()
+        if (pip == null) {
+            val top = (size.height - 8.dp.toPx()) / 2
+            drawRect(color, Offset(0f, top), Size(size.width * left / status.max, 8.dp.toPx()))
+            drawRect(color, Offset(0f, top), Size(size.width, 8.dp.toPx()), style = Stroke(stroke))
+            return@Canvas
+        }
+        val top = (size.height - pip) / 2
+        val gap = PIP_GAP.toPx()
+        repeat(status.max) { i ->
+            val at = Offset(i * (pip + gap), top)
+            if (i < left) {
+                drawRect(color, at, Size(pip, pip))
+            } else {
+                drawRect(rule, at, Size(pip, pip), style = Stroke(stroke))
+                val inset = pip * 0.3f
+                drawLine(spent, at + Offset(inset, inset), at + Offset(pip - inset, pip - inset), stroke)
+                drawLine(spent, at + Offset(pip - inset, inset), at + Offset(inset, pip - inset), stroke)
+            }
+        }
     }
 }
 
 @Composable
 private fun PoolTag(text: String, color: Color) {
     Surface(
-        shape = RoundedCornerShape(6.dp),
+        shape = MaterialTheme.shapes.extraSmall,
         color = Color.Transparent,
         border = BorderStroke(1.dp, color),
     ) {
