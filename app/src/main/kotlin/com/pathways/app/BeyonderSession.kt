@@ -89,7 +89,7 @@ class BeyonderSession(
         private set
 
     /** Both endings, for callers that only need to know play has stopped. */
-    val isLost: Boolean get() = lost || corrupted
+    val isLost: Boolean get() = endedPlay(lost, corrupted)
 
     /**
      * Damage taken and energy spent, as losses from the current maximum --

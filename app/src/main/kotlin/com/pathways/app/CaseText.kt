@@ -3,6 +3,7 @@ package com.pathways.app
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
@@ -16,7 +17,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.text
@@ -53,6 +57,14 @@ internal fun Caps(
     )
 }
 
+/** A 2 dp dashed rule round a box: the frames' mark for "start something" (frames 01 and 04). */
+internal fun Modifier.dashedBorder(color: Color): Modifier = drawBehind {
+    drawRect(
+        color,
+        style = Stroke(width = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 5.dp.toPx()))),
+    )
+}
+
 /** Every button's corners. Material draws its buttons as pills and takes no theme shape for them. */
 internal val ButtonShape = RoundedCornerShape(2.dp)
 
@@ -63,14 +75,13 @@ internal val ButtonShape = RoundedCornerShape(2.dp)
  * A Column, because the title slot stacks bare children.
  */
 @Composable
-internal fun FormTitle(form: String, title: @Composable () -> Unit) {
+internal fun FormTitle(form: String, file: String? = null, title: @Composable () -> Unit) {
     Column {
-        Text(
-            form,
-            Modifier.clearAndSetSemantics {},
-            style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.1.em),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        Row(Modifier.clearAndSetSemantics {}) {
+            val style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.1.em)
+            Text(form, Modifier.weight(1f), style = style, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (file != null) Text(file.uppercase(), style = style, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
         title()
         HorizontalDivider(Modifier.padding(top = 8.dp), thickness = 2.dp, color = MaterialTheme.colorScheme.outline)
     }
@@ -88,6 +99,7 @@ internal const val FORM_DIVINE = "FORM 7-D · DIVINATION"
 internal const val FORM_SIGHT = "FORM 7-V · SIGHT"
 internal const val FORM_DETECT = "FORM 7-X · COUNTER"
 internal const val FORM_BOON = "FORM 13-B · PETITION"
+internal const val FORM_INTAKE = "FORM 23-B · INTAKE"
 
 /**
  * A dialog's way out, in stamp red mono capitals as the frames draw it. Red

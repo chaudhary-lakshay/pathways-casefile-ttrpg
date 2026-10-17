@@ -269,7 +269,13 @@ data class SavedSession(
      * defaulted, so an older save still decodes.
      */
     val basedOn: String? = null,
-)
+) {
+    /** Play has ended: the gallery's red row. The sheet asks [BeyonderSession.isLost]. */
+    val isLost: Boolean get() = endedPlay(lost, corrupted)
+}
+
+/** Both endings: lost to the Rampager or to corruption. The one copy of the predicate. */
+internal fun endedPlay(lost: Boolean, corrupted: Boolean): Boolean = lost || corrupted
 
 /**
  * Remembers each premade's Beyonder state across restarts.

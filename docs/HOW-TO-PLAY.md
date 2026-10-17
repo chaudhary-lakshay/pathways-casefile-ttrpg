@@ -25,16 +25,23 @@ it does the arithmetic. Nothing is hidden and nothing is invented.
 
 ## 1. Pick a character
 
-The premade list shows all 23 sheets. Tap one. To make your own, tap the
-person icon in the top bar: give a name and pick what it starts as (the blank
-sheet, or a premade to copy). It joins the list under that name, and the
-builder (**Spend points**) is where it is built.
+The premade list shows all 23 sheets. Tap one. To make your own, tap
+**Open new file** at the foot of the screen: give a name and pick what it
+starts as, **Blank sheet** or **Template** (a premade to copy, as printed;
+type in **Filter templates…** to find one). It joins the list under that
+name, and the builder (**Spend points**) is where it is built. **Start from
+a blank sheet**, under the list, opens the blank sheet itself, unnamed.
 
-A row prints the four attributes, the skill count and the first two traits
-as you play them: what you bought in the builder, then what your potions
-raised. The **Beyonders** tab
-holds the characters you have walked onto a pathway, each marked with its
-pathway and Sequence; everyone else is under **Mortal**.
+A row prints its file number, the four attributes, the first two traits and
+the skill count as you play them: what you bought in the builder, then what
+your potions raised. The tabs over the list filter it: **Beyonders** holds
+the characters you have walked onto a pathway, each stamped with its pathway
+and Sequence; everyone else is under **Mortal**. A character lost to the
+Rampager or to corruption is in red, its stamp filled.
+
+The book icon beside **Characters** opens the glossary: the book's terms
+under their initials, a row of letters to jump between them, and **look up
+a term** to search. Tap a term to read it.
 
 The sheet screen opens with a **computed vs. as-published** comparison. Where
 the two disagree, the app shows both and *keeps the disagreement* — it does not

@@ -39,7 +39,7 @@ internal fun fileNumber(sheet: PremadeSheet, sheets: List<PremadeSheet>): Int? =
 
 /** The sheet bar's caption: "File Nº 06 · Beyonder" (Case File, frame 02). */
 internal fun fileLine(number: Int?, isBeyonder: Boolean): String =
-    listOfNotNull(number?.let { String.format(java.util.Locale.ROOT, "File Nº %02d", it) }, if (isBeyonder) "Beyonder" else "Mortal")
+    listOfNotNull(number?.let { "File Nº ${fileDigits(it)}" }, if (isBeyonder) "Beyonder" else "Mortal")
         .joinToString(" · ")
 
 /** How a header fact is inked (Case File, frames 02-04). */

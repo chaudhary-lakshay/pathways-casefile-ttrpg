@@ -15,9 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -305,18 +302,12 @@ internal fun LazyListScope.skillsTab(
  */
 @Composable
 private fun UntrainedButton(onClick: () -> Unit) {
-    val dash = MaterialTheme.colorScheme.outline
     Row(
         Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth()
             .heightIn(min = 56.dp)
-            .drawBehind {
-                drawRect(
-                    dash,
-                    style = Stroke(width = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 5.dp.toPx()))),
-                )
-            }
+            .dashedBorder(MaterialTheme.colorScheme.outline)
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.Center,

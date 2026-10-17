@@ -1,52 +1,22 @@
 package com.pathways.app
 
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.PersonAdd
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attributes
 import com.pathways.model.BeyonderState
@@ -66,9 +36,9 @@ import com.pathways.rules.TraitGrants
  *
  * This app is a reference tool used mid-game, so the metric is information per
  * screenful, not atmosphere (docs/DESIGN-DIRECTION.md). Hence full-width rows:
- * a small monogram, the name, the two traits that characterise the person, and
- * the four attributes. Four to five characters per screen, and the row carries more
- * than the tile did.
+ * the file number, the name, the walk's stamp, the two traits that
+ * characterise the person, and the four attributes, a table as Case File
+ * frame 01 draws it ([GalleryRow]).
  *
  * The filters exist because 23 near-identical ordinary people is the actual
  * problem this screen has, and "which of these is already supernatural" is the
@@ -93,7 +63,7 @@ import com.pathways.rules.TraitGrants
  * ([repairedEdits]).
  */
 
-/** The filter across the bottom. `TEMPLATE` is not a person; see [isTemplate]. */
+/** The folder tabs over the table. The blank sheet is not a person; see [isTemplate]. */
 internal enum class Roster(val label: String) {
     ALL("All"),
     MORTAL("Mortal"),
@@ -173,20 +143,6 @@ internal fun rosterOf(
 }
 
 /**
- * One or two letters for the monogram. The initial of each of the first two
- * words, so "Barmaid Brawler" gives BB and "Apothecary" gives A. Each word is
- * searched for its first LETTER, so a name starting with a digit or bracket
- * still renders letters.
- */
-private fun initialsOf(name: String): String =
-    name.split(' ', '-')
-        .mapNotNull { word -> word.firstOrNull { it.isLetter() } }
-        .take(2)
-        .joinToString("")
-        .uppercase()
-        .ifEmpty { "?" }
-
-/**
  * The trait names worth showing on a row, from [names] in held order.
  *
  * Seven fixtures store the trait's name and the book's whole effect cell as one
@@ -222,7 +178,27 @@ internal fun chipTraits(names: List<String>): List<String> =
         .filter { it.length in 1..32 }
         .take(2)
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** A row's line under the name (frame 01): the two traits, then the skill count, "sk." on screen and spelled out aloud. */
+internal fun galleryNote(row: PlayedRow, spoken: Boolean): String =
+    (row.chips.joinToString(", ").takeIf { it.isNotEmpty() }?.let { listOf(it) }.orEmpty() +
+        "${row.skills} ${if (spoken) "skills" else "sk."}").joinToString(" · ")
+
+/** The row's stamp: the walk, or Mortal. Capitals are drawn, not stored. */
+internal fun walkStamp(walk: BeyonderState?): String = walk?.let { "${it.pathway} ${it.sequence}" } ?: "Mortal"
+
+/** Frame 01 inks an attribute heavy at 10 and above, the book's average. Display only. */
+internal fun isStrong(value: Int): Boolean = value >= 10
+
+/** The file number the next character created takes: own characters join the end ([fileNumber]). */
+internal fun nextFileNumber(sheets: List<PremadeSheet>): Int = sheets.count { !isTemplate(it) } + 1
+
+/**
+ * The gallery as Case File frame 01 draws it: the index head, folder tabs
+ * over a ruled table, and Open new file pinned at the foot. The glossary
+ * takes the whole screen when open, in the activity window, so the paper
+ * and the column hold; the list's place is kept under it.
+ */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PremadeGallery(
     sheets: List<PremadeSheet>,
@@ -235,6 +211,7 @@ fun PremadeGallery(
     var roster by remember { mutableStateOf(Roster.ALL) }
     var creating by remember { mutableStateOf(false) }
     var glossaryOpen by remember { mutableStateOf(false) }
+    val listState = rememberLazyListState()
     val people = remember(sheets) { sheets.filterNot(::isTemplate) }
     val templates = remember(sheets) { sheets.filter(::isTemplate) }
     // Not remembered: the save is a plain map, not snapshot state, and 22
@@ -242,75 +219,31 @@ fun PremadeGallery(
     // this screen is not composed, so each return reads it fresh.
     val shown = rosterOf(roster, people, saved)
 
+    // The glossary's only entry point, and it is here for its own reason:
+    // the other three screens all require a selected character, and "what
+    // is CoR" is not a question about one. See [GlossaryScreen].
+    if (glossaryOpen) {
+        GlossaryScreen(onBack = { glossaryOpen = false })
+        return
+    }
+
     Scaffold(
-        topBar = {
-            Column {
-                TopAppBar(
-                    // "Characters", not "Pathways". A top bar names the SCREEN
-                    // you are on, and this one named the app -- which told a
-                    // reader nothing they did not already know, and clashed
-                    // with the Pathway screen that genuinely is about pathways.
-                    title = { Text("Characters", style = MaterialTheme.typography.titleLarge) },
-                    navigationIcon = {
-                        Icon(
-                            Icons.Filled.Groups,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(start = 16.dp, end = 4.dp),
-                        )
-                    },
-                    actions = {
-                        IconButton(onClick = { creating = true }) {
-                            Icon(Icons.Filled.PersonAdd, contentDescription = "New character")
-                        }
-                        // The glossary's only entry point, and it is here for
-                        // its own reason: the other three screens all require
-                        // a selected character, and "what is CoR" is not a
-                        // question about one. This is the only
-                        // character-independent screen the app has. See
-                        // [GlossarySheet].
-                        IconButton(onClick = { glossaryOpen = true }) {
-                            Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Glossary")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        // The launch screen's heading is the one place the
-                        // accent is a brand mark rather than "you can do this".
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                )
-            }
-        },
-        bottomBar = {
-            // A footer, matching the sheet screen. The counts stay on the
-            // labels: a destination reading "Beyonders (4)" says how much list
-            // is behind it before a tap finds out.
-            // Underlined tabs, not destinations: the three are one list filtered.
-            Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
-                PrimaryTabRow(
-                    selectedTabIndex = roster.ordinal,
-                    containerColor = Color.Transparent,
-                    modifier = Modifier.navigationBarsPadding(),
-                ) {
-                    for (option in Roster.entries) {
-                        Tab(
-                            selected = roster == option,
-                            onClick = { roster = option },
-                            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.heightIn(min = 56.dp),
-                            text = { Text("${option.label} (${rosterOf(option, people, saved).size})") },
-                        )
-                    }
-                }
-            }
-        },
+        containerColor = Color.Transparent,
+        bottomBar = { OpenFileButton(onClick = { creating = true }) },
     ) { insets ->
         LazyColumn(
+            state = listState,
             modifier = Modifier.padding(insets).fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 4.dp),
         ) {
+            item(key = "head") { GalleryHead(onGlossary = { glossaryOpen = true }) }
+            // The filter stays in reach over a long list.
+            stickyHeader(key = "tabs") {
+                Column {
+                    RosterTabs(roster, Roster.entries.associateWith { rosterOf(it, people, saved).size }) { roster = it }
+                    GalleryTableHead()
+                }
+            }
             items(shown, key = { it.name }) { sheet ->
                 // ponytail: two digestions a row, on the main thread, each
                 // time the row scrolls into view (a lazy item's `remember`
@@ -318,178 +251,28 @@ fun PremadeGallery(
                 // map above the list when a profiler says so.
                 val entry = saved[sheet.name]
                 val numbers = remember(sheet, entry) { rowFor(sheet, entry) }
-                PremadeRow(sheet, walkOf(sheet, saved), numbers) { onSelect(sheet) }
+                GalleryRow(
+                    file = fileNumber(sheet, sheets),
+                    name = sheet.name,
+                    walk = walkOf(sheet, saved),
+                    lost = entry?.isLost == true,
+                    numbers = numbers,
+                ) { onSelect(sheet) }
             }
-
             // Below the people, not among them.
             items(templates, key = { it.name }) { sheet ->
-                OutlinedButton(shape = ButtonShape,
-                    onClick = { onSelect(sheet) },
-                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = null, Modifier.size(18.dp))
-                    Text("  Start from a blank sheet")
-                }
+                BlankSheetButton(onClick = { onSelect(sheet) })
             }
         }
-    }
-
-    if (glossaryOpen) {
-        GlossarySheet(onDismiss = { glossaryOpen = false })
     }
 
     if (creating) {
         NewCharacterDialog(
             bases = bases,
             taken = takenNames(sheets, saved),
+            file = nextFileNumber(sheets),
             onDismiss = { creating = false },
             onCreate = { name, base -> creating = false; onCreate(name, base) },
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun PremadeRow(sheet: PremadeSheet, walk: BeyonderState?, numbers: PlayedRow, onClick: () -> Unit) {
-    val beyonder = walk != null
-    Card(
-        onClick = onClick,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        ),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Row(
-            Modifier.fillMaxWidth().padding(12.dp),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            // Small, and marked by what the character IS. The one thing colour
-            // is spent on here is the one distinction that changes what the app
-            // can do with the character.
-            //
-            // The mark is a BORDER and the initials, both in bare `secondary`,
-            // rather than a filled `secondaryContainer`. Material spends
-            // `secondaryContainer` on selected chrome -- every FilterChip and
-            // segmented button in this app -- so a filled swatch
-            // here read as "this row is selected" rather than "this person is a
-            // Beyonder, and under a rotated preset it sat next to an identical
-            // pill in the nav bar. Bare `secondary` is the accent chrome never
-            // touches, which is why the other three Beyonder cues (the label,
-            // the walk, ActionGroup's tint) already use it.
-            Surface(
-                shape = MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                contentColor = if (beyonder) {
-                    MaterialTheme.colorScheme.secondary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-                border = if (beyonder) {
-                    BorderStroke(1.dp, MaterialTheme.colorScheme.secondary)
-                } else {
-                    null
-                },
-                modifier = Modifier.size(40.dp),
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(initialsOf(sheet.name), style = MaterialTheme.typography.titleSmall)
-                }
-            }
-
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        sheet.name,
-                        style = MaterialTheme.typography.titleSmall,
-                        // Two: at phone width one line cut "Academic R…"
-                        // beside the mark.
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, fill = false),
-                    )
-                    if (walk != null) {
-                        Text(
-                            "BEYONDER",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.secondary,
-                            maxLines = 1,
-                            modifier = Modifier
-                                .padding(start = 8.dp)
-                                .border(1.dp, MaterialTheme.colorScheme.secondary, MaterialTheme.shapes.extraSmall)
-                                .padding(horizontal = 6.dp, vertical = 1.dp),
-                        )
-                        // The walk, beside the mark it explains. Weighted
-                        // like the name, so on a narrow phone the two share
-                        // what the pill leaves and neither takes it all.
-                        Text(
-                            "${walk.pathway} ${walk.sequence}",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.secondary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f, fill = false).padding(start = 8.dp),
-                        )
-                    }
-                }
-
-                // The four attributes as played. Not SPI: a pool is the sheet
-                // screen's to print, beside what is left of it.
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    val played = numbers.attributes
-                    StatCell("ST", "${played.st}")
-                    StatCell("DX", "${played.dx}")
-                    StatCell("IQ", "${played.iq}")
-                    StatCell("HT", "${played.ht}")
-                }
-
-                // The skill count is drawn whether or not a trait chip is: it
-                // sat inside the chips' row, so a character with no short
-                // trait name printed no count either.
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    for (trait in numbers.chips) {
-                        Surface(
-                            shape = MaterialTheme.shapes.extraSmall,
-                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ) {
-                            Text(
-                                trait,
-                                style = MaterialTheme.typography.labelMedium,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                            )
-                        }
-                    }
-                    Text(
-                        "${numbers.skills} skills",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 2.dp, top = 2.dp),
-                    )
-                }
-            }
-            Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.align(Alignment.CenterVertically),
-            )
-        }
-    }
-}
-
-@Composable
-private fun StatCell(label: String, value: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(
-            " $value",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
