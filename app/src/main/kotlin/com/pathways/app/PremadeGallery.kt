@@ -189,6 +189,13 @@ internal fun walkStamp(walk: BeyonderState?): String = walk?.let { "${it.pathway
 /** Frame 01 inks an attribute heavy at 10 and above, the book's average. Display only. */
 internal fun isStrong(value: Int): Boolean = value >= 10
 
+/** The gallery list's two fixed items. A lazy list throws on a repeated key. */
+internal const val GALLERY_HEAD_KEY = "head"
+internal const val GALLERY_TABS_KEY = "tabs"
+
+/** A person's or the blank sheet's list key, prefixed so no name can repeat a fixed item's (Codex, 6ig). */
+internal fun rowKey(name: String): String = "row:$name"
+
 /** The file number the next character created takes: own characters join the end ([fileNumber]). */
 internal fun nextFileNumber(sheets: List<PremadeSheet>): Int = sheets.count { !isTemplate(it) } + 1
 
@@ -236,15 +243,15 @@ fun PremadeGallery(
             modifier = Modifier.padding(insets).fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 4.dp),
         ) {
-            item(key = "head") { GalleryHead(onGlossary = { glossaryOpen = true }) }
+            item(key = GALLERY_HEAD_KEY) { GalleryHead(onGlossary = { glossaryOpen = true }) }
             // The filter stays in reach over a long list.
-            stickyHeader(key = "tabs") {
+            stickyHeader(key = GALLERY_TABS_KEY) {
                 Column {
                     RosterTabs(roster, Roster.entries.associateWith { rosterOf(it, people, saved).size }) { roster = it }
                     GalleryTableHead()
                 }
             }
-            items(shown, key = { it.name }) { sheet ->
+            items(shown, key = { rowKey(it.name) }) { sheet ->
                 // ponytail: two digestions a row, on the main thread, each
                 // time the row scrolls into view (a lazy item's `remember`
                 // goes with it). 22 rows of a few potions each; hoist one
@@ -260,7 +267,7 @@ fun PremadeGallery(
                 ) { onSelect(sheet) }
             }
             // Below the people, not among them.
-            items(templates, key = { it.name }) { sheet ->
+            items(templates, key = { rowKey(it.name) }) { sheet ->
                 BlankSheetButton(onClick = { onSelect(sheet) })
             }
         }

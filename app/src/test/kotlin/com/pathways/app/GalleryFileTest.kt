@@ -72,6 +72,14 @@ class GalleryFileTest {
         assertEquals(premades.count { !isTemplate(it) } + 2, printed)
     }
 
+    @Test
+    fun `no character's name can take the head's or the tabs' list key`() {
+        // A lazy list throws on a repeated key; own characters take any name (Codex, 6ig).
+        for (name in listOf(GALLERY_HEAD_KEY, GALLERY_TABS_KEY)) {
+            assertFalse(rowKey(name) in setOf(GALLERY_HEAD_KEY, GALLERY_TABS_KEY), name)
+        }
+    }
+
     // --- New character (frame 05) ---
 
     @Test
