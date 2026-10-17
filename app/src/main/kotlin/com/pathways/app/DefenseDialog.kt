@@ -371,6 +371,7 @@ internal fun DefenseDialog(
                         shieldedTargets(
                             dodge + boostOn("Dodge", round.boost) + acrobaticSwing + diveBonus + retreatDodge,
                             shieldForDb,
+                            coverage,
                             everyDefence,
                         ),
                         rollDefence("Dodge"),
@@ -418,6 +419,7 @@ internal fun DefenseDialog(
                         shieldedTargets(
                             parryScore(value, parryPenalty, boostOn(label, round.boost), retreatParry),
                             shieldForDb,
+                            coverage,
                             everyDefence,
                         ),
                         rollParry(label),
@@ -454,6 +456,7 @@ internal fun DefenseDialog(
                                 vsWeapon,
                             ),
                             shieldForDb,
+                            coverage,
                             everyDefence,
                         ),
                         rollParry(label),
@@ -539,7 +542,7 @@ internal fun DefenseDialog(
                         val bare = ParryBlock.blockFor(shieldSkill, shieldDb = 0)
                         val boosted = boostOn("Block", round.boost)
                         if (held == null) {
-                            DefenseRow("Block", shieldedTargets(bare + boosted + retreatBlock, null, everyDefence), rollDefence("Block"))
+                            DefenseRow("Block", shieldedTargets(bare + boosted + retreatBlock, null, coverage, everyDefence), rollDefence("Block"))
                             // Two ways to have no DB, and they are different
                             // facts: nothing Readied, or something Readied
                             // that the book withholds from behind.
@@ -559,7 +562,7 @@ internal fun DefenseDialog(
                             val own = bare + everyDefence + boosted + retreatBlock
                             val melee =
                                 Shields.blockFor(held, shieldSkill) + everyDefence + boosted + retreatBlock
-                            DefenseRow("Block", listOf(own, melee), rollDefence("Block"))
+                            DefenseRow("Block", shieldPair(own, melee, coverage), rollDefence("Block"))
                             // The ranged figure is shown beside it rather than
                             // replacing it: a light shield is "-1 to Block vs.
                             // ranged" and one number cannot say both. It takes

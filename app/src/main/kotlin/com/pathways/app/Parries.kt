@@ -117,19 +117,31 @@ internal const val SHIELD_SKILL = "Shield"
  * [Shields.coverageAt] decides -- [shield] arrives null when the DB is
  * withheld, so no caller adds it by hand.
  *
- * Both numbers are still shown wherever it is not withheld, because at the
- * SIDE the book settles nothing: baking the total into one number would let a
- * GM roll a shielded Dodge against a backstab (Codex), and hiding it would
- * withhold a bonus the book may well grant.
+ * Both numbers are shown at the SIDE, where the book settles nothing: baking
+ * the total into one number would let a GM roll a shielded Dodge against an
+ * attack the shield does not face (Codex), and hiding it would withhold a
+ * bonus the book may well grant. At the front the book grants it, so the
+ * shielded figure is the only one ([shieldPair]; play session 7).
  */
-internal fun shieldedTargets(base: Int, shield: Shield?, everyDefence: Int = 0): List<Int> {
+internal fun shieldedTargets(base: Int, shield: Shield?, coverage: ShieldCoverage, everyDefence: Int = 0): List<Int> {
     // What lands on EVERY row is unconditional -- Combat Reflexes' "+1 to all
     // active defenses" and the stun's "-4 to Active Defense" -- so it is
     // folded into the base, where the shield's conditional DB cannot be. Every
     // row goes through this one function for exactly that reason: two places
     // adding the same figure is how these numbers stop reconciling (6ai).
     val own = base + everyDefence
-    return if (shield == null) listOf(own) else listOf(own, Shields.withBonus(own, shield))
+    return shieldPair(own, shield?.let { Shields.withBonus(own, it) }, coverage)
+}
+
+/**
+ * The figures a row rolls at: [shielded] alone where [coverage] grants the DB,
+ * both where it is the GM's call. The one answer for the rows above and for
+ * Block, which builds its shielded figure by hand.
+ */
+internal fun shieldPair(own: Int, shielded: Int?, coverage: ShieldCoverage): List<Int> = when {
+    shielded == null -> listOf(own)
+    coverage == ShieldCoverage.COUNTS -> listOf(shielded)
+    else -> listOf(own, shielded)
 }
 
 /**

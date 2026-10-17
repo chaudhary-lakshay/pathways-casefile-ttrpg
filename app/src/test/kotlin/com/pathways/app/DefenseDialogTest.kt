@@ -11,6 +11,7 @@ import com.pathways.rules.DefenseBoost
 import com.pathways.rules.Weapons
 import com.pathways.rules.Facing
 import com.pathways.rules.RandomSource
+import com.pathways.rules.ShieldCoverage
 import com.pathways.rules.Shields
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.TraitEffects
@@ -414,8 +415,23 @@ class DefenseDialogTest {
      */
     @Test
     fun `a defence row offers a roll at each figure it prints`() {
-        assertEquals(listOf(8), shieldedTargets(7, null, everyDefence = 1))
-        assertEquals(listOf(8, 10), shieldedTargets(7, Shields.named("Medium"), everyDefence = 1))
+        val side = ShieldCoverage.GM_DECIDES
+        assertEquals(listOf(8), shieldedTargets(7, null, side, everyDefence = 1))
+        assertEquals(listOf(8, 10), shieldedTargets(7, Shields.named("Medium"), side, everyDefence = 1))
+    }
+
+    /**
+     * Play session 7: at the FRONT the book grants the DB ("adds to all active
+     * defenses ... against attacks from the front"), yet each row offered a
+     * roll without it beside the one with it. Only the side is the GM's call.
+     */
+    @Test
+    fun `at the front a readied shield's figure is the only one`() {
+        val front = ShieldCoverage.COUNTS
+        assertEquals(listOf(10), shieldedTargets(7, Shields.named("Medium"), front, everyDefence = 1))
+        assertEquals(listOf(9), shieldPair(7, 9, front))
+        assertEquals(listOf(7, 9), shieldPair(7, 9, ShieldCoverage.GM_DECIDES))
+        assertEquals(listOf(7), shieldPair(7, null, front))
     }
 
     @Test
