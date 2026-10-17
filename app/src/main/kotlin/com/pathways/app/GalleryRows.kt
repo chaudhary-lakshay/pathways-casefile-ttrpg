@@ -3,6 +3,8 @@ package com.pathways.app
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -88,12 +90,18 @@ private fun Kicker(text: String, modifier: Modifier = Modifier) {
 /**
  * The three filters as folder tabs over the table, each with its count: a
  * tab reading "Beyonders 8" says how much list is behind it. The open
- * tab's count is in stamp red, as drawn.
+ * tab's count is in stamp red, as drawn. Each tab is one unbroken line;
+ * at 390 dp the count wrapped under "Beyonders" (seen at density 492), so
+ * the row scrolls sideways when large text outgrows it.
  */
 @Composable
 internal fun RosterTabs(roster: Roster, counts: Map<Roster, Int>, onRoster: (Roster) -> Unit) {
     Row(
-        Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background).selectableGroup(),
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .horizontalScroll(rememberScrollState())
+            .selectableGroup(),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.Bottom,
     ) {
@@ -114,21 +122,22 @@ internal fun RosterTabs(roster: Roster, counts: Map<Roster, Int>, onRoster: (Ros
                     )
                     .selectable(selected = open, role = Role.Tab, onClick = { onRoster(option) })
                     .semantics { contentDescription = "${option.label}, $count" }
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                val style = MaterialTheme.typography.labelLarge.copy(
-                    fontFamily = PlexMono,
+                val style = MaterialTheme.typography.labelMedium.copy(
                     fontWeight = if (open) FontWeight.SemiBold else FontWeight.Normal,
                     letterSpacing = 0.05.em,
                 )
                 val ink = if (open) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
-                Text(option.label.uppercase(), Modifier.clearAndSetSemantics {}, style = style, color = ink)
+                Text(option.label.uppercase(), Modifier.clearAndSetSemantics {}, style = style, color = ink, softWrap = false, maxLines = 1)
                 Text(
                     " $count",
                     Modifier.clearAndSetSemantics {},
                     style = style,
                     color = if (open) MaterialTheme.colorScheme.secondary else ink,
+                    softWrap = false,
+                    maxLines = 1,
                 )
             }
         }
@@ -200,7 +209,7 @@ internal fun GalleryRow(
                 color = if (lost) red else MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(name, style = MaterialTheme.typography.headlineSmall.copy(fontSize = MaterialTheme.typography.titleLarge.fontSize))
+                Text(name, style = MaterialTheme.typography.titleLarge.copy(fontFamily = Fraunces))
                 WalkStamp(walk, lost)
                 Text(
                     galleryNote(numbers, spoken = false),

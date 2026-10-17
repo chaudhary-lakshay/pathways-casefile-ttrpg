@@ -79,7 +79,7 @@ internal fun FormTitle(form: String, file: String? = null, title: @Composable ()
     Column {
         Row(Modifier.clearAndSetSemantics {}) {
             val style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.1.em)
-            Text(form, Modifier.weight(1f), style = style, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(form, Modifier.weight(1f).padding(end = 8.dp), style = style, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (file != null) Text(file.uppercase(), style = style, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         title()

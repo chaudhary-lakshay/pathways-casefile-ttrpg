@@ -277,7 +277,7 @@ private fun OpenTerm(entry: GlossaryEntry, onClick: () -> Unit) {
                 .semantics { stateDescription = "Open" },
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(entry.term, Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall.copy(fontSize = MaterialTheme.typography.titleLarge.fontSize))
+            Text(entry.term, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge.copy(fontFamily = Fraunces))
             Icon(Icons.Filled.KeyboardArrowUp, contentDescription = null, Modifier.size(20.dp))
         }
         Text(entry.definition, Modifier.padding(bottom = 8.dp), style = MaterialTheme.typography.bodyMedium)

@@ -2,6 +2,8 @@ package com.pathways.app
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -122,7 +124,9 @@ internal fun NewCharacterDialog(
             }
         },
         text = {
-            Column {
+            // Scrolls once large text outgrows the window (390 dp at font
+            // 1.3 cut the hint off); the template list keeps its fixed height.
+            Column(Modifier.verticalScroll(rememberScrollState())) {
                 Caps("Subject name")
                 TextField(
                     value = name,
