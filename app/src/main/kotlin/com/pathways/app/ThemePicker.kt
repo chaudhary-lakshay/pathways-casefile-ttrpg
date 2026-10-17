@@ -115,6 +115,13 @@ fun ThemePicker(
                 enabled = dark,
                 onCheckedChange = { set(prefs.copy(amoled = it)) },
             )
+
+            ToggleRow(
+                title = "Roll sounds",
+                detail = "A sound when a divination's verdict lands.",
+                checked = prefs.sounds,
+                onCheckedChange = { set(prefs.copy(sounds = it)) },
+            )
         }
     }
 }

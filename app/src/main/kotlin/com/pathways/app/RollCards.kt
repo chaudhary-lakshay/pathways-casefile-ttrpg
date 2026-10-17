@@ -211,6 +211,8 @@ internal fun VerdictCard(
     verdict: String,
     passed: Boolean,
     roll: RollResult,
+    // Null plays no flourish: a kind joins once its sounds are chosen.
+    kind: RollKind? = null,
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
     val accent = if (passed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
@@ -220,18 +222,21 @@ internal fun VerdictCard(
         border = BorderStroke(1.5.dp, accent),
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
     ) {
-        Column(Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(verdict, style = MaterialTheme.typography.headlineMedium, color = accent)
-                    Text(
-                        "3d6: ${roll.total} vs ${roll.target}",
-                        style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = TABULAR),
-                    )
+        Box {
+            if (kind != null) RollFlourish(kind, Tier.of(passed, roll))
+            Column(Modifier.padding(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(verdict, style = MaterialTheme.typography.headlineMedium, color = accent)
+                        Text(
+                            "3d6: ${roll.total} vs ${roll.target}",
+                            style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = TABULAR),
+                        )
+                    }
+                    Tag("margin ${roll.margin}", accent)
                 }
-                Tag("margin ${roll.margin}", accent)
+                content()
             }
-            content()
         }
     }
 }

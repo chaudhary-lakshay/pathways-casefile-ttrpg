@@ -77,6 +77,8 @@ data class ThemePrefs(
     val dynamic: Boolean = false,
     /** Pure black surfaces in dark mode, for OLED panels. */
     val amoled: Boolean = false,
+    /** A verdict's sound ([RollFlourish]); its motion follows the system's animation setting. */
+    val sounds: Boolean = true,
 )
 
 private const val PREFS = "pathways.theme"
@@ -98,6 +100,7 @@ fun loadThemePrefs(context: Context): ThemePrefs {
         mode = mode,
         dynamic = p.getBoolean("dynamic", false),
         amoled = p.getBoolean("amoled", false),
+        sounds = p.getBoolean("sounds", true),
     )
 }
 
@@ -107,6 +110,7 @@ fun saveThemePrefs(context: Context, prefs: ThemePrefs) {
         .putString("mode", prefs.mode.name)
         .putBoolean("dynamic", prefs.dynamic)
         .putBoolean("amoled", prefs.amoled)
+        .putBoolean("sounds", prefs.sounds)
         .apply()
 }
 

@@ -683,7 +683,12 @@ fun DivinationDialog(
 private fun Result(outcome: DivinationOutcome, backlash: String?, hpBurned: Int) {
     // effectiveOutcome, not roll.outcome: a critical-only target demotes an
     // ordinary success, and a green card over "Failure" would misreport it.
-    VerdictCard(outcome.clarity.result, outcome.effectiveOutcome.isSuccess, outcome.roll) {
+    VerdictCard(
+        outcome.clarity.result,
+        outcome.effectiveOutcome.isSuccess,
+        outcome.roll,
+        kind = RollKind.DIVINATION,
+    ) {
         Text(
             outcome.clarity.clarity,
             style = MaterialTheme.typography.titleMedium,
