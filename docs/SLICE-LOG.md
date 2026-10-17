@@ -6829,9 +6829,35 @@ picker's file.
 - A granted skill's level badge is ink. Only its "potion" tag is red,
   because a red number now means a named harm state.
 
+### The second device pass (`771deed`)
+
+The first pass saw four surfaces, and the pool strip had wrapped, so a
+read-only pass covered the rest: Vitals, Traits, a Physician roll and
+its verdict, the Pathway screen with the outlined cost tags, the
+builder, Defend, Divine, and the sheet and a dialog at font scale 1.3.
+
+- **Appendix A's longest chip wrapped past its height.** "Aided by
+  someone with the same skill +2 (if they succeed first)" in mono took
+  two lines, and the chip's fixed height cut the second off.
+  `labelLarge`, which chips and buttons take, is Plex Sans now. Mono
+  keeps the small labels and every number. Slice 2 sets a component in
+  mono where its frame shows it.
+- **"10/10" wrapped at font scale 1.3.** Current and max are one
+  `BasicText` now. The max is sized in em, and the text auto-sizes down
+  (`TextAutoSize.StepBased`), so it shrinks rather than wraps. It was
+  seen on one line at 1.0 and at 1.3.
+- The verdict did not move the Roll button. The font-scale change
+  restarted the activity to the gallery, so the 1.3 check opened Beat
+  Cop. The scale was put back to 1.0.
+- A test pins `launch_background` to `CaseFile.background`. That is the
+  guard the deleted preset test carried, watched RED against the old
+  `#F9F9F9`.
+- The save was copied off before the pass and compared after:
+  byte-identical.
+
 ### Verification
 
-1935 Kotlin (1481 `core:rules`, 431 `app`, 23 `core:model`) and 366
+1937 Kotlin (1481 `core:rules`, 433 `app`, 23 `core:model`) and 366
 Python. `app` fell from 892 because `ThemeSchemesTest` now sweeps one
 scheme instead of twelve, 0 failures, from fresh build directories.
 RED was watched for every new test: the side note's "7 → 8", the 10
@@ -6867,7 +6893,7 @@ its usage limit (it resets at 00:24 on 2026-10-18), and pi-qa answered
 - The Plex licensing: compliant. The name tables are unmodified, and the
   licences are in `assets/licenses`.
 
-`a9be8f0` and `5148cb1` have had no Codex review. The next session owes
+`a9be8f0`, `5148cb1` and `771deed` have had no Codex review. The next session owes
 them one.
 
 ### Next
