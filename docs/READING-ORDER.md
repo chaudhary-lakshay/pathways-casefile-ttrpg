@@ -195,6 +195,15 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hw
+(play session 3, the mystical half, which I played alone as the Occult
+Scholar: a typed spirit hit multiplies on FP and SPI, the location on HP
+only; Spirit Vision takes Spiritual Attrition's -3, read after the
+activation is paid; a gained quirk reads GM call; no push on a crystal
+clear answer; then the owner's calls: Absent-Minded stays refused on its
+price, the Boon form leads with its refusal, an acting band is a tap
+adding its low end; the device pass is owed).
+
 Then 6hv
 (play session 2, which I played alone as an own character, Mira: eleven
 findings, all fixed; shock leaves the daily recovery roll, which comes a
@@ -2529,8 +2538,9 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6fn back to 6de
+## Digest index, 6fo back to 6de
 
+**6fo** — Mother 8 and Justiciar 6 grant Ancient Hermes, Native, both forms; `Languages.grantedBy` feeds the ritual dialog's note and no roll changes;
 **6fn** — a potion's face: the chain keeps Sequence 6's and the better of bought and granted is played; a second `mapOf` key would have silently dropped Charisma's grant;
 **6fm** — a potion's Charisma levels add down the chain and onto a bought level, capped at 4; the label first said the grant's level, not what it added;
 **6fk** — a potion's catalogue rows are granted through one table pinned both ways; a census that dropped names under four characters lost Fit, and the builder would have sold a granted row;

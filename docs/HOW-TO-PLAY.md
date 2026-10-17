@@ -82,9 +82,10 @@ potion grants.
   Phobia (Cities) -1"*), until you tap it again. One line is narrower:
   Perceptual Splitting's *"All physical rolls at -2 during an episode"*
   counts only on rolls based on ST, DX or HT (those skills, attacks, defences
-  and HT rolls), never on a Will, IQ, Per or SPI roll. It is not saved: going
-  back to the gallery clears it, as it clears shock; the builder and the
-  potion screen do not.
+  and HT rolls), never on a Will, IQ, Per or SPI roll. It is not saved:
+  closing the app clears it, as it clears shock, a stun and the round, and
+  so does **Reset to sheet**. Going to the gallery and opening another
+  character does not; each character keeps their own.
 - **Reference text** in a dialog (shield rules, the incantation, Spirit
   Vision's colour key, spirit body damage, an artifact's description) sits
   behind a book icon, closed until you tap it. Targets, costs and what the
@@ -224,6 +225,12 @@ Deceptive Attack's -2 per -1 imposed (capped at half your skill), Rapid Strike's
 -6, All-Out Attack's +4 or extra attack, the FP that Extra Effort costs.
 A carried weapon is the one picked first.
 
+**Shield** attacks with a **Shield Bash**: one chip per shield the book
+prices a bash for, *Light* thr-2 cr, *Medium* thr-1 cr, *Heavy* thr cr (an
+improvised shield prints none). The same three chips sit under
+**Brawling** at -2, the bash's other default, and take Versatile's +1 like
+any default; the line under the chip says so.
+
 A **critical success** (a 3 or 4) doubles the damage rolled, as the book's
 core mechanic prints; the damage line says *×2 critical hit*. The app's
 reading is that the rolled total doubles, before DR and the wounding
@@ -285,8 +292,9 @@ The busiest screen in the app, and the one with the most declarations.
   melee weapon you carry with no skill for it gets no parry row, and a note
   names it. A firearm parries at nothing, skill or no skill.
 - **Facing** — front, side, rear. Decides whether the shield's DB counts.
-  From the side the book settles nothing, so the app *offers* the number and
-  says the call is yours.
+  From the front it does, and each row rolls at the shielded figure alone.
+  From the side the book settles nothing, so the app *offers* both numbers
+  and says the call is yours.
 - **Shield Readied** — a shield must be readied to do anything.
 - **Free actions** — Retreat (+3 Dodge / +1 Block / +1 Parry, melee only),
   Dive! (+3 Dodge, ranged only), Acrobatic Dodge (roll Acrobatics, ±2; without

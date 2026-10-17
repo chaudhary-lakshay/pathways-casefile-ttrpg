@@ -6726,6 +6726,147 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ib. The shield bash, and play session 7
+
+The owner answered play session 6's open question, "Apply it" to the
+shield bash, then picked play session 7, which I played alone in landscape
+as Brann, an own character on the Antiquarian Dealer's sheet (it holds
+Versatile), with Shield and Brawling bought. Mid-slice the owner said
+"use codex instead of ecc always": the review gate is Codex again, and the
+ecc reviewer started for this diff was stopped unread.
+
+### The shield bash (`e855ace`)
+
+Book 2536-2537: "Shield Bash: Use the shield as an improvised weapon:
+damage = thr-2 cr for light, thr-1 cr for medium, thr cr for heavy. Skill
+defaults to Shield/DX or Brawling-2." 6o refused it because "a bash is a
+weapon attack and the shield is not in chapter 8's weapon table". My
+question to the owner said the shield was now a stored pick. It is not:
+Defend's shield is a `remember` in that dialog (`DefenseDialog.kt:217`),
+so Attack cannot read it. The design does not need it. `Shields.bashesFor`
+offers one row per shield that prints a bash, so the player picks the
+shield. Improvised prints none, so it gets none. `Damage.attacksFor` appends
+the rows, so the Attack dialog's attack chips carry them, and
+`SkillDefaults.attacks` now admits an untrained Shield.
+
+- On **Shield** at no modifier. On an **owned Brawling** at -2 plus
+  Versatile's +1, because "Brawling-2" is a default (the load-time rule
+  every default obeys). An untrained Brawling offers none: its DX-2 is
+  already a default, and the untrained Shield row's DX-4 is the same roll.
+  The note names the +1 ("Brawling-2, a default, +1 Versatile"), because
+  the device showed "Attack options: -1" with the +1 folded in, where every
+  untrained row names it.
+- "Shield/DX" is read as the Shield skill (DX-based), as the book writes
+  `Shield/DX [Easy]` at 5785. ParryBlock's KDoc had quoted the sentence as
+  a penalised operand, which neither reading contradicts.
+- Codex's diff review, MEDIUM, taken: the Warrior's "every weapon is
+  treated as known at effective DX" (5798) skipped the bash, because
+  `levelWith` floored only on `armed != null`. `Shields.isWeaponInHand`
+  says a bash on Shield is a weapon in hand, at all three level sites. A
+  bash on Brawling is not: a floor under Brawling-2 would print DX-2, which
+  the book gives no one, and the Shield row already offers the master DX.
+- Pinned both ways: `PRINTED_BASH` and `PRINTED_BASH_DEFAULT` in
+  `extract_shields.PINNED` and in `ShieldsTest`.
+
+### Play session 7: what was checked
+
+Brann's Attack: Shield 9 offered three bash chips, Light first; ST 9 rolled
+1d-4, 1d-3 and 1d-2 cr; a failure by 1 pushed with 1 FP hit for 2 cr.
+Brawling 9 offered the same chips at 8. Defend with a medium shield: Dodge
+7 to 9, Parry (Brawling) 7 to 9, Block 7 to 9. All four sealed artifacts
+switch cleanly, with grade and power equivalent matching book 3344-3489.
+A mortal is refused every ability because each costs SPI. Phobia (specify)
+was bought as Phobia (Crowds) at -10. The Traits tab says Applied; Vitals
+offers its -1 line; the Fright dialog offers its -2 chip. A seeded Chaos
+Mist 9 boon (Broker) put SPI 5/5 on the sheet, and Boon asked "Shadow
+Merchant — Sequence 8 · -2". Eternal Aeon's two spellings are already
+one ladder, by the owner's ruling (`BoonGrantsTest`).
+
+### Findings, one commit each
+
+- **A character's scene died at the gallery** (`2317989`). `SheetScene`
+  was `remember(selected, resets)`, one scene per *selection*: Brann's
+  Retreat was gone after a trip to the gallery, while his HP, which is
+  saved, stayed. A stun, shock and a lit "-N to all rolls" line went the
+  same way, so a GM alternating two PCs in one round lost each one's
+  declarations. 6hs had recorded "per character". `Scenes` keeps one per
+  name, as `RollLog` keeps throws, and Reset and Delete forget it. The
+  guide's "going back to the gallery clears it" went with it.
+- **At the front a readied shield's figure is the only one** (`a954e29`).
+  Dodge, Parry and Block each offered "Roll ≤ 7" beside "Roll ≤ 9" from
+  the front, where the book grants the DB outright. `shieldedTargets`'s
+  KDoc gave the side's ambiguity as the reason for showing both. The
+  "backstab" it cited is the rear, which facing already withholds.
+  `shieldPair` is the one answer for the rows and for Block, which builds
+  its shielded figure by hand. Both figures stay at the side.
+- **A block against a shot rolls at the ranged figure** (`5c677d3`).
+  Codex on the commit above, MEDIUM: with one figure at the front, a light
+  shield against a shot rolled the melee Block, its "-1 to Block vs.
+  ranged" left in a note. `blockTargets` asks `Shields.blockFor` with the
+  attack coming in, and the note shows only while it is not a shot.
+- **A shield's own block penalty stands without its DB** (`58119c4`).
+  The review of the fix above, MEDIUM: the bare figure never took the
+  shield's own penalty, so a light shield against a shot was 1 high at the
+  side's bare figure and the rear's only one. Improvised's "-2 to Block",
+  which names no scope, was 2 high there against anything. The penalty is
+  the shield's and its DB's arc does not govern it. `bareBlock` adds it,
+  and the ranged note reads `blockTargets` rather than its own sum. This
+  defect predates 6ib.
+
+### Withdrawn
+
+- The Fright dialog's triggers "unreachable" in landscape: my swipes began
+  in the pinned footer. The body scrolls, the target card with it.
+- The artifact refusal naming "a Beyonder's abilities" for a mortal: the
+  sentence is the pool row's, and the refusal itself is right.
+
+### An incident
+
+A back press from the gallery left the app, and the taps after it reached
+the iorbit monitor app, which opened its Manage Sensors screen. Nothing was
+connected or removed, and no further input was sent to it. The tap helper
+now refuses any input unless Pathways has focus.
+
+### Verification
+
+2297 Kotlin (1481 `core:rules`, 793 `app`, 23 `core:model`) and 366
+Python, 0 failures, from fresh XML. RED watched for every new test. Mutants
+went RED: the bash map, the untrained guard, the Versatile term, the
+skill check in `isWeaponInHand`, `shieldPair`'s front branch, and
+`Scenes.of` returning a fresh scene, and `blockTargets` ignoring the
+shot, and `bareBlock` without the penalty. The second check in `isWeaponInHand`
+(the attack's name) survived, because every attack on Shield is a bash.
+It was deleted rather than kept untested. The stale Kotlin daemon from
+06:37 held `build/` open; `--no-build-cache` ran the suite.
+
+### Review
+
+Codex, as the owner asked mid-slice. The bash diff: SHIP WITH CHANGES,
+the Warrior MEDIUM above, taken. Then the fix: SHIP. The two play-session
+fixes: `2317989` SHIP (no scene leak: duplicate names are refused at
+`Characters.kt:33`, and Reset and Delete evict before the key changes),
+and `a954e29` with the ranged-Block MEDIUM, taken as `5c677d3`. Codex then
+hit its usage limit (reset 10:34), and the free pi-qa gateway answered
+`fetch failed`. With both gates down, the global rule allows one review
+sub-agent (general-purpose, not ecc). It reviewed `5c677d3`: SHIP WITH
+CHANGES. Its MEDIUM was taken as `58119c4`, and so were both LOWs (the
+note's duplicate sum, a stale "by hand" KDoc). `58119c4` itself has had
+no review: the next gate that answers owes one.
+
+### Device pass (SM-T570, wireless, landscape)
+
+All of the above was seen on the tablet. After the fixes: from the front,
+Dodge rolls 12 alone (7, Retreat 3, DB 2), and Parry and Block roll 10
+alone. From the side, both figures are offered (Dodge 10/12, Parry 8/10).
+A light shield against a shot from the front blocks at 7 alone. Mira,
+seeded with Shield for the check, blocks 9 from the rear against a hand
+and 8 against a shot. Brann's
+Retreat is still ticked after Brann, gallery, Mira (whose own is not),
+gallery, Brann. My first try at that check missed Mira's row, and the
+back press after it is the incident above.
+The save was backed up first (`sessions-20261017-0710-pre-session7.json`)
+and restored after.
+
 ## 6ia. Play session 6: a scenario Codex picked, in landscape
 
 The owner: "play yourself and make sure to take codex's input". Codex
