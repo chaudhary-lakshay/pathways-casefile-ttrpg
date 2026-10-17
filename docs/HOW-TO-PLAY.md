@@ -28,8 +28,7 @@ it does the arithmetic. Nothing is hidden and nothing is invented.
 The premade list shows all 23 sheets. Tap one. To make your own, tap the
 person icon in the top bar: give a name and pick what it starts as (the blank
 sheet, or a premade to copy). It joins the list under that name, and the
-builder (**Spend points**) is where it is built. The palette icon in its top bar
-opens the theme picker — presets, plus light / dark / follow-system.
+builder (**Spend points**) is where it is built.
 
 A row prints the four attributes, the skill count and the first two traits
 as you play them: what you bought in the builder, then what your potions

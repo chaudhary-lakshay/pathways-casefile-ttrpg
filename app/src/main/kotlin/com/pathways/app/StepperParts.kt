@@ -167,3 +167,14 @@ internal fun SectionHead(
         }
     }
 }
+
+/** A section's name above its chips, in the roll dialogs. */
+@Composable
+internal fun SectionLabel(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+    )
+}

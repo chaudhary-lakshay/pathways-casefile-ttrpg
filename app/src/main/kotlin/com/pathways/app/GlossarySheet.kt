@@ -35,9 +35,8 @@ import com.pathways.rules.content.ContentLoader
  * short rows do not need lazy layout, and a lazy list inside a
  * `ModalBottomSheet` puts the list's scroll and the sheet's drag-to-dismiss on
  * the same gesture -- a question this repo cannot answer without a device,
- * and one a plain scrolling column (which is what `ThemePicker` does one file
- * over) never asks. Add both if the reference surface ever grows to the
- * appendices.
+ * and one a plain scrolling column never asks. Add both if the reference
+ * surface ever grows to the appendices.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

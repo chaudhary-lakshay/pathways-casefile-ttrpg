@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Dark-mode platform theme. See values/themes.xml for why this exists. -->
-<resources>
-    <style name="Theme.Pathways" parent="@android:style/Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@color/launch_background</item>
-    </style>
-</resources>

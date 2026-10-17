@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -83,13 +84,12 @@ class MainActivity : ComponentActivity() {
         val store = SessionStore(File(filesDir, "sessions.json"))
         // Draw behind the system bars. Every screen already pads from
         // Scaffold's inset parameter, so this needs no per-screen change.
-        enableEdgeToEdge()
+        // Dark icons always: the app is light only, and `auto` would pick
+        // light icons on the paper whenever the device is in night mode.
+        val bars = SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT)
+        enableEdgeToEdge(statusBarStyle = bars, navigationBarStyle = bars)
         setContent {
-            // Read once, here, so the theme wraps the whole tree: changing a
-            // preference in the picker has to repaint every screen, not just
-            // the one holding the picker.
-            val theme = rememberThemePrefs()
-            PathwaysTheme(theme.value) { App(Premades.all(), store, theme) }
+            PathwaysTheme { App(Premades.all(), store) }
         }
     }
 }
@@ -102,7 +102,6 @@ class MainActivity : ComponentActivity() {
 fun App(
     premades: List<PremadeSheet>,
     store: SessionStore,
-    themePrefs: MutableState<ThemePrefs>,
 ) {
     var selected by remember { mutableStateOf<PremadeSheet?>(null) }
     // Read once; every write goes straight back out, so the file and the
@@ -140,7 +139,6 @@ fun App(
         null -> PremadeGallery(
             sheets,
             saved,
-            themePrefs,
             bases = premades.sortedByDescending(::isTemplate),
             onCreate = { name, base ->
                 saved[name] = SavedSession(basedOn = base.name)

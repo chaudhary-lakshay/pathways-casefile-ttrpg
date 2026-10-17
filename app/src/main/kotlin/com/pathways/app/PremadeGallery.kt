@@ -20,7 +20,6 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -41,7 +40,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -229,7 +227,6 @@ internal fun chipTraits(names: List<String>): List<String> =
 fun PremadeGallery(
     sheets: List<PremadeSheet>,
     saved: Map<String, SavedSession>,
-    themePrefs: MutableState<ThemePrefs>,
     /** What a new character may be copied from, the blank sheet first. */
     bases: List<PremadeSheet>,
     onCreate: (name: String, base: PremadeSheet) -> Unit,
@@ -237,7 +234,6 @@ fun PremadeGallery(
 ) {
     var roster by remember { mutableStateOf(Roster.ALL) }
     var creating by remember { mutableStateOf(false) }
-    var themeOpen by remember { mutableStateOf(false) }
     var glossaryOpen by remember { mutableStateOf(false) }
     val people = remember(sheets) { sheets.filterNot(::isTemplate) }
     val templates = remember(sheets) { sheets.filter(::isTemplate) }
@@ -268,20 +264,13 @@ fun PremadeGallery(
                             Icon(Icons.Filled.PersonAdd, contentDescription = "New character")
                         }
                         // The glossary's only entry point, and it is here for
-                        // its own reason rather than the theme picker's: the
-                        // other three screens all require a selected
-                        // character, and "what is CoR" is not a question about
-                        // one. This is the only character-independent screen
-                        // the app has. See [GlossarySheet].
+                        // its own reason: the other three screens all require
+                        // a selected character, and "what is CoR" is not a
+                        // question about one. This is the only
+                        // character-independent screen the app has. See
+                        // [GlossarySheet].
                         IconButton(onClick = { glossaryOpen = true }) {
                             Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Glossary")
-                        }
-                        // The theme picker's only entry point. It lives here
-                        // because this is the one screen every session starts
-                        // on; burying it a tap deeper would make the choice
-                        // exist without being reachable.
-                        IconButton(onClick = { themeOpen = true }) {
-                            Icon(Icons.Filled.Palette, contentDescription = "Theme")
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -355,13 +344,6 @@ fun PremadeGallery(
             taken = takenNames(sheets, saved),
             onDismiss = { creating = false },
             onCreate = { name, base -> creating = false; onCreate(name, base) },
-        )
-    }
-    if (themeOpen) {
-        ThemePicker(
-            prefs = themePrefs.value,
-            onChange = { themePrefs.value = it },
-            onDismiss = { themeOpen = false },
         )
     }
 }

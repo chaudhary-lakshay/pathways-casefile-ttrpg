@@ -1,55 +1,27 @@
 """Generate `app/.../ThemeSchemes.kt` -- every Material 3 colour role, computed.
 
-Run by hand when the preset list or the accent offsets change:
+Run by hand when a token changes:
 
     py -m pip install materialyoucolor        # once; NOT a test dependency
     py tools/gen_theme.py
 
-Deliberately not wired into `tools/test_tools_*.py`. That suite has
-no third-party colour dependency, and an authoring tool run four times a year
+Deliberately not wired into `tools/test_tools_*.py`. That suite has no
+third-party colour dependency, and an authoring tool run a few times a year
 should not add one to it. What guards the OUTPUT is the Kotlin compiler plus
-`ThemeSchemesTest`, which re-checks the two invariants this file enforces.
+`ThemeSchemesTest`, which types the design's tokens in independently.
 
-Why generate rather than hand-pick
-----------------------------------
-The previous `Theme.kt` set 33 of Material's ~48 colour roles by hand, read off
-a pixel-art palette. Two consequences, both measured:
+One scheme, Case File, light only (the owner, 2026-10-17: it replaces every
+preset, and there is no dark mode). Until then this file generated six presets
+in two modes from seeds rotated round the hue wheel; git history has it.
 
-* The 15 unset roles fell back to BASELINE Material tokens -- `surfaceBright`,
-  `surfaceDim` and the whole `*Fixed` family. Those are the stock purple-tinted
-  neutrals, so a scheme that never mentions purple was still serving it to any
-  component that reads them.
-* Hand-picking cannot honour the tonal contract. Material derives `onPrimary`
-  from `primary` by a fixed tone delta; typing both in by eye means the pair is
-  right only by luck.
-
-`materialyoucolor` is Google's own material-color-utilities, ported to Python.
-Running it here rather than at runtime means no Android dependency, no APK
-growth, and no Kotlin metadata conflict -- MaterialKolor 5.0.0, the runtime
-equivalent, is built with Kotlin 2.4.0 against this project's 2.2.0.
-
-Why the accents rotate with the seed
-------------------------------------
-Until 2026-10-17 this app spent the accents SEMANTICALLY: combat was `error`,
-Beyonder material `secondary`, management `tertiary`. The owner then chose a
-single accent and action buttons went neutral, so this rotation now only keeps
-the SEEDS presets' picker swatches distinct; the reasoning is kept as written
-because it is why those presets look as they do. A seeded
-scheme normally derives `secondary` at the seed's OWN hue, which would render
-those three categories as three shades of one colour -- the distinction the
-design direction exists to protect, deleted by the theming.
-
-So each accent family is seeded separately, at a fixed offset from the theme
-seed. The offsets are not invented: the palette this replaces already sat at
-them. Brass is hue 90, its arcane purple 317 and its verdigris 165 -- exactly
-+227 and +75. Generalising those offsets reproduces the old palette's hue
-relationships at the default seed and guarantees separation at every other one.
-
-`error` does NOT rotate. Red means danger in every theme, so it stays put, and
-the cost is that a red-ish seed would collide with it. That is why SEEDS is not
-a free colour picker: `check_separation` rejects any seed whose four category
-hues come within MIN_SEPARATION of one another. Only two hue windows survive
-(65-110 and 195-265); the presets below live inside them.
+Why generate at all
+-------------------
+The design names six colours. Material has ~48 roles, and a role the scheme
+does not set falls back to Material's BASELINE token, the stock purple-tinted
+neutrals -- measured in this app before generation (15 of 48 unset). So every
+role is computed from `materialyoucolor` (Google's material-color-utilities,
+ported to Python), and the roles a screen paints are then pinned to the
+design's exact hex.
 """
 
 from __future__ import annotations
@@ -61,131 +33,50 @@ try:
     from materialyoucolor.hct import Hct
     from materialyoucolor.dynamiccolor.material_dynamic_colors import MaterialDynamicColors
     from materialyoucolor.scheme.scheme_neutral import SchemeNeutral
-    from materialyoucolor.scheme.scheme_rainbow import SchemeRainbow
-    from materialyoucolor.scheme.scheme_tonal_spot import SchemeTonalSpot
 except ImportError:  # pragma: no cover - the message IS the handling
     sys.exit("materialyoucolor is not installed. Run: py -m pip install materialyoucolor")
 
 OUT = Path("app/src/main/kotlin/com/pathways/app/ThemeSchemes.kt")
 
-# Degrees on the HCT hue circle, measured off the palette this replaces.
-SECONDARY_OFFSET = 227.0
-TERTIARY_OFFSET = 75.0
-# Material's error hue. Fixed: red means danger regardless of theme.
-ERROR_HUE = 21.0
-# Below this, two categories stop reading as different colours at a glance.
-MIN_SEPARATION = 40.0
+# The Case File tokens (UX Pilot's "Beyonder Codex - Case File", Figma
+# oVd3fSYYgtVQT0NXdRdY0x). Stamp red is the design's #C0392B darkened 2% to
+# clear AA on paper through the grain; the owner's pick, 2026-10-17.
+PAPER, CARD, INK, MUTE, RULE, STAMP = 0xF3EFE6, 0xFBF8F1, 0x1A1A1A, 0x6B6458, 0xD8D0BF, 0xBC382A
+# Between card and paper: a raised ground that is still no darker than the
+# page. Darker container tones (#EFE9DC, #E8E1D2) put mute and stamp under
+# 4.5:1 through the grain, so no ground that carries text goes below paper.
+RAISED = 0xF6F2EA
+# A background that carries no text: the dimmest page.
+DIM = 0xE8E1D2
 
-# Two scheme families, picked by measurement rather than by name.
-#
-# Seeded at brass, in dark mode, the seven families Material ships put
-# `onSurface` -- the colour every rules table is written in -- at these chromas:
-#
-#     Rainbow  2.7    Neutral  2.8    Fidelity/Content 6.7    TonalSpot 8.3
-#     Expressive 22.3    Vibrant 28.0
-#
-# Vibrant and Expressive tint the body text itself yellow, which the design
-# direction rules out ("dense tabular text stays legible"). Of what remains,
-# Rainbow is the only family that pairs a neutral ground with a VIVID accent --
-# its `primary` comes out at chroma 47.9, the highest of the seven, against
-# Neutral's 7.8. That pairing is the design direction stated as arithmetic:
-# neutral chrome, colour only on what carries meaning.
-#
-# TonalSpot is kept as the second family because it is the one that puts a warm
-# tint back into the surfaces, which is the atmosphere the previous palette was
-# reaching for. Offering both is what gives the presets their variety: the two
-# permitted hue windows alone would only ever yield two distinguishable themes.
-STYLES = {"rainbow": SchemeRainbow, "tonal": SchemeTonalSpot, "neutral": SchemeNeutral}
+# The paper grain is drawn OVER the content (`paperGrain` in Theme.kt), so it
+# moves glyph and page alike. Its tile's mean grey and the alpha Theme.kt
+# draws it at; ThemeSchemesTest re-checks with the same two numbers.
+GRAIN_MEAN, GRAIN_ALPHA = 122, 0.07
 
-# name -> (seed argb, style key, one-line rationale for the KDoc)
-SEEDS: dict[str, tuple[int, str, str]] = {
-    "Fool": (
-        0xFFF9C72F, "rainbow",
-        "Brass on neutral graphite. The app's own gold, and the launcher icon's.",
-    ),
-    "Gaslamp": (
-        0xFFF9C72F, "tonal",
-        "The same brass, but with the warmth left in the surfaces -- what the hand-picked "
-        "aubergine palette was reaching for, derived rather than guessed.",
-    ),
-    "Tyrant": (
-        0xFF3E86B8, "rainbow",
-        "Steel blue on neutral graphite. The far side of the wheel from brass, and the "
-        "coldest seed the accent offsets allow.",
-    ),
-    "Abyss": (
-        0xFF00A6B1, "tonal",
-        "Deep teal, surfaces tinted with it. Indigo was tried first and the separation "
-        "guard rejected it: hue 291 puts its tertiary 27 degrees off the error red.",
-    ),
+PINS = {
+    "background": PAPER, "onBackground": INK,
+    "surface": PAPER, "onSurface": INK, "surfaceBright": PAPER, "surfaceDim": DIM,
+    "surfaceVariant": PAPER, "onSurfaceVariant": MUTE, "surfaceTint": CARD,
+    "surfaceContainerLowest": CARD, "surfaceContainerLow": CARD, "surfaceContainer": CARD,
+    "surfaceContainerHigh": RAISED, "surfaceContainerHighest": PAPER,
+    "inverseSurface": INK, "inverseOnSurface": PAPER, "inversePrimary": PAPER,
+    # Ink is the one action colour. Anything filled with it is written in
+    # paper, `onPrimary` included: Compose resolves a Surface's content colour
+    # through `primary` first when two roles share ink (Codex's review).
+    "primary": INK, "onPrimary": PAPER,
+    # A selected FilterChip fills with secondaryContainer: the design's black chip.
+    "secondaryContainer": INK, "onSecondaryContainer": PAPER,
+    # The Beyonder's colour (SPI, a potion's grant, the mystical actions) is
+    # the stamp; management is the mute grey.
+    "secondary": STAMP, "onSecondary": PAPER,
+    "tertiary": MUTE, "onTertiary": PAPER,
+    "error": STAMP, "onError": PAPER,
+    "outline": INK, "outlineVariant": RULE,
 }
-
-# Presets drawn from a fixed palette rather than one seed rotated round the
-# wheel: each accent family is seeded at its own colour, then the roles a
-# screen actually paints are pinned to the palette's exact hex.
-#
-# Wada is Sanzo Wada, *A Dictionary of Color Combinations* (1933), combination
-# #269 -- the owner's pick, 2026-10-11. Its four colours fill four of the five
-# category slots: Raw Sienna is the primary action, Aconite Violet is Beyonder
-# material (`secondary`), Pale Burnt Lake is combat (`error`), Black is the
-# page. Management (`tertiary`) has no fifth colour, so it takes a warm stone
-# neutral: two call sites, and it must not repeat an accent.
-#
-# The rotation's separation check does not apply: Raw Sienna and Pale Burnt
-# Lake are ~35 degrees apart in hue, under MIN_SEPARATION, but far apart in
-# tone, which is what separates them on screen. `check_pinned` checks that
-# each text colour reads on every ground a screen puts it on instead.
-PINNED: dict[str, dict] = {
-    "Wada": {
-        "style": "rainbow",
-        # Rainbow lifts any seed to a vivid primary (chroma ~48), which turned
-        # the stone seed into a saturated yellow no Wada swatch has. The stone
-        # family is built Neutral so it stays a stone.
-        "family_styles": {"tertiary": "neutral"},
-        "seeds": {"primary": 0xFFBB7125, "secondary": 0xFFA36AA5,
-                  "tertiary": 0xFF9A8F80, "error": 0xFF802626},
-        "dark": {
-            # Wada's own hex is 3.5-3.9:1 as text on a raised card (#2A2A2A),
-            # under AA. Each accent is its own hue lifted to HCT tone ~61, the
-            # lowest that clears 4.6:1 on surfaceContainerHigh: #CE8033 is
-            # Raw Sienna, #B97EBB Aconite Violet, #E2706B Pale Burnt Lake.
-            # Burnt Lake itself stays as the error container, for fills.
-            "primary": 0xCE8033, "onPrimary": 0x111314,
-            "secondary": 0xB97EBB, "onSecondary": 0x111314,
-            "error": 0xE2706B, "onError": 0x111314,
-            "errorContainer": 0x802626, "onErrorContainer": 0xECE6DC,
-            "background": 0x111314, "onBackground": 0xECE6DC,
-            "surface": 0x111314, "onSurface": 0xECE6DC,
-            # 4.6:1 on surfaceVariant, the darkest ground it is read on.
-            "onSurfaceVariant": 0xBDB6AD,
-        },
-        "light": {
-            # Raw Sienna and Aconite Violet are 3.6:1 and 3.9:1 on a light
-            # page, under AA for text; darkened to 5.3:1 and 5.8:1.
-            "primary": 0x965A1D, "onPrimary": 0xFFFFFF,
-            "secondary": 0x82508A, "onSecondary": 0xFFFFFF,
-            "error": 0x802626, "onError": 0xFFFFFF,
-        },
-        "why": "Sanzo Wada's combination #269: Raw Sienna, Aconite Violet and Pale "
-               "Burnt Lake on black. Default.",
-    },
-}
-
-
-
-def legible(c: int, ground: int, is_dark: bool) -> int:
-    """`c` at the nearest HCT tone that reads at 4.6:1 on `ground`."""
-    h = Hct.from_int(0xFF000000 | c)
-    tone = h.tone
-    while contrast(c, ground) < 4.6:
-        tone += 1 if is_dark else -1
-        c = Hct.from_hct(h.hue, h.chroma, tone).to_int() & 0xFFFFFF
-    return c
-
 
 # Every role `androidx.compose.material3.ColorScheme` accepts, in the order the
-# generated calls list them. `scrim` is not a MaterialDynamicColors entry -- it
-# is always pure black -- so it is emitted separately.
+# generated call lists them. `scrim` is always pure black, emitted separately.
 ROLES = [
     "primary", "onPrimary", "primaryContainer", "onPrimaryContainer", "inversePrimary",
     "secondary", "onSecondary", "secondaryContainer", "onSecondaryContainer",
@@ -203,303 +94,94 @@ ROLES = [
     "tertiaryFixed", "tertiaryFixedDim", "onTertiaryFixed", "onTertiaryFixedVariant",
 ]
 
-# Roles taken from a rotated scheme's PRIMARY family rather than from the theme
-# scheme. Mapping is by position in the family, so `secondaryContainer` comes
-# from the rotated scheme's `primaryContainer`.
-SECONDARY_FROM_PRIMARY = {
-    "secondary": "primary",
-    "onSecondary": "onPrimary",
-    "secondaryContainer": "primaryContainer",
-    "onSecondaryContainer": "onPrimaryContainer",
-    "secondaryFixed": "primaryFixed",
-    "secondaryFixedDim": "primaryFixedDim",
-    "onSecondaryFixed": "onPrimaryFixed",
-    "onSecondaryFixedVariant": "onPrimaryFixedVariant",
-}
-TERTIARY_FROM_PRIMARY = {
-    "tertiary": "primary",
-    "onTertiary": "onPrimary",
-    "tertiaryContainer": "primaryContainer",
-    "onTertiaryContainer": "onPrimaryContainer",
-    "tertiaryFixed": "primaryFixed",
-    "tertiaryFixedDim": "primaryFixedDim",
-    "onTertiaryFixed": "onPrimaryFixed",
-    "onTertiaryFixedVariant": "onPrimaryFixedVariant",
-}
-
-
-def separation(a: float, b: float) -> float:
-    """Shortest arc between two hues, in degrees."""
-    d = abs(a - b) % 360.0
-    return min(d, 360.0 - d)
-
-
-def category_hues(seed: int) -> dict[str, float]:
-    """The four hues a seed puts on screen as distinct meanings."""
-    h = Hct.from_int(seed).hue
-    return {
-        "primary": h,
-        "secondary": (h + SECONDARY_OFFSET) % 360.0,
-        "tertiary": (h + TERTIARY_OFFSET) % 360.0,
-        "error": ERROR_HUE,
-    }
-
-
-def closest_pair(seed: int) -> float:
-    """Degrees between the two nearest category hues -- the number to beat."""
-    hues = category_hues(seed)
-    return min(
-        separation(hues[a], hues[b])
-        for a in hues for b in hues if a < b
-    )
-
-
-def check_separation(name: str, seed: int) -> None:
-    """Reject a seed whose categories would stop reading as different colours.
-
-    This is the whole reason SEEDS is a curated list rather than a colour
-    picker. Raising here is the point: a preset that fails is a preset that
-    silently deletes the app's category encoding.
-    """
-    hues = category_hues(seed)
-    for a in hues:
-        for b in hues:
-            if a >= b:
-                continue
-            gap = separation(hues[a], hues[b])
-            if gap < MIN_SEPARATION:
-                raise SystemExit(
-                    f"seed '{name}' (#{seed & 0xFFFFFF:06X}) puts {a} and {b} "
-                    f"{gap:.0f} degrees apart; {MIN_SEPARATION:.0f} is the minimum. "
-                    f"Pick a hue in 65-110 or 195-265."
-                )
-
-
-def scheme_for(seed_hct: Hct, is_dark: bool, style: str):
-    return STYLES[style](seed_hct, is_dark, 0.0)
-
-
-def rotated(seed: int, offset: float) -> Hct:
-    """The seed's chroma and tone, moved round the hue circle."""
-    h = Hct.from_int(seed)
-    return Hct.from_hct((h.hue + offset) % 360.0, h.chroma, h.tone)
+# Each unpinned family from its own seed: the containers and Fixed roles of
+# the warm grey, and of the stamp for error and secondary.
+FAMILY_SEED = {"primary": MUTE, "secondary": STAMP, "tertiary": MUTE, "error": STAMP}
 
 
 def role_value(scheme, role: str) -> int:
     """One role's RGB, resolved through MaterialDynamicColors."""
-    colour = getattr(MaterialDynamicColors, role)
-    r, g, b = colour.get_hct(scheme).to_rgba()[:3]
+    r, g, b = getattr(MaterialDynamicColors, role).get_hct(scheme).to_rgba()[:3]
     return (r << 16) | (g << 8) | b
 
 
-def build(seed: int, is_dark: bool, style: str) -> dict[str, int]:
-    """Every role for one preset in one mode, accents seeded separately."""
-    base = scheme_for(Hct.from_int(seed), is_dark, style)
-    sec = scheme_for(rotated(seed, SECONDARY_OFFSET), is_dark, style)
-    ter = scheme_for(rotated(seed, TERTIARY_OFFSET), is_dark, style)
+def neutral(seed: int):
+    return SchemeNeutral(Hct.from_int(0xFF000000 | seed), False, 0.0)
 
+
+def family_of(role: str) -> str | None:
+    """`onSecondaryFixed` -> `secondary`; None for a neutral role."""
+    bare = role[2].lower() + role[3:] if role.startswith("on") else role
+    return next((f for f in FAMILY_SEED if bare.startswith(f)), None)
+
+
+def build() -> dict[str, int]:
+    """Every role: each family from its seed's Neutral scheme, then the pins."""
+    base = neutral(PAPER)
     out: dict[str, int] = {}
     for role in ROLES:
-        if role in SECONDARY_FROM_PRIMARY:
-            out[role] = role_value(sec, SECONDARY_FROM_PRIMARY[role])
-        elif role in TERTIARY_FROM_PRIMARY:
-            out[role] = role_value(ter, TERTIARY_FROM_PRIMARY[role])
-        else:
+        family = family_of(role)
+        if family is None:
             out[role] = role_value(base, role)
+            continue
+        # The seed's own Neutral scheme, read at the PRIMARY position.
+        primary_role = role.replace(family, "primary").replace(family.capitalize(), "Primary")
+        out[role] = role_value(neutral(FAMILY_SEED[family]), primary_role)
+    out.update(PINS)
     return out
 
 
-def build_pinned(spec: dict, is_dark: bool) -> dict[str, int]:
-    """Every role for a pinned preset: each family from its own seed, then pins."""
-    seeds = spec["seeds"]
-    style = spec["style"]
-    styles = spec.get("family_styles", {})
-    fam = {k: scheme_for(Hct.from_int(v), is_dark, styles.get(k, style)) for k, v in seeds.items()}
-    error_from_primary = {
-        "error": "primary", "onError": "onPrimary",
-        "errorContainer": "primaryContainer", "onErrorContainer": "onPrimaryContainer",
-    }
-    out: dict[str, int] = {}
-    for role in ROLES:
-        if role in SECONDARY_FROM_PRIMARY:
-            out[role] = role_value(fam["secondary"], SECONDARY_FROM_PRIMARY[role])
-        elif role in TERTIARY_FROM_PRIMARY:
-            out[role] = role_value(fam["tertiary"], TERTIARY_FROM_PRIMARY[role])
-        elif role in error_from_primary:
-            out[role] = role_value(fam["error"], error_from_primary[role])
-        else:
-            out[role] = role_value(fam[spec.get("neutral", "primary")], role)
-    pins = spec["dark" if is_dark else "light"]
-    out.update(pins(out) if callable(pins) else pins)
-    return out
+def grained(c: int) -> tuple[float, ...]:
+    return tuple(((c >> sh) & 0xFF) * (1 - GRAIN_ALPHA) + GRAIN_MEAN * GRAIN_ALPHA for sh in (16, 8, 0))
 
 
 def contrast(a: int, b: int) -> float:
-    """WCAG contrast ratio of two RGB ints."""
+    """WCAG contrast of two RGB ints, both seen through the grain."""
     def lum(c: int) -> float:
-        ch = [((c >> sh) & 0xFF) / 255 for sh in (16, 8, 0)]
+        ch = [x / 255 for x in grained(c)]
         ch = [x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055) ** 2.4 for x in ch]
         return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]
     hi, lo = sorted((lum(a), lum(b)), reverse=True)
     return (hi + 0.05) / (lo + 0.05)
 
 
-def check_pinned(name: str, roles: dict[str, int], mode: str) -> None:
-    """Every pinned text colour must clear AA (4.5:1) on every ground it is read on.
-
-    The grounds are the page and the three containers a card sits on; checking
-    the page alone passed three accents that read at 3.5-3.9:1 on a card.
-    """
-    grounds = ("surface", "surfaceContainerLow", "surfaceContainer", "surfaceContainerHigh")
-    pairs = [(accent, g) for accent in ("primary", "secondary", "tertiary", "error", "onSurfaceVariant")
-             for g in grounds]
-    pairs += [("onSurfaceVariant", "surfaceVariant"), ("onPrimary", "primary"),
-              ("onSecondary", "secondary"), ("onError", "error"),
-              ("onSecondaryContainer", "secondaryContainer"),
-              ("onErrorContainer", "errorContainer")]
+def check(roles: dict[str, int]) -> None:
+    """Every text colour clears AA (4.5:1) on every ground it is read on, through the grain."""
+    texts = ("onSurface", "onSurfaceVariant", "primary", "secondary", "tertiary", "error")
+    grounds = ("surface", "surfaceContainerLowest", "surfaceContainerLow", "surfaceContainer",
+               "surfaceContainerHigh", "surfaceContainerHighest", "surfaceVariant")
+    pairs = [(t, g) for t in texts for g in grounds]
+    pairs += [("onPrimary", "primary"), ("onError", "error"), ("onSecondaryContainer", "secondaryContainer"),
+              ("onErrorContainer", "errorContainer"), ("onPrimaryContainer", "primaryContainer")]
     for fg, bg in pairs:
         ratio = contrast(roles[fg], roles[bg])
         if ratio < 4.5:
-            raise SystemExit(
-                f"pinned preset '{name}' {mode}: {fg} is {ratio:.2f}:1 on {bg}; 4.5 is the minimum"
-            )
-
-
-def render_scheme(kotlin_name: str, roles: dict[str, int], is_dark: bool) -> str:
-    fn = "darkColorScheme" if is_dark else "lightColorScheme"
-    lines = [f"private val {kotlin_name} = {fn}("]
-    for role in ROLES:
-        lines.append(f"    {role} = Color(0xFF{roles[role]:06X}),")
-    lines.append("    scrim = Color(0xFF000000),")
-    lines.append(")")
-    return "\n".join(lines)
-
-
-def tone(c: int, t: float, chroma: float | None = None) -> int:
-    """`c`'s hue, and its chroma unless given, at HCT tone `t`."""
-    h = Hct.from_int(0xFF000000 | c)
-    return Hct.from_hct(h.hue, h.chroma if chroma is None else chroma, t).to_int() & 0xFFFFFF
-
-
-# Wada's combination #207 -- Sudan Brown, Glaucous Green, Black -- asked for
-# as "wabi-sabi" by the owner, 2026-10-17, after the Radix pair read as bland.
-# The roles follow a raku tea bowl: Sudan Brown is the one accent and the
-# Glaucous Green glaze marks selection. The greys are NOT from #207: Sudan
-# Brown built Neutral gave a pink-white page, so every neutral role comes
-# from Wada's Ecru swatch (#C2AE93), which lands on sumi and washi. Black is the dark ground. Combat's red is Wada's
-# Carmine Red: clay is a brown, so the red has to be the saturated one.
-SUDAN_BROWN, GLAUCOUS_GREEN, WADA_BLACK, CARMINE_RED = 0xA36752, 0xB4CDC2, 0x111314, 0xA62C37
-ECRU = 0xC2AE93
-
-
-def wabi_pins(is_dark: bool):
-    def pins(r: dict[str, int]) -> dict[str, int]:
-        card = r["surfaceContainerHigh"]
-        # One clay grey per category role, but not the same one: the picker's
-        # four swatches promise four distinct values.
-        r = {**r, "tertiary": r["onSurfaceVariant"]}
-        if is_dark:
-            return {"tertiary": r["tertiary"], "background": WADA_BLACK, "surface": WADA_BLACK, "surfaceContainerLowest": WADA_BLACK,
-                    "primary": legible(SUDAN_BROWN, card, True), "onPrimary": WADA_BLACK,
-                    "secondaryContainer": tone(GLAUCOUS_GREEN, 24),
-                    "onSecondaryContainer": GLAUCOUS_GREEN,
-                    "error": legible(CARMINE_RED, card, True), "onError": WADA_BLACK}
-        # Neutral style flattens Ecru to near-white and Ecru's own chroma is
-        # parchment; washi sits between, at chroma 6.
-        paper = {k: tone(ECRU, t, 6) for k, t in {
-            "background": 95, "surface": 95, "surfaceBright": 95, "surfaceContainerLowest": 97,
-            "surfaceContainerLow": 93, "surfaceContainer": 91, "surfaceContainerHigh": 89,
-            "surfaceContainerHighest": 87, "surfaceDim": 85}.items()}
-        card = paper["surfaceContainerHigh"]
-        return {**paper, "tertiary": r["tertiary"], "primary": legible(SUDAN_BROWN, card, False), "onPrimary": 0xFFFFFF,
-                "secondaryContainer": GLAUCOUS_GREEN, "onSecondaryContainer": tone(GLAUCOUS_GREEN, 15),
-                "error": legible(CARMINE_RED, card, False), "onError": 0xFFFFFF}
-    return pins
-
-
-PINNED["Wabi"] = {
-    "style": "rainbow",
-    "family_styles": {"secondary": "neutral", "tertiary": "neutral", "neutral": "neutral"},
-    "seeds": {k: 0xFF000000 | v for k, v in {
-        "primary": SUDAN_BROWN, "secondary": ECRU, "tertiary": ECRU,
-        "error": CARMINE_RED, "neutral": ECRU}.items()},
-    "neutral": "neutral",
-    "dark": wabi_pins(True),
-    "light": wabi_pins(False),
-    "why": "Sanzo Wada's combination #207: Sudan Brown, Glaucous Green and Black -- "
-           "Ecru greys, one clay accent, a celadon selection. The wabi-sabi preset.",
-}
+            raise SystemExit(f"{fg} is {ratio:.2f}:1 on {bg} through the grain; 4.5 is the minimum")
 
 
 HEADER = '''package com.pathways.app
 
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
 /**
  * GENERATED by `tools/gen_theme.py`. Do not edit by hand -- rerun the tool.
  *
- * Every Material 3 colour role for every preset, in both modes. Nothing is
- * left to Material's baseline tokens, which is the defect this file exists to
- * close: the palette it replaces set 33 of ~48 roles, and the 15 it missed
- * resolved to the stock purple-tinted neutrals.
- *
- * Pinned presets take each family from its own seed; the rotated ones seed
- * theirs at fixed hue offsets. See the generator's docstring for why the
- * offsets are +227 and +75, why `error` does not move, and why action
- * buttons no longer spend these colours (single accent, 2026-10-17).
+ * The Case File scheme: every Material 3 colour role, light only. Nothing is
+ * left to Material's baseline tokens, the stock purple-tinted neutrals.
  */
 '''
 
 
 def main() -> None:
-    for name, (seed, _, _) in SEEDS.items():
-        check_separation(name, seed)
-
-    parts = [HEADER]
-    for name, spec in PINNED.items():
-        dark, light = build_pinned(spec, True), build_pinned(spec, False)
-        check_pinned(name, dark, "dark")
-        check_pinned(name, light, "light")
-        parts.append(f"/** {spec['why']} Pinned, not rotated: see the generator's PINNED. */")
-        parts.append(render_scheme(f"{name}Dark", dark, True))
-        parts.append(render_scheme(f"{name}Light", light, False))
-    for name, (seed, style, why) in SEEDS.items():
-        hues = category_hues(seed)
-        parts.append(
-            f"/**\n * {why}\n *\n"
-            f" * Seed #{seed & 0xFFFFFF:06X}, hue {hues['primary']:.0f}, "
-            f"{STYLES[style].__name__}. Closest pair of\n"
-            f" * category hues is {closest_pair(seed):.0f} degrees apart "
-            f"(minimum {MIN_SEPARATION:.0f}).\n */"
-        )
-        parts.append(render_scheme(f"{name}Dark", build(seed, True, style), True))
-        parts.append(render_scheme(f"{name}Light", build(seed, False, style), False))
-
-    entries = "\n".join(
-        f'    {name.upper()}("{name}", {name}Light, {name}Dark),' for name in [*PINNED, *SEEDS]
-    )
-    parts.append(
-        "/**\n"
-        " * The presets offered in the theme picker.\n"
-        " *\n"
-        " * A curated list rather than a colour picker, and the generator enforces\n"
-        " * why: only hues in 65-110 and 195-265 keep all four category accents at\n"
-        f" * least {MIN_SEPARATION:.0f} degrees apart once the fixed error red is counted.\n"
-        " */\n"
-        "enum class ThemeSeed(\n"
-        "    val label: String,\n"
-        "    val light: ColorScheme,\n"
-        "    val dark: ColorScheme,\n"
-        ") {\n"
-        f"{entries}\n"
-        "}"
-    )
-
-    OUT.write_text("\n\n".join(parts) + "\n", encoding="utf-8")
-    print(f"wrote {OUT} -- {len(PINNED) + len(SEEDS)} presets, {len(ROLES) + 1} roles each, both modes")
+    roles = build()
+    check(roles)
+    lines = ["internal val CaseFile: ColorScheme = lightColorScheme("]
+    lines += [f"    {role} = Color(0xFF{roles[role]:06X})," for role in ROLES]
+    lines += ["    scrim = Color(0xFF000000),", ")"]
+    OUT.write_text(HEADER + "\n" + "\n".join(lines) + "\n", encoding="utf-8")
+    print(f"wrote {OUT} -- {len(ROLES) + 1} roles")
 
 
 if __name__ == "__main__":
