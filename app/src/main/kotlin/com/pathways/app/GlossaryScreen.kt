@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -143,6 +144,11 @@ fun GlossaryScreen(onBack: () -> Unit) {
             itemsIndexed(groups, key = { index, group -> "$index${group.letter}" }) { _, group ->
                 GroupBlock(group, openTerm) { term -> openTerm = if (openTerm == term) null else term }
             }
+            // Room after the last group, so a jump to S or W lands it at the
+            // top and the row lights the letter tapped. Without it the list
+            // stopped short and lit H for a tap on S (seen on the SM-T570).
+            // Short of a full page, so the last group stays in view.
+            item(key = "tail") { Spacer(Modifier.fillParentMaxHeight(0.85f)) }
         }
     }
 }

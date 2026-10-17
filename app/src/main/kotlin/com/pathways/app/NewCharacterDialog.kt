@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -110,12 +111,13 @@ internal fun NewCharacterDialog(
         title = {
             Box {
                 FormTitle(FORM_INTAKE, file = "File Nº ${fileDigits(file)}") { Text("New character") }
-                // Frame 05's paperclip, decoration on the form's corner.
+                // Frame 05's paperclip, decoration on the form's corner, above
+                // the file number (the dialog clips, so it cannot overhang).
                 Icon(
                     Icons.Filled.AttachFile,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.align(Alignment.TopEnd).padding(end = 12.dp).size(28.dp).rotate(45f),
+                    modifier = Modifier.align(Alignment.TopEnd).offset(x = (-24).dp, y = (-22).dp).size(24.dp).rotate(45f),
                 )
             }
         },
