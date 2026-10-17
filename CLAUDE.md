@@ -124,7 +124,7 @@ subcommand. Both the design review and the diff review now go through
 which takes the target list, the three questions and the "do not read
 CLAUDE.md or docs/SLICE-LOG.md" instruction in one prompt. A prompt over ~32 KB must
 reach `codex exec` on stdin (`-`), or it exits 126 (6fg). **Codex was out
-until 2026-10-18 00:24** (6ic); check the clock before trusting that.
+until 2026-10-18 00:24** (6ic) and answered at 01:48 that day.
 
 **When Codex is out and the free panel is also silent, go to one review
 sub-agent rather than shipping self-checked** — 6cz is what two slices of not
@@ -348,7 +348,7 @@ player-facing guide to all four and is verified against the labels in source.
 |---|---|
 | Tests | **1952 Kotlin** (JUnit 5 — 1481 `core:rules`, 448 `app`, 23 `core:model`, counted in 6if) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` count moves with `ThemeSchemesTest`, which emits one dynamic test per `ColorScheme` role and per contrast pair: 6ic's one light scheme took `app` from 892 to 431, and 6ic's guards to 433, 6id's `PoolPipsTest` to 437, 6ie's `SheetHeaderTest` to 442, 6if's six more to 448 |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **Codex, always** (the owner, 2026-10-17: "use codex instead of ecc always", reversing 2026-10-10's ecc). Through `codex exec` with the target named (6eg). When Codex and pi-qa are both down, one review sub-agent, never ecc. 6ic: Codex reviewed Wabi, the plan, `58119c4`, `cb75e32` and `4d891e5`, then hit its limit; a sub-agent reviewed `a9be8f0` and `5148cb1` (SHIP WITH CHANGES, taken); those two, `771deed`, 6id's five commits, 6ie's four and 6if's two still owe Codex a review; 6id's, 6ie's and 6if's sub-agent reviews returned SHIP WITH CHANGES, the findings taken. Earlier gates are in each slice's Review section |
+| Review gate | **Codex, always** (the owner, 2026-10-17: "use codex instead of ecc always", reversing 2026-10-10's ecc). Through `codex exec` with the target named (6eg). When Codex and pi-qa are both down, one review sub-agent, never ecc. 6ic: Codex reviewed Wabi, the plan, `58119c4`, `cb75e32` and `4d891e5`, then hit its limit; a sub-agent reviewed `a9be8f0` and `5148cb1` (SHIP WITH CHANGES, taken); 6id's, 6ie's and 6if's sub-agent reviews returned SHIP WITH CHANGES, the findings taken. On 2026-10-18 Codex (`codex exec`, gpt-6-astra, xhigh) reviewed the whole owed range `a9be8f0~1..d0f2299` under `app/` (generated `ThemeSchemes.kt` and fonts excluded; nothing outside `app/` changed): SHIP, no findings on handlers, composition crashes or printed figures. Nothing owes Codex a review; rotation stays device-unverified. Earlier gates are in each slice's Review section |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
