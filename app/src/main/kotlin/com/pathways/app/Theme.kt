@@ -87,7 +87,9 @@ internal val PlexMono = FontFamily(
  * tabular rules text, where loose tracking costs width the numbers need.
  *
  * Faces (Case File, 2026-10-17): Fraunces for display and headline, Plex
- * Sans for body and title, Plex Mono for every label.
+ * Sans for body, title and `labelLarge` (chips and buttons), Plex Mono for
+ * the small labels. A chip in mono wrapped past its fixed height on the
+ * SM-T570; slice 2 sets a component in mono where its frame shows it.
  */
 internal val PathwaysType = Typography().run {
     copy(
@@ -144,7 +146,7 @@ internal val PathwaysType = Typography().run {
         ),
         // Labels -- buttons and chips.
         labelMedium = labelMedium.copy(fontFamily = PlexMono, fontSize = 13.sp, lineHeight = 17.sp),
-        labelLarge = labelLarge.copy(fontFamily = PlexMono, fontSize = 15.sp, lineHeight = 20.sp),
+        labelLarge = labelLarge.copy(fontFamily = PlexSans, fontSize = 15.sp, lineHeight = 20.sp),
     )
 }
 

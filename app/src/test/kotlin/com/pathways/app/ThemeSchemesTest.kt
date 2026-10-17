@@ -128,6 +128,18 @@ class ThemeSchemesTest {
         }
     }
 
+    /**
+     * The launch window is painted from `res/values/colors.xml` before
+     * Compose runs, so it repeats the page by hand. If the two drift, every
+     * cold start flashes the wrong colour.
+     */
+    @Test
+    fun `the launch background is the page`() {
+        val xml = java.io.File("src/main/res/values/colors.xml").readText()
+        val launch = Regex("""name="launch_background">#FF([0-9A-Fa-f]{6})<""").find(xml)!!.groupValues[1]
+        assertEquals(CaseFile.background, Color(0xFF000000 or launch.toLong(16)))
+    }
+
     @Test
     fun `the grain check can fail`() {
         // The mockup's own red, which measured 4.43:1 on paper through the

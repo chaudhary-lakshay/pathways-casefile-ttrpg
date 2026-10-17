@@ -23,9 +23,20 @@ class ThemeTypeTest {
     }
 
     @Test
-    fun `labels are Plex Mono`() {
+    fun `small labels are Plex Mono`() {
         val t = PathwaysType
-        listOf(t.labelSmall, t.labelMedium, t.labelLarge).forEach { assertEquals(PlexMono, it.fontFamily) }
+        listOf(t.labelSmall, t.labelMedium).forEach { assertEquals(PlexMono, it.fontFamily) }
+    }
+
+    /**
+     * Chips and buttons take `labelLarge`. In mono, Appendix A's longest
+     * chip ("Aided by someone with the same skill +2 (if they succeed
+     * first)") wrapped to a second line that the chip's fixed height cut
+     * off, on the SM-T570. Sans until slice 2 sets a component in mono.
+     */
+    @Test
+    fun `chip and button labels are Plex Sans`() {
+        assertEquals(PlexSans, PathwaysType.labelLarge.fontFamily)
     }
 
     @Test

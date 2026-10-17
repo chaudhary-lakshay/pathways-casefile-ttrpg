@@ -2,6 +2,13 @@ package com.pathways.app
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -173,30 +180,31 @@ private fun PoolCell(
             OutlinedIconButton(onClick = { onSpend(1) }) {
                 Icon(Icons.Filled.Remove, contentDescription = "Lose 1 ${status.pool.name}")
             }
-            Row(
+            // One line that shrinks rather than wraps: "15 / 15" wrapped in a
+            // third of the 600 dp column on the SM-T570, and "10/10" still
+            // did at font scale 1.3 (6ic). The max is sized in em so the
+            // auto-size scales both; it is Plex Sans, whose digits are
+            // already one width.
+            val current = MaterialTheme.typography.headlineMedium.tabular().copy(fontWeight = FontWeight.Bold)
+            val maxSpan = MaterialTheme.typography.titleMedium.toSpanStyle().copy(
+                fontSize = 0.6.em,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            BasicText(
+                buildAnnotatedString {
+                    append("${status.current}")
+                    withStyle(maxSpan) { append("/${status.max}") }
+                },
                 Modifier.weight(1f),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                Text(
-                    "${status.current}",
-                    style = MaterialTheme.typography.headlineMedium.tabular().copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
+                style = current.copy(
                     // Red once the book names a state: a Dead pool must not
                     // read like a full one.
                     color = if (tags.isEmpty()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error,
-                )
-                Text(
-                    "/${status.max}",
-                    // Plex Sans, not tabular()'s mono, and no spaces: its
-                    // digits are already one width, and "15 / 15" wrapped in a
-                    // third of the 600 dp column on the SM-T570 (6ic).
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 3.dp),
-                )
-            }
+                    textAlign = TextAlign.Center,
+                ),
+                maxLines = 1,
+                autoSize = TextAutoSize.StepBased(minFontSize = 12.sp, maxFontSize = current.fontSize),
+            )
             OutlinedIconButton(onClick = { onSpend(-1) }) {
                 Icon(Icons.Filled.Add, contentDescription = "Regain 1 ${status.pool.name}")
             }
