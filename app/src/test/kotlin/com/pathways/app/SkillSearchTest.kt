@@ -26,6 +26,18 @@ class SkillSearchTest {
     }
 
     @Test
+    fun `a query naming a withheld SPI skill finds it, so the picker can say why it is not offered`() {
+        // Play session 6: "Divination" returned an empty list and no reason.
+        assertEquals(listOf("Divination Arts"), withheldMatching("divination").map { it.name })
+        assertEquals(emptyList<String>(), withheldMatching("guns").map { it.name })
+    }
+
+    @Test
+    fun `a blank query names no withheld skill`() {
+        assertEquals(emptyList<String>(), withheldMatching("  ").map { it.name })
+    }
+
+    @Test
     fun `an empty or blank query matches everything`() {
         assertEquals(skills.size, found("").size)
         assertEquals(skills.size, found("  ").size)

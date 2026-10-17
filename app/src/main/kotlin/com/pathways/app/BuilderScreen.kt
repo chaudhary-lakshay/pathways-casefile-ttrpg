@@ -412,6 +412,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     if (pickingCharm) {
         CharmSkillPicker(
             skills = charmableSkills(character, session.state).sortedBy { it.label() },
+            current = session.edits.charmedSkill,
             onPick = { session.setCharmedSkill(it); pickingCharm = false },
             onDismiss = { pickingCharm = false },
         )

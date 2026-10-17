@@ -171,6 +171,14 @@ private fun SkillDefinition.label(): String = specialization?.let { "$name ($it)
 internal fun skillMatches(definition: SkillDefinition, query: String): Boolean =
     query.isBlank() || definition.label().contains(query.trim(), ignoreCase = true)
 
+/** The skills [SkillPicker] withholds whose label holds a non-blank [query]: named, with why. */
+internal fun withheldMatching(query: String): List<SkillDefinition> =
+    if (query.isBlank()) {
+        emptyList()
+    } else {
+        ContentLoader.skills().filter { !SkillLadder.isBuyableWithPoints(it.attr) && skillMatches(it, query) }
+    }
+
 /**
  * Every skill the book prints, minus the ones already owned, and a search
  * over them: 158 rows had Guns about sixty down (play session 2), which is
@@ -224,6 +232,19 @@ internal fun SkillPicker(
                             )
                         }
                         HorizontalDivider()
+                    }
+                    // A search for a withheld skill found an empty list and no
+                    // reason (play session 6). Inside the fixed list, so it
+                    // moves nothing.
+                    items(withheldMatching(query)) { definition ->
+                        Text(
+                            "${definition.label()}: not bought with points — the SPI-based " +
+                                "skills improve only through Sequence progression and pathway " +
+                                "bonuses (p. 85).",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 8.dp),
+                        )
                     }
                 }
             }

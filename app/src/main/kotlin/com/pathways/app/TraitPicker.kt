@@ -174,9 +174,15 @@ internal fun TraitsRow(
 internal fun charmLine(chosen: SavedCharmedSkill?, held: Collection<SkillKey>): String {
     if (chosen == null) return "No skill chosen: no roll offers its +1."
     val label = if (chosen.specialization == null) chosen.name else "${chosen.name} (${chosen.specialization})"
-    val has = held.any { it.name.equals(chosen.name, ignoreCase = true) && it.specialization.equals(chosen.specialization, ignoreCase = true) }
+    val has = held.any { isCharmed(chosen, it) }
     return if (has) "Charms $label: +1 when used, lit on the roll." else "Charms $label, which this character has no level in."
 }
+
+/** Whether the saved charm names [key]: the one sameness the line and the chooser both read. */
+internal fun isCharmed(chosen: SavedCharmedSkill?, key: SkillKey): Boolean =
+    chosen != null &&
+        key.name.equals(chosen.name, ignoreCase = true) &&
+        key.specialization.equals(chosen.specialization, ignoreCase = true)
 
 /**
  * The skills a Charmed Object may name: every one [character] has a level in,
@@ -190,7 +196,12 @@ internal fun charmableSkills(character: Character, state: BeyonderState?): Set<S
  * skills are not listed.
  */
 @Composable
-internal fun CharmSkillPicker(skills: List<SkillKey>, onPick: (SkillKey) -> Unit, onDismiss: () -> Unit) {
+internal fun CharmSkillPicker(
+    skills: List<SkillKey>,
+    current: SavedCharmedSkill?,
+    onPick: (SkillKey) -> Unit,
+    onDismiss: () -> Unit,
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
@@ -199,7 +210,9 @@ internal fun CharmSkillPicker(skills: List<SkillKey>, onPick: (SkillKey) -> Unit
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 if (skills.isEmpty()) Text("This character has no skill to charm yet.")
                 skills.forEach { key ->
-                    TextButton(onClick = { onPick(key) }) { Text(key.label()) }
+                    TextButton(onClick = { onPick(key) }) {
+                        Text(if (isCharmed(current, key)) "${key.label()} — charmed now" else key.label())
+                    }
                 }
             }
         },
@@ -268,7 +281,7 @@ internal fun TraitPicker(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
         title = { Text("Buy a trait") },
-        text = {
+        text = steadyBody {
             Column {
                 OutlinedTextField(
                     value = query,

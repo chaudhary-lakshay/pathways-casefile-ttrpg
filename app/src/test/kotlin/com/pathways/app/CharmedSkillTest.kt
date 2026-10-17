@@ -97,6 +97,15 @@ class CharmedSkillTest {
     }
 
     @Test
+    fun `the chooser marks the skill the charm names now, and only that one`() {
+        // Play session 6: reopening the chooser showed no current pick.
+        assertEquals(true, isCharmed(chosen, pistol))
+        assertEquals(true, isCharmed(SavedCharmedSkill("guns", "pistol"), pistol))
+        assertEquals(false, isCharmed(chosen, pistol.copy(specialization = "Rifle")))
+        assertEquals(false, isCharmed(null, pistol))
+    }
+
+    @Test
     fun `a charmed weapon's plus one reaches the attack only when lit`() {
         val held = SavedEdits(traits = listOf(CharmedObject.ROW), charmedSkill = chosen).applyTo(mortal).traits
         val key = TraitClauses.skillRollClauses(held, pistol).single().key
