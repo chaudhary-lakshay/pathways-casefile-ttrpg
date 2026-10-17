@@ -1,9 +1,6 @@
 package com.pathways.app
 
 import androidx.compose.material3.Surface
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.FlowRow
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -22,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -37,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.TraitKind
 import com.pathways.rules.Conditions
@@ -420,17 +415,13 @@ internal fun SheetScreen(
         contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        sheet.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                },
+                // The name is the list's first item now, in Fraunces (Case
+                // File). The frames' "FILE Nº nn" line comes with the gallery's
+                // numbering, in slice 4, so the two cannot disagree.
+                title = {},
                 actions = { SheetMenu(sheet.name, throws, onReset, onDelete) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = onBack, modifier = Modifier.boxed()) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back to characters",
@@ -438,12 +429,8 @@ internal fun SheetScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    // Clear, so the backdrop's seal shows behind the name.
+                    // Clear, so the backdrop's seal shows behind the buttons.
                     containerColor = Color.Transparent,
-                    // The character's own name, in the reading colour. Brass
-                    // here made the title compete with the primary button two
-                    // rows below it, and a name is not an action.
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
                 ),
             )
         },
@@ -451,35 +438,12 @@ internal fun SheetScreen(
     ) { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
             item {
-                Column(Modifier.padding(horizontal = 16.dp)) {
-                    // A boon is held beside a potion walk, or by a mortal.
-                    val boon = session.boon
-                    if (drunk != null || boon != null) {
-                        // The sheet rows below are still the mortal's: the
-                        // diff they carry is against the published sheet, and
-                        // no published sheet records a pathway. Saying so is
-                        // better than silently mixing two states.
-                        // Pills, not a sentence (6gl): what the Pathway tile
-                        // opens is said by the tile itself.
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            // Lost first, and every tag in the error colour,
-                            // so a narrow screen cannot wrap it out of sight.
-                            when {
-                                session.lost -> HeaderPill("Lost to the Rampager", lost = true)
-                                session.corrupted -> HeaderPill("Lost to corruption", lost = true)
-                            }
-                            if (drunk != null) {
-                                HeaderPill("${drunk.pathway} · Seq ${drunk.sequence}", lost = session.isLost)
-                                HeaderPill("Digested ${drunk.digestion}%", lost = session.isLost)
-                            }
-                            if (boon != null) HeaderPill(boonPill(boon), lost = session.isLost)
-                            HeaderPill("CoR ${session.cor}", lost = session.isLost)
-                        }
-                    }
-                }
+                // Pills, not a sentence (6gl): what the Pathway tile opens is
+                // said by the tile itself.
+                SheetTitle(
+                    sheet.name,
+                    headerFacts(drunk, session.boon?.let(::boonPill), session.cor, session.lost, session.corrupted),
+                )
             }
             // Pinned while the list scrolls: health is checked between every
             // roll, and a strip that scrolled away was the tab it replaced.
@@ -614,15 +578,4 @@ internal fun SheetScreen(
         stateModifiers = stateModifiers,
         stunRecoveryTarget = stunRecoveryTarget,
     )
-}
-
-/** One fact about the walk, in the sheet's header. */
-@Composable
-private fun HeaderPill(text: String, lost: Boolean = false) {
-    Surface(
-        shape = RoundedCornerShape(50),
-        color = if (lost) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.secondaryContainer,
-    ) {
-        Text(text, style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
-    }
 }

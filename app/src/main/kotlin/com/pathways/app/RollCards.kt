@@ -227,7 +227,7 @@ private fun StampSheet(content: @Composable ColumnScope.() -> Unit) {
  * long verdict takes the height it always would.
  */
 @Composable
-private fun Stamp(verdict: String, color: Color) {
+internal fun Stamp(verdict: String, color: Color) {
     Caps(
         verdict,
         Modifier
