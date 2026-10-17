@@ -1,6 +1,7 @@
 package com.pathways.app
 
 import com.pathways.rules.AttributeRoll
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,10 +27,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -387,14 +384,14 @@ internal fun ComparisonRow(
         line.basis?.let {
             Text(
                 it,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         line.disagreement?.let {
             Text(
                 it,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(end = 8.dp),
             )
@@ -416,21 +413,24 @@ internal fun VitalsCard(
     lines: List<PlayedLine>,
     onRoll: (AttributeRoll.Kind) -> Unit,
 ) {
-    val shape = RoundedCornerShape(10.dp)
+    // Ink, not the stamp: red means harm or the Beyonder (a9be8f0), and a
+    // disagreement with the published sheet is neither.
     val accent = MaterialTheme.colorScheme.primary
-    Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(Modifier.padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (diffSummary != null) {
-            Surface(shape = shape, color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
-                Row(Modifier.height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.width(3.dp).fillMaxHeight().background(accent))
-                    Text(diffSummary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(12.dp))
-                }
+            Surface(
+                shape = MaterialTheme.shapes.small,
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(2.dp, accent),
+                modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
+            ) {
+                Text(diffSummary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(16.dp))
             }
         }
-        Surface(shape = shape, color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
-            Column {
+        SheetSection("Secondary characteristics")
+        Column {
                 lines.forEachIndexed { i, line ->
-                    if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    if (i > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
                     val differs = line.disagreement != null
                     // Will and Per open their bare roll; the rest are numbers.
                     val rolls = AttributeRoll.Kind.entries.firstOrNull { it.label == line.label }
@@ -460,63 +460,68 @@ internal fun VitalsCard(
                         )
                         Text(
                             listOfNotNull(line.disagreement, line.basis).joinToString("  "),
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.weight(1f),
                         )
-                        if (rolls != null) {
-                            Icon(
-                                Icons.Filled.Casino,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(18.dp),
-                            )
-                        }
+                        if (rolls != null) RollGlyph()
                         Text(
                             line.number,
-                            style = MaterialTheme.typography.titleMedium.tabular(),
+                            style = MaterialTheme.typography.titleLarge.tabular(),
                             color = if (differs) accent else Color.Unspecified,
                         )
                     }
                 }
-            }
         }
     }
 }
 
-/** A list row: at least 56dp, one tap target when the caller makes it clickable. */
+/**
+ * A list row: at least 56dp, one tap target when the caller makes it
+ * clickable, ruled off from the next (Case File, frame 02).
+ */
 @Composable
 private fun SkillRowFrame(modifier: Modifier, content: @Composable RowScope.() -> Unit) {
-    Row(
-        modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 16.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        content = content,
-    )
+    Column {
+        Row(
+            modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 16.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            content = content,
+        )
+        HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
+    }
 }
 
 /**
- * The die that says a row rolls.
+ * The die that says a row rolls, boxed as the frame draws it.
  *
  * It replaced a "Roll" text button: the whole row is the target now, as the
  * rows below a Roll button always were, and a second target inside it was
- * a smaller copy of the same tap.
+ * a smaller copy of the same tap. The box is ink, not a button.
  */
 @Composable
 private fun RollGlyph() {
-    Icon(
-        Icons.Filled.Casino,
-        contentDescription = null,
-        modifier = Modifier.size(18.dp),
-        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+    Box(
+        Modifier.size(40.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.extraSmall),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            Icons.Filled.Casino,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp),
+            tint = MaterialTheme.colorScheme.onSurface,
+        )
+    }
 }
 
-/** The level the row rolls, in a 40dp outlined badge. */
+/** The level the row rolls, boxed in 2 dp ink (Case File, frame 02). */
 @Composable
 internal fun LevelBadge(number: String, color: Color) {
     Box(
-        Modifier.size(40.dp).border(1.dp, color, RoundedCornerShape(8.dp)),
+        // 40dp and titleMedium as before: the Attack dialog and the builder
+        // print it too, and a bigger box would move their rows.
+        Modifier.size(40.dp).border(2.dp, color, MaterialTheme.shapes.extraSmall),
         contentAlignment = Alignment.Center,
     ) {
         Text(

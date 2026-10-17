@@ -8,10 +8,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -134,7 +142,7 @@ internal fun LazyListScope.traitsTab(
     // so nothing unapplied is silent: the word says so first. Keyed by kind
     // and name, never position, because a potion's grants shift the rows.
     item { TraitLegend() }
-    item { TraitSection("Advantages", advantages.size) }
+    item { SheetSection("Advantages", advantages.size) }
     items(advantages) { row ->
         val key = "a:${row.shown}:${row.trait.cost}"
         TraitRow(
@@ -154,7 +162,7 @@ internal fun LazyListScope.traitsTab(
     }
     // A quirk prints with a drawback's sign. The one this app makes is a
     // Fright Check's, gained in play at 0 (SavedEdits.quirks).
-    item { TraitSection("Disadvantages", drawbacks.size) }
+    item { SheetSection("Disadvantages", drawbacks.size) }
     items(drawbacks) { row ->
         val key = "d:${row.shown}:${row.trait.cost}"
         // Keyed the way `SelfControlCheck.trait` is, so the row and its roll
@@ -192,43 +200,40 @@ internal fun LazyListScope.skillsTab(
     onRoll: (RollableSkill) -> Unit,
     onPickUntrained: () -> Unit,
 ) {
-    // "You can attempt most skills even without training" (p. 10).
-    // First and filled: as a text button below the last skill the owner
-    // could not find it in play (session 1).
-    item {
-        FilledTonalButton(shape = ButtonShape,
-            onClick = onPickUntrained,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
-        ) { Text("Roll a skill this sheet does not have") }
-    }
     // Row order past the secondaries is one per purchased skill, in
     // sheet order - pinned by SheetComparisonTest. That is what makes
     // this positional pairing safe.
-    itemsIndexed(
-        sheet.skills,
-    ) { i, skill ->
-        val row = rows.getOrNull(SECONDARY_ROWS + i)
-        if (row != null) {
-            // ONE level, printed and rolled: the character in front
-            // of the player. A Paragon Seq 9 potion takes this sheet's
-            // Research from 13 to 17, and the printed figure is a
-            // character who no longer exists.
-            //
-            // Until 6fz the row SHOWED the unedited sheet's level, on
-            // 6e's reasoning that the comparison is the engine
-            // against the book and a potion is neither. That is true
-            // of the diff, which is still the unedited sheet's and
-            // still the only thing in red. It was never a reason to
-            // print a level the Roll beside it does not roll: a Docks
-            // Bouncer on Twilight Giant 9 read Brawling 12 above a
-            // potion's Broadsword 14, and rolled Brawling at 16.
-            val level = liveLevelOf(skill.key(), skillLevels, sheet.levelFor(skill))
-            val roll = { onRoll(RollableSkill(skill.label, level, skill.key())) }
-            ComparisonRow(
-                playedLine(row, level.toString()),
-                Modifier.clickable(onClickLabel = "Roll", role = Role.Button, onClick = roll),
-            )
-        }
+    val published = sheet.skills.mapIndexedNotNull { i, skill ->
+        rows.getOrNull(SECONDARY_ROWS + i)?.let { skill to it }
+    }
+    val bought = edits.purchasedKeys().mapNotNull { key -> liveLevelOrNull(key, skillLevels)?.let { key to it } }
+    val granted = grantedSkills(sheet, edits, skillLevels)
+    // The rows drawn below, counted from the lists that draw them.
+    item { SheetSection("Skills", published.size + bought.size + granted.size) }
+    // "You can attempt most skills even without training" (p. 10).
+    // First and full width: as a text button below the last skill the owner
+    // could not find it in play (session 1).
+    item { UntrainedButton(onPickUntrained) }
+    items(published) { (skill, row) ->
+        // ONE level, printed and rolled: the character in front
+        // of the player. A Paragon Seq 9 potion takes this sheet's
+        // Research from 13 to 17, and the printed figure is a
+        // character who no longer exists.
+        //
+        // Until 6fz the row SHOWED the unedited sheet's level, on
+        // 6e's reasoning that the comparison is the engine
+        // against the book and a potion is neither. That is true
+        // of the diff, which is still the unedited sheet's and
+        // still the only thing in red. It was never a reason to
+        // print a level the Roll beside it does not roll: a Docks
+        // Bouncer on Twilight Giant 9 read Brawling 12 above a
+        // potion's Broadsword 14, and rolled Brawling at 16.
+        val level = liveLevelOf(skill.key(), skillLevels, sheet.levelFor(skill))
+        val roll = { onRoll(RollableSkill(skill.label, level, skill.key())) }
+        ComparisonRow(
+            playedLine(row, level.toString()),
+            Modifier.clickable(onClickLabel = "Roll", role = Role.Button, onClick = roll),
+        )
     }
 
     // Every row on the screen, so a label can be checked against the
@@ -236,7 +241,6 @@ internal fun LazyListScope.skillsTab(
     // table are ever suffixed: the published rows render the sheet's
     // own label, and rewriting it would edit the diff that is the
     // engine against the book (6e).
-    val granted = grantedSkills(sheet, edits, skillLevels)
     val addedKeys = sheet.skills.map { it.key() } +
         edits.purchasedKeys() + granted.map { it.first }
 
@@ -254,15 +258,10 @@ internal fun LazyListScope.skillsTab(
     // they disagreed, a saved skill the catalogue no longer prints
     // failed to suppress itself and a potion's skill of the same name
     // appeared twice, once as bought and once as granted (Codex).
-    items(
-        edits.purchasedKeys(),
-    ) { key ->
-        val level = liveLevelOrNull(key, skillLevels)
-        if (level != null) {
-            val label = disambiguated(key, addedKeys)
-            AddedSkillRow(label, level, "bought") {
-                onRoll(RollableSkill(label, level, key))
-            }
+    items(bought) { (key, level) ->
+        val label = disambiguated(key, addedKeys)
+        AddedSkillRow(label, level, "bought") {
+            onRoll(RollableSkill(label, level, key))
         }
     }
 
@@ -281,5 +280,38 @@ internal fun LazyListScope.skillsTab(
         AddedSkillRow(label, level, "potion") {
             onRoll(RollableSkill(label, level, key))
         }
+    }
+}
+
+/**
+ * The untrained roll, as the frame draws it: a dashed box the width of the
+ * list, a die and its words in capitals. Still the one target it was.
+ */
+@Composable
+private fun UntrainedButton(onClick: () -> Unit) {
+    val dash = MaterialTheme.colorScheme.outline
+    Row(
+        Modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .drawBehind {
+                drawRect(
+                    dash,
+                    style = Stroke(width = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 5.dp.toPx()))),
+                )
+            }
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 12.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.Filled.Casino, contentDescription = null, Modifier.size(20.dp))
+        Caps(
+            "Roll a skill this sheet does not have",
+            Modifier.padding(start = 10.dp),
+            style = MaterialTheme.typography.labelLarge.tabular(),
+            color = MaterialTheme.colorScheme.onSurface,
+        )
     }
 }
