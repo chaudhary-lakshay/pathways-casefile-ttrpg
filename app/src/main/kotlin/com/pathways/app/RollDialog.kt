@@ -166,7 +166,7 @@ internal fun RollDialog(
                 )
             }
         },
-        text = {
+        text = steadyBody {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 val shownOut = out
                 if (shownOut == null) {

@@ -276,7 +276,7 @@ internal fun AttackDialog(
             }
         },
         title = { Text(if (chosen == null) "Attack with which skill?" else "Attack") },
-        text = {
+        text = steadyBody {
             when {
                 outcomes.isNotEmpty() -> LazyColumn {
                     itemsIndexed(outcomes) { index, outcome ->

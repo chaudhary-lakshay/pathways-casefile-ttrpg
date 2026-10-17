@@ -151,7 +151,7 @@ internal fun SelfControlDialog(
                 )
             }
         },
-        text = {
+        text = steadyBody {
             val result = outcome
             if (result != null) {
                 // Quoted once, inside the verdict, and red on a failure: that
@@ -169,7 +169,7 @@ internal fun SelfControlDialog(
                         modifier = Modifier.padding(top = 8.dp),
                     )
                 }
-                return@AlertDialog
+                return@steadyBody
             }
             Column {
                 Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {

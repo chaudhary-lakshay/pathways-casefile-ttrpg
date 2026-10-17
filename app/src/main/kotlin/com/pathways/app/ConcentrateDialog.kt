@@ -73,7 +73,7 @@ internal fun ConcentrateDialog(
                 )
             }
         },
-        text = {
+        text = steadyBody {
             val result = outcome
             if (result != null) {
                 VerdictCard(if (result.held) "Held the focus" else "Lost the focus", result.held, result.roll) {
@@ -88,7 +88,7 @@ internal fun ConcentrateDialog(
                         )
                     }
                 }
-                return@AlertDialog
+                return@steadyBody
             }
             // From rules, and read by BOTH the card and the roll below -- the
             // two call sites this dialog has always had are why the term is

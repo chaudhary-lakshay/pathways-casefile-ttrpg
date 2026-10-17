@@ -335,7 +335,7 @@ fun RitualDialog(
                 )
             }
         },
-        text = {
+        text = steadyBody {
             val result = outcome
             if (result != null) {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
@@ -368,7 +368,7 @@ fun RitualDialog(
                         )
                     }
                 }
-                return@AlertDialog
+                return@steadyBody
             }
             // The choices scroll and the target with Cast is pinned beneath
             // them: with every declaration open the chips run three screens,

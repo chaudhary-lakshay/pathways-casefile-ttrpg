@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -38,6 +39,28 @@ import com.pathways.rules.SuccessRoll
 import com.pathways.rules.content.SpiritualSense
 
 private const val TABULAR = "tnum"
+
+/**
+ * An AlertDialog's `text` slot at one height whatever it shows: the chips,
+ * the verdict that replaces them, a picker filtering or a row opening.
+ *
+ * An AlertDialog re-centres on every height change, so a shrink moved the
+ * buttons up under the finger (play session 6: Roll rose ~60dp once the
+ * verdict replaced the chips, and a second tap where it had been could land
+ * on the scrim and dismiss the verdict) and a growth moved the controls above
+ * the change. Wrapping the whole slot, not one branch's Column, is what makes
+ * it hold: chips and verdict are separate branches, so a size remembered by
+ * one is gone when the other composes (Codex's design review).
+ *
+ * ponytail: a fixed cap, taller than any body measured on the SM-T570 in
+ * landscape; the slot's own maximum wins on a shorter window. A short dialog
+ * shows blank space under its content, the price of standing still.
+ */
+internal fun steadyBody(content: @Composable () -> Unit): @Composable () -> Unit = {
+    Box(Modifier.heightIn(max = STEADY_BODY_MAX).fillMaxHeight()) { content() }
+}
+
+private val STEADY_BODY_MAX = 560.dp
 
 /**
  * The target as the chips stand, before the dice: the number Roll rolls.

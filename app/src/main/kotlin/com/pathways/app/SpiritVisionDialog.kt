@@ -107,7 +107,7 @@ fun SpiritVisionDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(form) },
-        text = {
+        text = steadyBody {
             Column {
                 Column(
                     modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),

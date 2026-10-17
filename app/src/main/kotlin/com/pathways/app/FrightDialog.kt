@@ -133,7 +133,7 @@ internal fun FrightDialog(
                 )
             }
         },
-        text = {
+        text = steadyBody {
             val result = outcome
             if (result != null) {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
@@ -182,7 +182,7 @@ internal fun FrightDialog(
                         )
                     }
                 }
-                return@AlertDialog
+                return@steadyBody
             }
             val chosen = picked
             // ONE value, displayed and rolled: computing the caption from one

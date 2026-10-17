@@ -55,11 +55,11 @@ internal fun AttributeRollDialog(
             if (outcome != null) TextButton(onClick = { outcome = null }) { Text("Roll again") }
         },
         title = { Text("${kind.label} roll") },
-        text = {
+        text = steadyBody {
             val result = outcome
             if (result != null) {
                 VerdictCard(label(result.outcome), result.outcome.isSuccess, result)
-                return@AlertDialog
+                return@steadyBody
             }
             val fromTraits = TraitClauses.clauseBonus(clauses, declared)
             val target = AttributeRoll.targetFor(kind, level, traits, shock, hurt, fromTraits.total + states.total + gm)

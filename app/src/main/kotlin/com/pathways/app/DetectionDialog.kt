@@ -171,7 +171,7 @@ fun DetectionDialog(
             }
         },
         title = { Text("Am I being divined?") },
-        text = {
+        text = steadyBody {
             val answer = result
             if (answer != null) {
                 // A Column: the text slot stacks its children on top of one
@@ -190,7 +190,7 @@ fun DetectionDialog(
                         modifier = Modifier.padding(top = 8.dp),
                     )
                 }
-                return@AlertDialog
+                return@steadyBody
             }
             Column {
                 Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {

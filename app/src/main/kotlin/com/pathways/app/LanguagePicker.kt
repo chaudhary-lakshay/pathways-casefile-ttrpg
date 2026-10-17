@@ -124,7 +124,7 @@ internal fun LanguagePicker(
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Close") } },
         title = { Text("Languages") },
-        text = {
+        text = steadyBody {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 group("Common", Languages.common())
                 group("Mystical", Languages.mystical())

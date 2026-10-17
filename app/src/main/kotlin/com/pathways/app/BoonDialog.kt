@@ -287,7 +287,7 @@ fun BoonDialog(
         onDismissRequest = finish,
         confirmButton = { TextButton(onClick = finish) { Text("Close") } },
         title = { Text("Petition for a boon") },
-        text = {
+        text = steadyBody {
             val result = outcome
             if (result != null) {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
@@ -345,7 +345,7 @@ fun BoonDialog(
                         }
                     }
                 }
-                return@AlertDialog
+                return@steadyBody
             }
             Column {
                 Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
