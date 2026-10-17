@@ -1,25 +1,24 @@
 package com.pathways.app
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Casino
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.SkillTarget
 import com.pathways.rules.SuccessRoll
@@ -37,8 +36,7 @@ internal fun OptionStepper(
     onStep: (Int) -> Unit,
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        shape = RoundedCornerShape(12.dp),
+        color = Color.Transparent,
         modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
     ) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -50,12 +48,13 @@ internal fun OptionStepper(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            OutlinedIconButton(onClick = { onStep(-1) }) {
-                Icon(Icons.Filled.Remove, contentDescription = "One less $label")
-            }
-            OutlinedIconButton(onClick = { onStep(1) }) {
-                Icon(Icons.Filled.Add, contentDescription = "One more $label")
-            }
+            JoinedStepper(
+                null,
+                onMinus = { onStep(-1) },
+                onPlus = { onStep(1) },
+                minusLabel = "One less $label",
+                plusLabel = "One more $label",
+            )
         }
     }
 }
@@ -73,24 +72,29 @@ internal fun AttackFooter(
     onRoll: () -> Unit,
 ) {
     Column {
-        HorizontalDivider(Modifier.padding(vertical = 8.dp))
-        lines.forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
+        HorizontalDivider(Modifier.padding(vertical = 8.dp), thickness = 2.dp, color = MaterialTheme.colorScheme.outline)
+        lines.forEach {
+            Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
         Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 if (standing.forbidden) {
                     Text(FORBIDDEN_ROLL, color = MaterialTheme.colorScheme.error)
                 } else {
-                    Row(verticalAlignment = Alignment.Bottom) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Boxed, as the target card above draws it.
                         Text(
                             "${standing.target}",
-                            style = MaterialTheme.typography.displaySmall
-                                .tabular(),
-                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.headlineMedium.tabular()
+                                .copy(fontWeight = FontWeight.SemiBold),
+                            modifier = Modifier
+                                .border(2.dp, MaterialTheme.colorScheme.outline)
+                                .padding(horizontal = 10.dp, vertical = 4.dp),
                         )
                         Text(
                             SuccessRoll.printed(standing.target) + if (attacks > 1) ", each" else "",
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.padding(start = 10.dp, bottom = 6.dp),
+                            style = MaterialTheme.typography.labelLarge.tabular(),
+                            modifier = Modifier.padding(start = 10.dp),
                         )
                     }
                 }

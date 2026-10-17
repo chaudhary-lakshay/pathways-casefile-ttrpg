@@ -1,6 +1,10 @@
 package com.pathways.app
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
@@ -10,8 +14,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -95,6 +101,35 @@ internal fun CloseButton(onClick: () -> Unit, label: String = "Close") {
             label,
             style = MaterialTheme.typography.labelLarge.copy(fontFamily = PlexMono, fontWeight = FontWeight.SemiBold),
             color = LocalContentColor.current,
+        )
+    }
+}
+
+/**
+ * A secondary action as typed text, "[ Change ]" (Case File, frames 09 and
+ * 23). A 48 dp target, and read as its label alone: the brackets are ink,
+ * not words.
+ */
+@Composable
+internal fun BracketAction(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onSurface,
+) {
+    Box(
+        modifier
+            .heightIn(min = 48.dp)
+            .widthIn(min = 48.dp)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 4.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            "[ $label ]",
+            Modifier.clearAndSetSemantics { contentDescription = label },
+            style = MaterialTheme.typography.bodyLarge.copy(fontFamily = PlexMono),
+            color = color,
         )
     }
 }
