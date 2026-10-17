@@ -541,7 +541,7 @@ internal fun SheetScreen(
                     amended = !isOwn && differing > 0,
                     amendedOnly = amendedOnly,
                     onAmendedOnly = { amendedOnly = it },
-                    sheetFigures = if (isOwn) null else rows.associate { it.label to it.published },
+                    sheetFigures = if (isOwn) null else rows.take(SECONDARY_ROWS).associate { it.label to it.published },
                     hpNow = hpNow,
                     ht = attributes.ht,
                     traits = traits,

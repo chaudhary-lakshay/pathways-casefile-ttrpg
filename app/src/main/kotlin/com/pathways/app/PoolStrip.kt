@@ -48,6 +48,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import java.util.Locale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -186,7 +190,7 @@ private fun PoolRow(status: PoolStatus, onTags: () -> Unit, onSpend: (Int) -> Un
             PoolCount(status, MaterialTheme.typography.headlineMedium)
             PoolBar(status, largest = 18.dp, gap = 4.dp, round = status.pool == Pool.SPI)
         }
-        PoolStepper(status, onSpend, Modifier.padding(start = 12.dp).width(96.dp))
+        PoolStepper(status, onSpend, Modifier.padding(start = 12.dp).width(100.dp))
     }
 }
 
@@ -250,7 +254,7 @@ private fun PoolCount(status: PoolStatus, style: TextStyle) {
     )
     BasicText(
         buildAnnotatedString {
-            append("%02d".format(status.current))
+            append(twoDigits(status.current))
             withStyle(maxSpan) { append("/%02d".format(status.max)) }
         },
         style = current.copy(
@@ -258,8 +262,12 @@ private fun PoolCount(status: PoolStatus, style: TextStyle) {
         ),
         maxLines = 1,
         autoSize = TextAutoSize.StepBased(minFontSize = 12.sp, maxFontSize = current.fontSize),
+        modifier = Modifier.semantics { contentDescription = "${status.current} of ${status.max}" },
     )
 }
+
+/** "09": two digits, in Latin numerals whatever the device's locale. */
+private fun twoDigits(n: Int): String = String.format(Locale.ROOT, "%02d", n)
 
 /**
  * Lose and regain as two joined cells in one ink box. "Lose" is first
@@ -287,6 +295,7 @@ private fun StepCell(icon: ImageVector, label: String, enabled: Boolean, filled:
     Box(
         modifier
             .heightIn(min = 48.dp)
+            .widthIn(min = 48.dp)
             .background(if (filled) MaterialTheme.colorScheme.primary else Color.Transparent)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
@@ -318,7 +327,7 @@ internal fun PoolLine(pools: List<PoolStatus>, modifier: Modifier = Modifier) {
                 Text(
                     buildAnnotatedString {
                         append(status.pool.name + " ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) { append("%02d".format(status.current)) }
+                        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) { append(twoDigits(status.current)) }
                         withStyle(SpanStyle(color = if (spi) color else MaterialTheme.colorScheme.onSurfaceVariant)) {
                             append("/%02d".format(status.max))
                         }

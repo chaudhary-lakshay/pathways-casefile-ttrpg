@@ -39,7 +39,7 @@ internal fun fileNumber(sheet: PremadeSheet, sheets: List<PremadeSheet>): Int? =
 
 /** The sheet bar's caption: "File Nº 06 · Beyonder" (Case File, frame 02). */
 internal fun fileLine(number: Int?, isBeyonder: Boolean): String =
-    listOfNotNull(number?.let { "File Nº %02d".format(it) }, if (isBeyonder) "Beyonder" else "Mortal")
+    listOfNotNull(number?.let { String.format(java.util.Locale.ROOT, "File Nº %02d", it) }, if (isBeyonder) "Beyonder" else "Mortal")
         .joinToString(" · ")
 
 /** How a header fact is inked (Case File, frames 02-04). */
@@ -146,7 +146,7 @@ internal fun BoxedIconButton(icon: ImageVector, description: String, onClick: ()
             .size(36.dp)
             .clip(shape)
             .border(1.5.dp, MaterialTheme.colorScheme.outline, shape)
-            .clickable(role = Role.Button, onClickLabel = description, onClick = onClick),
+            .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Icon(icon, contentDescription = description, Modifier.size(20.dp))

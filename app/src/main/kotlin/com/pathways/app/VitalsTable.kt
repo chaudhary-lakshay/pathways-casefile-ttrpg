@@ -33,6 +33,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
@@ -86,6 +89,7 @@ internal fun VitalsCard(
                                     .padding(top = 4.dp)
                                     .heightIn(min = 48.dp)
                                     .clickable(role = Role.Button) { onAmendedOnly(!amendedOnly) }
+                                    .semantics { stateDescription = if (amendedOnly) "Showing amendments only" else "Showing all values" }
                                     .wrapContentHeight(),
                             )
                         }
@@ -135,14 +139,18 @@ internal fun VitalsCard(
                         }
                     }
                     sheetFigures?.let { figures ->
+                        val figure = figures[line.label] ?: "—"
                         Text(
-                            figures[line.label] ?: "—",
+                            figure,
                             style = MaterialTheme.typography.titleMedium.tabular().copy(
                                 textDecoration = if (differs) TextDecoration.LineThrough else null,
                             ),
                             color = if (differs) red else MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.End,
-                            modifier = Modifier.width(72.dp),
+                            // A reader hears neither red nor a strike.
+                            modifier = Modifier.width(72.dp).semantics {
+                                contentDescription = if (differs) "sheet $figure, disputed" else "sheet $figure"
+                            },
                         )
                     }
                     Text(

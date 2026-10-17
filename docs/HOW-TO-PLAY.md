@@ -637,7 +637,7 @@ Edits are saved per character and survive a restart.
   reload rates are yours to run. So is the *day* in HP recovery — but its roll
   is offered: while a character is hurt, **Vitals** holds **Natural
   recovery**, with the book's three rows behind *The book's rows*, a **−1 / +1** for anything else that
-  moves the roll (a potion's grant, say — the line under it shows what is
+  moves the roll (a potion's grant, say — the line above it shows what is
   already counted), and **Roll HT N — a day of rest and food**. Shock is not
   in it: it lasts a turn, and the roll comes a day later. You say when
   a day has passed. A success restores nothing by itself: its line quotes the
