@@ -4,7 +4,9 @@ import androidx.compose.runtime.mutableStateOf
 
 /**
  * What the table has declared about one character this scene, held by [App]
- * for as long as that character is selected.
+ * in [Scenes] for as long as the app runs: until play session 7 it lived only
+ * while that character was selected, so a GM switching PCs mid-round lost a
+ * Retreat, a stun and a lit phobia.
  *
  * Each of these was a `remember` inside the screen or dialog that shows it,
  * and so lived only while that composable did. Play session 1 found both
@@ -26,4 +28,16 @@ internal class SheetScene {
     val round = mutableStateOf(RoundState())
     /** Defend's Stunned: its own clock, not the round's (see [RoundState]). */
     val stunned = mutableStateOf(false)
+}
+
+/** Each character's [SheetScene], kept across trips to the gallery, as [RollLog] keeps throws. */
+internal class Scenes {
+    private val scenes = mutableMapOf<String, SheetScene>()
+
+    fun of(character: String): SheetScene = scenes.getOrPut(character, ::SheetScene)
+
+    /** Reset to sheet and Delete start the character's scene clean. */
+    fun forget(character: String) {
+        scenes.remove(character)
+    }
 }

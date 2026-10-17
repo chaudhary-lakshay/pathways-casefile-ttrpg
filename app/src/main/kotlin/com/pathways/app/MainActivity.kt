@@ -114,8 +114,10 @@ fun App(
     // Every throw, per character, for as long as the app runs (RollLog).
     val rollLog = remember { RollLog(appDice) }
     // Above the screen switch, so the builder and the pathway screen do not
-    // take the scene down with the sheet (play session 1).
-    val scene = remember(selected, resets) { SheetScene() }
+    // take the scene down with the sheet (play session 1), and per character,
+    // so the gallery does not either (play session 7).
+    val scenes = remember { Scenes() }
+    val scene = remember(selected, resets) { selected?.name?.let(scenes::of) ?: SheetScene() }
     // One walk down a pathway per selected premade, restored from disk and
     // written back on every change.
     val session = remember(selected, resets) {
@@ -166,6 +168,7 @@ fun App(
                         if (kept != null) saved[sheet.name] = kept else saved.remove(sheet.name)
                         store.save(saved)
                         rollLog.forget(sheet.name)
+                        scenes.forget(sheet.name)
                         resets++
                     },
                     // Only an own character can go: a premade is the book's.
@@ -174,6 +177,7 @@ fun App(
                             saved.remove(sheet.name)
                             store.save(saved)
                             rollLog.forget(sheet.name)
+                            scenes.forget(sheet.name)
                             selected = null
                         }
                     },
