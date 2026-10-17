@@ -6726,6 +6726,157 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ic. Case File, slice 1: one light scheme, three faces
+
+The first session of the Case File redesign (the Notion plan "Pathways:
+implement the Case File redesign"). The plan opened with three gates,
+and all three were cleared before any Case File code.
+
+### The gates
+
+- **Wabi committed** (`8ec1769`): the uncommitted Wabi preset, grain and
+  sigil backdrop, after a fresh test count and a Codex review (SHIP WITH
+  CHANGES). Its LOW, a stale "violet" comment, was taken. Its MEDIUM, that
+  the grain drops Vitals text under 4.5:1, moved into this slice, because
+  the owner kept the grain.
+- **The plan reviewed** by Codex before any code: PROCEED WITH CHANGES.
+  Two HIGHs went into slice 1. `ThemeSchemesTest` had no contrast check,
+  because contrast lived only in the generator. And a global font change
+  meets dialogs whose geometry was set for the old font. Three MEDIUMs:
+  `onPrimary` must be paper when primary and secondaryContainer share ink,
+  because Compose resolves a Surface's content colour through `primary`
+  first; `TextStyle` cannot uppercase; and the `PathwayScreen` split must
+  keep its state keys. Codex argued against keeping the preset machinery
+  to slice 8, and it went in slice 1.
+- **The owner's rulings on the frames**: ship the purely decorative
+  strings ("FILE Nº", "FORM", the paperclip), but no A–Z sort; keep both
+  the grain and the sigil wash; "remove the roll sounds", then "Remove the
+  ripple too"; a centred column of at most ~600 dp.
+
+### `58119c4` reviewed, and the note it left (`cb75e32`)
+
+Codex on the shield penalty fix that no gate had read: the penalty is
+applied exactly once at every facing, and the test catches a revert.
+MEDIUM, taken: the Defend dialog's "Against ranged attacks" note forced
+the front's coverage, so at the side it printed 8 where the row rolls
+7 → 8. `shotBlockNote` prints the row's own figures. RED was the assertion
+on "7 → 8", not a compile error. The fix's review: SHIP.
+
+### Roll effects reverted (`22666c3`)
+
+`9f8368f`, the divination verdict sound and ripple, reverted on the
+owner's ruling. One conflict, in `VerdictCard`, resolved to the
+pre-flourish shape with Wabi's `.tabular()` kept.
+
+### Slice 1a: the palette (`4d891e5`, `a9be8f0`)
+
+`tools/gen_theme.py` now generates one scheme, `CaseFile`, light only.
+Each unpinned family comes from its own Neutral scheme, and the roles a
+screen paints are pinned to the design's hex. The six presets, the picker,
+`ThemePrefs`, dark mode, true black, Material You and `values-night` are
+deleted. `SectionLabel` moved to `StepperParts.kt`; it had lived in the
+picker's file.
+
+- **Contrast is checked through the grain**, in the generator and in
+  `ThemeSchemesTest` (47 pairs), against the tile's mean grey (122) at
+  `GRAIN_ALPHA` 0.07. The design's stamp red `#C0392B` read 4.43:1 on
+  paper through it; the owner picked `#BC382A` over a fainter grain. The
+  mockup's red is the test's negative control. Darker container tones
+  failed for mute and stamp, so no ground that carries text is darker
+  than paper: card `#FBF8F1`, raised `#F6F2EA`, paper `#F3EFE6`.
+- **Ink fills write in paper**: `secondaryContainer` is ink, so every
+  selected FilterChip is the design's black chip with no call-site edit,
+  and `onPrimary` is paper.
+- **System bar icons are forced dark.** `enableEdgeToEdge()`'s `auto`
+  would have put light icons on the paper whenever the device is in night
+  mode.
+- Codex's review of `4d891e5`: SHIP WITH CHANGES, five MEDIUMs and four
+  LOWs. Taken in `a9be8f0`: HP and FP are ink and SPI the stamp, and a
+  pool in a named state turns red; before this, HP and SPI shared one red,
+  and a depleted FP stayed ink. The selected tab label is ink, not
+  `secondary`. The power-cost tag is outlined, because red on a 14% red
+  wash measured 3.9:1. A refused study badge and a blocked trait are mute,
+  because `outline` is ink now. Two stale comments went. **Not taken**: the
+  potion-granted skill's tag shares the stamp red with the disagreement
+  warning. The design has one accent, the stamp marks the Beyonder, and
+  the tag's word carries the meaning.
+
+### Slice 1b: type, shape and the column (`5148cb1`)
+
+- **Fraunces** for display and headline, **IBM Plex Sans** for body and
+  title, **IBM Plex Mono** for labels and `tabular()`, so every changing
+  number is set in mono at its own size. Shippori Mincho is gone.
+- **Glyph coverage was checked before bundling**, after decoding every
+  `\u` escape in the Kotlin and the content JSON: 17 non-ASCII
+  characters. Both Plex faces cover all of them. Fraunces lacks ← → ✓,
+  and Android draws those from a system font. U+007F is `BULLET`, a
+  sentinel that is never drawn.
+- **Plex is shipped unmodified.** Its OFL reserves the name "Plex", and a
+  subset is a modified version, so the files are IBM's own statics, only
+  renamed to resource names. Fraunces reserves no name, so it is a static
+  SemiBold instance at opsz 32, subset to Latin (33 KB). Both licences are
+  in `assets/licenses`.
+- Radii 2/4/6/8 dp. The content column is capped at 600 dp and centred,
+  with paper and grain filling the window. At density 2.0 the SM-T570 is
+  exactly 600 dp wide in portrait, so the column shows only in landscape.
+  It is clipped, so the sheet's seal, offset past its edge, stays inside.
+- **The pool strip's max wrapped.** The review computed it, and the
+  tablet showed it: at HP 15, "15 / 15" in mono broke the slash onto its
+  own line, in a third of the 568 dp strip. The max is Plex Sans now, whose
+  digits are one width by default, and is printed "/15" without spaces.
+  "15/15" was then seen on one line. HP was stepped up to 15 and back to 9
+  with the stepper, so the save ended as it started.
+- A granted skill's level badge is ink. Only its "potion" tag is red,
+  because a red number now means a named harm state.
+
+### Verification
+
+1935 Kotlin (1481 `core:rules`, 431 `app`, 23 `core:model`) and 366
+Python. `app` fell from 892 because `ThemeSchemesTest` now sweeps one
+scheme instead of twelve, 0 failures, from fresh build directories.
+RED was watched for every new test: the side note's "7 → 8", the 10
+token and fill assertions and 8 contrast pairs against the old default
+scheme, and all four type assertions against stand-in families.
+`--rerun-tasks` and `clean` each failed four times on `Unable to delete`
+in `app/build`. Deleting the build directories and running with
+`--no-build-cache` gave the full count.
+
+### Device pass (SM-T570, wireless)
+
+Gallery, sheet, the Attack picker and the full Attack dialog, in portrait
+and landscape, after each slice. Paper and grain, ink chips, the stamp on
+SPI and on the Beyonder tags. Fraunces dialog titles, mono chips and
+footer. Landscape shows the centred column. The sheet's header still
+scrolls away under the pinned pool strip, so the skills list is reachable
+at 600 dp of height. The rotation was put back to portrait. No save was
+touched.
+
+### Review
+
+Codex for Wabi, the plan, `58119c4`, `cb75e32` and `4d891e5`. Then it hit
+its usage limit (it resets at 00:24 on 2026-10-18), and pi-qa answered
+`fetch failed`. So one general-purpose review sub-agent read `a9be8f0` and
+1b: SHIP WITH CHANGES.
+- MEDIUM, taken: the pool max wraps. It came from arithmetic and was
+  confirmed on the device.
+- LOW, taken: clip the column.
+- LOW, taken: the red level badge.
+- LOW, not taken: the Fraunces cut's name table still says "Black". This
+  is metadata only, because the weight is declared in Compose.
+- LOW, not taken: side insets inside the column. The SM-T570 has none.
+- The Plex licensing: compliant. The name tables are unmodified, and the
+  licences are in `assets/licenses`.
+
+`a9be8f0` and `5148cb1` have had no Codex review. The next session owes
+them one.
+
+### Next
+
+Slice 2, shared components (the plan's order by reach): chips, buttons,
+the dialog title with the "FORM" line, `SectionHead` as "§ TITLE",
+steppers, the roll cards as stamps, the pool strip's square pips, the
+bracketed actions, and the raised tab.
+
 ## 6ib. The shield bash, and play session 7
 
 The owner answered play session 6's open question, "Apply it" to the

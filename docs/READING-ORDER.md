@@ -195,6 +195,13 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hx
+(Detect takes Spiritual Attrition's -3 only on a roll a Sec. 1 awareness
+row grants, an ability check by Step 2's words; a roll on suspicion alone
+takes none, the owner's ruling; `Detection.attritionFor` is the one
+answer; 6hw's four and this seen on the SM-T570; the Damage dialog
+keeps its rows, disabled, off HP, so a pool pick moves nothing).
+
 Then 6hw
 (play session 3, the mystical half, which I played alone as the Occult
 Scholar: a typed spirit hit multiplies on FP and SPI, the location on HP
@@ -2538,8 +2545,12 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6fo back to 6de
+## Digest index, 6fy back to 6de
 
+**6fy–6ft** — a sheet's printed SPI 9 is not played: a premade plays 0 until a potion; the gallery and every chip print played numbers; `repairedEdits` is the one repair;
+**6fr** — every held row prints a cell: of 495 rows 29 had none; Wealthy prints the wealth table's, and the sense chips were cut, so a chip's text is not a row's cell (6fs: its device pass);
+**6fq** — a held face printed its name alone on Traits; `held()` gives it the table's reaction cell, and my test had computed its expectation with `cellFor`'s own formula;
+**6fp** — the builder's Appearance row says what the potion grants and which face is played, through `Appearance.played`; that closed 6fn's census;
 **6fo** — Mother 8 and Justiciar 6 grant Ancient Hermes, Native, both forms; `Languages.grantedBy` feeds the ritual dialog's note and no roll changes;
 **6fn** — a potion's face: the chain keeps Sequence 6's and the better of bought and granted is played; a second `mapOf` key would have silently dropped Charisma's grant;
 **6fm** — a potion's Charisma levels add down the chain and onto a bought level, capped at 4; the label first said the grant's level, not what it added;

@@ -123,8 +123,8 @@ subcommand. Both the design review and the diff review now go through
 `codex exec` called directly (6eg; the invocation is in `~/.claude/CLAUDE.md`),
 which takes the target list, the three questions and the "do not read
 CLAUDE.md or docs/SLICE-LOG.md" instruction in one prompt. A prompt over ~32 KB must
-reach `codex exec` on stdin (`-`), or it exits 126 (6fg). **Codex is out
-until 2026-10-14 16:44** (6fg); check the clock before trusting that.
+reach `codex exec` on stdin (`-`), or it exits 126 (6fg). **Codex was out
+until 2026-10-18 00:24** (6ic); check the clock before trusting that.
 
 **When Codex is out and the free panel is also silent, go to one review
 sub-agent rather than shipping self-checked** — 6cz is what two slices of not
@@ -193,6 +193,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6hx** — Detect takes Spiritual Attrition's -3 only on a roll an awareness row grants; a roll on suspicion alone takes none, the owner's ruling;
 **6hw** — play session 3: a typed spirit hit multiplies on FP and SPI, the location on HP only; Spirit Vision takes Spiritual Attrition's -3, read after activation;
 **6hv** — play session 2: shock leaves the daily recovery roll; the skill stepper steps rung to rung; a hit priced by type, floored as a reading;
 **6hu** — own characters are save entries naming their premade; study points ride on `points` with a `studied` share the budget subtracts;
@@ -240,13 +241,9 @@ slice log.** One line each:
 **6gd** — a ledger roll resolved its target inside the click; `SkillRoll.targetFor` resolves while drawn, and my matrix test took its number from the function under test;
 **6gc–6gb** — the second tap of one picture: a push chip tapped twice threw past the FP cap or spent an emptied pool; a stale tap is dropped, and my handler count was wrong within the hour;
 **6ga–6fz** — a sheet row prints the played number, never the unedited sheet's; re-run 6ga's printed-number sweep after any new screen, and a grep for derivation calls is not it;
-**6fy–6ft** — a sheet's printed SPI 9 is not played: a premade plays 0 until a potion; the gallery and every chip print played numbers; `repairedEdits` is the one repair;
-**6fr** — every held row prints a cell: of 495 rows 29 had none; Wealthy prints the wealth table's, and the sense chips were cut, so a chip's text is not a row's cell (6fs: its device pass);
-**6fq** — a held face printed its name alone on Traits; `held()` gives it the table's reaction cell, and my test had computed its expectation with `cellFor`'s own formula;
-**6fp** — the builder's Appearance row says what the potion grants and which face is played, through `Appearance.played`; that closed 6fn's census;
-**6fo back to 6de** have one-line digests too, moved verbatim to
+**6fy–6ft back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
-its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi, 6hk, 6hm, 6hq, 6hr, 6hs, 6ht, 6hu, 6hv, 6hw, 6ib).
+its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi, 6hk, 6hm, 6hq, 6hr, 6hs, 6ht, 6hu, 6hv, 6hw, 6ib, 6ic).
 
 **6dd back to 6cd had lead paragraphs here and they have been cut, because
 this file keeps reaching the 150 k-char limit (6eb: 152,583; 6eh cut 6dd to
@@ -265,9 +262,14 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ib first.** END
+**Where to start next: the slice log, from the END — 6ic first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
-line 6728, then 6ib back to 6cb, newest first, so `tail` prints 6cb. 6ib:
+line 6728, then 6ic back to 6cb, newest first, so `tail` prints 6cb. 6ic:
+(Case File slice 1: one generated light scheme replaces every preset,
+contrast checked through the grain, stamp red #BC382A on the owner's
+pick; Fraunces, Plex Sans and Plex Mono, Plex shipped unmodified for
+its reserved name; a 600 dp column; roll sounds and ripple reverted;
+seen on the SM-T570). Then 6ib
 (the shield bash on the owner's word, a row per shield and Brawling-2
 with Versatile; play session 7, alone as Brann: a character's scene
 outlives the gallery; from the front a shield's figure is the only one,
@@ -283,12 +285,7 @@ reason having expired; seen on the SM-T570 but for a critical). Then 6hy
 (play session 4, the campaign arc, played alone: nine findings, all fixed
 and seen on the SM-T570; one caption, `SuccessRoll.printed`; no push past
 *Success by 3+*; Will and Per roll from their Vitals rows, the owner's
-pick; pick-dependent rows drawn from the start). Then 6hx
-(Detect takes Spiritual Attrition's -3 only on a roll a Sec. 1 awareness
-row grants, an ability check by Step 2's words; a roll on suspicion alone
-takes none, the owner's ruling; `Detection.attritionFor` is the one
-answer; 6hw's four and this seen on the SM-T570; the Damage dialog
-keeps its rows, disabled, off HP, so a pool pick moves nothing). The chain
+pick; pick-dependent rows drawn from the start). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -336,7 +333,7 @@ than milestone scope, so read the slice log from the END, not from 6a. Section
 of what is left is the closing paragraph of the most recent slice.
 
 There is an Android module (`app/`, Compose) with four screens: premade list
-(theme picker in its top bar) -> sheet (the `computed vs asPublished` diff, a
+(glossary in its top bar) -> sheet (the `computed vs asPublished` diff, a
 Vitals/Skills/Traits bottom bar, and an action hub), the pathway
 screen (potion grants, digestion tracker, Potion Consumption Roll), and the
 builder (attributes, secondary characteristics, wealth, appearance, languages, traits,
@@ -345,9 +342,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2297 Kotlin** (JUnit 5 — 1481 `core:rules`, 793 `app`, 23 `core:model`, counted in 6ib) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **1935 Kotlin** (JUnit 5 — 1481 `core:rules`, 431 `app`, 23 `core:model`, counted in 6ic) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` count moves with `ThemeSchemesTest`, which emits one dynamic test per `ColorScheme` role and per contrast pair: 6ic's one light scheme took `app` from 892 to 431 |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **Codex, always** (the owner, 2026-10-17: "use codex instead of ecc always", reversing 2026-10-10's ecc). Through `codex exec` with the target named (6eg). When Codex and pi-qa are both down, one review sub-agent, never ecc. 6ib: the bash SHIP WITH CHANGES then SHIP; the play fixes SHIP and one MEDIUM, taken; then Codex hit its limit and a sub-agent reviewed `5c677d3` (MEDIUM and two LOWs, taken as `58119c4`, which no gate has reviewed yet). Earlier gates are in each slice's Review section |
+| Review gate | **Codex, always** (the owner, 2026-10-17: "use codex instead of ecc always", reversing 2026-10-10's ecc). Through `codex exec` with the target named (6eg). When Codex and pi-qa are both down, one review sub-agent, never ecc. 6ic: Codex reviewed Wabi, the plan, `58119c4`, `cb75e32` and `4d891e5`, then hit its limit; a sub-agent reviewed `a9be8f0` and `5148cb1` (SHIP WITH CHANGES, taken), and both still owe Codex a review. Earlier gates are in each slice's Review section |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
@@ -397,9 +394,9 @@ Note: on this machine `python` is not on PATH. Use the `py` launcher. Gradle's
 core/model/     pure data types, no logic       (kotlinx-serialization)
 core/rules/     all computation + book content  (api-depends on :core:model)
 app/            Compose UI: premade list, sheet, pathway, builder
-                Theme.kt chooses a scheme; ThemeSchemes.kt is GENERATED by
-                tools/gen_theme.py and must not be hand-edited; ThemePicker.kt
-                is the bottom sheet, reached from the gallery's top bar
+                Theme.kt applies the one Case File scheme, fonts and column;
+                ThemeSchemes.kt is GENERATED by tools/gen_theme.py and
+                must not be hand-edited (6ic)
 fixtures/       23 character-sheet JSON fixtures (wired onto core:rules TEST classpath)
 tools/          offline Python extractors (pypdf, openpyxl) + their tests
 docs/           spec, plan, KNOWN_ISSUES, SLICE-LOG, HOW-TO-PLAY (table guide)
