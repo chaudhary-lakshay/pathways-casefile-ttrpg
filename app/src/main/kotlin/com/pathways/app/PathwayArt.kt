@@ -6,8 +6,13 @@ import androidx.annotation.DrawableRes
  * The sigil for each of the 22 pathways.
  *
  * **What these are.** The pathway emblems from the Lord of the Mysteries wiki
- * (`<Pathway> Symbol2.png`), one per pathway, downscaled to 256px WebP with
- * transparency preserved. They are the setting's OWN symbols -- a first
+ * (`<Pathway> Symbol2.png`), one per pathway, restyled flat on the owner's
+ * pick (2026-10-17, style "C" of three): the faint halo under alpha 128 cut
+ * and islands under 40 px dropped, posterised to 2 bits per channel and
+ * mode-filtered, then a #111314 outline. All of it runs at 4x (960 px art,
+ * a 12 px outline) and is scaled to 256 px once at the end: done at 256 the
+ * edges came out grainy on the tablet. WebP quality 92, alpha lossless. Each
+ * keeps its own hue. They are the setting's OWN symbols -- a first
  * attempt used the Rider-Waite tarot Major Arcana on the reasoning that the 22
  * pathways are the 22 arcana, and it was rejected for the obvious reason: a
  * 1909 tarot card is not Lord of the Mysteries.
