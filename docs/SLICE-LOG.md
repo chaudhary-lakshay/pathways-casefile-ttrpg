@@ -6726,6 +6726,89 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ia. Play session 6: a scenario Codex picked, in landscape
+
+The owner: "play yourself and make sure to take codex's input". Codex
+(`codex exec`, gpt-6-astra) named six unexercised branches and wrote the
+scenario: a blank-sheet mortal, Vale, with Brawling, Shield, Bad Temper,
+Charmed Object and Ancient Hermes; then a shield front and rear, Hanged
+Man 9's drawback, divination against a protected target, Seq 8 and a
+restart. The tablet was in landscape, the first session that was. Every
+number held: Hermes Accented spoken 10, then Native both forms 30 as one
+purchase; the charm's +1 on Brawling in Roll and Attack, and gone once
+moved to Shield; Bad Temper at -2 targets 10; Dodge 7, Block 7, Brawling
+parrying a weapon at 5, a light DB on all three from the front and none
+from the rear; one drawback kept through a swap; Direct Link halving -10
+to -5, 4 HP forgiving 2, critical-only kept (book 3950), HP and SPI
+charged once; all of it back after a force-stop. Codex's premise that
+Divination Arts can be bought was wrong: p. 85, withheld at
+`BuilderPickers.kt:188`. Divine appeared once Ritualistic Magic reached
+14 (the 12+ gate). Codex's triage of the findings was killed by Claude
+Code's low-memory reaper; its design review and diff review below ran.
+
+### Fixes, one commit each
+
+- **A dialog holds one body height** (`43827ce`). An AlertDialog
+  re-centres on every height change: the verdict replacing the chips
+  moved Roll ~60 dp up (a second tap could land on the scrim), a trait
+  search or an opened row moved the field, and the first language pick
+  moved the chips. My plan remembered the tallest size; Codex's design
+  review returned HIGH, because chips and verdict are separate branches
+  and a remembered size dies with its branch. `steadyBody` wraps the whole
+  text slot at `heightIn(max = 560.dp).fillMaxHeight()`, eleven roll
+  dialogs, the trait picker and the language picker. A short dialog now
+  shows blank space under its content.
+- **The shield note sits below the shield chips** (`31107f2`).
+- **The divination counters follow the techniques** (`92805d7`), as Step
+  5 follows them in the book, and the card says the HP the sacrifice
+  actually charged, captured at Ask (Codex: never the chip, which can
+  cost 0).
+- **The charm chooser marks its pick; a withheld skill says why**
+  (`e2c35e9`): `isCharmed` is the one sameness `charmLine` and the chooser
+  read; `withheldMatching` names an SPI skill a search hits, with p. 85.
+
+### Withdrawn on reading the code
+
+- The facing penalty: `DefensePickers.kt:323` already prints it, not
+  applied, under the facing chips; I had scrolled past it. 6ck's refusal
+  stands.
+- Trait search listing the withheld groups: deliberate,
+  `TraitPicker.kt:264`.
+- The empty band under each pool bar: drawn on purpose so a threshold
+  does not move the hub (play session 4, `PoolStrip.kt:204`).
+- Push after a success: the book lets the push follow the result.
+
+Left as recorded: the shield bash's damage (book 2536). 6o's reason, "a
+bash is a weapon attack and the shield is not in chapter 8's weapon
+table", still reads true; the same 6o list called the facing arc
+unmodelled, and that has since been built, so the list is stale, which is
+not proof this item expired. The owner was asked and did not answer.
+
+### Verification
+
+2284 Kotlin (1474 `core:rules`, 787 `app`, 23 `core:model`), 0 failures,
+from fresh XML. RED watched for both helpers; one mutant each (the
+specialization check, the blank-query guard) went RED and was restored
+byte-identical. The layout fixes have no test; their proof is the device.
+
+### Review
+
+Codex design review: HIGH (above) and a MEDIUM on the HP receipt, both
+taken. Codex diff review of the four commits: SHIP, no findings.
+
+### Device pass (SM-T570, wireless, landscape and portrait)
+
+Vale seeded from the post-session save, the backup restored after, `cmp`
+identical. Seen in landscape: Brawling's title and Roll at the same dump
+y before and after the roll (108/840, were 226/780); Attack's the same
+(were 256/766); the trait picker's title still at 108 after a search and
+an opened row (was 175); the language picker's at 108 after the first
+pick (was 220 then 108); the shield chips at 506 after a pick; the
+technique chips at 448 after picking Seq 4 (were pushed to 610); "Burned
+4 HP for the sacrifice" with HP lost 4 to 8 and SPI 1 to 2; "Shield —
+charmed now"; the Divination Arts reason. In portrait: Brawling's Roll
+at the same place after rolling.
+
 ## 6hz. Play session 5: combat, and its twelve findings
 
 The owner picked play session 5, "Claude plays alone", on the half no

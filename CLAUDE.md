@@ -193,6 +193,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6hv** — play session 2: shock leaves the daily recovery roll; the skill stepper steps rung to rung; a hit priced by type, floored as a reading;
 **6hu** — own characters are save entries naming their premade; study points ride on `points` with a `studied` share the budget subtracts;
 **6ht** — reset to sheet rebuilds the session from an empty save; a roll log fed by one `RandomSource.thrown` hook, dice and target, never a verdict;
 **6hs** — play session 1: twelve device findings, two of them state a `remember` lost, one 6cp's once-per-round claim; the revolver fires on Guns (Pistol);
@@ -264,9 +265,13 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6hz first.** END
+**Where to start next: the slice log, from the END — 6ia first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
-line 6728, then 6hz back to 6cb, newest first, so `tail` prints 6cb. 6hz:
+line 6728, then 6ia back to 6cb, newest first, so `tail` prints 6cb. 6ia:
+(play session 6, a scenario Codex picked, played alone in landscape as
+Vale: every number held; a dialog body holds one height, so a verdict,
+a search or a pick moves no control, Codex's design; the divination
+card says the HP burned; seen on the SM-T570). Then 6hz
 (play session 5, combat, played alone as Military Police: twelve
 findings; a critical hit doubles its rolled damage, a reading; a held
 stun rolls its recovery from a Vitals row; a rolled parry counts, 6cp's
@@ -286,13 +291,7 @@ only; Spirit Vision takes Spiritual Attrition's -3, read after the
 activation is paid; a gained quirk reads GM call; no push on a crystal
 clear answer; then the owner's calls: Absent-Minded stays refused on its
 price, the Boon form leads with its refusal, an acting band is a tap
-adding its low end; the device pass is owed). Then 6hv
-(play session 2, which I played alone as an own character, Mira: eleven
-findings, all fixed; shock leaves the daily recovery roll, which comes a
-day after a one-turn state; the skill stepper steps rung to rung; the
-Damage dialog prices a hit by its type, floored as a reading; reset keeps
-an own character's build; a Fright quirk is recorded at 0; a held power's
-fixed SPI price has a button; seen on the SM-T570). The chain
+adding its low end; the device pass is owed). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -349,9 +348,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **2281 Kotlin** (JUnit 5 — 1474 `core:rules`, 784 `app`, 23 `core:model`, counted in 6hz) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
+| Tests | **2284 Kotlin** (JUnit 5 — 1474 `core:rules`, 787 `app`, 23 `core:model`, counted in 6ia) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` jump from 92 is `ThemeSchemesTest`, which sweeps every `ColorScheme` role by reflection and so emits one dynamic test per role per preset per mode |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`: SHIP, one LOW not taken (a 12.dp indent); 6hm's uncommitted tree: ship with changes, taken; 6hn: ship with changes, taken; 6ho: SHIP; 6hp: ship with changes, taken; then `09f19e5..d52eb4e -- app`: ship with changes, one MEDIUM not taken (the 280.dp row at 360dp); 6hq's design: CHANGE, taken; its diff `fb6bba6..0d7ced5`: SHIP; 6hr's design: CHANGE, taken; its uncommitted tree: ship with changes, taken; 6hs's twelve fixes: SHIP and ship with changes, taken; 6ht's reset and roll log: SHIP, one LOW taken; 6hu's own characters: ship with changes (reviewed after commit), taken; study's design: CHANGE, taken; its diff: ship with changes, taken; 6hv's eleven fixes `f6d2406..a5fdf48`: ship with changes, one LOW taken, two not; 6hw's four `40f2b98..0f758ea`: ship with changes, its MEDIUM not taken (the card prices the NEXT look); 6hx's Detect attrition: ship with changes, one LOW taken; 6hy's nine `7a2d705..07ce1cb`: SHIP, two LOWs taken; 6hz's ten `3bf0e09..57a8254`: ship with changes, two LOWs taken, three not |
+| Review gate | **ecc, not Codex** (the owner, 2026-10-10). The plugin is disabled, so a sonnet sub-agent runs `~/.claude/plugins/cache/ecc/ecc/2.0.0/agents/kotlin-reviewer.md` with an explicit range (6fl). It approved `ad8b4e1..123d68c -- core app`, then `123d68c..4e9ab4e`, the file splits, and each of 6he-6hl (SHIP; 6hg to 6hl after their commits); 6hl's last fix, `f1b24a5..c3d01ca`: SHIP, one LOW not taken (a 12.dp indent); 6hm's uncommitted tree: ship with changes, taken; 6hn: ship with changes, taken; 6ho: SHIP; 6hp: ship with changes, taken; then `09f19e5..d52eb4e -- app`: ship with changes, one MEDIUM not taken (the 280.dp row at 360dp); 6hq's design: CHANGE, taken; its diff `fb6bba6..0d7ced5`: SHIP; 6hr's design: CHANGE, taken; its uncommitted tree: ship with changes, taken; 6hs's twelve fixes: SHIP and ship with changes, taken; 6ht's reset and roll log: SHIP, one LOW taken; 6hu's own characters: ship with changes (reviewed after commit), taken; study's design: CHANGE, taken; its diff: ship with changes, taken; 6hv's eleven fixes `f6d2406..a5fdf48`: ship with changes, one LOW taken, two not; 6hw's four `40f2b98..0f758ea`: ship with changes, its MEDIUM not taken (the card prices the NEXT look); 6hx's Detect attrition: ship with changes, one LOW taken; 6hy's nine `7a2d705..07ce1cb`: SHIP, two LOWs taken; 6hz's ten `3bf0e09..57a8254`: ship with changes, two LOWs taken, three not; 6ia went to Codex at the owner's ask: design CHANGE (a HIGH and a MEDIUM, taken), diff SHIP |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 

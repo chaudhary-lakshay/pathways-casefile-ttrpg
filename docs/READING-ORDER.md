@@ -195,6 +195,14 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hv
+(play session 2, which I played alone as an own character, Mira: eleven
+findings, all fixed; shock leaves the daily recovery roll, which comes a
+day after a one-turn state; the skill stepper steps rung to rung; the
+Damage dialog prices a hit by its type, floored as a reading; reset keeps
+an own character's build; a Fright quirk is recorded at 0; a held power's
+fixed SPI price has a button; seen on the SM-T570).
+
 Then 6hu
 (own
 characters, a save entry whose `basedOn` names its premade, no second file;
