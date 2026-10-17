@@ -41,7 +41,7 @@ internal fun SheetMenu(
     var logging by remember { mutableStateOf(false) }
     var confirming by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf(false) }
-    IconButton(onClick = { menu = true }, modifier = Modifier.boxed()) {
+    IconButton(onClick = { menu = true }, modifier = Modifier.boxed(MaterialTheme.colorScheme.outline)) {
         Icon(Icons.Filled.MoreVert, contentDescription = "More")
     }
     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {

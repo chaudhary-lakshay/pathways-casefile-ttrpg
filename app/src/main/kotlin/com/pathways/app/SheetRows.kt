@@ -403,8 +403,8 @@ internal fun ComparisonRow(
 }
 
 /**
- * The derived values as one card under the notice that counts the
- * disagreements. A row the published sheet disagrees with is tinted and
+ * The derived values as a section head and ruled rows, under the notice
+ * that counts the disagreements. A row the published sheet disagrees with is tinted and
  * takes the accent, with the sheet's figure beside its name; none rolls.
  */
 @Composable

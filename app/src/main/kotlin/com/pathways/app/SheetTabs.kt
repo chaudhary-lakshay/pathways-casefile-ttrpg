@@ -211,7 +211,7 @@ internal fun LazyListScope.skillsTab(
     // The rows drawn below, counted from the lists that draw them.
     item { SheetSection("Skills", published.size + bought.size + granted.size) }
     // "You can attempt most skills even without training" (p. 10).
-    // First and full width: as a text button below the last skill the owner
+    // Above the rows and full width: as a text button below the last skill the owner
     // could not find it in play (session 1).
     item { UntrainedButton(onPickUntrained) }
     items(published) { (skill, row) ->

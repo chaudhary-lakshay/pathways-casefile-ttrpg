@@ -5,12 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -108,7 +110,8 @@ private fun HeaderPill(fact: HeaderFact) {
     }
 }
 
-/** The top bar's back and menu buttons, boxed in ink as the frames draw them. */
-@Composable
-internal fun Modifier.boxed(): Modifier =
-    border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.medium)
+/**
+ * The top bar's back and menu buttons, boxed in [ink] as the frames draw
+ * them. A plain modifier, not a composable one: the caller reads the colour.
+ */
+internal fun Modifier.boxed(ink: Color): Modifier = border(1.dp, ink, RoundedCornerShape(6.dp))

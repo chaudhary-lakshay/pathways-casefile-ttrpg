@@ -421,7 +421,7 @@ internal fun SheetScreen(
                 title = {},
                 actions = { SheetMenu(sheet.name, throws, onReset, onDelete) },
                 navigationIcon = {
-                    IconButton(onClick = onBack, modifier = Modifier.boxed()) {
+                    IconButton(onClick = onBack, modifier = Modifier.boxed(MaterialTheme.colorScheme.outline)) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back to characters",
