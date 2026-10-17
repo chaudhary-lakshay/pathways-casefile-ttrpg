@@ -193,7 +193,7 @@ internal fun DamageDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            Button(
+            Button(shape = ButtonShape,
                 onClick = {
                     if (applied) return@Button
                     applied = true
@@ -224,8 +224,8 @@ internal fun DamageDialog(
                 ),
             ) { Text("Apply $injury to $pool") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
-        title = { Text("Damage") },
+        dismissButton = { CloseButton(onDismiss, "Cancel") },
+        title = { FormTitle(FORM_DAMAGE) { Text("Damage") } },
         text = {
             // Scrolls: the hit locations and the Major Wound panel do not
             // fit a phone, and an AlertDialog does not scroll its own text slot.
@@ -416,7 +416,7 @@ private fun MajorWoundPanel(
     onRecoveryRoll: () -> Unit,
 ) {
     if (shock == null) {
-        OutlinedButton(onClick = onRoll, enabled = isMajor, modifier = Modifier.padding(top = 8.dp)) {
+        OutlinedButton(shape = ButtonShape, onClick = onRoll, enabled = isMajor, modifier = Modifier.padding(top = 8.dp)) {
             Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
             Text("Roll HT $ht", modifier = Modifier.padding(start = 8.dp))
         }
@@ -582,7 +582,7 @@ private fun AmountCard(amount: Int, threshold: String, isMajor: Boolean, onStep:
  */
 @Composable
 private fun StepButton(text: String, onClick: () -> Unit) {
-    OutlinedButton(
+    OutlinedButton(shape = ButtonShape,
         onClick = onClick,
         contentPadding = PaddingValues(0.dp),
         modifier = Modifier.padding(horizontal = 2.dp).size(40.dp),

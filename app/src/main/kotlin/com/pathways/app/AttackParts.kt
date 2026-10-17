@@ -104,7 +104,7 @@ internal fun AttackFooter(
             }
             // Nothing to roll is nothing to pay for: the handler charges the
             // plan's FP whatever the dice do.
-            Button(onClick = onRoll, enabled = !standing.forbidden) {
+            Button(shape = ButtonShape, onClick = onRoll, enabled = !standing.forbidden) {
                 Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
                 Text("Roll", modifier = Modifier.padding(start = 8.dp))
             }

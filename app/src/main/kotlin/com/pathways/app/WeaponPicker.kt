@@ -109,7 +109,7 @@ internal fun WeaponPicker(
     val offered = remember { Weapons.all() }
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
         title = { Text("Carry a weapon") },
         text = {
             LazyColumn {

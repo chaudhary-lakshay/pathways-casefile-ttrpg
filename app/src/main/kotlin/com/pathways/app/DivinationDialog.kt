@@ -252,7 +252,7 @@ fun DivinationDialog(
     }
     AlertDialog(
         onDismissRequest = finish,
-        confirmButton = { TextButton(onClick = finish) { Text("Close") } },
+        confirmButton = { CloseButton(finish) },
         dismissButton = {
             if (outcome != null) {
                 TextButton(
@@ -270,7 +270,7 @@ fun DivinationDialog(
                 ) { Text("Ask again") }
             }
         },
-        title = { Text("Divination Arts $skillLevel") },
+        title = { FormTitle(FORM_DIVINE) { Text("Divination Arts $skillLevel") } },
         text = steadyBody {
             val answer = outcome
             if (answer != null) {

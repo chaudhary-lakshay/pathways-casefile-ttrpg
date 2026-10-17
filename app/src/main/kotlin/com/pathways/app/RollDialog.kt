@@ -138,9 +138,9 @@ internal fun RollDialog(
         // onClick swap from Roll to Close once the dice are cast. Roll simply
         // goes disabled, which makes the re-entrancy guard below visible
         // instead of implied -- a GM can see the roll has happened.
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        dismissButton = { CloseButton(onDismiss) },
         confirmButton = {
-            Button(
+            Button(shape = ButtonShape,
                 enabled = out == null,
                 onClick = {
                     // Belt to the disabled state's braces: two taps in the same
@@ -156,7 +156,7 @@ internal fun RollDialog(
                 Text("Roll", modifier = Modifier.padding(start = 8.dp))
             }
         },
-        title = {
+        title = { FormTitle(FORM_SKILL) {
             Column {
                 Text(label)
                 Text(
@@ -165,7 +165,7 @@ internal fun RollDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-        },
+        } },
         text = steadyBody {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 val shownOut = out

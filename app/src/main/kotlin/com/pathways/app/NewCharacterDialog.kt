@@ -76,8 +76,8 @@ internal fun NewCharacterDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onCreate(name.trim(), base) }, enabled = refusal == null) { Text("Create") }
+            Button(shape = ButtonShape, onClick = { onCreate(name.trim(), base) }, enabled = refusal == null) { Text("Create") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { CloseButton(onDismiss, "Cancel") },
     )
 }

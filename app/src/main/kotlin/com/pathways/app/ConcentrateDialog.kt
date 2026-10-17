@@ -62,7 +62,7 @@ internal fun ConcentrateDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
         title = {
             Column {
                 Text("Concentrate")

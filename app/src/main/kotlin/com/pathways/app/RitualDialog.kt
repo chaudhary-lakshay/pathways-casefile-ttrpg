@@ -324,8 +324,8 @@ fun RitualDialog(
     }
     AlertDialog(
         onDismissRequest = finish,
-        confirmButton = { TextButton(onClick = finish) { Text("Close") } },
-        title = {
+        confirmButton = { CloseButton(finish) },
+        title = { FormTitle(FORM_RITUAL) {
             Column {
                 Text("Cast a ritual")
                 Text(
@@ -334,7 +334,7 @@ fun RitualDialog(
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
-        },
+        } },
         text = steadyBody {
             val result = outcome
             if (result != null) {

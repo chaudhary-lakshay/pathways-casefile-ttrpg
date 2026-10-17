@@ -122,8 +122,8 @@ internal fun FrightDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
-        title = {
+        confirmButton = { CloseButton(onDismiss) },
+        title = { FormTitle(FORM_FRIGHT) {
             Column {
                 Text("Fright Check")
                 Text(
@@ -132,7 +132,7 @@ internal fun FrightDialog(
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
-        },
+        } },
         text = steadyBody {
             val result = outcome
             if (result != null) {
@@ -264,7 +264,7 @@ internal fun FrightDialog(
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.weight(1f),
                     )
-                    Button(
+                    Button(shape = ButtonShape,
                         enabled = chosen != null,
                         onClick = {
                             // Guarded rather than relying on the button

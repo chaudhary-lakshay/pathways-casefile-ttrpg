@@ -204,7 +204,7 @@ internal fun CharmSkillPicker(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
         title = { Text("Charmed Object's skill") },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
@@ -279,7 +279,7 @@ internal fun TraitPicker(
     var query by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
         title = { Text("Buy a trait") },
         text = steadyBody {
             Column {
@@ -450,7 +450,7 @@ private fun PickerRow(
         if (expanded) {
             Text(notes, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp))
             if (blocked == null) {
-                FilledTonalButton(onClick = onAction, modifier = Modifier.padding(top = 6.dp)) {
+                FilledTonalButton(shape = ButtonShape, onClick = onAction, modifier = Modifier.padding(top = 6.dp)) {
                     Text(action)
                 }
             }

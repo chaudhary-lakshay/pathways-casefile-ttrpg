@@ -46,7 +46,7 @@ fun UntrainedDialog(
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
         title = { Text("Roll a skill untrained") },
         text = {
             Column {

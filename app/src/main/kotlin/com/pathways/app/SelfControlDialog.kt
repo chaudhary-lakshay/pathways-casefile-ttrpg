@@ -136,7 +136,7 @@ internal fun SelfControlDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
         title = {
             Column {
                 Text(check.trait)

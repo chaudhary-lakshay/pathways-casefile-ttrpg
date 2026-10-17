@@ -50,7 +50,7 @@ internal fun AttributeRollDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
         dismissButton = {
             if (outcome != null) TextButton(onClick = { outcome = null }) { Text("Roll again") }
         },

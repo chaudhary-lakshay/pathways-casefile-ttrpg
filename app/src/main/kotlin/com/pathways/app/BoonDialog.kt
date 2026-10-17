@@ -285,8 +285,8 @@ fun BoonDialog(
     }
     AlertDialog(
         onDismissRequest = finish,
-        confirmButton = { TextButton(onClick = finish) { Text("Close") } },
-        title = { Text("Petition for a boon") },
+        confirmButton = { CloseButton(finish) },
+        title = { FormTitle(FORM_BOON) { Text("Petition for a boon") } },
         text = steadyBody {
             val result = outcome
             if (result != null) {

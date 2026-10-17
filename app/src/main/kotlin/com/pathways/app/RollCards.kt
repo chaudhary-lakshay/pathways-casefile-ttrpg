@@ -1,6 +1,7 @@
 package com.pathways.app
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material3.Button
@@ -24,9 +25,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Outcome
@@ -73,46 +75,55 @@ private val STEADY_BODY_MAX = 560.dp
 internal fun TargetCard(standing: SkillTarget) =
     TargetCard(standing.target, standing.baseTarget, standing.forbidden)
 
-/** The same card for a roll outside the ledger: the Fright Check's. */
+/**
+ * The same card for a roll outside the ledger: the Fright Check's.
+ *
+ * Case File: the target boxed, the base struck beside it, and the dice
+ * notation at the right.
+ */
 @Composable
 internal fun TargetCard(target: Int, baseTarget: Int, forbidden: Boolean = false) {
     Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.background,
+        shape = MaterialTheme.shapes.extraSmall,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
     ) {
-        Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                "Target",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Box(Modifier.heightIn(min = 64.dp), contentAlignment = Alignment.Center) {
-                if (forbidden) {
-                    Text(
-                        FORBIDDEN_ROLL,
-                        color = MaterialTheme.colorScheme.error,
-                        textAlign = TextAlign.Center,
-                    )
-                } else {
-                    val moved = target != baseTarget
-                    Row(verticalAlignment = Alignment.Bottom) {
-                        Text(
-                            "$target",
-                            style = MaterialTheme.typography.displayMedium
-                                .tabular(),
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                        Text(
-                            "$baseTarget",
-                            style = MaterialTheme.typography.titleLarge.tabular().copy(
-                                textDecoration = TextDecoration.LineThrough,
-                            ),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .padding(start = 8.dp, bottom = 6.dp)
-                                .then(if (moved) Modifier else Modifier.alpha(0f).clearAndSetSemantics {}),
-                        )
+        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Caps("Target")
+                Box(Modifier.padding(top = 4.dp).heightIn(min = 56.dp), contentAlignment = Alignment.CenterStart) {
+                    if (forbidden) {
+                        Text(FORBIDDEN_ROLL, color = MaterialTheme.colorScheme.error)
+                    } else {
+                        val moved = target != baseTarget
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Box(
+                                Modifier
+                                    .heightIn(min = 56.dp)
+                                    .widthIn(min = 56.dp)
+                                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                                    .border(2.dp, MaterialTheme.colorScheme.outline)
+                                    .padding(horizontal = 6.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(
+                                    "$target",
+                                    style = MaterialTheme.typography.headlineMedium.tabular()
+                                        .copy(fontWeight = FontWeight.SemiBold),
+                                )
+                            }
+                            Text(
+                                "$baseTarget",
+                                style = MaterialTheme.typography.titleLarge.tabular().copy(
+                                    textDecoration = TextDecoration.LineThrough,
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .padding(start = 8.dp, bottom = 4.dp)
+                                    .then(if (moved) Modifier else Modifier.alpha(0f).clearAndSetSemantics {}),
+                            )
+                        }
                     }
                 }
             }
@@ -127,9 +138,9 @@ internal fun TargetCard(target: Int, baseTarget: Int, forbidden: Boolean = false
 }
 
 /**
- * The dice, once cast: the verdict in its own colour, the total against the
- * target it was rolled at, and the margin. Every line that moved the target
- * is listed below it, the chips being gone by then.
+ * The dice, once cast: the verdict as a stamp in its own colour, the total
+ * against the target it was rolled at, and the margin. Every line that
+ * moved the target is listed below it, the chips being gone by then.
  */
 @Composable
 internal fun ResultCard(
@@ -144,33 +155,12 @@ internal fun ResultCard(
     // success, and showing "Success" with a note underneath would misreport
     // the result.
     val shown = roll?.let { out.effectiveOutcome ?: it.outcome }
-    val accent = shown?.let { colorFor(it) } ?: MaterialTheme.colorScheme.error
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.5.dp, accent),
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            if (roll == null || shown == null) {
-                Text(FORBIDDEN_ROLL, color = accent)
-                return@Column
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        label(shown, degree),
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = accent,
-                    )
-                    Text(
-                        "3d6: ${roll.total} vs ${roll.target}",
-                        style = MaterialTheme.typography.titleMedium
-                            .tabular(),
-                    )
-                }
-                Tag("margin ${roll.margin}", accent)
-            }
+    if (roll == null || shown == null) {
+        StampSheet { Text(FORBIDDEN_ROLL, color = MaterialTheme.colorScheme.error) }
+    } else {
+        StampSheet {
+            Stamp(label(shown, degree), colorFor(shown))
+            DiceLine(roll)
             // The skill's own table, when its chapter prints one. Read from
             // the EFFECTIVE outcome, so a roll demoted by requiresCritical
             // cannot come back carrying a success row -- the defect
@@ -191,7 +181,8 @@ internal fun ResultCard(
         if (out.target != out.baseTarget) {
             Text(
                 "base ${out.baseTarget}, modified to ${out.target}",
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         LedgerLines(out.lines(), out.requiresCritical)
@@ -199,9 +190,9 @@ internal fun ResultCard(
 }
 
 /**
- * A bare roll's verdict, for the dialogs outside the ledger: the word in its
- * own colour and the dice against the target they were rolled at. What the
- * verdict means goes in [content], below.
+ * A bare roll's verdict, for the dialogs outside the ledger: the word as a
+ * stamp, ink for a pass and red for a failure, and the dice against the
+ * target they were rolled at. What the verdict means goes in [content].
  */
 @Composable
 internal fun VerdictCard(
@@ -210,26 +201,53 @@ internal fun VerdictCard(
     roll: RollResult,
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
-    val accent = if (passed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+    StampSheet {
+        Stamp(verdict, if (passed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
+        DiceLine(roll)
+        content()
+    }
+}
+
+/** The ruled sheet a verdict is stamped on. */
+@Composable
+private fun StampSheet(content: @Composable ColumnScope.() -> Unit) {
     Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.5.dp, accent),
+        color = MaterialTheme.colorScheme.background,
+        shape = MaterialTheme.shapes.extraSmall,
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
     ) {
-        Column(Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(verdict, style = MaterialTheme.typography.headlineMedium, color = accent)
-                    Text(
-                        "3d6: ${roll.total} vs ${roll.target}",
-                        style = MaterialTheme.typography.titleMedium.tabular(),
-                    )
-                }
-                Tag("margin ${roll.margin}", accent)
-            }
-            content()
-        }
+        Column(Modifier.padding(16.dp), content = content)
+    }
+}
+
+/**
+ * The verdict, inked on at a tilt. The tilt is drawn, not laid out, so a
+ * long verdict takes the height it always would.
+ */
+@Composable
+private fun Stamp(verdict: String, color: Color) {
+    Caps(
+        verdict,
+        Modifier
+            .padding(top = 4.dp)
+            .rotate(-3f)
+            .border(2.dp, color)
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+        style = MaterialTheme.typography.titleSmall.copy(fontFamily = PlexMono, fontWeight = FontWeight.SemiBold),
+        color = color,
+    )
+}
+
+@Composable
+private fun DiceLine(roll: RollResult) {
+    Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            "3d6: ${roll.total} vs ${roll.target}",
+            style = MaterialTheme.typography.titleMedium.tabular(),
+            modifier = Modifier.padding(end = 8.dp),
+        )
+        Tag("margin ${roll.margin}", MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -248,11 +266,13 @@ internal fun RollFooter(
     onRoll: () -> Unit,
 ) {
     Column {
-        HorizontalDivider(Modifier.padding(vertical = 8.dp))
-        lines.ifEmpty { listOf("") }.forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
+        HorizontalDivider(Modifier.padding(vertical = 8.dp), thickness = 2.dp, color = MaterialTheme.colorScheme.outline)
+        lines.ifEmpty { listOf("") }.forEach {
+            Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
         Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(caption, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
-            Button(onClick = onRoll, enabled = enabled) {
+            Text(caption, style = MaterialTheme.typography.titleMedium.tabular(), modifier = Modifier.weight(1f))
+            Button(shape = ButtonShape, onClick = onRoll, enabled = enabled) {
                 Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
                 Text(label, modifier = Modifier.padding(start = 8.dp))
             }
@@ -266,12 +286,12 @@ private fun Pill(text: String, modifier: Modifier = Modifier) {
         text,
         style = MaterialTheme.typography.labelLarge.tabular(),
         modifier = modifier
-            .padding(vertical = 4.dp)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(6.dp))
-            .padding(horizontal = 10.dp, vertical = 4.dp),
+            .border(1.dp, MaterialTheme.colorScheme.outline)
+            .padding(horizontal = 8.dp, vertical = 2.dp),
     )
 }
 
+/** A fact in a ruled box, in mono: the margin, a budget's spare points. */
 @Composable
 internal fun Tag(text: String, color: Color) {
     Text(
@@ -279,8 +299,8 @@ internal fun Tag(text: String, color: Color) {
         style = MaterialTheme.typography.labelLarge.tabular(),
         color = color,
         modifier = Modifier
-            .border(1.dp, color.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            .padding(horizontal = 8.dp, vertical = 2.dp),
     )
 }
 

@@ -92,7 +92,7 @@ fun ArtifactDialog(
                 // the book's one maintained ability the hardest to use.
             ) { Text(if (used == null) "Use" else "Use again") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        dismissButton = { CloseButton(onDismiss) },
         title = { Text("Sealed Artifacts") },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {

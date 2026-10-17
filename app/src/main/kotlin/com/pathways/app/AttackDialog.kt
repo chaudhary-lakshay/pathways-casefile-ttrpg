@@ -243,7 +243,7 @@ internal fun AttackDialog(
     }.orEmpty()
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
         dismissButton = {
             if (outcomes.isNotEmpty() || chosen != null) {
                 TextButton(
@@ -280,7 +280,7 @@ internal fun AttackDialog(
                 ) { Text("Another turn") }
             }
         },
-        title = { Text(if (chosen == null) "Attack with which skill?" else "Attack") },
+        title = { FormTitle(FORM_ATTACK) { Text(if (chosen == null) "Attack with which skill?" else "Attack") } },
         text = steadyBody {
             when {
                 outcomes.isNotEmpty() -> LazyColumn {
@@ -569,7 +569,7 @@ internal fun AttackDialog(
 @Composable
 private fun DamageLine(damage: DamageRoll, thrown: DamageResult?, onRoll: () -> Unit) {
     if (thrown == null) {
-        OutlinedButton(onClick = onRoll, modifier = Modifier.padding(bottom = 12.dp)) {
+        OutlinedButton(shape = ButtonShape, onClick = onRoll, modifier = Modifier.padding(bottom = 12.dp)) {
             Text("Roll damage ${damage.render()}")
         }
     } else {

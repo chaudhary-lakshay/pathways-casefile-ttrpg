@@ -122,7 +122,7 @@ internal fun LanguagePicker(
                 Text(if (isOwned) "Change" else "Buy")
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        dismissButton = { CloseButton(onDismiss) },
         title = { Text("Languages") },
         text = steadyBody {
             Column(Modifier.verticalScroll(rememberScrollState())) {

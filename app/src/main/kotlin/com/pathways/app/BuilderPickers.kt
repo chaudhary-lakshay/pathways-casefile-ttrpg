@@ -45,7 +45,7 @@ internal fun WealthPicker(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
         title = { Text("Economic status") },
         text = {
             LazyColumn {
@@ -117,7 +117,7 @@ internal fun AppearancePicker(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
         title = { Text("Appearance") },
         text = {
             LazyColumn {
@@ -203,7 +203,7 @@ internal fun SkillPicker(
     var query by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
         title = { Text("Add a skill") },
         text = {
             Column {

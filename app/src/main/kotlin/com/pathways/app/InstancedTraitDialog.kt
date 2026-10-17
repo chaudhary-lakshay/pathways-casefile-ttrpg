@@ -71,7 +71,7 @@ internal fun InstancedTraitDialog(
                 onClick = { onBuy(purchase) },
             ) { Text("Buy") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { CloseButton(onDismiss, "Cancel") },
         title = { Text(licensed?.name ?: row.name) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {

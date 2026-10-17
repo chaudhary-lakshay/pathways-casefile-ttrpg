@@ -106,7 +106,7 @@ fun SpiritVisionDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(form) },
+        title = { FormTitle(FORM_SIGHT) { Text(form) } },
         text = steadyBody {
             Column {
                 Column(
@@ -176,7 +176,7 @@ fun SpiritVisionDialog(
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
     )
 }
 

@@ -77,7 +77,7 @@ internal fun RitualFooter(
                     }
                 }
             }
-            Button(onClick = onCast, enabled = target != null && refusal == null) {
+            Button(shape = ButtonShape, onClick = onCast, enabled = target != null && refusal == null) {
                 Icon(Icons.Filled.AutoAwesome, contentDescription = null, modifier = Modifier.size(18.dp))
                 Text(label, modifier = Modifier.padding(start = 8.dp))
             }

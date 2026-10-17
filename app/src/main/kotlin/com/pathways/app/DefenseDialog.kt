@@ -260,8 +260,8 @@ internal fun DefenseDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
-        title = { Text("Active defenses") },
+        confirmButton = { CloseButton(onDismiss) },
+        title = { FormTitle(FORM_DEFEND) { Text("Active defenses") } },
         text = {
             LazyColumn {
                 item {

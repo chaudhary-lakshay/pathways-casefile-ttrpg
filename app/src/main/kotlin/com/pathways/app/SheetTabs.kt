@@ -196,7 +196,7 @@ internal fun LazyListScope.skillsTab(
     // First and filled: as a text button below the last skill the owner
     // could not find it in play (session 1).
     item {
-        FilledTonalButton(
+        FilledTonalButton(shape = ButtonShape,
             onClick = onPickUntrained,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
         ) { Text("Roll a skill this sheet does not have") }

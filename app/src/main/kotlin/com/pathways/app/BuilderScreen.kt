@@ -316,7 +316,7 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                             )
                         }
                     }
-                    OutlinedButton(onClick = { adding = true }) { Text("Add a skill") }
+                    OutlinedButton(shape = ButtonShape, onClick = { adding = true }) { Text("Add a skill") }
                 }
                 // Two roads the book prices, so one toggle: Very Hard
                 // self-study is "Not possible", and a tag saying so is lifted

@@ -323,7 +323,7 @@ fun PremadeGallery(
 
             // Below the people, not among them.
             items(templates, key = { it.name }) { sheet ->
-                OutlinedButton(
+                OutlinedButton(shape = ButtonShape,
                     onClick = { onSelect(sheet) },
                     modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
                 ) {

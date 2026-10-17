@@ -72,7 +72,7 @@ internal fun SheetMenu(
 private fun RollLogDialog(throws: List<LoggedThrow>, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
         title = { Text("Roll log") },
         text = {
             if (throws.isEmpty()) {
@@ -135,7 +135,7 @@ private fun Confirm(title: String, body: String, action: String, onDismiss: () -
         confirmButton = {
             // Both actions are idempotent, so a second tap of the same picture
             // is harmless: the entry is already gone.
-            Button(
+            Button(shape = ButtonShape,
                 onClick = { onDismiss(); onConfirm() },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error,
@@ -143,6 +143,6 @@ private fun Confirm(title: String, body: String, action: String, onDismiss: () -
                 ),
             ) { Text(action) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { CloseButton(onDismiss, "Cancel") },
     )
 }

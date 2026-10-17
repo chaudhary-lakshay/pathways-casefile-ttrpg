@@ -303,7 +303,7 @@ fun PathwayScreen(
                                     // refuses that by throwing (Codex's HIGH).
                                     val ceilingAfter = maxCorFor(chosen)
                                     val rerollable = ScoreFloors.holdsCeiling(ceilingAfter)
-                                    Button(
+                                    Button(shape = ButtonShape,
                                         enabled = rerollable,
                                         onClick = {
                                             // A second tap finds nothing pending.
@@ -332,7 +332,7 @@ fun PathwayScreen(
                             drunk.canDrink(chosen) ->
                                 Column(Modifier.weight(1f)) {
                                     val ceilingAfter = maxCorFor(chosen)
-                                    Button(
+                                    Button(shape = ButtonShape,
                                         // `drink` refuses this too, before it
                                         // rolls; the line below says why.
                                         enabled = ScoreFloors.holdsCeiling(ceilingAfter),
@@ -704,7 +704,7 @@ private fun PcrDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("OK") } },
-        title = {
+        title = { FormTitle(FORM_PCR) {
             Text(
                 when {
                     !outcome.integrated -> "Lost to the Rampager"
@@ -714,7 +714,7 @@ private fun PcrDialog(
                     else -> "The potion integrates"
                 },
             )
-        },
+        } },
         text = {
             Column {
                 Text("3d6: ${outcome.roll.total} vs ${outcome.target} (digested ${outcome.digestion}%)")

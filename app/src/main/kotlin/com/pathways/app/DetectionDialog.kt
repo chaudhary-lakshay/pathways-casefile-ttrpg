@@ -163,14 +163,14 @@ fun DetectionDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { CloseButton(onDismiss) },
         dismissButton = {
             if (result != null) {
                 // The answer belongs to the divination it was rolled against.
                 TextButton(onClick = { result = null }) { Text("Sense again") }
             }
         },
-        title = { Text("Am I being divined?") },
+        title = { FormTitle(FORM_DETECT) { Text("Am I being divined?") } },
         text = steadyBody {
             val answer = result
             if (answer != null) {

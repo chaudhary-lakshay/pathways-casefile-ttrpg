@@ -311,7 +311,7 @@ private fun AbilityRow(ability: Ability, expanded: Boolean, spend: AbilitySpend?
         val price = spiPriceOf(tag)
         if (spend != null && price != null) {
             // Personal SPI "cannot be reduced below 0" (ch. 7 Power Source A).
-            OutlinedButton(
+            OutlinedButton(shape = ButtonShape,
                 onClick = { spend.onSpend(price, spend.left) },
                 enabled = spend.left >= price,
                 modifier = Modifier.padding(bottom = 12.dp),
