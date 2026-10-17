@@ -46,6 +46,20 @@ internal fun ShieldPicker(
     onPick: (Shield) -> Unit,
 ) {
     SectionLabel("Shield Readied")
+    FlowRow {
+        shields.forEach { option ->
+            FilterChip(
+                selected = option == carried,
+                onClick = { onPick(option) },
+                // The parenthesised examples are what makes the row long;
+                // the word before them is what the GM says out loud.
+                label = { Text("${option.type.substringBefore(" ")} +${option.db}") },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
+    }
+    // BELOW the chips: above them, readying a shield inserted this line and
+    // pushed the chips down under the finger (play session 6).
     // One note per coverage state, because the old single note told the GM to
     // hand-check the rear -- which the app now does -- while saying nothing
     // about the side, which it still cannot decide. A disclaimer that outlives
@@ -69,18 +83,6 @@ internal fun ShieldPicker(
                         "are the unshielded numbers."
             },
         )
-    }
-    FlowRow {
-        shields.forEach { option ->
-            FilterChip(
-                selected = option == carried,
-                onClick = { onPick(option) },
-                // The parenthesised examples are what makes the row long;
-                // the word before them is what the GM says out loud.
-                label = { Text("${option.type.substringBefore(" ")} +${option.db}") },
-                modifier = Modifier.padding(end = 8.dp),
-            )
-        }
     }
 }
 
