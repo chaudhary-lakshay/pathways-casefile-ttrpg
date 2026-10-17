@@ -23,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -418,7 +419,7 @@ internal fun SheetScreen(
     SheetBackdrop(drunk?.pathway) { Scaffold(
         containerColor = Color.Transparent,
         // contentColorFor(Transparent) is no scheme colour, so unstyled text
-        // would fall back to black on the dark page; name the reading colour.
+        // would fall back to a default; name the reading colour.
         contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
             TopAppBar(
@@ -461,6 +462,9 @@ internal fun SheetScreen(
                         onClick = { tab = option },
                         icon = { Icon(option.icon, contentDescription = null) },
                         label = { Text(option.label) },
+                        // Ink, not the default `secondary`: that is the stamp
+                        // red, which marks the Beyonder and harm, not a tab.
+                        colors = NavigationBarItemDefaults.colors(selectedTextColor = MaterialTheme.colorScheme.primary),
                     )
                 }
             }

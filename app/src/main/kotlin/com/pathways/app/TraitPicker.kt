@@ -433,7 +433,7 @@ private fun PickerRow(
             Text(
                 name + (blocked?.let { " — $it" } ?: ""),
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (blocked != null) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onSurface,
+                color = if (blocked != null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
             )
             Text(

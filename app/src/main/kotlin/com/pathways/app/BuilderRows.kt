@@ -284,7 +284,7 @@ internal fun SkillRow(
     val canOpen = study.reason != null
     // A row whose study can be bought is the one a player acts on: its badge
     // and tag take the accent, and a refusal's stay neutral.
-    val accent = if (canOpen) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.primary
+    val accent = if (canOpen) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary
     Surface(
         shape = RoundedCornerShape(10.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,

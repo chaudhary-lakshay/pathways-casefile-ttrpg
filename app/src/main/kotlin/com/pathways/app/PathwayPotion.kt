@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -322,11 +323,13 @@ private fun AbilityRow(ability: Ability, expanded: Boolean, spend: AbilitySpend?
 /** The heading's bracket, in the book's words: a cost, "Passive", a resistance. */
 @Composable
 private fun Tag(text: String) {
-    // Violet: a power's cost or kind is a Beyonder fact, the colour the pool
-    // strip gives SPI.
+    // The stamp red: a power's cost or kind is a Beyonder fact, the colour
+    // the pool strip gives SPI. Outlined, not tinted: red on a red wash fell
+    // under AA through the paper grain (3.9:1, Codex).
     Surface(
         shape = RoundedCornerShape(6.dp),
-        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f),
+        color = Color.Transparent,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
     ) {
         Text(
             text,

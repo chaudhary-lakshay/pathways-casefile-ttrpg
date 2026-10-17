@@ -21,11 +21,8 @@ import com.pathways.rules.content.ContentLoader
  * It hangs off the character gallery rather than any of the three character
  * screens because a glossary is not about a character: `SHEET`, `PATHWAY` and
  * `BUILDER` all require one to be selected, and gating "what is CoR" behind
- * picking somebody would answer a question nobody asked. That is the warrant
- * -- NOT that the theme picker's button happens to sit in the same top bar.
- * The two controls have opposite semantics (that one mutates a preference the
- * whole app reads, this one only displays), and this file's placement rests on
- * the gallery being the one screen that needs no character.
+ * picking somebody would answer a question nobody asked. This file's
+ * placement rests on the gallery being the one screen that needs no character.
  *
  * The order is the book's, which is not alphabetical: `3d6` prints between
  * `Sea of Collective Subconscious` and `Will`. Sorting it here would make the

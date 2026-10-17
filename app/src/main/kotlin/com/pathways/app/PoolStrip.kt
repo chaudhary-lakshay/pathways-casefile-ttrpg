@@ -35,7 +35,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.pathways.rules.PenaltyScope
 import com.pathways.rules.Pool
 import com.pathways.rules.PoolStatus
@@ -184,13 +183,13 @@ private fun PoolCell(
                     style = MaterialTheme.typography.headlineMedium.tabular().copy(
                         fontWeight = FontWeight.Bold,
                     ),
-                    // In the pool's colour once the book names a state, as the
-                    // old row went red: a Dead pool must not read like a full one.
-                    color = if (tags.isEmpty()) MaterialTheme.colorScheme.onSurface else color,
+                    // Red once the book names a state: a Dead pool must not
+                    // read like a full one.
+                    color = if (tags.isEmpty()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error,
                 )
                 Text(
                     " / ${status.max}",
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp),
+                    style = MaterialTheme.typography.titleMedium.tabular(),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 3.dp),
                 )
@@ -220,7 +219,7 @@ private fun PoolCell(
                     },
                 ),
             verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) { tags.forEach { PoolTag(it, color) } }
+        ) { tags.forEach { PoolTag(it, MaterialTheme.colorScheme.error) } }
     }
 }
 
@@ -251,10 +250,13 @@ private fun PoolTag(text: String, color: Color) {
     }
 }
 
-/** The pool in its category colour: HP is combat (`error`), FP the brass, SPI the Beyonder violet. */
+/**
+ * The pool's own colour (Case File): HP and FP in ink, SPI in the stamp red
+ * that marks the Beyonder. Harm is told apart by `error` on the number and
+ * the state tags, never by the pool.
+ */
 @Composable
 private fun poolColor(pool: Pool): Color = when (pool) {
-    Pool.HP -> MaterialTheme.colorScheme.error
-    Pool.FP -> MaterialTheme.colorScheme.primary
+    Pool.HP, Pool.FP -> MaterialTheme.colorScheme.primary
     Pool.SPI -> MaterialTheme.colorScheme.secondary
 }
