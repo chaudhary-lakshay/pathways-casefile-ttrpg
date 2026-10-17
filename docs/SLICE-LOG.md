@@ -6726,6 +6726,111 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6id. Case File, slice 2: the shared components
+
+The second session of the Case File redesign: the plan's slice 2, the
+components every screen shares, restyled in place. No rule, label,
+number or click-handler body changed. Commits `779487e`, `864d7a2`,
+`0124341`, `9edc0fe` and `1f2aeec`, not pushed.
+
+### What changed
+
+- **Roll cards** (`RollCards.kt`). The target is a boxed number with the
+  base struck beside it and "3d6 ≤ n" ruled under it. A verdict is a
+  stamp tilted 3°, ink for a pass and red for a failure, on a 2 dp ruled
+  sheet. The tilt is drawn, not laid out, so it takes no height. The
+  footer's rule is 2 dp ink.
+- **Form titles** (`CaseText.kt`). The eleven framed dialogs carry their
+  form code ("FORM 3-S · SKILL ROLL") over the title and a 2 dp ink rule.
+  The code is decoration, hidden from a screen reader.
+- **Close and Cancel** are stamp red mono capitals, through one
+  `CloseButton`: 27 call sites. **The owner's ruling, asked this session:
+  "Stamp red, as drawn"**, over the alternative that red keep only its two
+  meanings, harm and the Beyonder. Every button takes 2 dp corners
+  (`ButtonShape`), because Material's buttons take no theme shape.
+- **Steppers and sections** (`StepperParts.kt`). A stepper is joined cells
+  in one ink box, the roll dialogs' GM modifier pair too. A builder
+  section heads as "§ NAME" with its action bracketed, "[ Change ]", on
+  the paper with no card. Dialog section labels are mono capitals.
+- **Pool pips** (`PoolStrip.kt`). One square per point, crossed when
+  spent. `pipSize` fits them to the cell, at most 14 dp, and falls back
+  to a bar under 6 dp; `PoolPipsTest` (4) was watched RED first. **They
+  are drawn on one Canvas.** The first version was a Row of boxes in a
+  `BoxWithConstraints`, and the sheet crashed on open on the tablet: the
+  strip's cells share a height through `IntrinsicSize.Min`, and a
+  SubcomposeLayout throws when asked for an intrinsic. No unit test could
+  see it.
+- **The action hub** (`ActionGroup.kt`). The four big actions are one
+  ruled grid, the ink showing through a 1 dp gap. The rest are bracketed
+  words with 48 dp targets, the Beyonder's four (Ritual, Divine, Spirit
+  Vision, Boon) in the stamp red, and Damage's icon is red. **This
+  replaces the 2026-10-17 ruling that every action is one neutral
+  colour.** Frame 09 draws it, and it is `a9be8f0`'s rule: red means
+  harm or the Beyonder. The owner may reject it; it is one parameter.
+- **The sheet's tabs** (`SheetTabBar.kt`) replace Material's
+  `NavigationBar`: an ink rule across the bar, the open tab raised from
+  it. Tab role and selected state are kept (`selectable`, `Role.Tab`).
+- The guide's hub sentence says bracketed words, not chips.
+
+### Verification
+
+1941 Kotlin (1481 `core:rules`, 437 `app`, 23 `core:model`) and 366
+Python, 0 failures, counted from fresh result directories. `app` rose
+by `PoolPipsTest`'s 4. `ast-grep scan` is clean, the session-mutator
+census still prints 40 lines, and no file is over 800 lines
+(`PathwayScreen.kt` still exactly 800).
+
+**6gq's double-tap check does not apply**: no click lambda body changed.
+The bulk edits added a `shape =` argument and swapped `Text("Close")` for
+`CloseButton(sameLambda)`; the review below checked every binding that
+moved. **6ga's printed-number sweep does not apply**: the strip's number
+text is unchanged, and the pips read the same `current` and `max`.
+
+### Device pass (SM-T570, wireless)
+
+Portrait, font scale 1.0: the skill dialog before and after a roll (the
+stamp, the footer, Roll held in place), the builder (steppers, "§ WEALTH
+[ Change ]"), the sheet's Vitals hub, pips and tabs, and the Attack
+dialog. Landscape: the sheet with the centred column. The save was
+compared byte for byte after the portrait pass: identical.
+
+**Owed.** The tablet dropped off wireless adb (connection timeout) during
+the landscape pass, before three checks the plan asks for: the skill list
+scrolling into reach in landscape (the strip grew 8 dp and the hub three
+48 dp rows), a `VerdictCard` roll (a Will or Per roll, or Fright), and a
+mortal sheet at font scale 1.3 ("DRINK A POTION" in the grid). The review
+fixes in `1f2aeec` are also unseen. **The tablet was left rotated to
+landscape**: `adb shell settings put system user_rotation 0` restores it,
+then `cmp` the save against the copy taken before the pass.
+
+### Review
+
+Codex was at its limit (it resets at 00:24 on 2026-10-18), and pi-qa
+answered `fetch failed`. So one general-purpose review sub-agent read
+`54d6261..9edc0fe`, three questions: SHIP WITH CHANGES.
+- Bulk edits: none changed a handler, a slot or a binding. Every moved
+  binding was checked, including the OptionStepper's signs and the
+  positional-to-named `onClick` on two hub actions.
+- MEDIUM, taken: the target card put the dice caption in a Row beside the
+  number, so a long caption ("3d6 ≤ 16, 17–18 fail") squeezed the number's
+  column and the card could grow under the finger on a phone. The caption
+  is back on its own line.
+- LOW, taken: the footer caption at `titleMedium` could reach a third
+  line and move Roll; back to `labelLarge`.
+- LOW, taken: `Caps` and `BracketAction` set a content description over
+  the text, so `onNodeWithText` and the device-pass dump could not find
+  "[ Boon ]". They expose their words as text now.
+- LOW, taken: "§ Skills" was read aloud with the section sign.
+
+`a9be8f0`, `5148cb1`, `771deed` and all of 6id still owe Codex a review.
+
+### Next
+
+Slice 3, the sheet screen (frames 02–04, 08): the name in Fraunces with a
+stamp pill for pathway and sequence, the skill row ending in a boxed
+level, Traits rows as name, price and tag. First the three owed device
+checks.
+
 ## 6ic. Case File, slice 1: one light scheme, three faces
 
 The first session of the Case File redesign (the Notion plan "Pathways:

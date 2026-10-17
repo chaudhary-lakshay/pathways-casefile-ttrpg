@@ -195,6 +195,12 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6hy
+(play session 4, the campaign arc, played alone: nine findings, all fixed
+and seen on the SM-T570; one caption, `SuccessRoll.printed`; no push past
+*Success by 3+*; Will and Per roll from their Vitals rows, the owner's
+pick; pick-dependent rows drawn from the start).
+
 Then 6hx
 (Detect takes Spiritual Attrition's -3 only on a roll a Sec. 1 awareness
 row grants, an ability check by Step 2's words; a roll on suspicion alone

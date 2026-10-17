@@ -193,6 +193,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6hy** — play session 4, the campaign arc: nine findings; one caption, `SuccessRoll.printed`; no push past *Success by 3+*; Will and Per roll from their Vitals rows;
 **6hx** — Detect takes Spiritual Attrition's -3 only on a roll an awareness row grants; a roll on suspicion alone takes none, the owner's ruling;
 **6hw** — play session 3: a typed spirit hit multiplies on FP and SPI, the location on HP only; Spirit Vision takes Spiritual Attrition's -3, read after activation;
 **6hv** — play session 2: shock leaves the daily recovery roll; the skill stepper steps rung to rung; a hit priced by type, floored as a reading;
@@ -262,9 +263,14 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ic first.** END
+**Where to start next: the slice log, from the END — 6id first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
-line 6728, then 6ic back to 6cb, newest first, so `tail` prints 6cb. 6ic:
+line 6728, then 6id back to 6cb, newest first, so `tail` prints 6cb. 6id:
+(Case File slice 2, the shared components: the verdict a tilted stamp,
+the eleven framed dialogs' form codes, Close in stamp red on the owner's
+pick; pool pips on one Canvas, since a BoxWithConstraints in the strip's
+intrinsic row crashed the sheet; red means harm or the Beyonder in the
+hub; three device checks owed, the tablet left in landscape). Then 6ic
 (Case File slice 1: one generated light scheme replaces every preset,
 contrast checked through the grain, stamp red #BC382A on the owner's
 pick; Fraunces, Plex Sans and Plex Mono, Plex shipped unmodified for
@@ -281,11 +287,7 @@ card says the HP burned; seen on the SM-T570). Then 6hz
 (play session 5, combat, played alone as Military Police: twelve
 findings; a critical hit doubles its rolled damage, a reading; a held
 stun rolls its recovery from a Vitals row; a rolled parry counts, 6cp's
-reason having expired; seen on the SM-T570 but for a critical). Then 6hy
-(play session 4, the campaign arc, played alone: nine findings, all fixed
-and seen on the SM-T570; one caption, `SuccessRoll.printed`; no push past
-*Success by 3+*; Will and Per roll from their Vitals rows, the owner's
-pick; pick-dependent rows drawn from the start). The chain
+reason having expired; seen on the SM-T570 but for a critical). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -342,9 +344,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1937 Kotlin** (JUnit 5 — 1481 `core:rules`, 433 `app`, 23 `core:model`, counted in 6ic) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` count moves with `ThemeSchemesTest`, which emits one dynamic test per `ColorScheme` role and per contrast pair: 6ic's one light scheme took `app` from 892 to 431, and 6ic's guards to 433 |
+| Tests | **1941 Kotlin** (JUnit 5 — 1481 `core:rules`, 437 `app`, 23 `core:model`, counted in 6id) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` count moves with `ThemeSchemesTest`, which emits one dynamic test per `ColorScheme` role and per contrast pair: 6ic's one light scheme took `app` from 892 to 431, and 6ic's guards to 433, 6id's `PoolPipsTest` to 437 |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **Codex, always** (the owner, 2026-10-17: "use codex instead of ecc always", reversing 2026-10-10's ecc). Through `codex exec` with the target named (6eg). When Codex and pi-qa are both down, one review sub-agent, never ecc. 6ic: Codex reviewed Wabi, the plan, `58119c4`, `cb75e32` and `4d891e5`, then hit its limit; a sub-agent reviewed `a9be8f0` and `5148cb1` (SHIP WITH CHANGES, taken); those two and `771deed` still owe Codex a review. Earlier gates are in each slice's Review section |
+| Review gate | **Codex, always** (the owner, 2026-10-17: "use codex instead of ecc always", reversing 2026-10-10's ecc). Through `codex exec` with the target named (6eg). When Codex and pi-qa are both down, one review sub-agent, never ecc. 6ic: Codex reviewed Wabi, the plan, `58119c4`, `cb75e32` and `4d891e5`, then hit its limit; a sub-agent reviewed `a9be8f0` and `5148cb1` (SHIP WITH CHANGES, taken); those two, `771deed` and 6id's five commits still owe Codex a review; 6id's sub-agent review returned SHIP WITH CHANGES, all taken. Earlier gates are in each slice's Review section |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 
