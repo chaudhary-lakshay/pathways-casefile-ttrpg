@@ -44,6 +44,13 @@ import com.pathways.rules.PremadeSheet
 
 internal fun LazyListScope.vitalsTab(
     diffSummary: String?,
+    /** Some value differs from the published sheet: the card is stamped. */
+    amended: Boolean,
+    /** "Show amendments": only the rows that differ, here and on Skills. */
+    amendedOnly: Boolean,
+    onAmendedOnly: (Boolean) -> Unit,
+    /** Each secondary's published figure by label; null for an own character. */
+    sheetFigures: Map<String, String?>?,
     hpNow: PoolStatus,
     ht: Int,
     traits: List<Trait>,
@@ -120,7 +127,7 @@ internal fun LazyListScope.vitalsTab(
     // the pools rather than the skills: they are what the character IS,
     // so each prints the number PLAYED, and the disagreement with the
     // published sheet is printed beside it ([PlayedLine]).
-    item { VitalsCard(diffSummary, secondaryLines, onRollAttribute) }
+    item { VitalsCard(diffSummary, amended, amendedOnly, onAmendedOnly, secondaryLines, sheetFigures, onRollAttribute) }
 }
 
 internal fun LazyListScope.traitsTab(
@@ -199,6 +206,9 @@ internal fun LazyListScope.skillsTab(
     edits: SavedEdits,
     onRoll: (RollableSkill) -> Unit,
     onPickUntrained: () -> Unit,
+    /** "Show amendments" on Vitals: only the printed rows that differ. */
+    amendedOnly: Boolean,
+    onAmendedOnly: (Boolean) -> Unit,
 ) {
     // Row order past the secondaries is one per purchased skill, in
     // sheet order - pinned by SheetComparisonTest. That is what makes
@@ -209,12 +219,16 @@ internal fun LazyListScope.skillsTab(
     val bought = edits.purchasedKeys().mapNotNull { key -> liveLevelOrNull(key, skillLevels)?.let { key to it } }
     val granted = grantedSkills(sheet, edits, skillLevels)
     // The rows drawn below, counted from the lists that draw them.
-    item { SheetSection("Skills", published.size + bought.size + granted.size) }
+    val shown = if (amendedOnly) published.filter { (_, row) -> !row.matches } else published
+    item { SheetSection("Skills", shown.size + if (amendedOnly) 0 else bought.size + granted.size) }
     // "You can attempt most skills even without training" (p. 10).
     // Above the rows and full width: as a text button below the last skill the owner
     // could not find it in play (session 1).
     item { UntrainedButton(onPickUntrained) }
-    items(published) { (skill, row) ->
+    // The way back from Vitals' filter, where the filtered rows are.
+    if (amendedOnly) item { BracketAction("Show all values", onClick = { onAmendedOnly(false) }, Modifier.padding(horizontal = 12.dp)) }
+    item { TableHead(listOf("Skill", "Attr", "Lvl"), listOf(SKILL_ATTR_WIDTH, SKILL_LEVEL_WIDTH)) }
+    items(shown) { (skill, row) ->
         // ONE level, printed and rolled: the character in front
         // of the player. A Paragon Seq 9 potion takes this sheet's
         // Research from 13 to 17, and the printed figure is a
@@ -232,6 +246,7 @@ internal fun LazyListScope.skillsTab(
         val roll = { onRoll(RollableSkill(skill.label, level, skill.key())) }
         ComparisonRow(
             playedLine(row, level.toString()),
+            attrCode(skill.key()),
             Modifier.clickable(onClickLabel = "Roll", role = Role.Button, onClick = roll),
         )
     }
@@ -258,9 +273,10 @@ internal fun LazyListScope.skillsTab(
     // they disagreed, a saved skill the catalogue no longer prints
     // failed to suppress itself and a potion's skill of the same name
     // appeared twice, once as bought and once as granted (Codex).
+    if (amendedOnly) return
     items(bought) { (key, level) ->
         val label = disambiguated(key, addedKeys)
-        AddedSkillRow(label, level, "bought") {
+        AddedSkillRow(label, attrCode(key), level, "bought") {
             onRoll(RollableSkill(label, level, key))
         }
     }
@@ -277,7 +293,7 @@ internal fun LazyListScope.skillsTab(
     // and a GM may still call for a plain roll of the skill.
     items(granted) { (key, level) ->
         val label = disambiguated(key, addedKeys)
-        AddedSkillRow(label, level, "potion") {
+        AddedSkillRow(label, attrCode(key), level, "potion") {
             onRoll(RollableSkill(label, level, key))
         }
     }

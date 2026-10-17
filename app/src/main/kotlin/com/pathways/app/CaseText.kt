@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 
@@ -119,6 +120,8 @@ internal fun BracketAction(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.onSurface,
+    /** Underlined, as the frames draw the two that leave the hub's dialogs. */
+    underlined: Boolean = false,
 ) {
     Box(
         modifier
@@ -131,7 +134,10 @@ internal fun BracketAction(
         Text(
             "[ $label ]",
             Modifier.clearAndSetSemantics { text = AnnotatedString(label) },
-            style = MaterialTheme.typography.bodyLarge.copy(fontFamily = PlexMono),
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontFamily = PlexMono,
+                textDecoration = if (underlined) TextDecoration.Underline else null,
+            ),
             color = color,
         )
     }

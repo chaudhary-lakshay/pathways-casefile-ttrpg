@@ -67,8 +67,8 @@ internal fun TraitRow(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(row.shown, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
-                Text(priceLine, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(row.shown, style = MaterialTheme.typography.titleSmall)
+                Text(priceLine, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 2.dp))
             }
             StatusPill(status)
             Icon(
@@ -82,7 +82,7 @@ internal fun TraitRow(
         roll?.let {
             AssistChip(
                 onClick = onRoll,
-                label = { Text(it, style = MaterialTheme.typography.labelLarge.tabular()) },
+                label = { Text(it, style = MaterialTheme.typography.labelMedium) },
                 leadingIcon = { Icon(Icons.Filled.Casino, contentDescription = null, Modifier.size(18.dp)) },
                 shape = MaterialTheme.shapes.extraSmall,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
@@ -128,7 +128,6 @@ private fun Details(row: TraitReport.HeldTrait) {
 @Composable
 private fun StatusPill(status: Applied) {
     val ink = MaterialTheme.colorScheme.primary
-    val grey = MaterialTheme.colorScheme.onSurfaceVariant
     // Filled only where the app does all of it; an outline is a part, or the
     // GM's. "GM call" was "Not applied", which a player read as "this trait
     // does nothing" -- the row's rule still holds, the GM applies it.
@@ -136,7 +135,7 @@ private fun StatusPill(status: Applied) {
         Applied.APPLIED -> Triple("Applied", ink, true)
         Applied.PARTLY -> Triple("Partly applied", ink, false)
         Applied.ROLL_ONLY -> Triple("Roll only", ink, false)
-        Applied.GM -> Triple("GM call", grey, false)
+        Applied.GM -> Triple("GM call", ink, false)
         // Not "not in the book": "Absent-Minded" resembles a book row it does
         // not match, and 4.1 records rather than repairs it.
         Applied.NOT_IN_BOOK -> Triple("Unmatched name", MaterialTheme.colorScheme.error, false)
@@ -148,7 +147,7 @@ private fun StatusPill(status: Applied) {
     ) {
         Text(
             label,
-            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
             color = if (filled) MaterialTheme.colorScheme.onPrimary else color,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
         )
@@ -163,7 +162,7 @@ internal fun TraitLegend() {
         TextButton(onClick = { open = !open }, shape = ButtonShape) {
             Text(
                 if (open) "Hide what the tags mean" else "What the tags mean",
-                style = MaterialTheme.typography.labelLarge.tabular(),
+                style = MaterialTheme.typography.labelMedium,
                 textDecoration = TextDecoration.Underline,
                 color = MaterialTheme.colorScheme.onSurface,
             )
@@ -197,7 +196,7 @@ internal fun SheetSection(title: String, count: Int? = null) {
             "§ $title" + count?.let { " · $it" }.orEmpty(),
             Modifier.padding(bottom = 8.dp),
             spoken = title + count?.let { ", $it" }.orEmpty(),
-            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
             color = MaterialTheme.colorScheme.onSurface,
         )
         HorizontalDivider(color = MaterialTheme.colorScheme.outline)

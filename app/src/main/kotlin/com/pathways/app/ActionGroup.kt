@@ -101,11 +101,13 @@ internal fun PrimaryAction(
 internal fun ActionChip(
     label: String,
     mystical: Boolean = false,
+    underlined: Boolean = false,
     onClick: () -> Unit,
 ) {
     BracketAction(
         label,
         onClick,
         color = if (mystical) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
+        underlined = underlined,
     )
 }

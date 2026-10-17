@@ -60,6 +60,10 @@ potion grants.
 
 - **The bottom bar** switches what the list below shows: **Vitals**, **Skills**,
   **Traits**. It is a footer, not a screen change — the pools and actions stay put.
+- **The top bar** reads *File Nº 06 · Beyonder*: the character's place in
+  the gallery and whether they have drunk. Scroll past the name and it comes
+  up into the bar, with the Sequence stamped where **⋮** was; scroll back up
+  for **⋮**.
 - **Traits** lists every advantage and drawback by name and price, with a
   tag for how much of it the app counts: *Applied*, *Partly applied*, *Roll
   only*, *GM call*, or *Unmatched name* for a sheet spelling the book's
@@ -91,10 +95,20 @@ potion grants.
   app does not apply stay open.
 - **The header** under the character's name shows the walk as tags: pathway
   and Sequence, digestion, CoR, and *Lost* if the character is gone.
-- **HP, FP and SPI** sit in one strip under the header, on every tab, each
-  with **−** and **+**. When a pool reaches a row of the book's table, tags
-  under it name the state and its cost (*Reeling*, *−1 all rolls*); tap them
-  for the printed row. SPI shows only for a Beyonder.
+- **HP, FP and SPI** sit in one card under the header, on every tab, each
+  with **−** and **+**: a row per pool on **Vitals**, three columns on
+  **Skills** and **Traits**. **+** is filled while there is something to
+  regain and greyed at the maximum. When a pool reaches a row of the book's
+  table, its name is followed by the state and its cost (*Reeling · −1 all
+  rolls*); tap the pool for the printed row. Scroll past the card and the
+  pools stay in view as one thin line under the bar, without **−** and
+  **+**. SPI shows only for a Beyonder.
+- **Vitals** counts the values that differ from the published sheet and,
+  when some do, stamps the card *Amended*. **Show amendments** narrows Vitals
+  and Skills to those rows; **Show all values** brings the rest back. Each
+  secondary prints the sheet's figure beside the one played now, the
+  sheet's struck through in red where the book disagrees with it.
+  **Natural recovery** is closed until you tap it.
 - **The actions** come in two weights. Four buttons — **Attack**, **Defend**,
   **Damage** and **Pathway** — then the rest as bracketed words, *[ Fright ]*.
   The Beyonder's own (Ritual, Divine, Spirit Vision, Boon) are in red; the
@@ -621,8 +635,8 @@ Edits are saved per character and survive a restart.
 - **Track a clock it does not hold.** There is no initiative, no map, no turn
   counter beyond the defence screen's own round. FP recovery, stun duration and
   reload rates are yours to run. So is the *day* in HP recovery — but its roll
-  is offered: while a character is hurt, **Vitals** prints the book's three
-  Natural Recovery rows, a **−1 / +1** for anything else that
+  is offered: while a character is hurt, **Vitals** holds **Natural
+  recovery**, with the book's three rows behind *The book's rows*, a **−1 / +1** for anything else that
   moves the roll (a potion's grant, say — the line under it shows what is
   already counted), and **Roll HT N — a day of rest and food**. Shock is not
   in it: it lasts a turn, and the roll comes a day later. You say when
@@ -633,8 +647,8 @@ Edits are saved per character and survive a restart.
   failure, whether that point still comes is the GM's call, and the line
   says so. **Another day** clears it for the next one. The Healing
   advantage and Regeneration are not offered. First Aid and Physician are
-  skills, rolled from **Skills** like any other, or untrained from the list
-  at its foot, and the app restores no HP for either. The book's rows are *"First Aid: 1
+  skills, rolled from **Skills** like any other, or untrained from the box
+  at its top, and the app restores no HP for either. The book's rows are *"First Aid: 1
   HP + stops bleeding; 1 minute; once per wound"* and *"Physician (skill 12+):
   1 HP (2 HP on critical success); per day of bed rest; requires equipment"*.
   Add the HP with **+1**; the rest is yours to count.

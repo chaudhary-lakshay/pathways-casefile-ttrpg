@@ -1,8 +1,21 @@
 package com.pathways.app
 
-import com.pathways.rules.AttributeRoll
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.Button
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.heightIn
@@ -27,7 +40,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.foundation.background
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -149,42 +161,31 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
 @Composable
 private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int, states: ClauseBonus) {
     val dice = LocalDice.current
+    // Closed until asked for, as frame 02 draws it: a day's roll is not
+    // made every turn.
+    var open by remember { mutableStateOf(false) }
     var modifier by remember { mutableIntStateOf(0) }
     var outcome by remember { mutableStateOf<RollResult?>(null) }
     val fromTraits = NaturalRecovery.bonusFor(traits)
     val target = NaturalRecovery.targetFor(ht, traits, poolPenalty, modifier, states.total)
-    Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-        // The book's rows and the note on what is entered by hand are
-        // reference, closed (6gl): open, three rows -- two for bodies of 20
-        // HP and more -- and two sentences read as a wall (play session 4).
-        RuleNote("Natural recovery") {
-            Column {
-                NaturalRecovery.rows().forEach {
-                    Text("${it.method}: ${it.recovered}. ${it.notes}", style = MaterialTheme.typography.bodySmall)
-                }
-                // A potion's advantages are prose, so a grant that moves this
-                // roll is held by no trait. Said, or a zero reads as "none" --
-                // and scoped to what the line below does not show, because the
-                // all-HT-roll traits ARE applied and must not be entered twice.
-                Text(
-                    "Anything else that moves the daily HT roll - a potion's grant, say - is entered " +
-                        "with −1 / +1. Only what the line under them shows is applied for you.",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 4.dp),
-                )
-            }
+    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+        HorizontalDivider(thickness = 2.dp, color = MaterialTheme.colorScheme.outline)
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .heightIn(min = 56.dp)
+                .clickable(role = Role.Button, onClickLabel = if (open) "Hide natural recovery" else "Show natural recovery") { open = !open }
+                .semantics { stateDescription = if (open) "Expanded" else "Collapsed" },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("Natural recovery", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+            Icon(if (open) Icons.Filled.Remove else Icons.Filled.Add, contentDescription = null)
         }
+        if (!open) return@Column
+        HorizontalDivider(color = MaterialTheme.colorScheme.outline)
         val result = outcome
         if (result == null) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = { modifier -= 1 }) { Text("−1") }
-                Text(
-                    (if (modifier > 0) "+" else "") + modifier,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                )
-                TextButton(onClick = { modifier += 1 }) { Text("+1") }
-            }
+            // The parts, because they have to sum to the number beside them.
             Text(
                 buildList {
                     add("HT $ht")
@@ -195,24 +196,89 @@ private fun RecoveryRollRow(ht: Int, traits: List<Trait>, poolPenalty: Int, stat
                     if (modifier > 0) add("+$modifier entered")
                     if (modifier < 0) add("$modifier entered")
                 }.joinToString(", "),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 12.dp),
             )
-            TextButton(
+            Row(Modifier.fillMaxWidth().padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                EnteredStepper(modifier, onMinus = { modifier -= 1 }, onPlus = { modifier += 1 })
+                Spacer(Modifier.weight(1f))
+                Text("vs ", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("HT $target", style = MaterialTheme.typography.headlineSmall.tabular().copy(fontWeight = FontWeight.SemiBold))
+            }
+            Button(
                 onClick = {
-                    if (outcome != null) return@TextButton
+                    if (outcome != null) return@Button
                     outcome = SuccessRoll.against(target, dice.dice("Natural recovery"))
                 },
-            ) { Text("Roll HT $target — a day of rest and food") }
+                shape = MaterialTheme.shapes.small,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+            ) {
+                Icon(Icons.Filled.Casino, contentDescription = null, Modifier.size(20.dp))
+                Caps(
+                    "Roll HT $target — a day of rest and food",
+                    Modifier.padding(start = 10.dp),
+                    style = MaterialTheme.typography.labelLarge.tabular(),
+                    color = LocalContentColor.current,
+                )
+            }
         } else {
+            VerdictCard(label(result.outcome), result.outcome.isSuccess, result) {
+                Text(
+                    NaturalRecovery.dayLine(result.outcome.isSuccess, traits),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
+            BracketAction("Another day", onClick = { outcome = null })
+        }
+        // The book's rows and the note on what is entered by hand are
+        // reference, closed (6gl): open, three rows -- two for bodies of 20
+        // HP and more -- and two sentences read as a wall (play session 4).
+        RuleNote("The book's rows") {
+            Column {
+                NaturalRecovery.rows().forEach {
+                    Text("${it.method}: ${it.recovered}. ${it.notes}", style = MaterialTheme.typography.bodySmall)
+                }
+                // A potion's advantages are prose, so a grant that moves this
+                // roll is held by no trait. Said, or a zero reads as "none" --
+                // and scoped to what the line above does not show, because the
+                // all-HT-roll traits ARE applied and must not be entered twice.
+                Text(
+                    "Anything else that moves the daily HT roll - a potion's grant, say - is entered " +
+                        "with −1 / +1. Only what the line under them shows is applied for you.",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Frame 03's −1 | 0 | +1: the GM's entry between its two steps, the entry
+ * filled in ink.
+ */
+@Composable
+private fun EnteredStepper(value: Int, onMinus: () -> Unit, onPlus: () -> Unit) {
+    val ink = MaterialTheme.colorScheme.outline
+    val shape = MaterialTheme.shapes.small
+    Row(Modifier.height(IntrinsicSize.Min).clip(shape).border(1.5.dp, ink, shape)) {
+        TextButton(onClick = onMinus, shape = RectangleShape, modifier = Modifier.widthIn(min = 52.dp)) {
+            Text("−1", style = MaterialTheme.typography.titleMedium.tabular(), color = MaterialTheme.colorScheme.secondary)
+        }
+        Box(
+            Modifier.fillMaxHeight().widthIn(min = 52.dp).background(MaterialTheme.colorScheme.primary),
+            contentAlignment = Alignment.Center,
+        ) {
             Text(
-                "3d6: ${result.total} vs ${result.target} - ${label(result.outcome).lowercase()}",
-                style = MaterialTheme.typography.titleSmall,
+                (if (value > 0) "+" else "") + value,
+                style = MaterialTheme.typography.titleMedium.tabular(),
+                color = MaterialTheme.colorScheme.onPrimary,
             )
-            Text(
-                NaturalRecovery.dayLine(result.outcome.isSuccess, traits),
-                style = MaterialTheme.typography.bodySmall,
-            )
-            TextButton(onClick = { outcome = null }) { Text("Another day") }
+        }
+        TextButton(onClick = onPlus, shape = RectangleShape, modifier = Modifier.widthIn(min = 52.dp)) {
+            Text("+1", style = MaterialTheme.typography.titleMedium.tabular(), color = MaterialTheme.colorScheme.onSurface)
         }
     }
 }
@@ -346,6 +412,9 @@ internal fun disambiguated(key: SkillKey, visible: List<SkillKey>): String {
     return if (collides) "$label [${key.difficulty.code}]" else label
 }
 
+/** A skill row's ATTR column, "IQ/H": the book's own two codes (Case File, frame 04). */
+internal fun attrCode(key: SkillKey): String = "${key.attr.code}/${key.difficulty.code}"
+
 /**
  * A skill the published sheet does not print, shown so it can be rolled.
  *
@@ -358,121 +427,51 @@ internal fun disambiguated(key: SkillKey, visible: List<SkillKey>): String {
  * cannot -- it has no points behind it, only the potion (M3).
  */
 @Composable
-internal fun AddedSkillRow(label: String, level: Int, provenance: String, onClick: () -> Unit) {
+internal fun AddedSkillRow(label: String, attr: String, level: Int, provenance: String, onClick: () -> Unit) {
     // The tag in the stamp for a potion's grant, a Beyonder fact, as the
     // pool strip colours SPI. The level stays ink: a red number means a
     // named harm state on the pool strip.
     val potion = provenance == "potion"
-    val tint = if (potion) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
+    val tint = if (potion) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant
     SkillRowFrame(Modifier.clickable(onClickLabel = "Roll", role = Role.Button, onClick = onClick)) {
-        Text(label, style = MaterialTheme.typography.bodyLarge)
-        RowTag(provenance, tint)
-        Spacer(Modifier.weight(1f))
-        RollGlyph()
-        LevelBadge("$level", MaterialTheme.colorScheme.primary)
+        Column(Modifier.weight(1f)) {
+            Text(label, style = MaterialTheme.typography.bodyLarge)
+            Caps(provenance, color = tint)
+        }
+        AttrCell(attr)
+        SkillRollCells("$level")
     }
 }
 
 @Composable
 internal fun ComparisonRow(
     line: PlayedLine,
+    attr: String,
     modifier: Modifier = Modifier,
 ) {
     SkillRowFrame(modifier) {
-        Text(line.label, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-        // Neutral: the character having moved is not a disagreement.
-        line.basis?.let {
-            Text(
-                it,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+        Column(Modifier.weight(1f)) {
+            Text(line.label, style = MaterialTheme.typography.bodyLarge)
+            // Neutral: the character having moved is not a disagreement.
+            line.basis?.let {
+                Text(it.removePrefix(" · "), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            line.disagreement?.let {
+                Text(it.trim(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+            }
         }
-        line.disagreement?.let {
-            Text(
-                it,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(end = 8.dp),
-            )
-        }
+        AttrCell(attr)
         // Every row here rolls; the secondaries, which do not, are [VitalsCard]'s.
-        RollGlyph()
-        LevelBadge(line.number, MaterialTheme.colorScheme.primary)
+        SkillRollCells(line.number)
     }
 }
 
-/**
- * The derived values as a section head and ruled rows, under the notice
- * that counts the disagreements. A row the published sheet disagrees with is tinted and
- * takes the accent, with the sheet's figure beside its name; none rolls.
- */
+/** The die and the level, in the LVL column. */
 @Composable
-internal fun VitalsCard(
-    diffSummary: String?,
-    lines: List<PlayedLine>,
-    onRoll: (AttributeRoll.Kind) -> Unit,
-) {
-    // Ink, not the stamp: red means harm or the Beyonder (a9be8f0), and a
-    // disagreement with the published sheet is neither.
-    val accent = MaterialTheme.colorScheme.primary
-    Column(Modifier.padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (diffSummary != null) {
-            Surface(
-                shape = MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(2.dp, accent),
-                modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
-            ) {
-                Text(diffSummary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(16.dp))
-            }
-        }
-        SheetSection("Secondary characteristics")
-        Column {
-                lines.forEachIndexed { i, line ->
-                    if (i > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
-                    val differs = line.disagreement != null
-                    // Will and Per open their bare roll; the rest are numbers.
-                    val rolls = AttributeRoll.Kind.entries.firstOrNull { it.label == line.label }
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .then(
-                                if (rolls == null) {
-                                    Modifier
-                                } else {
-                                    Modifier.clickable(
-                                        onClickLabel = "Roll ${rolls.label}",
-                                        role = Role.Button,
-                                    ) { onRoll(rolls) }
-                                },
-                            )
-                            .background(if (differs) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent)
-                            .heightIn(min = 48.dp)
-                            .padding(horizontal = 16.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Text(
-                            line.label,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = if (differs) accent else Color.Unspecified,
-                        )
-                        Text(
-                            listOfNotNull(line.disagreement, line.basis).joinToString("  "),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.weight(1f),
-                        )
-                        if (rolls != null) RollGlyph()
-                        Text(
-                            line.number,
-                            style = MaterialTheme.typography.titleLarge.tabular(),
-                            color = if (differs) accent else Color.Unspecified,
-                        )
-                    }
-                }
-        }
+private fun SkillRollCells(level: String) {
+    Row(Modifier.width(SKILL_LEVEL_WIDTH), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), verticalAlignment = Alignment.CenterVertically) {
+        RollGlyph()
+        LevelBox(level)
     }
 }
 
@@ -484,7 +483,7 @@ internal fun VitalsCard(
 private fun SkillRowFrame(modifier: Modifier, content: @Composable RowScope.() -> Unit) {
     Column {
         Row(
-            modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 16.dp, vertical = 6.dp),
+            modifier.fillMaxWidth().heightIn(min = 52.dp).padding(horizontal = 16.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             content = content,
@@ -501,19 +500,46 @@ private fun SkillRowFrame(modifier: Modifier, content: @Composable RowScope.() -
  * a smaller copy of the same tap. The box is ink, not a button.
  */
 @Composable
-private fun RollGlyph() {
+internal fun RollGlyph(border: Color = MaterialTheme.colorScheme.outline, size: Dp = 28.dp) {
     Box(
-        Modifier.size(40.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.extraSmall),
+        Modifier.size(size).border(1.dp, border, MaterialTheme.shapes.extraSmall),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
             Icons.Filled.Casino,
             contentDescription = null,
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier.size(16.dp),
             tint = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
+
+/** A skill row's level, boxed in 2 dp ink (frame 04). */
+@Composable
+private fun LevelBox(number: String) {
+    Box(
+        Modifier.size(width = 44.dp, height = 34.dp).border(2.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.extraSmall),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(number, style = MaterialTheme.typography.titleMedium.tabular(), maxLines = 1)
+    }
+}
+
+/** A skill row's ATTR cell, "IQ/H", in muted mono (frame 04). */
+@Composable
+private fun AttrCell(attr: String) {
+    Text(
+        attr,
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+        modifier = Modifier.width(SKILL_ATTR_WIDTH),
+    )
+}
+
+/** The Skills table's column widths, shared by its head and its rows. */
+internal val SKILL_ATTR_WIDTH = 52.dp
+internal val SKILL_LEVEL_WIDTH = 80.dp
 
 /** The level the row rolls, boxed in 2 dp ink (Case File, frame 02). */
 @Composable

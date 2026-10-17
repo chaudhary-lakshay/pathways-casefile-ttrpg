@@ -41,9 +41,7 @@ internal fun SheetMenu(
     var logging by remember { mutableStateOf(false) }
     var confirming by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf(false) }
-    IconButton(onClick = { menu = true }, modifier = Modifier.boxed(MaterialTheme.colorScheme.outline)) {
-        Icon(Icons.Filled.MoreVert, contentDescription = "More")
-    }
+    BoxedIconButton(Icons.Filled.MoreVert, "More") { menu = true }
     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
         DropdownMenuItem(text = { Text("Roll log") }, onClick = { menu = false; logging = true })
         DropdownMenuItem(text = { Text("Reset to sheet") }, onClick = { menu = false; confirming = true })

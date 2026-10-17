@@ -1,6 +1,14 @@
 package com.pathways.app
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -12,12 +20,27 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pathways.model.BeyonderState
+import com.pathways.rules.PremadeSheet
+
+/**
+ * A character's file number: its place among the gallery's people, from one,
+ * premades first and own characters after, as [App] lists them. Null for the
+ * blank sheet, which is a starting point and nobody's file. The frames'
+ * "FILE Nº" is decoration the owner chose to ship (2026-10-17); the gallery
+ * and the sheet read this one numbering.
+ */
+internal fun fileNumber(sheet: PremadeSheet, sheets: List<PremadeSheet>): Int? =
+    sheets.filterNot(::isTemplate).indexOfFirst { it.name == sheet.name }.takeIf { it >= 0 }?.plus(1)
+
+/** The sheet bar's caption: "File Nº 06 · Beyonder" (Case File, frame 02). */
+internal fun fileLine(number: Int?, isBeyonder: Boolean): String =
+    listOfNotNull(number?.let { "File Nº %02d".format(it) }, if (isBeyonder) "Beyonder" else "Mortal")
+        .joinToString(" · ")
 
 /** How a header fact is inked (Case File, frames 02-04). */
 internal enum class PillInk { LOST, STAMP, INK, MUTE }
@@ -67,7 +90,7 @@ internal fun SheetTitle(name: String, facts: List<HeaderFact>) {
         Text(
             name,
             Modifier.semantics { heading() },
-            style = MaterialTheme.typography.displaySmall,
+            style = MaterialTheme.typography.headlineLarge,
         )
         if (facts.isNotEmpty()) {
             FlowRow(
@@ -84,9 +107,9 @@ internal fun SheetTitle(name: String, facts: List<HeaderFact>) {
 
 @Composable
 private fun HeaderPill(fact: HeaderFact) {
-    val mono = MaterialTheme.typography.labelLarge.copy(fontFamily = PlexMono, fontWeight = FontWeight.SemiBold)
+    val mono = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold)
     when (fact.ink) {
-        PillInk.STAMP -> Stamp(fact.text, MaterialTheme.colorScheme.secondary)
+        PillInk.STAMP -> Stamp(fact.text, MaterialTheme.colorScheme.secondary, mono)
         // Filled, so a loss reads apart from the stamp a healthy walk wears.
         PillInk.LOST -> Surface(color = MaterialTheme.colorScheme.error, shape = MaterialTheme.shapes.extraSmall) {
             Caps(
@@ -98,20 +121,34 @@ private fun HeaderPill(fact: HeaderFact) {
         }
         PillInk.INK -> Caps(
             fact.text,
-            Modifier.border(2.dp, MaterialTheme.colorScheme.outline).padding(horizontal = 10.dp, vertical = 4.dp),
+            Modifier.border(1.5.dp, MaterialTheme.colorScheme.outline).padding(horizontal = 8.dp, vertical = 4.dp),
             style = mono,
             color = MaterialTheme.colorScheme.onSurface,
         )
         PillInk.MUTE -> Caps(
             fact.text,
-            Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant).padding(horizontal = 10.dp, vertical = 4.dp),
+            Modifier.border(1.5.dp, MaterialTheme.colorScheme.outlineVariant).padding(horizontal = 8.dp, vertical = 4.dp),
             style = mono,
         )
     }
 }
 
 /**
- * The top bar's back and menu buttons, boxed in [ink] as the frames draw
- * them. A plain modifier, not a composable one: the caller reads the colour.
+ * The top bar's back and menu buttons: a 36 dp ink box as the frames draw
+ * them, inside the 48 dp target every control keeps.
  */
-internal fun Modifier.boxed(ink: Color): Modifier = border(1.dp, ink, RoundedCornerShape(6.dp))
+@Composable
+internal fun BoxedIconButton(icon: ImageVector, description: String, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(6.dp)
+    Box(
+        Modifier
+            .minimumInteractiveComponentSize()
+            .size(36.dp)
+            .clip(shape)
+            .border(1.5.dp, MaterialTheme.colorScheme.outline, shape)
+            .clickable(role = Role.Button, onClickLabel = description, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(icon, contentDescription = description, Modifier.size(20.dp))
+    }
+}

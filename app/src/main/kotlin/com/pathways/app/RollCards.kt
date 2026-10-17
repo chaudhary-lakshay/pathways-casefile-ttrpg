@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -227,7 +228,11 @@ private fun StampSheet(content: @Composable ColumnScope.() -> Unit) {
  * long verdict takes the height it always would.
  */
 @Composable
-internal fun Stamp(verdict: String, color: Color) {
+internal fun Stamp(
+    verdict: String,
+    color: Color,
+    style: TextStyle = MaterialTheme.typography.titleSmall.copy(fontFamily = PlexMono, fontWeight = FontWeight.SemiBold),
+) {
     Caps(
         verdict,
         Modifier
@@ -235,7 +240,7 @@ internal fun Stamp(verdict: String, color: Color) {
             .rotate(-3f)
             .border(2.dp, color)
             .padding(horizontal = 10.dp, vertical = 4.dp),
-        style = MaterialTheme.typography.titleSmall.copy(fontFamily = PlexMono, fontWeight = FontWeight.SemiBold),
+        style = style,
         color = color,
     )
 }

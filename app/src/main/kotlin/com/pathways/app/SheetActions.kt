@@ -105,10 +105,11 @@ internal fun SheetActions(
             ActionChip("Detect") {
                 onOpen(SheetDialog.DETECT)
             }
-            ActionChip("Spend points", onClick = onBuild)
+            // Underlined, as frames 02 and 04 draw these two.
+            ActionChip("Spend points", underlined = true, onClick = onBuild)
             // Not gated: a Sealed Artifact is found, not bought or awarded by
             // Sequence, and church rank is not modelled. See SealedArtifacts.
-            ActionChip("Artifacts") {
+            ActionChip("Artifacts", underlined = true) {
                 onOpen(SheetDialog.ARTIFACTS)
             }
         }

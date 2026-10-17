@@ -8,6 +8,10 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,8 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
@@ -154,6 +156,7 @@ fun App(
                     sheet,
                     session = session,
                     scene = scene,
+                    file = fileNumber(sheet, sheets),
                     onPathways = { screen = Screen.PATHWAY },
                     onBuild = { screen = Screen.BUILDER },
                     onBack = { selected = null },
@@ -200,6 +203,8 @@ internal fun SheetScreen(
     sheet: PremadeSheet,
     session: BeyonderSession,
     scene: SheetScene,
+    /** Its gallery file number ([fileNumber]); null for the blank sheet. */
+    file: Int?,
     onPathways: () -> Unit,
     onBuild: () -> Unit,
     onBack: () -> Unit,
@@ -320,6 +325,9 @@ internal fun SheetScreen(
         liveSkillLevels(session.characterFor(sheet).copy(beyonder = drunk))
     }
     var pickingUntrained by remember(sheet) { mutableStateOf(false) }
+    // "Show amendments" (frame 03): the rows that differ from the published
+    // sheet only, on Vitals and Skills alike, until "Show all values".
+    var amendedOnly by remember(sheet) { mutableStateOf(false) }
     // Only a caster can cast. No premade prints either skill, so both are
     // null until a potion grants one -- ch. 9 p. 85 forbids buying Divination
     // Arts with points, so a potion is its only route (6aq).
@@ -411,7 +419,17 @@ internal fun SheetScreen(
     )
 
     val listState = rememberLazyListState()
+    // Item 0 is the name, item 1 the pools (frame 03's collapsed bar).
     val nameScrolledOff by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+    val poolsScrolledOff by remember { derivedStateOf { listState.firstVisibleItemIndex > 1 } }
+    // Health first and always: it sat behind the Vitals tab. SPI only for a
+    // Beyonder -- "Non-Beyonders (SPI 0) ... have no spirituality to
+    // sacrifice" (p. 41), and Pools.spi refuses a maximum of zero.
+    val pools = listOfNotNull(
+        hpNow,
+        fpNow,
+        if (vitals.maxSpi > 0) Pools.spi(vitals.maxSpi - session.spiSpent, vitals.maxSpi) else null,
+    )
 
     // The Scaffold stays at its old indent inside the backdrop, closed by
     // `} }` below, so this diff is the wrapper and not 170 re-indented lines.
@@ -422,24 +440,38 @@ internal fun SheetScreen(
         contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
             TopAppBar(
-                // The name is the list's first item now, in Fraunces (Case
-                // File), and comes back here once it scrolls off, as frame 03's
-                // collapsed bar does: deep in Skills the sheet still says whose
-                // it is. The frames' "FILE Nº nn" line comes with the gallery's
-                // numbering, in slice 4, so the two cannot disagree.
+                // The file line at the top; the name, in the list's first
+                // item, comes up here once it scrolls off, with the sequence
+                // stamped where the menu was, as frame 03's collapsed bar
+                // draws it. The menu is back at the top of the sheet.
                 title = {
                     if (nameScrolledOff) {
-                        Text(sheet.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(
+                            sheet.name,
+                            style = MaterialTheme.typography.headlineSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    } else {
+                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            // Decoration the owner chose to ship: the stamp and
+                            // the name already say what it says.
+                            Caps(
+                                fileLine(file, isBeyonder = drunk != null),
+                                Modifier.clearAndSetSemantics {},
+                            )
+                        }
                     }
                 },
-                actions = { SheetMenu(sheet.name, throws, onReset, onDelete) },
-                navigationIcon = {
-                    IconButton(onClick = onBack, modifier = Modifier.boxed(MaterialTheme.colorScheme.outline)) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back to characters",
-                        )
+                actions = {
+                    if (!nameScrolledOff) {
+                        SheetMenu(sheet.name, throws, onReset, onDelete)
+                    } else if (drunk != null) {
+                        Box(Modifier.padding(end = 12.dp)) { Stamp("Seq ${drunk.sequence}", MaterialTheme.colorScheme.secondary) }
                     }
+                },
+                navigationIcon = {
+                    BoxedIconButton(Icons.AutoMirrored.Filled.ArrowBack, "Back to characters", onBack)
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     // Clear, so the backdrop's seal shows behind the buttons.
@@ -449,7 +481,8 @@ internal fun SheetScreen(
         },
         bottomBar = { SheetTabBar(tab) { tab = it } },
     ) { insets ->
-        LazyColumn(Modifier.padding(insets).fillMaxSize(), state = listState) {
+        Box(Modifier.padding(insets).fillMaxSize()) {
+        LazyColumn(Modifier.fillMaxSize(), state = listState) {
             item {
                 // Pills, not a sentence (6gl): what the Pathway tile opens is
                 // said by the tile itself.
@@ -458,33 +491,25 @@ internal fun SheetScreen(
                     headerFacts(drunk, session.boon?.let(::boonPill), session.cor, session.lost, session.corrupted),
                 )
             }
-            // Pinned while the list scrolls: health is checked between every
-            // roll, and a strip that scrolled away was the tab it replaced.
-            stickyHeader {
-                Surface(color = MaterialTheme.colorScheme.surface) {
-                    // Health first and always: it sat behind the Vitals tab.
-                    // SPI only for a Beyonder -- "Non-Beyonders (SPI 0) ...
-                    // have no spirituality to sacrifice" (p. 41), and
-                    // Pools.spi refuses a maximum of zero.
-                    PoolStrip(
-                        pools = listOfNotNull(
-                            hpNow,
-                            fpNow,
-                            if (vitals.maxSpi > 0) Pools.spi(vitals.maxSpi - session.spiSpent, vitals.maxSpi) else null,
-                        ),
-                        onSpend = { pool, n ->
-                            val max = when (pool) {
-                                Pool.HP -> vitals.maxHp
-                                Pool.FP -> vitals.maxFp
-                                Pool.SPI -> vitals.maxSpi
-                            }
-                            session.spend(pool, n, max, maxCor)
-                        },
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    )
-                }
+            // Not pinned: once it scrolls away the bar shows the pools as one
+            // thin line, without the steppers (frame 03, the owner's pick).
+            item {
+                PoolStrip(
+                    pools = pools,
+                    onSpend = { pool, n ->
+                        val max = when (pool) {
+                            Pool.HP -> vitals.maxHp
+                            Pool.FP -> vitals.maxFp
+                            Pool.SPI -> vitals.maxSpi
+                        }
+                        session.spend(pool, n, max, maxCor)
+                    },
+                    stacked = tab == SheetTab.VITALS,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                )
             }
             item {
+                if (tab == SheetTab.VITALS) SheetSection("Actions")
                 Column(Modifier.padding(horizontal = 16.dp)) {
                     SheetActions(
                         drunk = drunk,
@@ -497,7 +522,6 @@ internal fun SheetScreen(
                         modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
                     )
                 }
-                HorizontalDivider()
             }
 
             when (tab) {
@@ -514,6 +538,10 @@ internal fun SheetScreen(
                     } else {
                         "$differing of ${rows.size} values differ from the published sheet"
                     },
+                    amended = !isOwn && differing > 0,
+                    amendedOnly = amendedOnly,
+                    onAmendedOnly = { amendedOnly = it },
+                    sheetFigures = if (isOwn) null else rows.associate { it.label to it.published },
                     hpNow = hpNow,
                     ht = attributes.ht,
                     traits = traits,
@@ -552,8 +580,21 @@ internal fun SheetScreen(
                     edits = session.edits,
                     onRoll = { rolling = it },
                     onPickUntrained = { pickingUntrained = true },
+                    amendedOnly = amendedOnly,
+                    onAmendedOnly = { amendedOnly = it },
                 )
             }
+        }
+        // Drawn over the list, not in the bar, so the list keeps its place
+        // when it appears: nothing under a finger moves.
+        if (poolsScrolledOff) {
+            Surface(color = MaterialTheme.colorScheme.background) {
+                Column {
+                    PoolLine(pools, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                    HorizontalDivider(thickness = 2.dp, color = MaterialTheme.colorScheme.outline)
+                }
+            }
+        }
         }
     } }
 
