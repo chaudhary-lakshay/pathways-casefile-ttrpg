@@ -132,6 +132,10 @@ fun DivinationDialog(
     var supporting by remember { mutableStateOf<Set<String>>(emptySet()) }
     var outcome by remember { mutableStateOf<DivinationOutcome?>(null) }
     var backlash by remember { mutableStateOf<String?>(null) }
+    // The HP the sacrifice actually charged, read off the protection at the
+    // Ask -- never the chip, which can be lit against a target with nothing
+    // to forgive and then costs 0. The card said nothing of it (play session 6).
+    var hpBurned by remember { mutableIntStateOf(0) }
     // Dowsing Rods prints "1-2 SPI", so the end is the GM's to pick. Reset
     // with the method, or a 2 chosen for the rods would follow them onto a
     // method that costs 1 (Codex).
@@ -261,12 +265,13 @@ fun DivinationDialog(
                         // critical the diviner never rolled.
                         outcome = null
                         backlash = null
+                        hpBurned = 0
                     },
                 ) { Text("Ask again") }
             }
         },
         title = { Text("Divination Arts $skillLevel") },
-        text = {
+        text = steadyBody {
             val answer = outcome
             if (answer != null) {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
@@ -275,7 +280,7 @@ fun DivinationDialog(
                     // critical failure off that row, and printing the ritual
                     // table's answer beside a merely-failed reading would
                     // report a disaster the diviner spent SPI to avoid.
-                    Result(answer, backlash?.takeIf { answer.isCritical })
+                    Result(answer, backlash?.takeIf { answer.isCritical }, hpBurned)
                     if (Divination.canPush(answer)) {
                         BurnRow(
                             kind = BurnKind.MYSTICAL,
@@ -302,7 +307,7 @@ fun DivinationDialog(
                         )
                     }
                 }
-                return@AlertDialog
+                return@steadyBody
             }
             Column {
                 Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
@@ -516,26 +521,6 @@ fun DivinationDialog(
                             )
                         }
                     }
-                    targetSequence?.let { seq ->
-                        Text(
-                            AntiDivination.rowFor(seq).text,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                        FlowRow {
-                            FilterChip(
-                                selected = directLink,
-                                onClick = { directLink = !directLink },
-                                label = { Text("True name + personal item") },
-                                modifier = Modifier.padding(end = 8.dp),
-                            )
-                            FilterChip(
-                                selected = sacrificeHp,
-                                onClick = { sacrificeHp = !sacrificeHp },
-                                label = { Text("Burn $hpForSacrifice HP") },
-                                modifier = Modifier.padding(end = 8.dp),
-                            )
-                        }
-                    }
 
                     SectionLabel("Active techniques (Sec. 3)")
                     Text(
@@ -586,6 +571,32 @@ fun DivinationDialog(
                             Text(
                                 "${line.label}: ${line.text}",
                                 style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+
+                    // The counters AFTER the techniques, as Step 5 comes after
+                    // them in the book: above them, picking a Sequence inserted
+                    // this block and pushed every technique chip down under the
+                    // finger (play session 6).
+                    targetSequence?.let { seq ->
+                        Text(
+                            AntiDivination.rowFor(seq).text,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        FlowRow {
+                            FilterChip(
+                                selected = directLink,
+                                onClick = { directLink = !directLink },
+                                label = { Text("True name + personal item") },
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                            FilterChip(
+                                selected = sacrificeHp,
+                                onClick = { sacrificeHp = !sacrificeHp },
+                                label = { Text("Burn $hpForSacrifice HP") },
+                                modifier = Modifier.padding(end = 8.dp),
                             )
                         }
                     }
@@ -651,6 +662,7 @@ fun DivinationDialog(
                     // with no penalty to forgive, AntiDivination reports 0
                     // and the offer costs nothing.
                     if (protection.hpSpent > 0) onSpendHp(protection.hpSpent)
+                    hpBurned = protection.hpSpent
                     // The clarity row prints no effects of its own: it says
                     // "treat as a ritual critical failure", so the ritual
                     // table is ROLLED rather than copied -- off the same
@@ -668,7 +680,7 @@ fun DivinationDialog(
 }
 
 @Composable
-private fun Result(outcome: DivinationOutcome, backlash: String?) {
+private fun Result(outcome: DivinationOutcome, backlash: String?, hpBurned: Int) {
     // effectiveOutcome, not roll.outcome: a critical-only target demotes an
     // ordinary success, and a green card over "Failure" would misreport it.
     VerdictCard(outcome.clarity.result, outcome.effectiveOutcome.isSuccess, outcome.roll) {
@@ -678,6 +690,12 @@ private fun Result(outcome: DivinationOutcome, backlash: String?) {
             modifier = Modifier.padding(top = 8.dp),
         )
         Text(outcome.clarity.effect, style = MaterialTheme.typography.bodyMedium)
+        if (hpBurned > 0) {
+            Text(
+                "Burned $hpBurned HP for the sacrifice, whatever the reading.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
         backlash?.let {
             Text(
                 "Critical Failure Table: $it",
