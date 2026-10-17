@@ -1,14 +1,19 @@
 package com.pathways.app
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageShader
@@ -16,6 +21,7 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -36,6 +42,32 @@ import androidx.compose.ui.unit.sp
 // ---------------------------------------------------------------------------
 
 /**
+ * Fraunces (SIL OFL 1.1, licence in assets/licenses): the display serif, for
+ * display and headline only. A static SemiBold cut from the variable font at
+ * opsz 32 with SOFT and WONK off, subset to Latin: 33 KB. It has no arrows or
+ * check mark; Android draws those from a system font, never as boxes.
+ */
+internal val Fraunces = FontFamily(Font(R.font.fraunces_semibold, FontWeight.SemiBold))
+
+/**
+ * IBM Plex Sans and Mono (SIL OFL 1.1, Reserved Font Name "Plex"): IBM's own
+ * static files, unmodified, because the reserved name forbids shipping a
+ * subset under it. They cover every character the app prints (checked
+ * 2026-10-17 against the Kotlin source and every content JSON).
+ */
+internal val PlexSans = FontFamily(
+    Font(R.font.plex_sans_regular, FontWeight.Normal),
+    Font(R.font.plex_sans_medium, FontWeight.Medium),
+    Font(R.font.plex_sans_semibold, FontWeight.SemiBold),
+)
+
+internal val PlexMono = FontFamily(
+    Font(R.font.plex_mono_regular, FontWeight.Normal),
+    Font(R.font.plex_mono_medium, FontWeight.Medium),
+    Font(R.font.plex_mono_semibold, FontWeight.SemiBold),
+)
+
+/**
  * The scale is redefined here rather than at the call sites, and that is the
  * point of it.
  *
@@ -53,50 +85,66 @@ import androidx.compose.ui.unit.sp
  * Tracking is tighter than Material's defaults on the small sizes. Material
  * tracks small text loosely for glanceable labels; this app renders dense
  * tabular rules text, where loose tracking costs width the numbers need.
+ *
+ * Faces (Case File, 2026-10-17): Fraunces for display and headline, Plex
+ * Sans for body and title, Plex Mono for every label.
  */
-private val PathwaysType = Typography().run {
+internal val PathwaysType = Typography().run {
     copy(
+        displayLarge = displayLarge.copy(fontFamily = Fraunces, fontWeight = FontWeight.SemiBold),
+        displayMedium = displayMedium.copy(fontFamily = Fraunces, fontWeight = FontWeight.SemiBold),
+        displaySmall = displaySmall.copy(fontFamily = Fraunces, fontWeight = FontWeight.SemiBold),
+        headlineLarge = headlineLarge.copy(fontFamily = Fraunces, fontWeight = FontWeight.SemiBold),
+        headlineMedium = headlineMedium.copy(fontFamily = Fraunces, fontWeight = FontWeight.SemiBold),
+        labelSmall = labelSmall.copy(fontFamily = PlexMono),
         // Body -- the reading sizes. bodySmall carries the app.
         bodySmall = bodySmall.copy(
+            fontFamily = PlexSans,
             fontSize = 14.sp,
             lineHeight = 20.sp,
             letterSpacing = 0.15.sp,
         ),
         bodyMedium = bodyMedium.copy(
+            fontFamily = PlexSans,
             fontSize = 15.sp,
             lineHeight = 21.sp,
             letterSpacing = 0.15.sp,
         ),
         bodyLarge = bodyLarge.copy(
+            fontFamily = PlexSans,
             fontSize = 16.sp,
             lineHeight = 24.sp,
         ),
         // Titles -- row headers and dialog headings.
         titleSmall = titleSmall.copy(
+            fontFamily = PlexSans,
             fontSize = 15.sp,
             lineHeight = 20.sp,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.sp,
         ),
         titleMedium = titleMedium.copy(
+            fontFamily = PlexSans,
             fontSize = 17.sp,
             lineHeight = 24.sp,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.sp,
         ),
         titleLarge = titleLarge.copy(
+            fontFamily = PlexSans,
             fontSize = 21.sp,
             lineHeight = 28.sp,
             fontWeight = FontWeight.SemiBold,
         ),
         headlineSmall = headlineSmall.copy(
+            fontFamily = Fraunces,
             fontSize = 25.sp,
             lineHeight = 32.sp,
             fontWeight = FontWeight.SemiBold,
         ),
         // Labels -- buttons and chips.
-        labelMedium = labelMedium.copy(fontSize = 13.sp, lineHeight = 17.sp),
-        labelLarge = labelLarge.copy(fontSize = 15.sp, lineHeight = 20.sp),
+        labelMedium = labelMedium.copy(fontFamily = PlexMono, fontSize = 13.sp, lineHeight = 17.sp),
+        labelLarge = labelLarge.copy(fontFamily = PlexMono, fontSize = 15.sp, lineHeight = 20.sp),
     )
 }
 
@@ -108,34 +156,26 @@ private val PathwaysType = Typography().run {
  * A plain val; promote to a CompositionLocal if a second theme ever varies it.
  */
 val TabularNumerals: TextStyle
-    @Composable get() = MaterialTheme.typography.titleMedium.copy(
-        fontFamily = FontFamily.Monospace,
-    )
+    @Composable get() = MaterialTheme.typography.titleMedium.tabular()
 
 /**
- * A number that changes in place: tabular digits, so a count does not
- * shift its neighbours as it changes. Every changing number goes through
- * here, so no screen asks which font is in play.
+ * A number that changes in place, in Plex Mono at the style's own size:
+ * every digit is one width, so a count does not shift its neighbours as it
+ * changes. Every changing number goes through here.
  */
-fun TextStyle.tabular(): TextStyle = copy(fontFamily = FontFamily.Default, fontFeatureSettings = "tnum")
+fun TextStyle.tabular(): TextStyle = copy(fontFamily = PlexMono)
 
 // ---------------------------------------------------------------------------
 // Shape scale
 // ---------------------------------------------------------------------------
 
-/**
- * Rounder than Material's defaults, following the direction Material 3
- * Expressive took in 1.4. The Expressive entry points themselves
- * (`MaterialExpressiveTheme`) are deliberately not used: they are
- * `@ExperimentalMaterial3ExpressiveApi`, and opting in across 16 files buys
- * motion physics this app has no animation to spend it on.
- */
-private val PathwaysShapes = Shapes(
-    extraSmall = RoundedCornerShape(6.dp),
-    small = RoundedCornerShape(10.dp),
-    medium = RoundedCornerShape(14.dp),
-    large = RoundedCornerShape(20.dp),
-    extraLarge = RoundedCornerShape(28.dp),
+/** The Case File's small radii: cut card, not soft plastic. */
+internal val PathwaysShapes = Shapes(
+    extraSmall = RoundedCornerShape(2.dp),
+    small = RoundedCornerShape(4.dp),
+    medium = RoundedCornerShape(6.dp),
+    large = RoundedCornerShape(8.dp),
+    extraLarge = RoundedCornerShape(8.dp),
 )
 
 // ---------------------------------------------------------------------------
@@ -169,10 +209,24 @@ fun Modifier.paperGrain(alpha: Float): Modifier {
     }
 }
 
+/**
+ * The widest the content column grows. The frames are drawn at 390 dp; a
+ * tablet in landscape (6ia) gets a centred column with paper either side,
+ * on the owner's pick (2026-10-17). Dialogs are their own windows and size
+ * themselves.
+ */
+private val MAX_COLUMN = 600.dp
+
 /** Wraps the whole app. */
 @Composable
 fun PathwaysTheme(content: @Composable () -> Unit) {
     MaterialTheme(colorScheme = CaseFile, typography = PathwaysType, shapes = PathwaysShapes) {
-        Box(Modifier.fillMaxSize().paperGrain(GRAIN_ALPHA)) { content() }
+        Box(
+            Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).paperGrain(GRAIN_ALPHA),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            // Clipped, so the sheet's seal (offset past its edge) stays inside.
+            Box(Modifier.widthIn(max = MAX_COLUMN).fillMaxHeight().clipToBounds()) { content() }
+        }
     }
 }

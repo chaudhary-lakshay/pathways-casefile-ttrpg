@@ -362,8 +362,9 @@ internal fun disambiguated(key: SkillKey, visible: List<SkillKey>): String {
  */
 @Composable
 internal fun AddedSkillRow(label: String, level: Int, provenance: String, onClick: () -> Unit) {
-    // The scheme's secondary for a potion's grant, a Beyonder fact, as the
-    // pool strip colours the Beyonder; its primary for one bought.
+    // The tag in the stamp for a potion's grant, a Beyonder fact, as the
+    // pool strip colours SPI. The level stays ink: a red number means a
+    // named harm state on the pool strip.
     val potion = provenance == "potion"
     val tint = if (potion) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
     SkillRowFrame(Modifier.clickable(onClickLabel = "Roll", role = Role.Button, onClick = onClick)) {
@@ -371,7 +372,7 @@ internal fun AddedSkillRow(label: String, level: Int, provenance: String, onClic
         RowTag(provenance, tint)
         Spacer(Modifier.weight(1f))
         RollGlyph()
-        LevelBadge("$level", tint)
+        LevelBadge("$level", MaterialTheme.colorScheme.primary)
     }
 }
 

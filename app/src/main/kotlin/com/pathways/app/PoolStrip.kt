@@ -188,8 +188,11 @@ private fun PoolCell(
                     color = if (tags.isEmpty()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error,
                 )
                 Text(
-                    " / ${status.max}",
-                    style = MaterialTheme.typography.titleMedium.tabular(),
+                    "/${status.max}",
+                    // Plex Sans, not tabular()'s mono, and no spaces: its
+                    // digits are already one width, and "15 / 15" wrapped in a
+                    // third of the 600 dp column on the SM-T570 (6ic).
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 3.dp),
                 )
