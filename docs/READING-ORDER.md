@@ -195,6 +195,12 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6ib
+(the shield bash on the owner's word, a row per shield and Brawling-2
+with Versatile; play session 7, alone as Brann: a character's scene
+outlives the gallery; from the front a shield's figure is the only one,
+and a shield's block penalty stands without its DB; seen on the SM-T570).
+
 Then 6ia
 (play session 6, a scenario Codex picked, played alone in landscape as
 Vale: every number held; a dialog body holds one height, so a verdict,

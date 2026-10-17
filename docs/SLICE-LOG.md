@@ -6726,6 +6726,129 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ig. Case File, slice 4: the gallery, New character and the glossary
+
+The plan's slice 4, built against Figma frames 01, 05 and 07, pulled with
+`get_screenshot` before any code. Commits `e315a82`, `a6a0ea3` from the
+device pass and `5a36735` from the review, not pushed. The session opened
+with the owed Codex review of 6ic to 6if (`1c244d2`): SHIP, no findings.
+
+### Four owner rulings, asked first
+
+Each frame item that adds behaviour or removes a control was asked
+(memory `truthful-to-the-figma-frames`):
+- **Frame 01's red row marks a lost character**: the filled stamp is the
+  sheet header's loss pill already.
+- **"Start from a blank sheet" stays**, under the list in the dashed box,
+  though the frame omits it: a save made on the unnamed blank sheet is
+  reachable from nowhere else.
+- **The glossary takes letter groups, a jump row and a search, in book
+  order.** The book's order already runs by initial (… P, S, 3, W), so
+  grouping asks for no sort, and `GlossarySheet`'s recorded reasons
+  against search and a lazy list are overturned by the owner's ruling.
+- **New character takes the template filter.**
+
+### Not asked, corrected to the data
+
+- Frame 05 says the blank sheet "starts every attribute at 10"; the
+  fixture holds 9. `blankHint` reads the fixture.
+- Frame 07 says "Appendix B · 16 entries"; the book's Appendix B is the
+  Political World, and the glossary is pp. 167-168 with 25 entries. The
+  caption says so.
+- Frame 07's part-of-speech tags ("n.", "place", "abbr.") and its "cf."
+  link are not book text; the one cross-reference the book prints,
+  Loen Kingdom's "See Backlund.", is in its definition.
+- Frame 05 prints a pathway beside each template; a copy stores only
+  `basedOn` and starts unwalked, so the list prints none.
+- Frame 01's palette button is out: one theme, the 2026-10-17 ruling.
+
+### What changed
+
+- **Gallery** (`PremadeGallery.kt`, `GalleryRows.kt` new): the kicker,
+  "Characters" in Fraunces with the glossary boxed beside it, folder tabs
+  with counts (the open tab's in stamp red) and the column heads as one
+  sticky header, then a ruled table: file number from `fileNumber`, the
+  name, the walk's straight stamp (`walkStamp`: red for a walk, grey
+  Mortal, filled red for a loss), `galleryNote`'s "two traits · n sk."
+  (spoken "skills"), and ST DX IQ HT, heavy at 10 and up (`isStrong`,
+  display only). Each attribute is spoken "ST 10"; a lost stamp is spoken
+  "…, lost". "Open new file" is the Scaffold's bottom bar. The monogram
+  and the chevron went.
+- **One loss predicate**: `SavedSession.isLost` and `BeyonderSession.isLost`
+  both call `endedPlay`.
+- **New character** (`NewCharacterDialog.kt`): `FormTitle` takes the file
+  number ("FORM 23-B · INTAKE", "File Nº 24" from `nextFileNumber`), the
+  paperclip; Blank sheet | Template as two ink segments; the template list
+  at one fixed height with its filter (`templateChoices`), drawn dimmed
+  under Blank, a tap on a row picking it and turning to Template; a
+  reserved name-refusal line and a two-line hint, so nothing moves Create.
+  `createRefusal` waits for a template under Template.
+- **Glossary** (`GlossaryScreen.kt`, renamed): a full screen in the
+  activity window, so the grain and the 600 dp column hold and the
+  gallery's scroll and tab survive it; its own `BackHandler`. Terms closed
+  until tapped, an open one ruled in stamp red. `glossaryGroups` cuts runs
+  of initials and never sorts.
+- `Modifier.dashedBorder` is the untrained button's dashes, shared;
+  `fileDigits` is the one "06" format for the gallery, the dialog and the
+  sheet's bar.
+
+`GalleryFileTest` (15) was watched RED against stubs returning wrong
+values: 13 of 14 failed on assertions, and the 14th (a filtered tab keeps
+its file number) pins existing behaviour. The 15th, the key fix's, failed
+against `rowKey(name) = name`.
+
+### Verification
+
+1967 Kotlin (1481 `core:rules`, 463 `app`, 23 `core:model`) and 366
+Python, 0 failures, from fresh result directories after `--rerun-tasks`.
+`ast-grep scan` clean, the census 40 lines, no file over 800.
+`docs/HOW-TO-PLAY.md` §1 names Open new file, Blank sheet | Template,
+Filter templates…, Start from a blank sheet, the tabs, the red lost row
+and the glossary.
+
+### Device pass (SM-T570, wireless at 10.44.140.157:5555)
+
+Save backed up (`~/pathways-device-backups/sessions-6ig-0220.json`), a
+lost Street Acrobat (Fool 9, `lost`) seeded under a key the save did not
+hold, restored with push and `run-as cp`, `cmp`-identical after; the APK
+was the 23:02 build, reinstalled first.
+- The gallery beside frame 01: kicker, tabs (All 23, Mortal 14,
+  Beyonders 9), the table, sticky tabs over a scrolled list, Street
+  Acrobat red with a filled stamp, the dashed blank-sheet box above the
+  pinned bar; landscape in the 600 dp column, rotation restored.
+- New character: "be" filtered to Beat Cop; picked, the hint read "Starts
+  as Beat Cop's sheet as printed."; "Mira" refused as taken. The dialog
+  top and Cancel held their pixels through all three.
+- **Found and fixed (`a6a0ea3`)**: a tap on S in the glossary's jump row
+  scrolled the list to its end, where S could not reach the top, so the
+  row lit H. A tail of 0.85 of the list's height lets every group reach
+  the top; seen lighting S after. The paperclip sat over "Nº 24"; it
+  sits above now.
+- The glossary: an open term, search "cor" to one group, back key to the
+  gallery.
+
+### Review
+
+Codex (`codex exec`, gpt-6-astra, xhigh) read `1c244d2..a6a0ea3`, three
+questions, and returned NO SHIP:
+- HIGH, taken (`5a36735`): rows were keyed by the character's name beside
+  the fixed keys "head" and "tabs", and a lazy list throws on a repeated
+  key; an own character named "tabs" would have thrown on the launch
+  screen. Rows are `rowKey(name)`, "row:<name>". Codex reviewed the fix:
+  SHIP, and found no collision of the kind in the template or glossary
+  lists. The wiring of `rowKey` into the list is untested.
+- MEDIUM, refused: a template picked, Blank sheet tapped, then Template
+  tapped again restores the pick and enables Create. It is shown, not
+  hidden: the radio is selected only while Template is open
+  (`selected = active && option == picked`) and the hint names the pick,
+  so Create does what the dialog says.
+
+### Next
+
+Slice 5, the action hub and the pathway screen (frames 09-12), from Figma
+first. The kicker "Midnight Poem · Case Index / Vol. III" was built as
+drawn and is the owner's to strike.
+
 ## 6if. Case File, slice 3 again: the sheet as the frames draw it
 
 The owner read 6ie's skipped list and answered **"be truthful to the figma
