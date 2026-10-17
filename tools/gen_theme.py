@@ -30,8 +30,11 @@ equivalent, is built with Kotlin 2.4.0 against this project's 2.2.0.
 
 Why the accents rotate with the seed
 ------------------------------------
-This app spends the accents SEMANTICALLY: combat is `error`, Beyonder material
-is `secondary`, management is `tertiary` (see `ActionGroup.tintOf`). A seeded
+Until 2026-10-17 this app spent the accents SEMANTICALLY: combat was `error`,
+Beyonder material `secondary`, management `tertiary`. The owner then chose a
+single accent and action buttons went neutral, so this rotation now only keeps
+the SEEDS presets' picker swatches distinct; the reasoning is kept as written
+because it is why those presets look as they do. A seeded
 scheme normally derives `secondary` at the seed's OWN hue, which would render
 those three categories as three shades of one colour -- the distinction the
 design direction exists to protect, deleted by the theming.
@@ -167,6 +170,18 @@ PINNED: dict[str, dict] = {
                "Burnt Lake on black. Default.",
     },
 }
+
+
+
+def legible(c: int, ground: int, is_dark: bool) -> int:
+    """`c` at the nearest HCT tone that reads at 4.6:1 on `ground`."""
+    h = Hct.from_int(0xFF000000 | c)
+    tone = h.tone
+    while contrast(c, ground) < 4.6:
+        tone += 1 if is_dark else -1
+        c = Hct.from_hct(h.hue, h.chroma, tone).to_int() & 0xFFFFFF
+    return c
+
 
 # Every role `androidx.compose.material3.ColorScheme` accepts, in the order the
 # generated calls list them. `scrim` is not a MaterialDynamicColors entry -- it
@@ -313,8 +328,9 @@ def build_pinned(spec: dict, is_dark: bool) -> dict[str, int]:
         elif role in error_from_primary:
             out[role] = role_value(fam["error"], error_from_primary[role])
         else:
-            out[role] = role_value(fam["primary"], role)
-    out.update(spec["dark" if is_dark else "light"])
+            out[role] = role_value(fam[spec.get("neutral", "primary")], role)
+    pins = spec["dark" if is_dark else "light"]
+    out.update(pins(out) if callable(pins) else pins)
     return out
 
 
@@ -339,6 +355,7 @@ def check_pinned(name: str, roles: dict[str, int], mode: str) -> None:
              for g in grounds]
     pairs += [("onSurfaceVariant", "surfaceVariant"), ("onPrimary", "primary"),
               ("onSecondary", "secondary"), ("onError", "error"),
+              ("onSecondaryContainer", "secondaryContainer"),
               ("onErrorContainer", "errorContainer")]
     for fg, bg in pairs:
         ratio = contrast(roles[fg], roles[bg])
@@ -358,6 +375,62 @@ def render_scheme(kotlin_name: str, roles: dict[str, int], is_dark: bool) -> str
     return "\n".join(lines)
 
 
+def tone(c: int, t: float, chroma: float | None = None) -> int:
+    """`c`'s hue, and its chroma unless given, at HCT tone `t`."""
+    h = Hct.from_int(0xFF000000 | c)
+    return Hct.from_hct(h.hue, h.chroma if chroma is None else chroma, t).to_int() & 0xFFFFFF
+
+
+# Wada's combination #207 -- Sudan Brown, Glaucous Green, Black -- asked for
+# as "wabi-sabi" by the owner, 2026-10-17, after the Radix pair read as bland.
+# The roles follow a raku tea bowl: Sudan Brown is the one accent and the
+# Glaucous Green glaze marks selection. The greys are NOT from #207: Sudan
+# Brown built Neutral gave a pink-white page, so every neutral role comes
+# from Wada's Ecru swatch (#C2AE93), which lands on sumi and washi. Black is the dark ground. Combat's red is Wada's
+# Carmine Red: clay is a brown, so the red has to be the saturated one.
+SUDAN_BROWN, GLAUCOUS_GREEN, WADA_BLACK, CARMINE_RED = 0xA36752, 0xB4CDC2, 0x111314, 0xA62C37
+ECRU = 0xC2AE93
+
+
+def wabi_pins(is_dark: bool):
+    def pins(r: dict[str, int]) -> dict[str, int]:
+        card = r["surfaceContainerHigh"]
+        # One clay grey per category role, but not the same one: the picker's
+        # four swatches promise four distinct values.
+        r = {**r, "tertiary": r["onSurfaceVariant"]}
+        if is_dark:
+            return {"tertiary": r["tertiary"], "background": WADA_BLACK, "surface": WADA_BLACK, "surfaceContainerLowest": WADA_BLACK,
+                    "primary": legible(SUDAN_BROWN, card, True), "onPrimary": WADA_BLACK,
+                    "secondaryContainer": tone(GLAUCOUS_GREEN, 24),
+                    "onSecondaryContainer": GLAUCOUS_GREEN,
+                    "error": legible(CARMINE_RED, card, True), "onError": WADA_BLACK}
+        # Neutral style flattens Ecru to near-white and Ecru's own chroma is
+        # parchment; washi sits between, at chroma 6.
+        paper = {k: tone(ECRU, t, 6) for k, t in {
+            "background": 95, "surface": 95, "surfaceBright": 95, "surfaceContainerLowest": 97,
+            "surfaceContainerLow": 93, "surfaceContainer": 91, "surfaceContainerHigh": 89,
+            "surfaceContainerHighest": 87, "surfaceDim": 85}.items()}
+        card = paper["surfaceContainerHigh"]
+        return {**paper, "tertiary": r["tertiary"], "primary": legible(SUDAN_BROWN, card, False), "onPrimary": 0xFFFFFF,
+                "secondaryContainer": GLAUCOUS_GREEN, "onSecondaryContainer": tone(GLAUCOUS_GREEN, 15),
+                "error": legible(CARMINE_RED, card, False), "onError": 0xFFFFFF}
+    return pins
+
+
+PINNED["Wabi"] = {
+    "style": "rainbow",
+    "family_styles": {"secondary": "neutral", "tertiary": "neutral", "neutral": "neutral"},
+    "seeds": {k: 0xFF000000 | v for k, v in {
+        "primary": SUDAN_BROWN, "secondary": ECRU, "tertiary": ECRU,
+        "error": CARMINE_RED, "neutral": ECRU}.items()},
+    "neutral": "neutral",
+    "dark": wabi_pins(True),
+    "light": wabi_pins(False),
+    "why": "Sanzo Wada's combination #207: Sudan Brown, Glaucous Green and Black -- "
+           "Ecru greys, one clay accent, a celadon selection. The wabi-sabi preset.",
+}
+
+
 HEADER = '''package com.pathways.app
 
 import androidx.compose.material3.ColorScheme
@@ -373,11 +446,10 @@ import androidx.compose.ui.graphics.Color
  * close: the palette it replaces set 33 of ~48 roles, and the 15 it missed
  * resolved to the stock purple-tinted neutrals.
  *
- * The three accent families are seeded at fixed hue offsets from the theme
- * seed rather than derived from it, because this app spends them semantically
- * -- combat is `error`, Beyonder material is `secondary`, management is
- * `tertiary`. See the generator's docstring for why the offsets are +227 and
- * +75, and why `error` does not move.
+ * Pinned presets take each family from its own seed; the rotated ones seed
+ * theirs at fixed hue offsets. See the generator's docstring for why the
+ * offsets are +227 and +75, why `error` does not move, and why action
+ * buttons no longer spend these colours (single accent, 2026-10-17).
  */
 '''
 
@@ -391,10 +463,7 @@ def main() -> None:
         dark, light = build_pinned(spec, True), build_pinned(spec, False)
         check_pinned(name, dark, "dark")
         check_pinned(name, light, "light")
-        parts.append(
-            f"/**\n * {spec['why']}\n *\n"
-            " * Pinned, not rotated: see the generator's PINNED.\n */"
-        )
+        parts.append(f"/** {spec['why']} Pinned, not rotated: see the generator's PINNED. */")
         parts.append(render_scheme(f"{name}Dark", dark, True))
         parts.append(render_scheme(f"{name}Light", light, False))
     for name, (seed, style, why) in SEEDS.items():

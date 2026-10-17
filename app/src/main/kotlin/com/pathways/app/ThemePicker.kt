@@ -96,9 +96,7 @@ fun ThemePicker(
                     title = "Material You",
                     // Says what it costs, because it is the one option here
                     // that can make the app look worse than the preset did.
-                    detail = "Takes surfaces and the primary accent from your wallpaper. " +
-                        "The Beyonder, management and combat accents stay fixed so the " +
-                        "action categories keep their colours.",
+                    detail = "Takes surfaces and the accent from your wallpaper.",
                     checked = prefs.dynamic,
                     onCheckedChange = { set(prefs.copy(dynamic = it)) },
                 )

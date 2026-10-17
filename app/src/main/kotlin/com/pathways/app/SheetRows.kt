@@ -362,8 +362,8 @@ internal fun disambiguated(key: SkillKey, visible: List<SkillKey>): String {
  */
 @Composable
 internal fun AddedSkillRow(label: String, level: Int, provenance: String, onClick: () -> Unit) {
-    // Violet for a potion's grant: it is a Beyonder fact, the colour the
-    // pool strip and the actions give the Beyonder. Brass for one bought.
+    // The scheme's secondary for a potion's grant, a Beyonder fact, as the
+    // pool strip colours the Beyonder; its primary for one bought.
     val potion = provenance == "potion"
     val tint = if (potion) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
     SkillRowFrame(Modifier.clickable(onClickLabel = "Roll", role = Role.Button, onClick = onClick)) {
@@ -473,7 +473,7 @@ internal fun VitalsCard(
                         }
                         Text(
                             line.number,
-                            style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
+                            style = MaterialTheme.typography.titleMedium.tabular(),
                             color = if (differs) accent else Color.Unspecified,
                         )
                     }
@@ -520,7 +520,7 @@ internal fun LevelBadge(number: String, color: Color) {
     ) {
         Text(
             number,
-            style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
+            style = MaterialTheme.typography.titleMedium.tabular(),
             color = color,
         )
     }

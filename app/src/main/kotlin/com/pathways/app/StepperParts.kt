@@ -54,7 +54,7 @@ internal fun JoinedStepper(
             TextButton(onClick = onMinus, enabled = minusEnabled, shape = STEP_SHAPE, colors = glyphColors()) { Text("−", style = MaterialTheme.typography.titleLarge) }
             Text(
                 value,
-                style = MaterialTheme.typography.titleLarge.copy(fontFeatureSettings = "tnum"),
+                style = MaterialTheme.typography.titleLarge.tabular(),
                 color = valueColor,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.widthIn(min = 44.dp),
@@ -95,7 +95,7 @@ internal fun StepperCard(
                     FilledTonalButton(onClick = onMinus, enabled = enabled, shape = STEP_SHAPE, colors = neutralColors()) { Text(minus) }
                     Text(
                         value,
-                        style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "tnum"),
+                        style = MaterialTheme.typography.headlineMedium.tabular(),
                         color = valueColor,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.weight(1f),
@@ -114,7 +114,7 @@ internal fun ChipTag(text: String, modifier: Modifier = Modifier) {
     Surface(shape = RoundedCornerShape(6.dp), color = MaterialTheme.colorScheme.surfaceContainerHighest, modifier = modifier) {
         Text(
             text,
-            style = MaterialTheme.typography.labelMedium.copy(fontFeatureSettings = "tnum"),
+            style = MaterialTheme.typography.labelMedium.tabular(),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
         )
     }

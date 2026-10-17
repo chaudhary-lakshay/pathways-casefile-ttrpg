@@ -4,6 +4,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DynamicTest
@@ -118,11 +119,11 @@ class ThemeSchemesTest {
     /**
      * The guarantee the picker advertises with four swatches per row.
      *
-     * This app spends the accents semantically -- combat is `error`, Beyonder
-     * material is `secondary`, management is `tertiary`. Two of them landing on
-     * the same colour does not break a layout or fail a contrast check; it
-     * silently deletes a distinction, which is why it needs a test rather than
-     * an eye.
+     * The picker draws `primary`, `secondary`, `tertiary` and `error` as four
+     * swatches. Action categories no longer take these colours (single
+     * accent, 2026-10-17), but two swatches landing on one value would still
+     * make two presets' rows unreadable as a preview, and `error` must never
+     * equal the accent it warns beside.
      */
     @TestFactory
     fun `every preset keeps its four category accents distinct`(): List<DynamicTest> =
@@ -153,6 +154,35 @@ class ThemeSchemesTest {
                 "${seed.name} uses one background for both modes",
             )
         }
+    }
+
+    /**
+     * The single-accent presets (the owner, 2026-10-17: "Single accent"): the
+     * page and every category but combat stay grey, so `primary` is the only
+     * hue a screen paints. A tinted `secondary` would bring back a colour per
+     * category, which is what read as "colourful AI slop".
+     */
+    @TestFactory
+    fun `single accent presets keep secondary and tertiary grey`(): List<DynamicTest> =
+        listOf(ThemeSeed.WABI).flatMap { seed ->
+            listOf("dark" to seed.dark, "light" to seed.light).map { (mode, s) ->
+                DynamicTest.dynamicTest("${seed.name} $mode") {
+                    for ((role, c) in listOf("secondary" to s.secondary, "tertiary" to s.tertiary,
+                        "surface" to s.surface, "onSurface" to s.onSurface)) {
+                        assertTrue(chroma(c) <= 12f, "$role is tinted in ${seed.name} $mode: $c")
+                    }
+                    assertTrue(chroma(s.primary) > 20f, "primary is not an accent in ${seed.name} $mode")
+                }
+            }
+        }
+
+    /**
+     * CIELAB chroma: 0 for a grey. A warm paper or ink grey (washi, sumi) is
+     * low-chroma but not RGB-neutral, so an RGB spread would call it tinted.
+     */
+    private fun chroma(c: Color): Float {
+        val lab = c.convert(ColorSpaces.CieLab)
+        return kotlin.math.hypot(lab.component2(), lab.component3())
     }
 
     @Test

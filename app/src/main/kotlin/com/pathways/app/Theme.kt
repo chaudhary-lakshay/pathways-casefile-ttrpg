@@ -3,6 +3,8 @@ package com.pathways.app
 import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -14,9 +16,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.ImageShader
+import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -45,7 +55,7 @@ import androidx.compose.ui.unit.sp
  * "I do not like the theme" is not a defect report, and the contrast audit
  * found nothing to fix. A taste complaint that measurement cannot locate is
  * answered by handing over the choice, which is what the popular open-source
- * Material 3 apps do. Hence five presets, three modes, and a true-black option. The default
+ * Material 3 apps do. Hence six presets, three modes, and a true-black option. The default
  * is Wada, Sanzo Wada's combination #269, which the owner chose (2026-10-11).
  *
  * @see ThemeSeed for why the preset list is curated rather than a colour wheel.
@@ -144,15 +154,11 @@ val isDynamicColorAvailable: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CO
 /**
  * The scheme to render with.
  *
- * Dynamic colour is applied to the NEUTRALS AND PRIMARY ONLY. The wallpaper
- * scheme's `secondary` and `tertiary` are derived from one hue, so taking them
- * whole would render three of this app's four action categories -- Beyonder
- * material, management, and combat -- as three shades of the same colour. The
- * preset's accents are copied back over the top so the categories survive.
- *
- * That is a weaker guarantee than a preset gives: the wallpaper's primary can
- * still land on the preset's arcane purple, and nothing here can stop it. The
- * preset list is separation-checked at generation time; this path cannot be.
+ * Dynamic colour is applied to the NEUTRALS AND PRIMARY ONLY; the preset's
+ * other roles are copied back over the top. Action buttons no longer take a
+ * colour per category (single accent, 2026-10-17), but those roles still
+ * mark state: `secondaryContainer` is selection and `error` is harm, and a
+ * wallpaper scheme derives both from its one hue.
  */
 private fun schemeFor(context: Context, prefs: ThemePrefs, dark: Boolean): ColorScheme {
     val preset = if (dark) prefs.seed.dark else prefs.seed.light
@@ -164,7 +170,7 @@ private fun schemeFor(context: Context, prefs: ThemePrefs, dark: Boolean): Color
     return if (dark && prefs.amoled) base.asTrueBlack() else base
 }
 
-/** Keeps this app's category accents while adopting another scheme's neutrals. */
+/** Keeps the preset's state roles while adopting another scheme's neutrals. */
 private fun ColorScheme.withAccentsOf(preset: ColorScheme): ColorScheme = copy(
     secondary = preset.secondary,
     onSecondary = preset.onSecondary,
@@ -276,6 +282,16 @@ val TabularNumerals: TextStyle
         fontFamily = FontFamily.Monospace,
     )
 
+/**
+ * A number that changes in place: tabular digits, in the sans face.
+ *
+ * Sans because the Wabi preset's mincho has no `tnum` and proportional
+ * digits (its 1 is 543 units wide, its 8 is 614), so a mincho count would
+ * shift its neighbours as it changed. Every changing number goes through
+ * here, whatever the preset, so no screen asks which font is in play.
+ */
+fun TextStyle.tabular(): TextStyle = copy(fontFamily = FontFamily.Default, fontFeatureSettings = "tnum")
+
 // ---------------------------------------------------------------------------
 // Shape scale
 // ---------------------------------------------------------------------------
@@ -295,6 +311,73 @@ private val PathwaysShapes = Shapes(
     extraLarge = RoundedCornerShape(28.dp),
 )
 
+// ---------------------------------------------------------------------------
+// Wabi-sabi
+// ---------------------------------------------------------------------------
+
+/**
+ * Shippori Mincho (SIL OFL 1.1, licence in assets/licenses), subset to Latin
+ * by fonttools: 35 KB a weight against 8.6 MB whole.
+ */
+private val Mincho = FontFamily(
+    Font(R.font.shippori_mincho_medium, FontWeight.Medium),
+    Font(R.font.shippori_mincho_semibold, FontWeight.SemiBold),
+)
+
+/**
+ * Headings in a mincho serif, everything else unchanged: body, labels and
+ * numbers stay sans, because the rules tables are dense and a serif digit
+ * column reads worse than a sans one.
+ */
+private val WabiType = PathwaysType.run {
+    copy(
+        titleSmall = titleSmall.copy(fontFamily = Mincho),
+        titleMedium = titleMedium.copy(fontFamily = Mincho),
+        titleLarge = titleLarge.copy(fontFamily = Mincho),
+        headlineSmall = headlineSmall.copy(fontFamily = Mincho),
+        headlineMedium = headlineMedium.copy(fontFamily = Mincho),
+        headlineLarge = headlineLarge.copy(fontFamily = Mincho),
+    )
+}
+
+/**
+ * Corners that do not match: each shape's four radii differ a little, the
+ * way a hand-cut card or a thrown bowl's rim does. Tighter overall than
+ * [PathwaysShapes], which reads as soft plastic beside a mincho heading.
+ */
+private fun uneven(r: Int) = RoundedCornerShape(
+    topStart = (r * 1.3f).dp, topEnd = (r * 0.7f).dp,
+    bottomEnd = (r * 1.15f).dp, bottomStart = (r * 0.85f).dp,
+)
+
+private val WabiShapes = Shapes(
+    extraSmall = uneven(4),
+    small = uneven(7),
+    medium = uneven(10),
+    large = uneven(14),
+    extraLarge = uneven(20),
+)
+
+/**
+ * Washi grain laid OVER the content, not behind it: this app is almost all
+ * opaque cards, which would hide a grain painted on the page. A 256 px
+ * seamless tile generated for this app (fine noise plus blurred mottling),
+ * so it carries no licence.
+ *
+ * ponytail: drawn in the activity window only. A dialog is its own window
+ * and stays flat; apply [paperGrain] in the shared dialog shells if that
+ * difference shows.
+ */
+@Composable
+fun Modifier.paperGrain(alpha: Float): Modifier {
+    val tile = ImageBitmap.imageResource(R.drawable.paper_grain)
+    val brush = remember(tile) { ShaderBrush(ImageShader(tile, TileMode.Repeated, TileMode.Repeated)) }
+    return drawWithContent {
+        drawContent()
+        drawRect(brush, alpha = alpha)
+    }
+}
+
 /** Wraps the whole app. */
 @Composable
 fun PathwaysTheme(
@@ -303,10 +386,18 @@ fun PathwaysTheme(
 ) {
     val context = LocalContext.current
     val dark = prefs.isDark()
+    // The one place the wabi-sabi style is decided: by the preset, so the
+    // picker is its way back. No screen asks.
+    val wabi = prefs.seed == ThemeSeed.WABI
     MaterialTheme(
         colorScheme = schemeFor(context, prefs, dark),
-        typography = PathwaysType,
-        shapes = PathwaysShapes,
-        content = content,
-    )
+        typography = if (wabi) WabiType else PathwaysType,
+        shapes = if (wabi) WabiShapes else PathwaysShapes,
+    ) {
+        // Always the same Box: wrapping content only when wabi changed the
+        // tree's shape on a preset switch, which dropped every `remember`
+        // below it -- the open sheet, the picker, the dialog in progress.
+        val grain = if (wabi) Modifier.paperGrain(if (dark) 0.05f else 0.07f) else Modifier
+        Box(Modifier.fillMaxSize().then(grain)) { content() }
+    }
 }

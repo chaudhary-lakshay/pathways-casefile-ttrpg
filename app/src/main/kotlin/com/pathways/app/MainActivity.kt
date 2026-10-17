@@ -36,6 +36,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -426,7 +427,13 @@ internal fun SheetScreen(
         shockOnAttribute + hurtOnAttribute + states.total,
     )
 
-    Scaffold(
+    // The Scaffold stays at its old indent inside the backdrop, closed by
+    // `} }` below, so this diff is the wrapper and not 170 re-indented lines.
+    SheetBackdrop(drunk?.pathway) { Scaffold(
+        containerColor = Color.Transparent,
+        // contentColorFor(Transparent) is no scheme colour, so unstyled text
+        // would fall back to black on the dark page; name the reading colour.
+        contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
             TopAppBar(
                 title = {
@@ -447,7 +454,8 @@ internal fun SheetScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+                    // Clear, so the backdrop's seal shows behind the name.
+                    containerColor = Color.Transparent,
                     // The character's own name, in the reading colour. Brass
                     // here made the title compete with the primary button two
                     // rows below it, and a name is not an action.
@@ -601,7 +609,7 @@ internal fun SheetScreen(
                 )
             }
         }
-    }
+    } }
 
     SheetDialogs(
         open = open,

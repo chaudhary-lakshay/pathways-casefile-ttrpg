@@ -84,7 +84,7 @@ internal fun AttackFooter(
                         Text(
                             "${standing.target}",
                             style = MaterialTheme.typography.displaySmall
-                                .copy(fontFeatureSettings = "tnum"),
+                                .tabular(),
                             color = MaterialTheme.colorScheme.primary,
                         )
                         Text(

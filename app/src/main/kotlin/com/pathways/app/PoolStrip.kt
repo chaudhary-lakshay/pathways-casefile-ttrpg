@@ -181,9 +181,8 @@ private fun PoolCell(
             ) {
                 Text(
                     "${status.current}",
-                    style = MaterialTheme.typography.headlineMedium.copy(
+                    style = MaterialTheme.typography.headlineMedium.tabular().copy(
                         fontWeight = FontWeight.Bold,
-                        fontFeatureSettings = "tnum",
                     ),
                     // In the pool's colour once the book names a state, as the
                     // old row went red: a Dead pool must not read like a full one.

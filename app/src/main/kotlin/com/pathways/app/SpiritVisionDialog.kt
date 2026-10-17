@@ -202,7 +202,7 @@ private fun ReadingCard(outcome: SpiritVisionResult) {
             )
             Text(
                 "3d6: ${outcome.roll.total} vs ${outcome.roll.target}  ·  margin ${outcome.roll.margin}",
-                style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
+                style = MaterialTheme.typography.bodySmall.tabular(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 8.dp),
             )

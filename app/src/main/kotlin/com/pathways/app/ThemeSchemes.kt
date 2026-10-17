@@ -13,19 +13,14 @@ import androidx.compose.ui.graphics.Color
  * close: the palette it replaces set 33 of ~48 roles, and the 15 it missed
  * resolved to the stock purple-tinted neutrals.
  *
- * The three accent families are seeded at fixed hue offsets from the theme
- * seed rather than derived from it, because this app spends them semantically
- * -- combat is `error`, Beyonder material is `secondary`, management is
- * `tertiary`. See the generator's docstring for why the offsets are +227 and
- * +75, and why `error` does not move.
+ * Pinned presets take each family from its own seed; the rotated ones seed
+ * theirs at fixed hue offsets. See the generator's docstring for why the
+ * offsets are +227 and +75, why `error` does not move, and why action
+ * buttons no longer spend these colours (single accent, 2026-10-17).
  */
 
 
-/**
- * Sanzo Wada's combination #269: Raw Sienna, Aconite Violet and Pale Burnt Lake on black. Default.
- *
- * Pinned, not rotated: see the generator's PINNED.
- */
+/** Sanzo Wada's combination #269: Raw Sienna, Aconite Violet and Pale Burnt Lake on black. Default. Pinned, not rotated: see the generator's PINNED. */
 
 private val WadaDark = darkColorScheme(
     primary = Color(0xFFCE8033),
@@ -126,6 +121,110 @@ private val WadaLight = lightColorScheme(
     tertiaryFixedDim = Color(0xFFE0D2C1),
     onTertiaryFixed = Color(0xFF463E32),
     onTertiaryFixedVariant = Color(0xFF635A4D),
+    scrim = Color(0xFF000000),
+)
+
+/** Sanzo Wada's combination #207: Sudan Brown, Glaucous Green and Black -- Ecru greys, one clay accent, a celadon selection. The wabi-sabi preset. Pinned, not rotated: see the generator's PINNED. */
+
+private val WabiDark = darkColorScheme(
+    primary = Color(0xFFBA7B65),
+    onPrimary = Color(0xFF111314),
+    primaryContainer = Color(0xFF4F4539),
+    onPrimaryContainer = Color(0xFFDCCEBE),
+    inversePrimary = Color(0xFF685D50),
+    secondary = Color(0xFFD2C4B4),
+    onSecondary = Color(0xFF483F33),
+    secondaryContainer = Color(0xFF283E36),
+    onSecondaryContainer = Color(0xFFB4CDC2),
+    tertiary = Color(0xFFB0AAA4),
+    onTertiary = Color(0xFF483F33),
+    tertiaryContainer = Color(0xFF4F4539),
+    onTertiaryContainer = Color(0xFFDCCEBE),
+    background = Color(0xFF111314),
+    onBackground = Color(0xFFECE4DE),
+    surface = Color(0xFF111314),
+    onSurface = Color(0xFFECE4DE),
+    surfaceVariant = Color(0xFF292521),
+    onSurfaceVariant = Color(0xFFB0AAA4),
+    surfaceTint = Color(0xFFD2C4B4),
+    surfaceBright = Color(0xFF2F2B27),
+    surfaceDim = Color(0xFF0F0E0C),
+    surfaceContainerLowest = Color(0xFF111314),
+    surfaceContainerLow = Color(0xFF151311),
+    surfaceContainer = Color(0xFF1B1917),
+    surfaceContainerHigh = Color(0xFF221F1C),
+    surfaceContainerHighest = Color(0xFF292521),
+    inverseSurface = Color(0xFFFEF8F5),
+    inverseOnSurface = Color(0xFF575452),
+    error = Color(0xFFE55B62),
+    onError = Color(0xFF111314),
+    errorContainer = Color(0xFF7E2A2F),
+    onErrorContainer = Color(0xFFFFDAD9),
+    outline = Color(0xFF7A746F),
+    outlineVariant = Color(0xFF4B4743),
+    primaryFixed = Color(0xFFEFE0CF),
+    primaryFixedDim = Color(0xFFE0D2C2),
+    onPrimaryFixed = Color(0xFF473E32),
+    onPrimaryFixedVariant = Color(0xFF645A4D),
+    secondaryFixed = Color(0xFFEFE0CF),
+    secondaryFixedDim = Color(0xFFE0D2C2),
+    onSecondaryFixed = Color(0xFF473E32),
+    onSecondaryFixedVariant = Color(0xFF645A4D),
+    tertiaryFixed = Color(0xFFEFE0CF),
+    tertiaryFixedDim = Color(0xFFE0D2C2),
+    onTertiaryFixed = Color(0xFF473E32),
+    onTertiaryFixedVariant = Color(0xFF645A4D),
+    scrim = Color(0xFF000000),
+)
+
+private val WabiLight = lightColorScheme(
+    primary = Color(0xFF89513E),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFEFE0CF),
+    onPrimaryContainer = Color(0xFF5A5043),
+    inversePrimary = Color(0xFFFBECDA),
+    secondary = Color(0xFF675D4F),
+    onSecondary = Color(0xFFFFF6EF),
+    secondaryContainer = Color(0xFFB4CDC2),
+    onSecondaryContainer = Color(0xFF142A23),
+    tertiary = Color(0xFF635E59),
+    onTertiary = Color(0xFFFFF6EF),
+    tertiaryContainer = Color(0xFFEFE0CF),
+    onTertiaryContainer = Color(0xFF5A5043),
+    background = Color(0xFFFBEFE2),
+    onBackground = Color(0xFF35322E),
+    surface = Color(0xFFFBEFE2),
+    onSurface = Color(0xFF35322E),
+    surfaceVariant = Color(0xFFE9E1DB),
+    onSurfaceVariant = Color(0xFF635E59),
+    surfaceTint = Color(0xFF675D4F),
+    surfaceBright = Color(0xFFFBEFE2),
+    surfaceDim = Color(0xFFDED3C6),
+    surfaceContainerLowest = Color(0xFFFFF5EB),
+    surfaceContainerLow = Color(0xFFF5E9DC),
+    surfaceContainer = Color(0xFFEFE3D7),
+    surfaceContainerHigh = Color(0xFFE9DED1),
+    surfaceContainerHighest = Color(0xFFE4D8CC),
+    inverseSurface = Color(0xFF0F0E0C),
+    inverseOnSurface = Color(0xFFA09C99),
+    error = Color(0xFFA62C37),
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFFFDAD9),
+    onErrorContainer = Color(0xFF7E2A2F),
+    outline = Color(0xFF7F7A74),
+    outlineVariant = Color(0xFFB7B1AB),
+    primaryFixed = Color(0xFFEFE0CF),
+    primaryFixedDim = Color(0xFFE0D2C2),
+    onPrimaryFixed = Color(0xFF473E32),
+    onPrimaryFixedVariant = Color(0xFF645A4D),
+    secondaryFixed = Color(0xFFEFE0CF),
+    secondaryFixedDim = Color(0xFFE0D2C2),
+    onSecondaryFixed = Color(0xFF473E32),
+    onSecondaryFixedVariant = Color(0xFF645A4D),
+    tertiaryFixed = Color(0xFFEFE0CF),
+    tertiaryFixedDim = Color(0xFFE0D2C2),
+    onTertiaryFixed = Color(0xFF473E32),
+    onTertiaryFixedVariant = Color(0xFF645A4D),
     scrim = Color(0xFF000000),
 )
 
@@ -578,6 +677,7 @@ enum class ThemeSeed(
     val dark: ColorScheme,
 ) {
     WADA("Wada", WadaLight, WadaDark),
+    WABI("Wabi", WabiLight, WabiDark),
     FOOL("Fool", FoolLight, FoolDark),
     GASLAMP("Gaslamp", GaslampLight, GaslampDark),
     TYRANT("Tyrant", TyrantLight, TyrantDark),

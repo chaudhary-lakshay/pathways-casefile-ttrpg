@@ -64,7 +64,7 @@ internal fun RitualFooter(
                     Text(
                         "$target",
                         style = MaterialTheme.typography.displaySmall
-                            .copy(fontFeatureSettings = "tnum"),
+                            .tabular(),
                         color = MaterialTheme.colorScheme.primary,
                     )
                     Column(Modifier.padding(start = 10.dp)) {
@@ -110,7 +110,7 @@ internal fun RitualResultCard(result: RitualOutcome) {
             )
             Text(
                 "3d6: ${result.roll.total} vs ${result.target}",
-                style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
+                style = MaterialTheme.typography.titleMedium.tabular(),
             )
             // Step 4's grade, and the counterpart of the failure row below
             // it. Not coloured as an error -- the ritual worked.

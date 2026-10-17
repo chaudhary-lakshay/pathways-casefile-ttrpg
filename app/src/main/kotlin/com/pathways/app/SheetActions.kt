@@ -57,13 +57,13 @@ internal fun SheetActions(
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             val each = Modifier.weight(1f)
-            PrimaryAction("Attack", Icons.Filled.Bolt, ActionKind.COMBAT, each) {
+            PrimaryAction("Attack", Icons.Filled.Bolt, each) {
                 onOpen(SheetDialog.ATTACK)
             }
-            PrimaryAction("Defend", Icons.Filled.Shield, ActionKind.COMBAT, each) {
+            PrimaryAction("Defend", Icons.Filled.Shield, each) {
                 onOpen(SheetDialog.DEFEND)
             }
-            PrimaryAction("Damage", Icons.Filled.HeartBroken, ActionKind.COMBAT, each) {
+            PrimaryAction("Damage", Icons.Filled.HeartBroken, each) {
                 onOpen(SheetDialog.DAMAGE)
             }
             // Ungated, because a mortal is exactly who needs it: drinking is
@@ -71,7 +71,6 @@ internal fun SheetActions(
             PrimaryAction(
                 if (drunk == null) "Drink a potion" else "Pathway",
                 Icons.Filled.Science,
-                ActionKind.BEYONDER,
                 each,
                 onPathways,
             )
@@ -81,19 +80,19 @@ internal fun SheetActions(
             // hole, where an absent labelled group left a heading over
             // nothing.
             if (ritualLevel != null) {
-                ActionChip("Ritual", Icons.Filled.AutoAwesome, ActionKind.BEYONDER) {
+                ActionChip("Ritual", Icons.Filled.AutoAwesome) {
                     onOpen(SheetDialog.RITUAL)
                 }
             }
             if (divinationLevel != null) {
-                ActionChip("Divine", Icons.Filled.Visibility, ActionKind.BEYONDER) {
+                ActionChip("Divine", Icons.Filled.Visibility) {
                     onOpen(SheetDialog.DIVINE)
                 }
             }
             if (spiritVisionForm != null) {
                 // The pathway's OWN name for it: a Hermit's block writes
                 // "Eyes of Mystery Prying" and never "Spirit Vision".
-                ActionChip(spiritVisionForm, Icons.Filled.RemoveRedEye, ActionKind.BEYONDER) {
+                ActionChip(spiritVisionForm, Icons.Filled.RemoveRedEye) {
                     onOpen(SheetDialog.SPIRIT_VISION)
                 }
             }
@@ -101,25 +100,25 @@ internal fun SheetActions(
             // The dialog refuses the roll, and says why, without Ritualistic
             // Magic or the 4 SPI of fuel -- so a mortal at SPI 0 still cannot
             // pray, and whether blood may fuel it is the owner's to rule.
-            ActionChip("Boon", Icons.Filled.Church, ActionKind.BEYONDER) {
+            ActionChip("Boon", Icons.Filled.Church) {
                 onOpen(SheetDialog.BOON)
             }
             // Fright, Concentrate and Detect are ungated: which focus counts,
             // and who suspects, is the GM's call (6i, Detection); the
             // detection roll falls back to Per, which a mortal has.
-            ActionChip("Fright", Icons.Filled.Psychology, ActionKind.ROLL) {
+            ActionChip("Fright", Icons.Filled.Psychology) {
                 onOpen(SheetDialog.FRIGHT)
             }
-            ActionChip("Concentrate", Icons.Filled.CenterFocusStrong, ActionKind.ROLL) {
+            ActionChip("Concentrate", Icons.Filled.CenterFocusStrong) {
                 onOpen(SheetDialog.CONCENTRATE)
             }
-            ActionChip("Detect", Icons.Filled.Radar, ActionKind.ROLL) {
+            ActionChip("Detect", Icons.Filled.Radar) {
                 onOpen(SheetDialog.DETECT)
             }
-            ActionChip("Spend points", Icons.Filled.Calculate, ActionKind.MANAGE, onBuild)
+            ActionChip("Spend points", Icons.Filled.Calculate, onBuild)
             // Not gated: a Sealed Artifact is found, not bought or awarded by
             // Sequence, and church rank is not modelled. See SealedArtifacts.
-            ActionChip("Artifacts", Icons.Filled.Lock, ActionKind.MANAGE) {
+            ActionChip("Artifacts", Icons.Filled.Lock) {
                 onOpen(SheetDialog.ARTIFACTS)
             }
         }

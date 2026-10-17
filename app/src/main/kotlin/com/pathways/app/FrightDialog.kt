@@ -337,7 +337,7 @@ private fun FrightResultCard(result: FrightOutcome, kind: FrightKind, ht: Int, w
             )
             Text(
                 "3d6: ${result.roll.total} vs ${result.target}",
-                style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
+                style = MaterialTheme.typography.titleMedium.tabular(),
             )
             if (!result.passed) {
                 Text("failed by ${result.margin}; effect roll ${result.effectRoll}")

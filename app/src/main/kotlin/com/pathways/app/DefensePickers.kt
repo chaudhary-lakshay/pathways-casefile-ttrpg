@@ -479,7 +479,7 @@ internal fun DefenseRow(name: String, targets: List<Int>, roll: (Int) -> RollRes
                 Text(name, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
                 Text(
                     targets.joinToString(" → "),
-                    style = MaterialTheme.typography.headlineSmall.copy(fontFeatureSettings = "tnum"),
+                    style = MaterialTheme.typography.headlineSmall.tabular(),
                     color = MaterialTheme.colorScheme.primary,
                 )
             }

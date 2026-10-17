@@ -171,7 +171,7 @@ internal fun BudgetBar(spent: Int, budget: Int) {
         Row(Modifier.semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically) {
             Text(
                 "$spent",
-                style = MaterialTheme.typography.headlineSmall.copy(fontFeatureSettings = "tnum"),
+                style = MaterialTheme.typography.headlineSmall.tabular(),
                 color = accent,
             )
             Text(

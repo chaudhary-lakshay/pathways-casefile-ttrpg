@@ -554,7 +554,7 @@ private fun AmountCard(amount: Int, threshold: String, isMajor: Boolean, onStep:
                 StepButton("−") { onStep(-1) }
                 Text(
                     "$amount",
-                    style = MaterialTheme.typography.displayMedium.copy(fontFeatureSettings = "tnum"),
+                    style = MaterialTheme.typography.displayMedium.tabular(),
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.widthIn(min = 56.dp),

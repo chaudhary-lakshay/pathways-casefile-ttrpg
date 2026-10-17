@@ -97,9 +97,8 @@ potion grants.
   under it name the state and its cost (*Reeling*, *−1 all rolls*); tap them
   for the printed row. SPI shows only for a Beyonder.
 - **The actions** come in two weights. Four buttons — **Attack**, **Defend**,
-  **Damage** and **Pathway** — then a row of chips for the rest, coloured by
-  what they are for: neutral = a roll the GM called, red = combat, violet = a
-  Beyonder power, brass = managing the character. The Beyonder chips (Ritual,
+  **Damage** and **Pathway** — then a row of chips for the rest. All of them
+  share one neutral colour; each one's icon says what it is. The Beyonder chips (Ritual,
   Divine, Spirit Vision) appear only once a potion grants them; **Boon** is
   always there.
 - **⋮ → Roll log**, in the top bar, lists every throw this character made

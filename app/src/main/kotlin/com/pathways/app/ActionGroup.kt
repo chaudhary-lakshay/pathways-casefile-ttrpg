@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -31,29 +30,17 @@ import androidx.compose.ui.unit.dp
  * chips keep every action one tap away. The big buttons are what is used
  * every turn.
  *
- * **Colour carries the category**, through the theme's roles: combat is
- * `error`, a Beyonder power is `secondary`, managing the character is
- * `primary`, and a roll the GM called is neutral. In the default Wada preset
- * those are Pale Burnt Lake, Aconite Violet and Raw Sienna (gen_theme.py).
+ * **Every action is one neutral colour; the icon carries the category.**
+ * Until 2026-10-17 each category had its own hue (combat `error`, Beyonder
+ * `secondary`, management `primary`); the owner picked a single accent
+ * instead, because a colour per category read as "colourful AI slop".
  */
-
-/** What an action is FOR, which decides its colour. */
-enum class ActionKind { ROLL, COMBAT, BEYONDER, MANAGE }
-
-@Composable
-private fun tintOf(kind: ActionKind): Color = when (kind) {
-    ActionKind.ROLL -> MaterialTheme.colorScheme.onSurfaceVariant
-    ActionKind.COMBAT -> MaterialTheme.colorScheme.error
-    ActionKind.BEYONDER -> MaterialTheme.colorScheme.secondary
-    ActionKind.MANAGE -> MaterialTheme.colorScheme.primary
-}
 
 /** One of the big buttons: icon over label, 64dp tall. The caller sets its width. */
 @Composable
 internal fun PrimaryAction(
     label: String,
     icon: ImageVector,
-    kind: ActionKind,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
@@ -69,7 +56,7 @@ internal fun PrimaryAction(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
         ) {
-            Icon(icon, contentDescription = null, tint = tintOf(kind))
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(
                 label,
                 style = MaterialTheme.typography.labelLarge,
@@ -81,23 +68,21 @@ internal fun PrimaryAction(
     }
 }
 
-/** A secondary action: an outlined chip in its category's colour. */
+/** A secondary action: a neutral outlined chip. */
 @Composable
 internal fun ActionChip(
     label: String,
     icon: ImageVector,
-    kind: ActionKind,
     onClick: () -> Unit,
 ) {
-    val tint = tintOf(kind)
     AssistChip(
         onClick = onClick,
         label = { Text(label, style = MaterialTheme.typography.labelLarge) },
         leadingIcon = { Icon(icon, contentDescription = null, Modifier.size(AssistChipDefaults.IconSize)) },
         colors = AssistChipDefaults.assistChipColors(
-            labelColor = if (kind == ActionKind.ROLL) MaterialTheme.colorScheme.onSurface else tint,
-            leadingIconContentColor = tint,
+            labelColor = MaterialTheme.colorScheme.onSurface,
+            leadingIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         ),
-        border = BorderStroke(1.dp, if (kind == ActionKind.ROLL) MaterialTheme.colorScheme.outline else tint),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
     )
 }

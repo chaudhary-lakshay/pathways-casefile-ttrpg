@@ -38,8 +38,6 @@ import com.pathways.rules.SuccessDegree
 import com.pathways.rules.SuccessRoll
 import com.pathways.rules.content.SpiritualSense
 
-private const val TABULAR = "tnum"
-
 /**
  * An AlertDialog's `text` slot at one height whatever it shows: the chips,
  * the verdict that replaces them, a picker filtering or a row opening.
@@ -102,13 +100,12 @@ internal fun TargetCard(target: Int, baseTarget: Int, forbidden: Boolean = false
                         Text(
                             "$target",
                             style = MaterialTheme.typography.displayMedium
-                                .copy(fontFeatureSettings = TABULAR),
+                                .tabular(),
                             color = MaterialTheme.colorScheme.primary,
                         )
                         Text(
                             "$baseTarget",
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontFeatureSettings = TABULAR,
+                            style = MaterialTheme.typography.titleLarge.tabular().copy(
                                 textDecoration = TextDecoration.LineThrough,
                             ),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -169,7 +166,7 @@ internal fun ResultCard(
                     Text(
                         "3d6: ${roll.total} vs ${roll.target}",
                         style = MaterialTheme.typography.titleMedium
-                            .copy(fontFeatureSettings = TABULAR),
+                            .tabular(),
                     )
                 }
                 Tag("margin ${roll.margin}", accent)
@@ -230,7 +227,7 @@ internal fun VerdictCard(
                         Text(verdict, style = MaterialTheme.typography.headlineMedium, color = accent)
                         Text(
                             "3d6: ${roll.total} vs ${roll.target}",
-                            style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = TABULAR),
+                            style = MaterialTheme.typography.titleMedium.tabular(),
                         )
                     }
                     Tag("margin ${roll.margin}", accent)
@@ -272,7 +269,7 @@ internal fun RollFooter(
 private fun Pill(text: String, modifier: Modifier = Modifier) {
     Text(
         text,
-        style = MaterialTheme.typography.labelLarge.copy(fontFeatureSettings = TABULAR),
+        style = MaterialTheme.typography.labelLarge.tabular(),
         modifier = modifier
             .padding(vertical = 4.dp)
             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(6.dp))
@@ -284,7 +281,7 @@ private fun Pill(text: String, modifier: Modifier = Modifier) {
 internal fun Tag(text: String, color: Color) {
     Text(
         text,
-        style = MaterialTheme.typography.labelLarge.copy(fontFeatureSettings = TABULAR),
+        style = MaterialTheme.typography.labelLarge.tabular(),
         color = color,
         modifier = Modifier
             .border(1.dp, color.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
