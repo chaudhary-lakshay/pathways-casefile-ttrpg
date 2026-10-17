@@ -31,7 +31,7 @@ internal fun rollDialogFor(kind: AttributeRoll.Kind): SheetDialog = when (kind) 
 /**
  * The sheet's actions, each gated as the book gates it: four big buttons for
  * a turn (the combat three in the order a turn runs, and the pathway), then
- * chips for everything else. See [PrimaryAction].
+ * bracketed words for everything else. See [PrimaryAction].
  */
 @Composable
 internal fun SheetActions(
@@ -66,7 +66,7 @@ internal fun SheetActions(
             )
         }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            // Each Beyonder chip gated on its own: an absent one leaves no
+            // Each Beyonder action gated on its own: an absent one leaves no
             // hole, where an absent labelled group left a heading over
             // nothing.
             if (ritualLevel != null) {

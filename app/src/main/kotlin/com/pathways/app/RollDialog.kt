@@ -314,11 +314,7 @@ private fun CircumstanceRow(
     gmValue: MutableMap<String, Int>,
     withheld: Set<String> = emptySet(),
 ) {
-    Text(
-        "Circumstances (Appendix A)",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 12.dp),
-    )
+    SectionLabel("Circumstances (Appendix A)")
     if (withheld.isNotEmpty()) {
         Text(
             "Chapter 4 prices being distracted or in combat itself, so " +
@@ -392,11 +388,7 @@ private fun SenseRow(
     chosen: MutableList<CommonModifier>,
     gmValue: MutableMap<String, Int>,
 ) {
-    Text(
-        "Circumstances (${sense.skill}, Ch. 4)",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 12.dp),
-    )
+    SectionLabel("Circumstances (${sense.skill}, Ch. 4)")
     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         SpiritualSenses.offered(sense).forEach { row ->
             val isOn = senseChosen.any { it.situation == row.situation }

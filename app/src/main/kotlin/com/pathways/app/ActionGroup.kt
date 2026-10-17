@@ -24,19 +24,20 @@ import androidx.compose.ui.unit.dp
 
 /**
  * The sheet's actions in two weights: four big buttons for what a turn
- * reaches for, and a row of chips for the rest.
+ * reaches for, and bracketed words for the rest.
  *
  * This replaces one grid of thirteen equal tiles, which spent 40% of a tablet
  * screen before a single stat and gave the Attack button the same weight as
  * Artifacts. Before the grid there was a scrolling row that hid nine actions,
  * and before that four labelled chip groups that read as four lists. The
- * chips keep every action one tap away. The big buttons are what is used
- * every turn.
+ * bracketed words keep every action one tap away. The big buttons are what
+ * is used every turn.
  *
- * **Every action is one neutral colour; the icon carries the category.**
- * Until 2026-10-17 each category had its own hue (combat `error`, Beyonder
- * `secondary`, management `primary`); the owner picked a single accent
- * instead, because a colour per category read as "colourful AI slop".
+ * **Red means harm or the Beyonder, and nothing else** (Case File, frame 09):
+ * Damage's icon, and the Beyonder's four words. Every other action is ink.
+ * This replaces the one-neutral-colour ruling of 2026-10-17, which rejected
+ * a hue per category as "colourful AI slop"; one red with two meanings is
+ * the rule `a9be8f0` set for the whole app.
  */
 
 /**

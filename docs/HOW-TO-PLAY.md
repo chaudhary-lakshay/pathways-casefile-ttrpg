@@ -96,10 +96,10 @@ potion grants.
   under it name the state and its cost (*Reeling*, *−1 all rolls*); tap them
   for the printed row. SPI shows only for a Beyonder.
 - **The actions** come in two weights. Four buttons — **Attack**, **Defend**,
-  **Damage** and **Pathway** — then a row of chips for the rest. All of them
-  share one neutral colour; each one's icon says what it is. The Beyonder chips (Ritual,
-  Divine, Spirit Vision) appear only once a potion grants them; **Boon** is
-  always there.
+  **Damage** and **Pathway** — then the rest as bracketed words, *[ Fright ]*.
+  The Beyonder's own (Ritual, Divine, Spirit Vision, Boon) are in red; the
+  first three appear only once a potion grants them, and **Boon** is always
+  there.
 - **⋮ → Roll log**, in the top bar, lists every throw this character made
   since the app started, newest first: what was rolled, the dice, and the
   target (*"Fright Check 2 + 5 + 2 = 9 vs 5"*). A table's or damage's throw
