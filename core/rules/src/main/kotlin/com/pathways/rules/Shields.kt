@@ -3,6 +3,7 @@ package com.pathways.rules
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.Shield
 import com.pathways.rules.content.ShieldRule
+import com.pathways.rules.content.UnarmedAttack
 
 /**
  * Where an attack is coming from, relative to the defender (Ch. 5, p. 37).
@@ -89,6 +90,72 @@ object Shields {
 
     /** Light's penalty is "vs. ranged"; Improvised's names no scope at all. */
     private val RANGED_ONLY = setOf("Light")
+
+    /** The bash's damage, quoted: what [BASH] is read from. */
+    const val PRINTED_BASH = "damage = thr-2 cr for light, thr-1 cr for medium, thr cr for heavy"
+
+    /** The bash's to-hit, quoted: what [BASH_BRAWLING_PENALTY] is read from. */
+    const val PRINTED_BASH_DEFAULT = "Skill defaults to Shield/DX or Brawling-2"
+
+    /**
+     * [PRINTED_BASH]'s three thrust modifiers, keyed like [BLOCK_PENALTY].
+     * Improvised has none because the sentence names three types and not it:
+     * no bash is offered for one, rather than a guessed number.
+     */
+    private val BASH = mapOf("Light" to -2, "Medium" to -1, "Heavy" to 0)
+
+    private const val BASH_BRAWLING_PENALTY = -2
+
+    /** The skill a shield blocks and bashes with. */
+    const val SKILL = "Shield"
+
+    /**
+     * The Shield Bash as attack rows (p. 37), one per shield that prints a
+     * damage: the Attack dialog has no shield in hand to read, so the player
+     * picks which shield bashes, as Defend's shield chips do.
+     *
+     * Rolled on Shield at no modifier, or on an OWNED Brawling at -2, with
+     * [defaultBonus] (Versatile's +1) because Brawling-2 is a default. An
+     * untrained Brawling offers none: its DX-2 is itself a default, and the
+     * untrained Shield row already rolls the table's DX-4.
+     */
+    fun bashesFor(skill: String, untrained: Boolean, defaultBonus: Int): List<UnarmedAttack> {
+        val roll = when {
+            skill.equals(SKILL, ignoreCase = true) -> 0
+            skill.equals(SkillDefaults.BRAWLING, ignoreCase = true) && !untrained ->
+                BASH_BRAWLING_PENALTY + defaultBonus
+            else -> return emptyList()
+        }
+        return all().mapNotNull { shield ->
+            val key = shield.type.substringBefore(" ")
+            val modifier = BASH[key] ?: return@mapNotNull null
+            UnarmedAttack(
+                skill = skill,
+                attack = "Shield Bash ($key)",
+                rollModifier = roll,
+                damage = if (modifier == 0) "thr cr" else "thr$modifier cr",
+                notes = when {
+                    roll == 0 -> shield.type
+                    defaultBonus == 0 -> "${shield.type}; Brawling-2, a default"
+                    else -> "${shield.type}; Brawling-2, a default, +$defaultBonus Versatile"
+                },
+                base = "thr",
+                modifier = modifier,
+                type = "cr",
+            )
+        }
+    }
+
+    /**
+     * Whether [attack] puts a weapon in hand for [SkillDefaults.mastered]: a
+     * bash on Shield does, being "an improvised weapon", so a Warrior's
+     * "every weapon ... at effective DX" floors it. On Brawling it does not:
+     * a floor under Brawling-2 prints DX-2, which the book gives no one, and
+     * the Shield row already offers the master DX. Every attack on Shield is
+     * a bash, so the skill is the whole test.
+     */
+    fun isWeaponInHand(attack: UnarmedAttack?): Boolean =
+        attack != null && attack.skill.equals(SKILL, ignoreCase = true)
 
     /** The four printed shields, in the book's order. */
     fun all(): List<Shield> = ContentLoader.shields()

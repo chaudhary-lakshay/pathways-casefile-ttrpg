@@ -453,8 +453,8 @@ class SkillDefaultsTest {
      * **The untrained skills the Attack dialog can make an attack with**: the
      * ones with an unarmed table or a row in chapter 8's weapon table. That
      * is this app's boundary and not a rule about who may attack -- the book
-     * prints a COMBAT SKILLS banner of nineteen, and a Shield Bash's own
-     * default line, and neither is what decides this list. Stated as names,
+     * prints a COMBAT SKILLS banner of nineteen, and that is not what decides
+     * this list. Shield joined it with the Shield Bash rows (6ib). Stated as names,
      * so a tenth weapon row is a failing test and not a silent ninth entry.
      */
     @Test
@@ -464,7 +464,7 @@ class SkillDefaultsTest {
             listOf(
                 // Pistol arms the revolvers on the owner's ruling (Weapons.ALSO_ARMS).
                 "Guns (Pistol)", "Guns (Revolver)", "Guns (Rifle)", "Guns (Shotgun)", "Brawling", "Boxing",
-                "Knife", "Axe/Mace", "Broadsword",
+                "Knife", "Axe/Mace", "Broadsword", "Shield",
             ),
             rows.map { it.key.specialization?.let { s -> "${it.key.name} ($s)" } ?: it.key.name },
         )
@@ -623,7 +623,7 @@ class SkillDefaultsTest {
      * **The Attack picker offers the owned skills the book files under COMBAT
      * SKILLS.** Until this slice it offered every owned skill, Research and
      * Writing included. The banner and not the damage line: ten of its rows
-     * (Shortsword, Polearm, Shield, Guns (Pistol)...) print no damage this
+     * (Shortsword, Polearm, Guns (Pistol)...) print no damage this
      * dialog can show and are still attacks, and the maneuvers are theirs too.
      */
     @Test

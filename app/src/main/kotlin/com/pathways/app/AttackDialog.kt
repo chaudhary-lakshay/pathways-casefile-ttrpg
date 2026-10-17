@@ -36,6 +36,7 @@ import com.pathways.rules.DamageRoll
 import com.pathways.rules.DarknessCause
 import com.pathways.rules.TraitClauses
 import com.pathways.rules.TraitEffects
+import com.pathways.rules.Shields
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
 import com.pathways.rules.SkillRollOutcome
@@ -147,6 +148,9 @@ internal fun AttackDialog(
             untrained.map { OfferedSkill(it.key, it.level, it) }
     }
     var picked by remember { mutableStateOf<OfferedSkill?>(null) }
+    // The bash's Brawling-2 is a default, so it takes Versatile's +1 (6ib).
+    val defaultBonus = remember(traits) { TraitEffects.defaultBonus(traits) }
+    fun attacksOf(skill: OfferedSkill) = Damage.attacksFor(skill.key.name, skill.untrained != null, defaultBonus)
     var plan by remember { mutableStateOf(AttackPlan()) }
     // Null for every skill with no attack table -- Wrestling included, which
     // the book gives "None (grapple only)".
@@ -223,7 +227,8 @@ internal fun AttackDialog(
         val own = chosen?.level ?: 0
         return SkillDefaults.mastered(own, weaponInHand, mastery, dx) ?: own
     }
-    val level = levelWith(armed != null)
+    // A bash on Shield is a weapon too, "an improvised weapon" (6ib).
+    val level = levelWith(armed != null || Shields.isWeaponInHand(unarmed))
     // What the traits add, composed ONCE: printed above Roll and rolled by
     // the handler drawn beside it, so the two cannot disagree (6eg).
     val charm = chosen?.let { charmFor(traits, it.key) }
@@ -346,7 +351,7 @@ internal fun AttackDialog(
                                     // The book's first listed attack is the
                                     // ordinary one (Punch, Jab); an unlisted
                                     // skill simply has no damage to show.
-                                    unarmed = Damage.attacksFor(entry.key.name).firstOrNull()
+                                    unarmed = attacksOf(entry).firstOrNull()
                                     // Only when the skill has no unarmed table
                                     // of its own: Brawling has both, and the
                                     // book's own first answer there is a fist.
@@ -438,7 +443,7 @@ internal fun AttackDialog(
                         plan = plan,
                         unarmed = unarmed,
                         damage = damage,
-                        attacks = Damage.attacksFor(chosen.key.name),
+                        attacks = attacksOf(chosen),
                         armed = armed,
                         weapons = SkillDefaults.attackWeapons(chosen.key, chosen.untrained?.level, carried, skillLevels),
                         band = band,
@@ -466,8 +471,9 @@ internal fun AttackDialog(
                             // the fist cannot come along -- Attacks refuses the
                             // pair rather than charging 1 FP for nothing (Codex).
                             // A fist puts the weapon down, so a master's level
-                            // drops to the default and the plan goes with it.
-                            plan = Attacks.atLevel(Attacks.withAttack(plan, it), levelWith(false))
+                            // drops to the default and the plan goes with it;
+                            // a bash on Shield picks one up.
+                            plan = Attacks.atLevel(Attacks.withAttack(plan, it), levelWith(Shields.isWeaponInHand(it)))
                             circumstances = circumstances - AIM_ROWS
                         },
                         onArmed = { held ->
@@ -477,7 +483,7 @@ internal fun AttackDialog(
                             // the fist, and leaving both null showed no damage
                             // line at all until Punch was tapped by hand (Codex).
                             unarmed = if (held == null) {
-                                Damage.attacksFor(chosen.key.name).firstOrNull()
+                                attacksOf(chosen).firstOrNull()
                             } else {
                                 null
                             }
@@ -487,7 +493,7 @@ internal fun AttackDialog(
                             // for an untrained master differs with and without.
                             plan = Attacks.atLevel(
                                 Attacks.atRange(plan, held.isFired),
-                                levelWith(held != null),
+                                levelWith(held != null || Shields.isWeaponInHand(unarmed)),
                             )
                             // Aim is worth the WEAPON's Acc, and distance belongs
                             // to a shot. Carrying either into reach asks

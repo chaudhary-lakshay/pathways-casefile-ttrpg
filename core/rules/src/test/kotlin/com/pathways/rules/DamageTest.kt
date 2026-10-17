@@ -97,7 +97,8 @@ class DamageTest {
         val grappling = Damage.attacksFor("Wrestling")
         assertEquals(3, grappling.size)
         grappling.forEach { assertFalse(it.wounds, "${it.attack} rolls damage") }
-        assertEquals(6, Damage.attacksFor("Brawling").size)
+        // Six table rows, then the Shield Bash at Brawling-2 (6ib).
+        assertEquals(9, Damage.attacksFor("Brawling").size)
         assertEquals(4, Damage.attacksFor("Boxing").size)
     }
 

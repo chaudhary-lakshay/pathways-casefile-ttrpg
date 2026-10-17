@@ -58,9 +58,14 @@ object Damage {
                 "${ContentLoader.thrustSwing().keys.min()}..${ContentLoader.thrustSwing().keys.max()}",
         )
 
-    /** The listed attacks for [skill], empty for one with no table (Wrestling). */
-    fun attacksFor(skill: String): List<UnarmedAttack> =
-        ContentLoader.unarmedAttacks().filter { it.skill.equals(skill, ignoreCase = true) }
+    /**
+     * The listed attacks for [skill], empty for one with no table (Wrestling),
+     * then the Shield Bash where [skill] can make one ([Shields.bashesFor]).
+     * [untrained] and [defaultBonus] reach only the bash's Brawling-2 default.
+     */
+    fun attacksFor(skill: String, untrained: Boolean = false, defaultBonus: Int = 0): List<UnarmedAttack> =
+        ContentLoader.unarmedAttacks().filter { it.skill.equals(skill, ignoreCase = true) } +
+            Shields.bashesFor(skill, untrained, defaultBonus)
 
     /**
      * Boxing's damage bonus: "+1 to all Boxing attacks at DX+1; +2 at DX+2

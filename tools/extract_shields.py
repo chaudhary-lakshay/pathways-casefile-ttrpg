@@ -18,8 +18,8 @@ halves rather than the column title.
 The three bullets under the table go in a separate file, the way the Active
 Defenses table and its bullets already do: they are prose the GM reads, not
 columns. Their numbers stay out of Kotlin except where the app applies them --
-see com.pathways.rules.Shields, whose two Block penalties are pinned here by
-the sentences they were read from.
+see com.pathways.rules.Shields, whose two Block penalties and Shield Bash rows
+are pinned here by the sentences they were read from.
 """
 import json, pathlib, re, sys
 
@@ -56,6 +56,9 @@ PINNED = [
     "against attacks from the front or shield side",
     "-1 to Block vs. ranged",
     "-2 to Block",
+    # Shields.PRINTED_BASH and PRINTED_BASH_DEFAULT: the bash rows (6ib).
+    "damage = thr-2 cr for light, thr-1 cr for medium, thr cr for heavy",
+    "Skill defaults to Shield/DX or Brawling-2",
 ]
 EXPECTED_BULLETS = 3
 

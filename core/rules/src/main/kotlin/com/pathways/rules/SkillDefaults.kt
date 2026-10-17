@@ -118,19 +118,19 @@ object SkillDefaults {
     /**
      * The rows of [untrained] the Attack dialog can make an attack with: an
      * unarmed table of its own ([Damage.attacksFor]) or a row in chapter 8's
-     * weapon table ([Weapons.forSkill]).
+     * weapon table ([Weapons.forSkill]), Shield by its bash.
      *
      * **The attacks supported HERE, not a rule about who may attack** (the
      * design review's wording). The book prints a COMBAT SKILLS banner of
-     * nineteen and a default for a Shield Bash, and neither decides this
-     * list: a skill with no damage line this app can show is rolled from the
-     * Skills tab, where a to-hit number is all there is to show. An OWNED
-     * skill is offered by its banner instead ([ownedAttacks]). [owned] is the
-     * character's skill levels, which [attackWeapons] reads.
+     * nineteen, and it does not decide this list: a skill with no damage
+     * line this app can show is rolled from the Skills tab, where a to-hit
+     * number is all there is to show. An OWNED skill is offered by its banner
+     * instead ([ownedAttacks]). [owned] is the character's skill levels, which
+     * [attackWeapons] reads.
      */
     fun attacks(untrained: List<Untrained>, carried: List<CataloguedWeapon>, owned: Map<SkillKey, Int>): List<Untrained> =
         untrained.filter {
-            Damage.attacksFor(it.key.name).isNotEmpty() || attackWeapons(it.key, it.level, carried, owned).isNotEmpty()
+            Damage.attacksFor(it.key.name, untrained = true).isNotEmpty() || attackWeapons(it.key, it.level, carried, owned).isNotEmpty()
         }
 
     /**

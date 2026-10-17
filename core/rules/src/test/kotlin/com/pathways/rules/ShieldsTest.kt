@@ -1,6 +1,7 @@
 package com.pathways.rules
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -86,8 +87,72 @@ class ShieldsTest {
         val rules = Shields.rules()
         assertEquals(3, rules.size)
         assertTrue(rules.any { it.rule.startsWith("Shield Bash") })
-        // Their numbers are deliberately not modelled: a shield bash is thr-2
-        // to thr, which is Damage's table and a weapon this book never lists.
-        assertTrue(rules.any { it.rule.contains("thr-2 cr for light") })
+        // The bash's numbers are read from this sentence (Shields.BASH).
+        assertTrue(rules.any { it.rule.contains(Shields.PRINTED_BASH) })
+        assertTrue(rules.any { it.rule.contains(Shields.PRINTED_BASH_DEFAULT) })
+    }
+
+    private fun bash(skill: String, untrained: Boolean = false, defaultBonus: Int = 0) =
+        Damage.attacksFor(skill, untrained, defaultBonus).filter { it.attack.startsWith("Shield Bash") }
+
+    @Test
+    fun `a shield bash rolls thrust less two, one, nothing by the shield, crushing`() {
+        // ST 10 thrusts 1d-2: "thr-2 cr for light, thr-1 cr for medium, thr cr for heavy".
+        val rows = bash("Shield")
+        assertEquals(
+            listOf("1d-4 cr", "1d-3 cr", "1d-2 cr"),
+            rows.map { Damage.forAttack(it, st = 10)!!.render() },
+        )
+        assertEquals(listOf(0, 0, 0), rows.map { it.rollModifier })
+    }
+
+    @Test
+    fun `an improvised shield prints no bash, so none is offered`() {
+        assertTrue(bash("Shield").none { it.attack.contains("Improvised") })
+        assertEquals(3, bash("Shield").size)
+    }
+
+    @Test
+    fun `a bash defaults to Brawling-2, and Versatile's +1 rides a default`() {
+        assertEquals(listOf(-2, -2, -2), bash("Brawling").map { it.rollModifier })
+        assertEquals(listOf(-1, -1, -1), bash("Brawling", defaultBonus = 1).map { it.rollModifier })
+        // Said, as the untrained rows say it: a folded -1 hides the +1.
+        assertTrue(bash("Brawling", defaultBonus = 1).all { it.notes.endsWith("Brawling-2, a default, +1 Versatile") })
+        assertTrue(bash("Brawling").all { it.notes.endsWith("Brawling-2, a default") })
+    }
+
+    @Test
+    fun `an untrained Brawling offers no bash, a default of a default`() {
+        // Its DX-2 already took Versatile; the bash off it would take it twice.
+        // The untrained Shield row is the same DX-4 by the table.
+        assertTrue(bash("Brawling", untrained = true).isEmpty())
+        assertEquals(3, bash("Shield", untrained = true).size)
+    }
+
+    @Test
+    fun `a bash on Shield is a weapon in hand, so a Warrior wields it at DX`() {
+        // "every weapon is treated as known at effective DX" (5798), and the
+        // bash is "an improvised weapon" (2536): Shield 8 under DX 12 is 12.
+        val onShield = bash("Shield").first()
+        assertTrue(Shields.isWeaponInHand(onShield))
+        assertEquals(
+            12,
+            SkillDefaults.mastered(8, Shields.isWeaponInHand(onShield), SkillDefaults.WeaponMastery.WARRIOR, dx = 12),
+        )
+    }
+
+    @Test
+    fun `a bash on Brawling is not floored, nor is a fist`() {
+        // A floor under Brawling-2 would print DX-2, a number the book gives
+        // no one; the Shield row's DX is the master's better pick.
+        assertFalse(Shields.isWeaponInHand(bash("Brawling").first()))
+        assertFalse(Shields.isWeaponInHand(Damage.attacksFor("Brawling").first()))
+        assertFalse(Shields.isWeaponInHand(null))
+    }
+
+    @Test
+    fun `no other skill bashes`() {
+        assertTrue(bash("Boxing").isEmpty())
+        assertTrue(bash("Wrestling").isEmpty())
     }
 }
