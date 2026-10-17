@@ -73,16 +73,8 @@ private enum class Screen { SHEET, PATHWAY, BUILDER }
 internal const val SECONDARY_ROWS = 7
 
 class MainActivity : ComponentActivity() {
-    private var sounds: RollSounds? = null
-
-    override fun onDestroy() {
-        sounds?.release()
-        super.onDestroy()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val rollSounds = RollSounds(this).also { sounds = it }
         // ponytail: loaded on the main thread. 23 small JSONs off the APK
         // classpath. It said to move behind a ViewModel "when the sheet screen
         // needs state that survives rotation"; it did (6dy lost a pushed roll
@@ -97,11 +89,7 @@ class MainActivity : ComponentActivity() {
             // preference in the picker has to repaint every screen, not just
             // the one holding the picker.
             val theme = rememberThemePrefs()
-            PathwaysTheme(theme.value) {
-                CompositionLocalProvider(LocalRollSounds provides rollSounds.takeIf { theme.value.sounds }) {
-                    App(Premades.all(), store, theme)
-                }
-            }
+            PathwaysTheme(theme.value) { App(Premades.all(), store, theme) }
         }
     }
 }
