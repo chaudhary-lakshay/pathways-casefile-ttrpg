@@ -6729,8 +6729,8 @@ resolution above, and then `Secret`, which has none.
 ## 6ig. Case File, slice 4: the gallery, New character and the glossary
 
 The plan's slice 4, built against Figma frames 01, 05 and 07, pulled with
-`get_screenshot` before any code. Commits `e315a82`, `a6a0ea3` from the
-device pass and `5a36735` from the review, not pushed. The session opened
+`get_screenshot` before any code. Commits `e315a82`, `a6a0ea3` and
+`ccb3134` from the device pass and `5a36735` from the review, not pushed. The session opened
 with the owed Codex review of 6ic to 6if (`1c244d2`): SHIP, no findings.
 
 ### Four owner rulings, asked first
@@ -6826,6 +6826,15 @@ was the 23:02 build, reinstalled first.
   sits above now.
 - The glossary: an open term, search "cor" to one group, back key to the
   gallery.
+- **At the frames' own width** (`wm density 492`, about 390 dp, after the
+  advisor's estimate that the tabs would not fit): "Beyonders 8" wrapped
+  its count at font scale 1.0 and broke letter by letter at 1.3; at 1.3
+  New character's hint fell off the dialog's foot and "INTAKE" ran into
+  "FILE Nº 24". Fixed in `ccb3134`: each tab one line in a row that
+  scrolls sideways, the dialog body scrolls round the fixed-height list,
+  the form code keeps a gap; names take `titleLarge` in Fraunces, a
+  tighter line. Seen fixed at both scales; density, font scale and the
+  save restored (`cmp`-identical).
 
 ### Review
 
@@ -6837,6 +6846,9 @@ questions, and returned NO SHIP:
   screen. Rows are `rowKey(name)`, "row:<name>". Codex reviewed the fix:
   SHIP, and found no collision of the kind in the template or glossary
   lists. The wiring of `rowKey` into the list is untested.
+- `ccb3134`, the width fix, reviewed alone: SHIP (a fixed-height lazy
+  list inside a vertical scroll, and a horizontal scroll in a sticky
+  header, both measure).
 - MEDIUM, refused: a template picked, Blank sheet tapped, then Template
   tapped again restores the pick and enables Create. It is shown, not
   hidden: the radio is selected only while Template is open
