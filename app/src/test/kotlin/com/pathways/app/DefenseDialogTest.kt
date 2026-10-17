@@ -434,6 +434,22 @@ class DefenseDialogTest {
         assertEquals(listOf(7), shieldPair(7, null, front))
     }
 
+    /**
+     * Codex on the change above: with the front's one figure, a light shield
+     * against a shot rolled at the melee Block, its "-1 to Block vs. ranged"
+     * left in a note. Shield 10 is Block 8, +1 DB, -1 vs. ranged.
+     */
+    @Test
+    fun `a block against a shot rolls at the ranged figure`() {
+        val light = Shields.named("Light")
+        val front = ShieldCoverage.COUNTS
+        assertEquals(listOf(8), blockTargets(light, 10, front, isRanged = true))
+        assertEquals(listOf(9), blockTargets(light, 10, front, isRanged = false))
+        assertEquals(listOf(8, 9), blockTargets(light, 10, ShieldCoverage.GM_DECIDES, isRanged = false))
+        // Retreat is "vs. 1 melee attack": the caller passes 0 for a shot.
+        assertEquals(listOf(10), blockTargets(light, 10, front, isRanged = false, extra = 1))
+    }
+
     @Test
     fun `no Acrobatics and no default leaves nothing to roll`() {
         assertNull(acrobaticsFor(emptyMap(), emptyList()))

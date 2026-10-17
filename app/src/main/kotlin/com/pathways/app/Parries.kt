@@ -134,9 +134,28 @@ internal fun shieldedTargets(base: Int, shield: Shield?, coverage: ShieldCoverag
 }
 
 /**
+ * Block's figures behind [shield]: bare, and with its DB and its own penalty
+ * against the attack coming in, so a light shield's "-1 to Block vs. ranged"
+ * is the roll against a shot and not a note beside it (Codex). [extra] is
+ * what lands on both: the trait term, a paid boost, and Retreat, which the
+ * caller passes as 0 for a shot.
+ */
+internal fun blockTargets(
+    shield: Shield,
+    shieldSkill: Int,
+    coverage: ShieldCoverage,
+    isRanged: Boolean,
+    extra: Int = 0,
+): List<Int> = shieldPair(
+    ParryBlock.blockFor(shieldSkill, shieldDb = 0) + extra,
+    Shields.blockFor(shield, shieldSkill, isRanged) + extra,
+    coverage,
+)
+
+/**
  * The figures a row rolls at: [shielded] alone where [coverage] grants the DB,
- * both where it is the GM's call. The one answer for the rows above and for
- * Block, which builds its shielded figure by hand.
+ * both where it is the GM's call. The one answer for [shieldedTargets] and
+ * [blockTargets].
  */
 internal fun shieldPair(own: Int, shielded: Int?, coverage: ShieldCoverage): List<Int> = when {
     shielded == null -> listOf(own)

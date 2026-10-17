@@ -223,7 +223,7 @@ internal fun DefenseDialog(
     val coverage = Shields.coverageAt(facing)
     // The shield the DB is read from, which is NOT the shield that is Readied:
     // at the rear the book withholds the bonus. Derived ONCE and passed to
-    // every row, because the Block row builds its arrow by hand and a rule
+    // every row, because the Block row takes its own path (blockTargets) and a rule
     // applied at six sites out of seven is this codebase's oldest defect
     // (6ag, 6ai, 6be) -- a design review named this exact row.
     val shieldForDb = shieldForDb(carried, facing)
@@ -534,8 +534,8 @@ internal fun DefenseDialog(
                     HorizontalDivider(Modifier.padding(vertical = 4.dp))
 
                     if (shieldSkill != null) {
-                        // shieldForDb, NOT carried: this row builds its arrow
-                        // by hand rather than through shielded(), so gating
+                        // shieldForDb, NOT carried: this row goes through
+                        // blockTargets rather than shieldedTargets, so gating
                         // only there would leave the DB standing on exactly
                         // the row the change is for (a design review's find).
                         val held = shieldForDb
@@ -554,20 +554,19 @@ internal fun DefenseDialog(
                                 },
                             )
                         } else {
-                            // Shields.blockFor already folds the DB in, so the
-                            // arrow is built by hand here rather than through
-                            // shielded() -- but the trait bonus is added to
-                            // one bare figure and carried across, so the two
-                            // ends of the arrow cannot drift apart.
-                            val own = bare + everyDefence + boosted + retreatBlock
-                            val melee =
-                                Shields.blockFor(held, shieldSkill) + everyDefence + boosted + retreatBlock
-                            DefenseRow("Block", shieldPair(own, melee, coverage), rollDefence("Block"))
-                            // The ranged figure is shown beside it rather than
-                            // replacing it: a light shield is "-1 to Block vs.
-                            // ranged" and one number cannot say both. It takes
-                            // no Retreat: that bullet is "vs. 1 melee attack",
-                            // so a figure for a shot must not carry it.
+                            // Shields.blockFor folds the DB and the shield's
+                            // own penalty in, so this row goes through
+                            // blockTargets rather than shieldedTargets; what
+                            // lands on both figures is added to both at once.
+                            DefenseRow(
+                                "Block",
+                                blockTargets(held, shieldSkill, coverage, isRanged, everyDefence + boosted + retreatBlock),
+                                rollDefence("Block"),
+                            )
+                            // The ranged figure, named while the attack coming
+                            // in is not a shot: the row rolls it once it is. It
+                            // takes no Retreat: that bullet is "vs. 1 melee
+                            // attack", so a figure for a shot must not carry it.
                             val shot =
                                 Shields.blockFor(held, shieldSkill, isRanged = true) + everyDefence + boosted
                             // Asked of the SHIELD's own penalty rather than by
@@ -580,7 +579,7 @@ internal fun DefenseDialog(
                             // on this same screen.
                             val differsVsShot = Shields.blockPenalty(held, isRanged = true) !=
                                 Shields.blockPenalty(held, isRanged = false)
-                            if (differsVsShot) DefenseNote("Against ranged attacks: $shot")
+                            if (differsVsShot && !isRanged) DefenseNote("Against ranged attacks: $shot")
                         }
                         printed.firstOrNull { it.defense == "Block" }?.let { DefenseNote(it.notes) }
                         HorizontalDivider(Modifier.padding(vertical = 4.dp))
