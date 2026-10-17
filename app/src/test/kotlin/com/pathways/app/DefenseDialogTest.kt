@@ -450,6 +450,23 @@ class DefenseDialogTest {
         assertEquals(listOf(10), blockTargets(light, 10, front, isRanged = false, extra = 1))
     }
 
+    /**
+     * The review of that fix: the shield's own penalty is the shield's, so it
+     * stands whether or not its DB reaches the attack -- at the side's bare
+     * figure and at the rear's only one. Improvised's "-2 to Block" names no
+     * scope, so it is there in reach too.
+     */
+    @Test
+    fun `a shield's own block penalty stands without its DB`() {
+        val light = Shields.named("Light")
+        val improvised = Shields.named("Improvised")
+        assertEquals(listOf(7, 8), blockTargets(light, 10, ShieldCoverage.GM_DECIDES, isRanged = true))
+        assertEquals(listOf(6, 7), blockTargets(improvised, 10, ShieldCoverage.GM_DECIDES, isRanged = false))
+        assertEquals(7, bareBlock(10, light, isRanged = true))
+        assertEquals(6, bareBlock(10, improvised, isRanged = false))
+        assertEquals(8, bareBlock(10, null, isRanged = true))
+    }
+
     @Test
     fun `no Acrobatics and no default leaves nothing to roll`() {
         assertNull(acrobaticsFor(emptyMap(), emptyList()))

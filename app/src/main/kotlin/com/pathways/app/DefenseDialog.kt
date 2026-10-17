@@ -26,6 +26,7 @@ import com.pathways.rules.Facing
 import com.pathways.rules.ParryBlock
 import com.pathways.rules.content.CataloguedWeapon
 import com.pathways.rules.RandomSource
+import com.pathways.rules.ShieldCoverage
 import com.pathways.rules.Shields
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
@@ -539,9 +540,11 @@ internal fun DefenseDialog(
                         // only there would leave the DB standing on exactly
                         // the row the change is for (a design review's find).
                         val held = shieldForDb
-                        val bare = ParryBlock.blockFor(shieldSkill, shieldDb = 0)
                         val boosted = boostOn("Block", round.boost)
                         if (held == null) {
+                            // carried, not held: at the rear the DB is withheld
+                            // and the shield's own penalty is not.
+                            val bare = bareBlock(shieldSkill, carried, isRanged)
                             DefenseRow("Block", shieldedTargets(bare + boosted + retreatBlock, null, coverage, everyDefence), rollDefence("Block"))
                             // Two ways to have no DB, and they are different
                             // facts: nothing Readied, or something Readied
@@ -567,8 +570,9 @@ internal fun DefenseDialog(
                             // in is not a shot: the row rolls it once it is. It
                             // takes no Retreat: that bullet is "vs. 1 melee
                             // attack", so a figure for a shot must not carry it.
-                            val shot =
-                                Shields.blockFor(held, shieldSkill, isRanged = true) + everyDefence + boosted
+                            val shot = blockTargets(
+                                held, shieldSkill, ShieldCoverage.COUNTS, isRanged = true, extra = everyDefence + boosted,
+                            ).single()
                             // Asked of the SHIELD's own penalty rather than by
                             // comparing the two totals. This note exists to
                             // disclose the -1 a light shield takes against a

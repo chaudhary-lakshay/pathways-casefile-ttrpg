@@ -147,10 +147,18 @@ internal fun blockTargets(
     isRanged: Boolean,
     extra: Int = 0,
 ): List<Int> = shieldPair(
-    ParryBlock.blockFor(shieldSkill, shieldDb = 0) + extra,
+    bareBlock(shieldSkill, shield, isRanged) + extra,
     Shields.blockFor(shield, shieldSkill, isRanged) + extra,
     coverage,
 )
+
+/**
+ * Block with no DB: Shield/2 + 3 and [carried]'s own penalty, which is the
+ * shield's and so stands where its DB does not reach -- the side's bare
+ * figure and the rear's only one (the review of 6ib's ranged fix).
+ */
+internal fun bareBlock(shieldSkill: Int, carried: Shield?, isRanged: Boolean): Int =
+    ParryBlock.blockFor(shieldSkill, shieldDb = 0) + (carried?.let { Shields.blockPenalty(it, isRanged) } ?: 0)
 
 /**
  * The figures a row rolls at: [shielded] alone where [coverage] grants the DB,
@@ -167,8 +175,8 @@ internal fun shieldPair(own: Int, shielded: Int?, coverage: ShieldCoverage): Lis
  * The shield whose DB the rows may add, which is not always the one Readied.
  *
  * One function rather than the predicate written at each site: the Dodge and
- * Parry rows go through `shieldedTargets()` and the Block row builds its arrow by
- * hand, so the same test written twice is how this codebase's numbers stopped
+ * Parry rows go through `shieldedTargets()` and the Block row through
+ * `blockTargets()`, so the same test written twice is how this codebase's numbers stopped
  * reconciling three times (6ag, 6ai, 6be). A design review named the Block row
  * specifically -- gating only `shieldedTargets()` would have left the bonus standing
  * on the row the change exists for.
