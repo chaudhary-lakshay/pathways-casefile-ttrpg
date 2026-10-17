@@ -566,24 +566,11 @@ internal fun DefenseDialog(
                                 blockTargets(held, shieldSkill, coverage, isRanged, everyDefence + boosted + retreatBlock),
                                 rollDefence("Block"),
                             )
-                            // The ranged figure, named while the attack coming
-                            // in is not a shot: the row rolls it once it is. It
-                            // takes no Retreat: that bullet is "vs. 1 melee
-                            // attack", so a figure for a shot must not carry it.
-                            val shot = blockTargets(
-                                held, shieldSkill, ShieldCoverage.COUNTS, isRanged = true, extra = everyDefence + boosted,
-                            ).single()
-                            // Asked of the SHIELD's own penalty rather than by
-                            // comparing the two totals. This note exists to
-                            // disclose the -1 a light shield takes against a
-                            // shot, and `shot != melee` stopped being that
-                            // question the moment a melee-only bonus could
-                            // separate them -- a disclaimer whose trigger has
-                            // drifted from its stated reason is 6bl's defect
-                            // on this same screen.
-                            val differsVsShot = Shields.blockPenalty(held, isRanged = true) !=
-                                Shields.blockPenalty(held, isRanged = false)
-                            if (differsVsShot && !isRanged) DefenseNote("Against ranged attacks: $shot")
+                            // The ranged figures, named while the attack coming
+                            // in is not a shot: the row rolls them once it is.
+                            if (!isRanged) {
+                                shotBlockNote(held, shieldSkill, coverage, extra = everyDefence + boosted)?.let { DefenseNote(it) }
+                            }
                         }
                         printed.firstOrNull { it.defense == "Block" }?.let { DefenseNote(it.notes) }
                         HorizontalDivider(Modifier.padding(vertical = 4.dp))

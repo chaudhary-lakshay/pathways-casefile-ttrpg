@@ -153,6 +153,20 @@ internal fun blockTargets(
 )
 
 /**
+ * The note naming a shot's Block while the attack coming in is not a shot,
+ * or null where [shield]'s own penalty is the same against both. It takes no
+ * Retreat: that bullet is "vs. 1 melee attack". Asked of the SHIELD's penalty
+ * rather than by comparing totals, because a melee-only bonus can separate
+ * the totals (6bl's defect on this screen).
+ */
+internal fun shotBlockNote(shield: Shield, shieldSkill: Int, coverage: ShieldCoverage, extra: Int): String? {
+    if (Shields.blockPenalty(shield, isRanged = true) == Shields.blockPenalty(shield, isRanged = false)) return null
+    // The row's own coverage: at the side a shot is rolled at both figures.
+    val shot = blockTargets(shield, shieldSkill, coverage, isRanged = true, extra = extra)
+    return "Against ranged attacks: ${shot.joinToString(" → ")}"
+}
+
+/**
  * Block with no DB: Shield/2 + 3 and [carried]'s own penalty, which is the
  * shield's and so stands where its DB does not reach -- the side's bare
  * figure and the rear's only one (the review of 6ib's ranged fix).

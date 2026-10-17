@@ -467,6 +467,18 @@ class DefenseDialogTest {
         assertEquals(8, bareBlock(10, null, isRanged = true))
     }
 
+    /**
+     * The note naming a shot's Block prints the figures the row would roll:
+     * both at the side, where the DB is the GM's call, not the front's one.
+     */
+    @Test
+    fun `the ranged block note prints the side's two figures`() {
+        val light = Shields.named("Light")
+        assertEquals("Against ranged attacks: 7 → 8", shotBlockNote(light, 10, ShieldCoverage.GM_DECIDES, extra = 0))
+        assertEquals("Against ranged attacks: 8", shotBlockNote(light, 10, ShieldCoverage.COUNTS, extra = 0))
+        assertNull(shotBlockNote(Shields.named("Improvised"), 10, ShieldCoverage.COUNTS, extra = 0))
+    }
+
     @Test
     fun `no Acrobatics and no default leaves nothing to roll`() {
         assertNull(acrobaticsFor(emptyMap(), emptyList()))
