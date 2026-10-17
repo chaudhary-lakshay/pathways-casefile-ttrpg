@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -406,6 +410,9 @@ internal fun SheetScreen(
         shockOnAttribute + hurtOnAttribute + states.total,
     )
 
+    val listState = rememberLazyListState()
+    val nameScrolledOff by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+
     // The Scaffold stays at its old indent inside the backdrop, closed by
     // `} }` below, so this diff is the wrapper and not 170 re-indented lines.
     SheetBackdrop(drunk?.pathway) { Scaffold(
@@ -416,9 +423,15 @@ internal fun SheetScreen(
         topBar = {
             TopAppBar(
                 // The name is the list's first item now, in Fraunces (Case
-                // File). The frames' "FILE Nº nn" line comes with the gallery's
+                // File), and comes back here once it scrolls off, as frame 03's
+                // collapsed bar does: deep in Skills the sheet still says whose
+                // it is. The frames' "FILE Nº nn" line comes with the gallery's
                 // numbering, in slice 4, so the two cannot disagree.
-                title = {},
+                title = {
+                    if (nameScrolledOff) {
+                        Text(sheet.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                },
                 actions = { SheetMenu(sheet.name, throws, onReset, onDelete) },
                 navigationIcon = {
                     IconButton(onClick = onBack, modifier = Modifier.boxed(MaterialTheme.colorScheme.outline)) {
@@ -436,7 +449,7 @@ internal fun SheetScreen(
         },
         bottomBar = { SheetTabBar(tab) { tab = it } },
     ) { insets ->
-        LazyColumn(Modifier.padding(insets).fillMaxSize()) {
+        LazyColumn(Modifier.padding(insets).fillMaxSize(), state = listState) {
             item {
                 // Pills, not a sentence (6gl): what the Pathway tile opens is
                 // said by the tile itself.

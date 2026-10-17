@@ -6730,8 +6730,9 @@ resolution above, and then `Secret`, which has none.
 
 The third session of the Case File redesign: the plan's slice 3, the
 sheet screen (frames 02-04 and 08), restyled in place. No rule, label,
-number or click-handler body changed. Commits `b7311da` and `64126eb`
-REVIEW_COMMITS, not pushed.
+number or click-handler body changed. Commits `b7311da` and `64126eb`,
+`790f0b9` from the review, and the next for the scrolled-off name, not
+pushed.
 
 ### What changed
 
@@ -6745,10 +6746,16 @@ REVIEW_COMMITS, not pushed.
   stamp red by default, a red outline alone would no longer say "lost".
   `headerFacts` is the list as a pure function; `SheetHeaderTest` (5)
   was watched RED first. The back and menu buttons are boxed in ink.
+- **The name comes back to the top bar once it scrolls off**, ellipsized,
+  as frame 03's collapsed bar does. Moving it into the list had removed an
+  affordance the sheet always had: deep in Skills or Traits nothing said
+  whose sheet it was (the advisor, before the close; the review had
+  flagged that the name now scrolls away). The bar's height is fixed, so
+  no row moves, and the two never print at once.
 - **"FILE Nº nn" is deferred to slice 4.** The owner's ruling ties it to
   the gallery index, no numbering exists in source yet, and a sheet that
   numbered itself first could disagree with the gallery. The top bar's
-  title is empty until then.
+  title holds only the scrolled-off name until then.
 - **Section heads.** `SheetSection` ("§ SKILLS · 19" over an ink rule)
   replaces `TraitSection`, through `Caps`, so the source keeps its words
   and a reader hears "Skills, 19". The skills count is the sum of the
@@ -6773,8 +6780,8 @@ REVIEW_COMMITS, not pushed.
 
 **Skipped, each new behaviour or new information the app does not
 print:** the skills list's ATTR column and its header row, the A-Z sort
-(the owner refused it), frame 03's collapsed header on scroll, and the
-struck sheet figure in place of "(sheet: n)".
+(the owner refused it), frame 03's pool line in the collapsed bar, and
+the struck sheet figure in place of "(sheet: n)".
 
 ### Verification
 
