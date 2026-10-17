@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -40,10 +40,13 @@ internal fun Caps(
     modifier: Modifier = Modifier,
     style: TextStyle = MaterialTheme.typography.labelSmall,
     color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    spoken: String = text,
 ) {
     Text(
         text.uppercase(),
-        modifier.semantics { contentDescription = text },
+        // One text node in the source's words, so a reader, a test's
+        // onNodeWithText and the device-pass dump all find "Close".
+        modifier.clearAndSetSemantics { this.text = AnnotatedString(spoken) },
         color = color,
         style = style.copy(letterSpacing = 0.1.em),
     )
@@ -127,7 +130,7 @@ internal fun BracketAction(
     ) {
         Text(
             "[ $label ]",
-            Modifier.clearAndSetSemantics { contentDescription = label },
+            Modifier.clearAndSetSemantics { text = AnnotatedString(label) },
             style = MaterialTheme.typography.bodyLarge.copy(fontFamily = PlexMono),
             color = color,
         )

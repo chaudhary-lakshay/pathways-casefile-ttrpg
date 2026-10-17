@@ -89,41 +89,42 @@ internal fun TargetCard(target: Int, baseTarget: Int, forbidden: Boolean = false
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
     ) {
-        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Caps("Target")
-                Box(Modifier.padding(top = 4.dp).heightIn(min = 56.dp), contentAlignment = Alignment.CenterStart) {
-                    if (forbidden) {
-                        Text(FORBIDDEN_ROLL, color = MaterialTheme.colorScheme.error)
-                    } else {
-                        val moved = target != baseTarget
-                        Row(verticalAlignment = Alignment.Bottom) {
-                            Box(
-                                Modifier
-                                    .heightIn(min = 56.dp)
-                                    .widthIn(min = 56.dp)
-                                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                                    .border(2.dp, MaterialTheme.colorScheme.outline)
-                                    .padding(horizontal = 6.dp),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    "$target",
-                                    style = MaterialTheme.typography.headlineMedium.tabular()
-                                        .copy(fontWeight = FontWeight.SemiBold),
-                                )
-                            }
+        // A Column, not a Row: beside the number the dice caption took the
+        // width a long "3d6 ≤ 16, 17–18 fail" needs, and the number's column
+        // wrapped on a phone, growing the card under the finger.
+        Column(Modifier.padding(12.dp)) {
+            Caps("Target")
+            Box(Modifier.padding(top = 4.dp).heightIn(min = 56.dp), contentAlignment = Alignment.CenterStart) {
+                if (forbidden) {
+                    Text(FORBIDDEN_ROLL, color = MaterialTheme.colorScheme.error)
+                } else {
+                    val moved = target != baseTarget
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Box(
+                            Modifier
+                                .heightIn(min = 56.dp)
+                                .widthIn(min = 56.dp)
+                                .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                                .border(2.dp, MaterialTheme.colorScheme.outline)
+                                .padding(horizontal = 6.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
                             Text(
-                                "$baseTarget",
-                                style = MaterialTheme.typography.titleLarge.tabular().copy(
-                                    textDecoration = TextDecoration.LineThrough,
-                                ),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier
-                                    .padding(start = 8.dp, bottom = 4.dp)
-                                    .then(if (moved) Modifier else Modifier.alpha(0f).clearAndSetSemantics {}),
+                                "$target",
+                                style = MaterialTheme.typography.headlineMedium.tabular()
+                                    .copy(fontWeight = FontWeight.SemiBold),
                             )
                         }
+                        Text(
+                            "$baseTarget",
+                            style = MaterialTheme.typography.titleLarge.tabular().copy(
+                                textDecoration = TextDecoration.LineThrough,
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier
+                                .padding(start = 8.dp, bottom = 4.dp)
+                                .then(if (moved) Modifier else Modifier.alpha(0f).clearAndSetSemantics {}),
+                        )
                     }
                 }
             }
@@ -131,7 +132,7 @@ internal fun TargetCard(target: Int, baseTarget: Int, forbidden: Boolean = false
             // shrink the card under a finger.
             Pill(
                 SuccessRoll.printed(target),
-                Modifier.then(if (forbidden) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier),
+                Modifier.padding(top = 8.dp).then(if (forbidden) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier),
             )
         }
     }
@@ -271,7 +272,7 @@ internal fun RollFooter(
             Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(caption, style = MaterialTheme.typography.titleMedium.tabular(), modifier = Modifier.weight(1f))
+            Text(caption, style = MaterialTheme.typography.labelLarge.tabular(), modifier = Modifier.weight(1f))
             Button(shape = ButtonShape, onClick = onRoll, enabled = enabled) {
                 Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
                 Text(label, modifier = Modifier.padding(start = 8.dp))

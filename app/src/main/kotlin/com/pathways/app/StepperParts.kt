@@ -171,6 +171,7 @@ internal fun SectionHead(
         Caps(
             "§ $heading",
             Modifier.widthIn(min = 104.dp).padding(end = 12.dp),
+            spoken = heading,
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
             color = MaterialTheme.colorScheme.onSurface,
         )
