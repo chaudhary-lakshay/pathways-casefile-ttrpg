@@ -193,6 +193,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ia** — play session 6, Codex's scenario in landscape: a dialog body holds one height, so a verdict, search or pick moves no control;
 **6hz** — play session 5, combat: a critical hit doubles its rolled damage, a reading; a held stun rolls recovery from a Vitals row; a rolled parry counts;
 **6hy** — play session 4, the campaign arc: nine findings; one caption, `SuccessRoll.printed`; no push past *Success by 3+*; Will and Per roll from their Vitals rows;
 **6hx** — Detect takes Spiritual Attrition's -3 only on a roll an awareness row grants; a roll on suspicion alone takes none, the owner's ruling;
@@ -263,9 +264,14 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ie first.** END
+**Where to start next: the slice log, from the END — 6if first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
-line 6728, then 6ie back to 6cb, newest first, so `tail` prints 6cb. 6ie:
+line 6728, then 6if back to 6cb, newest first, so `tail` prints 6cb. 6if:
+(the owner's "be truthful to the figma screen": the sheet rebuilt against
+frames 02-04 and 08 pulled from Figma; 6ie's skipped list was the
+defect; four rulings asked first, A-Z still out; `fileNumber`, pools in
+two forms, the amended table, "Show amendments"; 6id's three device
+checks done on the SM-T570). Then 6ie
 (Case File slice 3, the sheet: the name a Fraunces heading out of the top
 bar, the pathway the verdict's stamp, a loss a filled red pill; "§"
 heads, boxed levels, ruled trait rows; FILE Nº deferred to slice 4's
@@ -283,11 +289,7 @@ seen on the SM-T570). Then 6ib
 (the shield bash on the owner's word, a row per shield and Brawling-2
 with Versatile; play session 7, alone as Brann: a character's scene
 outlives the gallery; from the front a shield's figure is the only one,
-and a shield's block penalty stands without its DB; seen on the SM-T570). Then 6ia
-(play session 6, a scenario Codex picked, played alone in landscape as
-Vale: every number held; a dialog body holds one height, so a verdict,
-a search or a pick moves no control, Codex's design; the divination
-card says the HP burned; seen on the SM-T570). The chain
+and a shield's block penalty stands without its DB; seen on the SM-T570). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -344,9 +346,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1946 Kotlin** (JUnit 5 — 1481 `core:rules`, 442 `app`, 23 `core:model`, counted in 6ie) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` count moves with `ThemeSchemesTest`, which emits one dynamic test per `ColorScheme` role and per contrast pair: 6ic's one light scheme took `app` from 892 to 431, and 6ic's guards to 433, 6id's `PoolPipsTest` to 437, 6ie's `SheetHeaderTest` to 442 |
+| Tests | **1952 Kotlin** (JUnit 5 — 1481 `core:rules`, 448 `app`, 23 `core:model`, counted in 6if) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` count moves with `ThemeSchemesTest`, which emits one dynamic test per `ColorScheme` role and per contrast pair: 6ic's one light scheme took `app` from 892 to 431, and 6ic's guards to 433, 6id's `PoolPipsTest` to 437, 6ie's `SheetHeaderTest` to 442, 6if's six more to 448 |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **Codex, always** (the owner, 2026-10-17: "use codex instead of ecc always", reversing 2026-10-10's ecc). Through `codex exec` with the target named (6eg). When Codex and pi-qa are both down, one review sub-agent, never ecc. 6ic: Codex reviewed Wabi, the plan, `58119c4`, `cb75e32` and `4d891e5`, then hit its limit; a sub-agent reviewed `a9be8f0` and `5148cb1` (SHIP WITH CHANGES, taken); those two, `771deed`, 6id's five commits and 6ie's three still owe Codex a review; 6id's and 6ie's sub-agent reviews returned SHIP WITH CHANGES, all taken. Earlier gates are in each slice's Review section |
+| Review gate | **Codex, always** (the owner, 2026-10-17: "use codex instead of ecc always", reversing 2026-10-10's ecc). Through `codex exec` with the target named (6eg). When Codex and pi-qa are both down, one review sub-agent, never ecc. 6ic: Codex reviewed Wabi, the plan, `58119c4`, `cb75e32` and `4d891e5`, then hit its limit; a sub-agent reviewed `a9be8f0` and `5148cb1` (SHIP WITH CHANGES, taken); those two, `771deed`, 6id's five commits, 6ie's four and 6if's two still owe Codex a review; 6id's, 6ie's and 6if's sub-agent reviews returned SHIP WITH CHANGES, the findings taken. Earlier gates are in each slice's Review section |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 

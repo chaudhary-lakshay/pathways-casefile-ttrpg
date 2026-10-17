@@ -195,6 +195,12 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6ia
+(play session 6, a scenario Codex picked, played alone in landscape as
+Vale: every number held; a dialog body holds one height, so a verdict,
+a search or a pick moves no control, Codex's design; the divination
+card says the HP burned; seen on the SM-T570).
+
 Then 6hz
 (play session 5, combat, played alone as Military Police: twelve
 findings; a critical hit doubles its rolled damage, a reading; a held

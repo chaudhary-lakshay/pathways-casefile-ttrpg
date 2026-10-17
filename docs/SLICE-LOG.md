@@ -6726,6 +6726,131 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6if. Case File, slice 3 again: the sheet as the frames draw it
+
+The owner read 6ie's skipped list and answered **"be truthful to the figma
+screen"**. So the sheet was rebuilt against the Figma frames themselves
+(file `oVd3fSYYgtVQT0NXdRdY0x`, frames 02, 03, 04 and 08, pulled with
+`get_screenshot`), not against my reading of them. Commits `cd61dae`
+and `d0f2299` from the review, not pushed. **6ie's "skipped" list was the defect**: three of its
+four items were what the frames drew, and I had filed them as new behaviour.
+
+### Four owner rulings, asked first
+
+Each frame item that shows behaviour the app lacks, or that removes a
+control, was asked rather than built (the answers are in memory as
+`truthful-to-the-figma-frames`):
+- **The A–Z sort stays out**: the gate-3 ruling stands over frame 04.
+- **"Show amendments" filters** Vitals and Skills to the rows that differ
+  from the published sheet; "Show all values" brings the rest back, on
+  both tabs.
+- **The Traits tab keeps the action hub**, although frame 08 omits it.
+  Frame 08 is my own extrapolation, not UX Pilot's.
+- **The scrolled bar as drawn**: once the name scrolls off, the bar shows
+  it with the Seq stamp where ⋮ was, and once the pools scroll off they
+  stay in view as one thin line with no steppers. ⋮ comes back at the top.
+
+### What changed
+
+- **The bar** reads "FILE Nº 06 · BEYONDER" (or MORTAL), from
+  `fileNumber`: the character's place among the gallery's people, from
+  one, premades then own characters, null for the blank sheet. Slice 4's
+  gallery is to read the same function. Church Healer is 06, as frame 02
+  happens to print. Decoration, so the line has no semantics. The back and
+  ⋮ buttons are 36 dp ink boxes inside 48 dp targets (`BoxedIconButton`).
+- **The pools** (`PoolStrip.kt`) come in frame 02's form on Vitals, a row
+  per pool with its name spelled out, 18 dp pips (SPI round) and the
+  stepper at the right, and frame 04's on Skills and Traits, three
+  columns with the stepper under each. Regain is filled ink while there
+  is something to regain and greyed at the maximum. **The state tags moved
+  onto the label's line**, one line, cut short: the reserved 48 dp tag row
+  was blank space the frames do not draw, and a tag on the label's line
+  cannot move the stepper either (seen: losing 4 HP to Reeling moved
+  nothing). The card is no longer a sticky header; `PoolLine` is drawn
+  over the list once it scrolls away, so the list keeps its place.
+- **"§ ACTIONS"** heads the grid on Vitals only; "[ Spend points ]" and
+  "[ Artifacts ]" are underlined, as both frames draw them.
+- **Natural recovery** is a Fraunces head under a 2 dp rule, closed until
+  tapped (+/−). Open: the parts line, frame 03's −1 | 0 | +1 with the entry
+  filled in ink, "vs HT n", and a full-width ink Roll button; the result
+  is a `VerdictCard`. The book's rows sit behind "The book's rows".
+- **The amended card**: red border on a pale red tint, the count in mono,
+  an AMENDED stamp at its corner, and the Show amendments link.
+- **The Vitals table** (`VitalsTable.kt`, split out because `SheetRows.kt`
+  reached 809 lines and the ratchet failed): STAT, SHEET and NOW; a row the
+  book disagrees with is red with its sheet figure struck; Will and
+  Perception carry the boxed die. Labels are spelled out ("Hit Points",
+  "Perception") for display only: `spelledOut` leaves the comparison's
+  label, which pairs the rows and names Will's and Per's rolls, untouched.
+  **This reverses 6ie's "ink, not the frame's red"** for the amended row:
+  the frame is the spec.
+- **Skills**: a SKILL / ATTR / LVL head, the ATTR cell from `attrCode`
+  ("IQ/H", the book's two codes), a 28 dp die box and a 44×34 level box.
+  A bought or granted row says where it came from under its name.
+- **Traits**: "GM call" in ink as drawn (it was grey); tags, prices and
+  the section heads at frame 08's sizes.
+
+`SheetHeaderTest` gained 5 (file number ×3, file line, ATTR code) and
+`PoolPipsTest` 1 (the larger pips), each watched RED first.
+
+### Verification
+
+1952 Kotlin (1481 `core:rules`, 448 `app`, 23 `core:model`) and 366
+Python, 0 failures, from fresh result directories after `--rerun-tasks`.
+`ast-grep scan` clean, the census 40 lines, no file over 800.
+`docs/HOW-TO-PLAY.md` gained the bar, the two pool forms, the amendments
+filter and the closed Natural recovery, and lost a stale "the list at its
+foot" for the untrained roll, which sits at the top.
+
+### Device pass (SM-T570, wireless at 10.44.140.157:5555)
+
+The tablet came up on USB mid-session and was switched to wireless first.
+Save backed up (`~/pathways-device-backups/sessions-6ie-2257.json`),
+restored with push and `run-as cp`, and `cmp`-identical after.
+- Church Healer, portrait, beside frames 02, 03, 04 and 08: the bar, the
+  stamp and pills, both pool forms, the grid, the collapsed bar, the
+  amended card and table, Skills with ATTR, Traits with an open row.
+- Show amendments: Vitals kept Basic Speed alone, Skills read "Skills, 0"
+  with Show all values, which brought back 19.
+- HP to 5: "Reeling · −1 all rolls" on the label line, no control moved.
+- **6id's three owed checks, done**: a Will roll's VerdictCard (red
+  FAILURE stamp, dice, margin); Barmaid Brawler, a mortal, at font scale
+  1.3 (levels fit their boxes, DRINK A POTION wraps in its tile); and
+  landscape, where the skills scroll into reach under the collapsed bar.
+  Font scale and rotation were restored to 1.0 and portrait.
+
+### Review
+
+Codex was still at its limit (it resets at 00:24 on 2026-10-18) and pi-qa
+answered `fetch failed`, so one general-purpose review sub-agent read
+`cd61dae`, three questions: SHIP WITH CHANGES. No handler, roll argument
+or pairing changed beyond the three approved behaviours; the two filters
+are one predicate (`disagreement` is set exactly when `!row.matches`).
+Taken in `d0f2299`:
+- MEDIUM: the recovery note still said "the line under them" after the
+  parts line moved above the stepper; the guide said the same. Both now
+  say above.
+- MEDIUM: a disputed SHEET figure was marked only by red and a strike,
+  which a screen reader hears as neither; it is spoken "sheet 4.00,
+  disputed".
+- LOW: `"%02d".format` used the device locale (Arabic digits on an
+  Arabic device); `Locale.ROOT` now. The SHEET map reads the secondary
+  rows only, so no skill label can shadow one. The boxed buttons no longer
+  say their label twice. The regain and lose cells are at least 48 dp
+  wide. A pool's count is spoken "9 of 15". The amendments link states
+  which view is showing.
+Not taken: `rememberSaveable` for the open rule line and Natural
+recovery's open state (both reset when their item scrolls away, as the
+roll result already did), and hoisting ⋮'s dialog flags (the menu opens
+only at the top, and its dialogs are modal).
+
+### Next
+
+Slice 4, the gallery, New character and the glossary (frames 01, 05, 07),
+pulled from Figma first; the gallery's FILE Nº reads `fileNumber`. Codex
+still owes a review of `a9be8f0`, `5148cb1`, `771deed`, all of 6id, 6ie
+and this slice.
+
 ## 6ie. Case File, slice 3: the sheet
 
 The third session of the Case File redesign: the plan's slice 3, the
