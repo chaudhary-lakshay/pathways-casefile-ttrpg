@@ -195,6 +195,13 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6ig
+(Case File slice 4, the gallery, New character and the glossary from
+frames 01, 05 and 07; four rulings asked first: a lost character's row
+red, the blank-sheet button kept, letter groups in book order, a
+template filter; the frames' "at 10" and "Appendix B" corrected to the
+data; Codex's HIGH, a list key a name could repeat, fixed).
+
 Then 6if
 (the owner's "be truthful to the figma screen": the sheet rebuilt against
 frames 02-04 and 08 pulled from Figma; 6ie's skipped list was the
@@ -2596,8 +2603,11 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6gg back to 6de
+## Digest index, 6gj back to 6de
 
+**6gj** — Absent-Mindedness's -3 is declared on every skill roll; Voice and Industrial Expertise are refused on Healer's reason, one constant, `PURPOSE_NOT_SKILL`;
+**6gi** — with no shot called the damage line read "×1.5 there"; it says *there* only for a called location, and the trait backlog is tabled: 125 unread rows;
+**6gh** — the speed refusal counted a flag and the swap filtered on it; one `Ranged.oneOf` answers both, and "behaviour-preserving" was false for a row with both flags;
 **6gg** — *walking* and *running* could both be ticked, a -3 no speed produces; the three speed rows are one pick, a reading from bounds that do not meet;
 **6gf** — the attack's add-up test runs the range band, each circumstance, darkness and the trait terms, and never reads what `AttackOptions` prints;
 **6ge** — a ledger line printed each modifier's ID, "state:hp: -1"; `ModifierSource.label()` is the one place a source becomes text;

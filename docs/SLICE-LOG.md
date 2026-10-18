@@ -6726,6 +6726,107 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6il. Case File, slice 8: every frame beside its screen
+
+The last item of the plan's slice 8: each of the 24 frames photographed
+beside the SM-T570 at the frames' own width (`wm density 492`, 390 dp,
+font 1.0), plus the owed checks 6ik could not reach. Composites were read
+at equal width; text was checked against the frames' HTML. Three commits,
+not pushed: `7d01c84`, `bd9242d`, `4e97c03`, and this entry.
+
+### Verdict per frame
+
+- **Match:** 01, 02-04 (after the fix below), 05, 07, 08, 09, 10-12, 13,
+  14, 16 (after the fix), 17-24.
+- **Ruled divergences, not findings:** 06 Theme (retired: one light
+  scheme), the gallery's palette button (01), A–Z (04, 07), frame 09's
+  "§ Each action" legend, the Traits tab's hub (08), 05's "at 10" and 07's
+  "Appendix B · 16" (corrected to the data).
+- **Systemic, recorded once:** the app's type runs about 1.25× the frames'
+  everywhere, so mono labels wrap where the frames' 10-12 px do not (the
+  pathway tabs, the natural-recovery roll, the untrained button). And the
+  device at 390 dp is 624 dp tall against the frames' 844, so a dialog's
+  pinned footer leaves a short body; real phones at 390 dp are taller.
+- **Mockup data, not UI:** frame 10's "1 SPI" tag on Spirit Vision. The tag
+  is read from the heading's bracket, and Seer's heading in the book has
+  none. Frame 03's thin line draws HP as segments but FP and SPI as solid
+  bars; the app segments all three.
+
+### Six defects, fixed
+
+1. **Frame 02: 15 HP pips lost their crosses.** The pip row sat beside the
+   stepper, so 15 pips shrank below the 12 dp that takes a red cross. It
+   runs under the label and stepper now, across the card, 18 dp with 3 dp
+   gaps, as the frame's HTML. The stepper's y is unchanged.
+2. **Frames 03-04: a 15-point pool drew as a solid bar in the three-column
+   cells.** The frames draw width-filling segments (`flex-1`, 8 dp tall;
+   6 dp on the scrolled line), never squares. `segmentWidth`, with a bar
+   below 2 dp; `PoolPipsTest` +2, RED as a compile failure first.
+3. **Frames 05, 10, 11: a segmented toggle's label sat flush on the
+   divider** and wrapped against it. `Segment` pads 8 dp and centres.
+4. **Six pickers' rows were grey** (Untrained, Attack's skill picker,
+   Wealth, Appearance, Add a skill, Weapon): an `AlertDialog`'s text slot
+   defaults to `onSurfaceVariant`, and the trait picker uses that grey for
+   a blocked row. Names are ink; a carried weapon stays grey. The Attack
+   picker also listed "Knife" twice; it reads `disambiguated()`, the Skills
+   tab's own label, "Knife [E]" and "Knife [A]".
+5. **Frame 16: crossing the Major Wound threshold moved the chips below.**
+   The tag's text grew to "Major wound: 8 or more in one hit" and wrapped.
+   One text both sides, "Major wound at 8+", red when crossed, with the
+   state on the tag's own node for a screen reader (Codex).
+6. **Frame 15: "[ New round ]" was a letter a line**, the round note
+   taking the row. **A regression since `d7e1a47` (6ii)**, which replaced a
+   `TextButton` (58 dp minimum width) with `BracketAction`; 6ii's device
+   pass at 390 dp did not see it. The note is weighted. A census of every
+   `InkAction` and `BracketAction` behind a text in a `Row` found no
+   other unweighted one.
+
+### The owed checks from 6ik, seen
+
+On Church Healer and Academic Researcher, the save backed up first and
+restored byte-identical (`cmp`) after: the Concentrate (`5-C`), Untrained
+(`2-U`) and Self-control (`3-C`) dialogs, each rolled; and every
+`InkAction` behind a state: the 0 HP vital roll ("ROLL HT 8 — 0 HP", then
+"ROLL AGAIN"), the fright recovery ("ROLL WILL 8 TO RECOVER NOW", reached
+on the fourth mild check), and the builder's "BUY · +1 PT" and
+"GIVE BACK". Frame 12's PCR was rolled for real (it lost the character;
+the restore undid it).
+
+### Seen, not fixed
+
+- The vital roll's verdict is a plain line, where every other roll stamps
+  a `VerdictCard`. No frame draws it.
+- The builder's Speed stepper is a few dp left of the column: "4.50" is
+  wider than the other values.
+- The Concentrate and Fright footers print their "pick first" line in the
+  dice box's indent.
+
+### Proof
+
+2005 Kotlin tests (1481 `core:rules`, 501 `app`, 23 `core:model`) and 366
+Python, all green, counted from fresh XML after `rm -rf app/build
+core/*/build` (`--rerun-tasks` hit the Windows lock four times). Each fix
+seen on the SM-T570 at 390 dp after install; density reset to 320 after.
+The session-mutator census still prints 40.
+
+### Review
+
+Codex (`codex exec`, gpt-6-astra, xhigh) on `bb3c47c..bd9242d`: one MEDIUM
+(the threshold's state sat on a node TalkBack never focuses) and two LOWs
+(an unnamed tap on the pips; a 0/0 bar at max 0), all taken in `4e97c03`.
+Its re-review hit the usage limit (back 23:01) and the 9router gateway was
+down, so one review sub-agent read `4e97c03`: SHIP. `clearAndSetSemantics`
+makes the tag a speaking leaf TalkBack lands on, read once; every pool with
+tags still opens its rule from the label. Its two LOWs (no outline at max 0;
+`coerceIn` throwing at max < 0) cannot happen: `Pools` refuses a max below
+1 (`Pools.kt:268`, `:311`), so Codex's 0/0 guard is unreachable too, kept
+as a guard.
+
+### Next
+
+Slice 8 is complete, and with it the plan's eight slices. Nothing is
+pushed since 6ic: master is 57 commits ahead.
+
 ## 6ik. Case File, slice 8: the sweep
 
 The plan's slice 8 (Notion: "Leftover Material defaults ... Delete the dead
