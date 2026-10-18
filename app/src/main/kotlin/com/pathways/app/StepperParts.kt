@@ -26,6 +26,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 
 // The stepper shapes the owner picked from the 2026-10-13 component round:
@@ -78,7 +80,10 @@ internal fun JoinedStepper(
                     style = MaterialTheme.typography.titleLarge.tabular(),
                     color = valueColor,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.widthIn(min = 44.dp).padding(horizontal = 4.dp),
+                    // In sp, so the floor grows with the text: at a 2.0 font
+                    // a 44 dp floor let "9" to "10" widen the cell and move
+                    // the minus beside it (Codex on 6ij).
+                    modifier = Modifier.widthIn(min = with(LocalDensity.current) { 44.sp.toDp() }).padding(horizontal = 4.dp),
                 )
                 VerticalDivider(color = MaterialTheme.colorScheme.outline)
             }
@@ -167,34 +172,28 @@ internal fun LedgerCard(
     }
 }
 
-/** A fact in a ruled box beside a row, never a control. */
+/**
+ * A fact in a ruled box beside a row, never a control. [ink] rules the one
+ * the frame leads with, a level's price (frame 23), in ink.
+ */
 @Composable
-internal fun ChipTag(text: String, modifier: Modifier = Modifier) {
+internal fun ChipTag(text: String, modifier: Modifier = Modifier, ink: Boolean = false) {
     Text(
         text,
         style = MaterialTheme.typography.labelMedium.tabular(),
         modifier = modifier
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.extraSmall)
+            .border(
+                if (ink) 1.5.dp else 1.dp,
+                if (ink) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.outlineVariant,
+                MaterialTheme.shapes.extraSmall,
+            )
             .padding(horizontal = 8.dp, vertical = 4.dp),
     )
 }
 
 /**
- * One row of the builder's ledger of sections. Each is its own list item; a
- * rule under every row but the [last]. Case File draws the ledger straight
- * on the paper, so there is no card ([first] is kept for the top gap).
- */
-@Composable
-internal fun SectionSurface(first: Boolean = false, last: Boolean = false, content: @Composable () -> Unit) {
-    Column(Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = if (first) 12.dp else 0.dp)) {
-        content()
-        if (!last) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-    }
-}
-
-/**
- * A builder section's head: "§ NAME" at the left, what is held in the
- * middle, and its one action, bracketed, at the right.
+ * A builder section (frames 23-24): "§ NAME" and its one bracketed action
+ * over an ink rule, and what is held under it at full width.
  */
 @Composable
 internal fun SectionHead(
@@ -203,20 +202,8 @@ internal fun SectionHead(
     onAction: () -> Unit,
     held: @Composable () -> Unit,
 ) {
-    Row(
-        Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Caps(
-            "§ $heading",
-            Modifier.widthIn(min = 104.dp).padding(end = 12.dp),
-            spoken = heading,
-            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Column(Modifier.weight(1f)) { held() }
-        BracketAction(action, onAction, Modifier.padding(start = 8.dp))
-    }
+    LedgerHeadRow(heading) { BracketAction(action, onAction, underlined = true) }
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 10.dp)) { held() }
 }
 
 /** A section's name above its chips, in the roll dialogs: a typed-form label. */

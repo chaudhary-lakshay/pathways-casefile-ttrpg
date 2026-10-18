@@ -20,7 +20,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -468,5 +467,5 @@ private const val GAINED_LABEL = "Gained in play — 0 pts"
  */
 @Composable
 private fun GainedChip(on: Boolean, onChange: (Boolean) -> Unit) {
-    FilterChip(selected = on, onClick = { onChange(!on) }, label = { Text("Gained in play") })
+    CaseChip(selected = on, onClick = { onChange(!on) }, label = { Text("Gained in play") })
 }

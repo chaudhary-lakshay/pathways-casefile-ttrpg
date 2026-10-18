@@ -1,26 +1,25 @@
 package com.pathways.app
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedIconButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -72,28 +71,19 @@ internal fun AttributeRow(
     canLower: Boolean,
     onChange: (Int) -> Unit,
 ) {
-    Row(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(attr.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.widthIn(min = 52.dp))
-        // costOf is CUMULATIVE -- what standing at that level costs in
-        // total. The number that governs the next click is the difference,
-        // and on a doubling ladder the two diverge fast: at IQ 11 the
-        // cumulative figure for 12 is 140, but the click costs 80.
-        val spent = AttributeCosts.costOf(attr, level)
-        val next = if (level < ceiling) AttributeCosts.costOf(attr, level + 1) - spent else null
-        Text(
-            buildString {
-                append("$spent pts spent here")
-                next?.let { append(" — next level costs $it") }
-                if (level != startingLevel) append(" — sheet prints $startingLevel")
-                boughtNote("$level", "$played")?.let { append(" — $it") }
-            },
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f).padding(end = 8.dp),
-        )
+    // costOf is CUMULATIVE -- what standing at that level costs in
+    // total. The number that governs the next click is the difference,
+    // and on a doubling ladder the two diverge fast: at IQ 11 the
+    // cumulative figure for 12 is 140, but the click costs 80.
+    val spent = AttributeCosts.costOf(attr, level)
+    val next = if (level < ceiling) AttributeCosts.costOf(attr, level + 1) - spent else null
+    val note = buildString {
+        append("$spent pts spent here")
+        next?.let { append(" — next level costs $it") }
+        if (level != startingLevel) append(" — sheet prints $startingLevel")
+        boughtNote("$level", "$played")?.let { append(" — $it") }
+    }
+    LedgerRow(name = { LedgerName(attr.name) }, note = note) {
         JoinedStepper(
             value = "$played",
             onMinus = { onChange(-1) },
@@ -136,22 +126,16 @@ internal fun SecondaryRow(
     canLower: Boolean,
     onChange: (Int) -> Unit,
 ) {
-    Row(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    val note = buildString {
+        append(row.cost)
+        if (steps != 0) append(" — ${steps.signed()} bought")
+        boughtNote(boughtValue, value)?.let { append(" — $it") }
+    }
+    LedgerRow(
+        // The frame's short name on screen, the book's to a screen reader.
+        name = { LedgerName(secondaryShortName(row.key, row.characteristic), spoken = row.characteristic) },
+        note = note,
     ) {
-        Column(Modifier.weight(1f)) {
-            Text(row.characteristic, style = MaterialTheme.typography.titleMedium)
-            Text(
-                buildString {
-                    append(row.cost)
-                    if (steps != 0) append(" — ${steps.signed()} bought")
-                    boughtNote(boughtValue, value)?.let { append(" — $it") }
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
         JoinedStepper(
             value = value,
             onMinus = { onChange(-1) },
@@ -163,32 +147,50 @@ internal fun SecondaryRow(
     }
 }
 
+/**
+ * One ledger row of frame 23: a name, a note, a stepper, a dashed rule under
+ * them. Where the ledger stacks ([ledgerStacks]) the note drops under the
+ * name and stepper: beside a stepper at 390 dp and font 1.3 it wrapped five
+ * lines.
+ */
 @Composable
-internal fun BudgetBar(spent: Int, budget: Int) {
-    val over = spent > budget
-    val accent = if (over) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Row(Modifier.semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                "$spent",
-                style = MaterialTheme.typography.headlineSmall.tabular(),
-                color = accent,
-            )
-            Text(
-                " of $budget points",
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.weight(1f),
-            )
-            Tag(if (over) "${spent - budget} over budget" else "${budget - spent} spare", accent)
+private fun LedgerRow(name: @Composable () -> Unit, note: String, stepper: @Composable () -> Unit) {
+    val stacks = ledgerStacks(LocalConfiguration.current.screenWidthDp, LocalDensity.current.fontScale)
+    val noteText: @Composable (Modifier) -> Unit = { modifier ->
+        Text(note, style = ledgerNote, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = modifier)
+    }
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .dashedRule(MaterialTheme.colorScheme.outlineVariant)
+            .padding(vertical = 10.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            name()
+            if (stacks) Spacer(Modifier.weight(1f)) else noteText(Modifier.weight(1f).padding(end = 8.dp))
+            stepper()
         }
-        LinearProgressIndicator(
-            progress = { if (budget == 0) 0f else (spent.toFloat() / budget).coerceIn(0f, 1f) },
-            color = accent,
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-        )
+        if (stacks) noteText(Modifier.padding(top = 6.dp))
     }
 }
+
+/** A ledger row's name in bold mono, in a column wide enough for "Speed". */
+@Composable
+private fun LedgerName(name: String, spoken: String = name) {
+    Text(
+        name,
+        style = MaterialTheme.typography.titleMedium.tabular().copy(fontWeight = FontWeight.Bold),
+        modifier = Modifier
+            .widthIn(min = 72.dp)
+            .padding(end = 8.dp)
+            .semantics { contentDescription = spoken },
+    )
+}
+
+/** A ledger row's note: what a level cost, what the next costs (frame 23). */
+private val ledgerNote: TextStyle
+    @Composable get() = MaterialTheme.typography.labelMedium.tabular()
 
 /**
  * What downtime study would cost this skill's next rung (Ch. 3, p. 32), as a
@@ -282,71 +284,92 @@ internal fun SkillRow(
     onToggle: () -> Unit,
 ) {
     val canOpen = study.reason != null
-    // A row whose study can be bought is the one a player acts on: its badge
-    // and tag take the accent, and a refusal's stay neutral.
-    val accent = if (canOpen) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary
-    Surface(
-        shape = RoundedCornerShape(10.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 3.dp),
-    ) {
-        Row(Modifier.padding(end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(
-                Modifier
-                    .weight(1f)
-                    .clickable(enabled = canOpen, onClickLabel = if (expanded) "Hide why" else "Show why", onClick = onToggle)
-                    .semantics { if (canOpen) stateDescription = if (expanded) "Expanded" else "Collapsed" }
-                    .padding(start = 14.dp, top = 8.dp, bottom = 8.dp),
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Column(Modifier.weight(1f)) {
-                        Text(label, style = MaterialTheme.typography.bodyLarge)
-                        Text(
-                            points.pointsLabel().removePrefix("+") + if (studied > 0) " + $studied studied" else "",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        if (onStudy != null) StudyStepper(studied, canAdd = study.reason == null, onStudy)
-                    }
-                    // A share of the row, not what the tag asks for: at phone
-                    // width a long tag took it all and the name wrapped a
-                    // syllable a line. The tag wraps instead.
-                    Row(
-                        Modifier.weight(1.5f),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End),
-                    ) {
-                        level?.let { LevelBadge("$it", accent) }
-                        Box(Modifier.weight(1f, fill = false)) {
-                            if (canOpen) ChipTag("Study: ${study.tag}") else Tag("Study: ${study.tag}", accent)
-                        }
-                        // The chevron's width is kept on a row with nothing to
-                        // open, so every tag ends in one column.
-                        if (canOpen) {
-                            Icon(
-                                if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                                contentDescription = null,
-                            )
-                        } else {
-                            Spacer(Modifier.width(24.dp))
-                        }
-                    }
-                }
-                if (expanded && study.reason != null) {
-                    Text(
-                        study.reason,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 6.dp),
-                    )
-                }
+    val rule = MaterialTheme.colorScheme.outlineVariant
+    val stacks = ledgerStacks(LocalConfiguration.current.screenWidthDp, LocalDensity.current.fontScale)
+    // Straight on the paper (frame 24), a rule under each. Top-aligned, so
+    // opening a reason grows the row downward and moves no control.
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .drawBehind {
+                val y = size.height - 0.5.dp.toPx()
+                drawLine(rule, Offset(0f, y), Offset(size.width, y), 1.dp.toPx())
             }
-            if (onStep != null) {
-                OutlinedIconButton(onClick = { onStep(false) }) { Text("−") }
-                OutlinedIconButton(onClick = { onStep(true) }) { Text("+") }
+            .padding(vertical = 10.dp),
+    ) {
+        val opens = Modifier
+            .clickable(enabled = canOpen, onClickLabel = if (expanded) "Hide why" else "Show why", onClick = onToggle)
+            .semantics { if (canOpen) stateDescription = if (expanded) "Expanded" else "Collapsed" }
+        // A tag that opens the book's reason is dashed, the frames' mark for
+        // prose held closed (the owner's ruling, 2026-10-18); one that prices
+        // a rung is ruled solid.
+        val tag = @Composable { StudyTag("Study: ${study.tag}", dashed = canOpen) }
+        Row {
+            Column(Modifier.weight(1f).then(opens).padding(end = 8.dp)) {
+                Text(label, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    points.pointsLabel().removePrefix("+") + if (studied > 0) " + $studied studied" else "",
+                    style = MaterialTheme.typography.labelMedium.tabular(),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (!stacks) tag()
+            }
+            Column(horizontalAlignment = Alignment.End) {
+                // A skill bought here steps rung to rung; a printed one is boxed.
+                if (onStep != null) {
+                    JoinedStepper(
+                        value = level?.toString() ?: "–",
+                        onMinus = { onStep(false) },
+                        onPlus = { onStep(true) },
+                        minusLabel = "One rung down",
+                        plusLabel = "One rung up",
+                    )
+                } else {
+                    level?.let { LevelBadge("$it", MaterialTheme.colorScheme.onSurface) }
+                }
+                if (onStudy != null && !stacks) StudyStepper(studied, canAdd = study.reason == null, onStudy)
             }
         }
+        // Stacked, the stepper comes before the tag: a tag whose next rung
+        // reprices can change its line count, and under it the stepper moved
+        // between two taps (Codex on 6ij). Above it nothing that changes.
+        if (stacks) {
+            if (onStudy != null) {
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                    StudyStepper(studied, canAdd = study.reason == null, onStudy)
+                }
+            }
+            Box(opens) { tag() }
+        }
+        // At the row's foot, so opening it moves no stepper in either layout.
+        if (expanded && study.reason != null) {
+            Text(
+                study.reason,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 6.dp),
+            )
+        }
     }
+}
+
+/** A study tag in a ruled box, dashed where it opens the book's reason. */
+@Composable
+private fun StudyTag(text: String, dashed: Boolean) {
+    val rule = MaterialTheme.colorScheme.outlineVariant
+    Text(
+        text,
+        style = MaterialTheme.typography.labelMedium.tabular(),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier
+            .padding(top = 6.dp)
+            .then(
+                if (dashed) Modifier.dashedBorder(MaterialTheme.colorScheme.outline, width = 1.dp)
+                else Modifier.border(1.dp, rule, MaterialTheme.shapes.extraSmall),
+            )
+            .padding(horizontal = 8.dp, vertical = 3.dp),
+    )
 }
 
 /**
@@ -394,7 +417,7 @@ internal fun WealthRow(level: WealthLevel?, printed: WealthLevel?, onPick: () ->
         }
         Text(level.status, style = MaterialTheme.typography.titleMedium)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            ChipTag(level.pointsLabel())
+            ChipTag(level.pointsLabel(), ink = true)
             ChipTag("${level.startingMoney} to start")
             if (level.reactionModifier != 0) ChipTag("reaction ${level.reactionModifier.signed()}")
             if (printed != null && printed.status != level.status) ChipTag("sheet prints ${printed.status}")
@@ -436,7 +459,7 @@ internal fun AppearanceRow(
         } else {
             Text(level.level, style = MaterialTheme.typography.titleMedium)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                ChipTag(level.points.pointsLabel())
+                ChipTag(level.points.pointsLabel(), ink = true)
                 ChipTag("reaction ${level.reactionModifier.signed()}")
                 if (printed != null && printed.level != level.level) ChipTag("sheet prints ${printed.level}")
             }

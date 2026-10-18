@@ -5,11 +5,11 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -97,9 +97,9 @@ internal fun LanguagePicker(
     @Composable
     fun group(title: String, languages: List<LanguageEntry>) {
         Text(title, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 8.dp))
-        FlowRow {
+        FlowRow(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             languages.forEach { language ->
-                FilterChip(
+                CaseChip(
                     selected = name == language.name,
                     onClick = {
                         name = language.name
@@ -145,9 +145,9 @@ internal fun LanguagePicker(
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(top = 8.dp),
                 )
-                FlowRow {
+                FlowRow(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     rows.forEach { row ->
-                        FilterChip(
+                        CaseChip(
                             selected = proficiency == row.proficiency,
                             onClick = { proficiency = row.proficiency },
                             label = { Text("${row.proficiency} ${row.points}") },
@@ -163,9 +163,9 @@ internal fun LanguagePicker(
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(top = 8.dp),
                 )
-                FlowRow {
+                FlowRow(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Languages.forms().forEach { option ->
-                        FilterChip(
+                        CaseChip(
                             selected = form == option,
                             onClick = { form = option },
                             label = { Text(option) },

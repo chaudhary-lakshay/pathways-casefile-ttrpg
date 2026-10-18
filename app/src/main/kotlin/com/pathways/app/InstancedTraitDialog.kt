@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -83,7 +82,7 @@ internal fun InstancedTraitDialog(
                         modifier = Modifier.padding(top = 8.dp),
                     )
                     row.variants.forEach { (name, points) ->
-                        FilterChip(
+                        CaseChip(
                             selected = variant == name,
                             onClick = { variant = name },
                             label = {

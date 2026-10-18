@@ -1,38 +1,23 @@
 package com.pathways.app
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pathways.model.Attr
 import com.pathways.model.SkillKey
@@ -99,47 +84,17 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
     // one name at two difficulties is two skills (p. 85; the diff review).
     var openStudy by remember { mutableStateOf(setOf<SkillKey>()) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            sheet.name,
-                            style = MaterialTheme.typography.titleLarge,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            "Spend points",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back to sheet",
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                ),
-            )
-        },
-    ) { insets ->
+    Scaffold(topBar = { LedgerBar(onBack) }) { insets ->
         LazyColumn(Modifier.padding(insets).fillMaxSize()) {
+            item { LedgerTitle(sheet.name) }
+
             // Pinned, because this screen exists to spend against it. The
             // budget used to scroll away with the header, so the number being
             // spent against was off-screen for every decision after the first.
             stickyHeader {
                 Surface(color = MaterialTheme.colorScheme.surface) {
                     Column {
-                        BudgetBar(report.spent, report.budget)
+                        BudgetCard(report.spent, report.budget)
                         report.violations.forEach { violation ->
                             Text(
                                 violation,
@@ -148,20 +103,11 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                                 modifier = Modifier.padding(horizontal = 16.dp),
                             )
                         }
-                        HorizontalDivider(Modifier.padding(top = 8.dp))
                     }
                 }
             }
 
-            // Named like the section below it: the four rows were the only
-            // block on the screen without a heading.
-            item {
-                Text(
-                    "Attributes",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                )
-            }
+            item { LedgerHead("Attributes") }
 
             items(Attr.entries) { attr ->
                 AttributeRow(
@@ -176,16 +122,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                         session.setAttribute(attr, character.attributes[attr] + delta)
                     },
                 )
-                HorizontalDivider()
             }
 
-            item {
-                Text(
-                    "Secondary characteristics",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                )
-            }
+            item { LedgerHead("Secondary characteristics") }
 
             items(secondaryRows) { row ->
                 // The STEPS come from the save, never from the composed
@@ -209,11 +148,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     canLower = session.canSetSecondary(row.key, bought - 1),
                     onChange = { delta -> session.setSecondary(row.key, bought + delta) },
                 )
-                HorizontalDivider()
             }
 
             item {
-                SectionSurface(first = true) {
                 WealthRow(
                     // The CHOICE, not the composed character: Average costs 0
                     // pts and so leaves no trait to read back (Codex).
@@ -221,11 +158,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     printed = Wealth.levelOf(start.traits),
                     onPick = { picking = true },
                 )
-                }
             }
 
             item {
-                SectionSurface {
                 AppearanceRow(
                     // The composed character is enough here, unlike wealth:
                     // every level costs something, so a chosen one always
@@ -239,11 +174,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     },
                     onPick = { pickingLooks = true },
                 )
-                }
             }
 
             item {
-                SectionSurface {
                 LanguagesRow(
                     // What the composition bills, read from the SHEET's own
                     // traits so a Language Talent bought in play is counted.
@@ -251,11 +184,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     onAdd = { pickingLanguage = true },
                     onGiveBack = { session.sellLanguage(it) },
                 )
-                }
             }
 
             item {
-                SectionSurface {
                 WeaponsRow(
                     carried = session.edits.carriedWeapons(),
                     // The levels rolled TODAY, which is what a parry is
@@ -272,11 +203,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     onAdd = { pickingWeapon = true },
                     onRemove = { session.dropWeapon(it) },
                 )
-                }
             }
 
             item {
-                SectionSurface(last = true) {
                 TraitsRow(
                     bought = session.edits.traits,
                     // Resolved against the same list the composition asks the
@@ -296,50 +225,26 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     quirks = session.edits.quirks,
                     onRemoveQuirk = session::removeQuirk,
                 )
-                }
             }
 
             item {
-                Row(
-                    Modifier.fillMaxWidth().padding(start = 16.dp, end = 12.dp, top = 16.dp, bottom = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text("Skills", style = MaterialTheme.typography.titleMedium)
-                        // Said once for the section: every row's level, and
-                        // a refusal's "already 12", is the bought one.
-                        if (session.state != null) {
-                            Text(
-                                "Levels before potions",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                    OutlinedButton(shape = ButtonShape, onClick = { adding = true }) { Text("Add a skill") }
+                LedgerHeadRow("Skills") { BracketAction("Add a skill", { adding = true }, underlined = true) }
+                // Said once for the section: every row's level, and a
+                // refusal's "already 12", is the bought one.
+                if (session.state != null) {
+                    Text(
+                        "Levels before potions",
+                        style = MaterialTheme.typography.labelLarge.tabular().copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier
+                            .padding(start = 16.dp, top = 12.dp)
+                            .border(1.5.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.extraSmall)
+                            .padding(horizontal = 10.dp, vertical = 3.dp),
+                    )
                 }
                 // Two roads the book prices, so one toggle: Very Hard
                 // self-study is "Not possible", and a tag saying so is lifted
                 // here.
-                Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    Text("Study by", style = MaterialTheme.typography.labelLarge)
-                    // A set width: left to itself the row takes its narrowest
-                    // wrap, which broke "Self-Study" in two.
-                    SingleChoiceSegmentedButtonRow(Modifier.width(280.dp)) {
-                        StudyMethod.entries.forEachIndexed { i, method ->
-                            SegmentedButton(
-                                selected = studyMethod == method,
-                                onClick = { studyMethod = method },
-                                shape = SegmentedButtonDefaults.itemShape(i, StudyMethod.entries.size),
-                                icon = {},
-                            ) { Text(method.label) }
-                        }
-                    }
-                }
+                StudyToggle(studyMethod) { studyMethod = it }
             }
 
             items(character.skills) { purchased ->
@@ -347,7 +252,9 @@ fun BuilderScreen(sheet: PremadeSheet, session: BeyonderSession, onBack: () -> U
                     it.name == purchased.key.name && it.specialization == purchased.key.specialization
                 }
                 SkillRow(
-                    label = purchased.key.display,
+                    // The sheet's own label: "/IQ" and the difficulty only
+                    // where two rows would otherwise read the same.
+                    label = disambiguated(purchased.key, character.skills.map { it.key }),
                     level = derived.skillLevels[purchased.key],
                     // What was BOUGHT; recorded study rides beside it, unbilled.
                     points = purchased.points - purchased.studied,

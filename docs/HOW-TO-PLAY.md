@@ -549,7 +549,9 @@ grade is *not* a gate on use, deliberately.
 ## 5. Build and edit
 
 **Spend points** opens the builder: the four attributes against a live point
-budget, and skills bought at the ladder's own cost. **Add a skill** buys one;
+budget, and skills bought at the ladder's own cost. The budget box stays at
+the top while the rest scrolls: points spent, the budget, what is spare (or
+over, in red), and a row of thirty pips, each filled once its share is spent. **Add a skill** buys one;
 its **Search** field narrows the list by any part of a name. A bought skill's
 **+** and **−** step one rung of the ladder (1, 2, 4, 8 points…), counting its
 study points toward the rung.
@@ -559,8 +561,8 @@ replaces the one you had rather than stacking a second. Where a potion granted
 a face, the Appearance row says so and names the face that is played.
 
 Under the attributes, **Secondary characteristics** has a stepper for each of
-the six the book prices — HP, Will, Perception, FP, Basic Speed and Basic Move
-— with the book's own price beside it (*±2 pts per level*, and *±5 pts per
+the six the book prices — HP, Will, Per, FP, Speed and Move on screen, the
+book's full names to a screen reader — with the book's own price beside it (*±2 pts per level*, and *±5 pts per
 0.25* for Basic Speed, which steps a quarter at a time). Spirituality, CoR and
 Digestion have no stepper because the book prices none of them. Stepping back
 to the printed value clears the purchase; the sheet's own **computed vs.
@@ -580,7 +582,7 @@ once for all of them; the sheet shows the levels actually rolled.
 Each skill row is its name and level, its points, and a **Study** tag: what
 downtime study would cost for the next rung (*24 hrs + 16s · 2 CP → 10*), or
 why it offers none (*at cap 11*, or *not by self-study* for a Very Hard
-skill). Tap a row with a refusal for the book's sentence. **Study
+skill). A refusal's tag is dashed: tap the row for the book's sentence. **Study
 by** picks the road the tags are priced for, *With a Tutor* or *Self-Study*.
 When the downtime is done, record each study point earned with the row's
 **study CP +** (and take one back with **−**). The points raise the skill
