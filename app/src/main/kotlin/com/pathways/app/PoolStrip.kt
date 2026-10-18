@@ -188,8 +188,8 @@ private fun spelled(pool: Pool) = when (pool) {
  */
 @Composable
 private fun PoolRow(status: PoolStatus, onTags: () -> Unit, onSpend: (Int) -> Unit) {
-    // The tap stays off the stepper: a tap on a disabled step would fall
-    // through to it and open the rule line under the finger.
+    // The tap stays on the label: on the whole row a tap on a disabled step
+    // fell through to it, and on the pips alone it was an unnamed button.
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(verticalAlignment = Alignment.Top) {
             Column(Modifier.weight(1f).then(tagsTap(status, onTags)), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -198,9 +198,7 @@ private fun PoolRow(status: PoolStatus, onTags: () -> Unit, onSpend: (Int) -> Un
             }
             PoolStepper(status, onSpend, Modifier.padding(start = 12.dp).width(100.dp))
         }
-        Box(tagsTap(status, onTags)) {
-            PoolBar(status, largest = 18.dp, gap = 3.dp, round = status.pool == Pool.SPI)
-        }
+        PoolBar(status, largest = 18.dp, gap = 3.dp, round = status.pool == Pool.SPI)
     }
 }
 
@@ -395,6 +393,8 @@ private fun PoolBar(status: PoolStatus, largest: Dp, gap: Dp, round: Boolean, cr
     // cells share a height through IntrinsicSize.Min, and a SubcomposeLayout
     // throws when asked for an intrinsic (it crashed the sheet on the tablet).
     Canvas(Modifier.fillMaxWidth().height(largest)) {
+        // An empty pool has nothing to draw, and the bar's fill would be 0/0.
+        if (status.max <= 0) return@Canvas
         val stroke = 1.dp.toPx()
         // Frames 03 and 04: segments [largest] tall that share the width.
         val segment = if (segments) segmentWidth(status.max, size.width.toDp(), gap)?.toPx() else null

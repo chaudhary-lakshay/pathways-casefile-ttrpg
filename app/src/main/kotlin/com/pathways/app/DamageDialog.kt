@@ -3,6 +3,7 @@ package com.pathways.app
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.graphics.RectangleShape
@@ -587,8 +588,14 @@ private fun AmountCard(amount: Int, threshold: String, isMajor: Boolean, onStep:
             }
             // One text either side of the threshold, as frame 16 draws it: the
             // longer crossed sentence wrapped and pushed the chips below down
-            // (6il). The red alone says crossed, so a reader is told too.
-            Box(Modifier.semantics { stateDescription = if (isMajor) "Crossed by this hit" else "Not crossed" }) {
+            // (6il). The red alone says crossed, so a reader is told too, on
+            // the one node that takes focus (Codex).
+            Box(
+                Modifier.clearAndSetSemantics {
+                    contentDescription = threshold
+                    stateDescription = if (isMajor) "Crossed by this hit" else "Not crossed"
+                },
+            ) {
                 Stamp(
                     threshold,
                     if (isMajor) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
