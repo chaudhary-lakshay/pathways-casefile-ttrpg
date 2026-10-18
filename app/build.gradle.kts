@@ -19,6 +19,19 @@ android {
         versionName = "0.1"
     }
 
+    // Release signing reads ~/.gradle/gradle.properties, never this repo.
+    // Without those properties assembleRelease still builds, unsigned.
+    val storeFile = providers.gradleProperty("PATHWAYS_STORE_FILE").orNull
+    if (storeFile != null) {
+        signingConfigs.create("release") {
+            this.storeFile = file(storeFile)
+            storePassword = providers.gradleProperty("PATHWAYS_STORE_PASSWORD").get()
+            keyAlias = providers.gradleProperty("PATHWAYS_KEY_ALIAS").get()
+            keyPassword = providers.gradleProperty("PATHWAYS_KEY_PASSWORD").get()
+        }
+        buildTypes.getByName("release").signingConfig = signingConfigs.getByName("release")
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
