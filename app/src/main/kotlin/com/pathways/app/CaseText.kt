@@ -1,6 +1,10 @@
 package com.pathways.app
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -87,12 +91,18 @@ internal val ButtonShape = RoundedCornerShape(2.dp)
  * (2026-10-17), one fixed string per dialog, so a screen reader skips it.
  * A Column, because the title slot stacks bare children.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun FormTitle(form: String, file: String? = LocalFileLabel.current, title: @Composable () -> Unit) {
     Column {
-        Row(Modifier.clearAndSetSemantics {}) {
+        // The file number drops under the code where both do not fit: in one
+        // Row at 390 dp and font 1.3 the code wrapped mid-word.
+        FlowRow(
+            Modifier.fillMaxWidth().clearAndSetSemantics {},
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
             val style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.1.em)
-            Text(form, Modifier.weight(1f).padding(end = 8.dp), style = style, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(form, Modifier.padding(end = 8.dp), style = style, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (file != null) Text(file.uppercase(), style = style, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         title()
@@ -120,11 +130,16 @@ internal const val FORM_INTAKE = "FORM 23-B · INTAKE"
  * anyway (2026-10-17), and this is the one place to change it.
  */
 @Composable
-internal fun CloseButton(onClick: () -> Unit, label: String = "Close") {
+internal fun CloseButton(
+    onClick: () -> Unit,
+    label: String = "Close",
+    /** Ink for a dialog's other text action ("Another turn"), which is not a way out. */
+    color: Color = MaterialTheme.colorScheme.secondary,
+) {
     TextButton(
         onClick = onClick,
         shape = ButtonShape,
-        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary),
+        colors = ButtonDefaults.textButtonColors(contentColor = color),
     ) {
         Caps(
             label,
@@ -147,12 +162,13 @@ internal fun BracketAction(
     color: Color = MaterialTheme.colorScheme.onSurface,
     /** Underlined, as the frames draw the two that leave the hub's dialogs. */
     underlined: Boolean = false,
+    enabled: Boolean = true,
 ) {
     Box(
         modifier
             .heightIn(min = 48.dp)
             .widthIn(min = 48.dp)
-            .clickable(role = Role.Button, onClick = onClick)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .padding(horizontal = 4.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -163,7 +179,7 @@ internal fun BracketAction(
                 fontFamily = PlexMono,
                 textDecoration = if (underlined) TextDecoration.Underline else null,
             ),
-            color = color,
+            color = if (enabled) color else color.copy(alpha = 0.38f),
         )
     }
 }

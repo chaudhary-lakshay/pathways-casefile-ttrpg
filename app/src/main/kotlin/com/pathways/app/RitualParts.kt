@@ -58,14 +58,8 @@ internal fun RitualFooter(
                 modifier = Modifier.padding(top = 4.dp),
             )
         }
-        Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            BoxedTarget(target)
-            Text(
-                if (target != null) targetText else "",
-                style = MaterialTheme.typography.labelLarge.tabular(),
-                modifier = Modifier.weight(1f).padding(horizontal = 10.dp),
-            )
-            RollButton(label, onCast, enabled = target != null && refusal == null, icon = icon)
+        FooterRow(target, button = { RollButton(label, onCast, enabled = target != null && refusal == null, icon = icon) }) {
+            Text(if (target != null) targetText else "", style = MaterialTheme.typography.labelLarge.tabular())
         }
     }
 }

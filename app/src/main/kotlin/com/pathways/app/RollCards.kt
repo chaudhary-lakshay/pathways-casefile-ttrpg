@@ -235,17 +235,15 @@ internal fun Stamp(
     verdict: String,
     color: Color,
     style: TextStyle = MaterialTheme.typography.titleSmall.copy(fontFamily = PlexMono, fontWeight = FontWeight.SemiBold),
+    /** A verdict is capitals; frame 16's threshold is stamped as written. */
+    caps: Boolean = true,
 ) {
-    Caps(
-        verdict,
-        Modifier
-            .padding(top = 4.dp)
-            .rotate(-3f)
-            .border(2.dp, color)
-            .padding(horizontal = 10.dp, vertical = 4.dp),
-        style = style,
-        color = color,
-    )
+    val inked = Modifier
+        .padding(top = 4.dp)
+        .rotate(-3f)
+        .border(2.dp, color)
+        .padding(horizontal = 10.dp, vertical = 4.dp)
+    if (caps) Caps(verdict, inked, style = style, color = color) else Text(verdict, inked, style = style, color = color)
 }
 
 @Composable

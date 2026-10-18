@@ -128,10 +128,6 @@ internal fun RitualPowerSourceChips(
             )
         }
     }
-    Text(
-        "${complexity.description} — ${complexity.baseTime}",
-        style = MaterialTheme.typography.bodySmall,
-    )
 
     // Every cell is a range, so the end is the GM's; the open
     // one ("11-15+") offers three above its printed ceiling
@@ -235,7 +231,6 @@ internal fun RitualPowerSourceChips(
         }
     }
     sacrifice?.let { tier ->
-        Text(tier.looksLike, style = MaterialTheme.typography.bodySmall)
         // Offered only alongside a tier, because the per-being
         // bonus rides on one and sacrificeBonus refuses it
         // without. It ADDS to the tier rather than replacing
@@ -359,7 +354,6 @@ internal fun MysticalLanguagePicker(
             )
         }
     }
-    language?.let { Text(it.effect, style = MaterialTheme.typography.bodySmall) }
     if (boughtLanguages.isNotEmpty() || grantedLanguages.isNotEmpty()) {
         Text(
             listOfNotNull(

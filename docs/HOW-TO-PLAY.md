@@ -98,8 +98,9 @@ potion grants.
   character does not; each character keeps their own.
 - **Reference text** in a dialog (shield rules, the incantation, Spirit
   Vision's colour key, spirit body damage, an artifact's description) sits
-  behind a book icon, closed until you tap it. Targets, costs and what the
-  app does not apply stay open.
+  in a dashed box, closed until you tap it. The ritual and divination
+  dialogs keep what each pick means there too, under **What these picks
+  mean**. Targets, costs, refusals and what the app does not apply stay open.
 - **The header** under the character's name shows the walk as tags: pathway
   and Sequence, digestion, CoR, and *Lost* if the character is gone.
 - **HP, FP and SPI** sit in one card under the header, on every tab, each

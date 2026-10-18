@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -305,7 +304,6 @@ internal fun DefenseDialog(
                     refusal.negated?.let {
                         DefenseNote("${refusal.negatedBy} — \"never freeze in surprise\", so the defences stand.")
                     }
-                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 }
                 if (!refusal.defends) return@LazyColumn
                 item {
@@ -330,17 +328,14 @@ internal fun DefenseDialog(
                     states.line?.let {
                         DefenseNote("Declared on the sheet: $it to every defence below.")
                     }
-                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     // Above the rows it changes, unlike the parry stepper: it
                     // moves the unarmed parries AND withdraws them, so a
                     // control below them would be read after its effect.
                     IncomingPicker(incoming) { incoming = it }
-                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     // Beside IncomingPicker because both describe the attack
                     // rather than the defender, and above the shield picker
                     // because it decides what that picker's note can say.
                     FacingPicker(facing) { facing = it }
-                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     // ABOVE every row, because unlike its two neighbouring
                     // bullets this one moves all of them -- the placement rule
                     // StunPicker follows. BELOW IncomingPicker, because its
@@ -351,9 +346,7 @@ internal fun DefenseDialog(
                     RetreatControl(taken = round.retreated, bonus = retreatDodge) {
                         round = round.copy(retreated = !round.retreated)
                     }
-                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     ShieldPicker(shields, carried, coverage) { carried = if (it == carried) null else it }
-                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     DefenseRow(
                         "Dodge",
                         // The acrobatic ±2 and the Dive!'s +3 join the bought
@@ -411,7 +404,6 @@ internal fun DefenseDialog(
                     DiveControl(taken = round.dived, bonus = diveBonus) {
                         round = round.copy(dived = !round.dived)
                     }
-                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 }
                 items(armed) { (name, value) ->
                     val label = "Parry ($name)"
@@ -429,7 +421,6 @@ internal fun DefenseDialog(
                 item {
                     if (armed.isNotEmpty()) {
                         printed.firstOrNull { it.defense == "Parry (Armed)" }?.let { DefenseNote(it.notes) }
-                        HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     }
                 }
                 // ParryBlock decides whether a shot can be parried, not this
@@ -532,7 +523,6 @@ internal fun DefenseDialog(
                             round = round.copy(priorParries = it)
                         }
                     }
-                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
 
                     if (shieldSkill != null) {
                         // shieldForDb, NOT carried: this row goes through
@@ -573,13 +563,11 @@ internal fun DefenseDialog(
                             }
                         }
                         printed.firstOrNull { it.defense == "Block" }?.let { DefenseNote(it.notes) }
-                        HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     }
                     carried?.let {
                         DefenseNote("${it.type}: DB +${it.db}, Cover DR ${it.coverDr}, HP ${it.hp} — ${it.notes}")
                     }
                     RuleNote("Shield rules") { Shields.rules().forEach { DefenseNote(it.rule) } }
-                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
 
                     // UNDER the rows, because it names one of them: a picker
                     // above would have to be read before the labels it offers
@@ -624,7 +612,6 @@ internal fun DefenseDialog(
                             round = round.copy(boost = next)
                         },
                     )
-                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
 
                     SectionLabel("Modifiers")
                 }

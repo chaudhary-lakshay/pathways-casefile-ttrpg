@@ -246,7 +246,7 @@ internal fun AttackDialog(
         confirmButton = { CloseButton(onDismiss) },
         dismissButton = {
             if (outcomes.isNotEmpty() || chosen != null) {
-                TextButton(
+                CloseButton(
                     onClick = {
                         // Everything the turn chose, including where the
                         // target was standing: inheriting last turn's distance
@@ -277,7 +277,9 @@ internal fun AttackDialog(
                         darknessSeverity = null
                         location = null
                     },
-                ) { Text("Another turn") }
+                    label = "Another turn",
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
             }
         },
         title = { FormTitle(FORM_ATTACK) { Text(if (chosen == null) "Attack with which skill?" else "Attack") } },

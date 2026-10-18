@@ -77,9 +77,13 @@ internal fun AttackFooter(
         lines.forEach {
             Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            BoxedTarget(standing.target.takeUnless { standing.forbidden })
-            Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
+        FooterRow(
+            standing.target.takeUnless { standing.forbidden },
+            // Nothing to roll is nothing to pay for: the handler charges the
+            // plan's FP whatever the dice do.
+            button = { RollButton("Roll", onRoll, enabled = !standing.forbidden) },
+        ) {
+            Column {
                 if (standing.forbidden) {
                     Text(FORBIDDEN_ROLL, color = MaterialTheme.colorScheme.error)
                 } else {
@@ -96,9 +100,6 @@ internal fun AttackFooter(
                     )
                 }
             }
-            // Nothing to roll is nothing to pay for: the handler charges the
-            // plan's FP whatever the dice do.
-            RollButton("Roll", onRoll, enabled = !standing.forbidden)
         }
     }
 }

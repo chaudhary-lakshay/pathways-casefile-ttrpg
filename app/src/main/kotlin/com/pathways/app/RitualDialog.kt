@@ -387,16 +387,6 @@ fun RitualDialog(
                             )
                         }
                     }
-                    Text(
-                        if (mode == RitualMode.QUICK) {
-                            "Routine work — four steps. Preparation reaches +2 " +
-                                "and the target link is counted separately."
-                        } else {
-                            "Consequential magic — three phases. Preparation " +
-                                "reaches +3 and already includes the link."
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                    )
                     SectionLabel("Weight")
                     Row {
                         weights.forEach { option ->
@@ -408,7 +398,6 @@ fun RitualDialog(
                             )
                         }
                     }
-                    Text(weight.categories, style = MaterialTheme.typography.bodySmall)
                     RitualPowerSourceChips(
                         complexity = complexity,
                         spiChoice = spiChoice,
@@ -446,7 +435,6 @@ fun RitualDialog(
                             )
                         }
                     }
-                    Text(preparation.looksLike, style = MaterialTheme.typography.bodySmall)
                     CellValueChips(
                         printed = preparation.printed,
                         values = valuesOf(preparation.modifier, preparation.best, preparation.openEnded),
@@ -470,7 +458,6 @@ fun RitualDialog(
                             }
                         }
                         link?.let { chosen ->
-                            Text(chosen.looksLike, style = MaterialTheme.typography.bodySmall)
                             CellValueChips(
                                 printed = chosen.printed,
                                 values = valuesOf(chosen.modifier, chosen.best, openEnded = false),
@@ -606,7 +593,27 @@ fun RitualDialog(
                         },
                         onLanguage = { language = it },
                     )
-
+                    // What each pick means, read once: closed (the owner,
+                    // 2026-10-18, on frames 18-19, which print none of it
+                    // under the chips). Refusals, caps and "the GM picks"
+                    // stay where they are.
+                    RuleNote("What these picks mean") {
+                        listOfNotNull(
+                            "Mode: " + if (mode == RitualMode.QUICK) {
+                                "Routine work — four steps. Preparation reaches +2 " +
+                                    "and the target link is counted separately."
+                            } else {
+                                "Consequential magic — three phases. Preparation " +
+                                    "reaches +3 and already includes the link."
+                            },
+                            "${weight.weight}: ${weight.categories}",
+                            "${complexity.complexity}: ${complexity.description} — ${complexity.baseTime}",
+                            sacrifice?.let { "${it.tier} sacrifice: ${it.looksLike}" },
+                            "${preparation.quality} preparation: ${preparation.looksLike}",
+                            link?.let { "${it.link} link: ${it.looksLike}" },
+                            language?.let { "${it.proficiency}: ${it.effect}" },
+                        ).forEach { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp)) }
+                    }
                 }
                 // Every term by name, because the breakdown and the target
                 // must reconcile -- the invariant 6ag added 300 cases for and

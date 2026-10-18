@@ -1,5 +1,11 @@
 package com.pathways.app
 
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AssistChip
 import androidx.compose.runtime.mutableStateOf
@@ -104,7 +110,7 @@ internal fun NewRoundControl(round: RoundState, onNewRound: () -> Unit) {
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(end = 8.dp),
         )
-        TextButton(onClick = onNewRound, enabled = round.isSpent()) { Text("New round") }
+        BracketAction("New round", onNewRound, enabled = round.isSpent())
     }
 }
 
@@ -468,35 +474,60 @@ internal fun DefenseRow(name: String, targets: List<Int>, roll: (Int) -> RollRes
     // by 4 (play session 5), and the verdict it just made must not vanish
     // with the old figure. The line names its own target, so it stays true.
     var rolled by remember(name) { mutableStateOf<RollResult?>(null) }
+    // Frame 15: a ruled tile on the paper tint, the figure small at the
+    // right, a boxed roll, and the verdict in mono, red on a failure.
     Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.background,
+        shape = MaterialTheme.shapes.extraSmall,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
     ) {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(name, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                Text(name, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                 Text(
                     targets.joinToString(" → "),
-                    style = MaterialTheme.typography.headlineSmall.tabular(),
-                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.labelLarge.tabular(),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 val drawn = rolled
                 targets.forEach { target ->
-                    AssistChip(
-                        onClick = { if (rolled === drawn) rolled = roll(target) },
-                        label = { Text("Roll ≤ $target") },
-                        modifier = Modifier.padding(end = 6.dp),
-                    )
+                    BoxedRoll("Roll ≤ $target", Modifier.padding(end = 6.dp)) { if (rolled === drawn) rolled = roll(target) }
                 }
             }
+            val shown = rolled
             Text(
-                rolled?.let { "3d6: ${it.total} vs ${it.target} — ${label(it.outcome)}" }.orEmpty(),
-                style = MaterialTheme.typography.titleSmall,
+                shown?.let { "3d6: ${it.total} vs ${it.target} — ${label(it.outcome)}" }.orEmpty(),
+                style = MaterialTheme.typography.labelLarge.tabular(),
+                color = if (shown != null && !shown.outcome.isSuccess) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(top = 4.dp),
                 minLines = 1,
                 maxLines = 1,
+            )
+        }
+    }
+}
+
+/** A roll as a 2 dp ink box with the dice and a mono label (frame 15's "Roll ≤ 7"). */
+@Composable
+internal fun BoxedRoll(label: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        enabled = enabled,
+        shape = MaterialTheme.shapes.extraSmall,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline.copy(alpha = if (enabled) 1f else 0.38f)),
+        contentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 1f else 0.38f),
+        modifier = modifier,
+    ) {
+        Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
+            Text(
+                label,
+                style = MaterialTheme.typography.labelLarge.tabular().copy(fontWeight = FontWeight.SemiBold),
+                modifier = Modifier.padding(start = 8.dp),
             )
         }
     }

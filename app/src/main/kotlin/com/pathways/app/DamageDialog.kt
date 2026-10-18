@@ -1,5 +1,17 @@
 package com.pathways.app
 
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
@@ -221,7 +233,13 @@ internal fun DamageDialog(
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError,
                 ),
-            ) { Text("Apply $injury to $pool") }
+            ) {
+                Caps(
+                    "Apply $injury to $pool",
+                    style = MaterialTheme.typography.labelLarge.copy(fontFamily = PlexMono, fontWeight = FontWeight.SemiBold),
+                    color = LocalContentColor.current,
+                )
+            }
         },
         dismissButton = { CloseButton(onDismiss, "Cancel") },
         title = { FormTitle(FORM_DAMAGE) { Text("Damage") } },
@@ -280,6 +298,21 @@ internal fun DamageDialog(
                 // chosen pool" (line 2718). The hit changed, so its roll is
                 // no longer an answer.
                 DamageType(type, amount, landed, pool) { type = it; shock = null }
+                WhereItLanded(
+                    landed = landed,
+                    damage = injury,
+                    maxHp = maxHp,
+                    isHp = pool == Pool.HP,
+                    onLocation = {
+                        // A stale tap of an HP picture after a switch to SPI
+                        // or FP would print HP effects beside it (6ei).
+                        if (pool == Pool.HP) {
+                            landed = if (landed == it) null else it
+                            // A priced hit re-prices with its location.
+                            if (type != null) shock = null
+                        }
+                    },
+                )
                 // ONE expression, printed and rolled. It was written out
                 // twice, which is the shape that let a caption and a roll drift
                 // apart three times in this codebase (6ag, 6ai, 6be) -- and a
@@ -313,22 +346,6 @@ internal fun DamageDialog(
                         if (recovery == null) recovery = SuccessRoll.against(recoveryTarget, dice.dice("Stun recovery"))
                     },
                 )
-                WhereItLanded(
-                    landed = landed,
-                    damage = injury,
-                    maxHp = maxHp,
-                    isHp = pool == Pool.HP,
-                    onLocation = {
-                        // A stale tap of an HP picture after a switch to SPI
-                        // or FP would print HP effects beside it (6ei).
-                        if (pool == Pool.HP) {
-                            landed = if (landed == it) null else it
-                            // A priced hit re-prices with its location.
-                            if (type != null) shock = null
-                        }
-                    },
-                )
-                HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 // Reference for the GM, not a control: closed until asked (6gl).
                 RuleNote("Spirit body damage rules") {
                     var section = ""
@@ -415,10 +432,7 @@ private fun MajorWoundPanel(
     onRecoveryRoll: () -> Unit,
 ) {
     if (shock == null) {
-        OutlinedButton(shape = ButtonShape, onClick = onRoll, enabled = isMajor, modifier = Modifier.padding(top = 8.dp)) {
-            Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
-            Text("Roll HT $ht", modifier = Modifier.padding(start = 8.dp))
-        }
+        BoxedRoll("Roll HT $ht", Modifier.padding(top = 12.dp), enabled = isMajor, onClick = onRoll)
         if (traitLine != null) {
             Text(traitLine, style = MaterialTheme.typography.bodySmall)
         }
@@ -537,55 +551,59 @@ private fun WhereItLanded(
  */
 @Composable
 private fun AmountCard(amount: Int, threshold: String, isMajor: Boolean, onStep: (Int) -> Unit) {
+    // Frame 16: a ruled card, five joined cells with the amount in the
+    // middle, and the threshold stamped under them, red once crossed.
     Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.background,
+        shape = MaterialTheme.shapes.extraSmall,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                "Damage",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                StepButton("−5") { onStep(-5) }
-                StepButton("−") { onStep(-1) }
+        Column(Modifier.padding(12.dp)) {
+            Caps("Damage")
+            Row(
+                Modifier
+                    .padding(top = 8.dp)
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+                    .border(2.dp, MaterialTheme.colorScheme.outline),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                StepCell("−5", "Five less") { onStep(-5) }
+                VerticalDivider(color = MaterialTheme.colorScheme.outline)
+                StepCell("−", "One less") { onStep(-1) }
+                VerticalDivider(color = MaterialTheme.colorScheme.outline)
                 Text(
                     "$amount",
-                    style = MaterialTheme.typography.displayMedium.tabular(),
-                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.headlineMedium.tabular().copy(fontWeight = FontWeight.SemiBold),
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.widthIn(min = 56.dp),
+                    modifier = Modifier.weight(1f).background(MaterialTheme.colorScheme.surfaceContainerLow).padding(vertical = 8.dp),
                 )
-                StepButton("+") { onStep(1) }
-                StepButton("+5") { onStep(5) }
+                VerticalDivider(color = MaterialTheme.colorScheme.outline)
+                StepCell("+", "One more") { onStep(1) }
+                VerticalDivider(color = MaterialTheme.colorScheme.outline)
+                StepCell("+5", "Five more") { onStep(5) }
             }
-            val tone = if (isMajor) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-            Text(
+            Stamp(
                 threshold,
-                style = MaterialTheme.typography.labelLarge,
-                color = tone,
-                modifier = Modifier
-                    .padding(top = 6.dp)
-                    .border(1.dp, tone.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                if (isMajor) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelLarge.copy(fontFamily = PlexMono, fontWeight = FontWeight.SemiBold),
+                caps = false,
             )
         }
     }
 }
 
-/**
- * 40dp, so four of them and the amount fit a 360dp phone's dialog (about
- * 232dp of 264); Material still gives each a 48dp touch target.
- */
+/** One cell of the amount's joined stepper: a fifth of the width, a 48 dp target. */
 @Composable
-private fun StepButton(text: String, onClick: () -> Unit) {
-    OutlinedButton(shape = ButtonShape,
+private fun RowScope.StepCell(text: String, spoken: String, onClick: () -> Unit) {
+    TextButton(
         onClick = onClick,
+        shape = RectangleShape,
+        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
         contentPadding = PaddingValues(0.dp),
-        modifier = Modifier.padding(horizontal = 2.dp).size(40.dp),
-    ) { Text(text) }
+        modifier = Modifier.weight(1f).heightIn(min = 48.dp).semantics { contentDescription = spoken },
+    ) { Text(text, style = MaterialTheme.typography.titleMedium.tabular()) }
 }
 
 /** One damage is the smallest hit there is; zero is not a hit at all. */

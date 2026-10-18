@@ -256,7 +256,7 @@ fun DivinationDialog(
         confirmButton = { CloseButton(finish) },
         dismissButton = {
             if (outcome != null) {
-                TextButton(
+                CloseButton(
                     onClick = {
                         // The push bought the question that is ending, so it
                         // is paid for here rather than carried into the next.
@@ -268,7 +268,9 @@ fun DivinationDialog(
                         backlash = null
                         hpBurned = 0
                     },
-                ) { Text("Ask again") }
+                    label = "Ask again",
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
             }
         },
         title = { FormTitle(FORM_DIVINE) { Text("Divination Arts $skillLevel") } },
@@ -326,7 +328,6 @@ fun DivinationDialog(
                             )
                         }
                     }
-                    Text(difficulty.example, style = MaterialTheme.typography.bodySmall)
 
                     SectionLabel("Scope")
                     FlowRow {
@@ -347,10 +348,9 @@ fun DivinationDialog(
                             )
                         }
                     }
-                    Text(
-                        "${scope.examples} — ${scope.guidance}",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                    // Which skill a scope needs stays open: a boundary, not
+                    // a description. Its examples are in the note below.
+                    Text(scope.guidance, style = MaterialTheme.typography.bodySmall)
 
                     SectionLabel("Method")
                     FlowRow {
@@ -363,10 +363,6 @@ fun DivinationDialog(
                             )
                         }
                     }
-                    Text(
-                        "${method.time}, ${spiLabel(method)} SPI — ${method.bestFor}",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
                     method.spiMax?.let { most ->
                         // The one method whose cost is a range. Showing it while
                         // always charging the low end is how the app undercharges
@@ -613,6 +609,16 @@ fun DivinationDialog(
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(top = 8.dp),
                         )
+                    }
+                    // What each pick means, read once: closed (the owner,
+                    // 2026-10-18, on frame 19, which prints none of it under
+                    // the chips).
+                    RuleNote("What these picks mean") {
+                        listOf(
+                            "${difficulty.band}: ${difficulty.example}",
+                            "${scope.scope}: ${scope.examples}",
+                            "${method.method}: ${method.time}, ${spiLabel(method)} SPI — ${method.bestFor}",
+                        ).forEach { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp)) }
                     }
                 }
                 // At 0 SPI the pool table says a Beyonder "cannot activate any

@@ -263,12 +263,8 @@ internal fun FrightDialog(
                     states.line?.let {
                         Text("includes $it", style = MaterialTheme.typography.labelMedium)
                     }
-                    Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            if (chosen == null) "Pick what was witnessed." else SuccessRoll.printed(target),
-                            style = MaterialTheme.typography.labelLarge.tabular(),
-                            modifier = Modifier.weight(1f),
-                        )
+                    // Frame 17 boxes no number here: the target card does.
+                    FooterRow(target = null, boxed = false, button = {
                         RollButton(
                             "Roll",
                             enabled = chosen != null,
@@ -287,6 +283,11 @@ internal fun FrightDialog(
                                     }
                                 }
                             },
+                        )
+                    }) {
+                        Text(
+                            if (chosen == null) "Pick what was witnessed." else SuccessRoll.printed(target),
+                            style = MaterialTheme.typography.labelLarge.tabular(),
                         )
                     }
                 }

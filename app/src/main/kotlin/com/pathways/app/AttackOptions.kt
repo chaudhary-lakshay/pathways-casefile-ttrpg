@@ -1,5 +1,8 @@
 package com.pathways.app
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -86,9 +89,22 @@ internal fun AttackOptions(
     // An AlertDialog does not scroll its own text slot. Found on device.
     Column {
         Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(label, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                LevelBadge("$skillLevel", MaterialTheme.colorScheme.primary)
+            // Frame 14: the skill in a ruled card on the paper tint, its level boxed.
+            Surface(
+                color = MaterialTheme.colorScheme.background,
+                shape = MaterialTheme.shapes.extraSmall,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        label,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f).padding(end = 8.dp),
+                    )
+                    LevelBadge("$skillLevel", MaterialTheme.colorScheme.primary)
+                }
             }
             notes.forEach {
                 Text(
