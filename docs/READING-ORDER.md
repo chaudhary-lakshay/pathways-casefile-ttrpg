@@ -195,6 +195,13 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6if
+(the owner's "be truthful to the figma screen": the sheet rebuilt against
+frames 02-04 and 08 pulled from Figma; 6ie's skipped list was the
+defect; four rulings asked first, A-Z still out; `fileNumber`, pools in
+two forms, the amended table, "Show amendments"; 6id's three device
+checks done on the SM-T570).
+
 Then 6ie
 (Case File slice 3, the sheet: the name a Fraunces heading out of the top
 bar, the pathway the verdict's stamp, a loss a filled red pill; "§"

@@ -193,6 +193,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6if** — "be truthful to the figma screen": the sheet rebuilt against frames 02-04 and 08; 6ie's skipped list was the defect; "Show amendments" filters to the rows that differ;
 **6ie** — Case File slice 3, the sheet: the name a Fraunces heading, the pathway a stamp, a loss a red pill; "§" heads and boxed levels; no device pass, the tablet off adb;
 **6id** — Case File slice 2, the shared components: the verdict a tilted stamp, the dialogs' form codes, Close in stamp red; pool pips on one Canvas, where a BoxWithConstraints crashed;
 **6ic** — Case File slice 1: one generated light scheme replaces every preset, stamp red #BC382A; Fraunces and Plex; a 600 dp column; roll sounds and ripple reverted;
@@ -263,17 +264,23 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ij first.** END
+**Where to start next: the slice log, from the END — 6ik first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
-line 6728, then 6ij back to 6cb, newest first, so `tail` prints 6cb. 6ij:
+line 6728, then 6ik back to 6cb, newest first, so `tail` prints 6cb. 6ik:
+(Case File slice 8, the sweep: 6ij's "no TopAppBar" was wrong; no
+preset code left; the last FilterChip a `CaseChip`; two rulings asked
+first: undrawn in-body actions an ink box in mono caps (`InkAction`),
+form codes on the four undrawn roll dialogs; three movements under a
+finger and a mid-word tag break fixed; Codex: two MEDIUMs taken, two
+LOWs refused; the 24-frame pass owed). Then 6ij
 (Case File slice 7, the builder from frames 23-24, after 6ii's owed
 re-review, whose two MEDIUMs were taken in `06854aa`; two rulings asked
 first: a refusal's study tag dashed instead of a chevron, the secondary
 rows' short names; `BudgetCard`'s thirty pips; § heads with their
 content under the rule; `ledgerStacks` for three phone-width faults on
 the SM-T570, and in landscape, where it reads the 600 dp column; Codex's
-three MEDIUMs, two taken, one refused; `d097ad8` and `84e52cd` owe
-Codex). Then 6ii
+three MEDIUMs, two taken, one refused; `d097ad8` and `84e52cd` reviewed
+in 6ik, `266f35a`). Then 6ii
 (Case File slice 5, the ten roll dialogs from frames 13-22; three rulings
 asked first: each pick's description folds into a closed note, Defend
 keeps every control, Damage no default location; `CaseChip` one width
@@ -289,12 +296,7 @@ fixed on the SM-T570; Codex SHIP). Then 6ig
 frames 01, 05 and 07; four rulings asked first: a lost character's row
 red, the blank-sheet button kept, letter groups in book order, a
 template filter; the frames' "at 10" and "Appendix B" corrected to the
-data; Codex's HIGH, a list key a name could repeat, fixed). Then 6if
-(the owner's "be truthful to the figma screen": the sheet rebuilt against
-frames 02-04 and 08 pulled from Figma; 6ie's skipped list was the
-defect; four rulings asked first, A-Z still out; `fileNumber`, pools in
-two forms, the amended table, "Show amendments"; 6id's three device
-checks done on the SM-T570). The chain
+data; Codex's HIGH, a list key a name could repeat, fixed). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to

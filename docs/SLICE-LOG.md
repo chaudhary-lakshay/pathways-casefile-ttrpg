@@ -6726,6 +6726,95 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ik. Case File, slice 8: the sweep
+
+The plan's slice 8 (Notion: "Leftover Material defaults ... Delete the dead
+preset code. Screenshot every screen"). Its inputs were re-run before they
+were inherited, and one was wrong: 6ij's "no TopAppBar remain" was false
+(the sheet's bar is one), though it is frame 03's transparent bar from 6if
+and stays. Three commits, not pushed: `50faec1`, `5ef095d`, and this entry.
+
+### What the census found
+
+- **Dead preset code: none left.** A grep for every preset, seed, mode,
+  dynamic, AMOLED, Wabi, Radix and Shippori symbol outside `docs/` finds
+  only history comments. `res/raw` and `res/values-night` were empty,
+  untracked folders, removed.
+- **The last FilterChip**, `DrawbackPicker` (Hanged Man 9's choose-one),
+  takes `CaseChip` in `50faec1`. Seen on the SM-T570 on a throwaway
+  character that drank Hanged Man 9, then deleted: picked, it fills ink
+  with a check at one width.
+- **About 25 sentence-case Material TextButtons** in dialog and row bodies
+  ("Roll again", "Give back", "Clear", "Put down", "Use", "Buy"), and 15
+  dialogs with no form line. The frames draw an in-body action two ways
+  (frame 16's "ROLL HT 9" in caps, frame 08's "Roll 3d6 ≤ 12" in sentence
+  case) and none of these 15 dialogs, so both were asked.
+
+### Two owner rulings, asked first
+
+- **Undrawn in-body actions: an outlined ink box in mono caps**, frame 16's.
+- **Form codes on the four undrawn roll dialogs only**: Untrained `2-U`,
+  Attribute roll `3-A`, Self-control `3-C`, Concentrate `5-C`, chapters
+  read from the engines' own KDoc. Pickers and confirms take the ruled
+  title with no code (`FormTitle(null)`).
+
+### What changed (`5ef095d`)
+
+`InkAction` is frame 10's Spend button lifted into `CaseText.kt`, with an
+optional icon (dice on a roll); `InkButton` is Create's filled caps. A
+footer's main action takes `InkButton` (Use, Buy, Change); a footer's other
+action takes `CloseButton` in ink, as "Another turn" and "Ask again" already
+did (Roll again, Sense again). The Reset and Delete confirms' button went
+through `Caps`: "Delete" sat in sentence case beside "CANCEL". Left alone,
+each for a reason: the steppers' glyphs, Damage's step cells, Spirit
+Vision's clause toggle, the charm-skill list rows, "What the tags mean"
+(frame 08 draws a link), the acting-quality buttons (frame 11, built in
+6ih) and the trait roll chip (frame 08 draws it as it is).
+
+Three movements under a finger went with it, two of them older than this
+slice: the stun row printed its result ABOVE its repeatable roll, so the
+first tap pushed the button the next turn aims at; Acrobatic Dodge's label
+shrank to "Roll again" as Clear appeared beside it, so a second tap at the
+old centre could land on Clear (one label now, Clear drawn from the start
+and disabled); and a Sealed Artifact's receipt appeared on the first Use and
+grew the dialog, which re-centred and moved Use. The receipt is now drawn
+from the start, unseen and unspoken until a Use, holding its own text's
+height: `minLines = 2` was a floor, not a cap (Codex). And the device pass
+found the shared verdict card's margin tag breaking mid-word, "margi / n 1",
+at 390 dp and font 1.3: the dice line is a `FlowRow` now, and the tag drops
+whole.
+
+### Proof
+
+2003 Kotlin tests (1481 `core:rules`, 499 `app`, 23 `core:model`) and 366
+Python, all green, counted from fresh XML; nothing tests a composable. The
+session-mutator census still prints 40 lines: every handler moved
+unchanged, and Codex confirmed the three `return@` relabels each leave the
+right lambda. On the SM-T570 at 390 dp and font 1.3: the Will roll's
+`FORM 3-A` line, its "ROLL AGAIN" footer and the margin tag dropping whole;
+the Reset confirm's ruled title and "RESET"; at font 1.0 the Artifacts
+dialog's ruled title, held receipt space and "USE". **Not seen on the
+device:** an `InkAction` itself (each one sits behind a state this pass
+did not reach: a stun, a fright row, a bought trait), and the
+four roll dialogs other than Attribute roll.
+
+### Review
+
+Codex (`codex exec`, gpt-6-astra, xhigh) on the diff: handlers unchanged;
+two MEDIUMs and two LOWs, all about movement. Taken: Acrobatic Dodge and
+the artifact receipt. Refused, each with its line: Language's Buy/Change
+(`BuilderScreen.kt:366`, buying closes the picker), and the vital roll's
+"Roll again" (the result replaces the button, so no control sits under the
+first tap). The fix's re-review: Acrobatic SHIP; the receipt's `minLines`
+was a floor, fixed as above.
+
+### Next
+
+The plan's slice 8 also asks for every screen photographed beside its
+frame. This pass photographed what it touched, not all 24 frames; that
+side-by-side remains, and is where the unseen `InkAction`s and the four
+roll dialogs get their device check. Nothing is pushed since 6ic.
+
 ## 6ij. Case File, slice 7: the builder
 
 The plan's slice 7, built against frames 23-24
