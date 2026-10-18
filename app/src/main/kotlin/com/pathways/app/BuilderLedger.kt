@@ -133,13 +133,17 @@ internal fun BudgetCard(spent: Int, budget: Int) {
     ) {
         // Where the ledger stacks, the spare tag takes a line of its own: beside
         // it at 390 dp and font 1.3, "of 100 points" wrapped. Chosen by the
-        // window, so a step that adds a digit cannot grow the pinned card.
+        // window. The tag holds one line, so "9 over" to "10 over" on a very
+        // narrow window cannot grow the pinned card (the review sub-agent);
+        // beside it, the budget never passes 115 (70 + 40 + 5, PointBudget),
+        // so the label's three digits fit at 360 dp.
         val stacks = ledgerStacks(LocalConfiguration.current.screenWidthDp, LocalDensity.current.fontScale)
         val spare: @Composable (Modifier) -> Unit = { modifier ->
             Text(
                 if (over) "${spent - budget} over budget" else "${budget - spent} spare",
                 style = MaterialTheme.typography.labelLarge.tabular().copy(fontWeight = FontWeight.Bold),
                 color = accent,
+                maxLines = 1,
                 modifier = modifier
                     .border(1.5.dp, accent, MaterialTheme.shapes.extraSmall)
                     .padding(horizontal = 10.dp, vertical = 3.dp),

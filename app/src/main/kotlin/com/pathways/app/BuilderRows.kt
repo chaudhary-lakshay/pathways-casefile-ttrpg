@@ -305,15 +305,20 @@ internal fun SkillRow(
         // prose held closed (the owner's ruling, 2026-10-18); one that prices
         // a rung is ruled solid.
         val tag = @Composable { StudyTag("Study: ${study.tag}", dashed = canOpen) }
+        val paid = @Composable {
+            Text(
+                points.pointsLabel().removePrefix("+") + if (studied > 0) " + $studied studied" else "",
+                style = MaterialTheme.typography.labelMedium.tabular(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         Row {
             Column(Modifier.weight(1f).then(opens).padding(end = 8.dp)) {
                 Text(label, style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    points.pointsLabel().removePrefix("+") + if (studied > 0) " + $studied studied" else "",
-                    style = MaterialTheme.typography.labelMedium.tabular(),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                if (!stacks) tag()
+                if (!stacks) {
+                    paid()
+                    tag()
+                }
             }
             Column(horizontalAlignment = Alignment.End) {
                 // A skill bought here steps rung to rung; a printed one is boxed.
@@ -331,16 +336,22 @@ internal fun SkillRow(
                 if (onStudy != null && !stacks) StudyStepper(studied, canAdd = study.reason == null, onStudy)
             }
         }
-        // Stacked, the stepper comes before the tag: a tag whose next rung
-        // reprices can change its line count, and under it the stepper moved
-        // between two taps (Codex on 6ij). Above it nothing that changes.
+        // Stacked, the stepper sits under nothing a study tap changes: only
+        // the name and the level. The points line ("2 pts + 1 studied") and
+        // the tag reprice on that tap and can change their line count, so
+        // both go under it (Codex and a review sub-agent on 6ij: at 360 dp
+        // and font 1.3 the first tap wrapped the points line and dropped the
+        // stepper about 20 dp).
         if (stacks) {
             if (onStudy != null) {
                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                     StudyStepper(studied, canAdd = study.reason == null, onStudy)
                 }
             }
-            Box(opens) { tag() }
+            Column(opens) {
+                paid()
+                tag()
+            }
         }
         // At the row's foot, so opening it moves no stepper in either layout.
         if (expanded && study.reason != null) {
