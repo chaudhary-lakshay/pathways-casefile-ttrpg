@@ -181,16 +181,26 @@ private fun spelled(pool: Pool) = when (pool) {
     Pool.SPI -> "Spirituality"
 }
 
-/** Frame 02's row: the name, the count and the pips, the stepper at the right. */
+/**
+ * Frame 02's row: the name and the count, the stepper at the right, and the
+ * pips under both across the card's width -- beside the stepper, 15 HP
+ * shrank below the size that takes a cross.
+ */
 @Composable
 private fun PoolRow(status: PoolStatus, onTags: () -> Unit, onSpend: (Int) -> Unit) {
-    Row(Modifier.padding(16.dp), verticalAlignment = Alignment.Top) {
-        Column(Modifier.weight(1f).then(tagsTap(status, onTags)), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            PoolLabel(spelled(status.pool), status)
-            PoolCount(status, MaterialTheme.typography.headlineMedium)
-            PoolBar(status, largest = 18.dp, gap = 4.dp, round = status.pool == Pool.SPI)
+    // The tap stays off the stepper: a tap on a disabled step would fall
+    // through to it and open the rule line under the finger.
+    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(verticalAlignment = Alignment.Top) {
+            Column(Modifier.weight(1f).then(tagsTap(status, onTags)), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                PoolLabel(spelled(status.pool), status)
+                PoolCount(status, MaterialTheme.typography.headlineMedium)
+            }
+            PoolStepper(status, onSpend, Modifier.padding(start = 12.dp).width(100.dp))
         }
-        PoolStepper(status, onSpend, Modifier.padding(start = 12.dp).width(100.dp))
+        Box(tagsTap(status, onTags)) {
+            PoolBar(status, largest = 18.dp, gap = 3.dp, round = status.pool == Pool.SPI)
+        }
     }
 }
 
@@ -201,7 +211,7 @@ private fun PoolCell(status: PoolStatus, modifier: Modifier, onTags: () -> Unit,
         Column(Modifier.padding(horizontal = 4.dp).then(tagsTap(status, onTags)), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             PoolLabel(status.pool.name, status)
             PoolCount(status, MaterialTheme.typography.titleLarge)
-            PoolBar(status, largest = 10.dp, gap = 2.dp, round = false)
+            PoolBar(status, largest = 8.dp, gap = 2.dp, round = false, segments = true)
         }
         PoolStepper(status, onSpend, Modifier.fillMaxWidth().padding(top = 4.dp))
     }
@@ -336,7 +346,7 @@ internal fun PoolLine(pools: List<PoolStatus>, modifier: Modifier = Modifier) {
                     color = if (poolTags(status).isEmpty()) color else MaterialTheme.colorScheme.error,
                     maxLines = 1,
                 )
-                PoolBar(status, largest = 8.dp, gap = 2.dp, round = false, crossed = false)
+                PoolBar(status, largest = 6.dp, gap = 2.dp, round = false, segments = true)
             }
         }
     }
@@ -357,6 +367,18 @@ internal fun pipSize(max: Int, width: Dp, largest: Dp = PIP_MAX, gap: Dp = PIP_G
     return size.takeIf { it >= PIP_MIN }
 }
 
+private val SEGMENT_MIN = 2.dp
+
+/**
+ * How wide each of [max] segments is when they share [width] (frames 03 and
+ * 04: flex-1 bars, never squares), and null below [SEGMENT_MIN], where the
+ * plain bar says more.
+ */
+internal fun segmentWidth(max: Int, width: Dp, gap: Dp = PIP_GAP): Dp? {
+    if (max <= 0) return null
+    return ((width - gap * (max - 1)) / max).takeIf { it >= SEGMENT_MIN }
+}
+
 /**
  * The pool as one pip per point (Case File, frames 02 and 04): filled for
  * what is left, an empty box for what is spent, crossed in red where there
@@ -364,7 +386,7 @@ internal fun pipSize(max: Int, width: Dp, largest: Dp = PIP_MAX, gap: Dp = PIP_G
  * its cell falls back to a bar.
  */
 @Composable
-private fun PoolBar(status: PoolStatus, largest: Dp, gap: Dp, round: Boolean, crossed: Boolean = true) {
+private fun PoolBar(status: PoolStatus, largest: Dp, gap: Dp, round: Boolean, crossed: Boolean = true, segments: Boolean = false) {
     val color = poolColor(status.pool)
     val left = status.current.coerceIn(0, status.max)
     val spent = MaterialTheme.colorScheme.error
@@ -374,7 +396,21 @@ private fun PoolBar(status: PoolStatus, largest: Dp, gap: Dp, round: Boolean, cr
     // throws when asked for an intrinsic (it crashed the sheet on the tablet).
     Canvas(Modifier.fillMaxWidth().height(largest)) {
         val stroke = 1.dp.toPx()
-        val pip = pipSize(status.max, size.width.toDp(), largest, gap)?.toPx()
+        // Frames 03 and 04: segments [largest] tall that share the width.
+        val segment = if (segments) segmentWidth(status.max, size.width.toDp(), gap)?.toPx() else null
+        if (segment != null) {
+            val step = segment + gap.toPx()
+            repeat(status.max) { i ->
+                val at = Offset(i * step, 0f)
+                if (i < left) {
+                    drawRect(color, at, Size(segment, size.height))
+                } else {
+                    drawRect(rule, at + Offset(stroke / 2, stroke / 2), Size(segment - stroke, size.height - stroke), style = Stroke(stroke))
+                }
+            }
+            return@Canvas
+        }
+        val pip = if (segments) null else pipSize(status.max, size.width.toDp(), largest, gap)?.toPx()
         if (pip == null) {
             val bar = minOf(size.height, 8.dp.toPx())
             val top = (size.height - bar) / 2
