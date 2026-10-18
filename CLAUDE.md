@@ -265,7 +265,7 @@ its 8,000-character cap (6ev).
 **Where to start next: the slice log, from the END — 6ih first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
 line 6728, then 6ih back to 6cb, newest first, so `tail` prints 6cb. 6ih:
-(Case File slice 5, the pathway screen from frames 09-12, read from the
+(Case File slice 6, the pathway screen from frames 09-12, read from the
 HTML renders when the Figma MCP hit its plan limit; three rulings asked
 first: Drink offers the next potion on every rung, so every guard reads
 `drinkTarget`; the CoR ladder's four rungs under "From ritual work"; the

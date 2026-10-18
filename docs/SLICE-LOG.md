@@ -6726,9 +6726,11 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
-## 6ih. Case File, slice 5: the pathway screen
+## 6ih. Case File, slice 6: the pathway screen
 
-The plan's slice 5, built against frames 09-12. The Figma MCP refused every
+The plan's slice 6 (the Notion table numbers it so; 6ig's "Next" and the
+memory had called it slice 5), built against frames 09-11, with frame 12,
+the PCR form, which the plan files under slice 5. The Figma MCP refused every
 call past the first two ("tool call limit on the Starter plan"), so the
 frames came from the HTML pages they were imported from
 (`~/Downloads/uxpilot-beyonder-codex/more/pages/09-12*.png`), the same
@@ -6858,7 +6860,10 @@ rungs, the tab fill) are in `f31eea2`, so in what it read.
 
 ### Next
 
-The plan's slice 6 (the Notion row), frames first. The Figma MCP's
+The plan's slice 5, the roll dialogs (frames 13-22), taken out of order:
+its row says slice 2's shared parts did most of it and names what is
+left, Fright's radio rows, Defend's defence tiles and Damage's amount
+stepper. Then slice 7, the builder (23-24), and 8, the sweep. The Figma MCP's
 Starter limit may still refuse; the HTML renders in
 `~/Downloads/uxpilot-beyonder-codex/more/pages/` are the same frames as
 imported. Not seen on device: a failed PCR's reroll.
