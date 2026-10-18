@@ -102,12 +102,17 @@ internal fun RollButton(
  * ponytail: one threshold in text-scaled dp, measured on the SM-T570 (600
  * dp at 1.0 fits the longest caption beside the widest button; 390 dp at
  * 1.3 squeezed it to a letter a line). Measure the slot instead if a
- * foot ever sits outside a dialog.
+ * foot ever sits outside a dialog. The window is read only up to a
+ * dialog's own 560 dp cap: past it a wider screen buys the foot nothing
+ * (Codex's re-review of 7f0ac87).
  */
 internal fun footerStacks(screenWidthDp: Int, fontScale: Float): Boolean =
-    screenWidthDp / fontScale < FOOTER_ONE_LINE_MIN
+    minOf(screenWidthDp, DIALOG_MAX_WIDTH_DP) / fontScale < FOOTER_ONE_LINE_MIN
 
 private const val FOOTER_ONE_LINE_MIN = 520f
+
+/** Material 3's AlertDialog is never wider than this. */
+private const val DIALOG_MAX_WIDTH_DP = 560
 
 /**
  * The boxed target and its caption, then the button: beside them on a wide

@@ -28,4 +28,17 @@ class RollFooterTest {
     fun `the tablet at large text stacks`() {
         assertTrue(footerStacks(screenWidthDp = 600, fontScale = 1.3f))
     }
+
+    // A dialog is never wider than 560 dp, so a wide window buys the foot
+    // nothing: at 1200 dp and font 2.0 the screen read 600 text-dp and kept
+    // one line in a slot of 280 (Codex's re-review of 7f0ac87).
+    @Test
+    fun `a wide window at large text stacks, the dialog being capped`() {
+        assertTrue(footerStacks(screenWidthDp = 1200, fontScale = 2.0f))
+    }
+
+    @Test
+    fun `a wide window at normal text keeps one line`() {
+        assertFalse(footerStacks(screenWidthDp = 1200, fontScale = 1.0f))
+    }
 }

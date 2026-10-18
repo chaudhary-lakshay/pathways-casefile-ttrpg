@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -98,17 +100,23 @@ internal fun TargetCard(target: Int, baseTarget: Int, forbidden: Boolean = false
         // needed, and its column wrapped on a phone, growing the card under
         // the finger.
         Column(Modifier.padding(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Caps("Target", Modifier.padding(end = 8.dp))
-                // The pill takes what the caption leaves and shrinks its text
-                // to one line there: beside a long "3d6 ≤ 16, 17–18 fail" at
-                // 390 dp and font 1.3 the caption wrapped, and the card grew
-                // as the target crossed 16 (Codex, 6ii). Laid out when
-                // forbidden too, so a forbidding clause cannot shrink the card.
-                FitPill(
-                    SuccessRoll.printed(target),
-                    Modifier.weight(1f).then(if (forbidden) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier),
-                )
+            // The pill shrinks its text to one line in what the caption
+            // leaves: beside a long "3d6 ≤ 16, 17–18 fail" at 390 dp and font
+            // 1.3 the caption wrapped, and the card grew as the target crossed
+            // 16 (Codex, 6ii). Where the foot stacks, the pill takes a line of
+            // its own, because at font 2.0 on a phone even 9 sp clipped beside
+            // the caption (the re-review). Chosen by the window, never the
+            // text. Laid out when forbidden too, so a forbidding clause cannot
+            // shrink the card.
+            val pill = Modifier.then(if (forbidden) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier)
+            if (footerStacks(LocalConfiguration.current.screenWidthDp, LocalDensity.current.fontScale)) {
+                Caps("Target")
+                FitPill(SuccessRoll.printed(target), pill.fillMaxWidth().padding(top = 4.dp))
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Caps("Target", Modifier.padding(end = 8.dp))
+                    FitPill(SuccessRoll.printed(target), pill.weight(1f))
+                }
             }
             Box(Modifier.padding(top = 4.dp).heightIn(min = 56.dp), contentAlignment = Alignment.CenterStart) {
                 if (forbidden) {
