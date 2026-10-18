@@ -1,5 +1,11 @@
 package com.pathways.app
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -12,7 +18,6 @@ import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -140,7 +145,8 @@ internal fun RollDialog(
         // instead of implied -- a GM can see the roll has happened.
         dismissButton = { CloseButton(onDismiss) },
         confirmButton = {
-            Button(shape = ButtonShape,
+            RollButton(
+                "Roll",
                 enabled = out == null,
                 onClick = {
                     // Belt to the disabled state's braces: two taps in the same
@@ -151,10 +157,7 @@ internal fun RollDialog(
                     // rolled (6eg).
                     if (out == null) out = roll(standing)
                 },
-            ) {
-                Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
-                Text("Roll", modifier = Modifier.padding(start = 8.dp))
-            }
+            )
         },
         title = { FormTitle(FORM_SKILL) {
             Column {
@@ -183,7 +186,7 @@ internal fun RollDialog(
                         )
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             declarableClauses.forEach { clause ->
-                                FilterChip(
+                                CaseChip(
                                     selected = clause.key in declaredClauses,
                                     onClick = {
                                         if (clause.key in declaredClauses) {
@@ -325,7 +328,7 @@ private fun CircumstanceRow(
     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         CommonModifiers.offered().filterNot { it.situation in withheld }.forEach { row ->
             val isOn = chosen.any { it.situation == row.situation }
-            FilterChip(
+            CaseChip(
                 selected = isOn,
                 onClick = {
                     if (isOn) {
@@ -363,7 +366,7 @@ private fun CircumstanceRow(
         )
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             ends.forEach { value ->
-                FilterChip(
+                CaseChip(
                     selected = (gmValue[row.situation] ?: row.modifier) == value,
                     onClick = { gmValue[row.situation] = value },
                     label = { Text(if (value > 0) "+$value" else "$value") },
@@ -392,7 +395,7 @@ private fun SenseRow(
     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         SpiritualSenses.offered(sense).forEach { row ->
             val isOn = senseChosen.any { it.situation == row.situation }
-            FilterChip(
+            CaseChip(
                 selected = isOn,
                 onClick = {
                     if (isOn) {
@@ -433,11 +436,20 @@ internal const val FORBIDDEN_ROLL = "Forbidden — this roll cannot be attempted
  */
 @Composable
 internal fun LedgerLines(lines: List<LedgerLine>, requiresCritical: Boolean) {
+    // Frame 13: the term, a dotted leader, its figure at the right.
     lines.forEach { line ->
-        Text(
-            "${line.label}: ${if (line.delta > 0) "+" else ""}${line.delta}",
-            style = MaterialTheme.typography.bodySmall,
-        )
+        Row(
+            Modifier.fillMaxWidth().padding(top = 4.dp).semantics(mergeDescendants = true) {},
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Text(line.label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f, fill = false))
+            Box(Modifier.weight(1f).padding(horizontal = 4.dp).height(12.dp).dashedRule(MaterialTheme.colorScheme.outlineVariant))
+            Text(
+                "${if (line.delta > 0) "+" else ""}${line.delta}",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
     }
     if (requiresCritical) {
         Text(

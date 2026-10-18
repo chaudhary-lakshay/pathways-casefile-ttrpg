@@ -80,6 +80,12 @@ class SheetHeaderTest {
     }
 
     @Test
+    fun `a dialog's form header names the open file, and the blank sheet none`() {
+        assertEquals("File Nº 04", fileLabel(4))
+        assertEquals(null, fileLabel(null))
+    }
+
+    @Test
     fun `a skill's ATTR column is its controlling attribute and difficulty, as the book writes them`() {
         assertEquals("IQ/H", attrCode(SkillKey("Physician", null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.HARD)))
         assertEquals("Per/A", attrCode(SkillKey("Observation", null, ControllingAttribute.Per, Difficulty.AVERAGE)))

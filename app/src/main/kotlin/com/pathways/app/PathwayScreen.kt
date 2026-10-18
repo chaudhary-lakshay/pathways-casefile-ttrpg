@@ -278,7 +278,7 @@ fun PathwayScreen(
             if (session.pendingPcr != null) rerollSource else null,
             // On a success the session already stands on the rung landed on.
             stamp = drunk?.takeIf { outcome.integrated }?.let { "Seq ${it.sequence} · ${potionName(it)}" },
-            file = file?.let { "File Nº ${fileDigits(it)}" },
+            file = fileLabel(file),
         ) { pcr = null }
     }
 }

@@ -1,5 +1,11 @@
 package com.pathways.app
 
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.draw.alpha
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -16,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Icon
@@ -201,7 +206,7 @@ internal fun FrightDialog(
                     SectionLabel("Kind")
                     FlowRow {
                         FrightKind.entries.forEach { option ->
-                            FilterChip(
+                            CaseChip(
                                 selected = option == kind,
                                 onClick = { kind = option },
                                 label = { Text(option.name.lowercase().replaceFirstChar { it.uppercase() }) },
@@ -239,51 +244,50 @@ internal fun FrightDialog(
                     // holds no scene.
                     ClauseChips(clauses, declared) { declared = it }
                 }
-                HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                if (shock != 0) {
-                    Text(
-                        "includes $shock from shock — \"${Shock.printed()}\"",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                if (hurt != 0) {
-                    Text(
-                        "includes $hurt from the HP and FP trackers",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                fromTraits.line?.let {
-                    Text("includes $it", style = MaterialTheme.typography.bodySmall)
-                }
-                states.line?.let {
-                    Text("includes $it", style = MaterialTheme.typography.bodySmall)
-                }
-                Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        if (chosen == null) "Pick what was witnessed." else SuccessRoll.printed(target),
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Button(shape = ButtonShape,
-                        enabled = chosen != null,
-                        onClick = {
-                            // Guarded rather than relying on the button
-                            // leaving the tree: two taps before a
-                            // recomposition would otherwise roll twice and
-                            // keep the second, the re-entrancy the divination
-                            // dialog was hardened for (6p).
-                            if (outcome == null && chosen != null) {
-                                val rolled = FrightCheck.rollAgainst(target, dice.dice("Fright Check"), effectSource = dice.dice("Fright effect"))
-                                outcome = rolled
-                                if (FrightCheck.leavesStunned(rolled.effect, kind, recovery = null)) {
-                                    stunnedHere = !stunned
-                                    onStunned(true)
+                FooterBand {
+                    if (shock != 0) {
+                        Text(
+                            "includes $shock from shock — \"${Shock.printed()}\"",
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+                    if (hurt != 0) {
+                        Text(
+                            "includes $hurt from the HP and FP trackers",
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+                    fromTraits.line?.let {
+                        Text("includes $it", style = MaterialTheme.typography.labelMedium)
+                    }
+                    states.line?.let {
+                        Text("includes $it", style = MaterialTheme.typography.labelMedium)
+                    }
+                    Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            if (chosen == null) "Pick what was witnessed." else SuccessRoll.printed(target),
+                            style = MaterialTheme.typography.labelLarge.tabular(),
+                            modifier = Modifier.weight(1f),
+                        )
+                        RollButton(
+                            "Roll",
+                            enabled = chosen != null,
+                            onClick = {
+                                // Guarded rather than relying on the button
+                                // leaving the tree: two taps before a
+                                // recomposition would otherwise roll twice and
+                                // keep the second, the re-entrancy the divination
+                                // dialog was hardened for (6p).
+                                if (outcome == null && chosen != null) {
+                                    val rolled = FrightCheck.rollAgainst(target, dice.dice("Fright Check"), effectSource = dice.dice("Fright effect"))
+                                    outcome = rolled
+                                    if (FrightCheck.leavesStunned(rolled.effect, kind, recovery = null)) {
+                                        stunnedHere = !stunned
+                                        onStunned(true)
+                                    }
                                 }
-                            }
-                        },
-                    ) {
-                        Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Text("Roll", modifier = Modifier.padding(start = 8.dp))
+                            },
+                        )
                     }
                 }
             }
@@ -294,25 +298,42 @@ internal fun FrightDialog(
 /** One row of the book's trigger table: what was seen, and what it prints. */
 @Composable
 private fun TriggerRow(trigger: FrightTrigger, selected: Boolean, onPick: () -> Unit) {
-    val accent = MaterialTheme.colorScheme.primary
-    Surface(
-        color = if (selected) accent.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surfaceContainerLow,
-        shape = RoundedCornerShape(12.dp),
-        border = if (selected) BorderStroke(1.dp, accent) else null,
-        modifier = Modifier
+    // Frame 17: a ruled table row, the pick in bold beside a filled ink dot.
+    Row(
+        Modifier
             .fillMaxWidth()
-            .padding(vertical = 3.dp)
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onPick),
+            .dashedRule(MaterialTheme.colorScheme.outlineVariant)
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onPick)
+            .padding(vertical = 10.dp),
+        verticalAlignment = Alignment.Top,
     ) {
-        Row(Modifier.padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(selected = selected, onClick = null)
-            Text(
-                trigger.trigger,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
-            )
-            Tag(trigger.printed, MaterialTheme.colorScheme.onSurfaceVariant)
+        RadioButton(
+            selected = selected,
+            onClick = null,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = MaterialTheme.colorScheme.onSurface,
+                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
+        )
+        // Both weights laid out, one shown: bold is wider in Plex and could
+        // wrap a line regular did not, growing the row under the finger.
+        Box(Modifier.weight(1f).padding(horizontal = 12.dp).padding(top = 2.dp)) {
+            listOf(FontWeight.Normal, FontWeight.SemiBold).forEach { weight ->
+                val shown = (weight == FontWeight.SemiBold) == selected
+                Text(
+                    trigger.trigger,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = weight, letterSpacing = 0.15.sp),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = if (shown) Modifier else Modifier.alpha(0f).clearAndSetSemantics {},
+                )
+            }
         }
+        Text(
+            trigger.printed,
+            style = MaterialTheme.typography.labelLarge.tabular(),
+            color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 3.dp),
+        )
     }
 }
 

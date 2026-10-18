@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -102,7 +101,7 @@ internal fun AttackOptions(
                 SectionLabel("Strike")
                 FlowRow {
                     attacks.forEach { option ->
-                        FilterChip(
+                        CaseChip(
                             selected = unarmed?.attack == option.attack,
                             onClick = { onAttack(option) },
                             label = { Text(option.attack) },
@@ -129,7 +128,7 @@ internal fun AttackOptions(
             SectionLabel("Maneuver")
             FlowRow {
                 AttackManeuver.entries.forEach { option ->
-                    FilterChip(
+                    CaseChip(
                         selected = plan.maneuver == option,
                         // Changing maneuver drops the options the old one allowed:
                         // Heroic Charge outside a charge is refused by Attacks, and
@@ -148,7 +147,7 @@ internal fun AttackOptions(
             // than offering a choice the book does not allow.
             FlowRow {
                 listOf(false to "In reach", true to "At range").forEach { (ranged, text) ->
-                    FilterChip(
+                    CaseChip(
                         selected = plan.isRanged == ranged,
                         onClick = { if (plan.isRanged != ranged) onPlan(Attacks.atRange(plan, ranged)) },
                         label = { Text(text) },
@@ -193,7 +192,7 @@ internal fun AttackOptions(
                 // the plan is and the breakdown always adds up.
                 FlowRow {
                     Ranged.meleeConditions().forEach { option ->
-                        FilterChip(
+                        CaseChip(
                             selected = option.condition in circumstances,
                             onClick = { onCircumstance(option.condition) },
                             label = { Text("${option.condition} ${option.printed}") },
@@ -206,7 +205,7 @@ internal fun AttackOptions(
             KillerTarget(killerClauses, killerTarget, onKillerTarget)
             if (charm != null) {
                 SectionLabel(charm.shown)
-                FilterChip(
+                CaseChip(
                     selected = charmLit,
                     onClick = onCharm,
                     label = { Text(charm.printed) },
@@ -220,7 +219,7 @@ internal fun AttackOptions(
             // held, which modifiers() never sees.
             SectionLabel("Extra effort")
             if (Attacks.offersStrongBlow(plan, damage != null, armed?.isFired == true)) {
-                FilterChip(
+                CaseChip(
                     selected = plan.strongBlow,
                     onClick = { onPlan(plan.copy(strongBlow = !plan.strongBlow)) },
                     label = {
@@ -233,7 +232,7 @@ internal fun AttackOptions(
                 )
             }
             if (plan.maneuver == AttackManeuver.CHARGE) {
-                FilterChip(
+                CaseChip(
                     selected = plan.heroicCharge,
                     onClick = { onPlan(plan.copy(heroicCharge = !plan.heroicCharge)) },
                     label = {
@@ -246,7 +245,7 @@ internal fun AttackOptions(
             // no scope where both neighbours print one. The step itself is the
             // GM's -- this app holds no map -- so what the chip delivers is the FP
             // charge, which is the half of the row this app does model.
-            FilterChip(
+            CaseChip(
                 selected = plan.giantStep,
                 onClick = { onPlan(plan.copy(giantStep = !plan.giantStep)) },
                 label = {
@@ -352,7 +351,7 @@ private fun ArmedWith(
     SectionLabel("Weapon")
     FlowRow {
         weapons.forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = armed?.weapon?.name == option.name,
                 onClick = {
                     onArmed(if (armed?.weapon?.name == option.name) null else Armed(option))
@@ -366,7 +365,7 @@ private fun ArmedWith(
         if (held.weapon.damage.size > 1) {
             FlowRow {
                 held.weapon.damage.forEach { mode ->
-                    FilterChip(
+                    CaseChip(
                         selected = held.mode == mode,
                         onClick = { onArmed(Armed(held.weapon, mode)) },
                         label = { Text(mode.printed) },
@@ -417,7 +416,7 @@ private fun KillerTarget(
     SectionLabel("Target (${clauses.first().shown})")
     FlowRow {
         clauses.forEach { clause ->
-            FilterChip(
+            CaseChip(
                 selected = clause.key == declared,
                 onClick = { onDeclare(clause.key) },
                 label = { Text(clause.printed) },
@@ -455,7 +454,7 @@ private fun CalledShot(location: HitLocation?, onLocation: (HitLocation) -> Unit
     SectionLabel("Called shot")
     FlowRow {
         locations.forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = option == location,
                 onClick = { onLocation(option) },
                 label = { Text("${option.target} ${signed(option.penalty)}") },

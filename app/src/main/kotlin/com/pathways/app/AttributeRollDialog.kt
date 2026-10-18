@@ -81,6 +81,7 @@ internal fun AttributeRollDialog(
                         gm.takeIf { it != 0 }?.let { "GM ${signed(it)}" },
                     ),
                     caption = SuccessRoll.printed(target),
+                    target = target,
                 ) {
                     // A one-shot: a second tap of this picture is dropped (6ei).
                     if (outcome != null) return@RollFooter

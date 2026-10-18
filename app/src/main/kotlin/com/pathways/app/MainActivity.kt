@@ -147,6 +147,7 @@ fun App(
         ) { selected = it }
         else -> CompositionLocalProvider(
             LocalDice provides remember(sheet) { CharacterDice { label -> rollLog.dice(sheet.name, label) } },
+            LocalFileLabel provides fileLabel(fileNumber(sheet, sheets)),
         ) {
             BackHandler {
                 if (screen == Screen.SHEET) selected = null else screen = Screen.SHEET

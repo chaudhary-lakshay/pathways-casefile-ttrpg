@@ -39,17 +39,19 @@ internal fun OptionStepper(
         color = Color.Transparent,
         modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
     ) {
-        Row(Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("$label $shown", style = MaterialTheme.typography.titleSmall)
+                Text("$label $shown", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
                 Text(
                     note,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+            // The value between the steps as well as in the label, as the
+            // frames draw it (13, 14, 15, 17).
             JoinedStepper(
-                null,
+                shown,
                 onMinus = { onStep(-1) },
                 onPlus = { onStep(1) },
                 minusLabel = "One less $label",
@@ -71,32 +73,20 @@ internal fun AttackFooter(
     attacks: Int,
     onRoll: () -> Unit,
 ) {
-    Column {
-        HorizontalDivider(Modifier.padding(vertical = 8.dp), thickness = 2.dp, color = MaterialTheme.colorScheme.outline)
+    FooterBand {
         lines.forEach {
             Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
+            BoxedTarget(standing.target.takeUnless { standing.forbidden })
+            Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
                 if (standing.forbidden) {
                     Text(FORBIDDEN_ROLL, color = MaterialTheme.colorScheme.error)
                 } else {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Boxed, as the target card above draws it.
-                        Text(
-                            "${standing.target}",
-                            style = MaterialTheme.typography.headlineMedium.tabular()
-                                .copy(fontWeight = FontWeight.SemiBold),
-                            modifier = Modifier
-                                .border(2.dp, MaterialTheme.colorScheme.outline)
-                                .padding(horizontal = 10.dp, vertical = 4.dp),
-                        )
-                        Text(
-                            SuccessRoll.printed(standing.target) + if (attacks > 1) ", each" else "",
-                            style = MaterialTheme.typography.labelLarge.tabular(),
-                            modifier = Modifier.padding(start = 10.dp),
-                        )
-                    }
+                    Text(
+                        SuccessRoll.printed(standing.target) + if (attacks > 1) ", each" else "",
+                        style = MaterialTheme.typography.labelLarge.tabular(),
+                    )
                 }
                 if (standing.requiresCritical) {
                     Text(
@@ -108,10 +98,7 @@ internal fun AttackFooter(
             }
             // Nothing to roll is nothing to pay for: the handler charges the
             // plan's FP whatever the dice do.
-            Button(shape = ButtonShape, onClick = onRoll, enabled = !standing.forbidden) {
-                Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
-                Text("Roll", modifier = Modifier.padding(start = 8.dp))
-            }
+            RollButton("Roll", onRoll, enabled = !standing.forbidden)
         }
     }
 }

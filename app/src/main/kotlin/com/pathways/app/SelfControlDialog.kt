@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -51,10 +50,10 @@ internal fun ClauseChips(
     )
     FlowRow(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         conditional.forEach { clause ->
-            // A FilterChip, not a coloured TextButton: lit by colour alone
+            // A chip, not a coloured TextButton: lit by colour alone
             // read the same either way in play, and carried no selected
             // state for TalkBack (play session 1).
-            FilterChip(
+            CaseChip(
                 selected = clause.key in declared,
                 onClick = {
                     onDeclared(
@@ -195,7 +194,7 @@ internal fun SelfControlDialog(
                 // Nothing is charged here, but the second tap would silently
                 // discard a rolled outcome and pull an extra draw from the
                 // dice.
-                RollFooter(listOfNotNull(fromTraits.line?.let { "includes $it" }, states.line?.let { "includes $it" }), SuccessRoll.printed(target)) {
+                RollFooter(listOfNotNull(fromTraits.line?.let { "includes $it" }, states.line?.let { "includes $it" }), SuccessRoll.printed(target), target) {
                     if (outcome != null) return@RollFooter
                     outcome = SelfControl.rollAgainst(check, target, dice.dice(check.trait))
                 }

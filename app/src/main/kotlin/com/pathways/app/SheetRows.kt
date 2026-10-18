@@ -34,7 +34,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.MonitorHeart
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -642,7 +641,7 @@ internal fun BurnRow(
     val steps = (1..minOf(4, affordable)).toList()
     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         steps.forEach { points ->
-            FilterChip(
+            CaseChip(
                 selected = false,
                 onClick = { onBurn(points) },
                 label = { Text("+$points") },

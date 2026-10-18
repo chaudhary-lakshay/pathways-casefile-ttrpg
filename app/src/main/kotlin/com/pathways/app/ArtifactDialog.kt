@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -98,7 +97,7 @@ fun ArtifactDialog(
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 FlowRow {
                     artifacts.forEach { option ->
-                        FilterChip(
+                        CaseChip(
                             selected = option == artifact,
                             onClick = { artifact = option },
                             label = { Text(shortName(option)) },
@@ -129,7 +128,7 @@ fun ArtifactDialog(
                 Text("Ability", style = MaterialTheme.typography.titleSmall)
                 FlowRow {
                     artifact.abilities.forEach { option ->
-                        FilterChip(
+                        CaseChip(
                             selected = option.name == ability.name,
                             onClick = { ability = option },
                             label = {

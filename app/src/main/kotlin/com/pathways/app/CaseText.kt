@@ -28,6 +28,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 
@@ -58,10 +59,22 @@ internal fun Caps(
 }
 
 /** A 2 dp dashed rule round a box: the frames' mark for "start something" (frames 01 and 04). */
-internal fun Modifier.dashedBorder(color: Color): Modifier = drawBehind {
+internal fun Modifier.dashedBorder(color: Color, width: Dp = 2.dp): Modifier = drawBehind {
     drawRect(
         color,
-        style = Stroke(width = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 5.dp.toPx()))),
+        style = Stroke(width = width.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx() + width.toPx() * 2, 5.dp.toPx()))),
+    )
+}
+
+/** A 1 dp dashed rule under a row: the frames' divider between a table's rows (frame 17). */
+internal fun Modifier.dashedRule(color: Color): Modifier = drawBehind {
+    val y = size.height - 0.5.dp.toPx()
+    drawLine(
+        color,
+        start = androidx.compose.ui.geometry.Offset(0f, y),
+        end = androidx.compose.ui.geometry.Offset(size.width, y),
+        strokeWidth = 1.dp.toPx(),
+        pathEffect = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 3.dp.toPx())),
     )
 }
 
@@ -75,7 +88,7 @@ internal val ButtonShape = RoundedCornerShape(2.dp)
  * A Column, because the title slot stacks bare children.
  */
 @Composable
-internal fun FormTitle(form: String, file: String? = null, title: @Composable () -> Unit) {
+internal fun FormTitle(form: String, file: String? = LocalFileLabel.current, title: @Composable () -> Unit) {
     Column {
         Row(Modifier.clearAndSetSemantics {}) {
             val style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.1.em)

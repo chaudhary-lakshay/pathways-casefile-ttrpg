@@ -3,7 +3,6 @@ package com.pathways.app
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -70,7 +69,7 @@ internal fun CellValueChips(printed: String, values: List<Int>, applied: Int, on
     )
     FlowRow {
         (if (isSpan) values else listOf(applied)).forEach { value ->
-            FilterChip(
+            CaseChip(
                 selected = applied == value,
                 enabled = isSpan,
                 onClick = { if (isSpan) onPick(value) },
@@ -120,7 +119,7 @@ internal fun RitualPowerSourceChips(
     SectionLabel("Complexity")
     FlowRow {
         PowerSources.complexities().forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = option.complexity == complexity.complexity,
                 enabled = fuelEnabled,
                 onClick = { onComplexity(option) },
@@ -140,7 +139,7 @@ internal fun RitualPowerSourceChips(
     SectionLabel("Fuel")
     FlowRow {
         spiChoices(complexity).forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = option == spiChoice,
                 enabled = fuelEnabled,
                 onClick = { onSpiChoice(option) },
@@ -156,7 +155,7 @@ internal fun RitualPowerSourceChips(
     SectionLabel("Paid in HP (${PowerSources.HP_PER_SPI} HP = 1 SPI, no bonus to the roll)")
     FlowRow {
         hpChoices(cost).forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = option == hpSacrificed,
                 enabled = fuelEnabled,
                 onClick = { onHpSacrificed(option) },
@@ -173,7 +172,7 @@ internal fun RitualPowerSourceChips(
     FlowRow {
         RitualPacing.entries.forEach { option ->
             val shift = PowerSources.pacingModifier(complexity, option)
-            FilterChip(
+            CaseChip(
                 selected = option == pacing,
                 onClick = { onPacing(option) },
                 label = {
@@ -196,7 +195,7 @@ internal fun RitualPowerSourceChips(
     SectionLabel("Assistants")
     FlowRow {
         (0..4).forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = option == assistants,
                 onClick = { onAssistants(option) },
                 label = {
@@ -220,14 +219,14 @@ internal fun RitualPowerSourceChips(
     // Ch. 7 IV.D.
     SectionLabel("External sacrifice")
     FlowRow {
-        FilterChip(
+        CaseChip(
             selected = sacrifice == null,
             onClick = { onSacrifice(null) },
             label = { Text("None") },
             modifier = Modifier.padding(end = 8.dp),
         )
         PowerSources.sacrificeTiers().forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = sacrifice?.tier == option.tier,
                 onClick = { onSacrifice(option) },
                 label = { Text("${option.tier} ${signed(option.modifier)}") },
@@ -244,7 +243,7 @@ internal fun RitualPowerSourceChips(
         SectionLabel("Sentient beings offered (${signed(PowerSources.SENTIENT_BONUS)} each, on top)")
         FlowRow {
             (0..3).forEach { option ->
-                FilterChip(
+                CaseChip(
                     selected = option == sentientBeings,
                     onClick = { onSentientBeings(option) },
                     label = { Text(if (option == 0) "None" else "$option") },
@@ -259,7 +258,7 @@ internal fun RitualPowerSourceChips(
     FlowRow {
         (PowerSources.CATALYST_LOWEST..PowerSources.CATALYST_HIGHEST)
             .forEach { option ->
-                FilterChip(
+                CaseChip(
                     selected = option == catalyst,
                     onClick = { onCatalyst(option) },
                     label = {
@@ -272,7 +271,7 @@ internal fun RitualPowerSourceChips(
 
     // p. 65, above the Time table. Not a power source, but the
     // same declaration: it moves the effective skill.
-    FilterChip(
+    CaseChip(
         selected = suspended,
         onClick = onToggleSuspended,
         label = {
@@ -317,7 +316,7 @@ internal fun RitualSupportAndLanguage(
         )
         FlowRow {
             ownedSupportSkills.forEach { name ->
-                FilterChip(
+                CaseChip(
                     selected = name in support,
                     onClick = { onToggleSupport(name) },
                     label = { Text(name) },
@@ -345,14 +344,14 @@ internal fun MysticalLanguagePicker(
     // read as permission.
     SectionLabel("Mystical language")
     FlowRow {
-        FilterChip(
+        CaseChip(
             selected = language == null,
             onClick = { onLanguage(null) },
             label = { Text("Not stated") },
             modifier = Modifier.padding(end = 8.dp),
         )
         Languages.proficiencies(Languages.MYSTICAL).forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = language?.proficiency == option.proficiency,
                 onClick = { onLanguage(option) },
                 label = { Text(option.proficiency) },

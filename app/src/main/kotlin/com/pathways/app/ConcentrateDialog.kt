@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -106,7 +105,7 @@ internal fun ConcentrateDialog(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(top = 8.dp),
                     )
-                    FilterChip(
+                    CaseChip(
                         selected = disturbed,
                         onClick = { disturbed = !disturbed },
                         label = { Text("Injured or defending") },
@@ -125,6 +124,7 @@ internal fun ConcentrateDialog(
                         states.line?.let { "includes $it" },
                     ),
                     caption = if (disturbed) SuccessRoll.printed(target) else "No roll unless injured or defending",
+                    target = target.takeIf { disturbed },
                     enabled = disturbed,
                 ) {
                     // Guarded inline as well as by the tree: two taps can

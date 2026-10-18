@@ -2,7 +2,6 @@ package com.pathways.app
 
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,7 +50,7 @@ internal fun RangedOptions(
     Text("Distance", style = MaterialTheme.typography.titleSmall)
     FlowRow {
         bands.forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = band?.printed == option.printed,
                 onClick = { onBand(option) },
                 label = { Text("${option.printed.substringBefore(" meters")} ${signed(option.penalty)}") },
@@ -66,7 +65,7 @@ internal fun RangedOptions(
     )
     FlowRow {
         conditions.filterNot { it.weaponAcc }.forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = option.condition in circumstances,
                 onClick = { onCircumstance(option.condition) },
                 label = { Text("${option.condition} ${option.printed}") },
@@ -86,7 +85,7 @@ internal fun RangedOptions(
         )
         FlowRow {
             endsBetween(row.modifier!!, row.worstCase).forEach { value ->
-                FilterChip(
+                CaseChip(
                     // Unset shows the row's own figure selected, because that
                     // is the one the roll is using.
                     selected = (darknessSeverity ?: row.modifier) == value,
@@ -107,7 +106,7 @@ internal fun RangedOptions(
         )
         FlowRow {
             DarknessCause.entries.forEach { option ->
-                FilterChip(
+                CaseChip(
                     selected = option == darknessCause,
                     onClick = { onDarknessCause(option) },
                     label = { Text(causeLabel(option)) },
@@ -131,7 +130,7 @@ internal fun RangedOptions(
     }
     Text("Since taking aim", style = MaterialTheme.typography.titleSmall)
     FlowRow {
-        FilterChip(
+        CaseChip(
             selected = aimCancelled,
             onClick = { onAimCancelled() },
             label = { Text("Defended or was hurt") },
@@ -158,7 +157,7 @@ internal fun RangedOptions(
                 style = MaterialTheme.typography.bodySmall,
             )
         } else {
-            FilterChip(
+            CaseChip(
                 selected = option.condition in circumstances,
                 // One aim, one length of time: Ranged.modifiers refuses both
                 // rows together, because each pays the weapon's Acc and two

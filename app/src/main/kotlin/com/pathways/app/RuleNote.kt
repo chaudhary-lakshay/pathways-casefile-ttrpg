@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Icon
@@ -36,30 +35,30 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun RuleNote(title: String, content: @Composable () -> Unit) {
     var open by remember { mutableStateOf(false) }
-    Column(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+    // Frames 13-22: a 1 dp dashed box, the title in mono ink, a chevron.
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+            .dashedBorder(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), width = 1.dp),
+    ) {
         Row(
             Modifier
                 .fillMaxWidth()
                 .heightIn(min = 48.dp)
                 .clickable(role = Role.Button, onClickLabel = if (open) "Hide $title" else "Show $title") { open = !open }
                 .semantics { stateDescription = if (open) "Expanded" else "Collapsed" }
-                .padding(vertical = 8.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                Icons.AutoMirrored.Outlined.MenuBook,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(end = 8.dp),
-            )
             Text(
                 title,
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge.copy(fontFamily = PlexMono),
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
             )
             Icon(if (open) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null)
         }
-        if (open) Column(Modifier.padding(start = 4.dp, bottom = 4.dp)) { content() }
+        if (open) Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 10.dp)) { content() }
     }
 }

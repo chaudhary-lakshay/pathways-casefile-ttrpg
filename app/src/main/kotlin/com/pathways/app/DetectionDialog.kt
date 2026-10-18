@@ -1,5 +1,7 @@
 package com.pathways.app
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -7,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -204,14 +205,14 @@ fun DetectionDialog(
                         style = MaterialTheme.typography.bodySmall,
                     )
                     FlowRow {
-                        FilterChip(
+                        CaseChip(
                             selected = awareness == null,
                             onClick = { awareness = null },
                             label = { Text("None") },
                             modifier = Modifier.padding(end = 8.dp),
                         )
                         awarenessRows.forEach { row ->
-                            FilterChip(
+                            CaseChip(
                                 selected = awareness == row,
                                 onClick = { awareness = row },
                                 label = { Text(row.pathway.substringBefore(" (")) },
@@ -235,7 +236,7 @@ fun DetectionDialog(
                             )
                         }
                         row.bonus?.let { value ->
-                            FilterChip(
+                            CaseChip(
                                 selected = takeBonus,
                                 onClick = { takeBonus = !takeBonus },
                                 label = { Text("Take ${signedInt(value)}") },
@@ -252,7 +253,7 @@ fun DetectionDialog(
                         situations.forEach { row ->
                             val superseded =
                                 charmTaken && row.situation.equals(Detection.GENERIC_CHARM, ignoreCase = true)
-                            FilterChip(
+                            CaseChip(
                                 selected = row.situation in chosen && !superseded,
                                 enabled = !superseded,
                                 onClick = {
@@ -281,7 +282,7 @@ fun DetectionDialog(
                     )
                     FlowRow {
                         wards.forEach { row ->
-                            FilterChip(
+                            CaseChip(
                                 selected = row.id in wardIds,
                                 onClick = {
                                     wardIds =
@@ -300,7 +301,7 @@ fun DetectionDialog(
                             )
                         }
                         items.forEach { row ->
-                            FilterChip(
+                            CaseChip(
                                 selected = row.name in carried,
                                 onClick = {
                                     carried =
@@ -325,7 +326,7 @@ fun DetectionDialog(
                         // the book calls for a Quick Contest, which is not
                         // modelled here for the same reason -- so the fallback is
                         // the ordinary Sense roll, not a claim of awareness.
-                        FilterChip(
+                        CaseChip(
                             selected = divinerIsWeaker,
                             onClick = { divinerIsWeaker = !divinerIsWeaker },
                             label = { Text("The diviner is of weaker Sequence") },
@@ -364,7 +365,9 @@ fun DetectionDialog(
                     // circumstance is itemised here as it is there.
                     lines = listOf(parts.joinToString(", ") + ". Free action, costs no SPI."),
                     caption = if (automatic) "Automatic awareness — no roll." else SuccessRoll.printed(target),
+                    target = target.takeIf { !automatic },
                     enabled = !automatic,
+                    icon = Icons.Filled.Sensors,
                     label = "Sense",
                 ) {
                     // One roll per sensing; the re-entrancy guard the

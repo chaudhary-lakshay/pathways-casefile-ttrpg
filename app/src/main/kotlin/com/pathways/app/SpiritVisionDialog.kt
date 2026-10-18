@@ -1,5 +1,7 @@
 package com.pathways.app
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -158,8 +160,10 @@ fun SpiritVisionDialog(
                         if (affordable) null else "Not enough SPI: $spiAvailable left, $activation to activate.",
                     ),
                     caption = SuccessRoll.printed(target),
+                    target = target,
                     enabled = affordable,
                     label = if (drawn == null) "Look ($activation SPI)" else "Look again ($activation SPI)",
+                    icon = Icons.Filled.VisibilityOff,
                 ) {
                     // Looking again is the rule, so the button stays; a
                     // second tap of the same picture does not. `affordable`

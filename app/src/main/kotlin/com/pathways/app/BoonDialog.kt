@@ -1,5 +1,7 @@
 package com.pathways.app
 
+import androidx.compose.material.icons.filled.Church
+import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -7,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -362,7 +363,7 @@ fun BoonDialog(
                         SectionLabel("Patron's pathway")
                         FlowRow {
                             NonStandardPathways.patrons().forEach { option ->
-                                FilterChip(
+                                CaseChip(
                                     selected = option == patron,
                                     // The answer is this patron's.
                                     enabled = answer == null,
@@ -381,7 +382,7 @@ fun BoonDialog(
                         SectionLabel(group)
                         FlowRow {
                             byGroup.getValue(group).forEach { option ->
-                                FilterChip(
+                                CaseChip(
                                     selected = chosen[group]?.label == option.label,
                                     onClick = { chosen[group] = option },
                                     label = { Text("${option.label} (${option.printed})") },
@@ -400,7 +401,7 @@ fun BoonDialog(
                             FlowRow {
                                 val ends = selected?.takeIf { it.best != null }?.let(::endsOf)
                                 (ends ?: listOf(selected?.modifier ?: 0)).forEach { value ->
-                                    FilterChip(
+                                    CaseChip(
                                         selected = selected != null &&
                                             (picked[selected.key] ?: selected.modifier) == value,
                                         enabled = ends != null,
@@ -416,7 +417,7 @@ fun BoonDialog(
                     SectionLabel("Fuel")
                     FlowRow {
                         (granting.spi..granting.spiMax).forEach { option ->
-                            FilterChip(
+                            CaseChip(
                                 selected = option == spiChoice,
                                 // Spent once the patron is asked.
                                 enabled = answer == null,
@@ -430,7 +431,7 @@ fun BoonDialog(
                     SectionLabel("Paid in HP (${PowerSources.HP_PER_SPI} HP = 1 SPI, no bonus to the roll)")
                     FlowRow {
                         hpChoices(cost).forEach { option ->
-                            FilterChip(
+                            CaseChip(
                                 selected = option == hpSacrificed,
                                 enabled = answer == null,
                                 onClick = { hpSacrificed = option },
@@ -508,6 +509,7 @@ fun BoonDialog(
                     },
                     refusal = refusal,
                     label = if (given == null) "Ask the patron" else "Pray",
+                    icon = Icons.Filled.Church,
                 ) {
                     if (given == null) {
                         // This picture's button asks and never prays: a

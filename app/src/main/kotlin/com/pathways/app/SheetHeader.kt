@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
@@ -37,9 +38,19 @@ import com.pathways.rules.PremadeSheet
 internal fun fileNumber(sheet: PremadeSheet, sheets: List<PremadeSheet>): Int? =
     sheets.filterNot(::isTemplate).indexOfFirst { it.name == sheet.name }.takeIf { it >= 0 }?.plus(1)
 
+/** "File Nº 06"; null for the blank sheet, which has no file. */
+internal fun fileLabel(number: Int?): String? = number?.let { "File Nº ${fileDigits(it)}" }
+
+/**
+ * The open file's [fileLabel], which every dialog's form header prints at
+ * its right (Case File, frames 13-22). Provided once around the sheet and
+ * pathway screens, so no dialog takes a parameter for decoration.
+ */
+internal val LocalFileLabel = staticCompositionLocalOf<String?> { null }
+
 /** The sheet bar's caption: "File Nº 06 · Beyonder" (Case File, frame 02). */
 internal fun fileLine(number: Int?, isBeyonder: Boolean): String =
-    listOfNotNull(number?.let { "File Nº ${fileDigits(it)}" }, if (isBeyonder) "Beyonder" else "Mortal")
+    listOfNotNull(fileLabel(number), if (isBeyonder) "Beyonder" else "Mortal")
         .joinToString(" · ")
 
 /** How a header fact is inked (Case File, frames 02-04). */

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -380,7 +379,7 @@ fun RitualDialog(
                     SectionLabel("Mode")
                     FlowRow {
                         RitualMode.entries.forEach { option ->
-                            FilterChip(
+                            CaseChip(
                                 selected = option == mode,
                                 onClick = { mode = option },
                                 label = { Text(if (option == RitualMode.QUICK) "Quick" else "Full") },
@@ -401,7 +400,7 @@ fun RitualDialog(
                     SectionLabel("Weight")
                     Row {
                         weights.forEach { option ->
-                            FilterChip(
+                            CaseChip(
                                 selected = option.weight == weight.weight,
                                 onClick = { weight = option },
                                 label = { Text(option.weight) },
@@ -439,7 +438,7 @@ fun RitualDialog(
                     SectionLabel(if (mode == RitualMode.QUICK) "Preparation" else "Preparation (Phase I)")
                     FlowRow {
                         preparations.forEach { option ->
-                            FilterChip(
+                            CaseChip(
                                 selected = option.quality == preparation.quality,
                                 onClick = { preparation = option },
                                 label = { Text("${option.quality} ${option.printed}") },
@@ -462,7 +461,7 @@ fun RitualDialog(
                         SectionLabel("Link to target")
                         FlowRow {
                             RitualMode.links().forEach { option ->
-                                FilterChip(
+                                CaseChip(
                                     selected = link?.link == option.link,
                                     onClick = { link = if (link?.link == option.link) null else option },
                                     label = { Text("${option.link} ${option.printed}") },
@@ -489,7 +488,7 @@ fun RitualDialog(
                     if (mode.usesFlourish) {
                         SectionLabel("Delivery (Phase II)")
                         FlowRow {
-                            FilterChip(
+                            CaseChip(
                                 selected = flourish,
                                 onClick = { flourish = !flourish },
                                 label = {
@@ -511,7 +510,7 @@ fun RitualDialog(
                     // needs no entity and no table.
                     SectionLabel("Power source")
                     FlowRow {
-                        FilterChip(
+                        CaseChip(
                             selected = !invoked,
                             // Paid for an invocation, the ritual is one.
                             enabled = paid == null,
@@ -519,7 +518,7 @@ fun RitualDialog(
                             label = { Text("Personal SPI") },
                             modifier = Modifier.padding(end = 8.dp),
                         )
-                        FilterChip(
+                        CaseChip(
                             selected = invoked,
                             enabled = paid == null,
                             onClick = { if (paid == null) invoked = true },
@@ -529,7 +528,7 @@ fun RitualDialog(
                     }
                     // Drawn under Personal SPI too, disabled: appearing on the
                     // Invocation pick moved the rows below it (play session 4).
-                    FilterChip(
+                    CaseChip(
                         selected = invoked && goodStanding,
                         // It shifted the roll already made.
                         enabled = invoked && paid == null,

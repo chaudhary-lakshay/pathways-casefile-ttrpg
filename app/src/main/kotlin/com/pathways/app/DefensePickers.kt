@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,7 +47,7 @@ internal fun ShieldPicker(
     SectionLabel("Shield Readied")
     FlowRow {
         shields.forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = option == carried,
                 onClick = { onPick(option) },
                 // The parenthesised examples are what makes the row long;
@@ -133,7 +132,7 @@ internal fun NewRoundControl(round: RoundState, onNewRound: () -> Unit) {
 internal fun DiveControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
     DefenseNote(ActiveDefenses.printedDive())
     FlowRow {
-        FilterChip(
+        CaseChip(
             selected = taken,
             onClick = { onToggle() },
             label = { Text("Dived") },
@@ -185,7 +184,7 @@ internal fun DiveControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
 internal fun RetreatControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
     DefenseNote(ActiveDefenses.printedRetreat())
     FlowRow {
-        FilterChip(
+        CaseChip(
             selected = taken,
             onClick = { onToggle() },
             // Named from the bullet's own verb, not from the rule's effect: the
@@ -246,7 +245,7 @@ internal fun BoostPicker(
         FlowRow {
             rows.forEach { row ->
                 val isChosen = chosen == boost to row
-                FilterChip(
+                CaseChip(
                     selected = isChosen,
                     // Tapping the chosen chip clears it, which is the only way
                     // back -- a choice with no way out is the defect the
@@ -311,7 +310,7 @@ internal fun FacingPicker(chosen: Facing, onPick: (Facing) -> Unit) {
     SectionLabel("Where the attack comes from")
     FlowRow {
         Facing.entries.forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = option == chosen,
                 onClick = { onPick(option) },
                 label = { Text(FACING_LABELS.getValue(option)) },
@@ -345,7 +344,7 @@ internal fun IncomingPicker(chosen: Incoming, onPick: (Incoming) -> Unit) {
     SectionLabel("The attack coming in")
     FlowRow {
         Incoming.entries.forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = option == chosen,
                 onClick = { onPick(option) },
                 label = { Text(option.label) },
@@ -368,7 +367,7 @@ internal fun IncomingPicker(chosen: Incoming, onPick: (Incoming) -> Unit) {
 internal fun StunPicker(stunned: Boolean, onToggle: () -> Unit) {
     SectionLabel("Stunned")
     FlowRow {
-        FilterChip(
+        CaseChip(
             selected = stunned,
             onClick = { onToggle() },
             label = { Text("Stunned") },
@@ -415,7 +414,7 @@ internal fun RefusalPicker(
     SectionLabel("Can this character defend?")
     FlowRow {
         REFUSAL_LABELS.forEach { (cause, label) ->
-            FilterChip(
+            CaseChip(
                 selected = cause in declared,
                 onClick = { onToggle(cause) },
                 label = { Text(label) },

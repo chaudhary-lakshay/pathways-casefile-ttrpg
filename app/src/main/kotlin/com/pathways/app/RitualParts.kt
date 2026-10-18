@@ -8,16 +8,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.AutoFixHigh
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.RitualOutcome
 import com.pathways.rules.SuccessRoll
@@ -39,16 +37,18 @@ internal fun RitualFooter(
     /** What the target reads as: [SuccessRoll.printed], which says a boon's -512 still wins on a 3 or 4. */
     targetText: String = target?.let(SuccessRoll::printed).orEmpty(),
     label: String = "Cast",
+    icon: ImageVector = Icons.Filled.AutoFixHigh,
     onCast: () -> Unit,
 ) {
-    Column {
-        HorizontalDivider(Modifier.padding(vertical = 8.dp))
+    // Frames 18, 19 and 22: the terms, then the price, above the boxed target.
+    FooterBand {
         if (target != null) {
             Text(
                 terms.joinToString(" · "),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Text(cost, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         refusal?.let {
             Text(
@@ -59,28 +59,13 @@ internal fun RitualFooter(
             )
         }
         Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                if (target != null) {
-                    Text(
-                        "$target",
-                        style = MaterialTheme.typography.displaySmall
-                            .tabular(),
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Column(Modifier.padding(start = 10.dp)) {
-                        Text(targetText, style = MaterialTheme.typography.labelLarge)
-                        Text(
-                            cost,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            }
-            Button(shape = ButtonShape, onClick = onCast, enabled = target != null && refusal == null) {
-                Icon(Icons.Filled.AutoAwesome, contentDescription = null, modifier = Modifier.size(18.dp))
-                Text(label, modifier = Modifier.padding(start = 8.dp))
-            }
+            BoxedTarget(target)
+            Text(
+                if (target != null) targetText else "",
+                style = MaterialTheme.typography.labelLarge.tabular(),
+                modifier = Modifier.weight(1f).padding(horizontal = 10.dp),
+            )
+            RollButton(label, onCast, enabled = target != null && refusal == null, icon = icon)
         }
     }
 }

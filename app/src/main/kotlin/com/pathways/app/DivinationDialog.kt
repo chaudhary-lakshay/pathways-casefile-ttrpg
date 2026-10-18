@@ -1,5 +1,7 @@
 package com.pathways.app
 
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -7,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -315,7 +316,7 @@ fun DivinationDialog(
                     SectionLabel("Question")
                     FlowRow {
                         difficulties.forEach { option ->
-                            FilterChip(
+                            CaseChip(
                                 selected = option == difficulty,
                                 onClick = { difficulty = option },
                                 label = {
@@ -330,7 +331,7 @@ fun DivinationDialog(
                     SectionLabel("Scope")
                     FlowRow {
                         scopes.forEach { option ->
-                            FilterChip(
+                            CaseChip(
                                 selected = option == scope,
                                 onClick = { scope = option },
                                 label = {
@@ -354,7 +355,7 @@ fun DivinationDialog(
                     SectionLabel("Method")
                     FlowRow {
                         methods.forEach { option ->
-                            FilterChip(
+                            CaseChip(
                                 selected = option == method,
                                 onClick = { method = option },
                                 label = { Text("${option.method} ${spiLabel(option)}") },
@@ -372,7 +373,7 @@ fun DivinationDialog(
                         // a debt the book makes permanent.
                         FlowRow {
                             (method.spi..most).forEach { option ->
-                                FilterChip(
+                                CaseChip(
                                     selected = option == spiChoice,
                                     onClick = { spiChoice = option },
                                     label = { Text("$option SPI") },
@@ -385,7 +386,7 @@ fun DivinationDialog(
                     SectionLabel("Circumstances")
                     FlowRow {
                         rows.forEach { option ->
-                            FilterChip(
+                            CaseChip(
                                 selected = option.source in chosen,
                                 onClick = {
                                     chosen = if (option.source in chosen) {
@@ -412,7 +413,7 @@ fun DivinationDialog(
                         )
                         FlowRow {
                             endsBetween(row.modifier!!, row.best).forEach { value ->
-                                FilterChip(
+                                CaseChip(
                                     // The row's own figure is what the engine
                                     // applies when nothing is picked, so the chip
                                     // showing selected is the one being used.
@@ -432,7 +433,7 @@ fun DivinationDialog(
                         )
                         FlowRow {
                             repeatChoices().forEach { count ->
-                                FilterChip(
+                                CaseChip(
                                     selected = repeats == count,
                                     onClick = { repeats = count },
                                     label = { Text("x$count") },
@@ -465,7 +466,7 @@ fun DivinationDialog(
                         )
                         FlowRow {
                             ownedSupportSkills.forEach { option ->
-                                FilterChip(
+                                CaseChip(
                                     selected = option.skill in supporting,
                                     onClick = {
                                         supporting = if (option.skill in supporting) {
@@ -502,7 +503,7 @@ fun DivinationDialog(
                         style = MaterialTheme.typography.bodySmall,
                     )
                     FlowRow {
-                        FilterChip(
+                        CaseChip(
                             selected = targetSequence == null,
                             onClick = { targetSequence = null },
                             label = { Text("Not a Beyonder") },
@@ -512,7 +513,7 @@ fun DivinationDialog(
                         // throws below that rather than inventing a god's row, so
                         // the chips stop where the table does.
                         immunityRows.forEach { row ->
-                            FilterChip(
+                            CaseChip(
                                 selected = targetSequence
                                     ?.let { it in row.sequenceLow..row.sequenceHigh } == true,
                                 onClick = { targetSequence = row.sequenceHigh },
@@ -530,7 +531,7 @@ fun DivinationDialog(
                     )
                     FlowRow {
                         allTechniques.forEach { option ->
-                            FilterChip(
+                            CaseChip(
                                 selected = option.id in techniqueIds,
                                 onClick = {
                                     techniqueIds =
@@ -586,13 +587,13 @@ fun DivinationDialog(
                             modifier = Modifier.padding(top = 8.dp),
                         )
                         FlowRow {
-                            FilterChip(
+                            CaseChip(
                                 selected = directLink,
                                 onClick = { directLink = !directLink },
                                 label = { Text("True name + personal item") },
                                 modifier = Modifier.padding(end = 8.dp),
                             )
-                            FilterChip(
+                            CaseChip(
                                 selected = sacrificeHp,
                                 onClick = { sacrificeHp = !sacrificeHp },
                                 label = { Text("Burn $hpForSacrifice HP") },
@@ -644,6 +645,7 @@ fun DivinationDialog(
                     },
                     targetText = if (protection.requiresCritical) "3d6: a 3 or 4 only" else SuccessRoll.printed(target),
                     label = "Ask",
+                    icon = Icons.Filled.Visibility,
                 ) {
                     // One Ask spends once. Two taps can reach this handler
                     // before the button leaves the tree, and the second

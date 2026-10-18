@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -253,7 +252,7 @@ internal fun DamageDialog(
                 SectionLabel("Pool")
                 Row {
                     pools.forEach { option ->
-                        FilterChip(
+                        CaseChip(
                             selected = pool == option,
                             // The roll belongs to the hit it was rolled for.
                             // Moving it to another pool makes it a different
@@ -361,14 +360,14 @@ private fun DamageType(type: String?, amount: Int, landed: HitLocation?, pool: P
     val types = remember { Wounds.knownAbbreviations() }
     SectionLabel("The number above is")
     FlowRow {
-        FilterChip(
+        CaseChip(
             selected = type == null,
             onClick = { onPick(null) },
             label = { Text("Injury") },
             modifier = Modifier.padding(end = 8.dp),
         )
         types.forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = type == option,
                 onClick = { onPick(option) },
                 label = { Text(option) },
@@ -491,7 +490,7 @@ private fun WhereItLanded(
     SectionLabel("Where it landed")
     FlowRow {
         locations.forEach { option ->
-            FilterChip(
+            CaseChip(
                 selected = option == landed,
                 onClick = { onLocation(option) },
                 enabled = isHp,

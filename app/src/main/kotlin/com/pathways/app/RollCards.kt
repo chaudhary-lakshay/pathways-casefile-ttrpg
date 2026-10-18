@@ -90,11 +90,20 @@ internal fun TargetCard(target: Int, baseTarget: Int, forbidden: Boolean = false
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
     ) {
-        // A Column, not a Row: beside the number the dice caption took the
-        // width a long "3d6 ≤ 16, 17–18 fail" needs, and the number's column
-        // wrapped on a phone, growing the card under the finger.
+        // The dice pill shares the caption's line, not the number's: beside
+        // the number a long "3d6 ≤ 16, 17–18 fail" took the width the number
+        // needed, and its column wrapped on a phone, growing the card under
+        // the finger.
         Column(Modifier.padding(12.dp)) {
-            Caps("Target")
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Caps("Target", Modifier.weight(1f).padding(end = 8.dp))
+                // Laid out when forbidden too, so a forbidding clause cannot
+                // shrink the card under a finger.
+                Pill(
+                    SuccessRoll.printed(target),
+                    if (forbidden) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier,
+                )
+            }
             Box(Modifier.padding(top = 4.dp).heightIn(min = 56.dp), contentAlignment = Alignment.CenterStart) {
                 if (forbidden) {
                     Text(FORBIDDEN_ROLL, color = MaterialTheme.colorScheme.error)
@@ -129,12 +138,6 @@ internal fun TargetCard(target: Int, baseTarget: Int, forbidden: Boolean = false
                     }
                 }
             }
-            // Laid out when forbidden too, so a forbidding clause cannot
-            // shrink the card under a finger.
-            Pill(
-                SuccessRoll.printed(target),
-                Modifier.padding(top = 8.dp).then(if (forbidden) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier),
-            )
         }
     }
 }
@@ -254,35 +257,6 @@ private fun DiceLine(roll: RollResult) {
             modifier = Modifier.padding(end = 8.dp),
         )
         Tag("margin ${roll.margin}", MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
-
-/**
- * The foot of a bare roll's choices: what moved the target, the target, and
- * Roll, pinned below the scrolling choices as in the Attack and ritual
- * dialogs. With nothing to list one empty line is still laid out, so the
- * first declared clause cannot grow the dialog under a finger.
- */
-@Composable
-internal fun RollFooter(
-    lines: List<String>,
-    caption: String,
-    enabled: Boolean = true,
-    label: String = "Roll",
-    onRoll: () -> Unit,
-) {
-    Column {
-        HorizontalDivider(Modifier.padding(vertical = 8.dp), thickness = 2.dp, color = MaterialTheme.colorScheme.outline)
-        lines.ifEmpty { listOf("") }.forEach {
-            Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(caption, style = MaterialTheme.typography.labelLarge.tabular(), modifier = Modifier.weight(1f))
-            Button(shape = ButtonShape, onClick = onRoll, enabled = enabled) {
-                Icon(Icons.Filled.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
-                Text(label, modifier = Modifier.padding(start = 8.dp))
-            }
-        }
     }
 }
 
