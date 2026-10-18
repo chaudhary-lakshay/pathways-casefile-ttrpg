@@ -218,6 +218,7 @@ fun PremadeGallery(
     var roster by remember { mutableStateOf(Roster.ALL) }
     var creating by remember { mutableStateOf(false) }
     var glossaryOpen by remember { mutableStateOf(false) }
+    var creditsOpen by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
     val people = remember(sheets) { sheets.filterNot(::isTemplate) }
     val templates = remember(sheets) { sheets.filter(::isTemplate) }
@@ -233,6 +234,10 @@ fun PremadeGallery(
         GlossaryScreen(onBack = { glossaryOpen = false })
         return
     }
+    if (creditsOpen) {
+        CreditsScreen(onBack = { creditsOpen = false })
+        return
+    }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -243,7 +248,7 @@ fun PremadeGallery(
             modifier = Modifier.padding(insets).fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 4.dp),
         ) {
-            item(key = GALLERY_HEAD_KEY) { GalleryHead(onGlossary = { glossaryOpen = true }) }
+            item(key = GALLERY_HEAD_KEY) { GalleryHead(onGlossary = { glossaryOpen = true }, onCredits = { creditsOpen = true }) }
             // The filter stays in reach over a long list.
             stickyHeader(key = GALLERY_TABS_KEY) {
                 Column {

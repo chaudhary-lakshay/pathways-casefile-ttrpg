@@ -44,6 +44,10 @@ A character lost to the Rampager or to corruption shows in red.
 
 The book icon next to **Characters** opens the glossary. Tap a letter to jump, or type in **look up a term**. Tap a term to read it.
 
+### Credits
+
+The **i** icon, next to the book icon, opens **Credits**: who wrote the rulebook this game comes from, and who owns the novel and the GURPS system.
+
 ---
 
 ## 2. The character sheet

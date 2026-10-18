@@ -22,6 +22,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CreateNewFolder
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -59,7 +61,7 @@ internal fun fileDigits(number: Int): String = String.format(Locale.ROOT, "%02d"
  * skips it. The frame's palette button is left out: there is one theme.
  */
 @Composable
-internal fun GalleryHead(onGlossary: () -> Unit) {
+internal fun GalleryHead(onGlossary: () -> Unit, onCredits: () -> Unit) {
     Column(Modifier.padding(top = 16.dp)) {
         Row(Modifier.clearAndSetSemantics {}) {
             Kicker("Midnight Poem · Case Index", Modifier.weight(1f))
@@ -72,6 +74,8 @@ internal fun GalleryHead(onGlossary: () -> Unit) {
                 Modifier.weight(1f).semantics { heading() },
                 style = MaterialTheme.typography.displaySmall,
             )
+            BoxedIconButton(Icons.Filled.Info, "Credits", onCredits)
+            Spacer(Modifier.width(8.dp))
             BoxedIconButton(Icons.AutoMirrored.Filled.MenuBook, "Glossary", onGlossary)
         }
     }
