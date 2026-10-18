@@ -193,6 +193,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6ie** — Case File slice 3, the sheet: the name a Fraunces heading, the pathway a stamp, a loss a red pill; "§" heads and boxed levels; no device pass, the tablet off adb;
 **6id** — Case File slice 2, the shared components: the verdict a tilted stamp, the dialogs' form codes, Close in stamp red; pool pips on one Canvas, where a BoxWithConstraints crashed;
 **6ic** — Case File slice 1: one generated light scheme replaces every preset, stamp red #BC382A; Fraunces and Plex; a 600 dp column; roll sounds and ripple reverted;
 **6ib** — the shield bash, a row per shield at Brawling-2; from the front a shield's figure is the only one, and its block penalty stands without its DB;
@@ -262,14 +263,20 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ii first.** END
+**Where to start next: the slice log, from the END — 6ij first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
-line 6728, then 6ii back to 6cb, newest first, so `tail` prints 6cb. 6ii:
+line 6728, then 6ij back to 6cb, newest first, so `tail` prints 6cb. 6ij:
+(Case File slice 7, the builder from frames 23-24, after 6ii's owed
+re-review, whose two MEDIUMs were taken in `06854aa`; two rulings asked
+first: a refusal's study tag dashed instead of a chevron, the secondary
+rows' short names; `BudgetCard`'s thirty pips; § heads with their
+content under the rule; `ledgerStacks` for three phone-width faults on
+the SM-T570; Codex's three MEDIUMs, two taken, one refused). Then 6ii
 (Case File slice 5, the ten roll dialogs from frames 13-22; three rulings
 asked first: each pick's description folds into a closed note, Defend
 keeps every control, Damage no default location; `CaseChip` one width
 picked or not; footers that wrap at 390 dp; double taps charged once on
-the SM-T570; Codex's three MEDIUMs fixed, its re-review owed). Then 6ih
+the SM-T570; Codex's three MEDIUMs fixed, its re-review run in 6ij). Then 6ih
 (Case File slice 6, the pathway screen from frames 09-12, read from the
 HTML renders when the Figma MCP hit its plan limit; three rulings asked
 first: Drink offers the next potion on every rung, so every guard reads
@@ -285,11 +292,7 @@ data; Codex's HIGH, a list key a name could repeat, fixed). Then 6if
 frames 02-04 and 08 pulled from Figma; 6ie's skipped list was the
 defect; four rulings asked first, A-Z still out; `fileNumber`, pools in
 two forms, the amended table, "Show amendments"; 6id's three device
-checks done on the SM-T570). Then 6ie
-(Case File slice 3, the sheet: the name a Fraunces heading out of the top
-bar, the pathway the verdict's stamp, a loss a filled red pill; "§"
-heads, boxed levels, ruled trait rows; FILE Nº deferred to slice 4's
-numbering; no device pass, the tablet off adb all session). The chain
+checks done on the SM-T570). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -346,9 +349,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1988 Kotlin** (JUnit 5 — 1481 `core:rules`, 484 `app`, 23 `core:model`, counted in 6ii) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` count moves with `ThemeSchemesTest`, which emits one dynamic test per `ColorScheme` role and per contrast pair: 6ic's one light scheme took `app` from 892 to 431, and 6ic's guards to 433, 6id's `PoolPipsTest` to 437, 6ie's `SheetHeaderTest` to 442, 6if's six more to 448, 6ig's `GalleryFileTest` to 463, 6ih's `PathwayDrinkTest` and `WholeWordsTest` to 476, 6ii's `CaseChipTest`, `RollFooterTest` and a `fileLabel` case to 484 |
+| Tests | **2001 Kotlin** (JUnit 5 — 1481 `core:rules`, 497 `app`, 23 `core:model`, counted in 6ij) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` count moves with `ThemeSchemesTest`, which emits one dynamic test per `ColorScheme` role and per contrast pair: 6ic's one light scheme took `app` from 892 to 431, and 6ic's guards to 433, 6id's `PoolPipsTest` to 437, 6ie's `SheetHeaderTest` to 442, 6if's six more to 448, 6ig's `GalleryFileTest` to 463, 6ih's `PathwayDrinkTest` and `WholeWordsTest` to 476, 6ii's `CaseChipTest`, `RollFooterTest` and a `fileLabel` case to 484, 6ij's `BuilderLedgerTest` and two footer cases to 497 |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **Codex, always** (the owner, 2026-10-17: "use codex instead of ecc always", reversing 2026-10-10's ecc). Through `codex exec` with the target named (6eg). When Codex and pi-qa are both down, one review sub-agent, never ecc. 6ic: Codex reviewed Wabi, the plan, `58119c4`, `cb75e32` and `4d891e5`, then hit its limit; a sub-agent reviewed `a9be8f0` and `5148cb1` (SHIP WITH CHANGES, taken); 6id's, 6ie's and 6if's sub-agent reviews returned SHIP WITH CHANGES, the findings taken. On 2026-10-18 Codex (`codex exec`, gpt-6-astra, xhigh) reviewed the whole owed range `a9be8f0~1..d0f2299` under `app/` (generated `ThemeSchemes.kt` and fonts excluded; nothing outside `app/` changed): SHIP, no findings on handlers, composition crashes or printed figures. Nothing owes Codex a review; rotation stays device-unverified. 6ig: Codex NO SHIP, its HIGH taken (`5a36735`, re-reviewed SHIP), its MEDIUM refused with the line that disproves it. 6ih: Codex SHIP, no findings. 6ii: Codex returned three MEDIUMs on `d7e1a47`, all taken in `7f0ac87`, whose re-review is OWED (stopped for low memory). Earlier gates are in each slice's Review section |
+| Review gate | **Codex, always** (the owner, 2026-10-17: "use codex instead of ecc always", reversing 2026-10-10's ecc). Through `codex exec` with the target named (6eg). When Codex and pi-qa are both down, one review sub-agent, never ecc. 6ic: Codex reviewed Wabi, the plan, `58119c4`, `cb75e32` and `4d891e5`, then hit its limit; a sub-agent reviewed `a9be8f0` and `5148cb1` (SHIP WITH CHANGES, taken); 6id's, 6ie's and 6if's sub-agent reviews returned SHIP WITH CHANGES, the findings taken. On 2026-10-18 Codex (`codex exec`, gpt-6-astra, xhigh) reviewed the whole owed range `a9be8f0~1..d0f2299` under `app/` (generated `ThemeSchemes.kt` and fonts excluded; nothing outside `app/` changed): SHIP, no findings on handlers, composition crashes or printed figures. Nothing owes Codex a review; rotation stays device-unverified. 6ig: Codex NO SHIP, its HIGH taken (`5a36735`, re-reviewed SHIP), its MEDIUM refused with the line that disproves it. 6ih: Codex SHIP, no findings. 6ii: Codex returned three MEDIUMs on `d7e1a47`, all taken in `7f0ac87`; its re-review (6ij) returned two MEDIUMs, taken in `06854aa`. 6ij: Codex three MEDIUMs on the builder, two taken in `57dc064`, one refused; Codex then hit its limit (back 17:40) and the gateway was down, so one sub-agent reviewed the fixes: one more MEDIUM, taken in `d097ad8`, which Codex has not read. Earlier gates are in each slice's Review section |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 

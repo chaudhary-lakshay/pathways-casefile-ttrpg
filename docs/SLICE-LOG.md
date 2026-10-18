@@ -6726,6 +6726,135 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ij. Case File, slice 7: the builder
+
+The plan's slice 7, built against frames 23-24
+(`~/Downloads/uxpilot-beyonder-codex/more/pages/23-24*.png`). Before it,
+**6ii's owed re-review ran**: Codex read `7f0ac87` and returned two
+MEDIUMs, both taken in `06854aa` (below), and slice 7 is `57dc064` with the review fix `d097ad8`.
+
+### 6ii's re-review, closed
+
+- `footerStacks` read the SCREEN width, but an AlertDialog stops at 560
+  dp, so a 1200 dp window at font 2.0 kept the foot on one line in a slot
+  of 280 text-dp. It reads `minOf(screen, 560)` now, with two tests (RED
+  first on the 1200/2.0 case).
+- Beside the TARGET caption the dice pill's 9 sp floor still clipped at
+  font 2.0 on a phone (about 230 dp of pill in about 140 dp of slot).
+  Where the foot stacks, the pill now takes a line of its own under
+  TARGET, chosen by the window. Seen on the SM-T570 at 390 dp and font
+  1.3 in the Concentrate dialog: nothing clipped.
+
+### Two owner rulings, asked first
+
+- **A refusal's study tag is dashed** (frame 24 draws no chevron): the
+  dashed box, the frames' mark for prose held closed, says the row opens
+  the book's reason; a tag that prices a rung is ruled solid. The chevron
+  went.
+- **Secondary rows print the frame's short names**, HP, Will, Per, FP,
+  Speed and Move; the book's full name is the row's content description.
+  `secondaryShortName` keys on `secondary_costs.json`'s own keys, and a
+  row the frame does not draw keeps the book's name.
+
+### What changed
+
+- **Header**: the TopAppBar became `LedgerBar`, a boxed back button and
+  `FORM_LEDGER` ("FORM 2-P · POINT LEDGER"), with "Spend points" in
+  Fraunces and the sheet's name in mono as the list's first item. No
+  `FormTitle`: it would print a FILE Nº the frame does not draw.
+- **Budget**: `BudgetCard`, a 2 dp ink box, the spend in bold mono, the
+  spare in a boxed ink tag (red over budget), and `BUDGET_PIPS` (30)
+  pips on one Canvas sized by `pipSize`. `budgetPips` fills a pip only
+  when its whole share is spent, so the last waits for the budget; over
+  budget fills all; nothing or less than nothing spent fills none. Still
+  the sticky header, for 6fu's reason.
+- **Sections**: `SectionHead` is now a head row, "§ NAME" and its
+  underlined bracket action over a 1.5 dp ink rule (`LedgerHeadRow`),
+  with the content UNDER it at full width; it was name, content and
+  action on one line. `SectionSurface` is gone. Attributes, Secondary
+  characteristics and Skills take the same head.
+- **Ledger rows**: name in bold mono, the note in mono, the joined
+  stepper, a dashed rule under each (`LedgerRow`).
+- **Skills**: off their cards, straight on the paper with a rule under
+  each. The label is the sheet's own `disambiguated()` ("/IQ" only where
+  two rows would read alike), not `SkillKey.display`. "Levels before
+  potions" a boxed ink tag; "STUDY BY" over `StudyToggle`, two joined
+  cells of one width each in an ink box (radio semantics). A printed
+  skill's level is `LevelBadge`; a bought one's rung stepper is a
+  `JoinedStepper` holding the level ("One rung down/up"). The row is
+  top-aligned and the opened reason sits at its FOOT, so opening it moves
+  no stepper.
+- **`ledgerStacks`** (window and text scale, below 360 text-dp): the
+  study stepper takes its own line, above the points line and the tag
+  that a study tap changes, an attribute's note under its name
+  and stepper, and the spare tag under the spend. At 390 dp and font 1.3
+  the stepper had taken half the row and wrapped "Public Speaking" a word
+  a line, the note five lines, and "of 100 points" two. Decided by the
+  window, so stepping a value that adds a digit cannot grow the pinned
+  card.
+- **`ChipTag(ink = true)`** rules a level's price, the lead chip of
+  Wealth and Appearance, in ink; other callers are unchanged.
+- **FilterChip → CaseChip** in `GainedChip`, the language picker's three
+  rows (with 6 dp between wrapped rows) and the instanced trait dialog.
+  `PathwayPotion`'s FilterChip is the one left, for slice 8.
+
+### Not changed
+
+Every handler moved unchanged; the session-mutator census reads 40
+before and after. No rule, label in source, number or save field moved.
+
+### Proof
+
+- 2001 Kotlin tests green (1481 `core:rules`, 497 `app`, 23
+  `core:model`), counted from fresh XML after deleting every `build/`;
+  366 Python. New: `BuilderLedgerTest` (11: pips at the frame's 76/90,
+  0, 89/90, 90/90, over, negative, a zero budget; the six short names and
+  the fallback; `ledgerStacks` at 390/1.0, 390/1.3, 600/1.3) and two
+  `RollFooterTest` cases. `ast-grep scan` clean.
+- SM-T570 over wireless adb, beside frames 23-24: the header, budget
+  card, § heads, dashed attribute and secondary rows, wealth's ink chip,
+  the study toggle both ways, a refusal's reason opened (no stepper
+  moved), Acting bought (rung stepper) and un-bought.
+- At 390 dp and font 1.3 (`wm density 492`): three faults found, above,
+  and fixed; re-seen clean. Density and font restored after.
+- Not seen: over budget (red card), a bought skill with study recorded,
+  the language picker's CaseChips on device.
+
+### Review
+
+Codex (`codex exec`, gpt-6-astra, xhigh) read the uncommitted diff under
+`app/` with three questions (moved handlers; a control moving under a
+finger; semantics). No handler finding. **Three MEDIUMs:**
+
+- Stacked, the study stepper sat under the tag, whose line count can
+  change as it reprices. **Taken**: the stepper goes above the tag.
+- `JoinedStepper`'s value cell floored at 44 dp, so at font 2.0 "9" to
+  "10" widened it and moved the minus. **Taken**: the floor is 44 sp,
+  shared with the attribute rows, where the fault predated 6ij.
+- "0 spare" to "1 over budget" could wrap the budget label and grow the
+  pinned card. **Refused**: the wording changes only where spent crosses
+  the budget, and `PointBudget.kt:85`'s "Overspent" line already grows
+  the same header at that crossing.
+
+Both taken in `57dc064`. Codex then hit its usage limit (back 17:40) and
+the 9router gateway refused the probe (`fetch failed`), so one review
+sub-agent read the answers. It held the second, and found the first
+incomplete: the points line ("1 pt" to "2 pts + 1 studied") still sat
+above the stacked stepper, and at 360 dp and font 1.3 the first tap
+wrapped it and dropped the stepper about 20 dp. **Taken** in `d097ad8`:
+the points line goes under the stepper with the tag; seen on the SM-T570
+at 360 dp and font 1.3 (`wm density 533`), the stepper kept its y. On the
+refusal it held the crossing but named two digit-change cases: one beside
+the label needs a budget of 200, and the budget cannot pass 115 (70 + 40
++ 5); the other, the stacked tag at about 330 dp and font 2.0, is closed
+by holding the tag to one line. **`d097ad8` is unreviewed by Codex.**
+
+### Next
+
+The plan's slice 8, the sweep: leftover Material defaults (`PathwayPotion`'s
+FilterChip is the last FilterChip; a grep finds no TopAppBar or NavigationBar), dead preset code, and every
+screen on the SM-T570 beside its frame. Nothing is pushed since 6ic.
+
 ## 6ii. Case File, slice 5: the ten roll dialogs
 
 The plan's slice 5, built against frames 13-22 from the HTML renders
@@ -6848,7 +6977,7 @@ blank full-size line that holds the height); a method's time, which can
 be "Overnight", sat only in the closed note (it is in the cost line now,
 "costs 1 SPI, takes 1 min", as Boon's already says its time). **The
 re-review of `7f0ac87` is owed**: Claude Code stopped it for low memory
-before it answered.
+before it answered. *(6ij ran it: two MEDIUMs, taken in `06854aa`.)*
 
 ### Next
 

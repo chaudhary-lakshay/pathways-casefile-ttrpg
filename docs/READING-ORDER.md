@@ -195,6 +195,12 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6ie
+(Case File slice 3, the sheet: the name a Fraunces heading out of the top
+bar, the pathway the verdict's stamp, a loss a filled red pill; "§"
+heads, boxed levels, ruled trait rows; FILE Nº deferred to slice 4's
+numbering; no device pass, the tablet off adb all session).
+
 Then 6id
 (Case File slice 2, the shared components: the verdict a tilted stamp,
 the eleven framed dialogs' form codes, Close in stamp red on the owner's
