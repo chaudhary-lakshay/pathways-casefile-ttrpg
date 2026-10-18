@@ -166,10 +166,13 @@ private fun LedgerRow(name: @Composable () -> Unit, note: String, stepper: @Comp
             .dashedRule(MaterialTheme.colorScheme.outlineVariant)
             .padding(vertical = 10.dp),
     ) {
+        // Name and stepper share a baseline at the row's top; the note centres
+        // beside them and grows downward, so a tap that wraps it cannot move
+        // the stepper under the finger (Codex on 6ij).
         Row(verticalAlignment = Alignment.CenterVertically) {
-            name()
+            Box(Modifier.alignByBaseline()) { name() }
             if (stacks) Spacer(Modifier.weight(1f)) else noteText(Modifier.weight(1f).padding(end = 8.dp))
-            stepper()
+            Box(Modifier.alignByBaseline()) { stepper() }
         }
         if (stacks) noteText(Modifier.padding(top = 6.dp))
     }

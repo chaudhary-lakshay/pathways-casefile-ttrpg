@@ -82,7 +82,8 @@ object PointBudget {
             if (rawQuirks > MAX_QUIRKS) {
                 add("Quirks total $rawQuirks, capped at $MAX_QUIRKS")
             }
-            if (spent > budget) add("Overspent: $spent of $budget")
+            // Overspending is `surplus < 0`, never a line here: one fact,
+            // one predicate, and the builder's budget card already says it.
         }
 
         return BudgetReport(budget, spent, violations)
