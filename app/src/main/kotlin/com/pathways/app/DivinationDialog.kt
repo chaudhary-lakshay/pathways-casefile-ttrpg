@@ -642,7 +642,7 @@ fun DivinationDialog(
                     target = target,
                     // What will actually be CHARGED, not the printed range:
                     // the range is above, beside the chips that choose inside it.
-                    cost = "costs $cost SPI",
+                    cost = "costs $cost SPI, takes ${method.time.lowercase()}",
                     refusal = if (affordable) {
                         null
                     } else {

@@ -1,5 +1,8 @@
 package com.pathways.app
 
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -96,12 +99,15 @@ internal fun TargetCard(target: Int, baseTarget: Int, forbidden: Boolean = false
         // the finger.
         Column(Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Caps("Target", Modifier.weight(1f).padding(end = 8.dp))
-                // Laid out when forbidden too, so a forbidding clause cannot
-                // shrink the card under a finger.
-                Pill(
+                Caps("Target", Modifier.padding(end = 8.dp))
+                // The pill takes what the caption leaves and shrinks its text
+                // to one line there: beside a long "3d6 ≤ 16, 17–18 fail" at
+                // 390 dp and font 1.3 the caption wrapped, and the card grew
+                // as the target crossed 16 (Codex, 6ii). Laid out when
+                // forbidden too, so a forbidding clause cannot shrink the card.
+                FitPill(
                     SuccessRoll.printed(target),
-                    if (forbidden) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier,
+                    Modifier.weight(1f).then(if (forbidden) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier),
                 )
             }
             Box(Modifier.padding(top = 4.dp).heightIn(min = 56.dp), contentAlignment = Alignment.CenterStart) {
@@ -258,15 +264,26 @@ private fun DiceLine(roll: RollResult) {
     }
 }
 
+/**
+ * The dice notation in a ruled box at the right of its slot, one line, the
+ * text stepped down until it fits. A blank full-size line under it holds the slot's height, so a
+ * shrunk pill shortens nothing.
+ */
 @Composable
-private fun Pill(text: String, modifier: Modifier = Modifier) {
-    Text(
-        text,
-        style = MaterialTheme.typography.labelLarge.tabular(),
-        modifier = modifier
-            .border(1.dp, MaterialTheme.colorScheme.outline)
-            .padding(horizontal = 8.dp, vertical = 2.dp),
-    )
+private fun FitPill(text: String, modifier: Modifier = Modifier) {
+    val style = MaterialTheme.typography.labelLarge.tabular()
+    Box(modifier, contentAlignment = Alignment.CenterEnd) {
+        Text(" ", style = style, modifier = Modifier.padding(vertical = 3.dp).alpha(0f).clearAndSetSemantics {})
+        BasicText(
+            text,
+            modifier = Modifier
+                .border(1.dp, MaterialTheme.colorScheme.outline)
+                .padding(horizontal = 8.dp, vertical = 2.dp),
+            style = style.copy(color = MaterialTheme.colorScheme.onSurface),
+            maxLines = 1,
+            autoSize = TextAutoSize.StepBased(minFontSize = 9.sp, maxFontSize = style.fontSize),
+        )
+    }
 }
 
 /** A fact in a ruled box, in mono: the margin, a budget's spare points. */

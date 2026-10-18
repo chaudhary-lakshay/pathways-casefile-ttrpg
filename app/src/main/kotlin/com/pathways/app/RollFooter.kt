@@ -4,11 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -25,6 +24,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -93,11 +94,26 @@ internal fun RollButton(
 }
 
 /**
- * The boxed target and its caption, then the button: one line where they
- * fit, the button under them where they do not. In one Row at 390 dp and
- * font 1.3 the caption was squeezed to a letter a line.
+ * Whether a pinned foot puts its button under the target rather than beside
+ * it. Decided by the window and the text size alone, never by the caption:
+ * a FlowRow that wrapped on the caption's length moved Roll to another line
+ * when a pick lengthened "3d6 ≤ 9" to "3d6 ≤ 16, 17–18 fail" (Codex, 6ii).
+ *
+ * ponytail: one threshold in text-scaled dp, measured on the SM-T570 (600
+ * dp at 1.0 fits the longest caption beside the widest button; 390 dp at
+ * 1.3 squeezed it to a letter a line). Measure the slot instead if a
+ * foot ever sits outside a dialog.
  */
-@OptIn(ExperimentalLayoutApi::class)
+internal fun footerStacks(screenWidthDp: Int, fontScale: Float): Boolean =
+    screenWidthDp / fontScale < FOOTER_ONE_LINE_MIN
+
+private const val FOOTER_ONE_LINE_MIN = 520f
+
+/**
+ * The boxed target and its caption, then the button: beside them on a wide
+ * window, under them on a narrow one ([footerStacks]). The caption keeps the
+ * box's height either way, so a pick that wraps it to two lines grows nothing.
+ */
 @Composable
 internal fun FooterRow(
     target: Int?,
@@ -106,17 +122,27 @@ internal fun FooterRow(
     boxed: Boolean = true,
     caption: @Composable () -> Unit,
 ) {
-    FlowRow(
-        Modifier.fillMaxWidth().padding(top = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        itemVerticalAlignment = Alignment.CenterVertically,
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (boxed) BoxedTarget(target)
-            Box(Modifier.padding(start = if (boxed) 10.dp else 0.dp, end = 10.dp)) { caption() }
+    val stacks = footerStacks(LocalConfiguration.current.screenWidthDp, LocalDensity.current.fontScale)
+    val targetAndCaption: @Composable RowScope.() -> Unit = {
+        if (boxed) BoxedTarget(target)
+        Box(
+            Modifier
+                .weight(1f)
+                .heightIn(min = 56.dp)
+                .padding(start = if (boxed) 10.dp else 0.dp, end = 10.dp),
+            contentAlignment = Alignment.CenterStart,
+        ) { caption() }
+    }
+    if (stacks) {
+        Column(Modifier.fillMaxWidth().padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, content = targetAndCaption)
+            button()
         }
-        button()
+    } else {
+        Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            targetAndCaption()
+            button()
+        }
     }
 }
 
