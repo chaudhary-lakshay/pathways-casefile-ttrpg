@@ -195,6 +195,13 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6ic
+(Case File slice 1: one generated light scheme replaces every preset,
+contrast checked through the grain, stamp red #BC382A on the owner's
+pick; Fraunces, Plex Sans and Plex Mono, Plex shipped unmodified for
+its reserved name; a 600 dp column; roll sounds and ripple reverted;
+seen on the SM-T570).
+
 Then 6ib
 (the shield bash on the owner's word, a row per shield and Brawling-2
 with Versatile; play session 7, alone as Brann: a character's scene
@@ -2569,8 +2576,10 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6ga back to 6de
+## Digest index, 6gd back to 6de
 
+**6gd** — a ledger roll resolved its target inside the click; `SkillRoll.targetFor` resolves while drawn, and my matrix test took its number from the function under test;
+**6gc–6gb** — the second tap of one picture: a push chip tapped twice threw past the FP cap or spent an emptied pool; a stale tap is dropped, and my handler count was wrong within the hour;
 **6ga–6fz** — a sheet row prints the played number, never the unedited sheet's; re-run 6ga's printed-number sweep after any new screen, and a grep for derivation calls is not it;
 **6fy–6ft** — a sheet's printed SPI 9 is not played: a premade plays 0 until a potion; the gallery and every chip print played numbers; `repairedEdits` is the one repair;
 **6fr** — every held row prints a cell: of 495 rows 29 had none; Wealthy prints the wealth table's, and the sense chips were cut, so a chip's text is not a row's cell (6fs: its device pass);

@@ -6726,6 +6726,128 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ih. Case File, slice 5: the pathway screen
+
+The plan's slice 5, built against frames 09-12. The Figma MCP refused every
+call past the first two ("tool call limit on the Starter plan"), so the
+frames came from the HTML pages they were imported from
+(`~/Downloads/uxpilot-beyonder-codex/more/pages/09-12*.png`), the same
+renders; an edit made in Figma after the import would not be in them.
+Commits `be4d54d` (a pure move: `PathwayScreen.kt` sat at the 800-line cap)
+and `f31eea2`, not pushed.
+
+### Three owner rulings, asked first
+
+- **Drink as drawn.** Frames 10-11 show the digestion bar and "Drink and
+  roll" for Sequence 8 on the drunk Sequence 9 page. Drink now offers the
+  NEXT potion of the pathway walked on every rung of it; a tile only changes
+  what is read. A mortal is offered the browsed pathway's Sequence 9 only.
+- **The CoR ladder: all four rungs, scoped.** Frame 11 lists 3, 5, 8 and 10
+  CoR at 0 CoR with no scope; the book files the ladder under "Corruption
+  from Ritual Work", so the four rows sit under a "From ritual work"
+  caption, the reached in red, the rest muted. Before, only the reached
+  rows showed, each labelled "(ritual work)".
+- **Frame 09's "§ Each action" legend is a design note**, not built. The hub
+  above it already matched the frame (6if).
+
+### What changed
+
+- `drinkTarget(pathway, sequence, drunk, printed)` is the potion Drink
+  offers, and **every guard reads it, never the browsed block**: the CoR
+  ceiling `maxCorFor(target)`, `holdsCeiling`, the caption, `session.drink`,
+  and the reroll's `pendingPcr == target`. Keyed to the browsed block, an
+  Abyss walker reading Sequence 6 would have been charged Sequence 6's Will
+  while drinking 8's (the advisor's catch, before any code).
+  `drinkCaption` names the potion before `drinkLine`'s roll: "next:
+  Sequence 8 of the Fool Pathway · at 40% digested, rolls 3d6 ≤ 8 — …".
+- The Digestion & corruption tab shows both trackers on any rung; on a rung
+  other than the drunk one the tracker is titled "Digesting Seer".
+- **Head** (`PathwayHeader.kt`): a boxed back button and the kicker
+  "FORTUNE TELLER · FOOL PATHWAY" replace the TopAppBar; the sigil boxed
+  beside the potion in Fraunces; the four rungs as one ruled row, the read
+  one in ink; a ten-cell digestion bar (`digestionCells`, one per whole
+  10%), read as a progress bar "Digestion 40%"; `[ Another pathway ]` and an
+  ink Drink with the flask; the two tabs as ink segments (`Segment` from New
+  character, its icon now optional). The chooser grid keeps its layout in
+  ruled cards; no frame draws it.
+- **Potion tab** (`PathwayPotion.kt`): each section a `LedgerCard` (a typed
+  head over a rule); a gain stamped in red ("SPI +9"); a granted skill is
+  name, "IQ/VH" and the level boxed (`LevelBox`, now shared); abilities one
+  ledger with dashed rules, the price tag at the row's end, "SPEND 1 SPI"
+  in ink; `[ Open all ]`. Kept though frame 10 omits them, because its
+  Fortune Teller holds none of what prints them: "SPI after digestion", the
+  "Levels and totals count every potion" note, a skill's note, the drawback
+  picker, the doubled Acting Method line. The price tag stays stamp red, not
+  the frame's ink: red marks the Beyonder (`a9be8f0`'s rule).
+- **Trackers** (`PathwayTrackers.kt`, `StepperParts.kt`): `StepperCard` is
+  one 2 dp ink box of three cells ("-5% | 40% | +5%"); the acting qualities
+  are ruled boxes under "ACTING"; "What raises corruption" sits in a dashed
+  box.
+- **PCR form** (frame 12): "File Nº 10" in the form's corner (`fileNumber`,
+  passed down from `MainActivity`), the rung reached stamped on a success
+  ("SEQ 8 · CLOWN"; none on a failure), the dice in mono, and **OK in filled
+  ink as drawn**, the one dialog whose way out is not `CloseButton`'s red.
+
+`PathwayDrinkTest` (9) was watched RED against stubs: 7 failed on
+assertions; the two "offers nothing" cases pass a null stub by
+construction and guard a too-wide target. `WholeWordsTest` (4): 1 RED,
+the other three guard an over-eager predicate.
+
+### Verification
+
+1980 Kotlin (1481 `core:rules`, 476 `app`, 23 `core:model`) and 366
+Python, 0 failures, from fresh result directories after `--rerun-tasks`.
+`ast-grep scan` clean, the census still 40 lines, no file over 800.
+`docs/HOW-TO-PLAY.md` §4 says Drink drinks the next potion whichever
+Sequence is read, names `[ Another pathway ]`, the stamp and the ladder.
+
+### Device pass (SM-T570, USB and wireless)
+
+Save backed up (`~/pathways-device-backups/sessions-6ih-1211.json`);
+Fortune Teller seeded as Fool 9 at 40% under a key the save did not hold
+(a first seed wrote `state` for `beyonder`; caught before the app wrote,
+`cmp` showed the file untouched); restored with push and `run-as cp`,
+`cmp`-identical after.
+- Frames 10 and 11 beside the screen: head, rungs, bar, Drink, caption,
+  tabs, cards, the stepper boxes, the ladder; CoR stepped to 3 lit the
+  3 CoR rung red.
+- Seq 7 read: Drink and its caption still Sequence 8's; the tracker titled
+  "Digesting Seer".
+- Digested to 100% and drunk: frame 12's form, "File Nº 10", "SEQ 8 ·
+  CLOWN", "3d6: 11 vs 19".
+- Antiquarian Dealer (Abyss 9): the caption identical reading Sequence 6
+  and 8. **Found and fixed**: "Unwinged Angel (Coldblooded)" wrapped the
+  heading to two lines and moved the rungs 42 px under the finger that had
+  tapped one; the name is one line, auto-sized, and the rungs held their
+  pixel on all four.
+- **At 390 dp and font 1.3** (`wm density 492`): **found and fixed** — the
+  bracket squeezed Drink into a column of letters (the row is a `FlowRow`
+  now; Drink takes its own line below 220 dp); "Magicia/n" broke mid-word
+  (`WholeWords`, a `TextAutoSize` that shrinks until no word breaks, on
+  `breaksAWord`); the open tab's ink stopped short of a wrapped label (the
+  cells fill the row). Density and font restored.
+- Barmaid Brawler (mortal): the ruled chooser grid; Sun 9 "Drink this
+  potion", Sun 8 "a pathway begins at Sequence 9".
+- Not seen: a failed PCR's reroll on device (no Luck holder seeded).
+
+### Review
+
+Codex (`codex exec`, gpt-6-astra, xhigh) read `3f4bf7c..f31eea2` under
+`app/`, three questions (every guard on the target; a composition throw;
+`WholeWords`), and returned **SHIP**, no findings: target, ceilings,
+captions and stale-tap guards agree, and `WholeWords` terminates, keeps
+equals/hashCode consistent and reads Compose's exclusive line ends. Its own
+run of the two test classes failed in its sandbox on a Gradle wrapper lock;
+they passed here. The phone-width fixes after `f31eea2` (`FlowRow`,
+`WholeWords` on the rungs, the tab fill) are in that commit range.
+
+### Next
+
+The plan's slice 6 (the Notion row), frames first. The Figma MCP's
+Starter limit may still refuse; the HTML renders in
+`~/Downloads/uxpilot-beyonder-codex/more/pages/` are the same frames as
+imported. Not seen on device: a failed PCR's reroll.
+
 ## 6ig. Case File, slice 4: the gallery, New character and the glossary
 
 The plan's slice 4, built against Figma frames 01, 05 and 07, pulled with
