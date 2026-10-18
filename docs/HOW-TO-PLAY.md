@@ -2,6 +2,8 @@
 
 This guide explains each screen of the app and when to use it at the table.
 
+The game itself is *Powered by GURPS: Pathways, Lord of the Mysteries*, by Earvin Salonoy and the Mr.Worm's LOM TTRPG Discord Server. When this guide says "the book", it means their rulebook.
+
 The app does the arithmetic. You and the GM decide what happens in the story. If the app cannot know something, it asks you. Examples are whether you were surprised, where an attack came from, or how many times you parried this round. You tell it, and it adds up the numbers. It never hides a modifier and never makes up a rule.
 
 ![The character list](media/gallery.png)

@@ -8,7 +8,9 @@ Pathways is an offline Android app for the *Lord of the Mysteries* tabletop RPG.
   <img src="docs/media/pathway-grid.png" width="250" alt="The 22 pathways to pick from">
 </p>
 
-The rules come from the fan rulebook *Powered by GURPS: Pathways, Lord of the Mysteries* (v6.9d), which builds on GURPS 4th Edition. The app adds no rules of its own. Each modifier is listed beside the roll that uses it. If the book leaves a decision open, the app asks you or the GM to make it. The guide lists the few places where the book is unclear and the app had to pick a reading.
+The game is not mine. It is the fan rulebook *Powered by GURPS: Pathways, Lord of the Mysteries* (v6.9d), designed and written by Earvin Salonoy, with the Mr.Worm's LOM TTRPG Discord Server as its scribes. It builds on GURPS 4th Edition. This app is only a way to play their game at the table. See [Credits](#credits).
+
+The app adds no rules of its own. Each modifier is listed beside the roll that uses it. If the book leaves a decision open, the app asks you or the GM to make it. The guide lists the few places where the book is unclear and the app had to pick a reading.
 
 ## What it does
 
@@ -91,6 +93,19 @@ The rule tables are already in the repository, so you do not need the rulebook t
 ## When the book and a sheet disagree
 
 Some published sheets have arithmetic errors. For example, one sheet prints a disadvantage total of 30 points, but its four items add up to 25. In these cases the app follows the book and shows the sheet's figure next to its own. It does not quietly correct the sheet, and the tests fail if anyone tries.
+
+## Credits
+
+The rules, tables, pathways, potions and the 23 published characters all come from the rulebook and its character sheets. The credits page of the rulebook lists:
+
+| Role | Credit |
+|---|---|
+| Supplement designer and author | Earvin Salonoy |
+| Rulebook scribes | Mr.Worm's LOM TTRPG Discord Server |
+| Source material | *Lord of the Mysteries* by Cuttlefish That Loves Diving |
+| Game system | GURPS 4th Edition by Steve Jackson Games |
+
+Thank you to all of them. If you like the app, the credit for the game belongs to them. The app code is by chaudhary-lakshay.
 
 ## Legal
 
