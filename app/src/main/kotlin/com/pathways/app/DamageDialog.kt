@@ -2,6 +2,8 @@ package com.pathways.app
 
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material3.VerticalDivider
@@ -256,7 +258,6 @@ internal fun DamageDialog(
                     threshold = Wounds.majorWoundThreshold(maxHp).let {
                         when {
                             pool != Pool.HP -> "No Major wound on $pool"
-                            isMajor -> "Major wound: $it or more in one hit"
                             else -> "Major wound at $it+"
                         }
                     },
@@ -584,12 +585,17 @@ private fun AmountCard(amount: Int, threshold: String, isMajor: Boolean, onStep:
                 VerticalDivider(color = MaterialTheme.colorScheme.outline)
                 StepCell("+5", "Five more") { onStep(5) }
             }
-            Stamp(
-                threshold,
-                if (isMajor) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelLarge.copy(fontFamily = PlexMono, fontWeight = FontWeight.SemiBold),
-                caps = false,
-            )
+            // One text either side of the threshold, as frame 16 draws it: the
+            // longer crossed sentence wrapped and pushed the chips below down
+            // (6il). The red alone says crossed, so a reader is told too.
+            Box(Modifier.semantics { stateDescription = if (isMajor) "Crossed by this hit" else "Not crossed" }) {
+                Stamp(
+                    threshold,
+                    if (isMajor) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelLarge.copy(fontFamily = PlexMono, fontWeight = FontWeight.SemiBold),
+                    caps = false,
+                )
+            }
         }
     }
 }

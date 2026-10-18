@@ -66,14 +66,16 @@ fun UntrainedDialog(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(Modifier.weight(1f)) {
-                                Text(row.key.label())
+                                // Ink: the dialog's text slot greys, and grey
+                                // is what a blocked row looks like (6il).
+                                Text(row.key.label(), color = MaterialTheme.colorScheme.onSurface)
                                 Text(
                                     row.source,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
-                            Text("${row.level}", style = MaterialTheme.typography.titleMedium)
+                            Text("${row.level}", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                     // Below the rows, where a player who did not find a skill

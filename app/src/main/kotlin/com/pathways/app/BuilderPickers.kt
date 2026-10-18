@@ -63,6 +63,7 @@ internal fun WealthPicker(
                         Text(
                             "As printed" + if (chosen == null) " ✓" else "",
                             style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
                             printed?.let { "The sheet prints ${it.status}" }
@@ -82,6 +83,7 @@ internal fun WealthPicker(
                         Text(
                             level.status + if (level.status == chosen) " ✓" else "",
                             style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
                             "${level.pointsLabel()} · ${level.startingMoney} · " +
@@ -131,6 +133,7 @@ internal fun AppearancePicker(
                         Text(
                             "As printed" + if (chosen == null) " ✓" else "",
                             style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
                             printed?.let { "The sheet prints ${it.level}" }
@@ -150,6 +153,7 @@ internal fun AppearancePicker(
                         Text(
                             level.level + if (level.level == chosen) " ✓" else "",
                             style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
                             "${level.points.pointsLabel()} · " +
@@ -224,7 +228,8 @@ internal fun SkillPicker(
                                 .clickable { onPick(definition) }
                                 .padding(vertical = 8.dp),
                         ) {
-                            Text(definition.label(), style = MaterialTheme.typography.bodyLarge)
+                            // Ink: the text slot greys, and grey reads as blocked (6il).
+                            Text(definition.label(), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
                             Text(
                                 "${definition.attr.code}/${definition.difficulty.code}" +
                                     if (definition.specializable) " - needs a specialization" else "",

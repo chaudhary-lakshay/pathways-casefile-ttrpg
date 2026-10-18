@@ -120,7 +120,12 @@ internal fun WeaponPicker(
                             .clickable(enabled = !held) { onCarry(weapon.name) }
                             .padding(vertical = 8.dp),
                     ) {
-                        Text(weapon.name, style = MaterialTheme.typography.bodyLarge)
+                        // Ink while it can be picked; a carried one stays grey (6il).
+                        Text(
+                            weapon.name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (held) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                        )
                         Text(
                             "${weapon.skill} · reach/range ${weapon.range} · ${weapon.cost}" +
                                 if (held) " · carried" else "",

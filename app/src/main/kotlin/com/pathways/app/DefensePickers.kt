@@ -107,7 +107,9 @@ internal fun NewRoundControl(round: RoundState, onNewRound: () -> Unit) {
         Text(
             "What is marked here holds until the next round.",
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(end = 8.dp),
+            // Weighted, or the note takes the row and squeezes the bracket to
+            // a letter a line (6il; since the TextButton's 58 dp went, d7e1a47).
+            modifier = Modifier.weight(1f).padding(end = 8.dp),
         )
         BracketAction("New round", onNewRound, enabled = round.isSpent())
     }

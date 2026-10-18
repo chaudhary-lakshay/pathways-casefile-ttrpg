@@ -1,6 +1,7 @@
 package com.pathways.app
 
 import androidx.compose.foundation.background
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.border
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -191,12 +192,20 @@ internal fun Segment(label: String, icon: ImageVector?, open: Boolean, modifier:
         modifier
             .heightIn(min = 48.dp)
             .background(if (open) MaterialTheme.colorScheme.primary else Color.Transparent, RoundedCornerShape(4.dp))
-            .selectable(selected = open, role = Role.RadioButton, onClick = onClick),
+            .selectable(selected = open, role = Role.RadioButton, onClick = onClick)
+            // Off the border: at 390 dp "Digestion & corruption" wraps, and
+            // its lines ran flush against the divider (6il).
+            .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (icon != null) Icon(icon, contentDescription = null, tint = ink, modifier = Modifier.size(16.dp))
-        Caps(label, Modifier.padding(start = if (icon != null) 6.dp else 0.dp), style = MaterialTheme.typography.labelLarge.tabular(), color = ink)
+        Caps(
+            label,
+            Modifier.padding(start = if (icon != null) 6.dp else 0.dp),
+            style = MaterialTheme.typography.labelLarge.tabular().copy(textAlign = TextAlign.Center),
+            color = ink,
+        )
     }
 }
 

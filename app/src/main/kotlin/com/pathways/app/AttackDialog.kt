@@ -375,7 +375,10 @@ internal fun AttackDialog(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(Modifier.weight(1f)) {
-                                Text(entry.key.label())
+                                // Ink, as a row that can be picked; and the
+                                // Skills tab's label, so two Knife rows read
+                                // as two skills (6il).
+                                Text(disambiguated(entry.key, skills.map { it.key }), color = MaterialTheme.colorScheme.onSurface)
                                 entry.untrained?.let {
                                     Text(
                                         "untrained, ${it.source}",
