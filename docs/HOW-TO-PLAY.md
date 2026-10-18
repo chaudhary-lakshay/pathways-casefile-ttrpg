@@ -1,684 +1,409 @@
-# How to play — Pathways companion
+# How to play with Pathways
 
-A table guide for the app, written from the screens as they ship. It says what
-each control does, when to reach for it, and — where the app deliberately
-leaves a decision to you — who makes that call.
+This guide explains each screen of the app and when to use it at the table.
 
-**The app never plays the game for you.** It holds one character sheet, rolls
-3d6 against numbers the rulebook prints, and shows the modifiers it can prove.
-Anything it cannot know — whether you were surprised, where the attack came
-from, how many parries you have already made — is a *declaration*: you tell it,
-it does the arithmetic. Nothing is hidden and nothing is invented.
+The app does the arithmetic. You and the GM decide what happens in the story. If the app cannot know something, it asks you. Examples are whether you were surprised, where an attack came from, or how many times you parried this round. You tell it, and it adds up the numbers. It never hides a modifier and never makes up a rule.
 
----
+![The character list](media/gallery.png)
 
 ## The four screens
 
-| Screen | How you get there | What it is for |
+| Screen | How to open it | What you do there |
 |---|---|---|
-| **Premade list** | opens first | pick one of the 23 published characters |
-| **Sheet** | tap a premade | play: roll skills, fight, cast, divine |
-| **Pathway** | the **Pathway** button on the sheet — labelled **Drink a potion** until you have drunk one | drink potions, advance Sequence, track digestion |
-| **Builder** | the **Spend points** chip on the sheet | change attributes and secondary characteristics, buy skills, traits and languages, and carry weapons, against a live budget |
+| Character list | The app opens on it | Pick one of the 23 published characters, or make your own |
+| Sheet | Tap a character | Play: roll skills, fight, cast rituals, divine |
+| Pathway | **Pathway** on the sheet (**Drink a potion** before the first potion) | Drink potions, read your powers, track digestion |
+| Builder | **Spend points** on the sheet | Buy attributes, skills, traits, languages and weapons against a point budget |
 
 ---
 
 ## 1. Pick a character
 
-The premade list shows all 23 sheets. Tap one. To make your own, tap
-**Open new file** at the foot of the screen: give a name and pick what it
-starts as, **Blank sheet** or **Template** (a premade to copy, as printed;
-type in **Filter templates…** to find one). It joins the list under that
-name, and the builder (**Spend points**) is where it is built. **Start from
-a blank sheet**, under the list, opens the blank sheet itself, unnamed.
+Tap a character to open the sheet.
 
-A row prints its file number, the four attributes, the first two traits and
-the skill count as you play them: what you bought in the builder, then what
-your potions raised. The tabs over the list filter it: **Beyonders** holds
-the characters you have walked onto a pathway, each stamped with its pathway
-and Sequence; everyone else is under **Mortal**. A character lost to the
-Rampager or to corruption is in red, its stamp filled.
+Each row shows the file number, the four attributes, the first two traits and the number of skills. These are the values as you play them now, with your purchases and potions counted. The tabs above the list filter it:
 
-The book icon beside **Characters** opens the glossary: the book's terms
-under their initials, a row of letters to jump between them, and **look up
-a term** to search. Tap a term to read it.
+- **All** shows everybody.
+- **Mortal** shows characters who have not drunk a potion.
+- **Beyonders** shows characters on a pathway, each with a stamp for the pathway and Sequence.
 
-The sheet screen opens with a **computed vs. as-published** comparison. Where
-the two disagree, the app shows both and *keeps the disagreement* — it does not
-quietly repair the sheet. Four sheets really are wrong in their own arithmetic
-(Docks Bouncer's HP, three sheets' FP, Monastery Scholar's advantage total,
-University Librarian's disadvantage total), and the app is built so nobody can
-silently "fix" them. If a number surprises you, the book is the authority.
+A character lost to the Rampager or to corruption shows in red.
 
-The number on a **Vitals** or **Skills** row is the one you play: what you
-bought in the builder, then what your potions raised, and it is the level
-the row rolls: on **Skills** the whole row is the button, with the level in
-its badge. The red *(sheet: 9)* is still about the sheet as printed.
-Where you have moved off the sheet and it disputes a figure, the grey note
-says which: *"HP 14 · 11 from the sheet's points (sheet: 9)"* is a played
-14, on a sheet whose own points give 11 and which prints 9.
+### Make your own character
 
-Four sheets (Apothecary, Barmaid Brawler, Docks Bouncer, Military Police)
-print SPI 9 and no pathway. The app cannot play a Beyonder without a pathway,
-so it plays them at SPI 0 until they drink a potion, and then at what the
-potion grants.
+1. Tap **Open new file** at the bottom of the list.
+2. Type a name.
+3. Pick **Blank sheet**, or **Template** to copy a published character. Type in **Filter templates…** to find one.
+4. Open the new character and tap **Spend points** to build it.
 
-### How the sheet is laid out
+**Start from a blank sheet**, under the list, opens an empty sheet with no name.
 
-- **The bottom bar** switches what the list below shows: **Vitals**, **Skills**,
-  **Traits**. It is a footer, not a screen change — the pools and actions stay put.
-- **The top bar** reads *File Nº 06 · Beyonder*: the character's place in
-  the gallery and whether they have drunk. Scroll past the name and it comes
-  up into the bar, with the Sequence stamped where **⋮** was; scroll back up
-  for **⋮**.
-- **Traits** lists every advantage and drawback by name and price, with a
-  tag for how much of it the app counts: *Applied*, *Partly applied*, *Roll
-  only*, *GM call*, or *Unmatched name* for a sheet spelling the book's
-  list does not match. Tap a row for the book's own text and, for anything not
-  counted, why. *What the tags mean* explains each. A self-control drawback
-  has its own *Roll 3d6 ≤ N* chip. A row your potions gave you (a Hermit's Combat Reflexes, an
-  Abyss Beyonder's drawbacks) is listed too, marked *"from the potion"*
-  instead of its points, and counts in every roll; the builder will not sell
-  it to you again. A potion's Charisma adds to a bought level (*"Charisma 4 —
-  10 pts, +2 from the potion"*). A potion's face beside a bought one: the
-  better face is played, and a worse bought face says *"not played: the
-  potion's face is better"*.
-- **Vitals** asks *"Does any of this hold?"* when a held drawback prints
-  "-N to all rolls" under a circumstance only the GM can see: a phobia's
-  stimulus present, laudanum withdrawal, a disrupted warding routine, an
-  entity nearby, a Soul Scar resurfacing, a Reckless character where caution
-  would be smarter. Tap the line to light it. A lit
-  line counts on every roll on every screen, and each roll names it (*"includes
-  Phobia (Cities) -1"*), until you tap it again. One line is narrower:
-  Perceptual Splitting's *"All physical rolls at -2 during an episode"*
-  counts only on rolls based on ST, DX or HT (those skills, attacks, defences
-  and HT rolls), never on a Will, IQ, Per or SPI roll. It is not saved:
-  closing the app clears it, as it clears shock, a stun and the round, and
-  so does **Reset to sheet**. Going to the gallery and opening another
-  character does not; each character keeps their own.
-- **Reference text** in a dialog (shield rules, the incantation, Spirit
-  Vision's colour key, spirit body damage, an artifact's description) sits
-  in a dashed box, closed until you tap it. The ritual and divination
-  dialogs keep what each pick means there too, under **What these picks
-  mean**. Targets, costs, refusals and what the app does not apply stay open.
-- **The header** under the character's name shows the walk as tags: pathway
-  and Sequence, digestion, CoR, and *Lost* if the character is gone.
-- **HP, FP and SPI** sit in one card under the header, on every tab, each
-  with **−** and **+**: a row per pool on **Vitals**, three columns on
-  **Skills** and **Traits**. **+** is filled while there is something to
-  regain and greyed at the maximum. When a pool reaches a row of the book's
-  table, its name is followed by the state and its cost (*Reeling · −1 all
-  rolls*); tap the pool for the printed row. Scroll past the card and the
-  pools stay in view as one thin line under the bar, without **−** and
-  **+**. SPI shows only for a Beyonder.
-- **Vitals** counts the values that differ from the published sheet and,
-  when some do, stamps the card *Amended*. **Show amendments** narrows Vitals
-  and Skills to those rows; **Show all values** brings the rest back. Each
-  secondary prints the sheet's figure beside the one played now, the
-  sheet's struck through in red where the book disagrees with it.
-  **Natural recovery** is closed until you tap it.
-- **The actions** come in two weights. Four buttons — **Attack**, **Defend**,
-  **Damage** and **Pathway** — then the rest as bracketed words, *[ Fright ]*.
-  The Beyonder's own (Ritual, Divine, Spirit Vision, Boon) are in red; the
-  first three appear only once a potion grants them, and **Boon** is always
-  there.
-- **⋮ → Roll log**, in the top bar, lists every throw this character made
-  since the app started, newest first: what was rolled, the dice, and the
-  target (*"Fright Check 2 + 5 + 2 = 9 vs 5"*). A table's or damage's throw
-  has no target. An attack's damage is logged as *Attack damage*, and the
-  Damage dialog's rolls as *Major wound HT* and *Stun recovery*. Each
-  defence is logged by its row (*Dodge*, *Parry (Brawling)*), and a Fright
-  Check's second throw as *Fright effect*. It shows dice, not verdicts: a push or a table's own rule
-  can change a verdict after the dice, and the dialog that rolled says which.
-  It is not saved; closing the app clears it.
-- **⋮ → Delete character** appears only on a character you made (below),
-  and removes it after asking. A premade cannot be deleted.
-- **⋮ → Reset to sheet** puts a premade back to the printed sheet:
-  potions, purchases, wounds, corruption, declared lines and the roll log
-  all go. On a character you made it keeps the build — attributes, skills,
-  traits, weapons, languages — and clears what play added: potions, wounds,
-  corruption, study points, a boon, traits and quirks gained in play. It asks
-  first, and it cannot be undone. It is for starting over, not for play:
-  nothing in the book un-drinks a potion.
+### Glossary
+
+The book icon next to **Characters** opens the glossary. Tap a letter to jump, or type in **look up a term**. Tap a term to read it.
 
 ---
 
-## 2. Roll a skill
+## 2. The character sheet
 
-Switch to **Skills** and tap any row. A dialog opens **before** the roll,
-because the modifiers come first:
+<p>
+  <img src="media/sheet-vitals.png" width="240" alt="Vitals tab">
+  <img src="media/sheet-skills.png" width="240" alt="Skills tab">
+  <img src="media/sheet-traits.png" width="240" alt="Traits tab">
+</p>
 
-1. State the circumstances the GM called (the dialog shows what applies).
-   Under the skill's name and **Skill N**, a card prints the **Target** as it
-   stands, large, with *3d6 ≤ N* beneath it; once something moves it, the
-   skill's own level is shown struck through beside it. The number moves as
-   you pick. What made it is listed under the chips.
-2. Press **Roll**. It rolls the number that was on screen.
-3. You get the degree of success in its colour, *3d6: total vs target*, and
-   the margin, then every line that moved the target.
+From top to bottom, the sheet has these parts.
 
-The target already includes what the app can prove: your level, the trackers
-(HP, FP, SPI, Corruption penalties scoped to the skills they actually touch),
-and any trait that reaches that roll.
+### The top bar
 
-Critical rules are the book's: 3-4 always succeed, 17-18 always fail — except
-where a specific table overrides them, which the app follows over the general
-rule.
+The top bar shows the file number and whether the character is a Beyonder. The **⋮** menu holds three items:
 
-**Push the roll (chapter 2, p. 9).** After the dice are on the table you may
-buy the result up: **1 FP for +1** on a ST, DX or HT roll, at most +5, or
-**1 SPI for +1** on a spiritual one, with no cap the book prints. You cannot
-spend both on the same roll, so the app offers whichever pool the skill's own
-row names and nothing on a roll named by neither — an IQ, Will or Per skill
-gets no push, which is why the row is missing rather than empty there.
+- **Roll log** lists each roll this character made since you opened the app, newest first. It shows the dice and the target, for example *"Fright Check 2 + 5 + 2 = 9 vs 5"*. It does not show success or failure, because a push or a table can change that after the dice. Closing the app clears the log.
+- **Delete character** appears only on a character you made. It asks first. You cannot delete a published character.
+- **Reset to sheet** asks first and cannot be undone. On a published character it removes everything: potions, purchases, wounds, corruption and the roll log. On your own character it keeps the build and removes only what play added: potions, wounds, corruption, study points, a boon, and traits gained in play. Use it to start over, not during play.
 
-It raises the **target**, never the dice: the same total is re-read against a
-higher number, which is what "after seeing your result" means. Spend nothing
-and the roll stands. The SPI side stops at what you actually have — personal
-spirituality cannot go below zero — while FP is allowed past it, because the
-book charges 1 HP for every point below 0 rather than forbidding it.
+### The header and the pools
 
-The same push is offered on **Ritual**, **Boon** and **Divine**, where the
-book prints it again in each chapter's own words. There it is charged **when
-you close the dialog**, not on each tap, and it is separate from the fuel that
-screen already took. A divination already **Crystal clear** offers no push:
-there is no clearer answer to buy. Closing is also when a critical failure's Corruption is
-charged — because a push can take a ritual off the Critical Failure Table
-entirely, and you should not pay for a disaster you bought your way out of.
+The header under the name shows tags for the pathway and Sequence, digestion, Corruption (CoR), and *Lost* if the character is gone.
 
-**Gear that names this skill (not applied).** Under the circumstances you may
-see this title; tap it to open lines
-from chapter 8's equipment table — "Magnifying glass (3s) — +1 to Search for
-fine details". Those are printed for you to read, and the app does not add
-them. It cannot: the app records the weapons you carry and no other gear, and
-most of the bonuses are scoped to a circumstance ("for fine details", "when
-rested", "in rain") that only you and the GM can judge.
+The pool card holds HP, FP and SPI, each with **−** and **+**. **+** is dark while there is something to get back, and grey at the maximum. When a pool reaches a row of the book's table, the state and its cost appear beside the name, for example *Reeling · −1 all rolls*. Tap the pool to read the full row. SPI shows only for a Beyonder. If you scroll down, the pools stay visible as a thin line under the top bar.
 
-If the item is in your kit and the circumstance holds, tick **Good tools /
-equipment** in the circumstances above. That is Appendix A's own row and it
-prints a range, **+1 to +2**, so you pick the value — which is where the
-item's own line earns its keep: a basic disguise kit says +1 and the advanced
-one says +2, and the range covers both. **Improvised / poor tools** (-2 to -4)
-is the other side of it. Tick the row once; the app never adds the item's
-figure on top of your pick.
+### The actions
 
-Every row the table prints for that skill is shown, conditional ones included
-— so an empty list means the book prices no gear for it, not that your gear
-does nothing.
+The actions come in two sizes:
+
+- Four large buttons: **Attack**, **Defend**, **Damage** and **Pathway**.
+- Smaller words in brackets, such as *[ Fright ]*. The red ones are Beyonder powers: Ritual, Divine, Spirit Vision and Boon. Ritual, Divine and Spirit Vision appear only after a potion grants them. Spirit Vision uses the pathway's own name for it, for example *Eyes of Mystery Prying* for a Hermit. **Boon** is always there.
+
+### The bottom bar
+
+The bottom bar switches between **Vitals**, **Skills** and **Traits**. The pools and actions stay where they are.
+
+### Vitals
+
+Vitals shows the secondary characteristics: Hit Points, Fatigue Points, Will, Perception, Basic Speed, Basic Move and the rest.
+
+If some values differ from the published sheet, the card gets an *Amended* stamp. **Show amendments** shows only those rows on Vitals and Skills. **Show all values** brings the rest back. Each row shows the sheet's figure next to the one you play. If the book disagrees with the sheet, the sheet's figure is struck through in red.
+
+**Natural recovery** is closed until you tap it. See [Healing over days](#healing-over-days).
+
+**Does any of this hold?** appears when one of your drawbacks gives "-N to all rolls" in a situation only the GM can see. Examples are a phobia's trigger, laudanum withdrawal, or an entity nearby. Tap the line to turn it on. It then counts on every roll on every screen, and each roll names it, until you tap it again. Perceptual Splitting's line counts only on rolls based on ST, DX or HT. These lines are not saved. Closing the app clears them, and so does **Reset to sheet**. Each character keeps their own while the app is open.
+
+### Skills
+
+Each row is a skill and its level. Tap the row to roll. See [Roll a skill](#3-roll-a-skill).
+
+### Traits
+
+Traits lists each advantage and disadvantage with its price and a tag. The tag says how much of the trait the app uses:
+
+| Tag | Meaning |
+|---|---|
+| *Applied* | The app counts all of it |
+| *Partly applied* | The app counts some of it. Open the row to see what it leaves out. |
+| *Roll only* | The app rolls the self-control roll and counts nothing else |
+| *GM call* | The GM applies it |
+| *Unmatched name* | The sheet spells it in a way the book's list does not match |
+
+Tap a row to read the book's text and, for anything not counted, the reason. **What the tags mean** explains each tag. A self-control disadvantage has its own *Roll 3d6 ≤ N* chip.
+
+A trait from a potion shows *"from the potion"* in place of its price, and it counts in every roll. The builder will not sell it to you again. A potion's Charisma adds to a level you bought, for example *"Charisma 4 — 10 pts, +2 from the potion"*. If a potion gives you a new Appearance and you also bought one, the better one counts.
+
+### When the sheet and the book disagree
+
+The app follows the book. If a published sheet has an error, the app shows both numbers and keeps the difference visible. Four published sheets have arithmetic errors:
+
+- Docks Bouncer's HP
+- The FP of three sheets
+- Monastery Scholar's advantage total
+- University Librarian's disadvantage total
+
+The grey note on a row says what each number is. *"HP 14 · 11 from the sheet's points (sheet: 9)"* means you play 14, the sheet's own points give 11, and the sheet prints 9.
+
+Four sheets print SPI 9 with no pathway: Apothecary, Barmaid Brawler, Docks Bouncer and Military Police. The app cannot play a Beyonder with no pathway, so these characters have SPI 0 until they drink a potion.
+
+### Reference text
+
+Longer rule text in a dialog sits in a dashed box that is closed until you tap it. Examples are the shield rules, the incantation, Spirit Vision's color key and an artifact's description. Targets, costs and refusals always stay open.
+
+---
+
+## 3. Roll a skill
+
+![Rolling a skill](media/skill-roll.gif)
+
+1. On **Skills**, tap a skill. The roll dialog opens before any dice are thrown.
+2. Pick the circumstances the GM called. The **Target** box changes as you pick, and the skill's own level shows struck through next to it.
+3. If the GM gives a modifier that no chip names, use the **Modifier** stepper.
+4. Tap **Roll**.
+
+The result shows the degree of success, *3d6: total vs target*, the margin, and each line that changed the target.
+
+The target already includes your level, the penalties from HP, FP, SPI and Corruption that reach this skill, and any trait that applies.
+
+The book's critical rules apply: 3 or 4 always succeeds, and 17 or 18 always fails. A few tables have their own rules, and those win.
+
+### Push the roll
+
+After you see the dice, you can buy a better result:
+
+- On a roll based on ST, DX or HT, 1 FP buys +1, up to +5.
+- On a spiritual roll, 1 SPI buys +1, with no limit, but you cannot spend SPI you do not have.
+
+The push raises the target. It does not change the dice. If you spend nothing, the roll stands. A roll based on IQ, Will or Per gets no push, so the row is not there. FP can go below 0, because the book charges 1 HP for each FP below 0.
+
+**Ritual**, **Boon** and **Divine** offer the same push. There, the app charges it when you close the dialog. A divination that is already *Crystal clear* offers no push.
+
+### Gear
+
+**Gear that names this skill (not applied)** lists items from the equipment table that help this skill, for example "Magnifying glass (3s) — +1 to Search for fine details". The app does not add these. It does not track your gear, and most of them need a condition only you and the GM can judge.
+
+If you have the item and the condition holds, pick **Good tools / equipment** (+1 to +2) in the circumstances, and choose the value. **Improvised / poor tools** (-2 to -4) is the opposite. Do not add the item's own bonus on top.
 
 ### A skill you do not have
 
-The book lets you attempt most skills untrained, at a default. Scroll to the
-top of **Skills** and tap **Roll a skill this sheet does not have**. Type a
-few letters in **Find a skill**, tap the row, and the usual roll dialog opens
-with the default as its skill: *"Acrobatics (untrained, DX-6)"*.
+Most skills can be tried untrained, at a default.
 
-- The number is your attribute less 4, 5 or 6 for an Easy, Average or Hard
-  skill. **Brawling** is DX-2, which is the book's own line for it.
-  **Versatile** adds 1 to every one of them.
-- **Medical Training (Informal)** gives its holder Physician at IQ-2 in
-  place of the Hard skill's IQ-6, and the row says so. Versatile does not
-  add to that one: the book gives it as a level, not a default.
-- Very Hard skills and Wrestling have no default and are not listed.
-  Divination Arts is listed only with Ritualistic Magic at 12 or more.
-- The GM may rule that a skill cannot be attempted untrained at all. The app
-  does not record that, so ask before you roll.
-- It is the skill roll alone. For an untrained punch, or a weapon you have no
-  skill with, use **Attack**, which lists those skills under your own and
-  carries the damage. For an Acrobatic Dodge use **Defend**, which rolls the
-  default itself and moves the Dodge row.
+1. At the top of **Skills**, tap **Roll a skill this sheet does not have**.
+2. Type a few letters in **Find a skill**.
+3. Tap the skill. The normal roll dialog opens, for example *"Acrobatics (untrained, DX-6)"*.
+
+The default is your attribute -4 for an Easy skill, -5 for Average and -6 for Hard. Brawling is DX-2. Versatile adds +1 to each default. With Medical Training (Informal), Physician is IQ-2, and Versatile does not add to that.
+
+Very Hard skills and Wrestling have no default and are not listed. Divination Arts is listed only with Ritualistic Magic at 12 or more. The GM can rule that a skill cannot be tried untrained, so ask first.
+
+For an untrained punch or weapon, use **Attack**. For an Acrobatic Dodge, use **Defend**.
 
 ---
 
-## 3. Combat
+## 4. Combat
 
-Three buttons — **Attack**, **Defend**, **Damage** — in the order a turn
-actually runs, plus two neutral rolls a fight reaches for.
+A turn usually goes **Attack**, then **Defend**, then **Damage**.
 
 ### Attack
 
-Pick the skill first. The list is your skills the book files under **Combat
-Skills** (Brawling, Knife, Guns, Shield, Fast-Draw and the rest of that
-list); a Research or Writing roll is made from the Skills tab. Then pick
-the maneuver and any attack options. The dialog prices them as you go:
-Deceptive Attack's -2 per -1 imposed (capped at half your skill), Rapid Strike's
--6, All-Out Attack's +4 or extra attack, the FP that Extra Effort costs.
-A carried weapon is the one picked first.
+![An attack and its damage](media/attack.gif)
 
-**Shield** attacks with a **Shield Bash**: one chip per shield the book
-prices a bash for, *Light* thr-2 cr, *Medium* thr-1 cr, *Heavy* thr cr (an
-improvised shield prints none). The same three chips sit under
-**Brawling** at -2, the bash's other default, and take Versatile's +1 like
-any default; the line under the chip says so.
+1. Pick the skill. The list shows your combat skills, then the ones you can use untrained.
+2. Pick the weapon, the maneuver and any attack options. The dialog adds up the cost as you go: Deceptive Attack, Rapid Strike, All-Out Attack, and the FP for Extra Effort.
+3. For a ranged attack, pick the conditions the GM called. The target's speed and the two Aim rows replace each other instead of adding. If a condition prints a range, such as *"Darkness or heavy fog: -3 to -9"*, a **How bad is it?** row opens. Until you pick, the app uses the mildest value.
+4. Check the target at the bottom, then tap **Roll**.
+5. After a hit, tap **Roll damage**.
 
-A **critical success** (a 3 or 4) doubles the damage rolled, as the book's
-core mechanic prints; the damage line says *×2 critical hit*. The app's
-reading is that the rolled total doubles, before DR and the wounding
-multiplier.
+A critical hit (3 or 4) doubles the damage rolled, before DR and wound multipliers.
 
-It will not let you buy an option the maneuver does not allow, and it charges FP
-once per purchase, not once per recomposition.
+The dialog does not let you pick an option the maneuver forbids. It charges FP once for each purchase.
 
-The choices scroll; under them, pinned beside **Roll**, it adds the terms up: what injury, fatigue and attrition take,
-then the target, *3d6 ≤ N* (*", each"* when the plan makes more than one
-attack).
+Untrained attacks are listed under your own skills: a fist (Brawling at DX-2, Boxing at DX-5) and the weapons in the book's table, each marked like *"untrained, DX-4"*. A weapon with no skill behind it shows *"untrained parry is the GM's call"*, because the book gives no number for it.
 
-Under your own skills the list carries on with the ones you can attack with
-**untrained**: a fist (Brawling at DX-2, Boxing at DX-5) and the weapons in the
-book's table (Knife, Axe/Mace, Broadsword and three Guns), each marked
-*"untrained, DX-4"* or the like. They roll and deal damage like any other.
-A weapon you have no skill with prints *"untrained parry is the GM's call"*: the
-book's armed cell is *"Weapon Skill ÷ 2 + 3"* and names no untrained operand, and
-Defend says so under its rows.
+**Shield** attacks with a shield bash. There is one chip for each shield size the book prices: *Light* thr-2 cr, *Medium* thr-1 cr, *Heavy* thr cr. The same chips appear under **Brawling** at -2.
 
-A **Warrior**, **Pugilist** or **Weapon Master** wields any weapon in hand at no
-less than DX, and the header says so. For its parry, the weapon skill is floored at
-DX before the halving, on this screen and in Defend, which says it is a reading (tap *Why a master's weapon parries at DX*). Put the weapon down and the
-skill is back at its own number, and a Deceptive Attack the lower number cannot
-afford goes to 0. The Warrior's *"default +2"* for a weapon used repeatedly is
-not applied: the Warrior's own example puts it above DX, and the Weapon
-Master, *"a strict upgrade"* of that line, stops at DX, so the book gives no
-number that fits both. A Pugilist needs no warm-up with a melee weapon, so for
-one of those nothing is left over.
-
-**At range**, tick the conditions the GM called. Two sets replace each other
-rather than add: the target's speed (stationary, walking, running) and the two
-Aim rows. A target moves at one speed. One of the conditions prints a range
-rather than a number — *"Darkness or heavy fog: -3 to -9 depending on
-severity"* — so ticking it opens a **How bad is it?** row and you pick where in
-that span the scene sits. Until you do, the app applies the gentlest figure the
-book prints, which is what the chip shows selected.
+A Warrior, Pugilist or Weapon Master uses any weapon in hand at no less than DX. The weapon's parry also starts from DX. That is the app's reading: tap *Why a master's weapon parries at DX* in Defend to read it. Put the weapon down and the skill goes back to its own level. The Warrior's *"default +2"* for a weapon used often is not applied, because the book gives no number that fits all three pathways.
 
 ### Defend
 
-The busiest screen in the app, and the one with the most declarations.
+![The Defend dialog](media/defend.png)
 
-- **New round** — clears the free actions, the parry count and any paid +2. It
-  is greyed out until something is spent. It does **not** clear a stun: the book
-  gives stun its own clock ("Stunned for 1d6 seconds, roll HT each turn to
-  recover early"), so that ends when the roll says so — the roll is on
-  **Vitals**, under the pools, with a **Clear** for the GM.
-- **Refusals** (surprised / took an All-Out Attack / never saw the shot) —
-  withdraw your defences entirely, and the app says *which* sentence did it.
-  Combat Reflexes cancels the surprise one and nothing else.
-- **Stunned** — a -4 that prices every defence rather than withdrawing it.
-- **What is coming at you** — bare hand, weapon, or a shot. This changes the
-  unarmed parries (-3 against a weapon) and withdraws them against a shot.
-- **Parry (DX, bare hands)** — the book's unarmed formula is *"Brawling or DX
-  ÷ 2 + 3"*, so every character has a parry with no skill at all. The row is
-  left out only when your Brawling already parries as well. It takes the same
-  -3 against a weapon, which is the app's reading; tap *Why the bare-hand
-  parry is DX itself* to read it. A
-  melee weapon you carry with no skill for it gets no parry row, and a note
-  names it. A firearm parries at nothing, skill or no skill.
-- **Facing** — front, side, rear. Decides whether the shield's DB counts.
-  From the front it does, and each row rolls at the shielded figure alone.
-  From the side the book settles nothing, so the app *offers* both numbers
-  and says the call is yours.
-- **Shield Readied** — a shield must be readied to do anything.
-- **Free actions** — Retreat (+3 Dodge / +1 Block / +1 Parry, melee only),
-  Dive! (+3 Dodge, ranged only), Acrobatic Dodge (roll Acrobatics, ±2; without
-  the skill it is rolled at the default, DX-6 and one more with Versatile,
-  and labelled untrained). They
-  stack with each other and with an active defence; the book allows each once
-  per round, which is what **New round** is for.
-- **Parries this round** — counted for you: rolling a Parry row adds one,
-  and each parry after the first is -4 (-2 fencing, -1 rapier). The stepper
-  is there for a parry made off this screen, or to take a re-roll back.
-  Dodge takes no such penalty.
-- **Buy +2** — All-Out Defense (Increased) or Feverish Defense, spent on **one
-  named row**. Paying twice buys one bonus, so the picker clears first.
+Defend has the most choices, because most of them are things only you know.
+
+- **New round** clears the free actions, the parry count and any bought +2. It does not clear a stun. A stun ends when the recovery roll says so. That roll is on **Vitals**, under the pools, with a **Clear** button for the GM.
+- **Can this character defend?** If you were surprised, used your last turn for an All-Out Attack, or never saw the shot, you get no defense. The app says which rule did it. Combat Reflexes cancels surprise only.
+- **Stunned** gives -4 to every defense.
+- **The attack coming in** is a bare hand, a weapon or a shot. A bare-hand parry is -3 against a weapon, and you cannot parry a shot.
+- **Parry (DX, bare hands)** is the unarmed parry: Brawling or DX, divided by 2, plus 3. Every character has it. Tap *Why the bare-hand parry is DX itself* for the reason. The row is hidden if your Brawling parry is already as good.
+- **Where the attack comes from** is front, side or rear. From the front, your shield's bonus counts. From the side, the book does not say, so the app shows both numbers and you decide.
+- **Shield Readied** must be on for a shield to count.
+- **Free actions** are Retreat (+3 Dodge, +1 Block, +1 Parry, melee only), Dive! (+3 Dodge, ranged only) and Acrobatic Dodge (roll Acrobatics, +2 or -2). Each one can be used once per round.
+- **Parries already this round** counts for you. Each parry after the first is -4 (-2 for fencing weapons, -1 for a rapier). Use the stepper for a parry made somewhere else. Dodge has no such penalty.
+- **Buy +2** is All-Out Defense (Increased) or Feverish Defense, on one row that you name.
+
+A melee weapon you carry with no skill gets no parry row, and a note says so. A firearm cannot parry.
 
 ### Damage
 
-A hit taken: how much, and which pool absorbs it. **The number above is**
-picks what the stepper means. **Injury** (the default) is the injury itself,
-multipliers already in it. Pick a damage type (**cr**, **cut**, **imp**,
-**pi**…) and the stepper is penetrating damage — after DR, which you subtract
-first — and the app applies the type's multiplier and, if you pick **Where it
-landed**, the location's, rounded down: *5 cut past DR ×1.5 = 7 injury*. On
-**FP** or **SPI** (spirit body damage) the type still multiplies, but no
-location does and physical DR never applies: *5 cut ×1.5 = 7 to SPI*. The
-dialog then says whether it is a **major wound** (over half max HP) and offers
-that table's HT roll, whose shock the sheet then carries.
+Use **Damage** when your character takes a hit.
 
-### Concentrate / Fright
+1. Under **The number above is**, pick what you will type. **Injury** (the default) is the final injury. If you pick a damage type such as **cr**, **cut**, **imp** or **pi**, you type the damage that got past DR, and the app applies the multiplier.
+2. If you know the hit location, pick it under **Where it landed**. The app applies that multiplier too and rounds down, for example *5 cut past DR ×1.5 = 7 injury*.
+3. Under **Pool**, pick HP, FP or SPI. On FP or SPI the damage type still multiplies, but the location does not, and DR never applies.
+4. Tap **Apply** to take the injury off that pool. **Cancel** closes the dialog without applying the injury.
 
-**Concentrate** is the focus some actions gate behind. **Fright** rolls the
-Fright Check: two rolls, the check and then the effect table. Pick the kind
-and what was witnessed on one page; each row shows what the book prints for
-it, and picking one sets **Modifier** to that figure, which then steps a point
-at a time for the GM's severity, with no bound. The target sits
-above the choices and **Roll** below them, withdrawn until a row is picked.
+The dialog tells you if the hit is a major wound (more than half your HP). It then offers the HT roll from that table, and the sheet keeps track of the shock.
 
-The 13–15 band hands out a quirk: name it and tap **Record the quirk**, and
-the sheet holds it as a disadvantage *gained in play*, at no cost. The builder
-gives it back. The 16–21 and 22–23 bands hand out a whole disadvantage; the
-dialog says where it goes: **Spend points**, buy it, and tick **Gained in
-play**.
+### Concentrate and Fright
 
-Three of the table's nine bands print a way out, and those show a **recovery
-roll** against the column's own attribute — Will in Fright and Awe, IQ in
-Confusion. The other six print no roll and offer none. The `12` band also
-works its duration out for you (`14 sec (25 − HT 11)`), with the subtraction
-shown because the attribute it counts down from is not always the one it
-rolls.
+**Concentrate** rolls the focus that some actions need.
+
+**Fright** rolls the Fright Check, then the effect table.
+
+1. Pick the kind of fright and what was seen. Each row shows its modifier from the book.
+2. Adjust **Modifier** if the GM rules it worse or milder.
+3. Tap **Roll**.
+
+On 13 to 15 you gain a quirk. Name it and tap **Record the quirk**. It is saved as a disadvantage at 0 points. On 16 to 21 or 22 to 23 you gain a full disadvantage. Buy it in **Spend points** and tick **Gained in play**.
+
+Three of the nine result bands give a recovery roll, and the dialog offers it. The other six give none. The *12* band also works out how long the effect lasts, for example *14 sec (25 − HT 11)*.
 
 ---
 
-## 4. Beyonder play
+## 5. Beyonder play
 
 ### Drink a potion
 
-Tap **Pathway** (a mortal: **Drink a potion**). A mortal picks a pathway from the grid; a Beyonder opens
-on the potion they drank. The four Sequences sit in one row: tap one to read
-it. For a Beyonder, tapping a Sequence never changes what you can drink.
+![The pathway screen](media/pathway.gif)
 
-- **Drink this potion** applies the grants. A mortal sees it on Sequence 9
-  of the pathway they picked.
-- **Drink and roll** always drinks the *next* potion of the pathway you walk,
-  whichever Sequence you are reading, and runs the Potion Consumption Roll —
-  whose own table overrides the general critical rules at both ends (1 always
-  fails, 19 always succeeds). The digestion bar sits above it. The line under
-  the button names the potion and prints the roll before you make it: the
-  target, what advancing before full digestion costs, and a warning when
-  drinking it would end the character even on a success. On a success the
-  result stamps the Sequence you reached.
+Tap **Pathway**. A mortal sees **Drink a potion** and picks a pathway from the grid. A Beyonder opens on the potion they drank. The four Sequences sit in a row at the top. Tap one to read it.
+
+- **Drink this potion** gives a mortal the Sequence 9 potion of the pathway they picked.
+- **Drink and roll** drinks the next potion of your pathway and makes the Potion Consumption Roll. The line under the button shows the target, the cost of drinking before full digestion, and a warning if the potion would end the character even on a success. This roll has its own critical rules: 1 always fails and 19 always succeeds.
 - **[ Another pathway ]** goes back to the grid.
-- **Reroll the PCR (Luck)** takes Drink's place after a failed roll,
-  for a character with Luck, Beckoning Luck (unless they carry Fate Debt), or
-  the Lucky One's rerolls (Wheel of Fortune, Sequence 7 and deeper). It is
-  saved, so closing the app does not lose it. A success replaces the failure; a
-  second failure changes nothing. The app keeps no session, so how many rerolls
-  are left is yours to count.
+- **Reroll the PCR** replaces **Drink and roll** after a failed roll, if the character has Luck, Beckoning Luck (and not Fate Debt), or the Wheel of Fortune rerolls at Sequence 7 or deeper. The app does not count how many rerolls you have left.
 
-You walk a pathway one potion at a time: only the first potion for a mortal, or
-the next Sequence of the pathway you already walk. Digestion is tracked, and
-acting method progress with it.
+You drink one potion at a time, in order. A mortal can drink only Sequence 9, and a Beyonder only the next Sequence of their own pathway.
 
-Once you have drunk, the screen has two tabs. **Potion** shows what the chosen
-Sequence grants: stat gains, skills with the level they reach, then the book's
-own advantage, drawback and ability text. Each ability is a row: its name and
-the bracket the book prints after it, such as **1 SPI** or **Passive**. Tap a
-row to read it; **Open all** opens the whole card, and a card of one or two
-abilities starts open. On a potion you have drunk, an open ability with a
-fixed SPI price has **Spend N SPI**, which takes it from the SPI tracker; it
-is greyed out when the SPI left cannot pay. A price the GM must choose
-(*X SPI*, *1–2 SPI/turn*) has no button. A roll's Success and Failure lines sit under the
-ability they belong to. Costs, distances, dice and modifiers are picked out in
-colour; the words are the book's. **Digestion & corruption** holds the two trackers,
-for the potion you drank whichever Sequence you are reading, and
-a session's acting is one tap: **Good +10-15%** adds 10%, the low end, and
-**+5%** steps toward the top of the range if the GM rules it; **None** is the
-GM's to step down. Under the CoR stepper, **From ritual work** lists all four
-rungs of the book's ritual-corruption ladder (3, 5, 8 and 10 CoR); the ones
-your CoR has reached turn red. **What raises corruption** opens the list of
-what costs CoR.
+After the first potion, the screen has two tabs.
 
-**What a potion gives you is free.** It is never written into your point
-budget — the app stores only the *choice* (pathway, Sequence, digestion) and
-re-derives every grant from it. A potion that raises DX lifts every DX skill you
-bought; it does not re-level what an earlier potion granted.
+**Potion** shows what the Sequence grants: attribute gains, skills with their levels, advantages, disadvantages and abilities. Each ability is a row with a tag such as **1 SPI** or **Passive**. Tap a row to read it, or tap **Open all**. On a potion you drank, an ability with a fixed SPI cost has a **Spend N SPI** button. It is grey when you do not have enough SPI. An ability whose cost the GM sets has no button.
 
-**A Hanged Man chooses a drawback.** Sequence 9 prints three and says to choose
-one. On the Potion tab the Drawbacks card has a chip for each; the one you tap
-is held free from then on, down the whole pathway, and you can switch it. A
-drawback you already bought in the builder shows *bought* and cannot be chosen
-until you sell it, or its points would still be credited.
+**Digestion & corruption** holds the two trackers. Log a session of acting with one tap. For example, **Good +10-15%** adds 10%, and **+5%** adds more if the GM rules it. **None** leaves it for the GM to lower. Under the CoR stepper, **From ritual work** lists the four steps of ritual corruption (3, 5, 8 and 10 CoR), and the ones you reached turn red. **What raises corruption** lists what costs CoR.
+
+What a potion gives you costs no points. The app saves only your pathway, Sequence and digestion, and works out the gains from them. A potion that raises DX also raises each DX skill you bought.
+
+A Hanged Man picks one of three drawbacks at Sequence 9. On the **Potion** tab, tap its chip in the Drawbacks card. You can change it later. A drawback you bought in the builder shows *bought*, and you must sell it first.
 
 ### Ritual
 
-Pick the ritual's weight, your preparation, the language, the target link and
-any supporting skills. The dialog composes the target, subtracts the Corruption
-penalty at the thresholds the book prints, and prices the SPI. Quick and Full
-preparation are two different tables with two different link rules. The
-language is yours to state per ritual; under the chips the dialog lists the
-mystical languages the character bought in the builder, then any a potion
-granted (*"From the potion: Ancient Hermes, Native."*), and does not pick one
-for you. A language granted by a trait is not in that list. The choices scroll;
-pinned under them are the terms of the target, the target, what the ritual
-costs and **Cast**, which is withdrawn, with the reason in red, while the SPI
-is short, or the book or the entity refuses the attempt.
+1. Pick the ritual's weight, your preparation, the language, the link to the target, and any support skills.
+2. Read the target and the SPI cost at the bottom. The Corruption penalty is already in the target.
+3. Tap **Cast**. If you do not have enough SPI, or the book or the entity refuses, **Cast** is grey and the reason shows in red.
 
-**An invocation is paid when you ask.** With *Invocation* chosen, the button
-reads **Ask the entity** first. Asking rolls the Entity Response Table and
-spends the fuel then (*spent on asking: …*), and the power source, complexity,
-SPI and HP chips grey out; the button then reads **Cast**, which costs nothing
-more. A rejection spends nothing. *No response* spends the book's 2 SPI out of
-the HP you declared first, 2 HP for each, so a caster at 0 SPI who bled for it
-can still cast. Close the dialog after asking and the answer is gone but the
-fuel is not. A ritual on *Personal SPI* pays at **Cast**.
+Quick and Full preparation use different tables. The dialog lists the mystical languages the character bought, then any from a potion. It does not pick one for you.
 
-Six of those cells print a span or a floor rather than a number — *Good +1 to
-+2*, *Poor -1 to -2*, *None -4 or worse*, the quick table's *Poor / None -2 to
--4*, and the links *Strong +2 to +3* and *Weak +0 to -1*. Picking one opens a
-row headed **The book prints … — the GM picks:** with every value in the cell.
-Until you tap one, the roll takes the figure nearer zero, which is the chip
-shown selected. A pick belongs to its cell: choose another row and it is not
-carried over, come back and it is still there, shown selected. *Or worse* offers three steps past its printed figure; the
-book names no floor, so a harsher call than that is yours to apply by hand.
+Some cells print a range, such as *Good +1 to +2* or *Strong +2 to +3*. Picking one opens a row headed **The book prints … — the GM picks:**. Until you pick, the roll uses the value nearer zero.
 
-Failures roll on their own table (backlash, spiritual drain, and worse), and
-criticals on theirs — and both can still be pushed (see **Push the roll**
-above). A rolled 17 or 18 cannot: that row is named for the dice rather than
-the margin, so it is taken against any target and no amount of SPI moves it.
-The app withholds the row rather than selling you a point that buys nothing.
+#### Invocation
+
+With *Invocation* picked, the button first reads **Ask the entity**. Asking rolls the Entity Response Table and spends the fuel then. After that, the button reads **Cast** and costs nothing more. A rejection costs nothing. *No response* costs 2 SPI, taken first from the HP you offered, at 2 HP for each SPI. If you close the dialog after asking, the answer is lost but the fuel stays spent.
+
+A failure rolls on the failure table and a critical on its own table. You can push both. A roll of 17 or 18 cannot be pushed, because that result comes from the dice and not the margin.
 
 ### Divine
 
-Choose the method and difficulty, add the modifiers the GM allows, and roll.
-Clarity is read off the result. Divining a Beyonder stronger than you is harder
-per their Sequence, and at the top of the ladder only a critical success can
-work at all — the app demotes the roll rather than pretending.
+1. Pick the method and the difficulty.
+2. Add the modifiers the GM allows. If a row prints a range, a second row of chips opens so you can pick inside it.
+3. Tap **Roll**. The clarity of the answer comes from the result.
 
-A caster with Ritualistic Magic at 12 or more may divine at that skill -2, and
-the app uses it where it beats their own Divination Arts, saying *"Defaulted
-from"* under the dialog's title. **Versatile**'s +1 to a roll at default is counted
-there, before the two numbers are compared.
+*"Previous divination about the same subject"* is -2 for each repeat, so you pick x1 to x4.
 
-Four of the circumstance rows print a **range** — *"Method match +0 to +2"*,
-*"Target link +0 to +4"*, *"Unfavourable timing -1 to -2"*, *"Quiet, dedicated
-space +0 to +1"* — and ticking one opens a second row of chips to pick inside
-it. The value shown selected is the one the roll is using, so an untouched row
-applies the first figure the book prints. *"Previous divination about the same
-subject"* is -2 **per repeat**, so it asks how many times instead: x1 through
-x4. Under that rule
-no push is offered either, for the same arithmetic: a burn moves the target and
-never the dice, so it can never reach the 3 or 4 the rule demands.
+Divining a Beyonder stronger than you is harder. At the top of the ladder, only a critical success works, and then no push is offered, because a push cannot change the dice.
 
-Everywhere else it is offered, a critical success included — the clarity table
-prints no critical row and grades one by margin like any other, so a point
-still buys a clearer answer.
+With Ritualistic Magic at 12 or more, you can divine at that skill -2. The app uses it when it is better than your Divination Arts, and says *"Defaulted from"* under the title.
 
 ### Boon
 
-Always on the sheet. Without Ritualistic Magic it opens and says so first,
-above the form, which stays below for reference: the
-skill has no default, and **Spend points** sells it. It also needs 4 SPI of
-fuel, in SPI or in blood.
+Boon is a prayer to a patron for a gift. It needs Ritualistic Magic (buy it in **Spend points**) and 4 SPI of fuel.
 
-Pick the **patron's pathway**. The Sequence is not yours to pick: a first
-prayer asks for the first rung the book prints for that patron (Sequence 9,
-or 8 for the three pathways printed only there), and each later prayer asks
-the same patron for the next one. The rung's gains, skills and abilities are
-listed above the choices; its advantages and drawbacks are closed rows. One
-that names a listed trait with the same numbers (the Broker's Charisma +2,
-Fit, Acute Vision, Acute Hearing) is held on the Traits tab, marked *"from
-the boon"*, and counts in rolls as a potion's does; the rest is the GM's. Then the sacrifice, the ritual's quality, and 4-6 SPI of fuel, any of
-it paid in HP at 2 HP for 1 SPI: that is how a mortal, who has no SPI, prays. The
-foot shows every term of the target: Moderate -2, the Sequence (none at 9,
--2 at 8, doubling after), and the two circumstances. **Mystical language**
-is the tongue the prayer is said in, as on a ritual: *Accented* is -2 and
-*Broken* forbids it.
+1. Pick the patron's pathway. You do not pick the Sequence: the first prayer asks for the first one the book lists, and each later prayer asks for the next one.
+2. Pick the sacrifice, the ritual's quality, and 4 to 6 SPI of fuel. You can pay any of it in HP, at 2 HP for 1 SPI. This is how a mortal with no SPI prays.
+3. Pick the **Mystical language**. *Accented* is -2. *Broken* forbids the prayer.
+4. Tap **Ask the patron**. This rolls the Entity Response Table and spends the fuel.
+5. Tap **Pray**.
 
-The button reads **Ask the patron** first. It rolls the Entity Response
-Table, spends the fuel, and locks the patron and fuel choices. The answer
-is printed above the foot and its modifier joins the target; the button
-then reads **Pray**. Two answers end the prayer with no roll: a rejection,
-which spends nothing, and no response, which grants no boon and takes 2 SPI
-out of the fuel you declared, HP first.
+A rejection ends the prayer and costs nothing. No response ends it, grants no boon, and costs 2 SPI from your fuel, HP first.
 
-A granted boon is stored when the dialog closes, and held **beside** any
-potion walk: its attribute, SPI and skill gains are on the sheet from then
-on, free, and the header shows *Boon · name · Seq N*. The book records
-nothing past Sequence 8 for any patron, so the dialog refuses a prayer once
-the last printed rung is held.
+A granted boon is saved when you close the dialog. Its gains stay on the sheet next to any potions, and the header shows *Boon · name · Seq N*. Some of its traits count in rolls, marked *"from the boon"*. The GM handles the rest. The book lists nothing past Sequence 8, so you cannot pray again after that.
 
-### Detect / Artifacts
+### Spirit Vision, Detect and Artifacts
 
-**Detect** covers Spirit Vision and the detection rolls, with the
-anti-divination counters applied where a target has them. A character with
-Acute Vision sees *Acute Vision: +2 to Vision rolls* above the Spirit Vision
-roll; tap it if the GM rules that the eye's acuity helps this reading. A look
-that leaves SPI at a third of its maximum or less takes *Spiritual Attrition
--3*, the pool's "Beyonder ability checks" penalty, counted after the activation
-is paid. The
-same line, and Acute Hearing's, sits on every Perception-based skill roll,
-whether the sense was bought or granted by a potion (a Red Priest's, a
-Demoness's, a Visionary's). A potion's stronger row, such as Greater Acute
-Vision's +4, is a line of its own; tick both only if the GM rules they add.
-A Light Sleeper sees *Light Sleeper: Perception rolls while sleeping at +4*
-on those skill rolls and at the foot of the detection roll; it counts there
-only when that roll takes Per, and the dialog says so when it takes SPI.
-**Artifacts** lists
-sealed artifacts, their grades, and what each ability costs in SPI or HP — the
-grade is *not* a gate on use, deliberately.
+**Spirit Vision** (the red chip, under your pathway's name for it) rolls the look into the spirit world. **Detect** rolls the detection checks, and applies a target's anti-divination counters. With Acute Vision, a chip offers *+2 to Vision rolls*. Tap it if the GM says it helps. A look that leaves your SPI at a third of its maximum or less gets *Spiritual Attrition -3*. A Light Sleeper gets +4 on Perception rolls while asleep.
+
+**Artifacts** lists sealed artifacts, their grades and what each ability costs in SPI or HP. The grade does not stop you from using one.
 
 ---
 
-## 5. Build and edit
+## 6. Build and edit
 
-**Spend points** opens the builder: the four attributes against a live point
-budget, and skills bought at the ladder's own cost. The budget box stays at
-the top while the rest scrolls: points spent, the budget, what is spare (or
-over, in red), and a row of thirty pips, each filled once its share is spent. **Add a skill** buys one;
-its **Search** field narrows the list by any part of a name. A bought skill's
-**+** and **−** step one rung of the ladder (1, 2, 4, 8 points…), counting its
-study points toward the rung.
-**Wealth** and **Appearance** each have a row with a **Change** button (the
-wealth one opens a picker titled *Economic status*), and picking a level
-replaces the one you had rather than stacking a second. Where a potion granted
-a face, the Appearance row says so and names the face that is played.
+![The builder](media/builder.png)
 
-Under the attributes, **Secondary characteristics** has a stepper for each of
-the six the book prices — HP, Will, Per, FP, Speed and Move on screen, the
-book's full names to a screen reader — with the book's own price beside it (*±2 pts per level*, and *±5 pts per
-0.25* for Basic Speed, which steps a quarter at a time). Spirituality, CoR and
-Digestion have no stepper because the book prices none of them. Stepping back
-to the printed value clears the purchase; the sheet's own **computed vs.
-as-published** table keeps showing what the sheet printed, because that
-comparison is the engine against the book and a purchase is neither.
+**Spend points** opens the builder. The budget box stays at the top: points spent, the budget, and what is left (or how far over, in red).
 
-The big number on an attribute or secondary row is the one the character
-plays with, potions and God of Combat's +3 ST, DX and HT included, and the
-small line adds *N bought* wherever either moved it. The steppers, the prices
-and the budget all work on the bought number: a potion's gains are free, and
-the blessing's 75 points already paid for its +3. A God of Combat holder can
-buy ST, DX and HT three levels less high than anyone else, so every potion
-still fits on top. Skill rows
-stay on bought levels, and the **Skills** header says *Levels before potions*
-once for all of them; the sheet shows the levels actually rolled.
+### Attributes and secondary characteristics
 
-Each skill row is its name and level, its points, and a **Study** tag: what
-downtime study would cost for the next rung (*24 hrs + 16s · 2 CP → 10*), or
-why it offers none (*at cap 11*, or *not by self-study* for a Very Hard
-skill). A refusal's tag is dashed: tap the row for the book's sentence. **Study
-by** picks the road the tags are priced for, *With a Tutor* or *Self-Study*.
-When the downtime is done, record each study point earned with the row's
-**study CP +** (and take one back with **−**). The points raise the skill
-like any other (*2 pts + 2 studied*) and never spend the budget, because the
-book's study points are earned, not bought. **+** is off where study is
-refused: at the cap of Attribute+1, or on a skill a potion grants. Keeping to
-two skills per downtime is the GM's.
+Use **−** and **+** on each row. The large number is the one you play, with potions counted. The small line shows what you bought. Prices and the budget use the bought number only, because potion gains are free. Spirituality, CoR and Digestion have no stepper, because the book gives them no price.
 
-**Languages** lists the languages bought, with **Add or change** opening the
-book's twelve in its own two groups. Pick a language, one of the three
-proficiencies at that group's prices (6 / 4 / 2 for a common tongue, 30 / 20 /
-10 for a mystical one) and a form: *Spoken + Written* is the printed price,
-and *Spoken only* or *Written only* costs half. The line above **Buy** is
-what the budget will bill and why. Language Talent halves it, rounded up, and
-Multilingual makes the first two common languages bought at Native in both
-forms free; Dead Language Fluency does the same for the first of Ancient
-Hermes or Ancient Feysac bought at Native in both forms (the owner's reading:
-the book names no level, price or list). All three are read whenever the
-character is composed, so buying one later reprices what is already owned. Picking a language the
-character owns changes it in place, and **Give back** removes it. The points
-are applied and the *-2 / -3 to language-dependent skill rolls* are not: the
-book tags no skill as language-dependent, so those are the GM's. No other language
-is free, because the book prints no free native tongue;
-what a premade already speaks is not on its sheet, and the app does not
-guess it. A language that comes with a trait (Official Beyonder's *Hermes
-Language (Broken)*) or with a potion is not a row
-here either, so do not buy it twice.
+### Skills
 
-**Weapons** lists what the character is carrying, with **Carry a weapon**
-opening chapter 8's nine rows. All nine are offered whether or not the
-character has the skill — a GM can hand anyone a weapon — and a weapon they
-have no skill for says so instead of disappearing, because the parry is
-`skill / 2 + 3` and there is no skill to halve. Carrying one costs no points:
-the book prices weapons in money, which this app does not track. What it
-changes is the **Defend** screen, which now prints a `Parry (name)` row for
-each carried weapon it can compute one for.
+Tap **Add a skill** and use **Search** to find one. On a bought skill, **+** and **−** step one level at a time (1, 2, 4, 8 points and so on).
 
-**Add a trait** lists the book's advantages and drawbacks as a name and a
-price, with a **Search** box over them. Tapping a row opens its text and never buys; **Buy** inside the open
-row does. A trait already held is marked *already held* and has no Buy. God
-of Combat is refused the same way while a bought ST, DX or HT is above what a
-holder may buy, and its row says which to lower.
+### Study
 
-A bought **Charmed Object** has a **Choose skill** button under it, listing
-the character's own skills. The book says to specify the item and the skill;
-the app stores the skill. A roll of that skill from the Skills tab, and an
-attack with it, then offers a chip, *+1 to one specific skill when used*,
-which the table lights when the item is in use. Choosing again changes the
-skill. A parry, an Acrobatic Dodge, a ritual, a divination or a boon built on
-the skill does not take the +1 in the app.
+Each skill row has a tag that shows what downtime study costs for the next level, for example *24 hrs + 16s · 2 CP → 10*. A dashed tag means study is not possible. Tap the row to read why. **Study by** picks *With a Tutor* or *Self-Study*. When downtime ends, add each study point with **+** next to *study CP*. Study points raise the skill but do not use the budget. The GM limits study to two skills per downtime.
 
-Traits the book prints with a cost range or a "(specify)" name open the same
-way, with **Choose…** in place of Buy, and are bought by naming the instance
-and its price — the app stores the row, the variant and the
-cost, and composes the display name from them.
+### Wealth and Appearance
 
-Edits are saved per character and survive a restart.
+Tap **Change** on the row. A new level replaces the old one.
+
+### Languages
+
+Tap **Add or change**. Pick a language, a level and a form. *Spoken + Written* is the full price, and *Spoken only* or *Written only* costs half. Language Talent halves the price. Multilingual makes the first two common languages at Native in both forms free. Dead Language Fluency does the same for the first of Ancient Hermes or Ancient Feysac. **Give back** removes a language. The penalty to language-dependent skills is the GM's call, because the book does not say which skills those are. A language from a trait or a potion is not listed here, so do not buy it again.
+
+### Weapons
+
+Tap **Carry a weapon** to pick from the nine weapons in chapter 8. Weapons cost no points. Each weapon you carry adds a `Parry (name)` row to **Defend**, if the app can work one out.
+
+### Traits
+
+Tap **Add a trait** and use **Search**. Tapping a row opens its text. **Buy** inside the row buys it. A trait with a range of costs or a "(specify)" name has **Choose…** in place of **Buy**, so you can name it and set its price.
+
+A bought Charmed Object has a **Choose skill** button. After you choose, rolls and attacks with that skill offer a *+1 to one specific skill when used* chip. Parries, Acrobatic Dodge, rituals, divination and boons do not get the +1.
+
+Your changes are saved for each character and stay after a restart.
 
 ---
 
-## What the app will not do
+## Healing over days
 
-- **Enforce what only you can see.** Surprise, facing, awareness of a shot, how
-  many parries you made — all declarations. The app does the arithmetic once
-  you say what happened.
-- **Repair the book.** Where a published sheet disagrees with the rulebook, the
-  book wins and the disagreement is shown, not smoothed over.
-- **Invent a rule to fill a gap.** Where the book prints nothing — the shield at
-  your side, the value of a Secret nobody named — the app
-  says so and leaves it to the GM.
-- **Track a clock it does not hold.** There is no initiative, no map, no turn
-  counter beyond the defence screen's own round. FP recovery, stun duration and
-  reload rates are yours to run. So is the *day* in HP recovery — but its roll
-  is offered: while a character is hurt, **Vitals** holds **Natural
-  recovery**, with the book's three rows behind *The book's rows*, a **−1 / +1** for anything else that
-  moves the roll (a potion's grant, say — the line above it shows what is
-  already counted), and **Roll HT N — a day of rest and food**. Shock is not
-  in it: it lasts a turn, and the roll comes a day later. You say when
-  a day has passed. A success restores nothing by itself: its line quotes the
-  table (*Restore 1 HP … on the HP row*, and the 20–29 and 30–39 HP bands);
-  apply it with **+** on the HP strip, because which band applies to a large
-  body is the GM's call. A Fast Healer is told of one more HP on a success; on a
-  failure, whether that point still comes is the GM's call, and the line
-  says so. **Another day** clears it for the next one. The Healing
-  advantage and Regeneration are not offered. First Aid and Physician are
-  skills, rolled from **Skills** like any other, or untrained from the box
-  at its top, and the app restores no HP for either. The book's rows are *"First Aid: 1
-  HP + stops bleeding; 1 minute; once per wound"* and *"Physician (skill 12+):
-  1 HP (2 HP on critical success); per day of bed rest; requires equipment"*.
-  Add the HP with **+1**; the rest is yours to count.
+While a character is hurt, **Vitals** has **Natural recovery**.
+
+1. When the GM says a day of rest has passed, tap **Roll HT N — a day of rest and food**.
+2. Read the result line. It quotes the book's table.
+3. Add the HP yourself with **+** on the HP pool. The GM decides which row applies.
+4. Tap **Another day** to get ready for the next roll.
+
+**The book's rows** shows the table. Use the **−1 / +1** stepper for anything else that changes the roll. A Fast Healer gets one more HP on a success.
+
+The app does not heal with First Aid or Physician. Roll them as skills, then add the HP with **+**. The Healing advantage and Regeneration are not offered.
+
+---
+
+## Where the book is unclear
+
+In a few places the book does not settle a rule. The app picks a reading, and some dialogs explain it in a closed note. If you look these up in the book, you will not find the exact answer there:
+
+- A critical hit doubles the rolled damage, before DR and the wound multipliers.
+- The bare-hand parry takes the same -3 against a weapon as Brawling does.
+- A Warrior, Pugilist or Weapon Master parries with a weapon at no less than DX.
+- Injury after a multiplier is rounded down.
+- *No response* to an invocation or a prayer takes its 2 SPI from the HP you offered first.
+- Dead Language Fluency's free language is the owner's reading. The book names no level, price or list.
+- A potion's granted skill levels stay fixed when a later potion raises the attribute. A skill you bought rises with it.
+
+The GM can rule differently. Use the **Modifier** stepper for the difference.
+
+---
+
+## What the app leaves to you and the GM
+
+- What only you can see: surprise, facing, whether you saw the shot, and how many parries you made somewhere else.
+- Time: there is no initiative, map or turn counter. The only round is the one on **Defend**. FP recovery, stun length, reload time and the days of healing are yours to count.
+- Gaps in the book: where the book prints nothing, the app says so and leaves it to the GM.
+- Your gear and money: the app tracks weapons carried and nothing else.
+- The number of Luck rerolls left.
 
 ---
 
 ## If a number looks wrong
 
-1. Check what the app says it applied — every dialog shows its modifiers.
-2. Check the book. It is the authority, and the app is built to lose to it.
-3. If they disagree and the app is right about the book, the sheet is the thing
-   that is wrong — and that is a finding worth recording, not fixing.
+1. Look at what the dialog says it applied. Each roll lists its modifiers.
+2. Look it up in the book. The book is the authority.
+3. If the app matches the book, then the sheet has the error. That is worth noting, but do not change the sheet to hide it.
