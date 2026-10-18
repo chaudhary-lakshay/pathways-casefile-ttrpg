@@ -10,13 +10,14 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import com.pathways.rules.Pools
 import com.pathways.rules.SealedArtifacts
@@ -58,6 +59,14 @@ fun ArtifactDialog(
 
     val grade = SealedArtifacts.gradeOf(artifact)
     val cost = SealedArtifacts.costOf(artifact, ability)
+    // What a Use says it spent, built once: the button stores it, and the
+    // body draws it unseen beforehand to hold its exact height.
+    val receipt = buildString {
+        append("Spent ${cost.spi} SPI")
+        if (cost.hp > 0) append(" and ${cost.hp} HP")
+        if (cost.perTurn) append(", one turn of maintenance")
+        append(".")
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -66,7 +75,8 @@ fun ArtifactDialog(
             // activate any SPI-cost abilities" -- an artifact's price is an
             // SPI cost like any other, so at 0 the button is withdrawn rather
             // than left to charge a debt the book does not allow.
-            if (Pools.canAffordSpi(cost.spi, spiAvailable)) TextButton(
+            if (Pools.canAffordSpi(cost.spi, spiAvailable)) InkButton(
+                if (used == null) "Use" else "Use again",
                 onClick = {
                     // Two taps, always, to spend twice: the first clears the
                     // receipt and the second pays. So nothing charges the pool
@@ -75,24 +85,19 @@ fun ArtifactDialog(
                     // is not cosmetic (Codex, on divination).
                     if (used != null) {
                         used = null
-                        return@TextButton
+                        return@InkButton
                     }
                     onSpendSpi(cost.spi)
                     if (cost.hp > 0) onSpendHp(cost.hp)
-                    used = buildString {
-                        append("Spent ${cost.spi} SPI")
-                        if (cost.hp > 0) append(" and ${cost.hp} HP")
-                        if (cost.perTurn) append(", one turn of maintenance")
-                        append(".")
-                    }
+                    used = receipt
                 },
                 // False Majesty is "1 SPI/turn", so repeating IS its printed
                 // rule. A guard clearable only by closing the dialog would make
                 // the book's one maintained ability the hardest to use.
-            ) { Text(if (used == null) "Use" else "Use again") }
+            )
         },
         dismissButton = { CloseButton(onDismiss) },
-        title = { Text("Sealed Artifacts") },
+        title = { FormTitle(null) { Text("Sealed Artifacts") } },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 FlowRow {
@@ -161,13 +166,17 @@ fun ArtifactDialog(
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
-                used?.let {
-                    Text(
-                        it,
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
-                }
+                // Drawn from the start, unseen and unspoken until a Use: a
+                // receipt appearing on the first Use grew the dialog, which
+                // re-centred and moved the Use button under the second tap
+                // (Codex, slice 8). Its own text holds its own height.
+                Text(
+                    used ?: receipt,
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .then(if (used == null) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier),
+                )
 
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 RuleNote("Drawbacks and sealing") {

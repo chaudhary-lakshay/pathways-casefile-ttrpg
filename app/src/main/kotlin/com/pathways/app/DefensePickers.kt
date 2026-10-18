@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -276,9 +275,7 @@ internal fun BoostPicker(
         // with, a boost bought on that row left every control disabled
         // (Codex). The FP stays spent -- clearing is a correction, not a
         // refund, and the label says so.
-        TextButton(onClick = { onPick(null) }) {
-            Text("Clear the +${ActiveDefenses.BOOST_BONUS} (the FP stays spent)")
-        }
+        InkAction("Clear the +${ActiveDefenses.BOOST_BONUS} (the FP stays spent)", onClick = { onPick(null) })
     }
 }
 

@@ -46,7 +46,7 @@ internal fun WealthPicker(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { CloseButton(onDismiss) },
-        title = { Text("Economic status") },
+        title = { FormTitle(null) { Text("Economic status") } },
         text = {
             LazyColumn {
                 // The way back to the published sheet (Codex). Without it a
@@ -118,7 +118,7 @@ internal fun AppearancePicker(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { CloseButton(onDismiss) },
-        title = { Text("Appearance") },
+        title = { FormTitle(null) { Text("Appearance") } },
         text = {
             LazyColumn {
                 item {
@@ -204,7 +204,7 @@ internal fun SkillPicker(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { CloseButton(onDismiss) },
-        title = { Text("Add a skill") },
+        title = { FormTitle(null) { Text("Add a skill") } },
         text = {
             Column {
                 OutlinedTextField(

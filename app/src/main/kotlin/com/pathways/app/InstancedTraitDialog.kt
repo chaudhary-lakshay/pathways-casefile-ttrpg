@@ -65,13 +65,10 @@ internal fun InstancedTraitDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(
-                enabled = licensed != null,
-                onClick = { onBuy(purchase) },
-            ) { Text("Buy") }
+            InkButton("Buy", onClick = { onBuy(purchase) }, enabled = licensed != null)
         },
         dismissButton = { CloseButton(onDismiss, "Cancel") },
-        title = { Text(licensed?.name ?: row.name) },
+        title = { FormTitle(null) { Text(licensed?.name ?: row.name) } },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text(row.notes, style = MaterialTheme.typography.bodySmall)

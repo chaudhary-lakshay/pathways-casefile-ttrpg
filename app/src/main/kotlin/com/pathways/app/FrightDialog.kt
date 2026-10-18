@@ -29,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -406,10 +405,11 @@ private fun QuirkEntry(onQuirk: (String) -> Unit) {
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
-        TextButton(
+        InkAction(
+            "Record the quirk",
             onClick = { onQuirk(name); recorded = name.trim() },
             enabled = name.isNotBlank(),
-        ) { Text("Record the quirk") }
+        )
     }
 }
 
@@ -446,14 +446,12 @@ private fun FrightRecoveryPanel(
     val target = attributeLevel + bonus + clauseBonus.total + shock + hurt + states.total
     Column(Modifier.padding(top = 8.dp)) {
         if (rolled == null) {
-            TextButton(onClick = { onRoll(target) }) {
-                // The book's word, as the cell prints it: the enum's name is "WILL".
-                val attribute = when (recovery.attribute) {
-                    RecoveryAttribute.WILL -> "Will"
-                    RecoveryAttribute.IQ -> "IQ"
-                }
-                Text("Roll $attribute $target to recover now")
+            // The book's word, as the cell prints it: the enum's name is "WILL".
+            val attribute = when (recovery.attribute) {
+                RecoveryAttribute.WILL -> "Will"
+                RecoveryAttribute.IQ -> "IQ"
             }
+            InkAction("Roll $attribute $target to recover now", onClick = { onRoll(target) }, icon = Icons.Filled.Casino)
             if (bonus != 0) {
                 Text(
                     "includes +$bonus from ${TraitEffects.COMBAT_REFLEXES} — " +

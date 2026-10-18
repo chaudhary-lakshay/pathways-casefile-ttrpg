@@ -452,7 +452,7 @@ private fun MajorWoundPanel(
         // The button says "now" because the duration is the GM's: the row
         // itself asks for one of these a turn and this app holds no clock,
         // so a bare "Recover" would promise a rule the book does not print.
-        TextButton(onClick = onRecoveryRoll) { Text("Roll HT $recoveryTarget to recover now") }
+        InkAction("Roll HT $recoveryTarget to recover now", onClick = onRecoveryRoll, icon = Icons.Filled.Casino)
         if (recoveryLine != null) {
             Text(recoveryLine, style = MaterialTheme.typography.bodySmall)
         }

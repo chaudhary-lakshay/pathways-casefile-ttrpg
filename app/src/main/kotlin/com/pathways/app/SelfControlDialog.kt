@@ -136,7 +136,7 @@ internal fun SelfControlDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { CloseButton(onDismiss) },
-        title = {
+        title = { FormTitle(FORM_CONTROL) {
             Column {
                 Text(check.trait)
                 Text(
@@ -149,7 +149,7 @@ internal fun SelfControlDialog(
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
-        },
+        } },
         text = steadyBody {
             val result = outcome
             if (result != null) {

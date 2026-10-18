@@ -6,7 +6,10 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -260,9 +263,16 @@ internal fun Stamp(
     if (caps) Caps(verdict, inked, style = style, color = color) else Text(verdict, inked, style = style, color = color)
 }
 
+// A FlowRow, so the tag drops whole under the dice where both do not fit:
+// in a Row at 390 dp and font 1.3 it broke mid-word, "margi / n 1".
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun DiceLine(roll: RollResult) {
-    Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+    FlowRow(
+        Modifier.padding(top = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        itemVerticalAlignment = Alignment.CenterVertically,
+    ) {
         Text(
             "3d6: ${roll.total} vs ${roll.target}",
             style = MaterialTheme.typography.titleMedium.tabular(),

@@ -17,7 +17,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -115,7 +114,7 @@ internal fun LazyListScope.vitalsTab(
                     modifier = Modifier.weight(1f),
                 )
                 // Cleared by hand, because nothing here counts turns.
-                TextButton(onClick = onClearShock) { Text("Clear") }
+                InkAction("Clear", onClick = onClearShock, Modifier.padding(start = 8.dp))
             }
         }
     }

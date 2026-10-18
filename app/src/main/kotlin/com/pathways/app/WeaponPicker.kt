@@ -11,7 +11,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -62,7 +61,7 @@ internal fun WeaponsRow(
                     Text(weapon.name, style = MaterialTheme.typography.bodyLarge)
                     Text(carriedLine(weapon, skillLevels, mastery, dx), style = MaterialTheme.typography.bodySmall)
                 }
-                TextButton(onClick = { onRemove(weapon.name) }) { Text("Put down") }
+                InkAction("Put down", onClick = { onRemove(weapon.name) }, Modifier.padding(start = 8.dp))
             }
         }
     }
@@ -110,7 +109,7 @@ internal fun WeaponPicker(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { CloseButton(onDismiss) },
-        title = { Text("Carry a weapon") },
+        title = { FormTitle(null) { Text("Carry a weapon") } },
         text = {
             LazyColumn {
                 items(offered) { weapon ->

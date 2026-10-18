@@ -12,7 +12,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,9 +56,7 @@ internal fun LanguagesRow(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = { onGiveBack(language.purchase.language) }) {
-                    Text("Give back")
-                }
+                InkAction("Give back", onClick = { onGiveBack(language.purchase.language) })
             }
         }
     }
@@ -118,12 +115,10 @@ internal fun LanguagePicker(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = { candidate?.let(onBuy) }, enabled = price != null) {
-                Text(if (isOwned) "Change" else "Buy")
-            }
+            InkButton(if (isOwned) "Change" else "Buy", onClick = { candidate?.let(onBuy) }, enabled = price != null)
         },
         dismissButton = { CloseButton(onDismiss) },
-        title = { Text("Languages") },
+        title = { FormTitle(null) { Text("Languages") } },
         text = steadyBody {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 group("Common", Languages.common())

@@ -47,7 +47,7 @@ fun UntrainedDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { CloseButton(onDismiss) },
-        title = { Text("Roll a skill untrained") },
+        title = { FormTitle(FORM_UNTRAINED) { Text("Roll a skill untrained") } },
         text = {
             Column {
                 OutlinedTextField(

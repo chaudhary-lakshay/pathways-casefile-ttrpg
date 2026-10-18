@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -106,7 +105,7 @@ internal fun TraitsRow(
                     )
                     if (trait != null && !isAdvantage) GainedChip(trait.name in gained) { onGained(trait.name, it) }
                 }
-                TextButton(onClick = { onRemoveInstanced(index, purchase) }) { Text("Give back") }
+                InkAction("Give back", onClick = { onRemoveInstanced(index, purchase) }, Modifier.padding(start = 8.dp))
             }
         }
         bought.forEach { name ->
@@ -134,7 +133,7 @@ internal fun TraitsRow(
                     if (name == CharmedObject.ROW) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(charmLine, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-                            TextButton(onClick = onChooseCharm) { Text("Choose skill") }
+                            InkAction("Choose skill", onClick = onChooseCharm, Modifier.padding(start = 8.dp))
                         }
                     }
                     // Spiritual Fortitude is +3 maximum CoR: giving it back
@@ -147,7 +146,7 @@ internal fun TraitsRow(
                         )
                     }
                 }
-                TextButton(onClick = { onRemove(name) }, enabled = removable) { Text("Give back") }
+                InkAction("Give back", onClick = { onRemove(name) }, Modifier.padding(start = 8.dp), enabled = removable)
             }
         }
         quirks.forEach { name ->
@@ -159,7 +158,7 @@ internal fun TraitsRow(
                     Text(name, style = MaterialTheme.typography.bodyLarge)
                     Text("Quirk · $GAINED_LABEL", style = MaterialTheme.typography.bodySmall)
                 }
-                TextButton(onClick = { onRemoveQuirk(name) }) { Text("Give back") }
+                InkAction("Give back", onClick = { onRemoveQuirk(name) }, Modifier.padding(start = 8.dp))
             }
         }
     }
@@ -204,7 +203,7 @@ internal fun CharmSkillPicker(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { CloseButton(onDismiss) },
-        title = { Text("Charmed Object's skill") },
+        title = { FormTitle(null) { Text("Charmed Object's skill") } },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 if (skills.isEmpty()) Text("This character has no skill to charm yet.")
@@ -279,7 +278,7 @@ internal fun TraitPicker(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { CloseButton(onDismiss) },
-        title = { Text("Buy a trait") },
+        title = { FormTitle(null) { Text("Buy a trait") } },
         text = steadyBody {
             Column {
                 OutlinedTextField(
@@ -449,9 +448,7 @@ private fun PickerRow(
         if (expanded) {
             Text(notes, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp))
             if (blocked == null) {
-                FilledTonalButton(shape = ButtonShape, onClick = onAction, modifier = Modifier.padding(top = 6.dp)) {
-                    Text(action)
-                }
+                InkAction(action, onClick = onAction, Modifier.padding(top = 6.dp))
             }
         }
     }

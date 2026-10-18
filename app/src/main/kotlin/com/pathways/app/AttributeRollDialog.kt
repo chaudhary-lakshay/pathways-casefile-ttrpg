@@ -52,9 +52,9 @@ internal fun AttributeRollDialog(
         onDismissRequest = onDismiss,
         confirmButton = { CloseButton(onDismiss) },
         dismissButton = {
-            if (outcome != null) TextButton(onClick = { outcome = null }) { Text("Roll again") }
+            if (outcome != null) CloseButton({ outcome = null }, "Roll again", MaterialTheme.colorScheme.onSurface)
         },
-        title = { Text("${kind.label} roll") },
+        title = { FormTitle(FORM_ATTRIBUTE) { Text("${kind.label} roll") } },
         text = steadyBody {
             val result = outcome
             if (result != null) {

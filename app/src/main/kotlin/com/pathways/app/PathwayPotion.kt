@@ -8,18 +8,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -275,20 +271,12 @@ private fun AbilityRow(ability: Ability, expanded: Boolean, spend: AbilitySpend?
         val price = spiPriceOf(tag)
         if (spend != null && price != null) {
             // Personal SPI "cannot be reduced below 0" (ch. 7 Power Source A).
-            OutlinedButton(
-                shape = ButtonShape,
+            InkAction(
+                if (spend.left >= price) "Spend $price SPI" else "Spend $price SPI: ${spend.left} left",
                 onClick = { spend.onSpend(price, spend.left) },
                 enabled = spend.left >= price,
-                border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.outline),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
-                modifier = Modifier.padding(bottom = 12.dp).heightIn(min = 48.dp),
-            ) {
-                Caps(
-                    if (spend.left >= price) "Spend $price SPI" else "Spend $price SPI: ${spend.left} left",
-                    style = MaterialTheme.typography.labelLarge.tabular(),
-                    color = LocalContentColor.current,
-                )
-            }
+                modifier = Modifier.padding(bottom = 12.dp),
+            )
         }
     }
 }

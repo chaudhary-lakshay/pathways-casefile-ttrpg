@@ -15,6 +15,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -71,7 +72,7 @@ private fun RollLogDialog(throws: List<LoggedThrow>, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { CloseButton(onDismiss) },
-        title = { Text("Roll log") },
+        title = { FormTitle(null) { Text("Roll log") } },
         text = {
             if (throws.isEmpty()) {
                 Text("No rolls yet.")
@@ -128,7 +129,7 @@ private fun ResetDialog(name: String, isOwn: Boolean, onDismiss: () -> Unit, onR
 private fun Confirm(title: String, body: String, action: String, onDismiss: () -> Unit, onConfirm: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(title) },
+        title = { FormTitle(null) { Text(title) } },
         text = { Text(body) },
         confirmButton = {
             // Both actions are idempotent, so a second tap of the same picture
@@ -139,7 +140,7 @@ private fun Confirm(title: String, body: String, action: String, onDismiss: () -
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError,
                 ),
-            ) { Text(action) }
+            ) { Caps(action, style = MaterialTheme.typography.labelLarge.tabular(), color = LocalContentColor.current) }
         },
         dismissButton = { CloseButton(onDismiss, "Cancel") },
     )

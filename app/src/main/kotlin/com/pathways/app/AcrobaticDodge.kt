@@ -1,8 +1,10 @@
 package com.pathways.app
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Casino
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -130,24 +132,25 @@ internal fun AcrobaticDodge(
         )
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
-        TextButton(onClick = onRoll) {
-            // The number this tap rolls, with the level beside it wherever
-            // the trackers or a trait moved it.
-            val against = if (standing.target == standing.baseTarget) {
-                SuccessRoll.printed(standing.target)
-            } else {
-                "${SuccessRoll.printed(standing.target)} (${standing.baseTarget} → ${standing.target})"
-            }
-            Text(
-                (if (rolled == null) "Roll vs. ${ActiveDefenses.ACROBATIC_SKILL}" else "Roll again") +
-                    " — $against",
-            )
+        // The number this tap rolls, with the level beside it wherever
+        // the trackers or a trait moved it.
+        val against = if (standing.target == standing.baseTarget) {
+            SuccessRoll.printed(standing.target)
+        } else {
+            "${SuccessRoll.printed(standing.target)} (${standing.baseTarget} → ${standing.target})"
         }
+        // One label and Clear drawn from the start, so the first roll moves
+        // neither button: "Roll again" and an appearing Clear put Clear under
+        // the old centre of the wider label (Codex, slice 8).
+        InkAction(
+            "Roll vs. ${ActiveDefenses.ACROBATIC_SKILL} — $against",
+            onClick = onRoll,
+            modifier = Modifier.weight(1f, fill = false),
+            icon = Icons.Filled.Casino,
+        )
         // The way back, which a latched roll needs as much as a paid boost does
         // (6u): the GM who rolled for the wrong attack has to be able to say so.
-        if (rolled != null) {
-            TextButton(onClick = onClear) { Text("Clear") }
-        }
+        InkAction("Clear", onClick = onClear, modifier = Modifier.padding(start = 8.dp), enabled = rolled != null)
     }
     rolled?.let { outcome ->
         val roll = outcome.roll

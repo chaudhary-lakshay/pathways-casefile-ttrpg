@@ -62,7 +62,7 @@ internal fun ConcentrateDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { CloseButton(onDismiss) },
-        title = {
+        title = { FormTitle(FORM_CONCENTRATE) {
             Column {
                 Text("Concentrate")
                 Text(
@@ -71,7 +71,7 @@ internal fun ConcentrateDialog(
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
-        },
+        } },
         text = steadyBody {
             val result = outcome
             if (result != null) {

@@ -11,7 +11,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -168,7 +167,7 @@ fun DetectionDialog(
         dismissButton = {
             if (result != null) {
                 // The answer belongs to the divination it was rolled against.
-                TextButton(onClick = { result = null }) { Text("Sense again") }
+                CloseButton({ result = null }, "Sense again", MaterialTheme.colorScheme.onSurface)
             }
         },
         title = { FormTitle(FORM_DETECT) { Text("Am I being divined?") } },

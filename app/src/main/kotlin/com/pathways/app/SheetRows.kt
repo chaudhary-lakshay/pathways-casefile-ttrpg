@@ -114,17 +114,19 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
         )
         val result = outcome
         if (result == null) {
-            TextButton(
+            InkAction(
+                // Named by the book's own row, because below -HP BOTH rolls
+                // are offered and their targets differ (6cn).
+                "Roll HT $target — ${VitalRolls.rowFor(check)}",
                 onClick = {
                     // The re-entrancy guard every roll button in this app
                     // needs: two taps can both reach the handler before the
                     // button leaves the tree (6p).
-                    if (outcome != null) return@TextButton
+                    if (outcome != null) return@InkAction
                     outcome = SuccessRoll.against(target, dice.dice(if (check == VitalCheck.SURVIVAL) "HT to survive" else "HT to stay conscious"))
                 },
-                // Named by the book's own row, because below -HP BOTH rolls
-                // are offered and their targets differ (6cn).
-            ) { Text("Roll HT $target — ${VitalRolls.rowFor(check)}") }
+                icon = Icons.Filled.Casino,
+            )
         } else {
             Text(
                 "3d6: ${result.total} vs $target - ${label(result.outcome).lowercase()}",
@@ -138,7 +140,7 @@ private fun VitalRollRow(check: VitalCheck, target: Int, fromTraits: Int, ht: In
                     "that repetition is the GM's to run.",
                 style = MaterialTheme.typography.bodySmall,
             )
-            TextButton(onClick = { outcome = null }) { Text("Roll again") }
+            InkAction("Roll again", onClick = { outcome = null })
         }
     }
 }
@@ -301,27 +303,31 @@ internal fun StunRow(target: Int, onClear: () -> Unit) {
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.weight(1f),
             )
-            TextButton(onClick = onClear) { Text("Clear") }
-        }
-        outcome?.let {
-            Text(
-                "3d6: ${it.total} vs $target - ${label(it.outcome).lowercase()}, still stunned",
-                style = MaterialTheme.typography.titleSmall,
-            )
+            InkAction("Clear", onClick = onClear, Modifier.padding(start = 8.dp))
         }
         // Repeatable, one tap a turn: a second tap of the same picture is
         // dropped, as every repeatable roll here drops it (6ei).
         val drawn = outcome
-        TextButton(
+        InkAction(
+            "Roll HT $target to recover",
             onClick = {
-                if (outcome !== drawn) return@TextButton
+                if (outcome !== drawn) return@InkAction
                 val roll = SuccessRoll.against(target, dice.dice("Stun recovery"))
                 // Stored either way, so a second tap of this picture is
                 // dropped even on the success that clears the row (review).
                 outcome = roll
                 if (!StunRecovery.stillStunned(roll)) onClear()
             },
-        ) { Text("Roll HT $target to recover") }
+            icon = Icons.Filled.Casino,
+        )
+        // Under the button, so the line the first tap prints cannot push
+        // the button the next turn's tap is aimed at.
+        outcome?.let {
+            Text(
+                "3d6: ${it.total} vs $target - ${label(it.outcome).lowercase()}, still stunned",
+                style = MaterialTheme.typography.titleSmall,
+            )
+        }
     }
 }
 
