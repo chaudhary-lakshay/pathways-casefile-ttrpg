@@ -6878,7 +6878,12 @@ predicate for the fact the budget card already prints (RED first in
 them. Seen on the SM-T570: ST's stepper held y=607 across the crossing
 both ways, Will's `+` held as its note grew, and at 360 dp and font 2.0
 the card kept its height from "9 spare" to "21 over budget". 2003 Kotlin
-tests, unchanged.
+tests, unchanged. `SkillRow` builds its own row and was not in the
+finding: it is a plain top-aligned `Row` with both steppers in a column
+pinned to its top, and at font 1.65 Mathematics' study stepper held
+y=1083 across `+` and `-` while "2 pts" became "2 pts + 1 studied". Its
+rung stepper is covered by that reading only, as Academic Researcher
+carries no bought skill.
 
 ### Next
 
