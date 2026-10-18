@@ -2576,8 +2576,10 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6gd back to 6de
+## Digest index, 6gf back to 6de
 
+**6gf** — the attack's add-up test runs the range band, each circumstance, darkness and the trait terms, and never reads what `AttackOptions` prints;
+**6ge** — a ledger line printed each modifier's ID, "state:hp: -1"; `ModifierSource.label()` is the one place a source becomes text;
 **6gd** — a ledger roll resolved its target inside the click; `SkillRoll.targetFor` resolves while drawn, and my matrix test took its number from the function under test;
 **6gc–6gb** — the second tap of one picture: a push chip tapped twice threw past the FP cap or spent an emptied pool; a stale tap is dropped, and my handler count was wrong within the hour;
 **6ga–6fz** — a sheet row prints the played number, never the unedited sheet's; re-run 6ga's printed-number sweep after any new screen, and a grep for derivation calls is not it;

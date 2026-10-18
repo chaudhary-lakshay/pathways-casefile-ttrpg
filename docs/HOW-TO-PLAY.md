@@ -371,7 +371,7 @@ rolls.
 
 Tap **Pathway** (a mortal: **Drink a potion**). A mortal picks a pathway from the grid; a Beyonder opens
 on the potion they drank. The four Sequences sit in one row: tap one to read
-it. Tapping a Sequence never changes what you can drink.
+it. For a Beyonder, tapping a Sequence never changes what you can drink.
 
 - **Drink this potion** applies the grants. A mortal sees it on Sequence 9
   of the pathway they picked.

@@ -241,9 +241,7 @@ slice log.** One line each:
 **6gi** — with no shot called the damage line read "×1.5 there"; it says *there* only for a called location, and the trait backlog is tabled: 125 unread rows;
 **6gh** — the speed refusal counted a flag and the swap filtered on it; one `Ranged.oneOf` answers both, and "behaviour-preserving" was false for a row with both flags;
 **6gg** — *walking* and *running* could both be ticked, a -3 no speed produces; the three speed rows are one pick, a reading from bounds that do not meet;
-**6gf** — the attack's add-up test runs the range band, each circumstance, darkness and the trait terms, and never reads what `AttackOptions` prints;
-**6ge** — a ledger line printed each modifier's ID, "state:hp: -1"; `ModifierSource.label()` is the one place a source becomes text;
-**6gd back to 6de** have one-line digests too, moved verbatim to
+**6gf back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi, 6hk, 6hm, 6hq, 6hr, 6hs, 6ht, 6hu, 6hv, 6hw, 6ib, 6ic, 6ie, 6ih).
 

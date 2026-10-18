@@ -6800,6 +6800,11 @@ Python, 0 failures, from fresh result directories after `--rerun-tasks`.
 `ast-grep scan` clean, the census still 40 lines, no file over 800.
 `docs/HOW-TO-PLAY.md` §4 says Drink drinks the next potion whichever
 Sequence is read, names `[ Another pathway ]`, the stamp and the ladder.
+The handover's digest index lost 6ic's link to a digest and its four
+oldest digests (6gc-6gb, 6gd, 6ge, 6gf) to `docs/READING-ORDER.md`,
+verbatim. Its size is now measured by one query, from the
+"**6gy back to 6de" line to the blank line after the "**6gf back to
+6de**" pointer sentence: 7845 characters (7556 without the pointer).
 
 ### Device pass (SM-T570, USB and wireless)
 
@@ -6815,8 +6820,12 @@ Fortune Teller seeded as Fool 9 at 40% under a key the save did not hold
   "Digesting Seer".
 - Digested to 100% and drunk: frame 12's form, "File Nº 10", "SEQ 8 ·
   CLOWN", "3d6: 11 vs 19".
-- Antiquarian Dealer (Abyss 9): the caption identical reading Sequence 6
-  and 8. **Found and fixed**: "Unwinged Angel (Coldblooded)" wrapped the
+- Antiquarian Dealer (Abyss 9, ceiling 9; Abyss lowers Will at 8 and 6,
+  so Sequence 8's ceiling is 8 and Sequence 6's at most 7). At CoR 0 the
+  caption could not tell the two wirings apart, so CoR was seeded: **at 7,
+  no loss warning on Sequence 6 or 8** (a guard reading the browsed rung
+  would have warned on 6); **at 8, both warn**, "Maximum CoR after this
+  potion is 8". **Found and fixed**: "Unwinged Angel (Coldblooded)" wrapped the
   heading to two lines and moved the rungs 42 px under the finger that had
   tapped one; the name is one line, auto-sized, and the rungs held their
   pixel on all four.
@@ -6828,6 +6837,12 @@ Fortune Teller seeded as Fool 9 at 40% under a key the save did not hold
   cells fill the row). Density and font restored.
 - Barmaid Brawler (mortal): the ruled chooser grid; Sun 9 "Drink this
   potion", Sun 8 "a pathway begins at Sequence 9".
+- The Boon dialog, which shares `Abilities` and so the ledger restyle:
+  Goddess of Fate's block, two "Fate Sensation" rows under one rule, tags
+  "passive" and "active".
+- Seen and left: at 390 dp and font 1.3 the rung cells stand about twice
+  the height of their one-line names; the row's intrinsic height appears
+  to be taken before the names shrink.
 - Not seen: a failed PCR's reroll on device (no Luck holder seeded).
 
 ### Review
@@ -6838,8 +6853,8 @@ Codex (`codex exec`, gpt-6-astra, xhigh) read `3f4bf7c..f31eea2` under
 captions and stale-tap guards agree, and `WholeWords` terminates, keeps
 equals/hashCode consistent and reads Compose's exclusive line ends. Its own
 run of the two test classes failed in its sandbox on a Gradle wrapper lock;
-they passed here. The phone-width fixes after `f31eea2` (`FlowRow`,
-`WholeWords` on the rungs, the tab fill) are in that commit range.
+they passed here. The phone-width fixes (`FlowRow`, `WholeWords` on the
+rungs, the tab fill) are in `f31eea2`, so in what it read.
 
 ### Next
 
