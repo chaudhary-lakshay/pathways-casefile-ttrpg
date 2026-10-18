@@ -6726,6 +6726,135 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6ii. Case File, slice 5: the ten roll dialogs
+
+The plan's slice 5, built against frames 13-22 from the HTML renders
+(`~/Downloads/uxpilot-beyonder-codex/more/pages/13-22*.png`, the same
+frames as imported). Three commits, not pushed: `e84da8c`, the shared
+parts, `d7e1a47`, the dialogs, and `7f0ac87`, Codex's three findings. Before any code the live dialogs were
+photographed on the SM-T570 beside each frame; most of the gap was four
+shared pieces, not ten dialogs.
+
+### Three owner rulings, asked first
+
+- **Chip prose folds.** Frames 18-19 print no description under a chip.
+  Pure description (Ritual's mode, weight, complexity, sacrifice,
+  preparation, link and language lines; Divination's question example,
+  scope examples and method line) moves into one closed RuleNote, **What
+  these picks mean**. Refusals, caps, "the GM picks" prompts, the scope's
+  skill guidance ("Requires Ritualistic Magic…") and a level's provenance
+  ("Defaulted from Ritualistic Magic 15…") stay open.
+- **Defend keeps every control** frame 15 omits: the shield chips, the
+  Retreat line and its "one melee attack this round" note, both +2 rows,
+  the Modifiers list. Restyled only.
+- **Damage keeps no default location.** Frame 16 has Torso picked; the
+  app still asks "Pick where it landed".
+
+### What changed
+
+- **`CaseChip`** replaces FilterChip in the fifteen dialog files (93
+  sites, a mechanical rename): a mono label, filled ink with a ✓ when
+  picked, a 1 dp rule when not. FilterChip's own check widened a picked
+  chip, which can re-wrap a FlowRow and move every row under the finger,
+  so `chipInsets` gives the check the label's left padding and an
+  unpicked chip that room split either side: one width either way
+  (`CaseChipTest`, 3). The builder's, the trait picker's and the
+  pathway's chips are slice 7's and 8's. `Theme.kt`'s note that a mono
+  chip "wrapped past its fixed height" had expired: Material 1.3.0 sets
+  a minimum height, and the longest chip ("Aided by someone with the
+  same skill +2 (if they succeed first)") grows to two lines at 390 dp
+  and font 1.3.
+- **Pinned footers** (`RollFooter.kt`): `FooterBand` (a 2 dp ink rule
+  over the paper tint), `BoxedTarget` (always laid out; blank and unread
+  where no roll is made, so a pick that brings the number back grows
+  nothing), `RollButton` (mono capitals through `Caps`, so the source and
+  `HOW-TO-PLAY.md` keep the words as written), and `FooterRow`, a FlowRow
+  that drops the button to its own line where the row is too narrow.
+  `RollFooter`, `AttackFooter` and `RitualFooter` (Ritual, Divination,
+  Boon) all use them; each button takes the frame's icon (wand, eye,
+  church, eye-slash, antenna). Fright draws no box: frame 17's number is
+  the target card's.
+- **`TargetCard`**: the dice pill sits on the caption's line, right; the
+  number's line was where 6id moved it off for a long caption.
+- **`OptionStepper`** prints its value between the steps (frames 13-17).
+- **`RuleNote`** is a 1 dp dashed box with a mono ink title, no book
+  icon; `HOW-TO-PLAY.md` says so.
+- **`FormTitle`** prints the open file's number at the right
+  (`LocalFileLabel`, provided once in `MainActivity`; `fileLabel` tested),
+  and lets it drop under the form code where both do not fit.
+- **Skill**: the pre-roll ledger has dotted leaders. Frame 13 also lists a
+  lit chip's -2 there; the app does not, on its recorded reason (a lit
+  chip printed again "said one -4 twice").
+- **Fright**: the triggers are ruled rows, the pick bold beside a filled
+  ink dot. Both weights are laid out and one shown, because SemiBold is
+  wider in Plex and could wrap a line Regular did not.
+- **Defend**: tiles on the paper tint with a 1 dp rule, the figure small at
+  the right, `BoxedRoll` ("Roll ≤ 7", 2 dp ink), the verdict in mono, red on
+  a failure; `[ New round ]` (`BracketAction` gained `enabled`); the
+  section rules removed.
+- **Damage**: one five-cell joined stepper, the amount in ink; the
+  threshold a tilted `Stamp` in mixed case (`caps = false`), grey until
+  crossed, red after; Roll HT a `BoxedRoll` under the hit locations; Apply
+  in mono capitals.
+- **Attack**: the skill in a ruled card. "Another turn" and "Ask again"
+  are `CloseButton`s in ink (its new `color`).
+
+### Verification
+
+1984 Kotlin (1481 `core:rules`, 480 `app`, 23 `core:model`) and 366
+Python at `d7e1a47`, 0 failures, from fresh build directories (`rm -rf app/build
+core/*/build`, `--no-build-cache`): `--rerun-tasks` failed three times on
+Windows file locks, the first held by Serena's `intellij-server.exe`,
+which was stopped. The census still 40 lines; no file over 800.
+`CaseChipTest` and the `fileLabel` case were watched RED (unresolved
+references) before the code. At `7f0ac87`, `RollFooterTest` (4, RED the
+same way) took `app` to 484 and the total to 1988; `core` is unchanged.
+
+### Device pass (SM-T570, wireless)
+
+The APK predated the last app commit and was reinstalled. Save backed up
+(`~/pathways-device-backups/s5-start.json`) and restored by push and
+`run-as cp`, `cmp`-identical.
+- Each dialog beside its frame on Barmaid Brawler, Church Healer (Abyss 6),
+  Apothecary (Hermit 9) and Academic Researcher.
+- **Double taps in one frame** (one monkey script): Damage's Apply took
+  Church Healer's HP 9 → 8, once; Ritual's Cast rolled once and took SPI
+  8 → 6, one 2-SPI charge. No crash in logcat.
+- **At 390 dp and font 1.3**: **found and fixed** — every pinned footer
+  squeezed its caption to a letter a line ("3 / d / 6") beside the box and
+  the button, and the form code wrapped mid-word beside the file number;
+  both are FlowRows now. Seen and left: with a refusal showing, Ritual's
+  pinned footer leaves little of the scroll area at that size.
+- Landscape: Fright and Defend open with their footers in view.
+- After `7f0ac87`, at 390 dp and font 1.3: Physician at 14, then 18 with
+  "Easy task +4": the pill shrank to "3d6 ≤ 16, 17–18 fail" on one line,
+  TARGET stayed one line, and the chips below started on the same pixel;
+  Detect's footer stacked.
+- Not seen: Spirit Vision affordable (Apothecary has 0 SPI), Boon with a
+  patron picked, a Defend tile's verdict line.
+
+### Review
+
+Codex (`codex exec`, gpt-6-astra, xhigh) read `aaf24a2..d7e1a47` under
+`app/` with three questions (moved handlers and their guards; a
+composition throw or a shift under the finger; a figure or refusal
+hidden in the new note). No handler finding. **Three MEDIUMs, all taken**
+in `7f0ac87`: the FlowRow footer wrapped on the caption's length, so a
+pick could move Roll between lines (`footerStacks` now chooses Row or
+Column from the window and text scale alone, 520 text-dp, measured on
+the SM-T570); beside a long dice pill TARGET wrapped and the card grew as
+the target crossed 16 (`FitPill` steps its text down on one line over a
+blank full-size line that holds the height); a method's time, which can
+be "Overnight", sat only in the closed note (it is in the cost line now,
+"costs 1 SPI, takes 1 min", as Boon's already says its time). **The
+re-review of `7f0ac87` is owed**: Claude Code stopped it for low memory
+before it answered.
+
+### Next
+
+Codex's re-review of `7f0ac87`, then the plan's slice 7, the builder
+(frames 23-24), whose chips are still FilterChip, then 8, the sweep.
+
 ## 6ih. Case File, slice 6: the pathway screen
 
 The plan's slice 6 (the Notion table numbers it so; 6ig's "Next" and the

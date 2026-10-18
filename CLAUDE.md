@@ -193,6 +193,7 @@ the rule's `files:` glob is relative, and a scan elsewhere reports nothing.
 **6gy back to 6de had lead paragraphs here until 2026-10-12. Each is in
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) verbatim, and in full in the
 slice log.** One line each:
+**6id** — Case File slice 2, the shared components: the verdict a tilted stamp, the dialogs' form codes, Close in stamp red; pool pips on one Canvas, where a BoxWithConstraints crashed;
 **6ic** — Case File slice 1: one generated light scheme replaces every preset, stamp red #BC382A; Fraunces and Plex; a 600 dp column; roll sounds and ripple reverted;
 **6ib** — the shield bash, a row per shield at Brawling-2; from the front a shield's figure is the only one, and its block penalty stands without its DB;
 **6ia** — play session 6, Codex's scenario in landscape: a dialog body holds one height, so a verdict, search or pick moves no control;
@@ -240,10 +241,9 @@ slice log.** One line each:
 **6gj** — Absent-Mindedness's -3 is declared on every skill roll; Voice and Industrial Expertise are refused on Healer's reason, one constant, `PURPOSE_NOT_SKILL`;
 **6gi** — with no shot called the damage line read "×1.5 there"; it says *there* only for a called location, and the trait backlog is tabled: 125 unread rows;
 **6gh** — the speed refusal counted a flag and the swap filtered on it; one `Ranged.oneOf` answers both, and "behaviour-preserving" was false for a row with both flags;
-**6gg** — *walking* and *running* could both be ticked, a -3 no speed produces; the three speed rows are one pick, a reading from bounds that do not meet;
-**6gf back to 6de** have one-line digests too, moved verbatim to
+**6gg back to 6de** have one-line digests too, moved verbatim to
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
-its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi, 6hk, 6hm, 6hq, 6hr, 6hs, 6ht, 6hu, 6hv, 6hw, 6ib, 6ic, 6ie, 6ih).
+its 8,000-character cap (6ff, 6gb, 6gd, 6gw, 6ha, 6hb, 6hc, 6hd, 6he, 6hg, 6hh, 6hi, 6hk, 6hm, 6hq, 6hr, 6hs, 6ht, 6hu, 6hv, 6hw, 6ib, 6ic, 6ie, 6ih, 6ii).
 
 **6dd back to 6cd had lead paragraphs here and they have been cut, because
 this file keeps reaching the 150 k-char limit (6eb: 152,583; 6eh cut 6dd to
@@ -262,9 +262,14 @@ absolute names the corpus it was checked against.
 [`docs/READING-ORDER.md`](docs/READING-ORDER.md) to keep this index under
 its 8,000-character cap (6ev).
 
-**Where to start next: the slice log, from the END — 6ih first.** END
+**Where to start next: the slice log, from the END — 6ii first.** END
 means the newest slice, not the end of the file: 6a to 6by run down to
-line 6728, then 6ih back to 6cb, newest first, so `tail` prints 6cb. 6ih:
+line 6728, then 6ii back to 6cb, newest first, so `tail` prints 6cb. 6ii:
+(Case File slice 5, the ten roll dialogs from frames 13-22; three rulings
+asked first: each pick's description folds into a closed note, Defend
+keeps every control, Damage no default location; `CaseChip` one width
+picked or not; footers that wrap at 390 dp; double taps charged once on
+the SM-T570; Codex's three MEDIUMs fixed, its re-review owed). Then 6ih
 (Case File slice 6, the pathway screen from frames 09-12, read from the
 HTML renders when the Figma MCP hit its plan limit; three rulings asked
 first: Drink offers the next potion on every rung, so every guard reads
@@ -284,12 +289,7 @@ checks done on the SM-T570). Then 6ie
 (Case File slice 3, the sheet: the name a Fraunces heading out of the top
 bar, the pathway the verdict's stamp, a loss a filled red pill; "§"
 heads, boxed levels, ruled trait rows; FILE Nº deferred to slice 4's
-numbering; no device pass, the tablet off adb all session). Then 6id
-(Case File slice 2, the shared components: the verdict a tilted stamp,
-the eleven framed dialogs' form codes, Close in stamp red on the owner's
-pick; pool pips on one Canvas, since a BoxWithConstraints in the strip's
-intrinsic row crashed the sheet; red means harm or the Beyonder in the
-hub; three device checks owed, the tablet left in landscape). The chain
+numbering; no device pass, the tablet off adb all session). The chain
 holds the five newest: a slice that adds a link retires the oldest to a
 digest above, its sentence to `docs/READING-ORDER.md` first. The
 reading-order narrative for 6cc back to 6bf moved to
@@ -346,9 +346,9 @@ player-facing guide to all four and is verified against the labels in source.
 
 | | |
 |---|---|
-| Tests | **1980 Kotlin** (JUnit 5 — 1481 `core:rules`, 476 `app`, 23 `core:model`, counted in 6ih) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` count moves with `ThemeSchemesTest`, which emits one dynamic test per `ColorScheme` role and per contrast pair: 6ic's one light scheme took `app` from 892 to 431, and 6ic's guards to 433, 6id's `PoolPipsTest` to 437, 6ie's `SheetHeaderTest` to 442, 6if's six more to 448, 6ig's `GalleryFileTest` to 463, 6ih's `PathwayDrinkTest` and `WholeWordsTest` to 476 |
+| Tests | **1988 Kotlin** (JUnit 5 — 1481 `core:rules`, 484 `app`, 23 `core:model`, counted in 6ii) + **366 Python** (pytest), all green — counted from the JUnit XML, not from memory. **This row was stale by two on the Python side before 6dg**: it read 300 where `HEAD` carried 302, so re-count rather than adding your delta to what it says. A filtered run (`--tests`) leaves the results directory holding only what it ran, and Gradle then reports the unfiltered task UP-TO-DATE — count after a `--rerun-tasks`, or you will read the filter's leftovers (measured in 6dg: 489). **The `app` module writes to `build/test-results/testDebugUnitTest/`, not `.../test/`**: a glob over `test/` alone silently drops all 466 and still reports a green total (6dc). The `app` count moves with `ThemeSchemesTest`, which emits one dynamic test per `ColorScheme` role and per contrast pair: 6ic's one light scheme took `app` from 892 to 431, and 6ic's guards to 433, 6id's `PoolPipsTest` to 437, 6ie's `SheetHeaderTest` to 442, 6if's six more to 448, 6ig's `GalleryFileTest` to 463, 6ih's `PathwayDrinkTest` and `WholeWordsTest` to 476, 6ii's `CaseChipTest`, `RollFooterTest` and a `fileLabel` case to 484 |
 | Open issues | **Zero.** OPEN-1 was fixed in 6ar; the Codex sweep's 17 findings are all closed or refused with evidence (6as, 6at) |
-| Review gate | **Codex, always** (the owner, 2026-10-17: "use codex instead of ecc always", reversing 2026-10-10's ecc). Through `codex exec` with the target named (6eg). When Codex and pi-qa are both down, one review sub-agent, never ecc. 6ic: Codex reviewed Wabi, the plan, `58119c4`, `cb75e32` and `4d891e5`, then hit its limit; a sub-agent reviewed `a9be8f0` and `5148cb1` (SHIP WITH CHANGES, taken); 6id's, 6ie's and 6if's sub-agent reviews returned SHIP WITH CHANGES, the findings taken. On 2026-10-18 Codex (`codex exec`, gpt-6-astra, xhigh) reviewed the whole owed range `a9be8f0~1..d0f2299` under `app/` (generated `ThemeSchemes.kt` and fonts excluded; nothing outside `app/` changed): SHIP, no findings on handlers, composition crashes or printed figures. Nothing owes Codex a review; rotation stays device-unverified. 6ig: Codex NO SHIP, its HIGH taken (`5a36735`, re-reviewed SHIP), its MEDIUM refused with the line that disproves it. 6ih: Codex SHIP, no findings. Earlier gates are in each slice's Review section |
+| Review gate | **Codex, always** (the owner, 2026-10-17: "use codex instead of ecc always", reversing 2026-10-10's ecc). Through `codex exec` with the target named (6eg). When Codex and pi-qa are both down, one review sub-agent, never ecc. 6ic: Codex reviewed Wabi, the plan, `58119c4`, `cb75e32` and `4d891e5`, then hit its limit; a sub-agent reviewed `a9be8f0` and `5148cb1` (SHIP WITH CHANGES, taken); 6id's, 6ie's and 6if's sub-agent reviews returned SHIP WITH CHANGES, the findings taken. On 2026-10-18 Codex (`codex exec`, gpt-6-astra, xhigh) reviewed the whole owed range `a9be8f0~1..d0f2299` under `app/` (generated `ThemeSchemes.kt` and fonts excluded; nothing outside `app/` changed): SHIP, no findings on handlers, composition crashes or printed figures. Nothing owes Codex a review; rotation stays device-unverified. 6ig: Codex NO SHIP, its HIGH taken (`5a36735`, re-reviewed SHIP), its MEDIUM refused with the line that disproves it. 6ih: Codex SHIP, no findings. 6ii: Codex returned three MEDIUMs on `d7e1a47`, all taken in `7f0ac87`, whose re-review is OWED (stopped for low memory). Earlier gates are in each slice's Review section |
 | Branch | everything on `master`; working tree clean |
 | Toolchain | Kotlin 2.2.0, JVM toolchain 17, Gradle 9.3.1 (wrapper committed) |
 

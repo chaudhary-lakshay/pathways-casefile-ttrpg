@@ -195,6 +195,13 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6id
+(Case File slice 2, the shared components: the verdict a tilted stamp,
+the eleven framed dialogs' form codes, Close in stamp red on the owner's
+pick; pool pips on one Canvas, since a BoxWithConstraints in the strip's
+intrinsic row crashed the sheet; red means harm or the Beyonder in the
+hub; three device checks owed, the tablet left in landscape).
+
 Then 6ic
 (Case File slice 1: one generated light scheme replaces every preset,
 contrast checked through the grain, stamp red #BC382A on the owner's
@@ -2576,8 +2583,9 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6gf back to 6de
+## Digest index, 6gg back to 6de
 
+**6gg** — *walking* and *running* could both be ticked, a -3 no speed produces; the three speed rows are one pick, a reading from bounds that do not meet;
 **6gf** — the attack's add-up test runs the range band, each circumstance, darkness and the trait terms, and never reads what `AttackOptions` prints;
 **6ge** — a ledger line printed each modifier's ID, "state:hp: -1"; `ModifierSource.label()` is the one place a source becomes text;
 **6gd** — a ledger roll resolved its target inside the click; `SkillRoll.targetFor` resolves while drawn, and my matrix test took its number from the function under test;
