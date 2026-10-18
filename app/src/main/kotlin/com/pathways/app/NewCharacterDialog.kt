@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import com.pathways.model.Attr
 import com.pathways.rules.PremadeSheet
 
@@ -186,16 +187,17 @@ private fun StartsAs(fromTemplate: Boolean, onPick: (Boolean) -> Unit) {
 
 /** One cell of an ink segmented row: filled when [open]. Shared with the pathway screen's tabs. */
 @Composable
-internal fun Segment(label: String, icon: ImageVector?, open: Boolean, modifier: Modifier, onClick: () -> Unit) {
+internal fun Segment(label: String, icon: ImageVector?, open: Boolean, modifier: Modifier, inset: Dp = 0.dp, onClick: () -> Unit) {
     val ink = if (open) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
     Row(
         modifier
             .heightIn(min = 48.dp)
             .background(if (open) MaterialTheme.colorScheme.primary else Color.Transparent, RoundedCornerShape(4.dp))
             .selectable(selected = open, role = Role.RadioButton, onClick = onClick)
-            // Off the border: at 390 dp "Digestion & corruption" wraps, and
-            // its lines ran flush against the divider (6il).
-            .padding(horizontal = 8.dp),
+            // Off the border where a label wraps: "Digestion & corruption"
+            // ran flush against the divider at 390 dp, and the same 8 dp
+            // broke "Blank sheet", which fits, onto two lines (6il).
+            .padding(horizontal = inset),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {

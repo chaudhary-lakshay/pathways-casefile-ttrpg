@@ -242,7 +242,7 @@ internal fun PathwayTabs(tab: Int, onTab: (Int) -> Unit) {
         Modifier.fillMaxWidth().height(IntrinsicSize.Min).border(2.dp, MaterialTheme.colorScheme.outline, shape).selectableGroup(),
     ) {
         listOf("Potion", "Digestion & corruption").forEachIndexed { i, label ->
-            Segment(label, icon = null, open = tab == i, Modifier.weight(1f).fillMaxHeight()) { onTab(i) }
+            Segment(label, icon = null, open = tab == i, Modifier.weight(1f).fillMaxHeight(), inset = 8.dp) { onTab(i) }
         }
     }
 }
