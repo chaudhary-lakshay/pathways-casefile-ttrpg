@@ -6732,12 +6732,12 @@ The last item of the plan's slice 8: each of the 24 frames photographed
 beside the SM-T570 at the frames' own width (`wm density 492`, 390 dp,
 font 1.0), plus the owed checks 6ik could not reach. Composites were read
 at equal width; text was checked against the frames' HTML. Three commits,
-not pushed: `7d01c84`, `bd9242d`, `4e97c03`, and this entry.
+not pushed: `7d01c84`, `bd9242d`, `4e97c03`, `a7fe8d5`, and the docs.
 
 ### Verdict per frame
 
-- **Match:** 01, 02-04 (after the fix below), 05, 07, 08, 09, 10-12, 13,
-  14, 16 (after the fix), 17-24.
+- **Match:** 01, 07, 08, 09, 12, 13, 14, 17-24; and after the fixes
+  below, 02-04, 05, 10, 11, 15 and 16.
 - **Ruled divergences, not findings:** 06 Theme (retired: one light
   scheme), the gallery's palette button (01), A–Z (04, 07), frame 09's
   "§ Each action" legend, the Traits tab's hub (08), 05's "at 10" and 07's
@@ -6762,8 +6762,11 @@ not pushed: `7d01c84`, `bd9242d`, `4e97c03`, and this entry.
    cells.** The frames draw width-filling segments (`flex-1`, 8 dp tall;
    6 dp on the scrolled line), never squares. `segmentWidth`, with a bar
    below 2 dp; `PoolPipsTest` +2, RED as a compile failure first.
-3. **Frames 05, 10, 11: a segmented toggle's label sat flush on the
-   divider** and wrapped against it. `Segment` pads 8 dp and centres.
+3. **Frames 10, 11: the pathway tabs' label sat flush on the divider**
+   and wrapped against it. `Segment` centres, and takes an `inset` the
+   pathway tabs set to 8 dp. Padding every Segment (`bd9242d`) broke
+   frame 05's "Blank sheet", which fits, onto two lines; seen on the
+   device and scoped in `a7fe8d5`.
 4. **Six pickers' rows were grey** (Untrained, Attack's skill picker,
    Wealth, Appearance, Add a skill, Weapon): an `AlertDialog`'s text slot
    defaults to `onSurfaceVariant`, and the trait picker uses that grey for
@@ -6805,9 +6808,12 @@ the restore undid it).
 
 2005 Kotlin tests (1481 `core:rules`, 501 `app`, 23 `core:model`) and 366
 Python, all green, counted from fresh XML after `rm -rf app/build
-core/*/build` (`--rerun-tasks` hit the Windows lock four times). Each fix
-seen on the SM-T570 at 390 dp after install; density reset to 320 after.
-The session-mutator census still prints 40.
+core/*/build` (`--rerun-tasks` hit the Windows lock four times). Seen on
+the SM-T570 at 390 dp after install, every site the fixes touch: the
+Vitals pips, the Skills cells, the scrolled line, Defend, Damage at 8, the
+Attack and Untrained pickers, the Wealth, Appearance, Weapon and Add a
+skill pickers, the pathway tabs and New character. Density reset to 320
+after. The session-mutator census still prints 40.
 
 ### Review
 
@@ -6820,12 +6826,13 @@ makes the tag a speaking leaf TalkBack lands on, read once; every pool with
 tags still opens its rule from the label. Its two LOWs (no outline at max 0;
 `coerceIn` throwing at max < 0) cannot happen: `Pools` refuses a max below
 1 (`Pools.kt:268`, `:311`), so Codex's 0/0 guard is unreachable too, kept
-as a guard.
+as a guard. `a7fe8d5`, the Segment inset, came after both reviews and is
+unreviewed: an optional parameter, one caller passing it.
 
 ### Next
 
 Slice 8 is complete, and with it the plan's eight slices. Nothing is
-pushed since 6ic: master is 57 commits ahead.
+pushed since 6ic: master is 59 commits ahead.
 
 ## 6ik. Case File, slice 8: the sweep
 
