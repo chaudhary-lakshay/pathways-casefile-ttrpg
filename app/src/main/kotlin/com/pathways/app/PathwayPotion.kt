@@ -16,8 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -149,7 +147,6 @@ internal fun LazyListScope.potionContent(
  * the character bought is disabled and says so: sell it in the builder
  * first. The catalogue's "(pathway)" prints as the block does.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DrawbackPicker(
     choices: List<String>,
@@ -166,7 +163,7 @@ internal fun DrawbackPicker(
             val selected = name == chosen
             val enabled = selected || canChoose(name)
             val label = name.replace("(pathway)", "($pathway)")
-            FilterChip(
+            CaseChip(
                 selected = selected,
                 enabled = enabled,
                 onClick = { onChoose(name) },
