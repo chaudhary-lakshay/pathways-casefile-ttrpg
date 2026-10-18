@@ -215,9 +215,11 @@ fun Modifier.paperGrain(alpha: Float): Modifier {
  * The widest the content column grows. The frames are drawn at 390 dp; a
  * tablet in landscape (6ia) gets a centred column with paper either side,
  * on the owner's pick (2026-10-17). Dialogs are their own windows and size
- * themselves.
+ * themselves. A layout that chooses by width reads [MAX_COLUMN_DP], never
+ * the screen alone (6ij: `ledgerStacks`).
  */
-private val MAX_COLUMN = 600.dp
+internal const val MAX_COLUMN_DP = 600
+private val MAX_COLUMN = MAX_COLUMN_DP.dp
 
 /** Wraps the whole app. */
 @Composable

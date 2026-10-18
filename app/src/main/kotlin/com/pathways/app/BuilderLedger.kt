@@ -82,7 +82,10 @@ internal fun secondaryShortName(key: String, characteristic: String): String = w
  * at 1.0 and the 300 that wrapped; measure the row if it ever varies.
  */
 internal fun ledgerStacks(screenWidthDp: Int, fontScale: Float): Boolean =
-    screenWidthDp / fontScale < STUDY_BESIDE_MIN
+    // The ledger is drawn in the app's column, so a window wider than it
+    // buys nothing: in landscape at font 2.0 the screen read 480 text-dp
+    // where the column gives 300 (the advisor on 6ij).
+    minOf(screenWidthDp, MAX_COLUMN_DP) / fontScale < STUDY_BESIDE_MIN
 
 private const val STUDY_BESIDE_MIN = 360f
 

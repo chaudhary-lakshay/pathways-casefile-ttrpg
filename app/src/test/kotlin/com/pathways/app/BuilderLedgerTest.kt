@@ -64,6 +64,19 @@ class BuilderLedgerTest {
         assertTrue(ledgerStacks(screenWidthDp = 390, fontScale = 1.3f))
     }
 
+    // The ledger is drawn in the 600 dp column, so a wider window buys it
+    // nothing: the SM-T570 in landscape is 960 dp, and at font 2.0 the
+    // screen read 480 text-dp where the column gives 300.
+    @Test
+    fun `a landscape tablet at large text stacks, the column being capped`() {
+        assertTrue(ledgerStacks(screenWidthDp = 960, fontScale = 2.0f))
+    }
+
+    @Test
+    fun `a landscape tablet at large-ish text keeps it beside`() {
+        assertFalse(ledgerStacks(screenWidthDp = 960, fontScale = 1.3f))
+    }
+
     @Test
     fun `the tablet at large text keeps it beside`() {
         assertFalse(ledgerStacks(screenWidthDp = 600, fontScale = 1.3f))
