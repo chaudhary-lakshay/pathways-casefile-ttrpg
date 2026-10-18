@@ -183,8 +183,9 @@ private fun StartsAs(fromTemplate: Boolean, onPick: (Boolean) -> Unit) {
     }
 }
 
+/** One cell of an ink segmented row: filled when [open]. Shared with the pathway screen's tabs. */
 @Composable
-private fun Segment(label: String, icon: ImageVector, open: Boolean, modifier: Modifier, onClick: () -> Unit) {
+internal fun Segment(label: String, icon: ImageVector?, open: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val ink = if (open) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
     Row(
         modifier
@@ -194,8 +195,8 @@ private fun Segment(label: String, icon: ImageVector, open: Boolean, modifier: M
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(icon, contentDescription = null, tint = ink, modifier = Modifier.size(16.dp))
-        Caps(label, Modifier.padding(start = 6.dp), style = MaterialTheme.typography.labelLarge.tabular(), color = ink)
+        if (icon != null) Icon(icon, contentDescription = null, tint = ink, modifier = Modifier.size(16.dp))
+        Caps(label, Modifier.padding(start = if (icon != null) 6.dp else 0.dp), style = MaterialTheme.typography.labelLarge.tabular(), color = ink)
     }
 }
 

@@ -1,84 +1,47 @@
 package com.pathways.app
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pathways.model.BeyonderState
-import com.pathways.rules.Pool
 import com.pathways.model.Trait
 import com.pathways.model.canDrink
 import com.pathways.rules.Corruption
-import com.pathways.rules.DigestedCharacter
 import com.pathways.rules.PcrOutcome
 import com.pathways.rules.PotionConsumption
 import com.pathways.rules.PotionDigestion
-import com.pathways.rules.PremadeSheet
-import com.pathways.rules.RandomSource
 import com.pathways.rules.ScoreFloors
 import com.pathways.rules.TraitEffects
-import com.pathways.rules.TraitGrants
 import com.pathways.rules.TraitReport
 import com.pathways.rules.content.ActingQuality
 import com.pathways.rules.content.ContentLoader
-import com.pathways.rules.content.SequenceBlock
+import com.pathways.rules.content.RitualCorThreshold
 
 
 /**
@@ -94,12 +57,14 @@ internal fun DigestionTracker(
     state: BeyonderState,
     /** Read for Knows the Acting Method, which doubles the table (6ez). */
     traits: List<Trait>,
+    /** "Digesting this potion", or the potion's name while another rung is read. */
+    title: String,
     onDigest: (Int) -> Unit,
     onAct: (ActingQuality, drawnDigestion: Int) -> Unit,
 ) {
     val gains = remember(traits) { TraitEffects.actingGains(traits) }
     StepperCard(
-        title = "Digesting this potion",
+        title = title,
         minus = "-5%",
         plus = "+5%",
         value = "${state.digestion}%",
@@ -108,16 +73,16 @@ internal fun DigestionTracker(
     ) {
         Text(
             "next potion rolls ${pcrLine(state)}",
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodySmall.tabular(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             // ponytail: the tablet's two lines; at 100% it fell to one and moved the bands.
             minLines = 2,
         )
-        // One chip a quality: the book prints a range and no verdict.
+        SectionLabel("Acting")
+        // One box a quality: the book prints a range and no verdict.
         FlowRow(
-            Modifier.padding(top = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             // Drawn at this digestion: a second tap of it is dropped.
             val drawn = state.digestion
@@ -125,10 +90,18 @@ internal fun DigestionTracker(
                 if (quality.losesProgress) {
                     ChipTag("${quality.quality} 0 or lose")
                 } else {
-                    AssistChip(
+                    OutlinedButton(
                         onClick = { onAct(quality, drawn) },
-                        label = { Text("${quality.quality} +${quality.minGain}-${quality.maxGain}%") },
-                    )
+                        shape = ButtonShape,
+                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.outline),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
+                        contentPadding = PaddingValues(horizontal = 14.dp),
+                    ) {
+                        Text(
+                            "${quality.quality} +${quality.minGain}-${quality.maxGain}%",
+                            style = MaterialTheme.typography.labelLarge.tabular(),
+                        )
+                    }
                 }
             }
         }
@@ -235,24 +208,42 @@ internal fun CorruptionTracker(
                 // and the label read "Will (13)" beside a Will of 10.
                 "maximum CoR is $max; reaching it removes the character from play"
             },
-            style = MaterialTheme.typography.bodySmall,
-            color = if (session.corrupted) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodySmall.tabular(),
+            color = if (session.corrupted) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        // Ritual-scoped, and labelled so: the book files this ladder under
+        // All four rungs, the reached in red (frame 11, the owner's ruling of
+        // 2026-10-18). Captioned, because the book files this ladder under
         // "Corruption from Ritual Work", not under CoR in general.
-        Corruption.ritualThresholdsReached(cor).forEach { threshold ->
-            Text(
-                "${threshold.cor} CoR (ritual work): ${threshold.effect}",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 4.dp),
-            )
+        SectionLabel("From ritual work")
+        corLadder(cor).forEach { (threshold, reached) ->
+            Row(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                Text(
+                    "${threshold.cor} CoR",
+                    Modifier.width(72.dp),
+                    style = MaterialTheme.typography.labelLarge.tabular().copy(fontWeight = FontWeight.SemiBold),
+                    color = if (reached) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    threshold.effect,
+                    style = MaterialTheme.typography.bodySmall.tabular(),
+                    color = if (reached) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            DashedRule()
         }
-        HorizontalDivider(Modifier.padding(top = 10.dp), color = MaterialTheme.colorScheme.outlineVariant)
-        RuleNote("What raises corruption") {
-            Corruption.gained().forEach {
-                Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
-                    Text(it.action, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                    Text(it.gain, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
+        Box(
+            Modifier
+                .padding(top = 12.dp)
+                .fillMaxWidth()
+                .dashedBorder(MaterialTheme.colorScheme.outlineVariant)
+                .padding(horizontal = 12.dp),
+        ) {
+            RuleNote("What raises corruption") {
+                Corruption.gained().forEach {
+                    Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+                        Text(it.action, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                        Text(it.gain, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
+                    }
                 }
             }
         }
@@ -266,19 +257,32 @@ internal fun CorruptionTracker(
     }
 }
 
-/** The Potion Consumption Roll, and what it cost. */
+/**
+ * The Potion Consumption Roll, and what it cost (frame 12): the form and the
+ * file number, the new rung stamped on when the potion integrates, the dice.
+ */
 @Composable
 internal fun PcrDialog(
     outcome: PcrOutcome,
     corrupted: Boolean,
     /** What may reroll this failure, while one is unspent ([TraitEffects.rerollSource]). */
     rerollSource: String?,
+    /** "Seq 8 · Clown": the rung landed on. Null on a failure, which lands on none. */
+    stamp: String?,
+    /** "File Nº 10", or null for a sheet the gallery does not number. */
+    file: String?,
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("OK") } },
-        title = { FormTitle(FORM_PCR) {
+        // Filled ink, as frame 12 draws it: the one dialog whose way out is
+        // not CloseButton's stamp red.
+        confirmButton = {
+            Button(onClick = onDismiss, shape = ButtonShape) {
+                Caps("OK", style = MaterialTheme.typography.labelLarge.tabular(), color = LocalContentColor.current)
+            }
+        },
+        title = { FormTitle(FORM_PCR, file) {
             Text(
                 when {
                     !outcome.integrated -> "Lost to the Rampager"
@@ -287,15 +291,28 @@ internal fun PcrDialog(
                     corrupted -> "The potion integrates — and takes them"
                     else -> "The potion integrates"
                 },
+                style = MaterialTheme.typography.headlineMedium,
             )
         } },
         text = {
             Column {
-                Text("3d6: ${outcome.roll.total} vs ${outcome.target} (digested ${outcome.digestion}%)")
+                if (stamp != null) {
+                    Stamp(
+                        stamp,
+                        MaterialTheme.colorScheme.secondary,
+                        MaterialTheme.typography.titleMedium.copy(fontFamily = PlexMono, fontWeight = FontWeight.SemiBold),
+                    )
+                }
+                Text(
+                    "3d6: ${outcome.roll.total} vs ${outcome.target} (digested ${outcome.digestion}%)",
+                    Modifier.padding(top = 16.dp),
+                    style = MaterialTheme.typography.titleMedium.tabular(),
+                )
                 if (outcome.integrated && outcome.minimumCorGained > 0) {
                     Text(
                         "+${outcome.minimumCorGained} CoR charged for advancing before full " +
                             "digestion — the book's floor; the GM may charge more",
+                        Modifier.padding(top = 8.dp),
                     )
                 }
                 if (corrupted) {
@@ -323,8 +340,57 @@ internal fun PcrDialog(
     )
 }
 
+/** A 1 dp dashed rule between ledger rows (frames 10-11). */
+@Composable
+internal fun DashedRule() {
+    val color = MaterialTheme.colorScheme.outlineVariant
+    Canvas(Modifier.fillMaxWidth().height(1.dp)) {
+        drawLine(
+            color,
+            Offset(0f, 0f),
+            Offset(size.width, 0f),
+            strokeWidth = 1.dp.toPx(),
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 3.dp.toPx())),
+        )
+    }
+}
+
 /** Why a potion is not drinkable, in the space its button would occupy. */
 @Composable
 internal fun Note(text: String) {
     Text(text, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(16.dp))
+}
+
+/**
+ * The potion the Drink button offers while [pathway] Sequence [sequence] is
+ * browsed, or null (frames 10-11, the owner's ruling of 2026-10-18): a walker
+ * is offered the NEXT potion of the pathway walked on every rung of it, so a
+ * tile only changes what is read; a mortal, the browsed pathway's first.
+ * [printed] says whether the content holds that block.
+ */
+internal fun drinkTarget(
+    pathway: String,
+    sequence: Int,
+    drunk: BeyonderState?,
+    printed: (BeyonderState) -> Boolean,
+): BeyonderState? = when {
+    drunk == null -> BeyonderState(pathway, sequence).takeIf { sequence == PotionDigestion.STARTING_SEQUENCE }
+    drunk.pathway != pathway -> null
+    // advanced() keeps the chain's drawback (6he), as canDrink compares it.
+    else -> drunk.advanced()?.takeIf(printed)
+}
+
+/** The line under Drink: which potion, then the roll [drinkLine] prints. */
+internal fun drinkCaption(target: BeyonderState, drunk: BeyonderState?, cor: Int, ceilingAfter: Int): String? {
+    val line = drinkLine(drunk, cor, ceilingAfter) ?: return null
+    return if (drunk == null) line else "next: Sequence ${target.sequence} of the ${target.pathway} Pathway · $line"
+}
+
+/** Filled cells of the ten-cell digestion bar: one per whole 10%. */
+internal fun digestionCells(digestion: Int): Int = Math.floorDiv(digestion, 10)
+
+/** All four rungs of the ritual-work ladder, each with whether [cor] has reached it. */
+internal fun corLadder(cor: Int): List<Pair<RitualCorThreshold, Boolean>> {
+    val reached = Corruption.ritualThresholdsReached(cor).toSet()
+    return ContentLoader.ritualCorThresholds().map { it to (it in reached) }
 }

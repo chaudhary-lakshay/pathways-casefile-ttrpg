@@ -369,15 +369,22 @@ rolls.
 
 ### Drink a potion
 
-Go to **Pathways**. Pick your pathway, then the Sequence you are drinking.
+Tap **Pathway** (a mortal: **Drink a potion**). A mortal picks a pathway from the grid; a Beyonder opens
+on the potion they drank. The four Sequences sit in one row: tap one to read
+it. Tapping a Sequence never changes what you can drink.
 
-- **Drink this potion** applies the grants.
-- **Drink and roll** runs the Potion Consumption Roll — whose own table
-  overrides the general critical rules at both ends (1 always fails, 19 always
-  succeeds). The line under the button prints the roll before you make it: the
+- **Drink this potion** applies the grants. A mortal sees it on Sequence 9
+  of the pathway they picked.
+- **Drink and roll** always drinks the *next* potion of the pathway you walk,
+  whichever Sequence you are reading, and runs the Potion Consumption Roll —
+  whose own table overrides the general critical rules at both ends (1 always
+  fails, 19 always succeeds). The digestion bar sits above it. The line under
+  the button names the potion and prints the roll before you make it: the
   target, what advancing before full digestion costs, and a warning when
-  drinking it would end the character even on a success.
-- **Reroll the PCR (Luck)** appears on the potion's block after a failed roll,
+  drinking it would end the character even on a success. On a success the
+  result stamps the Sequence you reached.
+- **[ Another pathway ]** goes back to the grid.
+- **Reroll the PCR (Luck)** takes Drink's place after a failed roll,
   for a character with Luck, Beckoning Luck (unless they carry Fate Debt), or
   the Lucky One's rerolls (Wheel of Fortune, Sequence 7 and deeper). It is
   saved, so closing the app does not lose it. A success replaces the failure; a
@@ -398,10 +405,14 @@ fixed SPI price has **Spend N SPI**, which takes it from the SPI tracker; it
 is greyed out when the SPI left cannot pay. A price the GM must choose
 (*X SPI*, *1–2 SPI/turn*) has no button. A roll's Success and Failure lines sit under the
 ability they belong to. Costs, distances, dice and modifiers are picked out in
-colour; the words are the book's. **Digestion & corruption** holds the two trackers, and
+colour; the words are the book's. **Digestion & corruption** holds the two trackers,
+for the potion you drank whichever Sequence you are reading, and
 a session's acting is one tap: **Good +10-15%** adds 10%, the low end, and
 **+5%** steps toward the top of the range if the GM rules it; **None** is the
-GM's to step down. **What raises corruption** opens the list of what costs CoR.
+GM's to step down. Under the CoR stepper, **From ritual work** lists all four
+rungs of the book's ritual-corruption ladder (3, 5, 8 and 10 CoR); the ones
+your CoR has reached turn red. **What raises corruption** opens the list of
+what costs CoR.
 
 **What a potion gives you is free.** It is never written into your point
 budget — the app stores only the *choice* (pathway, Sequence, digestion) and

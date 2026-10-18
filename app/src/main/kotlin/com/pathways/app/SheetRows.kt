@@ -516,7 +516,7 @@ internal fun RollGlyph(border: Color = MaterialTheme.colorScheme.outline, size: 
 
 /** A skill row's level, boxed in 2 dp ink (frame 04). */
 @Composable
-private fun LevelBox(number: String) {
+internal fun LevelBox(number: String) {
     Box(
         Modifier.size(width = 44.dp, height = 34.dp).border(2.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.extraSmall),
         contentAlignment = Alignment.Center,

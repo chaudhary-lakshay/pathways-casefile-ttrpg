@@ -1,49 +1,20 @@
 package com.pathways.app
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -52,31 +23,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pathways.model.BeyonderState
-import com.pathways.rules.Pool
-import com.pathways.model.Trait
 import com.pathways.model.canDrink
-import com.pathways.rules.Corruption
-import com.pathways.rules.DigestedCharacter
 import com.pathways.rules.PcrOutcome
-import com.pathways.rules.PotionConsumption
+import com.pathways.rules.Pool
 import com.pathways.rules.PotionDigestion
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.RandomSource
 import com.pathways.rules.ScoreFloors
 import com.pathways.rules.TraitEffects
 import com.pathways.rules.TraitGrants
-import com.pathways.rules.TraitReport
-import com.pathways.rules.content.ActingQuality
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.SequenceBlock
 
@@ -118,6 +75,8 @@ fun PathwayScreen(
     sheet: PremadeSheet,
     session: BeyonderSession,
     dice: RandomSource,
+    /** The gallery's file number, for the PCR form's "File Nº" (frame 12). */
+    file: Int?,
     onBack: () -> Unit,
 ) {
     val drunk = session.state
@@ -165,53 +124,22 @@ fun PathwayScreen(
         { state: BeyonderState? -> session.edits.corCeilingOn(sheet, state) }
     }
     val maxCor = maxCorFor(drunk)
+    // The potion Drink offers, whichever rung is read (frames 10-11).
+    val target = block?.let { b ->
+        drinkTarget(b.pathway, b.sequence, drunk) { s -> blocks.any { it.pathway == s.pathway && it.sequence == s.sequence } }
+    }
+    val potionName = { s: BeyonderState -> blocks.single { it.pathway == s.pathway && it.sequence == s.sequence }.name }
     // The SPI the potions DRUNK give, as the sheet's tracker reads it: what a
     // held power is paid from, never the browsed block's.
     val maxSpi = remember(sheet, drunk, session.edits) {
         session.characterFor(sheet).digestedWith(drunk)?.effectiveSpi ?: 0
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            sheet.name,
-                            style = MaterialTheme.typography.titleLarge,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            pathway?.let { "$it Pathway" } ?: "Choose a pathway",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        // A real icon. This was a "←" glyph in a Text, from
-                        // before material-icons-extended was on the classpath;
-                        // the reason expired the moment the action hub needed
-                        // twelve icons and the dependency landed.
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back to sheet",
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                ),
-            )
-        },
-    ) { insets ->
+    Scaffold(topBar = { PathwayBar(sheet.name, pathway, onBack) }) { insets ->
         LazyColumn(
             Modifier.padding(insets).fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             if (block == null || digested == null) {
                 // A GRID, not rows, and the reasoning is the opposite of the
@@ -235,40 +163,11 @@ fun PathwayScreen(
                     }
                 }
             } else {
-                // The chosen pathway's card, large, beside its own Sequences.
-                // A player walking a pathway looks at this screen more than any
-                // other, and it had nothing on it to say WHICH pathway except a
-                // line of text.
+                // The potion read, beside its sigil (frame 10). A player
+                // walking a pathway looks at this screen more than any other.
+                item { PotionHeading(block) }
                 item {
-                    val art = pathwayArt(block.pathway)
-                    if (art != null) {
-                        Row(
-                            Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Image(
-                                painter = painterResource(art),
-                                contentDescription = "${block.pathway} Pathway",
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier.size(112.dp),
-                            )
-                            Column(Modifier.padding(start = 14.dp)) {
-                                // The potion leads; the pathway is already in the top bar.
-                                Text(block.name, style = MaterialTheme.typography.headlineSmall)
-                                Text(
-                                    "Sequence ${block.sequence} · ${block.pathway} Pathway",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                    }
-                }
-                item {
-                    Row(
-                        Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(horizontal = 4.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
+                    SequenceRow {
                         SEQUENCES.forEach { n ->
                             SequenceTile(
                                 sequence = n,
@@ -276,141 +175,60 @@ fun PathwayScreen(
                                 selected = n == sequence,
                                 // Cumulative: a Sequence 8 drank the 9 first.
                                 drunk = drunk?.pathway == block.pathway && n >= drunk.sequence,
-                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                                modifier = Modifier.weight(1f),
                                 // Picking a potion is asking to read it.
                                 onClick = { sequence = n; tab = 0 },
                             )
                         }
                     }
-                    Row(
-                        Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        TextButton(
-                            onClick = { pathway = null },
-                            modifier = Modifier.padding(end = 8.dp),
-                        ) { Text("Another pathway") }
-                        val chosen = potionOn(block, drunk)
-                        when {
-                            // Luck's reroll of the failed PCR, on the block
-                            // it attempted (6fg). Saved, so it survives a
-                            // restart; who may spend it is the rules'.
-                            session.lost && session.pendingPcr == chosen && rerollSource != null ->
-                                Column(Modifier.weight(1f)) {
-                                    // Drink's gate, because it is Drink's roll:
-                                    // Will lowered since the failure can leave
-                                    // this potion no ceiling, and rerollPcr
-                                    // refuses that by throwing (Codex's HIGH).
-                                    val ceilingAfter = maxCorFor(chosen)
-                                    val rerollable = ScoreFloors.holdsCeiling(ceilingAfter)
-                                    Button(shape = ButtonShape,
-                                        enabled = rerollable,
-                                        onClick = {
-                                            // A second tap finds nothing pending.
-                                            if (session.pendingPcr == chosen &&
-                                                ScoreFloors.holdsCeiling(maxCorFor(chosen))
-                                            ) {
-                                                pcr = session.rerollPcr(dice, maxCorFor)
-                                            }
-                                        },
-                                    ) { Text("Reroll the PCR ($rerollSource)") }
-                                    drinkLine(drunk, session.cor, ceilingAfter)?.let { line ->
-                                        Text(
-                                            line,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            modifier = Modifier.padding(top = 4.dp, end = 16.dp),
-                                        )
-                                    }
-                                    Note("lost to the Rampager, unless the reroll succeeds; the GM counts the session's rerolls")
-                                }
-                            session.lost -> Note("lost to the Rampager")
-                            session.corrupted -> Note("lost to corruption at ${session.cor} CoR")
-                            // Filled, because this is what the screen is FOR.
-                            // It was a text button sitting beside "Choose
-                            // another pathway", weighted identically to the
-                            // control that throws the choice away.
-                            drunk.canDrink(chosen) ->
-                                Column(Modifier.weight(1f)) {
-                                    val ceilingAfter = maxCorFor(chosen)
-                                    Button(shape = ButtonShape,
-                                        // `drink` refuses this too, before it
-                                        // rolls; the line below says why.
-                                        enabled = ScoreFloors.holdsCeiling(ceilingAfter),
-                                        onClick = {
-                                            // A second tap, or a CoR step, can
-                                            // reach this handler before the
-                                            // screen redraws. `drink` refuses
-                                            // a state it was not offered by
-                                            // throwing, so a stale tap does
-                                            // nothing instead.
-                                            if (session.stillShows(drunk, printedCor)) {
-                                                pcr = session.drink(chosen, dice, maxCorFor)
-                                            }
-                                        },
-                                    ) {
-                                        Text(if (drunk == null) "Drink this potion" else "Drink and roll")
-                                    }
-                                    // The roll, beside the button that makes
-                                    // it: the tracker that prints it is on the
-                                    // PREVIOUS block. Built from what
-                                    // stillShows compares, so it is the roll
-                                    // the tap makes or the tap does nothing.
-                                    drinkLine(drunk, printedCor, ceilingAfter)?.let { line ->
-                                        Text(
-                                            line,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            modifier = Modifier.padding(top = 4.dp, end = 16.dp, bottom = 8.dp),
-                                        )
-                                    }
-                                }
-                            drunk?.pathway == chosen.pathway && drunk.sequence == chosen.sequence ->
-                                Column(Modifier.weight(1f).padding(horizontal = 16.dp)) {
-                                    Text(
-                                        "Digestion ${drunk.digestion}%",
-                                        style = MaterialTheme.typography.labelLarge,
-                                    )
-                                    LinearProgressIndicator(
-                                        progress = { drunk.digestion / 100f },
-                                        modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
-                                    )
-                                }
-                            // A pathway is walked one potion at a time, so
-                            // every other block is readable but not drinkable.
-                            drunk == null -> Note("a pathway begins at Sequence ${PotionDigestion.STARTING_SEQUENCE}")
-                            else -> Note(
-                                drunk.advanced()
-                                    ?.let { "next: Sequence ${it.sequence} of the ${it.pathway} Pathway" }
-                                    ?: "already at Sequence ${drunk.sequence}",
-                            )
-                        }
-                    }
-                    HorizontalDivider()
                 }
-                val isCurrentPotion = drunk != null &&
-                    drunk.pathway == block.pathway &&
-                    drunk.sequence == block.sequence
+                // The character's digestion, on every rung of the pathway
+                // walked: a tile only changes what is read (frames 10-11).
+                if (drunk != null && drunk.pathway == block.pathway) {
+                    item { DigestionBar(drunk.digestion) }
+                }
+                item {
+                    DrinkRow(
+                        target = target,
+                        drunk = drunk,
+                        session = session,
+                        printedCor = printedCor,
+                        rerollSource = rerollSource,
+                        maxCorFor = maxCorFor,
+                        onAnother = { pathway = null },
+                        onDrink = { t ->
+                            // A second tap, or a CoR step, can reach this
+                            // handler before the screen redraws. `drink`
+                            // refuses a state it was not offered by throwing,
+                            // so a stale tap does nothing instead.
+                            if (session.stillShows(drunk, printedCor)) pcr = session.drink(t, dice, maxCorFor)
+                        },
+                        onReroll = { t ->
+                            // A second tap finds nothing pending.
+                            if (session.pendingPcr == t && ScoreFloors.holdsCeiling(maxCorFor(t))) {
+                                pcr = session.rerollPcr(dice, maxCorFor)
+                            }
+                        },
+                    )
+                }
                 // Two tabs once a potion is drunk: what this potion grants, and
                 // the character's own digestion and corruption. Stacked, the
                 // trackers pushed every potion's text below the fold.
-                if (drunk != null) {
-                    item {
-                        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                            listOf("Potion", "Digestion & corruption").forEachIndexed { i, label ->
-                                SegmentedButton(
-                                    selected = tab == i,
-                                    onClick = { tab = i },
-                                    shape = SegmentedButtonDefaults.itemShape(i, 2),
-                                ) { Text(label) }
-                            }
+                if (drunk != null) item { PathwayTabs(tab) { tab = it } }
+                if (drunk != null && tab == 1) {
+                    // Both trackers are the character's, whichever rung is read.
+                    if (!session.isLost) {
+                        item {
+                            val current = drunk.pathway == block.pathway && drunk.sequence == block.sequence
+                            DigestionTracker(
+                                drunk,
+                                traits,
+                                title = if (current) "Digesting this potion" else "Digesting ${potionName(drunk)}",
+                                onDigest = session::digest,
+                                onAct = session::act,
+                            )
                         }
                     }
-                }
-                if (drunk != null && tab == 1) {
-                    if (isCurrentPotion && !session.isLost) {
-                        item { DigestionTracker(drunk, traits, session::digest, session::act) }
-                    }
-                    // CoR is not tied to the potion being browsed: it is the
-                    // character's, so it shows whenever they have walked at all.
                     item { CorruptionTracker(session, drunk, maxCor, traits) }
                 } else {
                     // None for a lost character, so a disabled chip only
@@ -453,7 +271,99 @@ fun PathwayScreen(
         }
     }
 
-    pcr?.let { PcrDialog(it, session.corrupted, if (session.pendingPcr != null) rerollSource else null) { pcr = null } }
+    pcr?.let { outcome ->
+        PcrDialog(
+            outcome,
+            session.corrupted,
+            if (session.pendingPcr != null) rerollSource else null,
+            // On a success the session already stands on the rung landed on.
+            stamp = drunk?.takeIf { outcome.integrated }?.let { "Seq ${it.sequence} · ${potionName(it)}" },
+            file = file?.let { "File Nº ${fileDigits(it)}" },
+        ) { pcr = null }
+    }
+}
+
+/**
+ * The row under the rungs (frame 10): "[ Another pathway ]" and the Drink
+ * button for [target] ([drinkTarget]), its caption full width beneath; or
+ * the reroll a failed PCR leaves, or why nothing can be drunk. Every guard
+ * reads [target], never the rung browsed: an Abyss walker reading Seq 6 is
+ * charged Seq 8's ceiling, the potion the tap drinks.
+ */
+@Composable
+private fun DrinkRow(
+    target: BeyonderState?,
+    drunk: BeyonderState?,
+    session: BeyonderSession,
+    printedCor: Int,
+    rerollSource: String?,
+    maxCorFor: (BeyonderState?) -> Int,
+    onAnother: () -> Unit,
+    onDrink: (BeyonderState) -> Unit,
+    onReroll: (BeyonderState) -> Unit,
+) {
+    // Luck's reroll of the failed PCR (6fg), on the potion it attempted.
+    // Saved, so it survives a restart; who may spend it is the rules'.
+    val rerolling = session.lost && target != null && session.pendingPcr == target && rerollSource != null
+    val drinking = !session.isLost && target != null && drunk.canDrink(target)
+    // The ceiling of the potion the tap drinks: Drink's gate, and the
+    // reroll's, since Will lowered since a failure can leave it none.
+    val ceilingAfter = if (rerolling || drinking) maxCorFor(target) else null
+    val caption = when {
+        rerolling -> listOfNotNull(
+            drinkCaption(target!!, drunk, session.cor, ceilingAfter!!),
+            "lost to the Rampager, unless the reroll succeeds; the GM counts the session's rerolls",
+        ).joinToString(". ")
+        // Built from what stillShows compares, so it is the roll the tap
+        // makes or the tap does nothing.
+        drinking -> drinkCaption(target!!, drunk, printedCor, ceilingAfter!!)
+        else -> null
+    }
+    Column {
+        // A flow, so Drink takes its own line under the bracket when both do
+        // not fit: at 390 dp and font 1.3 the bracket left it a sliver.
+        FlowRow(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            itemVerticalAlignment = Alignment.CenterVertically,
+        ) {
+            BracketAction("Another pathway", onAnother)
+            Box(Modifier.weight(1f).widthIn(min = DRINK_MIN_WIDTH), contentAlignment = Alignment.CenterEnd) {
+                when {
+                    rerolling -> DrinkButton(
+                        "Reroll the PCR ($rerollSource)",
+                        ScoreFloors.holdsCeiling(ceilingAfter!!),
+                        Modifier.fillMaxWidth(),
+                    ) { onReroll(target!!) }
+                    session.lost -> Note("lost to the Rampager")
+                    session.corrupted -> Note("lost to corruption at ${session.cor} CoR")
+                    // `drink` refuses a ceiling below the floor too, before
+                    // it rolls; the caption says why.
+                    drinking -> DrinkButton(
+                        if (drunk == null) "Drink this potion" else "Drink and roll",
+                        ScoreFloors.holdsCeiling(ceilingAfter!!),
+                        Modifier.fillMaxWidth(),
+                    ) { onDrink(target!!) }
+                    // A pathway is walked one potion at a time.
+                    drunk == null -> Note("a pathway begins at Sequence ${PotionDigestion.STARTING_SEQUENCE}")
+                    else -> Note(
+                        drunk.advanced()
+                            ?.let { "next: Sequence ${it.sequence} of the ${it.pathway} Pathway" }
+                            ?: "already at Sequence ${drunk.sequence}",
+                    )
+                }
+            }
+        }
+        caption?.let {
+            Text(
+                it,
+                Modifier.padding(top = 8.dp),
+                style = MaterialTheme.typography.bodySmall.tabular(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
 }
 
 /**
@@ -463,3 +373,6 @@ fun PathwayScreen(
  */
 internal fun potionOn(block: SequenceBlock, drunk: BeyonderState?): BeyonderState =
     BeyonderState(block.pathway, block.sequence, drawback = drunk?.takeIf { it.pathway == block.pathway }?.drawback)
+
+/** The narrowest Drink stands beside "[ Another pathway ]"; narrower, it takes its own line. */
+private val DRINK_MIN_WIDTH = 220.dp

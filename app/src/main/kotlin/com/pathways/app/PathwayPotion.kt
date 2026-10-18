@@ -3,26 +3,27 @@ package com.pathways.app
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,8 +67,16 @@ internal fun LazyListScope.potionContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 if (block.stats.isEmpty()) Text("No stat gains", style = MaterialTheme.typography.bodyMedium)
-                block.stats.forEach { Pill(it.attr, formatDelta(it.delta)) }
-                if (digested.grants.spi != 0) Pill("SPI after digestion", digested.effectiveSpi.toString(), quiet = true)
+                // Stamped in red, as frame 10 draws "SPI +9": a potion's gain
+                // is a Beyonder fact.
+                block.stats.forEach {
+                    Stamp(
+                        "${it.attr} ${formatDelta(it.delta)}",
+                        MaterialTheme.colorScheme.secondary,
+                        MaterialTheme.typography.titleSmall.copy(fontFamily = PlexMono, fontWeight = FontWeight.SemiBold),
+                    )
+                }
+                if (digested.grants.spi != 0) ChipTag("SPI after digestion ${digested.effectiveSpi}")
             }
             block.stats.filter { it.note.isNotEmpty() }.forEach {
                 Text("${it.attr} ${it.note}", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 6.dp))
@@ -86,7 +95,8 @@ internal fun LazyListScope.potionContent(
     if (block.skills.isNotEmpty() || block.unresolvedSkills.isNotEmpty()) {
         item {
             PotionCard("Skills") {
-                block.skills.forEach { grant ->
+                block.skills.forEachIndexed { i, grant ->
+                    if (i > 0) DashedRule()
                     // The full identity, not the base name: Death grants Hidden
                     // Lore (Spirits) at Seq 8 and (Spirit World) at Seq 6.
                     val base = grant.name.substringBefore(" (")
@@ -94,14 +104,21 @@ internal fun LazyListScope.potionContent(
                     val level = digested.grants.skillLevels.entries.firstOrNull {
                         it.key.name == base && it.key.specialization == spec && it.key.difficulty == grant.difficulty
                     }?.value
-                    SkillLine(grant.name, noteOf(grant.note), level?.toString() ?: "+${grant.bonus}")
+                    SkillLine(
+                        grant.name,
+                        noteOf(grant.note),
+                        "${grant.attr.code}/${grant.difficulty.code}",
+                        level?.toString() ?: "+${grant.bonus}",
+                    )
                 }
                 // Printed, and naming no skill the book lists (6gk): shown as
                 // printed, with nothing computed from it.
-                block.unresolvedSkills.forEach { printed ->
+                block.unresolvedSkills.forEachIndexed { i, printed ->
+                    if (i > 0 || block.skills.isNotEmpty()) DashedRule()
                     SkillLine(
                         printed.substringBefore("/"),
                         "names no skill the book lists; the GM assigns it",
+                        "",
                         printed.substringAfterLast(" "),
                     )
                 }
@@ -159,67 +176,32 @@ internal fun DrawbackPicker(
     }
 }
 
+/** The potion's sections, each a [LedgerCard] (frame 10). */
 @Composable
 private fun PotionCard(
     title: String,
-    /** At the title's right: the abilities card's open-all control. */
     action: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit,
-) {
-    Card(
-        Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Row(Modifier.padding(bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    title.uppercase(),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.weight(1f),
-                )
-                action?.invoke()
-            }
-            content()
-        }
-    }
-}
+) = LedgerCard(title, action, content)
 
+/** A granted skill: name (and the book's note), "IQ/VH" in mono, the level boxed (frame 10). */
 @Composable
-private fun Pill(label: String, value: String, quiet: Boolean = false) {
-    Surface(
-        shape = RoundedCornerShape(50),
-        color = if (quiet) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.primaryContainer,
-    ) {
-        Row(Modifier.padding(horizontal = 14.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(label, style = MaterialTheme.typography.labelLarge)
-            Text(
-                " $value",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = if (quiet) Color.Unspecified else MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-        }
-    }
-}
-
-@Composable
-private fun SkillLine(name: String, note: String, value: String) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+private fun SkillLine(name: String, note: String, attr: String, value: String) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             Text(name, style = MaterialTheme.typography.bodyLarge)
             if (note.isNotEmpty()) {
                 Text(note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        Surface(shape = RoundedCornerShape(8.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
-            Text(
-                value,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-            )
-        }
+        Text(
+            attr,
+            Modifier.padding(horizontal = 12.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+        )
+        LevelBox(value)
     }
 }
 
@@ -248,25 +230,15 @@ internal fun Abilities(title: String, text: String, spend: AbilitySpend? = null)
             null
         } else {
             {
-                TextButton(onClick = { open = if (allOpen) emptyList() else named }) {
-                    Text(if (allOpen) "Close all" else "Open all")
-                }
+                BracketAction(if (allOpen) "Close all" else "Open all", { open = if (allOpen) emptyList() else named })
             }
         },
     ) {
-        // Each power is its own card inside the section's.
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // One ledger, a dashed rule between powers (frame 10).
+        Column {
             all.forEachIndexed { i, ability ->
-                Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    // Text with no name has no row above it to space it.
-                    Column(Modifier.padding(start = 14.dp, end = 14.dp, top = if (ability.head.heading == null) 12.dp else 0.dp)) {
-                        AbilityRow(ability, expanded = i in open, spend = spend, onToggle = { open = if (i in open) open - i else open + i })
-                    }
-                }
+                if (i > 0) DashedRule()
+                AbilityRow(ability, expanded = i in open, spend = spend, onToggle = { open = if (i in open) open - i else open + i })
             }
         }
     }
@@ -292,14 +264,9 @@ private fun AbilityRow(ability: Ability, expanded: Boolean, spend: AbilitySpend?
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        FlowRow(
-            Modifier.weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Text(name, style = MaterialTheme.typography.titleMedium)
-            if (tag != null) Tag(tag)
-        }
+        Text(name, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold))
+        // At the row's end beside the chevron, as frame 10 draws "1 SPI".
+        if (tag != null) Box(Modifier.padding(horizontal = 8.dp).widthIn(max = 160.dp)) { Tag(tag) }
         Icon(
             if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
             contentDescription = null,
@@ -311,11 +278,20 @@ private fun AbilityRow(ability: Ability, expanded: Boolean, spend: AbilitySpend?
         val price = spiPriceOf(tag)
         if (spend != null && price != null) {
             // Personal SPI "cannot be reduced below 0" (ch. 7 Power Source A).
-            OutlinedButton(shape = ButtonShape,
+            OutlinedButton(
+                shape = ButtonShape,
                 onClick = { spend.onSpend(price, spend.left) },
                 enabled = spend.left >= price,
-                modifier = Modifier.padding(bottom = 12.dp),
-            ) { Text(if (spend.left >= price) "Spend $price SPI" else "Spend $price SPI: ${spend.left} left") }
+                border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.outline),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
+                modifier = Modifier.padding(bottom = 12.dp).heightIn(min = 48.dp),
+            ) {
+                Caps(
+                    if (spend.left >= price) "Spend $price SPI" else "Spend $price SPI: ${spend.left} left",
+                    style = MaterialTheme.typography.labelLarge.tabular(),
+                    color = LocalContentColor.current,
+                )
+            }
         }
     }
 }
@@ -327,13 +303,13 @@ private fun Tag(text: String) {
     // the pool strip gives SPI. Outlined, not tinted: red on a red wash fell
     // under AA through the paper grain (3.9:1, Codex).
     Surface(
-        shape = RoundedCornerShape(6.dp),
+        shape = MaterialTheme.shapes.extraSmall,
         color = Color.Transparent,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
     ) {
         Text(
             text,
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelMedium.tabular(),
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
         )

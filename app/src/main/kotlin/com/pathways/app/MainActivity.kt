@@ -182,7 +182,12 @@ fun App(
                     },
                     throws = { rollLog.of(sheet.name) },
                 )
-                Screen.PATHWAY -> PathwayScreen(sheet, session, rollLog.dice(sheet.name, "Potion Consumption Roll")) { screen = Screen.SHEET }
+                Screen.PATHWAY -> PathwayScreen(
+                    sheet,
+                    session,
+                    rollLog.dice(sheet.name, "Potion Consumption Roll"),
+                    file = fileNumber(sheet, sheets),
+                ) { screen = Screen.SHEET }
                 Screen.BUILDER -> BuilderScreen(sheet, session) { screen = Screen.SHEET }
             }
         }
