@@ -6860,6 +6860,26 @@ on 960/2.0: it reads `minOf(screen, MAX_COLUMN_DP)`, the constant `Theme`
 draws the column with; seen stacking in landscape. **`d097ad8` and
 `84e52cd` are unreviewed by Codex**, which was out until 17:40.
 
+**Codex reviewed both at 18:00** (`codex exec`, gpt-6-astra, xhigh): its
+three questions clear (the column width, a stacked tap, the new test
+failing without the `minOf`), and one MEDIUM older than both: an unstacked
+`LedgerRow` centred its stepper beside a note a tap can wrap. Measured on
+the SM-T570 at font 1.65 (363 text-dp, unstacked), ST's `+` moved 72 dump
+px on one tap: 22 from its note going two lines to three, and 50 because
+that tap crossed the budget and `PointBudget`'s "Overspent: 103 of 100"
+line grew the pinned header. **That line is what 6ij's refusal above
+leaned on, so the refusal's reason was itself the fault.** Fixed in
+`266f35a`, design and diff both reviewed by Codex (two LOWs on the
+design, taken; the diff SHIP): name and stepper take `alignByBaseline()`,
+pinned to the row's top while the note centres and grows downward, and
+overspending is `surplus < 0` alone, the violation line a second
+predicate for the fact the budget card already prints (RED first in
+`PointBudgetTest`). The two cap lines stay: only picker dialogs cross
+them. Seen on the SM-T570: ST's stepper held y=607 across the crossing
+both ways, Will's `+` held as its note grew, and at 360 dp and font 2.0
+the card kept its height from "9 spare" to "21 over budget". 2003 Kotlin
+tests, unchanged.
+
 ### Next
 
 The plan's slice 8, the sweep: leftover Material defaults (`PathwayPotion`'s
