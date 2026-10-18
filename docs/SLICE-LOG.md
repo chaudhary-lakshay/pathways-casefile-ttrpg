@@ -6731,7 +6731,7 @@ resolution above, and then `Secret`, which has none.
 The plan's slice 7, built against frames 23-24
 (`~/Downloads/uxpilot-beyonder-codex/more/pages/23-24*.png`). Before it,
 **6ii's owed re-review ran**: Codex read `7f0ac87` and returned two
-MEDIUMs, both taken in `06854aa` (below), and slice 7 is `57dc064` with the review fix `d097ad8`.
+MEDIUMs, both taken in `06854aa` (below), and slice 7 is `57dc064` with the review fixes `d097ad8` and `84e52cd`.
 
 ### 6ii's re-review, closed
 
@@ -6805,11 +6805,11 @@ before and after. No rule, label in source, number or save field moved.
 
 ### Proof
 
-- 2001 Kotlin tests green (1481 `core:rules`, 497 `app`, 23
+- 2003 Kotlin tests green (1481 `core:rules`, 499 `app`, 23
   `core:model`), counted from fresh XML after deleting every `build/`;
-  366 Python. New: `BuilderLedgerTest` (11: pips at the frame's 76/90,
+  366 Python. New: `BuilderLedgerTest` (13: pips at the frame's 76/90,
   0, 89/90, 90/90, over, negative, a zero budget; the six short names and
-  the fallback; `ledgerStacks` at 390/1.0, 390/1.3, 600/1.3) and two
+  the fallback; `ledgerStacks` at 390/1.0, 390/1.3, 600/1.3, 960/2.0, 960/1.3) and two
   `RollFooterTest` cases. `ast-grep scan` clean.
 - SM-T570 over wireless adb, beside frames 23-24: the header, budget
   card, § heads, dashed attribute and secondary rows, wealth's ink chip,
@@ -6817,8 +6817,11 @@ before and after. No rule, label in source, number or save field moved.
   moved), Acting bought (rung stepper) and un-bought.
 - At 390 dp and font 1.3 (`wm density 492`): three faults found, above,
   and fixed; re-seen clean. Density and font restored after.
-- Not seen: over budget (red card), a bought skill with study recorded,
-  the language picker's CaseChips on device.
+- In landscape at font 2.0 (`user_rotation 1`): the ledger stacks, as
+  the column is 600 dp; restored to portrait and font 1.0 after.
+- Not seen: over budget (red card), the language picker's CaseChips,
+  and the Attack dialog's stepper (`AttackParts.kt`), whose value cell
+  takes the new 44 sp floor: unchanged at font 1.0, wider at 1.3.
 
 ### Review
 
@@ -6847,7 +6850,15 @@ at 360 dp and font 1.3 (`wm density 533`), the stepper kept its y. On the
 refusal it held the crossing but named two digit-change cases: one beside
 the label needs a budget of 200, and the budget cannot pass 115 (70 + 40
 + 5); the other, the stacked tag at about 330 dp and font 2.0, is closed
-by holding the tag to one line. **`d097ad8` is unreviewed by Codex.**
+by holding the tag to one line.
+
+The advisor, before closing, found `ledgerStacks` repeating the fault
+`06854aa` fixed in the footer: it read the SCREEN, but the builder is
+drawn in the 600 dp column, so the SM-T570 in landscape at font 2.0 read
+480 text-dp where the column gives 300. **Taken** in `84e52cd`, RED first
+on 960/2.0: it reads `minOf(screen, MAX_COLUMN_DP)`, the constant `Theme`
+draws the column with; seen stacking in landscape. **`d097ad8` and
+`84e52cd` are unreviewed by Codex**, which was out until 17:40.
 
 ### Next
 
