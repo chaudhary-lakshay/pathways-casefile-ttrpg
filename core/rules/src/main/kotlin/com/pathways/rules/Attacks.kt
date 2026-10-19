@@ -76,6 +76,8 @@ data class AttackPlan(
     val heroicCharge: Boolean = false,
     val strongBlow: Boolean = false,
     val giantStep: Boolean = false,
+    /** v6.9i's Escalation: a Pin on a target "already grappled and prone" gains +4. */
+    val pinOnGrappledProne: Boolean = false,
 )
 
 /**
@@ -192,7 +194,14 @@ object Attacks {
      * weapon in the book rolls damage, so nothing is dropped there.
      */
     fun withAttack(plan: AttackPlan, unarmed: UnarmedAttack?): AttackPlan =
-        if (unarmed == null || unarmed.wounds) plan else plan.copy(strongBlow = false)
+        (if (unarmed == null || unarmed.wounds) plan else plan.copy(strongBlow = false))
+            .let { if (unarmed?.attack == PIN) it else it.copy(pinOnGrappledProne = false) }
+
+    /** The Wrestling row Escalation speaks of. */
+    const val PIN = "Pin"
+
+    /** "gains +4 if the target is already grappled and prone" (v6.9i 2682). */
+    const val PIN_PRONE_BONUS = 4
 
     /**
      * [plan] moved onto a different maneuver, dropping what cannot come along.
@@ -381,6 +390,10 @@ object Attacks {
         return buildList {
             if (unarmed != null) {
                 situational("unarmed", unarmed.rollModifier, unarmed.attack)?.let(::add)
+                // Inert on any other attack: a stale flag must not throw on screen.
+                if (unarmed.attack == PIN && plan.pinOnGrappledProne) {
+                    situational("pin-prone", PIN_PRONE_BONUS, "target grappled & prone")?.let(::add)
+                }
             }
             // Heroic Charge cancels the charge penalty by not levying it.
             // ponytail: a ModEffect.Cancel or `supersedes` would show both

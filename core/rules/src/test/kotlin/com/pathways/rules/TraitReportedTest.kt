@@ -688,9 +688,7 @@ class TraitReportedTest {
         val quirk = Trait(swept.first().name, 1, TraitKind.QUIRK)
         assertEquals(emptyList<Any>(), SelfControl.checksFor(listOf(quirk)))
         assertEquals(TraitReport.UNREAD, TraitReport.reported(listOf(quirk)).single().reason)
-        // A self-control row something else reads keeps its clauses: the
-        // whole-cell sentence would be false of Loner's applied -1, which is
-        // a declared social chip since ruling 8, so nothing is left to report.
+        // Loner's -1 is a declared social chip since ruling 8: nothing left to report.
         assertEquals(
             emptyList<String>(),
             TraitReport.reported(listOf(advantage("Loner"))).map { it.printed },

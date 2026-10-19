@@ -588,4 +588,17 @@ class ActiveDefensesTest {
         // The scope the rule composes, and the limit it deliberately does not.
         assertTrue("vs. 1 melee attack per round" in bullet, bullet)
     }
+
+    /**
+     * v6.9i's "Being Pinned" (book 2683-2685): the victim "cannot attack,
+     * defend, or move", a refusal like the other three; the pinner "cannot
+     * Dodge or Retreat and Parries at -4", the constant the dialog applies.
+     */
+    @Test
+    fun `a pinned victim cannot defend, and the pinner parries at -4`() {
+        val state = ActiveDefenses.state(setOf(DefenseRefusal.PINNED), none)
+        assertTrue(!state.defends)
+        assertTrue("cannot attack, defend, or move" in state.printed!!)
+        assertEquals(-4, ActiveDefenses.PIN_HOLD_PARRY)
+    }
 }

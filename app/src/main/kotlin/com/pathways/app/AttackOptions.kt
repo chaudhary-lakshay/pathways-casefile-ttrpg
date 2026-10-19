@@ -153,6 +153,18 @@ internal fun AttackOptions(
                     minLines = 1,
                     modifier = Modifier.padding(vertical = 4.dp),
                 )
+                // v6.9i's Escalation: drawn wherever a Pin is on offer, live on
+                // the Pin alone, so picking it moves no row. The ST difference
+                // beside it needs the opponent's ST: the Modifier stepper's.
+                if (attacks.any { it.attack == Attacks.PIN }) {
+                    val isPin = unarmed?.attack == Attacks.PIN
+                    CaseChip(
+                        selected = isPin && plan.pinOnGrappledProne,
+                        enabled = isPin,
+                        onClick = { if (isPin) onPlan(plan.copy(pinOnGrappledProne = !plan.pinOnGrappledProne)) },
+                        label = { Text("Target grappled & prone +${Attacks.PIN_PRONE_BONUS}") },
+                    )
+                }
             }
             ArmedWith(weapons, armed, wieldedAt, onArmed)
             // Chips WRAP rather than scroll sideways: a horizontally scrolling Row

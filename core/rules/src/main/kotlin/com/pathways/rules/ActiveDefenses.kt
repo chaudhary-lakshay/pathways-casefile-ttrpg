@@ -22,6 +22,9 @@ enum class DefenseRefusal {
 
     /** A shot the target never saw coming. Ranged only, by its own sentence. */
     UNAWARE_RANGED,
+
+    /** v6.9i: "A pinned victim cannot attack, defend, or move" (2683). */
+    PINNED,
 }
 
 /**
@@ -102,6 +105,13 @@ data class DefenseState(
  * the model.
  */
 object ActiveDefenses {
+
+    /**
+     * "While maintaining a pin, the pinner cannot Dodge or Retreat and
+     * Parries at -4" (v6.9i 2684, pinned in test_tools_book_checks.py).
+     */
+    const val PIN_HOLD_PARRY = -4
+
 
     /** Ch. 3's Combat Reflexes: "never freeze in surprise". */
     const val NEVER_FREEZES = TraitEffects.COMBAT_REFLEXES

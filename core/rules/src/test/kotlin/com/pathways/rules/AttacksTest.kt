@@ -600,4 +600,24 @@ class AttacksTest {
         assertTrue(Damage.attacksFor("Escape").isEmpty())
         assertTrue(ContentLoader.unarmedAttacks().none { it.attack == "Escape" })
     }
+
+    /**
+     * v6.9i's Escalation (book 2681-2682): "A Pin requires an existing
+     * Grapple -- and gains +4 if the target is already grappled and prone",
+     * printed again in the Pin row's notes. A declaration, and inert on any
+     * other attack, so a stale flag cannot throw on the screen.
+     */
+    @Test
+    fun `a pin on a grappled, prone target gains +4`() {
+        val wrestling = ContentLoader.unarmedAttacks().filter { it.skill == "Wrestling" }
+        val pin = wrestling.single { it.attack == Attacks.PIN }
+        assertTrue("+4 if target grappled & prone" in pin.notes, pin.notes)
+        val plan = AttackPlan(pinOnGrappledProne = true)
+        assertEquals(listOf(-4, Attacks.PIN_PRONE_BONUS), Attacks.modifiers(plan, 12, pin).map { (it.effect as ModEffect.Flat).n })
+        assertEquals(4, Attacks.PIN_PRONE_BONUS)
+        val takedown = wrestling.single { it.attack == "Takedown" }
+        assertEquals(listOf(-1), Attacks.modifiers(plan, 12, takedown).map { (it.effect as ModEffect.Flat).n })
+        assertFalse(Attacks.withAttack(plan, takedown).pinOnGrappledProne)
+        assertTrue(Attacks.withAttack(plan, pin).pinOnGrappledProne)
+    }
 }

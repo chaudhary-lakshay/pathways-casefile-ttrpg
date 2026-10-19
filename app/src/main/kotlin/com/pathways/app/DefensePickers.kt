@@ -189,12 +189,14 @@ internal fun DiveControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun RetreatControl(taken: Boolean, bonus: Int, onToggle: () -> Unit) {
+internal fun RetreatControl(taken: Boolean, bonus: Int, holdingPin: Boolean = false, onToggle: () -> Unit) {
     DefenseNote(ActiveDefenses.printedRetreat())
     FlowRow {
         CaseChip(
             selected = taken,
-            onClick = { onToggle() },
+            // "the pinner cannot Dodge or Retreat" (v6.9i 2684).
+            enabled = !holdingPin,
+            onClick = { if (!holdingPin) onToggle() },
             // Named from the bullet's own verb, not from the rule's effect: the
             // GM ticks what the character DID, and every other chip on this
             // screen is worded that way.
@@ -397,6 +399,7 @@ private val REFUSAL_LABELS = mapOf(
     // other two look like a different rule.
     DefenseRefusal.ALL_OUT_ATTACK to "Forfeited last turn",
     DefenseRefusal.UNAWARE_RANGED to "Never saw the shot",
+    DefenseRefusal.PINNED to "Pinned",
 )
 
 /**

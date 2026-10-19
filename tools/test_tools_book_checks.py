@@ -384,3 +384,5 @@ def test_chapter_2_summary_and_chapter_5_disagree_on_four_defence_rules():
     # Extra parries: ch. 5 adds a rapier step ch. 2 does not print.
     assert "(-2 for fencing weapons like rapier, shortsword, or spear)" in book
     assert "Cumulative -4 per additional parry (-2 fencing, -1" in book
+    # And the pinner's own defences, which ActiveDefenses applies (v6.9i 2684).
+    assert "the pinner cannot Dodge or Retreat and Parries at -4" in book

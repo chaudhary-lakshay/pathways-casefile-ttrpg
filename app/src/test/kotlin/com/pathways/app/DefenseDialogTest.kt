@@ -64,7 +64,7 @@ class DefenseDialogTest {
             .filterNot { it.contains("$") }
             .toSet()
         assertEquals(
-            setOf("declared", "acrobatic", "dived", "retreated", "priorParries", "boost"),
+            setOf("declared", "acrobatic", "dived", "retreated", "holdingPin", "priorParries", "boost"),
             cleared,
         )
     }
@@ -529,5 +529,12 @@ class DefenseDialogTest {
         )
         assertEquals(listOf("Broadsword"), unskilledParriers(carried, mapOf(knifeKey to 11), mastery = null, dx = 10))
         assertTrue(unskilledParriers(carried, mapOf(knifeKey to 11, broadswordKey to 9), mastery = null, dx = 10).isEmpty())
+    }
+
+    /** A pin, held or suffered, is a per-round declaration like the refusals. */
+    @Test
+    fun `a new round clears a pin, which the GM declares again`() {
+        val pinned = RoundState(declared = setOf(com.pathways.rules.DefenseRefusal.PINNED), holdingPin = true)
+        assertEquals(RoundState(), pinned.newRound())
     }
 }

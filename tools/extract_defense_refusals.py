@@ -9,6 +9,8 @@ three different sections a page or more apart:
     the defence, directly above the defences table.
   UNAWARE_RANGED (2686-2688) is in the ranged-attack section, and wraps
     across three lines.
+  PINNED (v6.9i 2683-2685), the grappling prose's "Being Pinned", whose
+    second sentence also prices the pinner's own defences (Kotlin reads it).
 
 All three were UNCLAIMED by any content file when this was written -- they
 fall in the seams between extracted tables, which is the sweep direction 6ay
@@ -37,12 +39,12 @@ CHAPTER = "5"
 
 # One span per rule. Each is the whole sentence and nothing else: the lines
 # either side belong to rules other files already claim or deliberately leave.
-SPANS = [(2454, 2454), (2530, 2530), (2781, 2783)]
+SPANS = [(2454, 2454), (2530, 2530), (2781, 2783), (2683, 2685)]
 
 # The cause each span defines, in the order the spans are listed. The KEY is
 # what com.pathways.rules.DefenseRefusal names; the book prints no key, so
 # these are ours and the sentence is the book's.
-CAUSES = ["SURPRISE", "ALL_OUT_ATTACK", "UNAWARE_RANGED"]
+CAUSES = ["SURPRISE", "ALL_OUT_ATTACK", "UNAWARE_RANGED", "PINNED"]
 
 # The phrase that has to survive in each, so a re-parse that quietly widens or
 # truncates a sentence fails instead of shipping a rule that reads differently.
@@ -50,6 +52,7 @@ PINNED = {
     "SURPRISE": "cannot defend on it",
     "ALL_OUT_ATTACK": "unless you took an All-Out Attack maneuver",
     "UNAWARE_RANGED": "you cannot defend at all",
+    "PINNED": "A pinned victim cannot attack, defend, or move",
 }
 
 # maneuvers.json's own sentence, and the rows that must carry it.
@@ -87,13 +90,25 @@ def sentence(byn, start, end):
     return " ".join(parts)
 
 
+# Where a cause's sentence ends inside its span: "Being Pinned" runs on
+# into the PINNER's own sentence, a modifier (Parries at -4) and not a
+# refusal, which Kotlin reads from the book's words in ActiveDefenses.
+SENTENCE_ENDS = {"PINNED": "on their turn."}
+
+
 def parse(byn):
     if len(SPANS) != len(CAUSES):
         raise ValueError("every span defines exactly one cause")
-    return [
-        {"cause": cause, "printed": sentence(byn, start, end)}
-        for cause, (start, end) in zip(CAUSES, SPANS)
-    ]
+    rows = []
+    for cause, (start, end) in zip(CAUSES, SPANS):
+        text = sentence(byn, start, end)
+        stop = SENTENCE_ENDS.get(cause)
+        if stop is not None:
+            if stop not in text:
+                raise ValueError(f"{cause} no longer ends at {stop!r}: {text!r}")
+            text = text[: text.index(stop) + len(stop)]
+        rows.append({"cause": cause, "printed": text})
+    return rows
 
 
 FORFEIT_EFFORT = {"Feverish Defense — Variant Rule"}

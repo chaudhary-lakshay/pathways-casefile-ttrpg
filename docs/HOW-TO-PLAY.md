@@ -206,7 +206,9 @@ Untrained attacks are listed under your own skills: a fist (Brawling at DX-2, Bo
 
 **Shield** attacks with a shield bash. There is one chip for each shield size the book prices: *Light* thr-2 cr, *Medium* thr-1 cr, *Heavy* thr cr. The same chips appear under **Brawling** at -2.
 
-A Warrior, Pugilist or Weapon Master uses any weapon in hand at no less than DX. The weapon's parry also starts from DX. That is the app's reading: tap *Why a master's weapon parries at DX* in Defend to read it. Put the weapon down and the skill goes back to its own level. The Warrior's *"default +2"* for a weapon used often is not applied, because the book gives no number that fits all three pathways.
+A Warrior, Pugilist or Weapon Master uses any weapon in hand at no less than a floor over DX: a Warrior at DX, a Pugilist at DX+2 in melee and DX at range, a Weapon Master at DX+4. Once a weapon has been used repeatedly this session, tap *Used repeatedly this session (DX+2)*: a Warrior's weapon, or a Pugilist's ranged one, then counts at DX+2. The tick belongs to that weapon alone, and Defend's parry with it takes it too. Put the weapon down and the skill goes back to its own level.
+
+**Wrestling**'s *Pin* has a chip, *Target grappled & prone +4*. The *±1 per point of ST difference* needs your opponent's ST, so put it on the **Modifier** stepper.
 
 ### Defend
 
@@ -214,9 +216,10 @@ A Warrior, Pugilist or Weapon Master uses any weapon in hand at no less than DX.
 
 Defend has the most choices, because most of them are things only you know.
 
-- **New round** clears the free actions, the parry count and any bought +2. It does not clear a stun. A stun ends when the recovery roll says so. That roll is on **Vitals**, under the pools, with a **Clear** button for the GM.
-- **Can this character defend?** If you were surprised, used your last turn for an All-Out Attack, or never saw the shot, you get no defense. The app says which rule did it. Combat Reflexes cancels surprise only.
+- **New round** clears the free actions, the parry count, any bought +2 and the pin chips. It does not clear a stun. A stun ends when the recovery roll says so. That roll is on **Vitals**, under the pools, with a **Clear** button for the GM.
+- **Can this character defend?** If you were surprised, used your last turn for an All-Out Attack, never saw the shot, or are pinned, you get no defense. The app says which rule did it. Combat Reflexes cancels surprise only.
 - **Stunned** gives -4 to every defense.
+- **Holding a pin** is for the one doing the pinning: no Dodge, no Retreat, and every parry at -4.
 - **The attack coming in** is a bare hand, a weapon or a shot. A bare-hand parry is -3 against a weapon, and you cannot parry a shot.
 - **Parry (DX, bare hands)** is the unarmed parry: Brawling or DX, divided by 2, plus 3. Every character has it. Tap *Why the bare-hand parry is DX itself* for the reason. The row is hidden if your Brawling parry is already as good.
 - **Where the attack comes from** is front, side or rear. From the front, your shield's bonus counts. From the side, the book does not say, so the app shows both numbers and you decide.

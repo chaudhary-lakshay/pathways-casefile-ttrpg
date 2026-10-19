@@ -50,6 +50,8 @@ internal data class RoundState(
     val dived: Boolean = false,
     /** Whether the character gave ground: the third. */
     val retreated: Boolean = false,
+    /** v6.9i: this character is holding someone in a pin (no Dodge or Retreat, Parry -4). */
+    val holdingPin: Boolean = false,
     /**
      * Parries already made THIS ROUND. The book's cumulative penalty was
      * committed in defenses.json's own notes cell from 6g onward, shown to the
@@ -89,7 +91,11 @@ internal data class RoundState(
      */
     fun parried(): RoundState = copy(priorParries = priorParries + 1)
 
-    /** A fresh round: every value the two sentences govern, back to default. */
+    /**
+     * A fresh round: every value the two sentences govern, back to default.
+     * A pin, held or suffered, is declared like the refusals: the GM ticks it
+     * again for each round it lasts.
+     */
     fun newRound(): RoundState = RoundState()
 
     /**

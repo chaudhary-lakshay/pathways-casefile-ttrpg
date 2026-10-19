@@ -258,9 +258,11 @@ internal fun DefenseDialog(
     // there would be the same predicate at two sites.
     val diveBonus = ActiveDefenses.dive(round.dived, isRanged)
     // Three figures because the bullet prints three, against three named rows.
-    val retreatDodge = ActiveDefenses.retreat(round.retreated, !isRanged, ActiveDefenses.Retreat.DODGE)
-    val retreatParry = ActiveDefenses.retreat(round.retreated, !isRanged, ActiveDefenses.Retreat.PARRY)
-    val retreatBlock = ActiveDefenses.retreat(round.retreated, !isRanged, ActiveDefenses.Retreat.BLOCK)
+    // A pinner cannot Retreat (v6.9i 2684): a step taken before the pin counts for nothing.
+    val stepped = round.retreated && !round.holdingPin
+    val retreatDodge = ActiveDefenses.retreat(stepped, !isRanged, ActiveDefenses.Retreat.DODGE)
+    val retreatParry = ActiveDefenses.retreat(stepped, !isRanged, ActiveDefenses.Retreat.PARRY)
+    val retreatBlock = ActiveDefenses.retreat(stepped, !isRanged, ActiveDefenses.Retreat.BLOCK)
     // ORDINARY for every row, and that is not a flattening: chapter 8's nine
     // weapons are five firearms, a knife, a truncheon, a hand axe and a
     // broadsword, and none of them is a fencing weapon or a rapier. `Weapon`
@@ -269,7 +271,8 @@ internal fun DefenseDialog(
     // weapons can parry at all. The two other tiers stay modelled in
     // [ParryClass] for the GM's own smallsword, and the note under these rows
     // says on screen that they exist and that nothing here reaches them.
-    val parryPenalty = ParryBlock.parryPenalty(round.priorParries)
+    val parryPenalty = ParryBlock.parryPenalty(round.priorParries) +
+        if (round.holdingPin) ActiveDefenses.PIN_HOLD_PARRY else 0
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -358,11 +361,18 @@ internal fun DefenseDialog(
                     // points back up at it. Between the two, it sits with the
                     // defender's own kit rather than splitting the pair of
                     // pickers that describe the attack.
-                    RetreatControl(taken = round.retreated, bonus = retreatDodge) {
+                    // Drawn always, so ticking it moves no row (v6.9i 2684).
+                    CaseChip(
+                        selected = round.holdingPin,
+                        onClick = { round = round.copy(holdingPin = !round.holdingPin) },
+                        label = { Text("Holding a pin: no Dodge or Retreat, Parry ${ActiveDefenses.PIN_HOLD_PARRY}") },
+                    )
+                    RetreatControl(taken = stepped, bonus = retreatDodge, holdingPin = round.holdingPin) {
                         round = round.copy(retreated = !round.retreated)
                     }
                     ShieldPicker(shields, carried, coverage) { carried = if (it == carried) null else it }
-                    DefenseRow(
+                    // "the pinner cannot Dodge" (v6.9i 2684): the row is withdrawn, and says why.
+                    if (round.holdingPin) DefenseNote("Holding a pin: \"the pinner cannot Dodge\" (v6.9i 2684).") else DefenseRow(
                         "Dodge",
                         // The acrobatic ±2 and the Dive!'s +3 join the bought
                         // +2 on this row and nowhere else: both bullets name

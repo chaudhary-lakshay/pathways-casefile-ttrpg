@@ -12,6 +12,10 @@
    [
     2781,
     2783
+   ],
+   [
+    2683,
+    2685
    ]
   ]
  },
@@ -27,6 +31,10 @@
   {
    "cause": "UNAWARE_RANGED",
    "printed": "Dodging ranged attacks: You may Dodge normally. If you did not know the shot was coming (no visible wind-up, fired from concealment), you cannot defend at all — the bullet arrives before you can react. This is why Danger Sense and Spiritual Intuition are valuable."
+  },
+  {
+   "cause": "PINNED",
+   "printed": "Being Pinned: A pinned victim cannot attack, defend, or move, but may still shout, use mental or no-gesture SPI abilities, and attempt an Escape on their turn."
   }
  ]
 }
