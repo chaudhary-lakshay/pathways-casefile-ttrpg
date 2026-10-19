@@ -42,13 +42,10 @@ import com.pathways.rules.EffortBurn
 import com.pathways.rules.LedgerLine
 import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.SkillTarget
-import com.pathways.rules.SpiritualSenses
 import com.pathways.rules.SuccessDegree
 import com.pathways.rules.TraitClause
 import com.pathways.rules.TraitClauses
 import com.pathways.rules.content.CommonModifier
-import com.pathways.rules.content.SenseModifier
-import com.pathways.rules.content.SpiritualSense
 
 /**
  * Pick the circumstances, then roll.
@@ -62,7 +59,6 @@ import com.pathways.rules.content.SpiritualSense
 internal fun RollDialog(
     label: String,
     base: Int,
-    sense: SpiritualSense? = null,
     burnKind: BurnKind? = null,
     // What the mystical push may spend. Not the maximum and not what the
     // tracker shows: SPI already spent is gone, and 6ah's lesson is that
@@ -99,15 +95,9 @@ internal fun RollDialog(
     // rather than from a number chosen here.
     var burned by remember { mutableIntStateOf(0) }
     val chosen = remember { mutableStateListOf<CommonModifier>() }
-    // Chapter 4's own circumstances, for the two skills that print them.
-    val senseChosen = remember { mutableStateListOf<SenseModifier>() }
     // Which of this character's social circumstances the GM says hold. Keyed
     // on the clause, because Social Anxiety prints two that can both hold.
     val declaredClauses = remember { mutableStateListOf<String>() }
-    // Appendix A rows this sense's own price supersedes. Recomputed rather
-    // than stored, so a chip turned back off cannot leave a withheld row
-    // hidden -- the stale-state defect the boon dialog was fixed for.
-    val withheld = SpiritualSenses.displacedCommonModifiers(senseChosen.toList())
     // A GM's pick inside a printed range, keyed by situation. Rebuilt from the
     // current picks on every roll, so dropping a chip cannot leave its value
     // behind -- the stale-state defect the boon dialog was fixed for.
@@ -118,22 +108,15 @@ internal fun RollDialog(
     // rolls. This is the expression the click used to build, moved into the
     // draw, so every `require` behind it now runs while the dialog is on
     // screen. None can fire: each chip writes `chosen` and `gmValue` in one
-    // handler, a displaced row is hidden and purged, and the steps stay
-    // inside the printed span (traced by the design review).
+    // handler, and the steps stay inside the printed span (traced by the
+    // design review).
     val standing = targetFor(
         CommonModifiers.modifiers(
             chosen = chosen.toList(),
             gmValue = gmValue.filterKeys { key ->
                 chosen.any { it.situation == key }
             },
-        ) + listOfNotNull(CommonModifiers.gmRuling(gmRuling)) +
-            // Passed the general picks as well, so the double-charge is
-            // refused in rules even though the chips cannot produce it.
-            if (sense == null) emptyList() else SpiritualSenses.modifiers(
-                sense = sense,
-                chosen = senseChosen.toList(),
-                common = chosen.toList(),
-            ),
+        ) + listOfNotNull(CommonModifiers.gmRuling(gmRuling)),
         declaredClauses.toSet(),
     )
 
@@ -177,7 +160,6 @@ internal fun RollDialog(
                     // not move under a finger. What made it is listed under
                     // the chips, where it can grow.
                     TargetCard(standing)
-                    if (sense != null) SenseRow(sense, senseChosen, chosen, gmValue)
                     if (declarableClauses.isNotEmpty()) {
                         Text(
                             "Does any of this hold?",
@@ -200,7 +182,7 @@ internal fun RollDialog(
                             }
                         }
                     }
-                    CircumstanceRow(chosen, gmValue, withheld)
+                    CircumstanceRow(chosen, gmValue)
                     OptionStepper(
                         label = "Modifier",
                         value = gmRuling,
@@ -249,7 +231,7 @@ internal fun RollDialog(
                     }
                     return@Column
                 }
-                ResultCard(shownOut, sense)
+                ResultCard(shownOut)
                 // Ch. 2, p. 9: "You may use this after seeing the result."
                 // That is the whole reason this sits BELOW the result rather
                 // than beside the chips -- it is a decision made once the
@@ -315,18 +297,10 @@ internal fun RollDialog(
 private fun CircumstanceRow(
     chosen: MutableList<CommonModifier>,
     gmValue: MutableMap<String, Int>,
-    withheld: Set<String> = emptySet(),
 ) {
     SectionLabel("Circumstances (Appendix A)")
-    if (withheld.isNotEmpty()) {
-        Text(
-            "Chapter 4 prices being distracted or in combat itself, so " +
-                "Appendix A's general rows for it do not also apply.",
-            style = MaterialTheme.typography.bodySmall,
-        )
-    }
     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        CommonModifiers.offered().filterNot { it.situation in withheld }.forEach { row ->
+        CommonModifiers.offered().forEach { row ->
             val isOn = chosen.any { it.situation == row.situation }
             CaseChip(
                 selected = isOn,
@@ -372,53 +346,6 @@ private fun CircumstanceRow(
                     label = { Text(if (value > 0) "+$value" else "$value") },
                 )
             }
-        }
-    }
-}
-
-/**
- * Chapter 4's own circumstances, for the two skills that print them.
- *
- * "+6 Seer" is offered rather than applied. Seer is the Fool pathway's
- * SEQUENCE 9 NAME -- a Fool at Sequence 8 is a Clown -- so granting it to
- * anyone on the Fool pathway would author a rule the book did not print.
- * Same call as the Sealed Artifact grade table (6af): show it, do not gate.
- */
-@Composable
-private fun SenseRow(
-    sense: SpiritualSense,
-    senseChosen: MutableList<SenseModifier>,
-    chosen: MutableList<CommonModifier>,
-    gmValue: MutableMap<String, Int>,
-) {
-    SectionLabel("Circumstances (${sense.skill}, Ch. 4)")
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        SpiritualSenses.offered(sense).forEach { row ->
-            val isOn = senseChosen.any { it.situation == row.situation }
-            CaseChip(
-                selected = isOn,
-                onClick = {
-                    if (isOn) {
-                        senseChosen.removeAll { it.situation == row.situation }
-                    } else {
-                        senseChosen.add(row)
-                        // Drop any Appendix A pick this row now supersedes,
-                        // with the value a GM chose inside it. Leaving one
-                        // selected but hidden is how a withheld row gets
-                        // charged anyway.
-                        val displaced = SpiritualSenses
-                            .displacedCommonModifiers(senseChosen.toList())
-                        chosen.removeAll { it.situation in displaced }
-                        gmValue.keys.retainAll { it !in displaced }
-                    }
-                },
-                label = {
-                    Text(
-                        "${row.situation} " +
-                            if (row.modifier >= 0) "+${row.modifier}" else "${row.modifier}",
-                    )
-                },
-            )
         }
     }
 }

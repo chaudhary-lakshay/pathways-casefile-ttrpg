@@ -298,15 +298,6 @@ class SessionStore(private val file: File) {
         if (!file.exists()) return emptyMap()
         return runCatching {
             json.decodeFromString<Map<String, SavedSession>>(file.readText())
-                // A save written before ch. 9 p. 85 was applied can carry a
-                // purchase the book forbids. Dropped HERE, at the boundary,
-                // rather than at each reader: composition already skipped
-                // them, but the raw list is what the sheet's bought-skill
-                // rows iterate, so a stale entry came back as a rollable row
-                // the moment a potion granted the same skill.
-                .mapValues { (_, session) ->
-                    session.copy(edits = session.edits.withoutForbiddenPurchases())
-                }
         }.getOrElse { failure ->
             // A malformed or outdated save must not be a crash on launch. It
             // is dropped loudly here rather than quietly half-applied.

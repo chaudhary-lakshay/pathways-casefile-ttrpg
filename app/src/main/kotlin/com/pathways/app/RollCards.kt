@@ -44,10 +44,8 @@ import com.pathways.model.Outcome
 import com.pathways.model.RollResult
 import com.pathways.rules.SkillRollOutcome
 import com.pathways.rules.SkillTarget
-import com.pathways.rules.SpiritualSenses
 import com.pathways.rules.SuccessDegree
 import com.pathways.rules.SuccessRoll
-import com.pathways.rules.content.SpiritualSense
 
 /**
  * An AlertDialog's `text` slot at one height whatever it shows: the chips,
@@ -167,7 +165,6 @@ internal fun TargetCard(target: Int, baseTarget: Int, forbidden: Boolean = false
 @Composable
 internal fun ResultCard(
     out: SkillRollOutcome,
-    sense: SpiritualSense? = null,
     // Appendix A's success bands, which the skill roll prints. The attack
     // passes null: it never printed a band, and adding one is a rule claim.
     degree: SuccessDegree? = out.degree,
@@ -183,20 +180,6 @@ internal fun ResultCard(
         StampSheet {
             Stamp(label(shown, degree), colorFor(shown))
             DiceLine(roll)
-            // The skill's own table, when its chapter prints one. Read from
-            // the EFFECTIVE outcome, so a roll demoted by requiresCritical
-            // cannot come back carrying a success row -- the defect
-            // SkillRollOutcome.degree avoids one object over. A failure lands
-            // on no row, because chapter 4 prints none.
-            if (sense != null) {
-                val row = SpiritualSenses.rowFor(sense, shown, roll.margin)
-                Text(
-                    if (row != null) "${row.result} — ${row.effect}"
-                    else "${sense.skill} prints no row for this result.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-            }
         }
     }
     Column(Modifier.padding(top = 8.dp)) {

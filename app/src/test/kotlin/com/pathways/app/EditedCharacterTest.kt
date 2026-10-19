@@ -305,19 +305,15 @@ class EditedCharacterTest {
 
     @Test
     fun `a potion-granted skill is a row of its own`() {
-        // Ch. 9 p. 85 forbids buying the SPI skills, so a potion is their only
-        // route -- and the sheet listed one row per PUBLISHED skill and one
-        // per BOUGHT skill, which between them cannot show a granted one.
-        // 6aj opened this hole for bought skills and 6aq closed the purchase
-        // route, which re-opened it for exactly the skills chapter 4 prints
-        // result tables for.
+        // The sheet listed one row per PUBLISHED skill and one per BOUGHT
+        // skill, which between them cannot show a granted one.
         val fool = PotionDigestion
             .digestThrough(researcher.toCharacter(), "Fool", 9, ContentLoader.pathways())
             .skillLevels
         val granted = grantedSkills(researcher, SavedEdits(), fool).map { it.first.name }
 
-        assertTrue("Spiritual Intuition" in granted, "the Seer's sense, granted: $granted")
-        assertTrue("Divination Arts" in granted)
+        assertTrue("Divination Arts" in granted, "granted: $granted")
+        assertTrue("Ritualistic Magic" in granted, "granted: $granted")
         // Occultism is on the sheet already, so the potion raises the
         // published row rather than adding a second one beside it.
         assertTrue("Occultism" !in granted)

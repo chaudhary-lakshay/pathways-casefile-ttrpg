@@ -79,7 +79,7 @@ The pool card holds HP, FP and SPI, each with **−** and **+**. **+** is dark w
 The actions come in two sizes:
 
 - Four large buttons: **Attack**, **Defend**, **Damage** and **Pathway**.
-- Smaller words in brackets, such as *[ Fright ]*. The red ones are Beyonder powers: Ritual, Divine, Spirit Vision and Boon. Ritual, Divine and Spirit Vision appear only after a potion grants them. Spirit Vision uses the pathway's own name for it, for example *Eyes of Mystery Prying* for a Hermit. **Boon** is always there.
+- Smaller words in brackets, such as *[ Fright ]*. The red ones are Beyonder powers: Ritual, Divine, Spirit Vision, Intuition, Perception and Boon. Ritual appears when you have Ritualistic Magic. Spirit Vision appears when you hold the Spirit Vision advantage. Intuition and Perception appear for a Beyonder with at least 1 SPI left. **Divine** and **Boon** are always there.
 
 ### The bottom bar
 
@@ -130,7 +130,7 @@ Four sheets print SPI 9 with no pathway: Apothecary, Barmaid Brawler, Docks Boun
 
 ### Reference text
 
-Longer rule text in a dialog sits in a dashed box that is closed until you tap it. Examples are the shield rules, the incantation, and Spirit Vision's color key. Targets, costs and refusals always stay open.
+Longer rule text in a dialog sits in a dashed box that is closed until you tap it. Examples are the shield rules, the incantation, and Spirit Vision's pathway refinements. Targets, costs and refusals always stay open.
 
 ---
 
@@ -319,7 +319,11 @@ A granted boon is saved when you close the dialog. Its gains stay on the sheet n
 
 ### Spirit Vision and Detect
 
-**Spirit Vision** (the red chip, under your pathway's name for it) rolls the look into the spirit world. **Detect** rolls the detection checks, and applies a target's anti-divination counters. With Acute Vision, a chip offers *+2 to Vision rolls*. Tap it if the GM says it helps. A look that leaves your SPI at a third of its maximum or less gets *Spiritual Attrition -3*. A Light Sleeper gets +4 on Perception rolls while asleep.
+**Spirit Vision** has no roll. **Activate** charges 1 SPI, and the look lasts as long as you keep it open. The dialog shows the two color keys.
+
+**Intuition** and **Perception** roll 3d6 against your current SPI. At 1 SPI only a 3 or 4 succeeds. At a third of your maximum SPI or less, both get *Spiritual Attrition -3*.
+
+**Detect** rolls the detection checks, and applies a target's anti-divination counters. A Light Sleeper gets +4 on Perception rolls while asleep.
 
 ---
 

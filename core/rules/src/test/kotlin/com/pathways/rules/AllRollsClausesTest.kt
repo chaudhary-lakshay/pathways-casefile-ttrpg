@@ -134,11 +134,6 @@ class AllRollsClausesTest {
         )
         assertTrue("Addiction: Laudanum -2" in Detection.partsFor(spi = 0, per = 10, states = states))
         assertEquals(
-            SpiritVision.targetFor(per = 10) - 2,
-            SpiritVision.targetFor(per = 10, states = states),
-        )
-        assertTrue("Addiction: Laudanum -2" in SpiritVision.partsFor(per = 10, states = states))
-        assertEquals(
             ActiveDefenses.everyDefence(emptyList(), stunned = false, poolPenalty = 0) - 2,
             ActiveDefenses.everyDefence(emptyList(), stunned = false, poolPenalty = 0, states = -2),
         )

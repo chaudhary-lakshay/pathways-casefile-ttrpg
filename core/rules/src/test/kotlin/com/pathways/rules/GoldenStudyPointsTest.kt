@@ -1,7 +1,6 @@
 package com.pathways.rules
 
 import com.pathways.model.Attr
-import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
 import com.pathways.rules.content.ContentLoader
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -156,7 +155,7 @@ class GoldenStudyPointsTest {
     fun `the example's hours and money reproduce, and prove the cost is linear`() {
         val dx = 10
         fun step(points: Int) =
-            Study.plan(points, Difficulty.AVERAGE, dx, StudyMethod.TUTOR, ControllingAttribute.Buyable(Attr.DX)).getOrThrow()
+            Study.plan(points, Difficulty.AVERAGE, dx, StudyMethod.TUTOR).getOrThrow()
 
         // "12 hrs + 8s earns 1 study CP -> Guns-9"
         val first = step(0)
@@ -184,7 +183,7 @@ class GoldenStudyPointsTest {
         // "-> Guns-11 (Attr+1) -- the cap." The book calls it the cap in the
         // example and prints it again in the Limits, so a planner offering a
         // fourth step would contradict the page twice.
-        val refused = Study.plan(4, Difficulty.AVERAGE, 10, StudyMethod.TUTOR, ControllingAttribute.Buyable(Attr.DX))
+        val refused = Study.plan(4, Difficulty.AVERAGE, 10, StudyMethod.TUTOR)
         assertTrue(refused.isFailure)
         val reason = (refused.exceptionOrNull() as StudyRefusedException).reason
         assertTrue(reason.contains("11"), reason)

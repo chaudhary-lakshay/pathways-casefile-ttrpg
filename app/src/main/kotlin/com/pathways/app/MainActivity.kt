@@ -47,6 +47,7 @@ import com.pathways.rules.Divination
 import com.pathways.rules.Pool
 import com.pathways.rules.Pools
 import com.pathways.rules.SpiritVision
+import com.pathways.rules.SpiritualSenses
 import com.pathways.rules.PremadeSheet
 import com.pathways.rules.Premades
 import com.pathways.rules.RandomSource
@@ -353,14 +354,11 @@ internal fun SheetScreen(
     )
     val ritualLevel = ownedRitual
 
-    // Ch. 7.6. Gated on the character's OWN potion block, via the grants the
-    // extractor derives -- never on 7.6's own section C summary, which lists
-    // Visionary (whose Spectator block grants none) and omits Moon (whose
-    // Apothecary block grants it). A gate on the summary would hide the tile
-    // from the one premade in this corpus who has the ability.
-    val spiritVisionForm = drunk?.let { SpiritVision.formFor(it.pathway)?.takeIf { _ ->
-        SpiritVision.grantedTo(it.pathway, it.sequence)
-    } }
+    // Held through the advantage, never a pathway: "Pathway and Sequence do
+    // not grant access to it."
+    val hasSpiritVision = SpiritVision.isHeldBy(traits)
+    // Ch. 4's universal senses: any Beyonder, off at 0 SPI.
+    val sensesOffered = SpiritualSenses.isOffered(drunk != null, vitals.maxSpi - session.spiSpent)
 
     // The two pools whose penalties the book prints unscoped, derived ONCE:
     // the ledger below reads them for a skill and the bare rolls read them
@@ -507,7 +505,8 @@ internal fun SheetScreen(
                     SheetActions(
                         drunk = drunk,
                         ritualLevel = ritualLevel,
-                        spiritVisionForm = spiritVisionForm,
+                        hasSpiritVision = hasSpiritVision,
+                        sensesOffered = sensesOffered,
                         onPathways = onPathways,
                         onBuild = onBuild,
                         onOpen = { open = open + it },
@@ -614,7 +613,7 @@ internal fun SheetScreen(
         skillLevels = skillLevels,
         divination = divination,
         ritualLevel = ritualLevel,
-        spiritVisionForm = spiritVisionForm,
+        hasSpiritVision = hasSpiritVision,
         hpNow = hpNow,
         fpNow = fpNow,
         shockOnAttribute = shockOnAttribute,

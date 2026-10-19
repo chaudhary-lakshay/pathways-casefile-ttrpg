@@ -40,7 +40,6 @@ class StudyAdviceTest {
                     difficulty = skill.key.difficulty,
                     attributeLevel = attributeLevel,
                     method = method,
-                    attr = skill.key.attr,
                 )
                 plan.fold(
                     onSuccess = {
@@ -56,7 +55,6 @@ class StudyAdviceTest {
                         val expected = when (refusal.refusal) {
                             StudyRefusal.AT_CAP -> "at cap ${Study.capFor(attributeLevel)}"
                             StudyRefusal.NOT_POSSIBLE -> "not by self-study"
-                            StudyRefusal.NOT_BY_POINTS -> "not by points"
                             StudyRefusal.POTION_GRANTED -> "potion skill"
                             StudyRefusal.PAST_GRID -> "past the grid"
                         }

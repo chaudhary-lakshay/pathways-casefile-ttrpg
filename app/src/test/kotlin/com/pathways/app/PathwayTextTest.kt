@@ -26,18 +26,11 @@ class PathwayTextTest {
     }
 
     @Test
-    fun `the Seer's text is two abilities, and the active one lists what it sees`() {
+    fun `the Seer's text is one ability, and its sentences are not a list`() {
         val seer = ContentLoader.pathways().single { it.pathway == "Fool" && it.sequence == 9 }
         val paragraphs = abilityParagraphs(seer.ability)
-        assertEquals(listOf("Spirit Vision", "Danger Intuition"), paragraphs.map { it.heading })
-        val vision = paragraphs.first()
-        // "While active" opens the list, and is not a heading: its second
-        // word is lowercase, so it names nothing.
-        assertEquals(4, vision.items.size)
-        assertTrue(vision.items.first().startsWith("While active: sees non-physical entities"), vision.items.first())
-        assertTrue(vision.lead.endsWith("(costs 1 SPI per minute)."), vision.lead)
-        // Two clauses are a sentence, not a list.
-        assertTrue(paragraphs[1].items.isEmpty())
+        assertEquals(listOf("Danger Intuition"), paragraphs.map { it.heading })
+        assertTrue(paragraphs.single().items.isEmpty())
     }
 
     /** Seen on the tablet: Paper Weaponry's damage table sits in one parenthesis. */

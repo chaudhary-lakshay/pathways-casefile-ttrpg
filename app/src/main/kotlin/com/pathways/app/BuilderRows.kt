@@ -245,7 +245,6 @@ internal fun studyAdvice(
         difficulty = purchased.key.difficulty,
         attributeLevel = attributeLevel,
         method = method,
-        attr = purchased.key.attr,
         isPotionGranted = isPotionGranted,
     ).fold(
         onSuccess = { StudyAdvice("${it.printed} · ${it.pointsNeeded} CP → ${it.toLevel}", null) },
@@ -254,7 +253,6 @@ internal fun studyAdvice(
             val tag = when (refused.refusal) {
                 StudyRefusal.AT_CAP -> "at cap ${Study.capFor(attributeLevel)}"
                 StudyRefusal.NOT_POSSIBLE -> "not by ${method.label.lowercase()}"
-                StudyRefusal.NOT_BY_POINTS -> "not by points"
                 StudyRefusal.POTION_GRANTED -> "potion skill"
                 StudyRefusal.PAST_GRID -> PAST_GRID_TAG
             }

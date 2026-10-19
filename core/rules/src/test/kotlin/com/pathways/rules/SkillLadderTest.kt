@@ -74,63 +74,15 @@ class SkillLadderTest {
         assertEquals(Difficulty.AVERAGE, Difficulty.fromCode("A"))
     }
 
+    /**
+     * v6.9i drops the old ch. 9 "SPI-based skills cannot be raised with
+     * character points" and prints no SPI-controlled skill at all: Divination
+     * Arts is IQ/Hard, and the two senses are universal abilities. So every
+     * printed skill is bought the same way.
+     */
     @Test
-    fun `SPI-based skills cannot be bought with points`() {
-        // Ch. 9 p. 85: "Exception -- SPI-based skills (Spiritual Intuition,
-        // Spiritual Perception, Divination Arts) cannot be raised with
-        // character points. They improve only through Sequence progression
-        // and pathway bonuses."
-        assertFalse(SkillLadder.isBuyableWithPoints(ControllingAttribute.Spi))
-        listOf(
-            ControllingAttribute.Buyable(Attr.IQ),
-            ControllingAttribute.Buyable(Attr.DX),
-            ControllingAttribute.Will,
-            ControllingAttribute.Per,
-        ).forEach { assertTrue(SkillLadder.isBuyableWithPoints(it), "$it") }
-    }
-
-    @Test
-    fun `the sentence names three skills and the book prints exactly those three`() {
-        // This exact match is the WARRANT for reading the rule as a property
-        // of the controlling attribute rather than a list of three names. If
-        // a fourth SPI skill ever appears, or one of these three stops being
-        // SPI-based, the reading has to be made again rather than inherited
-        // -- the standard 6ad set, and 6v is why it must be per-table.
-        val spi = ContentLoader.skills().filter { it.attr == ControllingAttribute.Spi }
-        assertEquals(
-            listOf("Divination Arts", "Spiritual Intuition", "Spiritual Perception"),
-            spi.map { it.name }.sorted(),
-        )
-    }
-
-    @Test
-    fun `and the potions grant them, so the rule gates rather than forbids`() {
-        // Refusing the purchase would be a bug if nothing else could supply
-        // these skills -- the Divine button and both spiritual senses would
-        // become unreachable. Fifteen Sequence blocks grant one of the three,
-        // so the book's own route is intact: a Beyonder gets them, a mortal
-        // does not, which is the gate stated explicitly rather than left to
-        // the arithmetic of SPI 0.
-        val granted = ContentLoader.pathways()
-            .flatMap { it.skills }
-            .filter {
-                it.name in setOf(
-                    "Divination Arts", "Spiritual Intuition", "Spiritual Perception",
-                )
-            }
-        assertTrue(granted.size >= 15, "only ${granted.size} potion grants of the SPI skills")
-        assertTrue(granted.any { it.name == "Divination Arts" })
-    }
-
-    @Test
-    fun `Ritualistic Magic stays buyable, because it is not SPI-based`() {
-        // The ritual screen's whole gate is that no premade prints the skill
-        // and it must be bought (6e, 6f). It is IQ/Very Hard, so this rule
-        // does not touch it -- and confirming that is what stops the fix
-        // above from quietly removing rituals along with divination.
-        val ritual = ContentLoader.skills().single { it.name == "Ritualistic Magic" }
-        assertEquals(ControllingAttribute.Buyable(Attr.IQ), ritual.attr)
-        assertTrue(SkillLadder.isBuyableWithPoints(ritual.attr))
+    fun `no printed skill is SPI-controlled`() {
+        assertTrue(ContentLoader.skills().none { it.attr == ControllingAttribute.Spi })
     }
 
     /**

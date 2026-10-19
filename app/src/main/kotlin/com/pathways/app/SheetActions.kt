@@ -14,18 +14,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pathways.model.BeyonderState
+import com.pathways.rules.SpiritVision
 
 /** The sheet's dialogs a hub tile opens; [SheetScreen] holds which are open. */
 enum class SheetDialog {
     FRIGHT, CONCENTRATE, DETECT, ATTACK, DEFEND, DAMAGE, RITUAL, DIVINE, SPIRIT_VISION, BOON,
     /** The bare attribute rolls, opened from their Vitals rows (play session 4). */
     WILL_ROLL, PER_ROLL,
+    /** Ch. 4's universal senses, rolled against current SPI. */
+    INTUITION_ROLL, PERCEPTION_ROLL,
 }
 
 /** The dialog a Vitals row opens. */
 internal fun rollDialogFor(kind: AttributeRoll.Kind): SheetDialog = when (kind) {
     AttributeRoll.Kind.WILL -> SheetDialog.WILL_ROLL
     AttributeRoll.Kind.PER -> SheetDialog.PER_ROLL
+    AttributeRoll.Kind.INTUITION -> SheetDialog.INTUITION_ROLL
+    AttributeRoll.Kind.PERCEPTION -> SheetDialog.PERCEPTION_ROLL
 }
 
 /**
@@ -37,7 +42,8 @@ internal fun rollDialogFor(kind: AttributeRoll.Kind): SheetDialog = when (kind) 
 internal fun SheetActions(
     drunk: BeyonderState?,
     ritualLevel: Int?,
-    spiritVisionForm: String?,
+    hasSpiritVision: Boolean,
+    sensesOffered: Boolean,
     onPathways: () -> Unit,
     onBuild: () -> Unit,
     onOpen: (SheetDialog) -> Unit,
@@ -77,12 +83,14 @@ internal fun SheetActions(
             ActionChip("Divine", mystical = true) {
                 onOpen(SheetDialog.DIVINE)
             }
-            if (spiritVisionForm != null) {
-                // The pathway's OWN name for it: a Hermit's block writes
-                // "Eyes of Mystery Prying" and never "Spirit Vision".
-                ActionChip(spiritVisionForm, mystical = true) {
+            if (hasSpiritVision) {
+                ActionChip(SpiritVision.TRAIT, mystical = true) {
                     onOpen(SheetDialog.SPIRIT_VISION)
                 }
+            }
+            if (sensesOffered) {
+                ActionChip("Intuition", mystical = true) { onOpen(SheetDialog.INTUITION_ROLL) }
+                ActionChip("Perception", mystical = true) { onOpen(SheetDialog.PERCEPTION_ROLL) }
             }
             // Ungated: an absent chip read as a feature that did not work.
             // The dialog refuses the roll, and says why, without Ritualistic

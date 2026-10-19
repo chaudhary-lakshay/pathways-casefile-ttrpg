@@ -697,7 +697,9 @@ object TraitEffects {
             // The eighth: [SkillDefaults.offered] reads it for Physician at
             // IQ-2 (6gy). Its First Aid +1 already had it in [SKILL_BONUSES],
             // the second-route cover this KDoc records against Outdoorsman.
-            setOf(SkillDefaults.MEDICAL_TRAINING)
+            setOf(SkillDefaults.MEDICAL_TRAINING) +
+            // The ninth: [SpiritVision.isHeldBy] gates the sheet's tile on it.
+            setOf(SpiritVision.TRAIT)
 
     /** The traits reported whole, for the disjointness test. */
     fun unappliedNames(): Set<String> = UNAPPLIED.keys

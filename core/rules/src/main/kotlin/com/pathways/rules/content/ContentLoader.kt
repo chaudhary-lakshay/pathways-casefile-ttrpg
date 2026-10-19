@@ -272,10 +272,10 @@ object ContentLoader {
     fun glossary(): List<GlossaryEntry> = glossaryLazy
 
     /**
-     * Chapter 7.6's Spirit Vision guide (p. 77-78), whole.
+     * The Spirit Vision guide, whole.
      *
-     * `loadWhole`, because the file carries six sibling sections rather than
-     * one `entries` list. Read through [com.pathways.rules.SpiritVision].
+     * `loadWhole`, because the file carries sibling sections rather than one
+     * `entries` list. Read through [com.pathways.rules.SpiritVision].
      */
     fun spiritVision(): SpiritVisionFile = spiritVisionLazy
 

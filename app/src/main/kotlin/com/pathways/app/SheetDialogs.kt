@@ -30,8 +30,6 @@ import com.pathways.rules.SelfControlCheck
 import com.pathways.rules.Shock
 import com.pathways.rules.SkillDefaults
 import com.pathways.rules.SkillRoll
-import com.pathways.rules.SpiritVision
-import com.pathways.rules.SpiritualSenses
 import com.pathways.rules.StunRecovery
 import com.pathways.rules.TraitClauses
 import com.pathways.rules.TraitAttributeRolls
@@ -70,7 +68,7 @@ internal fun SheetDialogs(
     skillLevels: Map<SkillKey, Int>,
     divination: Divination.SkillOrDefault,
     ritualLevel: Int?,
-    spiritVisionForm: String?,
+    hasSpiritVision: Boolean,
     hpNow: PoolStatus,
     fpNow: PoolStatus,
     shockOnAttribute: Int,
@@ -195,10 +193,6 @@ internal fun SheetDialogs(
         RollDialog(
             label = skill.label,
             base = skill.base,
-            // Null for every skill but two. Chapter 4 prints a result table
-            // for Spiritual Intuition and Spiritual Perception and for
-            // nothing else, so the rest keep Appendix A's general ladder.
-            sense = SpiritualSenses.forSkill(skill.key),
             // Which pool may push this roll, decided by the skill's own
             // controlling attribute. Null for IQ, Will and Per, which the
             // book's two rows name neither of -- so no burn is offered
@@ -303,7 +297,13 @@ internal fun SheetDialogs(
         if (dialog in open) {
             AttributeRollDialog(
                 kind = kind,
-                level = if (kind == AttributeRoll.Kind.WILL) vitals.will else vitals.per,
+                level = when (kind) {
+                    AttributeRoll.Kind.WILL -> vitals.will
+                    AttributeRoll.Kind.PER -> vitals.per
+                    // "however much current SPI you have"
+                    AttributeRoll.Kind.INTUITION, AttributeRoll.Kind.PERCEPTION -> vitals.maxSpi - session.spiSpent
+                },
+                spi = spiNow(),
                 traits = traits,
                 shock = shockOnAttribute,
                 hurt = hurtOnAttribute,
@@ -507,27 +507,9 @@ internal fun SheetDialogs(
             onDismiss = { onClose(SheetDialog.DETECT) },
         )
     }
-    if (SheetDialog.SPIRIT_VISION in open && spiritVisionForm != null) {
+    if (SheetDialog.SPIRIT_VISION in open && hasSpiritVision) {
         SpiritVisionDialog(
-            form = spiritVisionForm,
-            // The ATTRIBUTE, not what is left in the pool -- the reading a
-            // wounded Detection roll already needed. Per is the roll; SPI is
-            // only what it costs.
-            per = vitals.per,
-            // "+1 per level to all Per rolls": this is one, as Detection is (6fe).
-            alertness = TraitAttributeRolls.alertnessBonus(traits),
-            // A sight by its own name: the GM says whether the eye's acuity
-            // reaches it (6fh).
-            visionClause = TraitClauses.visionClause(traits),
             spiAvailable = vitals.maxSpi - session.spiSpent,
-            shock = shockOnAttribute,
-            hurt = hurtOnAttribute,
-            states = states,
-            // Attrition is "-3 to all ... Beyonder ability checks", and the
-            // look is rolled once the activation is paid, as a divination's
-            // question is (ch. 6.5 Step 2, then Step 3).
-            spi = spiNow(SpiritVision.activation()),
-            dice = dice.dice("Spirit Vision"),
             // Through the tracker, so activating actually costs the point.
             onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
             onDismiss = { onClose(SheetDialog.SPIRIT_VISION) },

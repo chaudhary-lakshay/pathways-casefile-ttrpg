@@ -321,7 +321,7 @@ object Detection {
      * picked [awareness] row grants is one. The roll "any Beyonder [who]
      * suspects" makes (3809) has no ability behind it and takes nothing --
      * the owner's ruling (2026-10-16). Read off the pool's own
-     * [PoolStatus.penalty], as [SpiritVision.targetFor] reads it.
+     * [PoolStatus.penalty], as [AttributeRoll.targetFor] reads it for a sense.
      */
     fun attritionFor(pool: PoolStatus?, awareness: DivinationAwareness?): Int =
         if (awareness == null) 0 else pool?.takeIf { it.scope == PenaltyScope.SPI_ROLLS }?.penalty ?: 0

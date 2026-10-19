@@ -29,7 +29,7 @@ data class StudyPlan(
 }
 
 /** Which of the book's refusals it was, for a screen that tags the cause. */
-enum class StudyRefusal { NOT_BY_POINTS, POTION_GRANTED, NOT_POSSIBLE, AT_CAP, PAST_GRID }
+enum class StudyRefusal { POTION_GRANTED, NOT_POSSIBLE, AT_CAP, PAST_GRID }
 
 /** Carries the book's own sentence for why study offers nothing here. */
 class StudyRefusedException(val reason: String, val refusal: StudyRefusal) : IllegalStateException(reason)
@@ -115,36 +115,15 @@ object Study {
      * skills (Chapters 9-11) cannot be studied."* The caller knows which
      * skills a potion gave, because [PotionDigestion] computed them.
      *
-     * [attr] refuses it for a second, independent reason, and this object is
-     * where the two meet. Study earns *"1 character point locked to that
-     * skill"* -- the sentence the whole planner rests on -- and ch. 9 p. 85
-     * says SPI-based skills *"cannot be raised with character points"* (6aq).
-     * A currency this book forbids spending on a skill is still forbidden when
-     * it is earned over downtime, so the same [SkillLadder.isBuyableWithPoints]
-     * gate that withholds them from the builder withholds them here.
-     *
-     * It is deliberately NOT left to [isPotionGranted] to cover, even though
-     * every SPI skill in play today arrived by potion and would be refused
-     * anyway: that overlap is a fact about the premades, not a rule, and a
-     * caller passing the flag wrongly would silently buy back a prohibition.
-     * Enforced in rules, where it is tested.
      */
     fun plan(
         points: Int,
         difficulty: Difficulty,
         attributeLevel: Int,
         method: StudyMethod,
-        attr: ControllingAttribute,
         isPotionGranted: Boolean = false,
     ): Result<StudyPlan> {
         require(points >= 0) { "points spent cannot be negative; was $points" }
-        if (!SkillLadder.isBuyableWithPoints(attr)) {
-            return refuse(
-                StudyRefusal.NOT_BY_POINTS,
-                "Study earns character points, and this book does not let a " +
-                    "${attr.code}-based skill be raised with them.",
-            )
-        }
         if (isPotionGranted) {
             return refuse(StudyRefusal.POTION_GRANTED, "A potion granted this skill, and the book does not let it be studied.")
         }

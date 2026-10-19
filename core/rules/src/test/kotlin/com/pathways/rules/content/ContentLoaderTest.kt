@@ -152,13 +152,6 @@ class ContentLoaderTest {
         assertNull(SkillLadder.defaultFor(alchemy.difficulty, attributeLevel = 14))
     }
 
-    @Test
-    fun `at least one skill loads with the SPI controlling attribute`() {
-        val spiSkills = ContentLoader.skills().filter { it.attr == ControllingAttribute.Spi }
-        assertTrue(spiSkills.isNotEmpty(), "expected at least one SPI-controlled skill")
-        assertTrue(spiSkills.any { it.name == "Spiritual Intuition" })
-    }
-
     // ---------------------------------------------------------------
     // Skill attr/difficulty: resolving a fixture skill to a book entry (above)
     // only checks the NAME/specialization; nothing previously reconciled the

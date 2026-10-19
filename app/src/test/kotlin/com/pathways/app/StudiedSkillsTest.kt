@@ -53,12 +53,6 @@ class StudiedSkillsTest {
     }
 
     @Test
-    fun `study on a skill points cannot raise is dropped on load`() {
-        val loaded = SavedEdits(studied = listOf(studied("Divination Arts", 1))).withoutForbiddenPurchases()
-        assertEquals(emptyList<SavedSkill>(), loaded.studied)
-    }
-
-    @Test
     fun `recording study stores the count, and zero removes it`() {
         val (session, last) = session(sheet = bouncer)
         session.setStudied("Brawling", null, 2)

@@ -259,12 +259,8 @@ class SkillDefaultsTest {
 
         val before = SkillDefaults.offeredTo(mortal).associateBy { it.key.name to it.key.specialization }
         val after = SkillDefaults.offeredTo(seer).associateBy { it.key.name to it.key.specialization }
-        // Spiritual Perception is SPI/Average and no Seer block grants it.
-        val perception = "Spiritual Perception" to null
-        assertEquals(mortal.spi - 5, before.getValue(perception).level)
-        assertEquals(walked.effectiveSpi - 5, after.getValue(perception).level)
         // The potion's own grants are owned now, so they are not on offer.
-        for (granted in listOf("Spiritual Intuition", Divination.SKILL, Conditions.RITUAL_SKILL)) {
+        for (granted in listOf(Divination.SKILL, Conditions.RITUAL_SKILL)) {
             assertTrue(walked.skillLevels.keys.any { it.name == granted }, granted)
             assertNull(after[granted to null], granted)
         }
@@ -277,9 +273,10 @@ class SkillDefaultsTest {
             traits = mortal.traits +
                 com.pathways.model.Trait(TraitEffects.VERSATILE, 5, com.pathways.model.TraitKind.ADVANTAGE),
         )
+        val acrobatics = "Acrobatics" to null
         assertEquals(
-            before.getValue(perception).level + 1,
-            SkillDefaults.offeredTo(versatile).single { it.key.name == perception.first }.level,
+            before.getValue(acrobatics).level + 1,
+            SkillDefaults.offeredTo(versatile).single { it.key.name == acrobatics.first }.level,
         )
         // A potion that moves DX and Per moves every default hanging off
         // them: the Red Priest's Hunter is DX +2, Per +1. Per is read off the

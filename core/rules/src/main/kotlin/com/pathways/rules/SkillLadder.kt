@@ -69,32 +69,4 @@ object SkillLadder {
             else -> 0
         }
     }
-
-    /**
-     * Whether a skill controlled by [attr] may be bought with character points.
-     *
-     * Ch. 9, p. 85: *"Exception — SPI-based skills (Spiritual Intuition,
-     * Spiritual Perception, Divination Arts) cannot be raised with character
-     * points. They improve only through Sequence progression and pathway
-     * bonuses."*
-     *
-     * The sentence names three skills and `skills.json` prints **exactly**
-     * those three with `attr: "SPI"` -- 3 of 158. That exact match is what
-     * licenses reading the rule as a property of the controlling attribute
-     * rather than as a list of three special names, and `SkillLadderTest`
-     * pins it: the standard 6ad set and 6v is why it has to be per-table.
-     *
-     * This is the same reading [Attr] already encodes -- SPI "starts at 0 and
-     * cannot be raised by points", which is why it is not an [Attr] at all
-     * (4.4). The skills that hang off it inherit that, and the book says so
-     * out loud one chapter over. So a Beyonder gets them from potions and a
-     * mortal does not get them.
-     *
-     * ACQUIRING one, not attempting it: chapter 2's table gives every
-     * non-Very-Hard skill an untrained default, and no sentence exempts these
-     * ([SkillDefaults]). A mortal's SPI is 0, so theirs is a negative
-     * target -- which is not a gate: [SuccessRoll] still gives a 3 or a 4 its
-     * critical success.
-     */
-    fun isBuyableWithPoints(attr: ControllingAttribute): Boolean = attr != ControllingAttribute.Spi
 }

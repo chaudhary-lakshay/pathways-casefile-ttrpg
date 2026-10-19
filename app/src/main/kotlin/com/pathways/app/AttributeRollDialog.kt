@@ -22,6 +22,7 @@ import com.pathways.model.RollResult
 import com.pathways.model.Trait
 import com.pathways.rules.AttributeRoll
 import com.pathways.rules.ClauseBonus
+import com.pathways.rules.PoolStatus
 import com.pathways.rules.SuccessRoll
 import com.pathways.rules.TraitClauses
 
@@ -40,6 +41,8 @@ internal fun AttributeRollDialog(
     hurt: Int,
     /** The held rows' declared "-N to all rolls" (6gs); neither roll is physical. */
     states: ClauseBonus,
+    /** The pool now: Spiritual Attrition reaches a sense ([AttributeRoll.targetFor]). */
+    spi: PoolStatus? = null,
     onDismiss: () -> Unit,
 ) {
     val dice = LocalDice.current
@@ -62,7 +65,7 @@ internal fun AttributeRollDialog(
                 return@steadyBody
             }
             val fromTraits = TraitClauses.clauseBonus(clauses, declared)
-            val target = AttributeRoll.targetFor(kind, level, traits, shock, hurt, fromTraits.total + states.total + gm)
+            val target = AttributeRoll.targetFor(kind, level, traits, shock, hurt, fromTraits.total + states.total + gm, spi)
             Column {
                 Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
                     TargetCard(target, baseTarget = level)
@@ -75,7 +78,7 @@ internal fun AttributeRollDialog(
                     }
                 }
                 RollFooter(
-                    AttributeRoll.partsFor(kind, level, traits, shock, hurt) + listOfNotNull(
+                    AttributeRoll.partsFor(kind, level, traits, shock, hurt, spi) + listOfNotNull(
                         fromTraits.line,
                         states.line,
                         gm.takeIf { it != 0 }?.let { "GM ${signed(it)}" },

@@ -1,5 +1,6 @@
 package com.pathways.rules.content
 
+import com.pathways.model.Attr
 import com.pathways.model.ControllingAttribute
 import com.pathways.model.Difficulty
 import org.junit.jupiter.api.Test
@@ -34,14 +35,14 @@ class PathwayContentTest {
         assertEquals("Seer", seer.name)
         assertEquals(listOf(StatGain("SPI", 9.0)), seer.stats)
         assertEquals(
-            listOf("Ritualistic Magic", "Divination Arts", "Spiritual Intuition", "Occultism"),
+            listOf("Ritualistic Magic", "Divination Arts", "Occultism"),
             seer.skills.map { it.name },
         )
         val divination = seer.skills.single { it.name == "Divination Arts" }
-        assertEquals(ControllingAttribute.Spi, divination.attr)
+        assertEquals(ControllingAttribute.Buyable(Attr.IQ), divination.attr)
         assertEquals(Difficulty.HARD, divination.difficulty)
         assertEquals(3, divination.bonus)
-        assertTrue(seer.ability.startsWith("Spirit Vision: By expending 1 SPI"))
+        assertTrue(seer.ability.startsWith("Danger Intuition: Passive."))
         // Eidetic Memory is an advantage row, kept as prose -- see SequenceBlock
         assertTrue(seer.advantages.startsWith("Eidetic Memory"))
     }
