@@ -508,9 +508,9 @@ class SkillDefaultsTest {
     /**
      * **The level a carried weapon is wielded at, for its PARRY** (6ey): the
      * highest skill that arms it, floored in a master's hand at the line's
-     * IMMEDIATE melee level. READING: the Defend dialog takes no repeated-use
-     * declaration, so a Warrior parries at DX, a Pugilist at DX+2 and a
-     * Weapon Master at DX+4.
+     * melee level: a Warrior at DX, or DX+2 once the weapon is declared used
+     * repeatedly this session (book 5097; "Weapon Skill / 2 + 3", 2542), a
+     * Pugilist at DX+2 and a Weapon Master at DX+4.
      */
     @Test
     fun `a carried weapon is wielded at its best skill, floored in a master's hand`() {
@@ -528,6 +528,8 @@ class SkillDefaultsTest {
             assertEquals(floor, SkillDefaults.wieldedAt(broadsword, mapOf(key to 9), mastery, dx = 12))
             assertEquals(17, SkillDefaults.wieldedAt(broadsword, mapOf(key to 17), mastery, dx = 12))
         }
+        assertEquals(14, SkillDefaults.wieldedAt(broadsword, emptyMap(), SkillDefaults.WeaponMastery.WARRIOR, dx = 12, warmedUp = true))
+        assertEquals(16, SkillDefaults.wieldedAt(broadsword, emptyMap(), SkillDefaults.WeaponMastery.WEAPON_MASTER, dx = 12, warmedUp = true))
         val knife = Weapons.named("Combat Knife")
         val easy = SkillKey("Knife", null, ControllingAttribute.Buyable(Attr.DX), Difficulty.EASY)
         val average = easy.copy(difficulty = Difficulty.AVERAGE)

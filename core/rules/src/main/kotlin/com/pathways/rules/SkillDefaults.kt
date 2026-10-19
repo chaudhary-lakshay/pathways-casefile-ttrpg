@@ -243,14 +243,21 @@ object SkillDefaults {
      *
      * Line 2468 prints "Weapon Skill ÷ 2 + 3", and a master's weapon is
      * "treated as known at effective DX" or better, so that floor is the
-     * operand and a master's weapon parries untrained (6ey). READING: the
-     * Defend dialog takes no repeated-use declaration, so the floor is the
-     * immediate one. A non-master's weapon still needs a skill (6gz).
+     * operand and a master's weapon parries untrained (6ey). [warmedUp] is
+     * the declaration that this weapon was "used repeatedly in a session"
+     * (book 5097), which lifts a Warrior's floor to DX+2. A non-master's
+     * weapon still needs a skill (6gz).
      */
-    fun wieldedAt(weapon: CataloguedWeapon, skillLevels: Map<SkillKey, Int>, mastery: WeaponMastery?, dx: Int): Int? {
+    fun wieldedAt(
+        weapon: CataloguedWeapon,
+        skillLevels: Map<SkillKey, Int>,
+        mastery: WeaponMastery?,
+        dx: Int,
+        warmedUp: Boolean = false,
+    ): Int? {
         val own = Weapons.levelFor(weapon, skillLevels)
         if (mastery == null) return own
-        val floor = dx + mastery.bonusOverDx(isRanged = false, warmedUp = false)
+        val floor = dx + mastery.bonusOverDx(isRanged = false, warmedUp = warmedUp)
         return maxOf(own ?: floor, floor)
     }
 
