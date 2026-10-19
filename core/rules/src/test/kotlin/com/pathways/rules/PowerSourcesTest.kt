@@ -227,4 +227,28 @@ class PowerSourcesTest {
             assertEquals(weight.baseTime, rung.baseTime)
         }
     }
+
+    // ---- Revelation penalties (Ch. 9, v6.9i 4008-4024) -------------------
+
+    @Test
+    fun `petitioning the Seven Lights costs -20, less 5 per sacrifice, never a bonus`() {
+        val lights = PowerSources.revelationNamed("Seven Lights of the Divine Throne")
+        assertEquals(-20, PowerSources.revelationPenalty(lights, sacrifices = 0))
+        assertEquals(-10, PowerSources.revelationPenalty(lights, sacrifices = 2))
+        assertEquals(0, PowerSources.revelationPenalty(lights, sacrifices = 6))
+        assertThrows<IllegalArgumentException> { PowerSources.revelationPenalty(lights, sacrifices = -1) }
+        val declared = PowerSourceDeclaration(revelation = Revelation(lights, sacrifices = 1))
+        assertEquals(-15, PowerSources.modifierTotal(null, declared))
+    }
+
+    @Test
+    fun `a deity costs -40, and no sacrifice reduces it`() {
+        // "Reducible to -10 if the caster possesses the Blessed by Deity
+        // advantage": no advantage table prints that row, so no character
+        // holds it and nothing here reads it.
+        val deity = PowerSources.revelationNamed("Deities (Orthodox or Hidden)")
+        assertEquals(-40, PowerSources.revelationPenalty(deity, sacrifices = 0))
+        assertThrows<IllegalArgumentException> { PowerSources.revelationPenalty(deity, sacrifices = 1) }
+        assertTrue(ContentLoader.advantages().none { it.name.startsWith("Blessed by") })
+    }
 }

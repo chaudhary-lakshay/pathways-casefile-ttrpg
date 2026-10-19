@@ -1,5 +1,7 @@
 package com.pathways.app
 
+import com.pathways.rules.Revelation
+import com.pathways.rules.content.RitualRevelation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -166,6 +168,8 @@ fun RitualDialog(
     var invoked by remember { mutableStateOf(false) }
     var orthodox by remember { mutableStateOf(false) }
     var invocation by remember { mutableIntStateOf(PowerSources.INVOCATION_LOWEST) }
+    var revelation by remember { mutableStateOf<RitualRevelation?>(null) }
+    var sacrifices by remember { mutableIntStateOf(0) }
     // Injury and fatigue reach a ritual like any other roll; the CoR penalty
     // is NOT included in [conditionPenalty] because RitualResolution applies
     // it itself, and counting it twice would penalise a corrupted caster
@@ -178,6 +182,7 @@ fun RitualDialog(
         sacrifice = sacrifice,
         suspended = suspended,
         invocation = invocationApplied(invoked, orthodox, invocation),
+        revelation = revelation?.let { Revelation(it, if (it.perSacrifice != null) sacrifices else 0) },
     )
     // Not computed at all when the book forbids the attempt: Broken prints
     // "Cannot perform rituals in the language", and targetFor refuses it
@@ -312,6 +317,13 @@ fun RitualDialog(
                         shown = "+$burned",
                         note = "before rolling: 1 SPI buys +1, no cap, separate from the fuel",
                     ) { burned = (burned + it).coerceAtLeast(0) }
+                    RevelationPicker(
+                        revelation = revelation,
+                        sacrifices = sacrifices,
+                        onRevelation = { revelation = it },
+                        // Stepped from the live value, so two taps step twice.
+                        onSacrificeStep = { sacrifices = (sacrifices + it).coerceAtLeast(0) },
+                    )
                     SectionLabel(if (mode == RitualMode.QUICK) "Preparation" else "Preparation (Phase I)")
                     FlowRow {
                         preparations.forEach { option ->

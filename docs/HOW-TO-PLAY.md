@@ -294,6 +294,10 @@ Some cells print a range, such as *Good +1 to +2* or *Strong +2 to +3*. Picking 
 
 Pick *Invocation* to borrow an entity's power. The GM sets the bonus from +1 to +5 with the **Invocation** stepper. For an orthodox deity whose domain matches the request, with the caster in good standing, tap *Orthodox deity, in good standing*: the bonus is then +2. *Personal SPI* adds nothing.
 
+#### Petitioning for revelations
+
+A ritual that asks an entity for revelations takes that entity's penalty. Tap *Seven Lights of the Divine Throne -20* or *Deities (Orthodox or Hidden) -40*. For the Seven Lights, step **Sacrifices to appease**: each one reduces the penalty by 5, down to 0. A deity's penalty stays at -40, because the book's *Blessed by Deity* advantage is in no advantage table.
+
 A failure rolls on the failure table and a critical on its own table. You can push both. A roll of 17 or 18 cannot be pushed, because that result comes from the dice and not the margin.
 
 ### Divine

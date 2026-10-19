@@ -13,6 +13,7 @@ import com.pathways.rules.PowerSources
 import com.pathways.rules.RitualPacing
 import com.pathways.rules.content.LanguageProficiency
 import com.pathways.rules.content.RitualComplexity
+import com.pathways.rules.content.RitualRevelation
 import com.pathways.rules.content.RitualWeight
 
 /**
@@ -249,6 +250,50 @@ internal fun RitualPowerSourceChips(
                 signed(PowerSources.INVOCATION_HIGHEST)
         },
         onStep = { if (invoked && !orthodox) onInvocationStep(it) },
+    )
+}
+
+/**
+ * Ch. 9's Revelation Penalties (v6.9i 4008): the entity a ritual petitions
+ * for revelations. The sacrifice stepper is drawn from the start so a pick
+ * moves no row, and steps only for the Seven Lights, whose row prints one.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun RevelationPicker(
+    revelation: RitualRevelation?,
+    sacrifices: Int,
+    onRevelation: (RitualRevelation?) -> Unit,
+    onSacrificeStep: (Int) -> Unit,
+) {
+    SectionLabel("Petitioning for revelations")
+    FlowRow {
+        CaseChip(
+            selected = revelation == null,
+            onClick = { onRevelation(null) },
+            label = { Text("No entity") },
+            modifier = Modifier.padding(end = 8.dp),
+        )
+        PowerSources.revelations().forEach { row ->
+            CaseChip(
+                selected = revelation == row,
+                onClick = { onRevelation(row) },
+                label = { Text("${row.entity} ${row.penalty}") },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
+    }
+    val reduces = revelation?.perSacrifice != null
+    OptionStepper(
+        label = "Sacrifices to appease",
+        value = sacrifices,
+        shown = signed(revelation?.let { PowerSources.revelationPenalty(it, if (reduces) sacrifices else 0) } ?: 0),
+        note = when {
+            revelation == null -> "no entity petitioned"
+            reduces -> revelation.reduction
+            else -> "no sacrifice reduces it; Blessed by Deity is in no advantage table"
+        },
+        onStep = { if (reduces) onSacrificeStep(it) },
     )
 }
 

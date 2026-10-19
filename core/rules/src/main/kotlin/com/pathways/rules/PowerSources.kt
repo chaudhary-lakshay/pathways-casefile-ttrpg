@@ -2,6 +2,7 @@ package com.pathways.rules
 
 import com.pathways.rules.content.ContentLoader
 import com.pathways.rules.content.RitualComplexity
+import com.pathways.rules.content.RitualRevelation
 import com.pathways.rules.content.RitualWeight
 
 /**
@@ -28,7 +29,12 @@ data class PowerSourceDeclaration(
     val sacrifice: Int = 0,
     val suspended: Boolean = false,
     val invocation: Int? = null,
+    /** The entity petitioned for revelations, or null for a ritual that petitions none. */
+    val revelation: Revelation? = null,
 )
+
+/** A petition for revelations (v6.9i 4008): the entity, and the sacrifices made to it. */
+data class Revelation(val entity: RitualRevelation, val sacrifices: Int = 0)
 
 /**
  * Ritual power sources (Ch. 9 IV, v6.9i).
@@ -79,6 +85,25 @@ object PowerSources {
     fun complexities(): List<RitualComplexity> = ContentLoader.ritualComplexity()
 
     /** The rung named [name]; refused rather than defaulted. */
+    fun revelations(): List<RitualRevelation> = ContentLoader.ritualRevelation()
+
+    fun revelationNamed(name: String): RitualRevelation =
+        revelations().firstOrNull { it.entity == name }
+            ?: throw IllegalArgumentException("no revelation entity named '$name'")
+
+    /**
+     * The penalty petitioning [entity] puts on the Ritualistic Magic roll.
+     * The Seven Lights' "-5 per sacrifice" reduces it, READ as reaching 0
+     * and never a bonus. The deities' "-10 with Blessed by Deity" is not
+     * applied: no advantage table prints that row, so no character holds it.
+     */
+    fun revelationPenalty(entity: RitualRevelation, sacrifices: Int): Int {
+        require(sacrifices >= 0) { "sacrifices cannot be negative (was $sacrifices)" }
+        val per = entity.perSacrifice ?: 0
+        require(sacrifices == 0 || per > 0) { "${entity.entity} prints no reduction per sacrifice" }
+        return minOf(0, entity.penalty + per * sacrifices)
+    }
+
     fun complexityNamed(name: String): RitualComplexity =
         complexities().firstOrNull { it.complexity.equals(name, ignoreCase = true) }
             ?: throw IllegalArgumentException(
@@ -166,6 +191,7 @@ object PowerSources {
             participantBonus(declaration.assistants) +
             sacrificeBonus(declaration.sacrifice) +
             invocationBonus(declaration.invocation) +
-            (if (declaration.suspended) SUSPENSION_PENALTY else 0)
+            (if (declaration.suspended) SUSPENSION_PENALTY else 0) +
+            (declaration.revelation?.let { revelationPenalty(it.entity, it.sacrifices) } ?: 0)
     }
 }

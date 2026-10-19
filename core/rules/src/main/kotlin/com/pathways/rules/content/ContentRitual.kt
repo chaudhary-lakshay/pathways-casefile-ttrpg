@@ -39,6 +39,21 @@ data class RitualWeight(
  * name ([com.pathways.rules.PowerSources.complexityFor]). The fuel is the
  * weight's: this table prints no SPI.
  */
+/**
+ * One row of Ch. 9's Revelation Penalties (v6.9i 4008-4024): the entity a
+ * ritual petitions for revelations, its penalty, and what reduces it.
+ * [perSacrifice] is the Seven Lights' "-5 per sacrifice"; [reducibleTo] the
+ * deities' -10, which needs an advantage no table prints.
+ */
+@Serializable
+data class RitualRevelation(
+    val entity: String,
+    val penalty: Int,
+    val reduction: String,
+    val perSacrifice: Int? = null,
+    val reducibleTo: Int? = null,
+)
+
 @Serializable
 data class RitualComplexity(
     val complexity: String,
