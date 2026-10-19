@@ -168,8 +168,7 @@ object Divination {
      * Damage "-1 to all SPI-based rolls", and v6.9i prints no SPI-controlled
      * skill: Divination Arts is IQ/Hard. The SPI-4 default is the one roll
      * made OFF SPI, so it alone is SPI-based -- a reading of the word,
-     * recorded as one. The Divine tile and the Skills tab's untrained row
-     * both ask this, so the two cannot take different penalties.
+     * recorded as one.
      */
     fun keyFor(chosen: SkillOrDefault): SkillKey = SkillKey(
         SKILL,

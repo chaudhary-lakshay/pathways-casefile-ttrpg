@@ -209,6 +209,9 @@ fun RitualDialog(
     // the book says in its own sentence that it "does not grant a roll
     // bonus".
     val declaredSpi = PowerSources.spiOwed(cost, hpSacrificed)
+    // The HP as DRAWN beside that SPI: the state read in the handler could be
+    // a newer pick the printed cost never saw (Codex).
+    val declaredHp = hpSacrificed
 
     // The push window closes when the dialog does, and that is the ONE place
     // the pushed SPI and the outcome's consequences are charged. Both are read
@@ -510,7 +513,7 @@ fun RitualDialog(
                         // ritual off the Critical Failure Table altogether,
                         // so the row's price is read once, at [finish].
                         onSpendSpi(declaredSpi)
-                        if (hpSacrificed > 0) onSpendHp(hpSacrificed)
+                        if (declaredHp > 0) onSpendHp(declaredHp)
                     },
                 )
             }

@@ -65,18 +65,19 @@ class SkillDefaultsTest {
 
     /**
      * Every printed row, less the Very Hard ones ("No default -- cannot
-     * attempt untrained") and Wrestling ("No default").
+     * attempt untrained"), Wrestling ("No default") and Divination Arts,
+     * whose SPI-4 is rolled from the Divine tile alone.
      */
     @Test
-    fun `a character who owns nothing is offered 148 skills`() {
+    fun `a character who owns nothing is offered 147 skills`() {
         val all = ContentLoader.skills()
         assertEquals(156, all.size)
         assertEquals(7, all.count { it.difficulty == Difficulty.VERY_HARD })
         val rows = offered()
-        assertEquals(148, rows.size)
+        assertEquals(147, rows.size)
         assertTrue(rows.none { it.key.difficulty == Difficulty.VERY_HARD })
         assertTrue(rows.none { it.key.name == SkillDefaults.WRESTLING })
-        assertTrue(rows.any { it.key.name == Divination.SKILL })
+        assertTrue(rows.none { it.key.name == Divination.SKILL })
     }
 
     /**
@@ -168,20 +169,15 @@ class SkillDefaultsTest {
     private val medicalTraining = Trait(SkillDefaults.MEDICAL_TRAINING, 5, TraitKind.ADVANTAGE)
 
     /**
-     * **Divination Arts has one default, and it is the Divine tile's.** v6.9i
-     * prints "Default: Divination Arts defaults to SPI-4 (unskilled)", read
-     * as Brawling's line is: the skill's own line replaces the IQ/Hard
-     * table's IQ-6. One resolver, so the two screens cannot print two numbers
-     * for one roll.
+     * **Divination Arts is rolled from the Divine tile alone.** Its SPI-4
+     * default is a divination, which pays its method's SPI before the roll
+     * and takes the question's modifiers; a plain roll from this list would
+     * skip both (Codex). So it is withheld, and the list says so.
      */
     @Test
-    fun `Divination Arts defaults to SPI-4 and from nothing else`() {
-        val spi12: (ControllingAttribute) -> Int = { if (it == ControllingAttribute.Spi) 12 else 10 }
-        val row = SkillDefaults.offered(emptyMap(), spi12, 1, emptyList()).single { it.key.name == Divination.SKILL }
-        assertEquals(9, row.level)
-        assertEquals(ControllingAttribute.Spi, row.key.attr, "rolled off SPI, so SPI-based")
-        assertEquals(Divination.divinationLevelFor(null, 12, 1).level, row.level)
-        assertEquals("SPI-4, the book's own line for ${Divination.SKILL}, +1 ${TraitEffects.VERSATILE}", row.source)
+    fun `Divination Arts is withheld for the Divine tile`() {
+        assertTrue(offered().none { it.key.name == Divination.SKILL })
+        assertTrue(Divination.SKILL in SkillDefaults.NOT_LISTED, SkillDefaults.NOT_LISTED)
     }
 
     /**
@@ -201,7 +197,7 @@ class SkillDefaultsTest {
         val other = Difficulty.entries.first { it != knife.difficulty }
         val owned = mapOf(SkillKey("Knife", null, knife.attr, other) to 12)
         assertTrue(offered(owned).none { it.key.name == "Knife" })
-        assertEquals(147, offered(owned).size)
+        assertEquals(146, offered(owned).size)
     }
 
     /**
@@ -311,12 +307,12 @@ class SkillDefaultsTest {
 
     /**
      * What the list leaves out is said on the list, by name: a skill missing
-     * from 148 rows reads as an oversight unless the screen says it was
+     * from 147 rows reads as an oversight unless the screen says it was
      * withheld. The three names are the three ways a row is absent.
      */
     @Test
     fun `the list says what it leaves out and what it does not carry`() {
-        for (absent in listOf("Very Hard", SkillDefaults.WRESTLING)) {
+        for (absent in listOf("Very Hard", SkillDefaults.WRESTLING, Divination.SKILL)) {
             assertTrue(absent in SkillDefaults.NOT_LISTED, absent)
         }
         assertNull(SkillDefaults.weaponNote("Fool", 9))
@@ -346,8 +342,8 @@ class SkillDefaultsTest {
     @Test
     fun `an untrained row rolls through the shared path, negative or modified`() {
         val mortal = Premades.byName("Beat Cop").toCharacter()
-        // A mortal plays SPI 0, so Divination Arts' SPI-4 is below zero.
-        val perception = SkillDefaults.offeredTo(mortal).single { it.key.name == Divination.SKILL }
+        // At DX 2, Acrobatics' DX-6 is below zero.
+        val perception = offered(level = 2).single { it.key.name == "Acrobatics" }
         assertEquals(-4, perception.level)
         val three = SkillRoll.at("x", perception.level, perception.key, RandomSource { 1 })
         assertEquals(-4, three.target)

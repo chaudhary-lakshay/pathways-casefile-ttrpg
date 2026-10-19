@@ -33,9 +33,9 @@ import com.pathways.rules.content.SkillDefinition
  *
  * Boxing's "Default DX-5" agrees with the table and needs no row.
  *
- * Divination Arts is asked of [Divination.divinationLevelFor], the Divine
- * tile's resolver, never recomputed, so the two screens cannot print two
- * numbers for one roll.
+ * **Divination Arts is withheld for the Divine tile.** Its SPI-4 default is
+ * a divination, which pays its method's SPI before the roll and takes the
+ * question's modifiers; a plain roll from this list would skip both (Codex).
  *
  * **Not enforced: "any skill the GM rules requires specialist knowledge"**
  * (p. 10). That is a ruling per table, and this app records none, so the
@@ -84,7 +84,7 @@ object SkillDefaults {
      */
     const val NOT_LISTED =
         "Not listed: Very Hard skills and $WRESTLING, which the book gives no " +
-            "default. The GM may rule that a skill needs specialist " +
+            "default, and ${Divination.SKILL}, rolled from the Divine tile. The GM may rule that a skill needs specialist " +
             "knowledge before it can be attempted at all; this app records no " +
             "such ruling."
 
@@ -414,9 +414,7 @@ object SkillDefaults {
     }
 
     /**
-     * The row rolled at [key]'s default, or null where the book gives none.
-     * Divination Arts is rolled under [Divination.keyFor]'s SPI key, because
-     * its default is SPI-based and the skill is not.
+     * The row rolled at [key]'s default, or null where none is offered here.
      */
     private fun defaultOf(
         skill: SkillDefinition,
@@ -426,20 +424,12 @@ object SkillDefaults {
     ): Untrained? {
         val attribute = attributeLevel(skill.attr)
         return when (skill.name) {
-            WRESTLING -> null
             BRAWLING -> Untrained(
                 key,
                 attribute + BRAWLING_PENALTY + defaultBonus,
                 "${skill.attr.code}$BRAWLING_PENALTY, the book's own line for $BRAWLING",
             )
-            Divination.SKILL -> {
-                val chosen = Divination.divinationLevelFor(null, attributeLevel(ControllingAttribute.Spi), defaultBonus)
-                Untrained(
-                    Divination.keyFor(chosen),
-                    chosen.level,
-                    "SPI${Divination.DEFAULT_PENALTY}, the book's own line for ${Divination.SKILL}",
-                )
-            }
+            WRESTLING, Divination.SKILL -> null
             else -> {
                 val level = SkillLadder.defaultFor(skill.difficulty, attribute) ?: return null
                 Untrained(key, level + defaultBonus, "${skill.attr.code}${skill.difficulty.defaultPenalty}")

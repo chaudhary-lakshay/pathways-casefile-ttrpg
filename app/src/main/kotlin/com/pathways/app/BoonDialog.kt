@@ -234,6 +234,8 @@ fun BoonDialog(
     // covers more than the cost.
     var hpSacrificed by remember(spiChoice) { mutableIntStateOf(0) }
     val spiOwed = PowerSources.spiOwed(cost, hpSacrificed)
+    // The HP as DRAWN beside that SPI, for the handler (Codex).
+    val hpOwed = hpSacrificed
 
     // One place charges the push and the consequence and stores the grant,
     // off the FINAL outcome: see RitualDialog for why not at the roll.
@@ -465,7 +467,7 @@ fun BoonDialog(
                     // Spent whether or not the Great One grants it: "No
                     // effect. SPI and materials spent."
                     onSpendSpi(spiOwed)
-                    if (hpSacrificed > 0) onSpendHp(hpSacrificed)
+                    if (hpOwed > 0) onSpendHp(hpOwed)
                     // The CoR and the grant wait for [finish]: a push
                     // can take this off the Critical Failure Table, or
                     // onto a success.
