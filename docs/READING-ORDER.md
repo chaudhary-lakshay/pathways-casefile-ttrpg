@@ -195,6 +195,14 @@ potion.
 Each sentence as it stood in `CLAUDE.md`'s "where to start next"
 paragraph, line breaks included, newest first. The chain keeps five.
 
+Then 6ih
+(Case File slice 6, the pathway screen from frames 09-12, read from the
+HTML renders when the Figma MCP hit its plan limit; three rulings asked
+first: Drink offers the next potion on every rung, so every guard reads
+`drinkTarget`; the CoR ladder's four rungs under "From ritual work"; the
+hub legend left a note; a wrapped heading and three phone-width faults
+fixed on the SM-T570; Codex SHIP).
+
 Then 6ig
 (Case File slice 4, the gallery, New character and the glossary from
 frames 01, 05 and 07; four rulings asked first: a lost character's row
@@ -2603,8 +2611,11 @@ built, in 6df**, and 6df corrects the shape it proposed: the chip is not the
 `socialClauses` / `frightClauses` shape borrowed whole, because those lists are
 each pre-scoped to ONE roll site by their own cells and a Will clause is not.
 
-## Digest index, 6gj back to 6de
+## Digest index, 6gm back to 6de
 
+**6gm** — the builder: a skill row is name, level, points and a study tag naming the refusal's cause; the trait picker's tap opens a row and never buys;
+**6gl** — the Traits tab is a name, a price and a tag per row, `TraitReport.applied`, which says no less than the open row's notes; the header is tags;
+**6gk** — the potion text is verbatim, but three grants naming no listed skill had reached no screen; stored and shown now, and `abilityParagraphs` is display only;
 **6gj** — Absent-Mindedness's -3 is declared on every skill roll; Voice and Industrial Expertise are refused on Healer's reason, one constant, `PURPOSE_NOT_SKILL`;
 **6gi** — with no shot called the damage line read "×1.5 there"; it says *there* only for a called location, and the trait backlog is tabled: 125 unread rows;
 **6gh** — the speed refusal counted a flag and the swap filtered on it; one `Ranged.oneOf` answers both, and "behaviour-preserving" was false for a row with both flags;

@@ -6726,6 +6726,130 @@ green suite is mine.
 traits.** Behind it, in order of evidence rather than size: the Sense of Duty
 resolution above, and then `Secret`, which has none.
 
+## 6im. Rulebook v6.9i: the migration from v6.9d
+
+The owner replaced the rulebook with v6.9i (`Mr.Worms LOM TTRPG Rulebook
+v6.9i.pdf`) and asked for it to be followed literally: what the new PDF
+prints is applied everywhere, and what it dropped is removed, without
+ruling questions (sessions 1-8, 2026-10-19 to 10-20). Branch
+`rulebook-6.9i`, 33 local commits from `5c8f8f5` to `ce7caba`, NOT pushed
+and NOT merged. `build/extract/book.txt` is v6.9i now, so every line
+number below and in the KDoc from this branch is a v6.9i line.
+
+### Owner rulings (13, recorded in memory `rulebook-6-9i-rulings`)
+
+1. A potion skill with 0 points: base is the untrained default, then +N; a
+   skill with no default has no level until bought.
+2. Ritual and divination SPI burn works out of combat.
+3. The 23 premades are re-priced to v6.9i, not kept as disagreements.
+4. Build the four new rules: Revelation, Rest, Encumbrance, the contract.
+5. Every ritual assistant gives +1 (max +3), the caster counting first.
+6. Unarmed parry keeps ch. 5's "Brawling or DX".
+7. Local commits, no push.
+8. "social rolls" read as "social skill rolls".
+9. Encumbrance: the player types the weight carried.
+10. An orthodox deity's +2 IS the invocation value.
+11. No SPI spending floor: overspending charges Soul Debt.
+12. A power used at 0 SPI or below costs 1 CoR besides.
+13. The general SPI burn reaches every SPI-based or supernatural roll.
+
+### What changed, by subsystem
+
+- **Content.** Every extractor re-run on v6.9i. Seven files deleted with
+  the rules the book dropped (entity response, worked rituals, ritual
+  support, ritual sacrifice, divination scope and support, unique sealed
+  artifacts). New: `attribute_costs.json`, `encumbrance.json`,
+  `rest.json`, `ritual_revelation.json`, `ritual_contract.json`.
+- **Costs.** Attributes are flat (ST 10, DX/IQ/HT 20 a level). Will and
+  Per 10 a level. The skill ladder climbs 1, 2, 4, 8, 16, then +16 a level.
+- **Potions.** A skill grant is a +N modifier on the bought level, or on
+  the untrained default (`PotionGrants.skillBonuses`,
+  `SkillDefaults.unboughtLevel`). Nothing is frozen at digestion. The PCR
+  target is the table less 1 per CoR; drinking early costs 1d6 CoR.
+- **Burn.** FP and SPI are burned before the roll (+1 a point, no cap), FP
+  in combat for Fit and always for Very Fit; every post-roll push is gone.
+- **Divination, Spirit Vision, senses.** Divination Arts defaults to SPI-4.
+  Spirit Vision is an advantage that costs 1 SPI and rolls nothing. The two
+  senses roll 3d6 against current SPI.
+- **Traits.** Charisma's reaction clause, Very Fit's "lose FP at half
+  rate" and the Acting Method's doubling are gone; the Acting Method rolls
+  3d6% at session end. Two printed prerequisites gate the builder.
+  Warrior, Pugilist and Weapon Master read the new mastery lines; a weapon
+  declared "used repeatedly" lifts a Warrior's attack and parry to DX+2.
+- **New rules.** Revelation penalties on a ritual, encumbrance from the
+  typed weight, Short and Long Rest, the spirit world creature contract,
+  a starting Beyonder's 4d20% digestion, and 1 earned CP = 1% digestion.
+- **Fixtures.** `tools/reprice_sheets.py` runs inside `extract_sheets.py`:
+  each printed figure moves by the v6.9d-to-v6.9i price difference, so the
+  sheets' own arithmetic errors (Monastery Scholar, University Librarian)
+  and their 4.2 guard tests survive. Charity (10 -> 15, new cell) and
+  Acute Vision (2 -> 5) re-priced. Four sheets overspend at v6.9i's dearer
+  HT and are recorded in `overspentAtV69i` with a guard, never repaired.
+
+### Readings (the book does not settle these; each is in its KDoc)
+
+- Fit and Very Fit held together add +3 to HT rolls (both rows print a bonus).
+- A potion's +N on an unbought skill takes Versatile's +1, as every default does.
+- A bracketed grant on a skill the catalogue prints once and unspecialized
+  ("Ritualistic Magic (Mirror, Dowsing)") is that skill, under the bought key.
+- Medical Training's IQ-2 is the unbought base for Physician when better.
+- The Seven Lights' -5 per sacrifice stops at 0: the column reduces a
+  penalty and prints no bonus (Codex asked for the floor to go; refused).
+- "Blessed by Deity" is in no advantage table, so it cannot be bought; the
+  GM declares it with a chip, and a deity's -40 becomes -10.
+- A long rest's "All FP restored" ends full even from below 0 FP.
+- Encumbrance lowers Dodge before low FP halves it; past 15 x BL there is
+  no level and the load cannot be carried.
+- Rest heals no HP here (ch. 5's daily roll is the HP rule); one rest a
+  day and the focused-task rolls are the GM's.
+- The contract is a Ritualistic Magic roll with the CoR ladder; a critical
+  success below the target reads as "Success by 0 (exact)".
+- Earned character points, like study points, sit outside the 70-point
+  budget and bill nothing.
+- Only Divination Arts' SPI-4 default is SPI-based (session 5).
+
+### Refused, with the reason
+
+- Codex's design CHANGE on the potion slice (a potion-boosted default
+  labelled as the caster's own Divination Arts): the Skills tab lists that
+  skill as held at that level, so the label agrees with the sheet.
+- The Abyss "Unwinged Angel" firearm line: unchanged from v6.9d, so it is
+  outside this migration; listed in the weapon note, not applied.
+
+### Review
+
+Codex reviewed the burn slice (NO SHIP, two HIGH defence second-tap
+guards, fixed in `068f21e`/`0f8f113`), the potion design (one CHANGE,
+refused above), and `068f21e~1..bc27c41` (NO SHIP: four MEDIUM, one LOW,
+all fixed in `a6c8fd5`/`37fdfae`, each with a mutant RED first).
+Codex then reviewed `35647c9..d6a58d2` (the fixes and the four new
+rules): NO SHIP, three MEDIUM. Taken in `a791c17`: a long rest from below
+0 FP now ends full, and Blessed by Deity is declared. Refused: dropping
+the Seven Lights' floor (above). Codex re-reviewed `a791c17`: SHIP.
+
+### Counts
+
+Kotlin 1373 `core:rules` + 23 `core:model` + 507 `app` = 1903; Python 354;
+all green, `ast-grep scan` clean. 6il's 2005 and 366 fell because v6.9i
+deleted rules (entity response, push, sealed artifacts, divination scope
+and support, the spiritual-sense skills) and their tests went with them.
+
+### Device pass (SM-T570, 2026-10-20)
+
+The save was copied off first and written back byte-identical after both
+runs (`cmp`). Seen working: the builder's flat prices; Rest (Long +
+Cogitation: "+9 FP and +18 SPI", one rest for a double tap); Carrying
+(45 lbs on BL 20 reads "Medium: Move -2, Dodge -2", and Defend's Dodge
+fell from 8 to 6); with Ritualistic Magic bought, Contract (Ritualistic
+Magic 10 = 1 point at IQ-3 plus the waiting +3; one roll for a double
+tap, the 1d6 logged) and the revelation picker (-20, -15 with one
+sacrifice, -40, -10 declared). Two faults found and fixed in `a791c17`:
+the revelation note grew a line on a pick, and the contract footer grew
+one on a step, each moving the rows under a finger. Not seen on the
+device: the digestion tracker's two new rows and the Attack warm-up
+chip, which need a Beyonder below 100% and a Warrior; their logic is
+unit-tested. Owed: the merge and the push, both the owner's call.
+
 ## 6il. Case File, slice 8: every frame beside its screen
 
 The last item of the plan's slice 8: each of the 24 frames photographed
