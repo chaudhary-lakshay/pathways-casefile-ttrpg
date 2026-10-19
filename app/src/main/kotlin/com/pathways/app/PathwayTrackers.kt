@@ -33,6 +33,8 @@ import com.pathways.model.BeyonderState
 import com.pathways.model.DiceExpr
 import com.pathways.model.Trait
 import com.pathways.model.canDrink
+import com.pathways.rules.threeDSix
+import com.pathways.rules.RandomSource
 import com.pathways.rules.Corruption
 import com.pathways.rules.PcrOutcome
 import com.pathways.rules.PotionConsumption
@@ -406,3 +408,15 @@ internal fun corLadder(cor: Int): List<Pair<RitualCorThreshold, Boolean>> {
     val reached = Corruption.ritualThresholdsReached(cor).toSet()
     return ContentLoader.ritualCorThresholds().map { it to (it in reached) }
 }
+
+/**
+ * Knows the Acting Method's end-of-session roll (v6.9i): 3d6, read as the
+ * percentage of digestion gained on top of [BeyonderSession.act]'s. Rolled
+ * through [dice] so the roll log sees it; null for a stale second tap (6ei).
+ */
+internal fun BeyonderSession.actingMethodRoll(drawnDigestion: Int, dice: RandomSource): Int? {
+    // At 100% the clamp would leave the picture unchanged, so a second tap would roll again.
+    if (isLost || state?.digestion != drawnDigestion || drawnDigestion >= 100) return null
+    return dice.threeDSix().also(::digest)
+}
+
