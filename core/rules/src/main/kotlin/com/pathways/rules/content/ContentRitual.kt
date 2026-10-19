@@ -54,6 +54,34 @@ data class RitualRevelation(
     val reducibleTo: Int? = null,
 )
 
+/** Ch. 9 VI's Spirit World Creature Contract (v6.9i): one ritual, whole. */
+@Serializable
+data class RitualContract(
+    val difficulty: String,
+    val spi: Int,
+    val time: String,
+    val setup: String,
+    val maxContracts: Int,
+    val maxContractsScrollsProfessor: Int,
+    val methods: List<ContractMethod>,
+    val outcomes: List<ContractOutcome>,
+    val demands: String,
+)
+
+@Serializable
+data class ContractMethod(val method: String, val name: String, val text: String)
+
+/** A margin band ([from]..[to], open-ended when [to] is null) or a failure row. */
+@Serializable
+data class ContractOutcome(
+    val printed: String,
+    val outcome: String,
+    val from: Int? = null,
+    val to: Int? = null,
+    val failure: Boolean = false,
+    val critical: Boolean = false,
+)
+
 @Serializable
 data class RitualComplexity(
     val complexity: String,

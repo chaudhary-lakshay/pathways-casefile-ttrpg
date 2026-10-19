@@ -1,5 +1,6 @@
 package com.pathways.app
 
+import com.pathways.rules.SpiritContract
 import com.pathways.rules.AttributeRoll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -554,6 +555,24 @@ internal fun SheetDialogs(
             onSpendHp = { session.spend(Pool.HP, it, vitals.maxHp, maxCor) },
             onDismiss = { onClose(SheetDialog.RITUAL) },
         )
+    }
+    if (SheetDialog.CONTRACT in open && ritualLevel != null && drunk != null) {
+        ContractDialog(
+            skillLevel = ritualLevel,
+            // cor = 0, as the ritual's: the contract applies the CoR ladder itself.
+            conditionPenalty = conditionsFor(
+                key = SkillKey(Conditions.RITUAL_SKILL, null, ControllingAttribute.Buyable(Attr.IQ), Difficulty.VERY_HARD),
+                cor = 0,
+                withStates = false,
+            ).sumOf { (it.effect as ModEffect.Flat).n },
+            shock = shockOnSkill,
+            states = states,
+            cor = session.cor,
+            sequence = drunk.sequence,
+            maxContracts = SpiritContract.maxContracts(drunk),
+            dice = dice.dice("Contract"),
+            onSpendSpi = { session.spend(Pool.SPI, it, vitals.maxSpi, maxCor) },
+        ) { onClose(SheetDialog.CONTRACT) }
     }
     // Ungated: without Ritualistic Magic the dialog says what is missing,
     // where an absent chip read as a feature that did not work.

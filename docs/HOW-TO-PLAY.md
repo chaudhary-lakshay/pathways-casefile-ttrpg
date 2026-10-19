@@ -302,6 +302,11 @@ A ritual that asks an entity for revelations takes that entity's penalty. Tap *S
 
 A failure rolls on the failure table and a critical on its own table. You can push both. A roll of 17 or 18 cannot be pushed, because that result comes from the dice and not the margin.
 
+
+### Spirit contract
+
+A Beyonder with Ritualistic Magic has **Contract** on the sheet. It binds a spirit world creature. The penalty is your Sequence number, and each creature already under contract adds 1d6 more. Step **Creatures already under contract**: the most is 4, or 8 for a Hermit at Sequence 6 or lower (Scrolls Professor). Add any **Burn SPI**, then tap **Cast**. The extra dice are rolled with the roll, 3 SPI and the burn are spent, and the result names the creature's demands. The corruption ladder applies as on any ritual.
+
 ### Divine
 
 1. Pick the method and the difficulty.

@@ -25,6 +25,8 @@ enum class SheetDialog {
     INTUITION_ROLL, PERCEPTION_ROLL,
     /** Ch. 7's Short or Long Rest (v6.9i). */
     REST,
+    /** Ch. 9 VI's Spirit World Creature Contract (v6.9i). */
+    CONTRACT,
 }
 
 /** The dialog a Vitals row opens. */
@@ -79,6 +81,12 @@ internal fun SheetActions(
             if (ritualLevel != null) {
                 ActionChip("Ritual", mystical = true) {
                     onOpen(SheetDialog.RITUAL)
+                }
+            }
+            // A Beyonder's alone: the penalty is the Sequence, which a mortal has none of.
+            if (ritualLevel != null && drunk != null) {
+                ActionChip("Contract", mystical = true) {
+                    onOpen(SheetDialog.CONTRACT)
                 }
             }
             // Ungated: Divination Arts defaults to SPI-4 (ch. 8 I).

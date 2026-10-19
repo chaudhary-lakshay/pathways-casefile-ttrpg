@@ -134,6 +134,7 @@ object ContentLoader {
         load("ritual_complexity.json")
     }
     private val ritualRevelationLazy: List<RitualRevelation> by lazy { load("ritual_revelation.json") }
+    private val ritualContractLazy: List<RitualContract> by lazy { load("ritual_contract.json") }
     private val skillLadderLazy: SkillLadderTable by lazy {
         // One entry, because it is one table rather than a row set -- the
         // same shape boon_granting.json takes.
@@ -364,6 +365,9 @@ object ContentLoader {
 
     /** Ch. 9's Revelation Penalties. Read through [com.pathways.rules.PowerSources]. */
     fun ritualRevelation(): List<RitualRevelation> = ritualRevelationLazy
+
+    /** Ch. 9 VI's contract ritual. Read through [com.pathways.rules.SpiritContract]. */
+    fun ritualContract(): List<RitualContract> = ritualContractLazy
 
     /**
      * The skill cost ladder (Ch. 3, p. 25-26) --

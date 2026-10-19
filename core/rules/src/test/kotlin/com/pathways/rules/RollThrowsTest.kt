@@ -66,6 +66,10 @@ class RollThrowsTest {
         everyDieReported { Damage.roll(DamageRoll(DiceExpr(2, 6, 1), "pi"), it) }
 
     @Test
+    fun `a spirit contract reports its extra dice`() =
+        everyDieReported { SpiritContract.penaltyFor(sequence = 9, held = 3, max = 4, source = it) }
+
+    @Test
     fun `a bare table throw reports its dice with no target`() {
         val source = Recording(3)
         source.threeDSix()
